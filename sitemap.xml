@@ -2,630 +2,630 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://posit-dev.github.io/great-tables/examples/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.908Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.125Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_integer.html</loc>
-    <lastmod>2026-02-12T23:50:04.663Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.152Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.body.html</loc>
-    <lastmod>2026-02-12T23:50:05.094Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.547Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_number.html</loc>
-    <lastmod>2026-02-12T23:50:05.339Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.795Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_horizontal_padding.html</loc>
-    <lastmod>2026-02-12T23:50:05.243Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.698Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_percent.html</loc>
-    <lastmod>2026-02-12T23:50:05.394Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.851Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.as_raw_html.html</loc>
-    <lastmod>2026-02-12T23:50:05.301Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.756Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.pizzaplace.html</loc>
-    <lastmod>2026-02-12T23:50:05.480Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.941Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.stub.html</loc>
-    <lastmod>2026-02-12T23:50:05.074Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.527Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/md.html</loc>
-    <lastmod>2026-02-12T23:50:05.156Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.610Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_move_to_end.html</loc>
-    <lastmod>2026-02-12T23:50:04.994Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.451Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.show.html</loc>
-    <lastmod>2026-02-12T23:50:05.293Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.748Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.column_labels.html</loc>
-    <lastmod>2026-02-12T23:50:05.063Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.516Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.illness.html</loc>
-    <lastmod>2026-02-12T23:50:05.507Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.967Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_label_rotate.html</loc>
-    <lastmod>2026-02-12T23:50:04.975Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.432Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.with_locale.html</loc>
-    <lastmod>2026-02-12T23:50:05.151Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.605Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.countrypops.html</loc>
-    <lastmod>2026-02-12T23:50:05.467Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.927Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_engineering.html</loc>
-    <lastmod>2026-02-12T23:50:04.737Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.204Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.write_raw_html.html</loc>
-    <lastmod>2026-02-12T23:50:05.310Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.765Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.pipe.html</loc>
-    <lastmod>2026-02-12T23:50:05.324Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.779Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_scientific.html</loc>
-    <lastmod>2026-02-12T23:50:05.365Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.822Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_stylize.html</loc>
-    <lastmod>2026-02-12T23:50:05.267Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.723Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.header.html</loc>
-    <lastmod>2026-02-12T23:50:05.034Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.486Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_time.html</loc>
-    <lastmod>2026-02-12T23:50:04.812Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.272Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.sp500.html</loc>
-    <lastmod>2026-02-12T23:50:05.477Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.937Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_label.html</loc>
-    <lastmod>2026-02-12T23:50:04.966Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.423Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.column_header.html</loc>
-    <lastmod>2026-02-12T23:50:05.052Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.505Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.grand_summary_rows.html</loc>
-    <lastmod>2026-02-12T23:50:05.029Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.482Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_units.html</loc>
-    <lastmod>2026-02-12T23:50:04.853Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.312Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_table_font.html</loc>
-    <lastmod>2026-02-12T23:50:05.260Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.715Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_date.html</loc>
-    <lastmod>2026-02-12T23:50:05.440Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.898Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.grand_summary.html</loc>
-    <lastmod>2026-02-12T23:50:05.087Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.540Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_nanoplot.html</loc>
-    <lastmod>2026-02-12T23:50:04.902Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.363Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_time.html</loc>
-    <lastmod>2026-02-12T23:50:05.448Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.906Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/style.borders.html</loc>
-    <lastmod>2026-02-12T23:50:05.134Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.588Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_all_caps.html</loc>
-    <lastmod>2026-02-12T23:50:05.231Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.685Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.footer.html</loc>
-    <lastmod>2026-02-12T23:50:05.098Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.551Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.save.html</loc>
-    <lastmod>2026-02-12T23:50:05.286Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.743Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_source_note.html</loc>
-    <lastmod>2026-02-12T23:50:04.485Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.009Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.sub_zero.html</loc>
-    <lastmod>2026-02-12T23:50:04.940Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.401Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_move_to_start.html</loc>
-    <lastmod>2026-02-12T23:50:04.988Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.444Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_percent.html</loc>
-    <lastmod>2026-02-12T23:50:04.688Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.171Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/style.fill.html</loc>
-    <lastmod>2026-02-12T23:50:05.109Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.561Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_roman.html</loc>
-    <lastmod>2026-02-12T23:50:04.787Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.250Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_datetime.html</loc>
-    <lastmod>2026-02-12T23:50:04.835Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.296Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_currency.html</loc>
-    <lastmod>2026-02-12T23:50:04.762Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.223Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.html</loc>
-    <lastmod>2026-02-12T23:50:04.438Z</lastmod>
+    <lastmod>2026-02-12T23:51:58.962Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/html.html</loc>
-    <lastmod>2026-02-12T23:50:05.161Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.615Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.gibraltar.html</loc>
-    <lastmod>2026-02-12T23:50:05.500Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.960Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/from_column.html</loc>
-    <lastmod>2026-02-12T23:50:05.167Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.621Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/define_units.html</loc>
-    <lastmod>2026-02-12T23:50:05.184Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.638Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_width.html</loc>
-    <lastmod>2026-02-12T23:50:04.954Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.415Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_style.html</loc>
-    <lastmod>2026-02-12T23:50:04.492Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.016Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.grand_summary_stub.html</loc>
-    <lastmod>2026-02-12T23:50:05.069Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.522Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.reactions.html</loc>
-    <lastmod>2026-02-12T23:50:05.510Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.970Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/index.html</loc>
-    <lastmod>2026-02-12T23:50:04.360Z</lastmod>
+    <lastmod>2026-02-12T23:51:58.886Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.sza.html</loc>
-    <lastmod>2026-02-12T23:50:05.471Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.931Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_table_outline.html</loc>
-    <lastmod>2026-02-12T23:50:05.250Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.705Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/introduction-0.18.0/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.878Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.095Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/design-philosophy/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.857Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.075Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/introduction_great_tables.html</loc>
-    <lastmod>2026-02-12T23:48:46.878Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.096Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/pointblank-intro/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.888Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.106Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/plots-in-tables/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.888Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.105Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/locbody-mask/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.880Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.098Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/pycon-2024-great-tables-are-possible/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.893Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.110Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/open-transit-tools/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.887Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.105Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/introduction-0.13.0/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.878Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.095Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/introduction-0.4.0/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.878Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.096Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/tables-for-scientific-publishing/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.901Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.118Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.876Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.094Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/basic-header.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/overview.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/colorizing-with-data.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/table-theme-options.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/contributing.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/loc-selection.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/table-theme-premade.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/row-selection.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/basic-formatting.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/technical-notes.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/extensions.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/column-selection.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/nanoplots.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/basic-styling.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/targeted-styles.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/basic-stub.html</loc>
-    <lastmod>2026-02-12T23:48:46.909Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/get-started/basic-column-labels.html</loc>
-    <lastmod>2026-02-12T23:48:46.908Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.127Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/bring-your-own-df/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.849Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.068Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/polars-styling/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.892Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.110Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/latex-output-tables/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.880Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.098Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/superbowl-squares/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.900Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.118Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/marimo-and-great-tables/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.885Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.103Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/polars-dot-style/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.890Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.107Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/introduction-0.15.0/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.878Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.095Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/rendering-images/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.893Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.112Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/introduction-0.2.0/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.878Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.095Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/introduction-0.12.0/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.877Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.094Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/blog/introduction-0.3.0/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.878Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.095Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_vertical_padding.html</loc>
-    <lastmod>2026-02-12T23:50:05.237Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.692Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_spanner.html</loc>
-    <lastmod>2026-02-12T23:50:04.456Z</lastmod>
+    <lastmod>2026-02-12T23:51:58.981Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.title.html</loc>
-    <lastmod>2026-02-12T23:50:05.038Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.491Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_bytes.html</loc>
-    <lastmod>2026-02-12T23:50:04.778Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.240Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_icon.html</loc>
-    <lastmod>2026-02-12T23:50:04.878Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.338Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_scientific.html</loc>
-    <lastmod>2026-02-12T23:50:04.710Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.187Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.gtcars.html</loc>
-    <lastmod>2026-02-12T23:50:05.474Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.934Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_tf.html</loc>
-    <lastmod>2026-02-12T23:50:04.823Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.284Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_header.html</loc>
-    <lastmod>2026-02-12T23:50:04.445Z</lastmod>
+    <lastmod>2026-02-12T23:51:58.970Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.with_id.html</loc>
-    <lastmod>2026-02-12T23:50:05.145Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.599Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_engineering.html</loc>
-    <lastmod>2026-02-12T23:50:05.379Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.836Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_number.html</loc>
-    <lastmod>2026-02-12T23:50:04.643Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.138Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.constants.html</loc>
-    <lastmod>2026-02-12T23:50:05.503Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.963Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.stubhead.html</loc>
-    <lastmod>2026-02-12T23:50:05.047Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.500Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_css.html</loc>
-    <lastmod>2026-02-12T23:50:05.275Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.731Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/style.css.html</loc>
-    <lastmod>2026-02-12T23:50:05.140Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.593Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.spanner_labels.html</loc>
-    <lastmod>2026-02-12T23:50:05.057Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.510Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_integer.html</loc>
-    <lastmod>2026-02-12T23:50:05.351Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.806Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_merge.html</loc>
-    <lastmod>2026-02-12T23:50:05.020Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.473Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/google_font.html</loc>
-    <lastmod>2026-02-12T23:50:05.173Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.627Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_spanner_delim.html</loc>
-    <lastmod>2026-02-12T23:50:04.467Z</lastmod>
+    <lastmod>2026-02-12T23:51:58.990Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_markdown.html</loc>
-    <lastmod>2026-02-12T23:50:04.842Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.303Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.nuclides.html</loc>
-    <lastmod>2026-02-12T23:50:05.517Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.977Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.peeps.html</loc>
-    <lastmod>2026-02-12T23:50:05.490Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.950Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_stub.html</loc>
-    <lastmod>2026-02-12T23:50:04.474Z</lastmod>
+    <lastmod>2026-02-12T23:51:58.997Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt.html</loc>
-    <lastmod>2026-02-12T23:50:04.912Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.371Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.photolysis.html</loc>
-    <lastmod>2026-02-12T23:50:05.513Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.973Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.films.html</loc>
-    <lastmod>2026-02-12T23:50:05.493Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.954Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_unhide.html</loc>
-    <lastmod>2026-02-12T23:50:05.010Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.464Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_image.html</loc>
-    <lastmod>2026-02-12T23:50:05.463Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.922Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/style.text.html</loc>
-    <lastmod>2026-02-12T23:50:05.123Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.576Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.row_groups.html</loc>
-    <lastmod>2026-02-12T23:50:05.080Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.533Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.exibble.html</loc>
-    <lastmod>2026-02-12T23:50:05.484Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.944Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_hide.html</loc>
-    <lastmod>2026-02-12T23:50:05.000Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.457Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_date.html</loc>
-    <lastmod>2026-02-12T23:50:04.799Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.261Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_row_striping.html</loc>
-    <lastmod>2026-02-12T23:50:05.224Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.678Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_roman.html</loc>
-    <lastmod>2026-02-12T23:50:05.417Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.876Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_align_table_header.html</loc>
-    <lastmod>2026-02-12T23:50:05.218Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.673Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/nanoplot_options.html</loc>
-    <lastmod>2026-02-12T23:50:05.212Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.666Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_markdown.html</loc>
-    <lastmod>2026-02-12T23:50:05.453Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.913Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/system_fonts.html</loc>
-    <lastmod>2026-02-12T23:50:05.179Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.633Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_options.html</loc>
-    <lastmod>2026-02-12T23:50:04.624Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.119Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_bytes.html</loc>
-    <lastmod>2026-02-12T23:50:05.431Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.889Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_move.html</loc>
-    <lastmod>2026-02-12T23:50:04.982Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.439Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_flag.html</loc>
-    <lastmod>2026-02-12T23:50:04.887Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.348Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.cols_align.html</loc>
-    <lastmod>2026-02-12T23:50:04.946Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.408Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.towny.html</loc>
-    <lastmod>2026-02-12T23:50:05.487Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.947Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.fmt_image.html</loc>
-    <lastmod>2026-02-12T23:50:04.864Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.324Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.sub_missing.html</loc>
-    <lastmod>2026-02-12T23:50:04.932Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.393Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_stubhead.html</loc>
-    <lastmod>2026-02-12T23:50:04.480Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.003Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.as_latex.html</loc>
-    <lastmod>2026-02-12T23:50:05.317Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.772Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/data.metro.html</loc>
-    <lastmod>2026-02-12T23:50:05.497Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.957Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.subtitle.html</loc>
-    <lastmod>2026-02-12T23:50:05.043Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.496Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.data_color.html</loc>
-    <lastmod>2026-02-12T23:50:04.925Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.385Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/loc.source_notes.html</loc>
-    <lastmod>2026-02-12T23:50:05.103Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.556Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_currency.html</loc>
-    <lastmod>2026-02-12T23:50:05.410Z</lastmod>
+    <lastmod>2026-02-12T23:51:59.868Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/articles/intro.html</loc>
-    <lastmod>2026-02-12T23:48:46.843Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.061Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/examples/gt-extras-gini/index.html</loc>
-    <lastmod>2026-02-12T23:48:46.907Z</lastmod>
+    <lastmod>2026-02-12T23:50:39.125Z</lastmod>
   </url>
 </urlset>
