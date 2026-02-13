@@ -926,7 +926,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 def opt_all_caps(
     self: GTSelf,
     all_caps: bool = True,
-    locations: str | list[str] = ["column_labels", "stub", "row_group"],
+    locations: str | list[str] | None = None,
 ) -> GTSelf:
     """
     Option to use all caps in select table locations.
@@ -1005,7 +1005,7 @@ def opt_all_caps(
     # `Loc | list[Loc] = [LocColumnLabels, LocStub, LocRowGroups]`
     from great_tables._locations import Loc, LocColumnLabels, LocRowGroups, LocStub
 
-    if not locations:
+    if locations is None:
         locations = [LocColumnLabels, LocStub, LocRowGroups]
 
     # If providing a Loc object, normalize it to be in a list
