@@ -143,8 +143,12 @@ def fmt(
 
     # If a single function is supplied to `fns` then
     # repackage that into a list as the `default` function
-    if isinstance(fns, Callable):
-        fns = FormatFns(default=fns)
+    if not isinstance(fns, Callable):
+        raise TypeError("Input to fns= should be a callable.")
+    elif isinstance(fns, FormatFns):
+        pass
+    else:
+        fns: FormatFns = FormatFns(default=fns)
 
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]
