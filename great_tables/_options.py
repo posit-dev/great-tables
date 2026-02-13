@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, ClassVar, Iterable, cast
 
@@ -7,6 +8,7 @@ from . import _utils
 from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
 
 if TYPE_CHECKING:
+    from ._locations import Loc
     from ._types import GTSelf
 
 
@@ -926,7 +928,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 def opt_all_caps(
     self: GTSelf,
     all_caps: bool = True,
-    locations: str | list[str] | None = None,
+    locations: type[Loc] | list[type[Loc]] | str | list[str] | None = None,
 ) -> GTSelf:
     """
     Option to use all caps in select table locations.
@@ -1001,16 +1003,30 @@ def opt_all_caps(
     ```
     """
     # Importing `great_tables._locations` at the top will cause a circular import error.
-    # The type annotation for `locations` should be:
-    # `Loc | list[Loc] = [LocColumnLabels, LocStub, LocRowGroups]`
     from great_tables._locations import Loc, LocColumnLabels, LocRowGroups, LocStub
 
     if locations is None:
         locations = [LocColumnLabels, LocStub, LocRowGroups]
 
-    # If providing a Loc object, normalize it to be in a list
+    # If providing a single value, normalize it to be in a list
     if not isinstance(locations, list):
         locations = [locations]
+
+    # Support legacy string-based locations for backward compatibility
+    _str_to_loc: dict[str, type[Loc]] = {
+        "column_labels": LocColumnLabels,
+        "stub": LocStub,
+        "row_groups": LocRowGroups,
+    }
+
+    if any([isinstance(x, str) for x in locations]):
+        locations = [_str_to_loc[x] for x in locations]
+        warnings.warn(
+            "Using string-based locations in `opt_all_caps()` is deprecated and support will be "
+            "removed in a future release. Please use the location classes from `great_tables.loc` "
+            "instead (e.g., `loc.column_labels`, `loc.stub`, and `loc.row_groups`).",
+            DeprecationWarning,
+        )
 
     # Ensure that all values within `locations` are valid
     # A `try-except` block is needed here because the first argument of `issubclass()` must be a

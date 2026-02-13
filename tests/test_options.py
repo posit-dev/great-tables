@@ -762,10 +762,10 @@ def test_opt_all_caps(gt_tbl: GT):
 
 
 def test_opt_all_caps_raises(gt_tbl: GT):
-    with pytest.raises(AssertionError) as exc_info:
-        gt_tbl.opt_all_caps(locations="column_labels")
+    with pytest.raises(ValueError, match="Invalid location string"):
+        gt_tbl.opt_all_caps(locations="invalid_location")
 
-    assert (
-        "Only `loc.column_labels`, `loc.stub` and `loc.row_groups` are allowed in the locations."
-        in exc_info.value.args[0]
-    )
+
+def test_opt_all_caps_string_deprecated(gt_tbl: GT):
+    with pytest.warns(DeprecationWarning, match="string-based locations"):
+        gt_tbl.opt_all_caps(locations="column_labels")
