@@ -8,7 +8,7 @@ from . import _utils
 from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
 
 if TYPE_CHECKING:
-    from ._locations import Loc
+    from ._locations import LocColumnLabels, LocRowGroups, LocStub
     from ._types import GTSelf
 
 
@@ -928,7 +928,13 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 def opt_all_caps(
     self: GTSelf,
     all_caps: bool = True,
-    locations: type[Loc] | list[type[Loc]] | str | list[str] | None = None,
+    locations: type[LocColumnLabels]
+    | type[LocRowGroups]
+    | type[LocStub]
+    | list[type[LocColumnLabels] | type[LocRowGroups] | type[LocStub]]
+    | str
+    | list[str]
+    | None = None,
 ) -> GTSelf:
     """
     Option to use all caps in select table locations.
