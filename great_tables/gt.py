@@ -51,7 +51,6 @@ from ._options import (
 from ._pipe import pipe
 from ._render import infer_render_env_defaults
 from ._render_checks import _render_check
-from ._row_groups import update_group_row_labels
 from ._source_notes import tab_source_note
 from ._spanners import (
     cols_hide,
@@ -322,11 +321,7 @@ class GT(
         new_body.render_formats(self._tbl_data, self._substitutions, context)
 
         # Update group row labels with formatted values when a row_group column exists
-        rowgroup_var = self._boxhead._get_row_group_column()
-        if rowgroup_var:
-            new_stub = update_group_row_labels(self._stub, new_body, self._tbl_data, rowgroup_var)
-        else:
-            new_stub = self._stub
+        new_stub = self._stub.update_group_row_labels(new_body, self._tbl_data, self._boxhead)
 
         return self._replace(_body=new_body, _stub=new_stub)
 

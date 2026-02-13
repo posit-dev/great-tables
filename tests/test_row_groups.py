@@ -3,7 +3,6 @@ import pytest
 
 from great_tables import GT
 from great_tables._gt_data import Body, GroupRowInfo, GroupRows, Stub, RowInfo
-from great_tables._row_groups import update_group_row_labels
 
 
 @pytest.fixture
