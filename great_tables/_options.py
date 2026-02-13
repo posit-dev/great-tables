@@ -1020,16 +1020,16 @@ def opt_all_caps(
     }
 
     if any([isinstance(x, str) for x in locations]):
-        invalid = [x for x in locations if isinstance(x, str) and x not in _str_to_loc]
-        if invalid:
-            raise ValueError(f"Invalid location string: {invalid[0]!r}")
-        locations = [_str_to_loc[x] for x in locations]
         warnings.warn(
             "Using string-based locations in `opt_all_caps()` is deprecated and support will be "
             "removed in a future release. Please use the location classes from `great_tables.loc` "
             "instead (e.g., `loc.column_labels`, `loc.stub`, and `loc.row_groups`).",
             DeprecationWarning,
         )
+        invalid = [x for x in locations if isinstance(x, str) and x not in _str_to_loc]
+        if invalid:
+            raise ValueError(f"Invalid location string: {invalid[0]!r}")
+        locations = [_str_to_loc[x] for x in locations]
 
     # Ensure that all values within `locations` are valid
     # A `try-except` block is needed here because the first argument of `issubclass()` must be a
