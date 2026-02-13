@@ -20,6 +20,11 @@ pip install great_tables
 
 ## A Basic Table using **Great Tables**
 
+::: {.callout-note}
+The example below requires the Pandas library to be installed. But Pandas is not required to
+use Great Tables. You can also use a Polars DataFrame.
+:::
+
 Let’s use a subset of the `islands` dataset available within `great_tables.data`:
 
 ```{python}
@@ -40,6 +45,10 @@ gt_tbl
 ```
 
 That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
+
+::: {.callout-note}
+Typically we use Great Tables in an notebook environment or within a Quarto document. Tables won't print to the console, but using the `~~GT.show()` method on a table object while in the console will open the HTML table in your default browser.
+:::
 
 ## **Polars** DataFrame support
 

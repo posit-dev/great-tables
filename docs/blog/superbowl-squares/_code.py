@@ -41,10 +41,10 @@ away = team_final_digits(games, "SF")
 # Cross and multiply p(digit | team=KC)p(digit | team=SF) to get
 # the joint probability p(digit_KC, digit_SF | KC, SF)
 joint = (
-    home.join(away, on="final_digit", how="cross")
+    home.join(away, how="cross")
     .with_columns(joint=pl.col("prop") * pl.col("prop_right"))
     .sort("final_digit", "final_digit_right")
-    .pivot(values="joint", columns="final_digit_right", index="final_digit")
+    .pivot(values="joint", on="final_digit_right", index="final_digit")
     .with_columns((cs.exclude("final_digit") * 100).round(1))
 )
 

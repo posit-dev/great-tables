@@ -132,6 +132,13 @@ p,h1,h2,h3,#toc-title,#toc-function-reference,.nav-link,.table {
 	}
 }
 
+.nav-link.active {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-decoration-color: rgba(222, 238, 250, 0.75);
+    text-underline-offset: 4px;
+}
+
 #navbarCollapse > ul.navbar-nav.navbar-nav-scroll.ms-auto > li > a {
     background-color: white;
     border-radius: 3px;

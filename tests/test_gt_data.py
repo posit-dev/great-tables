@@ -1,4 +1,5 @@
 import pandas as pd
+from great_tables import GT
 from great_tables._gt_data import Boxhead, ColInfo, RowInfo, Stub
 
 
@@ -31,7 +32,8 @@ def test_stub_order_groups():
     stub2 = stub.order_groups(["c", "a", "b"])
     assert stub2.group_ids == ["c", "a", "b"]
 
-    assert stub2.group_indices_map() == [(3, "c"), (1, "a"), (0, "b"), (2, "b")]
+    indice_labels = [(ii, info.defaulted_label()) for ii, info in stub2.group_indices_map()]
+    assert indice_labels == [(3, "c"), (1, "a"), (0, "b"), (2, "b")]
 
 
 def test_boxhead_reorder():
@@ -39,3 +41,10 @@ def test_boxhead_reorder():
     new_boxh = boxh.reorder(["b", "a", "c"])
 
     assert new_boxh == Boxhead([ColInfo("b"), ColInfo("a"), ColInfo("c")])
+
+
+def test_google_font_imports_is_set():
+    gt_table = GT(pd.DataFrame())
+    from great_tables._helpers import GoogleFontImports
+
+    assert isinstance(gt_table._google_font_imports, GoogleFontImports)

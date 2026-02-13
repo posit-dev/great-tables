@@ -99,7 +99,9 @@ def test_cols_align_columns_list_of_str():
 
 
 def test_cols_align_pl_expr():
-    df = pl.DataFrame({"col1": [1, 2], "col2": [3.3, 4.4], "c": ["x", "y"]})
+    df = pl.DataFrame({"col1": [1, 2], "col2": [3.3, 4.4], "c": ["x", "y"]}).with_columns(
+        pl.col("col1").cast(pl.UInt8).alias("d")
+    )
     table = gt.GT(df)
 
     # Select columns by polars expressions
@@ -110,6 +112,7 @@ def test_cols_align_pl_expr():
         "center",  # manually assign
         "center",  # manually assign
         "left",  # `auto_align` for `str` is "left"
+        "right",  # `auto_align` for `pl.UInt` is "right"
     ]
 
 

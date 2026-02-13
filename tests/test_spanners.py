@@ -2,7 +2,8 @@ import pandas as pd
 import polars as pl
 import polars.selectors as cs
 import pytest
-from great_tables import GT, exibble
+from dataclasses import asdict
+from great_tables import GT, exibble, loc, style
 from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._helpers import UnitStr
 from great_tables._spanners import (
@@ -11,10 +12,15 @@ from great_tables._spanners import (
     cols_move,
     cols_move_to_end,
     cols_move_to_start,
+    cols_unhide,
     empty_spanner_matrix,
     spanners_print_matrix,
     tab_spanner,
+    SpannerTransformer,
 )
+from great_tables._utils_render_html import _get_table_defs
+from .test_utils_render_html import assert_rendered_columns
+from typing import Any
 
 
 @pytest.fixture
@@ -207,6 +213,15 @@ def test_cols_width_fully_set():
     assert gt_tbl._boxhead[2].column_width == "30px"
 
 
+def test_cols_width_mix_cases_kwargs():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "10px"}, **{"b": "20px"}, c="30px")
+
+    assert gt_tbl._boxhead[0].column_width == "10px"
+    assert gt_tbl._boxhead[1].column_width == "20px"
+    assert gt_tbl._boxhead[2].column_width == "30px"
+
+
 def test_cols_width_partial_set_pct():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
     gt_tbl = GT(df).cols_width({"a": "20%"})
@@ -232,6 +247,70 @@ def test_cols_width_fully_set_pct_2():
     assert gt_tbl._boxhead[0].column_width == "10%"
     assert gt_tbl._boxhead[1].column_width == "10%"
     assert gt_tbl._boxhead[2].column_width == "40%"
+
+
+def test_cols_width_non_str_deprecated():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+
+    with pytest.warns(DeprecationWarning):
+        gt_tbl = GT(df).cols_width({"a": 10})
+
+
+def test_cols_width_html_colgroup():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "10px", "b": "20px", "c": "30px"})
+
+    tbl_built = gt_tbl._build_data(context="html")
+    table_defs = _get_table_defs(tbl_built)
+
+    assert (
+        str(table_defs["table_colgroups"])
+        == '<colgroup>\n  <col style="width:10px;"/>\n  <col style="width:20px;"/>\n  <col style="width:30px;"/>\n</colgroup>'
+    )
+
+
+def test_cols_width_html_colgroup_hidden():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df).cols_width({"a": "10px", "b": "20px", "c": "30px"}).cols_hide(columns="b")
+
+    tbl_built = gt_tbl._build_data(context="html")
+    table_defs = _get_table_defs(tbl_built)
+
+    assert (
+        str(table_defs["table_colgroups"])
+        == '<colgroup>\n  <col style="width:10px;"/>\n  <col style="width:30px;"/>\n</colgroup>'
+    )
+
+
+def test_cols_width_html_colgroup_stub():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df, rowname_col="b").cols_width({"a": "10px", "b": "20px", "c": "30px"})
+
+    tbl_built = gt_tbl._build_data(context="html")
+    table_defs = _get_table_defs(tbl_built)
+
+    assert (
+        str(table_defs["table_colgroups"])
+        == '<colgroup>\n  <col style="width:20px;"/>\n  <col style="width:10px;"/>\n  <col style="width:30px;"/>\n</colgroup>'
+    )
+
+
+def test_cols_width_html_colgroup_complex():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8], "e": [9, 10]})
+    gt_tbl = (
+        GT(df, rowname_col="c")
+        .cols_move_to_start(columns="d")
+        .cols_hide(columns="a")
+        .cols_width({"a": "10px", "b": "20px", "c": "30px", "d": "40px", "e": "50px"})
+    )
+
+    tbl_built = gt_tbl._build_data(context="html")
+    table_defs = _get_table_defs(tbl_built)
+
+    assert (
+        str(table_defs["table_colgroups"])
+        == '<colgroup>\n  <col style="width:30px;"/>\n  <col style="width:40px;"/>\n  <col style="width:20px;"/>\n  <col style="width:50px;"/>\n</colgroup>'
+    )
 
 
 @pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "a"), (pl.DataFrame, cs.starts_with("a"))])
@@ -310,6 +389,25 @@ def test_cols_hide_multi_cols(DF, columns):
     assert [col.var for col in new_gt._boxhead if col.visible] == ["b", "c"]
 
 
+@pytest.mark.parametrize("DF, columns", [(pd.DataFrame, "c"), (pl.DataFrame, cs.starts_with("c"))])
+def test_cols_unhide_single_col(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_unhide(cols_hide(src_gt, columns=columns), columns=columns)
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "c", "d"]
+
+
+@pytest.mark.parametrize(
+    "DF, columns",
+    [(pd.DataFrame, ["a", "d"]), (pl.DataFrame, cs.starts_with("a") | cs.ends_with("d"))],
+)
+def test_cols_unhide_multi_cols(DF, columns):
+    df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
+    src_gt = GT(df)
+    new_gt = cols_unhide(cols_hide(src_gt, columns=columns), columns=columns)
+    assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "c", "d"]
+
+
 def test_validate_sel_cols():
     sel_cols = ["a", "b", "c"]
     col_vars = ["a", "b", "c", "d"]
@@ -332,3 +430,103 @@ def test_validate_sel_cols_raises():
         "All `columns` must exist and be visible in the input `data` table."
         in exc_info.value.args[0]
     )
+
+
+@pytest.mark.parametrize(
+    "params, src, dst",
+    [
+        [dict(), "span_1.A", ["span_1", "A"]],
+        [dict(), "span_1.B.x", ["span_1", "B", "x"]],
+        [dict(reverse=True), "span_1.A", ["A", "span_1"]],
+        [dict(limit=1), "span_1.A", ["span_1", "A"]],
+        [dict(limit=1), "span_1.B.x", ["span_1.B", "x"]],
+        [dict(limit=1, split="first"), "span_1.A", ["span_1", "A"]],
+        [dict(limit=1, split="first"), "span_1.B.x", ["span_1", "B.x"]],
+        [dict(limit=1, split="first", reverse=True), "span_1.A", ["A", "span_1"]],
+        [dict(limit=1, split="first", reverse=True), "span_1.B.x", ["B.x", "span_1"]],
+    ],
+)
+def test_spanner_transformer_split(params: dict[str, Any], src: str, dst: list[str]):
+    res = SpannerTransformer.split_string(src, **params)
+    assert res == dst
+
+
+def test_spanner_transformer_split_columns():
+    #
+    res = SpannerTransformer(delim=",", limit=1, split="first").split_columns(
+        ["span_1,A", "span_1,B,x"]
+    )
+    assert res == {
+        "span_1,A": ["span_1", "A"],
+        "span_1,B,x": ["span_1", "B,x"],
+    }
+
+
+def test_spanner_transformer_get_rectangle():
+    src = {"a.b": ["a", "b"], "c": ["c", None]}
+    res = SpannerTransformer().get_rectangle(src)
+
+    assert res == [{"a.b": "a", "c": "c"}, {"a.b": "b", "c": None}]
+
+
+def test_spanner_transformer_spanner_groups():
+    groups = SpannerTransformer().spanner_groups({"a.s1": "s1", "b.s2": "s2", "c.s1": "s1"})
+
+    assert len(groups) == 2
+    assert groups[0] == {"label": "s1", "columns": ["a.s1", "c.s1"]}
+    assert groups[1] == {"label": "s2", "columns": ["b.s2"]}
+
+
+def test_tab_spanner_delim_level_one():
+    df = pl.DataFrame({"span_1.a": [], "span_2.b": [], "span_1.c": []})
+
+    gt = GT(df).tab_spanner_delim()
+
+    assert len(gt._spanners) == 2
+    info1, info2 = gt._spanners
+    assert info1.spanner_id == "span_1"
+    assert info1.spanner_level == 0
+
+    assert info2.spanner_id == "span_2"
+    assert info2.spanner_level == 0
+
+    # note that span_1 for col "a" and "c" does not gather
+    # so two span_1 labels are shown. This emerges from these
+    # columns not having been moved next to each other.
+    assert len(gt._boxhead) == 3
+    assert gt._boxhead[0].column_label == "a"
+    assert gt._boxhead[1].column_label == "b"
+    assert gt._boxhead[2].column_label == "c"
+
+
+def test_tab_spanner_delim_level_multi():
+    df = pl.DataFrame({"top.mid.a": [], "mid.b": []})
+
+    gt = GT(df).tab_spanner_delim()
+
+    assert len(gt._spanners) == 2
+    info1, info2 = gt._spanners
+    assert info1.spanner_id == "mid"
+    assert info1.spanner_level == 0
+
+    assert info2.spanner_id == "top"
+    assert info2.spanner_level == 1
+
+    assert len(gt._boxhead) == 2
+    assert gt._boxhead[0].column_label == "a"
+    assert gt._boxhead[1].column_label == "b"
+
+
+def test_spanners_styled(snapshot: str):
+    df = pl.DataFrame({"a": 1, "b": 2, "c": 3, "d": 4, "group": "A", "row": "row_1"})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .tab_spanner("A", ["a", "b", "c"])
+        .tab_spanner("B", ["b", "c", "d"])
+        .tab_spanner("C", ["b", "c"])
+        .tab_style(style=style.fill(color="#33BB88"), locations=loc.spanner_labels(ids=["A"]))
+        .tab_style(style=style.fill(color="#1133FF"), locations=loc.spanner_labels(ids=["B", "C"]))
+    )
+
+    assert_rendered_columns(snapshot, gt)

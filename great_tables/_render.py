@@ -17,13 +17,14 @@ def infer_render_env() -> (
     Literal["quarto", "databricks", "ipython_terminal", "vscode", "positron", "default"]
 ):
     # Check if we are rendering in the Quarto environment
-    if "QUARTO_BIN_PATH" in os.environ:
+    _env = os.environ
+    if "QUARTO_BIN_PATH" in _env:
         return "quarto"
-    elif "DATABRICKS_RUNTIME_VERSION" in os.environ:
+    elif "DATABRICKS_RUNTIME_VERSION" in _env:
         return "databricks"
-    elif "POSITRON_VERSION" in os.environ:
+    elif "POSITRON_VERSION" in _env:
         return "positron"
-    elif "VSCODE_PID" in os.environ:
+    elif "VSCODE_PID" in _env:
         return "vscode"
     else:
         try:

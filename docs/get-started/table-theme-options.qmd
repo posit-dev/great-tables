@@ -5,8 +5,8 @@ jupyter: python3
 
 Great Tables exposes options to customize the appearance of tables via two methods:
 
-* [](`~great_tables.GT.tab_style`) - targeted styles (e.g. color a specific cell of data).
-* [](`~great_tables.GT.tab_options`) - broad styles (e.g. color the header and source notes).
+* `~~GT.tab_style()` - targeted styles (e.g. color a specific cell of data, or a specific group label).
+* `~~GT.tab_options()` - broad styles (e.g. color the header and source notes).
 
 Both methods target parts of the table, as shown in the diagram below.
 
@@ -14,7 +14,6 @@ Both methods target parts of the table, as shown in the diagram below.
 
 This page covers how to style and theme your table using `GT.tab_options()`,
 which is meant to quickly set a broad range of styles.
-In the future, even more granular options will become available via `GT.tab_style()`.
 
 We'll use the basic GT object below for most examples, since it marks some of the table parts.
 
@@ -26,6 +25,7 @@ gt_ex = (
     .tab_header("THE HEADING", "(a subtitle)")
     .tab_stubhead("THE STUBHEAD")
     .tab_source_note("THE SOURCE NOTE")
+    .grand_summary_rows(fns={"GRAND SUMMARY ROW": lambda df: df.sum(numeric_only=True)})
 )
 
 gt_ex
@@ -33,9 +33,9 @@ gt_ex
 
 ## Table option parts
 
-As the graph above showed, tables are made of many parts---such as the heading, column labels, and stub. `.tab_options()` organizes options based on table part.
+As the graph above showed, tables are made of many parts---such as the heading, column labels, and stub. `~~GT.tab_options()` organizes options based on table part.
 
-The code below illustrates the table parts `.tab_options()` can target, by setting the background color for various parts.
+The code below illustrates the table parts `~~GT.tab_options()` can target, by setting the background color for various parts.
 
 
 ```{python}
@@ -49,6 +49,7 @@ The code below illustrates the table parts `.tab_options()` can target, by setti
         row_group_background_color="lightyellow",
         stub_background_color="lightgreen",
         source_notes_background_color="#f1e2af",
+        grand_summary_row_background_color="lightpink",
     )
 )
 ```
@@ -74,7 +75,7 @@ For example, the option `row_group_border_top_color` has these pieces:
 * **attribute**: `color`
 
 :::{.callout-note}
-Here are the parts supported in `.tab_options()`:
+Here are the parts supported in `~~GT.tab_options()`:
 
 * container, table
 * heading, source_note
@@ -143,7 +144,7 @@ gt_ex.tab_options(
 )
 ```
 
-Options set across the whole table, can be overriden by styling a specific part.
+Options set across the whole table, can be overridden by styling a specific part.
 
 ```{python}
 gt_ex.tab_options(

@@ -5,7 +5,7 @@ __all__ = (
     "render_gt",
 )
 
-from great_tables import GT
+from .gt import GT
 from htmltools import Tag, div, HTML
 
 try:

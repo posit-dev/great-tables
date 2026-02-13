@@ -4,15 +4,18 @@ from great_tables._helpers import (
     pct,
     px,
     random_id,
+    google_font,
     _get_font_stack,
     define_units,
     FONT_STACKS,
+    _intify_scaled_px,
     _generate_tokens_list,
     _units_to_subscript,
     _units_to_superscript,
     _units_html_sub_super,
     _replace_units_symbol,
     _units_symbol_replacements,
+    GoogleFont,
     UnitStr,
     UnitDefinition,
     UnitDefinitionList,
@@ -80,6 +83,47 @@ def test_uppercases():
     assert set(bad_letters).difference(uppercases)
 
 
+def test_google_font():
+    font_name = "Roboto"
+    font = google_font(font_name)
+    assert isinstance(font, GoogleFont)
+    assert font.get_font_name() == font_name
+    assert (
+        font.make_import_stmt()
+        == "@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');"
+    )
+    assert str(font) == repr(font) == f"GoogleFont({font_name})"
+
+
+def test_google_font_class():
+    font_name = "Roboto"
+    font = GoogleFont(font_name)
+    assert font.get_font_name() == font_name
+    assert (
+        font.make_import_stmt()
+        == "@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');"
+    )
+
+
+def test_google_font_make_import_stmt_with_spaces():
+    # Font names with spaces should have those spaces replaced with a '+'
+    font = GoogleFont("Open Sans")
+    expected = "@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');"
+    assert font.make_import_stmt() == expected
+
+
+def test_google_font_repr():
+    # Font name without spaces
+    font = GoogleFont("Helvetica")
+    assert repr(font) == "GoogleFont(Helvetica)"
+    assert str(font) == "GoogleFont(Helvetica)"
+
+    # Font name with spaces
+    font_spaces = GoogleFont("IBM Plex Sans")
+    assert repr(font_spaces) == "GoogleFont(IBM Plex Sans)"
+    assert str(font_spaces) == "GoogleFont(IBM Plex Sans)"
+
+
 def test_get_font_stack_raises():
     name = "fake_name"
     with pytest.raises(ValueError) as exc_info:
@@ -109,7 +153,6 @@ def test_get_font_stack_add_emoji_true(font_stack_names):
     ],
 )
 def assert_generate_tokens_list(units: str, x_out: str):
-
     x = _generate_tokens_list(units_notation=units)
     assert x == x_out
 
@@ -296,15 +339,23 @@ def test_unit_definition_class_construction():
 def test_unit_definition_list_class_construction():
     unit_def_list = UnitDefinitionList([UnitDefinition(token="m^2", unit="m", exponent="2")])
     assert unit_def_list.units_list == [UnitDefinition(token="m^2", unit="m", exponent="2")]
+    assert (
+        str(unit_def_list)
+        == repr(unit_def_list)
+        == "UnitDefinitionList([UnitDefinition("
+        + "token='m^2', unit='m', unit_subscript=None, exponent='2', sub_super_overstrike=False, "
+        + "chemical_formula=False, built=None)])"
+    )
 
 
 def test_unit_str_class_construction():
     unit_str = UnitStr(["a b"])
     assert unit_str.units_str == ["a b"]
+    assert str(unit_str) == repr(unit_str) == "UnitStr(['a b'])"
+    assert len(unit_str) == 1
 
 
 def test_unit_str_from_str_single_unit():
-
     res = UnitStr.from_str("speed {{m s^-1}}").units_str
 
     assert len(res) == 3
@@ -315,7 +366,6 @@ def test_unit_str_from_str_single_unit():
 
 
 def test_unit_str_from_str_two_units():
-
     res = UnitStr.from_str("speed {{m s^-1}} and acceleration {{m s^-2}}").units_str
 
     assert len(res) == 5
@@ -329,7 +379,6 @@ def test_unit_str_from_str_two_units():
 
 
 def test_unit_str_from_without_units():
-
     res = UnitStr.from_str("a b").units_str
 
     assert len(res) == 1
@@ -337,7 +386,6 @@ def test_unit_str_from_without_units():
 
 
 def test_unit_str_unmatched_brackets():
-
     res = UnitStr.from_str("speed {{m s^-1 and acceleration {{m s^-2}}").units_str
 
     assert len(res) == 3
@@ -345,3 +393,17 @@ def test_unit_str_unmatched_brackets():
     assert isinstance(res[1], UnitDefinitionList)
     assert res[1] == define_units(units_notation="m s^-1 and acceleration {{m s^-2")
     assert res[2] == ""
+
+
+def test_define_units_latex_raises():
+    with pytest.raises(NotImplementedError) as exc_info:
+        UnitStr.from_str("a b").to_latex()
+
+    assert "LaTeX conversion of units is not yet supported." in exc_info.value.args[0]
+
+
+@pytest.mark.parametrize(
+    "value, scale, expected", [("0.5px", 0.5, 0), ["1px", 1, 1], ["2.1px", 2.1, 4]]
+)
+def test_intify_scaled_px(value: str, scale: float, expected: int):
+    assert _intify_scaled_px(value, scale) == expected

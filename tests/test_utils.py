@@ -1,5 +1,10 @@
 from collections.abc import Generator
+import re
 import pytest
+
+
+from great_tables import GT, exibble
+from great_tables._tbl_data import is_na
 from great_tables._utils import (
     _assert_list_is_subset,
     _assert_str_in_set,
@@ -8,8 +13,11 @@ from great_tables._utils import (
     _collapse_list_elements,
     _insert_into_list,
     _match_arg,
+    _migrate_unformatted_to_output,
+    OrderedSet,
+    _str_detect,
     _str_scalar_to_list,
-    _unique_set,
+    is_valid_http_schema,
     heading_has_subtitle,
     heading_has_title,
     seq_groups,
@@ -107,15 +115,29 @@ def test_str_scalar_to_list():
     assert x[0] == "x"
 
 
-def test_unique_set_None():
-    assert _unique_set(None) is None
+def test_orderedSet():
+    o = OrderedSet([1, 2, "x", "y", 1, 2])
+
+    assert all(x in o for x in [1, 2, "x", "y"])
+    assert len(o) == 4
+    assert list(o) == [1, 2, "x", "y"]
+    assert o.as_list() == [1, 2, "x", "y"]
+    assert o.as_set() == {1, 2, "x", "y"}
+    assert o.as_dict() == {1: True, 2: True, "x": True, "y": True}
+    assert repr(o) == "OrderedSet([1, 2, 'x', 'y'])"
 
 
-def test_unique_set():
-    x = ["a", "a", "b"]
-    result = _unique_set(x)
-    assert isinstance(result, list)
-    assert len(result) == 2
+@pytest.mark.parametrize(
+    "iterable, ordered_list",
+    [
+        (["1", "2", "3"], ["1", "2", "3"]),
+        (["1", "3", "2", "3", "1"], ["1", "3", "2"]),
+        ((1, 3, 2, 3, 1, 1, 3, 2, 2), [1, 3, 2]),
+        (iter("223311"), ["2", "3", "1"]),
+    ],
+)
+def test_create_ordered_list(iterable, ordered_list):
+    assert OrderedSet(iterable).as_list() == ordered_list
 
 
 def test_collapse_list_elements():
@@ -161,3 +183,67 @@ def test_seq_groups_raises():
     with pytest.raises(RuntimeError) as exc_info:
         next(seq_groups([]))
     assert "StopIteration" in str(exc_info.value)
+
+
+def test_migrate_unformatted_to_output_latex():
+    gt_tbl = GT(exibble.head(2)).fmt_number(columns="num", decimals=3)
+
+    # After rendering the data cells all the unformatted cells will be NA values in the
+    # body of the table
+    rendered = gt_tbl._render_formats(context="latex")
+
+    assert is_na(rendered._body.body, rendered._body.body["char"].tolist()).tolist() == [True, True]
+
+    # Migrate unformatted data to their corresponding data cells, the expectation is that
+    # unformatted cells will no longer be NA but have the values from the original data
+    migrated = _migrate_unformatted_to_output(
+        data=rendered, data_tbl=rendered._tbl_data, formats=rendered._formats, context="latex"
+    )
+
+    assert migrated._body.body["char"].tolist() == ["apricot", "banana"]
+
+
+def test_migrate_unformatted_to_output_html():
+    gt_tbl = GT(exibble.head(2)).fmt_number(columns="num", decimals=3)
+
+    # After rendering the data cells all the unformatted cells will be NA values in the
+    # body of the table
+    rendered = gt_tbl._render_formats(context="html")
+
+    assert is_na(rendered._body.body, rendered._body.body["char"].tolist()).tolist() == [True, True]
+
+    # For HTML output, the `_migrate_unformatted_to_output()` has not been implemented yet so
+    # we expect the same output as the input (NA values for unformatted cells)
+    migrated = _migrate_unformatted_to_output(
+        data=rendered, data_tbl=rendered._tbl_data, formats=rendered._formats, context="html"
+    )
+
+    assert is_na(migrated._body.body, migrated._body.body["char"].tolist()).tolist() == [True, True]
+
+
+@pytest.mark.parametrize(
+    "url", ["http://posit.co/", "http://posit.co", "https://posit.co/", "https://posit.co"]
+)
+def test_is_valid_http_schema(url: str):
+    assert is_valid_http_schema(url)
+
+
+@pytest.mark.parametrize(
+    ("string", "expected"),
+    [
+        ("int16", True),
+        ("uint8", True),
+        ("float32", True),
+        ("date", True),
+        ("datetime", True),
+        ("string", False),
+        ("object", False),
+        ("utf8", False),
+        ("bool", False),
+        ("boolean", False),
+        ("binary", False),
+    ],
+)
+def test_str_detect_align_right_pattern(string: str, expected: bool) -> None:
+    pattern = r"int|uint|float|date"
+    assert _str_detect(string, pattern) is expected

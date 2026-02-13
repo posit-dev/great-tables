@@ -1,0 +1,190 @@
+---
+title: "Great Tables: Becoming the Polars `.style` Property"
+author: Michael Chow
+date: 2025-04-16
+---
+
+Roughly a year ago, the DataFrame library Polars made its v1.0.0 release.
+One neat feature included in the release was a [`DataFrame.style`](https://docs.pola.rs/user-guide/misc/styling/) property---which returns a Great Tables object, so you can
+add things like titles, column labels, and highlighting for reporting.
+
+When talking about the Polars integration, people are often surprised to hear it happened when Great Tables was only 8 months old.
+Moreover, the whole process of how open source maintainers chat and
+discuss teaming up can feel shrouded in mystery.
+
+In this post, I want to take some time to discuss how folks in the Polars and Great Tables communities
+got to `DataFrame.style`. There are three big pieces:
+
+* **How we got there**: the magic of the Polars discord.
+* **Making `.style` work**: enabling Great Tables to work as a property.
+* **What's next?**
+
+## How we got there
+
+### First contact: Polars discord
+
+Roughly a year ago, Rich Iannone and I (Michael Chow) started working together on Great Tables---a Python library
+for creating display tables.  Initially, Great Tables only supported Pandas, but this made a few things difficult.
+For example, selecting columns and applying conditional styles took a surprising amount of code.
+
+As an experiment, we added support for Polars, and wrote a post called
+[Great Tables: The Polars DataFrame Styler of Your Dreams](../polars-styling/index.qmd).
+
+
+Curious in what folks thought, we dropped it in the Polars discord, and got some Great Feedback:
+
+![](discord-feedback.jpg){width=500}
+
+But Ritchie Vink, the creator of Polars, knew we were harboring a shameful Pandas dependency secret:
+
+![](discord-why-pandas.jpg){width=500}
+
+It's true, we had baked Pandas in as a dependency. We were just kids back then when starting Great Tables.
+We didn't realize that the world was moving to DataFrame agnostic support 😓.
+
+But the more we used Polars with Great Tables, the happier we were.
+So we made some architectural tweaks to make Great Tables [BYODF (Bring Your Own DataFrame)](../bring-your-own-df/index.qmd).
+With these changes, Polars users could install and use Great Tables without pulling in an unnecessary
+dependency on another DataFrame library (Pandas).
+
+These interactions were critical early on for co-designing Great Tables with Polars in mind.
+But the real magic for us was when Polars users started opening PRs on Great Tables, to make sure we got things right. Chief among them, Jerry Wu!
+
+### Jerry Wu: power contributor
+
+Luckily, members of the Polars community, like Jerry Wu [(jrycw)](https://github.com/jrycw), showed up to make sure we wired up to Polars correctly, and to weigh in on how Polars should be used.
+
+For example, Jerry's first PR was ensuring we handled a Polars deprecation correctly.
+
+![](pr-jerry.jpg)
+
+I really can't overstate how much we appreciate his help, and how critical it has been in ensuring we get the details right.
+
+In addition to his PRs, Jerry has done really Great Work sharing about table display. The most interesting example of this to me is that he discovered that Polars, Great Tables, and FastHTML work well together.
+
+![](linkedin-jerry.jpg){width=500px}
+
+Rich and I had no idea that was possible, and the FastHTML folks ended up adapting his example into an [entry on their gallery](https://fastht.ml/gallery/split_view?category=visualizations&project=great_tables_tables).
+Jerry is constantly teaching us about what Great Tables can do.
+
+
+### Growing up: making the case for `.style`
+
+With so much joy coming out of the Polars integration, and support from folks in the Polars community, we started to wonder: how could Great Tables make Polars a first-class citizen?
+
+This ultimately boiled down to asking: what would it take for the `polars.DataFrame.style` property to return a Great Tables object?
+
+After some discussion on discord, the big pieces folks needed were some sense that Great Tables used a reasonable approach to table styling, carried few dependencies, and was engineered such that it could be returned from a `DataFrame.style` property.
+Ultimately, the next few months were spent getting Great Tables up to snuff, and the Polars PR merged.
+
+## Making `.style` work
+
+
+The [PR to implement `.style` in Polars](https://github.com/pola-rs/polars/pull/16809) went super quick, from advice on discord April to merged by June. A huge force behind the PR was [Marco Gorelli](https://github.com/MarcoGorelli), who encouraged us through the process!
+
+In this section I'll look at how we addressed the 3 big requirements behind making a strong case for `.DataFrame.style` returning a Great Tables object:
+
+* **Design Credibility**: It's clear Great Tables is reasonably thought out.
+* **Working with Polars selectors**: It integrates well with pieces like Polars selectors.
+* **Technical**: Great Tables can be returned from a `DataFrame.style` property.
+
+
+### Design credibility
+
+Our biggest hurdle was that the Great Tables library was less than a year old.
+However, this youthful appearance is a bit misleading, because Great Tables builds on decades of
+table design and tooling. For example, Rich's version of Great Tables in R, called `gt`, has been around since 2019 (see [his rstudio::conf() talk](https://youtu.be/h1KAjSfSbmk)).
+
+My favorite aspect of `gt` is that the community ran **table contests** every year. The contests don't even require the use of `gt` or Great Tables, just a zest for the art of table styling. The [2024 Table Contest](https://posit.co/blog/2024-table-contest-winners/) had around **60 submissions**, and is something we often draw on for inspiration.
+
+For more on the long history of table design, see [The Design Philosophy of Great Tables](https://posit-dev.github.io/great-tables/blog/design-philosophy/), or this [Fred Hutch better tables workshop](https://hutchdatascience.org/better_tables/).
+
+
+### Working with Polars selectors
+
+One important task was **sorting out how we use Polars selectors**, to ensure they didn't break down the road.
+
+For example, Great Tables allows Polars selectors to set styles on specific columns data.
+However, one challenge we ran into was figuring out what Polars considers an expression versus a selector.
+Essentially, selectors choose columns, but expressions represent operations on the data itself.
+
+The code below shows cases where the `.exclude()` results in expressions or selectors.
+
+```{python}
+# | output: false
+import polars as pl
+import polars.selectors as cs
+
+# selector: all columns except "a"
+cs.exclude("a")
+
+# expression: same columns as above ¯\_(ツ)_/¯
+cs.all().exclude("a")
+```
+
+After discussing with Polars folks [in this Polars issue](https://github.com/pola-rs/polars/issues/16448),
+we landed on **4 rules for selectors**:
+
+| rule | description | example |
+| --- | ------ | ---- |
+| `cs` functions | top-level `cs` selection functions -> **selector** | `cs.starts_with("a")` |
+| infix selectors | infix operators over all selectors -> **selector** | `cs.starts_with("a") - cs.by_name("abc")` |
+| infix expressions | infix operators over any non-selectors -> **expression** | `cs.starts_with("a") - "abc"` |
+| method expressions | method calls off selectors -> **expression** | `cs.all().exclude("a")` |
+
+Clarifying this was critical in Great Tables, because in some place we only accept selectors, so
+we needed to be able to articulate to users how to produce them.
+
+
+### Technical wiring work
+
+The last hurdle was tweaking the `great_tables.GT` class to fit the flow of `DataFrame.style`.
+For example, here is what creating a `GT()` object looked like before and after `.style`:
+
+* Before: `GT(my_data, id="my-table")`
+* After: `my_data.style.with_id("my-table")`
+
+Notice that before, the `GT(id=...)` argument could set the html id for a table.
+However, `DataFrame.style` is a property that can't take arguments, so we needed methods like `with_id()`
+to set these kinds of options.
+
+Here's a full code example, in case you want to see it in action.
+
+```{python}
+import polars as pl
+from great_tables import GT
+from great_tables import exibble
+
+# create a GT object ----
+GT(exibble, id="my-table")
+
+# create GT object via .style property ----
+pl.DataFrame(exibble).style
+```
+
+The `DataFrame.style` property is special, in that you don't pass any parameters to it.
+The motivation for this in Polars is that it matches the Pandas `pandas.DataFrame.style` approach,
+so provides a familiar interface for users coming from that package.
+It also matches the `DataFrame.plot` flow of both packages.
+
+As it turns out, allowing every options settable in the `GT()` constructor to be set somewhere else was not something anticipated in the design of Great Tables. But after some light architectural wrestling, we introduced `.tab_stub()`, `.with_id()`, and `.with_locale()` to capture arguments you might pass to `GT()`.
+
+
+## What's next?
+
+Currently, we're really excited about using Great Tables in different ways!
+
+* [Pointblank](https://github.com/posit-dev/pointblank): validate your DataFrames and database tables. Pointblank is quick to fire up and produces delightfully styled reports (using Great Tables 😎).
+* [reactable](https://github.com/machow/reactable-py): create interactive tables. We want to use reactable to render a Great Tables object interactively.
+
+We're also focused on keeping bug fixes and features cooking in Great Tables. If there's anything
+in particular you're looking for, definitely reach out on the [Great Tables discussion page](https://github.com/posit-dev/great-tables/discussions).
+
+## In conclusion
+
+This post looked at how interacting with the Polars community discord shaped Great Tables development early on, and how community members like Jerry ended up ensuring Great Tables and Polars played well together.
+We ended up putting a ring on it, and ensuring Great Tables design, dependencies, and architecture worked
+well enough to justify returning via `polars.DataFrame.style`. (Though this is still marked unstable in Polars!)
+
+We're excited to look at different use cases for Great Tables (and table styling in general) over the
+next year!
