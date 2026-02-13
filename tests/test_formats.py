@@ -2615,6 +2615,9 @@ def test_fmt_nanoplot_single_vals_same_values_in_selected_rows():
             **params,
         )
 
+        # Compare the fully-rendered SVG output for row 0 from both DataFrames;
+        # if scaling incorrectly included the non-selected row, the different
+        # values in row 1 would alter the SVG coordinates and break equality
         res = _get_column_of_values(gt, column_name="vals", context="html")[0]
         res_different_scales = _get_column_of_values(
             gt_different_scales, column_name="vals", context="html"
@@ -2644,6 +2647,9 @@ def test_fmt_nanoplot_multiple_vals_same_values_in_selected_rows_with_autoscale(
             **params,
         )
 
+        # Compare the fully-rendered SVG output for row 0 from both DataFrames;
+        # if autoscale incorrectly included the non-selected row, the different
+        # values in row 1 would change expand_y bounds and alter SVG coordinates
         res = _get_column_of_values(gt, column_name="vals", context="html")[0]
         res_different_scales = _get_column_of_values(
             gt_different_scales, column_name="vals", context="html"
