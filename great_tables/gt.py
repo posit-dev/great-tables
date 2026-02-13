@@ -320,7 +320,11 @@ class GT(
         # TODO: this body method performs a mutation. Should we make a copy of body?
         new_body.render_formats(self._tbl_data, self._formats, context)
         new_body.render_formats(self._tbl_data, self._substitutions, context)
-        return self._replace(_body=new_body)
+
+        # Update group row labels with formatted values when a row_group column exists
+        new_stub = self._stub.update_group_row_labels(new_body, self._tbl_data, self._boxhead)
+
+        return self._replace(_body=new_body, _stub=new_stub)
 
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
