@@ -2061,3 +2061,17 @@ def test_noerror_list_of_strings() -> None:
             show_data_area=False,
         ),
     )
+
+
+def test_nanoplot_options_interactive_data_values():
+    # When interactive_data_values is not set, it should default to True
+    opts_default = nanoplot_options()
+    assert opts_default["interactive_data_values"] is True
+
+    # When explicitly set to False, it should be respected (not overridden)
+    opts_false = nanoplot_options(interactive_data_values=False)
+    assert opts_false["interactive_data_values"] is False
+
+    # When explicitly set to True, it should remain True
+    opts_true = nanoplot_options(interactive_data_values=True)
+    assert opts_true["interactive_data_values"] is True
