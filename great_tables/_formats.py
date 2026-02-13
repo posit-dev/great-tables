@@ -104,13 +104,12 @@ def fmt(
     values in a way that can consider all output contexts.
 
     Along with the `columns` and `rows` arguments that provide some precision in targeting data
-    cells, the `fns` argument allows you to define one or more functions for manipulating the
-    raw data.
+    cells, the `fns` argument allows you to define a function for manipulating the raw data.
 
     Parameters
     ----------
     fns
-        Either a single formatting function or a named list of functions.
+        A formatting function to apply to the targeted cells.
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
