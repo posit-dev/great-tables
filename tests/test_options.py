@@ -718,7 +718,7 @@ def test_opt_all_caps(gt_tbl: GT):
     assert tbl._options.stub_font_weight.value == "bolder"
     assert tbl._options.stub_text_transform.value == "uppercase"
 
-    tbl = gt_tbl.opt_all_caps(locations=[loc.column_labels, loc.stub, loc.row_group])
+    tbl = gt_tbl.opt_all_caps(locations=[loc.column_labels, loc.stub, loc.row_groups])
 
     assert tbl._options.column_labels_font_size.value == "80%"
     assert tbl._options.column_labels_font_weight.value == "bolder"
@@ -767,6 +767,6 @@ def test_opt_all_caps_raises(gt_tbl: GT):
         gt_tbl.opt_all_caps(locations="column_labels")
 
     assert (
-        "Only `loc.column_labels`, `loc.stub` and `loc.row_group` are allowed in the locations."
+        "Only `loc.column_labels`, `loc.stub` and `loc.row_groups` are allowed in the locations."
         in exc_info.value.args[0]
     )
