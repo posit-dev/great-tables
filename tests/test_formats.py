@@ -1155,6 +1155,169 @@ def test_fmt_scientific_case(
 
 
 # ------------------------------------------------------------------------------
+# Tests of `fmt_engineering()`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "fmt_engineering_kwargs,x_in,x_out",
+    [
+        # Basic decimals=2: test key ranges (very large, large, medium, small, very small)
+        (
+            dict(decimals=2),
+            [
+                829300232923103939802.4,  # Very large (10^18)
+                2323435.1,  # Medium large (10^6)
+                1000.001,  # Boundary (10^3)
+                10.00001,  # No exponent needed
+                0.12345,  # Small (10^-3)
+                0.0000123456,  # Very small (10^-6)
+            ],
+            [
+                "829.30 × 10<sup style='font-size: 65%;'>18</sup>",
+                "2.32 × 10<sup style='font-size: 65%;'>6</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "10.00",
+                "123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
+                "12.35 × 10<sup style='font-size: 65%;'>−6</sup>",
+            ],
+        ),
+        # Negative values
+        (
+            dict(decimals=2),
+            [-50000.01, -10.00001, -0.12345],
+            [
+                "−50.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "−10.00",
+                "−123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
+            ],
+        ),
+        # exp_style="E" format
+        (
+            dict(decimals=2, exp_style="E"),
+            [-3.49e13, 0, 82794],
+            [
+                "−34.90E12",
+                "0.00E00",
+                "82.79E03",
+            ],
+        ),
+        # exp_style="E1" (single digit exponent)
+        (
+            dict(decimals=2, exp_style="E1"),
+            [-3453, 0, 0.00007534],
+            [
+                "−3.45E3",
+                "0.00E0",
+                "75.34E−6",
+            ],
+        ),
+        # force_sign_m: positive/negative/zero
+        (
+            dict(decimals=2, force_sign_m=True),
+            [-3453, 0, 82794],
+            [
+                "−3.45 × 10<sup style='font-size: 65%;'>3</sup>",
+                "0.00",
+                "+82.79 × 10<sup style='font-size: 65%;'>3</sup>",
+            ],
+        ),
+        # force_sign_n: positive/negative exponents
+        (
+            dict(decimals=2, force_sign_n=True),
+            [-0.000234, 82794],
+            [
+                "−234.00 × 10<sup style='font-size: 65%;'>−6</sup>",
+                "82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
+            ],
+        ),
+        # force_sign_m and force_sign_n combined
+        (
+            dict(decimals=2, force_sign_m=True, force_sign_n=True),
+            [-3453, 0, 82794],
+            [
+                "−3.45 × 10<sup style='font-size: 65%;'>+3</sup>",
+                "0.00",
+                "+82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
+            ],
+        ),
+        # pattern
+        (
+            dict(decimals=2, pattern="a {x} b"),
+            [1234.5, 0.000123],
+            [
+                "a 1.23 × 10<sup style='font-size: 65%;'>3</sup> b",
+                "a 123.00 × 10<sup style='font-size: 65%;'>−6</sup> b",
+            ],
+        ),
+        # scale_by
+        (
+            dict(decimals=2, scale_by=1 / 1000),
+            [492032183020.5, 50000.01],
+            [
+                "492.03 × 10<sup style='font-size: 65%;'>6</sup>",
+                "50.00",
+            ],
+        ),
+        # Extreme values with higher precision
+        (
+            dict(decimals=5),
+            [-1.5e200, 2.5, 3.5e200],
+            [
+                "−150.00000 × 10<sup style='font-size: 65%;'>198</sup>",
+                "2.50000",
+                "350.00000 × 10<sup style='font-size: 65%;'>198</sup>",
+            ],
+        ),
+    ],
+)
+def test_fmt_engineering_case(
+    fmt_engineering_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_engineering(columns="x", **fmt_engineering_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x == x_out
+
+
+def test_fmt_engineering_with_missing_values():
+    df = pd.DataFrame({"x": [1234.5, None, float("nan"), 0.000123]})
+    gt = GT(df).fmt_engineering(columns="x", decimals=2)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[1] == "<NA>"
+    assert x[2] == "<NA>"
+
+
+def test_fmt_engineering_exp_style_force_sign():
+    df = pd.DataFrame({"x": [1e6, 1e3, 1, 1e-3, 1e-6]})
+    gt = GT(df).fmt_engineering(columns="x", decimals=2, exp_style="E1", force_sign_n=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x == [
+        "1.00E+6",
+        "1.00E+3",
+        "1.00E+0",
+        "1.00E−3",
+        "1.00E−6",
+    ]
+
+
+def test_fmt_engineering_latex_output():
+    df = pd.DataFrame({"x": [1234.5, 0.000123]})
+    gt = GT(df).fmt_engineering(columns="x", decimals=2, pattern="Value: {x} units")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+
+    assert "Value:" in x[0]
+    assert "units" in x[0]
+    assert "1.23" in x[0]
+    assert "Value:" in x[1]
+    assert "units" in x[1]
+    assert "123.00" in x[1]
+
+
+# ------------------------------------------------------------------------------
 # Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
 

@@ -7,6 +7,7 @@ from typing_extensions import Self
 # Main gt imports ----
 from ._body import body_reassemble
 from ._boxhead import cols_align, cols_label, cols_label_rotate
+from ._cols_merge import perform_col_merge
 from ._data_color import data_color
 from ._export import as_latex, as_raw_html, save, show, write_raw_html
 from ._formats import (
@@ -15,6 +16,7 @@ from ._formats import (
     fmt_currency,
     fmt_date,
     fmt_datetime,
+    fmt_engineering,
     fmt_flag,
     fmt_icon,
     fmt_image,
@@ -36,6 +38,7 @@ from ._modify_rows import grand_summary_rows, row_group_order, tab_stub, with_id
 from ._options import (
     opt_align_table_header,
     opt_all_caps,
+    opt_css,
     opt_footnote_marks,
     opt_horizontal_padding,
     opt_row_striping,
@@ -51,6 +54,7 @@ from ._render_checks import _render_check
 from ._source_notes import tab_source_note
 from ._spanners import (
     cols_hide,
+    cols_merge,
     cols_move,
     cols_move_to_end,
     cols_move_to_start,
@@ -227,6 +231,7 @@ class GT(
     fmt_integer = fmt_integer
     fmt_percent = fmt_percent
     fmt_scientific = fmt_scientific
+    fmt_engineering = fmt_engineering
     fmt_currency = fmt_currency
     fmt_bytes = fmt_bytes
     fmt_roman = fmt_roman
@@ -248,6 +253,7 @@ class GT(
     opt_stylize = opt_stylize
     opt_align_table_header = opt_align_table_header
     opt_all_caps = opt_all_caps
+    opt_css = opt_css
     opt_footnote_marks = opt_footnote_marks
     opt_row_striping = opt_row_striping
     opt_vertical_padding = opt_vertical_padding
@@ -258,6 +264,7 @@ class GT(
     cols_align = cols_align
     cols_width = cols_width
     cols_label = cols_label
+    cols_merge = cols_merge
     cols_move = cols_move
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end
@@ -324,7 +331,9 @@ class GT(
                 data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
             )
 
-        # built._perform_col_merge()
+        # Perform column merging
+        built = perform_col_merge(built)
+
         final_body = body_reassemble(built._body)
 
         # Reordering of the metadata elements of the table
