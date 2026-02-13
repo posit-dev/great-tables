@@ -31,7 +31,7 @@ from ._formats import (
     fmt_time,
     fmt_units,
 )
-from ._gt_data import GroupRows, GTData
+from ._gt_data import GTData
 from ._heading import tab_header
 from ._helpers import random_id
 from ._modify_rows import grand_summary_rows, row_group_order, tab_stub, with_id, with_locale
@@ -51,6 +51,7 @@ from ._options import (
 from ._pipe import pipe
 from ._render import infer_render_env_defaults
 from ._render_checks import _render_check
+from ._row_groups import update_group_row_labels
 from ._source_notes import tab_source_note
 from ._spanners import (
     cols_hide,
@@ -67,7 +68,7 @@ from ._stub import reorder_stub_df
 from ._stubhead import tab_stubhead
 from ._substitution import sub_missing, sub_zero
 from ._tab_create_modify import tab_style
-from ._tbl_data import _get_cell, is_na, n_rows
+from ._tbl_data import _get_cell, n_rows
 from ._utils import _migrate_unformatted_to_output
 from ._utils_render_html import (
     _get_table_defs,
@@ -320,29 +321,10 @@ class GT(
         new_body.render_formats(self._tbl_data, self._formats, context)
         new_body.render_formats(self._tbl_data, self._substitutions, context)
 
-        # Replace group_rows in the stub if there is a row_group column
+        # Update group row labels with formatted values when a row_group column exists
         rowgroup_var = self._boxhead._get_row_group_column()
         if rowgroup_var:
-            new_stub = self._stub
-            new_group_rows = []
-
-            for group_row in new_stub.group_rows:
-                # Get the first row of the group
-                first_index = group_row.indices[0]
-                cell_content = _get_cell(new_body.body, first_index, rowgroup_var.var)
-
-                # This will be true when no formatter was applied by the render_formats() above
-                if is_na(self._tbl_data, cell_content):
-                    cell_content = _get_cell(self._tbl_data, first_index, rowgroup_var.var)
-
-                # Modify the new group row and add to the new group rows object
-                new_group_row = group_row.with_group_label(cell_content)
-                new_group_rows.append(new_group_row)
-
-            # Update the group_rows in the new stub directly
-            new_stub.group_rows = GroupRows(new_group_rows)
-
-        # Otherwise no row_group column exists, so we don't modify the stub
+            new_stub = update_group_row_labels(self._stub, new_body, self._tbl_data, rowgroup_var)
         else:
             new_stub = self._stub
 
