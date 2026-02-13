@@ -945,7 +945,7 @@ def opt_all_caps(
 
     locations
         Which locations should undergo this text transformation? By default it includes all of
-        the `loc.column_labels`, the `loc.stub"`, and the `loc.row_group` locations. However, we
+        the `loc.column_labels`, the `loc.stub`, and the `loc.row_groups` locations. However, we
         could just choose one or two of those.
 
     Returns
@@ -996,14 +996,14 @@ def opt_all_caps(
       .fmt_number(columns="num")
       .fmt_currency(columns="currency")
       .tab_source_note(source_note="This is only a subset of the dataset.")
-      .opt_all_caps(locations=[loc.stub, loc.row_group])
+      .opt_all_caps(locations=[loc.stub, loc.row_groups])
     )
     ```
     """
     # Importing `great_tables._locations` at the top will cause a circular import error.
     # The type annotation for `locations` should be:
     # `Loc | list[Loc] = [LocColumnLabels, LocStub, LocRowGroups]`
-    from great_tables._locations import Loc, LocColumnLabels, LocStub, LocRowGroups
+    from great_tables._locations import Loc, LocColumnLabels, LocRowGroups, LocStub
 
     if not locations:
         locations = [LocColumnLabels, LocStub, LocRowGroups]
@@ -1020,7 +1020,7 @@ def opt_all_caps(
             issubclass(location, Loc)
         except TypeError as exc:
             raise AssertionError(
-                "Only `loc.column_labels`, `loc.stub` and `loc.row_group` are allowed in the locations."
+                "Only `loc.column_labels`, `loc.stub` and `loc.row_groups` are allowed in the locations."
             ) from exc
 
     # if `all_caps` is False, reset options to default, or, set new options
