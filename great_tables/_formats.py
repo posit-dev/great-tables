@@ -92,7 +92,7 @@ MissingVals: TypeAlias = Literal[
 
 def fmt(
     self: GTSelf,
-    fns: FormatFn | FormatFns,
+    fns: FormatFn,
     columns: SelectExpr = None,
     rows: int | list[int] | None = None,
     is_substitution: bool = False,
@@ -104,13 +104,12 @@ def fmt(
     values in a way that can consider all output contexts.
 
     Along with the `columns` and `rows` arguments that provide some precision in targeting data
-    cells, the `fns` argument allows you to define one or more functions for manipulating the
-    raw data.
+    cells, the `fns` argument allows you to define a function for manipulating the raw data.
 
     Parameters
     ----------
     fns
-        Either a single formatting function or a named list of functions.
+        A formatting function to apply to the targeted cells.
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
@@ -144,8 +143,12 @@ def fmt(
 
     # If a single function is supplied to `fns` then
     # repackage that into a list as the `default` function
-    if isinstance(fns, Callable):
+    if isinstance(fns, FormatFns):
+        pass
+    elif isinstance(fns, Callable):
         fns = FormatFns(default=fns)
+    else:
+        raise TypeError("Input to fns= should be a callable.")
 
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]

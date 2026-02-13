@@ -168,12 +168,14 @@ quartodoc:
         - GT.cols_align
         - GT.cols_width
         - GT.cols_label
+        - GT.cols_label_with
         - GT.cols_label_rotate
         - GT.cols_move
         - GT.cols_move_to_start
         - GT.cols_move_to_end
         - GT.cols_hide
         - GT.cols_unhide
+        - GT.cols_merge
     - title: Adding rows
       desc: >
         The [`grand_summary_rows()`](`great_tables.GT.grand_summary_rows`) function will add rows to
