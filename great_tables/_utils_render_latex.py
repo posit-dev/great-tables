@@ -143,6 +143,21 @@ def create_table_start_l(data: GTData, use_longtable: bool) -> str:
     # Get the column alignments for the visible columns as a list of `col_defs`
     col_defs = [align[0] for align in data._boxhead._get_default_alignments()]
 
+    # Check if stub is present and determine layout
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
+    stub_layout = data._stub._get_stub_layout(
+        has_summary_rows=has_summary_rows, options=data._options
+    )
+
+    # Determine if there's a stub column (rowname or group_label)
+    has_stub = len(stub_layout) > 0
+
+    # Build stub column definitions (left-aligned with separator)
+    stub_col_defs = ""
+    if has_stub:
+        # Add 'l' for each stub column, with a '|' separator after the last one
+        stub_col_defs = "l" * len(stub_layout) + "|"
+
     # If a table width is specified, add an extra column
     # space to fill in enough space to match the width
     extra_sep = ""
@@ -181,6 +196,7 @@ def create_table_start_l(data: GTData, use_longtable: bool) -> str:
             longtable_post_length if use_longtable else "",
             "\\begin{longtable}{" if use_longtable else hdr_tabular,
             extra_sep,
+            stub_col_defs,
             "".join(col_defs),
             "}",
         ]
@@ -264,13 +280,30 @@ def create_columns_component_l(data: GTData) -> str:
     # Determine the finalized number of spanner rows
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
+    # Check if stub is present and determine layout
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
+    stub_layout = data._stub._get_stub_layout(
+        has_summary_rows=has_summary_rows, options=data._options
+    )
+
+    # Determine if there's a stub column (rowname or group_label)
+    has_stub = len(stub_layout) > 0
+
+    # Create stub header cells (empty space for each stub column)
+    stub_headers = []
+    if has_stub:
+        stub_headers = [" "] * len(stub_layout)
+
     # Get the column headings
     headings_labels = data._boxhead._get_default_column_labels()
 
     # Ensure that the heading labels are processed for LaTeX
     headings_labels = [_process_text(x, context="latex") for x in headings_labels]
 
-    table_col_headings = "".join(latex_heading_row(content=headings_labels))
+    # Prepend stub headers to column headings
+    all_headings = stub_headers + headings_labels
+
+    table_col_headings = "".join(latex_heading_row(content=all_headings))
 
     if spanner_row_count > 0:
         boxhead = data._boxhead
@@ -312,6 +345,11 @@ def create_columns_component_l(data: GTData) -> str:
             spanner_labs = []
             spanner_lines = []
             span_accumulator = 0
+
+            # Add empty cells for stub columns in spanner row
+            if has_stub:
+                spanner_labs.extend([" "] * len(stub_layout))
+                span_accumulator = len(stub_layout)
 
             for j, level_i_spanner_j in enumerate(level_i_spanners):
                 if level_i_spanner_j is None:
@@ -385,29 +423,90 @@ def create_body_component_l(data: GTData) -> str:
     # Get the default column vars
     column_vars = data._boxhead._get_default_columns()
 
+    # Check if stub is present and determine layout
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
+    stub_layout = data._stub._get_stub_layout(
+        has_summary_rows=has_summary_rows, options=data._options
+    )
+
+    # Determine what stub components are present
+    has_row_stub_column = "rowname" in stub_layout
+    has_group_stub_column = "group_label" in stub_layout
+    has_groups = len(data._stub.group_ids) > 0
+
+    # Get the stub column info if it exists
+    row_stub_var = data._boxhead._get_stub_column()
+
     body_rows = []
 
     ordered_index: list[tuple[int, GroupRowInfo | None]] = data._stub.group_indices_map()
 
-    for i, _ in ordered_index:
+    prev_group_info = None
+    first_group_added = False
+
+    # Calculate total number of columns for multicolumn spanning in group headers
+    n_cols = len(column_vars) + len(stub_layout)
+
+    for i, group_info in ordered_index:
+        # Handle row group labels
+        if has_groups and group_info is not None:
+            # Only create group row if this is first row of the group
+            if group_info is not prev_group_info:
+                group_label = group_info.defaulted_label()
+
+                # Process the group label for LaTeX
+                group_label = _process_text(group_label, context="latex")
+
+                # When group is shown as a column, we don't add a separate row
+                # Instead, it will be added as a cell in each data row
+                if not has_group_stub_column:
+                    # Add midrule before group heading (except for first group, which already has
+                    # one from column headers) then the group heading, then midrule after
+                    if first_group_added:
+                        group_row = f"\\midrule\\addlinespace[2.5pt]\n\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n\\midrule\\addlinespace[2.5pt]"
+                    else:
+                        group_row = f"\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n\\midrule\\addlinespace[2.5pt]"
+                        first_group_added = True
+                    body_rows.append(group_row)
+
+        # Create data row cells
         body_cells: list[str] = []
 
-        # Create a body row
+        # Add stub cells first (group_label column, then rowname column)
+        if has_group_stub_column and group_info is not None:
+            # Only show group label in first row of group
+            if group_info is prev_group_info:
+                # Use an empty cell for continuation rows in same group
+                body_cells.append("")
+            else:
+                # Get the group label from the group info
+                group_label = group_info.defaulted_label()
+                group_label = _process_text(group_label, context="latex")
+
+                body_cells.append(group_label)
+
+        if has_row_stub_column:
+            # Get the row name from the stub
+            rowname = _get_cell(tbl_data, i, row_stub_var.var)
+            rowname_str = str(rowname)
+
+            body_cells.append(rowname_str)
+
+        # Add data cells
         for colinfo in column_vars:
             cell_content = _get_cell(tbl_data, i, colinfo.var)
             cell_str: str = str(cell_content)
 
             body_cells.append(cell_str)
 
-        # When joining the body cells together, we need to ensure that each item is separated by
-        # an ampersand and that the row is terminated with a double backslash
-        body_cells = " & ".join(body_cells) + " \\\\"
+        # Join cells with ampersand and terminate with a double backslash
+        body_row_str = " & ".join(body_cells) + " \\\\"
 
-        body_rows.append("".join(body_cells))
+        body_rows.append(body_row_str)
 
-    # When joining all the body rows together, we need to ensure that each row is separated by
-    # newline except for the last
+        prev_group_info = group_info
 
+    # Join all body rows with newlines
     all_body_rows = "\n".join(body_rows)
 
     return all_body_rows
@@ -552,26 +651,6 @@ def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | N
     # Check for styles (not yet supported so warn user)
     if data._styles:
         _not_implemented("Styles are not yet supported in LaTeX output.")
-
-    # Get list representation of stub layout
-    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
-    stub_layout = data._stub._get_stub_layout(
-        has_summary_rows=has_summary_rows, options=data._options
-    )
-
-    # Throw exception if a stub is present in the table
-    if "rowname" in stub_layout or "group_label" in stub_layout:
-        raise NotImplementedError(
-            "The table stub (row names and/or row groups) are not yet supported in LaTeX output."
-        )
-
-    # Determine if row groups are used
-    has_groups = len(data._stub.group_ids) > 0
-
-    # Throw exception if row groups are used in LaTeX output (extra case where row
-    # groups are used but not in the stub)
-    if has_groups:
-        raise NotImplementedError("Row groups are not yet supported in LaTeX output.")
 
     # Create a LaTeX fragment for the start of the table
     table_start = create_table_start_l(data=data, use_longtable=use_longtable)
