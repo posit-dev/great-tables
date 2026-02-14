@@ -17,7 +17,7 @@ from typing import (
     TypeVar,
     Union,
     cast,
-    overload,
+    overload
 )
 
 import babel
@@ -25,7 +25,8 @@ import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
-from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
+from ._gt_data import (FormatFn, FormatFns, FormatInfo, FormatterSkipElement,
+                       GTData, PFrameData)
 from ._helpers import px
 from ._locale import (
     _get_currencies_data,
@@ -44,7 +45,7 @@ from ._tbl_data import (
     is_series,
     to_list,
 )
-from ._text import _md_html, escape_pattern_str_latex
+from ._text import _md_html, _md_latex, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace, is_valid_http_schema
 from ._utils_nanoplots import _generate_nanoplot
 
@@ -3018,7 +3019,7 @@ def fmt_markdown_context(
     context: str,
 ) -> str:
     if context == "latex":
-        raise NotImplementedError("fmt_markdown() is not supported in LaTeX.")
+        return _md_latex(x)
 
     if is_na(data._tbl_data, x):
         return x

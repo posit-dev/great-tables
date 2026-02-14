@@ -44,7 +44,9 @@ dependencies = [
     "importlib-metadata",
     "typing_extensions>=3.10.0.0",
     "Babel>=2.13.1",
-    "importlib-resources"
+    "importlib-resources",
+    "markdownify>=1.2.2",
+    "myst_parser>=4.0.1"
 ]
 requires-python = ">=3.9"
 

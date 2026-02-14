@@ -6,6 +6,9 @@ from dataclasses import dataclass
 from typing import Callable
 
 import commonmark
+from docutils.core import publish_parts
+from markdownify import markdownify as mdify
+from myst_parser.docutils_ import Parser
 
 
 class BaseText:
@@ -48,13 +51,7 @@ class Html(Text):
         return self.text
 
     def to_latex(self) -> str:
-        from ._utils_render_latex import _not_implemented
-
-        _not_implemented(
-            "Using the `html()` helper function won't convert HTML to LaTeX. Escaping HTML string instead."
-        )
-
-        return _latex_escape(self.text)
+        return _html_latex(self.text)
 
 
 def _md_html(x: str) -> str:
@@ -63,10 +60,34 @@ def _md_html(x: str) -> str:
 
 
 def _md_latex(x: str) -> str:
-    # TODO: Implement commonmark to LaTeX conversion (through a different library as
-    # commonmark-py does not support it)
-    raise NotImplementedError("Markdown to LaTeX conversion is not supported yet")
+    # USE REGEX TO CONVERT <sub> AND <sup> TO MYST MARKDOWN
+    input = re.sub(r'<sub>(.*?)</sub>', r'{sub}`\1`', x)
+    input = re.sub(r'<sup>(.*?)</sup>', r'{sup}`\1`', input)
 
+    # Use Myst-Parser to convert Markdown to LaTeX
+    raw_output = publish_parts(
+                    source=input,
+                    writer_name="latex",
+                    settings_overrides={
+                        "myst_enable_extensions": ['strikethrough'],
+                        "embed_stylesheet": False,
+                        "legacy_column_widths": True,
+                        "use_latex_citations": False,
+                    },
+                    parser=Parser(),
+                )
+
+    output = raw_output['body'].strip()
+
+    return output
+
+
+def _html_latex(x: str) -> str:
+    # Turn HTML to Markdown first
+    input = mdify(x, strip=['br'], sub_symbol="<sub>", sup_symbol="<sup>")
+
+    # Then render Markdown to LaTeX
+    return _md_latex(input)
 
 def _process_text(x: str | BaseText | None, context: str = "html") -> str:
     if x is None:
