@@ -1,0 +1,253 @@
+---
+title: Recreating Septa Transit Timetables in Python
+format: html
+html-table-processing: none
+jupyter: python3
+---
+
+Recently, Rich and I were poking around transit data, and we were struck by the amount of structuring that goes into transit timetables.
+
+For example, consider this weekend rail schedule table from SEPTA, Philadelphia's transit agency.
+
+![](./example-timetable.png){style="max-width: 700px; display: block; margin-left: auto; margin-right: auto;"}
+
+
+Notice these big pieces:
+
+* The vertical text on the left indicating trains are traveling "TO CENTER CITY".
+* The blue header, and spanner columns ("Services" and "Train Number") grouping related columns.
+* The striped background for easier reading. Also the black background indicating stations in the Center City (the urban core).
+
+Tables like this often have to be created in illustrator, and updated by hand. At the same time, when agencies automate table creation, they often sacrifice a lot of the assistive features and helpful affordances of the table.
+
+We set out to recreate this table in Great Tables (and by we I mean 99% Rich).
+
+Here's a look at the final table in Great Tables.
+
+```{python}
+# | code-fold: true
+from great_tables import GT, html, style, loc, google_font
+import polars as pl
+import polars.selectors as cs
+
+stops = pl.read_csv("chw-stops.csv")
+times = pl.read_csv("times.csv")
+
+stop_times = times.join(other=stops, on="stop_name", maintain_order="left").select(
+    pl.lit("To Center City").alias("direction"), pl.col("*")
+)
+
+
+def h_m_p(s):
+    h, m, _ = [int(part) for part in s.split(":")]
+    ap = "a"
+
+    if h > 12:
+        h -= 12
+        ap = "p"
+    return f"{h}:{m:02d}{ap}"
+
+
+def tick(b):
+    return "&check;" if b else ""
+
+
+transit_table = (
+    GT(stop_times)
+    .tab_stub(groupname_col="direction")
+    .tab_header("Saturdays, Sundays, and Major Holidays")
+    .cols_hide(
+        columns=["stop_url", "zone_id", "stop_desc", "stop_lat", "stop_lon", "stop_id"]
+    )
+    .fmt(h_m_p, columns=cs.matches(r"^[0-9]{4}$"))
+    .fmt(tick, columns=cs.starts_with("service_"))
+    .cols_label(
+        stop_name="Stations",
+        service_access="A",
+        service_cash="C",
+        service_park="P",
+        fare_zone=html("Fare<br>Zone"),
+    )
+    .tab_spanner(label="Services", columns=cs.starts_with("service_"))
+    .tab_spanner(label="Train Number", columns=cs.matches(r"^[0-9]{4}$"))
+    .cols_move_to_start("fare_zone")
+    .cols_move_to_start(cs.starts_with("service_"))
+    .cols_width(
+        cases={c: "20px" for c in stop_times.columns if c.startswith("service_")}
+    )
+    .cols_width(cases={c: "60px" for c in stop_times.columns if c.startswith("8")})
+    .opt_row_striping(row_striping=True)
+    .cols_align(align="center", columns="fare_zone")
+    .cols_align(align="right", columns=cs.matches(r"^[0-9]{4}$"))
+    # style header
+    .tab_style(
+        locations=loc.header(),
+        style=style.css(
+            "background-color: rgb(66, 99, 128) !important; color: white !important; font-size: 24px !important; font-weight: bold !important; border-width: 0px !important;",
+        ),
+    )
+    # style vertical text on left
+    .tab_style(
+        locations=loc.row_groups(),
+        # TODO: rotate text vertically
+        style=style.css(
+            "writing-mode: sideways-lr; padding-bottom: 25% !important; font-size: 24px !important; font-weight: bold !important; text-transform: uppercase !important;"
+        ),
+    )
+    .tab_style(
+        style=style.css(
+            "background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;"
+        ),
+        locations=loc.body(columns=None, rows=list(range(-4, -1))),
+    )
+    .tab_style(
+        style=style.css(
+            """
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            """
+        ),
+        locations=loc.body(
+            columns=~cs.matches(r"^[0-9]{4}$"), rows=list(range(-4, -1))
+        ),
+    )
+    .tab_style(
+        style=style.css("border-right: solid black 2px !important;"),
+        locations=loc.body(
+            columns=~cs.matches(r"^[0-9]{4}$"), rows=list(range(0, 10)) + [13]
+        ),
+    )
+    .tab_options(
+        row_striping_background_color="#A9A9A9",
+        row_group_as_column=True,
+    )
+    .opt_table_outline()
+    .opt_table_font(font=google_font("IBM Plex Sans"))
+)
+
+transit_table
+```
+
+## Reading in stops and times
+
+```{python}
+import polars as pl
+
+stops = pl.read_csv("chw-stops.csv")
+times = pl.read_csv("times.csv")
+```
+
+## Joining to get stop times
+
+```{python}
+stop_times = times.join(other=stops, on="stop_name", maintain_order="left").select(
+    pl.lit("To Center City").alias("direction"), pl.col("*")
+)
+
+
+stop_times
+```
+
+## Creating table
+
+```{python}
+from great_tables import GT, html, style, loc, google_font
+import polars as pl
+import polars.selectors as cs
+
+
+def h_m_p(s):
+    h, m, _ = [int(part) for part in s.split(":")]
+    ap = "a"
+
+    if h > 12:
+        h -= 12
+        ap = "p"
+    return f"{h}:{m:02d}{ap}"
+
+
+def tick(b):
+    return "&check;" if b else ""
+
+
+transit_table = (
+    GT(stop_times)
+    .tab_stub(groupname_col="direction")
+    .tab_header("Saturdays, Sundays, and Major Holidays")
+    .cols_hide(
+        columns=["stop_url", "zone_id", "stop_desc", "stop_lat", "stop_lon", "stop_id"]
+    )
+    .fmt(h_m_p, columns=cs.matches(r"^[0-9]{4}$"))
+    .fmt(tick, columns=cs.starts_with("service_"))
+    .cols_label(
+        stop_name="Stations",
+        service_access="A",
+        service_cash="C",
+        service_park="P",
+        fare_zone=html("Fare<br>Zone"),
+    )
+    .tab_spanner(label="Services", columns=cs.starts_with("service_"))
+    .tab_spanner(label="Train Number", columns=cs.matches(r"^[0-9]{4}$"))
+    .cols_move_to_start("fare_zone")
+    .cols_move_to_start(cs.starts_with("service_"))
+    .cols_width(
+        cases={c: "18px" for c in stop_times.columns if c.startswith("service_")}
+    )
+    .cols_width(cases={c: "60px" for c in stop_times.columns if c.startswith("8")})
+    .opt_row_striping(row_striping=True)
+    .cols_align(align="center", columns="fare_zone")
+    .cols_align(align="right", columns=cs.matches(r"^[0-9]{4}$"))
+    # style header
+    .tab_style(
+        locations=loc.header(),
+        style=style.css(
+            "background-color: rgb(66, 99, 128) !important; color: white !important; font-size: 24px !important; font-weight: bold !important; border-width: 0px !important;",
+        ),
+    )
+    # style vertical text on left
+    .tab_style(
+        locations=loc.row_groups(),
+        # TODO: rotate text vertically
+        style=style.css(
+            "writing-mode: sideways-lr; padding-bottom: 25% !important; font-size: 24px !important; font-weight: bold !important; text-transform: uppercase !important;"
+        ),
+    )
+    .tab_style(
+        style=style.css(
+            "background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;"
+        ),
+        locations=loc.body(columns=None, rows=list(range(-4, -1))),
+    )
+    .tab_style(
+        style=style.css(
+            """
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            """
+        ),
+        locations=loc.body(
+            columns=~cs.matches(r"^[0-9]{4}$"), rows=list(range(-4, -1))
+        ),
+    )
+    .tab_style(
+        style=style.css("border-right: solid black 2px !important;"),
+        locations=loc.body(
+            columns=~cs.matches(r"^[0-9]{4}$"), rows=list(range(0, 10)) + [13]
+        ),
+    )
+    .tab_options(
+        row_striping_background_color="#A9A9A9",
+        row_group_as_column=True,
+    )
+    .opt_table_outline()
+    .opt_table_font(font=google_font("IBM Plex Sans"))
+)
+
+transit_table
+```
+
+
