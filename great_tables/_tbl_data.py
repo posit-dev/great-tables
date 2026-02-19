@@ -224,7 +224,10 @@ def _(data: Any, row: int, column: str) -> Any:
 
     # if container dtype, convert pl.Series to list
     if isinstance(data[column].dtype, (pl.List, pl.Array)):
-        return data[column][row].to_list()
+        cell = data[column][row]
+        if cell is not None:
+            return cell.to_list()
+        return cell
 
     return data[column][row]
 
