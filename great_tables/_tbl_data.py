@@ -579,7 +579,9 @@ def _(df: PlDataFrame):
     import polars.selectors as cs
 
     list_cols = [
-        name for name, dtype in df.schema.items() if issubclass(dtype.base_type(), pl.List)
+        name
+        for name, dtype in df.schema.items()
+        if issubclass(dtype.base_type(), (pl.List, pl.Array))
     ]
 
     return df.with_columns(
