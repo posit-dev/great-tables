@@ -6,7 +6,8 @@ from typing_extensions import Self
 
 # Main gt imports ----
 from ._body import body_reassemble
-from ._boxhead import cols_align, cols_label, cols_label_rotate
+from ._boxhead import cols_align, cols_label, cols_label_rotate, cols_label_with
+from ._cols_merge import perform_col_merge
 from ._data_color import data_color
 from ._export import as_latex, as_raw_html, save, show, write_raw_html
 from ._formats import (
@@ -53,6 +54,7 @@ from ._render_checks import _render_check
 from ._source_notes import tab_source_note
 from ._spanners import (
     cols_hide,
+    cols_merge,
     cols_move,
     cols_move_to_end,
     cols_move_to_start,
@@ -262,6 +264,8 @@ class GT(
     cols_align = cols_align
     cols_width = cols_width
     cols_label = cols_label
+    cols_label_with = cols_label_with
+    cols_merge = cols_merge
     cols_move = cols_move
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end
@@ -316,7 +320,11 @@ class GT(
         # TODO: this body method performs a mutation. Should we make a copy of body?
         new_body.render_formats(self._tbl_data, self._formats, context)
         new_body.render_formats(self._tbl_data, self._substitutions, context)
-        return self._replace(_body=new_body)
+
+        # Update group row labels with formatted values when a row_group column exists
+        new_stub = self._stub.update_group_row_labels(new_body, self._tbl_data, self._boxhead)
+
+        return self._replace(_body=new_body, _stub=new_stub)
 
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
@@ -328,7 +336,9 @@ class GT(
                 data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
             )
 
-        # built._perform_col_merge()
+        # Perform column merging
+        built = perform_col_merge(built)
+
         final_body = body_reassemble(built._body)
 
         # Reordering of the metadata elements of the table

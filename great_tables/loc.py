@@ -17,6 +17,7 @@ from ._locations import (
     # Stub ----
     LocStub as stub,
     LocRowGroups as row_groups,
+    LocRowGroups as row_group,
     # LocSummaryStub as summary_stub,
     LocGrandSummaryStub as grand_summary_stub,
     #
@@ -42,6 +43,7 @@ __all__ = (
     "column_labels",
     "stub",
     "row_groups",
+    "row_group",
     # "summary_stub",
     "grand_summary_stub",
     "body",

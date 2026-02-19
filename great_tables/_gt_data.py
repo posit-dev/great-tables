@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, ove
 
 from typing_extensions import Self, TypeAlias, Union
 
+from ._cols_merge import ColMergeInfo, ColMerges  # noqa: F401 (re-exported)
 from ._helpers import GoogleFontImports
 
 # TODO: move this class somewhere else (even gt_data could work)
@@ -23,6 +24,7 @@ from ._tbl_data import (
     copy_data,
     create_empty_frame,
     get_column_names,
+    is_na,
     n_rows,
     to_list,
     validate_frame,
@@ -87,6 +89,7 @@ class GTData:
     _locale: Locale | None
     _formats: Formats
     _substitutions: Formats
+    _col_merge: ColMerges
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
@@ -136,6 +139,7 @@ class GTData:
             _locale=Locale(locale),
             _formats=[],
             _substitutions=[],
+            _col_merge=[],
             _options=options,
             _google_font_imports=GoogleFontImports(),
         )
@@ -623,6 +627,49 @@ class Stub:
         # TODO: validate
         return self.__class__(self.rows, self.group_rows.reorder(group_order))
 
+    def update_group_row_labels(self, body: Body, tbl_data: TblData, boxhead: Boxhead) -> Self:
+        """Update group row labels using formatted values from the rendered body.
+
+        For each group, the formatted cell value for the first row of the group is
+        looked up in `body`. If the cell was not formatted (i.e., it is still NA),
+        the original value from `tbl_data` is used instead.
+
+        If no row-group column exists in `boxhead`, the stub is returned unchanged.
+
+        Parameters
+        ----------
+        body
+            The rendered body whose cells may contain formatted values.
+        tbl_data
+            The original (unformatted) source data.
+        boxhead
+            The boxhead containing column metadata, used to identify the row-group column.
+
+        Returns
+        -------
+        Stub
+            A new Stub with group labels replaced by formatted values, or the
+            original Stub if no row-group column exists.
+        """
+        rowgroup_var = boxhead._get_row_group_column()
+        if rowgroup_var is None:
+            return self
+
+        new_group_rows: list[Any] = []
+
+        for group_row in self.group_rows:
+            first_index = group_row.indices[0]
+            cell_content = _get_cell(body.body, first_index, rowgroup_var.var)
+
+            # When no formatter was applied, the cell is still NA — fall back to
+            # the original data value.
+            if is_na(tbl_data, cell_content):
+                cell_content = _get_cell(tbl_data, first_index, rowgroup_var.var)
+
+            new_group_rows.append(group_row.with_group_label(cell_content))
+
+        return self.__class__(self.rows, GroupRows(new_group_rows))
+
     def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
         return self.group_rows.indices_map(len(self.rows))
 
@@ -713,6 +760,10 @@ class GroupRowInfo:
         """Return a group label that has been defaulted."""
         label = self.group_label if self.group_label is not None else self.group_id
         return label
+
+    def with_group_label(self, label: str | None) -> Self:
+        """Return a copy of the object with the specified group label."""
+        return replace(self, group_label=label)
 
 
 class MISSING_GROUP:
@@ -958,6 +1009,9 @@ class FormatInfo:
 #         pass
 Formats = list
 
+
+# Column Merge ----
+# ColMergeInfo and ColMerges are defined in _cols_merge.py but re-exported here
 
 # Summary Rows ---
 

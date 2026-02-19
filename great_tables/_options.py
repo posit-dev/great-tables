@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, ClassVar, Iterable, cast
 
@@ -7,6 +8,7 @@ from . import _utils
 from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
 
 if TYPE_CHECKING:
+    from ._locations import LocColumnLabels, LocRowGroups, LocStub
     from ._types import GTSelf
 
 
@@ -14,6 +16,8 @@ def tab_options(
     self: GTSelf,
     container_width: str | None = None,
     container_height: str | None = None,
+    container_padding_x: str | None = None,
+    container_padding_y: str | None = None,
     container_overflow_x: str | None = None,
     container_overflow_y: str | None = None,
     table_width: str | None = None,
@@ -179,6 +183,13 @@ def tab_options(
         value, it is assumed that the value is given in units of pixels.
     container_height
         The height of the table's container.
+    container_padding_x
+        The horizontal padding of the table's container. Can be specified as a single-length
+        character with units of pixels or as a percentage. If provided as a scalar numeric
+        value, it is assumed that the value is given in units of pixels.
+    container_padding_y
+        The vertical padding of the table's container. Same rules apply as for
+        `container_padding_x`.
     container_overflow_x
         An option to enable scrolling in the horizontal direction when the table content overflows
         the container dimensions. Using `True` (the default) means that horizontal scrolling is
@@ -917,7 +928,13 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 def opt_all_caps(
     self: GTSelf,
     all_caps: bool = True,
-    locations: str | list[str] = ["column_labels", "stub", "row_group"],
+    locations: type[LocColumnLabels]
+    | type[LocRowGroups]
+    | type[LocStub]
+    | list[type[LocColumnLabels] | type[LocRowGroups] | type[LocStub]]
+    | str
+    | list[str]
+    | None = None,
 ) -> GTSelf:
     """
     Option to use all caps in select table locations.
@@ -936,8 +953,8 @@ def opt_all_caps(
 
     locations
         Which locations should undergo this text transformation? By default it includes all of
-        the `"column_labels"`, the `"stub"`, and the `"row_group"` locations. However, we could
-        just choose one or two of those.
+        the `loc.column_labels`, the `loc.stub`, and the `loc.row_groups` locations. However, we
+        could just choose one or two of those.
 
     Returns
     -------
@@ -952,7 +969,7 @@ def opt_all_caps(
     in all row groups is transformed to all caps using the `opt_all_caps()` method.
 
     ```{python}
-    from great_tables import GT, exibble, md
+    from great_tables import GT, exibble, loc, md
 
     (
       GT(
@@ -970,51 +987,115 @@ def opt_all_caps(
       .opt_all_caps()
     )
     ```
+    `opt_all_caps()` accepts a `locations` parameter that allows us to specify which components
+    should be transformed. For example, if we only want to ensure that all text in the stub and all
+    row groups is converted to all caps:
+    ```{python}
+    (
+      GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+      )
+      .tab_header(
+        title=md("Data listing from **exibble**"),
+        subtitle=md("`exibble` is a **Great Tables** dataset.")
+      )
+      .fmt_number(columns="num")
+      .fmt_currency(columns="currency")
+      .tab_source_note(source_note="This is only a subset of the dataset.")
+      .opt_all_caps(locations=[loc.stub, loc.row_groups])
+    )
+    ```
     """
+    # Importing `great_tables._locations` at the top will cause a circular import error.
+    from great_tables._locations import Loc, LocColumnLabels, LocRowGroups, LocStub
 
-    # If providing a scalar string value, normalize it to be in a list
+    if locations is None:
+        locations = [LocColumnLabels, LocStub, LocRowGroups]
+
+    # If providing a single value, normalize it to be in a list
     if not isinstance(locations, list):
-        locations = _utils._str_scalar_to_list(cast(str, locations))
+        locations = [locations]
 
-    # Ensure that the `locations` value is a list of strings
-    _utils._assert_str_list(locations)
+    # Support legacy string-based locations for backward compatibility
+    _str_to_loc: dict[str, type[Loc]] = {
+        "column_labels": LocColumnLabels,
+        "stub": LocStub,
+        "row_groups": LocRowGroups,
+    }
 
-    # TODO: Ensure that all values within `locations` are valid
+    if any([isinstance(x, str) for x in locations]):
+        warnings.warn(
+            "Using string-based locations in `opt_all_caps()` is deprecated and support will be "
+            "removed in a future release. Please use the location classes from `great_tables.loc` "
+            "instead (e.g., `loc.column_labels`, `loc.stub`, and `loc.row_groups`).",
+            DeprecationWarning,
+        )
+        invalid = [x for x in locations if isinstance(x, str) and x not in _str_to_loc]
+        if invalid:
+            raise ValueError(f"Invalid location string: {invalid[0]!r}")
+        locations = [_str_to_loc[x] for x in locations]
 
-    # Set new options for `locations` selected, or, reset to default options
-    # if `all_caps` is False
-    # TODO: the code constantly reassigns res, in order to prepare for a
-    # world where options are not mutating the GT options object.
-    # TODO: is there a way to set multiple options at once?
-    res = self
-    if all_caps:
-        if "column_labels" in locations:
-            res = tab_options(res, column_labels_font_size="80%")
-            res = tab_options(res, column_labels_font_weight="bolder")
-            res = tab_options(res, column_labels_text_transform="uppercase")
+    # Ensure that all values within `locations` are valid
+    # A `try-except` block is needed here because the first argument of `issubclass()` must be a
+    # class.
+    for location in locations:
+        try:
+            issubclass(location, Loc)
+        except TypeError as exc:
+            raise AssertionError(
+                "Only `loc.column_labels`, `loc.stub` and `loc.row_groups` are allowed in the locations."
+            ) from exc
 
-        if "stub" in locations:
-            res = tab_options(res, stub_font_size="80%")
-            res = tab_options(res, stub_font_weight="bolder")
-            res = tab_options(res, stub_text_transform="uppercase")
+    # if `all_caps` is False, reset options to default, or, set new options
+    # for `locations` selected
+    if not all_caps:
+        return tab_options(
+            self,
+            column_labels_font_size="100%",
+            column_labels_font_weight="normal",
+            column_labels_text_transform="inherit",
+            stub_font_size="100%",
+            stub_font_weight="initial",
+            stub_text_transform="inherit",
+            row_group_font_size="100%",
+            row_group_font_weight="initial",
+            row_group_text_transform="inherit",
+        )
 
-        if "row_group" in locations:
-            res = tab_options(res, row_group_font_size="80%")
-            res = tab_options(res, row_group_font_weight="bolder")
-            res = tab_options(res, row_group_text_transform="uppercase")
+    info = [
+        (
+            LocColumnLabels,
+            {
+                "column_labels_font_size": "80%",
+                "column_labels_font_weight": "bolder",
+                "column_labels_text_transform": "uppercase",
+            },
+        ),
+        (
+            LocStub,
+            {
+                "stub_font_size": "80%",
+                "stub_font_weight": "bolder",
+                "stub_text_transform": "uppercase",
+            },
+        ),
+        (
+            LocRowGroups,
+            {
+                "row_group_font_size": "80%",
+                "row_group_font_weight": "bolder",
+                "row_group_text_transform": "uppercase",
+            },
+        ),
+    ]
+    d = {}
+    for location, params in info:
+        if location in locations:
+            d |= params
 
-    else:
-        res = tab_options(res, column_labels_font_size="100%")
-        res = tab_options(res, column_labels_font_weight="normal")
-        res = tab_options(res, column_labels_text_transform="inherit")
-        res = tab_options(res, stub_font_size="100%")
-        res = tab_options(res, stub_font_weight="initial")
-        res = tab_options(res, stub_text_transform="inherit")
-        res = tab_options(res, row_group_font_size="100%")
-        res = tab_options(res, row_group_font_weight="initial")
-        res = tab_options(res, row_group_text_transform="inherit")
-
-    return res
+    return tab_options(self, **d)
 
 
 def opt_table_outline(
