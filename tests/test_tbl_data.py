@@ -57,7 +57,7 @@ def df_container_dtypes(request):
 
     if dtype_constructor == pl.List:
         return pl.DataFrame(
-            {"col1": [1, 2, 3], "col2": [[1, 2, 3], [4, 5], [6, 7, 8]], "col3": ["a", "b", "c"]}
+            {"col1": [1, 2, 3], "col2": [[1, 2, 3], [4, 5], None], "col3": ["a", "b", "c"]}
         )
     # return a pl df with pl.Array columns
     else:
@@ -65,7 +65,7 @@ def df_container_dtypes(request):
         return pl.DataFrame(
             {
                 "col1": [1, 2, 3],
-                "col2": [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+                "col2": [[1, 2, 3], [4, 5, 6], None],
                 "col3": ["a", "b", "c"],
             }
         ).with_columns(col2_as_array)
@@ -103,7 +103,8 @@ def test_get_cell(df: DataFrameLike):
 
 def test_get_cell_container_dtypes(df_container_dtypes: pl.DataFrame):
     "Checks that container dtype entries in polars dfs are returned as lists"
-    assert isinstance(_get_cell(df_container_dtypes, 1, "col2"), list)
+    assert isinstance(_get_cell(df_container_dtypes, 0, "col2"), list)
+    assert _get_cell(df_container_dtypes, 2, "col2") is None
 
 
 def test_set_cell(df: DataFrameLike):
