@@ -1984,6 +1984,22 @@ def test_nanoplot_unknown_plot_type():
         _generate_nanoplot(y_vals=[1, 2, 3], plot_type="unknown")
 
 
+@pytest.mark.parametrize("interactive_data_values", [True, False])
+def test_generate_nanoplot_interactive_data_values_toggles_hover_css(interactive_data_values):
+    svg = _generate_nanoplot(
+        y_vals=[1.0, 2.0, 3.0],
+        interactive_data_values=interactive_data_values,
+    )
+
+    assert _is_nanoplot_output(svg)
+
+    if interactive_data_values:
+        assert ".vert-line:hover rect" in svg
+    else:
+        assert ":hover" not in svg
+        assert ".vert-line rect" in svg
+
+
 @pytest.mark.parametrize(
     "n, bool_",
     [
