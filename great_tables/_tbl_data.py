@@ -226,14 +226,13 @@ def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
 def _(data: Any, row: int, column: str) -> Any:
     import polars as pl
 
-    # if container dtype, convert pl.Series to list
-    if isinstance(data[column].dtype, (pl.List, pl.Array)):
-        cell = data[column][row]
-        if cell is not None:
-            return cell.to_list()
-        return cell
+    res = data[column][row]
 
-    return data[column][row]
+    # container dtypes (pl.List, pl.Array) return a pl.Series
+    if isinstance(res, pl.Series):
+        return res.to_list()
+
+    return res
 
 
 @_get_cell.register(PdDataFrame)
