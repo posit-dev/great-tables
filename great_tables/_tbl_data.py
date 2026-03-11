@@ -224,7 +224,15 @@ def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
 
 @_get_cell.register(PlDataFrame)
 def _(data: Any, row: int, column: str) -> Any:
-    return data[column][row]
+    import polars as pl
+
+    res = data[column][row]
+
+    # container dtypes (pl.List, pl.Array) return a pl.Series
+    if isinstance(res, pl.Series):
+        return res.to_list()
+
+    return res
 
 
 @_get_cell.register(PdDataFrame)
@@ -570,7 +578,9 @@ def _(df: PlDataFrame):
     import polars.selectors as cs
 
     list_cols = [
-        name for name, dtype in df.schema.items() if issubclass(dtype.base_type(), pl.List)
+        name
+        for name, dtype in df.schema.items()
+        if issubclass(dtype.base_type(), (pl.List, pl.Array))
     ]
 
     return df.with_columns(

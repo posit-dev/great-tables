@@ -1,11 +1,12 @@
 import math
+
 import pandas as pd
 import polars as pl
-import pyarrow as pa
 import polars.testing
+import pyarrow as pa
 import pytest
+
 from great_tables import GT
-from great_tables._utils_render_html import create_body_component_h
 from great_tables._tbl_data import (
     DataFrameLike,
     SeriesLike,
@@ -14,6 +15,7 @@ from great_tables._tbl_data import (
     _set_cell,
     _validate_selector_list,
     cast_frame_to_string,
+    copy_frame,
     create_empty_frame,
     eval_aggregate,
     eval_select,
@@ -24,8 +26,8 @@ from great_tables._tbl_data import (
     to_frame,
     to_list,
     validate_frame,
-    copy_frame,
 )
+from great_tables._utils_render_html import create_body_component_h
 
 params_frames = [
     pytest.param(pd.DataFrame, id="pandas"),
@@ -38,11 +40,35 @@ params_series = [
     pytest.param(pa.array, id="arrow"),
     pytest.param(lambda a: pa.chunked_array([a]), id="arrow-chunked"),
 ]
+params_pl_container_dtypes = [
+    pytest.param(pl.List, id="list"),
+    pytest.param(pl.Array, id="array"),
+]
 
 
 @pytest.fixture(params=params_frames, scope="function")
 def df(request) -> pd.DataFrame:
     return request.param({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+
+
+@pytest.fixture(params=params_pl_container_dtypes, scope="function")
+def df_container_dtypes(request):
+    dtype_constructor = request.param
+
+    if dtype_constructor == pl.List:
+        return pl.DataFrame(
+            {"col1": [1, 2, 3], "col2": [[1, 2, 3], [4, 5], None], "col3": ["a", "b", "c"]}
+        )
+    # return a pl df with pl.Array columns
+    else:
+        col2_as_array = pl.col("col2").cast(pl.Array(pl.Int32, shape=(3,)))
+        return pl.DataFrame(
+            {
+                "col1": [1, 2, 3],
+                "col2": [[1, 2, 3], [4, 5, 6], None],
+                "col3": ["a", "b", "c"],
+            }
+        ).with_columns(col2_as_array)
 
 
 @pytest.fixture(params=params_series, scope="function")
@@ -73,6 +99,12 @@ def test_get_column_dtypes(df: DataFrameLike):
 
 def test_get_cell(df: DataFrameLike):
     assert _get_cell(df, 1, "col2") == "b"
+
+
+def test_get_cell_container_dtypes(df_container_dtypes: pl.DataFrame):
+    "Checks that container dtype entries in polars dfs are returned as lists"
+    assert isinstance(_get_cell(df_container_dtypes, 0, "col2"), list)
+    assert _get_cell(df_container_dtypes, 2, "col2") is None
 
 
 def test_set_cell(df: DataFrameLike):
