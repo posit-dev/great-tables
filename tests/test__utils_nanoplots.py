@@ -1984,6 +1984,22 @@ def test_nanoplot_unknown_plot_type():
         _generate_nanoplot(y_vals=[1, 2, 3], plot_type="unknown")
 
 
+@pytest.mark.parametrize("interactive_data_values", [True, False])
+def test_generate_nanoplot_interactive_data_values_toggles_hover_css(interactive_data_values):
+    svg = _generate_nanoplot(
+        y_vals=[1.0, 2.0, 3.0],
+        interactive_data_values=interactive_data_values,
+    )
+
+    assert _is_nanoplot_output(svg)
+
+    if interactive_data_values:
+        assert ".vert-line:hover rect" in svg
+    else:
+        assert ":hover" not in svg
+        assert ".vert-line rect" in svg
+
+
 @pytest.mark.parametrize(
     "n, bool_",
     [
@@ -2061,3 +2077,17 @@ def test_noerror_list_of_strings() -> None:
             show_data_area=False,
         ),
     )
+
+
+def test_nanoplot_options_interactive_data_values():
+    # When interactive_data_values is not set, it should default to True
+    opts_default = nanoplot_options()
+    assert opts_default["interactive_data_values"] is True
+
+    # When explicitly set to False, it should be respected (not overridden)
+    opts_false = nanoplot_options(interactive_data_values=False)
+    assert opts_false["interactive_data_values"] is False
+
+    # When explicitly set to True, it should remain True
+    opts_true = nanoplot_options(interactive_data_values=True)
+    assert opts_true["interactive_data_values"] is True
