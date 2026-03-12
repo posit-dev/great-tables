@@ -1,5 +1,7 @@
 ---
 title: Recreating Septa Transit Timetables in Python
+author: Michael Chow and Rich Iannone
+date: 2026-03-12
 format: html
 html-table-processing: none
 jupyter: python3
