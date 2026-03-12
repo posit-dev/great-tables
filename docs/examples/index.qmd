@@ -7,6 +7,7 @@ format:
   html:
     code-fold: true
     code-summary: "Show the Code"
+toc: false
 ---
 
 :::::: {.column-page}
@@ -131,14 +132,14 @@ towny_mini = (
     .head(10)
 )
 
-towny_mini["url_name"] = ["["] + towny_mini["name"] + ["]"] + ["("] + towny_mini["website"] + [")"]
+towny_mini["url_name"] = "[" + towny_mini["name"] + "](" + towny_mini["website"] + ")"
 
 towny_mini["location"] = (
-    ["[map](http://maps.google.com/?ie=UTF8&hq=&ll="]
+    "[map](http://maps.google.com/?ie=UTF8&hq=&ll="
     + towny_mini["latitude"].astype(str)
-    + [","]
+    + ","
     + towny_mini["longitude"].astype(str)
-    + ["&z=13)"]
+    + "&z=13)"
 )
 
 (
@@ -419,3 +420,21 @@ coffee_table
 :::::
 ::::::
 
+## Ecosystem
+
+:::::: {.column-page}
+::::: {.grid}
+
+:::{.g-col-lg-6 .g-col-12 .shrink-example}
+
+<a
+  href="https://posit-dev.github.io/gt-extras/examples/with-code.html#gini_coefficient_table"
+  target="_blank"
+  >See the code (gt-extras site) ⬀</a>
+
+{{< embed gt-extras-gini/index.qmd#table-output >}}
+
+:::
+
+:::::
+::::::

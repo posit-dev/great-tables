@@ -248,14 +248,14 @@ towny_mini = (
     .head(10)
 )
 
-towny_mini["url_name"] = ["["] + towny_mini["name"] + ["]"] + ["("] + towny_mini["website"] + [")"]
+towny_mini["url_name"] = "[" + towny_mini["name"] + "](" + towny_mini["website"] + ")"
 
 towny_mini["location"] = (
-    ["[map](http://maps.google.com/?ie=UTF8&hq=&ll="]
+    "[map](http://maps.google.com/?ie=UTF8&hq=&ll="
     + towny_mini["latitude"].astype(str)
-    + [","]
+    + ","
     + towny_mini["longitude"].astype(str)
-    + ["&z=13)"]
+    + "&z=13)"
 )
 
 print(

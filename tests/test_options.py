@@ -3,7 +3,7 @@ import re
 import pandas as pd
 import polars as pl
 import pytest
-from great_tables import GT, exibble, md, google_font
+from great_tables import GT, exibble, loc, md, google_font
 from great_tables._scss import compile_scss
 from great_tables._gt_data import default_fonts_list
 from great_tables._helpers import _intify_scaled_px
@@ -65,6 +65,8 @@ def gt_tbl():
             container_height="500px",
             container_overflow_x="hidden",
             container_overflow_y="hidden",
+            container_padding_x=css_length_val_small,
+            container_padding_y=css_length_val_small,
             table_width=css_length_val_large,
             table_layout="auto",
             table_margin_left=css_length_val_margin,
@@ -189,6 +191,8 @@ def test_options_all_available(gt_tbl: GT):
     assert gt_tbl._options.container_height.value == "500px"
     assert gt_tbl._options.container_overflow_x.value == "hidden"
     assert gt_tbl._options.container_overflow_y.value == "hidden"
+    assert gt_tbl._options.container_padding_x.value == css_length_val_small
+    assert gt_tbl._options.container_padding_y.value == css_length_val_small
     assert gt_tbl._options.table_width.value == css_length_val_large
     assert gt_tbl._options.table_layout.value == "auto"
     assert gt_tbl._options.table_margin_left.value == css_length_val_margin
@@ -550,3 +554,218 @@ def test_opt_horizontal_padding_raises(gt_tbl: GT, scale: float):
         gt_tbl.opt_horizontal_padding(scale=scale)
 
     assert "`scale` must be a value between `0` and `3`." in exc_info.value.args[0]
+
+
+def test_opt_css_add_single_rule():
+    # Test adding a single CSS rule
+    res = GT(exibble).opt_css(css=".gt_table { background-color: red; }")
+    assert res._options.table_additional_css.value == [".gt_table { background-color: red; }"]
+
+
+def test_opt_css_chaining():
+    # Test chaining multiple CSS additions
+    res = (
+        GT(exibble)
+        .opt_css(css=".gt_table { background-color: red; }")
+        .opt_css(css=".gt_row { color: blue; }")
+    )
+    assert len(res._options.table_additional_css.value) == 2
+    assert ".gt_table { background-color: red; }" in res._options.table_additional_css.value
+    assert ".gt_row { color: blue; }" in res._options.table_additional_css.value
+
+
+def test_opt_css_duplicate_prevented():
+    # Test that duplicate CSS is prevented by default
+    gt_tbl = GT(exibble)
+    css_rule = ".gt_table { color: green; }"
+
+    res = gt_tbl.opt_css(css=css_rule).opt_css(css=css_rule)
+
+    assert res._options.table_additional_css.value == [css_rule]
+
+
+def test_opt_css_allow_duplicates():
+    # Test that duplicates are allowed when allow_duplicates=True
+    gt_tbl = GT(exibble)
+    css_rule = ".gt_table { color: green; }"
+
+    res = gt_tbl.opt_css(css=css_rule).opt_css(css=css_rule, allow_duplicates=True)
+
+    assert res._options.table_additional_css.value == [css_rule, css_rule]
+
+
+def test_opt_css_replace_mode():
+    # Add initial CSS
+    res = (
+        GT(exibble).opt_css(css=".gt_table { color: red; }").opt_css(css=".gt_row { color: blue; }")
+    )
+
+    assert len(res._options.table_additional_css.value) == 2
+
+    # Replace all CSS with `add=False`
+    res_2 = res.opt_css(css=".gt_table { color: green; }", add=False)
+    assert res_2._options.table_additional_css.value == [".gt_table { color: green; }"]
+
+
+def test_opt_css_whitespace_handling():
+    gt_tbl = GT(exibble)
+
+    # Test using empty-string CSS
+    res = gt_tbl.opt_css(css="")
+    assert res._options.table_additional_css.value == []
+
+    # Test whitespace-only CSS
+    res_2 = gt_tbl.opt_css(css="   \n  \t  ")
+    assert res_2._options.table_additional_css.value == []
+
+    # Test CSS with leading and trailing whitespace (it should get stripped)
+    res_3 = gt_tbl.opt_css(css="  .gt_table { color: red; }  ")
+    assert res_3._options.table_additional_css.value == [".gt_table { color: red; }"]
+
+
+def test_opt_css_empty_string_preserves_existing():
+    # Test that opt_css(css="") preserves existing CSS when add=True (default)
+    gt_tbl = GT(exibble).opt_css(css=".gt_table { color: red; }")
+
+    res = gt_tbl.opt_css(css="")
+
+    assert res._options.table_additional_css.value == [".gt_table { color: red; }"]
+
+
+def test_opt_css_empty_string_clears_with_add_false():
+    # Test that opt_css(css="", add=False) clears existing CSS
+    gt_tbl = GT(exibble).opt_css(css=".gt_table { color: red; }")
+
+    res = gt_tbl.opt_css(css="", add=False)
+
+    assert res._options.table_additional_css.value == []
+
+
+def test_opt_css_multiline():
+    multiline_css = """
+#test_table .gt_table {
+  background-color: skyblue;
+}
+#test_table .gt_row {
+  padding: 20px;
+}"""
+
+    result = GT(exibble, id="test_table").opt_css(css=multiline_css)
+
+    expected_css = multiline_css.strip()
+
+    assert result._options.table_additional_css.value == [expected_css]
+
+
+def test_opt_css_html_output():
+    css_rule = "#test_table .gt_table { background-color: lightblue; }"
+    res = GT(exibble, id="test_table").opt_css(css=css_rule)
+
+    html = res.as_raw_html()
+
+    # Check that the CSS appears in the HTML string
+    assert css_rule in html
+
+    # For the CSS ordering, the added CSS should come after the default CSS
+    default_css_pos = html.find("#test_table .gt_table { display: table;")
+    custom_css_pos = html.find(css_rule)
+
+    assert default_css_pos > 0
+    assert custom_css_pos > 0
+    assert custom_css_pos > default_css_pos
+
+
+def test_opt_css_with_tab_options():
+    res = (
+        GT(exibble)
+        .tab_options(table_additional_css=".initial { color: red; }")
+        .opt_css(css=".added { color: blue; }")
+    )
+
+    css_list = res._options.table_additional_css.value
+
+    assert len(css_list) == 2
+    assert ".initial { color: red; }" in css_list
+    assert ".added { color: blue; }" in css_list
+
+    # Test that `opt_css()` rule comes after the `tab_options()` rule in the rendered HTML
+    html = res.as_raw_html()
+
+    assert html.index(".added { color: blue; }") > html.index(".initial { color: red; }")
+
+
+def test_tab_options_empty_string_css():
+    # Test that tab_options(table_additional_css="") results in empty list, not [""]
+    res = GT(exibble).tab_options(table_additional_css="")
+
+    assert res._options.table_additional_css.value == []
+
+
+def test_opt_all_caps(gt_tbl: GT):
+    tbl = gt_tbl.opt_all_caps(locations=loc.column_labels)
+
+    assert tbl._options.column_labels_font_size.value == "80%"
+    assert tbl._options.column_labels_font_weight.value == "bolder"
+    assert tbl._options.column_labels_text_transform.value == "uppercase"
+
+    tbl = gt_tbl.opt_all_caps(locations=[loc.column_labels, loc.stub])
+
+    assert tbl._options.column_labels_font_size.value == "80%"
+    assert tbl._options.column_labels_font_weight.value == "bolder"
+    assert tbl._options.column_labels_text_transform.value == "uppercase"
+
+    assert tbl._options.stub_font_size.value == "80%"
+    assert tbl._options.stub_font_weight.value == "bolder"
+    assert tbl._options.stub_text_transform.value == "uppercase"
+
+    tbl = gt_tbl.opt_all_caps(locations=[loc.column_labels, loc.stub, loc.row_groups])
+
+    assert tbl._options.column_labels_font_size.value == "80%"
+    assert tbl._options.column_labels_font_weight.value == "bolder"
+    assert tbl._options.column_labels_text_transform.value == "uppercase"
+
+    assert tbl._options.stub_font_size.value == "80%"
+    assert tbl._options.stub_font_weight.value == "bolder"
+    assert tbl._options.stub_text_transform.value == "uppercase"
+
+    assert tbl._options.row_group_font_size.value == "80%"
+    assert tbl._options.row_group_font_weight.value == "bolder"
+    assert tbl._options.row_group_text_transform.value == "uppercase"
+
+    tbl = gt_tbl.opt_all_caps()
+
+    assert tbl._options.column_labels_font_size.value == "80%"
+    assert tbl._options.column_labels_font_weight.value == "bolder"
+    assert tbl._options.column_labels_text_transform.value == "uppercase"
+
+    assert tbl._options.stub_font_size.value == "80%"
+    assert tbl._options.stub_font_weight.value == "bolder"
+    assert tbl._options.stub_text_transform.value == "uppercase"
+
+    assert tbl._options.row_group_font_size.value == "80%"
+    assert tbl._options.row_group_font_weight.value == "bolder"
+    assert tbl._options.row_group_text_transform.value == "uppercase"
+
+    tbl = gt_tbl.opt_all_caps(all_caps=False)
+
+    assert tbl._options.column_labels_font_size.value == "100%"
+    assert tbl._options.column_labels_font_weight.value == "normal"
+    assert tbl._options.column_labels_text_transform.value == "inherit"
+
+    assert tbl._options.stub_font_size.value == "100%"
+    assert tbl._options.stub_font_weight.value == "initial"
+    assert tbl._options.stub_text_transform.value == "inherit"
+
+    assert tbl._options.row_group_font_size.value == "100%"
+    assert tbl._options.row_group_font_weight.value == "initial"
+    assert tbl._options.row_group_text_transform.value == "inherit"
+
+
+def test_opt_all_caps_raises(gt_tbl: GT):
+    with pytest.raises(ValueError, match="Invalid location string"):
+        gt_tbl.opt_all_caps(locations="invalid_location")
+
+
+def test_opt_all_caps_string_deprecated(gt_tbl: GT):
+    with pytest.warns(DeprecationWarning, match="string-based locations"):
+        gt_tbl.opt_all_caps(locations="column_labels")

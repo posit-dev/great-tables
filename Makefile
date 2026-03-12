@@ -17,6 +17,14 @@ check:
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
+.PHONY: install-pre-commit
+install-pre-commit: # Install pre-commit hooks
+	@uvx pre-commit install
+
+.PHONY: run-pre-commit
+run-pre-commit: # Run pre-commit hooks
+	@uvx pre-commit run --all-files
+
 clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/

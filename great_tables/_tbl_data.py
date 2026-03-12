@@ -19,20 +19,23 @@ if TYPE_CHECKING:
     import polars as pl
     import pyarrow as pa
 
-    # the class behind selectors
-    from polars.selectors import _selector_proxy_
+    # backwards compatible import of polars Selector type
+    try:
+        from polars.selectors import Selector
+    except ImportError:
+        from polars.selectors import _selector_proxy_ as Selector
 
     PdDataFrame = pd.DataFrame
     PlDataFrame = pl.DataFrame
     PyArrowTable = pa.Table
 
-    PlSelectExpr = _selector_proxy_
+    PlSelectExpr = Selector
     PlExpr = pl.Expr
 
-    PdSeries = pd.Series
+    PdSeries = pd.Series[Any]
     PlSeries = pl.Series
-    PyArrowArray = pa.Array
-    PyArrowChunkedArray = pa.ChunkedArray
+    PyArrowArray = pa.Array[Any]
+    PyArrowChunkedArray = pa.ChunkedArray[Any]
 
     PdNA = pd.NA
     PlNull = pl.Null
@@ -49,7 +52,7 @@ else:
 
     # we just need this as a static type hint, but singledispatch tries to resolve
     # any hints at runtime. So we need some value for it.
-    from typing import Any as _selector_proxy_
+    from typing import Any as Selector
 
     class PdDataFrame(AbstractBackend):
         _backends = [("pandas", "DataFrame")]
@@ -61,7 +64,8 @@ else:
         _backends = [("pyarrow", "Table")]
 
     class PlSelectExpr(AbstractBackend):
-        _backends = [("polars.selectors", "_selector_proxy_")]
+        _backends = [("polars.selectors", "_selector_proxy_"), ("polars.selectors", "Selector")]
+        _strict = False
 
     class PlExpr(AbstractBackend):
         _backends = [("polars", "Expr")]
@@ -220,7 +224,15 @@ def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
 
 @_get_cell.register(PlDataFrame)
 def _(data: Any, row: int, column: str) -> Any:
-    return data[column][row]
+    import polars as pl
+
+    res = data[column][row]
+
+    # container dtypes (pl.List, pl.Array) return a pl.Series
+    if isinstance(res, pl.Series):
+        return res.to_list()
+
+    return res
 
 
 @_get_cell.register(PdDataFrame)
@@ -398,9 +410,7 @@ def _(
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool = True) -> _NamePos:
-    # TODO: how to annotate type of a polars selector?
-    # Seems to be polars.selectors._selector_proxy_.
+def _(data: PlDataFrame, expr: Union[list[str], PlSelectExpr], strict: bool = True) -> _NamePos:
     import polars as pl
     import polars.selectors as cs
     from polars import Expr
@@ -409,10 +419,6 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
 
     pl_version = _re_version(pl.__version__)
     expand_opts = {"strict": False} if pl_version >= (0, 20, 30) else {}
-
-    # just in case _selector_proxy_ gets renamed or something
-    # it inherits from Expr, so we can just use that in a pinch
-    cls_selector = getattr(cs, "_selector_proxy_", Expr)
 
     if isinstance(expr, (str, int)):
         expr = [expr]
@@ -436,7 +442,7 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
             for col_name in cs.expand_selector(data, sel, **expand_opts)
         ).as_list()
     else:
-        if not isinstance(expr, (cls_selector, Expr)):
+        if not isinstance(expr, (PlSelectExpr, Expr)):
             raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
         final_columns = cs.expand_selector(data, expr, **expand_opts)
@@ -448,9 +454,7 @@ def _(data: PlDataFrame, expr: Union[list[str], _selector_proxy_], strict: bool 
 
 
 @eval_select.register
-def _(
-    data: PyArrowTable, expr: Union[list[str], _selector_proxy_], strict: bool = True
-) -> _NamePos:
+def _(data: PyArrowTable, expr: Union[list[str], PlSelectExpr], strict: bool = True) -> _NamePos:
     if isinstance(expr, (str, int)):
         expr = [expr]
 
@@ -574,7 +578,9 @@ def _(df: PlDataFrame):
     import polars.selectors as cs
 
     list_cols = [
-        name for name, dtype in df.schema.items() if issubclass(dtype.base_type(), pl.List)
+        name
+        for name, dtype in df.schema.items()
+        if issubclass(dtype.base_type(), (pl.List, pl.Array))
     ]
 
     return df.with_columns(
@@ -763,7 +769,7 @@ def _(df: PyArrowTable, x: Any) -> bool:
     import pyarrow as pa
 
     arr = pa.array([x])
-    return arr.is_null().to_pylist()[0] or arr.is_nan().to_pylist()[0]
+    return arr.is_null(nan_is_null=True).to_pylist()[0]
 
 
 @singledispatch
@@ -936,3 +942,25 @@ def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowTable]) -> dict[st
         )
 
     return {col: res.column(col)[0].as_py() for col in res.column_names}
+
+
+@singledispatch
+def get_rows(ser: SeriesLike, indexes: list[int]) -> SeriesLike:
+    """Returns values of the series at `indexes` position.`"""
+    raise NotImplementedError(f"Unsupported type: {type(ser)}")
+
+
+@get_rows.register
+def _(ser: PdSeries, indexes: list[int]) -> PdSeries:
+    return ser.iloc[indexes]
+
+
+@get_rows.register
+def _(ser: PlSeries, indexes: list[int]) -> PlSeries:
+    return ser[indexes]
+
+
+@get_rows.register(PyArrowArray)
+@get_rows.register(PyArrowChunkedArray)
+def _(ser: Any, indexes: list[int]) -> PyArrowArray | PyArrowChunkedArray:
+    return ser.take(indexes)

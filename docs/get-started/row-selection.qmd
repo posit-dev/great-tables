@@ -73,7 +73,7 @@ gt_polars.tab_style(
 
 Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a function for selecting rows. The function should take a DataFrame and return a boolean series.
 
-Here's the same example as the previous polars section, but with pandas data, and a lamba for selecting rows.
+Here's the same example as the previous polars section, but with pandas data, and a lambda for selecting rows.
 
 ```{python}
 gt_ex.fmt_integer("num", rows=lambda D: D["currency"] < 40)
