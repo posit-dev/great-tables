@@ -20,7 +20,7 @@ Notice these big pieces:
 
 Tables like this often have to be created in tools like Illustrator, and updated by hand. At the same time, when agencies automate table creation, they often sacrifice a lot of the assistive features and helpful affordances of the table.
 
-We set out to recreate this table in Great Tables (and by we I mean 99% Rich).
+We set out to recreate this table in Great Tables (and by we I mean 99% Rich). In this post, I'll walk quickly through how we recreated it, and share some other examples of transit timetables in the wild. For the theory behind why tables like this are useful, see [The Design Philosophy of Great Tables](../design-philosophy/index.qmd).
 
 ## The final result
 
