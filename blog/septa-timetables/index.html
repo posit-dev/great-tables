@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Michael Chow and Rich Iannone">
+<meta name="dcterms.date" content="2026-03-12">
+
+<title>Recreating Septa Transit Timetables in Python – great_tables</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-afa37c5c79185640b9c231024f4fe5ea.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-CN7Z82M6R7"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-margin-left="28"></script>
+<script async="" src="https://plausible.io/js/pa-N27-YgfNQBpdNqDqGcyE1.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../../reference/_styles-quartodoc.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">great_tables</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../get-started/index.html"> 
+<span class="menu-text">Get Started</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../examples/index.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog/index.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/posit-dev/great-tables"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../blog/index.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-final-result" id="toc-the-final-result" class="nav-link active" data-scroll-target="#the-final-result">The final result</a></li>
+  <li><a href="#reading-in-stops-and-times" id="toc-reading-in-stops-and-times" class="nav-link" data-scroll-target="#reading-in-stops-and-times">Reading in stops and times</a></li>
+  <li><a href="#creating-the-table" id="toc-creating-the-table" class="nav-link" data-scroll-target="#creating-the-table">Creating the table</a></li>
+  <li><a href="#other-schedules-in-the-wild" id="toc-other-schedules-in-the-wild" class="nav-link" data-scroll-target="#other-schedules-in-the-wild">Other schedules in the wild</a></li>
+  <li><a href="#in-conclusion" id="toc-in-conclusion" class="nav-link" data-scroll-target="#in-conclusion">In conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Recreating Septa Transit Timetables in Python</h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Michael Chow and Rich Iannone </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 12, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Recently, Rich and I were poking around transit data, and we were struck by the amount of structuring that goes into transit timetables.</p>
+<p>For example, consider this weekend rail schedule table from SEPTA, Philadelphia’s transit agency.</p>
+<p><img src="./example-timetable.png" class="img-fluid" style="max-width: 700px; display: block; margin-left: auto; margin-right: auto;"></p>
+<p>Notice these big pieces:</p>
+<ul>
+<li>The vertical text on the left indicating trains are traveling “TO CENTER CITY”.</li>
+<li>The blue header, and spanner columns (“Services” and “Train Number”) grouping related columns.</li>
+<li>The striped background for easier reading. Also the black background indicating stations in Center City (the urban core).</li>
+</ul>
+<p>Tables like this often have to be created in tools like Illustrator, and updated by hand. At the same time, when agencies automate table creation, they often sacrifice a lot of the assistive features and helpful affordances of the table.</p>
+<p>We set out to recreate this table in Great Tables (and by we I mean 99% Rich). In this post, I’ll walk quickly through how we recreated it, and share some other examples of transit timetables in the wild. For the theory behind why tables like this are useful, see <a href="../../blog/design-philosophy/index.html">The Design Philosophy of Great Tables</a>.</p>
+<section id="the-final-result" class="level2">
+<h2 class="anchored" data-anchor-id="the-final-result">The final result</h2>
+<p>Here’s a look at our quick version in Great Tables. In this post we’ll walk through quickly how we created it, but wanted to treat you to the final result up front! Note that the table is fully in HTML for accessibility.</p>
+<div id="6ce8cb49" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, html, style, loc, google_font</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>stops <span class="op">=</span> pl.read_csv(<span class="st">"chw-stops.csv"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>times <span class="op">=</span> pl.read_csv(<span class="st">"times.csv"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>stop_times <span class="op">=</span> times.join(other<span class="op">=</span>stops, on<span class="op">=</span><span class="st">"stop_name"</span>, maintain_order<span class="op">=</span><span class="st">"left"</span>).select(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    pl.lit(<span class="st">"To Center City"</span>).alias(<span class="st">"direction"</span>), pl.col(<span class="st">"*"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> h_m_p(s):</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    h, m, _ <span class="op">=</span> [<span class="bu">int</span>(part) <span class="cf">for</span> part <span class="kw">in</span> s.split(<span class="st">":"</span>)]</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    ap <span class="op">=</span> <span class="st">"a"</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> h <span class="op">&gt;</span> <span class="dv">12</span>:</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        h <span class="op">-=</span> <span class="dv">12</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        ap <span class="op">=</span> <span class="st">"p"</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>h<span class="sc">}</span><span class="ss">:</span><span class="sc">{</span>m<span class="sc">:02d}{</span>ap<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tick(b):</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"&amp;check;"</span> <span class="cf">if</span> b <span class="cf">else</span> <span class="st">""</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>transit_table <span class="op">=</span> (</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    GT(stop_times)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    .tab_stub(groupname_col<span class="op">=</span><span class="st">"direction"</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    .tab_header(<span class="st">"Saturdays, Sundays, and Major Holidays"</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    .cols_hide(columns<span class="op">=</span>[<span class="st">"stop_url"</span>, <span class="st">"zone_id"</span>, <span class="st">"stop_desc"</span>, <span class="st">"stop_lat"</span>, <span class="st">"stop_lon"</span>, <span class="st">"stop_id"</span>])</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    .fmt(h_m_p, columns<span class="op">=</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>))</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    .fmt(tick, columns<span class="op">=</span>cs.starts_with(<span class="st">"service_"</span>))</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    .cols_label(</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        stop_name<span class="op">=</span><span class="st">"Stations"</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        service_access<span class="op">=</span><span class="st">"A"</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        service_cash<span class="op">=</span><span class="st">"C"</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>        service_park<span class="op">=</span><span class="st">"P"</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>        fare_zone<span class="op">=</span>html(<span class="st">"Fare&lt;br&gt;Zone"</span>),</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(label<span class="op">=</span><span class="st">"Services"</span>, columns<span class="op">=</span>cs.starts_with(<span class="st">"service_"</span>))</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(label<span class="op">=</span><span class="st">"Train Number"</span>, columns<span class="op">=</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>))</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    .cols_move_to_start(<span class="st">"fare_zone"</span>)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    .cols_move_to_start(cs.starts_with(<span class="st">"service_"</span>))</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    .cols_width(cases<span class="op">=</span>{c: <span class="st">"20px"</span> <span class="cf">for</span> c <span class="kw">in</span> stop_times.columns <span class="cf">if</span> c.startswith(<span class="st">"service_"</span>)})</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    .cols_width(cases<span class="op">=</span>{c: <span class="st">"60px"</span> <span class="cf">for</span> c <span class="kw">in</span> stop_times.columns <span class="cf">if</span> c.startswith(<span class="st">"8"</span>)})</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    .opt_row_striping(row_striping<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    .cols_align(align<span class="op">=</span><span class="st">"center"</span>, columns<span class="op">=</span><span class="st">"fare_zone"</span>)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    .cols_align(align<span class="op">=</span><span class="st">"right"</span>, columns<span class="op">=</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>))</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># style header</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.header(),</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>            <span class="st">"background-color: rgb(66, 99, 128) !important; color: white !important; font-size: 24px !important; font-weight: bold !important; border-width: 0px !important;"</span>,</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    <span class="co"># style vertical text on left</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.row_groups(),</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>        <span class="co"># </span><span class="al">TODO</span><span class="co">: rotate text vertically</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>            <span class="st">"writing-mode: sideways-lr; padding-bottom: 25% !important; font-size: 24px !important; font-weight: bold !important; text-transform: uppercase !important;"</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>            <span class="st">"background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;"</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.body(columns<span class="op">=</span><span class="va">None</span>, rows<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="op">-</span><span class="dv">4</span>, <span class="op">-</span><span class="dv">1</span>))),</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>            <span class="st">"""</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a><span class="st">                border-top: none !important;</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a><span class="st">                border-bottom: none !important;</span></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a><span class="st">                border-right: solid white 2px !important;</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a><span class="st">                color: white !important;</span></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a><span class="st">            """</span></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.body(columns<span class="op">=~</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>), rows<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="op">-</span><span class="dv">4</span>, <span class="op">-</span><span class="dv">1</span>))),</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(<span class="st">"border-right: solid black 2px !important;"</span>),</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.body(columns<span class="op">=~</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>), rows<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">10</span>)) <span class="op">+</span> [<span class="dv">13</span>]),</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>    .tab_options(</span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>        row_striping_background_color<span class="op">=</span><span class="st">"#A9A9A9"</span>,</span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>        row_group_as_column<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>    .opt_table_outline()</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>    .opt_table_font(font<span class="op">=</span>google_font(<span class="st">"IBM Plex Sans"</span>))</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>transit_table</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/great_tables/_render_checks.py:37: RenderWarning: Rendering table with .cols_width() in Quarto may result in unexpected behavior. This is because Quarto performs custom table processing. Either use all percentage widths, or set .tab_options(quarto_disable_processing=True) to disable Quarto table processing.
+  warnings.warn(</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div id="imjgjlgbcl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap');
+#imjgjlgbcl table {
+          font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#imjgjlgbcl thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#imjgjlgbcl p { margin: 0; padding: 0; }
+ #imjgjlgbcl .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 3px; border-top-color: #D3D3D3; border-right-style: solid; border-right-width: 3px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 3px; border-bottom-color: #D3D3D3; border-left-style: solid; border-left-width: 3px; border-left-color: #D3D3D3; }
+ #imjgjlgbcl .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #imjgjlgbcl .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #imjgjlgbcl .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #imjgjlgbcl .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #imjgjlgbcl .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #imjgjlgbcl .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #imjgjlgbcl .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #imjgjlgbcl .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #imjgjlgbcl .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #imjgjlgbcl .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #imjgjlgbcl .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #imjgjlgbcl .gt_spanner_row { border-bottom-style: hidden; }
+ #imjgjlgbcl .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #imjgjlgbcl .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #imjgjlgbcl .gt_from_md> :first-child { margin-top: 0; }
+ #imjgjlgbcl .gt_from_md> :last-child { margin-bottom: 0; }
+ #imjgjlgbcl .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #imjgjlgbcl .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #imjgjlgbcl .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #imjgjlgbcl .gt_row_group_first td { border-top-width: 2px; }
+ #imjgjlgbcl .gt_row_group_first th { border-top-width: 2px; }
+ #imjgjlgbcl .gt_striped { color: #333333; background-color: #A9A9A9; }
+ #imjgjlgbcl .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #imjgjlgbcl .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #imjgjlgbcl .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #imjgjlgbcl .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #imjgjlgbcl .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #imjgjlgbcl .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #imjgjlgbcl .gt_left { text-align: left; }
+ #imjgjlgbcl .gt_center { text-align: center; }
+ #imjgjlgbcl .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #imjgjlgbcl .gt_font_normal { font-weight: normal; }
+ #imjgjlgbcl .gt_font_bold { font-weight: bold; }
+ #imjgjlgbcl .gt_font_italic { font-style: italic; }
+ #imjgjlgbcl .gt_super { font-size: 65%; }
+ #imjgjlgbcl .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #imjgjlgbcl .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table style="table-layout: fixed;" class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+  <col>
+  <col style="width:20px;">
+  <col style="width:20px;">
+  <col style="width:20px;">
+  <col>
+  <col>
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+</colgroup>
+
+<thead>
+
+  <tr class="gt_heading">
+    <td colspan="14" class="gt_heading gt_title gt_font_normal" style="background-color: rgb(66, 99, 128) !important; color: white !important; font-size: 24px !important; font-weight: bold !important; border-width: 0px !important;">Saturdays, Sundays, and Major Holidays</td>
+  </tr>
+<tr class="gt_col_headings gt_spanner_row">
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id=""></th>
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Services">
+    <span class="gt_column_spanner">Services</span>
+  </th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="fare_zone">Fare<br>Zone</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="stop_name">Stations</th>
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="8" scope="colgroup" id="Train-Number">
+    <span class="gt_column_spanner">Train Number</span>
+  </th>
+</tr>
+<tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="service_access">A</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="service_cash">C</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="service_park">P</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8210">8210</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8716">8716</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8318">8318</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8322">8322</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8338">8338</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8242">8242</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8750">8750</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8756">8756</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+  <tr>
+  <th style="writing-mode: sideways-lr; padding-bottom: 25% !important; font-size: 24px !important; font-weight: bold !important; text-transform: uppercase !important;" class="gt_row gt_left gt_stub_row_group" rowspan="14">To Center City</th>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">2</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">Chestnut Hill West</td>
+    <td class="gt_row gt_right">6:51a</td>
+    <td class="gt_row gt_right">8:08a</td>
+    <td class="gt_row gt_right">8:49a</td>
+    <td class="gt_row gt_right">9:49a</td>
+    <td class="gt_row gt_right">1:52p</td>
+    <td class="gt_row gt_right">2:49p</td>
+    <td class="gt_row gt_right">4:48p</td>
+    <td class="gt_row gt_right">6:20p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">2</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Highland</td>
+    <td class="gt_row gt_right gt_striped">6:52a</td>
+    <td class="gt_row gt_right gt_striped">8:09a</td>
+    <td class="gt_row gt_right gt_striped">8:50a</td>
+    <td class="gt_row gt_right gt_striped">9:50a</td>
+    <td class="gt_row gt_right gt_striped">1:53p</td>
+    <td class="gt_row gt_right gt_striped">2:50p</td>
+    <td class="gt_row gt_right gt_striped">4:49p</td>
+    <td class="gt_row gt_right gt_striped">6:21p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">1</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">St. Martins</td>
+    <td class="gt_row gt_right">6:54a</td>
+    <td class="gt_row gt_right">8:11a</td>
+    <td class="gt_row gt_right">8:52a</td>
+    <td class="gt_row gt_right">9:52a</td>
+    <td class="gt_row gt_right">1:55p</td>
+    <td class="gt_row gt_right">2:52p</td>
+    <td class="gt_row gt_right">4:51p</td>
+    <td class="gt_row gt_right">6:23p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">1</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Richard Allen Lane</td>
+    <td class="gt_row gt_right gt_striped">6:56a</td>
+    <td class="gt_row gt_right gt_striped">8:13a</td>
+    <td class="gt_row gt_right gt_striped">8:54a</td>
+    <td class="gt_row gt_right gt_striped">9:54a</td>
+    <td class="gt_row gt_right gt_striped">1:57p</td>
+    <td class="gt_row gt_right gt_striped">2:54p</td>
+    <td class="gt_row gt_right gt_striped">4:53p</td>
+    <td class="gt_row gt_right gt_striped">6:25p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">1</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">Carpenter</td>
+    <td class="gt_row gt_right">6:58a</td>
+    <td class="gt_row gt_right">8:15a</td>
+    <td class="gt_row gt_right">8:56a</td>
+    <td class="gt_row gt_right">9:56a</td>
+    <td class="gt_row gt_right">1:59p</td>
+    <td class="gt_row gt_right">2:56p</td>
+    <td class="gt_row gt_right">4:55p</td>
+    <td class="gt_row gt_right">6:27p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">1</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Upsal</td>
+    <td class="gt_row gt_right gt_striped">7:00a</td>
+    <td class="gt_row gt_right gt_striped">8:17a</td>
+    <td class="gt_row gt_right gt_striped">8:58a</td>
+    <td class="gt_row gt_right gt_striped">9:58a</td>
+    <td class="gt_row gt_right gt_striped">2:01p</td>
+    <td class="gt_row gt_right gt_striped">2:58p</td>
+    <td class="gt_row gt_right gt_striped">4:57p</td>
+    <td class="gt_row gt_right gt_striped">6:29p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">C</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">Tulpehocken</td>
+    <td class="gt_row gt_right">7:02a</td>
+    <td class="gt_row gt_right">8:19a</td>
+    <td class="gt_row gt_right">9:00a</td>
+    <td class="gt_row gt_right">10:00a</td>
+    <td class="gt_row gt_right">2:03p</td>
+    <td class="gt_row gt_right">3:00p</td>
+    <td class="gt_row gt_right">4:59p</td>
+    <td class="gt_row gt_right">6:31p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">C</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Chelten Avenue</td>
+    <td class="gt_row gt_right gt_striped">7:04a</td>
+    <td class="gt_row gt_right gt_striped">8:21a</td>
+    <td class="gt_row gt_right gt_striped">9:02a</td>
+    <td class="gt_row gt_right gt_striped">10:02a</td>
+    <td class="gt_row gt_right gt_striped">2:05p</td>
+    <td class="gt_row gt_right gt_striped">3:02p</td>
+    <td class="gt_row gt_right gt_striped">5:01p</td>
+    <td class="gt_row gt_right gt_striped">6:33p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">C</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">Queen Lane</td>
+    <td class="gt_row gt_right">7:06a</td>
+    <td class="gt_row gt_right">8:23a</td>
+    <td class="gt_row gt_right">9:04a</td>
+    <td class="gt_row gt_right">10:04a</td>
+    <td class="gt_row gt_right">2:07p</td>
+    <td class="gt_row gt_right">3:04p</td>
+    <td class="gt_row gt_right">5:03p</td>
+    <td class="gt_row gt_right">6:35p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">C</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">North Philadelphia</td>
+    <td class="gt_row gt_right gt_striped">7:12a</td>
+    <td class="gt_row gt_right gt_striped">8:29a</td>
+    <td class="gt_row gt_right gt_striped">9:12a</td>
+    <td class="gt_row gt_right gt_striped">10:12a</td>
+    <td class="gt_row gt_right gt_striped">2:15p</td>
+    <td class="gt_row gt_right gt_striped">3:12p</td>
+    <td class="gt_row gt_right gt_striped">5:09p</td>
+    <td class="gt_row gt_right gt_striped">6:41p</td>
+  </tr>
+  <tr>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right">✓</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right">✓</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_center">2</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_left">Gray 30th Street</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">7:23a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">8:42a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">9:23a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">10:23a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">2:26p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">3:23p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">5:20p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">6:54p</td>
+  </tr>
+  <tr>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right gt_striped"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right gt_striped"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right gt_striped">✓</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_center gt_striped">2</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_left gt_striped">Suburban Station</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">7:28a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">8:47a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">9:28a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">10:28a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">2:31p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">3:28p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">5:25p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">6:59p</td>
+  </tr>
+  <tr>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right">✓</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_center">2</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_left">Jefferson Station</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">7:33a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">8:52a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">9:33a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">10:33a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">2:36p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">3:33p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">5:30p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">7:04p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">2</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Temple University</td>
+    <td class="gt_row gt_right gt_striped">7:37a</td>
+    <td class="gt_row gt_right gt_striped">8:57a</td>
+    <td class="gt_row gt_right gt_striped">9:37a</td>
+    <td class="gt_row gt_right gt_striped">10:37a</td>
+    <td class="gt_row gt_right gt_striped">2:40p</td>
+    <td class="gt_row gt_right gt_striped">3:37p</td>
+    <td class="gt_row gt_right gt_striped">5:35p</td>
+    <td class="gt_row gt_right gt_striped">7:08p</td>
+  </tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+</section>
+<section id="reading-in-stops-and-times" class="level2">
+<h2 class="anchored" data-anchor-id="reading-in-stops-and-times">Reading in stops and times</h2>
+<p>For this example, I simplified SEPTA’s transit data down to two pieces:</p>
+<ul>
+<li><code>chw-stops.csv</code> - detailed information about each stop location.</li>
+<li><code>times.csv</code> - when a train arrives at a stop on the Chesnut Hill West line. Each row is a stop location, and each column is a trip (e.g.&nbsp;the 6:51am train).</li>
+</ul>
+<p>To make the final table we joined these two together, to get the trips and stop information together.</p>
+<div id="2c03a5a4" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>stops <span class="op">=</span> pl.read_csv(<span class="st">"chw-stops.csv"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>times <span class="op">=</span> pl.read_csv(<span class="st">"times.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Here’s a quick preview of stops.</p>
+<div id="caf51d5b" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>stops.select(<span class="st">"stop_name"</span>, <span class="st">"service_access"</span>, <span class="st">"service_cash"</span>).head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (5, 3)</small><table class="dataframe table table-sm table-striped small"><thead><tr><th>stop_name</th><th>service_access</th><th>service_cash</th></tr><tr><td>str</td><td>i64</td><td>i64</td></tr></thead><tbody><tr><td>"Gray 30th Street"</td><td>1</td><td>0</td></tr><tr><td>"Suburban Station"</td><td>0</td><td>0</td></tr><tr><td>"Jefferson Station"</td><td>0</td><td>0</td></tr><tr><td>"Temple University"</td><td>1</td><td>0</td></tr><tr><td>"Chestnut Hill West"</td><td>0</td><td>0</td></tr></tbody></table></div>
+</div>
+</div>
+<p>Notice that the table above has the name of each stop, and a 1 or 0 in the <code>service_access</code> column to indicate whether the stop is wheelchair accessible. Note that a big challenge for this specific route is that sometimes boarding the train requires using steps, and sometimes the station requires using steps. For example, Chelton Ave (not shown) does not require steps to board the train, but the station itself is not wheelchair accessible because of steps to get to the platform.</p>
+<p>Here’s a quick preview of the times.</p>
+<div id="f86d3c4e" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>times.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 9)</small><table class="dataframe table table-sm table-striped small"><thead><tr><th>stop_name</th><th>8210</th><th>8716</th><th>8318</th><th>8322</th><th>8338</th><th>8242</th><th>8750</th><th>8756</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>"Chestnut Hill West"</td><td>"06:51:00"</td><td>"08:08:00"</td><td>"08:49:00"</td><td>"09:49:00"</td><td>"13:52:00"</td><td>"14:49:00"</td><td>"16:48:00"</td><td>"18:20:00"</td></tr><tr><td>"Highland"</td><td>"06:52:00"</td><td>"08:09:00"</td><td>"08:50:00"</td><td>"09:50:00"</td><td>"13:53:00"</td><td>"14:50:00"</td><td>"16:49:00"</td><td>"18:21:00"</td></tr><tr><td>"St. Martins"</td><td>"06:54:00"</td><td>"08:11:00"</td><td>"08:52:00"</td><td>"09:52:00"</td><td>"13:55:00"</td><td>"14:52:00"</td><td>"16:51:00"</td><td>"18:23:00"</td></tr></tbody></table></div>
+</div>
+</div>
+<p>Notice that each trip is a column (i.e.&nbsp;a train leaving from Chesnut Hill West at a specific time), and each row is a stop. For example, the 8210 train is the 6:51am train. (Note that schedules and train numbers can change, so this data may be out of date).</p>
+<p>Joining these together gives us <code>stop_times</code>, with trips and stop information on the columns.</p>
+<div id="b1649510" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>stop_times <span class="op">=</span> times.join(other<span class="op">=</span>stops, on<span class="op">=</span><span class="st">"stop_name"</span>, maintain_order<span class="op">=</span><span class="st">"left"</span>).select(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    pl.lit(<span class="st">"To Center City"</span>).alias(<span class="st">"direction"</span>), pl.col(<span class="st">"*"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>stop_times.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 20)</small><table class="dataframe table table-sm table-striped small"><thead><tr><th>direction</th><th>stop_name</th><th>8210</th><th>8716</th><th>8318</th><th>8322</th><th>8338</th><th>8242</th><th>8750</th><th>8756</th><th>service_access</th><th>service_cash</th><th>service_park</th><th>fare_zone</th><th>stop_id</th><th>stop_desc</th><th>stop_lat</th><th>stop_lon</th><th>zone_id</th><th>stop_url</th></tr><tr><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>str</td><td>i64</td><td>i64</td><td>i64</td><td>str</td><td>i64</td><td>str</td><td>f64</td><td>f64</td><td>str</td><td>str</td></tr></thead><tbody><tr><td>"To Center City"</td><td>"Chestnut Hill West"</td><td>"06:51:00"</td><td>"08:08:00"</td><td>"08:49:00"</td><td>"09:49:00"</td><td>"13:52:00"</td><td>"14:49:00"</td><td>"16:48:00"</td><td>"18:20:00"</td><td>0</td><td>0</td><td>1</td><td>"2"</td><td>90801</td><td>null</td><td>40.076389</td><td>-75.208333</td><td>"2S"</td><td>null</td></tr><tr><td>"To Center City"</td><td>"Highland"</td><td>"06:52:00"</td><td>"08:09:00"</td><td>"08:50:00"</td><td>"09:50:00"</td><td>"13:53:00"</td><td>"14:50:00"</td><td>"16:49:00"</td><td>"18:21:00"</td><td>0</td><td>0</td><td>1</td><td>"2"</td><td>90802</td><td>null</td><td>40.070556</td><td>-75.211111</td><td>"2S"</td><td>null</td></tr><tr><td>"To Center City"</td><td>"St. Martins"</td><td>"06:54:00"</td><td>"08:11:00"</td><td>"08:52:00"</td><td>"09:52:00"</td><td>"13:55:00"</td><td>"14:52:00"</td><td>"16:51:00"</td><td>"18:23:00"</td><td>0</td><td>0</td><td>1</td><td>"1"</td><td>90803</td><td>null</td><td>40.065833</td><td>-75.204444</td><td>"2S"</td><td>null</td></tr></tbody></table></div>
+</div>
+</div>
+<p>Notice that in the table above, the first row tells us when each train leaves Chesnut Hill West, and information about the Chesnut Hill West stop.</p>
+</section>
+<section id="creating-the-table" class="level2">
+<h2 class="anchored" data-anchor-id="creating-the-table">Creating the table</h2>
+<p>Below is the code for the table, with 5 key activities marked with comments. For example, the first is creating high level structure, like the header and the left-hand “To Center City” stub. Others include formatting in checkmarks, customizing columns (e.g.&nbsp;their width), and styling (e.g.&nbsp;setting background colors and fonts).</p>
+<p>It’s a lot to take in, but worth it!:</p>
+<div id="4b01c47b" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, html, style, loc, google_font</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> h_m_p(s):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    h, m, _ <span class="op">=</span> [<span class="bu">int</span>(part) <span class="cf">for</span> part <span class="kw">in</span> s.split(<span class="st">":"</span>)]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    ap <span class="op">=</span> <span class="st">"a"</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> h <span class="op">&gt;</span> <span class="dv">12</span>:</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        h <span class="op">-=</span> <span class="dv">12</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        ap <span class="op">=</span> <span class="st">"p"</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>h<span class="sc">}</span><span class="ss">:</span><span class="sc">{</span>m<span class="sc">:02d}{</span>ap<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tick(b):</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"&amp;check;"</span> <span class="cf">if</span> b <span class="cf">else</span> <span class="st">""</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>transit_table <span class="op">=</span> (</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    GT(stop_times)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create left-hand stub, top header, and hide extra cols --------</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    .tab_stub(groupname_col<span class="op">=</span><span class="st">"direction"</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    .tab_header(<span class="st">"Saturdays, Sundays, and Major Holidays"</span>)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    .cols_hide(</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>[<span class="st">"stop_url"</span>, <span class="st">"zone_id"</span>, <span class="st">"stop_desc"</span>, <span class="st">"stop_lat"</span>, <span class="st">"stop_lon"</span>, <span class="st">"stop_id"</span>]</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># custom functions for checkmarks and time formatting -----------</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    .fmt(h_m_p, columns<span class="op">=</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>))</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    .fmt(tick, columns<span class="op">=</span>cs.starts_with(<span class="st">"service_"</span>))</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># relabel columns and add spanners (labels over columns) --------</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    .cols_label(</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        stop_name<span class="op">=</span><span class="st">"Stations"</span>,</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        service_access<span class="op">=</span><span class="st">"A"</span>,</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        service_cash<span class="op">=</span><span class="st">"C"</span>,</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>        service_park<span class="op">=</span><span class="st">"P"</span>,</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>        fare_zone<span class="op">=</span>html(<span class="st">"Fare&lt;br&gt;Zone"</span>),</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(label<span class="op">=</span><span class="st">"Services"</span>, columns<span class="op">=</span>cs.starts_with(<span class="st">"service_"</span>))</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(label<span class="op">=</span><span class="st">"Train Number"</span>, columns<span class="op">=</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>))</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># move columns around and setting their width and alignment -----</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    .cols_move_to_start(<span class="st">"fare_zone"</span>)</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    .cols_move_to_start(cs.starts_with(<span class="st">"service_"</span>))</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>    .cols_width(</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>        cases<span class="op">=</span>{c: <span class="st">"18px"</span> <span class="cf">for</span> c <span class="kw">in</span> stop_times.columns <span class="cf">if</span> c.startswith(<span class="st">"service_"</span>)}</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    .cols_width(cases<span class="op">=</span>{c: <span class="st">"60px"</span> <span class="cf">for</span> c <span class="kw">in</span> stop_times.columns <span class="cf">if</span> c.startswith(<span class="st">"8"</span>)})</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>    .cols_align(align<span class="op">=</span><span class="st">"center"</span>, columns<span class="op">=</span><span class="st">"fare_zone"</span>)</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>    .cols_align(align<span class="op">=</span><span class="st">"right"</span>, columns<span class="op">=</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>))</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    <span class="co"># styles: striping, vertical text, background colors, fonts -----</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>    <span class="co"># style header</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.header(),</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>            <span class="st">"background-color: rgb(66, 99, 128) !important; color: white !important; font-size: 24px !important; font-weight: bold !important; border-width: 0px !important;"</span>,</span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>    <span class="co"># style vertical text on left</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.row_groups(),</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(</span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>            <span class="st">"writing-mode: sideways-lr; padding-bottom: 25% !important; font-size: 24px !important; font-weight: bold !important; text-transform: uppercase !important;"</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(</span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>            <span class="st">"background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;"</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.body(columns<span class="op">=</span><span class="va">None</span>, rows<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="op">-</span><span class="dv">4</span>, <span class="op">-</span><span class="dv">1</span>))),</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(</span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>            <span class="st">"""</span></span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a><span class="st">                border-top: none !important;</span></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a><span class="st">                border-bottom: none !important;</span></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a><span class="st">                border-right: solid white 2px !important;</span></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a><span class="st">                color: white !important;</span></span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a><span class="st">            """</span></span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.body(</span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>            columns<span class="op">=~</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>), rows<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="op">-</span><span class="dv">4</span>, <span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a>    .tab_style(</span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span>style.css(<span class="st">"border-right: solid black 2px !important;"</span>),</span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a>        locations<span class="op">=</span>loc.body(</span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a>            columns<span class="op">=~</span>cs.matches(<span class="vs">r"</span><span class="dv">^</span><span class="pp">[0-9]</span><span class="op">{4}</span><span class="dv">$</span><span class="vs">"</span>), rows<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">10</span>)) <span class="op">+</span> [<span class="dv">13</span>]</span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a>    .tab_options(</span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a>        row_striping_background_color<span class="op">=</span><span class="st">"#A9A9A9"</span>,</span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>        row_group_as_column<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a>    .opt_row_striping(row_striping<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>    .opt_table_outline()</span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a>    .opt_table_font(font<span class="op">=</span>google_font(<span class="st">"IBM Plex Sans"</span>))</span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>transit_table</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div id="mzavybyjfn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap');
+#mzavybyjfn table {
+          font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#mzavybyjfn thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#mzavybyjfn p { margin: 0; padding: 0; }
+ #mzavybyjfn .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 3px; border-top-color: #D3D3D3; border-right-style: solid; border-right-width: 3px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 3px; border-bottom-color: #D3D3D3; border-left-style: solid; border-left-width: 3px; border-left-color: #D3D3D3; }
+ #mzavybyjfn .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #mzavybyjfn .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #mzavybyjfn .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #mzavybyjfn .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #mzavybyjfn .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #mzavybyjfn .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #mzavybyjfn .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #mzavybyjfn .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #mzavybyjfn .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #mzavybyjfn .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #mzavybyjfn .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #mzavybyjfn .gt_spanner_row { border-bottom-style: hidden; }
+ #mzavybyjfn .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #mzavybyjfn .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #mzavybyjfn .gt_from_md> :first-child { margin-top: 0; }
+ #mzavybyjfn .gt_from_md> :last-child { margin-bottom: 0; }
+ #mzavybyjfn .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #mzavybyjfn .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #mzavybyjfn .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #mzavybyjfn .gt_row_group_first td { border-top-width: 2px; }
+ #mzavybyjfn .gt_row_group_first th { border-top-width: 2px; }
+ #mzavybyjfn .gt_striped { color: #333333; background-color: #A9A9A9; }
+ #mzavybyjfn .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #mzavybyjfn .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #mzavybyjfn .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #mzavybyjfn .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #mzavybyjfn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #mzavybyjfn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #mzavybyjfn .gt_left { text-align: left; }
+ #mzavybyjfn .gt_center { text-align: center; }
+ #mzavybyjfn .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #mzavybyjfn .gt_font_normal { font-weight: normal; }
+ #mzavybyjfn .gt_font_bold { font-weight: bold; }
+ #mzavybyjfn .gt_font_italic { font-style: italic; }
+ #mzavybyjfn .gt_super { font-size: 65%; }
+ #mzavybyjfn .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #mzavybyjfn .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table style="table-layout: fixed;" class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+  <col>
+  <col style="width:18px;">
+  <col style="width:18px;">
+  <col style="width:18px;">
+  <col>
+  <col>
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+  <col style="width:60px;">
+</colgroup>
+
+<thead>
+
+  <tr class="gt_heading">
+    <td colspan="14" class="gt_heading gt_title gt_font_normal" style="background-color: rgb(66, 99, 128) !important; color: white !important; font-size: 24px !important; font-weight: bold !important; border-width: 0px !important;">Saturdays, Sundays, and Major Holidays</td>
+  </tr>
+<tr class="gt_col_headings gt_spanner_row">
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id=""></th>
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="Services">
+    <span class="gt_column_spanner">Services</span>
+  </th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="fare_zone">Fare<br>Zone</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="stop_name">Stations</th>
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="8" scope="colgroup" id="Train-Number">
+    <span class="gt_column_spanner">Train Number</span>
+  </th>
+</tr>
+<tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="service_access">A</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="service_cash">C</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="service_park">P</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8210">8210</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8716">8716</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8318">8318</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8322">8322</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8338">8338</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8242">8242</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8750">8750</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="8756">8756</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+  <tr>
+  <th style="writing-mode: sideways-lr; padding-bottom: 25% !important; font-size: 24px !important; font-weight: bold !important; text-transform: uppercase !important;" class="gt_row gt_left gt_stub_row_group" rowspan="14">To Center City</th>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">2</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">Chestnut Hill West</td>
+    <td class="gt_row gt_right">6:51a</td>
+    <td class="gt_row gt_right">8:08a</td>
+    <td class="gt_row gt_right">8:49a</td>
+    <td class="gt_row gt_right">9:49a</td>
+    <td class="gt_row gt_right">1:52p</td>
+    <td class="gt_row gt_right">2:49p</td>
+    <td class="gt_row gt_right">4:48p</td>
+    <td class="gt_row gt_right">6:20p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">2</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Highland</td>
+    <td class="gt_row gt_right gt_striped">6:52a</td>
+    <td class="gt_row gt_right gt_striped">8:09a</td>
+    <td class="gt_row gt_right gt_striped">8:50a</td>
+    <td class="gt_row gt_right gt_striped">9:50a</td>
+    <td class="gt_row gt_right gt_striped">1:53p</td>
+    <td class="gt_row gt_right gt_striped">2:50p</td>
+    <td class="gt_row gt_right gt_striped">4:49p</td>
+    <td class="gt_row gt_right gt_striped">6:21p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">1</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">St. Martins</td>
+    <td class="gt_row gt_right">6:54a</td>
+    <td class="gt_row gt_right">8:11a</td>
+    <td class="gt_row gt_right">8:52a</td>
+    <td class="gt_row gt_right">9:52a</td>
+    <td class="gt_row gt_right">1:55p</td>
+    <td class="gt_row gt_right">2:52p</td>
+    <td class="gt_row gt_right">4:51p</td>
+    <td class="gt_row gt_right">6:23p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">1</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Richard Allen Lane</td>
+    <td class="gt_row gt_right gt_striped">6:56a</td>
+    <td class="gt_row gt_right gt_striped">8:13a</td>
+    <td class="gt_row gt_right gt_striped">8:54a</td>
+    <td class="gt_row gt_right gt_striped">9:54a</td>
+    <td class="gt_row gt_right gt_striped">1:57p</td>
+    <td class="gt_row gt_right gt_striped">2:54p</td>
+    <td class="gt_row gt_right gt_striped">4:53p</td>
+    <td class="gt_row gt_right gt_striped">6:25p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">1</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">Carpenter</td>
+    <td class="gt_row gt_right">6:58a</td>
+    <td class="gt_row gt_right">8:15a</td>
+    <td class="gt_row gt_right">8:56a</td>
+    <td class="gt_row gt_right">9:56a</td>
+    <td class="gt_row gt_right">1:59p</td>
+    <td class="gt_row gt_right">2:56p</td>
+    <td class="gt_row gt_right">4:55p</td>
+    <td class="gt_row gt_right">6:27p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">1</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Upsal</td>
+    <td class="gt_row gt_right gt_striped">7:00a</td>
+    <td class="gt_row gt_right gt_striped">8:17a</td>
+    <td class="gt_row gt_right gt_striped">8:58a</td>
+    <td class="gt_row gt_right gt_striped">9:58a</td>
+    <td class="gt_row gt_right gt_striped">2:01p</td>
+    <td class="gt_row gt_right gt_striped">2:58p</td>
+    <td class="gt_row gt_right gt_striped">4:57p</td>
+    <td class="gt_row gt_right gt_striped">6:29p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">C</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">Tulpehocken</td>
+    <td class="gt_row gt_right">7:02a</td>
+    <td class="gt_row gt_right">8:19a</td>
+    <td class="gt_row gt_right">9:00a</td>
+    <td class="gt_row gt_right">10:00a</td>
+    <td class="gt_row gt_right">2:03p</td>
+    <td class="gt_row gt_right">3:00p</td>
+    <td class="gt_row gt_right">4:59p</td>
+    <td class="gt_row gt_right">6:31p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">C</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Chelten Avenue</td>
+    <td class="gt_row gt_right gt_striped">7:04a</td>
+    <td class="gt_row gt_right gt_striped">8:21a</td>
+    <td class="gt_row gt_right gt_striped">9:02a</td>
+    <td class="gt_row gt_right gt_striped">10:02a</td>
+    <td class="gt_row gt_right gt_striped">2:05p</td>
+    <td class="gt_row gt_right gt_striped">3:02p</td>
+    <td class="gt_row gt_right gt_striped">5:01p</td>
+    <td class="gt_row gt_right gt_striped">6:33p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center">C</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left">Queen Lane</td>
+    <td class="gt_row gt_right">7:06a</td>
+    <td class="gt_row gt_right">8:23a</td>
+    <td class="gt_row gt_right">9:04a</td>
+    <td class="gt_row gt_right">10:04a</td>
+    <td class="gt_row gt_right">2:07p</td>
+    <td class="gt_row gt_right">3:04p</td>
+    <td class="gt_row gt_right">5:03p</td>
+    <td class="gt_row gt_right">6:35p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">C</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">North Philadelphia</td>
+    <td class="gt_row gt_right gt_striped">7:12a</td>
+    <td class="gt_row gt_right gt_striped">8:29a</td>
+    <td class="gt_row gt_right gt_striped">9:12a</td>
+    <td class="gt_row gt_right gt_striped">10:12a</td>
+    <td class="gt_row gt_right gt_striped">2:15p</td>
+    <td class="gt_row gt_right gt_striped">3:12p</td>
+    <td class="gt_row gt_right gt_striped">5:09p</td>
+    <td class="gt_row gt_right gt_striped">6:41p</td>
+  </tr>
+  <tr>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right">✓</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right">✓</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_center">2</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_left">Gray 30th Street</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">7:23a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">8:42a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">9:23a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">10:23a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">2:26p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">3:23p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">5:20p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">6:54p</td>
+  </tr>
+  <tr>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right gt_striped"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right gt_striped"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right gt_striped">✓</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_center gt_striped">2</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_left gt_striped">Suburban Station</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">7:28a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">8:47a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">9:28a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">10:28a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">2:31p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">3:28p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">5:25p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right gt_striped">6:59p</td>
+  </tr>
+  <tr>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right"></td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_right">✓</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_center">2</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important; 
+                border-top: none !important;
+                border-bottom: none !important;
+                border-right: solid white 2px !important;
+                color: white !important;
+            " class="gt_row gt_left">Jefferson Station</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">7:33a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">8:52a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">9:33a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">10:33a</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">2:36p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">3:33p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">5:30p</td>
+    <td style="background-color: black !important; color: white !important; border-top: none !important; border-bottom: none !important;" class="gt_row gt_right">7:04p</td>
+  </tr>
+  <tr>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped"></td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_right gt_striped">✓</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_center gt_striped">2</td>
+    <td style="border-right: solid black 2px !important;" class="gt_row gt_left gt_striped">Temple University</td>
+    <td class="gt_row gt_right gt_striped">7:37a</td>
+    <td class="gt_row gt_right gt_striped">8:57a</td>
+    <td class="gt_row gt_right gt_striped">9:37a</td>
+    <td class="gt_row gt_right gt_striped">10:37a</td>
+    <td class="gt_row gt_right gt_striped">2:40p</td>
+    <td class="gt_row gt_right gt_striped">3:37p</td>
+    <td class="gt_row gt_right gt_striped">5:35p</td>
+    <td class="gt_row gt_right gt_striped">7:08p</td>
+  </tr>
+</tbody>
+
+
+</table>
+
+</div>
+        
+</div>
+</div>
+</section>
+<section id="other-schedules-in-the-wild" class="level2">
+<h2 class="anchored" data-anchor-id="other-schedules-in-the-wild">Other schedules in the wild</h2>
+<p>MetroTransit in Minneapolis uses a transposed format, with stops as columns and trips as rows. Here’s an example from their <a href="https://www.metrotransit.org/route/2">Route 2 bus timetable</a>:</p>
+<p><img src="./metrotransit-route2.png" class="img-fluid" style="max-width: 600px; display: block; margin-left: auto; margin-right: auto;"></p>
+<p>This is useful when there a lot of trips, because with trips on the rows readers can scroll down (versus needing to scroll sideways).</p>
+<p>The MTA in New York City is similar. Here’s an example of their <a href="https://www.mta.info/schedules/bus/bx1">bx1 bus route timetable</a>:</p>
+<p><img src="./mta-route-bx1.png" class="img-fluid" style="max-width: 600px; display: block; margin-left: auto; margin-right: auto;"></p>
+<p>What I like about all these tables is they highlight the structure behind bus and train routes. Sometimes they skip certain stops. But realistically, what makes them a route is that trips tend to make the same stops over and over.</p>
+<p>A common alternative to using these tables is to do routing from a set start to end point. For example, below is a form for selecting a start and end point on SEPTA’s website, with a resulting table of departure and arrival times.</p>
+<p><img src="./septa-routing.png" class="img-fluid" style="max-width: 600px; display: block; margin-left: auto; margin-right: auto;"></p>
+<p>Notice that the table has removed a lot of information about intermediate stops people might not care about.</p>
+</section>
+<section id="in-conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="in-conclusion">In conclusion</h2>
+<p>Transit tables are richly structured displays of information. They take advantage often of the fact that a train route like Chesnut Hill West is a fixed set of stops–so that stops can be on the rows, and arrival times for trips throughout the day can be on the columns.</p>
+<p>This is intuitive to people reading transit timetables, but can get tricky to display on the web. Timetables are a core part of navigating transit networks, so it was a fun experiment to try replicating one of Septa’s timetables in Great Tables!</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/posit-dev\.github\.io\/great-tables\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
