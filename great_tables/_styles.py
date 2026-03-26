@@ -12,6 +12,17 @@ if TYPE_CHECKING:
     from ._locations import Loc
 
 
+def _css_color_to_typst(color: str) -> str:
+    """Convert a CSS color string to Typst color syntax."""
+    color = color.strip()
+    if color.startswith("#"):
+        return f'rgb("{color}")'
+    if color.startswith("rgb"):
+        return f'rgb("{color}")'
+    # Named colors — pass through, Typst supports many CSS names
+    return color
+
+
 # Cell Styles ==========================================================================
 # TODO: stubbed out the styles in helpers.R as dataclasses while I was reading it,
 # but have no worked on any runtime validation, etc..
@@ -92,6 +103,13 @@ class CellStyle:
     def _to_html_style(self) -> str:
         raise NotImplementedError
 
+    def _to_typst_style(self) -> dict[str, str]:
+        """Return a dict of Typst style properties for this cell style.
+
+        Keys can be 'fill', 'stroke', or 'text_style' (a Typst #text() call to wrap content).
+        """
+        raise NotImplementedError
+
     def _evaluate_expressions(self, data: TblData) -> Self:
         new_fields: dict[str, FromValues] = {}
         for field in fields(self):
@@ -168,6 +186,9 @@ class CellStyleCss(CellStyle):
 
     def _to_html_style(self):
         return self.rule
+
+    def _to_typst_style(self) -> dict[str, str]:
+        return {}
 
 
 @dataclass
@@ -302,6 +323,20 @@ class CellStyleText(CellStyle):
 
         return rendered
 
+    def _to_typst_style(self) -> dict[str, str]:
+        parts: list[str] = []
+        if self.color:
+            parts.append(f"fill: {_css_color_to_typst(str(self.color))}")
+        if self.size:
+            parts.append(f"size: {self.size}")
+        if self.weight:
+            parts.append(f'weight: "{self.weight}"')
+        if self.style:
+            parts.append(f'style: "{self.style}"')
+        if parts:
+            return {"text_style": ", ".join(parts)}
+        return {}
+
 
 @dataclass
 class CellStyleFill(CellStyle):
@@ -333,6 +368,9 @@ class CellStyleFill(CellStyle):
 
     def _to_html_style(self) -> str:
         return f"background-color: {self.color};"
+
+    def _to_typst_style(self) -> dict[str, str]:
+        return {"fill": _css_color_to_typst(str(self.color))}
 
 
 @dataclass
@@ -410,3 +448,30 @@ class CellStyleBorders(CellStyle):
 
         border_css = "".join(border_css_list)
         return border_css
+
+    def _to_typst_style(self) -> dict[str, str]:
+        if isinstance(self.sides, list) and not self.sides:
+            return {}
+
+        sides = self.sides
+        if isinstance(sides, str):
+            sides = [sides]
+
+        if "all" in sides:
+            sides = ["top", "bottom", "left", "right"]
+
+        color = _css_color_to_typst(str(self.color))
+        weight = str(self.weight)
+        # Convert CSS units to Typst (e.g., "2px" -> "1.5pt")
+        if weight.endswith("px"):
+            val = float(weight[:-2])
+            weight = f"{val * 0.75:.1f}pt"
+
+        # Typst stroke syntax: e.g., "1pt + black"
+        stroke_parts: list[str] = []
+        for side in sides:
+            stroke_parts.append(f"{side}: {weight} + {color}")
+
+        if stroke_parts:
+            return {"stroke": "(" + ", ".join(stroke_parts) + ")"}
+        return {}

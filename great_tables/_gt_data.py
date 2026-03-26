@@ -963,11 +963,12 @@ FormatFn = Callable[[Any], "str | FormatterSkipElement"]
 class FormatFns:
     html: FormatFn | None
     latex: FormatFn | None
+    typst: FormatFn | None
     rtf: FormatFn | None
     default: FormatFn | None
 
     def __init__(self, **kwargs: FormatFn):
-        for format in ("html", "latex", "rtf", "default"):
+        for format in ("html", "latex", "typst", "rtf", "default"):
             if fmt := kwargs.get(format):
                 setattr(self, format, fmt)
 

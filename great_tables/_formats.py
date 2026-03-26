@@ -44,7 +44,7 @@ from ._tbl_data import (
     is_series,
     to_list,
 )
-from ._text import _md_html, escape_pattern_str_latex
+from ._text import _md_html, escape_pattern_str_latex, escape_pattern_str_typst
 from ._utils import _str_detect, _str_replace, is_valid_http_schema
 from ._utils_nanoplots import _generate_nanoplot
 
@@ -394,6 +394,8 @@ def fmt_number_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -591,6 +593,8 @@ def fmt_integer_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -860,6 +864,8 @@ def fmt_scientific_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -1207,6 +1213,8 @@ def fmt_engineering_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -1460,6 +1468,8 @@ def fmt_percent_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -1746,6 +1756,8 @@ def fmt_currency_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -1869,6 +1881,8 @@ def fmt_roman_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -2126,6 +2140,8 @@ def fmt_bytes_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -2281,6 +2297,8 @@ def fmt_date_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -2425,6 +2443,8 @@ def fmt_time_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -2618,6 +2638,8 @@ def fmt_datetime_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_formatted = pattern.replace("{x}", x_formatted)
 
@@ -2826,6 +2848,8 @@ def fmt_tf_context(
         # Escape LaTeX special characters from literals in the pattern
         if context == "latex":
             pattern = escape_pattern_str_latex(pattern_str=pattern)
+        elif context == "typst":
+            pattern = escape_pattern_str_typst(pattern_str=pattern)
 
         x_out = pattern.replace("{x}", x_styled)
     else:
@@ -3025,9 +3049,68 @@ def fmt_markdown_context(
 
     x_str: str = str(x)
 
-    x_formatted = _md_html(x_str)
+    if context == "typst":
+        from ._text import _md_typst
+
+        x_formatted = _md_typst(x_str)
+    else:
+        x_formatted = _md_html(x_str)
 
     return x_formatted
+
+
+def fmt_typst(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+) -> GTSelf:
+    """
+    Format cells as raw Typst markup.
+
+    The `fmt_typst()` method treats cell values as raw Typst markup, passing them through
+    without escaping in Typst output. This allows you to use Typst commands like
+    `#text(fill: red)[...]`, math mode `$ x^2 $`, or any other Typst syntax directly in cells.
+
+    Note that this formatter only works with Typst output (`as_typst()` or Quarto with
+    `format: typst`). It will raise `NotImplementedError` when rendering to HTML or LaTeX.
+
+    Parameters
+    ----------
+    columns
+        The columns to target for formatting.
+    rows
+        The rows to target for formatting.
+
+    Returns
+    -------
+    GT
+        The GT object is returned.
+    """
+
+    pf_format = partial(
+        fmt_typst_context,
+        data=self,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+def fmt_typst_context(
+    x: Any,
+    data: GTData,
+    context: str,
+) -> str:
+    if context == "html":
+        raise NotImplementedError("fmt_typst() is not supported in HTML output.")
+
+    if context == "latex":
+        raise NotImplementedError("fmt_typst() is not supported in LaTeX output.")
+
+    if is_na(data._tbl_data, x):
+        return x
+
+    # In typst context, pass through raw — no escaping
+    return str(x)
 
 
 def fmt_units(
@@ -3592,6 +3675,8 @@ def _context_exp_marks(context: str) -> list[str]:
         marks = [" \u00d7 10<sup style='font-size: 65%;'>", "</sup>"]
     elif context == "latex":
         marks = [" $\\times$ 10\\textsuperscript{", "}"]
+    elif context == "typst":
+        marks = [" \u00d7 10#super[", "]"]
     else:
         marks = [" \u00d7 10^", ""]
 
@@ -3634,7 +3719,7 @@ def _context_percent_mark(context: str) -> str:
 
 
 def _context_dollar_mark(context: str) -> str:
-    if context == "latex":
+    if context in ("latex", "typst"):
         mark = "\\$"
     else:
         mark = "$"
@@ -5542,6 +5627,7 @@ def fmt_by_context(
         fns=FormatFns(
             html=partial(pf_format, context="html"),  # type: ignore
             latex=partial(pf_format, context="latex"),  # type: ignore
+            typst=partial(pf_format, context="typst"),  # type: ignore
             default=partial(pf_format, context="html"),  # type: ignore
         ),
         columns=columns,

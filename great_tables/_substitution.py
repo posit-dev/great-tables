@@ -4,16 +4,16 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal
 
 from ._formats import fmt
-from ._gt_data import FormatterSkipElement
+from ._gt_data import FormatFns, FormatterSkipElement
 from ._helpers import html
 from ._tbl_data import DataFrameLike, SelectExpr, is_na
-from ._text import Text, _process_text
+from ._text import Html, Text, _process_text
 
 if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def _convert_missing(context: Literal["html"], el: str):
+def _convert_missing(context: Literal["html", "latex", "typst"], el: str):
     """Convert el to a context specific representation."""
 
     # TODO: how is context passed? Could use a literal string (e.g. "html") for now?
@@ -24,6 +24,9 @@ def _convert_missing(context: Literal["html"], el: str):
     # See https://stackoverflow.com/q/2789372/1144523
     if context == "html" and el == "":
         return "<br />"
+
+    # In Typst, empty cells are fine — no special handling needed
+    # In LaTeX, empty cells are also fine
 
     return el
 
@@ -91,7 +94,18 @@ def sub_missing(
     """
 
     subber = SubMissing(self._tbl_data, missing_text)
-    return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
+    return fmt(
+        self,
+        fns=FormatFns(
+            html=subber.to_html,
+            latex=subber.to_html,
+            typst=subber.to_typst,
+            default=subber.to_html,
+        ),
+        columns=columns,
+        rows=rows,
+        is_substitution=True,
+    )
 
 
 def sub_zero(
@@ -151,7 +165,18 @@ def sub_zero(
     """
 
     subber = SubZero(zero_text)
-    return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
+    return fmt(
+        self,
+        fns=FormatFns(
+            html=subber.to_html,
+            latex=subber.to_html,
+            typst=subber.to_typst,
+            default=subber.to_html,
+        ),
+        columns=columns,
+        rows=rows,
+        is_substitution=True,
+    )
 
 
 @dataclass
@@ -170,6 +195,16 @@ class SubMissing:
 
         return FormatterSkipElement()
 
+    def to_typst(self, x: Any) -> str | FormatterSkipElement:
+        if is_na(self.dispatch_frame, x):
+            # The default missing_text is html("&mdash;") which doesn't convert
+            # well to Typst. Use the Unicode em dash directly.
+            if self.missing_text is not None and isinstance(self.missing_text, Html):
+                return "\u2014"  # em dash
+            return _process_text(self.missing_text, context="typst")
+
+        return FormatterSkipElement()
+
 
 @dataclass
 class SubZero:
@@ -178,5 +213,11 @@ class SubZero:
     def to_html(self, x: Any) -> str | FormatterSkipElement:
         if x == 0:
             return _process_text(self.zero_text)
+
+        return FormatterSkipElement()
+
+    def to_typst(self, x: Any) -> str | FormatterSkipElement:
+        if x == 0:
+            return _process_text(self.zero_text, context="typst")
 
         return FormatterSkipElement()
