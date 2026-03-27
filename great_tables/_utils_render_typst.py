@@ -801,7 +801,9 @@ def create_body_component_typst(data: GTData) -> str:
                 row_index_offset=len(top_g_summary_rows),
             )
         )
-    elif body_border_bottom:
+    # body_border_bottom is emitted by the footer component (as separator before source notes)
+    # or as part of the grand summary hline above. Only emit here if neither applies.
+    elif body_border_bottom and not bool(data._source_notes):
         body_rows.append(f"  table.hline(stroke: {body_border_bottom}),")
 
     return "\n".join(body_rows)
@@ -820,6 +822,17 @@ def create_footer_component_typst(data: GTData, n_cols: int) -> str:
 
     if len(source_notes) == 0:
         return ""
+
+    parts: list[str] = []
+
+    # Separator line before footer (uses table_body_border_bottom)
+    body_bottom_border = _option_border_to_typst(
+        opts.table_body_border_bottom_style.value,
+        opts.table_body_border_bottom_width.value,
+        opts.table_body_border_bottom_color.value,
+    )
+    if body_bottom_border:
+        parts.append(f"  table.hline(stroke: {body_bottom_border}),")
 
     source_notes_strs = [_process_text(x, context="typst") for x in source_notes]
 
@@ -871,7 +884,8 @@ def create_footer_component_typst(data: GTData, n_cols: int) -> str:
     if stroke_parts:
         cell_props.append(f"stroke: ({', '.join(stroke_parts)})")
 
-    return f"  table.cell({', '.join(cell_props)})[{notes_content}],"
+    parts.append(f"  table.cell({', '.join(cell_props)})[{notes_content}],")
+    return "\n".join(parts)
 
 
 def _render_as_typst(data: GTData) -> str:
