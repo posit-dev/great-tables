@@ -337,9 +337,31 @@ class CellStyleText(CellStyle):
             parts.append(f'weight: "{w}"')
         if self.style:
             parts.append(f'style: "{self.style}"')
+        result: dict[str, str] = {}
         if parts:
-            return {"text_style": ", ".join(parts)}
-        return {}
+            result["text_style"] = ", ".join(parts)
+        # Text decorations → Typst outer wraps
+        if self.decorate:
+            d = str(self.decorate)
+            decorate_map = {
+                "underline": "underline",
+                "line-through": "strike",
+                "overline": "overline",
+            }
+            wraps = [decorate_map[x] for x in d.split() if x in decorate_map]
+            if wraps:
+                result["text_decorate"] = ",".join(wraps)
+        # Text transform → Typst outer wraps
+        if self.transform:
+            t = str(self.transform)
+            transform_map = {
+                "uppercase": "upper",
+                "lowercase": "lower",
+                "capitalize": "smallcaps",  # closest Typst equivalent
+            }
+            if t in transform_map:
+                result["text_transform"] = transform_map[t]
+        return result
 
 
 @dataclass

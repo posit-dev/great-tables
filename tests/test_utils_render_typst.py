@@ -284,19 +284,27 @@ class TestCreateBodyComponentTypst:
 
 class TestCreateFooterComponentTypst:
     def test_no_notes(self, gt_tbl: GT):
-        assert create_footer_component_typst(gt_tbl) == ""
+        assert create_footer_component_typst(gt_tbl, n_cols=2) == ""
 
     def test_one_note(self, gt_tbl: GT):
         gt = gt_tbl.tab_source_note(source_note="Source Note.")
-        result = create_footer_component_typst(gt)
+        result = create_footer_component_typst(gt, n_cols=2)
         assert "Source Note." in result
         assert "text(size:" in result
+        assert "table.cell(" in result
+        assert "colspan: 2" in result
 
     def test_two_notes(self, gt_tbl: GT):
         gt = gt_tbl.tab_source_note(source_note="Note 1.").tab_source_note(source_note="Note 2.")
-        result = create_footer_component_typst(gt)
+        result = create_footer_component_typst(gt, n_cols=2)
         assert "Note 1." in result
         assert "Note 2." in result
+
+    def test_footer_has_fill(self, gt_tbl: GT):
+        """Footer should always have fill to prevent striping bleed."""
+        gt = gt_tbl.tab_source_note(source_note="Note.")
+        result = create_footer_component_typst(gt, n_cols=2)
+        assert "fill:" in result
 
 
 class TestRenderAsTypst:

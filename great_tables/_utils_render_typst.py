@@ -13,12 +13,8 @@ if TYPE_CHECKING:
     from ._gt_data import GroupRowInfo, GTData
 
 
-def _css_length_to_typst(length: str, base_size_pt: float | None = None) -> str:
-    """Convert a CSS length string (e.g., '100px', '50%', '2cm') to Typst.
-
-    For percentage values used in text(size: ...), Typst requires absolute lengths.
-    Pass base_size_pt to convert percentages relative to the table font size.
-    """
+def _css_length_to_typst(length: str) -> str:
+    """Convert a CSS length string (e.g., '100px', '50%', '2cm') to Typst."""
     length = length.strip()
     if length.endswith("px"):
         # Convert px to pt (Typst uses pt; 1px ≈ 0.75pt)
@@ -26,12 +22,24 @@ def _css_length_to_typst(length: str, base_size_pt: float | None = None) -> str:
         return f"{val * 0.75:.1f}pt"
     if length.endswith("%"):
         val = float(length[:-1])
-        if base_size_pt is not None:
-            return f"{val / 100 * base_size_pt:.1f}pt"
-        # Typst only supports % in some contexts (e.g., width), not text size
+        # Typst supports % for widths but not for text sizes
         return f"{val}%"
     # pt, cm, mm, in, em — Typst supports these directly
     return length
+
+
+def _css_length_to_typst_text_size(length: str) -> str:
+    """Convert a CSS length to Typst text size. Converts % to em.
+
+    Like _css_length_to_typst() but converts percentages to em units since
+    Typst's text(size: ...) doesn't accept percentages. em is relative to
+    the parent font size, so 125% becomes 1.25em.
+    """
+    length = length.strip()
+    if length.endswith("%"):
+        val = float(length[:-1])
+        return f"{val / 100:.2f}em"
+    return _css_length_to_typst(length)
 
 
 def _css_weight_to_typst(weight: str) -> str:
@@ -43,17 +51,6 @@ def _css_weight_to_typst(weight: str) -> str:
     if weight == "initial" or weight == "inherit":
         return "regular"
     return weight
-
-
-def _get_base_font_size_pt(opts) -> float:
-    """Get the table base font size in pt for resolving percentage-based sizes."""
-    fs = opts.table_font_size.value
-    if fs.endswith("px"):
-        return float(fs[:-2]) * 0.75
-    if fs.endswith("pt"):
-        return float(fs[:-2])
-    # Default: 16px = 12pt
-    return 12.0
 
 
 def _has_stub_column(data: GTData) -> bool:
@@ -240,9 +237,9 @@ def create_heading_component_typst(data: GTData, n_cols: int) -> str:
     title_str = _process_text(title, context="typst")
 
     # Heading options
-    base_pt = _get_base_font_size_pt(opts)
+
     heading_align = opts.heading_align.value or "center"
-    title_size = _css_length_to_typst(opts.heading_title_font_size.value, base_size_pt=base_pt)
+    title_size = _css_length_to_typst_text_size(opts.heading_title_font_size.value)
     title_weight = opts.heading_title_font_weight.value
     title_text_props = f"size: {title_size}"
     if title_weight and title_weight != "initial":
@@ -274,9 +271,7 @@ def create_heading_component_typst(data: GTData, n_cols: int) -> str:
     title_content = f"#text({title_text_props})[{title_str}]"
     if heading_has_subtitle(subtitle):
         subtitle_str = _process_text(subtitle, context="typst")
-        subtitle_size = _css_length_to_typst(
-            opts.heading_subtitle_font_size.value, base_size_pt=base_pt
-        )
+        subtitle_size = _css_length_to_typst_text_size(opts.heading_subtitle_font_size.value)
         subtitle_weight = opts.heading_subtitle_font_weight.value
         subtitle_text_props = f"size: {subtitle_size}"
         if subtitle_weight and subtitle_weight != "initial":
@@ -397,8 +392,7 @@ def create_columns_component_typst(data: GTData) -> str:
         # Column label font size
         col_label_font_size = opts.column_labels_font_size.value
         if col_label_font_size and col_label_font_size != "100%":
-            base_pt = _get_base_font_size_pt(opts)
-            label = f"#text(size: {_css_length_to_typst(col_label_font_size, base_size_pt=base_pt)})[{label}]"
+            label = f"#text(size: {_css_length_to_typst_text_size(col_label_font_size)})[{label}]"
         cell_content = f"*{label}*" if use_bold_labels else label
         cell_props: list[str] = []
         if col_label_bg:
@@ -504,11 +498,19 @@ def _typst_styled_cell(content: str, styles: dict[str, str]) -> str:
     if "inset" in styles:
         props.append(f"inset: {styles['inset']}")
 
+    # Apply text decorations and transforms as outer wraps
+    wrapped_content = content
+    if "text_decorate" in styles:
+        for deco in styles["text_decorate"].split(","):
+            wrapped_content = f"#{deco}[{wrapped_content}]"
+    if "text_transform" in styles:
+        wrapped_content = f"#{styles['text_transform']}[{wrapped_content}]"
+
     if "text_style" in styles:
         # Inside [...] we're in markup mode, so need # prefix for code expressions
-        inner = f"[#text({styles['text_style']})[{content}]]"
+        inner = f"[#text({styles['text_style']})[{wrapped_content}]]"
     else:
-        inner = f"[{content}]"
+        inner = f"[{wrapped_content}]"
 
     if props:
         # table.cell(fill: ..., stroke: ...)[content]
@@ -708,8 +710,9 @@ def create_body_component_typst(data: GTData) -> str:
             label_content = f"*{group_label}*" if rg_use_bold else group_label
             # Wrap in text() if custom font size
             if rg_font_size and rg_font_size != "100%":
-                _base_pt = _get_base_font_size_pt(opts)
-                label_content = f"#text(size: {_css_length_to_typst(rg_font_size, base_size_pt=_base_pt)})[{label_content}]"
+                label_content = (
+                    f"#text(size: {_css_length_to_typst_text_size(rg_font_size)})[{label_content}]"
+                )
             cell_props = [f"colspan: {total_cols}", "align: left"]
             if rg_bg:
                 typst_bg = f'rgb("{rg_bg}")' if rg_bg.startswith("#") else rg_bg
@@ -751,8 +754,7 @@ def create_body_component_typst(data: GTData) -> str:
                 label_content = f"*{row_label}*" if stub_use_bold else row_label
                 # Apply font size
                 if stub_font_size and stub_font_size != "100%":
-                    _base_pt = _get_base_font_size_pt(opts)
-                    label_content = f"#text(size: {_css_length_to_typst(stub_font_size, base_size_pt=_base_pt)})[{label_content}]"
+                    label_content = f"#text(size: {_css_length_to_typst_text_size(stub_font_size)})[{label_content}]"
                 stub_cell_props: list[str] = []
                 if stub_bg:
                     typst_bg = f'rgb("{stub_bg}")' if stub_bg.startswith("#") else stub_bg
@@ -805,8 +807,13 @@ def create_body_component_typst(data: GTData) -> str:
     return "\n".join(body_rows)
 
 
-def create_footer_component_typst(data: GTData) -> str:
-    """Create the Typst footer with source notes."""
+def create_footer_component_typst(data: GTData, n_cols: int) -> str:
+    """Create the Typst footer as table.cell rows inside the table.
+
+    Returns table.cell(colspan: N) entries for source notes, placed inside the
+    #table() after body rows. This way the footer inherits the table's width
+    and an explicit fill prevents table-level striping from leaking in.
+    """
 
     opts = data._options
     source_notes = data._source_notes
@@ -817,24 +824,34 @@ def create_footer_component_typst(data: GTData) -> str:
     source_notes_strs = [_process_text(x, context="typst") for x in source_notes]
 
     # Source notes options
-    base_pt = _get_base_font_size_pt(opts)
-    sn_font_size = _css_length_to_typst(opts.source_notes_font_size.value, base_size_pt=base_pt)
+    sn_font_size = _css_length_to_typst_text_size(opts.source_notes_font_size.value)
     sn_bg = opts.source_notes_background_color.value
     sn_multiline = opts.source_notes_multiline.value
     sn_sep = opts.source_notes_sep.value or " "
     sn_padding = _css_length_to_typst(opts.source_notes_padding.value)
+    sn_pad_h = _css_length_to_typst(opts.source_notes_padding_horizontal.value)
 
     if sn_multiline:
-        notes_content = "\n".join(
-            f"#text(size: {sn_font_size})[{note}]" for note in source_notes_strs
-        )
+        notes_parts = [f"#text(size: {sn_font_size})[{note}]" for note in source_notes_strs]
+        notes_content = r" \ ".join(notes_parts)
     else:
         joined = sn_sep.join(source_notes_strs)
         notes_content = f"#text(size: {sn_font_size})[{joined}]"
 
-    sn_pad_h = _css_length_to_typst(opts.source_notes_padding_horizontal.value)
+    # Build table.cell properties
+    cell_props = [f"colspan: {n_cols}", "align: left"]
 
-    # Source notes border
+    # Always set fill to prevent table-level striping from leaking into footer
+    if sn_bg:
+        typst_bg = f'rgb("{sn_bg}")' if sn_bg.startswith("#") else sn_bg
+    else:
+        tbl_bg = opts.table_background_color.value or "#FFFFFF"
+        typst_bg = f'rgb("{tbl_bg}")' if tbl_bg.startswith("#") else tbl_bg
+    cell_props.append(f"fill: {typst_bg}")
+
+    cell_props.append(f"inset: (x: {sn_pad_h}, y: {sn_padding})")
+
+    # Borders via stroke on the cell
     sn_border_bottom = _option_border_to_typst(
         opts.source_notes_border_bottom_style.value,
         opts.source_notes_border_bottom_width.value,
@@ -845,13 +862,6 @@ def create_footer_component_typst(data: GTData) -> str:
         opts.source_notes_border_lr_width.value,
         opts.source_notes_border_lr_color.value,
     )
-
-    # Build block properties
-    block_props: list[str] = ["width: 100%", f"inset: (x: {sn_pad_h}, y: {sn_padding})"]
-    if sn_bg:
-        typst_bg = f'rgb("{sn_bg}")' if sn_bg.startswith("#") else sn_bg
-        block_props.append(f"fill: {typst_bg}")
-
     stroke_parts: list[str] = []
     if sn_border_bottom:
         stroke_parts.append(f"bottom: {sn_border_bottom}")
@@ -859,12 +869,9 @@ def create_footer_component_typst(data: GTData) -> str:
         stroke_parts.append(f"left: {sn_border_lr}")
         stroke_parts.append(f"right: {sn_border_lr}")
     if stroke_parts:
-        block_props.append(f"stroke: ({', '.join(stroke_parts)})")
+        cell_props.append(f"stroke: ({', '.join(stroke_parts)})")
 
-    if sn_bg or stroke_parts:
-        return f"#block({', '.join(block_props)})[\n{notes_content}\n]"
-
-    return notes_content
+    return f"  table.cell({', '.join(cell_props)})[{notes_content}],"
 
 
 def _render_as_typst(data: GTData) -> str:
@@ -889,8 +896,8 @@ def _render_as_typst(data: GTData) -> str:
     # Create body rows (inside table)
     body_component = create_body_component_typst(data=data)
 
-    # Create footer (outside table)
-    footer_component = create_footer_component_typst(data=data)
+    # Create footer as table.cell rows (inside table, after body)
+    footer_component = create_footer_component_typst(data=data, n_cols=n_cols)
 
     # Bottom table border (inside table, at the end)
     bottom_border = _option_border_to_typst(
@@ -959,7 +966,11 @@ def _render_as_typst(data: GTData) -> str:
         # No column headers (hidden), wrap heading in its own table.header()
         columns_component = f"  table.header(\n{heading_component}\n  ),"
 
-    table_content = f"{table_start}\n{columns_component}\n" f"{body_component}{bottom_hline}\n)"
+    # Footer goes inside the table (as table.cell rows) before the bottom border
+    footer_section = f"\n{footer_component}" if footer_component else ""
+    table_content = (
+        f"{table_start}\n{columns_component}\n" f"{body_component}{footer_section}{bottom_hline}\n)"
+    )
 
     # Wrap in block if table_width or margins are set
     block_props: list[str] = []
@@ -979,8 +990,5 @@ def _render_as_typst(data: GTData) -> str:
         table_content = f"#block({', '.join(block_props)})[\n{table_content}\n]"
 
     parts.append(table_content)
-
-    if footer_component:
-        parts.append(footer_component)
 
     return "\n".join(parts)
