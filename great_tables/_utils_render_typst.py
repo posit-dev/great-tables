@@ -67,10 +67,19 @@ def _has_stub_column(data: GTData) -> bool:
 
 def _option_border_to_typst(style: str, width: str, color: str) -> str | None:
     """Convert GT border options to Typst stroke syntax. Returns None for style='none'."""
-    if style == "none":
+    if style == "none" or style == "hidden":
         return None
     typst_width = _css_length_to_typst(width)
     typst_color = f'rgb("{color}")' if color.startswith("#") else color
+    # Typst doesn't support "double" — render as solid with half width
+    if style == "double":
+        # CSS double border uses the width for the total including gap;
+        # approximate as a single solid line at ~1/3 the width
+        try:
+            val = float(typst_width.replace("pt", ""))
+            typst_width = f"{max(val / 3, 0.75):.1f}pt"
+        except ValueError:
+            pass
     return f"{typst_width} + {typst_color}"
 
 
@@ -768,9 +777,6 @@ def create_body_component_typst(data: GTData) -> str:
 
         body_rows.append("  " + ", ".join(body_cells) + ",")
 
-    if body_border_bottom:
-        body_rows.append(f"  table.hline(stroke: {body_border_bottom}),")
-
     # Grand summary border
     gs_border = _option_border_to_typst(
         opts.grand_summary_row_border_style.value,
@@ -782,6 +788,7 @@ def create_body_component_typst(data: GTData) -> str:
     # Render bottom-side grand summary rows
     bottom_g_summary_rows = data._summary_rows_grand.get_summary_rows(side="bottom")
     if bottom_g_summary_rows:
+        # Grand summary border replaces body_border_bottom
         body_rows.append(f"  table.hline(stroke: {gs_hline}),")
         body_rows.extend(
             _create_grand_summary_rows_typst(
@@ -792,6 +799,8 @@ def create_body_component_typst(data: GTData) -> str:
                 row_index_offset=len(top_g_summary_rows),
             )
         )
+    elif body_border_bottom:
+        body_rows.append(f"  table.hline(stroke: {body_border_bottom}),")
 
     return "\n".join(body_rows)
 
