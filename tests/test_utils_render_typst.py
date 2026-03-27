@@ -407,8 +407,8 @@ class TestTableOptionsTypst:
     def test_column_widths(self):
         gt = GT(pd.DataFrame({"a": [1], "b": [2]})).cols_width({"a": "100px", "b": "200px"})
         result = create_table_start_typst(gt)
-        assert "75.0pt" in result
-        assert "150.0pt" in result
+        assert "75pt" in result
+        assert "150pt" in result
 
     def test_row_striping(self, gt_tbl: GT):
         gt = gt_tbl.opt_row_striping()
@@ -693,9 +693,9 @@ class TestGrandSummaryTypst:
         result = gt.as_typst()
         # Summary row label should appear
         assert "Average" in result
-        # Summary values should appear (mean of a=2.0, b=5.0)
-        assert "2.0" in result
-        assert "5.0" in result
+        # Summary values should appear (mean of a=2, b=5 — integer-valued floats strip .0)
+        assert "[2]" in result or "2," in result
+        assert "[5]" in result or "5," in result
 
     def test_grand_summary_top(self):
         df = pd.DataFrame({"a": [1, 2, 3]})

@@ -6,11 +6,11 @@
   #table(
     columns: 5,
     align: (left, left, right, right, right,),
-    stroke: (x: none, y: 0.8pt + rgb("#D3D3D3")),
-    inset: (x: 3.8pt, y: 6.0pt),
+    stroke: (x: none, y: 0.75pt + rgb("#D3D3D3")),
+    inset: (x: 3.75pt, y: 6pt),
     table.hline(stroke: 1.5pt + rgb("#A8A8A8")),
     table.header(
-    table.cell(colspan: 5, align: center, inset: (x: 3.8pt, y: 3.0pt))[#text(size: 1.25em, weight: "bold")[The \_title\_] \ #text(size: 0.85em)[The subtitle]],
+    table.cell(colspan: 5, align: center, inset: (x: 3.75pt, y: 3pt))[#text(size: 1.25em, weight: "bold")[The \_title\_] \ #text(size: 0.85em)[The subtitle]],
     table.hline(stroke: 1.5pt + rgb("#D3D3D3")),
     table.hline(stroke: 1.5pt + rgb("#D3D3D3")),
     table.cell(colspan: 2, align: center)[Make and Model], table.cell(colspan: 2, align: center)[Performance], [],
@@ -26,7 +26,7 @@
     [Ferrari], [458 Italia], [562.0], [398.0], [\$233,509.00],
     [Ferrari], [488 GTB], [661.0], [561.0], [\$245,400.00],
     table.hline(stroke: 1.5pt + rgb("#D3D3D3")),
-    table.cell(colspan: 5, align: left, fill: rgb("#FFFFFF"), inset: (x: 3.8pt, y: 3.0pt))[#text(size: 0.90em)[Note 1] \ #text(size: 0.90em)[Note 2]],
+    table.cell(colspan: 5, align: left, fill: rgb("#FFFFFF"), inset: (x: 3.75pt, y: 3pt))[#text(size: 0.90em)[Note 1] \ #text(size: 0.90em)[Note 2]],
     table.hline(stroke: 1.5pt + rgb("#A8A8A8")),
   )
   '''

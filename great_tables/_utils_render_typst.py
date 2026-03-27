@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from itertools import chain
 from typing import TYPE_CHECKING
 
@@ -17,9 +18,11 @@ def _css_length_to_typst(length: str) -> str:
     """Convert a CSS length string (e.g., '100px', '50%', '2cm') to Typst."""
     length = length.strip()
     if length.endswith("px"):
-        # Convert px to pt (Typst uses pt; 1px ≈ 0.75pt)
-        val = float(length[:-2])
-        return f"{val * 0.75:.1f}pt"
+        # Convert px to pt (Typst uses pt; 1px = 0.75pt)
+        val = float(length[:-2]) * 0.75
+        # Format: use minimal decimal places (e.g., 2.25pt not 2.2pt or 2.250pt)
+        formatted = f"{val:.2f}".rstrip("0").rstrip(".")
+        return f"{formatted}pt"
     if length.endswith("%"):
         val = float(length[:-1])
         # Typst supports % for widths but not for text sizes
@@ -40,6 +43,24 @@ def _css_length_to_typst_text_size(length: str) -> str:
         val = float(length[:-1])
         return f"{val / 100:.2f}em"
     return _css_length_to_typst(length)
+
+
+def _format_cell_value(value) -> str:
+    """Format a cell value for display.
+
+    - Strips .0 from integer-valued floats (e.g., 647.0 → 647)
+    - Replaces ASCII hyphen-minus with Unicode minus for negative numbers
+    """
+    if value is None:
+        return ""
+    if isinstance(value, float) and value == int(value) and not (value != value):
+        # Integer-valued float (not NaN): display without decimal
+        return str(int(value))
+    s = str(value)
+    # Use Unicode minus (U+2212) for negative values — better typography
+    if s.startswith("-"):
+        s = "\u2212" + s[1:]
+    return s
 
 
 def _css_weight_to_typst(weight: str) -> str:
@@ -74,7 +95,8 @@ def _option_border_to_typst(style: str, width: str, color: str) -> str | None:
         # approximate as a single solid line at ~1/3 the width
         try:
             val = float(typst_width.replace("pt", ""))
-            typst_width = f"{max(val / 3, 0.75):.1f}pt"
+            v = max(val / 3, 0.75)
+            typst_width = f"{v:.2f}".rstrip("0").rstrip(".") + "pt"
         except ValueError:
             pass
     return f"{typst_width} + {typst_color}"
@@ -152,7 +174,8 @@ def create_table_start_typst(data: GTData) -> str:
         if stripe_color:
             typst_color = f'rgb("{stripe_color}")' if stripe_color.startswith("#") else stripe_color
         else:
-            typst_color = "luma(244)"
+            # Alpha-based gray layers better with other cell fills than solid color
+            typst_color = 'rgb("#8080800C")'
         include_stub = opts.row_striping_include_stub.value
         # Offset y by header_row_count so striping starts at the first data row
         if has_stub and not include_stub:
@@ -215,6 +238,16 @@ def create_table_start_typst(data: GTData) -> str:
         n_cols = len(col_aligns)
         parts.append(f"  table.vline(x: {n_cols}, stroke: {right_border}),")
 
+    # Stub vertical separator line (replaces per-cell stroke: (right: ...))
+    if has_stub:
+        stub_border = _option_border_to_typst(
+            opts.stub_border_style.value,
+            opts.stub_border_width.value,
+            opts.stub_border_color.value,
+        )
+        if stub_border:
+            parts.append(f"  table.vline(x: 1, stroke: {stub_border}),")
+
     return "\n".join(parts)
 
 
@@ -251,12 +284,21 @@ def create_heading_component_typst(data: GTData, n_cols: int) -> str:
     padding = _css_length_to_typst(opts.heading_padding.value)
     padding_h = _css_length_to_typst(opts.heading_padding_horizontal.value)
 
-    # Use light text color when heading has a background color
+    # Use light text color when heading has a dark background color
     heading_text_fill = ""
-    if bg_color:
-        font_color_light = opts.table_font_color_light.value or "#FFFFFF"
-        heading_text_fill = f', fill: rgb("{font_color_light}")'
-        title_text_props += heading_text_fill
+    if bg_color and bg_color.startswith("#") and len(bg_color) >= 7:
+        # Simple luminance check: if background is dark, use light text
+        try:
+            r = int(bg_color[1:3], 16)
+            g = int(bg_color[3:5], 16)
+            b = int(bg_color[5:7], 16)
+            luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+            if luminance < 0.5:
+                font_color_light = opts.table_font_color_light.value or "#FFFFFF"
+                heading_text_fill = f', fill: rgb("{font_color_light}")'
+                title_text_props += heading_text_fill
+        except (ValueError, IndexError):
+            pass
 
     # Build cell properties
     cell_props = [f"colspan: {n_cols}", f"align: {heading_align}"]
@@ -345,8 +387,13 @@ def create_columns_component_typst(data: GTData) -> str:
                     # Empty cells for non-spanned columns
                     spanner_cells.extend(["[]"] * span)
                 else:
+                    # Spanners inherit column_labels_font_weight
+                    span_weight = opts.column_labels_font_weight.value
+                    span_content = (
+                        f"*{level_i_spanner_j}*" if span_weight == "bold" else level_i_spanner_j
+                    )
                     spanner_cells.append(
-                        f"table.cell(colspan: {span}, align: center)[{level_i_spanner_j}]"
+                        f"table.cell(colspan: {span}, align: center)[{span_content}]"
                     )
                     # Track position for partial hline under this spanner
                     spanner_hlines.append(
@@ -516,11 +563,8 @@ def _typst_styled_cell(content: str, styles: dict[str, str]) -> str:
         # table.cell(fill: ..., stroke: ...)[content]
         return f"table.cell({', '.join(props)}){inner}"
 
-    if "text_style" in styles:
-        # Even without fill/stroke, text styling requires table.cell() wrapper
-        # because bare #text() in table args is code context where # is invalid
-        return f"table.cell(){inner}"
-
+    # When only text styling (no cell-level fill/stroke/inset), use inline #text()
+    # inside content brackets — no table.cell() wrapper needed
     return inner
 
 
@@ -563,7 +607,7 @@ def _create_grand_summary_rows_typst(
         # Data columns
         for colinfo in column_vars:
             cell_value = summary_row.values.get(colinfo.var)
-            cell_str = str(cell_value) if cell_value is not None else ""
+            cell_str = _format_cell_value(cell_value)
             cell_styles = _get_grand_summary_cell_styles_typst(
                 data, rownum=row_index, colname=colinfo.var, is_stub=False
             )
@@ -605,7 +649,7 @@ def create_body_component_typst(data: GTData) -> str:
         opts.grand_summary_row_border_width.value,
         opts.grand_summary_row_border_color.value,
     )
-    gs_hline_early = gs_border_early or '0.75pt + rgb("#D3D3D3")'
+    gs_hline_early = gs_border_early or '0.75pt + rgb("#A8A8A8")'
 
     # Render top-side grand summary rows
     top_g_summary_rows = data._summary_rows_grand.get_summary_rows(side="top")
@@ -662,11 +706,7 @@ def create_body_component_typst(data: GTData) -> str:
     stub_use_bold = stub_weight == "bold" or stub_weight == "initial"
     stub_font_size = opts.stub_font_size.value
     stub_text_transform = opts.stub_text_transform.value
-    stub_border = _option_border_to_typst(
-        opts.stub_border_style.value,
-        opts.stub_border_width.value,
-        opts.stub_border_color.value,
-    )
+    # stub_border is now a table.vline in create_table_start_typst
     # row_striping_include_stub is handled in create_table_start_typst
 
     # Stub row group styling (used when row_group_as_column=True, not yet implemented)
@@ -707,7 +747,7 @@ def create_body_component_typst(data: GTData) -> str:
                 group_label = group_label.lower()
             elif rg_text_transform == "capitalize":
                 group_label = group_label.title()
-            label_content = f"*{group_label}*" if rg_use_bold else group_label
+            label_content = f'#text(weight: "bold")[{group_label}]' if rg_use_bold else group_label
             # Wrap in text() if custom font size
             if rg_font_size and rg_font_size != "100%":
                 label_content = (
@@ -759,8 +799,7 @@ def create_body_component_typst(data: GTData) -> str:
                 if stub_bg:
                     typst_bg = f'rgb("{stub_bg}")' if stub_bg.startswith("#") else stub_bg
                     stub_cell_props.append(f"fill: {typst_bg}")
-                if stub_border:
-                    stub_cell_props.append(f"stroke: (right: {stub_border})")
+                # stub border is now a table.vline in create_table_start_typst
                 if stub_cell_props:
                     body_cells.append(f"table.cell({', '.join(stub_cell_props)})[{label_content}]")
                 else:
@@ -785,7 +824,7 @@ def create_body_component_typst(data: GTData) -> str:
         opts.grand_summary_row_border_width.value,
         opts.grand_summary_row_border_color.value,
     )
-    gs_hline = gs_border or '0.75pt + rgb("#D3D3D3")'
+    gs_hline = gs_border or '0.75pt + rgb("#A8A8A8")'
 
     # Render bottom-side grand summary rows
     bottom_g_summary_rows = data._summary_rows_grand.get_summary_rows(side="bottom")
@@ -1005,4 +1044,11 @@ def _render_as_typst(data: GTData) -> str:
 
     parts.append(table_content)
 
-    return "\n".join(parts)
+    # Deduplicate consecutive identical hlines (e.g., heading border + col label border)
+    result = "\n".join(parts)
+    result = re.sub(
+        r"(  table\.hline\([^)]+\),)\n\1",
+        r"\1",
+        result,
+    )
+    return result
