@@ -133,6 +133,13 @@ def create_table_start_typst(data: GTData) -> str:
     ]
 
     # Row striping (respects row_striping_include_stub)
+    # Compute header row count so we can offset the fill function to skip header rows.
+    # Header rows: heading (0 or 1) + spanner levels + column labels (0 or 1)
+    has_heading = heading_has_title(data._heading.title)
+    spanner_levels = _get_spanners_matrix_height(data=data, omit_columns_row=True)
+    col_labels_visible = not opts.column_labels_hidden.value
+    header_row_count = (1 if has_heading else 0) + spanner_levels + (1 if col_labels_visible else 0)
+
     striping_opt = opts.row_striping_include_table_body.value
     if striping_opt:
         stripe_color = opts.row_striping_background_color.value
@@ -141,11 +148,15 @@ def create_table_start_typst(data: GTData) -> str:
         else:
             typst_color = "luma(244)"
         include_stub = opts.row_striping_include_stub.value
+        # Offset y by header_row_count so striping starts at the first data row
         if has_stub and not include_stub:
-            # Skip first column (stub) from striping
-            parts.append(f"  fill: (x, y) => if calc.odd(y) and x > 0 {{ {typst_color} }},")
+            parts.append(
+                f"  fill: (x, y) => if y >= {header_row_count} and calc.odd(y - {header_row_count}) and x > 0 {{ {typst_color} }},"
+            )
         else:
-            parts.append(f"  fill: (_, y) => if calc.odd(y) {{ {typst_color} }},")
+            parts.append(
+                f"  fill: (_, y) => if y >= {header_row_count} and calc.odd(y - {header_row_count}) {{ {typst_color} }},"
+            )
 
     # Column labels vertical lines
     col_vlines = _option_border_to_typst(
@@ -903,13 +914,18 @@ def _render_as_typst(data: GTData) -> str:
     if table_font_style and table_font_style != "normal":
         text_props.append(f'style: "{table_font_style}"')
 
-    # Only emit font family if user explicitly changed it from the CSS default
-    from ._gt_data import default_fonts_list
+    # Typst font stack: filter out CSS-only names that Typst can't resolve,
+    # but keep generic families (sans-serif, serif, monospace) which Typst supports.
+    _css_only_fonts = {"-apple-system", "BlinkMacSystemFont"}
 
     table_font_names = opts.table_font_names.value
-    if table_font_names and table_font_names != default_fonts_list:
-        font_list = ", ".join(f'"{f}"' for f in table_font_names)
-        parts.append(f"#set text(font: ({font_list},))")
+    if table_font_names:
+        typst_fonts = [f for f in table_font_names if f not in _css_only_fonts]
+        if typst_fonts:
+            font_list = ", ".join(f'"{f}"' for f in typst_fonts)
+            parts.append(f"#set text(font: ({font_list},))")
+    # If table_font_names is empty/None, don't emit #set text(font:) —
+    # this lets the table inherit the document's font settings
 
     if text_props:
         parts.append(f"#set text({', '.join(text_props)})")

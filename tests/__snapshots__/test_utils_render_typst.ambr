@@ -1,6 +1,7 @@
 # serializer version: 1
 # name: TestAsTypstMethod.test_snap_as_typst
   '''
+  #set text(font: ("Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Helvetica Neue", "Fira Sans", "Droid Sans", "Arial", "sans-serif",))
   #set text(fill: rgb("#333333"))
   #table(
     columns: 5,
