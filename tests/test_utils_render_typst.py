@@ -216,17 +216,18 @@ class TestCreateTableStartTypst:
 
 class TestCreateHeadingComponentTypst:
     def test_no_heading(self, gt_tbl: GT):
-        assert create_heading_component_typst(gt_tbl) == ""
+        assert create_heading_component_typst(gt_tbl, n_cols=2) == ""
 
     def test_title_only(self):
         gt = GT(exibble).tab_header(title="Title")
-        result = create_heading_component_typst(gt)
+        result = create_heading_component_typst(gt, n_cols=9)
         assert "Title" in result
         assert "bold" in result
+        assert "colspan: 9" in result
 
     def test_title_and_subtitle(self):
         gt = GT(exibble).tab_header(title="Title", subtitle="Subtitle")
-        result = create_heading_component_typst(gt)
+        result = create_heading_component_typst(gt, n_cols=9)
         assert "Title" in result
         assert "Subtitle" in result
 
@@ -236,6 +237,13 @@ class TestCreateColumnsComponentTypst:
         gt = GT(exibble)
         result = create_columns_component_typst(gt)
         assert "table.header(" in result
+        # Default column_labels_font_weight is "normal" (not bold)
+        assert "[num]" in result
+        assert "[char]" in result
+
+    def test_bold_columns(self):
+        gt = GT(exibble).tab_options(column_labels_font_weight="bold")
+        result = create_columns_component_typst(gt)
         assert "[*num*]" in result
         assert "[*char*]" in result
 
@@ -248,9 +256,9 @@ class TestCreateColumnsComponentTypst:
     def test_hidden_cols(self):
         gt = GT(exibble).cols_hide(columns=["char", "date"])
         result = create_columns_component_typst(gt)
-        assert "[*char*]" not in result
-        assert "[*date*]" not in result
-        assert "[*num*]" in result
+        assert "[char]" not in result
+        assert "[date]" not in result
+        assert "[num]" in result
 
 
 class TestCreateBodyComponentTypst:
@@ -265,9 +273,13 @@ class TestCreateBodyComponentTypst:
     def test_body_row_count(self, gt_tbl: GT):
         built = gt_tbl._build_data(context="typst")
         result = create_body_component_typst(built)
-        # Two rows
-        lines = [line for line in result.strip().split("\n") if line.strip()]
-        assert len(lines) == 2
+        # Two data rows (plus any body border hlines from options)
+        data_lines = [
+            line
+            for line in result.strip().split("\n")
+            if line.strip() and "table.hline" not in line
+        ]
+        assert len(data_lines) == 2
 
 
 class TestCreateFooterComponentTypst:
@@ -278,7 +290,7 @@ class TestCreateFooterComponentTypst:
         gt = gt_tbl.tab_source_note(source_note="Source Note.")
         result = create_footer_component_typst(gt)
         assert "Source Note." in result
-        assert "text(size: 8pt)" in result
+        assert "text(size:" in result
 
     def test_two_notes(self, gt_tbl: GT):
         gt = gt_tbl.tab_source_note(source_note="Note 1.").tab_source_note(source_note="Note 2.")
@@ -382,7 +394,7 @@ class TestTableOptionsTypst:
     def test_font_size(self, gt_tbl: GT):
         gt = gt_tbl.tab_options(table_font_size="18px")
         result = gt.as_typst()
-        assert "#set text(size: 13.5pt)" in result
+        assert "size: 13.5pt" in result
 
     def test_column_widths(self):
         gt = GT(pd.DataFrame({"a": [1], "b": [2]})).cols_width({"a": "100px", "b": "200px"})

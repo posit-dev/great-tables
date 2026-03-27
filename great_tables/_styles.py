@@ -330,7 +330,11 @@ class CellStyleText(CellStyle):
         if self.size:
             parts.append(f"size: {self.size}")
         if self.weight:
-            parts.append(f'weight: "{self.weight}"')
+            # Typst uses "regular" instead of CSS "normal"
+            w = str(self.weight)
+            if w == "normal":
+                w = "regular"
+            parts.append(f'weight: "{w}"')
         if self.style:
             parts.append(f'style: "{self.style}"')
         if parts:
