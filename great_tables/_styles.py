@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, Any, Callable, Literal, Union
 
@@ -18,7 +19,12 @@ def _css_color_to_typst(color: str) -> str:
     if color.startswith("#"):
         return f'rgb("{color}")'
     if color.startswith("rgb"):
-        return f'rgb("{color}")'
+        # Parse CSS rgb(r, g, b) into Typst rgb(r, g, b) with numeric arguments
+        match = re.match(r"rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)", color)
+        if match:
+            r, g, b = match.groups()
+            return f"rgb({r}, {g}, {b})"
+        return color
     # Named colors — pass through, Typst supports many CSS names
     return color
 

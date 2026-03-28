@@ -295,7 +295,7 @@ def create_heading_component_typst(data: GTData, n_cols: int) -> str:
             luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
             if luminance < 0.5:
                 font_color_light = opts.table_font_color_light.value or "#FFFFFF"
-                heading_text_fill = f', fill: rgb("{font_color_light}")'
+                heading_text_fill = f', fill: rgb("{font_color_light}")' if font_color_light.startswith("#") else f", fill: {font_color_light}"
                 title_text_props += heading_text_fill
         except (ValueError, IndexError):
             pass
@@ -703,7 +703,7 @@ def create_body_component_typst(data: GTData) -> str:
     # Stub styling options
     stub_bg = opts.stub_background_color.value
     stub_weight = opts.stub_font_weight.value
-    stub_use_bold = stub_weight == "bold" or stub_weight == "initial"
+    stub_use_bold = stub_weight == "bold"
     stub_font_size = opts.stub_font_size.value
     stub_text_transform = opts.stub_text_transform.value
     # stub_border is now a table.vline in create_table_start_typst
@@ -969,7 +969,7 @@ def _render_as_typst(data: GTData) -> str:
     text_props: list[str] = []
     font_color = opts.table_font_color.value
     if font_color:
-        text_props.append(f'fill: rgb("{font_color}")')
+        text_props.append(f'fill: rgb("{font_color}")' if font_color.startswith("#") else f"fill: {font_color}")
 
     table_font_size = opts.table_font_size.value
     if table_font_size and table_font_size != "16px":
