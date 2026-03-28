@@ -240,7 +240,7 @@ def _migrate_unformatted_to_output(
 
     # TODO: This function will eventually be applied to all context types but for now
     # it's just used for LaTeX output
-    if context != "latex":
+    if context not in ("latex", "typst"):
         return data
 
     all_formatted_cells: list[list[tuple[str, int]]] = []
@@ -266,9 +266,16 @@ def _migrate_unformatted_to_output(
     # in the future)
 
     for col, row in all_unformatted_cells:
-        # Get the cell value and cast as string
+        # Get the original cell value
         cell_value = _get_cell(data_tbl, row, col)
         cell_value_str = str(cell_value)
+
+        # Skip cells already modified by substitutions (sub_missing, sub_zero).
+        # Unformatted cells start as NA in the body; if a cell has been set to a
+        # string value, it was modified by a substitution and should not be overwritten.
+        current_value = _get_cell(data._body.body, row, col)
+        if isinstance(current_value, str):
+            continue
 
         result = _process_text(cell_value_str, context=context)
 

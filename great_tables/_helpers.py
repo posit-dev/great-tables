@@ -8,7 +8,7 @@ from typing import Any, Callable, Literal
 
 from typing_extensions import Self, TypeAlias
 
-from ._text import BaseText, Html, Md, _md_html
+from ._text import BaseText, Html, Md, Typst, _md_html
 
 FontStackName: TypeAlias = Literal[
     "system-ui",
@@ -241,6 +241,30 @@ def html(text: str) -> Html:
     See [`GT.tab_header()`](`great_tables.GT.tab_header`).
     """
     return Html(text=text)
+
+
+def typst(text: str) -> Typst:
+    """Interpret input text as Typst-formatted text.
+
+    For certain pieces of text (like in column labels, table headings, or cell values) you may want
+    to use raw Typst markup. The `typst()` function will pass the input through without escaping
+    when rendering to Typst output, allowing you to use Typst commands like `#text(fill: red)[...]`
+    or math mode `$ x^2 $`.
+
+    Note that `typst()` content will not render correctly in HTML or LaTeX output — it is
+    intended for use with Typst-targeted rendering (e.g., `as_typst()` or Quarto with
+    `format: typst`).
+
+    Parameters
+    ----------
+    text
+        The text that is understood to contain Typst formatting.
+
+    Examples
+    ------
+    See [`GT.tab_header()`](`great_tables.GT.tab_header`).
+    """
+    return Typst(text=text)
 
 
 def random_id(n: int = 10) -> str:

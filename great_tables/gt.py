@@ -9,7 +9,7 @@ from ._body import body_reassemble
 from ._boxhead import cols_align, cols_label, cols_label_rotate, cols_label_with
 from ._cols_merge import perform_col_merge
 from ._data_color import data_color
-from ._export import as_latex, as_raw_html, save, show, write_raw_html
+from ._export import as_latex, as_raw_html, as_typst, save, show, write_raw_html
 from ._formats import (
     fmt,
     fmt_bytes,
@@ -22,6 +22,7 @@ from ._formats import (
     fmt_image,
     fmt_integer,
     fmt_markdown,
+    fmt_typst,
     fmt_nanoplot,
     fmt_number,
     fmt_percent,
@@ -239,6 +240,7 @@ class GT(
     fmt_time = fmt_time
     fmt_datetime = fmt_datetime
     fmt_markdown = fmt_markdown
+    fmt_typst = fmt_typst
     fmt_image = fmt_image
     fmt_icon = fmt_icon
     fmt_flag = fmt_flag
@@ -292,10 +294,24 @@ class GT(
     as_raw_html = as_raw_html
     write_raw_html = write_raw_html
     as_latex = as_latex
+    as_typst = as_typst
 
     pipe = pipe
 
     # -----
+
+    def _repr_mimebundle_(self, **kwargs):
+        from .quarto import is_quarto_typst_render
+
+        # When Quarto is rendering to Typst, emit native Typst via text/plain
+        # wrapped in a raw Typst block that Quarto's Pandoc pipeline will process
+        if is_quarto_typst_render():
+            typst_content = self.as_typst()
+            raw_block = f"```{{=typst}}\n{typst_content}\n```"
+            return {"text/markdown": raw_block}, {}
+
+        # Otherwise return HTML for standard rendering
+        return {"text/html": self._repr_html_()}, {}
 
     def _repr_html_(self):
         # Some rendering environments expect that the HTML provided is a full page; however, quite
@@ -331,7 +347,7 @@ class GT(
         # of lists with cells initially set to nan values
         built = self._render_formats(context)
 
-        if context == "latex":
+        if context in ("latex", "typst"):
             built = _migrate_unformatted_to_output(
                 data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
             )
@@ -362,8 +378,13 @@ class GT(
         # Note ideally, this function will forward to things like .as_raw_html(), using a
         # context dataclass to set the options on those functions. E.g. a LatexContext
         # would have the options for a .as_latex() method, etc..
-        html_table = self._build_data(context=context)._render_as_html()
-        return html_table
+        if context == "typst":
+            return self.as_typst()
+        elif context == "latex":
+            return self.as_latex()
+        else:
+            html_table = self._build_data(context=context)._render_as_html()
+            return html_table
 
     # =============================================================================
     # HTML Rendering

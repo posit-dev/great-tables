@@ -1,0 +1,33 @@
+# serializer version: 1
+# name: TestAsTypstMethod.test_snap_as_typst
+  '''
+  #set text(font: ("Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Helvetica Neue", "Fira Sans", "Droid Sans", "Arial", "sans-serif",))
+  #set text(fill: rgb("#333333"))
+  #table(
+    columns: 5,
+    align: (left, left, right, right, right,),
+    stroke: (x: none, y: 0.75pt + rgb("#D3D3D3")),
+    inset: (x: 3.75pt, y: 6pt),
+    table.hline(stroke: 1.5pt + rgb("#A8A8A8")),
+    table.header(
+    table.cell(colspan: 5, align: center, inset: (x: 3.75pt, y: 3pt))[#text(size: 1.25em, weight: "bold")[The \_title\_] \ #text(size: 0.85em)[The subtitle]],
+    table.hline(stroke: 1.5pt + rgb("#D3D3D3")),
+    table.hline(stroke: 1.5pt + rgb("#D3D3D3")),
+    table.cell(colspan: 2, align: center)[Make and Model], table.cell(colspan: 2, align: center)[Performance], [],
+    table.hline(start: 0, end: 2, stroke: 0.75pt + rgb("#D3D3D3")),
+    table.hline(start: 2, end: 4, stroke: 0.75pt + rgb("#D3D3D3")),
+    [mfr], [model], [hp], [trq], [msrp],
+    ),
+    table.hline(stroke: 1.5pt + rgb("#D3D3D3")),
+    table.hline(stroke: 1.5pt + rgb("#D3D3D3")),
+    [Ford], [GT], [647.0], [550.0], [\$447,000.00],
+    [Ferrari], [458 Speciale], [597.0], [398.0], [\$291,744.00],
+    [Ferrari], [458 Spider], [562.0], [398.0], [\$263,553.00],
+    [Ferrari], [458 Italia], [562.0], [398.0], [\$233,509.00],
+    [Ferrari], [488 GTB], [661.0], [561.0], [\$245,400.00],
+    table.hline(stroke: 1.5pt + rgb("#D3D3D3")),
+    table.cell(colspan: 5, align: left, fill: rgb("#FFFFFF"), inset: (x: 3.75pt, y: 3pt))[#text(size: 0.90em)[Note 1] \ #text(size: 0.90em)[Note 2]],
+    table.hline(stroke: 1.5pt + rgb("#A8A8A8")),
+  )
+  '''
+# ---

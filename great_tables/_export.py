@@ -15,6 +15,7 @@ from ._helpers import random_id
 from ._scss import compile_scss
 from ._utils import _try_import
 from ._utils_render_latex import _render_as_latex
+from ._utils_render_typst import _render_as_typst
 
 if TYPE_CHECKING:
     # Note that as_raw_html uses methods on the GT class, not just data
@@ -349,6 +350,66 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
     return latex_table
 
 
+def as_typst(self: GT) -> str:
+    """
+    Output a GT object as Typst.
+
+    The `as_typst()` method outputs a GT object as a Typst fragment. This method is useful for when
+    you need to include a table as part of a Typst document or in Quarto documents that render to
+    Typst/PDF output.
+
+    :::{.callout-warning}
+    `as_typst()` is still experimental.
+    :::
+
+    Returns
+    -------
+    str
+        A Typst fragment that contains the table.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset to create a new table.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import gtcars
+    import polars as pl
+
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select(["mfr", "model", "msrp"])
+        .head(5)
+    )
+
+    gt_tbl = (
+        GT(gtcars_mini)
+        .tab_header(
+            title="Data Listing from the gtcars Dataset",
+            subtitle="Only five rows from the dataset are shown here."
+        )
+        .fmt_currency(columns="msrp")
+    )
+
+    gt_tbl
+    ```
+
+    Now we can return the table as a string of Typst code using the `as_typst()` method.
+
+    ```{python}
+    gt_tbl.as_typst()
+    ```
+
+    The Typst string contains the code just for the table (it's not a complete Typst document).
+    This output can be useful for embedding a GT table in an existing Typst document.
+    """
+    built_table = self._build_data(context="typst")
+
+    typst_table = _render_as_typst(data=built_table)
+
+    return typst_table
+
+
 # Create a list of all selenium webdrivers
 WebDrivers: TypeAlias = Literal[
     "chrome",
@@ -436,6 +497,19 @@ def save(
     ```
 
     """
+    # Handle text-based output formats that don't need a browser
+    file_path = Path(file)
+
+    if file_path.suffix == ".typ":
+        typst_content = as_typst(self)
+        file_path.write_text(typst_content, encoding=encoding)
+        return self
+
+    if file_path.suffix == ".tex":
+        latex_content = as_latex(self)
+        file_path.write_text(latex_content, encoding=encoding)
+        return self
+
     # Import the required packages
     _try_import(name="selenium", pip_install_line="pip install selenium")
 
