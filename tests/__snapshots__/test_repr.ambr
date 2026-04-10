@@ -75,7 +75,7 @@
   </table>
   
   </div>
-          
+  
   '''
 # ---
 # name: test_repr_html_default
@@ -154,7 +154,7 @@
   </table>
   
   </div>
-          
+  
   '''
 # ---
 # name: test_repr_html_positron
@@ -239,10 +239,10 @@
   </table>
   
   </div>
-          
+  
   </body>
   </html>
-              
+  
   '''
 # ---
 # name: test_repr_html_quarto
@@ -321,7 +321,7 @@
   </table>
   
   </div>
-          
+  
   '''
 # ---
 # name: test_repr_html_vscode
@@ -400,6 +400,6 @@
   </table>
   
   </div>
-          
+  
   '''
 # ---
