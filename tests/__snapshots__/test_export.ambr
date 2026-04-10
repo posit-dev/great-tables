@@ -165,6 +165,7 @@
   </table>
   
   </div>
+  
   '''
 # ---
 # name: test_html_string_generated_inline_css_make_page
