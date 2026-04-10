@@ -32,10 +32,10 @@ if TYPE_CHECKING:
     PlSelectExpr = Selector
     PlExpr = pl.Expr
 
-    PdSeries = pd.Series
+    PdSeries = pd.Series[Any]
     PlSeries = pl.Series
-    PyArrowArray = pa.Array
-    PyArrowChunkedArray = pa.ChunkedArray
+    PyArrowArray = pa.Array[Any]
+    PyArrowChunkedArray = pa.ChunkedArray[Any]
 
     PdNA = pd.NA
     PlNull = pl.Null
@@ -224,7 +224,15 @@ def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
 
 @_get_cell.register(PlDataFrame)
 def _(data: Any, row: int, column: str) -> Any:
-    return data[column][row]
+    import polars as pl
+
+    res = data[column][row]
+
+    # container dtypes (pl.List, pl.Array) return a pl.Series
+    if isinstance(res, pl.Series):
+        return res.to_list()
+
+    return res
 
 
 @_get_cell.register(PdDataFrame)
@@ -570,7 +578,9 @@ def _(df: PlDataFrame):
     import polars.selectors as cs
 
     list_cols = [
-        name for name, dtype in df.schema.items() if issubclass(dtype.base_type(), pl.List)
+        name
+        for name, dtype in df.schema.items()
+        if issubclass(dtype.base_type(), (pl.List, pl.Array))
     ]
 
     return df.with_columns(
@@ -759,7 +769,7 @@ def _(df: PyArrowTable, x: Any) -> bool:
     import pyarrow as pa
 
     arr = pa.array([x])
-    return arr.is_null().to_pylist()[0] or arr.is_nan().to_pylist()[0]
+    return arr.is_null(nan_is_null=True).to_pylist()[0]
 
 
 @singledispatch
@@ -932,3 +942,25 @@ def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowTable]) -> dict[st
         )
 
     return {col: res.column(col)[0].as_py() for col in res.column_names}
+
+
+@singledispatch
+def get_rows(ser: SeriesLike, indexes: list[int]) -> SeriesLike:
+    """Returns values of the series at `indexes` position.`"""
+    raise NotImplementedError(f"Unsupported type: {type(ser)}")
+
+
+@get_rows.register
+def _(ser: PdSeries, indexes: list[int]) -> PdSeries:
+    return ser.iloc[indexes]
+
+
+@get_rows.register
+def _(ser: PlSeries, indexes: list[int]) -> PlSeries:
+    return ser[indexes]
+
+
+@get_rows.register(PyArrowArray)
+@get_rows.register(PyArrowChunkedArray)
+def _(ser: Any, indexes: list[int]) -> PyArrowArray | PyArrowChunkedArray:
+    return ser.take(indexes)
