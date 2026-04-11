@@ -2210,11 +2210,22 @@ def _nanoplot_has_tag_attrs(nanoplot_str: str, tag: str, attrs: list[tuple[str, 
 
 df_fmt_nanoplot_single = pl.DataFrame({"vals": [-5.3, 6.3]})
 
+df_fmt_nanoplot_single_different_scales = pl.DataFrame({"vals": [-5.3, 100.0]})
+
 df_fmt_nanoplot_multi = pl.DataFrame(
     {
         "vals": [
             {"x": [-12.0, -5.0, 6.0, 3.0, 0.0, 8.0, -7.0]},
             {"x": [2, 0, 15, 7, 8, 10, 1, 24, 17, 13, 6]},
+        ],
+    }
+)
+
+df_fmt_nanoplot_multi_different_scales = pl.DataFrame(
+    {
+        "vals": [
+            {"x": [-12.0, -5.0, 6.0, 3.0, 0.0, 8.0, -7.0]},
+            {"x": [2, 0, 150, 7, 80, 10, 10, 240, 17, 13, 6]},
         ],
     }
 )
@@ -2584,7 +2595,69 @@ def test_fmt_nanoplot_multi_vals_bar_ref_line_ref_area():
     )
 
 
-# Test category 8: Line-based nanoplot, multiple values per row, reference line and reference area
+# Test category 8: Scale unaffected by unselected rows for single line plot
+def test_fmt_nanoplot_single_vals_same_values_in_selected_rows():
+    # All test cases should have the same scale for each plot when their values are the same in
+    # in selected rows, ignoring values in unselected rows
+
+    for _, params in enumerate(FMT_NANOPLOT_CASES):
+        gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
+            columns="vals",
+            plot_type="line",
+            rows=[0],
+            **params,
+        )
+
+        gt_different_scales = GT(df_fmt_nanoplot_single_different_scales).fmt_nanoplot(
+            columns="vals",
+            plot_type="line",
+            rows=[0],
+            **params,
+        )
+
+        # Compare the fully-rendered SVG output for row 0 from both DataFrames;
+        # if scaling incorrectly included the non-selected row, the different
+        # values in row 1 would alter the SVG coordinates and break equality
+        res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+        res_different_scales = _get_column_of_values(
+            gt_different_scales, column_name="vals", context="html"
+        )[0]
+        assert res == res_different_scales
+
+
+# Test category 9: Scale unaffected by unselected rows for line plot with multiple values
+def test_fmt_nanoplot_multiple_vals_same_values_in_selected_rows_with_autoscale():
+    # All test cases should have the same scale for each plot when their values are the same in
+    # in selected rows and autoscale is used, ignoring values in unselected rows
+
+    for _, params in enumerate(FMT_NANOPLOT_CASES):
+        gt = GT(df_fmt_nanoplot_multi).fmt_nanoplot(
+            columns="vals",
+            plot_type="line",
+            rows=[0],
+            autoscale=True,
+            **params,
+        )
+
+        gt_different_scales = GT(df_fmt_nanoplot_multi_different_scales).fmt_nanoplot(
+            columns="vals",
+            plot_type="line",
+            rows=[0],
+            autoscale=True,
+            **params,
+        )
+
+        # Compare the fully-rendered SVG output for row 0 from both DataFrames;
+        # if autoscale incorrectly included the non-selected row, the different
+        # values in row 1 would change expand_y bounds and alter SVG coordinates
+        res = _get_column_of_values(gt, column_name="vals", context="html")[0]
+        res_different_scales = _get_column_of_values(
+            gt_different_scales, column_name="vals", context="html"
+        )[0]
+        assert res == res_different_scales
+
+
+# Test category 10: Line-based nanoplot, multiple values per row, reference line and reference area
 def test_fmt_nanoplot_x_y_vals():
     df_fmt_nanoplot_multi_xy = pl.DataFrame(
         {
