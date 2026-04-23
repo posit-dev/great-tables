@@ -121,3 +121,6 @@ latex_examples.pdf
 
 # Do not track lockfile in package/lib setting
 uv.lock
+
+# Local dev skills
+dev-skills/
