@@ -440,7 +440,7 @@ class GT(
 </style>
 {html_table}
 </div>
-        """
+"""
 
         if make_page:
             # Create an HTML page and place the table within it
@@ -453,7 +453,7 @@ class GT(
 {finalized_table}
 </body>
 </html>
-            """
+"""
         return finalized_table
 
 

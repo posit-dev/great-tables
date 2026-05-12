@@ -449,7 +449,8 @@ def save(
         file = str(Path(file).with_suffix(".png"))
 
     # Get the HTML content from the displayed output
-    html_content = as_raw_html(self)
+    # Prepend utf-8 charset so the Chrome webdriver renders unicode correctly
+    html_content = "<meta charset='utf-8'>" + as_raw_html(self)
 
     wdriver = _get_web_driver(web_driver)
 

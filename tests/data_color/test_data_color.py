@@ -3,6 +3,7 @@ from typing import Type, TypeVar
 import numpy as np
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import pytest
 
 from great_tables import GT, style
@@ -16,6 +17,7 @@ T_CellStyle = TypeVar("T_CellStyle", bound=CellStyle)
 params_frames = [
     pytest.param(pd.DataFrame, id="pandas"),
     pytest.param(pl.DataFrame, id="polars"),
+    pytest.param(pa.table, id="pyarrow"),
 ]
 
 
