@@ -167,6 +167,62 @@ def test_tab_footnote_all_locations():
     assert re.search(r"Test Subtitle<span[^>]*>2</span>", html)  # Subtitle
 
 
+def test_tab_footnote_row_group_target_gets_mark():
+    gt_table = _create_base_gt().tab_footnote(
+        footnote="Row group note", locations=loc.row_groups(rows=[0])
+    )
+
+    html = gt_table.as_raw_html()
+
+    assert "Row group note" in html
+    assert re.search(
+        r'<th class="gt_group_heading"[^>]*>A'
+        r'<span[^>]*class="gt_footnote_marks"[^>]*>1</span></th>',
+        html,
+    )
+
+
+def test_tab_footnote_grand_summary_target_gets_mark():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+    gt_table = (
+        GT(df)
+        .grand_summary_rows(fns={"Average": lambda x: x.mean()})
+        .tab_footnote(
+            footnote="Grand summary note",
+            locations=loc.grand_summary(columns="a", rows=[0]),
+        )
+    )
+
+    html = gt_table.as_raw_html()
+
+    assert "Grand summary note" in html
+    assert re.search(
+        r'<td[^>]*class="[^"]*gt_grand_summary_row[^"]*"[^>]*>'
+        r'<span[^>]*class="gt_footnote_marks"[^>]*>1</span> 1\.5</td>',
+        html,
+    )
+
+
+def test_tab_footnote_spanner_target_uses_spanner_id_not_label():
+    df = pd.DataFrame({"a": [1], "b": [2]})
+    gt_table = (
+        GT(df)
+        .tab_spanner(label="Displayed Group", id="internal_id", columns=["a", "b"])
+        .tab_footnote(
+            footnote="Spanner note",
+            locations=loc.spanner_labels(ids=["internal_id"]),
+        )
+    )
+
+    html = gt_table.as_raw_html()
+
+    assert "Spanner note" in html
+    assert re.search(
+        r'Displayed Group<span[^>]*class="gt_footnote_marks"[^>]*>1</span>',
+        html,
+    )
+
+
 def test_tab_footnote_symbol_marks_standard():
     gt_table = (
         _create_base_gt()
