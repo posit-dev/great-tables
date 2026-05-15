@@ -360,6 +360,52 @@
     font-size: 65%;
   }
   
+  #abc .gt_footnotes {
+    color: font-color(#FFFFFF);
+    background-color: #FFFFFF;
+    border-bottom-style: none;
+    border-bottom-width: 2px;
+    border-bottom-color: #D3D3D3;
+    border-left-style: none;
+    border-left-width: 2px;
+    border-left-color: #D3D3D3;
+    border-right-style: none;
+    border-right-width: 2px;
+    border-right-color: #D3D3D3;
+  }
+  
+  #abc .gt_footnote {
+    margin: 0px;
+    font-size: 90%;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  
+  #abc .gt_sourcenotes {
+    color: #333333;
+    background-color: #FFFFFF;
+    border-bottom-style: none;
+    border-bottom-width: 2px;
+    border-bottom-color: #D3D3D3;
+    border-left-style: none;
+    border-left-width: 2px;
+    border-left-color: #D3D3D3;
+    border-right-style: none;
+    border-right-width: 2px;
+    border-right-color: #D3D3D3;
+  }
+  
+  #abc .gt_sourcenote {
+    font-size: 90%;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: left;
+  }
+  
   #abc .gt_footnote_marks {
     font-size: 75%;
     vertical-align: 0.4em;
