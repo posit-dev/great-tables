@@ -351,6 +351,52 @@ p {
   font-size: 65%;
 }
 
+.gt_footnotes {
+  color: font-color($footnotes_background_color);
+  background-color: $footnotes_background_color;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+.gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.gt_sourcenotes {
+  color: $font_color_source_notes_background_color;
+  background-color: $source_notes_background_color;
+  border-bottom-style: $source_notes_border_bottom_style;
+  border-bottom-width: $source_notes_border_bottom_width;
+  border-bottom-color: $source_notes_border_bottom_color;
+  border-left-style: $source_notes_border_lr_style;
+  border-left-width: $source_notes_border_lr_width;
+  border-left-color: $source_notes_border_lr_color;
+  border-right-style: $source_notes_border_lr_style;
+  border-right-width: $source_notes_border_lr_width;
+  border-right-color: $source_notes_border_lr_color;
+}
+
+.gt_sourcenote {
+  font-size: $source_notes_font_size;
+  padding-top: $source_notes_padding;
+  padding-bottom: $source_notes_padding;
+  padding-left: $source_notes_padding_horizontal;
+  padding-right: $source_notes_padding_horizontal;
+  text-align: left;
+}
+
 .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;

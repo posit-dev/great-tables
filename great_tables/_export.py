@@ -294,6 +294,7 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
     functionality that is supported in HTML output tables is not currently supported in LaTeX
     output tables:
 
+    - footnotes (via the `tab_footnote()` method)
     - the rendering of the stub and row group labels (via the `=rowname_col` and `=groupname_col`
       args in the `GT()` class)
     - the use of the `md()` helper function to signal conversion of Markdown text
@@ -449,7 +450,8 @@ def save(
         file = str(Path(file).with_suffix(".png"))
 
     # Get the HTML content from the displayed output
-    html_content = as_raw_html(self)
+    # Prepend utf-8 charset so the Chrome webdriver renders unicode correctly
+    html_content = "<meta charset='utf-8'>" + as_raw_html(self)
 
     wdriver = _get_web_driver(web_driver)
 

@@ -69,8 +69,8 @@ Perhaps the most complex, this involves new behavior not supported by **Great Ta
 ```{python}
 # | eval: false
 def fmt_threshold(gt, columns, threshold: float):
-    """Format values to 0 if they are under threshold.""""
-    def _truncate(val: float)
+    """Format values to 0 if they are under threshold."""
+    def _truncate(val: float):
         return "0" if val < threshold else str(val)
 
     return gt.fmt(_truncate, columns)
