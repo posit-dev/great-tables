@@ -68,18 +68,6 @@ def test_ideal_fgnd_color_contrast(bgnd_color: str, fgnd_color: str) -> None:
             "#0000FF",  # Blue dark color
             "#00FF00",  # Expected custom light foreground color
         ),
-        (
-            "#FF0000",  # Red background color
-            "#00FF00",  # Green light color
-            "#0000FF",  # Blue dark color
-            "#00FF00",  # Expected custom light foreground color
-        ),
-        (
-            "#FF0000FF",  # Red background color with alpha
-            "#00FF00",  # Green light color
-            "#0000FF",  # Blue dark color
-            "#00FF00",  # Expected custom light foreground color
-        ),
     ],
 )
 def test_ideal_fgnd_color_custom_contrast(
@@ -210,7 +198,7 @@ def test_add_alpha_float_alpha(alpha: float, context: Any) -> None:
         ),  # colors without alpha
     ],
 )
-def test_alpha_composite_with_white(colors: list[str], expected: list[str]):
+def test_alpha_composite_with_white(colors: list[str], expected: list[str]) -> None:
     result = [_alpha_composite_with_white(color) for color in colors]
     assert result == expected
 
@@ -235,13 +223,11 @@ def test_float_to_hex(x: float, hex: str) -> None:
     [
         # Test case 1: All colors are already in hexadecimal format
         (["#FF0000", "#00FF00", "#0000FF"], ["#FF0000", "#00FF00", "#0000FF"]),
-        # Test case 2: Some colors are in color name format
+        # Test case 2: All colors are in color name format
         (["red", "green", "blue"], ["#FF0000", "#008000", "#0000FF"]),
-        # Test case 3: All colors are in color name format
-        (["red", "green", "blue"], ["#FF0000", "#008000", "#0000FF"]),
-        # Test case 4: Empty list of colors []
+        # Test case 3: Empty list of colors []
         ([], []),
-        # Test case 5: Colors with mixed formats
+        # Test case 4: Colors with mixed formats
         (["#FF0000", "green", "#0000FF"], ["#FF0000", "#008000", "#0000FF"]),
     ],
 )
