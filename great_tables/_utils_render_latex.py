@@ -652,6 +652,13 @@ def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | N
     if data._styles:
         _not_implemented("Styles are not yet supported in LaTeX output.")
 
+    # Throw exception if footnotes are present in the table
+    if data._footnotes:
+        raise NotImplementedError(
+            "Footnotes are not yet supported in LaTeX output. "
+            "Consider removing all `.tab_footnote()` calls before using `.as_latex()`."
+        )
+
     # Create a LaTeX fragment for the start of the table
     table_start = create_table_start_l(data=data, use_longtable=use_longtable)
 

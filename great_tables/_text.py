@@ -45,6 +45,11 @@ class Html(Text):
     """HTML text"""
 
     def to_html(self) -> str:
+        if "{{" in self.text and "}}" in self.text:
+            from great_tables._helpers import UnitStr
+
+            unit_str = UnitStr.from_str(self.text)
+            return unit_str.to_html()
         return self.text
 
     def to_latex(self) -> str:
@@ -58,8 +63,18 @@ class Html(Text):
 
 
 def _md_html(x: str) -> str:
-    str = commonmark.commonmark(x)
-    return re.sub(r"^<p>|</p>\n$", "", str)
+    if "{{" in x and "}}" in x:
+        from great_tables._helpers import UnitStr
+
+        unit_str = UnitStr.from_str(x)
+        processed_text = unit_str.to_html()
+    else:
+        processed_text = x
+
+    str_result = commonmark.commonmark(processed_text)
+    if str_result is None:
+        return processed_text
+    return re.sub(r"^<p>|</p>\n$", "", str_result)
 
 
 def _md_latex(x: str) -> str:

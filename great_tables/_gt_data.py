@@ -24,6 +24,7 @@ from ._tbl_data import (
     copy_data,
     create_empty_frame,
     get_column_names,
+    is_na,
     n_rows,
     to_list,
     validate_frame,
@@ -626,6 +627,49 @@ class Stub:
         # TODO: validate
         return self.__class__(self.rows, self.group_rows.reorder(group_order))
 
+    def update_group_row_labels(self, body: Body, tbl_data: TblData, boxhead: Boxhead) -> Self:
+        """Update group row labels using formatted values from the rendered body.
+
+        For each group, the formatted cell value for the first row of the group is
+        looked up in `body`. If the cell was not formatted (i.e., it is still NA),
+        the original value from `tbl_data` is used instead.
+
+        If no row-group column exists in `boxhead`, the stub is returned unchanged.
+
+        Parameters
+        ----------
+        body
+            The rendered body whose cells may contain formatted values.
+        tbl_data
+            The original (unformatted) source data.
+        boxhead
+            The boxhead containing column metadata, used to identify the row-group column.
+
+        Returns
+        -------
+        Stub
+            A new Stub with group labels replaced by formatted values, or the
+            original Stub if no row-group column exists.
+        """
+        rowgroup_var = boxhead._get_row_group_column()
+        if rowgroup_var is None:
+            return self
+
+        new_group_rows: list[Any] = []
+
+        for group_row in self.group_rows:
+            first_index = group_row.indices[0]
+            cell_content = _get_cell(body.body, first_index, rowgroup_var.var)
+
+            # When no formatter was applied, the cell is still NA — fall back to
+            # the original data value.
+            if is_na(tbl_data, cell_content):
+                cell_content = _get_cell(tbl_data, first_index, rowgroup_var.var)
+
+            new_group_rows.append(group_row.with_group_label(cell_content))
+
+        return self.__class__(self.rows, GroupRows(new_group_rows))
+
     def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
         return self.group_rows.indices_map(len(self.rows))
 
@@ -716,6 +760,10 @@ class GroupRowInfo:
         """Return a group label that has been defaulted."""
         label = self.group_label if self.group_label is not None else self.group_id
         return label
+
+    def with_group_label(self, label: str | None) -> Self:
+        """Return a copy of the object with the specified group label."""
+        return replace(self, group_label=label)
 
 
 class MISSING_GROUP:
@@ -868,7 +916,6 @@ class FootnoteInfo:
     locname: Loc | None = None
     grpname: str | None = None
     colname: str | None = None
-    locnum: int | None = None
     rownum: int | None = None
     colnum: int | None = None
     footnotes: list[str] | None = None
@@ -1309,7 +1356,7 @@ class Options:
     # footnotes_border_lr_style: OptionsInfo = OptionsInfo(True, "footnotes", "value", "none")
     # footnotes_border_lr_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
     # footnotes_border_lr_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
-    # footnotes_marks: OptionsInfo = OptionsInfo(False, "footnotes", "values", "numbers")
+    footnotes_marks: OptionsInfo = OptionsInfo(False, "footnotes", "values", "numbers")
     # footnotes_multiline: OptionsInfo = OptionsInfo(False, "footnotes", "boolean", True)
     # footnotes_sep: OptionsInfo = OptionsInfo(False, "footnotes", "value", " ")
     source_notes_padding: OptionsInfo = OptionsInfo(True, "source_notes", "px", "4px")

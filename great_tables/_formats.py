@@ -92,7 +92,7 @@ MissingVals: TypeAlias = Literal[
 
 def fmt(
     self: GTSelf,
-    fns: FormatFn | FormatFns,
+    fns: FormatFn,
     columns: SelectExpr = None,
     rows: int | list[int] | None = None,
     is_substitution: bool = False,
@@ -104,13 +104,12 @@ def fmt(
     values in a way that can consider all output contexts.
 
     Along with the `columns` and `rows` arguments that provide some precision in targeting data
-    cells, the `fns` argument allows you to define one or more functions for manipulating the
-    raw data.
+    cells, the `fns` argument allows you to define a function for manipulating the raw data.
 
     Parameters
     ----------
     fns
-        Either a single formatting function or a named list of functions.
+        A formatting function to apply to the targeted cells.
     columns
         The columns to target. Can either be a single column name or a series of column names
         provided in a list.
@@ -144,8 +143,12 @@ def fmt(
 
     # If a single function is supplied to `fns` then
     # repackage that into a list as the `default` function
-    if isinstance(fns, Callable):
+    if isinstance(fns, FormatFns):
+        pass
+    elif isinstance(fns, Callable):
         fns = FormatFns(default=fns)
+    else:
+        raise TypeError("Input to fns= should be a callable.")
 
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]
@@ -5284,7 +5287,10 @@ def fmt_nanoplot(
     if plot_type in ("line", "bar") and scalar_vals:
         # Check each cell in the column and get each of them that contains a scalar value
         # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
-        all_single_y_vals = to_list(data_tbl[columns])
+        if rows is not None:
+            all_single_y_vals = to_list(data_tbl[columns][rows])
+        else:
+            all_single_y_vals = to_list(data_tbl[columns])
 
         autoscale = False
 
@@ -5305,7 +5311,10 @@ def fmt_nanoplot(
         # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
         # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
         # downstream?
-        all_y_vals_raw = to_list(data_tbl[columns])
+        if rows is not None:
+            all_y_vals_raw = to_list(data_tbl[columns][rows])
+        else:
+            all_y_vals_raw = to_list(data_tbl[columns])
 
         all_y_vals = []
 

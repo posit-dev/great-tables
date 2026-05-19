@@ -3,7 +3,7 @@ from unittest import mock
 import pandas as pd
 import os
 
-from great_tables import GT, exibble
+from great_tables import GT, exibble, loc
 from great_tables.data import gtcars
 
 from great_tables._utils_render_latex import (
@@ -580,6 +580,15 @@ def test_render_as_latex_stub_and_groups_as_column():
     # Both row names and groups should be present
     assert "row\\_1" in latex_str
     assert "grp\\_a" in latex_str
+
+
+def test_render_as_latex_footnotes_raises():
+    gt_tbl = GT(exibble).tab_footnote("A footnote", locations=loc.body(columns="num", rows=[0]))
+
+    with pytest.raises(NotImplementedError) as exc_info:
+        _render_as_latex(data=gt_tbl._build_data(context="latex"))
+
+    assert "Footnotes are not yet supported in LaTeX output." in exc_info.value.args[0]
 
 
 def test_snap_render_as_latex_stub_only(snapshot):

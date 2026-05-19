@@ -6,10 +6,11 @@ from typing_extensions import Self
 
 # Main gt imports ----
 from ._body import body_reassemble
-from ._boxhead import cols_align, cols_label, cols_label_rotate
+from ._boxhead import cols_align, cols_label, cols_label_rotate, cols_label_with
 from ._cols_merge import perform_col_merge
 from ._data_color import data_color
 from ._export import as_latex, as_raw_html, save, show, write_raw_html
+from ._footnotes import tab_footnote
 from ._formats import (
     fmt,
     fmt_bytes,
@@ -73,9 +74,8 @@ from ._utils_render_html import (
     _get_table_defs,
     create_body_component_h,
     create_columns_component_h,
-    create_footnotes_component_h,
+    create_footer_component_h,
     create_heading_component_h,
-    create_source_notes_component_h,
 )
 
 if TYPE_CHECKING:
@@ -264,6 +264,7 @@ class GT(
     cols_align = cols_align
     cols_width = cols_width
     cols_label = cols_label
+    cols_label_with = cols_label_with
     cols_merge = cols_merge
     cols_move = cols_move
     cols_move_to_start = cols_move_to_start
@@ -274,6 +275,7 @@ class GT(
 
     tab_header = tab_header
     tab_source_note = tab_source_note
+    tab_footnote = tab_footnote
     tab_spanner = tab_spanner
     tab_spanner_delim = tab_spanner_delim
     tab_stubhead = tab_stubhead
@@ -319,7 +321,11 @@ class GT(
         # TODO: this body method performs a mutation. Should we make a copy of body?
         new_body.render_formats(self._tbl_data, self._formats, context)
         new_body.render_formats(self._tbl_data, self._substitutions, context)
-        return self._replace(_body=new_body)
+
+        # Update group row labels with formatted values when a row_group column exists
+        new_stub = self._stub.update_group_row_labels(new_body, self._tbl_data, self._boxhead)
+
+        return self._replace(_body=new_body, _stub=new_stub)
 
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
@@ -374,8 +380,7 @@ class GT(
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
         body_component = create_body_component_h(data=self)
-        source_notes_component = create_source_notes_component_h(data=self)
-        footnotes_component = create_footnotes_component_h(data=self)
+        footer_component = create_footer_component_h(data=self)
 
         # Get attributes for the table
         table_defs = _get_table_defs(data=self)
@@ -402,8 +407,7 @@ class GT(
 {column_labels_component}
 </thead>
 {body_component}
-{source_notes_component}
-{footnotes_component}
+{footer_component}
 </table>
 """
 
@@ -435,7 +439,7 @@ class GT(
 </style>
 {html_table}
 </div>
-        """
+"""
 
         if make_page:
             # Create an HTML page and place the table within it
@@ -448,7 +452,7 @@ class GT(
 {finalized_table}
 </body>
 </html>
-            """
+"""
         return finalized_table
 
 
