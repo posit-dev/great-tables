@@ -44,7 +44,7 @@ from ._tbl_data import (
     is_series,
     to_list,
 )
-from ._text import _md_html, escape_pattern_str_latex
+from ._text import _md_html, _md_latex, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace, is_valid_http_schema
 from ._utils_nanoplots import _generate_nanoplot
 
@@ -3017,11 +3017,11 @@ def fmt_markdown_context(
     data: GTData,
     context: str,
 ) -> str:
-    if context == "latex":
-        raise NotImplementedError("fmt_markdown() is not supported in LaTeX.")
-
     if is_na(data._tbl_data, x):
         return x
+
+    if context == "latex":
+        return _md_latex(str(x))
 
     x_str: str = str(x)
 
