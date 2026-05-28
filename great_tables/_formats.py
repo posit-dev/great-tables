@@ -17,7 +17,7 @@ from typing import (
     TypeVar,
     Union,
     cast,
-    overload
+    overload,
 )
 
 import babel
@@ -25,8 +25,7 @@ import faicons
 from babel.dates import format_date, format_datetime, format_time
 from typing_extensions import TypeAlias
 
-from ._gt_data import (FormatFn, FormatFns, FormatInfo, FormatterSkipElement,
-                       GTData, PFrameData)
+from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
 from ._helpers import px
 from ._locale import (
     _get_currencies_data,
@@ -3018,11 +3017,11 @@ def fmt_markdown_context(
     data: GTData,
     context: str,
 ) -> str:
-    if context == "latex":
-        return _md_latex(x)
-
     if is_na(data._tbl_data, x):
         return x
+
+    if context == "latex":
+        return _md_latex(str(x))
 
     x_str: str = str(x)
 

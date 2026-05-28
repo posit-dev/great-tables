@@ -5,10 +5,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable
 
-import commonmark
-from docutils.core import publish_parts
-from markdownify import markdownify as mdify
-from myst_parser.docutils_ import Parser
+from multimark import markdown_to_html, markdown_to_latex
 
 
 class BaseText:
@@ -56,7 +53,9 @@ class Html(Text):
         return self.text
 
     def to_latex(self) -> str:
-        return _html_latex(self.text)
+        # html() is an HTML-only construct; for LaTeX, strip tags and escape
+        stripped = re.sub(r"<[^>]+>", "", self.text)
+        return _latex_escape(stripped)
 
 
 def _md_html(x: str) -> str:
@@ -68,41 +67,17 @@ def _md_html(x: str) -> str:
     else:
         processed_text = x
 
-    str_result = commonmark.commonmark(processed_text)
+    str_result = markdown_to_html(processed_text, unsafe=True)
     if str_result is None:
         return processed_text
     return re.sub(r"^<p>|</p>\n$", "", str_result)
 
 
 def _md_latex(x: str) -> str:
-    # USE REGEX TO CONVERT <sub> AND <sup> TO MYST MARKDOWN
-    input = re.sub(r'<sub>(.*?)</sub>', r'{sub}`\1`', x)
-    input = re.sub(r'<sup>(.*?)</sup>', r'{sup}`\1`', input)
+    result = markdown_to_latex(x, extensions=["strikethrough"])
+    # Strip trailing newline that cmark adds
+    return result.rstrip("\n")
 
-    # Use Myst-Parser to convert Markdown to LaTeX
-    raw_output = publish_parts(
-                    source=input,
-                    writer_name="latex",
-                    settings_overrides={
-                        "myst_enable_extensions": ['strikethrough'],
-                        "embed_stylesheet": False,
-                        "legacy_column_widths": True,
-                        "use_latex_citations": False,
-                    },
-                    parser=Parser(),
-                )
-
-    output = raw_output['body'].strip()
-
-    return output
-
-
-def _html_latex(x: str) -> str:
-    # Turn HTML to Markdown first
-    input = mdify(x, strip=['br'], sub_symbol="<sub>", sup_symbol="<sup>")
-
-    # Then render Markdown to LaTeX
-    return _md_latex(input)
 
 def _process_text(x: str | BaseText | None, context: str = "html") -> str:
     if x is None:
