@@ -143,6 +143,7 @@ quartodoc:
         - GT.fmt_engineering
         - GT.fmt_currency
         - GT.fmt_bytes
+        - GT.fmt_duration
         - GT.fmt_roman
         - GT.fmt_date
         - GT.fmt_time
@@ -274,6 +275,7 @@ quartodoc:
         - vals.fmt_currency
         - vals.fmt_roman
         - vals.fmt_bytes
+        - vals.fmt_duration
         - vals.fmt_date
         - vals.fmt_time
         - vals.fmt_markdown
