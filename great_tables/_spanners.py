@@ -1209,3 +1209,93 @@ def cols_merge(
 
     # Add to _col_merge list
     return result._replace(_col_merge=[*result._col_merge, col_merge_entry])
+
+
+def cols_reorder(self: GTSelf, columns: SelectExpr) -> GTSelf:
+    """Reorder all columns in a specified order.
+
+    The `cols_reorder()` method allows you to completely rearrange the column order of a table.
+    Provide all column names in the exact order you want them to appear. This is useful when you
+    need full control over the column layout and want to express the entire ordering in a single
+    call, rather than using multiple `cols_move()`, `cols_move_to_start()`, or `cols_move_to_end()`
+    calls.
+
+    Every column in the table must appear exactly once in the `columns=` list. If any columns are
+    missing or extra names are provided, a `ValueError` will be raised.
+
+    Parameters
+    ----------
+    columns
+        A list of all column names in the desired display order. This can be a list of column name
+        strings or a column selection expression (e.g., Polars selectors). All columns in the table
+        must be included exactly once.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Raises
+    ------
+    ValueError
+        If the provided columns do not match all columns in the table (e.g., missing columns,
+        extra columns, or duplicates).
+
+    Examples
+    --------
+    Let's use a subset of columns from the `exibble` dataset to create a table.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import exibble
+
+    exibble_mini = exibble[["num", "char", "fctr", "date", "time"]]
+
+    GT(exibble_mini)
+    ```
+
+    Now, let's reorder the columns so that `fctr` and `date` come first, followed by the remaining
+    columns in a custom order:
+
+    ```{python}
+    (
+        GT(exibble_mini)
+        .cols_reorder(["fctr", "date", "time", "char", "num"])
+    )
+    ```
+
+    For tables with many columns, you can use Python's iterable unpacking to build the column list
+    programmatically. Here we use the full `exibble` dataset (9 columns) and move `fctr` to the
+    front while pushing `num` and `char` to the end—without typing every column name in between:
+
+    ```{python}
+    # Unpack the first three column names and capture all remaining ones in `rest`
+    # exibble.columns is: ["num", "char", "fctr", "date", "time", "datetime", "currency", "row", "group"]
+    num, char, fctr, *rest = exibble.columns
+
+    # Build the new order: fctr first, then all middle columns in their
+    # original order, and finally char and num moved to the end
+    (
+        GT(exibble)
+        .cols_reorder([fctr, *rest, char, num])
+    )
+    ```
+
+    This unpacking technique is especially handy for wide tables where you want to pin a few columns
+    to the start or end without manually listing every column in between. The `*rest` variable
+    automatically adapts if columns are added to or removed from the dataset, making your table code
+    more resilient to upstream schema changes.
+    """
+
+    if isinstance(columns, str):
+        columns = [columns]
+
+    sel_cols = resolve_cols_c(data=self, expr=columns)
+
+    col_vars = [col.var for col in self._boxhead]
+
+    _validate_sel_cols(sel_cols, col_vars)
+
+    new_boxhead = self._boxhead.reorder(sel_cols)
+    return self._replace(_boxhead=new_boxhead)
