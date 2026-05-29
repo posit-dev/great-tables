@@ -583,9 +583,14 @@ def _(df: PlDataFrame):
         if issubclass(dtype.base_type(), (pl.List, pl.Array))
     ]
 
+    duration_cols = [
+        name for name, dtype in df.schema.items() if issubclass(dtype.base_type(), pl.Duration)
+    ]
+
     return df.with_columns(
         cs.by_name(list_cols).map_elements(lambda x: str(x.to_list()), return_dtype=pl.String),
-        cs.all().exclude(list_cols).cast(pl.Utf8),
+        cs.by_name(duration_cols).map_elements(str, return_dtype=pl.String),
+        cs.all().exclude(list_cols + duration_cols).cast(pl.Utf8),
     )
 
 

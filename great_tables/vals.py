@@ -11,6 +11,7 @@ from ._formats_vals import (
     val_fmt_currency as fmt_currency,
     val_fmt_roman as fmt_roman,
     val_fmt_bytes as fmt_bytes,
+    val_fmt_duration as fmt_duration,
     val_fmt_date as fmt_date,
     val_fmt_time as fmt_time,
     val_fmt_markdown as fmt_markdown,

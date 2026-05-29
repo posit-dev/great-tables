@@ -117,3 +117,44 @@ def _get_flags_data() -> list[FlagsDataDict]:
     fname = DATA_MOD / "x_flags.csv"
 
     return cast("list[FlagsDataDict]", read_csv(fname))
+
+
+class DurationsDataDict(TypedDict):
+    locale: str
+    type: str
+    week_zero: str
+    week_one: str
+    week_two: str
+    week_few: str
+    week_many: str
+    week_other: str
+    day_zero: str
+    day_one: str
+    day_two: str
+    day_few: str
+    day_many: str
+    day_other: str
+    hour_zero: str
+    hour_one: str
+    hour_two: str
+    hour_few: str
+    hour_many: str
+    hour_other: str
+    minute_zero: str
+    minute_one: str
+    minute_two: str
+    minute_few: str
+    minute_many: str
+    minute_other: str
+    second_zero: str
+    second_one: str
+    second_two: str
+    second_few: str
+    second_many: str
+    second_other: str
+
+
+def _get_durations_data() -> list[DurationsDataDict]:
+    fname = DATA_MOD / "x_durations.csv"
+
+    return cast("list[DurationsDataDict]", read_csv(fname))

@@ -1025,6 +1025,94 @@ def val_fmt_bytes(
 
 
 @expressive
+def val_fmt_duration(
+    x: X,
+    input_units: str | None = None,
+    output_units: "str | list[str] | None" = None,
+    duration_style: str = "narrow",
+    trim_zero_units: "bool | list[str]" = True,
+    max_output_units: int | None = None,
+    pattern: str = "{x}",
+    use_seps: bool = True,
+    sep_mark: str = ",",
+    force_sign: bool = False,
+    locale: str | None = None,
+) -> list[str]:
+    """
+    Format values as time duration strings.
+
+    With numeric values in a list, we can transform those to values of time duration with various
+    human readable styles. The `val_fmt_duration()` function allows for formatting of duration
+    values to narrow, wide, colon-separated, and ISO 8601 forms.
+
+    Parameters
+    ----------
+    x
+        A list of numeric values to be formatted as durations.
+    input_units
+        The time units of the input numeric values. Required for numeric input. The accepted units
+        are: `"seconds"`, `"minutes"`, `"hours"`, `"days"`, and `"weeks"`.
+    output_units
+        Controls the output time units. The default (`None`) means that output units will be
+        automatically chosen. Can be a list of keywords from: `"weeks"`, `"days"`, `"hours"`,
+        `"minutes"`, or `"seconds"`.
+    duration_style
+        Style for representing duration values. One of `"narrow"` (default, e.g., `"1d 8h 24m"`),
+        `"wide"` (e.g., `"1 day 8 hours 24 minutes"`), `"colon-sep"` (e.g., `"1/08:24:00"`), or
+        `"iso"` (e.g., `"P1DT8H24M"`).
+    trim_zero_units
+        Provides methods to remove output time units that have zero values. By default this is
+        `True`. Can also be a list of `"leading"`, `"trailing"`, and/or `"internal"`.
+    max_output_units
+        Maximum number of time units to display. By default (`None`), all possible time units will
+        be displayed.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value.
+    use_seps
+        Whether to use digit group separators.
+    sep_mark
+        The string to use as a separator between groups of digits.
+    force_sign
+        Should the positive sign be shown for positive values?
+    locale
+        An optional locale identifier for formatting values.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_duration([3661, 86400, 172800], input_units="seconds")
+    ```
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=x)
+
+    gt_obj_fmt = gt_obj.fmt_duration(
+        columns="x",
+        input_units=input_units,
+        output_units=output_units,
+        duration_style=duration_style,
+        trim_zero_units=trim_zero_units,
+        max_output_units=max_output_units,
+        pattern=pattern,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        force_sign=force_sign,
+        locale=locale,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
 def val_fmt_date(
     x: X,
     date_style: DateStyle = "iso",
