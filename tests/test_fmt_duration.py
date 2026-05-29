@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from great_tables import GT, vals
+from great_tables._tbl_data import _get_cell
 
 
 class TestFmtDurationNarrow:
@@ -234,7 +235,6 @@ class TestFmtDurationTimedelta:
         df = pd.DataFrame({"dur": [timedelta(hours=1, minutes=30)]})
         gt = GT(df).fmt_duration(columns="dur")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         cell = _get_cell(built._body.body, 0, "dur")
         assert cell == "1h 30m"
@@ -243,7 +243,6 @@ class TestFmtDurationTimedelta:
         df = pd.DataFrame({"dur": [timedelta(days=2, hours=3)]})
         gt = GT(df).fmt_duration(columns="dur")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         cell = _get_cell(built._body.body, 0, "dur")
         assert cell == "2d 3h"
@@ -253,7 +252,6 @@ class TestFmtDurationTimedelta:
         df = pd.DataFrame({"dur": [timedelta(seconds=90)]})
         gt = GT(df).fmt_duration(columns="dur")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         cell = _get_cell(built._body.body, 0, "dur")
         assert cell == "1m 30s"
@@ -317,7 +315,6 @@ class TestFmtDurationGTMethod:
         df = pd.DataFrame({"seconds": [3661, 86400, 0]})
         gt = GT(df).fmt_duration(columns="seconds", input_units="seconds")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         assert _get_cell(built._body.body, 0, "seconds") == "1h 1m 1s"
         assert _get_cell(built._body.body, 1, "seconds") == "1d"
@@ -327,7 +324,6 @@ class TestFmtDurationGTMethod:
         df = pd.DataFrame({"seconds": [3661, 86400, 7200]})
         gt = GT(df).fmt_duration(columns="seconds", rows=[0, 2], input_units="seconds")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         assert _get_cell(built._body.body, 0, "seconds") == "1h 1m 1s"
         # Row 1 should remain unformatted (nan placeholder in body since not targeted)
@@ -386,7 +382,6 @@ class TestFmtDurationNAHandling:
         df = pd.DataFrame({"dur": [3661.0, None]})
         gt = GT(df).fmt_duration(columns="dur", input_units="seconds")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         assert _get_cell(built._body.body, 0, "dur") == "1h 1m 1s"
 
@@ -398,7 +393,6 @@ class TestFmtDurationLatexContext:
         df = pd.DataFrame({"dur": [3600]})
         gt = GT(df).fmt_duration(columns="dur", input_units="seconds", pattern="({x})")
         built = gt._build_data("latex")
-        from great_tables._tbl_data import _get_cell
 
         cell = _get_cell(built._body.body, 0, "dur")
         assert "1h" in cell
@@ -408,7 +402,6 @@ class TestFmtDurationLatexContext:
         df = pd.DataFrame({"dur": [-3600.0]})
         gt = GT(df).fmt_duration(columns="dur", input_units="seconds")
         built = gt._build_data("latex")
-        from great_tables._tbl_data import _get_cell
 
         cell = _get_cell(built._body.body, 0, "dur")
         assert "1h" in cell
@@ -427,7 +420,6 @@ class TestFmtDurationEdgeCases:
         df = pd.DataFrame({"dur": ["not a number", 3661.0]})
         gt = GT(df).fmt_duration(columns="dur", input_units="seconds")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         assert _get_cell(built._body.body, 0, "dur") == "not a number"
         assert _get_cell(built._body.body, 1, "dur") == "1h 1m 1s"
@@ -478,7 +470,6 @@ class TestFmtDurationEdgeCases:
         df = pd.DataFrame({"a": [3600, 7200], "b": [60, 120]})
         gt = GT(df).fmt_duration(columns=["a", "b"], input_units="seconds")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         assert _get_cell(built._body.body, 0, "a") == "1h"
         assert _get_cell(built._body.body, 0, "b") == "1m"
@@ -607,7 +598,6 @@ class TestFmtDurationPolars:
         df = pl.DataFrame({"dur": [timedelta(hours=1, minutes=30), timedelta(seconds=45)]})
         gt = GT(df).fmt_duration(columns="dur")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         assert _get_cell(built._body.body, 0, "dur") == "1h 30m"
         assert _get_cell(built._body.body, 1, "dur") == "45s"
@@ -618,7 +608,6 @@ class TestFmtDurationPolars:
         df = pl.DataFrame({"dur": [timedelta(days=2, hours=3)]})
         gt = GT(df).fmt_duration(columns="dur", duration_style="wide")
         built = gt._build_data("html")
-        from great_tables._tbl_data import _get_cell
 
         assert _get_cell(built._body.body, 0, "dur") == "2 days 3 hours"
 
