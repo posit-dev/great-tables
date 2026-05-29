@@ -2505,12 +2505,14 @@ def fmt_duration(
     ```
 
     Polars also has native `Duration` dtype columns (created via temporal arithmetic or
-    `pl.duration()`). These are handled automatically without needing to specify `input_units`.
+    `timedelta` values). These are handled automatically without needing to specify `input_units`.
 
     ```{python}
+    from datetime import timedelta
+
     df = pl.DataFrame({
         "segment": ["Warm-up", "Main set", "Cool-down"],
-        "duration": [pl.duration(minutes=10), pl.duration(minutes=45, seconds=30), pl.duration(minutes=5)],
+        "duration": [timedelta(minutes=10), timedelta(minutes=45, seconds=30), timedelta(minutes=5)],
     })
 
     (
