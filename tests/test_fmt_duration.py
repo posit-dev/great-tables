@@ -596,3 +596,58 @@ class TestFmtDurationLocale:
         )
         assert "<1" in result[0]
         assert "Minute" in result[0]
+
+
+class TestFmtDurationPolars:
+    """Tests for fmt_duration with Polars Duration dtype columns."""
+
+    def test_polars_duration_column_narrow(self):
+        import polars as pl
+
+        df = pl.DataFrame({"dur": [timedelta(hours=1, minutes=30), timedelta(seconds=45)]})
+        gt = GT(df).fmt_duration(columns="dur")
+        built = gt._build_data("html")
+        from great_tables._tbl_data import _get_cell
+
+        assert _get_cell(built._body.body, 0, "dur") == "1h 30m"
+        assert _get_cell(built._body.body, 1, "dur") == "45s"
+
+    def test_polars_duration_column_wide(self):
+        import polars as pl
+
+        df = pl.DataFrame({"dur": [timedelta(days=2, hours=3)]})
+        gt = GT(df).fmt_duration(columns="dur", duration_style="wide")
+        built = gt._build_data("html")
+        from great_tables._tbl_data import _get_cell
+
+        assert _get_cell(built._body.body, 0, "dur") == "2 days 3 hours"
+
+    def test_polars_duration_column_renders_html(self):
+        import polars as pl
+
+        df = pl.DataFrame(
+            {
+                "label": ["A", "B"],
+                "dur": [timedelta(minutes=10), timedelta(minutes=5)],
+            }
+        )
+        gt = GT(df).fmt_duration(columns="dur", duration_style="wide")
+        html = gt.as_raw_html()
+        assert "10 minutes" in html
+        assert "5 minutes" in html
+
+    def test_polars_duration_mixed_with_other_columns(self):
+        import polars as pl
+
+        df = pl.DataFrame(
+            {
+                "name": ["task1", "task2"],
+                "dur": [timedelta(hours=1), timedelta(hours=2)],
+                "score": [95.5, 88.0],
+            }
+        )
+        gt = GT(df).fmt_duration(columns="dur")
+        html = gt.as_raw_html()
+        assert "1h" in html
+        assert "2h" in html
+        assert "task1" in html
