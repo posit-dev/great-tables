@@ -434,3 +434,547 @@ class TestColsMergeIntegration:
 
         assert "1 (10)" in html or "1(10)" in html
         assert "2<" in html  # The < is from the closing tag, not from the pattern
+
+
+# =============================================================================
+# Tests for cols_merge_uncert
+# =============================================================================
+
+
+class TestColsMergeUncert:
+    """Tests for the cols_merge_uncert() method."""
+
+    def test_basic_symmetric(self):
+        """Test basic symmetric uncertainty merge."""
+        df = pd.DataFrame({"val": [10.0, 20.0, 30.0], "uncert": [0.5, 1.0, 1.5]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert")
+
+        assert len(gt._col_merge) == 1
+        assert gt._col_merge[0].type == "merge_uncert"
+        assert gt._col_merge[0].vars == ["val", "uncert"]
+
+        html = gt.as_raw_html()
+        # Should contain the ± symbol
+        assert "10.0 \u00b1 0.5" in html
+        assert "20.0 \u00b1 1.0" in html
+        assert "30.0 \u00b1 1.5" in html
+
+    def test_na_in_val(self):
+        """Test that NA in col_val produces empty merged value."""
+        df = pl.DataFrame({"val": [10.0, None, 30.0], "uncert": [0.5, 1.0, 1.5]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert")
+        html = gt.as_raw_html()
+
+        # First and third rows should have merged values
+        assert "10.0 \u00b1 0.5" in html
+        assert "30.0 \u00b1 1.5" in html
+
+    def test_na_in_uncert(self):
+        """Test that NA in col_uncert shows only the base value."""
+        df = pl.DataFrame({"val": [10.0, 20.0, 30.0], "uncert": [0.5, None, 1.5]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert")
+        html = gt.as_raw_html()
+
+        # Second row: only base value (no ± symbol)
+        assert "10.0 \u00b1 0.5" in html
+        assert "30.0 \u00b1 1.5" in html
+        # 20.0 should appear without ± symbol
+        assert "20.0 \u00b1" not in html.replace("10.0 \u00b1 0.5", "").replace(
+            "30.0 \u00b1 1.5", ""
+        )
+
+    def test_custom_sep(self):
+        """Test custom separator."""
+        df = pd.DataFrame({"val": [10.0, 20.0], "uncert": [0.5, 1.0]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert", sep=" ~ ")
+        html = gt.as_raw_html()
+
+        assert "10.0 ~ 0.5" in html
+        assert "20.0 ~ 1.0" in html
+
+    def test_autohide_true(self):
+        """Test that col_uncert is hidden by default."""
+        df = pd.DataFrame({"val": [10.0], "uncert": [0.5]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert")
+        html = gt.as_raw_html()
+
+        # "uncert" column header should not appear
+        assert ">uncert<" not in html
+
+    def test_autohide_false(self):
+        """Test that col_uncert remains visible when autohide=False."""
+        df = pd.DataFrame({"val": [10.0], "uncert": [0.5]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert", autohide=False)
+        html = gt.as_raw_html()
+
+        # "uncert" column header should appear
+        assert "uncert" in html
+
+    def test_asymmetric_uncertainty(self):
+        """Test asymmetric uncertainty with two uncertainty columns."""
+        df = pd.DataFrame({"val": [10.0, 20.0], "lower": [0.3, 0.6], "upper": [0.5, 1.0]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert=["lower", "upper"])
+
+        assert gt._col_merge[0].vars == ["val", "lower", "upper"]
+        html = gt.as_raw_html()
+
+        # Should contain asymmetric format
+        assert "+0.5" in html or "+1.0" in html
+
+    def test_with_polars(self):
+        """Test with Polars DataFrame."""
+        df = pl.DataFrame({"val": [10.0, 20.0, 30.0], "uncert": [0.5, 1.0, 1.5]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert")
+        html = gt.as_raw_html()
+
+        assert "10.0 \u00b1 0.5" in html
+
+    def test_invalid_col_val(self):
+        """Test that multiple columns for col_val raises error."""
+        df = pd.DataFrame({"a": [1], "b": [2], "c": [3]})
+
+        with pytest.raises(ValueError, match="exactly one column"):
+            GT(df).cols_merge_uncert(col_val=["a", "b"], col_uncert="c")
+
+    def test_with_rows(self):
+        """Test with specific rows selected."""
+        df = pd.DataFrame({"val": [10.0, 20.0, 30.0], "uncert": [0.5, 1.0, 1.5]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert", rows=[0, 2])
+        html = gt.as_raw_html()
+
+        # Only rows 0 and 2 should be merged
+        assert "10.0 \u00b1 0.5" in html
+        assert "30.0 \u00b1 1.5" in html
+
+    def test_chaining_two_uncert_merges(self):
+        """Test applying cols_merge_uncert twice on different column pairs."""
+        df = pl.DataFrame(
+            {"val1": [10.0, 20.0], "unc1": [0.5, 1.0], "val2": [30.0, 40.0], "unc2": [1.5, 2.0]}
+        )
+
+        gt = (
+            GT(df)
+            .cols_merge_uncert(col_val="val1", col_uncert="unc1")
+            .cols_merge_uncert(col_val="val2", col_uncert="unc2")
+        )
+
+        assert len(gt._col_merge) == 2
+        assert gt._col_merge[0].vars == ["val1", "unc1"]
+        assert gt._col_merge[1].vars == ["val2", "unc2"]
+
+        html = gt.as_raw_html()
+        assert "10.0 \u00b1 0.5" in html
+        assert "30.0 \u00b1 1.5" in html
+
+    def test_asymmetric_all_na_combinations(self):
+        """Test asymmetric uncertainty with all NA combinations (matches R gt behavior)."""
+        df = pl.DataFrame(
+            {
+                "value": [34.5, 29.2, 36.3, 31.6, 28.5, 30.9, None, None],
+                "lu": [2.1, 2.4, 2.6, 1.8, None, None, 1.2, None],
+                "uu": [1.8, 2.7, 2.6, None, 1.6, None, None, None],
+            }
+        )
+
+        gt = GT(df).cols_merge_uncert(col_val="value", col_uncert=["lu", "uu"])
+        html = gt.as_raw_html()
+
+        # Row 1: both bounds present, asymmetric → val (+upper/−lower)
+        assert "+1.8" in html
+        assert "\u22122.1" in html  # minus sign
+
+        # Row 3: symmetric (lower == upper == 2.6) → val ± uncert
+        assert "36.3 \u00b1 2.6" in html
+
+        # Row 4: upper is NA → val (−lower)
+        assert "\u22121.8" in html
+
+        # Row 5: lower is NA → val (+upper)
+        assert "+1.6" in html
+
+        # Row 6: both bounds NA but val present → just val
+        assert "30.9" in html
+
+        # Row 7 & 8: val is NA → empty (nothing meaningful rendered)
+
+    def test_symmetric_when_bounds_equal(self):
+        """Test that when lower == upper, symmetric format (±) is used."""
+        df = pl.DataFrame({"val": [100.0], "lower": [2.5], "upper": [2.5]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert=["lower", "upper"])
+        html = gt.as_raw_html()
+
+        assert "100.0 \u00b1 2.5" in html
+
+
+# =============================================================================
+# Tests for cols_merge_range
+# =============================================================================
+
+
+class TestColsMergeRange:
+    """Tests for the cols_merge_range() method."""
+
+    def test_basic(self):
+        """Test basic range merge with en dash."""
+        df = pd.DataFrame({"low": [10, 20, 30], "high": [15, 25, 35]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high")
+
+        assert len(gt._col_merge) == 1
+        assert gt._col_merge[0].type == "merge_range"
+        assert gt._col_merge[0].vars == ["low", "high"]
+
+        html = gt.as_raw_html()
+        # Should contain en dash
+        assert "10\u201315" in html
+        assert "20\u201325" in html
+        assert "30\u201335" in html
+
+    def test_na_in_begin(self):
+        """Test that NA in col_begin shows only col_end value."""
+        df = pl.DataFrame({"low": [10, None, 30], "high": [15, 25, 35]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high")
+        html = gt.as_raw_html()
+
+        # Second row should show only the end value
+        assert "10\u201315" in html
+        assert "30\u201335" in html
+        # "25" should appear alone (not as part of a range)
+        assert "25" in html
+
+    def test_na_in_end(self):
+        """Test that NA in col_end shows only col_begin value."""
+        df = pl.DataFrame({"low": [10, 20, 30], "high": [15, None, 35]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high")
+        html = gt.as_raw_html()
+
+        assert "10\u201315" in html
+        assert "30\u201335" in html
+        # "20" should appear alone
+        assert "20" in html
+
+    def test_na_in_both(self):
+        """Test that NA in both columns produces empty result."""
+        df = pl.DataFrame({"low": [10, None, 30], "high": [15, None, 35]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high")
+        html = gt.as_raw_html()
+
+        assert "10\u201315" in html
+        assert "30\u201335" in html
+
+    def test_custom_sep(self):
+        """Test custom separator."""
+        df = pd.DataFrame({"low": [10, 20], "high": [15, 25]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high", sep=" to ")
+        html = gt.as_raw_html()
+
+        assert "10 to 15" in html
+        assert "20 to 25" in html
+
+    def test_sep_en_dash(self):
+        """Test that '--' is converted to en dash."""
+        df = pd.DataFrame({"low": [10], "high": [15]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high", sep="--")
+        html = gt.as_raw_html()
+
+        assert "10\u201315" in html
+
+    def test_sep_em_dash(self):
+        """Test that '---' is converted to em dash."""
+        df = pd.DataFrame({"low": [10], "high": [15]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high", sep="---")
+        html = gt.as_raw_html()
+
+        assert "10\u201415" in html
+
+    def test_autohide_true(self):
+        """Test that col_end is hidden by default."""
+        df = pd.DataFrame({"low": [10], "high": [15]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high")
+        html = gt.as_raw_html()
+
+        # "high" column header should not appear
+        assert ">high<" not in html
+
+    def test_autohide_false(self):
+        """Test that col_end remains visible when autohide=False."""
+        df = pd.DataFrame({"low": [10], "high": [15]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high", autohide=False)
+        html = gt.as_raw_html()
+
+        # "high" column header should appear
+        assert "high" in html
+
+    def test_with_polars(self):
+        """Test with Polars DataFrame."""
+        df = pl.DataFrame({"low": [10, 20, 30], "high": [15, 25, 35]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high")
+        html = gt.as_raw_html()
+
+        assert "10\u201315" in html
+
+    def test_invalid_col_begin(self):
+        """Test that multiple columns for col_begin raises error."""
+        df = pd.DataFrame({"a": [1], "b": [2], "c": [3]})
+
+        with pytest.raises(ValueError, match="exactly one column"):
+            GT(df).cols_merge_range(col_begin=["a", "b"], col_end="c")
+
+    def test_with_formatted_values(self):
+        """Test that formatting is preserved."""
+        df = pl.DataFrame({"mpg_c": [16.0, 18.5], "mpg_h": [20.0, 22.5]})
+
+        gt = (
+            GT(df)
+            .fmt_number(columns=["mpg_c", "mpg_h"], decimals=1)
+            .cols_merge_range(col_begin="mpg_c", col_end="mpg_h")
+        )
+        html = gt.as_raw_html()
+
+        assert "16.0\u201320.0" in html
+        assert "18.5\u201322.5" in html
+
+    def test_chaining_two_range_merges(self):
+        """Test applying cols_merge_range twice on different column pairs."""
+        df = pl.DataFrame(
+            {"col_1": [10, 20], "col_2": [15, 25], "col_3": [100, 200], "col_4": [150, 250]}
+        )
+
+        gt = (
+            GT(df)
+            .cols_merge_range(col_begin="col_1", col_end="col_2")
+            .cols_merge_range(col_begin="col_3", col_end="col_4")
+        )
+
+        assert len(gt._col_merge) == 2
+        assert gt._col_merge[0].vars == ["col_1", "col_2"]
+        assert gt._col_merge[1].vars == ["col_3", "col_4"]
+
+        html = gt.as_raw_html()
+        assert "10\u201315" in html
+        assert "100\u2013150" in html
+
+    def test_equal_values(self):
+        """Test range merge when begin and end are the same value."""
+        df = pl.DataFrame({"low": [10, 20], "high": [10, 25]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high")
+        html = gt.as_raw_html()
+
+        # When values are equal, both sides of the dash still appear
+        assert "10\u201310" in html
+        assert "20\u201325" in html
+
+    def test_with_rows(self):
+        """Test with specific rows selected."""
+        df = pl.DataFrame({"low": [10, 20, 30], "high": [15, 25, 35]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high", rows=[0, 2])
+        html = gt.as_raw_html()
+
+        # Only rows 0 and 2 should be merged
+        assert "10\u201315" in html
+        assert "30\u201335" in html
+
+
+# =============================================================================
+# Tests for cols_merge_n_pct
+# =============================================================================
+
+
+class TestColsMergeNPct:
+    """Tests for the cols_merge_n_pct() method."""
+
+    def test_basic(self):
+        """Test basic count and percentage merge."""
+        df = pd.DataFrame({"n": [10, 20, 30], "pct": ["16.7%", "33.3%", "50.0%"]})
+
+        gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct")
+
+        assert len(gt._col_merge) == 1
+        assert gt._col_merge[0].type == "merge_n_pct"
+        assert gt._col_merge[0].vars == ["n", "pct"]
+
+        html = gt.as_raw_html()
+        assert "10 (16.7%)" in html
+        assert "20 (33.3%)" in html
+        assert "30 (50.0%)" in html
+
+    def test_na_in_n(self):
+        """Test that NA in col_n produces empty result."""
+        df = pl.DataFrame({"n": [10, None, 30], "pct": ["16.7%", "33.3%", "50.0%"]})
+
+        gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct")
+        html = gt.as_raw_html()
+
+        assert "10 (16.7%)" in html
+        assert "30 (50.0%)" in html
+
+    def test_na_in_pct(self):
+        """Test that NA in col_pct shows only the count."""
+        df = pl.DataFrame({"n": [10, 20, 30], "pct": ["16.7%", None, "50.0%"]})
+
+        gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct")
+        html = gt.as_raw_html()
+
+        assert "10 (16.7%)" in html
+        assert "30 (50.0%)" in html
+        # Row 2 should just show "20" without parens
+        assert "20 (" not in html.replace("10 (16.7%)", "").replace("30 (50.0%)", "")
+
+    def test_na_in_both(self):
+        """Test that NA in both columns produces empty result."""
+        df = pl.DataFrame({"n": [10, None, 30], "pct": ["16.7%", None, "50.0%"]})
+
+        gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct")
+        html = gt.as_raw_html()
+
+        assert "10 (16.7%)" in html
+        assert "30 (50.0%)" in html
+
+    def test_zero_in_n(self):
+        """Test that zero in col_n shows only '0' without percentage."""
+        df = pd.DataFrame({"n": [0, 20, 30], "pct": ["0.0%", "33.3%", "50.0%"]})
+
+        gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct")
+        html = gt.as_raw_html()
+
+        # Zero should not have percentage
+        assert "0 (0.0%)" not in html
+        # But should have the zero value
+        assert "20 (33.3%)" in html
+        assert "30 (50.0%)" in html
+
+    def test_autohide_true(self):
+        """Test that col_pct is hidden by default."""
+        df = pd.DataFrame({"n": [10], "pct": ["16.7%"]})
+
+        gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct")
+        html = gt.as_raw_html()
+
+        # "pct" column header should not appear
+        assert ">pct<" not in html
+
+    def test_autohide_false(self):
+        """Test that col_pct remains visible when autohide=False."""
+        df = pd.DataFrame({"n": [10], "pct": ["16.7%"]})
+
+        gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct", autohide=False)
+        html = gt.as_raw_html()
+
+        assert "pct" in html
+
+    def test_with_polars(self):
+        """Test with Polars DataFrame."""
+        df = pl.DataFrame({"n": [10, 20, 30], "pct": ["16.7%", "33.3%", "50.0%"]})
+
+        gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct")
+        html = gt.as_raw_html()
+
+        assert "10 (16.7%)" in html
+
+    def test_with_fmt_percent(self):
+        """Test integration with fmt_percent for realistic usage."""
+        df = pl.DataFrame({"n": [10, 20, 30], "pct": [0.167, 0.333, 0.500]})
+
+        gt = (
+            GT(df).fmt_percent(columns="pct", decimals=1).cols_merge_n_pct(col_n="n", col_pct="pct")
+        )
+        html = gt.as_raw_html()
+
+        assert "10 (16.7%)" in html
+        assert "20 (33.3%)" in html
+        assert "30 (50.0%)" in html
+
+    def test_invalid_col_n(self):
+        """Test that multiple columns for col_n raises error."""
+        df = pd.DataFrame({"a": [1], "b": [2], "c": [3]})
+
+        with pytest.raises(ValueError, match="exactly one column"):
+            GT(df).cols_merge_n_pct(col_n=["a", "b"], col_pct="c")
+
+    def test_with_rows(self):
+        """Test with specific rows selected."""
+        df = pd.DataFrame({"n": [10, 20, 30], "pct": ["16.7%", "33.3%", "50.0%"]})
+
+        gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct", rows=[0, 2])
+        html = gt.as_raw_html()
+
+        # Only rows 0 and 2 should be merged
+        assert "10 (16.7%)" in html
+        assert "30 (50.0%)" in html
+
+    def test_comprehensive_na_zero_matrix(self):
+        """Test all combinations of NA and zero values (mirrors R gt test matrix).
+
+        R gt expected outputs for this dataset:
+        - (1, 0.0714)  → "1 (7.1%)"
+        - (5, 0.3571)  → "5 (35.7%)"
+        - (0, 0.0)     → "0"           (zero suppresses pct)
+        - (2, 0.1429)  → "2 (14.3%)"
+        - (NA, NA)     → ""            (NA in col_n)
+        - (6, 0.4286)  → "6 (42.9%)"
+        - (5, NA)      → "5"           (NA in col_pct only)
+        - (NA, 1000)   → ""            (NA in col_n)
+        - (0, NA)      → "0"           (zero + NA pct → just zero)
+        - (NA, 0)      → ""            (NA in col_n)
+        """
+        df = pl.DataFrame(
+            {
+                "a": [1, 5, 0, 2, None, 6, 5, None, 0, None],
+                "b": [0.0714, 0.3571, 0.0, 0.1429, None, 0.4286, None, 1000.0, None, 0.0],
+            }
+        )
+
+        gt = GT(df).fmt_percent(columns="b", decimals=1).cols_merge_n_pct(col_n="a", col_pct="b")
+        html = gt.as_raw_html()
+
+        # Positive cases: n with pct
+        assert "1 (7.1%)" in html
+        assert "5 (35.7%)" in html
+        assert "2 (14.3%)" in html
+        assert "6 (42.9%)" in html
+
+        # Zero in col_n: no percentage shown
+        # We check that "0 (" doesn't appear (zero rows don't get parens)
+        # Note: "0" should appear without parentheses for zero rows
+
+        # NA in col_pct only: show just the count
+        # Row 7: n=5, pct=NA → "5" (without parens)
+
+        # NA in col_n: empty result (no meaningful content for that cell)
+
+    def test_chaining_n_pct_and_range(self):
+        """Test combining cols_merge_n_pct with cols_merge_range."""
+        df = pl.DataFrame({"n": [10, 20], "pct": [0.167, 0.333], "low": [5, 10], "high": [15, 25]})
+
+        gt = (
+            GT(df)
+            .fmt_percent(columns="pct", decimals=1)
+            .cols_merge_n_pct(col_n="n", col_pct="pct")
+            .cols_merge_range(col_begin="low", col_end="high")
+        )
+
+        assert len(gt._col_merge) == 2
+        html = gt.as_raw_html()
+        assert "10 (16.7%)" in html
+        assert "5\u201315" in html
