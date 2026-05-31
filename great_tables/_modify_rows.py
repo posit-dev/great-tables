@@ -15,6 +15,7 @@ from ._tbl_data import (
     SelectExpr,
     TblData,
     eval_aggregate,
+    reorder,
 )
 
 if TYPE_CHECKING:
@@ -191,6 +192,291 @@ def with_id(self: GTSelf, id: str | None = None) -> GTSelf:
     ```
     """
     return self._replace(_options=self._options._set_option_value("table_id", id))
+
+
+def summary_rows(
+    self: GTSelf,
+    *,
+    fns: dict[str, PlExpr] | dict[str, Callable[[TblData], Any]],
+    fmt: FormatFn | None = None,
+    columns: SelectExpr = None,
+    groups: list[str] | None = None,
+    side: Literal["bottom", "top"] = "bottom",
+    missing_text: str = "---",
+) -> GTSelf:
+    """Add group-wise summary rows to the table.
+
+    Add summary rows by using the table data and any suitable aggregation functions. With
+    `summary_rows()`, the data within each row group is aggregated separately and summary rows are
+    placed adjacent to each group. Multiple summary rows can be added via expressions given to
+    `fns=`. You can selectively format the values in the resulting summary cells by use of
+    formatting expressions from the `vals.fmt_*` class of functions.
+
+    Note that currently all arguments are keyword-only, since the final positions may change.
+
+    Parameters
+    ----------
+    fns
+        A dictionary mapping row labels to aggregation expressions. Can be either Polars expressions
+        or callable functions that take a DataFrame subset and return aggregated results. Each key
+        becomes the label for a summary row within each group.
+    fmt
+        A formatting function from the `vals.fmt_*` family (e.g., `vals.fmt_number`,
+        `vals.fmt_currency`) to apply to the summary row values. If `None`, no formatting is
+        applied.
+    columns
+        Currently, this function does not support selection by columns. If you would like to choose
+        which columns to summarize, you can select columns within the functions given to `fns=`.
+        See examples below for more explicit cases.
+    groups
+        The groups to target for summary row insertion. Can be a list of group IDs as strings. By
+        default (`None`), summary rows are generated for all groups.
+    side
+        Should the summary rows be placed at the `"bottom"` (the default) or the `"top"` of each
+        group?
+    missing_text
+        The text to be used in summary cells with no data outputs.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use a subset of the `gtcars` dataset to create a table with group summary rows. We'll
+    group by manufacturer and show min and max values for horsepower and torque columns.
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT, vals
+    from great_tables.data import gtcars
+
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select(["mfr", "model", "hp", "trq"])
+        .head(12)
+    )
+
+    (
+        GT(gtcars_mini, rowname_col="model", groupname_col="mfr")
+        .summary_rows(
+            fns={
+                "Min": pl.col("hp", "trq").min(),
+                "Max": pl.col("hp", "trq").max(),
+            },
+            fmt=vals.fmt_integer,
+        )
+    )
+    ```
+
+    We can also target specific groups by using the `groups=` parameter. Here we only show
+    summary rows for the `"BMW"` group:
+
+    ```{python}
+    (
+        GT(gtcars_mini, rowname_col="model", groupname_col="mfr")
+        .summary_rows(
+            fns={
+                "Average": pl.col("hp", "trq").mean(),
+            },
+            groups=["BMW"],
+            fmt=vals.fmt_number,
+        )
+    )
+    ```
+
+    Callable functions work with pandas DataFrames. Each function receives the subset of data
+    for that group:
+
+    ```{python}
+    from great_tables import GT, vals
+    from great_tables.data import gtcars
+
+    (
+        GT(
+            gtcars[["mfr", "model", "hp", "trq"]].head(12),
+            rowname_col="model",
+            groupname_col="mfr",
+        )
+        .summary_rows(
+            fns={
+                "Min": lambda df: df.min(numeric_only=True),
+                "Max": lambda df: df.max(numeric_only=True),
+            },
+            fmt=vals.fmt_integer,
+        )
+    )
+    ```
+
+    Summary rows can be placed at the top of each group using `side="top"`:
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT, vals
+    from great_tables.data import gtcars
+
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select(["mfr", "model", "hp", "trq"])
+        .head(12)
+    )
+
+    (
+        GT(gtcars_mini, rowname_col="model", groupname_col="mfr")
+        .summary_rows(
+            fns={"Mean": pl.col("hp", "trq").mean()},
+            side="top",
+            fmt=vals.fmt_number,
+        )
+    )
+    ```
+
+    Combining group summaries with grand summary rows and styling provides a comprehensive
+    summary view of the data. Use `loc.summary()` to style all group summary cells:
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT, vals, style, loc
+    from great_tables.data import gtcars
+
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select(["mfr", "model", "hp", "trq"])
+        .head(12)
+    )
+
+    (
+        GT(gtcars_mini, rowname_col="model", groupname_col="mfr")
+        .summary_rows(
+            fns={
+                "Min": pl.col("hp", "trq").min(),
+                "Max": pl.col("hp", "trq").max(),
+            },
+            fmt=vals.fmt_integer,
+        )
+        .grand_summary_rows(
+            fns={"Overall Mean": pl.col("hp", "trq").mean()},
+            fmt=vals.fmt_number,
+        )
+        .tab_style(
+            style=[style.fill(color="lightyellow")],
+            locations=loc.summary(),
+        )
+        .tab_style(
+            style=[style.fill(color="lightblue")],
+            locations=loc.grand_summary(),
+        )
+    )
+    ```
+
+    When groups are displayed as a column in the stub (using `row_group_as_column=True`),
+    the summary row labels span the stub columns:
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT, vals
+    from great_tables.data import gtcars
+
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select(["mfr", "model", "hp", "trq"])
+        .head(12)
+    )
+
+    (
+        GT(gtcars_mini, rowname_col="model", groupname_col="mfr")
+        .tab_options(row_group_as_column=True)
+        .summary_rows(
+            fns={
+                "Min": pl.col("hp", "trq").min(),
+                "Max": pl.col("hp", "trq").max(),
+            },
+            fmt=vals.fmt_integer,
+        )
+    )
+    ```
+
+    """
+    if columns is not None:
+        raise NotImplementedError("Currently, summary_rows() does not support column selection.")
+
+    # Get the group information from the stub
+    group_rows = self._stub.group_rows
+
+    if not group_rows._d:
+        raise ValueError(
+            "summary_rows() requires row groups. Use `groupname_col=` in GT() or "
+            "`tab_stub(groupname_col=...)` to define groups."
+        )
+
+    # Determine which groups to target
+    all_group_ids = [g.group_id for g in group_rows]
+    if groups is not None:
+        target_group_ids = [gid for gid in groups if gid in all_group_ids]
+    else:
+        target_group_ids = all_group_ids
+
+    # Get column names for subsetting
+    all_columns = [col.var for col in self._boxhead]
+
+    new_summary = self._summary_rows
+
+    for group_info in group_rows:
+        if group_info.group_id not in target_group_ids:
+            continue
+
+        # Subset the DataFrame to this group's rows
+        group_df = reorder(self._tbl_data, group_info.indices, all_columns)
+
+        # Calculate summary for each function
+        for label, fn in fns.items():
+            row_values_dict = _calculate_summary_row_from_subset(
+                group_df, fn, fmt, self._boxhead._get_columns(), missing_text
+            )
+
+            summary_row_info = SummaryRowInfo(
+                id=label,
+                label=label,
+                values=row_values_dict,
+                side=side,
+            )
+
+            new_summary = new_summary.add_summary_row(
+                summary_row_info, group_id=group_info.group_id
+            )
+
+    return self._replace(_summary_rows=new_summary)
+
+
+def _calculate_summary_row_from_subset(
+    group_df: TblData,
+    fn: PlExpr | Callable[[TblData], Any],
+    fmt: FormatFn | None,
+    original_columns: list[str],
+    missing_text: str,
+) -> dict[str, Any]:
+    """Calculate a summary row from a subset of data (for group summaries)."""
+    summary_row = {}
+
+    # Use eval_aggregate to apply the function/expression to the group subset
+    result_df = eval_aggregate(group_df, fn)
+
+    # Extract results for each column
+    for col in original_columns:
+        if col in result_df:
+            res = result_df[col]
+
+            if fmt is not None:
+                formatted = fmt([res])
+                res = formatted[0]
+
+            summary_row[col] = res
+        else:
+            summary_row[col] = missing_text
+
+    return summary_row
 
 
 def grand_summary_rows(
