@@ -557,7 +557,7 @@ def create_body_component_h(data: GTData) -> str:
     # Filter list of StyleInfo to only those that apply to the stub
     styles_row_group_label = [x for x in data._styles if _is_loc(x.locname, loc.LocRowGroups)]
     styles_row_label = [x for x in data._styles if _is_loc(x.locname, loc.LocStub)]
-    # styles_summary_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSummaryStub)]
+    styles_summary_label = [x for x in data._styles if _is_loc(x.locname, loc.LocSummaryStub)]
     styles_grand_summary_label = [
         x for x in data._styles if _is_loc(x.locname, loc.LocGrandSummaryStub)
     ]
@@ -565,7 +565,7 @@ def create_body_component_h(data: GTData) -> str:
     # Filter list of StyleInfo to only those that apply to the body
     styles_cells = [x for x in data._styles if _is_loc(x.locname, loc.LocBody)]
     # styles_body = [x for x in data._styles if _is_loc(x.locname, loc.LocBody2)]
-    # styles_summary = [x for x in data._styles if _is_loc(x.locname, loc.LocSummary)]
+    styles_summary = [x for x in data._styles if _is_loc(x.locname, loc.LocSummary)]
     styles_grand_summary = [x for x in data._styles if _is_loc(x.locname, loc.LocGrandSummary)]
 
     # Get the default column vars
@@ -699,8 +699,61 @@ def create_body_component_h(data: GTData) -> str:
 
         prev_group_info = group_info
 
-        ## after the last row in the group, we need to append the summary rows for the group
-        ## if this table has summary rows
+        # After the last row in the group, append the summary rows for the group
+        if has_groups and group_info is not None and data._summary_rows:
+            # Determine if this is the last row of the current group
+            is_last_in_group = (
+                j == len(ordered_index) - 1 or ordered_index[j + 1][1] is not group_info
+            )
+
+            if is_last_in_group:
+                group_id = group_info.group_id
+
+                # Add top summary rows for this group
+                top_summary_rows = data._summary_rows.get_summary_rows(
+                    group_id=group_id, side="top"
+                )
+                for si, summary_row in enumerate(top_summary_rows):
+                    row_html = _create_row_component_h(
+                        column_vars=column_vars,
+                        row_stub_var=row_stub_var,
+                        has_row_stub_column=has_row_stub_column,
+                        has_group_stub_column=has_group_stub_column,
+                        apply_stub_striping=False,
+                        apply_body_striping=False,
+                        styles_cells=styles_summary,
+                        styles_labels=styles_summary_label,
+                        row_index=si,
+                        summary_row=summary_row,
+                        css_class="gt_first_summary_row" if si == 0 else None,
+                        data=data,
+                        summary_group_id=group_id,
+                    )
+                    body_rows.append(row_html)
+
+                # Add bottom summary rows for this group
+                bottom_summary_rows = data._summary_rows.get_summary_rows(
+                    group_id=group_id, side="bottom"
+                )
+                for si, summary_row in enumerate(bottom_summary_rows):
+                    row_html = _create_row_component_h(
+                        column_vars=column_vars,
+                        row_stub_var=row_stub_var,
+                        has_row_stub_column=has_row_stub_column,
+                        has_group_stub_column=has_group_stub_column,
+                        apply_stub_striping=False,
+                        apply_body_striping=False,
+                        styles_cells=styles_summary,
+                        styles_labels=styles_summary_label,
+                        row_index=si + len(top_summary_rows),
+                        summary_row=summary_row,
+                        css_class="gt_first_summary_row"
+                        if si == 0 and not top_summary_rows
+                        else None,
+                        data=data,
+                        summary_group_id=group_id,
+                    )
+                    body_rows.append(row_html)
 
     # Add grand summary rows at bottom
     bottom_g_summary_rows = data._summary_rows_grand.get_summary_rows(side="bottom")
@@ -743,10 +796,13 @@ def _create_row_component_h(
     tbl_data: TblData | None = None,
     css_class: str | None = None,
     data: GTData | None = None,  # For footnote handling
+    summary_group_id: str | None = None,  # For group summary rows (distinguishes from grand)
 ) -> str:
     """Create a single table row (either data row or summary row)"""
 
     is_summary_row = summary_row is not None
+    is_group_summary = summary_group_id is not None
+    summary_css_class = "gt_summary_row" if is_group_summary else "gt_grand_summary_row"
     body_cells: list[str] = []
 
     if leading_cell:
@@ -766,7 +822,7 @@ def _create_row_component_h(
             [x for x in styles_labels if x.rownum == row_index], wrap=True
         )
 
-        classes = ["gt_row", "gt_left", "gt_stub", "gt_grand_summary_row"]
+        classes = ["gt_row", "gt_left", "gt_stub", summary_css_class]
         if css_class:
             classes.append(css_class)
         classes_str = " ".join(classes)
@@ -823,22 +879,43 @@ def _create_row_component_h(
                 ]
                 cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
         elif data is not None and is_summary_row:
-            if colinfo.is_stub:
-                footnotes_i = [
-                    x
-                    for x in data._footnotes
-                    if isinstance(x.locname, loc.LocGrandSummaryStub) and x.rownum == row_index
-                ]
-                cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
+            if is_group_summary:
+                if colinfo.is_stub:
+                    footnotes_i = [
+                        x
+                        for x in data._footnotes
+                        if isinstance(x.locname, loc.LocSummaryStub)
+                        and x.rownum == row_index
+                        and x.grpname == summary_group_id
+                    ]
+                    cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
+                else:
+                    footnotes_i = [
+                        x
+                        for x in data._footnotes
+                        if isinstance(x.locname, loc.LocSummary)
+                        and x.colname == colinfo.var
+                        and x.rownum == row_index
+                        and x.grpname == summary_group_id
+                    ]
+                    cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
             else:
-                footnotes_i = [
-                    x
-                    for x in data._footnotes
-                    if isinstance(x.locname, loc.LocGrandSummary)
-                    and x.colname == colinfo.var
-                    and x.rownum == row_index
-                ]
-                cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
+                if colinfo.is_stub:
+                    footnotes_i = [
+                        x
+                        for x in data._footnotes
+                        if isinstance(x.locname, loc.LocGrandSummaryStub) and x.rownum == row_index
+                    ]
+                    cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
+                else:
+                    footnotes_i = [
+                        x
+                        for x in data._footnotes
+                        if isinstance(x.locname, loc.LocGrandSummary)
+                        and x.colname == colinfo.var
+                        and x.rownum == row_index
+                    ]
+                    cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
 
         # Get styles
         _body_styles = [
@@ -853,14 +930,14 @@ def _create_row_component_h(
             el_name = "th"
             classes += ["gt_row", "gt_left", "gt_stub"]
             if is_summary_row:
-                classes.append("gt_grand_summary_row")
+                classes.append(summary_css_class)
             if apply_stub_striping:
                 classes.append("gt_striped")
         else:
             el_name = "td"
             classes += ["gt_row", f"gt_{cell_alignment}"]
             if is_summary_row:
-                classes.append("gt_grand_summary_row")
+                classes.append(summary_css_class)
             if apply_body_striping:
                 classes.append("gt_striped")
 
