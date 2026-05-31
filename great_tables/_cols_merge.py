@@ -51,6 +51,7 @@ class ColMergeInfo:
     rows: list[int]
     type: str
     pattern: str
+    sep: str = ""
 
     @property
     def pattern_columns(self) -> list[str]:
@@ -321,13 +322,15 @@ def _apply_single_col_merge(
     Body
         The modified body data.
     """
-    if col_merge.type != "merge":
+    supported_types = ("merge", "merge_uncert", "merge_range", "merge_n_pct")
+    if col_merge.type not in supported_types:
         raise NotImplementedError(
             f"Column merge type {col_merge.type!r} is not supported. "
-            f"Only 'merge' is currently implemented."
+            f"Supported types are: {supported_types}."
         )
 
-    col_merge.validate_pattern()
+    if col_merge.type == "merge":
+        col_merge.validate_pattern()
 
     target_column = col_merge.vars[0]
 
@@ -355,7 +358,17 @@ def _apply_single_col_merge(
                 # Body has a value (possibly from sub_missing or formatting)
                 values.append(str(formatted_value))
 
-        merged_value = col_merge.merge(*values)
+        # Dispatch to the appropriate merge strategy
+        if col_merge.type == "merge":
+            merged_value = col_merge.merge(*values)
+        elif col_merge.type == "merge_uncert":
+            merged_value = _merge_uncert(values, col_merge.sep)
+        elif col_merge.type == "merge_range":
+            merged_value = _merge_range(values, col_merge.sep)
+        elif col_merge.type == "merge_n_pct":
+            merged_value = _merge_n_pct(values, tbl_data, col_merge.vars, row_idx)
+        else:
+            merged_value = col_merge.merge(*values)
 
         result = _set_cell(body.body, row_idx, target_column, merged_value)
 
@@ -365,3 +378,93 @@ def _apply_single_col_merge(
             body.body = result
 
     return body
+
+
+def _merge_uncert(values: list[Any], sep: str) -> str:
+    """Apply uncertainty merge semantics.
+
+    NA handling:
+    - NA in col_val -> result is NA
+    - NA in col_uncert (but not col_val) -> show only col_val
+    - NA in both -> result is NA
+    - For asymmetric (3 columns): val (+upper/−lower)
+    """
+    col_val = values[0]
+
+    # If the base value is missing, the result is always missing
+    if col_val is None:
+        return ""
+
+    if len(values) == 2:
+        # Symmetric uncertainty: val ± uncert
+        col_uncert = values[1]
+        if col_uncert is None:
+            return str(col_val)
+        return f"{col_val}{sep}{col_uncert}"
+    else:
+        # Asymmetric uncertainty: val (+upper/−lower)
+        col_lower = values[1]
+        col_upper = values[2] if len(values) > 2 else None
+
+        if col_lower is None and col_upper is None:
+            return str(col_val)
+        elif col_lower is None:
+            return f"{col_val} (+{col_upper})"
+        elif col_upper is None:
+            return f"{col_val} (\u2212{col_lower})"
+        elif str(col_lower) == str(col_upper):
+            # When lower == upper, use symmetric format
+            return f"{col_val}{sep}{col_lower}"
+        else:
+            return f"{col_val} (+{col_upper}/\u2212{col_lower})"
+
+
+def _merge_range(values: list[Any], sep: str) -> str:
+    """Apply range merge semantics.
+
+    NA handling:
+    - NA in col_begin (but not col_end) -> show only col_end
+    - NA in col_end (but not col_begin) -> show only col_begin
+    - NA in both -> result is NA
+    """
+    col_begin = values[0]
+    col_end = values[1]
+
+    if col_begin is None and col_end is None:
+        return ""
+    elif col_begin is None:
+        return str(col_end)
+    elif col_end is None:
+        return str(col_begin)
+    else:
+        return f"{col_begin}{sep}{col_end}"
+
+
+def _merge_n_pct(values: list[Any], tbl_data: TblData, vars: list[str], row_idx: int) -> str:
+    """Apply count-and-percentage merge semantics.
+
+    NA handling:
+    - NA in col_n -> result is NA
+    - NA in col_pct (but not col_n) -> show only col_n
+    - NA in both -> result is NA
+    - Zero in col_n (original value) -> show only "0" (no percentage)
+    """
+    col_n = values[0]
+    col_pct = values[1]
+
+    # If the count is missing, the result is always missing
+    if col_n is None:
+        return ""
+
+    # Check if the original value of col_n is zero
+    original_n = _get_cell(tbl_data, row_idx, vars[0])
+    try:
+        if float(original_n) == 0:
+            return str(col_n)
+    except (TypeError, ValueError):
+        pass
+
+    if col_pct is None:
+        return str(col_n)
+
+    return f"{col_n} ({col_pct})"

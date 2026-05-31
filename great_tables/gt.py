@@ -57,6 +57,9 @@ from ._source_notes import tab_source_note
 from ._spanners import (
     cols_hide,
     cols_merge,
+    cols_merge_n_pct,
+    cols_merge_range,
+    cols_merge_uncert,
     cols_move,
     cols_move_to_end,
     cols_move_to_start,
@@ -269,6 +272,9 @@ class GT(
     cols_label = cols_label
     cols_label_with = cols_label_with
     cols_merge = cols_merge
+    cols_merge_uncert = cols_merge_uncert
+    cols_merge_range = cols_merge_range
+    cols_merge_n_pct = cols_merge_n_pct
     cols_move = cols_move
     cols_move_to_start = cols_move_to_start
     cols_move_to_end = cols_move_to_end

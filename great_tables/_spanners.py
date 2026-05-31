@@ -1211,6 +1211,442 @@ def cols_merge(
     return result._replace(_col_merge=[*result._col_merge, col_merge_entry])
 
 
+def cols_merge_uncert(
+    self: GTSelf,
+    col_val: SelectExpr,
+    col_uncert: SelectExpr,
+    rows: int | list[int] | None = None,
+    sep: str = " +/- ",
+    autohide: bool = True,
+) -> GTSelf:
+    """Merge columns to a value-with-uncertainty column.
+
+    `cols_merge_uncert()` is a specialized variant of `cols_merge()`. It takes as input a base
+    value column (`col_val`) and either: (1) a single uncertainty column, or (2) two columns
+    representing lower and upper uncertainty bounds. These columns will be essentially merged into a
+    single column (that of `col_val`). What results is a column with values and associated
+    uncertainties, and any columns specified in `col_uncert` are hidden from appearing in the output
+    table.
+
+    Parameters
+    ----------
+    col_val
+        The column that contains values for the base measurement. While column selection
+        expressions can be used, it's recommended that a single column name be used to ensure that
+        exactly one column is provided here.
+    col_uncert
+        The column or columns that contain uncertainty values. The most common case involves
+        supplying a single column with uncertainties; these values will be combined with those in
+        `col_val`. Less commonly, the lower and upper uncertainty bounds may be different. For that
+        case, two columns representing the lower and upper uncertainty values away from `col_val`,
+        respectively, should be provided as a list.
+    rows
+        In conjunction with `col_val`, we can specify which rows should participate in the merging
+        process. The default is all rows. Alternatively, we can supply a list of row indices.
+    sep
+        The separator text that contains the uncertainty mark for a single uncertainty value. The
+        default value of `" +/- "` indicates that an appropriate plus/minus mark will be used
+        depending on the output context. The plus/minus symbol (±) is used in HTML output.
+    autohide
+        An option to automatically hide any columns specified in `col_uncert`. Any columns with
+        their state changed to hidden will behave the same as before, they just won't be displayed
+        in the finalized table. Defaults to `True`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Details
+    -------
+    ### Specialized NA handling
+
+    This function employs specialized semantics for missing value handling that differ from the
+    generic `cols_merge()`:
+
+    1. Missing values in `col_val` result in missing values for the merged column (e.g.,
+       `NA` + `0.1` = `NA`)
+    2. Missing values in `col_uncert` (but not `col_val`) result in base values only for the
+       merged column (e.g., `12.0` + `NA` = `12.0`)
+    3. Missing values in both `col_val` and `col_uncert` result in missing values for the merged
+       column (e.g., `NA` + `NA` = `NA`)
+
+    Examples
+    --------
+    Use the `exibble` dataset to create a simple, two-column table. Merge the `currency` and `num`
+    columns together as a value with uncertainty.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import exibble
+    import polars as pl
+
+    exibble_mini = (
+        pl.from_pandas(exibble)
+        .select("num", "currency")
+        .slice(0, 7)
+    )
+
+    (
+        GT(exibble_mini)
+        .fmt_number(columns="num", decimals=3, use_seps=False)
+        .cols_merge_uncert(col_val="currency", col_uncert="num")
+        .cols_label(currency="value + uncert.")
+    )
+    ```
+
+    When there are missing values in the uncertainty column, the merged result shows only the base
+    value. When the base value itself is missing, the entire merged cell is empty.
+
+    ```{python}
+    df = pl.DataFrame({
+        "measurement": [12.5, 8.3, 15.0, 9.7],
+        "error": [0.2, None, 0.5, None],
+    })
+
+    (
+        GT(df)
+        .fmt_number(columns="error", decimals=2)
+        .cols_merge_uncert(col_val="measurement", col_uncert="error")
+        .cols_label(measurement="Measurement")
+    )
+    ```
+    """
+    # Resolve the col_val column
+    col_val_resolved = resolve_cols_c(data=self, expr=col_val)
+    if len(col_val_resolved) != 1:
+        raise ValueError(
+            f"Column `col_val` must resolve to exactly one column, got {len(col_val_resolved)}."
+        )
+
+    # Resolve the col_uncert column(s)
+    col_uncert_resolved = resolve_cols_c(data=self, expr=col_uncert)
+    if len(col_uncert_resolved) < 1 or len(col_uncert_resolved) > 2:
+        raise ValueError(
+            f"Column `col_uncert` must resolve to one or two columns, "
+            f"got {len(col_uncert_resolved)}."
+        )
+
+    # Build the full column list: [col_val, col_uncert_1, (col_uncert_2)]
+    columns_resolved = col_val_resolved + col_uncert_resolved
+
+    # Resolve rows
+    row_res = resolve_rows_i(self, rows)
+    row_pos = [name_pos[1] for name_pos in row_res]
+
+    # Process the separator: convert " +/- " to the ± symbol for display
+    if sep == " +/- ":
+        display_sep = " \u00b1 "
+    else:
+        display_sep = sep
+
+    # Hide the uncertainty column(s) if autohide is True
+    result = self
+    if autohide:
+        result = cols_hide(result, columns=col_uncert_resolved)
+
+    # Create column merge entry
+    col_merge_entry = ColMergeInfo(
+        vars=columns_resolved,
+        rows=row_pos,
+        type="merge_uncert",
+        pattern="",
+        sep=display_sep,
+    )
+
+    return result._replace(_col_merge=[*result._col_merge, col_merge_entry])
+
+
+def cols_merge_range(
+    self: GTSelf,
+    col_begin: SelectExpr,
+    col_end: SelectExpr,
+    rows: int | list[int] | None = None,
+    sep: str | None = None,
+    autohide: bool = True,
+    locale: str | None = None,
+) -> GTSelf:
+    """Merge two columns to a value range column.
+
+    `cols_merge_range()` is a specialized variant of `cols_merge()`. It operates by taking two
+    columns that constitute a range of values (`col_begin` and `col_end`) and merges them into a
+    single column. What results is a column containing both values separated by an en dash (or a
+    custom separator). The column specified in `col_end` is dropped from the output table.
+
+    Parameters
+    ----------
+    col_begin
+        The column that contains values for the start of the range. While column selection
+        expressions can be used, it's recommended that a single column name be used to ensure that
+        exactly one column is provided here.
+    col_end
+        The column that contains values for the end of the range. While column selection
+        expressions can be used, it's recommended that a single column name be used to ensure that
+        exactly one column is provided here.
+    rows
+        In conjunction with `col_begin`, we can specify which rows should participate in the
+        merging process. The default is all rows. Alternatively, we can supply a list of row
+        indices.
+    sep
+        The separator text that indicates the values are ranged. If not provided, an en dash
+        (`"–"`) will be used. You can use `"--"` for an en dash or `"---"` for an em dash.
+    autohide
+        An option to automatically hide the column specified as `col_end`. Any columns with their
+        state changed to hidden will behave the same as before, they just won't be displayed in
+        the finalized table. Defaults to `True`.
+    locale
+        An optional locale identifier that can be used for applying a separator pattern specific to
+        a locale's rules. Currently reserved for future use.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Details
+    -------
+    ### Specialized NA handling
+
+    This function employs specialized semantics for missing value handling that differ from the
+    generic `cols_merge()`:
+
+    1. Missing values in `col_begin` (but not `col_end`) result in a display of only the
+       `col_end` value
+    2. Missing values in `col_end` (but not `col_begin`) result in a display of only the
+       `col_begin` value
+    3. Missing values in both `col_begin` and `col_end` result in missing values for the merged
+       column
+
+    Examples
+    --------
+    Use a subset of the `gtcars` dataset to create a table. Merge the `mpg_c` and `mpg_h` columns
+    together as a range.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import gtcars
+    import polars as pl
+
+    gtcars_mini = (
+        pl.from_pandas(gtcars)
+        .select("model", "mpg_c", "mpg_h")
+        .slice(0, 8)
+    )
+
+    (
+        GT(gtcars_mini)
+        .cols_merge_range(col_begin="mpg_c", col_end="mpg_h")
+        .cols_label(mpg_c="MPG")
+    )
+    ```
+
+    When there are missing values, the merged result gracefully degrades: if only one side is
+    missing, the other value is shown alone (without a separator). A custom separator can be
+    provided via the `sep=` argument.
+
+    ```{python}
+    df = pl.DataFrame({
+        "city": ["NYC", "LA", "CHI", "HOU"],
+        "temp_low": [28, 55, None, 45],
+        "temp_high": [35, None, 50, 60],
+    })
+
+    (
+        GT(df)
+        .cols_merge_range(col_begin="temp_low", col_end="temp_high", sep=" to ")
+        .cols_label(temp_low="Temp. Range (°F)")
+    )
+    ```
+    """
+    # Resolve the col_begin column
+    col_begin_resolved = resolve_cols_c(data=self, expr=col_begin)
+    if len(col_begin_resolved) != 1:
+        raise ValueError(
+            f"Column `col_begin` must resolve to exactly one column, "
+            f"got {len(col_begin_resolved)}."
+        )
+
+    # Resolve the col_end column
+    col_end_resolved = resolve_cols_c(data=self, expr=col_end)
+    if len(col_end_resolved) != 1:
+        raise ValueError(
+            f"Column `col_end` must resolve to exactly one column, " f"got {len(col_end_resolved)}."
+        )
+
+    # Build the full column list
+    columns_resolved = col_begin_resolved + col_end_resolved
+
+    # Resolve rows
+    row_res = resolve_rows_i(self, rows)
+    row_pos = [name_pos[1] for name_pos in row_res]
+
+    # Process separator
+    if sep is None:
+        display_sep = "\u2013"
+    elif sep == "--":
+        display_sep = "\u2013"
+    elif sep == "---":
+        display_sep = "\u2014"
+    else:
+        display_sep = sep
+
+    # Hide the end column if autohide is True
+    result = self
+    if autohide:
+        result = cols_hide(result, columns=col_end_resolved)
+
+    # Create column merge entry
+    col_merge_entry = ColMergeInfo(
+        vars=columns_resolved,
+        rows=row_pos,
+        type="merge_range",
+        pattern="",
+        sep=display_sep,
+    )
+
+    return result._replace(_col_merge=[*result._col_merge, col_merge_entry])
+
+
+def cols_merge_n_pct(
+    self: GTSelf,
+    col_n: SelectExpr,
+    col_pct: SelectExpr,
+    rows: int | list[int] | None = None,
+    autohide: bool = True,
+) -> GTSelf:
+    """Merge two columns to combine counts and percentages.
+
+    `cols_merge_n_pct()` is a specialized variant of `cols_merge()`. It operates by taking two
+    columns that constitute both a count (`col_n`) and a fraction of the total population
+    (`col_pct`) and merges them into a single column. What results is a column containing both
+    counts and their associated percentages (e.g., `12 (23.2%)`). The column specified in
+    `col_pct` is dropped from the output table.
+
+    Parameters
+    ----------
+    col_n
+        The column that contains values for the count component. While column selection expressions
+        can be used, it's recommended that a single column name be used to ensure that exactly one
+        column is provided here.
+    col_pct
+        The column that contains values for the percentage component. While column selection
+        expressions can be used, it's recommended that a single column name be used to ensure that
+        exactly one column is provided here. This column should be formatted such that percentages
+        are displayed (e.g., with `fmt_percent()`).
+    rows
+        In conjunction with `col_n`, we can specify which rows should participate in the merging
+        process. The default is all rows. Alternatively, we can supply a list of row indices.
+    autohide
+        An option to automatically hide the column specified as `col_pct`. Any columns with their
+        state changed to hidden will behave the same as before, they just won't be displayed in
+        the finalized table. Defaults to `True`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Details
+    -------
+    ### Specialized NA and zero-value handling
+
+    This function employs specialized semantics for missing value and zero-value handling:
+
+    1. Missing values in `col_n` result in missing values for the merged column (e.g.,
+       `NA` + `10.2%` = `NA`)
+    2. Missing values in `col_pct` (but not `col_n`) result in base values only for the merged
+       column (e.g., `13` + `NA` = `13`)
+    3. Missing values in both `col_n` and `col_pct` result in missing values for the merged
+       column (e.g., `NA` + `NA` = `NA`)
+    4. If a zero (`0`) value is in `col_n` then the formatted output will be `"0"` (i.e., no
+       percentage will be shown)
+
+    It is the responsibility of the user to ensure that values are correct in both the `col_n` and
+    `col_pct` columns (this function neither generates nor recalculates values in either).
+    Formatting of each column can be done independently in separate `fmt_number()` and
+    `fmt_percent()` calls.
+
+    Examples
+    --------
+    Create a simple table with counts and percentages, then merge them.
+
+    ```{python}
+    from great_tables import GT
+    import polars as pl
+
+    df = pl.DataFrame({
+        "category": ["A", "B", "C"],
+        "n": [10, 20, 30],
+        "pct": [0.167, 0.333, 0.500],
+    })
+
+    (
+        GT(df)
+        .fmt_percent(columns="pct")
+        .cols_merge_n_pct(col_n="n", col_pct="pct")
+        .cols_label(n="Count (%)")
+    )
+    ```
+
+    Zero values in the count column suppress the percentage display. Missing values in the
+    percentage column result in just the count being shown, and missing counts produce empty cells.
+
+    ```{python}
+    df = pl.DataFrame({
+        "item": ["Alpha", "Beta", "Gamma", "Delta"],
+        "count": [15, 0, 8, None],
+        "frac": [0.375, 0.0, None, 0.125],
+    })
+
+    (
+        GT(df)
+        .fmt_percent(columns="frac", decimals=1)
+        .cols_merge_n_pct(col_n="count", col_pct="frac")
+        .cols_label(count="N (%)")
+    )
+    ```
+    """
+    # Resolve the col_n column
+    col_n_resolved = resolve_cols_c(data=self, expr=col_n)
+    if len(col_n_resolved) != 1:
+        raise ValueError(
+            f"Column `col_n` must resolve to exactly one column, got {len(col_n_resolved)}."
+        )
+
+    # Resolve the col_pct column
+    col_pct_resolved = resolve_cols_c(data=self, expr=col_pct)
+    if len(col_pct_resolved) != 1:
+        raise ValueError(
+            f"Column `col_pct` must resolve to exactly one column, got {len(col_pct_resolved)}."
+        )
+
+    # Build the full column list
+    columns_resolved = col_n_resolved + col_pct_resolved
+
+    # Resolve rows
+    row_res = resolve_rows_i(self, rows)
+    row_pos = [name_pos[1] for name_pos in row_res]
+
+    # Hide the percentage column if autohide is True
+    result = self
+    if autohide:
+        result = cols_hide(result, columns=col_pct_resolved)
+
+    # Create column merge entry
+    col_merge_entry = ColMergeInfo(
+        vars=columns_resolved,
+        rows=row_pos,
+        type="merge_n_pct",
+        pattern="",
+        sep="",
+    )
+
+    return result._replace(_col_merge=[*result._col_merge, col_merge_entry])
+
+
 def cols_reorder(self: GTSelf, columns: SelectExpr) -> GTSelf:
     """Reorder all columns in a specified order.
 
