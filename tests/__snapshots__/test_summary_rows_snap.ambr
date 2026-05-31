@@ -1,0 +1,1841 @@
+# serializer version: 1
+# name: TestCombinedSummaryHtmlSnap.test_both_summary_and_grand
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+    <tr>
+      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Sum</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestCombinedSummaryHtmlSnap.test_both_summary_and_grand_groups_as_column
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">A</th>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row" colspan="2">Group Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">B</th>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row" colspan="2">Group Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2">Grand Sum</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestCombinedSummaryHtmlSnap.test_both_summary_bottom_grand_top
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Min</th>
+      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">1</td>
+      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">10</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Max</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Max</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestCombinedSummaryHtmlSnap.test_both_summary_top_grand_bottom
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Min</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">1</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">10</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Min</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">4</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">40</td>
+    </tr>
+    <tr>
+      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Max</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">6</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">60</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestCombinedSummaryHtmlSnap.test_multiple_fns_both_levels
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">1</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <td class="gt_row gt_right gt_summary_row">3</td>
+      <td class="gt_row gt_right gt_summary_row">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">2.0</td>
+      <td class="gt_row gt_right gt_summary_row">20.0</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">4</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <td class="gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">5.0</td>
+      <td class="gt_row gt_right gt_summary_row">50.0</td>
+    </tr>
+    <tr>
+      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Overall Min</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">1</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row">Overall Max</th>
+      <td class="gt_row gt_right gt_grand_summary_row">6</td>
+      <td class="gt_row gt_right gt_grand_summary_row">60</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestCombinedSummaryHtmlSnap.test_with_formatting_both_levels
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">2.00</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">20.00</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">5.00</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">50.00</td>
+    </tr>
+    <tr>
+      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Mean</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">3.50</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">35.00</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestCombinedSummaryLatexSnap.test_both_summary_and_grand
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Group Sum & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Group Sum & 15 & 150 \\
+  \midrule\addlinespace[2.5pt]
+  Grand Sum & 21 & 210 \\
+  '''
+# ---
+# name: TestCombinedSummaryLatexSnap.test_both_summary_and_grand_groups_as_column
+  '''
+  A & r1 & 1 & 10 \\
+   & r2 & 2 & 20 \\
+   & r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{2}{l}{Group Sum} & 6 & 60 \\
+  B & r4 & 4 & 40 \\
+   & r5 & 5 & 50 \\
+   & r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{2}{l}{Group Sum} & 15 & 150 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{2}{l}{Grand Sum} & 21 & 210 \\
+  '''
+# ---
+# name: TestCombinedSummaryLatexSnap.test_both_summary_top_grand_bottom
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Group Min & 1 & 10 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Group Min & 4 & 40 \\
+  \midrule\addlinespace[2.5pt]
+  Grand Max & 6 & 60 \\
+  '''
+# ---
+# name: TestCombinedSummaryLatexSnap.test_multiple_fns_both_levels
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Min & 1 & 10 \\
+  Max & 3 & 30 \\
+  Mean & 2.0 & 20.0 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Min & 4 & 40 \\
+  Max & 6 & 60 \\
+  Mean & 5.0 & 50.0 \\
+  \midrule\addlinespace[2.5pt]
+  Overall Min & 1 & 10 \\
+  Overall Max & 6 & 60 \\
+  '''
+# ---
+# name: TestCombinedSummaryLatexSnap.test_with_formatting_both_levels
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Mean & 2.00 & 20.00 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Mean & 5.00 & 50.00 \\
+  \midrule\addlinespace[2.5pt]
+  Grand Mean & 3.50 & 35.00 \\
+  '''
+# ---
+# name: TestFullLatexRender.test_full_latex_both_summaries
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rr}
+  \toprule
+    & x & y \\ 
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Group Sum & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Group Sum & 15 & 150 \\
+  \midrule\addlinespace[2.5pt]
+  Grand Sum & 21 & 210 \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
+# name: TestFullLatexRender.test_full_latex_grand_summary_rows
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rr}
+  \toprule
+    & x & y \\ 
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 21 & 210 \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
+# name: TestFullLatexRender.test_full_latex_groups_as_column_both
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}ll|rr}
+  \toprule
+    &   & x & y \\ 
+  \midrule\addlinespace[2.5pt]
+  A & r1 & 1 & 10 \\
+   & r2 & 2 & 20 \\
+   & r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{2}{l}{Group Sum} & 6 & 60 \\
+  B & r4 & 4 & 40 \\
+   & r5 & 5 & 50 \\
+   & r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{2}{l}{Group Sum} & 15 & 150 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{2}{l}{Grand Sum} & 21 & 210 \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
+# name: TestFullLatexRender.test_full_latex_summary_rows
+  '''
+  \begin{table}[!t]
+  
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rr}
+  \toprule
+    & x & y \\ 
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 6.00 & 60.00 \\
+  Mean & 2.00 & 20.00 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 15.00 & 150.00 \\
+  Mean & 5.00 & 50.00 \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
+# name: TestGrandSummaryRowsHtmlSnap.test_grand_no_groups_no_stub
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">6</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_grand_summary_row">2.0</td>
+      <td class="gt_row gt_right gt_grand_summary_row">20.0</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestGrandSummaryRowsHtmlSnap.test_grand_side_both
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Min</th>
+      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">1</td>
+      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">10</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Max</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">6</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">60</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestGrandSummaryRowsHtmlSnap.test_grand_side_top
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
+      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">21</td>
+      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">210</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestGrandSummaryRowsHtmlSnap.test_grand_with_groups_as_column
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">A</th>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">B</th>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2">Sum</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestGrandSummaryRowsHtmlSnap.test_grand_with_groups_spanning
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestGrandSummaryRowsHtmlSnap.test_grand_with_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <th class="gt_row gt_left gt_stub">a</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">b</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">c</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">6</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">60</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestGrandSummaryRowsLatexSnap.test_grand_no_groups_no_stub
+  '''
+   & 1 & 10 \\
+   & 2 & 20 \\
+   & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 6 & 60 \\
+  Mean & 2.0 & 20.0 \\
+  '''
+# ---
+# name: TestGrandSummaryRowsLatexSnap.test_grand_side_both
+  '''
+  Min & 1 & 10 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Max & 6 & 60 \\
+  '''
+# ---
+# name: TestGrandSummaryRowsLatexSnap.test_grand_side_top
+  '''
+  Sum & 21 & 210 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  '''
+# ---
+# name: TestGrandSummaryRowsLatexSnap.test_grand_with_groups_as_column
+  '''
+  A & r1 & 1 & 10 \\
+   & r2 & 2 & 20 \\
+   & r3 & 3 & 30 \\
+  B & r4 & 4 & 40 \\
+   & r5 & 5 & 50 \\
+   & r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{2}{l}{Sum} & 21 & 210 \\
+  '''
+# ---
+# name: TestGrandSummaryRowsLatexSnap.test_grand_with_groups_spanning
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 21 & 210 \\
+  '''
+# ---
+# name: TestGrandSummaryRowsLatexSnap.test_grand_with_rowname
+  '''
+  a & 1 & 10 \\
+  b & 2 & 20 \\
+  c & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 6 & 60 \\
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_groups_as_column_no_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">A</th>
+      <td class="gt_row gt_left">r1</td>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">r2</td>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">r3</td>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row" colspan="1">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_left gt_summary_row">---</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">B</th>
+      <td class="gt_row gt_left">r4</td>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">r5</td>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left">r6</td>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row" colspan="1">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_left gt_summary_row">---</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_groups_as_column_with_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">A</th>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row" colspan="2">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row" colspan="2">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">2.0</td>
+      <td class="gt_row gt_right gt_summary_row">20.0</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">B</th>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row" colspan="2">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row" colspan="2">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">5.0</td>
+      <td class="gt_row gt_right gt_summary_row">50.0</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_groups_only_no_stub
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="4">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_left">r1</td>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_left">r2</td>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_left">r3</td>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_left gt_summary_row">---</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="4">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_left">r4</td>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_left">r5</td>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_left">r6</td>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_left gt_summary_row">---</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_groups_with_rowname
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">2.0</td>
+      <td class="gt_row gt_right gt_summary_row">20.0</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">5.0</td>
+      <td class="gt_row gt_right gt_summary_row">50.0</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_summary_selective_groups
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">C</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">5</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">50</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_summary_side_both
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">1</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <td class="gt_row gt_right gt_summary_row">3</td>
+      <td class="gt_row gt_right gt_summary_row">30</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">4</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <td class="gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_row gt_right gt_summary_row">60</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_summary_side_top
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_summary_three_groups
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">1.5</td>
+      <td class="gt_row gt_right gt_summary_row">15.0</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">7</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">3.5</td>
+      <td class="gt_row gt_right gt_summary_row">35.0</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">C</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">5</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">5.0</td>
+      <td class="gt_row gt_right gt_summary_row">50.0</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_summary_with_fmt
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">2.00</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">20.00</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">5.00</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">50.00</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsHtmlSnap.test_summary_with_missing_text
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_left">foo</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_left">bar</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
+      <td class="gt_first_summary_row gt_row gt_left gt_summary_row">--</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_left">baz</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_left">qux</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">7</td>
+      <td class="gt_first_summary_row gt_row gt_left gt_summary_row">--</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsLatexSnap.test_groups_as_column_no_rowname
+  '''
+  A & r1 & 1 & 10 \\
+   & r2 & 2 & 20 \\
+   & r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & --- & 6 & 60 \\
+  B & r4 & 4 & 40 \\
+   & r5 & 5 & 50 \\
+   & r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & --- & 15 & 150 \\
+  '''
+# ---
+# name: TestSummaryRowsLatexSnap.test_groups_as_column_with_rowname
+  '''
+  A & r1 & 1 & 10 \\
+   & r2 & 2 & 20 \\
+   & r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{2}{l}{Sum} & 6 & 60 \\
+  \multicolumn{2}{l}{Mean} & 2.0 & 20.0 \\
+  B & r4 & 4 & 40 \\
+   & r5 & 5 & 50 \\
+   & r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{2}{l}{Sum} & 15 & 150 \\
+  \multicolumn{2}{l}{Mean} & 5.0 & 50.0 \\
+  '''
+# ---
+# name: TestSummaryRowsLatexSnap.test_groups_only_no_stub
+  '''
+  \multicolumn{4}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+   & r1 & 1 & 10 \\
+   & r2 & 2 & 20 \\
+   & r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & --- & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{4}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+   & r4 & 4 & 40 \\
+   & r5 & 5 & 50 \\
+   & r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & --- & 15 & 150 \\
+  '''
+# ---
+# name: TestSummaryRowsLatexSnap.test_groups_with_rowname
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 6 & 60 \\
+  Mean & 2.0 & 20.0 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 15 & 150 \\
+  Mean & 5.0 & 50.0 \\
+  '''
+# ---
+# name: TestSummaryRowsLatexSnap.test_summary_selective_groups
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r3 & 3 & 30 \\
+  r4 & 4 & 40 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{C} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r5 & 5 & 50 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 5 & 50 \\
+  '''
+# ---
+# name: TestSummaryRowsLatexSnap.test_summary_side_both
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Min & 1 & 10 \\
+  Max & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Min & 4 & 40 \\
+  Max & 6 & 60 \\
+  '''
+# ---
+# name: TestSummaryRowsLatexSnap.test_summary_side_top
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 15 & 150 \\
+  '''
+# ---
+# name: TestSummaryRowsLatexSnap.test_summary_three_groups
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 3 & 30 \\
+  Mean & 1.5 & 15.0 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r3 & 3 & 30 \\
+  r4 & 4 & 40 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 7 & 70 \\
+  Mean & 3.5 & 35.0 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{C} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r5 & 5 & 50 \\
+  \midrule\addlinespace[2.5pt]
+  Sum & 5 & 50 \\
+  Mean & 5.0 & 50.0 \\
+  '''
+# ---
+# name: TestSummaryRowsLatexSnap.test_summary_with_fmt
+  '''
+  \multicolumn{3}{l}{A} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r1 & 1 & 10 \\
+  r2 & 2 & 20 \\
+  r3 & 3 & 30 \\
+  \midrule\addlinespace[2.5pt]
+  Mean & 2.00 & 20.00 \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  r4 & 4 & 40 \\
+  r5 & 5 & 50 \\
+  r6 & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
+  Mean & 5.00 & 50.00 \\
+  '''
+# ---
+# name: TestSummaryRowsPolarsHtmlSnap.test_polars_basic
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">2.0</td>
+      <td class="gt_row gt_right gt_summary_row">20.0</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <td class="gt_row gt_right gt_summary_row">5.0</td>
+      <td class="gt_row gt_right gt_summary_row">50.0</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsPolarsHtmlSnap.test_polars_combined
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+    <tr>
+      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Sum</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: TestSummaryRowsPolarsHtmlSnap.test_polars_groups_as_column
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">A</th>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row" colspan="2">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr>
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">B</th>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r5</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r6</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row" colspan="2">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+  </tbody>
+  '''
+# ---

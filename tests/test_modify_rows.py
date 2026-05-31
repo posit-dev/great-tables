@@ -317,3 +317,159 @@ def test_grand_summary_rows_raises_columns_not_implemented():
         "Currently, grand_summary_rows() does not support column selection."
         in exc_info.value.args[0]
     )
+
+
+# summary_rows tests ----
+
+
+def test_summary_rows_snap(snapshot):
+    for Frame in [pd.DataFrame, pl.DataFrame]:
+        df = Frame({"group": ["A", "A", "B", "B"], "x": [1, 2, 3, 4], "y": [10, 20, 30, 40]})
+
+        if isinstance(df, pd.DataFrame):
+
+            def sum_expr(df):
+                return df.sum(numeric_only=True)
+
+            def mean_expr_pd(df):
+                return df.mean(numeric_only=True)
+
+            res = GT(df, groupname_col="group").summary_rows(
+                fns={"Sum": sum_expr, "Average": mean_expr_pd}
+            )
+        else:
+            res = GT(df, groupname_col="group").summary_rows(
+                fns={"Sum": pl.col("x", "y").sum(), "Average": pl.col("x", "y").mean()}
+            )
+
+        assert_rendered_body(snapshot(name="pd_and_pl"), res)
+
+
+def test_summary_rows_with_rowname_snap(snapshot):
+    df = pd.DataFrame(
+        {"group": ["A", "A", "B", "B"], "row": ["a1", "a2", "b1", "b2"], "x": [1, 2, 3, 4]}
+    )
+
+    res = GT(df, rowname_col="row", groupname_col="group").summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)}
+    )
+
+    assert_rendered_body(snapshot, res)
+
+
+def test_summary_rows_with_groups_param():
+    df = pd.DataFrame(
+        {
+            "group": ["A", "A", "B", "B", "C", "C"],
+            "x": [1, 2, 3, 4, 5, 6],
+        }
+    )
+
+    res = GT(df, groupname_col="group").summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        groups=["A", "C"],
+    )
+    html = render_only_body(res)
+
+    # Group A and C should have summary rows
+    assert html.count("gt_summary_row") > 0
+    # Should not have summary row values for group B (sum would be 7)
+    assert "gt_first_summary_row" in html
+
+
+def test_summary_rows_side_top():
+    df = pd.DataFrame({"group": ["A", "A"], "x": [1, 2]})
+
+    res = GT(df, groupname_col="group").summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        side="top",
+    )
+    html = render_only_body(res)
+
+    assert "gt_summary_row" in html
+    assert "gt_first_summary_row" in html
+
+
+def test_summary_rows_with_fmt():
+    df = pd.DataFrame({"group": ["A", "A"], "x": [1, 3]})
+
+    res = GT(df, groupname_col="group").summary_rows(
+        fns={"Average": lambda df: df.mean(numeric_only=True)},
+        fmt=vals.fmt_integer,
+    )
+    html = render_only_body(res)
+
+    assert 'gt_summary_row">2</td>' in html
+    assert 'gt_summary_row">2.0</td>' not in html
+
+
+def test_summary_rows_with_missing_text():
+    df = pd.DataFrame({"group": ["A", "A"], "x": [1, 2], "non_numeric": ["a", "b"]})
+
+    res = GT(df, groupname_col="group").summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        missing_text="N/A",
+    )
+    html = render_only_body(res)
+
+    assert "N/A" in html
+
+
+def test_summary_rows_raises_no_groups():
+    df = pd.DataFrame({"x": [1, 2]})
+
+    with pytest.raises(ValueError) as exc_info:
+        GT(df).summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)})
+
+    assert "requires row groups" in exc_info.value.args[0]
+
+
+def test_summary_rows_raises_columns_not_implemented():
+    df = pd.DataFrame({"group": ["A", "A"], "x": [1, 2]})
+
+    with pytest.raises(NotImplementedError) as exc_info:
+        GT(df, groupname_col="group").summary_rows(
+            fns={"Sum": lambda df: df.sum(numeric_only=True)},
+            columns="x",
+        )
+
+    assert "does not support column selection" in exc_info.value.args[0]
+
+
+def test_summary_rows_with_style():
+    df = pd.DataFrame({"group": ["A", "A"], "x": [1, 2], "y": [3, 4]})
+
+    res = (
+        GT(df, groupname_col="group")
+        .summary_rows(
+            fns={"Sum": lambda df: df.sum(numeric_only=True)},
+            fmt=vals.fmt_integer,
+        )
+        .tab_style(
+            style=[style.text(color="red")],
+            locations=loc.summary(),
+        )
+    )
+    html = render_only_body(res)
+
+    assert "color: red;" in html
+    assert "gt_summary_row" in html
+
+
+def test_summary_rows_with_stub_style():
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    res = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(
+            fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        )
+        .tab_style(
+            style=[style.text(weight="bold")],
+            locations=loc.summary_stub(),
+        )
+    )
+    html = render_only_body(res)
+
+    assert "font-weight: bold;" in html
+    assert "gt_summary_row" in html
