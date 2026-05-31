@@ -657,9 +657,16 @@ def create_body_component_h(data: GTData) -> str:
                 ]
                 group_label = _apply_footnotes_to_text(footnotes_group, data, group_label)
 
+                # Get top summary rows for this group (needed for rowspan calculation)
+                top_summary_rows_for_group = (
+                    data._summary_rows.get_summary_rows(group_id=group_info.group_id, side="top")
+                    if data._summary_rows
+                    else []
+                )
+
                 # Add group label that spans multiple columns when row_group_as_column is true
                 if has_group_stub_column:
-                    rowspan_value = len(group_info.indices)
+                    rowspan_value = len(group_info.indices) + len(top_summary_rows_for_group)
 
                     leading_cell = f"""  <th{group_styles} class="gt_row gt_left gt_stub_row_group"
     rowspan="{rowspan_value}">{group_label}</th>"""
@@ -680,6 +687,28 @@ def create_body_component_h(data: GTData) -> str:
 
                     body_rows.append(group_row)
 
+                # Render top summary rows immediately after the group heading
+                if data._summary_rows and top_summary_rows_for_group:
+                    for si, summary_row in enumerate(top_summary_rows_for_group):
+                        row_html = _create_row_component_h(
+                            column_vars=column_vars,
+                            row_stub_var=row_stub_var,
+                            has_row_stub_column=has_row_stub_column,
+                            has_group_stub_column=has_group_stub_column,
+                            apply_stub_striping=False,
+                            apply_body_striping=False,
+                            styles_cells=styles_summary,
+                            styles_labels=styles_summary_label,
+                            row_index=si,
+                            summary_row=summary_row,
+                            css_class="gt_last_summary_row_top"
+                            if si == len(top_summary_rows_for_group) - 1
+                            else None,
+                            data=data,
+                            summary_group_id=group_info.group_id,
+                        )
+                        body_rows.append(row_html)
+
         # Create data row
         row_html = _create_row_component_h(
             column_vars=column_vars,
@@ -699,7 +728,7 @@ def create_body_component_h(data: GTData) -> str:
 
         prev_group_info = group_info
 
-        # After the last row in the group, append the summary rows for the group
+        # After the last row in the group, append the bottom summary rows
         if has_groups and group_info is not None and data._summary_rows:
             # Determine if this is the last row of the current group
             is_last_in_group = (
@@ -708,28 +737,6 @@ def create_body_component_h(data: GTData) -> str:
 
             if is_last_in_group:
                 group_id = group_info.group_id
-
-                # Add top summary rows for this group
-                top_summary_rows = data._summary_rows.get_summary_rows(
-                    group_id=group_id, side="top"
-                )
-                for si, summary_row in enumerate(top_summary_rows):
-                    row_html = _create_row_component_h(
-                        column_vars=column_vars,
-                        row_stub_var=row_stub_var,
-                        has_row_stub_column=has_row_stub_column,
-                        has_group_stub_column=has_group_stub_column,
-                        apply_stub_striping=False,
-                        apply_body_striping=False,
-                        styles_cells=styles_summary,
-                        styles_labels=styles_summary_label,
-                        row_index=si,
-                        summary_row=summary_row,
-                        css_class="gt_first_summary_row" if si == 0 else None,
-                        data=data,
-                        summary_group_id=group_id,
-                    )
-                    body_rows.append(row_html)
 
                 # Add bottom summary rows for this group
                 bottom_summary_rows = data._summary_rows.get_summary_rows(
@@ -745,11 +752,9 @@ def create_body_component_h(data: GTData) -> str:
                         apply_body_striping=False,
                         styles_cells=styles_summary,
                         styles_labels=styles_summary_label,
-                        row_index=si + len(top_summary_rows),
+                        row_index=si,
                         summary_row=summary_row,
-                        css_class="gt_first_summary_row"
-                        if si == 0 and not top_summary_rows
-                        else None,
+                        css_class="gt_first_summary_row" if si == 0 else None,
                         data=data,
                         summary_group_id=group_id,
                     )
