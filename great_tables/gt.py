@@ -71,7 +71,7 @@ from ._spanners import (
 )
 from ._stub import reorder_stub_df
 from ._stubhead import tab_stubhead
-from ._substitution import sub_missing, sub_zero
+from ._substitution import sub_large_vals, sub_missing, sub_small_vals, sub_values, sub_zero
 from ._tab_create_modify import tab_style
 from ._tbl_data import _get_cell, n_rows
 from ._utils import _migrate_unformatted_to_output
@@ -255,6 +255,9 @@ class GT(
 
     sub_missing = sub_missing
     sub_zero = sub_zero
+    sub_small_vals = sub_small_vals
+    sub_large_vals = sub_large_vals
+    sub_values = sub_values
 
     opt_stylize = opt_stylize
     opt_align_table_header = opt_align_table_header

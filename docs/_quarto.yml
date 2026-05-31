@@ -159,6 +159,9 @@ quartodoc:
         - GT.data_color
         - GT.sub_missing
         - GT.sub_zero
+        - GT.sub_small_vals
+        - GT.sub_large_vals
+        - GT.sub_values
     - title: Modifying columns
       desc: >
         The `cols_*()` methods allow for modifications that act on entire columns. This includes
