@@ -272,7 +272,7 @@ def summary_rows(
     ```
 
     We can also target specific groups by using the `groups=` parameter. Here we only show
-    summary rows for the `"BMW"` group:
+    summary rows for the `"Ferrari"` group:
 
     ```{python}
     (
@@ -281,7 +281,7 @@ def summary_rows(
             fns={
                 "Average": pl.col("hp", "trq").mean(),
             },
-            groups=["BMW"],
+            groups=["Ferrari"],
             fmt=vals.fmt_number,
         )
     )
