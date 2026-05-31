@@ -387,7 +387,7 @@ def test_summary_rows_side_top():
     html = render_only_body(res)
 
     assert "gt_summary_row" in html
-    assert "gt_first_summary_row" in html
+    assert "gt_last_summary_row_top" in html
 
 
 def test_summary_rows_with_fmt():

@@ -175,6 +175,11 @@
       <th class="gt_group_heading" colspan="3">A</th>
     </tr>
     <tr>
+      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Group Min</th>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">1</td>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">10</td>
+    </tr>
+    <tr>
       <th class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
@@ -189,13 +194,13 @@
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
-    <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Min</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">1</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">10</td>
-    </tr>
     <tr class="gt_group_heading_row">
       <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Group Min</th>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">4</td>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">40</td>
     </tr>
     <tr>
       <th class="gt_row gt_left gt_stub">r4</th>
@@ -211,11 +216,6 @@
       <th class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
-    </tr>
-    <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Min</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">4</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">40</td>
     </tr>
     <tr>
       <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Max</th>
@@ -1223,6 +1223,11 @@
       <th class="gt_group_heading" colspan="3">A</th>
     </tr>
     <tr>
+      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">1</td>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">10</td>
+    </tr>
+    <tr>
       <th class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
@@ -1238,17 +1243,17 @@
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">1</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">10</td>
-    </tr>
-    <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Max</th>
-      <td class="gt_row gt_right gt_summary_row">3</td>
-      <td class="gt_row gt_right gt_summary_row">30</td>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
     </tr>
     <tr class="gt_group_heading_row">
       <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">4</td>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">40</td>
     </tr>
     <tr>
       <th class="gt_row gt_left gt_stub">r4</th>
@@ -1266,14 +1271,9 @@
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">4</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">40</td>
-    </tr>
-    <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Max</th>
-      <td class="gt_row gt_right gt_summary_row">6</td>
-      <td class="gt_row gt_right gt_summary_row">60</td>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
   </tbody>
   '''
@@ -1285,6 +1285,11 @@
       <th class="gt_group_heading" colspan="3">A</th>
     </tr>
     <tr>
+      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr>
       <th class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
@@ -1299,13 +1304,13 @@
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
-    <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
-    </tr>
     <tr class="gt_group_heading_row">
       <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">150</td>
     </tr>
     <tr>
       <th class="gt_row gt_left gt_stub">r4</th>
@@ -1321,11 +1326,6 @@
       <th class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
-    </tr>
-    <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
     </tr>
   </tbody>
   '''
