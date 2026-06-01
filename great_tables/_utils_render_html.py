@@ -55,9 +55,9 @@ def _get_locnum_for_footnote_location(locname: loc.Loc | None) -> int | float:
 def _get_summary_locnum(data: GTData, fn_info: FootnoteInfo) -> int | float:
     """Get the locnum for a summary footnote, accounting for side positioning.
 
-    When summary rows are side="top", they appear visually before body rows,
-    so their locnum should be less than body (5.5 instead of 7).
-    Similarly for grand summary rows with side="top".
+    When summary rows are side="top", they appear visually before body rows.
+    Grand summary (top) appears above group summaries (top), which appear above body rows.
+    Row group labels visually attach to the first row of their group (summary top or body).
     """
     locnum = _get_locnum_for_footnote_location(fn_info.locname)
 
@@ -74,7 +74,7 @@ def _get_summary_locnum(data: GTData, fn_info: FootnoteInfo) -> int | float:
         # Determine the side of the specific summary row targeted by this footnote
         rownum = fn_info.rownum if fn_info.rownum is not None else 0
         if rownum < len(summary_rows) and summary_rows[rownum].side == "top":
-            return 5.5  # Before body (6), after column labels (5)
+            return 5.6  # After grand summary top (5.4), before body (6)
 
     elif isinstance(fn_info.locname, (loc.LocGrandSummaryStub, loc.LocGrandSummary)):
         # Grand summary: check side of the targeted grand summary row
@@ -84,7 +84,17 @@ def _get_summary_locnum(data: GTData, fn_info: FootnoteInfo) -> int | float:
 
         rownum = fn_info.rownum if fn_info.rownum is not None else 0
         if rownum < len(grand_summary_rows) and grand_summary_rows[rownum].side == "top":
-            return 5.5  # Before body (6), after column labels (5)
+            return 5.4  # Before group summary top (5.6) and body (6)
+
+    elif isinstance(fn_info.locname, loc.LocRowGroups):
+        # Row group labels visually appear on the same row as the first item in
+        # their group. When the group has top summary rows, the row group label
+        # is on the same row as the first top summary row.
+        group_id = fn_info.grpname
+        if group_id is not None:
+            summary_rows = data._summary_rows.get_summary_rows(group_id=group_id)
+            if summary_rows and summary_rows[0].side == "top":
+                return 5.6  # Same tier as group summary top (colnum -2 sorts left)
 
     return locnum
 
