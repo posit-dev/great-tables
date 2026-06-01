@@ -40,9 +40,9 @@ def _get_locnum_for_footnote_location(locname: loc.Loc | None) -> int | float:
         return 3
     elif isinstance(locname, (loc.LocColumnHeader, loc.LocSpannerLabels)):
         return 4
-    elif isinstance(locname, (loc.LocColumnLabels, loc.LocRowGroups)):
+    elif isinstance(locname, loc.LocColumnLabels):
         return 5
-    elif isinstance(locname, (loc.LocBody, loc.LocStub)):
+    elif isinstance(locname, (loc.LocBody, loc.LocStub, loc.LocRowGroups)):
         return 6
     elif isinstance(locname, (loc.LocSummaryStub, loc.LocSummary)):
         return 7
@@ -883,23 +883,38 @@ def _create_row_component_h(
             classes.append(css_class)
         classes_str = " ".join(classes)
 
+        # Apply footnotes to the summary stub label
+        stub_label = summary_row.id
+        if data is not None:
+            if is_group_summary:
+                footnotes_i = [
+                    x
+                    for x in data._footnotes
+                    if isinstance(x.locname, loc.LocSummaryStub)
+                    and x.rownum == row_index
+                    and x.grpname == summary_group_id
+                ]
+            else:
+                footnotes_i = [
+                    x
+                    for x in data._footnotes
+                    if isinstance(x.locname, loc.LocGrandSummaryStub) and x.rownum == row_index
+                ]
+            stub_label = _apply_footnotes_to_text(footnotes_i, data, stub_label)
+
         if is_group_summary:
             # Group summary rows are covered by the group label cell's rowspan,
             # so we only need a single stub cell for the summary label
-            body_cells.append(
-                f"""    <th{cell_styles} class="{classes_str}">{summary_row.id}</th>"""
-            )
+            body_cells.append(f"""    <th{cell_styles} class="{classes_str}">{stub_label}</th>""")
         elif has_row_stub_column:
             # Grand summary rows are outside any group and need colspan=2
             # to span across both the group stub column and the row stub column
             body_cells.append(
-                f"""    <th{cell_styles} class="{classes_str}" colspan="2">{summary_row.id}</th>"""
+                f"""    <th{cell_styles} class="{classes_str}" colspan="2">{stub_label}</th>"""
             )
         else:
             # Grand summary rows with only group stub column (no row stub)
-            body_cells.append(
-                f"""    <th{cell_styles} class="{classes_str}">{summary_row.id}</th>"""
-            )
+            body_cells.append(f"""    <th{cell_styles} class="{classes_str}">{stub_label}</th>""")
 
         # Skip stub columns in column_vars since we've already handled the stub
         column_vars_to_process = [column for column in column_vars if not column.is_stub]
@@ -1204,9 +1219,13 @@ def _process_footnotes_for_display(
         # Assign locnum based on visual hierarchy (summary side-aware)
         locnum = _get_summary_locnum(data, fn_info)
 
-        # Assign column number, with stub getting a lower value than data columns
-        if isinstance(fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)):
-            colnum = -1  # Stub appears before all data columns
+        # Assign column number, with row groups and stub getting lower values than data columns
+        if isinstance(fn_info.locname, loc.LocRowGroups):
+            colnum = -2  # Row group column is leftmost
+        elif isinstance(
+            fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)
+        ):
+            colnum = -1  # Stub appears before data columns but after row group column
         else:
             colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
         rownum = (
@@ -1347,9 +1366,13 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         # lower numbers appear first in reading order (summary side-aware)
         locnum = _get_summary_locnum(data, fn_info)
 
-        # Get colnum (column number) and assign stub a lower value than data columns
-        if isinstance(fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)):
-            colnum = -1  # Stub appears before all data columns
+        # Get colnum (column number) and assign row groups/stub lower values than data columns
+        if isinstance(fn_info.locname, loc.LocRowGroups):
+            colnum = -2  # Row group column is leftmost
+        elif isinstance(
+            fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)
+        ):
+            colnum = -1  # Stub appears before data columns but after row group column
         elif isinstance(fn_info.locname, loc.LocSpannerLabels):
             # For spanners, use the leftmost column index to ensure left-to-right ordering
             colnum = _get_spanner_leftmost_column_index(data, fn_info.grpname)
