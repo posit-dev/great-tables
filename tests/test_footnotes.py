@@ -1512,3 +1512,27 @@ def test_footnote_ordering_body_summary_grand_summary():
     assert marks[0][1].strip() == "Body note"
     assert marks[1][1].strip() == "Summary note"
     assert marks[2][1].strip() == "Grand summary note"
+
+
+def test_grand_summary_side_top_with_footnotes_snap(snapshot):
+    """Snapshot: grand_summary_rows(side='top') with footnotes on grand summary and body."""
+    df = pd.DataFrame(
+        {
+            "group": ["A", "A", "B", "B"],
+            "row": ["r1", "r2", "r3", "r4"],
+            "x": [1, 2, 3, 4],
+            "y": [10, 20, 30, 40],
+        }
+    )
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group", id="test_grand_summary_top_footnotes")
+        .grand_summary_rows(
+            fns={"Total": lambda df: df.sum(numeric_only=True)},
+            side="top",
+        )
+        .tab_footnote("Grand summary note", locations=loc.grand_summary(columns="x", rows=[0]))
+        .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
+    )
+
+    assert_complete_html_without_style(snapshot, gt)

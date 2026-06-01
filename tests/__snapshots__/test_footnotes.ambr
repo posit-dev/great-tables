@@ -99,6 +99,59 @@
   
   '''
 # ---
+# name: test_grand_summary_side_top_with_footnotes_snap
+  '''
+  <div id="test_grand_summary_top_footnotes" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+  
+  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+  
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_grand_summary_top_footnotes-x">x</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_grand_summary_top_footnotes-y">y</th>
+  </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Total</th>
+      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> 10</td>
+      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">100</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r1</th>
+      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> 1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r2</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r3</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">r4</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+  </tbody>
+  <tfoot><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Grand summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Body note</td></tr></tfoot>
+  </table>
+  
+  </div>
+  
+  '''
+# ---
 # name: test_tab_footnote_complete_ordering_snapshot
   '''
   <div id="test_complete_footnote_ordering" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
