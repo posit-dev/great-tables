@@ -1676,3 +1676,56 @@ def test_kitchen_sink_footnote_all_sides_snap(snapshot, summary_side, grand_summ
     )
 
     assert_complete_html_without_style(snapshot, gt)
+
+
+@pytest.mark.parametrize(
+    "summary_side,grand_summary_side",
+    [
+        ("bottom", "bottom"),
+        ("top", "top"),
+        ("top", "bottom"),
+        ("bottom", "top"),
+    ],
+)
+def test_kitchen_sink_footnote_no_row_group_col_snap(snapshot, summary_side, grand_summary_side):
+    """Snapshot: kitchen-sink footnotes without row_group_as_column option."""
+    df = pd.DataFrame(
+        {
+            "group": ["Alpha", "Alpha", "Beta", "Beta", "", ""],
+            "row": ["a1", "a2", "b1", "b2", "c1", "c2"],
+            "x": [10, 20, 30, 40, 50, 60],
+            "y": [100, 200, 300, 400, 500, 600],
+        }
+    )
+
+    table_id = f"test_kitchen_sink_no_rgcol_sum_{summary_side}_grand_{grand_summary_side}"
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group", id=table_id)
+        .tab_header(title="Kitchen Sink Table", subtitle="Footnote ordering diagnostic")
+        .tab_stubhead(label="ID")
+        .tab_spanner(label="Metrics", columns=["x", "y"])
+        .tab_source_note(source_note="Source: synthetic data")
+        .summary_rows(
+            fns={"Sum": lambda df: df.sum(numeric_only=True)},
+            side=summary_side,
+        )
+        .grand_summary_rows(
+            fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+            side=grand_summary_side,
+        )
+        .tab_footnote("Title note", locations=loc.title())
+        .tab_footnote("Subtitle note", locations=loc.subtitle())
+        .tab_footnote("Stubhead note", locations=loc.stubhead())
+        .tab_footnote("Spanner note", locations=loc.spanner_labels(ids=["Metrics"]))
+        .tab_footnote("Column x label note", locations=loc.column_labels(columns="x"))
+        .tab_footnote("Column y label note", locations=loc.column_labels(columns="y"))
+        .tab_footnote("Grand summary note", locations=loc.grand_summary(columns="x", rows=[0]))
+        .tab_footnote("Body cell note", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("Stub note", locations=loc.stub(rows=[0]))
+        .tab_footnote("Row group note", locations=loc.row_groups(rows="Alpha"))
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="Alpha", rows=[0]))
+        .tab_footnote("Summary stub note", locations=loc.summary_stub(groups="Alpha", rows=[0]))
+    )
+
+    assert_complete_html_without_style(snapshot, gt)
