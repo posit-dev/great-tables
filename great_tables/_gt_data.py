@@ -1323,8 +1323,8 @@ class Options:
     summary_row_padding_horizontal: OptionsInfo = OptionsInfo(True, "summary_row", "px", "5px")
     summary_row_background_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", None)
     summary_row_text_transform: OptionsInfo = OptionsInfo(True, "summary_row", "value", "inherit")
-    summary_row_border_style: OptionsInfo = OptionsInfo(True, "summary_row", "value", "double")
-    summary_row_border_width: OptionsInfo = OptionsInfo(True, "summary_row", "px", "6px")
+    summary_row_border_style: OptionsInfo = OptionsInfo(True, "summary_row", "value", "solid")
+    summary_row_border_width: OptionsInfo = OptionsInfo(True, "summary_row", "px", "2px")
     summary_row_border_color: OptionsInfo = OptionsInfo(True, "summary_row", "value", "#D3D3D3")
     grand_summary_row_padding: OptionsInfo = OptionsInfo(True, "grand_summary_row", "px", "8px")
     grand_summary_row_padding_horizontal: OptionsInfo = OptionsInfo(
