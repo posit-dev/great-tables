@@ -42,12 +42,42 @@ def _get_locnum_for_footnote_location(locname: loc.Loc | None) -> int | float:
         return 4
     elif isinstance(locname, (loc.LocColumnLabels, loc.LocRowGroups)):
         return 5
-    elif isinstance(locname, (loc.LocGrandSummaryStub, loc.LocGrandSummary)):
-        return 5.5
     elif isinstance(locname, (loc.LocBody, loc.LocStub)):
         return 6
+    elif isinstance(locname, (loc.LocSummaryStub, loc.LocSummary)):
+        return 7
+    elif isinstance(locname, (loc.LocGrandSummaryStub, loc.LocGrandSummary)):
+        return 8
     else:
         return 999  # Default to 999 for unknown locations
+
+
+def _get_summary_locnum(data: GTData, fn_info: FootnoteInfo) -> int | float:
+    """Get the locnum for a summary footnote, accounting for side positioning.
+
+    When summary rows are side="top", they appear visually before body rows,
+    so their locnum should be less than body (5.5 instead of 7).
+    """
+    locnum = _get_locnum_for_footnote_location(fn_info.locname)
+
+    if not isinstance(fn_info.locname, (loc.LocSummaryStub, loc.LocSummary)):
+        return locnum
+
+    # Check the side of the targeted summary row
+    group_id = fn_info.grpname
+    if group_id is None:
+        return locnum
+
+    summary_rows = data._summary_rows.get_summary_rows(group_id=group_id)
+    if not summary_rows:
+        return locnum
+
+    # Determine the side of the specific summary row targeted by this footnote
+    rownum = fn_info.rownum if fn_info.rownum is not None else 0
+    if rownum < len(summary_rows) and summary_rows[rownum].side == "top":
+        return 5.5  # Before body (6), after column labels (5)
+
+    return locnum
 
 
 def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
@@ -1162,11 +1192,11 @@ def _process_footnotes_for_display(
         if fn_info.locname is None:
             continue
 
-        # Assign locnum based on visual hierarchy
-        locnum = _get_locnum_for_footnote_location(fn_info.locname)
+        # Assign locnum based on visual hierarchy (summary side-aware)
+        locnum = _get_summary_locnum(data, fn_info)
 
         # Assign column number, with stub getting a lower value than data columns
-        if isinstance(fn_info.locname, loc.LocStub):
+        if isinstance(fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)):
             colnum = -1  # Stub appears before all data columns
         else:
             colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
@@ -1305,11 +1335,11 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         footnote_text = _process_text(fn_info.footnotes[0])
 
         # Assign locnum (location number) based on the location hierarchy where
-        # lower numbers appear first in reading order
-        locnum = _get_locnum_for_footnote_location(fn_info.locname)
+        # lower numbers appear first in reading order (summary side-aware)
+        locnum = _get_summary_locnum(data, fn_info)
 
         # Get colnum (column number) and assign stub a lower value than data columns
-        if isinstance(fn_info.locname, loc.LocStub):
+        if isinstance(fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)):
             colnum = -1  # Stub appears before all data columns
         elif isinstance(fn_info.locname, loc.LocSpannerLabels):
             # For spanners, use the leftmost column index to ensure left-to-right ordering
