@@ -297,14 +297,14 @@
   }
   
   #abc .gt_first_summary_row {
-    border-top-style: double;
-    border-top-width: 6px;
+    border-top-style: solid;
+    border-top-width: 2px;
     border-top-color: #D3D3D3;
   }
   
   #abc .gt_last_summary_row_top {
-    border-bottom-style: double;
-    border-bottom-width: 6px;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
     border-bottom-color: #D3D3D3;
   }
   

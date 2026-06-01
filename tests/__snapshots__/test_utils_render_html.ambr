@@ -194,7 +194,7 @@
 # name: test_row_group_as_column_with_rowname
   '''
   <tbody class="gt_table_body">
-    <tr>
+    <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
       rowspan="2">A</th>
       <th class="gt_row gt_left gt_stub">0</th>
@@ -204,7 +204,7 @@
       <th class="gt_row gt_left gt_stub">1</th>
       <td class="gt_row gt_right">33</td>
     </tr>
-    <tr>
+    <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
       rowspan="1">B</th>
       <th class="gt_row gt_left gt_stub">2</th>
@@ -216,7 +216,7 @@
 # name: test_row_group_as_column_without_rowname
   '''
   <tbody class="gt_table_body">
-    <tr>
+    <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
       rowspan="2">A</th>
       <td class="gt_row gt_right">0</td>
@@ -226,7 +226,7 @@
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">33</td>
     </tr>
-    <tr>
+    <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
       rowspan="1">B</th>
       <td class="gt_row gt_right">2</td>

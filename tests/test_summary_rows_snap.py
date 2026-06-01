@@ -133,6 +133,32 @@ class TestSummaryRowsHtmlSnap:
         )
         assert snapshot == render_html_body(gt)
 
+    def test_groups_as_column_side_top(self, snapshot, df_groups_pd):
+        """Groups as column with summary rows at the top."""
+        gt = (
+            GT(df_groups_pd, rowname_col="row", groupname_col="group")
+            .tab_options(row_group_as_column=True)
+            .summary_rows(fns={"Sum": pd_sum}, side="top")
+        )
+        assert snapshot == render_html_body(gt)
+
+    def test_groups_as_column_side_both(self, snapshot, df_groups_pd):
+        """Groups as column with summary rows on both sides."""
+        gt = (
+            GT(df_groups_pd, rowname_col="row", groupname_col="group")
+            .tab_options(row_group_as_column=True)
+            .summary_rows(fns={"Min": pd_min}, side="top")
+            .summary_rows(fns={"Max": pd_max}, side="bottom")
+        )
+        assert snapshot == render_html_body(gt)
+
+    def test_summary_single_row_group(self, snapshot, df_three_groups_pd):
+        """Summary rows for a group with only one data row."""
+        gt = GT(df_three_groups_pd, rowname_col="row", groupname_col="group").summary_rows(
+            fns={"Sum": pd_sum, "Mean": pd_mean}
+        )
+        assert snapshot == render_html_body(gt)
+
     def test_summary_side_top(self, snapshot, df_groups_pd):
         """Group summary rows placed at the top."""
         gt = GT(df_groups_pd, rowname_col="row", groupname_col="group").summary_rows(
