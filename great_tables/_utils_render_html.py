@@ -57,25 +57,34 @@ def _get_summary_locnum(data: GTData, fn_info: FootnoteInfo) -> int | float:
 
     When summary rows are side="top", they appear visually before body rows,
     so their locnum should be less than body (5.5 instead of 7).
+    Similarly for grand summary rows with side="top".
     """
     locnum = _get_locnum_for_footnote_location(fn_info.locname)
 
-    if not isinstance(fn_info.locname, (loc.LocSummaryStub, loc.LocSummary)):
-        return locnum
+    if isinstance(fn_info.locname, (loc.LocSummaryStub, loc.LocSummary)):
+        # Group summary: check the side of the targeted summary row
+        group_id = fn_info.grpname
+        if group_id is None:
+            return locnum
 
-    # Check the side of the targeted summary row
-    group_id = fn_info.grpname
-    if group_id is None:
-        return locnum
+        summary_rows = data._summary_rows.get_summary_rows(group_id=group_id)
+        if not summary_rows:
+            return locnum
 
-    summary_rows = data._summary_rows.get_summary_rows(group_id=group_id)
-    if not summary_rows:
-        return locnum
+        # Determine the side of the specific summary row targeted by this footnote
+        rownum = fn_info.rownum if fn_info.rownum is not None else 0
+        if rownum < len(summary_rows) and summary_rows[rownum].side == "top":
+            return 5.5  # Before body (6), after column labels (5)
 
-    # Determine the side of the specific summary row targeted by this footnote
-    rownum = fn_info.rownum if fn_info.rownum is not None else 0
-    if rownum < len(summary_rows) and summary_rows[rownum].side == "top":
-        return 5.5  # Before body (6), after column labels (5)
+    elif isinstance(fn_info.locname, (loc.LocGrandSummaryStub, loc.LocGrandSummary)):
+        # Grand summary: check side of the targeted grand summary row
+        grand_summary_rows = data._summary_rows_grand.get_summary_rows()
+        if not grand_summary_rows:
+            return locnum
+
+        rownum = fn_info.rownum if fn_info.rownum is not None else 0
+        if rownum < len(grand_summary_rows) and grand_summary_rows[rownum].side == "top":
+            return 5.5  # Before body (6), after column labels (5)
 
     return locnum
 
