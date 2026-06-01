@@ -26,6 +26,12 @@ if TYPE_CHECKING:
     from ._tbl_data import TblData
 
 
+# TODO: The footnote ordering functions (_get_locnum_for_footnote_location,
+# _get_summary_locnum, _get_footnote_mark_string, _process_footnotes_for_display)
+# should be extracted to a shared module (e.g., _footnote_ordering.py) so that
+# LaTeX and other renderers can reuse the same ordering logic.
+
+
 def _get_locnum_for_footnote_location(locname: loc.Loc | None) -> int | float:
     """Get the visual hierarchy order for footnote location ordering."""
     if locname is None:
