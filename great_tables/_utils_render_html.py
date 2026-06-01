@@ -663,10 +663,19 @@ def create_body_component_h(data: GTData) -> str:
                     if data._summary_rows
                     else []
                 )
+                bottom_summary_rows_for_group = (
+                    data._summary_rows.get_summary_rows(group_id=group_info.group_id, side="bottom")
+                    if data._summary_rows
+                    else []
+                )
 
                 # Add group label that spans multiple columns when row_group_as_column is true
                 if has_group_stub_column:
-                    rowspan_value = len(group_info.indices) + len(top_summary_rows_for_group)
+                    rowspan_value = (
+                        len(group_info.indices)
+                        + len(top_summary_rows_for_group)
+                        + len(bottom_summary_rows_for_group)
+                    )
 
                     leading_cell = f"""  <th{group_styles} class="gt_row gt_left gt_stub_row_group"
     rowspan="{rowspan_value}">{group_label}</th>"""
@@ -690,11 +699,15 @@ def create_body_component_h(data: GTData) -> str:
                 # Render top summary rows immediately after the group heading
                 if data._summary_rows and top_summary_rows_for_group:
                     for si, summary_row in enumerate(top_summary_rows_for_group):
+                        # Attach leading_cell (group label) to first top summary row
+                        # when row_group_as_column is true
+                        summary_leading = leading_cell if si == 0 else None
                         row_html = _create_row_component_h(
                             column_vars=column_vars,
                             row_stub_var=row_stub_var,
                             has_row_stub_column=has_row_stub_column,
                             has_group_stub_column=has_group_stub_column,
+                            leading_cell=summary_leading,
                             apply_stub_striping=False,
                             apply_body_striping=False,
                             styles_cells=styles_summary,
@@ -706,8 +719,13 @@ def create_body_component_h(data: GTData) -> str:
                             else None,
                             data=data,
                             summary_group_id=group_info.group_id,
+                            row_class="gt_row_group_first" if si == 0 and leading_cell else None,
                         )
                         body_rows.append(row_html)
+
+                    # Clear leading_cell so data row doesn't also get it
+                    if leading_cell:
+                        leading_cell = None
 
         # Create data row
         row_html = _create_row_component_h(
@@ -723,6 +741,7 @@ def create_body_component_h(data: GTData) -> str:
             row_index=i,
             tbl_data=tbl_data,
             data=data,
+            row_class="gt_row_group_first" if leading_cell else None,
         )
         body_rows.append(row_html)
 
@@ -802,6 +821,7 @@ def _create_row_component_h(
     css_class: str | None = None,
     data: GTData | None = None,  # For footnote handling
     summary_group_id: str | None = None,  # For group summary rows (distinguishes from grand)
+    row_class: str | None = None,  # CSS class for the <tr> element
 ) -> str:
     """Create a single table row (either data row or summary row)"""
 
@@ -815,14 +835,6 @@ def _create_row_component_h(
 
     # Handle special cases for summary rows with group stub columns
     if is_summary_row and has_group_stub_column:
-        if has_row_stub_column:
-            # Case 1: Both row_stub_column and group_stub_column
-            # Create a single cell that spans both columns for summary row label (id)
-            colspan = 2
-        else:
-            # Case 2: Only group_stub_column, no row_stub_column
-            colspan = 1
-
         cell_styles = _flatten_styles(
             [x for x in styles_labels if x.rownum == row_index], wrap=True
         )
@@ -832,11 +844,25 @@ def _create_row_component_h(
             classes.append(css_class)
         classes_str = " ".join(classes)
 
-        body_cells.append(
-            f"""    <th{cell_styles} class="{classes_str}" colspan="{colspan}">{summary_row.id}</th>"""
-        )
+        if is_group_summary:
+            # Group summary rows are covered by the group label cell's rowspan,
+            # so we only need a single stub cell for the summary label
+            body_cells.append(
+                f"""    <th{cell_styles} class="{classes_str}">{summary_row.id}</th>"""
+            )
+        elif has_row_stub_column:
+            # Grand summary rows are outside any group and need colspan=2
+            # to span across both the group stub column and the row stub column
+            body_cells.append(
+                f"""    <th{cell_styles} class="{classes_str}" colspan="2">{summary_row.id}</th>"""
+            )
+        else:
+            # Grand summary rows with only group stub column (no row stub)
+            body_cells.append(
+                f"""    <th{cell_styles} class="{classes_str}">{summary_row.id}</th>"""
+            )
 
-        # Skip the first column in column_vars since we've already handled the stub
+        # Skip stub columns in column_vars since we've already handled the stub
         column_vars_to_process = [column for column in column_vars if not column.is_stub]
 
     else:
@@ -953,7 +979,8 @@ def _create_row_component_h(
             f"""    <{el_name}{cell_styles} class="{classes_str}">{cell_str}</{el_name}>"""
         )
 
-    return "  <tr>\n" + "\n".join(body_cells) + "\n  </tr>"
+    tr_open = f'  <tr class="{row_class}">' if row_class else "  <tr>"
+    return tr_open + "\n" + "\n".join(body_cells) + "\n  </tr>"
 
 
 def create_source_notes_component_h(data: GTData) -> str:
