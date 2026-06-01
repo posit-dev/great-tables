@@ -29,6 +29,8 @@ from great_tables._locations import (
     LocSpannerLabels,
     LocColumnLabels,
     LocRowGroups,
+    LocSummaryStub,
+    LocSummary,
     LocGrandSummaryStub,
     LocGrandSummary,
     LocBody,
@@ -1207,7 +1209,7 @@ def test_tab_footnote_grand_summary_stub_target_gets_mark():
 def test_get_locnum_for_all_location_types():
     # Hierarchy: Title(1) < SubTitle(2) < Stubhead/StubheadLabel(3) <
     # ColumnHeader/SpannerLabels(4) < ColumnLabels/RowGroups(5) <
-    # GrandSummaryStub/GrandSummary(5.5) < Body/Stub(6) < unknown(999)
+    # Body/Stub(6) < SummaryStub/Summary(7) < GrandSummaryStub/GrandSummary(8) < unknown(999)
 
     assert _get_locnum_for_footnote_location(LocTitle()) == 1
     assert _get_locnum_for_footnote_location(LocSubTitle()) == 2
@@ -1217,10 +1219,12 @@ def test_get_locnum_for_all_location_types():
     assert _get_locnum_for_footnote_location(LocSpannerLabels(ids=["x"])) == 4
     assert _get_locnum_for_footnote_location(LocColumnLabels(columns="col1")) == 5
     assert _get_locnum_for_footnote_location(LocRowGroups(rows=None)) == 5
-    assert _get_locnum_for_footnote_location(LocGrandSummaryStub()) == 5.5
-    assert _get_locnum_for_footnote_location(LocGrandSummary(columns="col1")) == 5.5
     assert _get_locnum_for_footnote_location(LocBody(columns="col1")) == 6
     assert _get_locnum_for_footnote_location(LocStub(rows=None)) == 6
+    assert _get_locnum_for_footnote_location(LocSummaryStub()) == 7
+    assert _get_locnum_for_footnote_location(LocSummary(columns="col1")) == 7
+    assert _get_locnum_for_footnote_location(LocGrandSummaryStub()) == 8
+    assert _get_locnum_for_footnote_location(LocGrandSummary(columns="col1")) == 8
 
     # None returns 999
     assert _get_locnum_for_footnote_location(None) == 999
@@ -1238,6 +1242,8 @@ def test_get_locnum_ordering_is_monotonic():
         LocSpannerLabels(ids=["x"]),
         LocColumnLabels(columns="c"),
         LocBody(columns="c"),
+        LocSummary(columns="c"),
+        LocGrandSummary(columns="c"),
     ]
 
     locnums = [_get_locnum_for_footnote_location(l) for l in locs_in_order]
@@ -1385,3 +1391,124 @@ def test_process_footnotes_for_display_empty():
     built = GT(df)._build_data("html")
 
     assert _process_footnotes_for_display(built, []) == []
+
+
+# --- Tests for footnotes on summary rows ---
+
+
+def test_footnote_on_summary_cell():
+    """Footnote can be applied to a group summary cell via loc.summary()."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)})
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+    )
+    html_str = gt.as_raw_html()
+
+    # The footnote mark should appear in the rendered HTML
+    assert "Summary note" in html_str
+    # Summary footnotes use superscript marks
+    assert '<span class="gt_footnote_marks"' in html_str
+
+
+def test_footnote_on_summary_stub():
+    """Footnote can be applied to a group summary stub via loc.summary_stub()."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)})
+        .tab_footnote("Stub note", locations=loc.summary_stub(groups="A", rows=[0]))
+    )
+    html_str = gt.as_raw_html()
+
+    assert "Stub note" in html_str
+
+
+def test_footnote_ordering_body_before_summary():
+    """Body footnotes appear before summary footnotes in the footnote list."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)})
+        .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+    )
+    html_str = gt.as_raw_html()
+
+    # Extract footnote marks from the tfoot section
+    tfoot_match = re.search(r"<tfoot.*?</tfoot>", html_str, re.DOTALL)
+    assert tfoot_match is not None
+
+    marks = re.findall(
+        r'<span class="gt_footnote_marks"[^>]*>(\d+)</span>\s*([^<]+)',
+        tfoot_match.group(),
+    )
+    # Body note should be mark 1, Summary note should be mark 2
+    assert len(marks) >= 2
+    assert marks[0][1].strip() == "Body note"
+    assert marks[1][1].strip() == "Summary note"
+
+
+def test_footnote_ordering_consistent_with_side():
+    """Footnote ordering reflects visual position: top summaries before body, bottom after."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    def _get_marks(side):
+        gt = (
+            GT(df, rowname_col="row", groupname_col="group")
+            .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)}, side=side)
+            .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
+            .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+        )
+        html_str = gt.as_raw_html()
+        tfoot_match = re.search(r"<tfoot.*?</tfoot>", html_str, re.DOTALL)
+        return re.findall(
+            r'<span class="gt_footnote_marks"[^>]*>(\d+)</span>\s*([^<]+)',
+            tfoot_match.group(),
+        )
+
+    top_marks = _get_marks("top")
+    bottom_marks = _get_marks("bottom")
+
+    # side="top": summary appears before body visually, so summary=1, body=2
+    assert top_marks[0][1].strip() == "Summary note"
+    assert top_marks[0][0] == "1"
+    assert top_marks[1][1].strip() == "Body note"
+    assert top_marks[1][0] == "2"
+
+    # side="bottom": body appears before summary visually, so body=1, summary=2
+    assert bottom_marks[0][1].strip() == "Body note"
+    assert bottom_marks[0][0] == "1"
+    assert bottom_marks[1][1].strip() == "Summary note"
+    assert bottom_marks[1][0] == "2"
+
+
+def test_footnote_ordering_body_summary_grand_summary():
+    """Footnotes ordered: body < summary < grand summary."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)})
+        .grand_summary_rows(fns={"Grand": lambda df: df.sum(numeric_only=True)})
+        .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+        .tab_footnote("Grand summary note", locations=loc.grand_summary(columns="x", rows=[0]))
+    )
+    html_str = gt.as_raw_html()
+
+    tfoot_match = re.search(r"<tfoot.*?</tfoot>", html_str, re.DOTALL)
+    assert tfoot_match is not None
+
+    marks = re.findall(
+        r'<span class="gt_footnote_marks"[^>]*>(\d+)</span>\s*([^<]+)',
+        tfoot_match.group(),
+    )
+    assert len(marks) >= 3
+    assert marks[0][1].strip() == "Body note"
+    assert marks[1][1].strip() == "Summary note"
+    assert marks[2][1].strip() == "Grand summary note"
