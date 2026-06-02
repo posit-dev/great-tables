@@ -416,10 +416,14 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </section>
 <section id="adding-rows" class="level2">
 <h2 class="anchored" data-anchor-id="adding-rows">Adding rows</h2>
-<p>The <a href="../reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows"><code>grand_summary_rows()</code></a> function will add rows to summarize data in your table, such as totals or averages.</p>
+<p>The <a href="../reference/GT.summary_rows.html#great_tables.GT.summary_rows"><code>summary_rows()</code></a> function adds rows to summarize data within each row group, while <a href="../reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows"><code>grand_summary_rows()</code></a> summarizes across the entire table.</p>
 <table class="caption-top table">
 <tbody>
 <tr class="odd">
+<td><a href="../reference/GT.summary_rows.html#great_tables.GT.summary_rows">GT.summary_rows</a></td>
+<td>Add group-wise summary rows to the table.</td>
+</tr>
+<tr class="even">
 <td><a href="../reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows">GT.grand_summary_rows</a></td>
 <td>Add grand summary rows to the table.</td>
 </tr>
@@ -464,16 +468,24 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <td>Target the grand summary stub.</td>
 </tr>
 <tr class="odd">
+<td><a href="../reference/loc.summary_stub.html#great_tables.loc.summary_stub">loc.summary_stub</a></td>
+<td>Target the group summary stub.</td>
+</tr>
+<tr class="even">
 <td><a href="../reference/loc.stub.html#great_tables.loc.stub">loc.stub</a></td>
 <td>Target the table stub.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="../reference/loc.row_groups.html#great_tables.loc.row_groups">loc.row_groups</a></td>
 <td>Target row groups.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="../reference/loc.grand_summary.html#great_tables.loc.grand_summary">loc.grand_summary</a></td>
 <td>Target the data cells in grand summary rows.</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/loc.summary.html#great_tables.loc.summary">loc.summary</a></td>
+<td>Target the data cells in group summary rows.</td>
 </tr>
 <tr class="even">
 <td><a href="../reference/loc.body.html#great_tables.loc.body">loc.body</a></td>
