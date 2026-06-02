@@ -33,20 +33,20 @@
 # name: test_grand_summary_rows_with_group_as_col_snap
   '''
   <tbody class="gt_table_body">
-    <tr>
+    <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
       rowspan="1">x</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">4</td>
     </tr>
-    <tr>
+    <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
       rowspan="1">y</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">5</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="1">Average</th>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom">Average</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">1.5</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">4.5</td>
     </tr>
@@ -90,6 +90,94 @@
     <tr>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">3</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_summary_rows_snap[pd_and_pl]
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Average</th>
+      <td class="gt_row gt_right gt_summary_row">1.5</td>
+      <td class="gt_row gt_right gt_summary_row">15.0</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="3">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">7</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_summary_row">Average</th>
+      <td class="gt_row gt_right gt_summary_row">3.5</td>
+      <td class="gt_row gt_right gt_summary_row">35.0</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_summary_rows_with_rowname_snap
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">A</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">a1</th>
+      <td class="gt_row gt_right">1</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">a2</th>
+      <td class="gt_row gt_right">2</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2">B</th>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">b1</th>
+      <td class="gt_row gt_right">3</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">b2</th>
+      <td class="gt_row gt_right">4</td>
+    </tr>
+    <tr>
+      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">7</td>
     </tr>
   </tbody>
   '''

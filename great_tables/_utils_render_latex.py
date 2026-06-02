@@ -13,7 +13,7 @@ from ._utils_render_html import _get_spanners_matrix_height
 from .quarto import is_quarto_render
 
 if TYPE_CHECKING:
-    from ._gt_data import GroupRowInfo, GTData
+    from ._gt_data import GroupRowInfo, GTData, SummaryRowInfo
 
 
 LENGTH_TRANSLATIONS_TO_PX = {
@@ -447,7 +447,20 @@ def create_body_component_l(data: GTData) -> str:
     # Calculate total number of columns for multicolumn spanning in group headers
     n_cols = len(column_vars) + len(stub_layout)
 
-    for i, group_info in ordered_index:
+    # Add grand summary rows at top
+    top_grand_summary = data._summary_rows_grand.get_summary_rows(side="top")
+    if top_grand_summary:
+        for summary_row in top_grand_summary:
+            summary_str = _create_summary_row_l(
+                summary_row=summary_row,
+                column_vars=column_vars,
+                has_row_stub_column=has_row_stub_column,
+                has_group_stub_column=has_group_stub_column,
+            )
+            body_rows.append(summary_str)
+        body_rows.append("\\midrule\\addlinespace[2.5pt]")
+
+    for j, (i, group_info) in enumerate(ordered_index):
         # Handle row group labels
         if has_groups and group_info is not None:
             # Only create group row if this is first row of the group
@@ -487,8 +500,12 @@ def create_body_component_l(data: GTData) -> str:
 
         if has_row_stub_column:
             # Get the row name from the stub
-            rowname = _get_cell(tbl_data, i, row_stub_var.var)
-            rowname_str = str(rowname)
+            if row_stub_var is not None:
+                rowname = _get_cell(tbl_data, i, row_stub_var.var)
+                rowname_str = str(rowname)
+            else:
+                # Placeholder stub for summary rows (no actual rowname column)
+                rowname_str = ""
 
             body_cells.append(rowname_str)
 
@@ -506,10 +523,73 @@ def create_body_component_l(data: GTData) -> str:
 
         prev_group_info = group_info
 
+        # After the last row in a group, append group summary rows
+        if has_groups and group_info is not None and data._summary_rows:
+            is_last_in_group = (
+                j == len(ordered_index) - 1 or ordered_index[j + 1][1] is not group_info
+            )
+
+            if is_last_in_group:
+                group_id = group_info.group_id
+                group_summary = data._summary_rows.get_summary_rows(group_id=group_id)
+
+                if group_summary:
+                    body_rows.append("\\midrule\\addlinespace[2.5pt]")
+                    for summary_row in group_summary:
+                        summary_str = _create_summary_row_l(
+                            summary_row=summary_row,
+                            column_vars=column_vars,
+                            has_row_stub_column=has_row_stub_column,
+                            has_group_stub_column=has_group_stub_column,
+                        )
+                        body_rows.append(summary_str)
+
+    # Add grand summary rows at bottom
+    bottom_grand_summary = data._summary_rows_grand.get_summary_rows(side="bottom")
+    if bottom_grand_summary:
+        body_rows.append("\\midrule\\addlinespace[2.5pt]")
+        for summary_row in bottom_grand_summary:
+            summary_str = _create_summary_row_l(
+                summary_row=summary_row,
+                column_vars=column_vars,
+                has_row_stub_column=has_row_stub_column,
+                has_group_stub_column=has_group_stub_column,
+            )
+            body_rows.append(summary_str)
+
     # Join all body rows with newlines
     all_body_rows = "\n".join(body_rows)
 
     return all_body_rows
+
+
+def _create_summary_row_l(
+    summary_row: "SummaryRowInfo",
+    column_vars: list,
+    has_row_stub_column: bool,
+    has_group_stub_column: bool,
+) -> str:
+    """Create a single LaTeX summary row."""
+    cells: list[str] = []
+
+    # The summary label goes in the stub position
+    if has_group_stub_column and has_row_stub_column:
+        # Both group and row stub: label spans both columns
+        n_stub_cols = 2
+        cells.append(f"\\multicolumn{{{n_stub_cols}}}{{l}}{{{summary_row.label}}}")
+    elif has_group_stub_column or has_row_stub_column:
+        # Only one stub column: label in that column
+        cells.append(summary_row.label)
+    else:
+        # No stub: label in the first data column position
+        cells.append(summary_row.label)
+
+    # Add data cells
+    for colinfo in column_vars:
+        value = summary_row.values.get(colinfo.var, "")
+        cells.append(str(value))
+
+    return " & ".join(cells) + " \\\\"
 
 
 def create_footer_component_l(data: GTData) -> str:

@@ -187,9 +187,12 @@ quartodoc:
         - GT.cols_merge_n_pct
     - title: Adding rows
       desc: >
-        The [`grand_summary_rows()`](`great_tables.GT.grand_summary_rows`) function will add rows to
-        summarize data in your table, such as totals or averages.
+        The [`summary_rows()`](`great_tables.GT.summary_rows`) function adds rows to summarize
+        data within each row group, while
+        [`grand_summary_rows()`](`great_tables.GT.grand_summary_rows`) summarizes across the
+        entire table.
       contents:
+        - GT.summary_rows
         - GT.grand_summary_rows
 
     - title: Location Targeting and Styling Classes
@@ -207,9 +210,11 @@ quartodoc:
         - loc.spanner_labels
         - loc.column_labels
         - loc.grand_summary_stub
+        - loc.summary_stub
         - loc.stub
         - loc.row_groups
         - loc.grand_summary
+        - loc.summary
         - loc.body
         - loc.footer
         - loc.source_notes

@@ -1,0 +1,166 @@
+---
+format: pdf
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+#| include: false
+
+import pandas as pd
+from great_tables import GT, loc
+```
+
+## Summary Rows (bottom) + Grand Summary (bottom)
+
+```{python}
+#| output: asis
+#| echo: false
+
+df = pd.DataFrame(
+    {
+        "group": ["Alpha", "Alpha", "Beta", "Beta"],
+        "row": ["a1", "a2", "b1", "b2"],
+        "x": [10, 20, 30, 40],
+        "y": [100, 200, 300, 400],
+    }
+)
+
+print(
+    GT(df, rowname_col="row", groupname_col="group")
+    .tab_header(title="Summary Rows (bottom/bottom)")
+    .tab_spanner(label="Values", columns=["x", "y"])
+    .summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        side="bottom",
+    )
+    .grand_summary_rows(
+        fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+        side="bottom",
+    )
+    .as_latex()
+)
+```
+
+## Summary Rows (top) + Grand Summary (top)
+
+```{python}
+#| output: asis
+#| echo: false
+
+print(
+    GT(df, rowname_col="row", groupname_col="group")
+    .tab_header(title="Summary Rows (top/top)")
+    .tab_spanner(label="Values", columns=["x", "y"])
+    .summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        side="top",
+    )
+    .grand_summary_rows(
+        fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+        side="top",
+    )
+    .as_latex()
+)
+```
+
+## Summary Rows (top) + Grand Summary (bottom)
+
+```{python}
+#| output: asis
+#| echo: false
+
+print(
+    GT(df, rowname_col="row", groupname_col="group")
+    .tab_header(title="Summary Rows (top/bottom)")
+    .tab_spanner(label="Values", columns=["x", "y"])
+    .summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        side="top",
+    )
+    .grand_summary_rows(
+        fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+        side="bottom",
+    )
+    .as_latex()
+)
+```
+
+## Summary Rows (bottom) + Grand Summary (top)
+
+```{python}
+#| output: asis
+#| echo: false
+
+print(
+    GT(df, rowname_col="row", groupname_col="group")
+    .tab_header(title="Summary Rows (bottom/top)")
+    .tab_spanner(label="Values", columns=["x", "y"])
+    .summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        side="bottom",
+    )
+    .grand_summary_rows(
+        fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+        side="top",
+    )
+    .as_latex()
+)
+```
+
+## Summary with row_group_as_column
+
+```{python}
+#| output: asis
+#| echo: false
+
+df_lg = pd.DataFrame(
+    {
+        "group": ["Alpha", "Alpha", "Beta", "Beta", "", ""],
+        "row": ["a1", "a2", "b1", "b2", "c1", "c2"],
+        "x": [10, 20, 30, 40, 50, 60],
+        "y": [100, 200, 300, 400, 500, 600],
+    }
+)
+
+print(
+    GT(df_lg, rowname_col="row", groupname_col="group")
+    .tab_header(title="row_group_as_column + summary (bottom/top)")
+    .tab_stubhead(label="ID")
+    .tab_spanner(label="Values", columns=["x", "y"])
+    .tab_options(row_group_as_column=True)
+    .summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        side="bottom",
+    )
+    .grand_summary_rows(
+        fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+        side="top",
+    )
+    .as_latex()
+)
+```
+
+## Summary with row_group_as_column (top/top)
+
+```{python}
+#| output: asis
+#| echo: false
+
+print(
+    GT(df_lg, rowname_col="row", groupname_col="group")
+    .tab_header(title="row_group_as_column + summary (top/top)")
+    .tab_stubhead(label="ID")
+    .tab_spanner(label="Values", columns=["x", "y"])
+    .tab_options(row_group_as_column=True)
+    .summary_rows(
+        fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        side="top",
+    )
+    .grand_summary_rows(
+        fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+        side="top",
+    )
+    .as_latex()
+)
+```

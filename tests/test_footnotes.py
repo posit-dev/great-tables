@@ -29,6 +29,8 @@ from great_tables._locations import (
     LocSpannerLabels,
     LocColumnLabels,
     LocRowGroups,
+    LocSummaryStub,
+    LocSummary,
     LocGrandSummaryStub,
     LocGrandSummary,
     LocBody,
@@ -1206,8 +1208,8 @@ def test_tab_footnote_grand_summary_stub_target_gets_mark():
 
 def test_get_locnum_for_all_location_types():
     # Hierarchy: Title(1) < SubTitle(2) < Stubhead/StubheadLabel(3) <
-    # ColumnHeader/SpannerLabels(4) < ColumnLabels/RowGroups(5) <
-    # GrandSummaryStub/GrandSummary(5.5) < Body/Stub(6) < unknown(999)
+    # ColumnHeader/SpannerLabels(4) < ColumnLabels(5) <
+    # Body/Stub/RowGroups(6) < SummaryStub/Summary(7) < GrandSummaryStub/GrandSummary(8) < unknown(999)
 
     assert _get_locnum_for_footnote_location(LocTitle()) == 1
     assert _get_locnum_for_footnote_location(LocSubTitle()) == 2
@@ -1216,11 +1218,13 @@ def test_get_locnum_for_all_location_types():
     assert _get_locnum_for_footnote_location(LocColumnHeader()) == 4
     assert _get_locnum_for_footnote_location(LocSpannerLabels(ids=["x"])) == 4
     assert _get_locnum_for_footnote_location(LocColumnLabels(columns="col1")) == 5
-    assert _get_locnum_for_footnote_location(LocRowGroups(rows=None)) == 5
-    assert _get_locnum_for_footnote_location(LocGrandSummaryStub()) == 5.5
-    assert _get_locnum_for_footnote_location(LocGrandSummary(columns="col1")) == 5.5
+    assert _get_locnum_for_footnote_location(LocRowGroups(rows=None)) == 6
     assert _get_locnum_for_footnote_location(LocBody(columns="col1")) == 6
     assert _get_locnum_for_footnote_location(LocStub(rows=None)) == 6
+    assert _get_locnum_for_footnote_location(LocSummaryStub()) == 7
+    assert _get_locnum_for_footnote_location(LocSummary(columns="col1")) == 7
+    assert _get_locnum_for_footnote_location(LocGrandSummaryStub()) == 8
+    assert _get_locnum_for_footnote_location(LocGrandSummary(columns="col1")) == 8
 
     # None returns 999
     assert _get_locnum_for_footnote_location(None) == 999
@@ -1238,6 +1242,8 @@ def test_get_locnum_ordering_is_monotonic():
         LocSpannerLabels(ids=["x"]),
         LocColumnLabels(columns="c"),
         LocBody(columns="c"),
+        LocSummary(columns="c"),
+        LocGrandSummary(columns="c"),
     ]
 
     locnums = [_get_locnum_for_footnote_location(l) for l in locs_in_order]
@@ -1385,3 +1391,341 @@ def test_process_footnotes_for_display_empty():
     built = GT(df)._build_data("html")
 
     assert _process_footnotes_for_display(built, []) == []
+
+
+# --- Tests for footnotes on summary rows ---
+
+
+def test_footnote_on_summary_cell():
+    """Footnote can be applied to a group summary cell via loc.summary()."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)})
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+    )
+    html_str = gt.as_raw_html()
+
+    # The footnote mark should appear in the rendered HTML
+    assert "Summary note" in html_str
+    # Summary footnotes use superscript marks
+    assert '<span class="gt_footnote_marks"' in html_str
+
+
+def test_footnote_on_summary_stub():
+    """Footnote can be applied to a group summary stub via loc.summary_stub()."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)})
+        .tab_footnote("Stub note", locations=loc.summary_stub(groups="A", rows=[0]))
+    )
+    html_str = gt.as_raw_html()
+
+    assert "Stub note" in html_str
+
+
+def test_footnote_ordering_body_before_summary():
+    """Body footnotes appear before summary footnotes in the footnote list."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)})
+        .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+    )
+    html_str = gt.as_raw_html()
+
+    # Extract footnote marks from the tfoot section
+    tfoot_match = re.search(r"<tfoot.*?</tfoot>", html_str, re.DOTALL)
+    assert tfoot_match is not None
+
+    marks = re.findall(
+        r'<span class="gt_footnote_marks"[^>]*>(\d+)</span>\s*([^<]+)',
+        tfoot_match.group(),
+    )
+    # Body note should be mark 1, Summary note should be mark 2
+    assert len(marks) >= 2
+    assert marks[0][1].strip() == "Body note"
+    assert marks[1][1].strip() == "Summary note"
+
+
+def test_footnote_ordering_consistent_with_side():
+    """Footnote ordering reflects visual position: top summaries before body, bottom after."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    def _get_marks(side):
+        gt = (
+            GT(df, rowname_col="row", groupname_col="group")
+            .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)}, side=side)
+            .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
+            .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+        )
+        html_str = gt.as_raw_html()
+        tfoot_match = re.search(r"<tfoot.*?</tfoot>", html_str, re.DOTALL)
+        return re.findall(
+            r'<span class="gt_footnote_marks"[^>]*>(\d+)</span>\s*([^<]+)',
+            tfoot_match.group(),
+        )
+
+    top_marks = _get_marks("top")
+    bottom_marks = _get_marks("bottom")
+
+    # side="top": summary appears before body visually, so summary=1, body=2
+    assert top_marks[0][1].strip() == "Summary note"
+    assert top_marks[0][0] == "1"
+    assert top_marks[1][1].strip() == "Body note"
+    assert top_marks[1][0] == "2"
+
+    # side="bottom": body appears before summary visually, so body=1, summary=2
+    assert bottom_marks[0][1].strip() == "Body note"
+    assert bottom_marks[0][0] == "1"
+    assert bottom_marks[1][1].strip() == "Summary note"
+    assert bottom_marks[1][0] == "2"
+
+
+def test_footnote_ordering_body_summary_grand_summary():
+    """Footnotes ordered: body < summary < grand summary."""
+    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)})
+        .grand_summary_rows(fns={"Grand": lambda df: df.sum(numeric_only=True)})
+        .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+        .tab_footnote("Grand summary note", locations=loc.grand_summary(columns="x", rows=[0]))
+    )
+    html_str = gt.as_raw_html()
+
+    tfoot_match = re.search(r"<tfoot.*?</tfoot>", html_str, re.DOTALL)
+    assert tfoot_match is not None
+
+    marks = re.findall(
+        r'<span class="gt_footnote_marks"[^>]*>(\d+)</span>\s*([^<]+)',
+        tfoot_match.group(),
+    )
+    assert len(marks) >= 3
+    assert marks[0][1].strip() == "Body note"
+    assert marks[1][1].strip() == "Summary note"
+    assert marks[2][1].strip() == "Grand summary note"
+
+
+def test_grand_summary_side_top_with_footnotes_snap(snapshot):
+    """Snapshot: grand_summary_rows(side='top') with footnotes on grand summary and body."""
+    df = pd.DataFrame(
+        {
+            "group": ["A", "A", "B", "B"],
+            "row": ["r1", "r2", "r3", "r4"],
+            "x": [1, 2, 3, 4],
+            "y": [10, 20, 30, 40],
+        }
+    )
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group", id="test_grand_summary_top_footnotes")
+        .grand_summary_rows(
+            fns={"Total": lambda df: df.sum(numeric_only=True)},
+            side="top",
+        )
+        .tab_footnote("Grand summary note", locations=loc.grand_summary(columns="x", rows=[0]))
+        .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
+    )
+
+    assert_complete_html_without_style(snapshot, gt)
+
+
+def test_kitchen_sink_footnote_ordering_snap(snapshot):
+    """Snapshot: kitchen-sink table with footnotes in every location type."""
+    df = pd.DataFrame(
+        {
+            "group": ["Alpha", "Alpha", "Beta", "Beta", "", ""],
+            "row": ["a1", "a2", "b1", "b2", "c1", "c2"],
+            "x": [10, 20, 30, 40, 50, 60],
+            "y": [100, 200, 300, 400, 500, 600],
+        }
+    )
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group", id="test_kitchen_sink_footnotes")
+        .tab_header(title="Kitchen Sink Table", subtitle="Footnote ordering diagnostic")
+        .tab_stubhead(label="ID")
+        .tab_spanner(label="Metrics", columns=["x", "y"])
+        .tab_source_note(source_note="Source: synthetic data")
+        .tab_options(row_group_as_column=True)
+        .summary_rows(
+            fns={"Sum": lambda df: df.sum(numeric_only=True)},
+            side="bottom",
+        )
+        .grand_summary_rows(
+            fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+            side="top",
+        )
+        .tab_footnote("Title note", locations=loc.title())
+        .tab_footnote("Subtitle note", locations=loc.subtitle())
+        .tab_footnote("Stubhead note", locations=loc.stubhead())
+        .tab_footnote("Spanner note", locations=loc.spanner_labels(ids=["Metrics"]))
+        .tab_footnote("Column x label note", locations=loc.column_labels(columns="x"))
+        .tab_footnote("Column y label note", locations=loc.column_labels(columns="y"))
+        .tab_footnote("Grand summary note", locations=loc.grand_summary(columns="x", rows=[0]))
+        .tab_footnote("Body cell note", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("Stub note", locations=loc.stub(rows=[0]))
+        .tab_footnote("Row group note", locations=loc.row_groups(rows="Alpha"))
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="Alpha", rows=[0]))
+        .tab_footnote("Summary stub note", locations=loc.summary_stub(groups="Alpha", rows=[0]))
+    )
+
+    assert_complete_html_without_style(snapshot, gt)
+
+
+def test_kitchen_sink_footnote_ordering_polars_snap(snapshot):
+    """Snapshot: kitchen-sink footnotes using a Polars DataFrame backend."""
+    df = pl.DataFrame(
+        {
+            "group": ["Alpha", "Alpha", "Beta", "Beta", "", ""],
+            "row": ["a1", "a2", "b1", "b2", "c1", "c2"],
+            "x": [10, 20, 30, 40, 50, 60],
+            "y": [100, 200, 300, 400, 500, 600],
+        }
+    )
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group", id="test_kitchen_sink_polars")
+        .tab_header(title="Kitchen Sink Table", subtitle="Footnote ordering diagnostic")
+        .tab_stubhead(label="ID")
+        .tab_spanner(label="Metrics", columns=["x", "y"])
+        .tab_source_note(source_note="Source: synthetic data")
+        .tab_options(row_group_as_column=True)
+        .summary_rows(
+            fns={"Sum": pl.sum("x")},
+            side="bottom",
+        )
+        .grand_summary_rows(
+            fns={"Grand Total": pl.sum("x")},
+            side="top",
+        )
+        .tab_footnote("Title note", locations=loc.title())
+        .tab_footnote("Subtitle note", locations=loc.subtitle())
+        .tab_footnote("Stubhead note", locations=loc.stubhead())
+        .tab_footnote("Spanner note", locations=loc.spanner_labels(ids=["Metrics"]))
+        .tab_footnote("Column x label note", locations=loc.column_labels(columns="x"))
+        .tab_footnote("Column y label note", locations=loc.column_labels(columns="y"))
+        .tab_footnote("Grand summary note", locations=loc.grand_summary(columns="x", rows=[0]))
+        .tab_footnote("Body cell note", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("Stub note", locations=loc.stub(rows=[0]))
+        .tab_footnote("Row group note", locations=loc.row_groups(rows="Alpha"))
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="Alpha", rows=[0]))
+        .tab_footnote("Summary stub note", locations=loc.summary_stub(groups="Alpha", rows=[0]))
+    )
+
+    assert_complete_html_without_style(snapshot, gt)
+
+
+@pytest.mark.parametrize(
+    "summary_side,grand_summary_side",
+    [
+        ("bottom", "bottom"),
+        ("top", "top"),
+        ("top", "bottom"),
+        ("bottom", "top"),
+    ],
+)
+def test_kitchen_sink_footnote_all_sides_snap(snapshot, summary_side, grand_summary_side):
+    """Snapshot: kitchen-sink footnotes with all side combinations."""
+    df = pd.DataFrame(
+        {
+            "group": ["Alpha", "Alpha", "Beta", "Beta", "", ""],
+            "row": ["a1", "a2", "b1", "b2", "c1", "c2"],
+            "x": [10, 20, 30, 40, 50, 60],
+            "y": [100, 200, 300, 400, 500, 600],
+        }
+    )
+
+    table_id = f"test_kitchen_sink_sum_{summary_side}_grand_{grand_summary_side}"
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group", id=table_id)
+        .tab_header(title="Kitchen Sink Table", subtitle="Footnote ordering diagnostic")
+        .tab_stubhead(label="ID")
+        .tab_spanner(label="Metrics", columns=["x", "y"])
+        .tab_source_note(source_note="Source: synthetic data")
+        .tab_options(row_group_as_column=True)
+        .summary_rows(
+            fns={"Sum": lambda df: df.sum(numeric_only=True)},
+            side=summary_side,
+        )
+        .grand_summary_rows(
+            fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+            side=grand_summary_side,
+        )
+        .tab_footnote("Title note", locations=loc.title())
+        .tab_footnote("Subtitle note", locations=loc.subtitle())
+        .tab_footnote("Stubhead note", locations=loc.stubhead())
+        .tab_footnote("Spanner note", locations=loc.spanner_labels(ids=["Metrics"]))
+        .tab_footnote("Column x label note", locations=loc.column_labels(columns="x"))
+        .tab_footnote("Column y label note", locations=loc.column_labels(columns="y"))
+        .tab_footnote("Grand summary note", locations=loc.grand_summary(columns="x", rows=[0]))
+        .tab_footnote("Body cell note", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("Stub note", locations=loc.stub(rows=[0]))
+        .tab_footnote("Row group note", locations=loc.row_groups(rows="Alpha"))
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="Alpha", rows=[0]))
+        .tab_footnote("Summary stub note", locations=loc.summary_stub(groups="Alpha", rows=[0]))
+    )
+
+    assert_complete_html_without_style(snapshot, gt)
+
+
+@pytest.mark.parametrize(
+    "summary_side,grand_summary_side",
+    [
+        ("bottom", "bottom"),
+        ("top", "top"),
+        ("top", "bottom"),
+        ("bottom", "top"),
+    ],
+)
+def test_kitchen_sink_footnote_no_row_group_col_snap(snapshot, summary_side, grand_summary_side):
+    """Snapshot: kitchen-sink footnotes without row_group_as_column option."""
+    df = pd.DataFrame(
+        {
+            "group": ["Alpha", "Alpha", "Beta", "Beta", "", ""],
+            "row": ["a1", "a2", "b1", "b2", "c1", "c2"],
+            "x": [10, 20, 30, 40, 50, 60],
+            "y": [100, 200, 300, 400, 500, 600],
+        }
+    )
+
+    table_id = f"test_kitchen_sink_no_rgcol_sum_{summary_side}_grand_{grand_summary_side}"
+
+    gt = (
+        GT(df, rowname_col="row", groupname_col="group", id=table_id)
+        .tab_header(title="Kitchen Sink Table", subtitle="Footnote ordering diagnostic")
+        .tab_stubhead(label="ID")
+        .tab_spanner(label="Metrics", columns=["x", "y"])
+        .tab_source_note(source_note="Source: synthetic data")
+        .summary_rows(
+            fns={"Sum": lambda df: df.sum(numeric_only=True)},
+            side=summary_side,
+        )
+        .grand_summary_rows(
+            fns={"Grand Total": lambda df: df.sum(numeric_only=True)},
+            side=grand_summary_side,
+        )
+        .tab_footnote("Title note", locations=loc.title())
+        .tab_footnote("Subtitle note", locations=loc.subtitle())
+        .tab_footnote("Stubhead note", locations=loc.stubhead())
+        .tab_footnote("Spanner note", locations=loc.spanner_labels(ids=["Metrics"]))
+        .tab_footnote("Column x label note", locations=loc.column_labels(columns="x"))
+        .tab_footnote("Column y label note", locations=loc.column_labels(columns="y"))
+        .tab_footnote("Grand summary note", locations=loc.grand_summary(columns="x", rows=[0]))
+        .tab_footnote("Body cell note", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("Stub note", locations=loc.stub(rows=[0]))
+        .tab_footnote("Row group note", locations=loc.row_groups(rows="Alpha"))
+        .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="Alpha", rows=[0]))
+        .tab_footnote("Summary stub note", locations=loc.summary_stub(groups="Alpha", rows=[0]))
+    )
+
+    assert_complete_html_without_style(snapshot, gt)
