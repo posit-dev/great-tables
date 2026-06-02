@@ -86,7 +86,13 @@ from ._spanners import (
 from ._stub import reorder_stub_df
 from ._stubhead import tab_stubhead
 from ._substitution import sub_large_vals, sub_missing, sub_small_vals, sub_values, sub_zero
-from ._tab_create_modify import tab_style, text_transform
+from ._tab_create_modify import (
+    tab_style,
+    text_case_match,
+    text_case_when,
+    text_replace,
+    text_transform,
+)
 from ._tbl_data import _get_cell, _set_cell, n_rows
 from ._utils import _migrate_unformatted_to_output
 from ._utils_render_html import (
@@ -416,6 +422,9 @@ class GT(
     tab_style = tab_style
     tab_options = tab_options
     text_transform = text_transform
+    text_replace = text_replace
+    text_case_match = text_case_match
+    text_case_when = text_case_when
 
     row_group_order = row_group_order
     tab_stub = tab_stub
