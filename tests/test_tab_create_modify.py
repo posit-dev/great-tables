@@ -147,3 +147,153 @@ def test_tab_style_loc_body_mask_rows_not_equal_raises(gt2: GT):
     with pytest.raises(ValueError) as exc_info:
         tab_style(gt2, style, LocBody(mask=mask))
     assert err_msg in exc_info.value.args[0]
+
+
+# =============================================================================
+# text_transform tests
+# =============================================================================
+
+
+def test_text_transform_basic(gt: GT):
+    new_gt = gt.text_transform(locations=loc.body(columns="x"), fn=lambda x: f"[{x}]")
+    html = new_gt.as_raw_html()
+    assert "[1]" in html
+    assert "[2]" in html
+
+
+def test_text_transform_formatted_cells():
+    df = pd.DataFrame({"val": [1.234, 5.678]})
+    html = (
+        GT(df)
+        .fmt_number(columns="val", decimals=1)
+        .text_transform(locations=loc.body(columns="val"), fn=lambda x: f"({x})")
+        .as_raw_html()
+    )
+    assert "(1.2)" in html
+    assert "(5.7)" in html
+
+
+def test_text_transform_row_selection():
+    df = pd.DataFrame({"name": ["alice", "bob", "charlie"]})
+    html = (
+        GT(df)
+        .text_transform(locations=loc.body(columns="name", rows=[0, 2]), fn=str.upper)
+        .as_raw_html()
+    )
+    assert "ALICE" in html
+    assert "bob" in html
+    assert "CHARLIE" in html
+
+
+def test_text_transform_multiple_locations():
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+    html = (
+        GT(df)
+        .text_transform(
+            locations=[loc.body(columns="a"), loc.body(columns="b")],
+            fn=lambda x: f"*{x}*",
+        )
+        .as_raw_html()
+    )
+    assert "*1*" in html
+    assert "*2*" in html
+    assert "*3*" in html
+    assert "*4*" in html
+
+
+def test_text_transform_polars():
+    df = pl.DataFrame({"x": ["hello", "world"]})
+    html = GT(df).text_transform(locations=loc.body(columns="x"), fn=str.upper).as_raw_html()
+    assert "HELLO" in html
+    assert "WORLD" in html
+
+
+def test_text_transform_skips_na():
+    df = pd.DataFrame({"x": [1.0, None, 3.0]})
+    html = (
+        GT(df).text_transform(locations=loc.body(columns="x"), fn=lambda x: f"[{x}]").as_raw_html()
+    )
+    assert "[1.0]" in html
+    assert "[3.0]" in html
+
+
+def test_text_transform_chaining():
+    df = pd.DataFrame({"x": ["hello"]})
+    html = (
+        GT(df)
+        .text_transform(locations=loc.body(columns="x"), fn=str.upper)
+        .text_transform(locations=loc.body(columns="x"), fn=lambda x: f"({x})")
+        .as_raw_html()
+    )
+    assert "(HELLO)" in html
+
+
+def test_text_transform_latex():
+    df = pd.DataFrame({"x": [1, 2]})
+    latex = (
+        GT(df)
+        .fmt_number(columns="x", decimals=0)
+        .text_transform(locations=loc.body(columns="x"), fn=lambda x: f"[{x}]")
+        .as_latex()
+    )
+    assert "[1]" in latex
+    assert "[2]" in latex
+
+
+def test_text_transform_loc_stub():
+    from great_tables import exibble
+
+    html = (
+        GT(exibble[["num", "char", "row"]].head(3), rowname_col="row")
+        .text_transform(locations=loc.stub(), fn=str.upper)
+        .as_raw_html()
+    )
+    assert "ROW_1" in html
+    assert "ROW_2" in html
+    assert "ROW_3" in html
+
+
+def test_text_transform_loc_stub_with_rows():
+    from great_tables import exibble
+
+    html = (
+        GT(exibble[["num", "char", "row"]].head(3), rowname_col="row")
+        .text_transform(locations=loc.stub(rows=[0]), fn=str.upper)
+        .as_raw_html()
+    )
+    assert "ROW_1" in html
+    assert "row_2" in html
+
+
+def test_text_transform_loc_column_labels():
+    df = pd.DataFrame({"first_name": ["Alice"], "score": [95]})
+    html = GT(df).text_transform(locations=loc.column_labels(), fn=str.upper).as_raw_html()
+    assert "FIRST_NAME" in html
+    assert "SCORE" in html
+
+
+def test_text_transform_loc_column_labels_specific():
+    df = pd.DataFrame({"name": ["Alice"], "score": [95]})
+    html = (
+        GT(df)
+        .text_transform(locations=loc.column_labels(columns="name"), fn=str.upper)
+        .as_raw_html()
+    )
+    assert "NAME" in html
+    assert "score" in html
+
+
+def test_text_transform_loc_row_groups():
+    from great_tables import exibble
+
+    html = (
+        GT(
+            exibble[["num", "char", "row", "group"]].head(6),
+            rowname_col="row",
+            groupname_col="group",
+        )
+        .text_transform(locations=loc.row_groups(), fn=str.upper)
+        .as_raw_html()
+    )
+    assert "GRP_A" in html
+    assert "GRP_B" in html

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
+from ._gt_data import TextTransformInfo
 from ._helpers import GoogleFont
 from ._locations import Loc, set_style
 from ._styles import CellStyle
@@ -146,3 +147,84 @@ def tab_style(
         new_data = set_style(loc, new_data, style)
 
     return new_data
+
+
+def text_transform(self: GTSelf, locations: Loc | list[Loc], fn: Callable[[str], str]) -> GTSelf:
+    """Apply a custom text transformation to cells at specified locations.
+
+    With the `text_transform()` method we can target specific cells and apply a text
+    transformation function to their already-formatted content. This is useful for modifying the
+    rendered text of cells after all formatting (via `fmt_*()` methods) has been applied.
+
+    Parameters
+    ----------
+    locations
+        The cell or set of cells to be associated with the text transformation. Supported
+        locations include `loc.body()`, `loc.stub()`, `loc.row_groups()`, and
+        `loc.column_labels()`.
+    fn
+        A function that takes a cell's text content as a string and returns the transformed
+        string.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's use the `exibble` dataset to demonstrate `text_transform()`. We'll format the `num`
+    column and then apply a text transformation to wrap the values in parentheses.
+
+    ```{python}
+    from great_tables import GT, loc, exibble
+
+    (
+        GT(exibble[["num", "char"]].head(4))
+        .fmt_number(columns="num", decimals=1)
+        .text_transform(
+            locations=loc.body(columns="num"),
+            fn=lambda x: f"({x})",
+        )
+    )
+    ```
+
+    Using `text_transform()` we can also convert specific cells to uppercase. Here we target only
+    the first two rows of the `char` column.
+
+    ```{python}
+    from great_tables import GT, loc, exibble
+
+    (
+        GT(exibble[["num", "char"]].head(4))
+        .text_transform(
+            locations=loc.body(columns="char", rows=[0, 1]),
+            fn=lambda x: x.upper(),
+        )
+    )
+    ```
+
+    Multiple locations can be targeted at once by passing a list. In this example, we add a
+    prefix to all cells in both the `num` and `char` columns.
+
+    ```{python}
+    from great_tables import GT, loc, exibble
+
+    (
+        GT(exibble[["num", "char"]].head(4))
+        .fmt_number(columns="num", decimals=2)
+        .text_transform(
+            locations=[loc.body(columns="num"), loc.body(columns="char")],
+            fn=lambda x: f"~ {x}",
+        )
+    )
+    ```
+    """
+
+    if not isinstance(locations, list):
+        locations = [locations]
+
+    new_transforms = [TextTransformInfo(loc=loc, fn=fn) for loc in locations]
+
+    return self._replace(_transforms=self._transforms + new_transforms)
