@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+import re
+from typing import TYPE_CHECKING, Callable, Literal
 
 from ._gt_data import TextTransformInfo
 from ._helpers import GoogleFont
@@ -228,3 +229,265 @@ def text_transform(self: GTSelf, locations: Loc | list[Loc], fn: Callable[[str],
     new_transforms = [TextTransformInfo(loc=loc, fn=fn) for loc in locations]
 
     return self._replace(_transforms=self._transforms + new_transforms)
+
+
+def text_replace(
+    self: GTSelf,
+    pattern: str,
+    replacement: str,
+    locations: Loc | list[Loc] | None = None,
+) -> GTSelf:
+    """Perform targeted text replacement with a regex pattern.
+
+    With `text_replace()` we can target cells in specific locations and replace text fragments
+    matching a regular expression pattern. This operates on the already-formatted cell content
+    (i.e., after `fmt_*()` methods have been applied).
+
+    Parameters
+    ----------
+    pattern
+        A regex pattern used to target text fragments in the resolved cells.
+    replacement
+        The replacement text for any matched text fragments. Backreferences (e.g., `"\\\\1"`)
+        can be used to refer to capture groups in the pattern.
+    locations
+        The cell or set of cells to be associated with the text replacement. Supported locations
+        include `loc.body()`, `loc.stub()`, `loc.row_groups()`, and `loc.column_labels()`. If
+        `None`, defaults to `loc.body()`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that
+        we can facilitate method chaining.
+
+    Examples
+    --------
+    Use `text_replace()` to add HTML emphasis tags around text in parentheses.
+
+    ```{python}
+    import pandas as pd
+    from great_tables import GT, loc
+
+    df = pd.DataFrame({"item": ["Column A (details)", "Colum B (info)"], "value": [1, 2]})
+
+    (
+        GT(df)
+        .text_replace(
+            pattern=r"\\((.+?)\\)",
+            replacement=r"(<em>\\1</em>)",
+            locations=loc.body(columns="item"),
+        )
+    )
+    ```
+
+    Replace underscores with spaces in the stub (row labels).
+
+    ```{python}
+    from great_tables import GT, loc, exibble
+
+    (
+        GT(exibble[["num", "char", "row"]].head(4), rowname_col="row")
+        .text_replace(pattern="_", replacement=" ", locations=loc.stub())
+    )
+    ```
+    """
+    from ._locations import LocBody
+
+    if locations is None:
+        locations = LocBody()
+
+    def _replace_fn(x: str) -> str:
+        return re.sub(pattern, replacement, x)
+
+    return text_transform(self, locations=locations, fn=_replace_fn)
+
+
+def text_case_match(
+    self: GTSelf,
+    *cases: tuple[str | list[str], str],
+    default: str | None = None,
+    replace: Literal["all", "partial"] = "all",
+    locations: Loc | list[Loc] | None = None,
+) -> GTSelf:
+    """Perform text replacements with a switch-like approach.
+
+    With `text_case_match()` we can supply a sequence of matching cases in the form of
+    `(old_text, new_text)` tuples. Each tuple's first element specifies text to match (either a
+    single string or a list of strings) and the second element provides the replacement. By
+    default, the matching is performed on the entire cell text (`replace="all"`); use
+    `replace="partial"` for substring matching and replacement.
+
+    Parameters
+    ----------
+    *cases
+        One or more tuples of the form `(old_text, new_text)` where `old_text` is a string or
+        list of strings to match, and `new_text` is the replacement string.
+    default
+        The replacement text to use when cell values aren't matched by any of the supplied
+        cases. If `None` (the default), unmatched cells are left unchanged.
+    replace
+        The method for text replacement. Use `"all"` (the default) to match and replace the
+        entire cell text, or `"partial"` to match and replace substrings within the cell text.
+    locations
+        The cell or set of cells to be associated with the text replacement. Supported locations
+        include `loc.body()`, `loc.stub()`, `loc.row_groups()`, and `loc.column_labels()`. If
+        `None`, defaults to `loc.body()`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that
+        we can facilitate method chaining.
+
+    Examples
+    --------
+    Replace specific cell values in the `char` column with different text.
+
+    ```{python}
+    from great_tables import GT, loc, exibble
+
+    (
+        GT(exibble[["num", "char"]].head(4))
+        .text_case_match(
+            ("apricot", "APRICOT"),
+            (["banana", "coconut"], "tropical fruit"),
+            default="other",
+            locations=loc.body(columns="char"),
+        )
+    )
+    ```
+
+    Use `replace="partial"` to perform substring replacements.
+
+    ```{python}
+    from great_tables import GT, loc, exibble
+
+    (
+        GT(exibble[["num", "char"]].head(4))
+        .text_case_match(
+            ("an", "@"),
+            replace="partial",
+            locations=loc.body(columns="char"),
+        )
+    )
+    ```
+    """
+    from ._locations import LocBody
+
+    if locations is None:
+        locations = LocBody()
+
+    # Build the mapping from all old_text values to their replacement
+    match_map: list[tuple[list[str], str]] = []
+    for old_text, new_text in cases:
+        if isinstance(old_text, str):
+            old_text = [old_text]
+        match_map.append((old_text, new_text))
+
+    if replace == "all":
+
+        def _match_fn(x: str) -> str:
+            for old_values, new_text in match_map:
+                if x in old_values:
+                    return new_text
+            return default if default is not None else x
+
+    else:  # partial
+
+        def _match_fn(x: str) -> str:
+            result = x
+            for old_values, new_text in match_map:
+                for old_val in old_values:
+                    result = result.replace(old_val, new_text)
+            if result == x and default is not None:
+                return default
+            return result
+
+    return text_transform(self, locations=locations, fn=_match_fn)
+
+
+def text_case_when(
+    self: GTSelf,
+    *cases: tuple[Callable[[str], bool], str],
+    default: str | None = None,
+    locations: Loc | list[Loc] | None = None,
+) -> GTSelf:
+    """Perform text replacements using a case-when approach.
+
+    With `text_case_when()` we supply a sequence of cases as `(predicate, replacement)` tuples.
+    Each predicate is a function that takes the cell text (as a string) and returns `True` or
+    `False`. The first predicate that returns `True` determines the replacement text. This is
+    analogous to a series of if/elif statements applied to each cell.
+
+    Parameters
+    ----------
+    *cases
+        One or more tuples of the form `(predicate_fn, new_text)` where `predicate_fn` is a
+        callable that accepts a string and returns a boolean, and `new_text` is the replacement
+        string to use when the predicate is `True`.
+    default
+        The replacement text to use when no predicate matches. If `None` (the default),
+        unmatched cells are left unchanged.
+    locations
+        The cell or set of cells to be associated with the text replacement. Supported locations
+        include `loc.body()`, `loc.stub()`, `loc.row_groups()`, and `loc.column_labels()`. If
+        `None`, defaults to `loc.body()`.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that
+        we can facilitate method chaining.
+
+    Examples
+    --------
+    Conditionally replace cell values based on their content.
+
+    ```{python}
+    import pandas as pd
+    from great_tables import GT, loc
+
+    df = pd.DataFrame({"score": [95, 72, 88, 61, 100]})
+
+    (
+        GT(df)
+        .fmt_number(columns="score", decimals=0)
+        .text_case_when(
+            (lambda x: int(x) >= 90, "A"),
+            (lambda x: int(x) >= 80, "B"),
+            (lambda x: int(x) >= 70, "C"),
+            default="F",
+            locations=loc.body(columns="score"),
+        )
+    )
+    ```
+
+    Use string methods in predicates to match patterns.
+
+    ```{python}
+    from great_tables import GT, loc, exibble
+
+    (
+        GT(exibble[["num", "char"]].head(4))
+        .text_case_when(
+            (lambda x: x.startswith("a"), "Starts with A"),
+            (lambda x: len(x) > 6, "Long text"),
+            default="other",
+            locations=loc.body(columns="char"),
+        )
+    )
+    ```
+    """
+    from ._locations import LocBody
+
+    if locations is None:
+        locations = LocBody()
+
+    def _case_when_fn(x: str) -> str:
+        for predicate, new_text in cases:
+            if predicate(x):
+                return new_text
+        return default if default is not None else x
+
+    return text_transform(self, locations=locations, fn=_case_when_fn)
