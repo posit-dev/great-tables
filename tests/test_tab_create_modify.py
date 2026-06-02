@@ -297,3 +297,175 @@ def test_text_transform_loc_row_groups():
     )
     assert "GRP_A" in html
     assert "GRP_B" in html
+
+
+# =============================================================================
+# text_replace tests
+# =============================================================================
+
+
+def test_text_replace_basic():
+    df = pd.DataFrame({"x": ["hello_world", "foo_bar"]})
+    html = (
+        GT(df)
+        .text_replace(pattern="_", replacement=" ", locations=loc.body(columns="x"))
+        .as_raw_html()
+    )
+    assert "hello world" in html
+    assert "foo bar" in html
+
+
+def test_text_replace_regex():
+    df = pd.DataFrame({"x": ["item (detail)", "thing (info)"]})
+    html = (
+        GT(df)
+        .text_replace(
+            pattern=r"\((.+?)\)",
+            replacement=r"[\1]",
+            locations=loc.body(columns="x"),
+        )
+        .as_raw_html()
+    )
+    assert "[detail]" in html
+    assert "[info]" in html
+
+
+def test_text_replace_default_location():
+    df = pd.DataFrame({"x": ["aaa", "bbb"]})
+    html = GT(df).text_replace(pattern="a", replacement="z").as_raw_html()
+    assert "zzz" in html
+
+
+def test_text_replace_stub():
+    from great_tables import exibble
+
+    html = (
+        GT(exibble[["num", "char", "row"]].head(3), rowname_col="row")
+        .text_replace(pattern="_", replacement=" ", locations=loc.stub())
+        .as_raw_html()
+    )
+    assert "row 1" in html
+    assert "row 2" in html
+
+
+# =============================================================================
+# text_case_match tests
+# =============================================================================
+
+
+def test_text_case_match_all():
+    from great_tables import exibble
+
+    html = (
+        GT(exibble[["char"]].head(4))
+        .text_case_match(
+            ("apricot", "APRICOT"),
+            (["banana", "coconut"], "tropical"),
+            default="other",
+            locations=loc.body(columns="char"),
+        )
+        .as_raw_html()
+    )
+    assert "APRICOT" in html
+    assert "tropical" in html
+    assert "other" in html
+
+
+def test_text_case_match_no_default():
+    df = pd.DataFrame({"x": ["cat", "dog", "bird"]})
+    html = (
+        GT(df)
+        .text_case_match(
+            ("cat", "CAT"),
+            locations=loc.body(columns="x"),
+        )
+        .as_raw_html()
+    )
+    assert "CAT" in html
+    assert "dog" in html  # unchanged
+    assert "bird" in html  # unchanged
+
+
+def test_text_case_match_partial():
+    from great_tables import exibble
+
+    html = (
+        GT(exibble[["char"]].head(4))
+        .text_case_match(
+            ("an", "@"),
+            replace="partial",
+            locations=loc.body(columns="char"),
+        )
+        .as_raw_html()
+    )
+    # banana -> b@@a (two "an" replacements)
+    assert "b@@a" in html
+
+
+def test_text_case_match_default_location():
+    df = pd.DataFrame({"x": ["yes", "no"]})
+    html = GT(df).text_case_match(("yes", "YES")).as_raw_html()
+    assert "YES" in html
+    assert "no" in html
+
+
+# =============================================================================
+# text_case_when tests
+# =============================================================================
+
+
+def test_text_case_when_basic():
+    df = pd.DataFrame({"score": [95, 72, 88, 61]})
+    html = (
+        GT(df)
+        .fmt_number(columns="score", decimals=0)
+        .text_case_when(
+            (lambda x: int(x) >= 90, "A"),
+            (lambda x: int(x) >= 80, "B"),
+            (lambda x: int(x) >= 70, "C"),
+            default="F",
+            locations=loc.body(columns="score"),
+        )
+        .as_raw_html()
+    )
+    assert ">A<" in html
+    assert ">B<" in html
+    assert ">C<" in html
+    assert ">F<" in html
+
+
+def test_text_case_when_no_default():
+    df = pd.DataFrame({"x": ["apple", "banana", "cherry"]})
+    html = (
+        GT(df)
+        .text_case_when(
+            (lambda x: x.startswith("a"), "MATCHED"),
+            locations=loc.body(columns="x"),
+        )
+        .as_raw_html()
+    )
+    assert "MATCHED" in html
+    assert "banana" in html  # unchanged
+    assert "cherry" in html  # unchanged
+
+
+def test_text_case_when_default_location():
+    df = pd.DataFrame({"x": ["yes", "no"]})
+    html = GT(df).text_case_when((lambda x: x == "yes", "YES"), default="NO").as_raw_html()
+    assert "YES" in html
+    assert "NO" in html
+
+
+def test_text_case_when_first_match_wins():
+    df = pd.DataFrame({"x": ["hello"]})
+    html = (
+        GT(df)
+        .text_case_when(
+            (lambda x: len(x) > 3, "FIRST"),
+            (lambda x: len(x) > 2, "SECOND"),
+            locations=loc.body(columns="x"),
+        )
+        .as_raw_html()
+    )
+    assert "FIRST" in html
+    assert "SECOND" not in html

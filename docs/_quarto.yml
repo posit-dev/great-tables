@@ -129,6 +129,9 @@ quartodoc:
         - GT.tab_source_note
         - GT.tab_style
         - GT.text_transform
+        - GT.text_replace
+        - GT.text_case_match
+        - GT.text_case_when
         - GT.tab_options
     - title: Formatting column data
       desc: >
