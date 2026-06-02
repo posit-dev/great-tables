@@ -90,6 +90,7 @@ class GTData:
     _formats: Formats
     _substitutions: Formats
     _col_merge: ColMerges
+    _transforms: list  # list[TextTransformInfo]
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
@@ -140,6 +141,7 @@ class GTData:
             _formats=[],
             _substitutions=[],
             _col_merge=[],
+            _transforms=[],
             _options=options,
             _google_font_imports=GoogleFontImports(),
         )
@@ -1007,6 +1009,17 @@ class FormatInfo:
 #     def __init__(self):
 #         pass
 Formats = list
+
+
+# Text Transforms ----
+
+
+@dataclass
+class TextTransformInfo:
+    """Stores a text transformation function and the location to apply it."""
+
+    loc: "Loc"
+    fn: Callable[[str], str]
 
 
 # Column Merge ----
