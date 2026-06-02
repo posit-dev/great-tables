@@ -5,3 +5,5 @@ _site
 _sidebar.yml
 objects.json
 reference
+
+**/*.quarto_ipynb
