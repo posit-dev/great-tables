@@ -124,3 +124,7 @@ uv.lock
 
 # Local dev skills
 dev-skills/
+
+/*.md
+!README.md
+!ROADMAP.md
