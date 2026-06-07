@@ -11,9 +11,11 @@ def test_no_pandas_import_fails():
         import pandas
 
 
-def test_no_pandas_import_exibble_raises():
-    with pytest.raises(ModuleNotFoundError):
-        from great_tables import exibble
+def test_no_pandas_import_exibble_works_with_polars():
+    from great_tables import exibble
+    import polars as pl
+
+    assert isinstance(exibble, pl.DataFrame)
 
 
 def test_no_pandas_import():
