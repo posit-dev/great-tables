@@ -6167,7 +6167,7 @@ def fmt_nanoplot(
     rows: int | list[int] | None = None,
     plot_type: PlotType = "line",
     plot_height: str = "2em",
-    missing_vals: MissingVals = "marker",
+    missing_vals: MissingVals = "gap",
     autoscale: bool = False,
     reference_line: str | int | float | None = None,
     reference_area: list[Any] | None = None,
@@ -6649,10 +6649,16 @@ def _process_number_stream(data_vals: str) -> list[float]:
     number_stream = re.sub(r"\\[|\\]", " ", number_stream)
     number_stream = re.sub(r"^\\s+|\\s+$", "", number_stream)
     number_stream = [val for val in number_stream.split()]
-    number_stream = [re.sub(r"[\\(\\)a-dA-Df-zF-Z]", "", val) for val in number_stream]
-    number_stream = [float(val) for val in number_stream]
 
-    return number_stream
+    result: list[float] = []
+    for val in number_stream:
+        try:
+            result.append(float(val))
+        except ValueError:
+            cleaned = re.sub(r"[\(\)a-dA-Df-zF-Z]", "", val)
+            result.append(float(cleaned))
+
+    return result
 
 
 def _process_time_stream(data_vals: str) -> list[float]:
