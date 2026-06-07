@@ -849,7 +849,7 @@ def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataF
     try:
         import polars as pl
 
-        return pl.DataFrame({name: ser})
+        return pl.DataFrame({name: ser}, strict=False)
     except ImportError:
         pass
 
