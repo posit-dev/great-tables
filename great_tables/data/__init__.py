@@ -5,30 +5,40 @@ from typing import Any
 from importlib_resources import files
 
 
+def _read_csv_pandas(fname: Any, dtype: dict[str, str] | None = None) -> Any:
+    """Read a CSV file as a pandas DataFrame."""
+    import pandas as pd
+
+    return pd.read_csv(fname, dtype=dtype)
+
+
+def _read_csv_polars(fname: Any, dtype: dict[str, str] | None = None) -> Any:
+    """Read a CSV file as a polars DataFrame."""
+    import polars as pl
+
+    schema_overrides = None
+    if dtype is not None:
+        _PD_TO_PL = {
+            "object": pl.Utf8,
+            "int64": pl.Int64,
+            "Int64": pl.Int64,
+            "float64": pl.Float64,
+        }
+        schema_overrides = {col: _PD_TO_PL[t] for col, t in dtype.items()}
+
+    return pl.read_csv(fname, schema_overrides=schema_overrides)
+
+
 def _read_csv(fname: Any, dtype: dict[str, str] | None = None) -> Any:
     """Read a CSV file using pandas (preferred for backward compat) or polars."""
 
     try:
-        import pandas as pd
-
-        return pd.read_csv(fname, dtype=dtype)
+        return _read_csv_pandas(fname, dtype=dtype)
     except ImportError:
         pass
 
     try:
-        import polars as pl
-
-        schema_overrides = None
-        if dtype is not None:
-            _PD_TO_PL = {
-                "object": pl.Utf8,
-                "int64": pl.Int64,
-                "Int64": pl.Int64,
-                "float64": pl.Float64,
-            }
-            schema_overrides = {col: _PD_TO_PL[t] for col, t in dtype.items()}
-
-        return pl.read_csv(fname, schema_overrides=schema_overrides)
+        return _read_csv_polars(fname, dtype=dtype)
     except ImportError:
         pass
 
@@ -1381,3 +1391,63 @@ _x_locales_dtype = {
 }
 
 __x_locales = _read_csv(_x_locales_fname, dtype=_x_locales_dtype)  # type: ignore
+
+
+# ---------------------------------------------------------------------------
+# Backend-scoped dataset access: data.pd.<name> and data.pl.<name>
+# ---------------------------------------------------------------------------
+
+# Registry mapping dataset names to (fname, dtype) pairs
+_DATASETS: dict[str, tuple[Any, dict[str, str] | None]] = {
+    "countrypops": (_countrypops_fname, _countrypops_dtype),
+    "sza": (_sza_fname, _sza_dtype),
+    "gtcars": (_gtcars_fname, _gtcars_dtype),
+    "sp500": (_sp500_fname, _sp500_dtype),
+    "pizzaplace": (_pizzaplace_fname, _pizzaplace_dtype),
+    "exibble": (_exibble_fname, _exibble_dtype),
+    "towny": (_towny_fname, _towny_dtype),
+    "peeps": (_peeps_fname, _peeps_dtype),
+    "films": (_films_fname, _films_dtype),
+    "metro": (_metro_fname, _metro_dtype),
+    "gibraltar": (_gibraltar_fname, _gibraltar_dtype),
+    "constants": (_constants_fname, _constants_dtype),
+    "illness": (_illness_fname, _illness_dtype),
+    "reactions": (_reactions_fname, _reactions_dtype),
+    "photolysis": (_photolysis_fname, _photolysis_dtype),
+    "nuclides": (_nuclides_fname, _nuclides_dtype),
+    "islands": (_islands_fname, None),
+    "airquality": (_airquality_fname, None),
+}
+
+
+class _BackendNamespace:
+    """Lazy namespace that loads datasets using a specific backend (pandas or polars).
+
+    Accessed as ``great_tables.data.pd.<dataset>`` or ``great_tables.data.pl.<dataset>``.
+    Datasets are loaded on first access and cached for subsequent use.
+    """
+
+    def __init__(self, reader: Any) -> None:
+        self._reader = reader
+        self._cache: dict[str, Any] = {}
+
+    def __getattr__(self, name: str) -> Any:
+        if name.startswith("_"):
+            raise AttributeError(name)
+        if name in self._cache:
+            return self._cache[name]
+        if name not in _DATASETS:
+            raise AttributeError(
+                f"Dataset {name!r} not found. Available datasets: {', '.join(sorted(_DATASETS))}"
+            )
+        fname, dtype = _DATASETS[name]
+        df = self._reader(fname, dtype=dtype)
+        self._cache[name] = df
+        return df
+
+    def __dir__(self) -> list[str]:
+        return sorted(_DATASETS)
+
+
+pd = _BackendNamespace(_read_csv_pandas)
+pl = _BackendNamespace(_read_csv_polars)
