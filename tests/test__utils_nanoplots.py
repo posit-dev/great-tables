@@ -2091,3 +2091,114 @@ def test_nanoplot_options_interactive_data_values():
     # When explicitly set to True, it should remain True
     opts_true = nanoplot_options(interactive_data_values=True)
     assert opts_true["interactive_data_values"] is True
+
+
+# -------------------------------------------------------
+# Tests for NaN / missing value handling in nanoplots
+# -------------------------------------------------------
+
+Y_VALS_WITH_NAN: list[float] = [1.0, 2.0, 3.0, float("nan"), float("nan"), 6.0, 7.0, 8.0]
+
+
+def _is_nanoplot_output_multiline(nanoplot_str: str) -> bool:
+    import re
+
+    return bool(re.match(r"^<div><svg.*</svg></div>$", nanoplot_str, re.DOTALL))
+
+
+@pytest.mark.parametrize(
+    "missing_vals",
+    ["gap", "marker", "zero", "remove"],
+)
+@pytest.mark.parametrize(
+    "plot_type",
+    ["line", "bar"],
+)
+def test_nanoplot_nan_missing_vals(missing_vals: str, plot_type: str):
+    """NaN values in y_vals should not crash for any missing_vals option."""
+    result = _generate_nanoplot(
+        y_vals=Y_VALS_WITH_NAN, plot_type=plot_type, missing_vals=missing_vals
+    )
+    assert _is_nanoplot_output_multiline(result)
+    assert "None" not in result
+
+
+def test_nanoplot_gap_creates_segments_curved():
+    """With missing_vals='gap' and curved line, the SVG should have multiple <path> elements
+    for the separate line segments and no marker circles."""
+    import re
+
+    result = _generate_nanoplot(y_vals=Y_VALS_WITH_NAN, missing_vals="gap")
+    assert _is_nanoplot_output_multiline(result)
+
+    # Should contain multiple curve path segments (gap splits the line)
+    curve_paths = re.findall(
+        r'<path d="M .*?" stroke="[^"]*" stroke-width="[^"]*" fill="none"', result
+    )
+    assert len(curve_paths) == 2  # Two segments: [1,2,3] and [6,7,8]
+
+    # Should NOT have red marker circles
+    assert 'stroke="red"' not in result
+
+
+def test_nanoplot_gap_creates_segments_straight():
+    """With missing_vals='gap' and straight line, the SVG should have multiple <polyline> elements."""
+    import re
+
+    result = _generate_nanoplot(
+        y_vals=Y_VALS_WITH_NAN,
+        missing_vals="gap",
+        data_line_type="straight",
+    )
+    assert _is_nanoplot_output_multiline(result)
+
+    polylines = re.findall(r"<polyline ", result)
+    assert len(polylines) == 2
+
+
+def test_nanoplot_gap_bar_skips_nan():
+    """With missing_vals='gap' and bar plot, NaN positions should not generate bar <rect> elements."""
+    import re
+
+    y_vals_no_nan = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+    result_no_nan = _generate_nanoplot(y_vals=y_vals_no_nan, plot_type="bar", missing_vals="gap")
+    result_nan = _generate_nanoplot(y_vals=Y_VALS_WITH_NAN, plot_type="bar", missing_vals="gap")
+    assert _is_nanoplot_output_multiline(result_nan)
+
+    # The NaN version should have exactly 2 fewer <rect> elements (the 2 NaN bars skipped)
+    rects_no_nan = len(re.findall(r"<rect ", result_no_nan))
+    rects_nan = len(re.findall(r"<rect ", result_nan))
+    assert rects_no_nan - rects_nan == 2
+
+    # No marker circles
+    assert 'stroke="red"' not in result_nan
+
+
+def test_nanoplot_marker_shows_red_circles():
+    """With missing_vals='marker', NaN positions should show red marker circles."""
+    result = _generate_nanoplot(y_vals=Y_VALS_WITH_NAN, missing_vals="marker")
+    assert _is_nanoplot_output_multiline(result)
+    assert 'stroke="red"' in result
+
+
+def test_nanoplot_zero_replaces_nan():
+    """With missing_vals='zero', NaN positions should be replaced with 0."""
+    result = _generate_nanoplot(y_vals=Y_VALS_WITH_NAN, missing_vals="zero")
+    assert _is_nanoplot_output_multiline(result)
+    # No red markers, no gaps — continuous line
+    assert 'stroke="red"' not in result
+
+
+def test_nanoplot_remove_drops_nan():
+    """With missing_vals='remove', NaN positions should be dropped entirely."""
+    import re
+
+    y_vals_no_nan = [1.0, 2.0, 3.0, 6.0, 7.0, 8.0]
+    result_no_nan = _generate_nanoplot(y_vals=y_vals_no_nan, missing_vals="remove")
+    result = _generate_nanoplot(y_vals=Y_VALS_WITH_NAN, missing_vals="remove")
+    assert _is_nanoplot_output_multiline(result)
+
+    # Should have the same number of circles as a 6-value plot (2 NaN dropped)
+    circles_no_nan = len(re.findall(r"<circle ", result_no_nan))
+    circles = len(re.findall(r"<circle ", result))
+    assert circles == circles_no_nan
