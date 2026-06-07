@@ -26,6 +26,7 @@ from ._formats import (
     fmt_markdown,
     fmt_nanoplot,
     fmt_number,
+    fmt_partsper,
     fmt_percent,
     fmt_roman,
     fmt_scientific,
@@ -362,6 +363,7 @@ class GT(
     fmt_number = fmt_number
     fmt_integer = fmt_integer
     fmt_percent = fmt_percent
+    fmt_partsper = fmt_partsper
     fmt_scientific = fmt_scientific
     fmt_engineering = fmt_engineering
     fmt_currency = fmt_currency

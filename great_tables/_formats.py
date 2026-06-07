@@ -1466,6 +1466,319 @@ def fmt_percent_context(
     return x_formatted
 
 
+# Scale factors for parts-per units (multiply proportion by this value)
+_PARTSPER_UNITS: dict[str, dict[str, Any]] = {
+    "per-mille": {"factor": 1_000, "symbol": "\u2030"},
+    "per-myriad": {"factor": 10_000, "symbol": "\u2031"},
+    "pcm": {"factor": 100_000, "symbol": "pcm"},
+    "ppm": {"factor": 1_000_000, "symbol": "ppm"},
+    "ppb": {"factor": 1_000_000_000, "symbol": "ppb"},
+    "ppt": {"factor": 1_000_000_000_000, "symbol": "ppt"},
+    "ppq": {"factor": 1_000_000_000_000_000, "symbol": "ppq"},
+}
+
+
+def fmt_partsper(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    to_units: str = "per-mille",
+    symbol: str = "auto",
+    decimals: int = 2,
+    drop_trailing_zeros: bool = False,
+    drop_trailing_dec_mark: bool = True,
+    scale_values: bool = True,
+    use_seps: bool = True,
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+    force_sign: bool = False,
+    incl_space: str | bool = "auto",
+    locale: str | None = None,
+) -> GTSelf:
+    """
+    Format values as parts-per quantities.
+
+    With numeric values in a **gt** table, we can format the values so that they are rendered as
+    parts-per quantities (per mille, ppm, ppb, etc.). The following keywords are available for
+    the `to_units` parameter:
+
+    - `"per-mille"`: Per mille (1 part in 1,000)
+    - `"per-myriad"`: Per myriad (1 part in 10,000)
+    - `"pcm"`: Per cent mille (1 part in 100,000)
+    - `"ppm"`: Parts per million (1 part in 1,000,000)
+    - `"ppb"`: Parts per billion (1 part in 1,000,000,000)
+    - `"ppt"`: Parts per trillion (1 part in 1,000,000,000,000)
+    - `"ppq"`: Parts per quadrillion (1 part in 1,000,000,000,000,000)
+
+    The function provides a lot of formatting control and we can use the following options:
+
+    - custom symbol/units: override the automatic symbol or units display with a custom choice
+    - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice
+      of the decimal symbol
+    - digit grouping separators: options to enable/disable digit separators and provide a choice of
+      separator symbol
+    - value scaling toggle: choose to disable automatic value scaling in the situation that values
+      are already scaled coming in (and just require the appropriate symbol or unit display)
+    - pattern: option to use a text pattern for decoration of the formatted values
+    - locale-based formatting: providing a locale ID will result in number formatting specific to
+      the chosen locale
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    to_units
+        A keyword that signifies the desired output quantity. This can be any from the following
+        set: `"per-mille"`, `"per-myriad"`, `"pcm"`, `"ppm"`, `"ppb"`, `"ppt"`, or `"ppq"`.
+    symbol
+        The symbol/units to use for the quantity. By default, this is set to `"auto"` and the
+        appropriate symbol will be chosen based on the `to_units` keyword and the output context.
+        This can be changed by supplying a string (e.g., using `symbol="ppbV"` when
+        `to_units="ppb"`).
+    decimals
+        The `decimals` values corresponds to the exact number of decimal places to use. A value such
+        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
+        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
+        can be removed with `drop_trailing_zeros=True`.
+    drop_trailing_zeros
+        A boolean value that allows for removal of trailing zeros (those redundant zeros after the
+        decimal mark).
+    drop_trailing_dec_mark
+        A boolean value that determines whether decimal marks should always appear even if there are
+        no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
+        default trailing decimal marks are not shown.
+    scale_values
+        Should the values be scaled through multiplication according to the keyword set in
+        `to_units`? By default this is `True` since the expectation is that normally values are
+        proportions. Setting to `False` signifies that the values are already scaled and require
+        only the appropriate symbol/units when formatted.
+    use_seps
+        The `use_seps` option allows for the use of digit group separators. The type of digit group
+        separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
+        setting is `True` by default.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    sep_mark
+        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+        ignored if a `locale` is supplied (i.e., is not `None`).
+    dec_mark
+        The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
+        `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
+        `locale` is supplied (i.e., is not `None`).
+    force_sign
+        Should the positive sign be shown for positive values (effectively showing a sign for all
+        values except zero)? If so, use `True` for this option. The default is `False`, where only
+        negative numbers will display a minus sign.
+    incl_space
+        An option for whether to include a space between the value and the symbol/units. The default
+        is `"auto"` which provides spacing dependent on the mark itself (symbols like `‰` get no
+        space; text abbreviations like `ppm` get a space). This can be directly controlled by using
+        either `True` or `False`.
+    locale
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
+    locale ID here means separator and decimal marks will be correct for the given locale. Should
+    any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
+    preferred values.
+
+    Note that a `locale` value provided here will override any global locale setting performed in
+    [`GT()`](`great_tables.GT`)'s own `locale` argument (it is settable there as a value received by
+    all other methods that have a `locale` argument).
+
+    Examples
+    --------
+    Let's use a small dataset with proportional values and format them as parts-per-mille values.
+
+    ```{python}
+    from great_tables import GT
+    import pandas as pd
+
+    df = pd.DataFrame({"x": [0.001, 0.0001, 0.00001, 0.5, -0.005]})
+
+    GT(df).fmt_partsper(columns="x", to_units="per-mille")
+    ```
+
+    We can also format values as parts per million (ppm) using a Polars DataFrame:
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT
+
+    df = pl.DataFrame({"x": [0.0000015, 0.00035, 0.0001]})
+
+    GT(df).fmt_partsper(columns="x", to_units="ppm")
+    ```
+
+    If the values are already scaled (not proportions), set `scale_values=False` and use a custom
+    symbol:
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT
+
+    concentrations = pl.DataFrame({"gas": ["CO", "NO2", "O3"], "conc": [1.5, 35.0, 120.0]})
+
+    GT(concentrations).fmt_partsper(columns="conc", to_units="ppb", scale_values=False, symbol="ppbV")
+    ```
+
+    See Also
+    --------
+    The functional version of this method,
+    [`val_fmt_partsper()`](`great_tables._formats_vals.val_fmt_partsper`), allows you to format a
+    single numerical value (or a list of them).
+    """
+
+    # Validate the `to_units` parameter
+    if to_units not in _PARTSPER_UNITS:
+        raise ValueError(
+            f"Invalid `to_units` value: '{to_units}'. "
+            f"Must be one of: {', '.join(_PARTSPER_UNITS.keys())}."
+        )
+
+    locale = _resolve_locale(self, locale=locale)
+
+    # Use locale-based marks if a locale ID is provided
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
+
+    # Determine the scale factor
+    if scale_values:
+        scale_by = float(_PARTSPER_UNITS[to_units]["factor"])
+    else:
+        scale_by = 1.0
+
+    # Determine the symbol to use
+    if symbol == "auto":
+        resolved_symbol = _PARTSPER_UNITS[to_units]["symbol"]
+    else:
+        resolved_symbol = symbol
+
+    # Determine spacing: "auto" means no space for Unicode symbols (‰, ‱), space for text
+    if incl_space == "auto":
+        resolved_incl_space = to_units not in ("per-mille", "per-myriad")
+    else:
+        resolved_incl_space = bool(incl_space)
+
+    pf_format = partial(
+        fmt_partsper_context,
+        data=self,
+        decimals=decimals,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        scale_by=scale_by,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        symbol=resolved_symbol,
+        incl_space=resolved_incl_space,
+        pattern=pattern,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+def fmt_partsper_context(
+    x: float | None,
+    data: GTData,
+    decimals: int,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    use_seps: bool,
+    scale_by: float,
+    sep_mark: str,
+    dec_mark: str,
+    force_sign: bool,
+    symbol: str,
+    incl_space: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
+
+    # Scale `x` value by the defined scale factor
+    x = x * scale_by
+
+    # Determine properties of the value
+    is_negative = _has_negative_value(value=x)
+    is_positive = _has_positive_value(value=x)
+
+    x_formatted = _value_to_decimal_notation(
+        value=x,
+        decimals=decimals,
+        n_sigfig=None,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+    )
+
+    # Get the context-specific symbol (escape for LaTeX if needed)
+    if context == "latex":
+        # Escape the per-mille/per-myriad Unicode symbols for LaTeX
+        if symbol == "\u2030":
+            display_symbol = "\\textperthousand{}"
+        elif symbol == "\u2031":
+            display_symbol = "\\textpertenthousand{}"
+        else:
+            display_symbol = symbol
+    else:
+        display_symbol = symbol
+
+    # Create a pattern for affixing the symbol
+    space_character = " " if incl_space else ""
+    symbol_pattern = f"{{x}}{space_character}{display_symbol}"
+
+    if is_negative:
+        x_formatted = x_formatted.replace("-", "")
+        x_formatted = symbol_pattern.replace("{x}", x_formatted)
+        x_formatted = "-" + x_formatted
+    elif is_positive and force_sign:
+        x_formatted = x_formatted.replace("+", "")
+        x_formatted = symbol_pattern.replace("{x}", x_formatted)
+        x_formatted = "+" + x_formatted
+    else:
+        x_formatted = symbol_pattern.replace("{x}", x_formatted)
+
+    # Implement minus sign replacement for `x_formatted`
+    if is_negative:
+        minus_mark = _context_minus_mark(context=context)
+        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
+
+
 def fmt_currency(
     self: GTSelf,
     columns: SelectExpr = None,
