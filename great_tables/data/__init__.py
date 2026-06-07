@@ -1,11 +1,49 @@
+from __future__ import annotations
+
+from typing import Any
+
 from importlib_resources import files
 
-try:
+
+def _read_csv_pandas(fname: Any, dtype: dict[str, str] | None = None) -> Any:
+    """Read a CSV file as a pandas DataFrame."""
     import pandas as pd
-except ModuleNotFoundError:
-    raise ModuleNotFoundError(
-        "Currently, importing great_tables.data requires pandas. "
-        "This will change in the future. Most of great_tables can be used without pandas."
+
+    return pd.read_csv(fname, dtype=dtype)
+
+
+def _read_csv_polars(fname: Any, dtype: dict[str, str] | None = None) -> Any:
+    """Read a CSV file as a polars DataFrame."""
+    import polars as pl
+
+    schema_overrides = None
+    if dtype is not None:
+        _PD_TO_PL = {
+            "object": pl.Utf8,
+            "int64": pl.Int64,
+            "Int64": pl.Int64,
+            "float64": pl.Float64,
+        }
+        schema_overrides = {col: _PD_TO_PL[t] for col, t in dtype.items()}
+
+    return pl.read_csv(fname, schema_overrides=schema_overrides)
+
+
+def _read_csv(fname: Any, dtype: dict[str, str] | None = None) -> Any:
+    """Read a CSV file using pandas (preferred for backward compat) or polars."""
+
+    try:
+        return _read_csv_pandas(fname, dtype=dtype)
+    except ImportError:
+        pass
+
+    try:
+        return _read_csv_polars(fname, dtype=dtype)
+    except ImportError:
+        pass
+
+    raise ImportError(
+        "Importing great_tables.data requires either pandas or polars to be installed."
     )
 
 
@@ -289,7 +327,7 @@ _nuclides_dtype = {
 _islands_fname = DATA_MOD / "x-islands.csv"
 _airquality_fname = DATA_MOD / "x-airquality.csv"
 
-countrypops: pd.DataFrame = pd.read_csv(_countrypops_fname, dtype=_countrypops_dtype)  # type: ignore
+countrypops = _read_csv(_countrypops_fname, dtype=_countrypops_dtype)  # type: ignore
 countrypops.__doc__ = """
 Yearly populations of countries from 1960 to 2022.
 
@@ -325,7 +363,7 @@ Source
 <https://data.worldbank.org/indicator/SP.POP.TOTL>
 """
 
-sza: pd.DataFrame = pd.read_csv(_sza_fname, dtype=_sza_dtype)  # type: ignore
+sza = _read_csv(_sza_fname, dtype=_sza_dtype)  # type: ignore
 sza.__doc__ = """
 Twice hourly solar zenith angles by month & latitude.
 
@@ -372,7 +410,7 @@ Calculated Actinic Fluxes (290 - 700 nm) for Air Pollution Photochemistry Applic
 1976), available at: <https://nepis.epa.gov/Exe/ZyPURL.cgi?Dockey=9100JA26.txt>.
 """
 
-gtcars: pd.DataFrame = pd.read_csv(_gtcars_fname, dtype=_gtcars_dtype)  # type: ignore
+gtcars = _read_csv(_gtcars_fname, dtype=_gtcars_dtype)  # type: ignore
 gtcars.__doc__ = """
 Deluxe automobiles from the 2014-2017 period.
 
@@ -431,7 +469,7 @@ $ msrp        <f64> 447000.0, 291744.0, 263553.0
 
 """
 
-sp500: pd.DataFrame = pd.read_csv(_sp500_fname, dtype=_sp500_dtype)  # type: ignore
+sp500 = _read_csv(_sp500_fname, dtype=_sp500_dtype)  # type: ignore
 sp500.__doc__ = """
 Daily S&P 500 Index data from 1950 to 2015.
 
@@ -465,7 +503,7 @@ $ adj_close <f64> 2043.9399, 2063.3601, 2078.3601
 
 """
 
-pizzaplace: pd.DataFrame = pd.read_csv(_pizzaplace_fname, dtype=_pizzaplace_dtype)  # type: ignore
+pizzaplace = _read_csv(_pizzaplace_fname, dtype=_pizzaplace_dtype)  # type: ignore
 pizzaplace.__doc__ = """
 A year of pizza sales from a pizza place.
 
@@ -582,7 +620,7 @@ $ price <f64> 13.25, 16.0, 16.0
 
 """
 
-exibble: pd.DataFrame = pd.read_csv(_exibble_fname, dtype=_exibble_dtype)  # type: ignore
+exibble = _read_csv(_exibble_fname, dtype=_exibble_dtype)  # type: ignore
 exibble.__doc__ = """
 A toy example table for testing with great_tables: exibble.
 
@@ -625,7 +663,7 @@ $ group    <str> 'grp_a', 'grp_a', 'grp_a'
 
 """
 
-towny: pd.DataFrame = pd.read_csv(_towny_fname, dtype=_towny_dtype)  # type: ignore
+towny = _read_csv(_towny_fname, dtype=_towny_dtype)  # type: ignore
 towny.__doc__ = """
 Populations of all municipalities in Ontario from 1996 to 2021.
 
@@ -703,7 +741,7 @@ $ pop_change_2016_2021_pct <f64> 0.0932, 0.007, 0.0013
 
 """
 
-peeps: pd.DataFrame = pd.read_csv(_peeps_fname, dtype=_peeps_dtype)  # type: ignore
+peeps = _read_csv(_peeps_fname, dtype=_peeps_dtype)  # type: ignore
 peeps.__doc__ = """
 A table of personal information for people all over the world.
 
@@ -759,7 +797,7 @@ $ weight_kg    <f64> 76.4, 74.9, 61.6
 
 """
 
-films: pd.DataFrame = pd.read_csv(_films_fname, dtype=_films_dtype)  # type: ignore
+films = _read_csv(_films_fname, dtype=_films_dtype)  # type: ignore
 films.__doc__ = """
 Feature films in competition at the Cannes Film Festival.
 
@@ -807,7 +845,7 @@ $ imdb_url            <str> 'https://www.imdb.com/title/tt0038297/',
 
 """
 
-metro: pd.DataFrame = pd.read_csv(_metro_fname, dtype=_metro_dtype)  # type: ignore
+metro = _read_csv(_metro_fname, dtype=_metro_dtype)  # type: ignore
 metro.__doc__ = """
 The stations of the Paris Metro.
 
@@ -875,7 +913,7 @@ $ location           <str> 'Paris 16th, Paris 17th',
 
 """
 
-gibraltar: pd.DataFrame = pd.read_csv(_gibraltar_fname, dtype=_gibraltar_dtype)  # type: ignore
+gibraltar = _read_csv(_gibraltar_fname, dtype=_gibraltar_dtype)  # type: ignore
 gibraltar.__doc__ = """
 Weather conditions in Gibraltar, May 2023.
 
@@ -917,7 +955,7 @@ $ condition  <str> 'Fair', 'Fair', 'Fair'
 
 """
 
-constants: pd.DataFrame = pd.read_csv(_constants_fname, dtype=_constants_dtype)  # type: ignore
+constants = _read_csv(_constants_fname, dtype=_constants_dtype)  # type: ignore
 constants.__doc__ = """
 The fundamental physical constants.
 
@@ -958,7 +996,7 @@ $ units     <str> None, 'kg', 'J'
 
 """
 
-illness: pd.DataFrame = pd.read_csv(_illness_fname, dtype=_illness_dtype)  # type: ignore
+illness = _read_csv(_illness_fname, dtype=_illness_dtype)  # type: ignore
 illness.__doc__ = """
 Lab tests for one suffering from an illness.
 
@@ -1043,7 +1081,7 @@ $ norm_u <f64> None, 10.0, 8.0
 
 """
 
-reactions: pd.DataFrame = pd.read_csv(_reactions_fname, dtype=_reactions_dtype)  # type: ignore
+reactions = _read_csv(_reactions_fname, dtype=_reactions_dtype)  # type: ignore
 reactions.__doc__ = """
 Reaction rates for gas-phase atmospheric reactions of organic compounds.
 
@@ -1162,7 +1200,7 @@ $ Cl_t_high     <f64> 300.0, 500.0, 950.0
 
 """
 
-photolysis: pd.DataFrame = pd.read_csv(_photolysis_fname, dtype=_photolysis_dtype)  # type: ignore
+photolysis = _read_csv(_photolysis_fname, dtype=_photolysis_dtype)  # type: ignore
 photolysis.__doc__ = """
 Data on photolysis rates for gas-phase organic compounds.
 
@@ -1217,7 +1255,7 @@ $ sigma_298_cm2 <str> '1.43E-18,1.27E-18,1.11E-18,...',
 
 """
 
-nuclides: pd.DataFrame = pd.read_csv(_nuclides_fname, dtype=_nuclides_dtype)  # type: ignore
+nuclides = _read_csv(_nuclides_fname, dtype=_nuclides_dtype)  # type: ignore
 nuclides.__doc__ = """
 Nuclide data.
 
@@ -1292,8 +1330,8 @@ $ mass_excess_uncert         <f64> 1.3e-05, 1.5e-05, 8e-05
 
 """
 
-islands: pd.DataFrame = pd.read_csv(_islands_fname)  # type: ignore
-airquality: pd.DataFrame = pd.read_csv(_airquality_fname)  # type: ignore
+islands = _read_csv(_islands_fname)  # type: ignore
+airquality = _read_csv(_airquality_fname)  # type: ignore
 
 
 _x_locales_fname = DATA_MOD / "x_locales.csv"
@@ -1352,4 +1390,64 @@ _x_locales_dtype = {
     "page_size_options_label_text": "object",
 }
 
-__x_locales: pd.DataFrame = pd.read_csv(_x_locales_fname, dtype=_x_locales_dtype)  # type: ignore
+__x_locales = _read_csv(_x_locales_fname, dtype=_x_locales_dtype)  # type: ignore
+
+
+# ---------------------------------------------------------------------------
+# Backend-scoped dataset access: data.pd.<name> and data.pl.<name>
+# ---------------------------------------------------------------------------
+
+# Registry mapping dataset names to (fname, dtype) pairs
+_DATASETS: dict[str, tuple[Any, dict[str, str] | None]] = {
+    "countrypops": (_countrypops_fname, _countrypops_dtype),
+    "sza": (_sza_fname, _sza_dtype),
+    "gtcars": (_gtcars_fname, _gtcars_dtype),
+    "sp500": (_sp500_fname, _sp500_dtype),
+    "pizzaplace": (_pizzaplace_fname, _pizzaplace_dtype),
+    "exibble": (_exibble_fname, _exibble_dtype),
+    "towny": (_towny_fname, _towny_dtype),
+    "peeps": (_peeps_fname, _peeps_dtype),
+    "films": (_films_fname, _films_dtype),
+    "metro": (_metro_fname, _metro_dtype),
+    "gibraltar": (_gibraltar_fname, _gibraltar_dtype),
+    "constants": (_constants_fname, _constants_dtype),
+    "illness": (_illness_fname, _illness_dtype),
+    "reactions": (_reactions_fname, _reactions_dtype),
+    "photolysis": (_photolysis_fname, _photolysis_dtype),
+    "nuclides": (_nuclides_fname, _nuclides_dtype),
+    "islands": (_islands_fname, None),
+    "airquality": (_airquality_fname, None),
+}
+
+
+class _BackendNamespace:
+    """Lazy namespace that loads datasets using a specific backend (pandas or polars).
+
+    Accessed as ``great_tables.data.pd.<dataset>`` or ``great_tables.data.pl.<dataset>``.
+    Datasets are loaded on first access and cached for subsequent use.
+    """
+
+    def __init__(self, reader: Any) -> None:
+        self._reader = reader
+        self._cache: dict[str, Any] = {}
+
+    def __getattr__(self, name: str) -> Any:
+        if name.startswith("_"):
+            raise AttributeError(name)
+        if name in self._cache:
+            return self._cache[name]
+        if name not in _DATASETS:
+            raise AttributeError(
+                f"Dataset {name!r} not found. Available datasets: {', '.join(sorted(_DATASETS))}"
+            )
+        fname, dtype = _DATASETS[name]
+        df = self._reader(fname, dtype=dtype)
+        self._cache[name] = df
+        return df
+
+    def __dir__(self) -> list[str]:
+        return sorted(_DATASETS)
+
+
+pd = _BackendNamespace(_read_csv_pandas)
+pl = _BackendNamespace(_read_csv_polars)
