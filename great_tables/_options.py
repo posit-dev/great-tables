@@ -571,9 +571,13 @@ def tab_options(
             css_val = modified_args["table_additional_css"].strip()
             modified_args["table_additional_css"] = [css_val] if css_val else []
 
-    new_options_info = {
-        k: replace(getattr(self._options, k), value=v) for k, v in modified_args.items()
-    }
+    # Validate and coerce option values based on their declared types
+    new_options_info = {}
+    for k, v in modified_args.items():
+        opt_info = getattr(self._options, k)
+        validated_value = opt_info._validate_value(v, option_name=k)
+        new_options_info[k] = replace(opt_info, value=validated_value)
+
     new_options = replace(self._options, **new_options_info)
 
     return self._replace(_options=new_options)
@@ -1488,7 +1492,7 @@ def opt_stylize(
 
     # Add the `add_row_striping` parameter to the `mapped_params` dictionary
     if add_row_striping:
-        mapped_params["row_striping_include_table_body"] = ["True"]
+        mapped_params["row_striping_include_table_body"] = True
 
     if style in (2, 4, 5):
         # For styles 2, 4, and 5 we need to set the border colors and widths
