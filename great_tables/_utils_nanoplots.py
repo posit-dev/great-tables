@@ -426,6 +426,35 @@ def _normalize_to_dict(**kwargs: list[int | float]) -> dict[str, list[int | floa
     This only accepts values (scalar or list) associated with keyword arguments. A dictionary
     is returned with the same keys but the values are normalized lists. This is done so that
     any disparate collection of normalized values are distinguishable by their original keys.
+
+    All values (lists are flattened, scalars treated as length-1) are pooled together before
+    normalization, so that every returned value is scaled relative to the global min/max across
+    all inputs. None-valued kwargs are excluded from the normalization pool.
+
+    Examples
+    --------
+    ```{python}
+    # Case 1: line/area plot - y values with zero line and expand_y bounds
+    _normalize_to_dict(vals=[5, 10, 15, 20], zero=0, expand_y=[0, 25])
+    # {'vals': [0.2, 0.4, 0.6, 0.8], 'zero': [0.0], 'expand_y': [0.0, 1.0]}
+
+    # Case 2: line plot - y values with a reference line
+    _normalize_to_dict(vals=[5, 10, 15, 20], ref_line=12, zero=0, expand_y=[0, 25])
+    # {'vals': [0.2, 0.4, 0.6, 0.8], 'ref_line': [0.48], 'zero': [0.0], 'expand_y': [0.0, 1.0]}
+
+    # Case 3: line plot - y values with a reference area (band between two bounds)
+    _normalize_to_dict(vals=[5, 10, 15, 20], ref_area_l=8, ref_area_u=17, zero=0, expand_y=[0, 25])
+    # {'vals': [0.2, 0.4, 0.6, 0.8], 'ref_area_l': [0.32], 'ref_area_u': [0.68],
+    #  'zero': [0.0], 'expand_y': [0.0, 1.0]}
+
+    # Case 4: line plot - x values with expand_x bounds
+    _normalize_to_dict(vals=[1, 2, 3, 4], expand_x=[0, 5])
+    # {'vals': [0.2, 0.4, 0.6, 0.8], 'expand_x': [0.0, 1.0]}
+
+    # Case 5: bar plot - single value normalized against all row values with zero baseline
+    _normalize_to_dict(val=[15], all_vals=[5, 10, 15, 20, -5], zero=0)
+    # {'val': [0.8], 'all_vals': [0.4, 0.6, 0.8, 1.0, 0.0], 'zero': [0.2]}
+    ```
     """
 
     # Ensure that at least two values are provided
