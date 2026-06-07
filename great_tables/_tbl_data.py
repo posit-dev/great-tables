@@ -40,7 +40,6 @@ if TYPE_CHECKING:
     PdNA = pd.NA
     PlNull = pl.Null
 
-    NpNan = np.nan
     NpInteger = np.integer
 
     DataFrameLike = Union[PdDataFrame, PlDataFrame, PyArrowTable]
@@ -87,9 +86,6 @@ else:
 
     class PlNull(AbstractBackend):
         _backends = [("polars", "Null")]
-
-    class NpNan(AbstractBackend):
-        _backends = [("numpy", "nan")]
 
     class NpInteger(AbstractBackend):
         _backends = [("numpy", "integer")]
