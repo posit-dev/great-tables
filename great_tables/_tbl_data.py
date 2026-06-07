@@ -120,10 +120,6 @@ def _raise_not_implemented(data: Any):
     raise NotImplementedError(f"Unsupported data type: {type(data)}")
 
 
-def _raise_pandas_required(msg: Any):
-    raise ImportError(msg)
-
-
 def _re_version(raw_version: str) -> tuple[int, int, int]:
     """Return a semver-like version string as a 3-tuple of integers.
 
@@ -843,24 +839,31 @@ def _(df: PyArrowTable) -> PyArrowTable:
 
 @singledispatch
 def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataFrameLike:
-    # TODO: remove pandas. currently, we support converting a list to a pd.DataFrame
-    # in order to support backwards compatibility in the vals.fmt_* functions.
-
-    try:
-        import pandas as pd
-    except ImportError:
-        _raise_pandas_required(
-            "Passing a plain list of values currently requires the library pandas. "
-            "You can avoid this error by passing a polars Series."
-        )
-
     if not isinstance(ser, list):
         raise NotImplementedError(f"Unsupported type: {type(ser)}")
 
     if not name:
         raise ValueError("name must be specified, when converting a list to a DataFrame.")
 
-    return pd.DataFrame({name: ser})
+    # Try available DataFrame libraries: prefer polars, then pandas
+    try:
+        import polars as pl
+
+        return pl.DataFrame({name: ser})
+    except ImportError:
+        pass
+
+    try:
+        import pandas as pd
+
+        return pd.DataFrame({name: ser})
+    except ImportError:
+        pass
+
+    raise ImportError(
+        "Passing a plain list of values requires either polars or pandas to be installed. "
+        "You can also pass a polars Series or pandas Series directly."
+    )
 
 
 @to_frame.register
