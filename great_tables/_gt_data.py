@@ -1206,6 +1206,67 @@ class OptionsInfo:
     type: str
     value: Any
 
+    def _validate_value(self, value: Any, option_name: str) -> Any:
+        """Validate and coerce an option value based on its type.
+
+        Parameters
+        ----------
+        value
+            The value to validate.
+        option_name
+            The name of the option (for error messages).
+
+        Returns
+        -------
+        Any
+            The validated (and possibly coerced) value.
+        """
+        if value is None:
+            return value
+
+        if self.type == "px":
+            # CSS length values: accept str (e.g. "5px", "100%", "auto") or
+            # int/float (coerced to "{x}px")
+            if isinstance(value, (int, float)):
+                return f"{value}px"
+            elif isinstance(value, str):
+                return value
+            else:
+                raise TypeError(
+                    f"Option `{option_name}` expects a CSS length string (e.g., '5px', '100%', "
+                    f"'auto') or a numeric value, but received type `{type(value).__name__}`."
+                )
+        elif self.type in ("boolean", "logical"):
+            if not isinstance(value, bool):
+                raise TypeError(
+                    f"Option `{option_name}` expects a boolean value, "
+                    f"but received type `{type(value).__name__}`."
+                )
+            return value
+        elif self.type == "value":
+            if not isinstance(value, (str, int, float)):
+                raise TypeError(
+                    f"Option `{option_name}` expects a string or numeric value, "
+                    f"but received type `{type(value).__name__}`."
+                )
+            return value
+        elif self.type == "values":
+            if not isinstance(value, (str, list)):
+                raise TypeError(
+                    f"Option `{option_name}` expects a string or list, "
+                    f"but received type `{type(value).__name__}`."
+                )
+            return value
+        elif self.type == "overflow":
+            if not isinstance(value, str):
+                raise TypeError(
+                    f"Option `{option_name}` expects a string value, "
+                    f"but received type `{type(value).__name__}`."
+                )
+            return value
+        else:
+            return value
+
 
 @dataclass(frozen=True)
 class Options:
@@ -1425,6 +1486,7 @@ class Options:
 
     def _set_option_value(self, option: str, value: Any):
         old_info = getattr(self, option)
-        new_info = replace(old_info, value=value)
+        validated_value = old_info._validate_value(value, option_name=option)
+        new_info = replace(old_info, value=validated_value)
 
         return replace(self, **{option: new_info})
