@@ -106,6 +106,9 @@ typings/
 docs/source/generated/
 docs/source/reference/
 
+# Claude Code local config
+.claude/
+
 # Playground Scripts and temporary outputs
 .DS_Store
 playground*.py
