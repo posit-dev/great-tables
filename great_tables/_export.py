@@ -729,6 +729,14 @@ def gtsave(
     if out_path.suffix == "":
         out_path = out_path.with_suffix(".png")
 
+    # Validate file extension
+    allowed_extensions = {".png", ".jpg", ".jpeg", ".webp", ".pdf"}
+    if out_path.suffix.lower() not in allowed_extensions:
+        raise ValueError(
+            f"Unsupported file extension: '{out_path.suffix}'. "
+            f"Supported formats: {', '.join(sorted(allowed_extensions))}"
+        )
+
     # Get the HTML content of the table
     html_content = as_raw_html(self)
 
