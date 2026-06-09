@@ -1,0 +1,21 @@
+---
+title: Overview
+jupyter: python3
+html-table-processing: none
+---
+
+## Adding Parts to this Simple Table
+
+The **Great Tables** package makes it relatively easy to add components so that the resulting output table better conveys the information you want to present. These table components work well together and the possible variations in arrangement can handle even the most demanding table presentation needs. The previous output table we showed had only two components: the **Column Labels** and the **Table Body**. The next few examples will show all of the other table parts that are available.
+
+This is the way the main parts of a table (and their subparts) fit together:
+
+![](/assets/gt_parts_of_a_table.svg)
+
+The components (roughly from top to bottom) are:
+
+- the **Table Header** (optional; with a **title** and possibly a **subtitle**)
+- the **Stub** and the **Stub Head** (optional; contains *row labels*, optionally within *row groups* having *row group labels*)
+- the **Column Labels** (contains *column labels*, optionally under *spanner labels*)
+- the **Table Body** (contains *columns* and *rows* of *cells*)
+- the **Table Footer** (optional; possibly with one or more **source notes**)
