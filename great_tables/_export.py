@@ -437,6 +437,14 @@ def save(
     ```
 
     """
+    warnings.warn(
+        "GT.save() is deprecated and will be removed in a future release (mid-2027). "
+        "Use GT.gtsave() instead, which uses the lightweight `nokap` package and does not "
+        "require Selenium or Pillow.",
+        FutureWarning,
+        stacklevel=2,
+    )
+
     # Import the required packages
     _try_import(name="selenium", pip_install_line="pip install selenium")
 
