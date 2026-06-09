@@ -1,0 +1,83 @@
+---
+title: "PyCon 2024: Making Beautiful, Publication Quality Tables is Possible in 2024"
+html-table-processing: none
+author: Michael Chow
+date: 2024-05-16
+freeze: true
+---
+
+The Great Tables crew is excited to share that we'll be presenting on tables at PyCon 2024!
+If you're around and want to meet, be sure to stop by the Posit Booth, or reach out on linkedin to [Rich](https://www.linkedin.com/in/richard-iannone-a5640017/) or [Michael](https://www.linkedin.com/in/michael-a-chow/)!
+
+The talk, Making Beautiful, Publication Quality Tables is Possible in 2024 happened on [May 17, 2024](https://us.pycon.org/2024/schedule/presentation/65/). You can watch the [recording on YouTube](https://youtu.be/08yLWPpFdo4?si=vBK9h-ObXNKp9tHH).
+
+In addition to the talk, there are two other events worth mentioning:
+
+* The [2024 Table Contest](https://posit.co/blog/announcing-the-2024-table-contest/)
+* Our [upcoming table workshop](https://reg.conf.posit.co/flow/posit/positconf24/publiccatalog/page/publiccatalog/session/1707334049004001S0l2) at posit::conf 2024
+
+## What's the presentation about?
+
+Publication quality tables are a critical form of data visualization, that is easy to miss in
+favor of charts and graphs. We're excited to focus on how...
+
+* tables are used in areas like sports and medicine.
+* Great Tables provides a systematic approach to structuring, styling, and formatting tables.
+* nanoplots combine the trend-emphasizing of graphs with the compactness of a table.
+
+Throughout the presentation, we'll focus on making this example from a fictitious coffee device shop ([notebook](https://github.com/machow/coffee-sales-data/blob/main/example_notebook.ipynb)):
+
+<div style="zoom: .80">
+
+{{< include table.html >}}
+
+</div>
+
+Each row of this table is a product sold over the past year (with a total at the bottom).
+
+Note three important pieces:
+
+1. **Icons** help people quickly identify products of interest.
+2. **Background color** distinguishes between revenue and profit measures.
+3. **The nanoplot** on the right shows a tiny bargraph for monthly sales over the past year.  This makes
+   it easy to spot trends, and can be hovered over to get exact values.
+
+Critically, the code for this table used the DataFrame library [Polars](https://pola.rs/), which makes it really [easy to select rows and columns for styling](../polars-styling/index.qmd).
+
+
+## What's next?
+
+### The 2024 Table Contest
+
+The world's premier display table contest---the [4th annual Table Contest](https://posit.co/blog/announcing-the-2024-table-contest/) draws competitors from near and far, to showcase the latest and greatest examples in table presentation.
+
+The contest was a great success! On July 1, 2024 we announced the [2024 winners and honorable mentions](https://posit.co/blog/2024-table-contest-winners/). Check 'em out!
+
+
+### posit::conf() workshop
+
+We held a posit::conf() 2024 workshop, and you can find the materials at the [Making Tables with gt and Great Tables repo](https://github.com/posit-conf-2024/tables).
+
+If you're curious about making beautiful, publication quality tables in Python or R, do have a look at the resources at that GitHub repository.
+
+We covered the following table topics:
+
+* Create table components and put them together (e.g., header, footer, stub, etc.)
+* Format cell values (numeric/scientific, date/datetime, etc.)
+* Rearranging columns and handling column value alignments
+* Styling the table, either through data values or on a more granular level
+* Adding icons, plots, images, and incorporating your own HTML
+* and more!
+
+## Extra resources
+
+Check out these resources to learn more about the wild and beautiful life of display tables:
+
+* [Great Tables example gallery](../../examples/index.qmd)
+* [The Design Philosophy of Great Tables (blog post)](../design-philosophy/index.qmd)
+* [20 Minute Table Tutorial by Albert Rapp](https://youtu.be/ESyWcOFuMQc?si=1_bBRZEKENFKVNpB)
+* [PyCon talk: Making Beautiful, Publication Quality Tables is Possible in 2024](https://youtu.be/08yLWPpFdo4?si=vBK9h-ObXNKp9tHH)
+
+## Hope all your tables are great!
+
+A huge thanks to all the people who have contributed to Great Tables over the past year. It's been a really incredible journey!
