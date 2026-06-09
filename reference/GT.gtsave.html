@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>gt.save – great_tables</title>
+<title>gt.gtsave – great_tables</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -187,11 +187,11 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#great_tables.GT.save" id="toc-great_tables.GT.save" class="nav-link active" data-scroll-target="#great_tables.GT.save">GT.save</a>
+  <li><a href="#great_tables.GT.gtsave" id="toc-great_tables.GT.gtsave" class="nav-link active" data-scroll-target="#great_tables.GT.gtsave">GT.gtsave</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
-  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -202,60 +202,51 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 
 
 
-<section id="great_tables.GT.save" class="level1">
-<h1>GT.save</h1>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GT.save(</span>
+<section id="great_tables.GT.gtsave" class="level1">
+<h1>GT.gtsave</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GT.gtsave(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">file</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    selector<span class="op">=</span><span class="st">'table'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    scale<span class="op">=</span><span class="fl">1.0</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    expand<span class="op">=</span><span class="dv">5</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    web_driver<span class="op">=</span><span class="st">'chrome'</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    window_size<span class="op">=</span>(<span class="dv">6000</span>, <span class="dv">6000</span>),</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    debug_port<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    encoding<span class="op">=</span><span class="st">'utf-8'</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    _debug_dump<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Produce a high-resolution image file or PDF of the table.</p>
-<p>The output file is created by taking a screenshot of the table using a headless browser.</p>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    expand<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    zoom<span class="op">=</span><span class="fl">2.0</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    delay<span class="op">=</span><span class="fl">0.2</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    vwidth<span class="op">=</span><span class="dv">992</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    vheight<span class="op">=</span><span class="dv">744</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Save a GT table to a file (PNG, JPEG, WebP, or PDF).</p>
+<p>The <code>gtsave()</code> method renders the table to an image or PDF using a headless Chrome browser via the <code>nokap</code> package. This provides a reliable way to produce high-resolution image files of tables without requiring Selenium or Playwright.</p>
+<p>Chrome or Chromium must be installed on the system for this method to work.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <dl>
 <dt><code><span class="parameter-name"><strong>file</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>Path</code> | <code>str</code></span></code></dt>
 <dd>
-<p>The name of the file to save the image to. Accepts names ending with .png, .bmp, and other image extensions. Also accepts the extension .pdf.</p>
+<p>The file path to write the output to. The format is determined by the file extension: <code>.png</code>, <code>.jpg</code>/<code>.jpeg</code>, <code>.webp</code> for images; <code>.pdf</code> for PDF. If no extension is provided, <code>.png</code> is assumed.</p>
 </dd>
 <dt><code><span class="parameter-name"><strong>selector</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'table'</span></code></dt>
 <dd>
-<p>(NOT IMPLEMENTED) The HTML element name used to select table. Defaults to the whole table.</p>
+<p>A CSS selector targeting the element to capture. Defaults to <code>"table"</code>, which captures just the table element with tight bounds.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>scale</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>float</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">1.0</span></code></dt>
+<dt><code><span class="parameter-name"><strong>expand</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code> | <code>tuple</code>[<code>int</code>, <code>int</code>, <code>int</code>, <code>int</code>]</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">5</span></code></dt>
 <dd>
-<p>The scaling factor that will be used when generating the image. Lower values decrease resolution. A scale of 2 is equivalent to doubling the width of the table in pixels. Note that higher resolution results in larger file sizes.</p>
+<p>Padding (in pixels) to add around the captured element. A single integer applies equal padding on all sides. A 4-tuple specifies <code>(top, right, bottom, left)</code> padding individually. Defaults to <code>5</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>expand</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">5</span></code></dt>
+<dt><code><span class="parameter-name"><strong>zoom</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>float</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">2.0</span></code></dt>
 <dd>
-<p>(NOT IMPLEMENTED) The number of pixels to expand the screenshot by. This can be increased to capture more of the surrounding area, or decreased to capture less.</p>
+<p>The scale factor for raster image output. Higher values produce higher resolution images. For example, <code>zoom=2</code> produces a retina-quality (2x) image. Defaults to <code>2.0</code>. Ignored for PDF output.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>web_driver</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>WebDrivers</code> | <code>webdriver</code>.<code>Remote</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'chrome'</span></code></dt>
+<dt><code><span class="parameter-name"><strong>delay</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>float</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">0.2</span></code></dt>
 <dd>
-<p>The webdriver to use when taking the screenshot. Either a driver name, or webdriver instance. By default, uses Google Chrome. Supports <code>"firefox"</code> (Mozilla Firefox), <code>"safari"</code> (Apple Safari), and <code>"edge"</code> (Microsoft Edge). Specified browser must be installed. Note that if a webdriver instance is passed, options that require setting up a webdriver, like debug_port, will not be used.</p>
+<p>Seconds to wait after page load before capturing. This is useful for ensuring that any web fonts or dynamic content have fully rendered. Defaults to <code>0.2</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>window_size</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>tuple</code>[<code>int</code>, <code>int</code>]</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">(6000, 6000)</span></code></dt>
+<dt><code><span class="parameter-name"><strong>vwidth</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">992</span></code></dt>
 <dd>
-<p>The size of the browser window to use when laying out the table. This shouldn’t be necessary to capture a table, but may affect the tables appearance.</p>
+<p>Viewport width in pixels. This controls the layout width of the page and may affect how the table is rendered (e.g., responsive layouts). Defaults to <code>992</code>.</p>
 </dd>
-<dt><code><span class="parameter-name"><strong>debug_port</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation">None | <code>int</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
+<dt><code><span class="parameter-name"><strong>vheight</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>int</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">744</span></code></dt>
 <dd>
-<p>Port number to use for debugging. By default no debugging port is opened.</p>
-</dd>
-<dt><code><span class="parameter-name"><strong>encoding</strong></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>str</code></span> <span class="parameter-default-sep">=</span> <span class="parameter-default">'utf-8'</span></code></dt>
-<dd>
-<p>The character encoding used for the HTML content.</p>
-</dd>
-<dt><code><span class="parameter-name">**_debug_dump**</span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><code>DebugDumpOptions</code> | None</span> <span class="parameter-default-sep">=</span> <span class="parameter-default">None</span></code></dt>
-<dd>
-<p>Whether the saved image should be a big browser window, with key elements outlined. This is helpful for debugging this function’s resizing, cropping heuristics. This is an internal parameter and subject to change.</p>
+<p>Viewport height in pixels. Defaults to <code>744</code>.</p>
 </dd>
 </dl>
 </section>
@@ -264,21 +255,41 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 <dl>
 <dt><code><span class="parameter-name"></span> <span class="parameter-annotation-sep">:</span> <span class="parameter-annotation"><a href="../reference/GT.html#great_tables.GT">GT</a></span></code></dt>
 <dd>
-<p>The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.</p>
+<p>The GT object is returned (the same object the method is called on), facilitating method chaining.</p>
 </dd>
 </dl>
 </section>
-<section id="details" class="level2 doc-section doc-section-details">
-<h2 class="doc-section doc-section-details anchored" data-anchor-id="details">Details</h2>
-<p>We create the output file based on the HTML version of the table.</p>
-<p>This process is facilitated by two libraries:</p>
-<ul>
-<li><code>selenium</code>, which is used to control the Chrome browser and take a screenshot of the table.</li>
-<li><code>PIL</code>, which is used to crop the screenshot to only include the table element of the page.</li>
-</ul>
-<p>Both of these packages needs to be installed before attempting to save any table as an image file. The <code>selenium</code> package also requires the Chrome browser to be installed on the system.</p>
-<p>A pip-based reinstallation of <strong>Great Tables</strong> through the following command will install these required packages:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install great_tables<span class="pp">[</span><span class="ss">extra</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<p>Using a small subset of the <code>gtcars</code> dataset, let’s create a table and save it to a PNG file.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> gtcars</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>gtcars_mini <span class="op">=</span> (</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    pl.from_pandas(gtcars)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    .select([<span class="st">"mfr"</span>, <span class="st">"model"</span>, <span class="st">"msrp"</span>])</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    .head(<span class="dv">5</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    GT(gtcars_mini)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    .tab_header(title<span class="op">=</span><span class="st">"Some Cars from gtcars"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(columns<span class="op">=</span><span class="st">"msrp"</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    .gtsave(<span class="st">"my_table.png"</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Save a table as a high-resolution retina image with extra padding.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    GT(gtcars_mini)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(columns<span class="op">=</span><span class="st">"msrp"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    .gtsave(<span class="st">"my_table.png"</span>, zoom<span class="op">=</span><span class="dv">3</span>, expand<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Save a table as a PDF.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    GT(gtcars_mini)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(columns<span class="op">=</span><span class="st">"msrp"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    .gtsave(<span class="st">"my_table.pdf"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
