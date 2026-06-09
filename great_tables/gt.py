@@ -9,7 +9,7 @@ from ._body import body_reassemble
 from ._boxhead import cols_align, cols_label, cols_label_rotate, cols_label_with
 from ._cols_merge import perform_col_merge
 from ._data_color import data_color
-from ._export import as_latex, as_raw_html, save, show, write_raw_html
+from ._export import as_latex, as_raw_html, gtsave, save, show, write_raw_html
 from ._footnotes import tab_footnote
 from ._formats import (
     fmt,
@@ -436,6 +436,7 @@ class GT(
     grand_summary_rows = grand_summary_rows
 
     save = save
+    gtsave = gtsave
     show = show
     as_raw_html = as_raw_html
     write_raw_html = write_raw_html
