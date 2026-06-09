@@ -1,0 +1,300 @@
+# Great Docs Configuration for Great Tables
+# See https://posit-dev.github.io/great-docs/user-guide/configuration.html
+
+display_name: Great Tables
+
+# Docstring Parser
+parser: numpy
+
+# Dynamic Introspection
+dynamic: true
+
+# Site
+site_url: "https://posit-dev.github.io/great-tables/"
+
+# Logo
+logo:
+  light: assets/GT_logo.svg
+  dark: assets/GT_logo.svg
+
+# Homepage
+homepage: index
+hero:
+  logo: assets/GT_logo.svg
+  logo_height: 200px
+  tagline: "Absolutely Delightful Table-making in Python"
+
+# Scale-to-fit for Great Tables output
+scale_to_fit:
+  - ".gt_table"
+
+# GitHub Integration
+github_style: widget
+
+# Source Links
+source:
+  enabled: true
+  branch: main
+
+# Changelog
+changelog:
+  enabled: true
+
+# Author Information
+authors:
+  - name: Richard Iannone
+    role: Maintainer
+    affiliation: Posit, PBC
+    email: rich@posit.co
+    github: rich-iannone
+    orcid: 0000-0003-3925-190X
+  - name: Michael Chow
+    role: Author
+    affiliation: Posit, PBC
+    email: michael.chow@posit.co
+    github: machow
+
+# Funding / Copyright Holder
+funding:
+  name: "Posit Software, PBC"
+  roles:
+    - Copyright holder
+    - funder
+  homepage: https://posit.co
+  ror: https://ror.org/03wc8by49
+
+# Custom Sections
+sections:
+  - title: Examples
+    dir: examples
+    type: blog
+  - title: Blog
+    dir: blog
+    type: blog
+
+# API Reference Structure
+reference:
+  title: "Reference"
+  sections:
+    - title: Table Creation
+      desc: >
+        All tables created in Great Tables begin by using `GT()`. With this class, we supply the
+        input data table and some basic options for creating a stub and row groups (with the
+        `rowname_col=` and `groupname_col=` arguments). All GT methods are documented on their
+        own pages.
+      contents:
+        - name: GT
+          members: false
+
+    - title: Creating or modifying parts of a table
+      desc: >
+        A table can contain a few useful components for conveying additional information. These
+        include a header (with a titles and subtitle), a footer (with source notes), and additional
+        areas for labels (row group labels, column spanner labels, the stubhead label). We can
+        perform styling on targeted table locations with the
+        [`tab_style()`](`great_tables.GT.tab_style`) method.
+      contents:
+        - GT.tab_header
+        - GT.tab_spanner
+        - GT.tab_spanner_delim
+        - GT.tab_stub
+        - GT.tab_stubhead
+        - GT.tab_footnote
+        - GT.tab_source_note
+        - GT.tab_style
+        - GT.text_transform
+        - GT.text_replace
+        - GT.text_case_match
+        - GT.text_case_when
+        - GT.tab_options
+
+    - title: Formatting column data
+      desc: >
+        Columns of data can be formatted with the `fmt_*()` methods. We can specify the rows of
+        these columns quite precisely with the `rows` argument. We get to apply these methods
+        exactly once to each data cell (last call wins). Need to do custom formatting? Use the
+        [`fmt()`](`great_tables.GT.fmt`) method and define your own formatter.
+      contents:
+        - GT.fmt_number
+        - GT.fmt_integer
+        - GT.fmt_percent
+        - GT.fmt_partsper
+        - GT.fmt_scientific
+        - GT.fmt_engineering
+        - GT.fmt_currency
+        - GT.fmt_bytes
+        - GT.fmt_duration
+        - GT.fmt_roman
+        - GT.fmt_date
+        - GT.fmt_time
+        - GT.fmt_tf
+        - GT.fmt_datetime
+        - GT.fmt_markdown
+        - GT.fmt_units
+        - GT.fmt_image
+        - GT.fmt_icon
+        - GT.fmt_flag
+        - GT.fmt_nanoplot
+        - GT.fmt
+        - GT.data_color
+        - GT.sub_missing
+        - GT.sub_zero
+        - GT.sub_small_vals
+        - GT.sub_large_vals
+        - GT.sub_values
+
+    - title: Modifying columns
+      desc: >
+        The `cols_*()` methods allow for modifications that act on entire columns. This includes
+        alignment of the data in columns ([`cols_align()`](`great_tables.GT.cols_align`)), hiding
+        columns from view ([`cols_hide()`](`great_tables.GT.cols_hide`)), re-labeling the column
+        labels ([`cols_label()`](`great_tables.GT.cols_label`)), and moving columns around (with the
+        `cols_move*()` methods).
+      contents:
+        - GT.cols_align
+        - GT.cols_width
+        - GT.cols_label
+        - GT.cols_label_with
+        - GT.cols_label_rotate
+        - GT.cols_move
+        - GT.cols_move_to_start
+        - GT.cols_move_to_end
+        - GT.cols_reorder
+        - GT.cols_hide
+        - GT.cols_unhide
+        - GT.cols_merge
+        - GT.cols_merge_uncert
+        - GT.cols_merge_range
+        - GT.cols_merge_n_pct
+
+    - title: Adding rows
+      desc: >
+        The [`summary_rows()`](`great_tables.GT.summary_rows`) function adds rows to summarize
+        data within each row group, while
+        [`grand_summary_rows()`](`great_tables.GT.grand_summary_rows`) summarizes across the
+        entire table.
+      contents:
+        - GT.summary_rows
+        - GT.grand_summary_rows
+
+    - title: Location Targeting and Styling Classes
+      desc: >
+        Location targeting is a powerful feature of Great Tables. It allows for the precise
+        selection of table locations for styling (using the `tab_style()` method). The styling
+        classes allow for the specification of the styling properties to be applied to the
+        targeted locations.
+      contents:
+        - loc.header
+        - loc.title
+        - loc.subtitle
+        - loc.stubhead
+        - loc.column_header
+        - loc.spanner_labels
+        - loc.column_labels
+        - loc.grand_summary_stub
+        - loc.summary_stub
+        - loc.stub
+        - loc.row_groups
+        - loc.grand_summary
+        - loc.summary
+        - loc.body
+        - loc.footer
+        - loc.source_notes
+        - style.fill
+        - style.text
+        - style.borders
+        - style.css
+
+    - title: Helper Functions
+      desc: >
+        An assortment of helper functions is available in the Great Tables package. The `md()`
+        and `html()` helper functions can be used during label creation with the `tab_header()`,
+        `tab_spanner()`, `tab_stubhead()`, and `tab_source_note()` methods.
+      contents:
+        - GT.with_id
+        - GT.with_locale
+        - md
+        - html
+        - from_column
+        - google_font
+        - system_fonts
+        - define_units
+        - nanoplot_options
+
+    - title: Table options
+      desc: >
+        With the `opt_*()` functions, we have an easy way to set commonly-used table options without
+        having to use `tab_options()` directly.
+      contents:
+        - GT.opt_align_table_header
+        - GT.opt_row_striping
+        - GT.opt_all_caps
+        - GT.opt_vertical_padding
+        - GT.opt_horizontal_padding
+        - GT.opt_table_outline
+        - GT.opt_table_font
+        - GT.opt_stylize
+        - GT.opt_footnote_marks
+        - GT.opt_css
+
+    - title: Export
+      desc: >
+        There may come a day when you need to export a table to some specific format. A great method
+        for that is `gtsave()`, which allows us to save the table as a standalone image file or PDF.
+        You can also get the table code as an HTML fragment with the `*_raw_html()` methods.
+      contents:
+        - GT.gtsave
+        - GT.show
+        - GT.as_raw_html
+        - GT.write_raw_html
+        - GT.as_latex
+
+    - title: Pipeline
+      desc: >
+        Sometimes, you might want to programmatically manipulate the table while still benefiting
+        from the chained API that **Great Tables** offers. `pipe()` is designed to tackle this
+        issue.
+      contents:
+        - GT.pipe
+
+    - title: Value Formatting Functions
+      desc: >
+        If you have single values (or lists of them) in need of formatting, we have a set of
+        `val_fmt_*()` functions that have been adapted from the corresponding `fmt_*()` methods.
+      contents:
+        - vals.fmt_number
+        - vals.fmt_integer
+        - vals.fmt_scientific
+        - vals.fmt_engineering
+        - vals.fmt_percent
+        - vals.fmt_currency
+        - vals.fmt_roman
+        - vals.fmt_bytes
+        - vals.fmt_duration
+        - vals.fmt_date
+        - vals.fmt_time
+        - vals.fmt_markdown
+        - vals.fmt_image
+
+    - title: Built-in Datasets
+      desc: >
+        The Great Tables package is equipped with sixteen datasets that come in all shapes and
+        sizes. Many examples throughout the help docs use these datasets to quickly demonstrate
+        the features of the package.
+      contents:
+        - data.countrypops
+        - data.sza
+        - data.gtcars
+        - data.sp500
+        - data.pizzaplace
+        - data.exibble
+        - data.towny
+        - data.peeps
+        - data.films
+        - data.metro
+        - data.gibraltar
+        - data.constants
+        - data.illness
+        - data.reactions
+        - data.photolysis
+        - data.nuclides
