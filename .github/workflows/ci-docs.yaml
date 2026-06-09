@@ -19,7 +19,7 @@ jobs:
         run: |
           python -m pip install -e ".[extra]"
           python -m pip install "great-docs[svg] @ git+https://github.com/posit-dev/great-docs.git"
-          python -m pip install polars pandas numpy pyarrow plotnine gt-extras
+          python -m pip install polars pandas numpy pyarrow plotnine gt-extras pointblank
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
       - name: Build docs
