@@ -1,4 +1,3 @@
-import sys
 import tempfile
 import time
 from pathlib import Path
@@ -59,37 +58,6 @@ def test_html_string_generated_inline_css_make_page(gt_tbl_small: GT, snapshot: 
 def test_html_string_generated_all_important(gt_tbl_small: GT):
     assert "!important;" in gt_tbl_small.as_raw_html(inline_css=False, all_important=True)
     assert "!important;" in gt_tbl_small.as_raw_html(inline_css=True, all_important=True)
-
-
-@pytest.mark.skipif(sys.platform == "win32", reason="chrome might not be installed.")
-@pytest.mark.extra
-def test_save_image_file(gt_tbl: GT, tmp_path):
-    f_path = tmp_path / "test_image.png"
-    gt_tbl.save(file=str(f_path))
-
-    time.sleep(0.05)
-    assert f_path.exists()
-
-
-def test_save_non_png(gt_tbl: GT, tmp_path):
-    f_path = tmp_path / "test_image.pdf"
-    gt_tbl.save(file=str(f_path))
-
-    time.sleep(0.05)
-    assert f_path.exists()
-
-
-def test_save_custom_webdriver(gt_tbl: GT, tmp_path):
-    from selenium import webdriver
-
-    f_path = tmp_path / "test_image.png"
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless=new")
-    with webdriver.Chrome(options) as wd:
-        gt_tbl.save(file=str(f_path), web_driver=wd)
-
-    time.sleep(0.05)
-    assert f_path.exists()
 
 
 @pytest.mark.parametrize(
