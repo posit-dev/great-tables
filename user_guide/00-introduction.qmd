@@ -2,13 +2,20 @@
 title: Introduction
 jupyter: python3
 html-table-processing: none
+guide-section: Getting Started
 ---
 
-The **Great Tables** package is all about making it simple to produce nice-looking display tables. Display tables? Well yes, we are trying to distinguish between data tables (i.e., DataFrames) and those tables you’d find in a web page, a journal article, or in a magazine. Such tables can likewise be called presentation tables, summary tables, or just tables really. Here are some examples, ripped straight from the web:
+The **Great Tables** package is all about making it simple to produce nice-looking display tables.
+Display tables? Well yes, we are trying to distinguish between data tables (i.e., DataFrames) and
+those tables you’d find in a web page, a journal article, or in a magazine. Such tables can likewise
+be called presentation tables, summary tables, or just tables really. Here are some examples, ripped
+straight from the web:
 
 ![](/assets/tables_from_the_web.png)
 
-We can think of display tables as output only, where we’d not want to use them as input ever again. Other features include annotations, table element styling, and text transformations that serve to communicate the subject matter more clearly.
+We can think of display tables as output only, where we’d not want to use them as input ever again.
+Other features include annotations, table element styling, and text transformations that serve to
+communicate the subject matter more clearly.
 
 ## Let's Install
 
@@ -34,7 +41,9 @@ from great_tables.data import islands
 islands_mini = islands.head(10)
 ```
 
-The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a great start. Speaking of which, the main entry point into the **Great Tables** API is the `GT` class. Let's use that to make a presentable table:
+The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a great
+start. Speaking of which, the main entry point into the **Great Tables** API is the `GT` class.
+Let's use that to make a presentable table:
 
 ```{python}
 # Create a display table showing ten of the largest islands in the world
@@ -44,15 +53,20 @@ gt_tbl = GT(islands_mini)
 gt_tbl
 ```
 
-That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
+That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive
+a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a
+**Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
 
 ::: {.callout-note}
-Typically we use Great Tables in an notebook environment or within a Quarto document. Tables won't print to the console, but using the `~~GT.show()` method on a table object while in the console will open the HTML table in your default browser.
+Typically we use Great Tables in an notebook environment or within a Quarto document. Tables won't
+print to the console, but using the `~~GT.show()` method on a table object while in the console will
+open the HTML table in your default browser.
 :::
 
 ## **Polars** DataFrame support
 
-`GT` accepts both **Pandas** and **Polars** DataFrames. You can pass a **Polars** DataFrame to `GT`, or use its `DataFrame.style` property.
+`GT` accepts both **Pandas** and **Polars** DataFrames. You can pass a **Polars** DataFrame to `GT`,
+or use its `DataFrame.style` property.
 
 ```{python}
 import polars as pl
@@ -73,7 +87,8 @@ The `polars.DataFrame.style` property is currently considered [unstable](https:/
 
 ## Some Beautiful Examples
 
-In the following pages we'll use **Great Tables** to turn DataFrames into beautiful tables, like the ones below.
+In the following pages we'll use **Great Tables** to turn DataFrames into beautiful tables, like the
+ones below.
 
 ```{python}
 #| code-fold: true
@@ -128,3 +143,39 @@ gt_airquality = (
 
 gt_airquality
 ```
+
+These examples show just a glimpse of what's possible with **Great Tables**. The rest of this User
+Guide will walk you through each capability in detail, from structuring your table with headers,
+stubs, and column labels, to formatting values, adding visual styles, and embedding nanoplots
+directly in your cells.
+
+## The Anatomy of a Table
+
+Every table produced by **Great Tables** is composed of a set of structural components.
+Understanding these components and how they relate to each other is key to building effective
+presentation tables.
+
+The **Great Tables** package makes it relatively easy to add components so that the resulting output
+table better conveys the information you want to present. These table components work well together
+and the possible variations in arrangement can handle even the most demanding table presentation
+needs. The previous output table we showed had only two components: the **Column Labels** and the
+**Table Body**. The next few examples will show all of the other table parts that are available.
+
+This is the way the main parts of a table (and their subparts) fit together:
+
+![](/assets/gt_parts_of_a_table.svg)
+
+The following list describes each major component of a **Great Tables** output, ordered from top to
+bottom:
+
+- the **Table Header** (optional; with a **title** and possibly a **subtitle**)
+- the **Stub** and the **Stub Head** (optional; contains *row labels*, optionally within
+*row groups* having *row group labels*)
+- the **Column Labels** (contains *column labels*, optionally under *spanner labels*)
+- the **Table Body** (contains *columns* and *rows* of *cells*)
+- the **Table Footer** (optional; possibly with one or more **source notes**)
+
+Each of these parts is covered in detail throughout the rest of this User Guide. The pages that
+follow will show you how to add a header and footer, create a stub with row labels and groupings,
+organize your column labels with spanners, format cell values, and apply styling to any part of the
+table.
