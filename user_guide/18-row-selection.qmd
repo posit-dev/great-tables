@@ -2,9 +2,18 @@
 title: Row Selection
 jupyter: python3
 html-table-processing: none
+guide-section: Advanced Topics
 ---
 
-Location and formatter functions (e.g. `loc.body()` and `~~GT.fmt_number()`) can be applied to specific rows, using the `rows=` argument.
+Just as you can target specific columns, **Great Tables** also provides flexible ways to select
+rows. The `rows=` argument appears in formatting methods, location specifiers, and styling calls,
+allowing you to apply operations to a precise subset of your data. This page covers each of the
+available selection mechanisms.
+
+## Selection Options
+
+Location and formatter functions (e.g. `loc.body()` and `~~GT.fmt_number()`) can be applied to
+specific rows, using the `rows=` argument.
 
 Rows may be specified using any of the following:
 
@@ -33,7 +42,8 @@ gt_ex.fmt_currency("currency", rows=0, decimals=1)
 
 Notice that a dollar sign (`$`) was only added to the first row (index `0` in python).
 
-Indexing works the same as selecting items from a python list. This  negative integers select relative to the final row.
+Indexing works the same as selecting items from a python list. This  negative integers select
+relative to the final row.
 
 ```{python}
 gt_ex.fmt_currency("currency", rows=[0, -1], decimals=1)
@@ -42,7 +52,8 @@ gt_ex.fmt_currency("currency", rows=[0, -1], decimals=1)
 
 ## Using polars expressions
 
-The `rows=` argument accepts polars expressions, which return a boolean Series, indicating which rows to operate on.
+The `rows=` argument accepts polars expressions, which return a boolean Series, indicating which
+rows to operate on.
 
 For example, the code below only formats the `num` column, but only when currency is less than 40.
 
@@ -71,9 +82,11 @@ gt_polars.tab_style(
 
 ## Using a function
 
-Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a function for selecting rows. The function should take a DataFrame and return a boolean series.
+Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a
+function for selecting rows. The function should take a DataFrame and return a boolean series.
 
-Here's the same example as the previous polars section, but with pandas data, and a lambda for selecting rows.
+Here's the same example as the previous polars section, but with pandas data, and a lambda for
+selecting rows.
 
 ```{python}
 gt_ex.fmt_integer("num", rows=lambda D: D["currency"] < 40)
@@ -92,3 +105,8 @@ gt_ex.tab_style(
     )
 )
 ```
+
+Whether you prefer integer indexing for quick positional access, Polars expressions for declarative
+filtering, or functions for compatibility with pandas, the `rows=` argument adapts to your data
+workflow. Combined with column selection, these tools give you fine-grained control over exactly
+which cells your formatting and styling operations affect.
