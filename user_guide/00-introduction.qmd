@@ -25,6 +25,8 @@ The installation really couldn't be much easier. Use this:
 pip install great_tables
 ```
 
+Once installed, you are ready to build your first table.
+
 ## A Basic Table using **Great Tables**
 
 ::: {.callout-note}
