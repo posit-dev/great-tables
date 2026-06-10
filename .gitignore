@@ -125,6 +125,9 @@ latex_examples.pdf
 # Do not track lockfile in package/lib setting
 uv.lock
 
+# Great Docs build artifact
+objects.json
+
 # Local dev skills
 dev-skills/
 

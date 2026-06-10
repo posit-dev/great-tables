@@ -294,14 +294,6 @@ def fmt_number(
         .fmt_number(columns="num", decimals=3, use_seps=False)
     )
     ```
-
-    See Also
-    --------
-    The [`fmt_integer()`](`great_tables.GT.fmt_integer`) method might be more useful if you really
-    need to format numeric values to appear as integers (i.e., no decimals will be shown and input
-    values are rounded as necessary). Need to do numeric formatting on a value or list of values?
-    Take a look at the functional version of this method:
-    [`val_fmt_number()`](`great_tables._formats_vals.val_fmt_number`).
     """
     locale = _resolve_locale(self, locale=locale)
 
@@ -501,13 +493,6 @@ def fmt_integer(
         .fmt_integer(columns="num", use_seps=False)
     )
     ```
-
-    See Also
-    --------
-    The [`fmt_number()`](`great_tables.GT.fmt_number`) method might be more of what you need if
-    you'd like decimal values in your outputs. Need to do integer-based formatting on a value or
-    list of values? Take a look at the functional version of this method:
-    [`val_fmt_integer()`](`great_tables._formats_vals.val_fmt_integer`).
     """
 
     locale = _resolve_locale(self, locale=locale)
@@ -724,12 +709,6 @@ def fmt_scientific(
         .fmt_scientific(columns="num")
     )
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_scientific()`](`great_tables._formats_vals.val_fmt_scientific`), allows you to format
-    a single numerical value (or a list of them).
     """
 
     locale = _resolve_locale(self, locale=locale)
@@ -1050,12 +1029,6 @@ def fmt_engineering(
         .sub_missing()
     )
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_engineering()`](`great_tables._formats_vals.val_fmt_engineering`), allows you to
-    format a single numerical value (or a list of them).
     """
 
     locale = _resolve_locale(self, locale=locale)
@@ -1346,12 +1319,6 @@ def fmt_percent(
 
     (GT(towny_mini).fmt_percent("pop_change_2016_2021_pct", decimals=2))
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_percent()`](`great_tables._formats_vals.val_fmt_percent`), allows you to format a
-    single numerical value (or a list of them).
     """
 
     locale = _resolve_locale(self, locale=locale)
@@ -1640,12 +1607,6 @@ def fmt_partsper(
 
     GT(concentrations).fmt_partsper(columns="conc", to_units="ppb", scale_values=False, symbol="ppbV")
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_partsper()`](`great_tables._formats_vals.val_fmt_partsper`), allows you to format a
-    single numerical value (or a list of them).
     """
 
     # Validate the `to_units` parameter
@@ -1922,12 +1883,6 @@ def fmt_currency(
         )
     )
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_currency()`](`great_tables._formats_vals.val_fmt_currency`), allows you to format a
-    single numerical value (or a list of them).
     """
 
     locale = _resolve_locale(self, locale=locale)
@@ -2118,12 +2073,6 @@ def fmt_roman(
         .fmt_roman(columns="roman")
     )
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_roman()`](`great_tables._formats_vals.val_fmt_roman`), allows you to format a single
-    numerical value (or a list of them).
     """
 
     # Check that the `case` value is valid and only consists of the string 'upper' or 'lower'
@@ -2310,12 +2259,6 @@ def fmt_bytes(
         .fmt_bytes(columns="num", standard="decimal")
     )
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_bytes()`](`great_tables._formats_vals.val_fmt_bytes`), allows you to format a single
-    numerical value (or a list of them).
     """
 
     locale = _resolve_locale(self, locale=locale)
@@ -2833,12 +2776,6 @@ def fmt_duration(
         .fmt_duration(columns="duration", duration_style="wide")
     )
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_duration()`](`great_tables._formats_vals.val_fmt_duration`), allows you to format a
-    single numerical value (or a list of them).
     """
 
     locale = _resolve_locale(self, locale=locale)
@@ -3359,12 +3296,6 @@ def fmt_date(
         .fmt_date(columns="date", date_style="month_day_year")
     )
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_date()`](`great_tables._formats_vals.val_fmt_date`), allows you to format a single
-    numerical value (or a list of them).
     """
 
     locale = _resolve_locale(self, locale=locale)
@@ -3502,12 +3433,6 @@ def fmt_time(
         .fmt_time(columns="time", time_style="h_m_s_p")
     )
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_time()`](`great_tables._formats_vals.val_fmt_time`), allows you to format a single
-    numerical value (or a list of them).
     """
 
     locale = _resolve_locale(self, locale=locale)
@@ -4132,12 +4057,6 @@ def fmt_markdown(
 
     (GT(df).fmt_markdown("md"))
     ```
-
-    See Also
-    --------
-    The functional version of this method,
-    [`val_fmt_markdown()`](`great_tables._formats_vals.val_fmt_markdown`), allows you to format a
-    single string value (or a list of them).
     """
 
     pf_format = partial(
@@ -4294,12 +4213,6 @@ def fmt_units(
         .tab_options(column_labels_hidden=True)
     )
     ```
-
-    See Also
-    --------
-    The [`define_units()`](`great_tables.define_units`) function can be used as a standalone utility
-    for working with units notation. It can parses strings in *units notation* and can emit
-    formatted units with its `.to_html()` method.
     """
 
     def fmt_units_fn(

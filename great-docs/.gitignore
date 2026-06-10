@@ -1,0 +1,8 @@
+# Great Docs build directory
+# This directory is ephemeral and regenerated on each build
+# Do not commit this directory to version control
+*
+!.gitignore
+
+/.quarto/
+**/*.quarto_ipynb

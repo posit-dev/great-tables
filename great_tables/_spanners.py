@@ -798,11 +798,6 @@ def cols_unhide(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     GT(countrypops_mini).cols_hide(columns="year").cols_unhide(columns="year")
     ```
-
-    See Also
-    --------
-    The counterpart of this function,
-    [`cols_hide()`](`great_tables.GT.cols_hide`), allows you to hide one or more columns.
     """
 
     # If `columns` is a string, convert it to a list
@@ -1464,15 +1459,14 @@ def cols_merge_range(
     col_begin_resolved = resolve_cols_c(data=self, expr=col_begin)
     if len(col_begin_resolved) != 1:
         raise ValueError(
-            f"Column `col_begin` must resolve to exactly one column, "
-            f"got {len(col_begin_resolved)}."
+            f"Column `col_begin` must resolve to exactly one column, got {len(col_begin_resolved)}."
         )
 
     # Resolve the col_end column
     col_end_resolved = resolve_cols_c(data=self, expr=col_end)
     if len(col_end_resolved) != 1:
         raise ValueError(
-            f"Column `col_end` must resolve to exactly one column, " f"got {len(col_end_resolved)}."
+            f"Column `col_end` must resolve to exactly one column, got {len(col_end_resolved)}."
         )
 
     # Build the full column list

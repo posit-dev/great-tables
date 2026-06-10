@@ -1,0 +1,191 @@
+---
+title: "Great Tables `v0.15.0`: Flags, Icons, and Other Formatting Goodies"
+html-table-processing: none
+author: Rich Iannone
+date: 2024-12-19
+freeze: true
+jupyter: python3
+---
+
+The development of Great Tables is really moving along these days. We just released version `0.15.0` and it adds quite a few nice things to the package. The features we'll highlight in this post are:
+
+- adding flag icons with the new `fmt_flag()` method
+- peppering your table cells with Font Awesome icons via `fmt_icon()`
+- support for displaying accounting notation with four number-based formatting methods
+
+Let's look at each of these in turn!
+
+### Using `fmt_flag()` to incorporate country flag icons
+
+When tables contain country-level data, having a more visual representation for a country can help the reader more quickly parse the table contents. The new `fmt_flag()` method makes this easy to accomplish. You just need to have either [two-letter country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) or [three-letter country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) in a column.
+
+Here's an example where country flags, shown as simplified circular icons, can be added to a table with `fmt_flag()`:
+
+```{python}
+from great_tables import GT
+from great_tables.data import peeps
+import polars as pl
+
+peeps_mini = (
+    pl.from_pandas(peeps)
+    .filter(pl.col("dob").str.slice(offset=0, length=4) == "1988")
+    .with_columns(name=pl.col("name_given") + " " + pl.col("name_family"))
+    .fill_null(value="")
+    .select(["country", "name", "address", "city", "state_prov", "postcode"])
+)
+
+(
+    GT(peeps_mini)
+    .tab_header(title="Our Contacts (Born in 1988)")
+    .fmt_flag(columns="country")
+    .opt_vertical_padding(scale=0.5)
+    .cols_label(
+        country="",
+        name="Name",
+        address="Address",
+        city="City",
+        state_prov="State/Prov.",
+        postcode="Zip/Postcode",
+    )
+)
+```
+
+This slice of the `peeps` dataset has country codes in their 3-letter form (i.e., `"USA"`, `"SVN"`, and `"CAN"`) within the `country` column. So long as they are correct, `fmt_flag()` will perform the conversion to flag icons. Also, there's a little bit of interactivity here: when hovering over a flag, the country name will appear as a tooltip!
+
+We have the power to display multiple flag icons within a single cell. To make this happen, the country codes need to be combined in a single string where each code is separated by a comma (e.g., `"US,DE,GB"`). Here's an example that uses a portion of the `films` dataset:
+
+```{python}
+from great_tables import GT, google_font
+from great_tables.data import films
+import polars as pl
+
+films_mini = (
+    pl.from_pandas(films)
+    .filter(pl.col("director") == "Michael Haneke")
+    .with_columns(title=pl.col("title") + " (" + pl.col("year").cast(pl.String) + ")")
+    .select(["title", "run_time", "countries_of_origin"])
+)
+
+(
+    GT(films_mini)
+    .fmt_flag(columns="countries_of_origin")
+    .tab_header(title="In Competition Films by Michael Haneke")
+    .opt_stylize()
+    .tab_options(column_labels_hidden=True)
+    .opt_table_font(font=google_font("PT Sans"))
+)
+```
+
+The column `countries_of_origin` has these combined strings for each of the co-production films, where countries are arranged by decreasing level of contribution (e.g., `"FR,AT,RO,DE"` in the second row). The `fmt_flag()` method parses these strings into a sequence of flag icons that are displayed in the order provided. Each of the flags is separated by a space character but you can always change that default separator with the `sep=` argument.
+
+### Using `fmt_icon()` to include Font Awesome icons
+
+The new `fmt_icon()` method gives you the ability to easily include Font Awesome icons in a table. It uses a similar input/output scheme as with `fmt_flag()`: provide the *short* icon name (e.g., `"table"`, `"music"`, `"globe"`, etc.) or a comma-separated list of them, and `fmt_icon()` will provide the Font Awesome icon in place. Let's see it in action with an example that uses the `metro` dataset:
+
+```{python}
+from great_tables import GT
+from great_tables.data import metro
+import polars as pl
+
+metro_mini = (
+    pl.from_pandas(metro).tail(10)
+    .with_columns(
+        services = (
+            pl.when(pl.col("connect_tramway").is_not_null())
+            .then(pl.lit("train, train-tram"))
+            .otherwise(pl.lit("train"))
+        )
+    )
+    .select(["name", "services", "location"])
+)
+
+(
+    GT(metro_mini)
+    .tab_header("Services Available at Select Stations")
+    .fmt_icon(columns="services", sep=" / ")
+    .tab_options(column_labels_hidden=True)
+    .opt_stylize(color="green")
+    .opt_horizontal_padding(scale=3)
+    .opt_align_table_header(align="left")
+)
+```
+
+In the code, we added in the icon names `"train"` and `"train-tram"` to the `services` column, and there could either be just the train icon or the pair that includes the tramway service. We wanted a little separation between the icons in the latter case, so `sep=" / "` was used to place a slash with spacing between any pair of icons. The icons appear here with a black fill color, but that can be changed with the `fill_color=` argument (and there are several other arguments for controlling style attributes).
+
+For a list of available icons, their names, and what they look like, check out [this listing on the Font Awesome website](https://fontawesome.com/search?m=free&o=r). The icons draw from the Font Awesome 'free' set (2000+ icons in total) but are not obtained via the web. Rather, we use the [faicons library](https://pypi.org/project/faicons/) so that this can be done entirely offline (directly using the SVG icons stored within faicons).
+
+### Accounting notation in select numeric formatting methods
+
+For certain types of tables, it may be preferable to use accounting notation for numerical figures. This type of notation renders negative values in parentheses while omitting the minus sign. This is often seen for monetary and percentage figures but it's also sensible for plain numbers in the right context. We've added support for accounting notation in four formatting methods:
+
+- `fmt_number()`
+- `fmt_integer()`
+- `fmt_currency()`
+- `fmt_percent()`
+
+Here's a comprehensive example table that demonstrates how this type of formatting looks.
+
+```{python}
+# | code-fold: true
+# | code-summary: "Show the code"
+
+from great_tables import GT
+import polars as pl
+
+df = pl.DataFrame({
+    "number_type": ["negative", "positive"],
+    "number": [-1.2, 23.6],
+    "integer": [-2323, 23213],
+    "currency": [-24334.23, 7323.253],
+    "percent": [-0.0523, 0.363]
+    }
+).with_columns(
+    number_acc = pl.col("number"),
+    integer_acc = pl.col("integer"),
+    currency_acc = pl.col("currency"),
+    percent_acc = pl.col("percent")
+)
+
+(
+    GT(df, rowname_col="number_type")
+    .fmt_number(columns="number")
+    .fmt_percent(columns="percent")
+    .fmt_integer(columns="integer")
+    .fmt_currency(columns="currency")
+    .fmt_number(columns="number_acc", accounting=True)
+    .fmt_percent(columns="percent_acc", accounting=True)
+    .fmt_integer(columns="integer_acc", accounting=True)
+    .fmt_currency(columns="currency_acc", accounting=True)
+    .tab_spanner(label="default formatting", columns=[1, 2, 3, 4])
+    .tab_spanner(label="with accounting notation", columns=[5, 6, 7, 8])
+    .cols_label(
+        number_acc="number",
+        integer_acc="integer",
+        currency_acc="currency",
+        percent_acc="percent"
+    )
+)
+```
+
+For the formatting in the final four columns, we use `accounting=True` to get the values into accounting notation. This is only apparent for the negative values (first row) as the positive values won't change their appearance, looking the same as they do when `accounting=False` (the default).
+
+### Acknowledgements and how to contact us
+
+We are *very* grateful for the work that [Jerry Wu](https://github.com/jrycw) has done during this release, some of which includes:
+
+- enhancing the `fmt_image()` to support `http`/`https` schema in the `columns=` parameter, and writing an [incredible blog post](https://posit-dev.github.io/great-tables/blog/rendering-images/) about incorporating images in your tables
+- improving the `save()` method, giving it the ability to perform intermediate saves (since the method returns itself)
+- adding the `pipe()` method, which operates similarly to that of the Pandas and Polars APIs
+- all sorts of little QoL fixes
+
+We extend our gratitude also to [Alessandro Molina](https://github.com/amol-) for adding experimental support for `pyarrow.Table` inputs in this release.
+
+Finally, we thank [Luke Manley](https://github.com/lukemanley) and [Guillaume Lemaitre](https://github.com/glemaitre) for their first contributions to the project!
+
+We're always happy to get feedback. There are three good ways to talk to us:
+
+1. [GitHub Issues](https://github.com/posit-dev/great-tables/issues)
+2. [GitHub Discussions](https://github.com/posit-dev/great-tables/discussions)
+3. [Discord](https://discord.com/invite/Ux7nrcXHVV)
+
+Don't be shy. We love talking tables (and how we can make them better)!

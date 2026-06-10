@@ -1,0 +1,43 @@
+---
+title: "Great Tables + marimo = Interactive Tables"
+author: Rich Iannone and Jerry Wu
+date: 2025-06-24
+---
+
+Jerry Wu's [recent post](https://tech.ycwu.space/posts/gt-marimo-in-quarto/20250612.html) demonstrates how Great Tables can be made reactive in a marimo notebook. The post showcases a really nice integration where marimo's reactive widgets can be embedded directly into Great Tables using the [`html()`](https://posit-dev.github.io/great-tables/reference/html.html) helper function. This effectively creates an interactive table that updates in real-time whenever users interact with the controls.
+
+## Interactive Table Demo
+
+Here's a screencast (based on the [aforementioned post](https://tech.ycwu.space/posts/gt-marimo-in-quarto/20250612.html)) showing Jerry's GT table in marimo. It demonstrates how the embedded marimo widgets create reactive effects, allowing you to directly modify the table in real-time.
+
+![Interactive Great Tables with marimo widgets](gt_marimo.gif)
+
+The marimo reactive widgets can be embedded into a GT table through the [`html()`](https://posit-dev.github.io/great-tables/reference/html.html) helper function. In Jerry's example, the table responds to widget changes in the [`opt_stylize()`](https://posit-dev.github.io/great-tables/reference/GT.opt_stylize.html) method call, where the `.value` attributes for all of the widgets are passed in as arguments.
+
+```python
+gt.opt_stylize(
+    style=style_widget.value,
+    color=color_widget.value,
+    add_row_striping=row_striping_widget.value,
+)
+```
+
+## marimo Showcases the Integration
+
+The marimo team must have seen that post and liked what they saw! They recently released a video showcasing how marimo widgets work with Great Tables to create reactive tables.
+
+{{< video https://youtu.be/09ByveIiXGY >}}
+
+For more details on marimo's widget system, check out their [UI elements documentation](https://docs.marimo.io/api/inputs/) and [reactivity guide](https://docs.marimo.io/guides/reactivity/).
+
+## marimo + Quarto Integration
+
+For those interested in embedding marimo notebooks directly in Quarto documents, the marimo team has also created a [quarto-marimo plugin](https://github.com/marimo-team/quarto-marimo). This extension allows you to run marimo code blocks natively within Quarto documents, making it easy to create interactive content that combines the best of both tools. It's a very exciting development since we use Quarto extensively (our docs and this very blog post were authored through Quarto!). And naturally there's a video for this as well.
+
+{{< video https://youtu.be/scuGmtv81S0 >}}
+
+## Wrapping Up
+
+We're excited by how the marimo team is committed to creating seamless integrations with popular tools like Great Tables and Quarto. We're also excited to see what new features and integrations they'll develop next!
+
+Be sure to check out the [marimo YouTube channel](https://www.youtube.com/@marimo-team) as they consistently produce high-quality videos that demonstrate the power of reactive notebooks in action.

@@ -1,0 +1,440 @@
+---
+title: Examples
+jupyter: python3
+html-table-processing: none
+notebook-links: false
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the Code"
+toc: false
+---
+
+:::::: {.column-page}
+::::: {.grid}
+
+:::{.g-col-lg-6 .g-col-12}
+
+```{python}
+import polars as pl
+from great_tables import GT, md, html
+from great_tables.data import islands
+
+islands_mini = (
+    pl.from_pandas(islands).sort("size", descending=True)
+    .head(10)
+)
+
+(
+    GT(islands_mini)
+    .tab_header(
+        title="Large Landmasses of the World",
+        subtitle="The top ten largest are presented"
+    )
+    .tab_stub(rowname_col="name")
+    .tab_source_note(source_note="Source: The World Almanac and Book of Facts, 1975, page 406.")
+    .tab_source_note(
+        source_note=md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
+    )
+    .tab_stubhead(label="landmass")
+    .fmt_integer(columns="size")
+)
+```
+
+:::
+
+:::{.g-col-lg-6 .g-col-12}
+
+```{python}
+from great_tables import GT, html
+from great_tables.data import airquality
+
+airquality_mini = airquality.head(10).assign(Year = 1973)
+
+(
+    GT(airquality_mini)
+    .tab_header(
+        title="New York Air Quality Measurements",
+        subtitle="Daily measurements in New York City (May 1-10, 1973)"
+    )
+    .tab_spanner(
+        label="Time",
+        columns=["Year", "Month", "Day"]
+    )
+    .tab_spanner(
+        label="Measurement",
+        columns=["Ozone", "Solar_R", "Wind", "Temp"]
+    )
+    .cols_move_to_start(columns=["Year", "Month", "Day"])
+    .cols_label(
+        Ozone = html("Ozone,<br>ppbV"),
+        Solar_R = html("Solar R.,<br>cal/m<sup>2</sup>"),
+        Wind = html("Wind,<br>mph"),
+        Temp = html("Temp,<br>&deg;F")
+    )
+)
+```
+
+:::
+
+:::{.g-col-lg-6 .g-col-12 .shrink-example}
+
+```{python}
+from great_tables import GT
+from great_tables.data import countrypops
+import polars as pl
+import polars.selectors as cs
+
+# Get vectors of 2-letter country codes for each region of Oceania
+oceania = {
+    "Australasia": ["AU", "NZ"],
+    "Melanesia": ["NC", "PG", "SB", "VU"],
+    "Micronesia": ["FM", "GU", "KI", "MH", "MP", "NR", "PW"],
+    "Polynesia": ["PF", "WS", "TO", "TV"],
+}
+
+# Create a dictionary mapping country to region (e.g. AU -> Australasia)
+country_to_region = {
+    country: region for region, countries in oceania.items() for country in countries
+}
+
+wide_pops = (
+    pl.from_pandas(countrypops)
+    .filter(
+        pl.col("country_code_2").is_in(list(country_to_region))
+        & pl.col("year").is_in([2000, 2010, 2020])
+    )
+    .with_columns(pl.col("country_code_2").replace(country_to_region).alias("region"))
+    .pivot(index=["country_name", "region"], on="year", values="population")
+    .sort("2020", descending=True)
+)
+
+(
+    GT(wide_pops)
+    .tab_header(title="Populations of Oceania's Countries in 2000, 2010, and 2020")
+    .tab_spanner(label="Total Population", columns=cs.all())
+    .tab_stub(rowname_col="country_name", groupname_col="region")
+    .fmt_integer()
+)
+```
+
+:::
+
+:::{.g-col-lg-6 .g-col-12}
+
+```{python}
+from great_tables import GT, html
+from great_tables.data import towny
+
+towny_mini = (
+    towny[["name", "website", "density_2021", "land_area_km2", "latitude", "longitude"]]
+    .sort_values("density_2021", ascending=False)
+    .head(10)
+)
+
+towny_mini["url_name"] = "[" + towny_mini["name"] + "](" + towny_mini["website"] + ")"
+
+towny_mini["location"] = (
+    "[map](http://maps.google.com/?ie=UTF8&hq=&ll="
+    + towny_mini["latitude"].astype(str)
+    + ","
+    + towny_mini["longitude"].astype(str)
+    + "&z=13)"
+)
+
+(
+    GT(
+        towny_mini[["url_name", "location", "land_area_km2", "density_2021"]],
+        rowname_col="url_name",
+    )
+    .tab_header(
+        title="The Municipalities of Ontario",
+        subtitle="The top 10 highest population density in 2021",
+    )
+    .tab_stubhead(label="Municipality")
+    .fmt_markdown(columns=["url_name", "location"])
+    .fmt_number(columns=["land_area_km2", "density_2021"], decimals=1)
+    .cols_label(
+        land_area_km2=html("land area, <br>km<sup>2</sup>"),
+        density_2021=html("density, <br>people/km<sup>2</sup>"),
+    )
+)
+```
+
+:::
+
+:::{.g-col-lg-6 .g-col-12}
+
+```{python}
+from great_tables import GT, html
+from great_tables.data import sza
+import polars as pl
+import polars.selectors as cs
+
+sza_pivot = (
+    pl.from_pandas(sza)
+    .filter((pl.col("latitude") == "20") & (pl.col("tst") <= "1200"))
+    .select(pl.col("*").exclude("latitude"))
+    .drop_nulls()
+    .pivot(values="sza", index="month", on="tst", sort_columns=True)
+)
+
+(
+    GT(sza_pivot, rowname_col="month")
+    .data_color(
+        domain=[90, 0],
+        palette=["rebeccapurple", "white", "orange"],
+        na_color="white",
+    )
+    .tab_header(
+        title="Solar Zenith Angles from 05:30 to 12:00",
+        subtitle=html("Average monthly values at latitude of 20&deg;N."),
+    )
+    .sub_missing(missing_text="")
+)
+```
+
+:::
+
+
+:::{.g-col-lg-6 .g-col-12}
+
+<a href="https://github.com/posit-dev/great-tables/blob/main/docs/examples/sports-earnings/index.ipynb" target="_blank">View notebook ⬀</a>
+
+
+
+{{< embed sports-earnings/index.ipynb#table-output >}}
+
+:::
+
+:::{.g-col-lg-6 .g-col-12 .shrink-example}
+
+<a
+  href="https://gist.github.com/chalg/93ca29e202ab86e7d4caad44726372e4/d17c1b4ba608ae1c3df6ac7fc377065ae5708ba7"
+  target="_blank"
+  >View source ⬀</a>
+  &nbsp;&nbsp;&nbsp;&nbsp;<a
+  href="https://chalg.quarto.pub/carbon-intensity-of-electricity-consumption/"
+  target="_blank"
+  >Blog post (R code) ⬀</a>
+
+
+```{python}
+# | echo: false
+import warnings
+from great_tables import GT, md, html, system_fonts
+import pandas as pd
+
+warnings.filterwarnings("ignore")
+power_cie_prepared_tbl = pd.read_csv("_data/power_cie_prepared_tbl.csv")
+
+
+# Create a Great Tables object
+ciep_gt_tbl = GT(data=power_cie_prepared_tbl)
+
+# Apply wider color ranges & formatting
+
+gt_tbl = (
+    ciep_gt_tbl.fmt_percent(
+        columns=[
+            "Hydro",
+            "Nuclear",
+            "Wind",
+            "Solar",
+            "Geothermal",
+            "Biomass",
+            "Gas",
+            "Coal",
+            "Oil",
+            "Unknown",
+            "Hydro Discharge",
+            "Battery Discharge",
+        ],
+        decimals=1,
+    )
+    .fmt_number(columns=["CO2 Intensity"], decimals=0)
+    .data_color(
+        columns=["CO2 Intensity"],
+        palette=[
+            "#00A600",
+            "#E6E600",
+            "#E8C32E",
+            "#D69C4E",
+            "#Dc863B",
+            "sienna",
+            "sienna4",
+            "tomato4",
+            "brown",
+        ],
+        domain=[0, 900],
+    )
+    .data_color(
+        columns=["Hydro", "Nuclear", "Wind", "Solar", "Geothermal"],
+        palette=["#00A600", "chartreuse3", "chartreuse4", "snow"][::-1],
+        domain=[0, 1],
+    )
+    .data_color(
+        columns=["Hydro", "Geothermal"],
+        palette=["#00A600", "chartreuse3", "chartreuse4", "snow"][::-1],
+        domain=[0, 1],
+    )
+    .data_color(
+        columns=["Biomass"], palette=["snow", "#EEC900", "#E8C32E", "#D69C4E"], domain=[0, 0.3]
+    )
+    .data_color(
+        columns=["Gas", "Coal", "Oil"],
+        palette=["tomato4", "sienna4", "#D69C4E", "#Dc863B", "snow"][::-1],
+        domain=[0, 1],
+    )
+    .data_color(
+        columns=["Zone", "Unknown", "Hydro Discharge", "Battery Discharge"],
+        palette=["snow", "snow", "snow", "snow"],
+    )
+    .cols_width(
+        {
+            "CO2 Intensity": "58px",
+            "Hydro": "58px",
+            "Nuclear": "58px",
+            "Wind": "58px",
+            "Solar": "58px",
+            "Geothermal": "58px",
+            "Biomass": "58px",
+            "Gas": "58px",
+            "Coal": "58px",
+            "Oil": "58px",
+            "Unknown": "58px",
+            "Hydro Discharge": "58px",
+            "Battery Discharge": "58px",
+        }
+    )
+    .tab_header(
+        title=md(
+            "2023 Mean **Carbon Intensity** (gCO2eq/kWh) and **Power Consumption** Breakdown (%)"
+        )
+    )
+    .tab_source_note(
+        md(
+            '<br><div style="text-align: left;">'
+            "**Source**: api.electricitymap.org"
+            " | **Methodology**: https://www.electricitymaps.com/methodology."
+            " Some emissions factors are based on IPCC 2014 defaults, while some are based on more accurate regional factors."
+            " <br>All zones are publicly available on the *Carbon intensity and emission factors* tab via Google docs link<br>"
+            "</div>"
+            "<br>"
+        )
+    )
+    .tab_options(
+        source_notes_font_size="x-small",
+        source_notes_padding=3,
+        table_font_names=system_fonts("humanist"),
+        data_row_padding="1px",
+        heading_background_color="antiquewhite",
+        source_notes_background_color="antiquewhite",
+        column_labels_background_color="antiquewhite",
+        table_background_color="snow",
+        data_row_padding_horizontal=3,
+        column_labels_padding_horizontal=58,
+    )
+    .cols_align(align="center")
+    .cols_align(align="left", columns=["Zone"])
+    .opt_table_outline()
+)
+
+gt_tbl
+```
+
+:::
+
+
+:::{.g-col-lg-6 .g-col-12 .shrink-example}
+
+<a
+  href="https://github.com/machow/coffee-sales-data/"
+  target="_blank"
+  >View source ⬀</a>
+  &nbsp;&nbsp;&nbsp;&nbsp;<a
+  href="https://github.com/machow/coffee-sales-data/blob/main/example_notebook.ipynb"
+  target="_blank"
+  >Notebook ⬀</a>
+
+
+
+```{python}
+import polars as pl
+import polars.selectors as cs
+from great_tables import GT, loc, style
+
+coffee_sales = pl.read_ndjson("./_data/coffee-sales.ndjson")
+
+sel_rev = cs.starts_with("revenue")
+sel_prof = cs.starts_with("profit")
+
+# yo
+
+coffee_table = (
+    GT(coffee_sales)
+    .tab_header("Sales of Coffee Equipment")
+    .tab_spanner(label="Revenue", columns=sel_rev)
+    .tab_spanner(label="Profit", columns=sel_prof)
+    .cols_label(
+        revenue_dollars="Amount",
+        profit_dollars="Amount",
+        revenue_pct="Percent",
+        profit_pct="Percent",
+        monthly_sales="Monthly Sales",
+        icon="",
+        product="Product",
+    )
+    # formatting ----
+    .fmt_number(
+        columns=cs.ends_with("dollars"),
+        compact=True,
+        pattern="${x}",
+        n_sigfig=3,
+    )
+    .fmt_percent(columns=cs.ends_with("pct"), decimals=0)
+    # style ----
+    .tab_style(
+        style=style.fill(color="aliceblue"),
+        locations=loc.body(columns=sel_rev),
+    )
+    .tab_style(
+        style=style.fill(color="papayawhip"),
+        locations=loc.body(columns=sel_prof),
+    )
+    .tab_style(
+        style=style.text(weight="bold"),
+        locations=loc.body(rows=pl.col("product") == "Total"),
+    )
+    .fmt_nanoplot("monthly_sales", plot_type="bar")
+    .fmt_image("icon", path="_data/coffee-table-icons/")
+    .sub_missing(missing_text="")
+)
+
+coffee_table
+```
+
+:::
+
+
+:::::
+::::::
+
+## Ecosystem
+
+:::::: {.column-page}
+::::: {.grid}
+
+:::{.g-col-lg-6 .g-col-12 .shrink-example}
+
+<a
+  href="https://posit-dev.github.io/gt-extras/examples/with-code.html#gini_coefficient_table"
+  target="_blank"
+  >See the code (gt-extras site) ⬀</a>
+
+{{< embed gt-extras-gini/index.qmd#table-output >}}
+
+:::
+
+:::::
+::::::

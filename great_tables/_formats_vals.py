@@ -1509,11 +1509,6 @@ def val_fmt_image(
     -------
     list[str]
         A list of formatted values is returned.
-
-    See Also
-    --------
-    Check out our blog post, [Rendering images anywhere in Great Tables](https://posit-dev.github.io/great-tables/blog/rendering-images/),
-    which walks through how to use `vals.fmt_image()`.
     """
     gt_obj: GTData = _make_one_col_table(vals=x)
 
