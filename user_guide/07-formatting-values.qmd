@@ -72,7 +72,8 @@ gt_ex = gt_ex.fmt_currency(columns="currency", rows=[2, 3, 4], currency="GBP")
 gt_ex
 ```
 
-Now the first two rows display in USD and the last three in GBP, demonstrating how the same column can present different currencies by targeting specific rows.
+Now the first two rows display in USD and the last three in GBP, demonstrating how the same column
+can present different currencies by targeting specific rows.
 
 ## Arguments Common to Several Formatting Methods/Functions
 
