@@ -49,6 +49,8 @@ relative to the final row.
 gt_ex.fmt_currency("currency", rows=[0, -1], decimals=1)
 ```
 
+The first and last rows now show currency formatting, while the middle row remains unchanged.
+Negative indices count backward from the end, just as with Python lists.
 
 ## Using polars expressions
 
@@ -79,6 +81,8 @@ gt_polars.tab_style(
 )
 ```
 
+The row with the maximum currency value is highlighted with a yellow background. Using expressions
+for row selection keeps the logic declarative and close to the styling call.
 
 ## Using a function
 
