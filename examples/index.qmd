@@ -419,22 +419,3 @@ coffee_table
 
 :::::
 ::::::
-
-## Ecosystem
-
-:::::: {.column-page}
-::::: {.grid}
-
-:::{.g-col-lg-6 .g-col-12 .shrink-example}
-
-<a
-  href="https://posit-dev.github.io/gt-extras/examples/with-code.html#gini_coefficient_table"
-  target="_blank"
-  >See the code (gt-extras site) ⬀</a>
-
-{{< embed gt-extras-gini/index.qmd#table-output >}}
-
-:::
-
-:::::
-::::::
