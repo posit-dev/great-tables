@@ -1,15 +1,15 @@
-# Styling the whole table
+# Styling the Whole Table
 
-In [Styling the Table Body](styling-the-table-body.md), we discussed styling table data with [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style). In this article we'll cover how the same method can be used to style many other parts of the table, like the header, specific spanner labels, the footer, and more.
+In [Styling the Table Body](styling-the-table-body.md), we discussed styling table data with [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style). In this article we'll cover how the same method can be used to style many other parts of the table, like the header, specific spanner labels, the footer, and more. By targeting different location specifiers, you can apply fill colors, borders, and text styles to virtually any region of your table.
 
 > **Warning: Warning**
 >
 > This feature is new, and this page of documentation is still in development.
 
 
-# Kitchen sink
+# All locations example
 
-Below is a big example that shows all possible `loc` specifiers being used.
+Below is a comprehensive example that shows all possible `loc` specifiers being used. Each table part receives a distinct background color so you can see exactly which region each specifier targets.
 
 
 ``` python
@@ -131,6 +131,8 @@ gt = (
 
 # Body
 
+The table body is styled using [loc.body()](../reference/loc.body.md#great_tables.loc.body), which targets all data cells at once.
+
 
 ``` python
 gt.tab_style(style.fill("yellow"), loc.body())
@@ -197,6 +199,8 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 
 # Column labels
+
+Column labels can be styled broadly with [loc.column_header()](../reference/loc.column_header.md#great_tables.loc.column_header), or you can target individual column labels and spanner labels separately for more precise control.
 
 
 ``` python
@@ -270,6 +274,8 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 # Header
 
+The header area includes both the title and subtitle. You can style the entire header as one unit with [loc.header()](../reference/loc.header.md#great_tables.loc.header), or target the title and subtitle individually.
+
 
 ``` python
 (
@@ -340,6 +346,8 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 
 # Footer
+
+The footer contains source notes and can be styled as a whole with [loc.footer()](../reference/loc.footer.md#great_tables.loc.footer) or at the individual source note level with [loc.source_notes()](../reference/loc.source_notes.md#great_tables.loc.source_notes).
 
 
 ``` python
@@ -416,6 +424,8 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 # Stub
 
+The stub region includes row labels and row group labels. You can style these elements together or individually, and even target specific rows within the stub.
+
 
 ``` python
 (
@@ -490,6 +500,8 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 # Stubhead
 
+The stubhead label sits above the stub column and can be styled with [loc.stubhead()](../reference/loc.stubhead.md#great_tables.loc.stubhead).
+
 
 ``` python
 gt.tab_style(style.fill("yellow"), loc.stubhead())
@@ -556,6 +568,8 @@ gt.tab_style(style.fill("yellow"), loc.stubhead())
 
 
 # Grand Summary Rows
+
+Grand summary rows appear at the bottom of the table. You can style the summary data cells and the summary stub area independently.
 
 
 ``` python
@@ -628,3 +642,6 @@ gt.tab_style(style.fill("yellow"), loc.stubhead())
 </tfoot>
 
 </table>
+
+
+With [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) and the full set of `loc` specifiers, you can style every part of a **Great Tables** output. This gives you the ability to create cohesive visual themes, draw attention to specific structural elements, and ensure your table communicates effectively at every level.

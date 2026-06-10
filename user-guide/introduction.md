@@ -356,3 +356,27 @@ mph</th>
 </tr>
 </tbody>
 </table>
+
+
+These examples show just a glimpse of what's possible with **Great Tables**. The rest of this User Guide will walk you through each capability in detail, from structuring your table with headers, stubs, and column labels, to formatting values, adding visual styles, and embedding nanoplots directly in your cells.
+
+
+# The Anatomy of a Table
+
+Every table produced by **Great Tables** is composed of a set of structural components. Understanding these components and how they relate to each other is key to building effective presentation tables.
+
+The **Great Tables** package makes it relatively easy to add components so that the resulting output table better conveys the information you want to present. These table components work well together and the possible variations in arrangement can handle even the most demanding table presentation needs. The previous output table we showed had only two components: the **Column Labels** and the **Table Body**. The next few examples will show all of the other table parts that are available.
+
+This is the way the main parts of a table (and their subparts) fit together:
+
+<img src="../assets/gt_parts_of_a_table.svg" class="img-fluid" />
+
+The following list describes each major component of a **Great Tables** output, ordered from top to bottom:
+
+- the **Table Header** (optional; with a **title** and possibly a **subtitle**)
+- the **Stub** and the **Stub Head** (optional; contains *row labels*, optionally within *row groups* having *row group labels*)
+- the **Column Labels** (contains *column labels*, optionally under *spanner labels*)
+- the **Table Body** (contains *columns* and *rows* of *cells*)
+- the **Table Footer** (optional; possibly with one or more **source notes**)
+
+Each of these parts is covered in detail throughout the rest of this User Guide. The pages that follow will show you how to add a header and footer, create a stub with row labels and groupings, organize your column labels with spanners, format cell values, and apply styling to any part of the table.

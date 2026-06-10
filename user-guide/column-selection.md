@@ -1,6 +1,11 @@
 # Column Selection
 
-The `columns=` argument for methods like [tab_spanner()](../reference/GT.tab_spanner.md#great_tables.GT.tab_spanner), [cols_move()](../reference/GT.cols_move.md#great_tables.GT.cols_move), and [tab_style](../reference/GT.tab_style.md#great_tables.GT.tab_style) allows a range of options for selecting columns.
+Many **Great Tables** methods accept a `columns=` argument for targeting specific columns. Rather than limiting you to a simple list of column names, the package supports a flexible selection system that includes positional indexing, pattern-matching functions, and Polars selectors. This page demonstrates each of these approaches.
+
+
+# Selection Options
+
+The `columns=` argument for methods like [tab_spanner()](../reference/GT.tab_spanner.md#great_tables.GT.tab_spanner), [cols_move()](../reference/GT.cols_move.md#great_tables.GT.cols_move), and [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) allows a range of options for selecting columns.
 
 The simplest approach is just a list of strings with the exact column names. However, we can specify columns using any of the following:
 
@@ -110,3 +115,6 @@ gt_ex.cols_move_to_start(columns=lambda x: "c" in x)
 | banana  | two   | 2.222  | 2015-02-15 | 14:40 |
 | coconut | three | 33.33  | 2015-03-15 | 15:45 |
 | durian  | four  | 444.4  | 2015-04-15 | 16:50 |
+
+
+These selection methods work consistently across all **Great Tables** methods that accept a `columns=` argument. Whether you prefer explicit column names, positional indexing, Polars selectors, or custom functions, you can choose the approach that best fits your workflow and data.

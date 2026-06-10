@@ -10365,13 +10365,22 @@ $ mass_excess_uncert         <f64> 1.3e-05, 1.5e-05, 8e-05
 This is the User Guide documentation for the package.
 ----------------------------------------------------------------------
 
+
+## Getting Started
+
 ### Introduction
 
-The **Great Tables** package is all about making it simple to produce nice-looking display tables. Display tables? Well yes, we are trying to distinguish between data tables (i.e., DataFrames) and those tables you’d find in a web page, a journal article, or in a magazine. Such tables can likewise be called presentation tables, summary tables, or just tables really. Here are some examples, ripped straight from the web:
+The **Great Tables** package is all about making it simple to produce nice-looking display tables.
+Display tables? Well yes, we are trying to distinguish between data tables (i.e., DataFrames) and
+those tables you’d find in a web page, a journal article, or in a magazine. Such tables can likewise
+be called presentation tables, summary tables, or just tables really. Here are some examples, ripped
+straight from the web:
 
 ![](/assets/tables_from_the_web.png)
 
-We can think of display tables as output only, where we’d not want to use them as input ever again. Other features include annotations, table element styling, and text transformations that serve to communicate the subject matter more clearly.
+We can think of display tables as output only, where we’d not want to use them as input ever again.
+Other features include annotations, table element styling, and text transformations that serve to
+communicate the subject matter more clearly.
 
 ## Let's Install
 
@@ -10397,7 +10406,9 @@ from great_tables.data import islands
 islands_mini = islands.head(10)
 ```
 
-The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a great start. Speaking of which, the main entry point into the **Great Tables** API is the `GT` class. Let's use that to make a presentable table:
+The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a great
+start. Speaking of which, the main entry point into the **Great Tables** API is the `GT` class.
+Let's use that to make a presentable table:
 
 ```{python}
 # Create a display table showing ten of the largest islands in the world
@@ -10407,15 +10418,20 @@ gt_tbl = GT(islands_mini)
 gt_tbl
 ```
 
-That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
+That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive
+a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a
+**Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
 
 ::: {.callout-note}
-Typically we use Great Tables in an notebook environment or within a Quarto document. Tables won't print to the console, but using the `~~GT.show()` method on a table object while in the console will open the HTML table in your default browser.
+Typically we use Great Tables in an notebook environment or within a Quarto document. Tables won't
+print to the console, but using the `~~GT.show()` method on a table object while in the console will
+open the HTML table in your default browser.
 :::
 
 ## **Polars** DataFrame support
 
-`GT` accepts both **Pandas** and **Polars** DataFrames. You can pass a **Polars** DataFrame to `GT`, or use its `DataFrame.style` property.
+`GT` accepts both **Pandas** and **Polars** DataFrames. You can pass a **Polars** DataFrame to `GT`,
+or use its `DataFrame.style` property.
 
 ```{python}
 import polars as pl
@@ -10436,7 +10452,8 @@ The `polars.DataFrame.style` property is currently considered [unstable](https:/
 
 ## Some Beautiful Examples
 
-In the following pages we'll use **Great Tables** to turn DataFrames into beautiful tables, like the ones below.
+In the following pages we'll use **Great Tables** to turn DataFrames into beautiful tables, like the
+ones below.
 
 ```{python}
 #| code-fold: true
@@ -10492,27 +10509,59 @@ gt_airquality = (
 gt_airquality
 ```
 
+These examples show just a glimpse of what's possible with **Great Tables**. The rest of this User
+Guide will walk you through each capability in detail, from structuring your table with headers,
+stubs, and column labels, to formatting values, adding visual styles, and embedding nanoplots
+directly in your cells.
 
-## Adding Parts to this Simple Table
+## The Anatomy of a Table
 
-The **Great Tables** package makes it relatively easy to add components so that the resulting output table better conveys the information you want to present. These table components work well together and the possible variations in arrangement can handle even the most demanding table presentation needs. The previous output table we showed had only two components: the **Column Labels** and the **Table Body**. The next few examples will show all of the other table parts that are available.
+Every table produced by **Great Tables** is composed of a set of structural components.
+Understanding these components and how they relate to each other is key to building effective
+presentation tables.
+
+The **Great Tables** package makes it relatively easy to add components so that the resulting output
+table better conveys the information you want to present. These table components work well together
+and the possible variations in arrangement can handle even the most demanding table presentation
+needs. The previous output table we showed had only two components: the **Column Labels** and the
+**Table Body**. The next few examples will show all of the other table parts that are available.
 
 This is the way the main parts of a table (and their subparts) fit together:
 
 ![](/assets/gt_parts_of_a_table.svg)
 
-The components (roughly from top to bottom) are:
+The following list describes each major component of a **Great Tables** output, ordered from top to
+bottom:
 
 - the **Table Header** (optional; with a **title** and possibly a **subtitle**)
-- the **Stub** and the **Stub Head** (optional; contains *row labels*, optionally within *row groups* having *row group labels*)
+- the **Stub** and the **Stub Head** (optional; contains *row labels*, optionally within
+*row groups* having *row group labels*)
 - the **Column Labels** (contains *column labels*, optionally under *spanner labels*)
 - the **Table Body** (contains *columns* and *rows* of *cells*)
 - the **Table Footer** (optional; possibly with one or more **source notes**)
 
+Each of these parts is covered in detail throughout the rest of this User Guide. The pages that
+follow will show you how to add a header and footer, create a stub with row labels and groupings,
+organize your column labels with spanners, format cell values, and apply styling to any part of the
+table.
+
+
+
+## Table Structure
 
 ### Header and Footer
 
-The way that we add components like the **Table Header** and *source notes* in the **Table Footer** is to use the `tab_*()` family of methods. A **Table Header** is easy to add so let's see how the previous table looks with a *title* and a *subtitle*. We can add this component using the `~~GT.tab_header()` method:
+The **Table Header** and **Table Footer** are bookend components that provide context for the data
+presented in your table. The header introduces the table with a title and optional subtitle, while
+the footer anchors it with source notes or other supplementary information. Both are added using the
+`tab_*()` family of methods.
+
+## Adding a Table Header
+
+The way that we add components like the **Table Header** and *source notes* in the **Table Footer**
+is to use the `tab_*()` family of methods. A **Table Header** is easy to add so let's see how the
+previous table looks with a *title* and a *subtitle*. We can add this component using the
+`~~GT.tab_header()` method:
 
 ```{python}
 from great_tables import GT, md, html
@@ -10531,7 +10580,11 @@ islands_mini = islands.head(10)
 )
 ```
 
-The **Header** table component provides an opportunity to describe the data that's presented. Using `subtitle=` allows us to insert a subtitle, which is an optional part of the **Header**. We may also style the `title=` and `subtitle=` using Markdown! We do this by wrapping the values passed to `title=` or `subtitle=` with the `md()` helper function (we may also use `html()` in a similar fashion). Here is an example with the table data truncated for brevity:
+The **Header** table component provides an opportunity to describe the data that's presented. Using
+`subtitle=` allows us to insert a subtitle, which is an optional part of the **Header**. We may also
+style the `title=` and `subtitle=` using Markdown! We do this by wrapping the values passed to
+`title=` or `subtitle=` with the `md()` helper function (we may also use `html()` in a similar
+fashion). Here is an example with the table data truncated for brevity:
 
 ```{python}
 # Make a display table with the `islands_tbl` table;
@@ -10547,7 +10600,11 @@ gt_tbl = (
 gt_tbl
 ```
 
-A *source note* can be added to the table's **Footer** through use of the `~~GT.tab_source_note()` method. It works in the same way as `~~GT.tab_header()` (it also allows for Markdown inputs) except it can be called multiple times---each invocation results in the addition of a source note.
+A *source note* can be added to the table's **Footer** through use of the `~~GT.tab_source_note()`
+method. It works in the same way as `~~GT.tab_header()` (it also allows for Markdown inputs) except
+it can be called multiple times---each invocation results in the addition of a source note.
+
+## Adding Source Notes
 
 ```{python}
 # Display the `islands_tbl` data with a heading and two source notes
@@ -10562,17 +10619,36 @@ A *source note* can be added to the table's **Footer** through use of the `~~GT.
 )
 ```
 
+With just a few method calls, we have added essential context to the table. The title and subtitle
+tell the reader what data is being presented, and the source notes provide attribution. Together,
+these components frame the table body and help your audience understand the data at a glance.
+
 
 ### Stub (Row Labels)
 
-The **Stub** component of a table is the area to the left that typically contains *row labels* and may also contain *row group labels*. Those subparts can be grouped in a sequence of *row groups*. The **Stub Head** provides a location for a label that describes the **Stub** (and could also be used to describe the column labels). The **Stub** is optional since there are cases where a **Stub** wouldn't be useful (the display tables presented in the previous section looked just fine without a **Stub**).
+The **Stub** is a structural component that gives your table a left-hand column of row identifiers.
+Rather than treating row labels as just another data column, the stub elevates them to a distinct
+organizational role. This section covers how to create a stub, label it with a stubhead, and
+organize rows into logical groups.
+
+## Overview
+
+The **Stub** component of a table is the area to the left that typically contains *row labels* and
+may also contain *row group labels*. Those subparts can be grouped in a sequence of *row groups*.
+The **Stub Head** provides a location for a label that describes the **Stub** (and could also be
+used to describe the column labels). The **Stub** is optional since there are cases where a **Stub**
+wouldn't be useful (the display tables presented in the previous section looked just fine without a
+**Stub**).
 
 ## Row names
 
-An easy way to generate a **Stub** part is by specifying a stub column in the `GT()` class with the `rowname_col=` argument. This will signal to **Great Tables** that the named column should be used as the stub, using the contents of that column to make *row labels*. Let's add a stub with our `islands` dataset by using `rowname_col=` in the call to `GT`:
+An easy way to generate a **Stub** part is by specifying a stub column in the `GT()` class with the
+`rowname_col=` argument. This will signal to **Great Tables** that the named column should be used
+as the stub, using the contents of that column to make *row labels*. Let's add a stub with our
+`islands` dataset by using `rowname_col=` in the call to `GT`:
 
 ```{python}
-from great_tables import GT, md, html
+from great_tables import GT
 from great_tables.data import islands
 
 islands_mini = islands.head(10)
@@ -10580,7 +10656,9 @@ islands_mini = islands.head(10)
 GT(islands_mini).tab_stub(rowname_col="name")
 ```
 
-Notice that the landmass names are now placed to the left? That's the **Stub**. Notably, there is a prominent border to the right of it but there's no label above the **Stub**. We can change this and apply what's known as a *stubhead label* through use of the `~~GT.tab_stubhead()` method:
+Notice that the landmass names are now placed to the left? That's the **Stub**. Notably, there is a
+prominent border to the right of it but there's no label above the **Stub**. We can change this and
+apply what's known as a *stubhead label* through use of the `~~GT.tab_stubhead()` method:
 
 ```{python}
 (
@@ -10590,11 +10668,17 @@ Notice that the landmass names are now placed to the left? That's the **Stub**. 
 )
 ```
 
-A very important thing to note here is that the table now has one column. Before, when there was no **Stub**, two columns were present (with the **Column Labels** of `"name"` and `"size"`) but now column number `1` (the only column remaining) is `size`.
+A very important thing to note here is that the table now has one column. Before, when there was no
+**Stub**, two columns were present (with the **Column Labels** of `"name"` and `"size"`) but now
+column number `1` (the only column remaining) is `size`.
 
 ## Row groups
 
-Let's incorporate row groups into the display table. This divides rows into groups, creating *row groups*, and results in a display of a *row group labels* right above the each group. This can be easily done with a table containing row labels and the key is to use the `groupname_col=` argument of the `GT` class. Here we will create three row groups (with row group labels `"continent"`, `"country"`, and `"subregion"`) to have a grouping of rows.
+Let's incorporate row groups into the display table. This divides rows into groups, creating
+*row groups*, and results in a display of a *row group labels* right above the each group. This can
+be easily done with a table containing row labels and the key is to use the `groupname_col=`
+argument of the `GT` class. Here we will create three row groups (with row group labels
+`"continent"`, `"country"`, and `"subregion"`) to have a grouping of rows.
 
 ```{python}
 island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] * 2 + ["continent"] * 6)
@@ -10608,20 +10692,36 @@ island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] 
 
 ## GT convenience arguments
 
-Rather than using the `~~GT.tab_stub()` method, the `GT(rowname_col=..., groupname_col=...)` arguments
-provide a quick way to specify row names and groups.
+Rather than using the `~~GT.tab_stub()` method, the `GT(rowname_col=..., groupname_col=...)`
+arguments provide a quick way to specify row names and groups.
 
 
 ```{python}
 GT(island_groups, rowname_col="name", groupname_col="group")
 ```
 
+The stub provides a clear organizational framework for your data by separating identifiers from
+values. Whether you simply need named rows or a fully grouped hierarchy, the combination of
+`rowname_col=`, `groupname_col=`, and `~~GT.tab_stubhead()` gives you precise control over how
+readers navigate your table.
+
 
 ### Column Labels
 
-The table's **Column Labels** part contains, at a minimum, columns and their *column labels*. The last example had a single column: `size`. Just as in the **Stub**, we can create groupings called *spanner labels* that encompass one or more columns.
+Column labels are the primary way readers identify what data each column contains. Beyond simple
+labels, **Great Tables** lets you group related columns together under spanner labels, reorder
+columns for clarity, and customize label text with rich formatting. This page walks through each of
+these capabilities.
 
-To better demonstrate how **Column Labels** work and are displayed, let's use an input data table with more columns. In this case, that input table will be `airquality`. It has the following columns:
+## Working with Column Data
+
+The table's **Column Labels** part contains, at a minimum, columns and their *column labels*. The
+last example had a single column: `size`. Just as in the **Stub**, we can create groupings called
+*spanner labels* that encompass one or more columns.
+
+To better demonstrate how **Column Labels** work and are displayed, let's use an input data table
+with more columns. In this case, that input table will be `airquality`. It has the following
+columns:
 
 - `Ozone`: mean ground-level ozone in parts per billion by volume (ppbV), measured between 13:00 and 15:00
 - `Solar_R`: solar radiation in Langley units (cal/m<sup>2</sup>), measured between 08:00 and noon
@@ -10629,7 +10729,8 @@ To better demonstrate how **Column Labels** work and are displayed, let's use an
 - `Temp`: maximum daily air temperature in degrees Fahrenheit (&deg;F)
 - `Month`, `Day`: the numeric month and day of month for the record
 
-We know that all measurements took place in 1973, so a `year` column will be added to the dataset before it is passed to the `GT` class.
+We know that all measurements took place in 1973, so a `year` column will be added to the dataset
+before it is passed to the `GT` class.
 
 ```{python}
 from great_tables import GT, html
@@ -10642,7 +10743,8 @@ airquality_mini
 
 ## Adding Column Spanners
 
-Let's organize the time information under a `Time` *spanner label*, and put the other columns under a `Measurement` *spanner label*. We can do this with the `~~GT.tab_spanner()` method.
+Let's organize the time information under a `Time` *spanner label*, and put the other columns under
+a `Measurement` *spanner label*. We can do this with the `~~GT.tab_spanner()` method.
 
 ```{python}
 gt_airquality = (
@@ -10686,13 +10788,21 @@ Let's do both of these things in the next example:
 )
 ```
 
-Note that even though columns were moved using `~~GT.cols_move_to_start()`, the *spanner column labels* still spanned above the correct *column labels*. There are a number of methods on `GT` to move columns, including `~~GT.cols_move()`, `~~GT.cols_move_to_end()`; there's even a method to hide columns: `~~GT.cols_hide()`.
+Note that even though columns were moved using `~~GT.cols_move_to_start()`, the
+*spanner column labels* still spanned above the correct *column labels*. There are a number of
+methods on `GT` to move columns, including `~~GT.cols_move()`, `~~GT.cols_move_to_end()`; there's
+even a method to hide columns: `~~GT.cols_hide()`.
 
-Multiple columns can be renamed in a single use of `~~GT.cols_label()`. Further to this, the helper functions `md()` and `html()` can be used to create column labels with additional styling. In the above example, we provided column labels as HTML so that we can insert linebreaks with `<br>`, insert a superscripted `2` (with `<sup>2</sup>`), and insert a degree symbol as an HTML entity (`&deg;`).
+Multiple columns can be renamed in a single use of `~~GT.cols_label()`. Further to this, the helper
+functions `md()` and `html()` can be used to create column labels with additional styling. In the
+above example, we provided column labels as HTML so that we can insert linebreaks with `<br>`,
+insert a superscripted `2` (with `<sup>2</sup>`), and insert a degree symbol as an HTML entity
+(`&deg;`).
 
 ## Targeting Columns for `columns=`
 
-In the above examples, we selected columns to span or move using a list of column names (as strings). However, **Great Tables** supports a wide range of ways to select columns.
+In the above examples, we selected columns to span or move using a list of column names (as
+strings). However, **Great Tables** supports a wide range of ways to select columns.
 
 For example, you can use a lambda function:
 
@@ -10703,12 +10813,545 @@ For example, you can use a lambda function:
 )
 ```
 
-Inputs like strings, integers, and polars selectors are also supported. For more information, see [Column Selection](./12-column-selection.qmd).
+Inputs like strings, integers, and polars selectors are also supported. For more information, see
+[Column Selection](./17-column-selection.qmd).
 
+Between spanners, relabeling, and reordering, you have full control over how your column labels
+communicate the structure of your data. These tools let you transform raw DataFrame column names
+into polished, informative headers that guide readers through the table.
+
+
+### Merging Columns
+
+Tables often contain related data spread across multiple columns that would be better presented as a
+single, combined value. For example, a measurement and its uncertainty, a low and high bound forming
+a range, or a count with its corresponding percentage. The `cols_merge*()` family of methods
+combines the content of two or more columns into one, giving you a more compact and readable table.
+
+## Setting Up the Example Data
+
+We will use a small dataset that includes a measurement with uncertainty, a range, and a count with
+a percentage.
+
+```{python}
+import pandas as pd
+from great_tables import GT
+
+experiment_df = pd.DataFrame({
+    "trial": ["Trial 1", "Trial 2", "Trial 3", "Trial 4"],
+    "measurement": [12.45, 8.92, 15.03, None],
+    "uncertainty": [0.32, 0.15, 0.48, None],
+    "low": [10.5, 7.8, 13.2, 9.1],
+    "high": [14.2, 10.1, 16.8, 12.5],
+    "n_obs": [120, 85, 200, 0],
+    "pct": [34.2, 24.3, 57.1, 0.0],
+})
+
+gt_tbl = GT(experiment_df, rowname_col="trial")
+gt_tbl
+```
+
+With six data columns, this table is quite wide. Let's reduce the column count by merging related
+pairs together.
+
+## Merging with a Pattern
+
+The most general method is `~~GT.cols_merge()`. It takes a `columns=` list where the first column
+becomes the target (the one that receives the merged content), and a `pattern=` string that controls
+how column values are combined. In the pattern, `{0}` refers to the first column, `{1}` to the
+second, and so on.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge(
+        columns=["measurement", "uncertainty"],
+        pattern="{0} ± {1}"
+    )
+)
+```
+
+The `measurement` column now contains the merged text and the `uncertainty` column is automatically
+hidden. This hiding behavior can be controlled with the `hide_columns=` argument.
+
+### Conditional Content with `<<>>`
+
+Sometimes a column value may be missing, and you want the merged text to adapt gracefully. Wrapping
+part of the pattern in double angle brackets (`<<...>>`) makes that section conditional: it will be
+omitted entirely if any referenced column value inside is missing.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge(
+        columns=["measurement", "uncertainty"],
+        pattern="{0}<< ± {1}>>"
+    )
+)
+```
+
+In this example, Trial 4 has missing values for both columns. The conditional section `<< ± {1}>>`
+is dropped when `uncertainty` is missing, producing a cleaner result than showing placeholder text.
+
+## Merging Value and Uncertainty
+
+The `~~GT.cols_merge_uncert()` method is a convenience wrapper specifically designed for the common
+pattern of a measurement paired with its uncertainty. It handles missing values automatically and
+renders the separator as a proper plus-minus sign.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge_uncert(col_val="measurement", col_uncert="uncertainty")
+)
+```
+
+The `sep=` argument controls the text between the value and uncertainty (defaulting to `" ± "`). You
+can combine this with `~~GT.fmt_number()` to control the decimal precision of the merged values.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .fmt_number(columns=["measurement", "uncertainty"], decimals=1)
+    .cols_merge_uncert(col_val="measurement", col_uncert="uncertainty")
+)
+```
+
+Formatting should be applied before merging, since the merge operates on the already-formatted text
+content.
+
+## Merging a Range
+
+The `~~GT.cols_merge_range()` method combines two columns into a range display, separated by an en
+dash by default. This is ideal for confidence intervals, date ranges, or any pair of low/high
+bounds.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge_range(col_begin="low", col_end="high")
+)
+```
+
+You can customize the separator with `sep=`. The special values `"--"` and `"---"` are automatically
+rendered as an en dash and em dash, respectively. Any other string is used literally.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge_range(col_begin="low", col_end="high", sep=" to ")
+)
+```
+
+## Merging Count and Percentage
+
+When you have a count column alongside a pre-computed percentage column, `~~GT.cols_merge_n_pct()`
+merges them into a format like `"120 (34.2%)"`. This is a common pattern in statistical tables and
+survey results.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge_n_pct(col_n="n_obs", col_pct="pct")
+)
+```
+
+Notice that Trial 4 shows `"0"` without a percentage. This is intentional: when the count is zero,
+showing `"0 (0.0%)"` would be redundant, so the method displays only the count.
+
+## Combining Multiple Merges
+
+You can apply several merge operations in the same table to consolidate all related column pairs at
+once.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .fmt_number(columns=["measurement", "uncertainty", "low", "high"], decimals=1)
+    .cols_merge_uncert(col_val="measurement", col_uncert="uncertainty")
+    .cols_merge_range(col_begin="low", col_end="high")
+    .cols_merge_n_pct(col_n="n_obs", col_pct="pct")
+    .cols_label(
+        measurement="Result",
+        low="Range",
+        n_obs="Observations"
+    )
+)
+```
+
+By merging three pairs of columns, we reduced the table from six data columns down to three, each
+conveying the same information in a more compact form.
+
+Column merging is a powerful technique for building information-dense tables. By combining related
+values into unified columns, you reduce visual clutter and help readers process the data more
+efficiently. The specialized `cols_merge_uncert()`, `cols_merge_range()`, and `cols_merge_n_pct()`
+methods handle the most common patterns, while `cols_merge()` with its pattern syntax gives you full
+flexibility for any custom arrangement.
+
+
+### Footnotes
+
+Footnotes provide a way to annotate specific cells, columns, or other table parts with additional
+context without cluttering the main display. **Great Tables** manages footnotes as a system: marks
+are automatically sequenced, placed consistently, and matched to their explanatory text in the table
+footer.
+
+## A Basic Footnote
+
+Adding a footnote requires two things: the footnote text and a location specifier indicating where
+the footnote mark should appear. The `~~GT.tab_footnote()` method handles both, placing the mark at
+the targeted location and appending the text to the footer.
+
+```{python}
+from great_tables import GT, md, loc
+from great_tables.data import airquality
+
+air_mini = airquality.head(5)
+
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Measured in parts per billion (ppbV).",
+        locations=loc.column_labels(columns="Ozone")
+    )
+)
+```
+
+The footnote mark (a superscript number) appears next to the `"Ozone"` column label, and the
+corresponding text appears at the bottom of the table.
+
+## Targeting Different Locations
+
+Footnotes can be attached to many different parts of the table. The `locations=` argument accepts
+any of the `loc` specifiers that support footnotes. Here are some of the most common targets.
+
+### Column Labels
+
+Attaching a footnote to a column label is useful for clarifying units or methodology.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Solar radiation in Langleys (cal/cm²), measured 08:00–noon.",
+        locations=loc.column_labels(columns="Solar_R")
+    )
+)
+```
+
+### Body Cells
+
+You can annotate specific data cells by targeting them with `loc.body()`.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Highest temperature in this sample.",
+        locations=loc.body(columns="Temp", rows=[0])
+    )
+)
+```
+
+### The Title or Subtitle
+
+Footnotes on the table header can provide methodological notes or data source context.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Data collected at a monitoring station in midtown Manhattan.",
+        locations=loc.title()
+    )
+)
+```
+
+## Multiple Footnotes
+
+You can add multiple footnotes to a single table. Each call to `~~GT.tab_footnote()` creates a new
+footnote with its own sequenced mark. The marks are numbered in the order they appear in the table
+(reading left-to-right, top-to-bottom).
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Mean ozone concentration, 13:00–15:00.",
+        locations=loc.column_labels(columns="Ozone")
+    )
+    .tab_footnote(
+        footnote="Maximum daily temperature in degrees Fahrenheit.",
+        locations=loc.column_labels(columns="Temp")
+    )
+    .tab_footnote(
+        footnote="Measurement device was recalibrated on this day.",
+        locations=loc.body(columns="Ozone", rows=[2])
+    )
+)
+```
+
+Three footnote marks are placed in the table, and three corresponding notes appear in the footer,
+each with its sequential number.
+
+## Footnotes Without a Mark
+
+If you want to include explanatory text in the footer without attaching a mark to any cell, omit
+the `locations=` argument (or set it to `None`).
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(footnote="All measurements taken in New York City, 1973.")
+)
+```
+
+This is useful for general notes that apply to the entire table rather than to a specific cell or
+label.
+
+## Controlling Mark Placement
+
+The `placement=` argument determines where the footnote mark appears relative to the cell content.
+The options are `"auto"` (the default), `"left"`, and `"right"`.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Measured at ground level.",
+        locations=loc.column_labels(columns="Ozone"),
+        placement="left"
+    )
+)
+```
+
+With `placement="left"`, the footnote mark appears before the cell text rather than after it.
+
+## Using Markdown in Footnotes
+
+Footnote text supports Markdown formatting through the `md()` helper function. This lets you include
+emphasis, links, or other inline formatting in your footnotes.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote=md("Source: *Interactive Data Analysis* (McNeil, 1977)."),
+        locations=loc.title()
+    )
+)
+```
+
+Footnotes are a subtle but important tool for building informative tables. They let you add
+precision and context where it matters most, keeping the main table body clean while ensuring
+readers have access to the details they need. The automatic sequencing and placement system means
+you can focus on content rather than managing mark numbers manually.
+
+
+### Summary Rows
+
+Summary rows provide aggregated values (such as totals, means, or counts) directly in the table, adjacent to the data they summarize. **Great Tables** supports two types: group-level summaries that appear next to each row group, and grand summaries that aggregate across the entire table. Both types let you define multiple aggregation functions at once and control where the summary appears.
+
+## Setting Up the Example Data
+
+For these examples, we will use a sales dataset with row groups representing different product categories.
+
+```{python}
+import polars as pl
+from great_tables import GT
+
+sales_df = pl.DataFrame({
+    "product": ["Laptop", "Mouse", "Keyboard", "Monitor", "Webcam", "Headset"],
+    "category": ["Computing", "Computing", "Computing", "Peripherals", "Peripherals", "Peripherals"],
+    "units_sold": [45, 230, 180, 65, 120, 95],
+    "revenue": [67500, 4600, 9000, 19500, 6000, 7125],
+})
+
+gt_sales = (
+    GT(sales_df, rowname_col="product", groupname_col="category")
+    .tab_header(title="Q4 Product Sales", subtitle="By category")
+    .fmt_number(columns="revenue", decimals=0, use_seps=True)
+)
+
+gt_sales
+```
+
+This table has two row groups: `"Computing"` and `"Peripherals"`. We can now add summaries at the group level and at the grand level.
+
+## Group-Level Summary Rows
+
+The `~~GT.summary_rows()` method adds summary rows to each row group. You provide aggregation functions through the `fns=` argument as a dictionary, where keys become the summary row labels and values are the aggregation logic.
+
+When using a **Polars** DataFrame, the aggregation values should be Polars expressions.
+
+```{python}
+(
+    gt_sales
+    .summary_rows(
+        fns={"Total": pl.col("units_sold", "revenue").sum()}
+    )
+)
+```
+
+Each row group now has a `"Total"` summary row at the bottom showing the sum of numeric columns within that group.
+
+### Multiple Aggregation Functions
+
+You can include several functions in the `fns=` dictionary to produce multiple summary rows per group.
+
+```{python}
+(
+    gt_sales
+    .summary_rows(
+        fns={
+            "Total": pl.col("units_sold", "revenue").sum(),
+            "Average": pl.col("units_sold", "revenue").mean(),
+        }
+    )
+)
+```
+
+Both a `"Total"` and an `"Average"` row now appear at the bottom of each group.
+
+### Placing Summaries at the Top
+
+By default, summary rows appear at the bottom of each group. You can place them at the top instead by setting `side="top"`.
+
+```{python}
+(
+    gt_sales
+    .summary_rows(
+        fns={"Total": pl.col("units_sold", "revenue").sum()},
+        side="top"
+    )
+)
+```
+
+### Targeting Specific Groups
+
+If you only want summaries for certain groups, use the `groups=` argument with a list of group names.
+
+```{python}
+(
+    gt_sales
+    .summary_rows(
+        fns={"Total": pl.col("units_sold", "revenue").sum()},
+        groups=["Computing"]
+    )
+)
+```
+
+Only the `"Computing"` group receives a summary row.
+
+## Grand Summary Rows
+
+The `~~GT.grand_summary_rows()` method works the same way as `~~GT.summary_rows()`, but it aggregates across all data in the table regardless of row groups. The resulting summary rows appear at the very bottom (or top) of the table.
+
+```{python}
+(
+    gt_sales
+    .grand_summary_rows(
+        fns={"Grand Total": pl.col("units_sold", "revenue").sum()}
+    )
+)
+```
+
+A single `"Grand Total"` row appears below all row groups, showing the overall totals.
+
+### Combining Group and Grand Summaries
+
+You can use both `~~GT.summary_rows()` and `~~GT.grand_summary_rows()` on the same table to provide aggregation at both levels.
+
+```{python}
+(
+    gt_sales
+    .summary_rows(
+        fns={"Subtotal": pl.col("units_sold", "revenue").sum()}
+    )
+    .grand_summary_rows(
+        fns={
+            "Grand Total": pl.col("units_sold", "revenue").sum(),
+            "Overall Average": pl.col("units_sold", "revenue").mean(),
+        }
+    )
+)
+```
+
+Each group now has a `"Subtotal"` row, and the table finishes with a `"Grand Total"` and `"Overall Average"` row that span across all groups.
+
+## Working with Pandas DataFrames
+
+When using a **Pandas** DataFrame, the aggregation functions receive a Pandas DataFrame and should work accordingly.
+
+```{python}
+import pandas as pd
+
+sales_pd = pd.DataFrame({
+    "product": ["Laptop", "Mouse", "Keyboard", "Monitor", "Webcam", "Headset"],
+    "category": ["Computing", "Computing", "Computing", "Peripherals", "Peripherals", "Peripherals"],
+    "units_sold": [45, 230, 180, 65, 120, 95],
+    "revenue": [67500, 4600, 9000, 19500, 6000, 7125],
+})
+
+(
+    GT(sales_pd, rowname_col="product", groupname_col="category")
+    .fmt_number(columns="revenue", decimals=0, use_seps=True)
+    .grand_summary_rows(
+        fns={"Total": lambda df: df.sum(numeric_only=True)}
+    )
+)
+```
+
+The `numeric_only=True` argument ensures that only numeric columns are summed, avoiding errors with string columns.
+
+## Styling Summary Rows
+
+Summary rows can be styled using `loc.grand_summary()` and `loc.summary()` with `~~GT.tab_style()`. This lets you visually distinguish summary rows from data rows.
+
+```{python}
+from great_tables import loc, style
+
+(
+    gt_sales
+    .grand_summary_rows(
+        fns={"Grand Total": pl.col("units_sold", "revenue").sum()}
+    )
+    .tab_style(
+        style=style.fill(color="lightyellow"),
+        locations=loc.grand_summary()
+    )
+)
+```
+
+Summary rows are a natural companion to row groups, providing the aggregated context that readers need to interpret grouped data. By combining group-level and grand summaries, formatting, and targeted styling, you can build tables that tell a complete analytical story.
+
+
+
+## Formatting Data
 
 ### Formatting Values
 
-The values within the table body, specifically those within the body cells, can be formatted with a large selection of `fmt_*()` methods like `~~GT.fmt_number()`, `~~GT.fmt_integer()`, `~~GT.fmt_scientific()`, and more. Let's use a portion of the `exibble` dataset and introduce some formatting to the cell values. First, we'll generate the basic GT object and take a look at the table without any cell formatting applied.
+Raw data values in a table are rarely in their ideal presentation form. Numbers might need
+consistent decimal places, dates should appear in a readable format, and currencies require the
+appropriate symbols. The `fmt_*()` family of methods in **Great Tables** handles all of this,
+letting you transform cell values into well-formatted text while preserving the underlying data for
+things like sorting and colorization.
+
+## Formatting Cells in the Table Body
+
+The values within the table body, specifically those within the body cells, can be formatted with a
+large selection of `fmt_*()` methods like `~~GT.fmt_number()`, `~~GT.fmt_integer()`,
+`~~GT.fmt_scientific()`, and more. Let's use a portion of the `exibble` dataset and introduce some
+formatting to the cell values. First, we'll generate the basic GT object and take a look at the
+table without any cell formatting applied.
 
 ```{python}
 from great_tables import GT
@@ -10720,7 +11363,9 @@ gt_ex = GT(exibble[["num", "date", "time", "currency"]].head(5))
 gt_ex
 ```
 
-The `num` column contains both small and much larger numbers. We can use the `~~GT.fmt_number()` method to obtain formatted values have a fixed level of decimal precision and grouping separators. At the same time, we'll format the numeric values in `currency` column to get monetary values.
+The `num` column contains both small and much larger numbers. We can use the `~~GT.fmt_number()`
+method to obtain formatted values have a fixed level of decimal precision and grouping separators.
+At the same time, we'll format the numeric values in `currency` column to get monetary values.
 
 ```{python}
 gt_ex = gt_ex.fmt_number(columns="num", decimals=2).fmt_currency(columns="currency")
@@ -10728,7 +11373,10 @@ gt_ex = gt_ex.fmt_number(columns="num", decimals=2).fmt_currency(columns="curren
 gt_ex
 ```
 
-Dates and times can be formatted as well. As long as they are in ISO 8601 form, the `~~GT.fmt_date()` and `~~GT.fmt_time()` methods can be used to format such values. These methods have corresponding `date_style=` and `time_style=` arguments that accept a number of keywords that act as preset formatting styles.
+Dates and times can be formatted as well. As long as they are in ISO 8601 form, the
+`~~GT.fmt_date()` and `~~GT.fmt_time()` methods can be used to format such values. These methods
+have corresponding `date_style=` and `time_style=` arguments that accept a number of keywords that
+act as preset formatting styles.
 
 ```{python}
 gt_ex = (
@@ -10740,7 +11388,8 @@ gt_ex
 ```
 
 
-It's possible to format cells that have already been formatted. Using a formatting method again on previously formatted cells will always work within the 'last-formatted-wins' rule.
+It's possible to format cells that have already been formatted. Using a formatting method again on
+previously formatted cells will always work within the 'last-formatted-wins' rule.
 
 ```{python}
 gt_ex = gt_ex.fmt_date(columns="date", date_style="wday_day_month_year")
@@ -10748,7 +11397,8 @@ gt_ex = gt_ex.fmt_date(columns="date", date_style="wday_day_month_year")
 gt_ex
 ```
 
-Within the selected `columns=` we can choose to target specific cells with the `rows=` argument. The latter argument allows us to pass in a list of row indices.
+Within the selected `columns=` we can choose to target specific cells with the `rows=` argument. The
+latter argument allows us to pass in a list of row indices.
 
 ```{python}
 gt_ex = gt_ex.fmt_currency(columns="currency", rows=[2, 3, 4], currency="GBP")
@@ -10758,14 +11408,21 @@ gt_ex
 
 ## Arguments Common to Several Formatting Methods/Functions
 
-While we can use the `fmt_*()` methods on a table, we can also use the functional versions of these methods on scalar values or lists of values. These variants exist within the `vals` module. While arguments across these functions and their corresponding method aren't exactly the same, there are nonetheless many arguments that are shared amongst them. Here are a few examples:
+While we can use the `fmt_*()` methods on a table, we can also use the functional versions of these
+methods on scalar values or lists of values. These variants exist within the `vals` module. While
+arguments across these functions and their corresponding method aren't exactly the same, there are
+nonetheless many arguments that are shared amongst them. Here are some of the most commonly used
+arguments:
 
 - `decimals=`: set a fixed precision of decimal places
-- `sep_mark=`, `dec_mark=`: set digit separators and the decimal symbol (defaults are `","` and `"."`)
+- `sep_mark=`, `dec_mark=`: set digit separators and the decimal symbol (defaults are `","` and
+`"."`)
 - `scale_by=`: we can choose to scale targeted values by a multiplier value
-- `compact=`: larger figures (thousands, millions, etc.) can be autoscaled and decorated with the appropriate suffixes (e.g., `"10000"` becomes `"10K"`)
+- `compact=`: larger figures (thousands, millions, etc.) can be autoscaled and decorated with the
+appropriate suffixes (e.g., `"10000"` becomes `"10K"`)
 - `pattern=`: option to use a text pattern for decoration of the formatted values
-- `locale=`: providing a locale ID (e.g., `"en"`, `"fr"`, `"de-AT"`, etc.) will result in numeric formatting specific to the chosen locale
+- `locale=`: providing a locale ID (e.g., `"en"`, `"fr"`, `"de-AT"`, etc.) will result in numeric
+formatting specific to the chosen locale
 
 Here are a number of examples that use `vals.fmt_number()`.
 
@@ -10803,236 +11460,762 @@ fmt_time_2 = vals.fmt_time(["23:03", "00:55", "08:23"], time_style="h_p")
 print(fmt_date_1, fmt_date_2, fmt_time_1, fmt_time_2, sep="\n")
 ```
 
-Sometimes it's easier and more convenient to experiment with formatting using the formatting functions in the `vals` module. There are many options to explore with each type of formatting and so visiting the [API Reference](/reference/) is certainly worthwhile.
+Sometimes it's easier and more convenient to experiment with formatting using the formatting
+functions in the `vals` module. There are many options to explore with each type of formatting and
+so visiting the [API Reference](/reference/) is certainly worthwhile.
+
+Formatting is one of the most impactful things you can do to improve a table's readability. With the
+`fmt_*()` methods on a `GT` object and the corresponding functions in the `vals` module, you have a
+comprehensive toolkit for turning raw values into polished, publication-ready content.
 
 
-### Nanoplots
+### More Formatting Options
 
-:::{.callout-warning}
-`~~GT.fmt_nanoplot()` is still experimental.
-:::
+The [Formatting Values](./07-formatting-values.qmd) page introduced the basics of `fmt_number()`,
+`fmt_currency()`, `fmt_date()`, and `fmt_time()`. But **Great Tables** has a much larger formatting
+toolkit. This page covers additional formatters that handle percentages, byte sizes, durations,
+scientific units, icons, flags, images, boolean values, Markdown, and more. Each formatter
+transforms raw cell data into presentation-ready content.
 
-Nanoplots are tiny plots you can use in your table. They are simple by design, mainly because there isn't a lot of space to work with. With that simplicity, however, you do get a set of very succinct data visualizations that adapt nicely to the amount of data you feed into them. Here's some of the main features:
+## Percentage Formatting
 
-- interactivity: you can hover over data and other elements to show values
-- choice of line and bar charting
-- you can annotate plots with a reference line and/or area
-- plenty of easy-to-use options for composing your plots
-
-## A simple line-based nanoplot
-
-Let's make some simple plots with a Polars DataFrame. Here we are using lists to define data values for each cell in the `numbers` column. The `~~GT.fmt_nanoplot()` method understands that these are input values for a line plot (the default type of nanoplot).
+The `~~GT.fmt_percent()` method formats numeric values as percentages. By default, it assumes the
+input values are proportions (e.g., `0.25` becomes `"25.00%"`). If your values are already in
+percent form, set `scale_values=False`.
 
 ```{python}
-from great_tables import GT
 import polars as pl
+from great_tables import GT
 
-random_numbers_df = pl.DataFrame(
-    {
-        "example": ["Row " + str(x) for x in range(1, 5)],
-        "numbers": [
-            "20 23 6 7 37 23 21 4 7 16",
-            "2.3 6.8 9.2 2.42 3.5 12.1 5.3 3.6 7.2 3.74",
-            "-12 -5 6 3.7 0 8 -7.4",
-            "2 0 15 7 8 10 1 24 17 13 6",
-        ],
-    }
+pct_df = pl.DataFrame({
+    "metric": ["Conversion rate", "Bounce rate", "Click-through"],
+    "proportion": [0.034, 0.621, 0.158],
+    "already_pct": [3.4, 62.1, 15.8],
+})
+
+(
+    GT(pct_df, rowname_col="metric")
+    .fmt_percent(columns="proportion", decimals=1)
+    .fmt_percent(columns="already_pct", decimals=1, scale_values=False)
 )
-
-GT(random_numbers_df).fmt_nanoplot(columns="numbers")
 ```
 
-This looks a lot like the familiar sparklines you might see in tables where space for plots is limited. The input values, strings of space-separated values, can be considered here as *y* values and they are evenly spaced along the imaginary *x* axis.
+Both columns display correctly as percentages, but the `proportion` column needed scaling (the
+default behavior) while `already_pct` did not.
 
-Hovering over (or touching) the values is something of a treat! You might notice that:
+## Byte Size Formatting
 
-- data values are automatically formatted for you in a compact fashion
-- the plot elements also display pertinent values
+The `~~GT.fmt_bytes()` method converts raw byte counts into human-readable sizes. It automatically
+selects the appropriate unit (kB, MB, GB, etc.) based on the magnitude of the value.
 
-This sort of interactively is baked into the rendered SVG graphics that `~~GT.fmt_nanoplot()` generates from your data and selection of options.
+```{python}
+bytes_df = pl.DataFrame({
+    "file": ["photo.jpg", "video.mp4", "document.pdf", "database.sqlite"],
+    "size_bytes": [2_048_000, 1_573_000_000, 524_288, 85_000_000_000],
+})
 
-Polars lets us express 'lists-of-values-per-cell' in different ways and **Great Tables** is pretty good at understanding different column *dtypes*. So, you can alternatively create the same table as above with the following code.
+(
+    GT(bytes_df, rowname_col="file")
+    .fmt_bytes(columns="size_bytes", standard="decimal")
+)
+```
+
+The `standard=` argument controls the unit system. Use `"decimal"` for powers of 1000 (kB, MB, GB)
+or `"binary"` for powers of 1024 (KiB, MiB, GiB).
+
+```{python}
+(
+    GT(bytes_df, rowname_col="file")
+    .fmt_bytes(columns="size_bytes", standard="binary")
+)
+```
+
+## Duration Formatting
+
+The `~~GT.fmt_duration()` method formats numeric values (or `timedelta` objects) as styled time
+duration strings. You specify the input unit and the method handles the conversion and display.
+
+```{python}
+duration_df = pl.DataFrame({
+    "event": ["Sprint", "Marathon", "Triathlon", "Ultra"],
+    "seconds": [58, 7380, 21600, 172800],
+})
+
+(
+    GT(duration_df, rowname_col="event")
+    .fmt_duration(columns="seconds", input_units="seconds")
+)
+```
+
+The `duration_style=` argument controls the output format. The available styles are:
+
+- `"narrow"` (the default): compact format like `"2d 3h 15m"`
+- `"wide"`: spelled out like `"2 days 3 hours 15 minutes"`
+- `"colon-sep"`: clock format like `"51:03:15"`
+- `"iso"`: ISO 8601 format like `"P2DT3H15M"`
+
+```{python}
+(
+    GT(duration_df, rowname_col="event")
+    .fmt_duration(columns="seconds", input_units="seconds", duration_style="wide")
+)
+```
+
+You can limit the number of output units with `max_output_units=` to keep the display concise.
+
+```{python}
+(
+    GT(duration_df, rowname_col="event")
+    .fmt_duration(columns="seconds", input_units="seconds", max_output_units=2)
+)
+```
+
+## Engineering Notation
+
+The `~~GT.fmt_engineering()` method formats values in engineering notation, where the exponent is
+always a multiple of 3. This aligns with SI prefixes (kilo, mega, milli, micro, etc.) and is common
+in technical and scientific contexts.
+
+```{python}
+eng_df = pl.DataFrame({
+    "quantity": ["Resistance", "Capacitance", "Frequency", "Power"],
+    "value": [4700.0, 0.0000001, 2400000000.0, 0.0035],
+})
+
+(
+    GT(eng_df, rowname_col="quantity")
+    .fmt_engineering(columns="value")
+)
+```
+
+## Parts-Per Formatting
+
+The `~~GT.fmt_partsper()` method formats values as parts-per quantities: per mille, ppm, ppb, and
+more. By default, it assumes input values are proportions and scales them accordingly.
+
+```{python}
+ppm_df = pl.DataFrame({
+    "substance": ["Lead", "Mercury", "Arsenic"],
+    "concentration": [0.000015, 0.000001, 0.00001],
+})
+
+(
+    GT(ppm_df, rowname_col="substance")
+    .fmt_partsper(columns="concentration", to_units="ppm")
+)
+```
+
+The `to_units=` argument accepts the following values: `"per-mille"`, `"per-myriad"`, `"pcm"`,
+`"ppm"`, `"ppb"`, `"ppt"`, and `"ppq"`.
+
+## Roman Numeral Formatting
+
+The `~~GT.fmt_roman()` method converts integer values into Roman numerals. This can be useful for
+numbering chapters, sections, or ranked items.
+
+```{python}
+roman_df = pl.DataFrame({
+    "event": ["Opening", "Keynote", "Workshop", "Closing"],
+    "order": [1, 2, 3, 4],
+})
+
+(
+    GT(roman_df, rowname_col="event")
+    .fmt_roman(columns="order")
+)
+```
+
+The `case=` argument accepts `"upper"` (the default, producing `"I"`, `"II"`, `"III"`) or `"lower"`
+(producing `"i"`, `"ii"`, `"iii"`).
+
+## Scientific Units
+
+The `~~GT.fmt_units()` method renders measurement units with proper subscripts, superscripts, and
+special symbols. It uses a concise notation syntax where `^` indicates superscripts, `_` indicates
+subscripts, and special names are referenced with colons.
+
+```{python}
+units_df = pl.DataFrame({
+    "quantity": ["Speed of light", "Boltzmann constant", "Planck constant", "Acceleration"],
+    "units": ["m/s", "J Hz^-1", "kg m^2 s^-1", "m s^-2"],
+})
+
+(
+    GT(units_df, rowname_col="quantity")
+    .fmt_units(columns="units")
+)
+```
+
+The units notation supports Greek letters (`:alpha:`, `:beta:`, `:sigma:`), chemical formulas in
+percent delimiters (`%H2O%`), and combined subscripts and superscripts (`t_i^2`).
+
+## True/False Formatting
+
+The `~~GT.fmt_tf()` method transforms boolean values into visual indicators. It offers a variety of
+preset styles including text labels, check marks, shapes, and arrows.
+
+```{python}
+tf_df = pl.DataFrame({
+    "feature": ["Dark mode", "Auto-save", "Spell check", "Notifications"],
+    "enabled": [True, True, False, True],
+    "premium": [False, True, False, True],
+})
+
+(
+    GT(tf_df, rowname_col="feature")
+    .fmt_tf(columns="enabled", tf_style="check-mark")
+    .fmt_tf(columns="premium", tf_style="circles")
+)
+```
+
+The available `tf_style=` values include: `"true-false"`, `"yes-no"`, `"up-down"`, `"check-mark"`,
+`"circles"`, `"squares"`, `"diamonds"`, `"arrows"`, `"triangles"`, and `"triangles-lr"`.
+
+You can also apply colors to the True/False indicators using the `colors=` argument.
+
+```{python}
+(
+    GT(tf_df, rowname_col="feature")
+    .fmt_tf(columns="enabled", tf_style="check-mark", colors=["green", "red"])
+)
+```
+
+When you provide two colors, the first applies to `True` values and the second to `False` values.
+
+## Markdown in Cells
+
+The `~~GT.fmt_markdown()` method renders Markdown-formatted text that appears in cells. This is
+useful when your data contains text with emphasis, links, or other inline formatting.
+
+```{python}
+md_df = pl.DataFrame({
+    "package": ["polars", "pandas", "numpy"],
+    "description": [
+        "**Fast** DataFrame library for *Rust* and Python",
+        "Flexible data analysis with **labeled** axes",
+        "Fundamental package for *scientific computing*",
+    ],
+})
+
+(
+    GT(md_df, rowname_col="package")
+    .fmt_markdown(columns="description")
+)
+```
+
+The Markdown is converted to HTML during rendering, so standard inline Markdown syntax (bold,
+italic, links, code) is supported.
+
+## Icons in Cells
+
+The `~~GT.fmt_icon()` method renders Font Awesome icons based on icon names stored in cells. This is
+a visually engaging way to represent categories, statuses, or types.
+
+```{python}
+icon_df = pl.DataFrame({
+    "platform": ["Web", "Mobile", "Desktop"],
+    "icon_name": ["globe", "mobile", "desktop"],
+    "users": [45000, 32000, 12000],
+})
+
+(
+    GT(icon_df, rowname_col="platform")
+    .fmt_icon(columns="icon_name", fill_color="steelblue")
+    .fmt_number(columns="users", compact=True)
+)
+```
+
+The `fill_color=` argument accepts a single color (applied to all icons) or a dictionary mapping
+icon names to specific colors.
+
+```{python}
+(
+    GT(icon_df, rowname_col="platform")
+    .fmt_icon(
+        columns="icon_name",
+        fill_color={"globe": "royalblue", "mobile": "forestgreen", "desktop": "slategray"}
+    )
+)
+```
+
+## Country Flags
+
+The `~~GT.fmt_flag()` method generates flag icons from ISO 3166-1 country codes (two- or
+three-letter codes). This is useful for international datasets.
+
+```{python}
+country_df = pl.DataFrame({
+    "country_code": ["US", "GB", "JP", "DE", "BR"],
+    "country": ["United States", "United Kingdom", "Japan", "Germany", "Brazil"],
+    "gdp_trillion": [25.5, 3.1, 4.2, 4.1, 1.9],
+})
+
+(
+    GT(country_df, rowname_col="country")
+    .fmt_flag(columns="country_code")
+    .fmt_number(columns="gdp_trillion", decimals=1)
+    .cols_label(country_code="Flag", gdp_trillion="GDP (USD trillions)")
+)
+```
+
+The flags render as small inline images with a hover tooltip showing the country name (controlled by
+`use_title=`).
+
+## Images in Cells
+
+The `~~GT.fmt_image()` method renders image paths or URLs as inline images within cells. This is
+useful for product catalogs, team rosters, or any dataset where visual identification matters.
 
 ```python
-random_numbers_df = pl.DataFrame(
-    {
-        "example": ["Row " + str(x) for x in range(1, 5)],
-        "numbers": [
-            { "val": [20, 23, 6, 7, 37, 23, 21, 4, 7, 16] },
-            { "val": [2.3, 6.8, 9.2, 2.42, 3.5, 12.1, 5.3, 3.6, 7.2, 3.74] },
-            { "val": [-12, -5, 6, 3.7, 0, 8, -7.4] },
-            { "val": [2, 0, 15, 7, 8, 10, 1, 24, 17, 13, 6] },
-        ],
-    }
-)
-
-GT(random_numbers_df).fmt_nanoplot(columns="numbers")
-```
-
-Both forms of the `numbers` column in the two DataFrames look the same to `~~GT.fmt_nanoplot()`. The key for the list of values (here, `"val"`) can be anything as long as it's repeated down the column. So the choice is yours on how you want to prepare those column values.
-
-## The reference line and the reference area
-
-You can insert two additional things which may be useful: a reference line and a reference area. You can define them either through literal values or via keywords (these are: `"mean"`, `"median"`, `"min"`, `"max"`, `"q1"`, `"q3"`, `"first"`, or `"last"`). Here's a reference line that corresponds to the mean data value of each nanoplot:
-
-```{python}
-GT(random_numbers_df).fmt_nanoplot(columns="numbers", reference_line="mean")
-```
-
-This example uses a reference area that bounds the minimum value to the median value:
-
-```{python}
-GT(random_numbers_df).fmt_nanoplot(columns="numbers", reference_area=["min", "median"])
-```
-
-As an added touch, you don't need to worry about the order of the keywords provided to `reference_area=` (which could be potentially problematic if providing a literal value and a keyword).
-
-## Using `autoscale=` to have a common *y*-axis scale across plots
-
-There are lots of options. Like, if you want to ensure that the scale is shared across all of the nanoplots (so you can better get a sense of overall magnitude), you can set `autoscale=` to `True`:
-
-```{python}
-GT(random_numbers_df).fmt_nanoplot(columns="numbers", autoscale=True)
-```
-
-If you hover along or touch the left side of any of the plots above, you'll see that each *y* scale runs from `-12.0` to `37.0`. Using `autoscale=True` is very useful if you want to compare the magnitudes of values across rows in addition to their trends. It won't, however, make much sense if the overall magnitudes of values vary wildly across rows (e.g., comparing changing currency values or stock prices over time).
-
-## Using the `nanoplot_options()`{.qd-no-link} helper function
-
-There are many options for customization. You can radically change the look of a collection of nanoplots with the `nanoplot_options()` helper function. With that function, you invoke it in the `options=` argument of `~~GT.fmt_nanoplot()`. You can modify the sizes and colors of different elements, decide which elements are even present, and much more! Here's an example where a line-based nanoplot retains all of its elements, but the overall appearance is greatly altered.
-
-```{python}
-from great_tables import nanoplot_options
+img_df = pl.DataFrame({
+    "planet": ["Earth", "Mars", "Jupiter"],
+    "image_file": ["earth.png", "mars.png", "jupiter.png"],
+    "diameter_km": [12742, 6779, 139820],
+})
 
 (
-    GT(random_numbers_df)
-    .fmt_nanoplot(
-        columns="numbers",
-        options=nanoplot_options(
-            data_point_radius=8,
-            data_point_stroke_color="black",
-            data_point_stroke_width=2,
-            data_point_fill_color="white",
-            data_line_type="straight",
-            data_line_stroke_color="brown",
-            data_line_stroke_width=2,
-            data_area_fill_color="orange",
-            vertical_guide_stroke_color="green",
-        ),
+    GT(img_df, rowname_col="planet")
+    .fmt_image(columns="image_file", path="images/", height="40px")
+    .fmt_number(columns="diameter_km", use_seps=True)
+)
+```
+
+The `path=` argument provides a common prefix for all file references, and `height=`/`width=`
+control the rendered dimensions. When `encode=True` (the default), local image files are
+base64-encoded directly into the HTML output, making the table self-contained.
+
+## Custom Formatting with `fmt()`
+
+When none of the built-in formatters fit your needs, the generic `~~GT.fmt()` method lets you supply
+any function as a formatter. The function receives a raw cell value and should return a formatted
+string.
+
+```{python}
+def format_score(value):
+    """Convert a 0-100 score to a letter grade."""
+    if value >= 90:
+        return "A"
+    elif value >= 80:
+        return "B"
+    elif value >= 70:
+        return "C"
+    elif value >= 60:
+        return "D"
+    else:
+        return "F"
+
+grades_df = pl.DataFrame({
+    "student": ["Alice", "Bob", "Charlie", "Diana"],
+    "score": [95, 82, 67, 91],
+})
+
+(
+    GT(grades_df, rowname_col="student")
+    .fmt(fns=format_score, columns="score")
+)
+```
+
+The `~~GT.fmt()` method is the escape hatch for any formatting logic that the specialized `fmt_*()`
+methods do not cover. Your function can return plain text or HTML strings for rich formatting.
+
+The formatting methods in **Great Tables** cover a wide spectrum of data types and presentation
+needs. From scientific notation to country flags, from boolean indicators to custom functions, you
+have the tools to make every column in your table look exactly right for its audience and context.
+
+
+### Substituting Values
+
+Real-world data often contains missing values, zeros, or extreme numbers that can look awkward or
+misleading when displayed directly in a table. The `sub_*()` family of methods lets you replace
+these problematic values with more meaningful text, improving readability without altering your
+underlying data.
+
+## Setting Up the Example Data
+
+For the examples on this page, we will use a small DataFrame with a mix of values that includes
+missing data, zeros, and both very small and very large numbers.
+
+```{python}
+import pandas as pd
+from great_tables import GT
+
+df = pd.DataFrame({
+    "item": ["Widget A", "Widget B", "Widget C", "Widget D", "Widget E"],
+    "count": [150, 0, 42, None, 3],
+    "rate": [0.003, 0.0, 0.542, 0.871, None],
+    "revenue": [4500.00, 0.00, 1e13, 75.50, None],
+})
+
+gt_tbl = GT(df, rowname_col="item")
+gt_tbl
+```
+
+Notice how the table displays `None` values and raw numbers in a way that may not be ideal for a
+presentation table. The `sub_*()` methods let us address each of these cases.
+
+## Substituting Missing Values
+
+The `~~GT.sub_missing()` method replaces `None` (or `NaN`) values with a text string of your choice.
+By default, it inserts an em dash, but you can provide any replacement text through the
+`missing_text=` argument.
+
+```{python}
+gt_tbl.sub_missing(missing_text="N/A")
+```
+
+You can also target specific columns, leaving other columns to display their missing values as-is.
+
+```{python}
+gt_tbl.sub_missing(columns="count", missing_text="not reported")
+```
+
+Only the `count` column has its missing value replaced with our custom text. The `rate` and
+`revenue` columns still show their default missing representation.
+
+## Substituting Zero Values
+
+When zeros are not meaningful in context (for example, in a column that tracks incidents or errors),
+you can use `~~GT.sub_zero()` to replace them with explanatory text. The default replacement is
+`"nil"`, but this is customizable through the `zero_text=` argument.
+
+```{python}
+gt_tbl.sub_zero(columns="count", zero_text="none")
+```
+
+Here the zero in the `count` column now reads as `"none"`, which is clearer for the reader.
+
+## Substituting Small Values
+
+Very small numbers can be distracting in a table, especially when they fall below a meaningful
+threshold. The `~~GT.sub_small_vals()` method replaces positive values between zero and a given
+threshold with indicator text like `"<0.01"`.
+
+```{python}
+gt_tbl.sub_small_vals(columns="rate", threshold=0.01)
+```
+
+The value `0.003` in the `rate` column is now displayed as `"<0.01"` since it falls below the
+threshold. All other values remain unchanged.
+
+You can also handle negative small values by setting `sign="-"`. This substitutes values that are
+between `0` and the negative of the threshold.
+
+```{python}
+df_neg = pd.DataFrame({
+    "label": ["X", "Y", "Z"],
+    "change": [-0.002, -5.3, 0.7],
+})
+
+GT(df_neg, rowname_col="label").sub_small_vals(columns="change", threshold=0.01, sign="-")
+```
+
+## Substituting Large Values
+
+In some datasets, extremely large values can skew the reader's perception of the data. The
+`~~GT.sub_large_vals()` method lets you cap the displayed values at a threshold, replacing anything
+above it with indicator text.
+
+```{python}
+gt_tbl.sub_large_vals(columns="revenue", threshold=1e10)
+```
+
+The value `1e13` in the `revenue` column is now shown as `">=10000000000.0"` rather than displaying
+the full number. You can customize the pattern with the `large_pattern=` argument.
+
+```{python}
+gt_tbl.sub_large_vals(columns="revenue", threshold=1e10, large_pattern="OVER {x}")
+```
+
+## General Value Substitution
+
+For more flexible replacement logic, `~~GT.sub_values()` provides three modes of matching: by exact
+value, by regex pattern, or by a custom function.
+
+### Matching by Value
+
+You can supply a specific value (or list of values) to match against. Any cell containing that value
+gets replaced.
+
+```{python}
+GT(df, rowname_col="item").sub_values(columns="count", values=0, replacement="zero")
+```
+
+### Matching by Pattern
+
+A regex pattern can target string-based cell content for replacement.
+
+```{python}
+df_text = pd.DataFrame({
+    "code": ["PASS-001", "FAIL-002", "PASS-003"],
+    "result": ["ok", "error", "ok"],
+})
+
+GT(df_text).sub_values(columns="code", pattern=r"^FAIL.*", replacement="FLAGGED")
+```
+
+### Matching by Function
+
+The most flexible approach uses a custom function. The function receives a cell value and should
+return `True` for values that need to be replaced.
+
+```{python}
+GT(df, rowname_col="item").sub_values(
+    columns="revenue",
+    fn=lambda x: x is not None and x > 10000,
+    replacement="HIGH"
+)
+```
+
+## Combining Substitution Methods
+
+You can chain multiple `sub_*()` calls together to handle several cases in a single table. The
+methods are applied in the order they are called.
+
+```{python}
+(
+    GT(df, rowname_col="item")
+    .sub_missing(missing_text="N/A")
+    .sub_zero(columns=["count", "rate"], zero_text="none")
+    .sub_small_vals(columns="rate", threshold=0.01)
+    .sub_large_vals(columns="revenue", threshold=1e10, large_pattern=">10B")
+)
+```
+
+This combination addresses missing data, zero values, very small numbers, and very large numbers all
+at once, producing a clean and informative table.
+
+The `sub_*()` methods work as a pre-processing step before formatting. This means you can apply
+`fmt_*()` methods to the same columns and the substituted text will remain in place for cells that
+were already replaced, while the formatter handles the remaining values.
+
+
+### Text Transforms
+
+Sometimes the final step in preparing a table involves modifying the text content of cells after all formatting has been applied. The `text_*()` methods operate on the already-rendered text in cells, giving you a post-processing layer for tasks like replacing abbreviations, applying conditional labels, or inserting custom HTML. These methods complement the `fmt_*()` methods, which work on raw data values.
+
+## Setting Up the Example Data
+
+```{python}
+import polars as pl
+from great_tables import GT, loc, md
+
+status_df = pl.DataFrame({
+    "task": ["Data collection", "Analysis", "Report writing", "Peer review"],
+    "status": ["DONE", "IN_PROGRESS", "NOT_STARTED", "DONE"],
+    "priority": ["high", "high", "medium", "low"],
+    "progress": [100, 65, 0, 100],
+})
+
+gt_tbl = GT(status_df, rowname_col="task")
+gt_tbl
+```
+
+## Custom Text Transformations
+
+The `~~GT.text_transform()` method is the most flexible of the text methods. It takes a location specifier and a function that receives a cell's text content as a string and returns the transformed string. The transformation runs after all `fmt_*()` methods have been applied.
+
+```{python}
+(
+    gt_tbl
+    .text_transform(
+        locations=loc.body(columns="status"),
+        fn=lambda text: text.replace("_", " ").title()
     )
 )
 ```
 
-As can be seen, you have a lot of fine-grained control over the look of a nanoplot.
+The underscores in status values are replaced with spaces and the text is converted to title case. This is useful when your data contains coded values that need to be made more readable.
 
-## Making nanoplots with bars using `plot_type="bar"`
-
-We don't just support line plots in `~~GT.fmt_nanoplot()`, we also have the option to show bar plots. The only thing you need to change is the value of `plot_type=` argument to `"bar"`:
+You can also return HTML from the transform function to add visual elements to cells.
 
 ```{python}
-GT(random_numbers_df).fmt_nanoplot(columns="numbers", plot_type="bar")
-```
+def add_progress_indicator(text):
+    value = int(text)
+    color = "green" if value == 100 else "orange" if value > 0 else "gray"
+    bar = f'<div style="background:{color};width:{value}%;height:8px;border-radius:4px;"></div>'
+    return f'{text}%<br>{bar}'
 
-An important difference between line plots and bar plots is that the bars project from a zero line. Notice that some negative values in the bar-based nanoplot appear red and radiate downward from the gray zero line.
-
-Using `plot_type="bar"` still allows us to supply a reference line and a reference area with `reference_line=` and `reference_area=`. The `autoscale=` option works here as well. We also have a set of options just for bar plots available inside `nanoplot_options()`. Here's an example where we use all of the aforementioned customization possibilities:
-
-```{python}
 (
-    GT(random_numbers_df)
-    .fmt_nanoplot(
-        columns="numbers",
-        plot_type="bar",
-        autoscale=True,
-        reference_line="min",
-        reference_area=[0, "max"],
-        options=nanoplot_options(
-            data_bar_stroke_color="gray",
-            data_bar_stroke_width=2,
-            data_bar_fill_color="orange",
-            data_bar_negative_stroke_color="blue",
-            data_bar_negative_stroke_width=1,
-            data_bar_negative_fill_color="lightblue",
-            reference_line_color="pink",
-            reference_area_fill_color="bisque",
-            vertical_guide_stroke_color="blue",
-        ),
+    gt_tbl
+    .text_transform(
+        locations=loc.body(columns="progress"),
+        fn=add_progress_indicator
     )
 )
 ```
 
-## Horizontal bar and line plots
+## Text Replacement with Regex
 
-Single-value bar plots, running in the horizontal direction, can be made by simply invoking `~~GT.fmt_nanoplot()` on a column of numeric values. These plots are meant for comparison across rows so the method automatically scales the horizontal bars to facilitate this type of display. Here's a simple example that uses `plot_type="bar"` on the `numbers` column that contains a single numeric value in every cell.
-
-```{python}
-single_vals_df = pl.DataFrame(
-    {
-        "example": ["Row " + str(x) for x in range(1, 5)],
-        "numbers": [2.75, 0, -3.2, 8]
-    }
-)
-
-GT(single_vals_df).fmt_nanoplot(columns="numbers", plot_type="bar")
-```
-
-This, interestingly enough, works with the `"line"` type of nanoplot. The result is akin to a lollipop plot:
+The `~~GT.text_replace()` method performs regex-based find-and-replace on cell content. It is a simpler alternative to `~~GT.text_transform()` when you just need pattern matching.
 
 ```{python}
-GT(single_vals_df).fmt_nanoplot(columns="numbers")
-```
-
-You get to customize the line and the data point marker with the latter display of single values, and that's a plus. Nonetheless, it is more common to see horizontal bar plots in tables and the extra customization of negative values makes that form of presentation more advantageous.
-
-## Line plots with paired *x* and *y* values
-
-Aside from a single stream of *y* values, we can plot pairs of *x* and *y* values. This works only for the `"line"` type of plot. We can set up a column of Polars `struct` values in a DataFrame to have this input data prepared for `~~GT.fmt_nanoplot()`. Notice that the dictionary values in the enclosed list must have the `"x"` and `"y"` keys. Further to this, the list lengths for each of `"x"` and `"y"` must match (i.e., to make valid pairs of *x* and *y*).
-
-```{python}
-weather_2 = pl.DataFrame(
-    {
-        "station": ["Station " + str(x) for x in range(1, 4)],
-        "temperatures": [
-            {
-                "x": [6.1, 8.0, 10.1, 10.5, 11.2, 12.4, 13.1, 15.3],
-                "y": [24.2, 28.2, 30.2, 30.5, 30.5, 33.1, 33.5, 32.7],
-            },
-            {
-                "x": [7.1, 8.2, 10.3, 10.75, 11.25, 12.5, 13.5, 14.2],
-                "y": [18.2, 18.1, 20.3, 20.5, 21.4, 21.9, 23.1, 23.3],
-            },
-            {
-                "x": [6.3, 7.1, 10.3, 11.0, 12.07, 13.1, 15.12, 16.42],
-                "y": [15.2, 17.77, 21.42, 21.63, 25.23, 26.84, 27.2, 27.44],
-            },
-        ]
-    }
-)
-
 (
-    GT(weather_2)
-    .fmt_nanoplot(
-        columns="temperatures",
-        plot_type="line",
-        expand_x=[5, 16],
-        expand_y=[10, 40],
-        options=nanoplot_options(
-            show_data_area=False,
-            show_data_line=False
-        )
+    gt_tbl
+    .text_replace(
+        pattern=r"_",
+        replacement=" ",
+        locations=loc.body(columns="status")
     )
 )
 ```
 
-The options for removing the *data area* and the *data line* (though the corresponding `show_*` arguments of `nanoplot_options()`) make the finalized nanoplots look somewhat like scatter plots.
+All underscores in the `status` column are replaced with spaces. The `pattern=` argument accepts full Python regex syntax, so you can use capture groups and backreferences in the `replacement=` string.
 
+```{python}
+(
+    gt_tbl
+    .text_replace(
+        pattern=r"(\w+)_(\w+)",
+        replacement=r"\1 \2",
+        locations=loc.body(columns="status")
+    )
+)
+```
+
+## Case Matching
+
+The `~~GT.text_case_match()` method provides a switch-like mechanism for replacing cell text. You supply tuples of `(old_text, new_text)` and the method matches cell content against each case in order.
+
+```{python}
+(
+    gt_tbl
+    .text_case_match(
+        ("DONE", "Complete ✓"),
+        ("IN_PROGRESS", "In Progress"),
+        ("NOT_STARTED", "Not Started"),
+        locations=loc.body(columns="status")
+    )
+)
+```
+
+Each status code is mapped to a more readable label. By default, `text_case_match()` compares the entire cell text (i.e., `replace="all"`). You can set `replace="partial"` to match substrings instead.
+
+### Matching Multiple Values to One Replacement
+
+The first element of each case tuple can be a list of strings, allowing you to map multiple values to the same replacement.
+
+```{python}
+(
+    gt_tbl
+    .text_case_match(
+        (["DONE", "IN_PROGRESS"], "Active"),
+        ("NOT_STARTED", "Pending"),
+        locations=loc.body(columns="status")
+    )
+)
+```
+
+### Providing a Default
+
+If some cell values do not match any case, they remain unchanged by default. You can set a fallback value with the `default=` argument.
+
+```{python}
+(
+    gt_tbl
+    .text_case_match(
+        ("DONE", "Complete"),
+        default="Other",
+        locations=loc.body(columns="status")
+    )
+)
+```
+
+Cells containing `"IN_PROGRESS"` and `"NOT_STARTED"` both become `"Other"` since they did not match the single case provided.
+
+## Conditional Text Replacement
+
+The `~~GT.text_case_when()` method gives you predicate-based replacement logic. Each case is a tuple of `(predicate_function, replacement_text)`, where the predicate receives the cell text as a string and returns `True` or `False`. The first matching predicate determines the replacement.
+
+```{python}
+(
+    gt_tbl
+    .text_case_when(
+        (lambda x: x == "100", "Complete"),
+        (lambda x: int(x) > 0, "In Progress"),
+        (lambda x: x == "0", "Not Started"),
+        locations=loc.body(columns="progress")
+    )
+)
+```
+
+This approach is particularly powerful when your replacement logic depends on the value itself (such as numeric thresholds) rather than exact string matching.
+
+## Targeting Different Locations
+
+All text methods support the `locations=` argument, which defaults to `loc.body()` when not specified. You can target other parts of the table as well.
+
+### Transforming Row Group Labels
+
+```{python}
+df_grouped = pl.DataFrame({
+    "name": ["Alice", "Bob", "Charlie", "Diana"],
+    "team": ["team_alpha", "team_alpha", "team_beta", "team_beta"],
+    "score": [92, 87, 95, 78],
+})
+
+(
+    GT(df_grouped, rowname_col="name", groupname_col="team")
+    .text_replace(
+        pattern=r"team_(\w+)",
+        replacement=r"Team \1",
+        locations=loc.row_groups()
+    )
+)
+```
+
+### Transforming Column Labels
+
+```{python}
+(
+    gt_tbl
+    .text_transform(
+        locations=loc.column_labels(columns="progress"),
+        fn=lambda text: text.upper()
+    )
+)
+```
+
+## Combining Text Methods
+
+You can chain multiple text methods together. They are applied in the order specified, each operating on the result of the previous transformation.
+
+```{python}
+(
+    gt_tbl
+    .text_case_match(
+        ("DONE", "Complete"),
+        ("IN_PROGRESS", "In Progress"),
+        ("NOT_STARTED", "Not Started"),
+        locations=loc.body(columns="status")
+    )
+    .text_case_match(
+        ("high", "High ●"),
+        ("medium", "Medium ●"),
+        ("low", "Low ●"),
+        locations=loc.body(columns="priority")
+    )
+)
+```
+
+The text transformation methods provide a final layer of control over how your table content appears. Whether you need simple find-and-replace, switch-like mappings, or complex conditional logic, these methods let you shape the text to match your exact presentation needs.
+
+
+
+## Styling and Presentation
 
 ### Styling the Table Body
 
-**Great Tables** can add styles---like color, text properties, and borders---on many different parts of
-the displayed table. The following set of examples shows how to set styles on the body of table, where the data cells are located.
+Visual styling helps draw attention to important values and makes patterns in your data easier to
+spot. **Great Tables** provides a flexible system for applying fills, borders, and text styles to
+cells in the table body. This page covers the fundamentals of cell-level styling, from targeting
+specific cells to using column values and expressions to drive dynamic styles.
 
-For the examples on this page, we'll use the included airquality dataset to set up `GT` objects for both **Pandas** and **Polars** DataFrames.
+**Great Tables** can add styles---like color, text properties, and borders---on many different parts
+of the displayed table. The following set of examples shows how to set styles on the body of table,
+where the data cells are located.
+
+For the examples on this page, we'll use the included airquality dataset to set up `GT` objects for
+both **Pandas** and **Polars** DataFrames.
 
 ```{python}
 import polars as pl
@@ -11048,12 +12231,16 @@ gt_pl_air = GT(pl.from_pandas(air_head))
 
 
 :::{.callout-note}
-When using Great Tables with VS Code, the IDE suppresses some forms of table styling displayed in notebooks. For example, border styles might not appear. Use `.show("browser")` to see the styled GT table in a separate browser window.
+When using Great Tables with VS Code, the IDE suppresses some forms of table styling displayed in
+notebooks. For example, border styles might not appear. Use `.show("browser")` to see the styled GT
+table in a separate browser window.
 :::
 
 ## Style basics
 
-We use the `~~GT.tab_style()` method in combination with `loc.body()` to set styles on cells of data in the table body. For example, the table-making code below applies a yellow background color to specific cells.
+We use the `~~GT.tab_style()` method in combination with `loc.body()` to set styles on cells of data
+in the table body. For example, the table-making code below applies a yellow background color to
+specific cells.
 
 ```{python}
 gt_air.tab_style(
@@ -11062,16 +12249,20 @@ gt_air.tab_style(
 )
 ```
 
-There are two important arguments to `~~GT.tab_style()`: `style=` and `locations=`. We are calling a specific function for each of these:
+There are two important arguments to `~~GT.tab_style()`: `style=` and `locations=`. We are calling a
+specific function for each of these:
 
 * `style.fill()`: the type of style to apply. In this case the *fill* (or background color).
-* `loc.body()`: the area we want to style. In this case, it's the table body with specific columns and rows specified.
+* `loc.body()`: the area we want to style. In this case, it's the table body with specific columns
+and rows specified.
 
-In addition to `style.fill()`, several other styling functions exist. We'll look at styling borders and text in the following sections.
+In addition to `style.fill()`, several other styling functions exist. We'll look at styling borders
+and text in the following sections.
 
 ### Customizing Borders
 
-Let's use `style.borders()` to place borders around targeted cells. In this next example, the table has a red dashed border above two rows.
+Let's use `style.borders()` to place borders around targeted cells. In this next example, the table
+has a red dashed border above two rows.
 
 ```{python}
 gt_air.tab_style(
@@ -11082,7 +12273,9 @@ gt_air.tab_style(
 
 ### Customizing Text
 
-We can style text with by using the `style.text()` function. This gives us many customization possibilities for any text we target. For example, the `Solar_R` column below has green, bolded text in a custom font.
+We can style text with by using the `style.text()` function. This gives us many customization
+possibilities for any text we target. For example, the `Solar_R` column below has green, bolded text
+in a custom font.
 
 ```{python}
 gt_air.tab_style(
@@ -11093,7 +12286,9 @@ gt_air.tab_style(
 
 ## Column-based Styles
 
-In addition to setting styles to specific values (e.g., a `"yellow"` background fill), you can also use parameter values from table columns to specify styles. The way to do this is to use the `from_column()` helper function to access those values.
+In addition to setting styles to specific values (e.g., a `"yellow"` background fill), you can also
+use parameter values from table columns to specify styles. The way to do this is to use the
+`from_column()` helper function to access those values.
 
 ```{python}
 df = pl.DataFrame({"x": [1, 2], "background": ["lightyellow", "lightblue"]})
@@ -11107,13 +12302,16 @@ df = pl.DataFrame({"x": [1, 2], "background": ["lightyellow", "lightblue"]})
 )
 ```
 
-Notice that in the code above, we used values from the `background` column to specify the fill color for each styled row.
+Notice that in the code above, we used values from the `background` column to specify the fill color
+for each styled row.
 
-In the next few sections, we'll first show how this combines nicely with the `~~GT.cols_hide()` method, then, we'll demonstrate how to use **Polars** expressions to do everything much more simply.
+In the next few sections, we'll first show how this combines nicely with the `~~GT.cols_hide()`
+method, then, we'll demonstrate how to use **Polars** expressions to do everything much more simply.
 
 ### Combining Styling with `cols_hide()`
 
-One common approach is to specify a style from a column, and then hide that column in the final output. For example, we can add a background column to our `airquality` data:
+One common approach is to specify a style from a column, and then hide that column in the final
+output. For example, we can add a background column to our `airquality` data:
 
 ```{python}
 color_map = {
@@ -11128,9 +12326,11 @@ with_color = air_head.assign(
 with_color
 ```
 
-Notice that the dataset now has a `background` column set to either `"lightyellow"` or `"lightblue"`, depending on whether `Temp` is above `70`.
+Notice that the dataset now has a `background` column set to either `"lightyellow"` or
+`"lightblue"`, depending on whether `Temp` is above `70`.
 
-We can then use this `background` column to set the fill color of certain body cells, and then hide the `background` column since we don't need that in our finalized display table:
+We can then use this `background` column to set the fill color of certain body cells, and then hide
+the `background` column since we don't need that in our finalized display table:
 
 ```{python}
 (
@@ -11145,12 +12345,14 @@ We can then use this `background` column to set the fill color of certain body c
 
 Note the two methods used above:
 
-* `~~GT.tab_style()`: uses `from_column()` to set the color using the values of the `background` column.
+* `~~GT.tab_style()`: uses `from_column()` to set the color using the values of the `background`
+column.
 * `~~GT.cols_hide()`: prevents the `background` column from being displayed in the output.
 
 ### Using **Polars** expressions
 
-Styles can also be specified using **Polars** expressions. For example, the code below uses the `Temp` column to set color to `"lightyellow"` or `"lightblue"`.
+Styles can also be specified using **Polars** expressions. For example, the code below uses the
+`Temp` column to set color to `"lightyellow"` or `"lightblue"`.
 
 ```{python}
 # A Polars expression defines color based on `Temp`
@@ -11169,7 +12371,8 @@ gt_pl_air.tab_style(
 
 ### Using functions
 
-You can also use a function, that takes the DataFrame and returns a Series with a style value for each row.
+You can also use a function, that takes the DataFrame and returns a Series with a style value for
+each row.
 
 This is shown below on a pandas DataFrame.
 
@@ -11190,7 +12393,8 @@ gt_air.tab_style(
 
 ### Using polars selectors
 
-If you are using **Polars**, you can use column selectors and expressions for selecting specific columns and rows:
+If you are using **Polars**, you can use column selectors and expressions for selecting specific
+columns and rows:
 
 ```{python}
 import polars.selectors as cs
@@ -11204,11 +12408,12 @@ gt_pl_air.tab_style(
 )
 ```
 
-See [Column Selection](./12-column-selection.qmd) for details on selecting columns.
+See [Column Selection](./17-column-selection.qmd) for details on selecting columns.
 
 ### Using a function
 
-For tools like **pandas**, you can use a function (or lambda) to select rows. The function should take a DataFrame, and output a boolean Series.
+For tools like **pandas**, you can use a function (or lambda) to select rows. The function should
+take a DataFrame, and output a boolean Series.
 
 ```{python}
 gt_air.tab_style(
@@ -11223,7 +12428,8 @@ gt_air.tab_style(
 
 ## Multiple styles and locations
 
-We can use a list within `style=` to apply multiple styles at once. For example, the code below sets fill and border styles on the same set of body cells.
+We can use a list within `style=` to apply multiple styles at once. For example, the code below sets
+fill and border styles on the same set of body cells.
 
 ```{python}
 gt_air.tab_style(
@@ -11244,7 +12450,8 @@ gt_air.tab_style(
 )
 ```
 
-You can also combine **Polars** selectors with a row filtering expression, in order to select a combination of columns and rows.
+You can also combine **Polars** selectors with a row filtering expression, in order to select a
+combination of columns and rows.
 
 ```{python}
 import polars.selectors as cs
@@ -11258,7 +12465,8 @@ gt_pl_air.tab_style(
 )
 ```
 
-Lastly, you can use **Polars** selectors or expressions to conditionally select rows on a per-column basis.
+Lastly, you can use **Polars** selectors or expressions to conditionally select rows on a per-column
+basis.
 ```{python}
 import polars.selectors as cs
 
@@ -11271,25 +12479,37 @@ gt_pl_air.tab_style(
 
 ## Learning more
 
+The combination of `~~GT.tab_style()`, location specifiers, and the various style functions gives
+you precise control over the visual presentation of your table body. Whether you are highlighting
+outliers, applying conditional formatting, or using column-driven styles, these tools let you
+communicate data insights through visual cues that complement the numeric values themselves.
+
+For further reference, consult the API documentation:
+
 * API Docs:
   - `~~GT.tab_style()`
   - [`style.*` and `loc.*` functions](/reference/index.qmd#location-targeting-and-styling-classes)
   - `from_column()`
 
 
-### Styling the whole table
+### Styling the Whole Table
 
-In [Styling the Table Body](./07-styling-the-table-body.qmd), we discussed styling table data with `~~GT.tab_style()`.
-In this article we'll cover how the same method can be used to style many other parts of the table, like the header, specific spanner labels, the footer, and more.
+In [Styling the Table Body](./11-styling-the-table-body.qmd), we discussed styling table data with
+`~~GT.tab_style()`. In this article we'll cover how the same method can be used to style many other
+parts of the table, like the header, specific spanner labels, the footer, and more. By targeting
+different location specifiers, you can apply fill colors, borders, and text styles to virtually any
+region of your table.
 
 :::{.callout-warning}
 This feature is new, and this page of documentation is still in development.
 :::
 
 
-## Kitchen sink
+## All locations example
 
-Below is a big example that shows all possible `loc` specifiers being used.
+Below is a comprehensive example that shows all possible `loc` specifiers being used. Each table
+part receives a distinct background color so you can see exactly which region each specifier
+targets.
 
 ```{python}
 from great_tables import GT, exibble, loc, style
@@ -11350,11 +12570,16 @@ gt = (
 
 ## Body
 
+The table body is styled using `loc.body()`, which targets all data cells at once.
+
 ```{python}
 gt.tab_style(style.fill("yellow"), loc.body())
 ```
 
 ## Column labels
+
+Column labels can be styled broadly with `loc.column_header()`, or you can target individual column
+labels and spanner labels separately for more precise control.
 
 ```{python}
 (
@@ -11370,6 +12595,9 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 ## Header
 
+The header area includes both the title and subtitle. You can style the entire header as one unit
+with `loc.header()`, or target the title and subtitle individually.
+
 ```{python}
 (
     gt.tab_style(style.fill("yellow"), loc.header())
@@ -11379,6 +12607,9 @@ gt.tab_style(style.fill("yellow"), loc.body())
 ```
 
 ## Footer
+
+The footer contains source notes and can be styled as a whole with `loc.footer()` or at the
+individual source note level with `loc.source_notes()`.
 
 ```{python}
 (
@@ -11394,6 +12625,9 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 ## Stub
 
+The stub region includes row labels and row group labels. You can style these elements together or
+individually, and even target specific rows within the stub.
+
 ```{python}
 (
     gt.tab_style(style.fill("yellow"), loc.stub())
@@ -11407,11 +12641,16 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 ## Stubhead
 
+The stubhead label sits above the stub column and can be styled with `loc.stubhead()`.
+
 ```{python}
 gt.tab_style(style.fill("yellow"), loc.stubhead())
 ```
 
 ## Grand Summary Rows
+
+Grand summary rows appear at the bottom of the table. You can style the summary data cells and the
+summary stub area independently.
 
 ```{python}
 (
@@ -11425,12 +12664,22 @@ gt.tab_style(style.fill("yellow"), loc.stubhead())
 )
 ```
 
+With `~~GT.tab_style()` and the full set of `loc` specifiers, you can style every part of a
+**Great Tables** output. This gives you the ability to create cohesive visual themes, draw attention
+to specific structural elements, and ensure your table communicates effectively at every level.
+
 
 ### Colorizing with Data
 
-You sometimes come across heat maps in data visualization, and they're used to represent data values with color gradients. This technique is great for identifying patterns, trends, outliers, and missing data when there's lots of data. Tables can have this sort of treatment as well! Typically, formatted numeric values are shown along with some color treatment coinciding with the underlying data values.
+You sometimes come across heat maps in data visualization, and they're used to represent data values
+with color gradients. This technique is great for identifying patterns, trends, outliers, and
+missing data when there's lots of data. Tables can have this sort of treatment as well! Typically,
+formatted numeric values are shown along with some color treatment coinciding with the underlying
+data values.
 
-We can make this possible in **Great Tables** by using the `~~GT.data_color()` method. Let's start with a simple example, using a Polars DataFrame with three columns of values. We can introduce that data to `GT` and use `~~GT.data_color()` without any arguments.
+We can make this possible in **Great Tables** by using the `~~GT.data_color()` method. Let's start
+with a simple example, using a Polars DataFrame with three columns of values. We can introduce that
+data to `GT` and use `~~GT.data_color()` without any arguments.
 
 ```{python}
 from great_tables import GT
@@ -11447,31 +12696,48 @@ simple_df = pl.DataFrame(
 GT(simple_df).data_color()
 ```
 
-This works but doesn't look all too appealing. However, we can take note of a few things straight away. The first thing is that `~~GT.data_color()` doesn't format the values but rather it applies color fill values to the cells. The second thing is that you don't have to intervene and modify the text color so that there's enough contrast, **Great Tables** will do that for you (this behavior *can* be deactivated with the `autocolor_text=` argument though).
+This works but doesn't look all too appealing. However, we can take note of a few things straight
+away. The first thing is that `~~GT.data_color()` doesn't format the values but rather it applies
+color fill values to the cells. The second thing is that you don't have to intervene and modify the
+text color so that there's enough contrast, **Great Tables** will do that for you (this behavior
+*can* be deactivated with the `autocolor_text=` argument though).
 
 ## Setting palette colors
 
-While this first example illustrated some basic things, the common thing to do in practices to provide a list of colors to the `palette=` argument. Let's choose two colors `"green"` and `"red"` and place them in that order.
+While this first example illustrated some basic things, the common thing to do in practices to
+provide a list of colors to the `palette=` argument. Let's choose two colors `"green"` and `"red"`
+and place them in that order.
 
 ```{python}
 GT(simple_df).data_color(palette=["blue", "red"])
 ```
 
-Now that we've moved away from the default palette and specified colors, we can see that lower numerical values are closer to blue and higher values are closer to red (those in the middle have colors that are a blend of the two; in this case, more in the purple range). Categorical values behave similarly, they take on ordinal values based on their first appearance (from top to bottom) and those values are used to generate the background colors.
+Now that we've moved away from the default palette and specified colors, we can see that lower
+numerical values are closer to blue and higher values are closer to red (those in the middle have
+colors that are a blend of the two; in this case, more in the purple range). Categorical values
+behave similarly, they take on ordinal values based on their first appearance (from top to bottom)
+and those values are used to generate the background colors.
 
 ## Coloring missing values with `na_color`
 
-There is a lone `"None"` value in the `float` column, and it has a gray background. Throughout the **Great Tables** package, missing values are treated in different ways and, in this case, it's given a default color value. We can change that with the `na_color=` argument. Let's try it now:
+There is a lone `"None"` value in the `float` column, and it has a gray background. Throughout the
+**Great Tables** package, missing values are treated in different ways and, in this case, it's given
+a default color value. We can change that with the `na_color=` argument. Let's try it now:
 
 ```{python}
 GT(simple_df).data_color(palette=["blue", "red"], na_color="#FFE4C4")
 ```
 
-Now, the gray color has been changed to Bisque. Note that when it comes to colors, you can use any combination of CSS/X11 color names and hexadecimal color codes.
+Now, the gray color has been changed to Bisque. Note that when it comes to colors, you can use any
+combination of CSS/X11 color names and hexadecimal color codes.
 
 ## Using `domain=` to color values across columns
 
-The previous usages of the `~~GT.data_color()` method were such that the color ranges encompassed the boundaries of the data values. That can be changed with the `domain=` argument, which expects a list of two values (a lower and an upper value). Let's use the range `[0, 10]` on the first two columns, `integer` and `float`, and not the third (since a numerical domain is incompatible with string-based values). Here's the table code for that:
+The previous usages of the `~~GT.data_color()` method were such that the color ranges encompassed
+the boundaries of the data values. That can be changed with the `domain=` argument, which expects a
+list of two values (a lower and an upper value). Let's use the range `[0, 10]` on the first two
+columns, `integer` and `float`, and not the third (since a numerical domain is incompatible with
+string-based values). Here's the table code for that:
 
 
 ```{python}
@@ -11486,13 +12752,23 @@ The previous usages of the `~~GT.data_color()` method were such that the color r
 )
 ```
 
-Nice! We can clearly see that the color ramp in the first column (`integer`) only proceeds from blue (value: `1`) to purple (value: `5`) and there isn't a reddish color in sight (would need a value close to 10).
+Nice! We can clearly see that the color ramp in the first column (`integer`) only proceeds from blue
+(value: `1`) to purple (value: `5`) and there isn't a reddish color in sight (would need a value
+close to 10).
 
 ## Bringing it all together
 
-For a more advanced treatment of data colorization in the table, let's take the `sza` dataset (available in the `great_tables.data` submodule) and vigorously reshape it with **Polars** so that solar zenith angles are arranged as rows by month, and the half-hourly clock times are the columns (from early morning to solar noon).
+For a more advanced treatment of data colorization in the table, let's take the `sza` dataset
+(available in the `great_tables.data` submodule) and vigorously reshape it with **Polars** so that
+solar zenith angles are arranged as rows by month, and the half-hourly clock times are the columns
+(from early morning to solar noon).
 
-Once the `pivot()`ing is done, we can introduce that that table to the `GT` class, placing the names of the months in the table stub. We will use `~~GT.data_color()` with a domain that runs from `90` to `0` (here, 90&deg; is sunrise, and 0&deg; is represents the sun angle that's directly overhead). There are months where the sun rises later in the morning, before the sunrise times we'll see missing values in the dataset, and `na_color="white"` will handle those cases. Okay, that's the plan, and now here's the code:
+Once the `pivot()`ing is done, we can introduce that that table to the `GT` class, placing the names
+of the months in the table stub. We will use `~~GT.data_color()` with a domain that runs from `90`
+to `0` (here, 90&deg; is sunrise, and 0&deg; is represents the sun angle that's directly overhead).
+There are months where the sun rises later in the morning, before the sunrise times we'll see
+missing values in the dataset, and `na_color="white"` will handle those cases. Okay, that's the
+plan, and now here's the code:
 
 ```{python}
 from great_tables import html
@@ -11521,15 +12797,24 @@ sza_pivot = (
 )
 ```
 
-Because this is a table for presentation, we can't neglect using `~~GT.tab_header()`. A *title* and *subtitle* can provide just enough information to guide the reader out through your table visualization.
+Because this is a table for presentation, we can't neglect using `~~GT.tab_header()`. A *title* and
+*subtitle* can provide just enough information to guide the reader out through your table
+visualization.
 
 
 ### Table Theme Options
 
+When you need to apply broad visual changes across an entire table, `~~GT.tab_options()` is the
+right tool. Rather than styling individual cells or specific locations, this method lets you set
+colors, fonts, borders, and spacing for entire table parts in a single call. This page explains the
+structure of option names, demonstrates how to style different parts, and shows how to build a
+complete table theme.
+
 Great Tables exposes options to customize the appearance of tables via two methods:
 
-* `~~GT.tab_style()` - targeted styles (e.g. color a specific cell of data, or a specific group label).
-* `~~GT.tab_options()` - broad styles (e.g. color the header and source notes).
+* `~~GT.tab_style()`: targeted styles (e.g. color a specific cell of data, or a specific group
+label).
+* `~~GT.tab_options()`: broad styles (e.g. color the header and source notes).
 
 Both methods target parts of the table, as shown in the diagram below.
 
@@ -11556,9 +12841,11 @@ gt_ex
 
 ## Table option parts
 
-As the graph above showed, tables are made of many parts---such as the heading, column labels, and stub. `~~GT.tab_options()` organizes options based on table part.
+As the graph above showed, tables are made of many parts---such as the heading, column labels, and
+stub. `~~GT.tab_options()` organizes options based on table part.
 
-The code below illustrates the table parts `~~GT.tab_options()` can target, by setting the background color for various parts.
+The code below illustrates the table parts `~~GT.tab_options()` can target, by setting the
+background color for various parts.
 
 
 ```{python}
@@ -11585,7 +12872,9 @@ Notice two important pieces:
 
 ## Finding options: part, type, attribute
 
-Option names follow this format:
+Option names in `~~GT.tab_options()` follow a consistent naming convention. Understanding the
+pattern makes it easy to find the exact option you need without searching through documentation.
+The format is:
 
 ```python
 {part name}_{type}_{attribute}
@@ -11630,9 +12919,11 @@ gt_ex.tab_options(
 
 ## Styling body cells
 
-The table body can style the lines between individual cells. Use the `hline` and `vline` option types to specify cell line color, style, and width.
+The table body can style the lines between individual cells. Use the `hline` and `vline` option
+types to specify cell line color, style, and width.
 
-For example, the code below changes horizontal lines (`hline`) between cells to be red, dashed lines.
+For example, the code below changes horizontal lines (`hline`) between cells to be red, dashed
+lines.
 
 ```{python}
 gt_ex.tab_options(
@@ -11642,7 +12933,8 @@ gt_ex.tab_options(
 )
 ```
 
-In order to define the vertical lines between cells, set `vline` styles. For example, the code below makes both horizontal and vertical lines between cells solid.
+In order to define the vertical lines between cells, set `vline` styles. For example, the code
+below makes both horizontal and vertical lines between cells solid.
 
 
 ```{python}
@@ -11680,7 +12972,9 @@ gt_ex.tab_options(
 
 Based on the sections above, we can design an overall theme for a table.
 
-This requires setting a decent number of options, but makes a big difference when presenting a table! Below is a table with a simple, blue theme. (The code is hidden by default, but can be expanded to see all the options set).
+This requires setting a decent number of options, but makes a big difference when presenting a
+table! Below is a table with a simple, blue theme. (The code is hidden by default, but can be
+expanded to see all the options set).
 
 ```{python}
 #| code-fold: true
@@ -11728,10 +13022,22 @@ from great_tables import GT, exibble
 )
 ```
 
+With `~~GT.tab_options()`, you can define the visual identity of your tables at a broad level. The
+structured naming convention makes it straightforward to find and set the options you need, and by
+combining multiple options together, you can build reusable themes that give all your tables a
+consistent, polished appearance.
+
 
 ### Premade Themes
 
-Great Tables provides convenience methods starting with `opt_` (e.g. `~~GT.opt_row_striping()`), as a shortcut for various styles that can be set via `~~GT.tab_options()`.
+Building a complete table theme from scratch with `~~GT.tab_options()` requires setting many
+individual options. For common styling needs, **Great Tables** offers a collection of `opt_*()`
+convenience methods that bundle these options into simple, one-line calls. This page demonstrates
+how to use premade themes and the various convenience methods available for quick table
+customization.
+
+Great Tables provides convenience methods starting with `opt_` (e.g. `~~GT.opt_row_striping()`), as
+a shortcut for various styles that can be set via `~~GT.tab_options()`.
 
 There are two important kinds of `GT.opt_*()` methods:
 
@@ -11763,7 +13069,8 @@ gt_ex
 
 ## `opt_stylize()`: premade themes
 
-Below are the first two premade styles. The first uses `color="blue"`, and the second uses `color="red"`.
+Below are the first two premade styles. The first uses `color="blue"`, and the second uses
+`color="red"`.
 
 :::::: {.grid}
 :::{.g-col-lg-6 .g-col-12}
@@ -11780,9 +13087,12 @@ gt_ex.opt_stylize(style=2, color="red")
 :::
 ::::::
 
-Notice that first table (blue) emphasizes the row labels with a solid background color. The second table (red) emphasizes the column labels, and uses solid lines to separate the body cell values. See `~~GT.opt_stylize()` for all available color options.
+Notice that first table (blue) emphasizes the row labels with a solid background color. The second
+table (red) emphasizes the column labels, and uses solid lines to separate the body cell values.
+See `~~GT.opt_stylize()` for all available color options.
 
-There are six styles available, each emphasizing different table parts. The `style=` values are numbered from `1` to `6`:
+There are six styles available, each emphasizing different table parts. The `style=` values are
+numbered from `1` to `6`:
 
 ```{=html}
 <style>
@@ -11815,7 +13125,8 @@ print(":::")
 
 ## `opt_*()` convenience methods
 
-This section shows the different `opt_*()` methods available. They serve as convenience methods for common `~~GT.tab_options()` tasks.
+This section shows the different `opt_*()` methods available. They serve as convenience methods for
+common `~~GT.tab_options()` tasks.
 
 ### Align table header
 
@@ -11846,12 +13157,299 @@ gt_ex.opt_horizontal_padding(scale=3)
 gt_ex.opt_table_outline()
 ```
 
+The `opt_*()` methods give you quick access to common styling patterns without needing to remember
+the specific `~~GT.tab_options()` argument names. For full control, you can always drop down to
+`~~GT.tab_options()` directly, but these convenience methods cover the most frequent customization
+needs in just a single method call.
+
+
+### Nanoplots
+
+:::{.callout-warning}
+`~~GT.fmt_nanoplot()` is still experimental.
+:::
+
+Nanoplots are tiny plots you can use in your table. They are simple by design, mainly because there
+isn't a lot of space to work with. With that simplicity, however, you do get a set of very succinct
+data visualizations that adapt nicely to the amount of data you feed into them. The main features of
+nanoplots include the following:
+
+- interactivity: you can hover over data and other elements to show values
+- choice of line and bar charting
+- you can annotate plots with a reference line and/or area
+- plenty of easy-to-use options for composing your plots
+
+## A simple line-based nanoplot
+
+Let's make some simple plots with a Polars DataFrame. Here we are using lists to define data values
+for each cell in the `numbers` column. The `~~GT.fmt_nanoplot()` method understands that these are
+input values for a line plot (the default type of nanoplot).
+
+```{python}
+from great_tables import GT
+import polars as pl
+
+random_numbers_df = pl.DataFrame(
+    {
+        "example": ["Row " + str(x) for x in range(1, 5)],
+        "numbers": [
+            "20 23 6 7 37 23 21 4 7 16",
+            "2.3 6.8 9.2 2.42 3.5 12.1 5.3 3.6 7.2 3.74",
+            "-12 -5 6 3.7 0 8 -7.4",
+            "2 0 15 7 8 10 1 24 17 13 6",
+        ],
+    }
+)
+
+GT(random_numbers_df).fmt_nanoplot(columns="numbers")
+```
+
+This looks a lot like the familiar sparklines you might see in tables where space for plots is
+limited. The input values, strings of space-separated values, can be considered here as *y* values
+and they are evenly spaced along the imaginary *x* axis.
+
+Hovering over (or touching) the values is something of a treat! You might notice that:
+
+- data values are automatically formatted for you in a compact fashion
+- the plot elements also display pertinent values
+
+This sort of interactively is baked into the rendered SVG graphics that `~~GT.fmt_nanoplot()`
+generates from your data and selection of options.
+
+Polars lets us express 'lists-of-values-per-cell' in different ways and **Great Tables** is pretty
+good at understanding different column *dtypes*. So, you can alternatively create the same table as
+above with the following code.
+
+```python
+random_numbers_df = pl.DataFrame(
+    {
+        "example": ["Row " + str(x) for x in range(1, 5)],
+        "numbers": [
+            { "val": [20, 23, 6, 7, 37, 23, 21, 4, 7, 16] },
+            { "val": [2.3, 6.8, 9.2, 2.42, 3.5, 12.1, 5.3, 3.6, 7.2, 3.74] },
+            { "val": [-12, -5, 6, 3.7, 0, 8, -7.4] },
+            { "val": [2, 0, 15, 7, 8, 10, 1, 24, 17, 13, 6] },
+        ],
+    }
+)
+
+GT(random_numbers_df).fmt_nanoplot(columns="numbers")
+```
+
+Both forms of the `numbers` column in the two DataFrames look the same to `~~GT.fmt_nanoplot()`. The
+key for the list of values (here, `"val"`) can be anything as long as it's repeated down the column.
+So the choice is yours on how you want to prepare those column values.
+
+## The reference line and the reference area
+
+You can insert two additional things which may be useful: a reference line and a reference area. You
+can define them either through literal values or via keywords (these are: `"mean"`, `"median"`,
+`"min"`, `"max"`, `"q1"`, `"q3"`, `"first"`, or `"last"`). Here's a reference line that corresponds
+to the mean data value of each nanoplot:
+
+```{python}
+GT(random_numbers_df).fmt_nanoplot(columns="numbers", reference_line="mean")
+```
+
+This example uses a reference area that bounds the minimum value to the median value:
+
+```{python}
+GT(random_numbers_df).fmt_nanoplot(columns="numbers", reference_area=["min", "median"])
+```
+
+As an added touch, you don't need to worry about the order of the keywords provided to
+`reference_area=` (which could be potentially problematic if providing a literal value and a
+keyword).
+
+## Using `autoscale=` to have a common *y*-axis scale across plots
+
+There are lots of options. Like, if you want to ensure that the scale is shared across all of the
+nanoplots (so you can better get a sense of overall magnitude), you can set `autoscale=` to `True`:
+
+```{python}
+GT(random_numbers_df).fmt_nanoplot(columns="numbers", autoscale=True)
+```
+
+If you hover along or touch the left side of any of the plots above, you'll see that each *y* scale
+runs from `-12.0` to `37.0`. Using `autoscale=True` is very useful if you want to compare the
+magnitudes of values across rows in addition to their trends. It won't, however, make much sense if
+the overall magnitudes of values vary wildly across rows (e.g., comparing changing currency values
+or stock prices over time).
+
+## Using the `nanoplot_options()`{.qd-no-link} helper function
+
+There are many options for customization. You can radically change the look of a collection of
+nanoplots with the `nanoplot_options()` helper function. With that function, you invoke it in the
+`options=` argument of `~~GT.fmt_nanoplot()`. You can modify the sizes and colors of different
+elements, decide which elements are even present, and much more! Here's an example where a
+line-based nanoplot retains all of its elements, but the overall appearance is greatly altered.
+
+```{python}
+from great_tables import nanoplot_options
+
+(
+    GT(random_numbers_df)
+    .fmt_nanoplot(
+        columns="numbers",
+        options=nanoplot_options(
+            data_point_radius=8,
+            data_point_stroke_color="black",
+            data_point_stroke_width=2,
+            data_point_fill_color="white",
+            data_line_type="straight",
+            data_line_stroke_color="brown",
+            data_line_stroke_width=2,
+            data_area_fill_color="orange",
+            vertical_guide_stroke_color="green",
+        ),
+    )
+)
+```
+
+As can be seen, you have a lot of fine-grained control over the look of a nanoplot.
+
+## Making nanoplots with bars using `plot_type="bar"`
+
+We don't just support line plots in `~~GT.fmt_nanoplot()`, we also have the option to show bar
+plots. The only thing you need to change is the value of `plot_type=` argument to `"bar"`:
+
+```{python}
+GT(random_numbers_df).fmt_nanoplot(columns="numbers", plot_type="bar")
+```
+
+An important difference between line plots and bar plots is that the bars project from a zero line.
+Notice that some negative values in the bar-based nanoplot appear red and radiate downward from the
+gray zero line.
+
+Using `plot_type="bar"` still allows us to supply a reference line and a reference area with
+`reference_line=` and `reference_area=`. The `autoscale=` option works here as well. We also have a
+set of options just for bar plots available inside `nanoplot_options()`. Here's an example where we
+use all of the aforementioned customization possibilities:
+
+```{python}
+(
+    GT(random_numbers_df)
+    .fmt_nanoplot(
+        columns="numbers",
+        plot_type="bar",
+        autoscale=True,
+        reference_line="min",
+        reference_area=[0, "max"],
+        options=nanoplot_options(
+            data_bar_stroke_color="gray",
+            data_bar_stroke_width=2,
+            data_bar_fill_color="orange",
+            data_bar_negative_stroke_color="blue",
+            data_bar_negative_stroke_width=1,
+            data_bar_negative_fill_color="lightblue",
+            reference_line_color="pink",
+            reference_area_fill_color="bisque",
+            vertical_guide_stroke_color="blue",
+        ),
+    )
+)
+```
+
+## Horizontal bar and line plots
+
+Single-value bar plots, running in the horizontal direction, can be made by simply invoking
+`~~GT.fmt_nanoplot()` on a column of numeric values. These plots are meant for comparison across
+rows so the method automatically scales the horizontal bars to facilitate this type of display.
+Here's a simple example that uses `plot_type="bar"` on the `numbers` column that contains a single
+numeric value in every cell.
+
+```{python}
+single_vals_df = pl.DataFrame(
+    {
+        "example": ["Row " + str(x) for x in range(1, 5)],
+        "numbers": [2.75, 0, -3.2, 8]
+    }
+)
+
+GT(single_vals_df).fmt_nanoplot(columns="numbers", plot_type="bar")
+```
+
+This, interestingly enough, works with the `"line"` type of nanoplot. The result is akin to a
+lollipop plot:
+
+```{python}
+GT(single_vals_df).fmt_nanoplot(columns="numbers")
+```
+
+You get to customize the line and the data point marker with the latter display of single values,
+and that's a plus. Nonetheless, it is more common to see horizontal bar plots in tables and the
+extra customization of negative values makes that form of presentation more advantageous.
+
+## Line plots with paired *x* and *y* values
+
+Aside from a single stream of *y* values, we can plot pairs of *x* and *y* values. This works only
+for the `"line"` type of plot. We can set up a column of Polars `struct` values in a DataFrame to
+have this input data prepared for `~~GT.fmt_nanoplot()`. Notice that the dictionary values in the
+enclosed list must have the `"x"` and `"y"` keys. Further to this, the list lengths for each of
+`"x"` and `"y"` must match (i.e., to make valid pairs of *x* and *y*).
+
+```{python}
+weather_2 = pl.DataFrame(
+    {
+        "station": ["Station " + str(x) for x in range(1, 4)],
+        "temperatures": [
+            {
+                "x": [6.1, 8.0, 10.1, 10.5, 11.2, 12.4, 13.1, 15.3],
+                "y": [24.2, 28.2, 30.2, 30.5, 30.5, 33.1, 33.5, 32.7],
+            },
+            {
+                "x": [7.1, 8.2, 10.3, 10.75, 11.25, 12.5, 13.5, 14.2],
+                "y": [18.2, 18.1, 20.3, 20.5, 21.4, 21.9, 23.1, 23.3],
+            },
+            {
+                "x": [6.3, 7.1, 10.3, 11.0, 12.07, 13.1, 15.12, 16.42],
+                "y": [15.2, 17.77, 21.42, 21.63, 25.23, 26.84, 27.2, 27.44],
+            },
+        ]
+    }
+)
+
+(
+    GT(weather_2)
+    .fmt_nanoplot(
+        columns="temperatures",
+        plot_type="line",
+        expand_x=[5, 16],
+        expand_y=[10, 40],
+        options=nanoplot_options(
+            show_data_area=False,
+            show_data_line=False
+        )
+    )
+)
+```
+
+The options for removing the *data area* and the *data line* (though the corresponding `show_*`
+arguments of `nanoplot_options()`) make the finalized nanoplots look somewhat like scatter plots.
+
+Nanoplots bring data visualization directly into your table cells, giving readers an immediate
+visual sense of trends and distributions without leaving the tabular format. Between line plots, bar
+charts, reference annotations, and extensive customization through `nanoplot_options()`, you can
+tailor these compact visualizations to match your data and your presentation style.
+
+
+
+## Advanced Topics
 
 ### Column Selection
 
-The `columns=` argument for methods like `~~GT.tab_spanner()`, `~~GT.cols_move()`, and `~~GT.tab_style` allows a range of options for selecting columns.
+Many **Great Tables** methods accept a `columns=` argument for targeting specific columns. Rather
+than limiting you to a simple list of column names, the package supports a flexible selection system
+that includes positional indexing, pattern-matching functions, and Polars selectors. This page
+demonstrates each of these approaches.
 
-The simplest approach is just a list of strings with the exact column names. However, we can specify columns using any of the following:
+## Selection Options
+
+The `columns=` argument for methods like `~~GT.tab_spanner()`, `~~GT.cols_move()`, and
+`~~GT.tab_style()` allows a range of options for selecting columns.
+
+The simplest approach is just a list of strings with the exact column names. However, we can specify
+columns using any of the following:
 
 * a single string column name.
 * an integer for the column's position.
@@ -11883,11 +13481,15 @@ Note the code above moved the following columns:
 * The integer `1` matched the second column (this is similar to list indexing).
 * The integer `-1` matched the last column.
 
-Moreover, the order of the list defines the order of selected columns. In this case, `"data"` was the first entry, so it's the very first column in the new table.
+Moreover, the order of the list defines the order of selected columns. In this case, `"data"` was
+the first entry, so it's the very first column in the new table.
 
 ## Using **Polars** selectors
 
-When using a **Polars** DataFrame, you can select columns using [**Polars** selectors](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html). The example below uses **Polars** selectors to move all columns that start with `"c"` or `"f"` to the start of the table.
+When using a **Polars** DataFrame, you can select columns using
+[**Polars** selectors](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html).
+The example below uses **Polars** selectors to move all columns that start with `"c"` or `"f"` to
+the start of the table.
 
 ```{python}
 import polars as pl
@@ -11904,21 +13506,35 @@ In general, selection should match the behaviors of the **Polars** `DataFrame.se
 pl_df.select(cs.starts_with("c") | cs.starts_with("f")).columns
 ```
 
-See the [Selectors page in the polars docs](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html) for more information on this.
-
+See the
+[Selectors page in the polars docs](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html)
+for more information on this.
 
 ## Using functions
 
-A function can be used to select columns. It should take a column name as a string and return `True` or `False`.
+A function can be used to select columns. It should take a column name as a string and return `True`
+or `False`.
 
 ```{python}
 gt_ex.cols_move_to_start(columns=lambda x: "c" in x)
 ```
 
+These selection methods work consistently across all **Great Tables** methods that accept a
+`columns=` argument. Whether you prefer explicit column names, positional indexing, Polars
+selectors, or custom functions, you can choose the approach that best fits your workflow and data.
+
 
 ### Row Selection
 
-Location and formatter functions (e.g. `loc.body()` and `~~GT.fmt_number()`) can be applied to specific rows, using the `rows=` argument.
+Just as you can target specific columns, **Great Tables** also provides flexible ways to select
+rows. The `rows=` argument appears in formatting methods, location specifiers, and styling calls,
+allowing you to apply operations to a precise subset of your data. This page covers each of the
+available selection mechanisms.
+
+## Selection Options
+
+Location and formatter functions (e.g. `loc.body()` and `~~GT.fmt_number()`) can be applied to
+specific rows, using the `rows=` argument.
 
 Rows may be specified using any of the following:
 
@@ -11947,7 +13563,8 @@ gt_ex.fmt_currency("currency", rows=0, decimals=1)
 
 Notice that a dollar sign (`$`) was only added to the first row (index `0` in python).
 
-Indexing works the same as selecting items from a python list. This  negative integers select relative to the final row.
+Indexing works the same as selecting items from a python list. This  negative integers select
+relative to the final row.
 
 ```{python}
 gt_ex.fmt_currency("currency", rows=[0, -1], decimals=1)
@@ -11956,7 +13573,8 @@ gt_ex.fmt_currency("currency", rows=[0, -1], decimals=1)
 
 ## Using polars expressions
 
-The `rows=` argument accepts polars expressions, which return a boolean Series, indicating which rows to operate on.
+The `rows=` argument accepts polars expressions, which return a boolean Series, indicating which
+rows to operate on.
 
 For example, the code below only formats the `num` column, but only when currency is less than 40.
 
@@ -11985,9 +13603,11 @@ gt_polars.tab_style(
 
 ## Using a function
 
-Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a function for selecting rows. The function should take a DataFrame and return a boolean series.
+Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a
+function for selecting rows. The function should take a DataFrame and return a boolean series.
 
-Here's the same example as the previous polars section, but with pandas data, and a lambda for selecting rows.
+Here's the same example as the previous polars section, but with pandas data, and a lambda for
+selecting rows.
 
 ```{python}
 gt_ex.fmt_integer("num", rows=lambda D: D["currency"] < 40)
@@ -12007,14 +13627,28 @@ gt_ex.tab_style(
 )
 ```
 
+Whether you prefer integer indexing for quick positional access, Polars expressions for declarative
+filtering, or functions for compatibility with pandas, the `rows=` argument adapts to your data
+workflow. Combined with column selection, these tools give you fine-grained control over exactly
+which cells your formatting and styling operations affect.
 
-### Location selection
 
-Great Tables uses the `loc` module to specify locations for styling in `~~GT.tab_style()`. Some location specifiers also allow selecting specific columns and rows of data.
+### Location Selection
+
+The `loc` module is what connects your styling intentions to specific parts of the table. Each
+location specifier identifies a region of the table (such as the header, body, stub, or footer) and
+many of them also support targeting specific columns or rows within that region. This page provides
+a comprehensive overview of all available location specifiers and how to use them effectively.
+
+## Overview
+
+Great Tables uses the `loc` module to specify locations for styling in `~~GT.tab_style()`. Some
+location specifiers also allow selecting specific columns and rows of data.
 
 For example, you might style a particular row name, group, column, or spanner label.
 
-The table below shows the different location specifiers, along with the types of column or row selection they allow.
+The table below shows the different location specifiers, along with the types of column or row
+selection they allow.
 
 ```{python}
 # | echo: false
@@ -12044,11 +13678,13 @@ df = pl.DataFrame(data, schema=["table part", "name", "selection"], orient="row"
 GT(df)
 ```
 
-Note that composite specifiers are ones that target multiple locations. For example, `loc.header()` specifies both `loc.title()` and `loc.subtitle()`.
+Note that composite specifiers are ones that target multiple locations. For example, `loc.header()`
+specifies both `loc.title()` and `loc.subtitle()`.
 
 ## Setting up data
 
-The examples below will use this small dataset to show selecting different locations, as well as specific rows and columns within a location (where supported).
+The examples below will use this small dataset to show selecting different locations, as well as
+specific rows and columns within a location (where supported).
 
 ```{python}
 import polars as pl
@@ -12110,7 +13746,8 @@ Use `columns=` and `rows=` in `loc.body()` to style specific cells in the table 
 )
 ```
 
-Alternatively, use `mask=` in `loc.body()` to apply conditional styling to rows on a per-column basis.
+Alternatively, use `mask=` in `loc.body()` to apply conditional styling to rows on a per-column
+basis.
 ```{python}
 (
     GT(pl_exibble).tab_style(
@@ -12120,11 +13757,12 @@ Alternatively, use `mask=` in `loc.body()` to apply conditional styling to rows 
 )
 ```
 
-This is discussed in detail in [Styling the Table Body](./07-styling-the-table-body.qmd).
+This is discussed in detail in [Styling the Table Body](./11-styling-the-table-body.qmd).
 
 ## Column labels
 
-Locations like `loc.spanner_labels()` and `loc.column_labels()` can select specific column and spanner labels.
+Locations like `loc.spanner_labels()` and `loc.column_labels()` can select specific column and
+spanner labels.
 
 You can use name strings, index position, or polars selectors.
 
@@ -12167,9 +13805,11 @@ gt.tab_style(style.fill("yellow"), loc.stub(["apricot", 2]))
 
 ### Groups by name and position
 
-Note that for specifying row groups, the group corresponding to the group name or row number in the original data is used.
+Note that for specifying row groups, the group corresponding to the group name or row number in the
+original data is used.
 
-For example, the code below styles the group corresponding to the row at index 1 (i.e. the second row) in the data.
+For example, the code below styles the group corresponding to the row at index 1 (i.e., the second
+row) in the data.
 
 ```{python}
 gt.tab_style(
@@ -12198,29 +13838,232 @@ gt.tab_style(
 )
 ```
 
+The `loc` module provides a complete vocabulary for addressing any part of your table. By combining
+location specifiers with column selectors, row filters, and Polars expressions, you can apply styles
+to exactly the right cells. For more details on styling itself, see
+[Styling the Table Body](./11-styling-the-table-body.qmd) and
+[Styling the Whole Table](./12-styling-the-whole-table.qmd).
+
+
+### Exporting and Saving Tables
+
+Once you have built a table, you need to get it into its final destination. That might be a notebook cell, a standalone HTML file, a LaTeX document, or an image file for inclusion in a report or presentation. **Great Tables** provides several export methods to cover these use cases, each with options to control the output format.
+
+## Displaying Tables
+
+In most notebook environments (Jupyter, Quarto, Marimo), simply placing a `GT` object as the last expression in a cell will render the table automatically. However, you can also use the `~~GT.show()` method for explicit control over where the table is displayed.
+
+```{python}
+from great_tables import GT
+from great_tables.data import exibble
+
+gt_tbl = (
+    GT(exibble.head(3)[["num", "char", "currency"]])
+    .tab_header(title="Example Table", subtitle="A small demonstration")
+    .fmt_currency(columns="currency")
+    .fmt_number(columns="num", decimals=2)
+)
+
+gt_tbl.show()
+```
+
+The `target=` argument controls the display destination. The available options are:
+
+- `"auto"` (the default): displays inline in a notebook if possible, otherwise opens a browser window.
+- `"notebook"`: forces inline notebook display.
+- `"browser"`: opens the table in your default web browser. This is particularly useful when working in the console or when you want to see the full styled output that some IDEs may suppress.
+
+```python
+# Open in a browser window (useful when running from a script or console)
+gt_tbl.show(target="browser")
+```
+
+## Getting HTML as a String
+
+The `~~GT.as_raw_html()` method returns the table as an HTML string. This is useful for embedding tables in web applications, email templates, or custom HTML documents.
+
+```{python}
+html_str = gt_tbl.as_raw_html()
+
+# Show the first 200 characters to see the structure
+print(html_str[:200])
+```
+
+The method accepts several arguments that control the output format.
+
+### Inline CSS for Email
+
+Email clients typically strip `<style>` blocks, so you need inline CSS for the table to render correctly. Set `inline_css=True` to move all styles into `style` attributes.
+
+```python
+email_html = gt_tbl.as_raw_html(inline_css=True)
+```
+
+### Complete HTML Page
+
+If you need a self-contained HTML document (with `<html>`, `<head>`, and `<body>` tags), set `make_page=True`.
+
+```python
+full_page = gt_tbl.as_raw_html(make_page=True)
+```
+
+### Writing HTML to a File
+
+The `~~GT.write_raw_html()` method is a convenience wrapper that writes the HTML output directly to a file.
+
+```python
+gt_tbl.write_raw_html("my_table.html")
+```
+
+## LaTeX Output
+
+For inclusion in LaTeX documents, the `~~GT.as_latex()` method generates a LaTeX fragment containing the table.
+
+```{python}
+latex_str = gt_tbl.as_latex()
+print(latex_str)
+```
+
+The output uses a `tabular` environment by default. For tables that span multiple pages, you can switch to the `longtable` environment.
+
+```python
+long_latex = gt_tbl.as_latex(use_longtable=True)
+```
+
+The `tbl_pos=` argument controls the float placement when not using `longtable`. Valid options include `"!t"` (top), `"!b"` (bottom), `"!h"` (here), and `"!H"` (exactly here, requires the `float` package).
+
+```python
+positioned_latex = gt_tbl.as_latex(tbl_pos="!h")
+```
+
+:::{.callout-note}
+LaTeX output is still experimental. Not all table features (such as certain styling options) are fully supported in the LaTeX renderer.
+:::
+
+## Saving as an Image
+
+The `~~GT.gtsave()` method renders your table as a high-quality image file. It supports PNG, JPEG, WebP, and PDF formats. Under the hood, it uses the `nokap` package to drive a headless Chrome browser for pixel-perfect rendering.
+
+```python
+gt_tbl.gtsave("my_table.png")
+```
+
+The output format is determined by the file extension. Here are some common formats:
+
+- `.png` for lossless raster images (great for reports and presentations)
+- `.pdf` for vector output (ideal for print and LaTeX inclusion)
+- `.jpeg` or `.jpg` for compressed raster images
+- `.webp` for efficient web-optimized images
+
+### Controlling Image Quality
+
+The `zoom=` argument controls the resolution of raster outputs. The default value of `2.0` produces retina-quality images. Increase it for even higher resolution, or decrease it for smaller file sizes.
+
+```python
+# High-resolution image for print
+gt_tbl.gtsave("high_res.png", zoom=4.0)
+
+# Standard resolution for web
+gt_tbl.gtsave("standard.png", zoom=1.0)
+```
+
+### Padding Around the Table
+
+The `expand=` argument adds padding (in pixels) around the captured table element. You can provide a single integer for uniform padding or a tuple of four values for `(top, right, bottom, left)`.
+
+```python
+# Uniform padding
+gt_tbl.gtsave("padded.png", expand=20)
+
+# Asymmetric padding
+gt_tbl.gtsave("asymmetric.png", expand=(10, 20, 10, 20))
+```
+
+### Viewport Dimensions
+
+The `vwidth=` and `vheight=` arguments set the virtual viewport size. This can affect how responsive table layouts are rendered.
+
+```python
+gt_tbl.gtsave("wide_viewport.png", vwidth=1200)
+```
+
+### Rendering Delay
+
+Some tables with custom fonts or dynamic content may need a short delay after page load before the screenshot is taken. The `delay=` argument (in seconds) controls this wait time.
+
+```python
+gt_tbl.gtsave("with_delay.png", delay=0.5)
+```
+
+:::{.callout-note}
+The `gtsave()` method requires the `nokap` package and a Chrome or Chromium browser to be installed on your system.
+:::
+
+## Choosing the Right Export Method
+
+The following table summarizes when to use each export approach:
+
+```{python}
+import polars as pl
+
+export_df = pl.DataFrame({
+    "Method": ["show()", "as_raw_html()", "as_latex()", "gtsave()"],
+    "Use Case": [
+        "Interactive display in notebooks or browser",
+        "Embedding in web apps, emails, or HTML docs",
+        "Inclusion in LaTeX/PDF documents",
+        "Static image files for reports and slides",
+    ],
+    "Output": ["Rendered display", "HTML string", "LaTeX string", "PNG/PDF/JPEG/WebP file"],
+})
+
+GT(export_df)
+```
+
+Each export method preserves the styling, formatting, and structural components you have built into your table. Choose the method that matches your final output medium, and your carefully crafted table will look great wherever it lands.
+
 
 ### Extending Great Tables
 
-<!-- Intro -->
-The **Great Tables** package boasts a diverse range of methods for creating beautiful tables. With no shortage of tools, styles, formats and themes, you can produce a very wide range of tables. If you haven't yet, head over to the [examples gallery](/examples/index.qmd) for a flavor of the variety that is possible.
+The **Great Tables** package boasts a diverse range of methods for creating beautiful tables. With
+no shortage of tools, styles, formats and themes, you can produce a very wide range of tables. If
+you haven't yet, head over to the [examples gallery](/examples/index.qmd) for a flavor of the
+variety that is possible.
 
-But what happens when there's something you want to add to your table, and it's not directly supported by **Great Tables**? Let's say you have a very specific use case for your great table, so it's not necessarily broad enough to contribute to the package. Or maybe it *is* generalizable, but implementing it is beyond the scope of your current project. Not every feature fits neatly into a pull request.
+But what happens when there's something you want to add to your table, and it's not directly
+supported by **Great Tables**? Let's say you have a very specific use case for your great table, so
+it's not necessarily broad enough to contribute to the package. Or maybe it *is* generalizable, but
+implementing it is beyond the scope of your current project. Not every feature fits neatly into a
+pull request.
 
-[**gt-extras**](https://posit-dev.github.io/gt-extras/) is a great case study in this, filling your table desires that aren't supported by **Great Tables** directly.
+[**gt-extras**](https://posit-dev.github.io/gt-extras/) is a great case study in this, filling your
+table desires that aren't supported by **Great Tables** directly.
 
 ## Writing an Add-on Function
 
-When adding to **Great Tables**, you have three main approaches: *wrapping*, *extending*, and what we might call *composing*.
+When adding to **Great Tables**, you have three main approaches: *wrapping*, *extending*, and what
+we might call *composing*. Each takes a different angle on how to build upon the existing
+functionality:
 
-- **Wrapping** is when you simplify existing functionality by bundling common parameter combinations. It doesn't add new capabilities, instead makes specific or complex styling tasks more accessible.
-- **Composing** multiple methods into a single function, allowing you to build more complex table logic or reusable patterns.
-- **Extending**, on the other hand, adds new functionality by adding behavior beyond built-in methods. This could include processing data outside the package, or generating custom content (like HTML or images), that gets integrated into your table.
+- **Wrapping** is when you simplify existing functionality by bundling common parameter
+combinations. It doesn't add new capabilities, instead makes specific or complex styling tasks more
+accessible.
+- **Composing** multiple methods into a single function, allowing you to build more complex table
+logic or reusable patterns.
+- **Extending**, on the other hand, adds new functionality by adding behavior beyond built-in
+methods. This could include processing data outside the package, or generating custom content (like
+HTML or images), that gets integrated into your table.
 
-All approaches are valuable contributions to the **Great Tables** ecosystem, and the choice between them depends on whether you're making it easier to access existing tooling or creating entirely new capabilities.
+All approaches are valuable contributions to the **Great Tables** ecosystem, and the choice between
+them depends on whether you're making it easier to access existing tooling or creating entirely new
+capabilities.
 
 ### Wrapping
 
-Let's wrap `~~GT.tab_style()` to perform a specific action supported by the general function. `~~GT.tab_style()` takes `locations=` and `style=` parameters, so let's assign those. Something this lightweight might be useful for someone who knows what effect they want, but doesn't want to investigate the entire space of options for styling.
+Let's wrap `~~GT.tab_style()` to perform a specific action supported by the general function.
+`~~GT.tab_style()` takes `locations=` and `style=` parameters, so let's assign those. Something this
+lightweight might be useful for someone who knows what effect they want, but doesn't want to
+investigate the entire space of options for styling.
 
 ```{python}
 # | eval: False
@@ -12237,13 +14080,19 @@ def highlight_cols(gt: GT, columns: SelectExpr) -> GT:
     )
 ```
 
-In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. What you see above is pulled from the source code for the function [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**, instead it makes a common action much easier.
+In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are
+wrappers. What you see above is pulled from the source code for the function
+[`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is
+a wrapper function that doesn't add *new* functionality to **Great Tables**, instead it makes a
+common action much easier.
 
 ### Composing
 
-A little more complex than wrapping, we can also compose methods to perform several steps, such as applying multiple styles, formatting, or themes all at once.
+A little more complex than wrapping, we can also compose methods to perform several steps, such as
+applying multiple styles, formatting, or themes all at once.
 
-Here's a flavor of the composed methods that **gt-extras** used in the [ESPN theme](https://posit-dev.github.io/gt-extras/reference/gt_theme_espn):
+Here's a flavor of the composed methods that **gt-extras** used in the
+[ESPN theme](https://posit-dev.github.io/gt-extras/reference/gt_theme_espn):
 
 ```{python}
 # | eval: False
@@ -12258,11 +14107,15 @@ def some_theme(gt: GT) -> GT:
     )
 ```
 
-This is where composing really shines. Maybe you want a very standardized look, or you want all of your tables to mimic your favorite one. Take advantage of `~~GT.tab_options()` for your own [premade themes](./11-premade-themes.qmd), with styles from any of the [table theme options](./10-table-theme-options.qmd) of your choosing.
+This is where composing really shines. Maybe you want a very standardized look, or you want all of
+your tables to mimic your favorite one. Take advantage of `~~GT.tab_options()` for your own
+[premade themes](./15-premade-themes.qmd), with styles from any of the
+[table theme options](./14-table-theme-options.qmd) of your choosing.
 
 ### Extending
 
-Perhaps the most complex, this involves new behavior not supported by **Great Tables** methods alone. Formatting values is a common way to do this:
+Perhaps the most complex, this involves new behavior not supported by **Great Tables** methods
+alone. Formatting values is a common way to do this:
 
 ```{python}
 # | eval: false
@@ -12274,7 +14127,10 @@ def fmt_threshold(gt, columns, threshold: float):
     return gt.fmt(_truncate, columns)
 ```
 
-Alternatively, we can extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using `~~GT.as_raw_html()`, and then joins them in custom HTML structure, which would not be possible with **Great Tables** methods alone.
+Alternatively, we can extend the post-processing step by building an HTML string containing two
+side-by-side tables. This function takes two separate `~~GT` objects, renders them as HTML using
+`~~GT.as_raw_html()`, and then joins them in custom HTML structure, which would not be possible with
+**Great Tables** methods alone.
 
 ```{python}
 # | eval: False
@@ -12285,13 +14141,21 @@ def double_table(gt1: GT, gt2: GT) -> str:
     return f"""<div>{table_1_html}</div><div>{table_2_html}</div>"""
 ```
 
-Again, this is a sneak peek of the **gt-extras** function, [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout), which does a little more heavy lifting than **Great Tables** itself supports. This time, we're adding new behavior.
+Again, this is a sneak peek of the **gt-extras** function,
+[`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout),
+which does a little more heavy lifting than **Great Tables** itself supports. This time, we're
+adding new behavior.
 
 ## Extending with Plots
 
-Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called [nanoplots](./06-nanoplots.qmd). But there are endless plot types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
+Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some
+plotting is already built in, called [nanoplots](./16-nanoplots.qmd). But there are endless plot
+types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
 
-The key to adding custom plots to your tables is using `~~GT.fmt()` with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot – whether that's an SVG, a series of styled `<div>` elements, or even embedded images.
+The key to adding custom plots to your tables is using `~~GT.fmt()` with a function that converts
+your data values into visual representations. Your formatting function should take a value from your
+table and return an HTML string containing your plot (whether that's an SVG, a series of styled
+`<div>` elements, or even embedded images).
 
 Here's a basic pattern for a plot extension:
 
@@ -12308,16 +14172,20 @@ def create_my_plot(value):
 gt.fmt(fns=create_my_plot, columns="my_data_column")
 ```
 
-Check out this [blog post](/blog/plots-in-tables/index.qmd) for a deeper dive into different approaches for creating plots in tables.
+Check out this [blog post](/blog/plots-in-tables/index.qmd) for a deeper dive into different
+approaches for creating plots in tables.
 
 ## Extending with Icons
 
-They say a picture is worth a thousand words. Maybe you want to take `~~GT.fmt_icon()` and run with it, but with your own custom icon sets or specialized styling needs. For example:
+They say a picture is worth a thousand words. Maybe you want to take `~~GT.fmt_icon()` and run with
+it, but with your own custom icon sets or specialized styling needs. For example:
 
-- *Create domain-specific icon mappings:* Automatically map data values to meaningful icons (like status indicators, ratings, or categories)
+- *Create domain-specific icon mappings:* Automatically map data values to meaningful icons (like
+status indicators, ratings, or categories)
 - *Apply custom styling:* Add animations, colors, or hover effects to your icons
 
-Here's an example of how you might create a custom icon extension that maps numerical ratings to star icons:
+Here's an example of how you might create a custom icon extension that maps numerical ratings to
+star icons:
 
 ```{python}
 # | eval: False
@@ -12332,7 +14200,9 @@ gt.fmt(fns=fmt_star_rating, columns="my_data_column")
 
 ## Beyond
 
-For inspiration on ways to extend **Great Tables**, check out [**gt-extras**](https://posit-dev.github.io/gt-extras/) and its [source code](https://github.com/posit-dev/gt-extras).
+For inspiration on ways to extend **Great Tables**, check out
+[**gt-extras**](https://posit-dev.github.io/gt-extras/) and its
+[source code](https://github.com/posit-dev/gt-extras).
 
 | Function |   Type   |
 |----------|----------|

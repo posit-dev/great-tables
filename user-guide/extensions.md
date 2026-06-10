@@ -9,7 +9,7 @@ But what happens when there's something you want to add to your table, and it's 
 
 # Writing an Add-on Function
 
-When adding to **Great Tables**, you have three main approaches: *wrapping*, *extending*, and what we might call *composing*.
+When adding to **Great Tables**, you have three main approaches: *wrapping*, *extending*, and what we might call *composing*. Each takes a different angle on how to build upon the existing functionality:
 
 - **Wrapping** is when you simplify existing functionality by bundling common parameter combinations. It doesn't add new capabilities, instead makes specific or complex styling tasks more accessible.
 - **Composing** multiple methods into a single function, allowing you to build more complex table logic or reusable patterns.
@@ -98,7 +98,7 @@ Again, this is a sneak peek of the **gt-extras** function, [`gt_two_column_layou
 
 Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called [nanoplots](nanoplots.md). But there are endless plot types you could want in your great tables, and for these [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt) is your friend.
 
-The key to adding custom plots to your tables is using [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt) with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot - whether that's an SVG, a series of styled `<div>` elements, or even embedded images.
+The key to adding custom plots to your tables is using [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt) with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot (whether that's an SVG, a series of styled `<div>` elements, or even embedded images).
 
 Here's a basic pattern for a plot extension:
 

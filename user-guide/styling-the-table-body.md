@@ -1,5 +1,7 @@
 # Styling the Table Body
 
+Visual styling helps draw attention to important values and makes patterns in your data easier to spot. **Great Tables** provides a flexible system for applying fills, borders, and text styles to cells in the table body. This page covers the fundamentals of cell-level styling, from targeting specific cells to using column values and expressions to drive dynamic styles.
+
 **Great Tables** can add styles--like color, text properties, and borders--on many different parts of the displayed table. The following set of examples shows how to set styles on the body of table, where the data cells are located.
 
 For the examples on this page, we'll use the included airquality dataset to set up [GT](../reference/GT.md#great_tables.GT) objects for both **Pandas** and **Polars** DataFrames.
@@ -396,6 +398,10 @@ gt_pl_air.tab_style(
 
 
 # Learning more
+
+The combination of [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style), location specifiers, and the various style functions gives you precise control over the visual presentation of your table body. Whether you are highlighting outliers, applying conditional formatting, or using column-driven styles, these tools let you communicate data insights through visual cues that complement the numeric values themselves.
+
+For further reference, consult the API documentation:
 
 - API Docs:
   - [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style)

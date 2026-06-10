@@ -1,5 +1,10 @@
 # Stub (Row Labels)
 
+The **Stub** is a structural component that gives your table a left-hand column of row identifiers. Rather than treating row labels as just another data column, the stub elevates them to a distinct organizational role. This section covers how to create a stub, label it with a stubhead, and organize rows into logical groups.
+
+
+# Overview
+
 The **Stub** component of a table is the area to the left that typically contains *row labels* and may also contain *row group labels*. Those subparts can be grouped in a sequence of *row groups*. The **Stub Head** provides a location for a label that describes the **Stub** (and could also be used to describe the column labels). The **Stub** is optional since there are cases where a **Stub** wouldn't be useful (the display tables presented in the previous section looked just fine without a **Stub**).
 
 
@@ -9,7 +14,7 @@ An easy way to generate a **Stub** part is by specifying a stub column in the [G
 
 
 ``` python
-from great_tables import GT, md, html
+from great_tables import GT
 from great_tables.data import islands
 
 islands_mini = islands.head(10)
@@ -209,3 +214,6 @@ GT(island_groups, rowname_col="name", groupname_col="group")
 </tr>
 </tbody>
 </table>
+
+
+The stub provides a clear organizational framework for your data by separating identifiers from values. Whether you simply need named rows or a fully grouped hierarchy, the combination of `rowname_col=`, `groupname_col=`, and [tab_stubhead()](../reference/GT.tab_stubhead.md#great_tables.GT.tab_stubhead) gives you precise control over how readers navigate your table.

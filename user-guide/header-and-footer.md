@@ -1,5 +1,10 @@
 # Header and Footer
 
+The **Table Header** and **Table Footer** are bookend components that provide context for the data presented in your table. The header introduces the table with a title and optional subtitle, while the footer anchors it with source notes or other supplementary information. Both are added using the `tab_*()` family of methods.
+
+
+# Adding a Table Header
+
 The way that we add components like the **Table Header** and *source notes* in the **Table Footer** is to use the `tab_*()` family of methods. A **Table Header** is easy to add so let's see how the previous table looks with a *title* and a *subtitle*. We can add this component using the [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header) method:
 
 
@@ -126,6 +131,9 @@ gt_tbl
 A *source note* can be added to the table's **Footer** through use of the [tab_source_note()](../reference/GT.tab_source_note.md#great_tables.GT.tab_source_note) method. It works in the same way as [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header) (it also allows for Markdown inputs) except it can be called multiple times--each invocation results in the addition of a source note.
 
 
+# Adding Source Notes
+
+
 ``` python
 # Display the `islands_tbl` data with a heading and two source notes
 (
@@ -172,3 +180,6 @@ A *source note* can be added to the table's **Footer** through use of the [tab_s
 </tfoot>
 
 </table>
+
+
+With just a few method calls, we have added essential context to the table. The title and subtitle tell the reader what data is being presented, and the source notes provide attribution. Together, these components frame the table body and help your audience understand the data at a glance.

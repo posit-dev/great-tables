@@ -25,7 +25,19 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://posit-dev.github.io/great-tables/user-guide/exporting-and-saving.html</loc>
+    <lastmod>2026-06-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://posit-dev.github.io/great-tables/user-guide/extensions.html</loc>
+    <lastmod>2026-06-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/user-guide/footnotes.html</loc>
     <lastmod>2026-06-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -55,13 +67,19 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://posit-dev.github.io/great-tables/user-guide/nanoplots.html</loc>
+    <loc>https://posit-dev.github.io/great-tables/user-guide/merging-columns.html</loc>
     <lastmod>2026-06-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://posit-dev.github.io/great-tables/user-guide/overview.html</loc>
+    <loc>https://posit-dev.github.io/great-tables/user-guide/more-formatting.html</loc>
+    <lastmod>2026-06-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/user-guide/nanoplots.html</loc>
     <lastmod>2026-06-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -97,7 +115,25 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://posit-dev.github.io/great-tables/user-guide/substituting-values.html</loc>
+    <lastmod>2026-06-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/user-guide/summary-rows.html</loc>
+    <lastmod>2026-06-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://posit-dev.github.io/great-tables/user-guide/table-theme-options.html</loc>
+    <lastmod>2026-06-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/user-guide/text-transforms.html</loc>
     <lastmod>2026-06-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>

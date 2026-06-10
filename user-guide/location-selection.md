@@ -1,4 +1,9 @@
-# Location selection
+# Location Selection
+
+The `loc` module is what connects your styling intentions to specific parts of the table. Each location specifier identifies a region of the table (such as the header, body, stub, or footer) and many of them also support targeting specific columns or rows within that region. This page provides a comprehensive overview of all available location specifiers and how to use them effectively.
+
+
+# Overview
 
 Great Tables uses the `loc` module to specify locations for styling in [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style). Some location specifiers also allow selecting specific columns and rows of data.
 
@@ -361,7 +366,7 @@ gt.tab_style(style.fill("yellow"), loc.stub(["apricot", 2]))
 
 Note that for specifying row groups, the group corresponding to the group name or row number in the original data is used.
 
-For example, the code below styles the group corresponding to the row at index 1 (i.e. the second row) in the data.
+For example, the code below styles the group corresponding to the row at index 1 (i.e., the second row) in the data.
 
 
 ``` python
@@ -487,3 +492,6 @@ gt.tab_style(
 </tr>
 </tbody>
 </table>
+
+
+The `loc` module provides a complete vocabulary for addressing any part of your table. By combining location specifiers with column selectors, row filters, and Polars expressions, you can apply styles to exactly the right cells. For more details on styling itself, see [Styling the Table Body](styling-the-table-body.md) and [Styling the Whole Table](styling-the-whole-table.md).

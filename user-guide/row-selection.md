@@ -1,5 +1,10 @@
 # Row Selection
 
+Just as you can target specific columns, **Great Tables** also provides flexible ways to select rows. The `rows=` argument appears in formatting methods, location specifiers, and styling calls, allowing you to apply operations to a precise subset of your data. This page covers each of the available selection mechanisms.
+
+
+# Selection Options
+
 Location and formatter functions (e.g. [loc.body()](../reference/loc.body.md#great_tables.loc.body) and [fmt_number()](../reference/GT.fmt_number.md#great_tables.GT.fmt_number)) can be applied to specific rows, using the `rows=` argument.
 
 Rows may be specified using any of the following:
@@ -141,3 +146,6 @@ gt_ex.tab_style(
 | 0.1111 | apricot | 49.95    |
 | 2.222  | banana  | 17.95    |
 | 33.33  | coconut | 1.39     |
+
+
+Whether you prefer integer indexing for quick positional access, Polars expressions for declarative filtering, or functions for compatibility with pandas, the `rows=` argument adapts to your data workflow. Combined with column selection, these tools give you fine-grained control over exactly which cells your formatting and styling operations affect.
