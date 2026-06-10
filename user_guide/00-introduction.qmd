@@ -83,9 +83,10 @@ df_polars.style
 ```
 
 :::{.callout-note}
-The `polars.DataFrame.style` property is currently considered [unstable](https://docs.pola.rs/api/python/stable/reference/dataframe/style.html#polars.DataFrame.style), and may change in the future. Using `GT` on a **Polars** DataFrame will always work.
+The `polars.DataFrame.style` property is currently considered
+[unstable](https://docs.pola.rs/api/python/stable/reference/dataframe/style.html#polars.DataFrame.style),
+and may change in the future. Using `GT` on a **Polars** DataFrame will always work.
 :::
-
 
 ## Some Beautiful Examples
 
