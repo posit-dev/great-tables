@@ -190,6 +190,10 @@ use all of the aforementioned customization possibilities:
 )
 ```
 
+The customized bars use orange fills, gray strokes, and a pink reference line. Negative values are
+styled separately with blue strokes and light blue fills, making it easy to distinguish positive and
+negative trends at a glance.
+
 ## Horizontal bar and line plots
 
 Single-value bar plots, running in the horizontal direction, can be made by simply invoking
