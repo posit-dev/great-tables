@@ -54,5 +54,5 @@ Install with:
 pip install great_tables
 ```
 
-Then head over to the [User Guide](/user_guide/00-introduction.html) to learn how to build your
+Then head over to the [User Guide](/user_guide/) to learn how to build your
 first table, or explore the [Examples](/examples/) gallery for inspiration.

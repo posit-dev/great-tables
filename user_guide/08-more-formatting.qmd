@@ -1,0 +1,357 @@
+---
+title: More Formatting Options
+jupyter: python3
+html-table-processing: none
+guide-section: Formatting Data
+---
+
+The [Formatting Values](./07-formatting-values.qmd) page introduced the basics of `fmt_number()`,
+`fmt_currency()`, `fmt_date()`, and `fmt_time()`. But **Great Tables** has a much larger formatting
+toolkit. This page covers additional formatters that handle percentages, byte sizes, durations,
+scientific units, icons, flags, images, boolean values, Markdown, and more. Each formatter
+transforms raw cell data into presentation-ready content.
+
+## Percentage Formatting
+
+The `~~GT.fmt_percent()` method formats numeric values as percentages. By default, it assumes the
+input values are proportions (e.g., `0.25` becomes `"25.00%"`). If your values are already in
+percent form, set `scale_values=False`.
+
+```{python}
+import polars as pl
+from great_tables import GT
+
+pct_df = pl.DataFrame({
+    "metric": ["Conversion rate", "Bounce rate", "Click-through"],
+    "proportion": [0.034, 0.621, 0.158],
+    "already_pct": [3.4, 62.1, 15.8],
+})
+
+(
+    GT(pct_df, rowname_col="metric")
+    .fmt_percent(columns="proportion", decimals=1)
+    .fmt_percent(columns="already_pct", decimals=1, scale_values=False)
+)
+```
+
+Both columns display correctly as percentages, but the `proportion` column needed scaling (the
+default behavior) while `already_pct` did not.
+
+## Byte Size Formatting
+
+The `~~GT.fmt_bytes()` method converts raw byte counts into human-readable sizes. It automatically
+selects the appropriate unit (kB, MB, GB, etc.) based on the magnitude of the value.
+
+```{python}
+bytes_df = pl.DataFrame({
+    "file": ["photo.jpg", "video.mp4", "document.pdf", "database.sqlite"],
+    "size_bytes": [2_048_000, 1_573_000_000, 524_288, 85_000_000_000],
+})
+
+(
+    GT(bytes_df, rowname_col="file")
+    .fmt_bytes(columns="size_bytes", standard="decimal")
+)
+```
+
+The `standard=` argument controls the unit system. Use `"decimal"` for powers of 1000 (kB, MB, GB)
+or `"binary"` for powers of 1024 (KiB, MiB, GiB).
+
+```{python}
+(
+    GT(bytes_df, rowname_col="file")
+    .fmt_bytes(columns="size_bytes", standard="binary")
+)
+```
+
+## Duration Formatting
+
+The `~~GT.fmt_duration()` method formats numeric values (or `timedelta` objects) as styled time
+duration strings. You specify the input unit and the method handles the conversion and display.
+
+```{python}
+duration_df = pl.DataFrame({
+    "event": ["Sprint", "Marathon", "Triathlon", "Ultra"],
+    "seconds": [58, 7380, 21600, 172800],
+})
+
+(
+    GT(duration_df, rowname_col="event")
+    .fmt_duration(columns="seconds", input_units="seconds")
+)
+```
+
+The `duration_style=` argument controls the output format. The available styles are:
+
+- `"narrow"` (the default): compact format like `"2d 3h 15m"`
+- `"wide"`: spelled out like `"2 days 3 hours 15 minutes"`
+- `"colon-sep"`: clock format like `"51:03:15"`
+- `"iso"`: ISO 8601 format like `"P2DT3H15M"`
+
+```{python}
+(
+    GT(duration_df, rowname_col="event")
+    .fmt_duration(columns="seconds", input_units="seconds", duration_style="wide")
+)
+```
+
+You can limit the number of output units with `max_output_units=` to keep the display concise.
+
+```{python}
+(
+    GT(duration_df, rowname_col="event")
+    .fmt_duration(columns="seconds", input_units="seconds", max_output_units=2)
+)
+```
+
+## Engineering Notation
+
+The `~~GT.fmt_engineering()` method formats values in engineering notation, where the exponent is
+always a multiple of 3. This aligns with SI prefixes (kilo, mega, milli, micro, etc.) and is common
+in technical and scientific contexts.
+
+```{python}
+eng_df = pl.DataFrame({
+    "quantity": ["Resistance", "Capacitance", "Frequency", "Power"],
+    "value": [4700.0, 0.0000001, 2400000000.0, 0.0035],
+})
+
+(
+    GT(eng_df, rowname_col="quantity")
+    .fmt_engineering(columns="value")
+)
+```
+
+## Parts-Per Formatting
+
+The `~~GT.fmt_partsper()` method formats values as parts-per quantities: per mille, ppm, ppb, and
+more. By default, it assumes input values are proportions and scales them accordingly.
+
+```{python}
+ppm_df = pl.DataFrame({
+    "substance": ["Lead", "Mercury", "Arsenic"],
+    "concentration": [0.000015, 0.000001, 0.00001],
+})
+
+(
+    GT(ppm_df, rowname_col="substance")
+    .fmt_partsper(columns="concentration", to_units="ppm")
+)
+```
+
+The `to_units=` argument accepts the following values: `"per-mille"`, `"per-myriad"`, `"pcm"`,
+`"ppm"`, `"ppb"`, `"ppt"`, and `"ppq"`.
+
+## Roman Numeral Formatting
+
+The `~~GT.fmt_roman()` method converts integer values into Roman numerals. This can be useful for
+numbering chapters, sections, or ranked items.
+
+```{python}
+roman_df = pl.DataFrame({
+    "event": ["Opening", "Keynote", "Workshop", "Closing"],
+    "order": [1, 2, 3, 4],
+})
+
+(
+    GT(roman_df, rowname_col="event")
+    .fmt_roman(columns="order")
+)
+```
+
+The `case=` argument accepts `"upper"` (the default, producing `"I"`, `"II"`, `"III"`) or `"lower"`
+(producing `"i"`, `"ii"`, `"iii"`).
+
+## Scientific Units
+
+The `~~GT.fmt_units()` method renders measurement units with proper subscripts, superscripts, and
+special symbols. It uses a concise notation syntax where `^` indicates superscripts, `_` indicates
+subscripts, and special names are referenced with colons.
+
+```{python}
+units_df = pl.DataFrame({
+    "quantity": ["Speed of light", "Boltzmann constant", "Planck constant", "Acceleration"],
+    "units": ["m/s", "J Hz^-1", "kg m^2 s^-1", "m s^-2"],
+})
+
+(
+    GT(units_df, rowname_col="quantity")
+    .fmt_units(columns="units")
+)
+```
+
+The units notation supports Greek letters (`:alpha:`, `:beta:`, `:sigma:`), chemical formulas in
+percent delimiters (`%H2O%`), and combined subscripts and superscripts (`t_i^2`).
+
+## True/False Formatting
+
+The `~~GT.fmt_tf()` method transforms boolean values into visual indicators. It offers a variety of
+preset styles including text labels, check marks, shapes, and arrows.
+
+```{python}
+tf_df = pl.DataFrame({
+    "feature": ["Dark mode", "Auto-save", "Spell check", "Notifications"],
+    "enabled": [True, True, False, True],
+    "premium": [False, True, False, True],
+})
+
+(
+    GT(tf_df, rowname_col="feature")
+    .fmt_tf(columns="enabled", tf_style="check-mark")
+    .fmt_tf(columns="premium", tf_style="circles")
+)
+```
+
+The available `tf_style=` values include: `"true-false"`, `"yes-no"`, `"up-down"`, `"check-mark"`,
+`"circles"`, `"squares"`, `"diamonds"`, `"arrows"`, `"triangles"`, and `"triangles-lr"`.
+
+You can also apply colors to the True/False indicators using the `colors=` argument.
+
+```{python}
+(
+    GT(tf_df, rowname_col="feature")
+    .fmt_tf(columns="enabled", tf_style="check-mark", colors=["green", "red"])
+)
+```
+
+When you provide two colors, the first applies to `True` values and the second to `False` values.
+
+## Markdown in Cells
+
+The `~~GT.fmt_markdown()` method renders Markdown-formatted text that appears in cells. This is
+useful when your data contains text with emphasis, links, or other inline formatting.
+
+```{python}
+md_df = pl.DataFrame({
+    "package": ["polars", "pandas", "numpy"],
+    "description": [
+        "**Fast** DataFrame library for *Rust* and Python",
+        "Flexible data analysis with **labeled** axes",
+        "Fundamental package for *scientific computing*",
+    ],
+})
+
+(
+    GT(md_df, rowname_col="package")
+    .fmt_markdown(columns="description")
+)
+```
+
+The Markdown is converted to HTML during rendering, so standard inline Markdown syntax (bold,
+italic, links, code) is supported.
+
+## Icons in Cells
+
+The `~~GT.fmt_icon()` method renders Font Awesome icons based on icon names stored in cells. This is
+a visually engaging way to represent categories, statuses, or types.
+
+```{python}
+icon_df = pl.DataFrame({
+    "platform": ["Web", "Mobile", "Desktop"],
+    "icon_name": ["globe", "mobile", "desktop"],
+    "users": [45000, 32000, 12000],
+})
+
+(
+    GT(icon_df, rowname_col="platform")
+    .fmt_icon(columns="icon_name", fill_color="steelblue")
+    .fmt_number(columns="users", compact=True)
+)
+```
+
+The `fill_color=` argument accepts a single color (applied to all icons) or a dictionary mapping
+icon names to specific colors.
+
+```{python}
+(
+    GT(icon_df, rowname_col="platform")
+    .fmt_icon(
+        columns="icon_name",
+        fill_color={"globe": "royalblue", "mobile": "forestgreen", "desktop": "slategray"}
+    )
+)
+```
+
+## Country Flags
+
+The `~~GT.fmt_flag()` method generates flag icons from ISO 3166-1 country codes (two- or
+three-letter codes). This is useful for international datasets.
+
+```{python}
+country_df = pl.DataFrame({
+    "country_code": ["US", "GB", "JP", "DE", "BR"],
+    "country": ["United States", "United Kingdom", "Japan", "Germany", "Brazil"],
+    "gdp_trillion": [25.5, 3.1, 4.2, 4.1, 1.9],
+})
+
+(
+    GT(country_df, rowname_col="country")
+    .fmt_flag(columns="country_code")
+    .fmt_number(columns="gdp_trillion", decimals=1)
+    .cols_label(country_code="Flag", gdp_trillion="GDP (USD trillions)")
+)
+```
+
+The flags render as small inline images with a hover tooltip showing the country name (controlled by
+`use_title=`).
+
+## Images in Cells
+
+The `~~GT.fmt_image()` method renders image paths or URLs as inline images within cells. This is
+useful for product catalogs, team rosters, or any dataset where visual identification matters.
+
+```python
+img_df = pl.DataFrame({
+    "planet": ["Earth", "Mars", "Jupiter"],
+    "image_file": ["earth.png", "mars.png", "jupiter.png"],
+    "diameter_km": [12742, 6779, 139820],
+})
+
+(
+    GT(img_df, rowname_col="planet")
+    .fmt_image(columns="image_file", path="images/", height="40px")
+    .fmt_number(columns="diameter_km", use_seps=True)
+)
+```
+
+The `path=` argument provides a common prefix for all file references, and `height=`/`width=`
+control the rendered dimensions. When `encode=True` (the default), local image files are
+base64-encoded directly into the HTML output, making the table self-contained.
+
+## Custom Formatting with `fmt()`
+
+When none of the built-in formatters fit your needs, the generic `~~GT.fmt()` method lets you supply
+any function as a formatter. The function receives a raw cell value and should return a formatted
+string.
+
+```{python}
+def format_score(value):
+    """Convert a 0-100 score to a letter grade."""
+    if value >= 90:
+        return "A"
+    elif value >= 80:
+        return "B"
+    elif value >= 70:
+        return "C"
+    elif value >= 60:
+        return "D"
+    else:
+        return "F"
+
+grades_df = pl.DataFrame({
+    "student": ["Alice", "Bob", "Charlie", "Diana"],
+    "score": [95, 82, 67, 91],
+})
+
+(
+    GT(grades_df, rowname_col="student")
+    .fmt(fns=format_score, columns="score")
+)
+```
+
+The `~~GT.fmt()` method is the escape hatch for any formatting logic that the specialized `fmt_*()`
+methods do not cover. Your function can return plain text or HTML strings for rich formatting.
+
+The formatting methods in **Great Tables** cover a wide spectrum of data types and presentation
+needs. From scientific notation to country flags, from boolean indicators to custom functions, you
+have the tools to make every column in your table look exactly right for its audience and context.

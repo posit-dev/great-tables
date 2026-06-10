@@ -1,12 +1,20 @@
 ---
 title: Table Theme Options
 jupyter: python3
+guide-section: Styling and Presentation
 ---
+
+When you need to apply broad visual changes across an entire table, `~~GT.tab_options()` is the
+right tool. Rather than styling individual cells or specific locations, this method lets you set
+colors, fonts, borders, and spacing for entire table parts in a single call. This page explains the
+structure of option names, demonstrates how to style different parts, and shows how to build a
+complete table theme.
 
 Great Tables exposes options to customize the appearance of tables via two methods:
 
-* `~~GT.tab_style()` - targeted styles (e.g. color a specific cell of data, or a specific group label).
-* `~~GT.tab_options()` - broad styles (e.g. color the header and source notes).
+* `~~GT.tab_style()`: targeted styles (e.g. color a specific cell of data, or a specific group
+label).
+* `~~GT.tab_options()`: broad styles (e.g. color the header and source notes).
 
 Both methods target parts of the table, as shown in the diagram below.
 
@@ -33,9 +41,11 @@ gt_ex
 
 ## Table option parts
 
-As the graph above showed, tables are made of many parts---such as the heading, column labels, and stub. `~~GT.tab_options()` organizes options based on table part.
+As the graph above showed, tables are made of many parts---such as the heading, column labels, and
+stub. `~~GT.tab_options()` organizes options based on table part.
 
-The code below illustrates the table parts `~~GT.tab_options()` can target, by setting the background color for various parts.
+The code below illustrates the table parts `~~GT.tab_options()` can target, by setting the
+background color for various parts.
 
 
 ```{python}
@@ -62,7 +72,9 @@ Notice two important pieces:
 
 ## Finding options: part, type, attribute
 
-Option names follow this format:
+Option names in `~~GT.tab_options()` follow a consistent naming convention. Understanding the
+pattern makes it easy to find the exact option you need without searching through documentation.
+The format is:
 
 ```python
 {part name}_{type}_{attribute}
@@ -107,9 +119,11 @@ gt_ex.tab_options(
 
 ## Styling body cells
 
-The table body can style the lines between individual cells. Use the `hline` and `vline` option types to specify cell line color, style, and width.
+The table body can style the lines between individual cells. Use the `hline` and `vline` option
+types to specify cell line color, style, and width.
 
-For example, the code below changes horizontal lines (`hline`) between cells to be red, dashed lines.
+For example, the code below changes horizontal lines (`hline`) between cells to be red, dashed
+lines.
 
 ```{python}
 gt_ex.tab_options(
@@ -119,7 +133,8 @@ gt_ex.tab_options(
 )
 ```
 
-In order to define the vertical lines between cells, set `vline` styles. For example, the code below makes both horizontal and vertical lines between cells solid.
+In order to define the vertical lines between cells, set `vline` styles. For example, the code
+below makes both horizontal and vertical lines between cells solid.
 
 
 ```{python}
@@ -157,7 +172,9 @@ gt_ex.tab_options(
 
 Based on the sections above, we can design an overall theme for a table.
 
-This requires setting a decent number of options, but makes a big difference when presenting a table! Below is a table with a simple, blue theme. (The code is hidden by default, but can be expanded to see all the options set).
+This requires setting a decent number of options, but makes a big difference when presenting a
+table! Below is a table with a simple, blue theme. (The code is hidden by default, but can be
+expanded to see all the options set).
 
 ```{python}
 #| code-fold: true
@@ -204,3 +221,8 @@ from great_tables import GT, exibble
 
 )
 ```
+
+With `~~GT.tab_options()`, you can define the visual identity of your tables at a broad level. The
+structured naming convention makes it straightforward to find and set the options you need, and by
+combining multiple options together, you can build reusable themes that give all your tables a
+consistent, polished appearance.

@@ -1,0 +1,214 @@
+---
+title: Text Transforms
+jupyter: python3
+html-table-processing: none
+guide-section: Formatting Data
+---
+
+Sometimes the final step in preparing a table involves modifying the text content of cells after all formatting has been applied. The `text_*()` methods operate on the already-rendered text in cells, giving you a post-processing layer for tasks like replacing abbreviations, applying conditional labels, or inserting custom HTML. These methods complement the `fmt_*()` methods, which work on raw data values.
+
+## Setting Up the Example Data
+
+```{python}
+import polars as pl
+from great_tables import GT, loc, md
+
+status_df = pl.DataFrame({
+    "task": ["Data collection", "Analysis", "Report writing", "Peer review"],
+    "status": ["DONE", "IN_PROGRESS", "NOT_STARTED", "DONE"],
+    "priority": ["high", "high", "medium", "low"],
+    "progress": [100, 65, 0, 100],
+})
+
+gt_tbl = GT(status_df, rowname_col="task")
+gt_tbl
+```
+
+## Custom Text Transformations
+
+The `~~GT.text_transform()` method is the most flexible of the text methods. It takes a location specifier and a function that receives a cell's text content as a string and returns the transformed string. The transformation runs after all `fmt_*()` methods have been applied.
+
+```{python}
+(
+    gt_tbl
+    .text_transform(
+        locations=loc.body(columns="status"),
+        fn=lambda text: text.replace("_", " ").title()
+    )
+)
+```
+
+The underscores in status values are replaced with spaces and the text is converted to title case. This is useful when your data contains coded values that need to be made more readable.
+
+You can also return HTML from the transform function to add visual elements to cells.
+
+```{python}
+def add_progress_indicator(text):
+    value = int(text)
+    color = "green" if value == 100 else "orange" if value > 0 else "gray"
+    bar = f'<div style="background:{color};width:{value}%;height:8px;border-radius:4px;"></div>'
+    return f'{text}%<br>{bar}'
+
+(
+    gt_tbl
+    .text_transform(
+        locations=loc.body(columns="progress"),
+        fn=add_progress_indicator
+    )
+)
+```
+
+## Text Replacement with Regex
+
+The `~~GT.text_replace()` method performs regex-based find-and-replace on cell content. It is a simpler alternative to `~~GT.text_transform()` when you just need pattern matching.
+
+```{python}
+(
+    gt_tbl
+    .text_replace(
+        pattern=r"_",
+        replacement=" ",
+        locations=loc.body(columns="status")
+    )
+)
+```
+
+All underscores in the `status` column are replaced with spaces. The `pattern=` argument accepts full Python regex syntax, so you can use capture groups and backreferences in the `replacement=` string.
+
+```{python}
+(
+    gt_tbl
+    .text_replace(
+        pattern=r"(\w+)_(\w+)",
+        replacement=r"\1 \2",
+        locations=loc.body(columns="status")
+    )
+)
+```
+
+## Case Matching
+
+The `~~GT.text_case_match()` method provides a switch-like mechanism for replacing cell text. You supply tuples of `(old_text, new_text)` and the method matches cell content against each case in order.
+
+```{python}
+(
+    gt_tbl
+    .text_case_match(
+        ("DONE", "Complete ✓"),
+        ("IN_PROGRESS", "In Progress"),
+        ("NOT_STARTED", "Not Started"),
+        locations=loc.body(columns="status")
+    )
+)
+```
+
+Each status code is mapped to a more readable label. By default, `text_case_match()` compares the entire cell text (i.e., `replace="all"`). You can set `replace="partial"` to match substrings instead.
+
+### Matching Multiple Values to One Replacement
+
+The first element of each case tuple can be a list of strings, allowing you to map multiple values to the same replacement.
+
+```{python}
+(
+    gt_tbl
+    .text_case_match(
+        (["DONE", "IN_PROGRESS"], "Active"),
+        ("NOT_STARTED", "Pending"),
+        locations=loc.body(columns="status")
+    )
+)
+```
+
+### Providing a Default
+
+If some cell values do not match any case, they remain unchanged by default. You can set a fallback value with the `default=` argument.
+
+```{python}
+(
+    gt_tbl
+    .text_case_match(
+        ("DONE", "Complete"),
+        default="Other",
+        locations=loc.body(columns="status")
+    )
+)
+```
+
+Cells containing `"IN_PROGRESS"` and `"NOT_STARTED"` both become `"Other"` since they did not match the single case provided.
+
+## Conditional Text Replacement
+
+The `~~GT.text_case_when()` method gives you predicate-based replacement logic. Each case is a tuple of `(predicate_function, replacement_text)`, where the predicate receives the cell text as a string and returns `True` or `False`. The first matching predicate determines the replacement.
+
+```{python}
+(
+    gt_tbl
+    .text_case_when(
+        (lambda x: x == "100", "Complete"),
+        (lambda x: int(x) > 0, "In Progress"),
+        (lambda x: x == "0", "Not Started"),
+        locations=loc.body(columns="progress")
+    )
+)
+```
+
+This approach is particularly powerful when your replacement logic depends on the value itself (such as numeric thresholds) rather than exact string matching.
+
+## Targeting Different Locations
+
+All text methods support the `locations=` argument, which defaults to `loc.body()` when not specified. You can target other parts of the table as well.
+
+### Transforming Row Group Labels
+
+```{python}
+df_grouped = pl.DataFrame({
+    "name": ["Alice", "Bob", "Charlie", "Diana"],
+    "team": ["team_alpha", "team_alpha", "team_beta", "team_beta"],
+    "score": [92, 87, 95, 78],
+})
+
+(
+    GT(df_grouped, rowname_col="name", groupname_col="team")
+    .text_replace(
+        pattern=r"team_(\w+)",
+        replacement=r"Team \1",
+        locations=loc.row_groups()
+    )
+)
+```
+
+### Transforming Column Labels
+
+```{python}
+(
+    gt_tbl
+    .text_transform(
+        locations=loc.column_labels(columns="progress"),
+        fn=lambda text: text.upper()
+    )
+)
+```
+
+## Combining Text Methods
+
+You can chain multiple text methods together. They are applied in the order specified, each operating on the result of the previous transformation.
+
+```{python}
+(
+    gt_tbl
+    .text_case_match(
+        ("DONE", "Complete"),
+        ("IN_PROGRESS", "In Progress"),
+        ("NOT_STARTED", "Not Started"),
+        locations=loc.body(columns="status")
+    )
+    .text_case_match(
+        ("high", "High ●"),
+        ("medium", "Medium ●"),
+        ("low", "Low ●"),
+        locations=loc.body(columns="priority")
+    )
+)
+```
+
+The text transformation methods provide a final layer of control over how your table content appears. Whether you need simple find-and-replace, switch-like mappings, or complex conditional logic, these methods let you shape the text to match your exact presentation needs.
