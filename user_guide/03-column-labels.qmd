@@ -20,7 +20,8 @@ To better demonstrate how **Column Labels** work and are displayed, let's use an
 with more columns. In this case, that input table will be `airquality`. It has the following
 columns:
 
-- `Ozone`: mean ground-level ozone in parts per billion by volume (ppbV), measured between 13:00 and 15:00
+- `Ozone`: mean ground-level ozone in parts per billion by volume (ppbV), measured between 13:00 and
+15:00
 - `Solar_R`: solar radiation in Langley units (cal/m<sup>2</sup>), measured between 08:00 and noon
 - `Wind`: mean wind speed in miles per hour (mph)
 - `Temp`: maximum daily air temperature in degrees Fahrenheit (&deg;F)
@@ -38,7 +39,8 @@ airquality_mini = airquality.head(10).assign(Year = 1973)
 airquality_mini
 ```
 
-This ten-row subset of the New York air quality dataset has both measurement and time columns, making it a good candidate for organizing with column spanners.
+This ten-row subset of the New York air quality dataset has both measurement and time columns,
+making it a good candidate for organizing with column spanners.
 
 ## Adding Column Spanners
 
