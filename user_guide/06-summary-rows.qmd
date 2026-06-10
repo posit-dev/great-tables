@@ -82,6 +82,8 @@ By default, summary rows appear at the bottom of each group. You can place them 
 )
 ```
 
+The summary row now sits above the data rows in each group rather than below them, making the totals immediately visible.
+
 ### Targeting Specific Groups
 
 If you only want summaries for certain groups, use the `groups=` argument with a list of group names.
