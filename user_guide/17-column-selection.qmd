@@ -34,6 +34,8 @@ gt_ex = GT(lil_exibble)
 gt_ex
 ```
 
+This five-column table will serve as the basis for demonstrating each selection approach.
+
 ## Using integers
 
 We can use a list of strings or integers to select columns by name or position, respectively.
