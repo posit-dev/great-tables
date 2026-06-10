@@ -5,11 +5,15 @@ html-table-processing: none
 guide-section: Table Structure
 ---
 
-Summary rows provide aggregated values (such as totals, means, or counts) directly in the table, adjacent to the data they summarize. **Great Tables** supports two types: group-level summaries that appear next to each row group, and grand summaries that aggregate across the entire table. Both types let you define multiple aggregation functions at once and control where the summary appears.
+Summary rows provide aggregated values (such as totals, means, or counts) directly in the table,
+adjacent to the data they summarize. **Great Tables** supports two types: group-level summaries that
+appear next to each row group, and grand summaries that aggregate across the entire table. Both
+types let you define multiple aggregation functions at once and control where the summary appears.
 
 ## Setting Up the Example Data
 
-For these examples, we will use a sales dataset with row groups representing different product categories.
+For these examples, we will use a sales dataset with row groups representing different product
+categories.
 
 ```{python}
 import polars as pl
@@ -31,11 +35,14 @@ gt_sales = (
 gt_sales
 ```
 
-This table has two row groups: `"Computing"` and `"Peripherals"`. We can now add summaries at the group level and at the grand level.
+This table has two row groups: `"Computing"` and `"Peripherals"`. We can now add summaries at the
+group level and at the grand level.
 
 ## Group-Level Summary Rows
 
-The `~~GT.summary_rows()` method adds summary rows to each row group. You provide aggregation functions through the `fns=` argument as a dictionary, where keys become the summary row labels and values are the aggregation logic.
+The `~~GT.summary_rows()` method adds summary rows to each row group. You provide aggregation
+functions through the `fns=` argument as a dictionary, where keys become the summary row labels and
+values are the aggregation logic.
 
 When using a **Polars** DataFrame, the aggregation values should be Polars expressions.
 
@@ -48,11 +55,13 @@ When using a **Polars** DataFrame, the aggregation values should be Polars expre
 )
 ```
 
-Each row group now has a `"Total"` summary row at the bottom showing the sum of numeric columns within that group.
+Each row group now has a `"Total"` summary row at the bottom showing the sum of numeric columns
+within that group.
 
 ### Multiple Aggregation Functions
 
-You can include several functions in the `fns=` dictionary to produce multiple summary rows per group.
+You can include several functions in the `fns=` dictionary to produce multiple summary rows per
+group.
 
 ```{python}
 (
@@ -70,7 +79,8 @@ Both a `"Total"` and an `"Average"` row now appear at the bottom of each group.
 
 ### Placing Summaries at the Top
 
-By default, summary rows appear at the bottom of each group. You can place them at the top instead by setting `side="top"`.
+By default, summary rows appear at the bottom of each group. You can place them at the top instead
+by setting `side="top"`.
 
 ```{python}
 (
@@ -82,11 +92,13 @@ By default, summary rows appear at the bottom of each group. You can place them 
 )
 ```
 
-The summary row now sits above the data rows in each group rather than below them, making the totals immediately visible.
+The summary row now sits above the data rows in each group rather than below them, making the totals
+immediately visible.
 
 ### Targeting Specific Groups
 
-If you only want summaries for certain groups, use the `groups=` argument with a list of group names.
+If you only want summaries for certain groups, use the `groups=` argument with a list of group
+names.
 
 ```{python}
 (
@@ -102,7 +114,9 @@ Only the `"Computing"` group receives a summary row.
 
 ## Grand Summary Rows
 
-The `~~GT.grand_summary_rows()` method works the same way as `~~GT.summary_rows()`, but it aggregates across all data in the table regardless of row groups. The resulting summary rows appear at the very bottom (or top) of the table.
+The `~~GT.grand_summary_rows()` method works the same way as `~~GT.summary_rows()`, but it
+aggregates across all data in the table regardless of row groups. The resulting summary rows appear
+at the very bottom (or top) of the table.
 
 ```{python}
 (
@@ -117,7 +131,8 @@ A single `"Grand Total"` row appears below all row groups, showing the overall t
 
 ### Combining Group and Grand Summaries
 
-You can use both `~~GT.summary_rows()` and `~~GT.grand_summary_rows()` on the same table to provide aggregation at both levels.
+You can use both `~~GT.summary_rows()` and `~~GT.grand_summary_rows()` on the same table to provide
+aggregation at both levels.
 
 ```{python}
 (
@@ -134,11 +149,13 @@ You can use both `~~GT.summary_rows()` and `~~GT.grand_summary_rows()` on the sa
 )
 ```
 
-Each group now has a `"Subtotal"` row, and the table finishes with a `"Grand Total"` and `"Overall Average"` row that span across all groups.
+Each group now has a `"Subtotal"` row, and the table finishes with a `"Grand Total"` and
+`"Overall Average"` row that span across all groups.
 
 ## Working with Pandas DataFrames
 
-When using a **Pandas** DataFrame, the aggregation functions receive a Pandas DataFrame and should work accordingly.
+When using a **Pandas** DataFrame, the aggregation functions receive a Pandas DataFrame and should
+work accordingly.
 
 ```{python}
 import pandas as pd
@@ -159,11 +176,13 @@ sales_pd = pd.DataFrame({
 )
 ```
 
-The `numeric_only=True` argument ensures that only numeric columns are summed, avoiding errors with string columns.
+The `numeric_only=True` argument ensures that only numeric columns are summed, avoiding errors with
+string columns.
 
 ## Styling Summary Rows
 
-Summary rows can be styled using `loc.grand_summary()` and `loc.summary()` with `~~GT.tab_style()`. This lets you visually distinguish summary rows from data rows.
+Summary rows can be styled using `loc.grand_summary()` and `loc.summary()` with `~~GT.tab_style()`.
+This lets you visually distinguish summary rows from data rows.
 
 ```{python}
 from great_tables import loc, style
@@ -180,4 +199,6 @@ from great_tables import loc, style
 )
 ```
 
-Summary rows are a natural companion to row groups, providing the aggregated context that readers need to interpret grouped data. By combining group-level and grand summaries, formatting, and targeted styling, you can build tables that tell a complete analytical story.
+Summary rows are a natural companion to row groups, providing the aggregated context that readers
+need to interpret grouped data. By combining group-level and grand summaries, formatting, and
+targeted styling, you can build tables that tell a complete analytical story.
