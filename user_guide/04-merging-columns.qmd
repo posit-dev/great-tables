@@ -1,0 +1,171 @@
+---
+title: Merging Columns
+jupyter: python3
+html-table-processing: none
+guide-section: Table Structure
+---
+
+Tables often contain related data spread across multiple columns that would be better presented as a
+single, combined value. For example, a measurement and its uncertainty, a low and high bound forming
+a range, or a count with its corresponding percentage. The `cols_merge*()` family of methods
+combines the content of two or more columns into one, giving you a more compact and readable table.
+
+## Setting Up the Example Data
+
+We will use a small dataset that includes a measurement with uncertainty, a range, and a count with
+a percentage.
+
+```{python}
+import pandas as pd
+from great_tables import GT
+
+experiment_df = pd.DataFrame({
+    "trial": ["Trial 1", "Trial 2", "Trial 3", "Trial 4"],
+    "measurement": [12.45, 8.92, 15.03, None],
+    "uncertainty": [0.32, 0.15, 0.48, None],
+    "low": [10.5, 7.8, 13.2, 9.1],
+    "high": [14.2, 10.1, 16.8, 12.5],
+    "n_obs": [120, 85, 200, 0],
+    "pct": [34.2, 24.3, 57.1, 0.0],
+})
+
+gt_tbl = GT(experiment_df, rowname_col="trial")
+gt_tbl
+```
+
+With six data columns, this table is quite wide. Let's reduce the column count by merging related
+pairs together.
+
+## Merging with a Pattern
+
+The most general method is `~~GT.cols_merge()`. It takes a `columns=` list where the first column
+becomes the target (the one that receives the merged content), and a `pattern=` string that controls
+how column values are combined. In the pattern, `{0}` refers to the first column, `{1}` to the
+second, and so on.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge(
+        columns=["measurement", "uncertainty"],
+        pattern="{0} ± {1}"
+    )
+)
+```
+
+The `measurement` column now contains the merged text and the `uncertainty` column is automatically
+hidden. This hiding behavior can be controlled with the `hide_columns=` argument.
+
+### Conditional Content with `<<>>`
+
+Sometimes a column value may be missing, and you want the merged text to adapt gracefully. Wrapping
+part of the pattern in double angle brackets (`<<...>>`) makes that section conditional: it will be
+omitted entirely if any referenced column value inside is missing.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge(
+        columns=["measurement", "uncertainty"],
+        pattern="{0}<< ± {1}>>"
+    )
+)
+```
+
+In this example, Trial 4 has missing values for both columns. The conditional section `<< ± {1}>>`
+is dropped when `uncertainty` is missing, producing a cleaner result than showing placeholder text.
+
+## Merging Value and Uncertainty
+
+The `~~GT.cols_merge_uncert()` method is a convenience wrapper specifically designed for the common
+pattern of a measurement paired with its uncertainty. It handles missing values automatically and
+renders the separator as a proper plus-minus sign.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge_uncert(col_val="measurement", col_uncert="uncertainty")
+)
+```
+
+The `sep=` argument controls the text between the value and uncertainty (defaulting to `" ± "`). You
+can combine this with `~~GT.fmt_number()` to control the decimal precision of the merged values.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .fmt_number(columns=["measurement", "uncertainty"], decimals=1)
+    .cols_merge_uncert(col_val="measurement", col_uncert="uncertainty")
+)
+```
+
+Formatting should be applied before merging, since the merge operates on the already-formatted text
+content.
+
+## Merging a Range
+
+The `~~GT.cols_merge_range()` method combines two columns into a range display, separated by an en
+dash by default. This is ideal for confidence intervals, date ranges, or any pair of low/high
+bounds.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge_range(col_begin="low", col_end="high")
+)
+```
+
+You can customize the separator with `sep=`. The special values `"--"` and `"---"` are automatically
+rendered as an en dash and em dash, respectively. Any other string is used literally.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge_range(col_begin="low", col_end="high", sep=" to ")
+)
+```
+
+## Merging Count and Percentage
+
+When you have a count column alongside a pre-computed percentage column, `~~GT.cols_merge_n_pct()`
+merges them into a format like `"120 (34.2%)"`. This is a common pattern in statistical tables and
+survey results.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .cols_merge_n_pct(col_n="n_obs", col_pct="pct")
+)
+```
+
+Notice that Trial 4 shows `"0"` without a percentage. This is intentional: when the count is zero,
+showing `"0 (0.0%)"` would be redundant, so the method displays only the count.
+
+## Combining Multiple Merges
+
+You can apply several merge operations in the same table to consolidate all related column pairs at
+once.
+
+```{python}
+(
+    GT(experiment_df, rowname_col="trial")
+    .fmt_number(columns=["measurement", "uncertainty", "low", "high"], decimals=1)
+    .cols_merge_uncert(col_val="measurement", col_uncert="uncertainty")
+    .cols_merge_range(col_begin="low", col_end="high")
+    .cols_merge_n_pct(col_n="n_obs", col_pct="pct")
+    .cols_label(
+        measurement="Result",
+        low="Range",
+        n_obs="Observations"
+    )
+)
+```
+
+By merging three pairs of columns, we reduced the table from six data columns down to three, each
+conveying the same information in a more compact form.
+
+Column merging is a powerful technique for building information-dense tables. By combining related
+values into unified columns, you reduce visual clutter and help readers process the data more
+efficiently. The specialized `cols_merge_uncert()`, `cols_merge_range()`, and `cols_merge_n_pct()`
+methods handle the most common patterns, while `cols_merge()` with its pattern syntax gives you full
+flexibility for any custom arrangement.
