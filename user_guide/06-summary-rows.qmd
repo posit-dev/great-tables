@@ -37,13 +37,13 @@ This table has two row groups: `"Computing"` and `"Peripherals"`. We can now add
 
 The `~~GT.summary_rows()` method adds summary rows to each row group. You provide aggregation functions through the `fns=` argument as a dictionary, where keys become the summary row labels and values are the aggregation logic.
 
-When using a **Polars** DataFrame, the aggregation functions should be Polars expressions.
+When using a **Polars** DataFrame, the aggregation values should be Polars expressions.
 
 ```{python}
 (
     gt_sales
     .summary_rows(
-        fns={"Total": lambda df: df.sum()}
+        fns={"Total": pl.col("units_sold", "revenue").sum()}
     )
 )
 ```
@@ -59,8 +59,8 @@ You can include several functions in the `fns=` dictionary to produce multiple s
     gt_sales
     .summary_rows(
         fns={
-            "Total": lambda df: df.sum(),
-            "Average": lambda df: df.mean(),
+            "Total": pl.col("units_sold", "revenue").sum(),
+            "Average": pl.col("units_sold", "revenue").mean(),
         }
     )
 )
@@ -76,7 +76,7 @@ By default, summary rows appear at the bottom of each group. You can place them 
 (
     gt_sales
     .summary_rows(
-        fns={"Total": lambda df: df.sum()},
+        fns={"Total": pl.col("units_sold", "revenue").sum()},
         side="top"
     )
 )
@@ -90,7 +90,7 @@ If you only want summaries for certain groups, use the `groups=` argument with a
 (
     gt_sales
     .summary_rows(
-        fns={"Total": lambda df: df.sum()},
+        fns={"Total": pl.col("units_sold", "revenue").sum()},
         groups=["Computing"]
     )
 )
@@ -106,7 +106,7 @@ The `~~GT.grand_summary_rows()` method works the same way as `~~GT.summary_rows(
 (
     gt_sales
     .grand_summary_rows(
-        fns={"Grand Total": lambda df: df.sum()}
+        fns={"Grand Total": pl.col("units_sold", "revenue").sum()}
     )
 )
 ```
@@ -121,12 +121,12 @@ You can use both `~~GT.summary_rows()` and `~~GT.grand_summary_rows()` on the sa
 (
     gt_sales
     .summary_rows(
-        fns={"Subtotal": lambda df: df.sum()}
+        fns={"Subtotal": pl.col("units_sold", "revenue").sum()}
     )
     .grand_summary_rows(
         fns={
-            "Grand Total": lambda df: df.sum(),
-            "Overall Average": lambda df: df.mean(),
+            "Grand Total": pl.col("units_sold", "revenue").sum(),
+            "Overall Average": pl.col("units_sold", "revenue").mean(),
         }
     )
 )
@@ -169,7 +169,7 @@ from great_tables import loc, style
 (
     gt_sales
     .grand_summary_rows(
-        fns={"Grand Total": lambda df: df.sum()}
+        fns={"Grand Total": pl.col("units_sold", "revenue").sum()}
     )
     .tab_style(
         style=style.fill(color="lightyellow"),
