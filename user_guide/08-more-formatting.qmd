@@ -64,6 +64,9 @@ or `"binary"` for powers of 1024 (KiB, MiB, GiB).
 )
 ```
 
+With the binary standard, the same byte values display in KiB, MiB, and GiB units. Choose whichever
+standard matches the conventions of your domain.
+
 ## Duration Formatting
 
 The `~~GT.fmt_duration()` method formats numeric values (or `timedelta` objects) as styled time
@@ -104,6 +107,9 @@ You can limit the number of output units with `max_output_units=` to keep the di
 )
 ```
 
+Limiting the output to two units (e.g., `"2d 3h"` instead of `"2d 3h 15m"`) keeps the display
+compact when exact precision is not required.
+
 ## Engineering Notation
 
 The `~~GT.fmt_engineering()` method formats values in engineering notation, where the exponent is
@@ -121,6 +127,9 @@ eng_df = pl.DataFrame({
     .fmt_engineering(columns="value")
 )
 ```
+
+Each value is expressed with a mantissa between 1 and 999 and an exponent that is a multiple of 3.
+This makes it straightforward to mentally convert to SI prefixes (e.g., `4.7 x 10^3` = 4.7 kilo).
 
 ## Parts-Per Formatting
 
@@ -271,6 +280,9 @@ icon names to specific colors.
     )
 )
 ```
+
+Using a dictionary for `fill_color=` lets you assign semantically meaningful colors to each icon,
+making the visual distinction immediate.
 
 ## Country Flags
 
