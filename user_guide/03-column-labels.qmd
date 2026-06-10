@@ -38,6 +38,8 @@ airquality_mini = airquality.head(10).assign(Year = 1973)
 airquality_mini
 ```
 
+This ten-row subset of the New York air quality dataset has both measurement and time columns, making it a good candidate for organizing with column spanners.
+
 ## Adding Column Spanners
 
 Let's organize the time information under a `Time` *spanner label*, and put the other columns under
