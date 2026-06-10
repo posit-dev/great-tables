@@ -78,6 +78,8 @@ gt = (
 )
 ```
 
+Each color in the output maps to a specific table region, making it easy to identify the scope of every location specifier available in **Great Tables**.
+
 ## Body
 
 The table body is styled using `loc.body()`, which targets all data cells at once.
@@ -85,6 +87,8 @@ The table body is styled using `loc.body()`, which targets all data cells at onc
 ```{python}
 gt.tab_style(style.fill("yellow"), loc.body())
 ```
+
+The yellow fill is applied to every data cell in the table body, leaving headers, stubs, and footers unchanged.
 
 ## Column labels
 
@@ -98,10 +102,9 @@ labels and spanner labels separately for more precise control.
     .tab_style(style.fill("blue"), loc.column_labels(columns="num"))
     .tab_style(style.fill("red"), loc.spanner_labels(ids=["spanner"]))
 )
-
 ```
 
-
+Here, `loc.column_header()` applies a yellow background to the entire column labels row, then individual labels and spanners are overridden with more specific colors. This layered approach lets you set a base style and refine as needed.
 
 ## Header
 
@@ -115,6 +118,8 @@ with `loc.header()`, or target the title and subtitle individually.
     .tab_style(style.fill("red"), loc.subtitle())
 )
 ```
+
+The yellow covers the full header area, while the blue and red target the title and subtitle independently. When styles overlap, the more specific location wins.
 
 ## Footer
 
@@ -133,6 +138,8 @@ individual source note level with `loc.source_notes()`.
 )
 ```
 
+The source notes receive a yellow fill, while the entire footer region gets a heavy border. Both `loc.footer()` and `loc.source_notes()` target the same visual area but at different levels of granularity.
+
 ## Stub
 
 The stub region includes row labels and row group labels. You can style these elements together or
@@ -149,6 +156,8 @@ individually, and even target specific rows within the stub.
 )
 ```
 
+The stub fills yellow, row group labels turn blue, and a dashed red border highlights a specific row in the stub. Using `rows=` within `loc.stub()` lets you target individual row labels.
+
 ## Stubhead
 
 The stubhead label sits above the stub column and can be styled with `loc.stubhead()`.
@@ -156,6 +165,8 @@ The stubhead label sits above the stub column and can be styled with `loc.stubhe
 ```{python}
 gt.tab_style(style.fill("yellow"), loc.stubhead())
 ```
+
+The stubhead label cell receives the yellow background. This is useful for visually linking the stubhead to the stub column below it.
 
 ## Grand Summary Rows
 
