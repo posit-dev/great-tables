@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Changelog – Great Tables | Great Tables</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./favicon.ico" rel="icon">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-68358a0269f5ab0774fb6089edf6df08.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'termshow.css'}));</script>
+<link rel="icon" type="image/x-icon" href="https://posit-dev.github.io/great-tables/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="https://posit-dev.github.io/great-tables/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://posit-dev.github.io/great-tables/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://posit-dev.github.io/great-tables/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://posit-dev.github.io/great-tables/apple-touch-icon.png">
+<script src="theme-init.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js"></script>
+<meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table&quot;]">
+
+
+  <meta name="description" content="This changelog is generated automatically from GitHub Releases.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Changelog – Great Tables | Great Tables">
+  <meta property="og:description" content="This changelog is generated automatically from GitHub Releases.">
+  <meta property="og:url" content="https://posit-dev.github.io/great-tables/changelog.html">
+  <meta property="og:site_name" content="Great Tables">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Changelog – Great Tables | Great Tables">
+  <meta name="twitter:description" content="This changelog is generated automatically from GitHub Releases.">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo" data-tippy-content="<code>v0.21.0</code><br>Released 2026-03-03">
+    <img src="./GT_logo.svg" alt="Great Tables" class="navbar-logo light-content">
+    <img src="./GT_logo.svg" alt="Great Tables" class="navbar-logo dark-content">
+    </a>
+  </div>
+            <div id="quarto-search" class=""></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./user-guide/introduction.html"> 
+<span class="menu-text">User Guide</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./examples/index.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./blog/index.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./changelog.html" aria-current="page"> 
+<span class="menu-text">Changelog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <span class="nav-link">
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2674" data-forks="125"></div>
+    </span>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#v0.21.0-add-cols_merge-cols_label_with-opt_css" id="toc-v0.21.0-add-cols_merge-cols_label_with-opt_css" class="nav-link active" data-scroll-target="#v0.21.0-add-cols_merge-cols_label_with-opt_css">v0.21.0: add <a href="reference/GT.cols_merge.html#great_tables.GT.cols_merge" class="gdls-link gdls-code">cols_merge()</a>, <a href="reference/GT.cols_label_with.html#great_tables.GT.cols_label_with" class="gdls-link gdls-code">cols_label_with()</a>, <a href="reference/GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a></a>
+  <ul class="collapse">
+  <li><a href="#deprecations" id="toc-deprecations" class="nav-link" data-scroll-target="#deprecations">Deprecations</a></li>
+  <li><a href="#features" id="toc-features" class="nav-link" data-scroll-target="#features">Features</a></li>
+  <li><a href="#fixes" id="toc-fixes" class="nav-link" data-scroll-target="#fixes">Fixes</a></li>
+  <li><a href="#docs" id="toc-docs" class="nav-link" data-scroll-target="#docs">Docs</a></li>
+  <li><a href="#chores" id="toc-chores" class="nav-link" data-scroll-target="#chores">Chores</a></li>
+  <li><a href="#new-contributors" id="toc-new-contributors" class="nav-link" data-scroll-target="#new-contributors">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.20.0" id="toc-v0.20.0" class="nav-link" data-scroll-target="#v0.20.0">v0.20.0</a>
+  <ul class="collapse">
+  <li><a href="#features-1" id="toc-features-1" class="nav-link" data-scroll-target="#features-1">Features</a></li>
+  </ul></li>
+  <li><a href="#v0.19.0" id="toc-v0.19.0" class="nav-link" data-scroll-target="#v0.19.0">v0.19.0</a>
+  <ul class="collapse">
+  <li><a href="#fixes-1" id="toc-fixes-1" class="nav-link" data-scroll-target="#fixes-1">Fixes</a></li>
+  <li><a href="#docs-1" id="toc-docs-1" class="nav-link" data-scroll-target="#docs-1">Docs</a></li>
+  <li><a href="#chores-1" id="toc-chores-1" class="nav-link" data-scroll-target="#chores-1">Chores</a></li>
+  <li><a href="#new-contributors-1" id="toc-new-contributors-1" class="nav-link" data-scroll-target="#new-contributors-1">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.18.0" id="toc-v0.18.0" class="nav-link" data-scroll-target="#v0.18.0">v0.18.0</a>
+  <ul class="collapse">
+  <li><a href="#whats-changed" id="toc-whats-changed" class="nav-link" data-scroll-target="#whats-changed">What’s Changed</a></li>
+  <li><a href="#features-2" id="toc-features-2" class="nav-link" data-scroll-target="#features-2">Features</a></li>
+  <li><a href="#fixes-2" id="toc-fixes-2" class="nav-link" data-scroll-target="#fixes-2">Fixes</a></li>
+  <li><a href="#docs-2" id="toc-docs-2" class="nav-link" data-scroll-target="#docs-2">Docs</a></li>
+  <li><a href="#chores-2" id="toc-chores-2" class="nav-link" data-scroll-target="#chores-2">Chores</a></li>
+  <li><a href="#new-contributors-2" id="toc-new-contributors-2" class="nav-link" data-scroll-target="#new-contributors-2">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.17.0-unique-html-ids-css-inline-package-optional" id="toc-v0.17.0-unique-html-ids-css-inline-package-optional" class="nav-link" data-scroll-target="#v0.17.0-unique-html-ids-css-inline-package-optional">v0.17.0: unique html IDs, <code>css-inline</code> package optional</a>
+  <ul class="collapse">
+  <li><a href="#breaking-changes" id="toc-breaking-changes" class="nav-link" data-scroll-target="#breaking-changes">Breaking changes</a></li>
+  <li><a href="#features-3" id="toc-features-3" class="nav-link" data-scroll-target="#features-3">Features</a></li>
+  <li><a href="#fixes-3" id="toc-fixes-3" class="nav-link" data-scroll-target="#fixes-3">Fixes</a></li>
+  <li><a href="#docs-3" id="toc-docs-3" class="nav-link" data-scroll-target="#docs-3">Docs</a></li>
+  <li><a href="#chores-3" id="toc-chores-3" class="nav-link" data-scroll-target="#chores-3">Chores</a></li>
+  <li><a href="#new-contributors-3" id="toc-new-contributors-3" class="nav-link" data-scroll-target="#new-contributors-3">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.16.1" id="toc-v0.16.1" class="nav-link" data-scroll-target="#v0.16.1">v0.16.1</a>
+  <ul class="collapse">
+  <li><a href="#fixes-4" id="toc-fixes-4" class="nav-link" data-scroll-target="#fixes-4">Fixes</a></li>
+  </ul></li>
+  <li><a href="#v0.16.0" id="toc-v0.16.0" class="nav-link" data-scroll-target="#v0.16.0">v0.16.0</a>
+  <ul class="collapse">
+  <li><a href="#features-4" id="toc-features-4" class="nav-link" data-scroll-target="#features-4">Features</a></li>
+  <li><a href="#fixes-5" id="toc-fixes-5" class="nav-link" data-scroll-target="#fixes-5">Fixes</a></li>
+  <li><a href="#docs-4" id="toc-docs-4" class="nav-link" data-scroll-target="#docs-4">Docs</a></li>
+  <li><a href="#new-contributors-4" id="toc-new-contributors-4" class="nav-link" data-scroll-target="#new-contributors-4">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.15.0-add-experimental-support-for-using-a-pyarrow.table-as-input" id="toc-v0.15.0-add-experimental-support-for-using-a-pyarrow.table-as-input" class="nav-link" data-scroll-target="#v0.15.0-add-experimental-support-for-using-a-pyarrow.table-as-input">v0.15.0: add Experimental support for using a <code>pyarrow.Table</code> as input</a>
+  <ul class="collapse">
+  <li><a href="#features-5" id="toc-features-5" class="nav-link" data-scroll-target="#features-5">Features</a></li>
+  <li><a href="#fixes-6" id="toc-fixes-6" class="nav-link" data-scroll-target="#fixes-6">Fixes</a></li>
+  <li><a href="#docs-5" id="toc-docs-5" class="nav-link" data-scroll-target="#docs-5">Docs</a></li>
+  <li><a href="#new-contributors-5" id="toc-new-contributors-5" class="nav-link" data-scroll-target="#new-contributors-5">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.14.0-add-experimental-support-for-latex-output" id="toc-v0.14.0-add-experimental-support-for-latex-output" class="nav-link" data-scroll-target="#v0.14.0-add-experimental-support-for-latex-output">v0.14.0: add experimental support for LaTeX output</a>
+  <ul class="collapse">
+  <li><a href="#features-6" id="toc-features-6" class="nav-link" data-scroll-target="#features-6">Features</a></li>
+  <li><a href="#docs-6" id="toc-docs-6" class="nav-link" data-scroll-target="#docs-6">Docs</a></li>
+  </ul></li>
+  <li><a href="#v0.13.0-add-more-location-specifiers-to-loc" id="toc-v0.13.0-add-more-location-specifiers-to-loc" class="nav-link" data-scroll-target="#v0.13.0-add-more-location-specifiers-to-loc">v0.13.0: add more location specifiers to <code>loc</code></a>
+  <ul class="collapse">
+  <li><a href="#features-7" id="toc-features-7" class="nav-link" data-scroll-target="#features-7">Features</a></li>
+  <li><a href="#fixes-7" id="toc-fixes-7" class="nav-link" data-scroll-target="#fixes-7">Fixes</a></li>
+  <li><a href="#docs-7" id="toc-docs-7" class="nav-link" data-scroll-target="#docs-7">Docs</a></li>
+  </ul></li>
+  <li><a href="#v0.12.0-opt_stylize-produces-striped-rows-and-borders" id="toc-v0.12.0-opt_stylize-produces-striped-rows-and-borders" class="nav-link" data-scroll-target="#v0.12.0-opt_stylize-produces-striped-rows-and-borders">v0.12.0: opt_stylize produces striped rows and borders</a>
+  <ul class="collapse">
+  <li><a href="#breaking-changes-1" id="toc-breaking-changes-1" class="nav-link" data-scroll-target="#breaking-changes-1">Breaking changes</a></li>
+  <li><a href="#features-8" id="toc-features-8" class="nav-link" data-scroll-target="#features-8">Features</a></li>
+  <li><a href="#fixes-8" id="toc-fixes-8" class="nav-link" data-scroll-target="#fixes-8">Fixes</a></li>
+  <li><a href="#docs-8" id="toc-docs-8" class="nav-link" data-scroll-target="#docs-8">Docs</a></li>
+  </ul></li>
+  <li><a href="#v0.11.1" id="toc-v0.11.1" class="nav-link" data-scroll-target="#v0.11.1">v0.11.1</a>
+  <ul class="collapse">
+  <li><a href="#fixes-9" id="toc-fixes-9" class="nav-link" data-scroll-target="#fixes-9">Fixes</a></li>
+  <li><a href="#chores-4" id="toc-chores-4" class="nav-link" data-scroll-target="#chores-4">Chores</a></li>
+  <li><a href="#docs-9" id="toc-docs-9" class="nav-link" data-scroll-target="#docs-9">Docs</a></li>
+  </ul></li>
+  <li><a href="#v0.11.0-include-column-labels-inthead-element" id="toc-v0.11.0-include-column-labels-inthead-element" class="nav-link" data-scroll-target="#v0.11.0-include-column-labels-inthead-element">v0.11.0: include column labels in<code>&lt;thead&gt;</code> element</a>
+  <ul class="collapse">
+  <li><a href="#breaking-changes-2" id="toc-breaking-changes-2" class="nav-link" data-scroll-target="#breaking-changes-2">Breaking Changes</a></li>
+  <li><a href="#fixes-10" id="toc-fixes-10" class="nav-link" data-scroll-target="#fixes-10">Fixes</a></li>
+  <li><a href="#docs-10" id="toc-docs-10" class="nav-link" data-scroll-target="#docs-10">Docs</a></li>
+  <li><a href="#new-contributors-6" id="toc-new-contributors-6" class="nav-link" data-scroll-target="#new-contributors-6">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.10.0" id="toc-v0.10.0" class="nav-link" data-scroll-target="#v0.10.0">v0.10.0</a>
+  <ul class="collapse">
+  <li><a href="#features-9" id="toc-features-9" class="nav-link" data-scroll-target="#features-9">Features</a></li>
+  <li><a href="#fixes-11" id="toc-fixes-11" class="nav-link" data-scroll-target="#fixes-11">Fixes</a></li>
+  <li><a href="#docs-11" id="toc-docs-11" class="nav-link" data-scroll-target="#docs-11">Docs</a></li>
+  <li><a href="#new-contributors-7" id="toc-new-contributors-7" class="nav-link" data-scroll-target="#new-contributors-7">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.9.0-breaking-change-add-rows-parameter-to-data_color" id="toc-v0.9.0-breaking-change-add-rows-parameter-to-data_color" class="nav-link" data-scroll-target="#v0.9.0-breaking-change-add-rows-parameter-to-data_color">v0.9.0: breaking change, add rows parameter to data_color()</a>
+  <ul class="collapse">
+  <li><a href="#features-10" id="toc-features-10" class="nav-link" data-scroll-target="#features-10">Features</a></li>
+  </ul></li>
+  <li><a href="#v0.8.0" id="toc-v0.8.0" class="nav-link" data-scroll-target="#v0.8.0">v0.8.0</a>
+  <ul class="collapse">
+  <li><a href="#features-11" id="toc-features-11" class="nav-link" data-scroll-target="#features-11">Features</a></li>
+  </ul></li>
+  <li><a href="#v0.7.0" id="toc-v0.7.0" class="nav-link" data-scroll-target="#v0.7.0">v0.7.0</a>
+  <ul class="collapse">
+  <li><a href="#whats-changed-1" id="toc-whats-changed-1" class="nav-link" data-scroll-target="#whats-changed-1">What’s Changed</a></li>
+  <li><a href="#features-12" id="toc-features-12" class="nav-link" data-scroll-target="#features-12">Features</a></li>
+  <li><a href="#fixes-12" id="toc-fixes-12" class="nav-link" data-scroll-target="#fixes-12">Fixes</a></li>
+  <li><a href="#docs-12" id="toc-docs-12" class="nav-link" data-scroll-target="#docs-12">Docs</a></li>
+  <li><a href="#chores-5" id="toc-chores-5" class="nav-link" data-scroll-target="#chores-5">Chores</a></li>
+  </ul></li>
+  <li><a href="#v0.6.1" id="toc-v0.6.1" class="nav-link" data-scroll-target="#v0.6.1">v0.6.1</a>
+  <ul class="collapse">
+  <li><a href="#fixes-13" id="toc-fixes-13" class="nav-link" data-scroll-target="#fixes-13">Fixes</a></li>
+  <li><a href="#chores-6" id="toc-chores-6" class="nav-link" data-scroll-target="#chores-6">Chores</a></li>
+  </ul></li>
+  <li><a href="#v0.6.0" id="toc-v0.6.0" class="nav-link" data-scroll-target="#v0.6.0">v0.6.0</a>
+  <ul class="collapse">
+  <li><a href="#features-13" id="toc-features-13" class="nav-link" data-scroll-target="#features-13">Features</a></li>
+  <li><a href="#fixes-14" id="toc-fixes-14" class="nav-link" data-scroll-target="#fixes-14">Fixes</a></li>
+  <li><a href="#docs-13" id="toc-docs-13" class="nav-link" data-scroll-target="#docs-13">Docs</a></li>
+  <li><a href="#new-contributors-8" id="toc-new-contributors-8" class="nav-link" data-scroll-target="#new-contributors-8">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">0.5.2</a>
+  <ul class="collapse">
+  <li><a href="#fixes-15" id="toc-fixes-15" class="nav-link" data-scroll-target="#fixes-15">Fixes</a></li>
+  <li><a href="#docs-14" id="toc-docs-14" class="nav-link" data-scroll-target="#docs-14">Docs</a></li>
+  <li><a href="#chores-7" id="toc-chores-7" class="nav-link" data-scroll-target="#chores-7">Chores</a></li>
+  <li><a href="#new-contributors-9" id="toc-new-contributors-9" class="nav-link" data-scroll-target="#new-contributors-9">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.5.1" id="toc-v0.5.1" class="nav-link" data-scroll-target="#v0.5.1">v0.5.1</a>
+  <ul class="collapse">
+  <li><a href="#fixes-16" id="toc-fixes-16" class="nav-link" data-scroll-target="#fixes-16">Fixes</a></li>
+  <li><a href="#docs-15" id="toc-docs-15" class="nav-link" data-scroll-target="#docs-15">Docs</a></li>
+  <li><a href="#chores-8" id="toc-chores-8" class="nav-link" data-scroll-target="#chores-8">Chores</a></li>
+  </ul></li>
+  <li><a href="#v0.5.0" id="toc-v0.5.0" class="nav-link" data-scroll-target="#v0.5.0">v0.5.0</a>
+  <ul class="collapse">
+  <li><a href="#whats-changed-2" id="toc-whats-changed-2" class="nav-link" data-scroll-target="#whats-changed-2">What’s Changed</a></li>
+  <li><a href="#new-contributors-10" id="toc-new-contributors-10" class="nav-link" data-scroll-target="#new-contributors-10">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.4.0" id="toc-v0.4.0" class="nav-link" data-scroll-target="#v0.4.0">v0.4.0</a>
+  <ul class="collapse">
+  <li><a href="#whats-changed-3" id="toc-whats-changed-3" class="nav-link" data-scroll-target="#whats-changed-3">What’s Changed</a></li>
+  </ul></li>
+  <li><a href="#v0.3.1" id="toc-v0.3.1" class="nav-link" data-scroll-target="#v0.3.1">v0.3.1</a>
+  <ul class="collapse">
+  <li><a href="#whats-changed-4" id="toc-whats-changed-4" class="nav-link" data-scroll-target="#whats-changed-4">What’s Changed</a></li>
+  </ul></li>
+  <li><a href="#v0.3.0" id="toc-v0.3.0" class="nav-link" data-scroll-target="#v0.3.0">v0.3.0</a>
+  <ul class="collapse">
+  <li><a href="#whats-changed-5" id="toc-whats-changed-5" class="nav-link" data-scroll-target="#whats-changed-5">What’s Changed</a></li>
+  <li><a href="#new-contributors-11" id="toc-new-contributors-11" class="nav-link" data-scroll-target="#new-contributors-11">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.2.0" id="toc-v0.2.0" class="nav-link" data-scroll-target="#v0.2.0">v0.2.0</a>
+  <ul class="collapse">
+  <li><a href="#whats-changed-6" id="toc-whats-changed-6" class="nav-link" data-scroll-target="#whats-changed-6">What’s Changed</a></li>
+  <li><a href="#new-contributors-12" id="toc-new-contributors-12" class="nav-link" data-scroll-target="#new-contributors-12">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.1.5" id="toc-v0.1.5" class="nav-link" data-scroll-target="#v0.1.5">v0.1.5</a>
+  <ul class="collapse">
+  <li><a href="#whats-changed-7" id="toc-whats-changed-7" class="nav-link" data-scroll-target="#whats-changed-7">What’s Changed</a></li>
+  </ul></li>
+  <li><a href="#v0.1.4" id="toc-v0.1.4" class="nav-link" data-scroll-target="#v0.1.4">v0.1.4</a>
+  <ul class="collapse">
+  <li><a href="#whats-changed-8" id="toc-whats-changed-8" class="nav-link" data-scroll-target="#whats-changed-8">What’s Changed</a></li>
+  </ul></li>
+  <li><a href="#v0.1.3" id="toc-v0.1.3" class="nav-link" data-scroll-target="#v0.1.3">v0.1.3</a>
+  <ul class="collapse">
+  <li><a href="#new-contributors-13" id="toc-new-contributors-13" class="nav-link" data-scroll-target="#new-contributors-13">New Contributors</a></li>
+  </ul></li>
+  <li><a href="#v0.1.2" id="toc-v0.1.2" class="nav-link" data-scroll-target="#v0.1.2">v0.1.2</a></li>
+  <li><a href="#v0.1.1" id="toc-v0.1.1" class="nav-link" data-scroll-target="#v0.1.1">v0.1.1</a></li>
+  <li><a href="#v0.1.0" id="toc-v0.1.0" class="nav-link" data-scroll-target="#v0.1.0">v0.1.0</a></li>
+  <li><a href="#v0.0.2" id="toc-v0.0.2" class="nav-link" data-scroll-target="#v0.0.2">v0.0.2</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Changelog</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This changelog is generated automatically from <a href="https://github.com/posit-dev/great-tables/releases">GitHub Releases</a>.</p>
+<section id="v0.21.0-add-cols_merge-cols_label_with-opt_css" class="level1 changelog-version">
+<h1 class="changelog-version">v0.21.0: add <a href="reference/GT.cols_merge.html#great_tables.GT.cols_merge" class="gdls-link gdls-code">cols_merge()</a>, <a href="reference/GT.cols_label_with.html#great_tables.GT.cols_label_with" class="gdls-link gdls-code">cols_label_with()</a>, <a href="reference/GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a></h1>
+<p><em>2026-03-03</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.21.0">GitHub</a></p>
+<section id="deprecations" class="level2">
+<h2 class="anchored" data-anchor-id="deprecations">Deprecations</h2>
+<ul>
+<li>The <a href="reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="gdls-link gdls-code">opt_all_caps()</a> method now uses <a href="reference/loc.column_labels.html#great_tables.loc.column_labels" class="gdls-link gdls-code">loc.column_labels</a>, <a href="reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub</a>, and <a href="reference/loc.row_groups.html#great_tables.loc.row_groups" class="gdls-link gdls-code">loc.row_groups</a> as arguments to <code>locations=</code>; using strings to represent the locations still works but triggers a deprecation warning (https://github.com/posit-dev/great-tables/pull/436)</li>
+</ul>
+</section>
+<section id="features" class="level2">
+<h2 class="anchored" data-anchor-id="features">Features</h2>
+<ul>
+<li>Added the <a href="reference/GT.cols_merge.html#great_tables.GT.cols_merge" class="gdls-link gdls-code">cols_merge()</a> method for combining cell contents across two or more columns by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/780</li>
+<li>Added the <a href="reference/GT.cols_label_with.html#great_tables.GT.cols_label_with" class="gdls-link gdls-code">cols_label_with()</a> method for function-based column relabeling by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/816</li>
+<li>Added the <a href="reference/GT.fmt_engineering.html#great_tables.GT.fmt_engineering" class="gdls-link gdls-code">fmt_engineering()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/786</li>
+<li>The new <a href="reference/GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> method lets you define arbitrary CSS rules for an HTML table by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/775</li>
+<li>Added the ability to define container padding in <a href="reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> by <a href="https://github.com/thriller08"><span class="citation" data-cites="thriller08">@thriller08</span></a> in https://github.com/posit-dev/great-tables/pull/802</li>
+</ul>
+</section>
+<section id="fixes" class="level2">
+<h2 class="anchored" data-anchor-id="fixes">Fixes</h2>
+<ul>
+<li>Refactored internal auto-align code for compatibility with Pandas 3.0.0 by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/810</li>
+<li>Added <code>int</code> to the <code>RowSelectExpr</code> definition by <a href="https://github.com/tylerriccio33"><span class="citation" data-cites="tylerriccio33">@tylerriccio33</span></a> in https://github.com/posit-dev/great-tables/pull/800</li>
+<li>Updated the Polars selector type annotation to use <code>Selector</code> by <a href="https://github.com/schmidma"><span class="citation" data-cites="schmidma">@schmidma</span></a> in https://github.com/posit-dev/great-tables/pull/770</li>
+<li>Annotated the <a href="reference/GT.pipe.html#great_tables.GT.pipe" class="gdls-link gdls-code">pipe</a> method’s first argument type as <a href="reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> by <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a> in https://github.com/posit-dev/great-tables/pull/757</li>
+<li>We now correctly handle the <code>interactive_data_values=</code> properly in Nanoplots by <a href="https://github.com/lorenzo-w"><span class="citation" data-cites="lorenzo-w">@lorenzo-w</span></a> in https://github.com/posit-dev/great-tables/pull/792</li>
+<li>Group labels are now modified when <code>render_formats()</code> is called by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/769</li>
+<li>The <a href="reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="gdls-link gdls-code">opt_all_caps()</a> method has been refactored by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/436</li>
+</ul>
+</section>
+<section id="docs" class="level2">
+<h2 class="anchored" data-anchor-id="docs">Docs</h2>
+<ul>
+<li>Docs for the <a href="reference/vals.fmt_engineering.html#great_tables.vals.fmt_engineering" class="gdls-link gdls-code">val_fmt_engineering()</a> were added to the project website docs by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/808</li>
+<li>Corrected the <code>fns=</code> parameter docs in the <a href="reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link gdls-code">fmt()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/818</li>
+<li>Improved the docs for the <a href="reference/from_column.html#great_tables.from_column" class="gdls-link gdls-code">from_column()</a> function by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/766</li>
+<li>Added a gt-extras example to the project website’s Examples page by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/759</li>
+<li>Added an example demonstrating usage of the <a href="reference/define_units.html#great_tables.define_units" class="gdls-link gdls-code">define_units()</a> function by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/446</li>
+</ul>
+</section>
+<section id="chores" class="level2">
+<h2 class="anchored" data-anchor-id="chores">Chores</h2>
+<ul>
+<li>Updated the copyright end year to 2026 by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/804</li>
+<li>Several typos were fixed by <a href="https://github.com/kianmeng"><span class="citation" data-cites="kianmeng">@kianmeng</span></a> in https://github.com/posit-dev/great-tables/pull/798</li>
+<li>Added Plausible analytics to the project website by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/806</li>
+<li>Added several tests for the <a href="reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="gdls-link gdls-code">opt_all_caps()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/812</li>
+<li>Fixed the checkout version tag by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/768</li>
+</ul>
+</section>
+<section id="new-contributors" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/kianmeng"><span class="citation" data-cites="kianmeng">@kianmeng</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/798</li>
+<li><a href="https://github.com/thriller08"><span class="citation" data-cites="thriller08">@thriller08</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/802</li>
+<li><a href="https://github.com/schmidma"><span class="citation" data-cites="schmidma">@schmidma</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/770</li>
+<li><a href="https://github.com/lorenzo-w"><span class="citation" data-cites="lorenzo-w">@lorenzo-w</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/792</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.20.0...v0.21.0">https://github.com/posit-dev/great-tables/compare/v0.20.0…v0.21.0</a></p>
+</section>
+</section>
+<section id="v0.20.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.20.0</h1>
+<p><em>2025-10-31</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.20.0">GitHub</a></p>
+<section id="features-1" class="level2">
+<h2 class="anchored" data-anchor-id="features-1">Features</h2>
+<ul>
+<li>Add <a href="reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows" class="gdls-link gdls-code">grand_summary_rows()</a> method by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/765</li>
+<li>Support polars expressions in vals functions by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/793</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.19.0...v0.20.0">https://github.com/posit-dev/great-tables/compare/v0.19.0…v0.20.0</a></p>
+</section>
+</section>
+<section id="v0.19.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.19.0</h1>
+<p><em>2025-10-07</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.19.0">GitHub</a></p>
+<section id="fixes-1" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-1">Fixes</h2>
+<ul>
+<li>Code using the NumPy library was replaced with standard Python to enable the removal of NumPy from the dependencies list, by <a href="https://github.com/tylerriccio33"><span class="citation" data-cites="tylerriccio33">@tylerriccio33</span></a> in https://github.com/posit-dev/great-tables/pull/749</li>
+<li>An error when setting <code>groupname_col=</code> without <code>rowname_col=</code> in the <a href="reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> constructor has been fixed by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/756</li>
+<li>Using <code>row_group_as_column = True</code> now structures row groups as a column in the stub (previously, this was a no-op), by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/754</li>
+<li>The <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> method now takes the alpha value for the cell background color into account when choosing the foreground text color (fixes the internal <code>_ideal_fgnd_color()</code> util function), by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/747</li>
+<li>When enabling row striping, there is now better color contrast between the text and the underlying cell background, by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/745</li>
+<li>We now internally access column names consistently through <code>get_column_names()</code> instead of <code>.columns</code>, by <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a> in https://github.com/posit-dev/great-tables/pull/736</li>
+<li>Column values with the <code>pyarrow</code> <code>float64</code> type are now right-aligned to match the default behavior when using Pandas and Polars DFs, by <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a> in https://github.com/posit-dev/great-tables/pull/734</li>
+<li>We now avoid the double use of <code>clear</code> internally with Polars DFs, by <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a> in https://github.com/posit-dev/great-tables/pull/729</li>
+</ul>
+</section>
+<section id="docs-1" class="level2">
+<h2 class="anchored" data-anchor-id="docs-1">Docs</h2>
+<ul>
+<li>Various typos were corrected by <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a> in https://github.com/posit-dev/great-tables/pull/730</li>
+<li>We now include a Posit badge in the header of the project website, by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/777</li>
+</ul>
+</section>
+<section id="chores-1" class="level2">
+<h2 class="anchored" data-anchor-id="chores-1">Chores</h2>
+<ul>
+<li>Refactoring was done to better adhere to best practices and to improve code performance, by <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a> in https://github.com/posit-dev/great-tables/pull/731</li>
+</ul>
+</section>
+<section id="new-contributors-1" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-1">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/731</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.18.0...v0.19.0">https://github.com/posit-dev/great-tables/compare/v0.18.0…v0.19.0</a></p>
+</section>
+</section>
+<section id="v0.18.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.18.0</h1>
+<p><em>2025-07-10</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.18.0">GitHub</a></p>
+<section id="whats-changed" class="level2">
+<h2 class="anchored" data-anchor-id="whats-changed">What’s Changed</h2>
+</section>
+<section id="features-2" class="level2">
+<h2 class="anchored" data-anchor-id="features-2">Features</h2>
+<ul>
+<li>The new <a href="reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">tab_spanner_delim()</a> method allows for quick creation of spanners through delimited column names, by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/647</li>
+<li>Added the <a href="reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate" class="gdls-link gdls-code">cols_label_rotate()</a> method for rotating column label text 90 degrees, by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/696</li>
+<li>We can now easily format boolean values with the new <a href="reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">fmt_tf()</a> formatting method, by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> (https://github.com/posit-dev/great-tables/pull/665, https://github.com/posit-dev/great-tables/pull/704)</li>
+<li>The <a href="reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime" class="gdls-link gdls-code">fmt_datetime()</a> method now lets you perform custom datetime formatting with the new <code>format_str=</code> parameter, by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/645</li>
+<li>GT tables can now be pickled, by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/641</li>
+<li>The <a href="reference/GT.fmt_currency.html#great_tables.GT.fmt_currency" class="gdls-link gdls-code">fmt_currency()</a> method gained a <code>compact=</code> parameter for display of compact currency values (e.g., <code>$13.4M</code>), by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/664</li>
+<li>Added the <code>truncate=</code> option to <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> by <a href="https://github.com/mahdibaghbanzadeh"><span class="citation" data-cites="mahdibaghbanzadeh">@mahdibaghbanzadeh</span></a> in https://github.com/posit-dev/great-tables/pull/673</li>
+<li>The Pandas dependency in <a href="reference/vals.fmt_integer.html#great_tables.vals.fmt_integer" class="gdls-link gdls-code">vals.fmt_integer()</a> was removed by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/719</li>
+</ul>
+</section>
+<section id="fixes-2" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-2">Fixes</h2>
+<ul>
+<li>Remove unused <code>sep_mark=</code> parameter from the <a href="reference/GT.fmt_scientific.html#great_tables.GT.fmt_scientific" class="gdls-link gdls-code">fmt_scientific()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/642</li>
+<li>Fixed an off-by-one bug in the <code>rescale_factor()</code> utility function (which had an adverse effect on <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>), by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/718</li>
+<li>When using Google Fonts in an HTML table there will no longer be any duplicated font import statements, by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/708</li>
+<li>An issue with row striping (due to incorrect indexing) was resolved by <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> in https://github.com/posit-dev/great-tables/pull/701</li>
+<li>Spanners can now be correctly styled with <a href="reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a>, by <a href="https://github.com/ChristopherRussell"><span class="citation" data-cites="ChristopherRussell">@ChristopherRussell</span></a> in https://github.com/posit-dev/great-tables/pull/695</li>
+</ul>
+</section>
+<section id="docs-2" class="level2">
+<h2 class="anchored" data-anchor-id="docs-2">Docs</h2>
+<ul>
+<li>Added note about using <code>.show("browser")</code> when in VS Code by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/643</li>
+<li>A warning message from <a href="reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link gdls-code">cols_width()</a> that appeared in the docs is now suppressed, by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/659</li>
+<li>Updated docstrings for date/time formatting methods, by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/658</li>
+<li>We now use improved the interlinking functionality available in quartodoc, by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/697</li>
+<li>In the documentation site, added an underline to active link in top navigation bar by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/706</li>
+<li>Improved the documentation for the <a href="reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/707</li>
+<li>We now better introduce the use of <a href="reference/GT.show.html#great_tables.GT.show" class="gdls-link gdls-code">show()</a> method in the docs through a callout, by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/712</li>
+</ul>
+</section>
+<section id="chores-2" class="level2">
+<h2 class="anchored" data-anchor-id="chores-2">Chores</h2>
+<ul>
+<li>Added a <code>no pandas</code> dependency test of functions in the <code>vals</code> module by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/689</li>
+</ul>
+</section>
+<section id="new-contributors-2" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-2">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/dpprdan"><span class="citation" data-cites="dpprdan">@dpprdan</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/670</li>
+<li><a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/696</li>
+<li><a href="https://github.com/ChristopherRussell"><span class="citation" data-cites="ChristopherRussell">@ChristopherRussell</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/695</li>
+<li><a href="https://github.com/mahdibaghbanzadeh"><span class="citation" data-cites="mahdibaghbanzadeh">@mahdibaghbanzadeh</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/673</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.17.0...v0.18.0">https://github.com/posit-dev/great-tables/compare/v0.17.0…v0.18.0</a></p>
+</section>
+</section>
+<section id="v0.17.0-unique-html-ids-css-inline-package-optional" class="level1 changelog-version">
+<h1 class="changelog-version">v0.17.0: unique html IDs, <code>css-inline</code> package optional</h1>
+<p><em>2025-03-11</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.17.0">GitHub</a></p>
+<section id="breaking-changes" class="level2">
+<h2 class="anchored" data-anchor-id="breaking-changes">Breaking changes</h2>
+<ul>
+<li>Ensure HTML ID attributes are unique by <a href="https://github.com/BenGale93"><span class="citation" data-cites="BenGale93">@BenGale93</span></a> in https://github.com/posit-dev/great-tables/pull/607</li>
+<li>Move <code>css-inline</code> pkg to extra group by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/634</li>
+</ul>
+</section>
+<section id="features-3" class="level2">
+<h2 class="anchored" data-anchor-id="features-3">Features</h2>
+<ul>
+<li>Quarto option to disable table processing, warn on render by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/611</li>
+<li>Add <a href="reference/GT.cols_unhide.html#great_tables.GT.cols_unhide" class="gdls-link gdls-code">cols_unhide()</a> method by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/629</li>
+<li>Add <code>inline_css=</code> argument by <a href="https://github.com/tylerriccio33"><span class="citation" data-cites="tylerriccio33">@tylerriccio33</span></a> in https://github.com/posit-dev/great-tables/pull/633</li>
+</ul>
+</section>
+<section id="fixes-3" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-3">Fixes</h2>
+<ul>
+<li>Ensure HTML ID attributes are unique by <a href="https://github.com/BenGale93"><span class="citation" data-cites="BenGale93">@BenGale93</span></a> in https://github.com/posit-dev/great-tables/pull/607</li>
+<li>Move <code>css-inline</code> pkg to extra group by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/634</li>
+<li>Do not always save screenshot as png by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/599</li>
+<li>Resolve encoding issue in <code>GT.save()</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/609</li>
+<li>Correctly pass non-ints to nanoplot options by <a href="https://github.com/tylerriccio33"><span class="citation" data-cites="tylerriccio33">@tylerriccio33</span></a> in https://github.com/posit-dev/great-tables/pull/608</li>
+<li>Scientific notation zero padding when <code>exp_style=</code> used by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/622
+<ul>
+<li>e.g.&nbsp;numbers like <code>"2.3E-03"</code> were incorrectly displayed as <code>"2.3E−30"</code>.</li>
+</ul></li>
+<li>Update conditional statement in nanoplot code to guard against string values (single string or list containing any strings) by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/623</li>
+</ul>
+</section>
+<section id="docs-3" class="level2">
+<h2 class="anchored" data-anchor-id="docs-3">Docs</h2>
+<ul>
+<li>Update the related docs about <code>mask=</code> parameter in <a href="reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/589</li>
+<li>Update the preview of <code>year</code> col in <a href="reference/data.gtcars.html#great_tables.data.gtcars" class="gdls-link gdls-code">gtcars</a> dataset by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/587</li>
+<li>Add examples to the documentation by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/618</li>
+<li>Add <a href="reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css</a> entry to API reference docs by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/624</li>
+<li>Align getting started guide with readme by <a href="https://github.com/zachvalenta"><span class="citation" data-cites="zachvalenta">@zachvalenta</span></a> in https://github.com/posit-dev/great-tables/pull/627</li>
+</ul>
+</section>
+<section id="chores-3" class="level2">
+<h2 class="anchored" data-anchor-id="chores-3">Chores</h2>
+<ul>
+<li>Use deploy-pypi environment by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/590
+<ul>
+<li>Added a environment deployment protection rule. We now have to review the release workflow.</li>
+</ul></li>
+</ul>
+</section>
+<section id="new-contributors-3" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-3">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/tylerriccio33"><span class="citation" data-cites="tylerriccio33">@tylerriccio33</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/608</li>
+<li><a href="https://github.com/BenGale93"><span class="citation" data-cites="BenGale93">@BenGale93</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/607</li>
+<li><a href="https://github.com/zachvalenta"><span class="citation" data-cites="zachvalenta">@zachvalenta</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/627</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.16.1...v0.17.0">https://github.com/posit-dev/great-tables/compare/v0.16.1…v0.17.0</a></p>
+</section>
+</section>
+<section id="v0.16.1" class="level1 changelog-version">
+<h1 class="changelog-version">v0.16.1</h1>
+<p><em>2025-01-24</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.16.1">GitHub</a></p>
+<section id="fixes-4" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-4">Fixes</h2>
+<ul>
+<li>Update dtype of <code>year</code> col in <a href="reference/data.gtcars.html#great_tables.data.gtcars" class="gdls-link gdls-code">gtcars</a> dataset by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/586</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.16.0...v0.16.1">https://github.com/posit-dev/great-tables/compare/v0.16.0…v0.16.1</a></p>
+</section>
+</section>
+<section id="v0.16.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.16.0</h1>
+<p><em>2025-01-24</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.16.0">GitHub</a></p>
+<section id="features-4" class="level2">
+<h2 class="anchored" data-anchor-id="features-4">Features</h2>
+<ul>
+<li>Add the <code>mask=</code> argument to <a href="reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">LocBody</a> to enable enhanced body cell targeting by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/566</li>
+<li>Include <a href="reference/GT.write_raw_html.html#great_tables.GT.write_raw_html" class="gdls-link gdls-code">write_raw_html()</a> as a helper function for easier HTML output by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/485</li>
+</ul>
+</section>
+<section id="fixes-5" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-5">Fixes</h2>
+<ul>
+<li>Fix the deprecation warning in <a href="reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a> for Python 3.13 by <a href="https://github.com/stinodego"><span class="citation" data-cites="stinodego">@stinodego</span></a> in https://github.com/posit-dev/great-tables/pull/563</li>
+<li>Support the <code>pl.UInt</code> type in nanoplots by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/577</li>
+</ul>
+</section>
+<section id="docs-4" class="level2">
+<h2 class="anchored" data-anchor-id="docs-4">Docs</h2>
+<ul>
+<li>Add pyOpenSci and DOI badges to <code>README.md</code> to acknowledge the successful peer-review of the package by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/576</li>
+<li>Update images and text around included datasets in the package by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/562</li>
+<li>Replace JSON dataset with .ndjson file in coffee sales examples to sidestep a serialization error by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/580</li>
+</ul>
+</section>
+<section id="new-contributors-4" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-4">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/stinodego"><span class="citation" data-cites="stinodego">@stinodego</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/563</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.15.0...v0.16.0">https://github.com/posit-dev/great-tables/compare/v0.15.0…v0.16.0</a></p>
+</section>
+</section>
+<section id="v0.15.0-add-experimental-support-for-using-a-pyarrow.table-as-input" class="level1 changelog-version">
+<h1 class="changelog-version">v0.15.0: add Experimental support for using a <code>pyarrow.Table</code> as input</h1>
+<p><em>2024-12-14</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.15.0">GitHub</a></p>
+<section id="features-5" class="level2">
+<h2 class="anchored" data-anchor-id="features-5">Features</h2>
+<ul>
+<li>There is now experimental support for using a <code>pyarrow.Table</code> as input by <a href="https://github.com/amol"><span class="citation" data-cites="amol">@amol</span></a>- in https://github.com/posit-dev/great-tables/pull/487</li>
+<li>The <a href="reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a> method has been added so that you can display flag icons based on country codes by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/523</li>
+<li>With the new <a href="reference/GT.fmt_icon.html#great_tables.GT.fmt_icon" class="gdls-link gdls-code">fmt_icon()</a> method, it’s possible to have FontAwesome icons within table cells by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/515</li>
+<li>The <a href="reference/GT.fmt_number.html#great_tables.GT.fmt_number" class="gdls-link gdls-code">fmt_number()</a>, <a href="reference/GT.fmt_percent.html#great_tables.GT.fmt_percent" class="gdls-link gdls-code">fmt_percent()</a>, <a href="reference/GT.fmt_integer.html#great_tables.GT.fmt_integer" class="gdls-link gdls-code">fmt_integer()</a> and <a href="reference/GT.fmt_currency.html#great_tables.GT.fmt_currency" class="gdls-link gdls-code">fmt_currency()</a> methods can now format values in accounting notation by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/513</li>
+<li>Tables can be written as CSS-inlined HTML strings via <a href="reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a> with the new <code>inline_css=</code> argument by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/557</li>
+<li>The <code>save()</code> method has been greatly enhanced and includes the ability to perform intermediate saves (since the method returns itself) by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/499</li>
+<li>Enhance the <a href="reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">fmt_image()</a> method to support <code>http</code>/<code>https</code> schema in the <code>columns=</code> parameter by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/520</li>
+<li>The <a href="reference/GT.pipe.html#great_tables.GT.pipe" class="gdls-link gdls-code">pipe()</a> method has been added and it operates similarly to that of the Pandas and Polars APIs, by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/363</li>
+</ul>
+</section>
+<section id="fixes-6" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-6">Fixes</h2>
+<ul>
+<li>Improve detection of Polars installation by <a href="https://github.com/lukemanley"><span class="citation" data-cites="lukemanley">@lukemanley</span></a> in https://github.com/posit-dev/great-tables/pull/505</li>
+<li>Add CI build for testing Python 3.13 by <a href="https://github.com/glemaitre"><span class="citation" data-cites="glemaitre">@glemaitre</span></a> in https://github.com/posit-dev/great-tables/pull/514</li>
+<li>Having hidden columns along with column width definitions no longer mangles HTML table output by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/509</li>
+<li>Some <code>mypy</code> errors were fixed and the project was switched to ruff linting and formatting by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/511</li>
+<li>The CI README badge now properly reports build status by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/553</li>
+<li>Fix missing exception raise in <code>_val_is_numeric()</code> and <code>_val_is_str()</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/510</li>
+<li>Standardize imports by converting absolute imports to relative imports by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/521</li>
+<li>Exclude <code>if TYPE_CHECKING:</code> lines from coverage reports by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/556</li>
+</ul>
+</section>
+<section id="docs-5" class="level2">
+<h2 class="anchored" data-anchor-id="docs-5">Docs</h2>
+<ul>
+<li>Include the <a href="reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">vals.fmt_image()</a> function in the API reference by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/486</li>
+<li>Make spelling fixes in the contributing guide by <a href="https://github.com/glemaitre"><span class="citation" data-cites="glemaitre">@glemaitre</span></a> in https://github.com/posit-dev/great-tables/pull/516</li>
+<li>Add information about Pandas requirement when using internal datasets by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> (https://github.com/posit-dev/great-tables/pull/549, https://github.com/posit-dev/great-tables/pull/559)</li>
+<li>Add a <code>CITATION.cff</code> file and provide citation information in README by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/551</li>
+<li>Update README with conda install instructions and some clarity on which environments Great Tables can be used in, by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/552</li>
+<li>Improve presentation of Contributing Guidelines by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/550</li>
+</ul>
+</section>
+<section id="new-contributors-5" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-5">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/lukemanley"><span class="citation" data-cites="lukemanley">@lukemanley</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/505</li>
+<li><a href="https://github.com/glemaitre"><span class="citation" data-cites="glemaitre">@glemaitre</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/514</li>
+<li><a href="https://github.com/amol"><span class="citation" data-cites="amol">@amol</span></a>- made their first contribution in https://github.com/posit-dev/great-tables/pull/487</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.14.0...v0.15.0">https://github.com/posit-dev/great-tables/compare/v0.14.0…v0.15.0</a></p>
+</section>
+</section>
+<section id="v0.14.0-add-experimental-support-for-latex-output" class="level1 changelog-version">
+<h1 class="changelog-version">v0.14.0: add experimental support for LaTeX output</h1>
+<p><em>2024-11-11</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.14.0">GitHub</a></p>
+<section id="features-6" class="level2">
+<h2 class="anchored" data-anchor-id="features-6">Features</h2>
+<ul>
+<li>Experimental support for LaTeX-table rendering with new <code>.as_latex()</code> method (see important information on current limitations in API reference at https://posit-dev.github.io/great-tables/reference/GT.as_latex.html) by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/481</li>
+</ul>
+</section>
+<section id="docs-6" class="level2">
+<h2 class="anchored" data-anchor-id="docs-6">Docs</h2>
+<ul>
+<li>The Reference API docs now have an improved presentation when viewed on lower-width devices by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> (https://github.com/posit-dev/great-tables/pull/427, https://github.com/posit-dev/great-tables/pull/492)</li>
+<li>Preview sections have been added for the built-in datasets by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/453</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.13.0...v0.14.0">https://github.com/posit-dev/great-tables/compare/v0.13.0…v0.14.0</a></p>
+</section>
+</section>
+<section id="v0.13.0-add-more-location-specifiers-to-loc" class="level1 changelog-version">
+<h1 class="changelog-version">v0.13.0: add more location specifiers to <code>loc</code></h1>
+<p><em>2024-10-04</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.13.0">GitHub</a></p>
+<section id="features-7" class="level2">
+<h2 class="anchored" data-anchor-id="features-7">Features</h2>
+<ul>
+<li>Include <a href="reference/google_font.html#great_tables.google_font" class="gdls-link gdls-code">google_font()</a> helper fn in API reference by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> and <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in (<a href="https://github.com/posit-dev/great-tables/issues/464">#464</a>, <a href="https://github.com/posit-dev/great-tables/issues/471">#471</a>)</li>
+<li>Allow for granular section restyling via convenience api by <a href="https://github.com/timkpaine"><span class="citation" data-cites="timkpaine">@timkpaine</span></a> in https://github.com/posit-dev/great-tables/pull/341</li>
+<li>Add <a href="reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">val_fmt_image()</a> to enable image rendering in various components by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/451</li>
+<li>Allow passing a webdriver instance to save by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/478</li>
+</ul>
+</section>
+<section id="fixes-7" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-7">Fixes</h2>
+<ul>
+<li>Resolve global <code>locale</code> not being respected in <code>GT.fmt_*()</code> functions by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/473</li>
+</ul>
+</section>
+<section id="docs-7" class="level2">
+<h2 class="anchored" data-anchor-id="docs-7">Docs</h2>
+<ul>
+<li>Do not document GT members inline on its reference page by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/475</li>
+<li>Fix deprecated warning for <code>pl.DataFrame.pivot()</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/472</li>
+<li>Update docs and code to support <code>GoogleFont</code> in <a href="reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="gdls-link gdls-code">opt_table_font()</a> and add tests by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/470</li>
+<li>Fix in headers causing their css classes get printed out by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/477</li>
+<li>Add docstrings for new location methods by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/474</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.12.0...v0.13.0">https://github.com/posit-dev/great-tables/compare/v0.12.0…v0.13.0</a></p>
+</section>
+</section>
+<section id="v0.12.0-opt_stylize-produces-striped-rows-and-borders" class="level1 changelog-version">
+<h1 class="changelog-version">v0.12.0: opt_stylize produces striped rows and borders</h1>
+<p><em>2024-09-27</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.12.0">GitHub</a></p>
+<section id="breaking-changes-1" class="level2">
+<h2 class="anchored" data-anchor-id="breaking-changes-1">Breaking changes</h2>
+<ul>
+<li><a href="reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> now produces stripes by default. Set <code>add_row_striping=False</code> to remove. (<a href="https://github.com/posit-dev/great-tables/issues/461">#461</a>)</li>
+<li><a href="reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> now adds borders to certain styles (which was the original intention; <a href="https://github.com/posit-dev/great-tables/issues/463">#463</a>)</li>
+</ul>
+</section>
+<section id="features-8" class="level2">
+<h2 class="anchored" data-anchor-id="features-8">Features</h2>
+<ul>
+<li>add <a href="reference/google_font.html#great_tables.google_font" class="gdls-link gdls-code">google_font()</a> helper, implement in <a href="reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="gdls-link gdls-code">opt_table_font()</a> and <a href="reference/style.text.html#great_tables.style.text" class="gdls-link gdls-code">style.text()</a> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/423</li>
+<li>implement row striping options by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> (<a href="https://github.com/posit-dev/great-tables/issues/461">#461</a>, <a href="https://github.com/posit-dev/great-tables/issues/463">#463</a>)</li>
+</ul>
+</section>
+<section id="fixes-8" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-8">Fixes</h2>
+<ul>
+<li>use full html page in <a href="reference/GT.show.html#great_tables.GT.show" class="gdls-link gdls-code">show()</a> for correct utf-8 display by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/458</li>
+</ul>
+</section>
+<section id="docs-8" class="level2">
+<h2 class="anchored" data-anchor-id="docs-8">Docs</h2>
+<ul>
+<li>update <code>superbowl</code> example to align with the new version of <code>Polars</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> (<a href="https://github.com/posit-dev/great-tables/issues/460">#460</a>, <a href="https://github.com/posit-dev/great-tables/issues/462">#462</a>)</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.11.1...v0.12.0">https://github.com/posit-dev/great-tables/compare/v0.11.1…v0.12.0</a></p>
+</section>
+</section>
+<section id="v0.11.1" class="level1 changelog-version">
+<h1 class="changelog-version">v0.11.1</h1>
+<p><em>2024-09-20</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.11.1">GitHub</a></p>
+<section id="fixes-9" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-9">Fixes</h2>
+<ul>
+<li>Do not error when URL string supplied to <code>path=</code> argument in <a href="reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">fmt_image()</a> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/444</li>
+<li>Include an <code>encoding=</code> arg in <code>GT.save()</code> (with default <code>"utf-8"</code>) for more dependable saving in Windows by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/454</li>
+<li>Unify the method signatures of <a href="reference/GT.cols_label.html#great_tables.GT.cols_label" class="gdls-link gdls-code">cols_label()</a> and <a href="reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link gdls-code">cols_width()</a> by having them both accept <code>cases=</code> and <code>**kwargs</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/452</li>
+</ul>
+</section>
+<section id="chores-4" class="level2">
+<h2 class="anchored" data-anchor-id="chores-4">Chores</h2>
+<ul>
+<li>Standardize on the <code>GTSelf</code> object in method signatures by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/431</li>
+<li>Consistently use <code>isinstance()</code> checks throughout the codebase instead of checking with <code>hasattr()</code> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/434</li>
+<li>Improve test coverage for various <code>opt_*</code> methods by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/437</li>
+<li>Consolidate ordered list code using the new <code>_create_ordered_list()</code> function by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/407</li>
+<li>Internally use <code>OrderedSet().as_list()</code> instead of <code>list(OrderedSet())</code> for sake of clarity by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/447</li>
+<li>Refactor import statements throughout the <code>_formats.py</code> file by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/450</li>
+</ul>
+</section>
+<section id="docs-9" class="level2">
+<h2 class="anchored" data-anchor-id="docs-9">Docs</h2>
+<ul>
+<li>Update import statement in the <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">GT.data_color()</a> example by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/432</li>
+<li>Indicate that <a href="reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">tab_spanner()</a> allows for use of units notation in its <code>label=</code> argument by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/426</li>
+<li>Visually document options for theming table with <a href="reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/438</li>
+<li>Provide updates to PyCon- and SciPy-related blog posts by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/445</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.11.0...v0.11.1">https://github.com/posit-dev/great-tables/compare/v0.11.0…v0.11.1</a></p>
+</section>
+</section>
+<section id="v0.11.0-include-column-labels-inthead-element" class="level1 changelog-version">
+<h1 class="changelog-version">v0.11.0: include column labels in<code>&lt;thead&gt;</code> element</h1>
+<p><em>2024-08-30</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.11.0">GitHub</a></p>
+<p>This release contains a breaking change in how HTML output tables are structured (through tag changes). There is also an important fix for saving tables via the <code>.save()</code> method using the Google Chrome webdriver.</p>
+<section id="breaking-changes-2" class="level2">
+<h2 class="anchored" data-anchor-id="breaking-changes-2">Breaking Changes</h2>
+<ul>
+<li>We now ensure that the <code>&lt;thead&gt;</code> element encloses both title/subtitle and column labels by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/421</li>
+</ul>
+</section>
+<section id="fixes-10" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-10">Fixes</h2>
+<ul>
+<li>We now ensure that the <code>&lt;thead&gt;</code> element encloses both title/subtitle and column labels by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/421</li>
+<li>The <code>.save</code> method works with latest version of Google Chrome by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/425</li>
+</ul>
+</section>
+<section id="docs-10" class="level2">
+<h2 class="anchored" data-anchor-id="docs-10">Docs</h2>
+<ul>
+<li>Mention support for <code>Polars</code> in the <code>get-started</code> section by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/408</li>
+<li>Made tiny typo fixes and improved a code example in the “Design Philosophy” doc by <a href="https://github.com/alfredocarella"><span class="citation" data-cites="alfredocarella">@alfredocarella</span></a> in https://github.com/posit-dev/great-tables/pull/401</li>
+<li>Fix typo in blog post by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/396</li>
+<li>Update documentation for datasets by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/397</li>
+<li>Update polars examples for deprecated arg by <a href="https://github.com/atseewal"><span class="citation" data-cites="atseewal">@atseewal</span></a> in https://github.com/posit-dev/great-tables/pull/400</li>
+<li>Remove mentions of <code>accounting</code> in <code>force_sign=</code> argument by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/422</li>
+</ul>
+</section>
+<section id="new-contributors-6" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-6">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/alfredocarella"><span class="citation" data-cites="alfredocarella">@alfredocarella</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/401</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.10.0...v0.11.0">https://github.com/posit-dev/great-tables/compare/v0.10.0…v0.11.0</a></p>
+</section>
+</section>
+<section id="v0.10.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.10.0</h1>
+<p><em>2024-07-08</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.10.0">GitHub</a></p>
+<section id="features-9" class="level2">
+<h2 class="anchored" data-anchor-id="features-9">Features</h2>
+<ul>
+<li>Add ability to express units in <code>.cols_label()</code> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/380</li>
+<li>Allow spanners to use units notation in <code>.tab_spanner()</code> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/393</li>
+<li>The <code>.opt_table_font()</code> method has been added to make it easy to set a default table font; by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/272</li>
+<li>Add the <code>.show()</code> method by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/379</li>
+<li>Several new datasets were added (bringing total number up to 16) by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/382</li>
+</ul>
+</section>
+<section id="fixes-11" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-11">Fixes</h2>
+<ul>
+<li>fix <code>.fmt_percent()</code> issue with polars-u64-idx by <a href="https://github.com/lostmygithubaccount"><span class="citation" data-cites="lostmygithubaccount">@lostmygithubaccount</span></a> in https://github.com/posit-dev/great-tables/pull/388</li>
+<li>Add render target for HTML pages by <a href="https://github.com/isabelizimm"><span class="citation" data-cites="isabelizimm">@isabelizimm</span></a> in https://github.com/posit-dev/great-tables/pull/377</li>
+<li><code>.show()</code> no longer raises or prints to stderr by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/384</li>
+</ul>
+</section>
+<section id="docs-11" class="level2">
+<h2 class="anchored" data-anchor-id="docs-11">Docs</h2>
+<ul>
+<li>Add absolute URLs to README to improve PyPI summary by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/373</li>
+</ul>
+</section>
+<section id="new-contributors-7" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-7">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/isabelizimm"><span class="citation" data-cites="isabelizimm">@isabelizimm</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/377</li>
+<li><a href="https://github.com/lostmygithubaccount"><span class="citation" data-cites="lostmygithubaccount">@lostmygithubaccount</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/388</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.9.0...v0.10.0">https://github.com/posit-dev/great-tables/compare/v0.9.0…v0.10.0</a></p>
+</section>
+</section>
+<section id="v0.9.0-breaking-change-add-rows-parameter-to-data_color" class="level1 changelog-version">
+<h1 class="changelog-version">v0.9.0: breaking change, add rows parameter to data_color()</h1>
+<p><em>2024-06-06</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.9.0">GitHub</a></p>
+<section id="features-10" class="level2">
+<h2 class="anchored" data-anchor-id="features-10">Features</h2>
+<ul>
+<li><strong>feat!</strong>: support specifying a subset of rows in <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">GT.data_color()</a> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/364
+<ul>
+<li>Note that <code>rows=</code> is now the third argument, which may break earlier code.</li>
+</ul></li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.8.0...v0.9.0">https://github.com/posit-dev/great-tables/compare/v0.8.0…v0.9.0</a></p>
+</section>
+</section>
+<section id="v0.8.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.8.0</h1>
+<p><em>2024-06-06</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.8.0">GitHub</a></p>
+<section id="features-11" class="level2">
+<h2 class="anchored" data-anchor-id="features-11">Features</h2>
+<ul>
+<li>add method equivalents of constructor options by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/371
+<ul>
+<li><code>GT.tab_stub(rowname_col=, groupname_col=)</code></li>
+<li><code>GT.with_local()</code></li>
+<li><a href="reference/GT.with_id.html#great_tables.GT.with_id" class="gdls-link gdls-code">GT.with_id()</a></li>
+</ul></li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.7.0...v0.8.0">https://github.com/posit-dev/great-tables/compare/v0.7.0…v0.8.0</a></p>
+</section>
+</section>
+<section id="v0.7.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.7.0</h1>
+<p><em>2024-06-04</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.7.0">GitHub</a></p>
+<section id="whats-changed-1" class="level2">
+<h2 class="anchored" data-anchor-id="whats-changed-1">What’s Changed</h2>
+</section>
+<section id="features-12" class="level2">
+<h2 class="anchored" data-anchor-id="features-12">Features</h2>
+<ul>
+<li>Add the <code>.fmt_units()</code> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/240</li>
+<li>Support Polars’ non-strict <code>expand_selector()</code> by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/368</li>
+</ul>
+</section>
+<section id="fixes-12" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-12">Fixes</h2>
+<ul>
+<li>General enhancements to several <code>.cols_*()</code> methods by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/366</li>
+<li>Generate better error message for list data used in <code>.fmt_nanoplot()</code> by <a href="https://github.com/marcozzxx810"><span class="citation" data-cites="marcozzxx810">@marcozzxx810</span></a> in https://github.com/posit-dev/great-tables/pull/356</li>
+</ul>
+</section>
+<section id="docs-12" class="level2">
+<h2 class="anchored" data-anchor-id="docs-12">Docs</h2>
+<ul>
+<li>Add RSS feed to blog by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/367</li>
+</ul>
+</section>
+<section id="chores-5" class="level2">
+<h2 class="anchored" data-anchor-id="chores-5">Chores</h2>
+<ul>
+<li>Refactor <code>seq_groups()</code> to accept <code>Iterable</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/365</li>
+<li>Move <code>pairwise()</code>, <code>seq_groups()</code>, and <code>is_equal()</code> functions to <code>_utils.py</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/369</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.6.1...v0.7.0">https://github.com/posit-dev/great-tables/compare/v0.6.1…v0.7.0</a></p>
+</section>
+</section>
+<section id="v0.6.1" class="level1 changelog-version">
+<h1 class="changelog-version">v0.6.1</h1>
+<p><em>2024-05-23</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.6.1">GitHub</a></p>
+<section id="fixes-13" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-13">Fixes</h2>
+<ul>
+<li>Fix column selections breaking with <code>Polars</code> <code>v0.20.28</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/360</li>
+<li>Fix <code>_save_screenshot()</code> breaking for non-png files by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/352</li>
+</ul>
+</section>
+<section id="chores-6" class="level2">
+<h2 class="anchored" data-anchor-id="chores-6">Chores</h2>
+<ul>
+<li>Enhance the test coverage by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/339</li>
+<li>Remove unneeded files by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/351</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.6.0...v0.6.1">https://github.com/posit-dev/great-tables/compare/v0.6.0…v0.6.1</a></p>
+</section>
+</section>
+<section id="v0.6.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.6.0</h1>
+<p><em>2024-05-16</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.6.0">GitHub</a></p>
+<p>This release brings support for multi-level spanners (a huge thanks to <a href="https://github.com/timkpaine"><span class="citation" data-cites="timkpaine">@timkpaine</span></a>), and makes saving tables with <code>GT.save()</code> a bit more robust.</p>
+<section id="features-13" class="level2">
+<h2 class="anchored" data-anchor-id="features-13">Features</h2>
+<ul>
+<li>Support multi-level spanners by <a href="https://github.com/timkpaine"><span class="citation" data-cites="timkpaine">@timkpaine</span></a> in https://github.com/posit-dev/great-tables/pull/345</li>
+</ul>
+</section>
+<section id="fixes-14" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-14">Fixes</h2>
+<ul>
+<li>ensure export() always captures full table by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/344</li>
+</ul>
+</section>
+<section id="docs-13" class="level2">
+<h2 class="anchored" data-anchor-id="docs-13">Docs</h2>
+<ul>
+<li>add example coffee table with nanoplots by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/349</li>
+<li>clean up minor formatting issues in the docs by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/338</li>
+</ul>
+</section>
+<section id="new-contributors-8" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-8">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/timkpaine"><span class="citation" data-cites="timkpaine">@timkpaine</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/345</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/0.5.2...v0.6.0">https://github.com/posit-dev/great-tables/compare/0.5.2…v0.6.0</a></p>
+</section>
+</section>
+<section id="section" class="level1 changelog-version">
+<h1 class="changelog-version">0.5.2</h1>
+<p><em>2024-05-13</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/0.5.2">GitHub</a></p>
+<section id="fixes-15" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-15">Fixes</h2>
+<ul>
+<li>Fix <a href="reference/style.borders.html#great_tables.style.borders" class="gdls-link gdls-code">CellStyleBorders</a> not being properly constructed when <a href="reference/style.borders.html#great_tables.style.borders.sides" class="gdls-link gdls-code">sides</a> is set to “all” by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/326</li>
+<li>Fix <a href="reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a> erroring on missing values by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/329</li>
+<li>Nanoplots listcols now work, polars list columns no longer raise error by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/330</li>
+<li>Nanoplots no longer fail for lists of large integers by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/335</li>
+<li><a href="reference/GT.fmt_number.html#great_tables.GT.fmt_number" class="gdls-link gdls-code">GT.fmt_number()</a> no longer puts improper comma for 3-digit compact, negative numbers by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/335</li>
+</ul>
+</section>
+<section id="docs-14" class="level2">
+<h2 class="anchored" data-anchor-id="docs-14">Docs</h2>
+<ul>
+<li>Add examples to reference pages by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/328</li>
+</ul>
+</section>
+<section id="chores-7" class="level2">
+<h2 class="anchored" data-anchor-id="chores-7">Chores</h2>
+<ul>
+<li>Remove unused library webcolors as required dependency by <a href="https://github.com/marcozzxx810"><span class="citation" data-cites="marcozzxx810">@marcozzxx810</span></a> in https://github.com/posit-dev/great-tables/pull/336</li>
+</ul>
+</section>
+<section id="new-contributors-9" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-9">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/marcozzxx810"><span class="citation" data-cites="marcozzxx810">@marcozzxx810</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/336</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.5.1...0.5.2">https://github.com/posit-dev/great-tables/compare/v0.5.1…0.5.2</a></p>
+</section>
+</section>
+<section id="v0.5.1" class="level1 changelog-version">
+<h1 class="changelog-version">v0.5.1</h1>
+<p><em>2024-05-03</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.5.1">GitHub</a></p>
+<p>Thanks so much to <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> for an incredible amount of fixes and improvements! This release doesn’t have any new features, instead we focused on fixes and documentation.</p>
+<section id="fixes-16" class="level2">
+<h2 class="anchored" data-anchor-id="fixes-16">Fixes</h2>
+<ul>
+<li>Resolve issue with <code>table_font_color=</code> not accepting named colors by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/285</li>
+<li>Ensure that group label rows have valid HTML by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/308</li>
+<li>Fix Polars selectors error in <a href="reference/GT.cols_hide.html#great_tables.GT.cols_hide" class="gdls-link gdls-code">GT.cols_hide()</a> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/316</li>
+<li>Fix missing values not working with <a href="reference/GT.fmt_number.html#great_tables.GT.fmt_number" class="gdls-link gdls-code">GT.fmt_number()</a> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/317</li>
+<li>Fix display for integerlike values in nanoplots by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/319</li>
+</ul>
+</section>
+<section id="docs-15" class="level2">
+<h2 class="anchored" data-anchor-id="docs-15">Docs</h2>
+<ul>
+<li>Fix typos in docs by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/286</li>
+<li>Add example from <a href="https://github.com/chalg"><span class="citation" data-cites="chalg">@chalg</span></a> by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/323</li>
+</ul>
+</section>
+<section id="chores-8" class="level2">
+<h2 class="anchored" data-anchor-id="chores-8">Chores</h2>
+<ul>
+<li>Clean up implementation of <a href="reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">GT.fmt_nanoplot()</a> and <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">GT.data_color()</a> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> https://github.com/posit-dev/great-tables/pull/294, https://github.com/posit-dev/great-tables/pull/295</li>
+<li>Refactor <a href="reference/GT.fmt_time.html#great_tables.GT.fmt_time" class="gdls-link gdls-code">GT.fmt_time()</a>, <a href="reference/GT.fmt_date.html#great_tables.GT.fmt_date" class="gdls-link gdls-code">GT.fmt_date()</a> and <a href="reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime" class="gdls-link gdls-code">GT.fmt_datetime()</a> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/290</li>
+<li>Refactor <code>letters</code> and <code>Letters</code> functions in <code>_helpers</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/289</li>
+<li>Update type hints and organize import modules by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/315</li>
+<li>Codebase cleanup and minor improvements by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/305, https://github.com/posit-dev/great-tables/pull/292</li>
+<li>Improve test coverage by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> https://github.com/posit-dev/great-tables/pull/311, https://github.com/posit-dev/great-tables/pull/325</li>
+<li>Add tests for <a href="reference/GT.cols_align.html#great_tables.GT.cols_align" class="gdls-link gdls-code">GT.cols_align()</a> and extend support for <code>Polars</code> expressions by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/320</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.5.0...v0.5.1">https://github.com/posit-dev/great-tables/compare/v0.5.0…v0.5.1</a></p>
+</section>
+</section>
+<section id="v0.5.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.5.0</h1>
+<p><em>2024-04-12</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.5.0">GitHub</a></p>
+<section id="whats-changed-2" class="level2">
+<h2 class="anchored" data-anchor-id="whats-changed-2">What’s Changed</h2>
+<section id="features-14" class="level3">
+<h3 class="anchored" data-anchor-id="features-14">Features</h3>
+<ul>
+<li>Remove mizani and pandas as dependencies by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> (<a href="https://github.com/posit-dev/great-tables/issues/271">#271</a>, <a href="https://github.com/posit-dev/great-tables/issues/261">#261</a>)</li>
+<li>Include choice of webdrivers in the <code>.save()</code> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/262</li>
+<li>Add sub_missing and sub_zero methods by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/244</li>
+</ul>
+</section>
+<section id="fixes-17" class="level3">
+<h3 class="anchored" data-anchor-id="fixes-17">Fixes</h3>
+<ul>
+<li>Fix error from incorrectly passing nanoplot options to args in <code>_generate_nanoplot()</code> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/258</li>
+<li>Remove uses of DataFrame.apply and dtype methods by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/277</li>
+<li>Close some opened files by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/281</li>
+</ul>
+</section>
+<section id="docs-16" class="level3">
+<h3 class="anchored" data-anchor-id="docs-16">Docs</h3>
+<ul>
+<li>Add warning callout for experimental status by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/243</li>
+<li>Add examples for <a href="reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">fmt_nanoplot()</a> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/245</li>
+<li>Add docs site and codecov badges by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/254</li>
+<li>Rename variables on example code for Oceania by <a href="https://github.com/sergiolaverde0"><span class="citation" data-cites="sergiolaverde0">@sergiolaverde0</span></a> in https://github.com/posit-dev/great-tables/pull/264</li>
+<li>Improve two examples in Examples section by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/267</li>
+</ul>
+</section>
+<section id="chores-9" class="level3">
+<h3 class="anchored" data-anchor-id="chores-9">Chores</h3>
+<ul>
+<li>Refactor nanoplots by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/246</li>
+<li>Add more tests for formatting methods by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/260</li>
+<li>ci: workflow pushes to CodeCov by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/250</li>
+<li>Update list of supported Python versions to match those tested by <a href="https://github.com/discdiver"><span class="citation" data-cites="discdiver">@discdiver</span></a> in https://github.com/posit-dev/great-tables/pull/269</li>
+</ul>
+</section>
+</section>
+<section id="new-contributors-10" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-10">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/sergiolaverde0"><span class="citation" data-cites="sergiolaverde0">@sergiolaverde0</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/264</li>
+<li><a href="https://github.com/discdiver"><span class="citation" data-cites="discdiver">@discdiver</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/269</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.4.0...v0.5.0">https://github.com/posit-dev/great-tables/compare/v0.4.0…v0.5.0</a></p>
+</section>
+</section>
+<section id="v0.4.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.4.0</h1>
+<p><em>2024-03-15</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.4.0">GitHub</a></p>
+<section id="whats-changed-3" class="level2">
+<h2 class="anchored" data-anchor-id="whats-changed-3">What’s Changed</h2>
+<section id="features-15" class="level3">
+<h3 class="anchored" data-anchor-id="features-15">Features</h3>
+<ul>
+<li>Add initial implementation for nanoplots by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/219</li>
+<li>Allow polars selectors in <code>fmt_*()</code> methods by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/217</li>
+</ul>
+</section>
+<section id="fixes-18" class="level3">
+<h3 class="anchored" data-anchor-id="fixes-18">Fixes</h3>
+<ul>
+<li>Improve HTML representation of tables by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/233</li>
+<li>Ensure that header component HTML tags pass HTML validation by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/235</li>
+<li>Allow the ‘transparent’ color (and others) to be used in <code>tab_options(table_background_color == &lt;color&gt;)</code> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/242</li>
+<li>Fix render reorder causing incorrect groupings by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/218</li>
+</ul>
+</section>
+<section id="docs-17" class="level3">
+<h3 class="anchored" data-anchor-id="docs-17">Docs</h3>
+<ul>
+<li>Fix <a href="reference/GT.opt_horizontal_padding.html#great_tables.GT.opt_horizontal_padding" class="gdls-link gdls-code">opt_horizontal_padding()</a> example by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/215</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.3.1...v0.4.0">https://github.com/posit-dev/great-tables/compare/v0.3.1…v0.4.0</a></p>
+</section>
+</section>
+</section>
+<section id="v0.3.1" class="level1 changelog-version">
+<h1 class="changelog-version">v0.3.1</h1>
+<p><em>2024-02-27</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.3.1">GitHub</a></p>
+<section id="whats-changed-4" class="level2">
+<h2 class="anchored" data-anchor-id="whats-changed-4">What’s Changed</h2>
+<section id="features-16" class="level3">
+<h3 class="anchored" data-anchor-id="features-16">Features</h3>
+<ul>
+<li>Add the <code>.save()</code> and <code>.as_raw_html()</code> methods by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/208</li>
+<li>Add the <a href="reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/198</li>
+<li>Add the <a href="reference/GT.opt_table_outline.html#great_tables.GT.opt_table_outline" class="gdls-link gdls-code">opt_table_outline()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/209</li>
+</ul>
+</section>
+<section id="fixes-19" class="level3">
+<h3 class="anchored" data-anchor-id="fixes-19">Fixes</h3>
+<ul>
+<li>fix: iterate over sorted rows for rendering by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/202</li>
+<li>Remove type annotations from docstrings by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/207</li>
+<li>Ensure that np.nan values are replaced with <code>na_color=</code> vals by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/205</li>
+<li>Handle <code>.data_color()</code> edge cases with single val columns / all missing values by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/213</li>
+</ul>
+</section>
+<section id="docs-18" class="level3">
+<h3 class="anchored" data-anchor-id="docs-18">Docs</h3>
+<ul>
+<li>Add the <code>v0.3.0</code> release post by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/200</li>
+<li>Docs table themes by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/197</li>
+<li>Add docs to the <a href="reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">fmt_image()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/216</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.3.0...v0.3.1">https://github.com/posit-dev/great-tables/compare/v0.3.0…v0.3.1</a></p>
+</section>
+</section>
+</section>
+<section id="v0.3.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.3.0</h1>
+<p><em>2024-02-16</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.3.0">GitHub</a></p>
+<section id="whats-changed-5" class="level2">
+<h2 class="anchored" data-anchor-id="whats-changed-5">What’s Changed</h2>
+<section id="features-17" class="level3">
+<h3 class="anchored" data-anchor-id="features-17">Features</h3>
+<ul>
+<li>Add the <a href="reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link gdls-code">cols_width()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/143</li>
+<li>Add the <a href="reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/146</li>
+<li>Add <code>opt*</code> methods for vertical and horizontal padding by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/154</li>
+<li>Add the <a href="reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header" class="gdls-link gdls-code">opt_align_table_header()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/147</li>
+<li>Add the <a href="reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="gdls-link gdls-code">opt_all_caps()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/150</li>
+<li>Add the <a href="reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">fmt_image()</a> method by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/163</li>
+<li>Add the <a href="reference/system_fonts.html#great_tables.system_fonts" class="gdls-link gdls-code">system_fonts()</a> helper function by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/158</li>
+<li>Enable use of ColorBrewer palettes in <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/186</li>
+</ul>
+</section>
+<section id="fixes-20" class="level3">
+<h3 class="anchored" data-anchor-id="fixes-20">Fixes</h3>
+<ul>
+<li>Replace <code>with_row_count</code> by <code>with_row_index</code> for <code>Polars</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/189</li>
+<li>Add <code>py.typed</code> to support PEP-561 (type-hinting) by <a href="https://github.com/sugatoray"><span class="citation" data-cites="sugatoray">@sugatoray</span></a> in https://github.com/posit-dev/great-tables/pull/139</li>
+<li>Ensure table font names (from <a href="reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a>) is accepted as str or list by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/155</li>
+<li>Fix <code>FutureWarning</code> for <code>DataFrameGroupBy.grouper</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/193</li>
+</ul>
+</section>
+<section id="docs-19" class="level3">
+<h3 class="anchored" data-anchor-id="docs-19">Docs</h3>
+<ul>
+<li>docs: update one of the column names for <code>Column Labels</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/187</li>
+<li>docs: blog superbowl, add source by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/185</li>
+<li>docs: superbowl blog draft by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/184</li>
+<li>Docs examples sports by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/195</li>
+<li>Add example for sza and <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/136</li>
+<li>Clean up examples in API docs by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/191</li>
+</ul>
+</section>
+<section id="chores-10" class="level3">
+<h3 class="anchored" data-anchor-id="chores-10">Chores</h3>
+<ul>
+<li>Remove unimplemented options from <a href="reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/162</li>
+</ul>
+</section>
+</section>
+<section id="new-contributors-11" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-11">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/sugatoray"><span class="citation" data-cites="sugatoray">@sugatoray</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/139</li>
+<li><a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/189</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.2.0...v0.3.0">https://github.com/posit-dev/great-tables/compare/v0.2.0…v0.3.0</a></p>
+</section>
+</section>
+<section id="v0.2.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.2.0</h1>
+<p><em>2024-01-24</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.2.0">GitHub</a></p>
+<section id="whats-changed-6" class="level2">
+<h2 class="anchored" data-anchor-id="whats-changed-6">What’s Changed</h2>
+<ul>
+<li>ci: restore deploy url by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/108</li>
+<li>Fix tab spanner column name by <a href="https://github.com/atseewal"><span class="citation" data-cites="atseewal">@atseewal</span></a> in https://github.com/posit-dev/great-tables/pull/111</li>
+<li>Fix validate frame by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/118</li>
+<li>docs: polars styling blog post by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/113</li>
+<li>Add basic implementation of the <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/109</li>
+<li>fix: validate_frame now coerces non string column names by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/127</li>
+<li>Use <code>to_list()</code> method as cross-df solution by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/128</li>
+<li>Add guide to <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> and introductory blog post to next version of package by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/131</li>
+</ul>
+</section>
+<section id="new-contributors-12" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-12">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/atseewal"><span class="citation" data-cites="atseewal">@atseewal</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/111</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.1.5...v0.2.0">https://github.com/posit-dev/great-tables/compare/v0.1.5…v0.2.0</a></p>
+</section>
+</section>
+<section id="v0.1.5" class="level1 changelog-version">
+<h1 class="changelog-version">v0.1.5</h1>
+<p><em>2024-01-05</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.1.5">GitHub</a></p>
+<section id="whats-changed-7" class="level2">
+<h2 class="anchored" data-anchor-id="whats-changed-7">What’s Changed</h2>
+<ul>
+<li>feat: add the <a href="reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime" class="gdls-link gdls-code">fmt_datetime()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/101</li>
+<li>feat: generalize row selectors by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/107
+<ul>
+<li>All <code>rows=</code> arguments now can receive a function, that operates on a DataFrame. This makes it easier to select rows in pandas. See the <a href="https://posit-dev.github.io/great-tables/get-started/row-selection.html">row selection docs</a>.</li>
+</ul></li>
+<li>docs: intro blog post by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/105</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.1.4...v0.1.5">https://github.com/posit-dev/great-tables/compare/v0.1.4…v0.1.5</a></p>
+</section>
+</section>
+<section id="v0.1.4" class="level1 changelog-version">
+<h1 class="changelog-version">v0.1.4</h1>
+<p><em>2023-12-19</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.1.4">GitHub</a></p>
+<section id="whats-changed-8" class="level2">
+<h2 class="anchored" data-anchor-id="whats-changed-8">What’s Changed</h2>
+<ul>
+<li>docs: single column examples on narrow screens by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/81</li>
+<li>feat: add style.from_column, implement for loc.body by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/83</li>
+<li>fix: cols_hide by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/86</li>
+<li>fix: allow lists of styles and lists of locations by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/87</li>
+<li>docs: get started with styling page by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/88</li>
+<li>Ensure that ID value in compiled CSS is applied to all rules by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/92</li>
+<li>Add interlinks throughout documentation site by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/97</li>
+</ul>
+</section>
+</section>
+<section id="v0.1.3" class="level1 changelog-version">
+<h1 class="changelog-version">v0.1.3</h1>
+<p><em>2023-12-12</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.1.3">GitHub</a></p>
+<p>Many small fixes were done in this release, including:</p>
+<ul>
+<li>fix: handle addition in scss template by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/72</li>
+<li>add hyperlinks in table example by <a href="https://github.com/kmasiello"><span class="citation" data-cites="kmasiello">@kmasiello</span></a> in https://github.com/posit-dev/great-tables/pull/70</li>
+<li>Implement the <a href="reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> method by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/68</li>
+<li>Ensure that <a href="reference/GT.tab_source_note.html#great_tables.GT.tab_source_note" class="gdls-link gdls-code">tab_source_note()</a> works when using <a href="reference/md.html#great_tables.md" class="gdls-link gdls-code">md()</a> or <a href="reference/html.html#great_tables.html" class="gdls-link gdls-code">html()</a> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/77</li>
+<li>ci: pre-commit checks by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/78</li>
+<li>Make invocation <a href="reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> default to all columns and rows by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/79</li>
+</ul>
+<section id="new-contributors-13" class="level2">
+<h2 class="anchored" data-anchor-id="new-contributors-13">New Contributors</h2>
+<ul>
+<li><a href="https://github.com/kmasiello"><span class="citation" data-cites="kmasiello">@kmasiello</span></a> made their first contribution in https://github.com/posit-dev/great-tables/pull/70</li>
+</ul>
+</section>
+</section>
+<section id="v0.1.2" class="level1 changelog-version">
+<h1 class="changelog-version">v0.1.2</h1>
+<p><em>2023-12-07</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.1.2">GitHub</a></p>
+<p>A few additions were made here:</p>
+<ul>
+<li><strong>docs</strong>: fix code example in README.md by <a href="https://github.com/cscheid"><span class="citation" data-cites="cscheid">@cscheid</span></a> in https://github.com/posit-dev/great-tables/pull/62</li>
+<li><strong>feat</strong>: shiny output and renderer for GT by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/59</li>
+<li><strong>refactor</strong>: replace libsass code with webcolors by <a href="https://github.com/machow"><span class="citation" data-cites="machow">@machow</span></a> in https://github.com/posit-dev/great-tables/pull/61
+<ul>
+<li>This enables us to use <code>great_tables</code> in https://shinylive.io!</li>
+</ul></li>
+</ul>
+<p>Here is an example shiny app:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> shiny <span class="im">import</span> App, ui</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> great_tables.shiny <span class="im">as</span> gts</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>app_ui <span class="op">=</span> ui.page_fluid(gts.output_gt(<span class="st">"table"</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> server(<span class="bu">input</span>, output, session):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    [<span class="op">@</span>output](https:<span class="op">//</span>github.com<span class="op">/</span>output)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    [<span class="op">@</span>gts](https:<span class="op">//</span>github.com<span class="op">/</span>gts).render_gt</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> table():</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> GT(exibble)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> App(app_ui, server)</span></code></pre></div>
+</section>
+<section id="v0.1.1" class="level1 changelog-version">
+<h1 class="changelog-version">v0.1.1</h1>
+<p><em>2023-12-06</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.1.1">GitHub</a></p>
+<ul>
+<li>Ensured that column selections exclude columns that are in the stub. (https://github.com/posit-dev/great-tables/pull/49)</li>
+<li>Dataclasses are now frozen. (https://github.com/posit-dev/great-tables/pull/50)</li>
+<li>Added several tests and incorporated <code>pytest-cov</code>. (https://github.com/posit-dev/great-tables/pull/53, https://github.com/posit-dev/great-tables/pull/54, https://github.com/posit-dev/great-tables/pull/55)</li>
+<li>Remove datasets from top-level module (except for <a href="reference/data.exibble.html#great_tables.data.exibble" class="gdls-link gdls-code">exibble</a>); added <code>data</code> submodule. (https://github.com/posit-dev/great-tables/pull/57)</li>
+<li>Performed several rendering fixes. (https://github.com/posit-dev/great-tables/pull/58)</li>
+</ul>
+</section>
+<section id="v0.1.0" class="level1 changelog-version">
+<h1 class="changelog-version">v0.1.0</h1>
+<p><em>2023-12-04</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.1.0">GitHub</a></p>
+<p>This release rounds out our initial API offering, with:</p>
+<ul>
+<li>structuring of a table with spanners, row groups, and stub labels</li>
+<li>fully fleshed-out formatting methods with locale support</li>
+<li>support for polars and polars selectors (e.g., <code>cs.starts_with</code>, etc.)</li>
+<li>addition of the <code>vals</code> submodule to enable formatting of values outside of a table context</li>
+<li>a <em>Get Started</em> guide on the docs site along with many examples in the API reference</li>
+</ul>
+</section>
+<section id="v0.0.2" class="level1 changelog-version">
+<h1 class="changelog-version">v0.0.2</h1>
+<p><em>2023-11-10</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.0.2">GitHub</a></p>
+<p>This release contains fairly comprehensive implementations of a top-level <a href="reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> object, with:</p>
+<ul>
+<li>Reasonably featureful <code>fmt_()*</code> methods</li>
+<li>Methods for titles, subtitles, and table notes</li>
+<li>Internal work for implementing spanners, and row and group columns (in a future release).</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/posit-dev\.github\.io\/great-tables\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+<div class="nav-footer-center">
+<p>Developed by <strong>Richard&nbsp;Iannone</strong> and <strong>Michael&nbsp;Chow</strong>. Supported by <a href="https://posit.co"><strong>Posit&nbsp;Software,&nbsp;PBC</strong></a>.<br>Site created with <strong>Great&nbsp;Docs</strong>.</p>
+</div>
+</div>
+</footer>
+<script src="github-widget.js"></script>
+<script src="copy-page.js"></script>
+<script src="sidebar-wrap.js"></script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'sidebar-float.js';document.body.appendChild(s);})();</script>
+<script src="sidebar-filter.js"></script>
+<script src="dark-mode-toggle.js"></script>
+<script src="back-to-top.js"></script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'on-this-page.js';document.body.appendChild(s);})();</script>
+<script src="keyboard-nav.js"></script>
+<script src="copy-code.js"></script>
+<script src="details.js"></script>
+<script src="mermaid-renderer.js"></script>
+<script src="tooltips.js"></script>
+<script>(function(){var s=document.createElement('script');s.src=(document.querySelector('link[rel="canonical"]')||{href:location.href}).href.replace(/\/[^\/]*$/,'').replace(/\/[^\/]*$/,'')+'/color-swatch.js';var h=document.currentScript;h.parentNode.insertBefore(s,h.nextSibling);})()</script>
+<script src="responsive-tables.js"></script>
+<script src="video-embed.js"></script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'termshow.js';document.body.appendChild(s);})();</script>
+<script src="navbar-widgets.js"></script>
+
+
+
+
+</body></html>

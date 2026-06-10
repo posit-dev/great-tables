@@ -1,0 +1,403 @@
+# Styling the Table Body
+
+**Great Tables** can add styles--like color, text properties, and borders--on many different parts of the displayed table. The following set of examples shows how to set styles on the body of table, where the data cells are located.
+
+For the examples on this page, we'll use the included airquality dataset to set up [GT](../reference/GT.md#great_tables.GT) objects for both **Pandas** and **Polars** DataFrames.
+
+
+``` python
+import polars as pl
+
+from great_tables import GT, from_column, style, loc
+from great_tables.data import airquality
+
+air_head = airquality.head()
+
+gt_air = GT(air_head)
+gt_pl_air = GT(pl.from_pandas(air_head))
+```
+
+
+> **Note: Note**
+>
+> When using Great Tables with VS Code, the IDE suppresses some forms of table styling displayed in notebooks. For example, border styles might not appear. Use `.show("browser")` to see the styled GT table in a separate browser window.
+
+
+# Style basics
+
+We use the [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) method in combination with [loc.body()](../reference/loc.body.md#great_tables.loc.body) to set styles on cells of data in the table body. For example, the table-making code below applies a yellow background color to specific cells.
+
+
+``` python
+gt_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=loc.body(columns="Temp", rows=[1, 2])
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+|       |         | 14.3 | 56   | 5     | 5   |
+
+
+There are two important arguments to [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style): `style=` and `locations=`. We are calling a specific function for each of these:
+
+- [style.fill()](../reference/style.fill.md#great_tables.style.fill): the type of style to apply. In this case the *fill* (or background color).
+- [loc.body()](../reference/loc.body.md#great_tables.loc.body): the area we want to style. In this case, it's the table body with specific columns and rows specified.
+
+In addition to [style.fill()](../reference/style.fill.md#great_tables.style.fill), several other styling functions exist. We'll look at styling borders and text in the following sections.
+
+
+## Customizing Borders
+
+Let's use [style.borders()](../reference/style.borders.md#great_tables.style.borders) to place borders around targeted cells. In this next example, the table has a red dashed border above two rows.
+
+
+``` python
+gt_air.tab_style(
+    style=style.borders(sides="top", color="red", style="dashed", weight="3px"),
+    locations=loc.body(rows=[1, 2])
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+|       |         | 14.3 | 56   | 5     | 5   |
+
+
+## Customizing Text
+
+We can style text with by using the [style.text()](../reference/style.text.md#great_tables.style.text) function. This gives us many customization possibilities for any text we target. For example, the `Solar_R` column below has green, bolded text in a custom font.
+
+
+``` python
+gt_air.tab_style(
+    style=style.text(color="green", font="Times New Roman", weight="bold"),
+    locations=loc.body(columns="Solar_R")
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+|       |         | 14.3 | 56   | 5     | 5   |
+
+
+# Column-based Styles
+
+In addition to setting styles to specific values (e.g., a `"yellow"` background fill), you can also use parameter values from table columns to specify styles. The way to do this is to use the [from_column()](../reference/from_column.md#great_tables.from_column) helper function to access those values.
+
+
+``` python
+df = pl.DataFrame({"x": [1, 2], "background": ["lightyellow", "lightblue"]})
+
+(
+    GT(df)
+    .tab_style(
+        style=style.fill(color=from_column(column="background")),
+        locations=loc.body(columns="x")
+    )
+)
+```
+
+
+| x   | background  |
+|-----|-------------|
+| 1   | lightyellow |
+| 2   | lightblue   |
+
+
+Notice that in the code above, we used values from the `background` column to specify the fill color for each styled row.
+
+In the next few sections, we'll first show how this combines nicely with the [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide) method, then, we'll demonstrate how to use **Polars** expressions to do everything much more simply.
+
+
+## Combining Styling with [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide)
+
+One common approach is to specify a style from a column, and then hide that column in the final output. For example, we can add a background column to our `airquality` data:
+
+
+``` python
+color_map = {
+    True: "lightyellow",
+    False: "lightblue"
+}
+
+with_color = air_head.assign(
+    background=(air_head["Temp"] > 70).replace(color_map)
+)
+
+with_color
+```
+
+
+|     | Ozone | Solar_R | Wind | Temp | Month | Day | background  |
+|-----|-------|---------|------|------|-------|-----|-------------|
+| 0   | 41.0  | 190.0   | 7.4  | 67   | 5     | 1   | lightblue   |
+| 1   | 36.0  | 118.0   | 8.0  | 72   | 5     | 2   | lightyellow |
+| 2   | 12.0  | 149.0   | 12.6 | 74   | 5     | 3   | lightyellow |
+| 3   | 18.0  | 313.0   | 11.5 | 62   | 5     | 4   | lightblue   |
+| 4   | NaN   | NaN     | 14.3 | 56   | 5     | 5   | lightblue   |
+
+
+Notice that the dataset now has a `background` column set to either `"lightyellow"` or `"lightblue"`, depending on whether `Temp` is above `70`.
+
+We can then use this `background` column to set the fill color of certain body cells, and then hide the `background` column since we don't need that in our finalized display table:
+
+
+``` python
+(
+    GT(with_color)
+    .tab_style(
+        style=style.fill(color=from_column(column="background")),
+        locations=loc.body(columns="Temp")
+    )
+    .cols_hide(columns="background")
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+|       |         | 14.3 | 56   | 5     | 5   |
+
+
+Note the two methods used above:
+
+- [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style): uses [from_column()](../reference/from_column.md#great_tables.from_column) to set the color using the values of the `background` column.
+- [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide): prevents the `background` column from being displayed in the output.
+
+
+## Using **Polars** expressions
+
+Styles can also be specified using **Polars** expressions. For example, the code below uses the `Temp` column to set color to `"lightyellow"` or `"lightblue"`.
+
+
+``` python
+# A Polars expression defines color based on `Temp`
+temp_color = (
+    pl.when(pl.col("Temp") > 70)
+    .then(pl.lit("lightyellow"))
+    .otherwise(pl.lit("lightblue"))
+)
+
+gt_pl_air.tab_style(
+    style=style.fill(color=temp_color),
+    locations=loc.body("Temp")
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+| None  | None    | 14.3 | 56   | 5     | 5   |
+
+
+## Using functions
+
+You can also use a function, that takes the DataFrame and returns a Series with a style value for each row.
+
+This is shown below on a pandas DataFrame.
+
+
+``` python
+def map_color(df):
+    return (df["Temp"] > 70).map(
+        {True: "lightyellow", False: "lightblue"}
+    )
+
+gt_air.tab_style(
+    style=style.fill(
+        color=map_color),
+    locations=loc.body("Temp")
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+|       |         | 14.3 | 56   | 5     | 5   |
+
+
+# Specifying columns and rows
+
+
+## Using polars selectors
+
+If you are using **Polars**, you can use column selectors and expressions for selecting specific columns and rows:
+
+
+``` python
+import polars.selectors as cs
+
+gt_pl_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=loc.body(
+        columns=cs.starts_with("Te"),
+        rows=pl.col("Temp") > 70
+    )
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+| None  | None    | 14.3 | 56   | 5     | 5   |
+
+
+See [Column Selection](column-selection.md) for details on selecting columns.
+
+
+## Using a function
+
+For tools like **pandas**, you can use a function (or lambda) to select rows. The function should take a DataFrame, and output a boolean Series.
+
+
+``` python
+gt_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=loc.body(
+        columns=lambda col_name: col_name.startswith("Te"),
+        rows=lambda D: D["Temp"] > 70,
+    )
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+|       |         | 14.3 | 56   | 5     | 5   |
+
+
+# Multiple styles and locations
+
+We can use a list within `style=` to apply multiple styles at once. For example, the code below sets fill and border styles on the same set of body cells.
+
+
+``` python
+gt_air.tab_style(
+    style=[style.fill(color="yellow"), style.borders(sides="all")],
+    locations=loc.body(columns="Temp", rows=[1, 2]),
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+|       |         | 14.3 | 56   | 5     | 5   |
+
+
+Note that you can also pass a list to `locations=`!
+
+
+``` python
+gt_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=[
+        loc.body(columns="Temp", rows=[1, 2]),
+        loc.body(columns="Ozone", rows=[0])
+    ]
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+|       |         | 14.3 | 56   | 5     | 5   |
+
+
+You can also combine **Polars** selectors with a row filtering expression, in order to select a combination of columns and rows.
+
+
+``` python
+import polars.selectors as cs
+
+gt_pl_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=loc.body(
+        columns=cs.exclude(["Month", "Day"]),
+        rows=pl.col("Temp") == pl.col("Temp").max()
+    )
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+| None  | None    | 14.3 | 56   | 5     | 5   |
+
+
+Lastly, you can use **Polars** selectors or expressions to conditionally select rows on a per-column basis.
+
+
+``` python
+import polars.selectors as cs
+
+gt_pl_air.tab_style(
+    style=style.fill(color="yellow"),
+    locations=loc.body(mask=cs.all().eq(cs.all().max())),
+)
+```
+
+
+| Ozone | Solar_R | Wind | Temp | Month | Day |
+|-------|---------|------|------|-------|-----|
+| 41.0  | 190.0   | 7.4  | 67   | 5     | 1   |
+| 36.0  | 118.0   | 8.0  | 72   | 5     | 2   |
+| 12.0  | 149.0   | 12.6 | 74   | 5     | 3   |
+| 18.0  | 313.0   | 11.5 | 62   | 5     | 4   |
+| None  | None    | 14.3 | 56   | 5     | 5   |
+
+
+# Learning more
+
+- API Docs:
+  - [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style)
+  - [`style.*` and `loc.*` functions](../reference/index.md#location-targeting-and-styling-classes)
+  - [from_column()](../reference/from_column.md#great_tables.from_column)

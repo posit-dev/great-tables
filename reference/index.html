@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>index – great_tables</title>
+<title>Reference – Great Tables | Great Tables</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -33,6 +33,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../favicon.ico" rel="icon">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -42,7 +43,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-94b323657c735dfe3b1bf6ebb2c33a55.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-68358a0269f5ab0774fb6089edf6df08.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,71 +71,88 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-CN7Z82M6R7"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'termshow.css'}));</script>
+<link rel="icon" type="image/x-icon" href="https://posit-dev.github.io/great-tables/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="https://posit-dev.github.io/great-tables/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://posit-dev.github.io/great-tables/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://posit-dev.github.io/great-tables/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://posit-dev.github.io/great-tables/apple-touch-icon.png">
+<script src="../theme-init.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js"></script>
+<meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table&quot;]">
 
-<script type="text/javascript">
 
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
+  <meta name="description" content="All tables created in Great Tables begin by using GT(). With this class, we supply the input data table and some basic options for creating a stub and...">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Great Tables",
+  "description": "Easily generate information-rich, publication-quality tables from Python.",
+  "license": "https://opensource.org/licenses/MIT",
+  "url": "https://posit-dev.github.io/great-tables",
+  "documentation": "https://posit-dev.github.io/great-tables",
+  "programmingLanguage": {
+    "@type": "ComputerLanguage",
+    "name": "Python"
+  }
+}
 </script>
-<script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-margin-left="28"></script>
-<script async="" src="https://plausible.io/js/pa-N27-YgfNQBpdNqDqGcyE1.js"></script>
-<script>
-  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-  plausible.init()
-</script>
-
-
-<link rel="stylesheet" href="../styles.css">
-<link rel="stylesheet" href="../reference/_styles-quartodoc.css">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Reference – Great Tables | Great Tables">
+  <meta property="og:description" content="All tables created in Great Tables begin by using GT(). With this class, we supply the input data table and some basic options for creating a stub and...">
+  <meta property="og:url" content="https://posit-dev.github.io/great-tables/reference/">
+  <meta property="og:site_name" content="Great Tables">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Reference – Great Tables | Great Tables">
+  <meta name="twitter:description" content="All tables created in Great Tables begin by using GT(). With this class, we supply the input data table and some basic options for creating a stub and...">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="gd-ref-sidebar nav-sidebar floating nav-fixed doc-reference quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">great_tables</span>
+    <a href="../index.html" class="navbar-brand navbar-brand-logo" data-tippy-content="<code>v0.21.0</code><br>Released 2026-03-03">
+    <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo light-content">
+    <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo dark-content">
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
+            <div id="quarto-search" class=""></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../get-started/index.html"> 
-<span class="menu-text">Get Started</span></a>
+    <a class="nav-link" href="../user-guide/introduction.html"> 
+<span class="menu-text">User Guide</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../examples/index.html"> 
 <span class="menu-text">Examples</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../blog/index.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../blog/index.html"> 
-<span class="menu-text">Blog</span></a>
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/posit-dev/great-tables"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="../blog/index.xml"> <i class="bi bi-rss" role="img">
-</i> 
-<span class="menu-text"></span></a>
+  <li class="nav-item">
+    <span class="nav-link">
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2674" data-forks="125"></div>
+    </span>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -142,668 +160,1606 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <h1 class="quarto-secondary-nav-title no-breadcrumbs gd-ref-title"><span class="gd-ref-title-prefix">API</span><span class="gd-ref-title-sep">/</span><span class="gd-ref-title-name">Index</span></h1>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container" style="padding-bottom: 0.5rem; padding-top: 0.25rem;"> 
+  <a href="../reference/index.html" style="font-family: &quot;Open Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif;" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">API Index</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Table Creation</span></a>
+</div>
+      <ul id="quarto-sidebar-section-1" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-class">GT</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Major structural table parts</span></a>
+</div>
+      <ul id="quarto-sidebar-section-2" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_header.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_header()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_spanner.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_spanner()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_spanner_delim.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_spanner_delim()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_stub.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_stub()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_stubhead.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_stubhead()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_footnote.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_footnote()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_source_note.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_source_note()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_style.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_style()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_options.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_options()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Formatting column data</span></a>
+</div>
+      <ul id="quarto-sidebar-section-3" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_number.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_number()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_integer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_integer()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_scientific.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_scientific()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_engineering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_engineering()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_percent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_percent()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_partsper.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_partsper()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_currency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_currency()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_roman.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_roman()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_bytes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_bytes()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_date.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_date()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_time.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_time()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_datetime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_datetime()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_duration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_duration()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_tf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_tf()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_markdown.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_markdown()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_units.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_units()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_image.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_image()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_flag.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_flag()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_icon.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_icon()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_nanoplot.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt_nanoplot()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.fmt()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.sub_missing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.sub_missing()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.sub_zero.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.sub_zero()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.sub_small_vals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.sub_small_vals()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.sub_large_vals.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.sub_large_vals()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.sub_values.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.sub_values()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.data_color.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.data_color()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Text transformation</span></a>
+</div>
+      <ul id="quarto-sidebar-section-4" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.text_replace.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.text_replace()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.text_case_when.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.text_case_when()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.text_case_match.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.text_case_match()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.text_transform.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.text_transform()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Modifying columns</span></a>
+</div>
+      <ul id="quarto-sidebar-section-5" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_align.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_align()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_width.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_width()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_label.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_label()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_label_with.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_label_with()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_label_rotate.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_label_rotate()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_move.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_move()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_move_to_start.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_move_to_start()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_move_to_end.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_move_to_end()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_reorder.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_reorder()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_hide.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_hide()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_unhide.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_unhide()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_merge.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_merge()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_merge_uncert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_merge_uncert()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_merge_range.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_merge_range()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.cols_merge_n_pct.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.cols_merge_n_pct()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Adding rows</span></a>
+</div>
+      <ul id="quarto-sidebar-section-6" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.summary_rows.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.summary_rows()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.grand_summary_rows.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.grand_summary_rows()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Location Targeting and Styling Classes</span></a>
+</div>
+      <ul id="quarto-sidebar-section-7" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.header.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.header</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.title.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.title</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.subtitle.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.subtitle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.stubhead.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.stubhead</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.column_header.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.column_header</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.spanner_labels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.spanner_labels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.column_labels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.column_labels</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.grand_summary_stub.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.grand_summary_stub</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.stub.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.stub</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.row_groups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.row_groups</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.grand_summary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.grand_summary</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.body.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.body</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.footer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.footer</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/loc.source_notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">loc.source_notes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/style.fill.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">style.fill</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/style.text.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">style.text</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/style.borders.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">style.borders</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/style.css.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">style.css</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Helper Functions</span></a>
+</div>
+      <ul id="quarto-sidebar-section-8" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.with_id.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.with_id()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.with_locale.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.with_locale()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/md.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">md()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/html.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">html()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/from_column.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-class doc-label doc-label-dataclass">from_column</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/google_font.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">google_font()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/system_fonts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">system_fonts()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/define_units.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">define_units()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/nanoplot_options.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">nanoplot_options()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Table options</span></a>
+</div>
+      <ul id="quarto-sidebar-section-9" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_stylize.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_stylize()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_footnote_marks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_footnote_marks()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_row_striping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_row_striping()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_align_table_header.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_align_table_header()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_vertical_padding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_vertical_padding()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_horizontal_padding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_horizontal_padding()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_all_caps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_all_caps()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_table_outline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_table_outline()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_table_font.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_table_font()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.opt_css.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.opt_css()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Export</span></a>
+</div>
+      <ul id="quarto-sidebar-section-10" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.gtsave.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.gtsave()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.show.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.show()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.as_raw_html.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.as_raw_html()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.write_raw_html.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.write_raw_html()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.as_latex.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.as_latex()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Pipeline</span></a>
+</div>
+      <ul id="quarto-sidebar-section-11" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.pipe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.pipe()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Value Formatting Functions</span></a>
+</div>
+      <ul id="quarto-sidebar-section-12" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_number.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_number()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_integer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_integer()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_scientific.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_scientific()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_engineering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_engineering()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_percent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_percent()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_partsper.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_partsper()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_currency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_currency()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_roman.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_roman()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_bytes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_bytes()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_duration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_duration()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_date.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_date()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_time.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_time()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_duration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_duration()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_markdown.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_markdown()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_image.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-function">vals.fmt_image()</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Built-in Datasets</span></a>
+</div>
+      <ul id="quarto-sidebar-section-13" class="list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.countrypops.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.countrypops</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.sza.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.sza</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.gtcars.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.gtcars</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.sp500.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.sp500</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.pizzaplace.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.pizzaplace</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.exibble.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.exibble</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.towny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.towny</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.peeps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.peeps</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.films.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.films</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.metro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.metro</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.gibraltar.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.gibraltar</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.constants.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.constants</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.illness.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.illness</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.reactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.reactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.photolysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.photolysis</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/data.nuclides.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-attribute doc-label doc-label-constant">data.nuclides</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
-  <ul>
-  <li><a href="#api-reference" id="toc-api-reference" class="nav-link active" data-scroll-target="#api-reference">API Reference</a>
   <ul class="collapse">
-  <li><a href="#table-creation" id="toc-table-creation" class="nav-link" data-scroll-target="#table-creation">Table Creation</a></li>
-  <li><a href="#creating-or-modifying-parts-of-a-table" id="toc-creating-or-modifying-parts-of-a-table" class="nav-link" data-scroll-target="#creating-or-modifying-parts-of-a-table">Creating or modifying parts of a table</a></li>
+  <li><a href="#table-creation" id="toc-table-creation" class="nav-link active" data-scroll-target="#table-creation">Table Creation</a></li>
+  <li><a href="#major-structural-table-parts" id="toc-major-structural-table-parts" class="nav-link" data-scroll-target="#major-structural-table-parts">Major structural table parts</a></li>
   <li><a href="#formatting-column-data" id="toc-formatting-column-data" class="nav-link" data-scroll-target="#formatting-column-data">Formatting column data</a></li>
+  <li><a href="#text-transformation" id="toc-text-transformation" class="nav-link" data-scroll-target="#text-transformation">Text transformation</a></li>
   <li><a href="#modifying-columns" id="toc-modifying-columns" class="nav-link" data-scroll-target="#modifying-columns">Modifying columns</a></li>
   <li><a href="#adding-rows" id="toc-adding-rows" class="nav-link" data-scroll-target="#adding-rows">Adding rows</a></li>
   <li><a href="#location-targeting-and-styling-classes" id="toc-location-targeting-and-styling-classes" class="nav-link" data-scroll-target="#location-targeting-and-styling-classes">Location Targeting and Styling Classes</a></li>
-  <li><a href="#helper-functions" id="toc-helper-functions" class="nav-link" data-scroll-target="#helper-functions">Helper functions</a></li>
+  <li><a href="#helper-functions" id="toc-helper-functions" class="nav-link" data-scroll-target="#helper-functions">Helper Functions</a></li>
   <li><a href="#table-options" id="toc-table-options" class="nav-link" data-scroll-target="#table-options">Table options</a></li>
   <li><a href="#export" id="toc-export" class="nav-link" data-scroll-target="#export">Export</a></li>
   <li><a href="#pipeline" id="toc-pipeline" class="nav-link" data-scroll-target="#pipeline">Pipeline</a></li>
-  <li><a href="#value-formatting-functions" id="toc-value-formatting-functions" class="nav-link" data-scroll-target="#value-formatting-functions">Value formatting functions</a></li>
-  <li><a href="#built-in-datasets" id="toc-built-in-datasets" class="nav-link" data-scroll-target="#built-in-datasets">Built in datasets</a></li>
-  </ul></li>
+  <li><a href="#value-formatting-functions" id="toc-value-formatting-functions" class="nav-link" data-scroll-target="#value-formatting-functions">Value Formatting Functions</a></li>
+  <li><a href="#built-in-datasets" id="toc-built-in-datasets" class="nav-link" data-scroll-target="#built-in-datasets">Built-in Datasets</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content column-page-left" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Reference</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
-<section id="api-reference" class="level1 doc doc-index">
-<h1 class="doc doc-index">API Reference</h1>
-<section id="table-creation" class="level2">
-<h2 class="anchored" data-anchor-id="table-creation">Table Creation</h2>
-<p>All tables created in <strong>Great Tables</strong> begin by using <a href="../reference/GT.html#great_tables.GT"><span><code>GT()</code></span></a>. With this class, we supply the input data table and some basic options for creating a stub and row groups (with the <code>rowname_col=</code> and <code>groupname_col=</code> arguments).</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.html#great_tables.GT">GT</a></td>
-<td>Create a <strong>Great Tables</strong> object.</td>
-</tr>
-</tbody>
-</table>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="table-creation" class="level2 doc-group">
+<h2 class="doc-group">Table Creation</h2>
+<div class="doc-description">
+<p>All tables created in Great Tables begin by using <code>GT()</code>. With this class, we supply the input data table and some basic options for creating a stub and row groups (with the <code>rowname_col=</code> and <code>groupname_col=</code> arguments). All GT methods are documented on their own pages.</p>
+</div>
+<dl>
+<dt><a href="../reference/GT.html#great_tables.GT" class="doc-class doc-label doc-label-class">GT</a></dt>
+<dd>
+<p>Create a <strong>Great Tables</strong> object.</p>
+</dd>
+</dl>
 </section>
-<section id="creating-or-modifying-parts-of-a-table" class="level2">
-<h2 class="anchored" data-anchor-id="creating-or-modifying-parts-of-a-table">Creating or modifying parts of a table</h2>
-<p>A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can perform styling on targeted table locations with the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.tab_header.html#great_tables.GT.tab_header">GT.tab_header</a></td>
-<td>Add a table header.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner">GT.tab_spanner</a></td>
-<td>Insert a spanner above a selection of column headings.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim">GT.tab_spanner_delim</a></td>
-<td>Insert spanners by splitting column names with a delimiter.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.tab_stub.html#great_tables.GT.tab_stub">GT.tab_stub</a></td>
-<td>Add a table stub, to emphasize row and group information.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.tab_stubhead.html#great_tables.GT.tab_stubhead">GT.tab_stubhead</a></td>
-<td>Add label text to the stubhead.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.tab_footnote.html#great_tables.GT.tab_footnote">GT.tab_footnote</a></td>
-<td>Add a table footnote.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.tab_source_note.html#great_tables.GT.tab_source_note">GT.tab_source_note</a></td>
-<td>Add a source note citation.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.tab_style.html#great_tables.GT.tab_style">GT.tab_style</a></td>
-<td>Add custom style to one or more cells</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.text_transform.html#great_tables.GT.text_transform">GT.text_transform</a></td>
-<td>Apply a custom text transformation to cells at specified locations.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.text_replace.html#great_tables.GT.text_replace">GT.text_replace</a></td>
-<td>Perform targeted text replacement with a regex pattern.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.text_case_match.html#great_tables.GT.text_case_match">GT.text_case_match</a></td>
-<td>Perform text replacements with a switch-like approach.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.text_case_when.html#great_tables.GT.text_case_when">GT.text_case_when</a></td>
-<td>Perform text replacements using a case-when approach.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.tab_options.html#great_tables.GT.tab_options">GT.tab_options</a></td>
-<td>Modify the table output options.</td>
-</tr>
-</tbody>
-</table>
+<section id="major-structural-table-parts" class="level2 doc-group">
+<h2 class="doc-group">Major structural table parts</h2>
+<div class="doc-description">
+<p>A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can perform styling on targeted table locations with the <a href="`great_tables.GT.tab_style`"><code>tab_style()</code></a> method.</p>
+</div>
+<dl>
+<dt><a href="../reference/GT.tab_header.html#great_tables.GT.tab_header" class="doc-function doc-label doc-label-method">GT.tab_header()</a></dt>
+<dd>
+<p>Add a table header.</p>
+</dd>
+<dt><a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="doc-function doc-label doc-label-method">GT.tab_spanner()</a></dt>
+<dd>
+<p>Insert a spanner above a selection of column headings.</p>
+</dd>
+<dt><a href="../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="doc-function doc-label doc-label-method">GT.tab_spanner_delim()</a></dt>
+<dd>
+<p>Insert spanners by splitting column names with a delimiter.</p>
+</dd>
+<dt><a href="../reference/GT.tab_stub.html#great_tables.GT.tab_stub" class="doc-function doc-label doc-label-method">GT.tab_stub()</a></dt>
+<dd>
+<p>Add a table stub, to emphasize row and group information.</p>
+</dd>
+<dt><a href="../reference/GT.tab_stubhead.html#great_tables.GT.tab_stubhead" class="doc-function doc-label doc-label-method">GT.tab_stubhead()</a></dt>
+<dd>
+<p>Add label text to the stubhead.</p>
+</dd>
+<dt><a href="../reference/GT.tab_footnote.html#great_tables.GT.tab_footnote" class="doc-function doc-label doc-label-method">GT.tab_footnote()</a></dt>
+<dd>
+<p>Add a table footnote.</p>
+</dd>
+<dt><a href="../reference/GT.tab_source_note.html#great_tables.GT.tab_source_note" class="doc-function doc-label doc-label-method">GT.tab_source_note()</a></dt>
+<dd>
+<p>Add a source note citation.</p>
+</dd>
+<dt><a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="doc-function doc-label doc-label-method">GT.tab_style()</a></dt>
+<dd>
+<p>Add custom style to one or more cells</p>
+</dd>
+<dt><a href="../reference/GT.tab_options.html#great_tables.GT.tab_options" class="doc-function doc-label doc-label-method">GT.tab_options()</a></dt>
+<dd>
+<p>Modify the table output options.</p>
+</dd>
+</dl>
 </section>
-<section id="formatting-column-data" class="level2">
-<h2 class="anchored" data-anchor-id="formatting-column-data">Formatting column data</h2>
-<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <a href="../reference/GT.fmt.html#great_tables.GT.fmt"><code>fmt()</code></a> method and define your own formatter.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_number.html#great_tables.GT.fmt_number">GT.fmt_number</a></td>
-<td>Format numeric values.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_integer.html#great_tables.GT.fmt_integer">GT.fmt_integer</a></td>
-<td>Format values as integers.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_percent.html#great_tables.GT.fmt_percent">GT.fmt_percent</a></td>
-<td>Format values as a percentage.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_partsper.html#great_tables.GT.fmt_partsper">GT.fmt_partsper</a></td>
-<td>Format values as parts-per quantities.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_scientific.html#great_tables.GT.fmt_scientific">GT.fmt_scientific</a></td>
-<td>Format values to scientific notation.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_engineering.html#great_tables.GT.fmt_engineering">GT.fmt_engineering</a></td>
-<td>Format values to engineering notation.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_currency.html#great_tables.GT.fmt_currency">GT.fmt_currency</a></td>
-<td>Format values as currencies.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_bytes.html#great_tables.GT.fmt_bytes">GT.fmt_bytes</a></td>
-<td>Format values as bytes.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_duration.html#great_tables.GT.fmt_duration">GT.fmt_duration</a></td>
-<td>Format numeric or duration values as styled time duration strings.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_roman.html#great_tables.GT.fmt_roman">GT.fmt_roman</a></td>
-<td>Format values as Roman numerals.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_date.html#great_tables.GT.fmt_date">GT.fmt_date</a></td>
-<td>Format values as dates.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_time.html#great_tables.GT.fmt_time">GT.fmt_time</a></td>
-<td>Format values as times.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf">GT.fmt_tf</a></td>
-<td>Format True and False values</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime">GT.fmt_datetime</a></td>
-<td>Format values as datetimes.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_markdown.html#great_tables.GT.fmt_markdown">GT.fmt_markdown</a></td>
-<td>Format Markdown text.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_units.html#great_tables.GT.fmt_units">GT.fmt_units</a></td>
-<td>Format measurement units.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_image.html#great_tables.GT.fmt_image">GT.fmt_image</a></td>
-<td>Format image paths to generate images in cells.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_icon.html#great_tables.GT.fmt_icon">GT.fmt_icon</a></td>
-<td>Use icons within a table’s body cells.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt_flag.html#great_tables.GT.fmt_flag">GT.fmt_flag</a></td>
-<td>Generate flag icons for countries from their country codes.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot">GT.fmt_nanoplot</a></td>
-<td>Format data for nanoplot visualizations.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.fmt.html#great_tables.GT.fmt">GT.fmt</a></td>
-<td>Set a column format with a formatter function.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.data_color.html#great_tables.GT.data_color">GT.data_color</a></td>
-<td>Perform data cell colorization.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.sub_missing.html#great_tables.GT.sub_missing">GT.sub_missing</a></td>
-<td>Substitute missing values in the table body.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.sub_zero.html#great_tables.GT.sub_zero">GT.sub_zero</a></td>
-<td>Substitute zero values in the table body.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.sub_small_vals.html#great_tables.GT.sub_small_vals">GT.sub_small_vals</a></td>
-<td>Substitute small values in the table body.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.sub_large_vals.html#great_tables.GT.sub_large_vals">GT.sub_large_vals</a></td>
-<td>Substitute large values in the table body.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.sub_values.html#great_tables.GT.sub_values">GT.sub_values</a></td>
-<td>Substitute targeted values in the table body.</td>
-</tr>
-</tbody>
-</table>
+<section id="formatting-column-data" class="level2 doc-group">
+<h2 class="doc-group">Formatting column data</h2>
+<div class="doc-description">
+<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <a href="`great_tables.GT.fmt`"><code>fmt()</code></a> method and define your own formatter. The <code>sub_*()</code> methods allow you to perform substitution operations and <code>data_color()</code> provides a lot of power for colorizing body cells based on their data values.</p>
+</div>
+<dl>
+<dt><a href="../reference/GT.fmt_number.html#great_tables.GT.fmt_number" class="doc-function doc-label doc-label-method">GT.fmt_number()</a></dt>
+<dd>
+<p>Format numeric values.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_integer.html#great_tables.GT.fmt_integer" class="doc-function doc-label doc-label-method">GT.fmt_integer()</a></dt>
+<dd>
+<p>Format values as integers.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_scientific.html#great_tables.GT.fmt_scientific" class="doc-function doc-label doc-label-method">GT.fmt_scientific()</a></dt>
+<dd>
+<p>Format values to scientific notation.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_engineering.html#great_tables.GT.fmt_engineering" class="doc-function doc-label doc-label-method">GT.fmt_engineering()</a></dt>
+<dd>
+<p>Format values to engineering notation.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_percent.html#great_tables.GT.fmt_percent" class="doc-function doc-label doc-label-method">GT.fmt_percent()</a></dt>
+<dd>
+<p>Format values as a percentage.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_partsper.html#great_tables.GT.fmt_partsper" class="doc-function doc-label doc-label-method">GT.fmt_partsper()</a></dt>
+<dd>
+<p>Format values as parts-per quantities.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_currency.html#great_tables.GT.fmt_currency" class="doc-function doc-label doc-label-method">GT.fmt_currency()</a></dt>
+<dd>
+<p>Format values as currencies.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_roman.html#great_tables.GT.fmt_roman" class="doc-function doc-label doc-label-method">GT.fmt_roman()</a></dt>
+<dd>
+<p>Format values as Roman numerals.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_bytes.html#great_tables.GT.fmt_bytes" class="doc-function doc-label doc-label-method">GT.fmt_bytes()</a></dt>
+<dd>
+<p>Format values as bytes.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_date.html#great_tables.GT.fmt_date" class="doc-function doc-label doc-label-method">GT.fmt_date()</a></dt>
+<dd>
+<p>Format values as dates.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_time.html#great_tables.GT.fmt_time" class="doc-function doc-label doc-label-method">GT.fmt_time()</a></dt>
+<dd>
+<p>Format values as times.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime" class="doc-function doc-label doc-label-method">GT.fmt_datetime()</a></dt>
+<dd>
+<p>Format values as datetimes.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_duration.html#great_tables.GT.fmt_duration" class="doc-function doc-label doc-label-method">GT.fmt_duration()</a></dt>
+<dd>
+<p>Format numeric or duration values as styled time duration strings.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="doc-function doc-label doc-label-method">GT.fmt_tf()</a></dt>
+<dd>
+<p>Format True and False values</p>
+</dd>
+<dt><a href="../reference/GT.fmt_markdown.html#great_tables.GT.fmt_markdown" class="doc-function doc-label doc-label-method">GT.fmt_markdown()</a></dt>
+<dd>
+<p>Format Markdown text.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_units.html#great_tables.GT.fmt_units" class="doc-function doc-label doc-label-method">GT.fmt_units()</a></dt>
+<dd>
+<p>Format measurement units.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="doc-function doc-label doc-label-method">GT.fmt_image()</a></dt>
+<dd>
+<p>Format image paths to generate images in cells.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="doc-function doc-label doc-label-method">GT.fmt_flag()</a></dt>
+<dd>
+<p>Generate flag icons for countries from their country codes.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_icon.html#great_tables.GT.fmt_icon" class="doc-function doc-label doc-label-method">GT.fmt_icon()</a></dt>
+<dd>
+<p>Use icons within a table’s body cells.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="doc-function doc-label doc-label-method">GT.fmt_nanoplot()</a></dt>
+<dd>
+<p>Format data for nanoplot visualizations.</p>
+</dd>
+<dt><a href="../reference/GT.fmt.html#great_tables.GT.fmt" class="doc-function doc-label doc-label-method">GT.fmt()</a></dt>
+<dd>
+<p>Set a column format with a formatter function.</p>
+</dd>
+<dt><a href="../reference/GT.sub_missing.html#great_tables.GT.sub_missing" class="doc-function doc-label doc-label-method">GT.sub_missing()</a></dt>
+<dd>
+<p>Substitute missing values in the table body.</p>
+</dd>
+<dt><a href="../reference/GT.sub_zero.html#great_tables.GT.sub_zero" class="doc-function doc-label doc-label-method">GT.sub_zero()</a></dt>
+<dd>
+<p>Substitute zero values in the table body.</p>
+</dd>
+<dt><a href="../reference/GT.sub_small_vals.html#great_tables.GT.sub_small_vals" class="doc-function doc-label doc-label-method">GT.sub_small_vals()</a></dt>
+<dd>
+<p>Substitute small values in the table body.</p>
+</dd>
+<dt><a href="../reference/GT.sub_large_vals.html#great_tables.GT.sub_large_vals" class="doc-function doc-label doc-label-method">GT.sub_large_vals()</a></dt>
+<dd>
+<p>Substitute large values in the table body.</p>
+</dd>
+<dt><a href="../reference/GT.sub_values.html#great_tables.GT.sub_values" class="doc-function doc-label doc-label-method">GT.sub_values()</a></dt>
+<dd>
+<p>Substitute targeted values in the table body.</p>
+</dd>
+<dt><a href="../reference/GT.data_color.html#great_tables.GT.data_color" class="doc-function doc-label doc-label-method">GT.data_color()</a></dt>
+<dd>
+<p>Perform data cell colorization.</p>
+</dd>
+</dl>
 </section>
-<section id="modifying-columns" class="level2">
-<h2 class="anchored" data-anchor-id="modifying-columns">Modifying columns</h2>
-<p>The <code>cols_*()</code> methods allow for modifications that act on entire columns. This includes alignment of the data in columns (<a href="../reference/GT.cols_align.html#great_tables.GT.cols_align"><code>cols_align()</code></a>), hiding columns from view (<a href="../reference/GT.cols_hide.html#great_tables.GT.cols_hide"><code>cols_hide()</code></a>), re-labeling the column labels (<a href="../reference/GT.cols_label.html#great_tables.GT.cols_label"><code>cols_label()</code></a>), and moving columns around (with the <code>cols_move*()</code> methods).</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.cols_align.html#great_tables.GT.cols_align">GT.cols_align</a></td>
-<td>Set the alignment of one or more columns.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_width.html#great_tables.GT.cols_width">GT.cols_width</a></td>
-<td>Set the widths of columns.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_label.html#great_tables.GT.cols_label">GT.cols_label</a></td>
-<td>Relabel one or more columns.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_label_with.html#great_tables.GT.cols_label_with">GT.cols_label_with</a></td>
-<td>Relabel one or more columns using a function.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate">GT.cols_label_rotate</a></td>
-<td>Rotate the column label for one or more columns.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_move.html#great_tables.GT.cols_move">GT.cols_move</a></td>
-<td>Move one or more columns.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_move_to_start.html#great_tables.GT.cols_move_to_start">GT.cols_move_to_start</a></td>
-<td>Move one or more columns to the start.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_move_to_end.html#great_tables.GT.cols_move_to_end">GT.cols_move_to_end</a></td>
-<td>Move one or more columns to the end.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_reorder.html#great_tables.GT.cols_reorder">GT.cols_reorder</a></td>
-<td>Reorder all columns in a specified order.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_hide.html#great_tables.GT.cols_hide">GT.cols_hide</a></td>
-<td>Hide one or more columns.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_unhide.html#great_tables.GT.cols_unhide">GT.cols_unhide</a></td>
-<td>Unhide one or more columns.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_merge.html#great_tables.GT.cols_merge">GT.cols_merge</a></td>
-<td>Merge data from two or more columns into a single column.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_merge_uncert.html#great_tables.GT.cols_merge_uncert">GT.cols_merge_uncert</a></td>
-<td>Merge columns to a value-with-uncertainty column.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.cols_merge_range.html#great_tables.GT.cols_merge_range">GT.cols_merge_range</a></td>
-<td>Merge two columns to a value range column.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.cols_merge_n_pct.html#great_tables.GT.cols_merge_n_pct">GT.cols_merge_n_pct</a></td>
-<td>Merge two columns to combine counts and percentages.</td>
-</tr>
-</tbody>
-</table>
+<section id="text-transformation" class="level2 doc-group">
+<h2 class="doc-group">Text transformation</h2>
+<div class="doc-description">
+<p>The text_*() method take cell data that are solidified into strings and allow for flexible transformations of those string values. Whereas the <code>fmt_*()</code> and <code>sub_*()</code> methods are phases 1 and 2 of cell data metamorphoses, the text transformation functions are the final phase, acting on strings generated by formatting and substitution functions with no reference to the source values.</p>
+</div>
+<dl>
+<dt><a href="../reference/GT.text_replace.html#great_tables.GT.text_replace" class="doc-function doc-label doc-label-method">GT.text_replace()</a></dt>
+<dd>
+<p>Perform targeted text replacement with a regex pattern.</p>
+</dd>
+<dt><a href="../reference/GT.text_case_when.html#great_tables.GT.text_case_when" class="doc-function doc-label doc-label-method">GT.text_case_when()</a></dt>
+<dd>
+<p>Perform text replacements using a case-when approach.</p>
+</dd>
+<dt><a href="../reference/GT.text_case_match.html#great_tables.GT.text_case_match" class="doc-function doc-label doc-label-method">GT.text_case_match()</a></dt>
+<dd>
+<p>Perform text replacements with a switch-like approach.</p>
+</dd>
+<dt><a href="../reference/GT.text_transform.html#great_tables.GT.text_transform" class="doc-function doc-label doc-label-method">GT.text_transform()</a></dt>
+<dd>
+<p>Apply a custom text transformation to cells at specified locations.</p>
+</dd>
+</dl>
 </section>
-<section id="adding-rows" class="level2">
-<h2 class="anchored" data-anchor-id="adding-rows">Adding rows</h2>
-<p>The <a href="../reference/GT.summary_rows.html#great_tables.GT.summary_rows"><code>summary_rows()</code></a> function adds rows to summarize data within each row group, while <a href="../reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows"><code>grand_summary_rows()</code></a> summarizes across the entire table.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.summary_rows.html#great_tables.GT.summary_rows">GT.summary_rows</a></td>
-<td>Add group-wise summary rows to the table.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows">GT.grand_summary_rows</a></td>
-<td>Add grand summary rows to the table.</td>
-</tr>
-</tbody>
-</table>
+<section id="modifying-columns" class="level2 doc-group">
+<h2 class="doc-group">Modifying columns</h2>
+<div class="doc-description">
+<p>The <code>cols_*()</code> methods allow for modifications that act on entire columns. This includes alignment of the data in columns (<a href="`great_tables.GT.cols_align`"><code>cols_align()</code></a>), hiding columns from view (<a href="`great_tables.GT.cols_hide`"><code>cols_hide()</code></a>), re-labeling the column labels (<a href="`great_tables.GT.cols_label`"><code>cols_label()</code></a>), and moving columns around (with the <code>cols_move*()</code> methods).</p>
+</div>
+<dl>
+<dt><a href="../reference/GT.cols_align.html#great_tables.GT.cols_align" class="doc-function doc-label doc-label-method">GT.cols_align()</a></dt>
+<dd>
+<p>Set the alignment of one or more columns.</p>
+</dd>
+<dt><a href="../reference/GT.cols_width.html#great_tables.GT.cols_width" class="doc-function doc-label doc-label-method">GT.cols_width()</a></dt>
+<dd>
+<p>Set the widths of columns.</p>
+</dd>
+<dt><a href="../reference/GT.cols_label.html#great_tables.GT.cols_label" class="doc-function doc-label doc-label-method">GT.cols_label()</a></dt>
+<dd>
+<p>Relabel one or more columns.</p>
+</dd>
+<dt><a href="../reference/GT.cols_label_with.html#great_tables.GT.cols_label_with" class="doc-function doc-label doc-label-method">GT.cols_label_with()</a></dt>
+<dd>
+<p>Relabel one or more columns using a function.</p>
+</dd>
+<dt><a href="../reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate" class="doc-function doc-label doc-label-method">GT.cols_label_rotate()</a></dt>
+<dd>
+<p>Rotate the column label for one or more columns.</p>
+</dd>
+<dt><a href="../reference/GT.cols_move.html#great_tables.GT.cols_move" class="doc-function doc-label doc-label-method">GT.cols_move()</a></dt>
+<dd>
+<p>Move one or more columns.</p>
+</dd>
+<dt><a href="../reference/GT.cols_move_to_start.html#great_tables.GT.cols_move_to_start" class="doc-function doc-label doc-label-method">GT.cols_move_to_start()</a></dt>
+<dd>
+<p>Move one or more columns to the start.</p>
+</dd>
+<dt><a href="../reference/GT.cols_move_to_end.html#great_tables.GT.cols_move_to_end" class="doc-function doc-label doc-label-method">GT.cols_move_to_end()</a></dt>
+<dd>
+<p>Move one or more columns to the end.</p>
+</dd>
+<dt><a href="../reference/GT.cols_reorder.html#great_tables.GT.cols_reorder" class="doc-function doc-label doc-label-method">GT.cols_reorder()</a></dt>
+<dd>
+<p>Reorder all columns in a specified order.</p>
+</dd>
+<dt><a href="../reference/GT.cols_hide.html#great_tables.GT.cols_hide" class="doc-function doc-label doc-label-method">GT.cols_hide()</a></dt>
+<dd>
+<p>Hide one or more columns.</p>
+</dd>
+<dt><a href="../reference/GT.cols_unhide.html#great_tables.GT.cols_unhide" class="doc-function doc-label doc-label-method">GT.cols_unhide()</a></dt>
+<dd>
+<p>Unhide one or more columns.</p>
+</dd>
+<dt><a href="../reference/GT.cols_merge.html#great_tables.GT.cols_merge" class="doc-function doc-label doc-label-method">GT.cols_merge()</a></dt>
+<dd>
+<p>Merge data from two or more columns into a single column.</p>
+</dd>
+<dt><a href="../reference/GT.cols_merge_uncert.html#great_tables.GT.cols_merge_uncert" class="doc-function doc-label doc-label-method">GT.cols_merge_uncert()</a></dt>
+<dd>
+<p>Merge columns to a value-with-uncertainty column.</p>
+</dd>
+<dt><a href="../reference/GT.cols_merge_range.html#great_tables.GT.cols_merge_range" class="doc-function doc-label doc-label-method">GT.cols_merge_range()</a></dt>
+<dd>
+<p>Merge two columns to a value range column.</p>
+</dd>
+<dt><a href="../reference/GT.cols_merge_n_pct.html#great_tables.GT.cols_merge_n_pct" class="doc-function doc-label doc-label-method">GT.cols_merge_n_pct()</a></dt>
+<dd>
+<p>Merge two columns to combine counts and percentages.</p>
+</dd>
+</dl>
 </section>
-<section id="location-targeting-and-styling-classes" class="level2">
-<h2 class="anchored" data-anchor-id="location-targeting-and-styling-classes">Location Targeting and Styling Classes</h2>
-<p>Location targeting is a powerful feature of <strong>Great Tables</strong>. It allows for the precise selection of table locations for styling (using the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style"><code>tab_style()</code></a> method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/loc.header.html#great_tables.loc.header">loc.header</a></td>
-<td>Target the table header (title and subtitle).</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/loc.title.html#great_tables.loc.title">loc.title</a></td>
-<td>Target the table title.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/loc.subtitle.html#great_tables.loc.subtitle">loc.subtitle</a></td>
-<td>Target the table subtitle.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/loc.stubhead.html#great_tables.loc.stubhead">loc.stubhead</a></td>
-<td>Target the stubhead.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/loc.column_header.html#great_tables.loc.column_header">loc.column_header</a></td>
-<td>Target column spanners and column labels.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/loc.spanner_labels.html#great_tables.loc.spanner_labels">loc.spanner_labels</a></td>
-<td>Target spanner labels.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/loc.column_labels.html#great_tables.loc.column_labels">loc.column_labels</a></td>
-<td>Target column labels.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/loc.grand_summary_stub.html#great_tables.loc.grand_summary_stub">loc.grand_summary_stub</a></td>
-<td>Target the grand summary stub.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/loc.summary_stub.html#great_tables.loc.summary_stub">loc.summary_stub</a></td>
-<td>Target the group summary stub.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/loc.stub.html#great_tables.loc.stub">loc.stub</a></td>
-<td>Target the table stub.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/loc.row_groups.html#great_tables.loc.row_groups">loc.row_groups</a></td>
-<td>Target row groups.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/loc.grand_summary.html#great_tables.loc.grand_summary">loc.grand_summary</a></td>
-<td>Target the data cells in grand summary rows.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/loc.summary.html#great_tables.loc.summary">loc.summary</a></td>
-<td>Target the data cells in group summary rows.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/loc.body.html#great_tables.loc.body">loc.body</a></td>
-<td>Target data cells in the table body.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/loc.footer.html#great_tables.loc.footer">loc.footer</a></td>
-<td>Target the table footer.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/loc.source_notes.html#great_tables.loc.source_notes">loc.source_notes</a></td>
-<td>Target the source notes.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/style.fill.html#great_tables.style.fill">style.fill</a></td>
-<td>A style specification for the background fill of targeted cells.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/style.text.html#great_tables.style.text">style.text</a></td>
-<td>A style specification for cell text.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/style.borders.html#great_tables.style.borders">style.borders</a></td>
-<td>A style specification for cell borders.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/style.css.html#great_tables.style.css">style.css</a></td>
-<td>A style specification for custom CSS rules.</td>
-</tr>
-</tbody>
-</table>
+<section id="adding-rows" class="level2 doc-group">
+<h2 class="doc-group">Adding rows</h2>
+<div class="doc-description">
+<p>The <a href="`great_tables.GT.summary_rows`"><code>summary_rows()</code></a> function adds rows to summarize data within each row group, while <a href="`great_tables.GT.grand_summary_rows`"><code>grand_summary_rows()</code></a> summarizes across the entire table.</p>
+</div>
+<dl>
+<dt><a href="../reference/GT.summary_rows.html#great_tables.GT.summary_rows" class="doc-function doc-label doc-label-method">GT.summary_rows()</a></dt>
+<dd>
+<p>Add group-wise summary rows to the table.</p>
+</dd>
+<dt><a href="../reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows" class="doc-function doc-label doc-label-method">GT.grand_summary_rows()</a></dt>
+<dd>
+<p>Add grand summary rows to the table.</p>
+</dd>
+</dl>
 </section>
-<section id="helper-functions" class="level2">
-<h2 class="anchored" data-anchor-id="helper-functions">Helper functions</h2>
-<p>An assortment of helper functions is available in the <strong>Great Tables</strong> package. The <a href="../reference/md.html#great_tables.md"><span><code>md()</code></span></a> and <a href="../reference/html.html#great_tables.html"><span><code>html()</code></span></a> helper functions can used during label creation with the <a href="../reference/GT.tab_header.html#great_tables.GT.tab_header"><code>tab_header()</code></a>, <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner"><code>tab_spanner()</code></a>, <a href="../reference/GT.tab_stubhead.html#great_tables.GT.tab_stubhead"><code>tab_stubhead()</code></a>, and <a href="../reference/GT.tab_source_note.html#great_tables.GT.tab_source_note"><code>tab_source_note()</code></a> methods.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.with_id.html#great_tables.GT.with_id">GT.with_id</a></td>
-<td>Set the id for this table.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.with_locale.html#great_tables.GT.with_locale">GT.with_locale</a></td>
-<td>Set a column to be the default locale.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/md.html#great_tables.md">md</a></td>
-<td>Interpret input text as Markdown-formatted text.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/html.html#great_tables.html">html</a></td>
-<td>Interpret input text as HTML-formatted text.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/from_column.html#great_tables.from_column">from_column</a></td>
-<td>Specify that a style value should be fetched from a column in the data.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/google_font.html#great_tables.google_font">google_font</a></td>
-<td>Specify a font from the <em>Google Fonts</em> service.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/system_fonts.html#great_tables.system_fonts">system_fonts</a></td>
-<td>Get a themed font stack that works well across systems.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/define_units.html#great_tables.define_units">define_units</a></td>
-<td>With <a href="../reference/define_units.html#great_tables.define_units" title="0"><code>define_units()</code></a> you can work with a specially-crafted units notation string and emit the</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/nanoplot_options.html#great_tables.nanoplot_options">nanoplot_options</a></td>
-<td>Helper for setting the options for a nanoplot.</td>
-</tr>
-</tbody>
-</table>
+<section id="location-targeting-and-styling-classes" class="level2 doc-group">
+<h2 class="doc-group">Location Targeting and Styling Classes</h2>
+<div class="doc-description">
+<p>Location targeting is a powerful feature of Great Tables. It allows for the precise selection of table locations for styling (using the <code>tab_style()</code> method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.</p>
+</div>
+<dl>
+<dt><a href="../reference/loc.header.html#great_tables.loc.header" class="doc-class doc-label doc-label-dataclass">loc.header</a></dt>
+<dd>
+<p>Target the table header (title and subtitle).</p>
+</dd>
+<dt><a href="../reference/loc.title.html#great_tables.loc.title" class="doc-class doc-label doc-label-dataclass">loc.title</a></dt>
+<dd>
+<p>Target the table title.</p>
+</dd>
+<dt><a href="../reference/loc.subtitle.html#great_tables.loc.subtitle" class="doc-class doc-label doc-label-dataclass">loc.subtitle</a></dt>
+<dd>
+<p>Target the table subtitle.</p>
+</dd>
+<dt><a href="../reference/loc.stubhead.html#great_tables.loc.stubhead" class="doc-class doc-label doc-label-dataclass">loc.stubhead</a></dt>
+<dd>
+<p>Target the stubhead.</p>
+</dd>
+<dt><a href="../reference/loc.column_header.html#great_tables.loc.column_header" class="doc-class doc-label doc-label-dataclass">loc.column_header</a></dt>
+<dd>
+<p>Target column spanners and column labels.</p>
+</dd>
+<dt><a href="../reference/loc.spanner_labels.html#great_tables.loc.spanner_labels" class="doc-class doc-label doc-label-dataclass">loc.spanner_labels</a></dt>
+<dd>
+<p>Target spanner labels.</p>
+</dd>
+<dt><a href="../reference/loc.column_labels.html#great_tables.loc.column_labels" class="doc-class doc-label doc-label-dataclass">loc.column_labels</a></dt>
+<dd>
+<p>Target column labels.</p>
+</dd>
+<dt><a href="../reference/loc.grand_summary_stub.html#great_tables.loc.grand_summary_stub" class="doc-class doc-label doc-label-dataclass">loc.grand_summary_stub</a></dt>
+<dd>
+<p>Target the grand summary stub.</p>
+</dd>
+<dt><a href="../reference/loc.stub.html#great_tables.loc.stub" class="doc-class doc-label doc-label-dataclass">loc.stub</a></dt>
+<dd>
+<p>Target the table stub.</p>
+</dd>
+<dt><a href="../reference/loc.row_groups.html#great_tables.loc.row_groups" class="doc-class doc-label doc-label-dataclass">loc.row_groups</a></dt>
+<dd>
+<p>Target row groups.</p>
+</dd>
+<dt><a href="../reference/loc.grand_summary.html#great_tables.loc.grand_summary" class="doc-class doc-label doc-label-dataclass">loc.grand_summary</a></dt>
+<dd>
+<p>Target the data cells in grand summary rows.</p>
+</dd>
+<dt><a href="../reference/loc.body.html#great_tables.loc.body" class="doc-class doc-label doc-label-dataclass">loc.body</a></dt>
+<dd>
+<p>Target data cells in the table body.</p>
+</dd>
+<dt><a href="../reference/loc.footer.html#great_tables.loc.footer" class="doc-class doc-label doc-label-dataclass">loc.footer</a></dt>
+<dd>
+<p>Target the table footer.</p>
+</dd>
+<dt><a href="../reference/loc.source_notes.html#great_tables.loc.source_notes" class="doc-class doc-label doc-label-dataclass">loc.source_notes</a></dt>
+<dd>
+<p>Target the source notes.</p>
+</dd>
+<dt><a href="../reference/style.fill.html#great_tables.style.fill" class="doc-class doc-label doc-label-dataclass">style.fill</a></dt>
+<dd>
+<p>A style specification for the background fill of targeted cells.</p>
+</dd>
+<dt><a href="../reference/style.text.html#great_tables.style.text" class="doc-class doc-label doc-label-dataclass">style.text</a></dt>
+<dd>
+<p>A style specification for cell text.</p>
+</dd>
+<dt><a href="../reference/style.borders.html#great_tables.style.borders" class="doc-class doc-label doc-label-dataclass">style.borders</a></dt>
+<dd>
+<p>A style specification for cell borders.</p>
+</dd>
+<dt><a href="../reference/style.css.html#great_tables.style.css" class="doc-class doc-label doc-label-dataclass">style.css</a></dt>
+<dd>
+<p>A style specification for custom CSS rules.</p>
+</dd>
+</dl>
 </section>
-<section id="table-options" class="level2">
-<h2 class="anchored" data-anchor-id="table-options">Table options</h2>
+<section id="helper-functions" class="level2 doc-group">
+<h2 class="doc-group">Helper Functions</h2>
+<div class="doc-description">
+<p>An assortment of helper functions is available in the Great Tables package. The <code>md()</code> and <code>html()</code> helper functions can be used during label creation with the <code>tab_header()</code>, <code>tab_spanner()</code>, <code>tab_stubhead()</code>, and <code>tab_source_note()</code> methods.</p>
+</div>
+<dl>
+<dt><a href="../reference/GT.with_id.html#great_tables.GT.with_id" class="doc-function doc-label doc-label-method">GT.with_id()</a></dt>
+<dd>
+<p>Set the id for this table.</p>
+</dd>
+<dt><a href="../reference/GT.with_locale.html#great_tables.GT.with_locale" class="doc-function doc-label doc-label-method">GT.with_locale()</a></dt>
+<dd>
+<p>Set a column to be the default locale.</p>
+</dd>
+<dt><a href="../reference/md.html#great_tables.md" class="doc-function doc-label doc-label-function">md()</a></dt>
+<dd>
+<p>Interpret input text as Markdown-formatted text.</p>
+</dd>
+<dt><a href="../reference/html.html#great_tables.html" class="doc-function doc-label doc-label-function">html()</a></dt>
+<dd>
+<p>Interpret input text as HTML-formatted text.</p>
+</dd>
+<dt><a href="../reference/from_column.html#great_tables.from_column" class="doc-class doc-label doc-label-dataclass">from_column</a></dt>
+<dd>
+<p>Specify that a style value should be fetched from a column in the data.</p>
+</dd>
+<dt><a href="../reference/google_font.html#great_tables.google_font" class="doc-function doc-label doc-label-function">google_font()</a></dt>
+<dd>
+<p>Specify a font from the <em>Google Fonts</em> service.</p>
+</dd>
+<dt><a href="../reference/system_fonts.html#great_tables.system_fonts" class="doc-function doc-label doc-label-function">system_fonts()</a></dt>
+<dd>
+<p>Get a themed font stack that works well across systems.</p>
+</dd>
+<dt><a href="../reference/define_units.html#great_tables.define_units" class="doc-function doc-label doc-label-function">define_units()</a></dt>
+<dd>
+<p>With <code>define_units()</code> you can work with a specially-crafted units notation string and emit the</p>
+</dd>
+<dt><a href="../reference/nanoplot_options.html#great_tables.nanoplot_options" class="doc-function doc-label doc-label-function">nanoplot_options()</a></dt>
+<dd>
+<p>Helper for setting the options for a nanoplot.</p>
+</dd>
+</dl>
+</section>
+<section id="table-options" class="level2 doc-group">
+<h2 class="doc-group">Table options</h2>
+<div class="doc-description">
 <p>With the <code>opt_*()</code> functions, we have an easy way to set commonly-used table options without having to use <code>tab_options()</code> directly.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header">GT.opt_align_table_header</a></td>
-<td>Option to align the table header.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.opt_row_striping.html#great_tables.GT.opt_row_striping">GT.opt_row_striping</a></td>
-<td>Option to add or remove row striping.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps">GT.opt_all_caps</a></td>
-<td>Option to use all caps in select table locations.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.opt_vertical_padding.html#great_tables.GT.opt_vertical_padding">GT.opt_vertical_padding</a></td>
-<td>Option to scale the vertical padding of the table.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.opt_horizontal_padding.html#great_tables.GT.opt_horizontal_padding">GT.opt_horizontal_padding</a></td>
-<td>Option to scale the horizontal padding of the table.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.opt_table_outline.html#great_tables.GT.opt_table_outline">GT.opt_table_outline</a></td>
-<td>Option to wrap an outline around the entire table.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.opt_table_font.html#great_tables.GT.opt_table_font">GT.opt_table_font</a></td>
-<td>Options to define font choices for the entire table.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.opt_stylize.html#great_tables.GT.opt_stylize">GT.opt_stylize</a></td>
-<td>Stylize your table with a colorful look.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.opt_footnote_marks.html#great_tables.GT.opt_footnote_marks">GT.opt_footnote_marks</a></td>
-<td>Option to modify the set of footnote marks.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.opt_css.html#great_tables.GT.opt_css">GT.opt_css</a></td>
-<td>Option to add custom CSS for the table.</td>
-</tr>
-</tbody>
-</table>
+</div>
+<dl>
+<dt><a href="../reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="doc-function doc-label doc-label-method">GT.opt_stylize()</a></dt>
+<dd>
+<p>Stylize your table with a colorful look.</p>
+</dd>
+<dt><a href="../reference/GT.opt_footnote_marks.html#great_tables.GT.opt_footnote_marks" class="doc-function doc-label doc-label-method">GT.opt_footnote_marks()</a></dt>
+<dd>
+<p>Option to modify the set of footnote marks.</p>
+</dd>
+<dt><a href="../reference/GT.opt_row_striping.html#great_tables.GT.opt_row_striping" class="doc-function doc-label doc-label-method">GT.opt_row_striping()</a></dt>
+<dd>
+<p>Option to add or remove row striping.</p>
+</dd>
+<dt><a href="../reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header" class="doc-function doc-label doc-label-method">GT.opt_align_table_header()</a></dt>
+<dd>
+<p>Option to align the table header.</p>
+</dd>
+<dt><a href="../reference/GT.opt_vertical_padding.html#great_tables.GT.opt_vertical_padding" class="doc-function doc-label doc-label-method">GT.opt_vertical_padding()</a></dt>
+<dd>
+<p>Option to scale the vertical padding of the table.</p>
+</dd>
+<dt><a href="../reference/GT.opt_horizontal_padding.html#great_tables.GT.opt_horizontal_padding" class="doc-function doc-label doc-label-method">GT.opt_horizontal_padding()</a></dt>
+<dd>
+<p>Option to scale the horizontal padding of the table.</p>
+</dd>
+<dt><a href="../reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="doc-function doc-label doc-label-method">GT.opt_all_caps()</a></dt>
+<dd>
+<p>Option to use all caps in select table locations.</p>
+</dd>
+<dt><a href="../reference/GT.opt_table_outline.html#great_tables.GT.opt_table_outline" class="doc-function doc-label doc-label-method">GT.opt_table_outline()</a></dt>
+<dd>
+<p>Option to wrap an outline around the entire table.</p>
+</dd>
+<dt><a href="../reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="doc-function doc-label doc-label-method">GT.opt_table_font()</a></dt>
+<dd>
+<p>Options to define font choices for the entire table.</p>
+</dd>
+<dt><a href="../reference/GT.opt_css.html#great_tables.GT.opt_css" class="doc-function doc-label doc-label-method">GT.opt_css()</a></dt>
+<dd>
+<p>Option to add custom CSS for the table.</p>
+</dd>
+</dl>
 </section>
-<section id="export" class="level2">
-<h2 class="anchored" data-anchor-id="export">Export</h2>
+<section id="export" class="level2 doc-group">
+<h2 class="doc-group">Export</h2>
+<div class="doc-description">
 <p>There may come a day when you need to export a table to some specific format. A great method for that is <code>gtsave()</code>, which allows us to save the table as a standalone image file or PDF. You can also get the table code as an HTML fragment with the <code>*_raw_html()</code> methods.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.gtsave.html#great_tables.GT.gtsave">GT.gtsave</a></td>
-<td>Save a GT table to a file (PNG, JPEG, WebP, or PDF).</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.show.html#great_tables.GT.show">GT.show</a></td>
-<td>Display the table in a notebook or a web browser.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.as_raw_html.html#great_tables.GT.as_raw_html">GT.as_raw_html</a></td>
-<td>Get the HTML content of a GT object.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/GT.write_raw_html.html#great_tables.GT.write_raw_html">GT.write_raw_html</a></td>
-<td>Write the table to an HTML file.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/GT.as_latex.html#great_tables.GT.as_latex">GT.as_latex</a></td>
-<td>Output a GT object as LaTeX</td>
-</tr>
-</tbody>
-</table>
+</div>
+<dl>
+<dt><a href="../reference/GT.gtsave.html#great_tables.GT.gtsave" class="doc-function doc-label doc-label-method">GT.gtsave()</a></dt>
+<dd>
+<p>Save a GT table to a file (PNG, JPEG, WebP, or PDF).</p>
+</dd>
+<dt><a href="../reference/GT.show.html#great_tables.GT.show" class="doc-function doc-label doc-label-method">GT.show()</a></dt>
+<dd>
+<p>Display the table in a notebook or a web browser.</p>
+</dd>
+<dt><a href="../reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="doc-function doc-label doc-label-method">GT.as_raw_html()</a></dt>
+<dd>
+<p>Get the HTML content of a GT object.</p>
+</dd>
+<dt><a href="../reference/GT.write_raw_html.html#great_tables.GT.write_raw_html" class="doc-function doc-label doc-label-method">GT.write_raw_html()</a></dt>
+<dd>
+<p>Write the table to an HTML file.</p>
+</dd>
+<dt><a href="../reference/GT.as_latex.html#great_tables.GT.as_latex" class="doc-function doc-label doc-label-method">GT.as_latex()</a></dt>
+<dd>
+<p>Output a GT object as LaTeX</p>
+</dd>
+</dl>
 </section>
-<section id="pipeline" class="level2">
-<h2 class="anchored" data-anchor-id="pipeline">Pipeline</h2>
+<section id="pipeline" class="level2 doc-group">
+<h2 class="doc-group">Pipeline</h2>
+<div class="doc-description">
 <p>Sometimes, you might want to programmatically manipulate the table while still benefiting from the chained API that <strong>Great Tables</strong> offers. <code>pipe()</code> is designed to tackle this issue.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/GT.pipe.html#great_tables.GT.pipe">GT.pipe</a></td>
-<td>Provide a structured way to chain a function for a GT object.</td>
-</tr>
-</tbody>
-</table>
+</div>
+<dl>
+<dt><a href="../reference/GT.pipe.html#great_tables.GT.pipe" class="doc-function doc-label doc-label-method">GT.pipe()</a></dt>
+<dd>
+<p>Provide a structured way to chain a function for a GT object.</p>
+</dd>
+</dl>
 </section>
-<section id="value-formatting-functions" class="level2">
-<h2 class="anchored" data-anchor-id="value-formatting-functions">Value formatting functions</h2>
+<section id="value-formatting-functions" class="level2 doc-group">
+<h2 class="doc-group">Value Formatting Functions</h2>
+<div class="doc-description">
 <p>If you have single values (or lists of them) in need of formatting, we have a set of <code>val_fmt_*()</code> functions that have been adapted from the corresponding <code>fmt_*()</code> methods.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_number.html#great_tables.vals.fmt_number">vals.fmt_number</a></td>
-<td>Format numeric values.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_integer.html#great_tables.vals.fmt_integer">vals.fmt_integer</a></td>
-<td>Format values as integers.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_scientific.html#great_tables.vals.fmt_scientific">vals.fmt_scientific</a></td>
-<td>Format values to scientific notation.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_engineering.html#great_tables.vals.fmt_engineering">vals.fmt_engineering</a></td>
-<td>Format values to engineering notation.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_percent.html#great_tables.vals.fmt_percent">vals.fmt_percent</a></td>
-<td>Format values as a percentage.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_currency.html#great_tables.vals.fmt_currency">vals.fmt_currency</a></td>
-<td>Format values as currencies.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_roman.html#great_tables.vals.fmt_roman">vals.fmt_roman</a></td>
-<td>Format values as Roman numerals.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_bytes.html#great_tables.vals.fmt_bytes">vals.fmt_bytes</a></td>
-<td>Format values as bytes.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_duration.html#great_tables.vals.fmt_duration">vals.fmt_duration</a></td>
-<td>Format values as time duration strings.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_date.html#great_tables.vals.fmt_date">vals.fmt_date</a></td>
-<td>Format values as dates.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_time.html#great_tables.vals.fmt_time">vals.fmt_time</a></td>
-<td>Format values as times.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/vals.fmt_markdown.html#great_tables.vals.fmt_markdown">vals.fmt_markdown</a></td>
-<td>Format Markdown text.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/vals.fmt_image.html#great_tables.vals.fmt_image">vals.fmt_image</a></td>
-<td>Format image paths to generate images in cells.</td>
-</tr>
-</tbody>
-</table>
+</div>
+<dl>
+<dt><a href="../reference/vals.fmt_number.html#great_tables.vals.fmt_number" class="doc-function doc-label doc-label-function">vals.fmt_number()</a></dt>
+<dd>
+<p>Format numeric values.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_integer.html#great_tables.vals.fmt_integer" class="doc-function doc-label doc-label-function">vals.fmt_integer()</a></dt>
+<dd>
+<p>Format values as integers.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_scientific.html#great_tables.vals.fmt_scientific" class="doc-function doc-label doc-label-function">vals.fmt_scientific()</a></dt>
+<dd>
+<p>Format values to scientific notation.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_engineering.html#great_tables.vals.fmt_engineering" class="doc-function doc-label doc-label-function">vals.fmt_engineering()</a></dt>
+<dd>
+<p>Format values to engineering notation.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_percent.html#great_tables.vals.fmt_percent" class="doc-function doc-label doc-label-function">vals.fmt_percent()</a></dt>
+<dd>
+<p>Format values as a percentage.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_partsper.html#great_tables.vals.fmt_partsper" class="doc-function doc-label doc-label-function">vals.fmt_partsper()</a></dt>
+<dd>
+<p>Format values as parts-per quantities.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_currency.html#great_tables.vals.fmt_currency" class="doc-function doc-label doc-label-function">vals.fmt_currency()</a></dt>
+<dd>
+<p>Format values as currencies.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_roman.html#great_tables.vals.fmt_roman" class="doc-function doc-label doc-label-function">vals.fmt_roman()</a></dt>
+<dd>
+<p>Format values as Roman numerals.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_bytes.html#great_tables.vals.fmt_bytes" class="doc-function doc-label doc-label-function">vals.fmt_bytes()</a></dt>
+<dd>
+<p>Format values as bytes.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_duration.html#great_tables.vals.fmt_duration" class="doc-function doc-label doc-label-function">vals.fmt_duration()</a></dt>
+<dd>
+<p>Format values as time duration strings.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_date.html#great_tables.vals.fmt_date" class="doc-function doc-label doc-label-function">vals.fmt_date()</a></dt>
+<dd>
+<p>Format values as dates.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_time.html#great_tables.vals.fmt_time" class="doc-function doc-label doc-label-function">vals.fmt_time()</a></dt>
+<dd>
+<p>Format values as times.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_duration.html#great_tables.vals.fmt_duration" class="doc-function doc-label doc-label-function">vals.fmt_duration()</a></dt>
+<dd>
+<p>Format values as time duration strings.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_markdown.html#great_tables.vals.fmt_markdown" class="doc-function doc-label doc-label-function">vals.fmt_markdown()</a></dt>
+<dd>
+<p>Format Markdown text.</p>
+</dd>
+<dt><a href="../reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="doc-function doc-label doc-label-function">vals.fmt_image()</a></dt>
+<dd>
+<p>Format image paths to generate images in cells.</p>
+</dd>
+</dl>
 </section>
-<section id="built-in-datasets" class="level2">
-<h2 class="anchored" data-anchor-id="built-in-datasets">Built in datasets</h2>
-<p>The <strong>Great Tables</strong> package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the awesome features of the package! Please note that using any of these datasets requires the Pandas library to be installed.</p>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td><a href="../reference/data.countrypops.html#great_tables.data.countrypops">data.countrypops</a></td>
-<td>Yearly populations of countries from 1960 to 2022.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.sza.html#great_tables.data.sza">data.sza</a></td>
-<td>Twice hourly solar zenith angles by month &amp; latitude.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.gtcars.html#great_tables.data.gtcars">data.gtcars</a></td>
-<td>Deluxe automobiles from the 2014-2017 period.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.sp500.html#great_tables.data.sp500">data.sp500</a></td>
-<td>Daily S&amp;P 500 Index data from 1950 to 2015.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.pizzaplace.html#great_tables.data.pizzaplace">data.pizzaplace</a></td>
-<td>A year of pizza sales from a pizza place.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.exibble.html#great_tables.data.exibble">data.exibble</a></td>
-<td>A toy example table for testing with great_tables: exibble.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.towny.html#great_tables.data.towny">data.towny</a></td>
-<td>Populations of all municipalities in Ontario from 1996 to 2021.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.peeps.html#great_tables.data.peeps">data.peeps</a></td>
-<td>A table of personal information for people all over the world.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.films.html#great_tables.data.films">data.films</a></td>
-<td>Feature films in competition at the Cannes Film Festival.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.metro.html#great_tables.data.metro">data.metro</a></td>
-<td>The stations of the Paris Metro.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.gibraltar.html#great_tables.data.gibraltar">data.gibraltar</a></td>
-<td>Weather conditions in Gibraltar, May 2023.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.constants.html#great_tables.data.constants">data.constants</a></td>
-<td>The fundamental physical constants.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.illness.html#great_tables.data.illness">data.illness</a></td>
-<td>Lab tests for one suffering from an illness.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.reactions.html#great_tables.data.reactions">data.reactions</a></td>
-<td>Reaction rates for gas-phase atmospheric reactions of organic compounds.</td>
-</tr>
-<tr class="odd">
-<td><a href="../reference/data.photolysis.html#great_tables.data.photolysis">data.photolysis</a></td>
-<td>Data on photolysis rates for gas-phase organic compounds.</td>
-</tr>
-<tr class="even">
-<td><a href="../reference/data.nuclides.html#great_tables.data.nuclides">data.nuclides</a></td>
-<td>Nuclide data.</td>
-</tr>
-</tbody>
-</table>
+<section id="built-in-datasets" class="level2 doc-group">
+<h2 class="doc-group">Built-in Datasets</h2>
+<div class="doc-description">
+<p>The Great Tables package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package.</p>
+</div>
+<dl>
+<dt><a href="../reference/data.countrypops.html#great_tables.data.countrypops" class="doc-attribute doc-label doc-label-constant">data.countrypops</a></dt>
+<dd>
+<p>Yearly populations of countries from 1960 to 2022.</p>
+</dd>
+<dt><a href="../reference/data.sza.html#great_tables.data.sza" class="doc-attribute doc-label doc-label-constant">data.sza</a></dt>
+<dd>
+<p>Twice hourly solar zenith angles by month &amp; latitude.</p>
+</dd>
+<dt><a href="../reference/data.gtcars.html#great_tables.data.gtcars" class="doc-attribute doc-label doc-label-constant">data.gtcars</a></dt>
+<dd>
+<p>Deluxe automobiles from the 2014-2017 period.</p>
+</dd>
+<dt><a href="../reference/data.sp500.html#great_tables.data.sp500" class="doc-attribute doc-label doc-label-constant">data.sp500</a></dt>
+<dd>
+<p>Daily S&amp;P 500 Index data from 1950 to 2015.</p>
+</dd>
+<dt><a href="../reference/data.pizzaplace.html#great_tables.data.pizzaplace" class="doc-attribute doc-label doc-label-constant">data.pizzaplace</a></dt>
+<dd>
+<p>A year of pizza sales from a pizza place.</p>
+</dd>
+<dt><a href="../reference/data.exibble.html#great_tables.data.exibble" class="doc-attribute doc-label doc-label-constant">data.exibble</a></dt>
+<dd>
+<p>A toy example table for testing with great_tables: exibble.</p>
+</dd>
+<dt><a href="../reference/data.towny.html#great_tables.data.towny" class="doc-attribute doc-label doc-label-constant">data.towny</a></dt>
+<dd>
+<p>Populations of all municipalities in Ontario from 1996 to 2021.</p>
+</dd>
+<dt><a href="../reference/data.peeps.html#great_tables.data.peeps" class="doc-attribute doc-label doc-label-constant">data.peeps</a></dt>
+<dd>
+<p>A table of personal information for people all over the world.</p>
+</dd>
+<dt><a href="../reference/data.films.html#great_tables.data.films" class="doc-attribute doc-label doc-label-constant">data.films</a></dt>
+<dd>
+<p>Feature films in competition at the Cannes Film Festival.</p>
+</dd>
+<dt><a href="../reference/data.metro.html#great_tables.data.metro" class="doc-attribute doc-label doc-label-constant">data.metro</a></dt>
+<dd>
+<p>The stations of the Paris Metro.</p>
+</dd>
+<dt><a href="../reference/data.gibraltar.html#great_tables.data.gibraltar" class="doc-attribute doc-label doc-label-constant">data.gibraltar</a></dt>
+<dd>
+<p>Weather conditions in Gibraltar, May 2023.</p>
+</dd>
+<dt><a href="../reference/data.constants.html#great_tables.data.constants" class="doc-attribute doc-label doc-label-constant">data.constants</a></dt>
+<dd>
+<p>The fundamental physical constants.</p>
+</dd>
+<dt><a href="../reference/data.illness.html#great_tables.data.illness" class="doc-attribute doc-label doc-label-constant">data.illness</a></dt>
+<dd>
+<p>Lab tests for one suffering from an illness.</p>
+</dd>
+<dt><a href="../reference/data.reactions.html#great_tables.data.reactions" class="doc-attribute doc-label doc-label-constant">data.reactions</a></dt>
+<dd>
+<p>Reaction rates for gas-phase atmospheric reactions of organic compounds.</p>
+</dd>
+<dt><a href="../reference/data.photolysis.html#great_tables.data.photolysis" class="doc-attribute doc-label doc-label-constant">data.photolysis</a></dt>
+<dd>
+<p>Data on photolysis rates for gas-phase organic compounds.</p>
+</dd>
+<dt><a href="../reference/data.nuclides.html#great_tables.data.nuclides" class="doc-attribute doc-label doc-label-constant">data.nuclides</a></dt>
+<dd>
+<p>Nuclide data.</p>
+</dd>
+</dl>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -816,68 +1772,6 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
       icon: icon
     };
     anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
-        }
-      }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
-    });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
-    }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
         var filterRegex = new RegExp("https:\/\/posit-dev\.github\.io\/great-tables\/");
@@ -1208,6 +2102,30 @@ gtag('config', 'G-CN7Z82M6R7', { 'anonymize_ip': true});
   });
   </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+<div class="nav-footer-center">
+<p>Developed by <strong>Richard&nbsp;Iannone</strong> and <strong>Michael&nbsp;Chow</strong>. Supported by <a href="https://posit.co"><strong>Posit&nbsp;Software,&nbsp;PBC</strong></a>.<br>Site created with <strong>Great&nbsp;Docs</strong>.</p>
+</div>
+</div>
+</footer>
+<script src="../github-widget.js"></script>
+<script src="../sidebar-wrap.js"></script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'sidebar-float.js';document.body.appendChild(s);})();</script>
+<script src="../sidebar-filter.js"></script>
+<script src="../dark-mode-toggle.js"></script>
+<script src="../back-to-top.js"></script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'on-this-page.js';document.body.appendChild(s);})();</script>
+<script src="../keyboard-nav.js"></script>
+<script src="../copy-code.js"></script>
+<script src="../details.js"></script>
+<script src="../mermaid-renderer.js"></script>
+<script src="../tooltips.js"></script>
+<script>(function(){var s=document.createElement('script');s.src=(document.querySelector('link[rel="canonical"]')||{href:location.href}).href.replace(/\/[^\/]*$/,'').replace(/\/[^\/]*$/,'')+'/color-swatch.js';var h=document.currentScript;h.parentNode.insertBefore(s,h.nextSibling);})()</script>
+<script src="../responsive-tables.js"></script>
+<script src="video-embed.js"></script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'termshow.js';document.body.appendChild(s);})();</script>
+<script src="../navbar-widgets.js"></script>
 
 
 
