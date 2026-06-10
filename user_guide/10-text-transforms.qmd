@@ -5,7 +5,11 @@ html-table-processing: none
 guide-section: Formatting Data
 ---
 
-Sometimes the final step in preparing a table involves modifying the text content of cells after all formatting has been applied. The `text_*()` methods operate on the already-rendered text in cells, giving you a post-processing layer for tasks like replacing abbreviations, applying conditional labels, or inserting custom HTML. These methods complement the `fmt_*()` methods, which work on raw data values.
+Sometimes the final step in preparing a table involves modifying the text content of cells after all
+formatting has been applied. The `text_*()` methods operate on the already-rendered text in cells,
+giving you a post-processing layer for tasks like replacing abbreviations, applying conditional
+labels, or inserting custom HTML. These methods complement the `fmt_*()` methods, which work on raw
+data values.
 
 ## Setting Up the Example Data
 
@@ -24,9 +28,14 @@ gt_tbl = GT(status_df, rowname_col="task")
 gt_tbl
 ```
 
+This produces a basic table with coded status values and numeric progress, which we will transform
+using the text methods below.
+
 ## Custom Text Transformations
 
-The `~~GT.text_transform()` method is the most flexible of the text methods. It takes a location specifier and a function that receives a cell's text content as a string and returns the transformed string. The transformation runs after all `fmt_*()` methods have been applied.
+The `~~GT.text_transform()` method is the most flexible of the text methods. It takes a location
+specifier and a function that receives a cell's text content as a string and returns the transformed
+string. The transformation runs after all `fmt_*()` methods have been applied.
 
 ```{python}
 (
@@ -38,7 +47,8 @@ The `~~GT.text_transform()` method is the most flexible of the text methods. It 
 )
 ```
 
-The underscores in status values are replaced with spaces and the text is converted to title case. This is useful when your data contains coded values that need to be made more readable.
+The underscores in status values are replaced with spaces and the text is converted to title case.
+This is useful when your data contains coded values that need to be made more readable.
 
 You can also return HTML from the transform function to add visual elements to cells.
 
@@ -58,9 +68,13 @@ def add_progress_indicator(text):
 )
 ```
 
+Each progress cell now displays both the numeric percentage and a colored bar beneath it. Returning
+raw HTML from the function lets you embed rich visual elements directly in table cells.
+
 ## Text Replacement with Regex
 
-The `~~GT.text_replace()` method performs regex-based find-and-replace on cell content. It is a simpler alternative to `~~GT.text_transform()` when you just need pattern matching.
+The `~~GT.text_replace()` method performs regex-based find-and-replace on cell content. It is a
+simpler alternative to `~~GT.text_transform()` when you just need pattern matching.
 
 ```{python}
 (
@@ -73,7 +87,9 @@ The `~~GT.text_replace()` method performs regex-based find-and-replace on cell c
 )
 ```
 
-All underscores in the `status` column are replaced with spaces. The `pattern=` argument accepts full Python regex syntax, so you can use capture groups and backreferences in the `replacement=` string.
+All underscores in the `status` column are replaced with spaces. The `pattern=` argument accepts
+full Python regex syntax, so you can use capture groups and backreferences in the `replacement=`
+string.
 
 ```{python}
 (
@@ -86,9 +102,15 @@ All underscores in the `status` column are replaced with spaces. The `pattern=` 
 )
 ```
 
+The regex captures the two words separated by an underscore and reconstructs them with a space in
+between. This technique is especially handy when your data has structured codes with consistent
+delimiters.
+
 ## Case Matching
 
-The `~~GT.text_case_match()` method provides a switch-like mechanism for replacing cell text. You supply tuples of `(old_text, new_text)` and the method matches cell content against each case in order.
+The `~~GT.text_case_match()` method provides a switch-like mechanism for replacing cell text. You
+supply tuples of `(old_text, new_text)` and the method matches cell content against each case in
+order.
 
 ```{python}
 (
@@ -102,11 +124,14 @@ The `~~GT.text_case_match()` method provides a switch-like mechanism for replaci
 )
 ```
 
-Each status code is mapped to a more readable label. By default, `text_case_match()` compares the entire cell text (i.e., `replace="all"`). You can set `replace="partial"` to match substrings instead.
+Each status code is mapped to a more readable label. By default, `text_case_match()` compares the
+entire cell text (i.e., `replace="all"`). You can set `replace="partial"` to match substrings
+instead.
 
 ### Matching Multiple Values to One Replacement
 
-The first element of each case tuple can be a list of strings, allowing you to map multiple values to the same replacement.
+The first element of each case tuple can be a list of strings, allowing you to map multiple values
+to the same replacement.
 
 ```{python}
 (
@@ -119,9 +144,13 @@ The first element of each case tuple can be a list of strings, allowing you to m
 )
 ```
 
+Both `"DONE"` and `"IN_PROGRESS"` map to `"Active"`, reducing several statuses down to fewer
+categories. This is convenient when you want to simplify grouped labels for presentation.
+
 ### Providing a Default
 
-If some cell values do not match any case, they remain unchanged by default. You can set a fallback value with the `default=` argument.
+If some cell values do not match any case, they remain unchanged by default. You can set a fallback
+value with the `default=` argument.
 
 ```{python}
 (
@@ -134,11 +163,14 @@ If some cell values do not match any case, they remain unchanged by default. You
 )
 ```
 
-Cells containing `"IN_PROGRESS"` and `"NOT_STARTED"` both become `"Other"` since they did not match the single case provided.
+Cells containing `"IN_PROGRESS"` and `"NOT_STARTED"` both become `"Other"` since they did not match
+the single case provided.
 
 ## Conditional Text Replacement
 
-The `~~GT.text_case_when()` method gives you predicate-based replacement logic. Each case is a tuple of `(predicate_function, replacement_text)`, where the predicate receives the cell text as a string and returns `True` or `False`. The first matching predicate determines the replacement.
+The `~~GT.text_case_when()` method gives you predicate-based replacement logic. Each case is a tuple
+of `(predicate_function, replacement_text)`, where the predicate receives the cell text as a string
+and returns `True` or `False`. The first matching predicate determines the replacement.
 
 ```{python}
 (
@@ -152,11 +184,13 @@ The `~~GT.text_case_when()` method gives you predicate-based replacement logic. 
 )
 ```
 
-This approach is particularly powerful when your replacement logic depends on the value itself (such as numeric thresholds) rather than exact string matching.
+This approach is particularly powerful when your replacement logic depends on the value itself (such
+as numeric thresholds) rather than exact string matching.
 
 ## Targeting Different Locations
 
-All text methods support the `locations=` argument, which defaults to `loc.body()` when not specified. You can target other parts of the table as well.
+All text methods support the `locations=` argument, which defaults to `loc.body()` when not
+specified. You can target other parts of the table as well.
 
 ### Transforming Row Group Labels
 
@@ -177,6 +211,9 @@ df_grouped = pl.DataFrame({
 )
 ```
 
+The row group labels are transformed from `"team_alpha"` and `"team_beta"` to `"Team alpha"` and
+`"Team beta"`. This keeps the source data unchanged while presenting a polished label in the table.
+
 ### Transforming Column Labels
 
 ```{python}
@@ -189,9 +226,13 @@ df_grouped = pl.DataFrame({
 )
 ```
 
+The `"progress"` column label is converted to uppercase. You can target any combination of column
+labels using the `columns=` argument within `loc.column_labels()`.
+
 ## Combining Text Methods
 
-You can chain multiple text methods together. They are applied in the order specified, each operating on the result of the previous transformation.
+You can chain multiple text methods together. They are applied in the order specified, each
+operating on the result of the previous transformation.
 
 ```{python}
 (
@@ -211,4 +252,6 @@ You can chain multiple text methods together. They are applied in the order spec
 )
 ```
 
-The text transformation methods provide a final layer of control over how your table content appears. Whether you need simple find-and-replace, switch-like mappings, or complex conditional logic, these methods let you shape the text to match your exact presentation needs.
+The text transformation methods provide a final layer of control over how your table content
+appears. Whether you need simple find-and-replace, switch-like mappings, or complex conditional
+logic, these methods let you shape the text to match your exact presentation needs.
