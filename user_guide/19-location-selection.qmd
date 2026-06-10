@@ -1,13 +1,23 @@
 ---
-title: Location selection
+title: Location Selection
 jupyter: python3
+guide-section: Advanced Topics
 ---
 
-Great Tables uses the `loc` module to specify locations for styling in `~~GT.tab_style()`. Some location specifiers also allow selecting specific columns and rows of data.
+The `loc` module is what connects your styling intentions to specific parts of the table. Each
+location specifier identifies a region of the table (such as the header, body, stub, or footer) and
+many of them also support targeting specific columns or rows within that region. This page provides
+a comprehensive overview of all available location specifiers and how to use them effectively.
+
+## Overview
+
+Great Tables uses the `loc` module to specify locations for styling in `~~GT.tab_style()`. Some
+location specifiers also allow selecting specific columns and rows of data.
 
 For example, you might style a particular row name, group, column, or spanner label.
 
-The table below shows the different location specifiers, along with the types of column or row selection they allow.
+The table below shows the different location specifiers, along with the types of column or row
+selection they allow.
 
 ```{python}
 # | echo: false
@@ -37,11 +47,13 @@ df = pl.DataFrame(data, schema=["table part", "name", "selection"], orient="row"
 GT(df)
 ```
 
-Note that composite specifiers are ones that target multiple locations. For example, `loc.header()` specifies both `loc.title()` and `loc.subtitle()`.
+Note that composite specifiers are ones that target multiple locations. For example, `loc.header()`
+specifies both `loc.title()` and `loc.subtitle()`.
 
 ## Setting up data
 
-The examples below will use this small dataset to show selecting different locations, as well as specific rows and columns within a location (where supported).
+The examples below will use this small dataset to show selecting different locations, as well as
+specific rows and columns within a location (where supported).
 
 ```{python}
 import polars as pl
@@ -103,7 +115,8 @@ Use `columns=` and `rows=` in `loc.body()` to style specific cells in the table 
 )
 ```
 
-Alternatively, use `mask=` in `loc.body()` to apply conditional styling to rows on a per-column basis.
+Alternatively, use `mask=` in `loc.body()` to apply conditional styling to rows on a per-column
+basis.
 ```{python}
 (
     GT(pl_exibble).tab_style(
@@ -113,11 +126,12 @@ Alternatively, use `mask=` in `loc.body()` to apply conditional styling to rows 
 )
 ```
 
-This is discussed in detail in [Styling the Table Body](./07-styling-the-table-body.qmd).
+This is discussed in detail in [Styling the Table Body](./11-styling-the-table-body.qmd).
 
 ## Column labels
 
-Locations like `loc.spanner_labels()` and `loc.column_labels()` can select specific column and spanner labels.
+Locations like `loc.spanner_labels()` and `loc.column_labels()` can select specific column and
+spanner labels.
 
 You can use name strings, index position, or polars selectors.
 
@@ -160,9 +174,11 @@ gt.tab_style(style.fill("yellow"), loc.stub(["apricot", 2]))
 
 ### Groups by name and position
 
-Note that for specifying row groups, the group corresponding to the group name or row number in the original data is used.
+Note that for specifying row groups, the group corresponding to the group name or row number in the
+original data is used.
 
-For example, the code below styles the group corresponding to the row at index 1 (i.e. the second row) in the data.
+For example, the code below styles the group corresponding to the row at index 1 (i.e., the second
+row) in the data.
 
 ```{python}
 gt.tab_style(
@@ -190,3 +206,9 @@ gt.tab_style(
     loc.row_groups("grp_b"),
 )
 ```
+
+The `loc` module provides a complete vocabulary for addressing any part of your table. By combining
+location specifiers with column selectors, row filters, and Polars expressions, you can apply styles
+to exactly the right cells. For more details on styling itself, see
+[Styling the Table Body](./11-styling-the-table-body.qmd) and
+[Styling the Whole Table](./12-styling-the-whole-table.qmd).
