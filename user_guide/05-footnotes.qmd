@@ -1,0 +1,170 @@
+---
+title: Footnotes
+jupyter: python3
+html-table-processing: none
+guide-section: Table Structure
+---
+
+Footnotes provide a way to annotate specific cells, columns, or other table parts with additional
+context without cluttering the main display. **Great Tables** manages footnotes as a system: marks
+are automatically sequenced, placed consistently, and matched to their explanatory text in the table
+footer.
+
+## A Basic Footnote
+
+Adding a footnote requires two things: the footnote text and a location specifier indicating where
+the footnote mark should appear. The `~~GT.tab_footnote()` method handles both, placing the mark at
+the targeted location and appending the text to the footer.
+
+```{python}
+from great_tables import GT, md, loc
+from great_tables.data import airquality
+
+air_mini = airquality.head(5)
+
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Measured in parts per billion (ppbV).",
+        locations=loc.column_labels(columns="Ozone")
+    )
+)
+```
+
+The footnote mark (a superscript number) appears next to the `"Ozone"` column label, and the
+corresponding text appears at the bottom of the table.
+
+## Targeting Different Locations
+
+Footnotes can be attached to many different parts of the table. The `locations=` argument accepts
+any of the `loc` specifiers that support footnotes. Here are some of the most common targets.
+
+### Column Labels
+
+Attaching a footnote to a column label is useful for clarifying units or methodology.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Solar radiation in Langleys (cal/cm²), measured 08:00–noon.",
+        locations=loc.column_labels(columns="Solar_R")
+    )
+)
+```
+
+### Body Cells
+
+You can annotate specific data cells by targeting them with `loc.body()`.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Highest temperature in this sample.",
+        locations=loc.body(columns="Temp", rows=[0])
+    )
+)
+```
+
+### The Title or Subtitle
+
+Footnotes on the table header can provide methodological notes or data source context.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Data collected at a monitoring station in midtown Manhattan.",
+        locations=loc.title()
+    )
+)
+```
+
+## Multiple Footnotes
+
+You can add multiple footnotes to a single table. Each call to `~~GT.tab_footnote()` creates a new
+footnote with its own sequenced mark. The marks are numbered in the order they appear in the table
+(reading left-to-right, top-to-bottom).
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Mean ozone concentration, 13:00–15:00.",
+        locations=loc.column_labels(columns="Ozone")
+    )
+    .tab_footnote(
+        footnote="Maximum daily temperature in degrees Fahrenheit.",
+        locations=loc.column_labels(columns="Temp")
+    )
+    .tab_footnote(
+        footnote="Measurement device was recalibrated on this day.",
+        locations=loc.body(columns="Ozone", rows=[2])
+    )
+)
+```
+
+Three footnote marks are placed in the table, and three corresponding notes appear in the footer,
+each with its sequential number.
+
+## Footnotes Without a Mark
+
+If you want to include explanatory text in the footer without attaching a mark to any cell, omit
+the `locations=` argument (or set it to `None`).
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(footnote="All measurements taken in New York City, 1973.")
+)
+```
+
+This is useful for general notes that apply to the entire table rather than to a specific cell or
+label.
+
+## Controlling Mark Placement
+
+The `placement=` argument determines where the footnote mark appears relative to the cell content.
+The options are `"auto"` (the default), `"left"`, and `"right"`.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote="Measured at ground level.",
+        locations=loc.column_labels(columns="Ozone"),
+        placement="left"
+    )
+)
+```
+
+With `placement="left"`, the footnote mark appears before the cell text rather than after it.
+
+## Using Markdown in Footnotes
+
+Footnote text supports Markdown formatting through the `md()` helper function. This lets you include
+emphasis, links, or other inline formatting in your footnotes.
+
+```{python}
+(
+    GT(air_mini)
+    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    .tab_footnote(
+        footnote=md("Source: *Interactive Data Analysis* (McNeil, 1977)."),
+        locations=loc.title()
+    )
+)
+```
+
+Footnotes are a subtle but important tool for building informative tables. They let you add
+precision and context where it matters most, keeping the main table body clean while ensuring
+readers have access to the details they need. The automatic sequencing and placement system means
+you can focus on content rather than managing mark numbers manually.
