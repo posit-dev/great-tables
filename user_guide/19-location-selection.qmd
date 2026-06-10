@@ -66,6 +66,9 @@ pl_exibble = pl.from_pandas(exibble)[[0, 1, 4], ["num", "char", "group"]]
 pl_exibble
 ```
 
+This small three-row, three-column dataset gives us enough structure to demonstrate row and column
+targeting without cluttering the output.
+
 ## Simple locations
 
 Simple locations don't take any arguments.
@@ -83,6 +86,9 @@ For example, styling the title uses `loc.title()`.
 )
 ```
 
+Only the title receives the yellow fill; the subtitle and the rest of the table remain unstyled.
+Simple locations are useful when you want precise control over a single element.
+
 ## Composite locations
 
 Composite locations target multiple simple locations.
@@ -99,6 +105,10 @@ For example, `loc.header()` includes both `loc.title()` and `loc.subtitle()`.
     )
 )
 ```
+
+Both the title and subtitle are filled with yellow because `loc.header()` targets the entire header
+region. Composite locations are a convenient shorthand when you want the same style on all
+sub-parts.
 
 ## Body columns, rows and mask
 
@@ -163,14 +173,19 @@ gt = GT(pl_exibble).tab_stub(
 gt.tab_style(style.fill("yellow"), loc.stub())
 ```
 
+All row labels in the stub are highlighted in yellow.
 
 ```{python}
 gt.tab_style(style.fill("yellow"), loc.stub("banana"))
 ```
 
+Only the `"banana"` row label is styled, demonstrating name-based targeting.
+
 ```{python}
 gt.tab_style(style.fill("yellow"), loc.stub(["apricot", 2]))
 ```
+
+You can mix names and integer indices in a list to target multiple specific rows at once.
 
 ### Groups by name and position
 
