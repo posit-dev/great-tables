@@ -42,6 +42,9 @@ airquality_mini
 | 9   | NaN   | 194.0   | 8.6  | 69   | 5     | 10  | 1973 |
 
 
+This ten-row subset of the New York air quality dataset has both measurement and time columns, making it a good candidate for organizing with column spanners.
+
+
 # Adding Column Spanners
 
 Let's organize the time information under a `Time` *spanner label*, and put the other columns under a `Measurement` *spanner label*. We can do this with the [tab_spanner()](../reference/GT.tab_spanner.md#great_tables.GT.tab_spanner) method.

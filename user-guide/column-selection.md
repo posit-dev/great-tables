@@ -35,6 +35,9 @@ gt_ex
 | 444.4  | durian  | four  | 2015-04-15 | 16:50 |
 
 
+This five-column table will serve as the basis for demonstrating each selection approach.
+
+
 # Using integers
 
 We can use a list of strings or integers to select columns by name or position, respectively.

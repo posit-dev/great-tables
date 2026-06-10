@@ -59,6 +59,9 @@ shape: (3, 3)
 | 5550.0 | null      | "grp_b" |
 
 
+This small three-row, three-column dataset gives us enough structure to demonstrate row and column targeting without cluttering the output.
+
+
 # Simple locations
 
 Simple locations don't take any arguments.
@@ -112,6 +115,9 @@ For example, styling the title uses [loc.title()](../reference/loc.title.md#grea
 </table>
 
 
+Only the title receives the yellow fill; the subtitle and the rest of the table remain unstyled. Simple locations are useful when you want precise control over a single element.
+
+
 # Composite locations
 
 Composite locations target multiple simple locations.
@@ -163,6 +169,9 @@ For example, [loc.header()](../reference/loc.header.md#great_tables.loc.header) 
 </tr>
 </tbody>
 </table>
+
+
+Both the title and subtitle are filled with yellow because [loc.header()](../reference/loc.header.md#great_tables.loc.header) targets the entire header region. Composite locations are a convenient shorthand when you want the same style on all sub-parts.
 
 
 # Body columns, rows and mask
@@ -290,6 +299,9 @@ gt.tab_style(style.fill("yellow"), loc.stub())
 </table>
 
 
+All row labels in the stub are highlighted in yellow.
+
+
 ``` python
 gt.tab_style(style.fill("yellow"), loc.stub("banana"))
 ```
@@ -326,6 +338,9 @@ gt.tab_style(style.fill("yellow"), loc.stub("banana"))
 </table>
 
 
+Only the `"banana"` row label is styled, demonstrating name-based targeting.
+
+
 ``` python
 gt.tab_style(style.fill("yellow"), loc.stub(["apricot", 2]))
 ```
@@ -360,6 +375,9 @@ gt.tab_style(style.fill("yellow"), loc.stub(["apricot", 2]))
 </tr>
 </tbody>
 </table>
+
+
+You can mix names and integer indices in a list to target multiple specific rows at once.
 
 
 ## Groups by name and position

@@ -30,6 +30,9 @@ gt_tbl
 | Peer review     | DONE        | low      | 100      |
 
 
+This produces a basic table with coded status values and numeric progress, which we will transform using the text methods below.
+
+
 # Custom Text Transformations
 
 The [text_transform()](../reference/GT.text_transform.md#great_tables.GT.text_transform) method is the most flexible of the text methods. It takes a location specifier and a function that receives a cell's text content as a string and returns the transformed string. The transformation runs after all `fmt_*()` methods have been applied.
@@ -132,6 +135,9 @@ def add_progress_indicator(text):
 </table>
 
 
+Each progress cell now displays both the numeric percentage and a colored bar beneath it. Returning raw HTML from the function lets you embed rich visual elements directly in table cells.
+
+
 # Text Replacement with Regex
 
 The [text_replace()](../reference/GT.text_replace.md#great_tables.GT.text_replace) method performs regex-based find-and-replace on cell content. It is a simpler alternative to [text_transform()](../reference/GT.text_transform.md#great_tables.GT.text_transform) when you just need pattern matching.
@@ -178,6 +184,9 @@ All underscores in the `status` column are replaced with spaces. The `pattern=` 
 | Analysis        | IN PROGRESS | high     | 65       |
 | Report writing  | NOT STARTED | medium   | 0        |
 | Peer review     | DONE        | low      | 100      |
+
+
+The regex captures the two words separated by an underscore and reconstructs them with a space in between. This technique is especially handy when your data has structured codes with consistent delimiters.
 
 
 # Case Matching
@@ -232,6 +241,9 @@ The first element of each case tuple can be a list of strings, allowing you to m
 | Analysis        | Active  | high     | 65       |
 | Report writing  | Pending | medium   | 0        |
 | Peer review     | Active  | low      | 100      |
+
+
+Both `"DONE"` and `"IN_PROGRESS"` map to `"Active"`, reducing several statuses down to fewer categories. This is convenient when you want to simplify grouped labels for presentation.
 
 
 ## Providing a Default
@@ -352,6 +364,9 @@ df_grouped = pl.DataFrame({
 </table>
 
 
+The row group labels are transformed from `"team_alpha"` and `"team_beta"` to `"Team alpha"` and `"Team beta"`. This keeps the source data unchanged while presenting a polished label in the table.
+
+
 ## Transforming Column Labels
 
 
@@ -372,6 +387,9 @@ df_grouped = pl.DataFrame({
 | Analysis        | IN_PROGRESS | high     | 65       |
 | Report writing  | NOT_STARTED | medium   | 0        |
 | Peer review     | DONE        | low      | 100      |
+
+
+The `"progress"` column label is converted to uppercase. You can target any combination of column labels using the `columns=` argument within [loc.column_labels()](../reference/loc.column_labels.md#great_tables.loc.column_labels).
 
 
 # Combining Text Methods

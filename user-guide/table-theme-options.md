@@ -387,6 +387,9 @@ gt_ex.tab_options(
 </table>
 
 
+The column labels section now has a thick blue border on top. Each border option follows the same triplet of [color](../reference/style.text.md#great_tables.style.text.color), [style](../reference/style.text.md#great_tables.style.text.style), and `width` attributes, which you can combine to create the exact look you want.
+
+
 # Styling background color
 
 
@@ -491,6 +494,9 @@ gt_ex.tab_options(
 </tfoot>
 
 </table>
+
+
+The heading area (title and subtitle) is now purple. Background color options are available for every table part, letting you assign a distinct visual identity to each region.
 
 
 # Styling body cells
@@ -712,6 +718,9 @@ gt_ex.tab_options(
 </table>
 
 
+With both `hlines` and `vlines` set to solid, the table body displays a classic grid appearance. Setting either to `"none"` removes those lines entirely for a cleaner, minimal look.
+
+
 # Set options across table parts
 
 Some options starting with `table_` apply to all parts of the table. For example, fonts and background color apply everywhere.
@@ -928,6 +937,9 @@ gt_ex.tab_options(
 </tfoot>
 
 </table>
+
+
+The orange background applies everywhere except the heading, which overrides it with pink. This layered approach means you can set sensible table-wide defaults and then customize individual parts as needed.
 
 
 # A basic theme

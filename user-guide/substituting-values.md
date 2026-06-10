@@ -138,6 +138,9 @@ GT(df_neg, rowname_col="label").sub_small_vals(columns="change", threshold=0.01,
 | Z   | 0.7     |
 
 
+The `-0.002` value is replaced since its absolute value falls below the threshold. The `sign="-"` argument tells the method to look for small negative values rather than small positive ones.
+
+
 # Substituting Large Values
 
 In some datasets, extremely large values can skew the reader's perception of the data. The [sub_large_vals()](../reference/GT.sub_large_vals.md#great_tables.GT.sub_large_vals) method lets you cap the displayed values at a threshold, replacing anything above it with indicator text.
@@ -174,6 +177,9 @@ gt_tbl.sub_large_vals(columns="revenue", threshold=1e10, large_pattern="OVER {x}
 | Widget E | 3.0   |       |                    |
 
 
+The `{x}` placeholder in the pattern is replaced with the threshold value, giving you full control over how the capped text reads.
+
+
 # General Value Substitution
 
 For more flexible replacement logic, [sub_values()](../reference/GT.sub_values.md#great_tables.GT.sub_values) provides three modes of matching: by exact value, by regex pattern, or by a custom function.
@@ -198,6 +204,9 @@ GT(df, rowname_col="item").sub_values(columns="count", values=0, replacement="ze
 | Widget E | 3.0   |       |                  |
 
 
+Every cell in the `count` column that contains exactly `0` is replaced with the string `"zero"`. You can also pass a list of values to match against multiple targets.
+
+
 ## Matching by Pattern
 
 A regex pattern can target string-based cell content for replacement.
@@ -218,6 +227,9 @@ GT(df_text).sub_values(columns="code", pattern=r"^FAIL.*", replacement="FLAGGED"
 | PASS-001 | ok     |
 | FLAGGED  | error  |
 | PASS-003 | ok     |
+
+
+The regex matches any cell starting with `"FAIL"` and replaces the entire content with `"FLAGGED"`. This is particularly useful for cleaning up status codes or categorized identifiers.
 
 
 ## Matching by Function
@@ -241,6 +253,9 @@ GT(df, rowname_col="item").sub_values(
 | Widget C | 42.0  | 0.542 | HIGH    |
 | Widget D |       | 0.871 | 75.5    |
 | Widget E | 3.0   |       |         |
+
+
+The function evaluates each cell value individually. When it returns `True`, that cell is replaced with the specified text. This mode handles complex logic that cannot be expressed as a simple value match or regex pattern.
 
 
 # Combining Substitution Methods

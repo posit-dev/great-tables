@@ -645,6 +645,9 @@ gt_ex.opt_align_table_header(align="left")
 </table>
 
 
+The title and subtitle are now left-aligned rather than centered, which works well for tables embedded in text-heavy documents.
+
+
 ## Make text ALL CAPS
 
 
@@ -707,6 +710,9 @@ gt_ex.opt_all_caps()
 </tfoot>
 
 </table>
+
+
+Column labels and row group labels are rendered in uppercase, giving the table a more formal, structured appearance.
 
 
 ## Reduce or expand padding
@@ -773,6 +779,9 @@ gt_ex.opt_vertical_padding(scale=0.3)
 </table>
 
 
+Reducing vertical padding creates a more compact table that fits more data into less vertical space.
+
+
 ``` python
 gt_ex.opt_horizontal_padding(scale=3)
 ```
@@ -832,6 +841,9 @@ gt_ex.opt_horizontal_padding(scale=3)
 </tfoot>
 
 </table>
+
+
+Increasing horizontal padding adds breathing room between columns, which improves readability when columns contain long values.
 
 
 ## Set table outline

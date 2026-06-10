@@ -82,9 +82,9 @@ print(html_str[:200])
 ```
 
 
-    <div id="clqwtspiuc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+    <div id="dbjkngxibs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
     <style>
-    #clqwtspiuc table {
+    #dbjkngxibs table {
               font
 
 
@@ -99,6 +99,8 @@ Email clients typically strip `<style>` blocks, so you need inline CSS for the t
 email_html = gt_tbl.as_raw_html(inline_css=True)
 ```
 
+With inline CSS, your table will render correctly in Gmail, Outlook, and other email clients that strip external stylesheets.
+
 
 ## Complete HTML Page
 
@@ -108,6 +110,8 @@ If you need a self-contained HTML document (with `<html>`, `<head>`, and `<body>
 full_page = gt_tbl.as_raw_html(make_page=True)
 ```
 
+This wraps the table in a complete HTML document that can be opened directly in any browser without additional scaffolding.
+
 
 ## Writing HTML to a File
 
@@ -116,6 +120,8 @@ The [write_raw_html()](../reference/GT.write_raw_html.md#great_tables.GT.write_r
 ``` python
 gt_tbl.write_raw_html("my_table.html")
 ```
+
+The file is written with the same options available on [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html) (such as `inline_css=` and `make_page=`), passed through as keyword arguments.
 
 
 # LaTeX Output
@@ -195,6 +201,8 @@ gt_tbl.gtsave("high_res.png", zoom=4.0)
 gt_tbl.gtsave("standard.png", zoom=1.0)
 ```
 
+A `zoom=4.0` value produces an image four times the default resolution, which is ideal for print materials where crisp text is essential.
+
 
 ## Padding Around the Table
 
@@ -208,6 +216,8 @@ gt_tbl.gtsave("padded.png", expand=20)
 gt_tbl.gtsave("asymmetric.png", expand=(10, 20, 10, 20))
 ```
 
+Adding padding is especially useful when the saved image will be placed on a colored background or inside a slide layout where the table edge needs breathing room.
+
 
 ## Viewport Dimensions
 
@@ -216,6 +226,8 @@ The `vwidth=` and `vheight=` arguments set the virtual viewport size. This can a
 ``` python
 gt_tbl.gtsave("wide_viewport.png", vwidth=1200)
 ```
+
+A wider viewport can prevent the table from wrapping or truncating columns, while a narrower one can test how the table responds to constrained width.
 
 
 ## Rendering Delay

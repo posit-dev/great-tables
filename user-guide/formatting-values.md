@@ -107,6 +107,9 @@ gt_ex
 | 5,550.00 | Friday 15 May 2015       | 5:55 PM | £1,325.81  |
 
 
+Now the first two rows display in USD and the last three in GBP, demonstrating how the same column can present different currencies by targeting specific rows.
+
+
 # Arguments Common to Several Formatting Methods/Functions
 
 While we can use the `fmt_*()` methods on a table, we can also use the functional versions of these methods on scalar values or lists of values. These variants exist within the `vals` module. While arguments across these functions and their corresponding method aren't exactly the same, there are nonetheless many arguments that are shared amongst them. Here are some of the most commonly used arguments:

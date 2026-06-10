@@ -144,6 +144,9 @@ island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] 
 </table>
 
 
+The table now groups its rows by continent, country, and subregion, with labels appearing above each group. Row groups make it much easier for readers to scan and compare related entries.
+
+
 # GT convenience arguments
 
 Rather than using the [tab_stub()](../reference/GT.tab_stub.md#great_tables.GT.tab_stub) method, the `GT(rowname_col=..., groupname_col=...)` arguments provide a quick way to specify row names and groups.
