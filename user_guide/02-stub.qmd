@@ -69,7 +69,8 @@ island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] 
 )
 ```
 
-The table now groups its rows by continent, country, and subregion, with labels appearing above each group. Row groups make it much easier for readers to scan and compare related entries.
+The table now groups its rows by continent, country, and subregion, with labels appearing above each
+group. Row groups make it much easier for readers to scan and compare related entries.
 
 ## GT convenience arguments
 
