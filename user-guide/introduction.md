@@ -39,7 +39,7 @@ The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll s
 
 
 ``` python
-# Create a display table showing ten of the largest islands in the world
+# Create a display table showing ten of the world's largest islands
 gt_tbl = GT(islands_mini)
 
 # Show the output table

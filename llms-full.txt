@@ -10413,7 +10413,7 @@ start. Speaking of which, the main entry point into the **Great Tables** API is 
 Let's use that to make a presentable table:
 
 ```{python}
-# Create a display table showing ten of the largest islands in the world
+# Create a display table showing ten of the world's largest islands
 gt_tbl = GT(islands_mini)
 
 # Show the output table
