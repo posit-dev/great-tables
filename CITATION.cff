@@ -3,7 +3,7 @@ message: 'If you wish to cite the "great-tables" package use:'
 type: software
 license: MIT
 title: "great-tables: Make awesome display tables using Python."
-version: 0.14.0
+version: 0.22.0
 abstract:
   Build display tables from tabular data with an easy-to-use set of methods.
   With its progressive approach, we can construct display tables with a cohesive set
