@@ -3,6 +3,59 @@
 This changelog is generated automatically from [GitHub Releases](https://github.com/posit-dev/great-tables/releases).
 
 
+# v0.22.0
+
+*2026-06-12* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.22.0)
+
+Great Tables `v0.22.0` is a feature-rich release that greatly expands the formatting, text manipulation, and export capabilities of the library. Highlights include new methods for footnotes, duration formatting, parts-per notation, summary rows, and specialized column merges. A new suite of `text_*()` methods provides powerful cell-content transformations, while [gtsave()](reference/GT.gtsave.html#great_tables.GT.gtsave) replaces the deprecated `save()` with a modern headless-Chrome export pipeline. LaTeX output now supports stubs, row groups, and Markdown/HTML conversion. Pandas is no longer a required dependency--Polars-only usage is fully supported.
+
+
+### New Features
+
+- **[tab_footnote()](reference/GT.tab_footnote.html#great_tables.GT.tab_footnote)** -- Add table footnotes with automatic, sequentially-ordered marks (symbols, numbers, or letters) attached to targeted cells. Supports placement control and styled text via [md()](reference/md.html#great_tables.md) and [html()](reference/html.html#great_tables.html). ([\#763](https://github.com/posit-dev/great-tables/issues/763))
+- **[fmt_duration()](reference/GT.fmt_duration.html#great_tables.GT.fmt_duration)** -- Format duration values in narrow (`5d 3h`), wide (`5 days, 3 hours`), colon-separated (`02:15:30`), or ISO 8601 styles. Auto-detects Polars `Duration` dtype and supports locale-aware plural forms. ([\#831](https://github.com/posit-dev/great-tables/issues/831))
+- **[fmt_partsper()](reference/GT.fmt_partsper.html#great_tables.GT.fmt_partsper)** -- Format values as parts-per quantities (per-mille ‰, ppm, ppb, ppt, and more) with automatic scaling and context-aware symbol rendering for HTML and LaTeX. ([\#837](https://github.com/posit-dev/great-tables/issues/837))
+- **[cols_reorder()](reference/GT.cols_reorder.html#great_tables.GT.cols_reorder)** -- Completely rearrange all table columns in a single call, replacing multiple `cols_move_*()` invocations for full reordering. ([\#625](https://github.com/posit-dev/great-tables/issues/625))
+- **`cols_merge_*()` methods** -- Specialized column merge variants: [cols_merge_uncert()](reference/GT.cols_merge_uncert.html#great_tables.GT.cols_merge_uncert) for value ± uncertainty, [cols_merge_range()](reference/GT.cols_merge_range.html#great_tables.GT.cols_merge_range) for begin-end ranges, [cols_merge_n_pct()](reference/GT.cols_merge_n_pct.html#great_tables.GT.cols_merge_n_pct) for count (percent) pairs, and the generic [cols_merge()](reference/GT.cols_merge.html#great_tables.GT.cols_merge) with pattern templating. ([\#832](https://github.com/posit-dev/great-tables/issues/832))
+- **[summary_rows()](reference/GT.summary_rows.html#great_tables.GT.summary_rows)** -- Add group-wise summary rows (e.g., totals, means) above or below each row group, with support for Polars expressions and custom aggregation functions. ([\#834](https://github.com/posit-dev/great-tables/issues/834))
+- **[text_transform()](reference/GT.text_transform.html#great_tables.GT.text_transform) and `text_*()` methods** -- New text manipulation suite: [text_transform()](reference/GT.text_transform.html#great_tables.GT.text_transform) for custom functions, [text_replace()](reference/GT.text_replace.html#great_tables.GT.text_replace) for regex substitution, [text_case_match()](reference/GT.text_case_match.html#great_tables.GT.text_case_match) for switch-like replacements, and [text_case_when()](reference/GT.text_case_when.html#great_tables.GT.text_case_when) for predicate-based logic. ([\#835](https://github.com/posit-dev/great-tables/issues/835), [\#836](https://github.com/posit-dev/great-tables/issues/836))
+- **Substitution family methods** -- Replace specific cell values with [sub_missing()](reference/GT.sub_missing.html#great_tables.GT.sub_missing), [sub_zero()](reference/GT.sub_zero.html#great_tables.GT.sub_zero), [sub_small_vals()](reference/GT.sub_small_vals.html#great_tables.GT.sub_small_vals), [sub_large_vals()](reference/GT.sub_large_vals.html#great_tables.GT.sub_large_vals), and [sub_values()](reference/GT.sub_values.html#great_tables.GT.sub_values) for clean, readable tables. ([\#833](https://github.com/posit-dev/great-tables/issues/833))
+- **[gtsave()](reference/GT.gtsave.html#great_tables.GT.gtsave)** -- Save tables to PNG, JPEG, WebP, or PDF using headless Chrome with viewport, zoom, and padding controls. Replaces the deprecated `save()` method. ([\#841](https://github.com/posit-dev/great-tables/issues/841))
+
+
+### Enhancements
+
+- LaTeX output now fully supports stubs and row groups, including spanning headers and row-group-as-column layout. ([\#784](https://github.com/posit-dev/great-tables/issues/784))
+- Markdown and HTML content is now converted to LaTeX equivalents during LaTeX rendering. ([\#803](https://github.com/posit-dev/great-tables/issues/803))
+- Nanoplot scaling now correctly respects row selections rather than scaling across all data. ([\#404](https://github.com/posit-dev/great-tables/issues/404))
+- Pandas is no longer a required dependency--Great Tables works with Polars alone for lightweight installs. ([\#839](https://github.com/posit-dev/great-tables/issues/839))
+
+
+### Bug Fixes
+
+- Polars container dtype entries (e.g., lists) are now correctly converted in `_get_cell`. ([\#794](https://github.com/posit-dev/great-tables/issues/794))
+- PyArrow array slicing in [data_color](reference/GT.data_color.html#great_tables.GT.data_color) now works correctly. ([\#741](https://github.com/posit-dev/great-tables/issues/741))
+- A charset meta tag is now prepended to HTML output in `save()` for proper encoding. ([\#823](https://github.com/posit-dev/great-tables/issues/823))
+- Nanoplot number streams now gracefully handle `nan` values. ([\#838](https://github.com/posit-dev/great-tables/issues/838))
+- Removed the internal `NpNan` backend in favor of expanded normalization logic. ([\#840](https://github.com/posit-dev/great-tables/issues/840))
+
+
+### Documentation
+
+- Added a SEPTA timetable blog post demonstrating real-world table construction. ([\#636](https://github.com/posit-dev/great-tables/issues/636))
+- Fixed a formatting issue in the `fmt_threshold()` docstring. ([\#821](https://github.com/posit-dev/great-tables/issues/821))
+- Migrated the documentation site to Great Docs as the website generator. ([\#842](https://github.com/posit-dev/great-tables/issues/842))
+- Updated the User Guide with coverage of new features. ([\#843](https://github.com/posit-dev/great-tables/issues/843))
+
+
+### New Contributors
+
+- [<span class="citation" cites="KristijanArmeni">@KristijanArmeni</span>](https://github.com/KristijanArmeni) made their first contribution in https://github.com/posit-dev/great-tables/pull/794
+- [<span class="citation" cites="mrapacz">@mrapacz</span>](https://github.com/mrapacz) made their first contribution in https://github.com/posit-dev/great-tables/pull/823
+- [<span class="citation" cites="minimav">@minimav</span>](https://github.com/minimav) made their first contribution in https://github.com/posit-dev/great-tables/pull/404
+- [<span class="citation" cites="jiboncom">@jiboncom</span>](https://github.com/jiboncom) made their first contribution in https://github.com/posit-dev/great-tables/pull/803
+
+
 # v0.21.0
 
 *2026-03-03* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.21.0)
