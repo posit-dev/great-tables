@@ -1,0 +1,658 @@
+/**
+ * GD Lightbox — Styles
+ *
+ * Uses CSS custom properties for theming integration with Great Docs.
+ * Supports dark mode via [data-bs-theme="dark"] and .quarto-dark selectors.
+ */
+
+/* ---------------------------------------------------------------------------
+   Custom Properties
+   --------------------------------------------------------------------------- */
+
+:root {
+  --gd-lightbox-backdrop: rgba(0, 0, 0, 0.85);
+  --gd-lightbox-backdrop-blur: 8px;
+  --gd-lightbox-radius: 12px;
+  --gd-lightbox-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  --gd-lightbox-toolbar-bg: rgba(255, 255, 255, 0.95);
+  --gd-lightbox-toolbar-color: #1a1a2e;
+  --gd-lightbox-caption-bg: rgba(255, 255, 255, 0.95);
+  --gd-lightbox-caption-color: #374151;
+  --gd-lightbox-accent: #6366f1;
+  --gd-lightbox-transition: 300ms;
+  --gd-lightbox-filmstrip-height: 64px;
+  --gd-lightbox-btn-hover: rgba(0, 0, 0, 0.08);
+  --gd-lightbox-nav-bg: rgba(255, 255, 255, 0.9);
+  --gd-lightbox-nav-color: #1a1a2e;
+  --gd-lightbox-toast-bg: #1a1a2e;
+  --gd-lightbox-toast-color: #ffffff;
+}
+
+[data-bs-theme="dark"],
+.quarto-dark {
+  --gd-lightbox-backdrop: rgba(0, 0, 0, 0.92);
+  --gd-lightbox-backdrop-blur: 12px;
+  --gd-lightbox-toolbar-bg: rgba(30, 30, 46, 0.95);
+  --gd-lightbox-toolbar-color: #e2e8f0;
+  --gd-lightbox-caption-bg: rgba(30, 30, 46, 0.95);
+  --gd-lightbox-caption-color: #cbd5e1;
+  --gd-lightbox-btn-hover: rgba(255, 255, 255, 0.1);
+  --gd-lightbox-nav-bg: rgba(30, 30, 46, 0.9);
+  --gd-lightbox-nav-color: #e2e8f0;
+  --gd-lightbox-toast-bg: #e2e8f0;
+  --gd-lightbox-toast-color: #1a1a2e;
+}
+
+/* ---------------------------------------------------------------------------
+   Body Lock (prevent scroll when lightbox open)
+   --------------------------------------------------------------------------- */
+
+body.gd-lightbox-open {
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Thumbnail Wrapper (in-page)
+   --------------------------------------------------------------------------- */
+
+.gd-lightbox-wrapper {
+  position: relative;
+  display: inline-block;
+  /* Breathing room so body text above/below isn't tight against the image.
+     Margin (not padding) keeps the space outside the rounded image box. */
+  margin: 1.5rem 0;
+  cursor: zoom-in;
+  border-radius: 8px;
+  /* No overflow clipping: annotation tooltips must be free to extend past the
+     image edge onto the page. The rounded corners live on the image instead. */
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+/* Keep a set of stacked images close together while preserving the 1.5rem
+   gap to surrounding body text. Each consecutive image is pulled up to offset
+   the previous one's bottom margin, leaving a small 0.5rem gap between images.
+   The first and last images in a run keep their full margin against text. */
+.gd-lightbox-wrapper + .gd-lightbox-wrapper {
+  margin-top: -1rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Gallery Stack (in-page cover that opens a gallery in the lightbox)
+   --------------------------------------------------------------------------- */
+
+.gd-gallery {
+  position: relative;
+  /* Block sized to its content so margin auto can center it in the body. */
+  display: block;
+  width: fit-content;
+  max-width: 480px;
+  margin: 1.5rem auto;
+}
+
+/* The cover is a normal lightbox wrapper; drop its standalone margin. */
+.gd-gallery .gd-lightbox-wrapper {
+  margin: 0;
+}
+
+/* Matte frame around the cover photo. */
+.gd-gallery .gd-gallery-cover {
+  padding: 6px;
+  background: var(--gd-lightbox-caption-bg, #fff);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+/* Offset "photos" peeking out behind the cover to suggest a stack. */
+.gd-gallery .gd-gallery-cover::before,
+.gd-gallery .gd-gallery-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: var(--gd-lightbox-caption-bg, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  z-index: -1;
+  transition: transform 220ms ease;
+}
+
+.gd-gallery .gd-gallery-cover::before {
+  transform: rotate(-3deg) translate(-7px, 5px);
+}
+
+.gd-gallery .gd-gallery-cover::after {
+  transform: rotate(3deg) translate(7px, 5px);
+  z-index: -2;
+}
+
+/* Fan the stack out a little on hover. */
+.gd-gallery:hover .gd-gallery-cover::before {
+  transform: rotate(-6deg) translate(-14px, 7px);
+}
+
+.gd-gallery:hover .gd-gallery-cover::after {
+  transform: rotate(6deg) translate(14px, 7px);
+}
+
+/* Image count badge. */
+.gd-gallery-badge {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.gd-gallery-badge svg {
+  display: block;
+}
+
+/* Hidden gallery members stay in the DOM for the engine but take no space. */
+.gd-gallery-rest {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-gallery .gd-gallery-cover::before,
+  .gd-gallery .gd-gallery-cover::after {
+    transition: none;
+  }
+}
+
+.gd-lightbox-wrapper:hover,
+.gd-lightbox-wrapper:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.gd-lightbox-wrapper:focus-visible {
+  outline: 2px solid var(--gd-lightbox-accent);
+  outline-offset: 2px;
+}
+
+.gd-lightbox-wrapper .gd-lightbox-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: inherit;
+}
+
+/* Expand button overlay */
+.gd-lightbox-expand {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.gd-lightbox-wrapper:hover .gd-lightbox-expand,
+.gd-lightbox-wrapper:focus-within .gd-lightbox-expand {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Overlay
+   --------------------------------------------------------------------------- */
+
+.gd-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--gd-lightbox-transition) ease,
+    visibility 0s linear var(--gd-lightbox-transition);
+}
+
+.gd-lightbox-overlay.gd-lightbox-visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--gd-lightbox-transition) ease, visibility 0s linear 0s;
+}
+
+.gd-lightbox-overlay.gd-lightbox-closing {
+  opacity: 0;
+  visibility: visible;
+}
+
+/* Backdrop with blur */
+.gd-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--gd-lightbox-backdrop);
+  backdrop-filter: blur(var(--gd-lightbox-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--gd-lightbox-backdrop-blur));
+}
+
+/* ---------------------------------------------------------------------------
+   Content Area
+   --------------------------------------------------------------------------- */
+
+.gd-lightbox-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  max-height: calc(100vh - 160px);
+}
+
+.gd-lightbox-image-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 90vw;
+  max-height: calc(100vh - 200px);
+}
+
+/* Annotation layer — sized/positioned by JS to cover the displayed image.
+   Holds a .gd-annotate-overlay (inset:0), so markers position by % of this
+   box. Fades in once positioned to avoid a flash at the wrong location. */
+.gd-lightbox-annotations {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.gd-lightbox-annotations.visible {
+  opacity: 1;
+}
+
+/* The markers themselves re-enable pointer events (see annotate CSS). */
+.gd-lightbox-annotations .gd-annotate-marker {
+  pointer-events: auto;
+}
+
+.gd-lightbox-main-img {
+  max-width: 90vw;
+  max-height: calc(100vh - 200px);
+  object-fit: contain;
+  border-radius: var(--gd-lightbox-radius);
+  box-shadow: var(--gd-lightbox-shadow);
+  user-select: none;
+  -webkit-user-drag: none;
+  /* Smooth zoom from the toolbar buttons. The open animation overrides this
+     with its own inline transition, so it isn't affected. */
+  transition: transform 200ms ease;
+}
+
+/* Zoomed: image is draggable to pan. */
+.gd-lightbox-overlay.gd-lightbox-zoomed .gd-lightbox-main-img {
+  cursor: grab;
+  touch-action: none; /* let pointer-pan own the gesture on touch devices */
+}
+
+/* Actively dragging: grabbing cursor, and no transition so pan tracks 1:1. */
+.gd-lightbox-overlay.gd-lightbox-panning .gd-lightbox-main-img {
+  cursor: grabbing;
+  transition: none;
+}
+
+/* Gallery mode reserves extra bottom space so the centered image and its
+   caption clear the filmstrip dock (which is absolutely positioned at the
+   bottom and would otherwise overlap a caption under a large image). The
+   content stays centered, so the toolbar at the top is cleared too. */
+.gd-lightbox-overlay.gd-lightbox-has-filmstrip .gd-lightbox-content {
+  max-height: calc(100vh - 220px);
+}
+
+.gd-lightbox-overlay.gd-lightbox-has-filmstrip .gd-lightbox-image-wrap,
+.gd-lightbox-overlay.gd-lightbox-has-filmstrip .gd-lightbox-main-img {
+  max-height: calc(100vh - 300px);
+}
+
+/* ---------------------------------------------------------------------------
+   Caption
+   --------------------------------------------------------------------------- */
+
+.gd-lightbox-caption {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: var(--gd-lightbox-caption-bg);
+  border-radius: 8px;
+  text-align: center;
+  max-width: 600px;
+}
+
+.gd-lightbox-caption-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--gd-lightbox-caption-color);
+  line-height: 1.4;
+}
+
+.gd-lightbox-credit-text {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--gd-lightbox-caption-color);
+  opacity: 0.7;
+}
+
+/* ---------------------------------------------------------------------------
+   Toolbar
+   --------------------------------------------------------------------------- */
+
+.gd-lightbox-toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(
+    to bottom,
+    var(--gd-lightbox-toolbar-bg),
+    transparent
+  );
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.gd-lightbox-toolbar.hidden {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+.gd-lightbox-toolbar-spacer {
+  flex: 1;
+}
+
+.gd-lightbox-counter {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--gd-lightbox-toolbar-color);
+  padding: 4px 10px;
+  background: var(--gd-lightbox-btn-hover);
+  border-radius: 20px;
+}
+
+/* Zoom level readout (e.g. "150%") */
+.gd-lightbox-zoom-level {
+  min-width: 3.5em;
+  text-align: center;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--gd-lightbox-toolbar-color);
+  user-select: none;
+}
+
+/* Disabled toolbar buttons (e.g. zoom at min/max) */
+.gd-lightbox-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Toolbar buttons */
+.gd-lightbox-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--gd-lightbox-toolbar-color);
+  cursor: pointer;
+  transition: background 150ms ease;
+  margin-left: 4px;
+}
+
+.gd-lightbox-btn:hover {
+  background: var(--gd-lightbox-btn-hover);
+}
+
+.gd-lightbox-btn:focus-visible {
+  outline: 2px solid var(--gd-lightbox-accent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Navigation Arrows
+   --------------------------------------------------------------------------- */
+
+.gd-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--gd-lightbox-nav-bg);
+  color: var(--gd-lightbox-nav-color);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.gd-lightbox-nav:hover {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.gd-lightbox-nav:focus-visible {
+  outline: 2px solid var(--gd-lightbox-accent);
+  outline-offset: 2px;
+}
+
+.gd-lightbox-nav-prev {
+  left: 16px;
+}
+
+.gd-lightbox-nav-next {
+  right: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   Filmstrip
+   --------------------------------------------------------------------------- */
+
+.gd-lightbox-filmstrip {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--gd-lightbox-toolbar-bg);
+  border-radius: 12px;
+  max-width: 80vw;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.gd-lightbox-filmstrip-thumb {
+  flex-shrink: 0;
+  width: var(--gd-lightbox-filmstrip-height);
+  height: var(--gd-lightbox-filmstrip-height);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.gd-lightbox-filmstrip-thumb:hover {
+  transform: scale(1.05);
+}
+
+.gd-lightbox-filmstrip-thumb.active {
+  border-color: var(--gd-lightbox-accent);
+  transform: scale(1.08);
+}
+
+.gd-lightbox-filmstrip-thumb:focus-visible {
+  outline: 2px solid var(--gd-lightbox-accent);
+  outline-offset: 2px;
+}
+
+.gd-lightbox-filmstrip-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------------------------------------------------------------------------
+   Toast Notification
+   --------------------------------------------------------------------------- */
+
+.gd-lightbox-toast {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  z-index: 20;
+  padding: 8px 16px;
+  background: var(--gd-lightbox-toast-bg);
+  color: var(--gd-lightbox-toast-color);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 200ms ease, transform 200ms ease;
+  pointer-events: none;
+}
+
+.gd-lightbox-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---------------------------------------------------------------------------
+   Screen Reader Only
+   --------------------------------------------------------------------------- */
+
+.gd-lightbox-sr-announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive / Mobile
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .gd-lightbox-content {
+    max-width: 100vw;
+    max-height: calc(100vh - 120px);
+  }
+
+  .gd-lightbox-image-wrap {
+    max-width: 100vw;
+    max-height: calc(100vh - 140px);
+  }
+
+  .gd-lightbox-main-img {
+    max-width: 100vw;
+    max-height: calc(100vh - 140px);
+    border-radius: 0;
+  }
+
+  .gd-lightbox-overlay.gd-lightbox-has-filmstrip .gd-lightbox-content {
+    max-height: calc(100vh - 180px);
+  }
+
+  .gd-lightbox-overlay.gd-lightbox-has-filmstrip .gd-lightbox-image-wrap,
+  .gd-lightbox-overlay.gd-lightbox-has-filmstrip .gd-lightbox-main-img {
+    max-height: calc(100vh - 260px);
+  }
+
+  .gd-lightbox-nav {
+    width: 36px;
+    height: 36px;
+  }
+
+  .gd-lightbox-nav-prev {
+    left: 8px;
+  }
+
+  .gd-lightbox-nav-next {
+    right: 8px;
+  }
+
+  .gd-lightbox-filmstrip {
+    bottom: 8px;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .gd-lightbox-filmstrip-thumb {
+    width: 48px;
+    height: 48px;
+  }
+
+  .gd-lightbox-toolbar {
+    padding: 8px 12px;
+  }
+
+  .gd-lightbox-expand {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced Motion
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-lightbox-overlay,
+  .gd-lightbox-main-img,
+  .gd-lightbox-toolbar,
+  .gd-lightbox-nav,
+  .gd-lightbox-filmstrip-thumb,
+  .gd-lightbox-toast,
+  .gd-lightbox-wrapper {
+    transition: none !important;
+  }
+}

@@ -544,9 +544,6 @@ This release adds units notation support in column labels and spanners, a new [o
 
 *2024-06-06* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.9.0)
 
-
-## v0.9.0
-
 This release adds row subsetting to [data_color()](reference/GT.data_color.html#great_tables.GT.data_color), allowing color scales to be applied to specific rows.
 
 
@@ -987,7 +984,7 @@ This release introduces the [tab_style()](reference/GT.tab_style.html#great_tabl
 
 *2023-12-07* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.1.2)
 
-This release adds Shiny integration for Great Tables, enabling interactive table rendering in Shiny for Python applications -- including support for Shinylive.
+This release adds Shiny integration for Great Tables, enabling interactive table rendering in Shiny for Python applications (including support for Shinylive).
 
 
 ### New Features
@@ -997,7 +994,7 @@ This release adds Shiny integration for Great Tables, enabling interactive table
 
 ### Enhancements
 
-- Replaced `libsass` dependency with `webcolors`, enabling Great Tables to run in Shinylive. ([\#61](https://github.com/posit-dev/great-tables/issues/61))
+- Replaced the `libsass` dependency with `webcolors`, enabling Great Tables to run in Shinylive. ([\#61](https://github.com/posit-dev/great-tables/issues/61))
 
 
 ### Documentation

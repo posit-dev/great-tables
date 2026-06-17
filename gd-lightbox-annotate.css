@@ -1,0 +1,180 @@
+/* GD Lightbox Annotate — Marker & Tooltip Styles */
+
+.gd-annotate-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── Marker ─────────────────────────────────────────────────────────────── */
+
+.gd-annotate-marker {
+  --gd-annotate-marker-bg: var(--bs-primary, #0d6efd);
+  --gd-annotate-marker-size: 28px;
+
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: var(--gd-annotate-marker-size);
+  height: var(--gd-annotate-marker-size);
+  border-radius: 50%;
+  background: var(--gd-annotate-marker-bg);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 6;
+}
+
+.gd-annotate-marker:hover {
+  transform: translate(-50%, -50%) scale(1.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Lift the active/hovered marker's whole stacking context above the other
+   markers so its tooltip is never painted behind a neighbouring marker.
+   (The tooltip is a child of the marker, so raising the marker raises it.) */
+.gd-annotate-marker:hover,
+.gd-annotate-marker.gd-annotate-active {
+  z-index: 30;
+}
+
+.gd-annotate-marker:focus-visible {
+  outline: 3px solid var(--bs-primary, #0d6efd);
+  outline-offset: 3px;
+}
+
+.gd-annotate-marker-label {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1;
+  user-select: none;
+}
+
+/* ── Pulse animation (shown on first view) ──────────────────────────────── */
+
+.gd-annotate-pulse::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--gd-annotate-marker-bg);
+  animation: gd-annotate-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gd-annotate-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* ── Tooltip ────────────────────────────────────────────────────────────── */
+
+.gd-annotate-tooltip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 240px;
+  padding: 8px 12px;
+  background: var(--bs-body-bg, #fff);
+  color: var(--bs-body-color, #212529);
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  line-height: 1.4;
+  font-family: system-ui, -apple-system, sans-serif;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  z-index: 10;
+  white-space: normal;
+}
+
+/* Position variants */
+.gd-annotate-tooltip--above {
+  bottom: calc(100% + 10px);
+  top: auto;
+}
+
+.gd-annotate-tooltip--below {
+  top: calc(100% + 10px);
+  bottom: auto;
+}
+
+.gd-annotate-tooltip--left {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.gd-annotate-tooltip--right {
+  left: 0;
+  right: auto;
+  transform: none;
+}
+
+/* Show tooltip states */
+.gd-annotate-active .gd-annotate-tooltip,
+.gd-annotate-tooltip--hover {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.gd-annotate-tooltip-label {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--bs-primary, #0d6efd);
+}
+
+.gd-annotate-tooltip-text {
+  display: block;
+}
+
+/* ── Dark mode ──────────────────────────────────────────────────────────── */
+
+[data-bs-theme="dark"] .gd-annotate-marker {
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+[data-bs-theme="dark"] .gd-annotate-tooltip {
+  background: var(--bs-body-bg, #212529);
+  border-color: var(--bs-border-color, #495057);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-annotate-pulse::after {
+    animation: none;
+  }
+
+  .gd-annotate-marker {
+    transition: none;
+  }
+
+  .gd-annotate-tooltip {
+    transition: none;
+  }
+}

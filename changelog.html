@@ -43,7 +43,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-3bf6dc44f1d1c4f1986ae0ab89442a35.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-0e18effa8c39a483f938cc6d6b41e179.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -73,6 +73,12 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'termshow.css'}));</script>
+<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox.css'}));</script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'gd-lightbox.js';s.defer=true;document.head.appendChild(s);})();</script>
+<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox-compare.css'}));</script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'gd-lightbox-compare.js';s.defer=true;document.head.appendChild(s);})();</script>
+<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox-annotate.css'}));</script>
+<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'gd-lightbox-annotate.js';s.defer=true;document.head.appendChild(s);})();</script>
 <link rel="icon" type="image/x-icon" href="https://posit-dev.github.io/great-tables/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/svg+xml" href="https://posit-dev.github.io/great-tables/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="https://posit-dev.github.io/great-tables/favicon-32x32.png">
@@ -136,7 +142,7 @@ ul.task-list li input[type="checkbox"] {
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2677" data-forks="125"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2681" data-forks="126"></div>
     </span>
   </li>  
 </ul>
@@ -175,10 +181,7 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#v0.11.0" id="toc-v0.11.0" class="nav-link" data-scroll-target="#v0.11.0">v0.11.0</a></li>
   <li><a href="#v0.10.0" id="toc-v0.10.0" class="nav-link" data-scroll-target="#v0.10.0">v0.10.0</a></li>
-  <li><a href="#v0.9.0" id="toc-v0.9.0" class="nav-link" data-scroll-target="#v0.9.0">v0.9.0</a>
-  <ul class="collapse">
-  <li><a href="#v0.9.0-1" id="toc-v0.9.0-1" class="nav-link" data-scroll-target="#v0.9.0-1">v0.9.0</a></li>
-  </ul></li>
+  <li><a href="#v0.9.0" id="toc-v0.9.0" class="nav-link" data-scroll-target="#v0.9.0">v0.9.0</a></li>
   <li><a href="#v0.8.0" id="toc-v0.8.0" class="nav-link" data-scroll-target="#v0.8.0">v0.8.0</a></li>
   <li><a href="#v0.7.0" id="toc-v0.7.0" class="nav-link" data-scroll-target="#v0.7.0">v0.7.0</a></li>
   <li><a href="#v0.6.1" id="toc-v0.6.1" class="nav-link" data-scroll-target="#v0.6.1">v0.6.1</a></li>
@@ -795,8 +798,6 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.9.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.9.0</h1>
 <p><em>2024-06-06</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.9.0">GitHub</a></p>
-<section id="v0.9.0-1" class="level2">
-<h2 class="anchored" data-anchor-id="v0.9.0-1">v0.9.0</h2>
 <p>This release adds row subsetting to <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>, allowing color scales to be applied to specific rows.</p>
 <section id="new-features-11" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-11">New Features</h3>
@@ -809,7 +810,6 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li>The <code>rows=</code> parameter is now the third positional argument in <a href="reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>, which may break code that relied on positional argument order.</li>
 </ul>
-</section>
 </section>
 </section>
 <section id="v0.8.0" class="level1 changelog-version">
@@ -1262,7 +1262,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.1.2" class="level1 changelog-version">
 <h1 class="changelog-version">v0.1.2</h1>
 <p><em>2023-12-07</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.1.2">GitHub</a></p>
-<p>This release adds Shiny integration for Great Tables, enabling interactive table rendering in Shiny for Python applications — including support for Shinylive.</p>
+<p>This release adds Shiny integration for Great Tables, enabling interactive table rendering in Shiny for Python applications (including support for Shinylive).</p>
 <section id="new-features-23" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-23">New Features</h3>
 <ul>
@@ -1272,7 +1272,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="enhancements-8" class="level3">
 <h3 class="anchored" data-anchor-id="enhancements-8">Enhancements</h3>
 <ul>
-<li>Replaced <code>libsass</code> dependency with <code>webcolors</code>, enabling Great Tables to run in Shinylive. (<a href="https://github.com/posit-dev/great-tables/issues/61">#61</a>)</li>
+<li>Replaced the <code>libsass</code> dependency with <code>webcolors</code>, enabling Great Tables to run in Shinylive. (<a href="https://github.com/posit-dev/great-tables/issues/61">#61</a>)</li>
 </ul>
 </section>
 <section id="documentation-24" class="level3">

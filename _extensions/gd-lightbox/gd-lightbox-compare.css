@@ -1,0 +1,170 @@
+/* GD Lightbox Compare — Before/After Slider Styles */
+
+.gd-compare {
+  --gd-compare-divider-width: 3px;
+  --gd-compare-divider-color: #fff;
+  --gd-compare-handle-size: 40px;
+  --gd-compare-label-bg: rgba(0, 0, 0, 0.6);
+  --gd-compare-label-color: #fff;
+  --gd-compare-radius: 8px;
+
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--gd-compare-radius);
+  cursor: ew-resize;
+  user-select: none;
+  -webkit-user-select: none;
+  line-height: 0;
+  max-width: 100%;
+}
+
+.gd-compare--vertical {
+  cursor: ns-resize;
+}
+
+/* Both layers fill the container */
+.gd-compare__before,
+.gd-compare__after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gd-compare__after {
+  z-index: 1;
+}
+
+.gd-compare__before {
+  z-index: 2;
+}
+
+.gd-compare__before img,
+.gd-compare__after img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Make container size from the after (bottom) image */
+.gd-compare__after {
+  position: relative;
+}
+
+/* Divider line */
+.gd-compare__divider {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gd-compare--horizontal .gd-compare__divider {
+  top: 0;
+  bottom: 0;
+  width: var(--gd-compare-divider-width);
+  background: var(--gd-compare-divider-color);
+  transform: translateX(-50%);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.gd-compare--vertical .gd-compare__divider {
+  left: 0;
+  right: 0;
+  height: var(--gd-compare-divider-width);
+  background: var(--gd-compare-divider-color);
+  transform: translateY(-50%);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Handle (grab circle) */
+.gd-compare__handle {
+  width: var(--gd-compare-handle-size);
+  height: var(--gd-compare-handle-size);
+  border-radius: 50%;
+  background: var(--gd-compare-divider-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gd-compare--active .gd-compare__handle {
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.gd-compare__handle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Labels */
+.gd-compare__label {
+  position: absolute;
+  z-index: 4;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--gd-compare-label-color);
+  background: var(--gd-compare-label-bg);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.gd-compare--horizontal .gd-compare__label--before {
+  top: 12px;
+  left: 12px;
+}
+
+.gd-compare--horizontal .gd-compare__label--after {
+  top: 12px;
+  right: 12px;
+}
+
+.gd-compare--vertical .gd-compare__label--before {
+  top: 12px;
+  left: 12px;
+}
+
+.gd-compare--vertical .gd-compare__label--after {
+  bottom: 12px;
+  left: 12px;
+}
+
+/* Focus ring for keyboard navigation */
+.gd-compare:focus {
+  outline: 3px solid var(--bs-primary, #0d6efd);
+  outline-offset: 2px;
+}
+
+.gd-compare:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.gd-compare:focus-visible {
+  outline: 3px solid var(--bs-primary, #0d6efd);
+  outline-offset: 2px;
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .gd-compare {
+  --gd-compare-divider-color: #e0e0e0;
+  --gd-compare-label-bg: rgba(255, 255, 255, 0.15);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .gd-compare__handle {
+    transition: none;
+  }
+}
