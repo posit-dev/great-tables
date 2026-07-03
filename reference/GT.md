@@ -7,7 +7,14 @@ Create a **Great Tables** object.
 Usage
 
 ``` python
-GT()
+GT(
+    data,
+    rowname_col=None,
+    groupname_col=None,
+    auto_align=True,
+    id=None,
+    locale=None
+)
 ```
 
 

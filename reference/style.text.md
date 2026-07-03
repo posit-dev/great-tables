@@ -7,7 +7,19 @@ A style specification for cell text.
 Usage
 
 ``` python
-style.text()
+style.text(
+    color=None,
+    font=None,
+    size=None,
+    align=None,
+    v_align=None,
+    style=None,
+    weight=None,
+    stretch=None,
+    decorate=None,
+    transform=None,
+    whitespace=None
+)
 ```
 
 

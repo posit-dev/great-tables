@@ -7,7 +7,12 @@ A style specification for cell borders.
 Usage
 
 ``` python
-style.borders()
+style.borders(
+    sides="all",
+    color="#000000",
+    style="solid",
+    weight="1px",
+)
 ```
 
 

@@ -38,6 +38,21 @@ Add a table footnote.
 [GT.tab_source_note()](GT.tab_source_note.md#great_tables.GT.tab_source_note)  
 Add a source note citation.
 
+[GT.rm_header()](GT.rm_header.md#great_tables.GT.rm_header)  
+Remove the table header.
+
+[GT.rm_stubhead()](GT.rm_stubhead.md#great_tables.GT.rm_stubhead)  
+Remove the stubhead label.
+
+[GT.rm_spanners()](GT.rm_spanners.md#great_tables.GT.rm_spanners)  
+Remove column spanners.
+
+[GT.rm_footnotes()](GT.rm_footnotes.md#great_tables.GT.rm_footnotes)  
+Remove table footnotes.
+
+[GT.rm_source_notes()](GT.rm_source_notes.md#great_tables.GT.rm_source_notes)  
+Remove table source notes.
+
 [GT.tab_style()](GT.tab_style.md#great_tables.GT.tab_style)  
 Add custom style to one or more cells
 

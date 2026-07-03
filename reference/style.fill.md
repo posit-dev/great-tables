@@ -7,7 +7,7 @@ A style specification for the background fill of targeted cells.
 Usage
 
 ``` python
-style.fill()
+style.fill(color)
 ```
 
 

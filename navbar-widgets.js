@@ -194,3 +194,62 @@
     attach();
   }
 })();
+
+/**
+ * Responsive mobile brand-title sizing.
+ *
+ * On mobile (< 992px) a text display name shares one centered row. Rather
+ * than truncate as soon as it is a little long, we step the font size down
+ * through a few set sizes until the name fits the available width, and only
+ * fall back to the CSS ellipsis (great-docs.scss) when even the smallest
+ * step overflows. Short names keep the full default size; logo brands have
+ * no .navbar-title and are left untouched. Desktop always uses the default.
+ */
+(function () {
+  "use strict";
+
+  var mql = window.matchMedia("(max-width: 991.98px)");
+  // Largest → smallest; the floor (0.68) keeps the name readable before the
+  // ellipsis takes over.
+  var RATIOS = [1, 0.92, 0.84, 0.76, 0.68];
+
+  function fit() {
+    var title = document.querySelector(".navbar-title");
+    if (!title) return;
+
+    title.style.fontSize = ""; // reset to the CSS default
+    if (!mql.matches) return; // desktop — keep the default size
+    if (title.scrollWidth <= title.clientWidth) return; // fits at full size
+
+    var base = parseFloat(getComputedStyle(title).fontSize);
+    if (!base) return;
+
+    // Step down until it fits; if none do, the smallest size stays and the
+    // CSS `text-overflow: ellipsis` truncates as a last resort.
+    for (var i = 1; i < RATIOS.length; i++) {
+      title.style.fontSize = base * RATIOS[i] + "px";
+      if (title.scrollWidth <= title.clientWidth) return;
+    }
+  }
+
+  var raf;
+  function schedule() {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(fit);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fit);
+  } else {
+    fit();
+  }
+  window.addEventListener("load", fit, { once: true });
+  window.addEventListener("resize", schedule);
+  window.addEventListener("orientationchange", schedule);
+  mql.addEventListener("change", schedule);
+
+  // Re-fit once web fonts settle (metrics can change after swap).
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(fit);
+  }
+})();

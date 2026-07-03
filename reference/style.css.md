@@ -7,7 +7,7 @@ A style specification for custom CSS rules.
 Usage
 
 ``` python
-style.css()
+style.css(rule)
 ```
 
 

@@ -33,8 +33,11 @@
       placement: "top",
       theme: "gd-material",
       maxWidth: 300,
-      touch: ["hold", 500], // Long press on touch devices
-      // Smart positioning — flip if not enough space
+      // Tooltips are a hover affordance so we suppress them on touch devices
+      // (phones/tablets) where there is no hover and a tap/long-press would
+      // otherwise pop a stray tooltip (e.g., the version badge on the brand).
+      touch: false,
+      // Smart positioning: flip if not enough space
       popperOptions: {
         modifiers: [
           {

@@ -23,6 +23,11 @@
 - [GT.tab_stubhead](https://posit-dev.github.io/great-tables/reference/GT.tab_stubhead.html)
 - [GT.tab_footnote](https://posit-dev.github.io/great-tables/reference/GT.tab_footnote.html)
 - [GT.tab_source_note](https://posit-dev.github.io/great-tables/reference/GT.tab_source_note.html)
+- [GT.rm_header](https://posit-dev.github.io/great-tables/reference/GT.rm_header.html)
+- [GT.rm_stubhead](https://posit-dev.github.io/great-tables/reference/GT.rm_stubhead.html)
+- [GT.rm_spanners](https://posit-dev.github.io/great-tables/reference/GT.rm_spanners.html)
+- [GT.rm_footnotes](https://posit-dev.github.io/great-tables/reference/GT.rm_footnotes.html)
+- [GT.rm_source_notes](https://posit-dev.github.io/great-tables/reference/GT.rm_source_notes.html)
 - [GT.tab_style](https://posit-dev.github.io/great-tables/reference/GT.tab_style.html)
 - [GT.tab_options](https://posit-dev.github.io/great-tables/reference/GT.tab_options.html)
 
