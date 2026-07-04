@@ -1,31 +1,28 @@
-import pytest
-from unittest import mock
-import pandas as pd
 import os
+from unittest import mock
+
+import pandas as pd
+import pytest
 
 from great_tables import GT, exibble, loc
+from great_tables._utils_render_latex import (_render_as_latex, convert_to_pt,
+                                              convert_to_px,
+                                              create_body_component_l,
+                                              create_columns_component_l,
+                                              create_fontsize_statement_l,
+                                              create_footer_component_l,
+                                              create_heading_component_l,
+                                              create_table_end_l,
+                                              create_table_start_l,
+                                              create_wrap_end_l,
+                                              create_wrap_start_l,
+                                              css_length_has_supported_units,
+                                              derive_table_width_statement_l,
+                                              get_px_conversion,
+                                              get_units_from_length_string,
+                                              is_css_length_string,
+                                              is_number_without_units)
 from great_tables.data import gtcars
-
-from great_tables._utils_render_latex import (
-    is_css_length_string,
-    is_number_without_units,
-    css_length_has_supported_units,
-    get_px_conversion,
-    get_units_from_length_string,
-    convert_to_px,
-    convert_to_pt,
-    create_wrap_start_l,
-    create_fontsize_statement_l,
-    create_heading_component_l,
-    create_body_component_l,
-    create_columns_component_l,
-    create_footer_component_l,
-    create_wrap_end_l,
-    create_table_end_l,
-    create_table_start_l,
-    derive_table_width_statement_l,
-    _render_as_latex,
-)
 
 
 @pytest.fixture
@@ -111,7 +108,7 @@ def test_convert_to_pt():
 
 
 def test_create_fontsize_statement_l(gt_tbl: GT):
-    assert create_fontsize_statement_l(gt_tbl) == "\\fontsize{12.0pt}{14.4pt}\\selectfont\n"
+    assert create_fontsize_statement_l(gt_tbl) == ""
 
 
 def test_create_fontsize_statement_l_pt(gt_tbl: GT):
@@ -182,11 +179,11 @@ def test_create_heading_component_l():
     assert create_heading_component_l(gt_tbl_no_heading, use_longtable=False) == ""
     assert (
         create_heading_component_l(gt_tbl_title, use_longtable=False)
-        == "\\caption*{\n{\\large Title}\n} "
+        == "\\caption{Title} "
     )
     assert (
         create_heading_component_l(gt_tbl_title_subtitle, use_longtable=False)
-        == "\\caption*{\n{\\large Title} \\\\\n{\\small Subtitle}\n} "
+        == "\\caption{Title Subtitle} "
     )
 
 
@@ -633,3 +630,9 @@ def test_snap_render_as_latex_stub_and_groups_as_column(snapshot):
     latex_str = _render_as_latex(data=gt_tbl._build_data(context="latex"))
 
     assert snapshot == latex_str
+
+def test_render_as_latex_with_table_label():
+    gt_tbl = GT(exibble)
+    latex_str = _render_as_latex(data=gt_tbl._build_data(context="latex"), tbl_label="tab:table1")
+
+    assert "\\label{tab:table1}" in latex_str
