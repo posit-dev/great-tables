@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from dataclasses import fields
 from functools import partial
 from string import Template
 
@@ -91,7 +90,7 @@ def compile_scss(
     """Return CSS for styling a table, based on options set."""
 
     # Obtain the SCSS options dictionary
-    options = {field.name: getattr(data._options, field.name) for field in fields(data._options)}
+    options = dict(data._options.items())
 
     # Get collection of parameters that pertain to SCSS ----
     params = {k: opt.value for k, opt in options.items() if opt.scss and opt.value is not None}

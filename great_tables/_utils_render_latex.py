@@ -110,6 +110,85 @@ def latex_heading_row(content: list[str]) -> str:
     return "".join([" & ".join(content) + " \\\\ \n", "\\midrule\\addlinespace[2.5pt]"])
 
 
+def _append_summary_rows_l(
+    body_rows: list[str],
+    summary_rows: list["SummaryRowInfo"],
+    column_vars: list,
+    has_row_stub_column: bool,
+    has_group_stub_column: bool,
+) -> None:
+    for summary_row in summary_rows:
+        body_rows.append(
+            _create_summary_row_l(
+                summary_row=summary_row,
+                column_vars=column_vars,
+                has_row_stub_column=has_row_stub_column,
+                has_group_stub_column=has_group_stub_column,
+            )
+        )
+
+
+def _create_body_row_cells_l(
+    tbl_data,
+    i: int,
+    column_vars: list,
+    row_stub_var,
+    has_row_stub_column: bool,
+    group_info: GroupRowInfo | None,
+    prev_group_info: GroupRowInfo | None,
+    has_group_stub_column: bool,
+) -> list[str]:
+    body_cells: list[str] = []
+
+    if has_group_stub_column and group_info is not None:
+        if group_info is prev_group_info:
+            body_cells.append("")
+        else:
+            body_cells.append(_process_text(group_info.defaulted_label(), context="latex"))
+
+    if has_row_stub_column:
+        if row_stub_var is not None:
+            rowname = _get_cell(tbl_data, i, row_stub_var.var)
+            rowname_str = str(rowname)
+        else:
+            rowname_str = ""
+
+        body_cells.append(rowname_str)
+
+    for colinfo in column_vars:
+        cell_content = _get_cell(tbl_data, i, colinfo.var)
+        body_cells.append(str(cell_content))
+
+    return body_cells
+
+
+def _append_group_header_row_l(
+    body_rows: list[str],
+    group_info: GroupRowInfo,
+    n_cols: int,
+    first_group_added: bool,
+) -> bool:
+    group_label = _process_text(group_info.defaulted_label(), context="latex")
+
+    # Add midrule before group heading (except for first group, which already has one from
+    # column headers) then the group heading, then midrule after.
+    if first_group_added:
+        group_row = (
+            f"\\midrule\\addlinespace[2.5pt]\n"
+            f"\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n"
+            f"\\midrule\\addlinespace[2.5pt]"
+        )
+    else:
+        group_row = (
+            f"\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n"
+            f"\\midrule\\addlinespace[2.5pt]"
+        )
+        first_group_added = True
+
+    body_rows.append(group_row)
+    return first_group_added
+
+
 def create_table_start_l(data: GTData, use_longtable: bool) -> str:
     """
     Create the table start component for LaTeX output.
@@ -450,14 +529,13 @@ def create_body_component_l(data: GTData) -> str:
     # Add grand summary rows at top
     top_grand_summary = data._summary_rows_grand.get_summary_rows(side="top")
     if top_grand_summary:
-        for summary_row in top_grand_summary:
-            summary_str = _create_summary_row_l(
-                summary_row=summary_row,
-                column_vars=column_vars,
-                has_row_stub_column=has_row_stub_column,
-                has_group_stub_column=has_group_stub_column,
-            )
-            body_rows.append(summary_str)
+        _append_summary_rows_l(
+            body_rows=body_rows,
+            summary_rows=top_grand_summary,
+            column_vars=column_vars,
+            has_row_stub_column=has_row_stub_column,
+            has_group_stub_column=has_group_stub_column,
+        )
         body_rows.append("\\midrule\\addlinespace[2.5pt]")
 
     for j, (i, group_info) in enumerate(ordered_index):
@@ -465,56 +543,27 @@ def create_body_component_l(data: GTData) -> str:
         if has_groups and group_info is not None:
             # Only create group row if this is first row of the group
             if group_info is not prev_group_info:
-                group_label = group_info.defaulted_label()
-
-                # Process the group label for LaTeX
-                group_label = _process_text(group_label, context="latex")
-
                 # When group is shown as a column, we don't add a separate row
                 # Instead, it will be added as a cell in each data row
                 if not has_group_stub_column:
-                    # Add midrule before group heading (except for first group, which already has
-                    # one from column headers) then the group heading, then midrule after
-                    if first_group_added:
-                        group_row = f"\\midrule\\addlinespace[2.5pt]\n\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n\\midrule\\addlinespace[2.5pt]"
-                    else:
-                        group_row = f"\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n\\midrule\\addlinespace[2.5pt]"
-                        first_group_added = True
-                    body_rows.append(group_row)
+                    first_group_added = _append_group_header_row_l(
+                        body_rows=body_rows,
+                        group_info=group_info,
+                        n_cols=n_cols,
+                        first_group_added=first_group_added,
+                    )
 
         # Create data row cells
-        body_cells: list[str] = []
-
-        # Add stub cells first (group_label column, then rowname column)
-        if has_group_stub_column and group_info is not None:
-            # Only show group label in first row of group
-            if group_info is prev_group_info:
-                # Use an empty cell for continuation rows in same group
-                body_cells.append("")
-            else:
-                # Get the group label from the group info
-                group_label = group_info.defaulted_label()
-                group_label = _process_text(group_label, context="latex")
-
-                body_cells.append(group_label)
-
-        if has_row_stub_column:
-            # Get the row name from the stub
-            if row_stub_var is not None:
-                rowname = _get_cell(tbl_data, i, row_stub_var.var)
-                rowname_str = str(rowname)
-            else:
-                # Placeholder stub for summary rows (no actual rowname column)
-                rowname_str = ""
-
-            body_cells.append(rowname_str)
-
-        # Add data cells
-        for colinfo in column_vars:
-            cell_content = _get_cell(tbl_data, i, colinfo.var)
-            cell_str: str = str(cell_content)
-
-            body_cells.append(cell_str)
+        body_cells = _create_body_row_cells_l(
+            tbl_data=tbl_data,
+            i=i,
+            column_vars=column_vars,
+            row_stub_var=row_stub_var,
+            has_row_stub_column=has_row_stub_column,
+            group_info=group_info,
+            prev_group_info=prev_group_info,
+            has_group_stub_column=has_group_stub_column,
+        )
 
         # Join cells with ampersand and terminate with a double backslash
         body_row_str = " & ".join(body_cells) + " \\\\"
@@ -535,27 +584,25 @@ def create_body_component_l(data: GTData) -> str:
 
                 if group_summary:
                     body_rows.append("\\midrule\\addlinespace[2.5pt]")
-                    for summary_row in group_summary:
-                        summary_str = _create_summary_row_l(
-                            summary_row=summary_row,
-                            column_vars=column_vars,
-                            has_row_stub_column=has_row_stub_column,
-                            has_group_stub_column=has_group_stub_column,
-                        )
-                        body_rows.append(summary_str)
+                    _append_summary_rows_l(
+                        body_rows=body_rows,
+                        summary_rows=group_summary,
+                        column_vars=column_vars,
+                        has_row_stub_column=has_row_stub_column,
+                        has_group_stub_column=has_group_stub_column,
+                    )
 
     # Add grand summary rows at bottom
     bottom_grand_summary = data._summary_rows_grand.get_summary_rows(side="bottom")
     if bottom_grand_summary:
         body_rows.append("\\midrule\\addlinespace[2.5pt]")
-        for summary_row in bottom_grand_summary:
-            summary_str = _create_summary_row_l(
-                summary_row=summary_row,
-                column_vars=column_vars,
-                has_row_stub_column=has_row_stub_column,
-                has_group_stub_column=has_group_stub_column,
-            )
-            body_rows.append(summary_str)
+        _append_summary_rows_l(
+            body_rows=body_rows,
+            summary_rows=bottom_grand_summary,
+            column_vars=column_vars,
+            has_row_stub_column=has_row_stub_column,
+            has_group_stub_column=has_group_stub_column,
+        )
 
     # Join all body rows with newlines
     all_body_rows = "\n".join(body_rows)

@@ -335,40 +335,8 @@ def _apply_single_col_merge(
     target_column = col_merge.vars[0]
 
     for row_idx in col_merge.rows:
-        # For each column, get the display value and determine if it's truly missing.
-        # A value is only considered missing if BOTH the body AND original are NA.
-        # This means sub_missing() replacements (e.g., "--") are not treated as missing,
-        # matching R's gt behavior.
-        values: list[Any] = []
-
-        for col_name in col_merge.vars:
-            formatted_value = _get_cell(body.body, row_idx, col_name)
-            original_value = _get_cell(tbl_data, row_idx, col_name)
-
-            original_na = ColMergeInfo.replace_na(original_value, tbl_data=tbl_data)
-            formatted_na = ColMergeInfo.replace_na(formatted_value, tbl_data=body.body)
-
-            if formatted_na[0] is None and original_na[0] is None:
-                # Truly missing
-                values.append(None)
-            elif formatted_na[0] is None:
-                # Body is NA but original has a value (unformatted)
-                values.append(str(original_value))
-            else:
-                # Body has a value (possibly from sub_missing or formatting)
-                values.append(str(formatted_value))
-
-        # Dispatch to the appropriate merge strategy
-        if col_merge.type == "merge":
-            merged_value = col_merge.merge(*values)
-        elif col_merge.type == "merge_uncert":
-            merged_value = _merge_uncert(values, col_merge.sep)
-        elif col_merge.type == "merge_range":
-            merged_value = _merge_range(values, col_merge.sep)
-        elif col_merge.type == "merge_n_pct":
-            merged_value = _merge_n_pct(values, tbl_data, col_merge.vars, row_idx)
-        else:
-            merged_value = col_merge.merge(*values)
+        values = _collect_merge_values(col_merge, body, tbl_data, row_idx)
+        merged_value = _resolve_merge_value(col_merge, values, tbl_data, row_idx)
 
         result = _set_cell(body.body, row_idx, target_column, merged_value)
 
@@ -378,6 +346,50 @@ def _apply_single_col_merge(
             body.body = result
 
     return body
+
+
+def _collect_merge_values(
+    col_merge: ColMergeInfo,
+    body: Body,
+    tbl_data: TblData,
+    row_idx: int,
+) -> list[Any]:
+    """Collect row values for a merge, preserving the original missing-value rules."""
+    values: list[Any] = []
+
+    for col_name in col_merge.vars:
+        formatted_value = _get_cell(body.body, row_idx, col_name)
+        original_value = _get_cell(tbl_data, row_idx, col_name)
+
+        original_na = ColMergeInfo.replace_na(original_value, tbl_data=tbl_data)
+        formatted_na = ColMergeInfo.replace_na(formatted_value, tbl_data=body.body)
+
+        if formatted_na[0] is None and original_na[0] is None:
+            values.append(None)
+        elif formatted_na[0] is None:
+            values.append(str(original_value))
+        else:
+            values.append(str(formatted_value))
+
+    return values
+
+
+def _resolve_merge_value(
+    col_merge: ColMergeInfo,
+    values: list[Any],
+    tbl_data: TblData,
+    row_idx: int,
+) -> str:
+    """Resolve the merged value for the configured merge type."""
+    if col_merge.type == "merge":
+        return col_merge.merge(*values)
+    if col_merge.type == "merge_uncert":
+        return _merge_uncert(values, col_merge.sep)
+    if col_merge.type == "merge_range":
+        return _merge_range(values, col_merge.sep)
+    if col_merge.type == "merge_n_pct":
+        return _merge_n_pct(values, tbl_data, col_merge.vars, row_idx)
+    return col_merge.merge(*values)
 
 
 def _merge_uncert(values: list[Any], sep: str) -> str:

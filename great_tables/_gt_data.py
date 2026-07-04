@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
@@ -73,11 +72,15 @@ def _prep_gt(
 
 
 @dataclass(frozen=True)
-class GTData:
+class GTCoreData:
     _tbl_data: TblData
     _body: Body
     _boxhead: Boxhead
     _stub: Stub
+
+
+@dataclass(frozen=True)
+class GTSectionData:
     _spanners: Spanners
     _heading: Heading
     _stubhead: Stubhead
@@ -85,26 +88,179 @@ class GTData:
     _summary_rows_grand: SummaryRows
     _source_notes: SourceNotes
     _footnotes: Footnotes
+
+
+@dataclass(frozen=True)
+class GTStyleData:
     _styles: Styles
-    _locale: Locale | None
+
+
+@dataclass(frozen=True)
+class GTTransformData:
     _formats: Formats
     _substitutions: Formats
     _col_merge: ColMerges
     _transforms: list  # list[TextTransformInfo]
+
+
+@dataclass(frozen=True)
+class GTSettingsData:
+    _locale: Locale | None
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _has_built: bool = False
 
+
+@dataclass(frozen=True)
+class GTData:
+    _core: GTCoreData
+    _sections: GTSectionData
+    _style_data: GTStyleData
+    _transform_data: GTTransformData
+    _settings: GTSettingsData
+
+    def _split_replacements(self, kwargs: dict[str, Any]) -> tuple[
+        dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]
+    ]:
+        core_updates: dict[str, Any] = {}
+        section_updates: dict[str, Any] = {}
+        style_updates: dict[str, Any] = {}
+        transform_updates: dict[str, Any] = {}
+        settings_updates: dict[str, Any] = {}
+
+        for key, value in kwargs.items():
+            if key in {"_core", "_sections", "_style_data", "_transform_data", "_settings"}:
+                raise ValueError(
+                    "Replacements must target flattened GTData attributes, not internal groups."
+                )
+            elif key in {"_tbl_data", "_body", "_boxhead", "_stub"}:
+                core_updates[key] = value
+            elif key in {
+                "_spanners",
+                "_heading",
+                "_stubhead",
+                "_summary_rows",
+                "_summary_rows_grand",
+                "_source_notes",
+                "_footnotes",
+            }:
+                section_updates[key] = value
+            elif key == "_styles":
+                style_updates[key] = value
+            elif key in {"_formats", "_substitutions", "_col_merge", "_transforms"}:
+                transform_updates[key] = value
+            elif key in {"_locale", "_options", "_google_font_imports", "_has_built"}:
+                settings_updates[key] = value
+            else:
+                raise ValueError(f"Replacements not in data: {{{key}}}")
+
+        return core_updates, section_updates, style_updates, transform_updates, settings_updates
+
     def _replace(self, **kwargs: Any) -> Self:
-        new_obj = copy.copy(self)
+        core_updates, section_updates, style_updates, transform_updates, settings_updates = (
+            self._split_replacements(kwargs)
+        )
 
-        missing = {k for k in kwargs if k not in new_obj.__dict__}
-        if missing:
-            raise ValueError(f"Replacements not in data: {missing}")
+        core = replace(self._core, **core_updates) if core_updates else self._core
+        sections = (
+            replace(self._sections, **section_updates) if section_updates else self._sections
+        )
+        style_data = replace(self._style_data, **style_updates) if style_updates else self._style_data
+        transform_data = (
+            replace(self._transform_data, **transform_updates)
+            if transform_updates
+            else self._transform_data
+        )
+        settings = replace(self._settings, **settings_updates) if settings_updates else self._settings
 
-        new_obj.__dict__.update(kwargs)
+        return replace(
+            self,
+            _core=core,
+            _sections=sections,
+            _style_data=style_data,
+            _transform_data=transform_data,
+            _settings=settings,
+        )
 
-        return new_obj
+    @property
+    def _tbl_data(self) -> TblData:
+        return self._core._tbl_data
+
+    @property
+    def _body(self) -> Body:
+        return self._core._body
+
+    @property
+    def _boxhead(self) -> Boxhead:
+        return self._core._boxhead
+
+    @property
+    def _stub(self) -> Stub:
+        return self._core._stub
+
+    @property
+    def _spanners(self) -> Spanners:
+        return self._sections._spanners
+
+    @property
+    def _heading(self) -> Heading:
+        return self._sections._heading
+
+    @property
+    def _stubhead(self) -> Stubhead:
+        return self._sections._stubhead
+
+    @property
+    def _summary_rows(self) -> SummaryRows:
+        return self._sections._summary_rows
+
+    @property
+    def _summary_rows_grand(self) -> SummaryRows:
+        return self._sections._summary_rows_grand
+
+    @property
+    def _source_notes(self) -> SourceNotes:
+        return self._sections._source_notes
+
+    @property
+    def _footnotes(self) -> Footnotes:
+        return self._sections._footnotes
+
+    @property
+    def _styles(self) -> Styles:
+        return self._style_data._styles
+
+    @property
+    def _locale(self) -> Locale | None:
+        return self._settings._locale
+
+    @property
+    def _formats(self) -> Formats:
+        return self._transform_data._formats
+
+    @property
+    def _substitutions(self) -> Formats:
+        return self._transform_data._substitutions
+
+    @property
+    def _col_merge(self) -> ColMerges:
+        return self._transform_data._col_merge
+
+    @property
+    def _transforms(self) -> list:
+        return self._transform_data._transforms
+
+    @property
+    def _options(self) -> Options:
+        return self._settings._options
+
+    @property
+    def _google_font_imports(self) -> GoogleFontImports:
+        return self._settings._google_font_imports
+
+    @property
+    def _has_built(self) -> bool:
+        return self._settings._has_built
 
     @classmethod
     def from_data(
@@ -125,25 +281,33 @@ class GTData:
             options = Options()
 
         return cls(
-            _tbl_data=data,
-            _body=Body.from_empty(data),
-            _boxhead=boxhead,  # uses get_tbl_data()
-            _stub=stub,  # uses get_tbl_data
-            _spanners=Spanners([]),
-            _heading=Heading(),
-            _stubhead=None,
-            _summary_rows=SummaryRows(),
-            _summary_rows_grand=SummaryRows(_is_grand_summary=True),
-            _source_notes=[],
-            _footnotes=[],
-            _styles=[],
-            _locale=Locale(locale),
-            _formats=[],
-            _substitutions=[],
-            _col_merge=[],
-            _transforms=[],
-            _options=options,
-            _google_font_imports=GoogleFontImports(),
+            _core=GTCoreData(
+                _tbl_data=data,
+                _body=Body.from_empty(data),
+                _boxhead=boxhead,  # uses get_tbl_data()
+                _stub=stub,  # uses get_tbl_data
+            ),
+            _sections=GTSectionData(
+                _spanners=Spanners([]),
+                _heading=Heading(),
+                _stubhead=None,
+                _summary_rows=SummaryRows(),
+                _summary_rows_grand=SummaryRows(_is_grand_summary=True),
+                _source_notes=[],
+                _footnotes=[],
+            ),
+            _style_data=GTStyleData(_styles=[]),
+            _transform_data=GTTransformData(
+                _formats=[],
+                _substitutions=[],
+                _col_merge=[],
+                _transforms=[],
+            ),
+            _settings=GTSettingsData(
+                _locale=Locale(locale),
+                _options=options,
+                _google_font_imports=GoogleFontImports(),
+            ),
         )
 
 
@@ -1206,6 +1370,43 @@ class OptionsInfo:
     type: str
     value: Any
 
+    def _raise_type_error(self, option_name: str, expected: str, value: Any) -> None:
+        raise TypeError(
+            f"Option `{option_name}` expects {expected}, but received type `{type(value).__name__}`."
+        )
+
+    def _validate_px_value(self, value: Any, option_name: str) -> Any:
+        if isinstance(value, (int, float)):
+            return f"{value}px"
+        if isinstance(value, str):
+            return value
+
+        self._raise_type_error(
+            option_name,
+            "a CSS length string (e.g., '5px', '100%', 'auto') or a numeric value",
+            value,
+        )
+
+    def _validate_bool_value(self, value: Any, option_name: str) -> Any:
+        if not isinstance(value, bool):
+            self._raise_type_error(option_name, "a boolean value", value)
+        return value
+
+    def _validate_scalar_value(self, value: Any, option_name: str) -> Any:
+        if not isinstance(value, (str, int, float)):
+            self._raise_type_error(option_name, "a string or numeric value", value)
+        return value
+
+    def _validate_values_value(self, value: Any, option_name: str) -> Any:
+        if not isinstance(value, (str, list)):
+            self._raise_type_error(option_name, "a string or list", value)
+        return value
+
+    def _validate_string_value(self, value: Any, option_name: str) -> Any:
+        if not isinstance(value, str):
+            self._raise_type_error(option_name, "a string value", value)
+        return value
+
     def _validate_value(self, value: Any, option_name: str) -> Any:
         """Validate and coerce an option value based on its type.
 
@@ -1224,52 +1425,22 @@ class OptionsInfo:
         if value is None:
             return value
 
-        if self.type == "px":
-            # CSS length values: accept str (e.g. "5px", "100%", "auto") or
-            # int/float (coerced to "{x}px")
-            if isinstance(value, (int, float)):
-                return f"{value}px"
-            elif isinstance(value, str):
-                return value
-            else:
-                raise TypeError(
-                    f"Option `{option_name}` expects a CSS length string (e.g., '5px', '100%', "
-                    f"'auto') or a numeric value, but received type `{type(value).__name__}`."
-                )
-        elif self.type in ("boolean", "logical"):
-            if not isinstance(value, bool):
-                raise TypeError(
-                    f"Option `{option_name}` expects a boolean value, "
-                    f"but received type `{type(value).__name__}`."
-                )
-            return value
-        elif self.type == "value":
-            if not isinstance(value, (str, int, float)):
-                raise TypeError(
-                    f"Option `{option_name}` expects a string or numeric value, "
-                    f"but received type `{type(value).__name__}`."
-                )
-            return value
-        elif self.type == "values":
-            if not isinstance(value, (str, list)):
-                raise TypeError(
-                    f"Option `{option_name}` expects a string or list, "
-                    f"but received type `{type(value).__name__}`."
-                )
-            return value
-        elif self.type == "overflow":
-            if not isinstance(value, str):
-                raise TypeError(
-                    f"Option `{option_name}` expects a string value, "
-                    f"but received type `{type(value).__name__}`."
-                )
-            return value
-        else:
-            return value
+        validators = {
+            "px": self._validate_px_value,
+            "boolean": self._validate_bool_value,
+            "logical": self._validate_bool_value,
+            "value": self._validate_scalar_value,
+            "values": self._validate_values_value,
+            "overflow": self._validate_string_value,
+        }
+
+        validator = validators.get(self.type)
+        return value if validator is None else validator(value, option_name)
 
 
-@dataclass(frozen=True)
 class Options:
+    __slots__ = ("_options",)
+
     table_id: OptionsInfo = OptionsInfo(False, "table", "value", None)
     table_caption: OptionsInfo = OptionsInfo(False, "table", "value", None)
     table_width: OptionsInfo = OptionsInfo(True, "table", "px", "auto")
@@ -1474,6 +1645,42 @@ class Options:
     # page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
+
+    def __init__(self, **kwargs: OptionsInfo):
+        option_defs = {
+            name: value for name, value in type(self).__dict__.items() if isinstance(value, OptionsInfo)
+        }
+        unknown_options = set(kwargs) - set(option_defs)
+        if unknown_options:
+            unknown = ", ".join(sorted(unknown_options))
+            raise TypeError(f"Options got unexpected option(s): {unknown}")
+
+        option_defs.update(kwargs)
+        object.__setattr__(self, "_options", option_defs)
+
+    def __getattribute__(self, name: str) -> Any:
+        if name == "_options":
+            return object.__getattribute__(self, name)
+
+        option_defs = object.__getattribute__(self, "_options")
+        if name in option_defs:
+            return option_defs[name]
+
+        return object.__getattribute__(self, name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        raise AttributeError(f"{type(self).__name__} is frozen")
+
+    def items(self):
+        return self._options.items()
+
+    def values(self):
+        return self._options.values()
+
+    def _replace(self, **kwargs: OptionsInfo):
+        option_defs = dict(self._options)
+        option_defs.update(kwargs)
+        return type(self)(**option_defs)
 
     def __getitem__(self, k: str) -> Any:
         return getattr(self, k).value

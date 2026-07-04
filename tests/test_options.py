@@ -410,6 +410,23 @@ def test_opt_table_font_raises_weight():
     )
 
 
+@pytest.mark.parametrize(
+    "kwargs, expected",
+    [
+        ({"table_width": []}, "expects a CSS length string"),
+        ({"row_striping_include_table_body": 1}, "expects a boolean value"),
+        ({"table_background_color": []}, "expects a string or numeric value"),
+        ({"table_additional_css": 1}, "expects a string or list"),
+        ({"container_overflow_x": 1}, "expects a string value"),
+    ],
+)
+def test_tab_options_raises_type_error(kwargs, expected):
+    with pytest.raises(TypeError) as exc_info:
+        GT(exibble).tab_options(**kwargs)
+
+    assert expected in exc_info.value.args[0]
+
+
 def test_opt_row_striping():
     gt_tbl_0 = GT(exibble)
     gt_tbl_1 = GT(exibble).opt_row_striping()

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import warnings
-from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, Iterable, cast
+from dataclasses import replace
+from typing import TYPE_CHECKING, Iterable, cast
 
 from . import _utils
 from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
@@ -578,7 +578,7 @@ def tab_options(
         validated_value = opt_info._validate_value(v, option_name=k)
         new_options_info[k] = replace(opt_info, value=validated_value)
 
-    new_options = replace(self._options, **new_options_info)
+    new_options = self._options._replace(**new_options_info)
 
     return self._replace(_options=new_options)
 
@@ -1322,57 +1322,12 @@ def opt_table_font(
     res = self
 
     if font is not None:
-        # If font is a string or GoogleFont object, convert to a list
-        if isinstance(font, (str, GoogleFont)):
-            font: list[str | GoogleFont] = [font]
-
-        if not isinstance(font, Iterable):
-            # We need to raise an exception here. Otherwise, if the provided `font` is not iterable,
-            # the `for item in font` loop will raise a `TypeError` with a message stating that the
-            # object is not iterable.
-            raise TypeError(
-                "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
-            )
-
-        new_font_list: list[str] = []
-
-        for item in font:
-            if isinstance(item, str):
-                # Case where list item is a string; here, it's converted to a list
-                new_font_list.append(item)
-
-            elif isinstance(item, GoogleFont):
-                # Case where the list item is a GoogleFont object
-                new_font_list.append(item.get_font_name())
-
-                # Add the Google Font import statement to the internal font imports
-                import_stmt = item.make_import_stmt()
-                res = res._replace(_google_font_imports=res._google_font_imports.add(import_stmt))
-
-            else:
-                raise TypeError(
-                    "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
-                )
-
-        font: list[str] = new_font_list
+        res, font = _opt_table_font_normalize(font, res)
 
     else:
         font = []
 
-    if stack is not None:
-        # Case where value is given to `stack=` and this is a keyword that returns a
-        # list of fonts (i.e., the font stack); in this case we combine with `font=` values
-        # (if provided) and we *always* replace the existing fonts (`add=` is ignored)
-        from great_tables._helpers import system_fonts
-
-        font_stack = system_fonts(name=stack)
-        combined_fonts = font + font_stack
-    elif add:
-        # Case where `font=` is prepended to existing fonts
-        combined_fonts = font + existing_fonts
-    else:
-        # Case where  `font=` replacing existing fonts
-        combined_fonts = font
+    combined_fonts = _opt_table_font_combined_fonts(font, existing_fonts, stack, add)
 
     res = tab_options(res, table_font_names=combined_fonts)
 
@@ -1392,6 +1347,55 @@ def opt_table_font(
         res = tab_options(res, table_font_style=style)
 
     return res
+
+
+def _opt_table_font_normalize(
+    font: str | list[str] | dict[str, str] | GoogleFont,
+    res: GTSelf,
+) -> tuple[GTSelf, list[str]]:
+    # Convert font inputs into a plain list of font names and collect Google Font imports.
+    if isinstance(font, (str, GoogleFont)):
+        font = [font]
+
+    if not isinstance(font, Iterable):
+        raise TypeError(
+            "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
+        )
+
+    new_font_list: list[str] = []
+
+    for item in font:
+        if isinstance(item, str):
+            new_font_list.append(item)
+
+        elif isinstance(item, GoogleFont):
+            new_font_list.append(item.get_font_name())
+
+            import_stmt = item.make_import_stmt()
+            res = res._replace(_google_font_imports=res._google_font_imports.add(import_stmt))
+
+        else:
+            raise TypeError(
+                "`font=` must be a string/GoogleFont object or a list of strings/GoogleFont objects."
+            )
+
+    return res, new_font_list
+
+
+def _opt_table_font_combined_fonts(
+    font: list[str], existing_fonts: list[str], stack: FontStackName | None, add: bool
+) -> list[str]:
+    if stack is not None:
+        # When a stack is provided, it replaces the existing stack and `add` is ignored.
+        from great_tables._helpers import system_fonts
+
+        font_stack = system_fonts(name=stack)
+        return font + font_stack
+
+    if add:
+        return font + existing_fonts
+
+    return font
 
 
 def opt_stylize(
@@ -1488,7 +1492,7 @@ def opt_stylize(
 
     params = dict_omit_keys(dict=params, omit_keys=omit_keys)
 
-    mapped_params = StyleMapper(**params).map_all()
+    mapped_params = map_style_params(params)
 
     # Add the `add_row_striping` parameter to the `mapped_params` dictionary
     if add_row_striping:
@@ -1611,54 +1615,37 @@ def opt_css(
     return res
 
 
-@dataclass
-class StyleMapper:
-    table_hlines_color: str
-    location_hlines_color: str
-    column_labels_background_color: str
-    stub_background_color: str
-    stub_border_style: str
-    stub_border_color: str
-    data_hlines_style: str
-    data_hlines_color: str
-    data_vlines_style: str
-    data_vlines_color: str
-    row_striping_background_color: str
-    grand_summary_row_background_color: str
-    # summary_row_background_color: str
+STYLE_MAPPINGS: dict[str, list[str]] = {
+    "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
+    "location_hlines_color": [
+        "heading_border_bottom_color",
+        "column_labels_border_top_color",
+        "column_labels_border_bottom_color",
+        "row_group_border_top_color",
+        "row_group_border_bottom_color",
+        "table_body_border_top_color",
+        "table_body_border_bottom_color",
+    ],
+    "column_labels_background_color": ["column_labels_background_color"],
+    "stub_background_color": ["stub_background_color"],
+    "stub_border_style": ["stub_border_style"],
+    "stub_border_color": ["stub_border_color"],
+    "data_hlines_style": ["table_body_hlines_style"],
+    "data_hlines_color": ["table_body_hlines_color"],
+    "data_vlines_style": ["table_body_vlines_style"],
+    "data_vlines_color": ["table_body_vlines_color"],
+    "row_striping_background_color": ["row_striping_background_color"],
+    "grand_summary_row_background_color": ["grand_summary_row_background_color"],
+    # "summary_row_background_color": ["summary_row_background_color"],
+}
 
-    mappings: ClassVar[dict[str, list[str]]] = {
-        "table_hlines_color": ["table_border_top_color", "table_border_bottom_color"],
-        "location_hlines_color": [
-            "heading_border_bottom_color",
-            "column_labels_border_top_color",
-            "column_labels_border_bottom_color",
-            "row_group_border_top_color",
-            "row_group_border_bottom_color",
-            "table_body_border_top_color",
-            "table_body_border_bottom_color",
-        ],
-        "column_labels_background_color": ["column_labels_background_color"],
-        "stub_background_color": ["stub_background_color"],
-        "stub_border_style": ["stub_border_style"],
-        "stub_border_color": ["stub_border_color"],
-        "data_hlines_style": ["table_body_hlines_style"],
-        "data_hlines_color": ["table_body_hlines_color"],
-        "data_vlines_style": ["table_body_vlines_style"],
-        "data_vlines_color": ["table_body_vlines_color"],
-        "row_striping_background_color": ["row_striping_background_color"],
-        "grand_summary_row_background_color": ["grand_summary_row_background_color"],
-        # "summary_row_background_color": ["summary_row_background_color"],
+
+def map_style_params(params: dict[str, str]) -> dict[str, str]:
+    return {
+        target: params[source]
+        for source, targets in STYLE_MAPPINGS.items()
+        for target in targets
     }
-
-    def map_entry(self, name: str) -> dict[str, list[str]]:
-        return {k: getattr(self, name) for k in self.mappings[name]}
-
-    def map_all(self) -> dict[str, list[str]]:
-        items: dict[str, list[str]] = {}
-        for field in fields(self):
-            items.update(self.map_entry(field.name))
-        return items
 
 
 _dict_styles_colors_params = {

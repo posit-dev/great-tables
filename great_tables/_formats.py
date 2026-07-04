@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
@@ -772,67 +772,23 @@ def fmt_scientific_context(
 
     m_part, n_part = sci_parts
 
-    # Remove trailing zeros and decimal marks from the `m_part`
-    if drop_trailing_zeros:
-        m_part = m_part.rstrip("0")
-    if drop_trailing_dec_mark:
-        m_part = m_part.rstrip(".")
+    m_part = _format_scientific_mantissa(
+        m_part=m_part,
+        is_positive=is_positive,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        force_sign_m=force_sign_m,
+    )
 
-    # Force the positive sign to be present if the `force_sign_m` option is taken
-    if is_positive and force_sign_m:
-        m_part = "+" + m_part
-
-    if exp_style == "x10n":
-        # Define the exponent string based on the `exp_style` that is the default
-        # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
-
-        # Determine which values don't require the (x 10^n) for scientific formatting
-        # since their order would be zero
-        small_pos = _has_sci_order_zero(value=x)
-
-        # Force the positive sign to be present if the `force_sign_n` option is taken
-        if force_sign_n and not _str_detect(n_part, "-"):
-            n_part = "+" + n_part
-
-        # Implement minus sign replacement for `m_part` and `n_part`
-        m_part = _replace_minus(m_part, minus_mark=minus_mark)
-        n_part = _replace_minus(n_part, minus_mark=minus_mark)
-
-        if small_pos:
-            # If the value is small enough to not require the (x 10^n) notation, then
-            # the formatted value is based on only the `m_part`
-            x_formatted = m_part
-        else:
-            # Get the set of exponent marks, which are used to decorate the `n_part`
-            exp_marks = _context_exp_marks(context=context)
-
-            # Create the formatted string based on `exp_marks` and the two `sci_parts`
-            x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
-
-    else:
-        # Define the exponent string based on the `exp_style` that's not the default
-        # value of 'x10n'
-
-        exp_str = _context_exp_str(exp_style=exp_style)
-
-        n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
-
-        # The `n_part` will be extracted here and it must be padded to
-        # the defined minimum number of decimal places
-        if _str_detect(n_part, "-"):
-            n_part = _str_replace(n_part, "-", "")
-            n_part = n_part.rjust(n_min_width, "0")
-            n_part = "-" + n_part
-        else:
-            n_part = n_part.rjust(n_min_width, "0")
-            if force_sign_n:
-                n_part = "+" + n_part
-
-        # Implement minus sign replacement for `m_part` and `n_part`
-        m_part = _replace_minus(m_part, minus_mark=minus_mark)
-        n_part = _replace_minus(n_part, minus_mark=minus_mark)
-
-        x_formatted = m_part + exp_str + n_part
+    x_formatted = _format_scientific_context_value(
+        x=x,
+        m_part=m_part,
+        n_part=n_part,
+        exp_style=exp_style,
+        force_sign_n=force_sign_n,
+        minus_mark=minus_mark,
+        context=context,
+    )
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -1081,109 +1037,30 @@ def fmt_engineering_context(
 
     minus_mark = _context_minus_mark(context=context)
 
-    # For engineering notation, we need to calculate the exponent that is a multiple of 3
-    # and adjust the mantissa accordingly
-    if x == 0:
-        # Special case for zero
-        m_part = _value_to_decimal_notation(
-            value=0,
-            decimals=decimals,
-            n_sigfig=n_sigfig,
-            drop_trailing_zeros=drop_trailing_zeros,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=False,
-            sep_mark=",",
-            dec_mark=dec_mark,
-            force_sign=False,
-        )
-        n_part = "0"
-        power_3 = 0
-    else:
-        # Calculate the power of 1000 (engineering notation uses multiples of 3)
-        power_3 = int(math.floor(math.log10(abs(x)) / 3) * 3)
-
-        # Calculate the mantissa by dividing by 10^power_3
-        mantissa = x / (10**power_3)
-
-        # Format the mantissa
-        m_part = _value_to_decimal_notation(
-            value=mantissa,
-            decimals=decimals,
-            n_sigfig=n_sigfig,
-            drop_trailing_zeros=drop_trailing_zeros,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=False,
-            sep_mark=",",
-            dec_mark=dec_mark,
-            force_sign=False,
-        )
-
-        n_part = str(power_3)
+    m_part, n_part, power_3 = _format_engineering_parts(
+        x=x,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        dec_mark=dec_mark,
+    )
 
     # Force the positive sign to be present if the `force_sign_m` option is taken
     if is_positive and force_sign_m:
         m_part = "+" + m_part
 
-    if exp_style == "x10n":
-        # Define the exponent string based on the `exp_style` that is the default
-        # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
+    x_formatted = _format_engineering_context_value(
+        m_part=m_part,
+        n_part=n_part,
+        power_3=power_3,
+        exp_style=exp_style,
+        force_sign_n=force_sign_n,
+        minus_mark=minus_mark,
+        context=context,
+    )
 
-        # Determine which values don't require the (x 10^n) for engineering formatting
-        # since their exponent would be zero
-        small_pos = power_3 == 0
-
-        # Force the positive sign to be present if the `force_sign_n` option is taken
-        if force_sign_n and not _str_detect(n_part, "-"):
-            n_part = "+" + n_part
-
-        # Implement minus sign replacement for `m_part` and `n_part`
-        m_part = _replace_minus(m_part, minus_mark=minus_mark)
-        n_part = _replace_minus(n_part, minus_mark=minus_mark)
-
-        if small_pos:
-            # If the exponent is zero, then the formatted value is based on only the `m_part`
-            x_formatted = m_part
-        else:
-            # Get the set of exponent marks, which are used to decorate the `n_part`
-            exp_marks = _context_exp_marks(context=context)
-
-            # Create the formatted string based on `exp_marks` and the two parts
-            x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
-
-    else:
-        # Define the exponent string based on the `exp_style` that's not the default
-        # value of 'x10n'
-
-        exp_str = _context_exp_str(exp_style=exp_style)
-
-        n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
-
-        # The `n_part` will be extracted here and it must be padded to
-        # the defined minimum number of decimal places
-        if _str_detect(n_part, "-"):
-            n_part = _str_replace(n_part, "-", "")
-            n_part = n_part.rjust(n_min_width, "0")
-            n_part = "-" + n_part
-        else:
-            n_part = n_part.rjust(n_min_width, "0")
-            if force_sign_n:
-                n_part = "+" + n_part
-
-        # Implement minus sign replacement for `m_part` and `n_part`
-        m_part = _replace_minus(m_part, minus_mark=minus_mark)
-        n_part = _replace_minus(n_part, minus_mark=minus_mark)
-
-        x_formatted = m_part + exp_str + n_part
-
-    # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
-
-    return x_formatted
+    return _format_engineering_pattern(x_formatted=x_formatted, pattern=pattern, context=context)
 
 
 def fmt_percent(
@@ -2783,89 +2660,22 @@ def fmt_duration(
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
 
-    # Validate input_units
-    if input_units is not None and input_units not in _DURATION_INPUT_UNITS:
-        raise ValueError(
-            f"`input_units` must be one of {_DURATION_INPUT_UNITS}, got '{input_units}'."
-        )
+    _validate_duration_input_units(input_units=input_units)
+    _validate_duration_style(duration_style=duration_style)
+    resolved_output_units = _resolve_duration_output_units(output_units=output_units)
 
-    # Validate duration_style
-    if duration_style not in ("narrow", "wide", "colon-sep", "iso"):
-        raise ValueError(
-            f"`duration_style` must be one of 'narrow', 'wide', 'colon-sep', or 'iso', "
-            f"got '{duration_style}'."
-        )
-
-    # Resolve output_units
-    if output_units is None:
-        resolved_output_units = list(_DURATION_OUTPUT_UNITS)
-    elif isinstance(output_units, str):
-        resolved_output_units = [output_units]
-    else:
-        resolved_output_units = list(output_units)
-
-    # Validate output_units entries
-    for unit in resolved_output_units:
-        if unit not in _DURATION_OUTPUT_UNITS:
-            raise ValueError(
-                f"Each entry in `output_units` must be one of {_DURATION_OUTPUT_UNITS}, "
-                f"got '{unit}'."
-            )
-
-    # Sort output_units from largest to smallest
-    unit_order = list(_DURATION_OUTPUT_UNITS)
-    resolved_output_units = sorted(resolved_output_units, key=lambda u: unit_order.index(u))
-
-    # Handle colon-sep params
-    colon_sep_output_units: list[str] | None = None
-    colon_sep_trim_leading: bool = False
-
-    if duration_style == "colon-sep":
-        # Check for valid colon-sep output unit combinations
-        valid_colon_combos = [
-            ["minutes", "seconds"],
-            ["hours", "minutes"],
-            ["hours", "minutes", "seconds"],
-            ["days", "hours", "minutes"],
-        ]
-        if resolved_output_units in valid_colon_combos:
-            colon_sep_output_units = resolved_output_units
-        else:
-            colon_sep_output_units = ["days", "hours", "minutes", "seconds"]
-
-        # Override resolved_output_units for the decomposition step
-        resolved_output_units = ["days", "hours", "minutes", "seconds"]
-
-        # Handle trim_zero_units for colon-sep
-        if isinstance(trim_zero_units, list) and trim_zero_units == ["leading"]:
-            colon_sep_trim_leading = True
-        elif trim_zero_units == "leading":
-            colon_sep_trim_leading = True
-
-    if duration_style == "iso":
-        resolved_output_units = ["days", "hours", "minutes", "seconds"]
-        max_output_units = None
-        trim_zero_units = ["leading", "trailing"]
-
-    # Resolve trim_zero_units to a list of keywords
-    if isinstance(trim_zero_units, bool):
-        if trim_zero_units:
-            resolved_trim = ["leading", "trailing", "internal"]
-        else:
-            resolved_trim = []
-    elif isinstance(trim_zero_units, list):
-        for kw in trim_zero_units:
-            if kw not in ("leading", "trailing", "internal"):
-                raise ValueError(
-                    f"Each entry in `trim_zero_units` must be one of 'leading', 'trailing', "
-                    f"or 'internal', got '{kw}'."
-                )
-        resolved_trim = trim_zero_units
-    else:
-        raise ValueError(
-            "`trim_zero_units` must be a bool or a list of keywords "
-            "('leading', 'trailing', 'internal')."
-        )
+    (
+        resolved_output_units,
+        colon_sep_output_units,
+        colon_sep_trim_leading,
+        resolved_trim,
+        max_output_units,
+    ) = _resolve_duration_style_params(
+        duration_style=duration_style,
+        resolved_output_units=resolved_output_units,
+        trim_zero_units=trim_zero_units,
+        max_output_units=max_output_units,
+    )
 
     # Validate max_output_units
     if max_output_units is not None and (
@@ -2892,6 +2702,211 @@ def fmt_duration(
     return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
 
 
+def _validate_duration_input_units(input_units: str | None) -> None:
+    if input_units is not None and input_units not in _DURATION_INPUT_UNITS:
+        raise ValueError(
+            f"`input_units` must be one of {_DURATION_INPUT_UNITS}, got '{input_units}'."
+        )
+
+
+def _validate_duration_style(duration_style: str) -> None:
+    if duration_style not in ("narrow", "wide", "colon-sep", "iso"):
+        raise ValueError(
+            f"`duration_style` must be one of 'narrow', 'wide', 'colon-sep', or 'iso', "
+            f"got '{duration_style}'."
+        )
+
+
+def _resolve_duration_output_units(output_units: str | list[str] | None) -> list[str]:
+    if output_units is None:
+        resolved_output_units = list(_DURATION_OUTPUT_UNITS)
+    elif isinstance(output_units, str):
+        resolved_output_units = [output_units]
+    else:
+        resolved_output_units = list(output_units)
+
+    for unit in resolved_output_units:
+        if unit not in _DURATION_OUTPUT_UNITS:
+            raise ValueError(
+                f"Each entry in `output_units` must be one of {_DURATION_OUTPUT_UNITS}, "
+                f"got '{unit}'."
+            )
+
+    unit_order = list(_DURATION_OUTPUT_UNITS)
+    return sorted(resolved_output_units, key=lambda u: unit_order.index(u))
+
+
+def _resolve_duration_trim_zero_units(trim_zero_units: bool | list[str]) -> list[str]:
+    if isinstance(trim_zero_units, bool):
+        if trim_zero_units:
+            return ["leading", "trailing", "internal"]
+        return []
+
+    if isinstance(trim_zero_units, list):
+        for kw in trim_zero_units:
+            if kw not in ("leading", "trailing", "internal"):
+                raise ValueError(
+                    f"Each entry in `trim_zero_units` must be one of 'leading', 'trailing', "
+                    f"or 'internal', got '{kw}'."
+                )
+        return trim_zero_units
+
+    raise ValueError(
+        "`trim_zero_units` must be a bool or a list of keywords "
+        "('leading', 'trailing', 'internal')."
+    )
+
+
+def _resolve_duration_style_params(
+    duration_style: str,
+    resolved_output_units: list[str],
+    trim_zero_units: bool | list[str],
+    max_output_units: int | None,
+) -> tuple[list[str], list[str] | None, bool, list[str], int | None]:
+    colon_sep_output_units: list[str] | None = None
+    colon_sep_trim_leading = False
+
+    if duration_style == "colon-sep":
+        valid_colon_combos = [
+            ["minutes", "seconds"],
+            ["hours", "minutes"],
+            ["hours", "minutes", "seconds"],
+            ["days", "hours", "minutes"],
+        ]
+        if resolved_output_units in valid_colon_combos:
+            colon_sep_output_units = resolved_output_units
+        else:
+            colon_sep_output_units = ["days", "hours", "minutes", "seconds"]
+
+        resolved_output_units = ["days", "hours", "minutes", "seconds"]
+
+        if isinstance(trim_zero_units, list) and trim_zero_units == ["leading"]:
+            colon_sep_trim_leading = True
+        elif trim_zero_units == "leading":
+            colon_sep_trim_leading = True
+
+    if duration_style == "iso":
+        resolved_output_units = ["days", "hours", "minutes", "seconds"]
+        max_output_units = None
+        trim_zero_units = ["leading", "trailing"]
+
+    resolved_trim = _resolve_duration_trim_zero_units(trim_zero_units=trim_zero_units)
+    return (
+        resolved_output_units,
+        colon_sep_output_units,
+        colon_sep_trim_leading,
+        resolved_trim,
+        max_output_units,
+    )
+
+
+def _resolve_duration_seconds(x: Any, input_units: str | None) -> float | None:
+    import numbers
+    from datetime import timedelta
+
+    if isinstance(x, timedelta):
+        return x.total_seconds()
+
+    if isinstance(x, numbers.Real):
+        if input_units is None:
+            raise ValueError(
+                "`input_units` must be supplied when formatting numeric columns as durations. "
+                "Use one of 'seconds', 'minutes', 'hours', 'days', or 'weeks'."
+            )
+        return float(x) * _SECONDS_CONVERSION[input_units]
+
+    return None
+
+
+def _build_duration_parts(
+    x_seconds: float,
+    output_units: list[str],
+    trim_zero_units: list[str],
+    max_output_units: int | None,
+) -> tuple[list[tuple[str, int]], bool]:
+    x_seconds_abs = abs(x_seconds)
+    time_parts: list[tuple[str, int]] = []
+    remainder = x_seconds_abs
+
+    for unit in output_units:
+        factor = _SECONDS_CONVERSION[unit]
+        value = int(remainder // factor)
+        remainder = remainder % factor
+        time_parts.append((unit, value))
+
+    if trim_zero_units:
+        time_parts = _trim_duration_parts(time_parts, trim_zero_units)
+
+    if not time_parts:
+        time_parts = [(output_units[-1], 0)]
+
+    all_zero = all(v == 0 for _, v in time_parts)
+    has_sub_unit_remainder = remainder > 0 and all_zero
+
+    if max_output_units is not None and len(time_parts) > max_output_units:
+        time_parts = time_parts[:max_output_units]
+
+    return time_parts, has_sub_unit_remainder
+
+
+def _format_duration_by_style(
+    duration_style: str,
+    time_parts: list[tuple[str, int]],
+    output_units: list[str],
+    colon_sep_output_units: list[str] | None,
+    colon_sep_trim_leading: bool,
+    sep_mark: str,
+    has_sub_unit_remainder: bool,
+    locale: str | None,
+) -> str:
+    if duration_style == "colon-sep":
+        return _format_duration_colon_sep(
+            time_parts=time_parts,
+            output_units=output_units,
+            colon_sep_output_units=colon_sep_output_units,
+            colon_sep_trim_leading=colon_sep_trim_leading,
+            sep_mark=sep_mark,
+        )
+    if duration_style == "iso":
+        return _format_duration_iso(time_parts=time_parts)
+    if duration_style == "wide":
+        return _format_duration_wide(
+            time_parts=time_parts,
+            sep_mark=sep_mark,
+            has_sub_unit_remainder=has_sub_unit_remainder,
+            locale=locale,
+        )
+    return _format_duration_narrow(
+        time_parts=time_parts,
+        sep_mark=sep_mark,
+        has_sub_unit_remainder=has_sub_unit_remainder,
+        locale=locale,
+    )
+
+
+def _decorate_duration_value(
+    x_formatted: str,
+    is_negative: bool,
+    x_seconds_abs: float,
+    force_sign: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_negative:
+        minus_mark = _context_minus_mark(context=context)
+        x_formatted = minus_mark + x_formatted
+
+    if force_sign and not is_negative and x_seconds_abs > 0:
+        x_formatted = "+" + x_formatted
+
+    if pattern != "{x}":
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
+
+
 def fmt_duration_context(
     x: int | float | None,
     data: GTData,
@@ -2913,101 +2928,39 @@ def fmt_duration_context(
     if is_na(data._tbl_data, x):
         return x
 
-    import numbers
-    from datetime import timedelta
-
-    # Handle timedelta input
-    if isinstance(x, timedelta):
-        # Convert timedelta to total seconds
-        x_seconds = x.total_seconds()
-    elif isinstance(x, numbers.Real):
-        if input_units is None:
-            raise ValueError(
-                "`input_units` must be supplied when formatting numeric columns as durations. "
-                "Use one of 'seconds', 'minutes', 'hours', 'days', or 'weeks'."
-            )
-        x_seconds = float(x) * _SECONDS_CONVERSION[input_units]
-    else:
+    x_seconds = _resolve_duration_seconds(x=x, input_units=input_units)
+    if x_seconds is None:
         return str(x)
 
-    # Determine sign
     is_negative = x_seconds < 0
     x_seconds_abs = abs(x_seconds)
 
-    # Decompose into time parts
-    time_parts: list[tuple[str, int]] = []
-    remainder = x_seconds_abs
+    time_parts, has_sub_unit_remainder = _build_duration_parts(
+        x_seconds=x_seconds,
+        output_units=output_units,
+        trim_zero_units=trim_zero_units,
+        max_output_units=max_output_units,
+    )
 
-    for unit in output_units:
-        factor = _SECONDS_CONVERSION[unit]
-        value = int(remainder // factor)
-        remainder = remainder % factor
-        time_parts.append((unit, value))
+    x_formatted = _format_duration_by_style(
+        duration_style=duration_style,
+        time_parts=time_parts,
+        output_units=output_units,
+        colon_sep_output_units=colon_sep_output_units,
+        colon_sep_trim_leading=colon_sep_trim_leading,
+        sep_mark=sep_mark,
+        has_sub_unit_remainder=has_sub_unit_remainder,
+        locale=locale,
+    )
 
-    # Apply trim_zero_units
-    if trim_zero_units:
-        time_parts = _trim_duration_parts(time_parts, trim_zero_units)
-
-    # Ensure at least one unit remains (the smallest)
-    if not time_parts:
-        time_parts = [(output_units[-1], 0)]
-
-    # If all values are zero but there was a remainder (value smaller than smallest unit)
-    all_zero = all(v == 0 for _, v in time_parts)
-    has_sub_unit_remainder = remainder > 0 and all_zero
-
-    # Apply max_output_units
-    if max_output_units is not None and len(time_parts) > max_output_units:
-        time_parts = time_parts[:max_output_units]
-
-    # Format based on style
-    if duration_style == "colon-sep":
-        x_formatted = _format_duration_colon_sep(
-            time_parts=time_parts,
-            output_units=output_units,
-            colon_sep_output_units=colon_sep_output_units,
-            colon_sep_trim_leading=colon_sep_trim_leading,
-            sep_mark=sep_mark,
-        )
-    elif duration_style == "iso":
-        x_formatted = _format_duration_iso(time_parts=time_parts)
-    elif duration_style == "narrow":
-        x_formatted = _format_duration_narrow(
-            time_parts=time_parts,
-            sep_mark=sep_mark,
-            has_sub_unit_remainder=has_sub_unit_remainder,
-            locale=locale,
-        )
-    elif duration_style == "wide":
-        x_formatted = _format_duration_wide(
-            time_parts=time_parts,
-            sep_mark=sep_mark,
-            has_sub_unit_remainder=has_sub_unit_remainder,
-            locale=locale,
-        )
-    else:
-        x_formatted = _format_duration_narrow(
-            time_parts=time_parts,
-            sep_mark=sep_mark,
-            has_sub_unit_remainder=has_sub_unit_remainder,
-            locale=locale,
-        )
-
-    # Apply sign
-    if is_negative:
-        minus_mark = _context_minus_mark(context=context)
-        x_formatted = minus_mark + x_formatted
-
-    if force_sign and not is_negative and x_seconds_abs > 0:
-        x_formatted = "+" + x_formatted
-
-    # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-        x_formatted = pattern.replace("{x}", x_formatted)
-
-    return x_formatted
+    return _decorate_duration_value(
+        x_formatted=x_formatted,
+        is_negative=is_negative,
+        x_seconds_abs=x_seconds_abs,
+        force_sign=force_sign,
+        pattern=pattern,
+        context=context,
+    )
 
 
 def _trim_duration_parts(
@@ -4705,6 +4658,187 @@ def _replace_minus(string: str, minus_mark: str) -> str:
     return _str_replace(string, "-", minus_mark)
 
 
+def _format_scientific_mantissa(
+    m_part: str,
+    is_positive: bool,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    force_sign_m: bool,
+) -> str:
+    if drop_trailing_zeros:
+        m_part = m_part.rstrip("0")
+    if drop_trailing_dec_mark:
+        m_part = m_part.rstrip(".")
+    if is_positive and force_sign_m:
+        m_part = "+" + m_part
+
+    return m_part
+
+
+def _format_scientific_context_value(
+    x: float,
+    m_part: str,
+    n_part: str,
+    exp_style: str,
+    force_sign_n: bool,
+    minus_mark: str,
+    context: str,
+) -> str:
+    if exp_style == "x10n":
+        # Define the exponent string based on the `exp_style` that is the default
+        # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
+
+        # Determine which values don't require the (x 10^n) for scientific formatting
+        # since their order would be zero
+        small_pos = _has_sci_order_zero(value=x)
+
+        # Force the positive sign to be present if the `force_sign_n` option is taken
+        if force_sign_n and not _str_detect(n_part, "-"):
+            n_part = "+" + n_part
+
+        # Implement minus sign replacement for `m_part` and `n_part`
+        m_part = _replace_minus(m_part, minus_mark=minus_mark)
+        n_part = _replace_minus(n_part, minus_mark=minus_mark)
+
+        if small_pos:
+            # If the value is small enough to not require the (x 10^n) notation, then
+            # the formatted value is based on only the `m_part`
+            x_formatted = m_part
+        else:
+            # Get the set of exponent marks, which are used to decorate the `n_part`
+            exp_marks = _context_exp_marks(context=context)
+
+            # Create the formatted string based on `exp_marks` and the two `sci_parts`
+            x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
+
+    else:
+        # Define the exponent string based on the `exp_style` that's not the default
+        # value of 'x10n'
+
+        exp_str = _context_exp_str(exp_style=exp_style)
+
+        n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
+
+        # The `n_part` will be extracted here and it must be padded to
+        # the defined minimum number of decimal places
+        if _str_detect(n_part, "-"):
+            n_part = _str_replace(n_part, "-", "")
+            n_part = n_part.rjust(n_min_width, "0")
+            n_part = "-" + n_part
+        else:
+            n_part = n_part.rjust(n_min_width, "0")
+            if force_sign_n:
+                n_part = "+" + n_part
+
+        # Implement minus sign replacement for `m_part` and `n_part`
+        m_part = _replace_minus(m_part, minus_mark=minus_mark)
+        n_part = _replace_minus(n_part, minus_mark=minus_mark)
+
+        x_formatted = m_part + exp_str + n_part
+
+    return x_formatted
+
+
+def _format_engineering_parts(
+    x: float,
+    decimals: int,
+    n_sigfig: int | None,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    dec_mark: str,
+) -> tuple[str, str, int]:
+    # For engineering notation, calculate the exponent as a multiple of 3 and
+    # derive the matching mantissa.
+    if x == 0:
+        m_part = _value_to_decimal_notation(
+            value=0,
+            decimals=decimals,
+            n_sigfig=n_sigfig,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=False,
+            sep_mark=",",
+            dec_mark=dec_mark,
+            force_sign=False,
+        )
+        n_part = "0"
+        power_3 = 0
+    else:
+        power_3 = int(math.floor(math.log10(abs(x)) / 3) * 3)
+        mantissa = x / (10**power_3)
+
+        m_part = _value_to_decimal_notation(
+            value=mantissa,
+            decimals=decimals,
+            n_sigfig=n_sigfig,
+            drop_trailing_zeros=drop_trailing_zeros,
+            drop_trailing_dec_mark=drop_trailing_dec_mark,
+            use_seps=False,
+            sep_mark=",",
+            dec_mark=dec_mark,
+            force_sign=False,
+        )
+        n_part = str(power_3)
+
+    return m_part, n_part, power_3
+
+
+def _format_engineering_context_value(
+    m_part: str,
+    n_part: str,
+    power_3: int,
+    exp_style: str,
+    force_sign_n: bool,
+    minus_mark: str,
+    context: str,
+) -> str:
+    if exp_style == "x10n":
+        # Default style: use a rendered x 10^n expression unless the exponent is zero.
+        small_pos = power_3 == 0
+
+        if force_sign_n and not _str_detect(n_part, "-"):
+            n_part = "+" + n_part
+
+        m_part = _replace_minus(m_part, minus_mark=minus_mark)
+        n_part = _replace_minus(n_part, minus_mark=minus_mark)
+
+        if small_pos:
+            x_formatted = m_part
+        else:
+            exp_marks = _context_exp_marks(context=context)
+            x_formatted = m_part + exp_marks[0] + n_part + exp_marks[1]
+
+    else:
+        exp_str = _context_exp_str(exp_style=exp_style)
+        n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
+
+        if _str_detect(n_part, "-"):
+            n_part = _str_replace(n_part, "-", "")
+            n_part = n_part.rjust(n_min_width, "0")
+            n_part = "-" + n_part
+        else:
+            n_part = n_part.rjust(n_min_width, "0")
+            if force_sign_n:
+                n_part = "+" + n_part
+
+        m_part = _replace_minus(m_part, minus_mark=minus_mark)
+        n_part = _replace_minus(n_part, minus_mark=minus_mark)
+
+        x_formatted = m_part + exp_str + n_part
+
+    return x_formatted
+
+
+def _format_engineering_pattern(x_formatted: str, pattern: str, context: str) -> str:
+    if pattern != "{x}":
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
+
+
 def _remove_minus(string: str) -> str:
     """
     Removes all occurrences of the minus sign '-' in the given string.
@@ -5769,15 +5903,21 @@ def fmt_icon(
 
     formatter = FmtIcon(
         self._tbl_data,
-        height=height,
         sep=sep,
-        stroke_color=stroke_color,
-        stroke_width=stroke_width,
-        stroke_alpha=stroke_alpha,
-        fill_color=fill_color,
-        fill_alpha=fill_alpha,
-        margin_left=margin_left,
-        margin_right=margin_right,
+        config=FmtIconConfig(
+            height=height,
+            style=FmtIconStyleConfig(
+                stroke_color=stroke_color,
+                stroke_width=stroke_width,
+                stroke_alpha=stroke_alpha,
+                fill_color=fill_color,
+                fill_alpha=fill_alpha,
+            ),
+            margins=FmtIconMarginConfig(
+                margin_left=margin_left,
+                margin_right=margin_right,
+            ),
+        ),
     )
 
     return fmt(
@@ -5789,62 +5929,83 @@ def fmt_icon(
 
 
 @dataclass
-class FmtIcon:
-    dispatch_on: DataFrameLike | Agnostic = Agnostic()
-    height: str | None = None
-    sep: str = " "
+class FmtIconStyleConfig:
     stroke_color: str | None = None
     stroke_width: str | int | float | None = None
     stroke_alpha: float | None = None
     fill_color: str | dict[str, str] | None = None
     fill_alpha: float | None = None
+
+
+@dataclass
+class FmtIconMarginConfig:
     margin_left: str | None = None
     margin_right: str | None = None
 
+
+@dataclass
+class FmtIconConfig:
+    height: str | None = None
+    style: FmtIconStyleConfig = field(default_factory=FmtIconStyleConfig)
+    margins: FmtIconMarginConfig = field(default_factory=FmtIconMarginConfig)
+
+
+@dataclass
+class FmtIcon:
+    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    sep: str = " "
+    config: FmtIconConfig = field(default_factory=FmtIconConfig)
+
     SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
+
+    def _split_icons(self, val: str) -> list[str]:
+        if "," in val:
+            return re.split(r",\s*", val)
+
+        return [val]
+
+    def _resolve_height(self) -> str:
+        if self.config.height is None:
+            return "1em"
+
+        return self.config.height
+
+    def _resolve_stroke_width(self) -> str:
+        if self.config.style.stroke_width is None:
+            return "1px"
+
+        if isinstance(self.config.style.stroke_width, (int, float)):
+            return f"{self.config.style.stroke_width}px"
+
+        return self.config.style.stroke_width
+
+    def _resolve_fill_color(self, icon: str) -> str | None:
+        if isinstance(self.config.style.fill_color, dict):
+            return self.config.style.fill_color.get(icon)
+
+        return self.config.style.fill_color
 
     def to_html(self, val: Any):
         if is_na(self.dispatch_on, val):
             return val
 
-        if "," in val:
-            icon_list = re.split(r",\s*", val)
-        else:
-            icon_list = [val]
-
-        if self.height is None:
-            height = "1em"
-        else:
-            height = self.height
-
-        if self.stroke_width is None:
-            stroke_width = "1px"
-        elif isinstance(self.stroke_width, (int, float)):
-            stroke_width = f"{self.stroke_width}px"
-        else:
-            stroke_width = self.stroke_width
+        icon_list = self._split_icons(val)
+        height = self._resolve_height()
+        stroke_width = self._resolve_stroke_width()
 
         out: list[str] = []
 
         for icon in icon_list:
-            if isinstance(self.fill_color, dict):
-                if icon in self.fill_color:
-                    fill_color = self.fill_color[icon]
-                else:
-                    fill_color = None
-            else:
-                fill_color = self.fill_color
-
             icon_svg = faicons.icon_svg(
                 icon,
                 height=height,
-                stroke=self.stroke_color,
+                stroke=self.config.style.stroke_color,
                 stroke_width=stroke_width,
-                stroke_opacity=str(self.stroke_alpha),
-                fill=fill_color,
-                fill_opacity=str(self.fill_alpha),
-                margin_left=self.margin_left,
-                margin_right=self.margin_right,
+                stroke_opacity=str(self.config.style.stroke_alpha),
+                fill=self._resolve_fill_color(icon),
+                fill_opacity=str(self.config.style.fill_alpha),
+                margin_left=self.config.margins.margin_left,
+                margin_right=self.config.margins.margin_right,
             )
 
             out.append(str(icon_svg))
@@ -6074,6 +6235,110 @@ class FmtFlag:
         return re.sub(r"<svg.*?>", replacement, flag_svg)
 
 
+def _fmt_nanoplot_expand_y(
+    data_tbl: DataFrameLike | Agnostic,
+    columns: str,
+    rows: int | list[int] | None,
+) -> list[int | float]:
+    from great_tables._utils import _flatten_list
+
+    if rows is not None:
+        all_y_vals_raw = to_list(data_tbl[columns][rows])
+    else:
+        all_y_vals_raw = to_list(data_tbl[columns])
+
+    all_y_vals = []
+
+    for data_vals_i in all_y_vals_raw:
+        # TODO: this dictionary handling seems redundant with _generate_data_vals dict handling?
+        # Can this if-clause be removed?
+        if isinstance(data_vals_i, dict):
+            if len(data_vals_i) == 1:
+                # If there is only one key in the dictionary, then we can assume that the
+                # dictionary deals with y-values only
+                data_vals_i = list(data_vals_i.values())[0]
+
+            else:
+                # Otherwise assume that the dictionary contains x and y values; extract
+                # the y values
+                data_vals_i = data_vals_i["y"]
+
+        data_vals_i = _generate_data_vals(data_vals=data_vals_i)
+
+        # If not a list, then convert to a list
+        if not isinstance(data_vals_i, list):
+            data_vals_i = [data_vals_i]
+
+        all_y_vals.extend(data_vals_i)
+
+    all_y_vals = _flatten_list(all_y_vals)
+
+    # Get the minimum and maximum values from the list
+    return [min(all_y_vals), max(all_y_vals)]
+
+
+def _fmt_nanoplot_fn(
+    x: Any,
+    context: str,
+    data_tbl: DataFrameLike | Agnostic,
+    plot_type: PlotType,
+    plot_height: str,
+    missing_vals: MissingVals,
+    reference_line: str | int | float | None,
+    reference_area: list[Any] | None,
+    expand_x: list[int] | list[float] | list[int | float] | None,
+    expand_y: list[int] | list[float] | list[int | float] | None,
+    all_single_y_vals: list[int | float] | None,
+    options_plots: dict[str, Any],
+) -> str:
+    if context == "latex":
+        raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
+
+    # If the `x` value is a Pandas 'NA', then return the same value
+    # We have to pass in a dataframe to this function. Everything action that
+    # requires a dataframe import should go through _tbl_data.
+    if is_na(data_tbl, x):
+        return x
+
+    # Generate data vals from the input `x` value
+    x = _generate_data_vals(data_vals=x)
+
+    # TODO: where are tuples coming from? Need example / tests that induce tuples
+    # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
+    if isinstance(x, tuple):
+        x_vals, y_vals = x
+
+        # Ensure that both objects are lists
+        if not isinstance(x_vals, list) or not isinstance(y_vals, list):
+            raise ValueError("The 'x' and 'y' values must be lists.")
+
+        # Ensure that the lists contain only numeric values (ints and floats)
+        if not all(isinstance(val, (int, float)) for val in x_vals):
+            raise ValueError("The 'x' values must be numeric.")
+
+        # Ensure that the lengths of the x and y values are the same
+        if len(x_vals) != len(y_vals):
+            raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
+
+    else:
+        y_vals = x
+        x_vals = None
+
+    return _generate_nanoplot(
+        y_vals=y_vals,
+        y_ref_line=reference_line,
+        y_ref_area=reference_area,
+        x_vals=x_vals,
+        expand_x=expand_x,
+        expand_y=expand_y,
+        missing_vals=missing_vals,
+        all_single_y_vals=all_single_y_vals,
+        plot_type=plot_type,
+        svg_height=plot_height,
+        **options_plots,
+    )
+
+
 def fmt_nanoplot(
     self: GTSelf,
     columns: str | None = None,
@@ -6298,10 +6563,148 @@ def fmt_nanoplot(
     ```
     """
 
-    from great_tables._utils import _str_detect
+    _validate_nanoplot_args(columns, plot_type)
 
-    # guards ----
+    data_tbl = self._tbl_data
+    scalar_vals = _is_scalar_nanoplot_column(data_tbl, columns)
 
+    if plot_type in ("line", "bar") and scalar_vals:
+        all_single_y_vals = _get_nanoplot_values(data_tbl, columns, rows)
+        autoscale = False
+    else:
+        all_single_y_vals = None
+
+    options_plots = _resolve_nanoplot_options(options)
+
+    if autoscale:
+        expand_y = _compute_nanoplot_expand_y(data_tbl, columns, rows)
+
+    fmt_nanoplot_fn = partial(
+        _fmt_nanoplot_cell,
+        data_tbl=data_tbl,
+        plot_type=plot_type,
+        plot_height=plot_height,
+        missing_vals=missing_vals,
+        reference_line=reference_line,
+        reference_area=reference_area,
+        expand_x=expand_x,
+        expand_y=expand_y,
+        all_single_y_vals=all_single_y_vals,
+        options_plots=options_plots,
+    )
+
+    return fmt_by_context(self, pf_format=fmt_nanoplot_fn, columns=columns, rows=rows)
+
+
+def _is_scalar_nanoplot_column(data_tbl: DataFrameLike, columns: str) -> bool:
+    column_d_type = _get_column_dtype(data_tbl, columns)
+    col_class = str(column_d_type).lower()
+
+    return any(_str_detect(col_class, pattern) for pattern in ("int", "uint", "float"))
+
+
+def _get_nanoplot_values(
+    data_tbl: DataFrameLike,
+    columns: str,
+    rows: int | list[int] | None,
+) -> list[Any]:
+    if rows is not None:
+        return to_list(data_tbl[columns][rows])
+
+    return to_list(data_tbl[columns])
+
+
+def _resolve_nanoplot_options(options: dict[str, Any] | None) -> dict[str, Any]:
+    if options is None:
+        from great_tables._helpers import nanoplot_options
+
+        return nanoplot_options()
+
+    return options
+
+
+def _compute_nanoplot_expand_y(
+    data_tbl: DataFrameLike,
+    columns: str,
+    rows: int | list[int] | None,
+) -> list[int | float]:
+    from great_tables._utils import _flatten_list
+
+    all_y_vals_raw = _get_nanoplot_values(data_tbl, columns, rows)
+    all_y_vals: list[int | float] = []
+
+    for data_vals_i in all_y_vals_raw:
+        if isinstance(data_vals_i, dict):
+            if len(data_vals_i) == 1:
+                data_vals_i = list(data_vals_i.values())[0]
+            else:
+                data_vals_i = data_vals_i["y"]
+
+        data_vals_i = _generate_data_vals(data_vals=data_vals_i)
+
+        if not isinstance(data_vals_i, list):
+            data_vals_i = [data_vals_i]
+
+        all_y_vals.extend(data_vals_i)
+
+    all_y_vals = _flatten_list(all_y_vals)
+    return [min(all_y_vals), max(all_y_vals)]
+
+
+def _fmt_nanoplot_cell(
+    x: Any,
+    context: str,
+    data_tbl: DataFrameLike,
+    plot_type: PlotType,
+    plot_height: str,
+    missing_vals: MissingVals,
+    reference_line: str | int | float | None,
+    reference_area: list[Any] | None,
+    expand_x: list[int] | list[float] | list[int | float] | None,
+    expand_y: list[int] | list[float] | list[int | float] | None,
+    all_single_y_vals: list[int | float] | None,
+    options_plots: dict[str, Any],
+) -> str:
+    if context == "latex":
+        raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
+
+    if is_na(data_tbl, x):
+        return x
+
+    x = _generate_data_vals(data_vals=x)
+
+    if isinstance(x, tuple):
+        x_vals, y_vals = x
+
+        if not isinstance(x_vals, list) or not isinstance(y_vals, list):
+            raise ValueError("The 'x' and 'y' values must be lists.")
+
+        if not all(isinstance(val, (int, float)) for val in x_vals):
+            raise ValueError("The 'x' values must be numeric.")
+
+        if len(x_vals) != len(y_vals):
+            raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
+
+    else:
+        y_vals = x
+        x_vals = None
+
+    return _generate_nanoplot(
+        y_vals=y_vals,
+        y_ref_line=reference_line,
+        y_ref_area=reference_area,
+        x_vals=x_vals,
+        expand_x=expand_x,
+        expand_y=expand_y,
+        missing_vals=missing_vals,
+        all_single_y_vals=all_single_y_vals,
+        plot_type=plot_type,
+        svg_height=plot_height,
+        **options_plots,
+    )
+
+
+def _validate_nanoplot_args(columns: str | None, plot_type: PlotType) -> None:
     if not isinstance(columns, str):
         raise NotImplementedError(
             "Currently, fmt_nanoplot() only supports a single column name as a string. "
@@ -6314,149 +6717,6 @@ def fmt_nanoplot(
             f"\n\n Received: {plot_type}"
         )
 
-    # main ----
-    # Get the internal data table
-    data_tbl = self._tbl_data
-
-    column_d_type = _get_column_dtype(data_tbl, columns)
-
-    col_class = str(column_d_type).lower()
-
-    if (
-        _str_detect(col_class, "int")
-        or _str_detect(col_class, "uint")
-        or _str_detect(col_class, "float")
-    ):
-        scalar_vals = True
-    else:
-        scalar_vals = False
-
-    # If a bar plot is requested and the data consists of single y values, then we need to
-    # obtain a list of all single y values in the targeted column (from `columns`)
-    if plot_type in ("line", "bar") and scalar_vals:
-        # Check each cell in the column and get each of them that contains a scalar value
-        # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
-        if rows is not None:
-            all_single_y_vals = to_list(data_tbl[columns][rows])
-        else:
-            all_single_y_vals = to_list(data_tbl[columns])
-
-        autoscale = False
-
-    else:
-        all_single_y_vals = None
-
-    if options is None:
-        from great_tables._helpers import nanoplot_options
-
-        options_plots = nanoplot_options()
-    else:
-        options_plots = options
-
-    # For autoscale, we need to get the minimum and maximum from all values for the y-axis
-    if autoscale:
-        from great_tables._utils import _flatten_list
-
-        # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
-        # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
-        # downstream?
-        if rows is not None:
-            all_y_vals_raw = to_list(data_tbl[columns][rows])
-        else:
-            all_y_vals_raw = to_list(data_tbl[columns])
-
-        all_y_vals = []
-
-        for data_vals_i in all_y_vals_raw:
-            # TODO: this dictionary handling seems redundant with _generate_data_vals dict handling?
-            # Can this if-clause be removed?
-            if isinstance(data_vals_i, dict):
-                if len(data_vals_i) == 1:
-                    # If there is only one key in the dictionary, then we can assume that the
-                    # dictionary deals with y-values only
-                    data_vals_i = list(data_vals_i.values())[0]
-
-                else:
-                    # Otherwise assume that the dictionary contains x and y values; extract
-                    # the y values
-                    data_vals_i = data_vals_i["y"]
-
-            data_vals_i = _generate_data_vals(data_vals=data_vals_i)
-
-            # If not a list, then convert to a list
-            if not isinstance(data_vals_i, list):
-                data_vals_i = [data_vals_i]
-
-            all_y_vals.extend(data_vals_i)
-
-        all_y_vals = _flatten_list(all_y_vals)
-
-        # Get the minimum and maximum values from the list
-        expand_y = [min(all_y_vals), max(all_y_vals)]
-
-    # Generate a function that will operate on single `x` values in the table body using both
-    # the date and time format strings
-    def fmt_nanoplot_fn(
-        x: Any,
-        context: str,
-        plot_type: PlotType = plot_type,
-        plot_height: str = plot_height,
-        missing_vals: MissingVals = missing_vals,
-        reference_line: str | int | float | None = reference_line,
-        reference_area: list[Any] | None = reference_area,
-        all_single_y_vals: list[int | float] | None = all_single_y_vals,
-        options_plots: dict[str, Any] = options_plots,
-    ) -> str:
-        if context == "latex":
-            raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
-
-        # If the `x` value is a Pandas 'NA', then return the same value
-        # We have to pass in a dataframe to this function. Everything action that
-        # requires a dataframe import should go through _tbl_data.
-        if is_na(data_tbl, x):
-            return x
-
-        # Generate data vals from the input `x` value
-        x = _generate_data_vals(data_vals=x)
-
-        # TODO: where are tuples coming from? Need example / tests that induce tuples
-        # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
-        if isinstance(x, tuple):
-            x_vals, y_vals = x
-
-            # Ensure that both objects are lists
-            if not isinstance(x_vals, list) or not isinstance(y_vals, list):
-                raise ValueError("The 'x' and 'y' values must be lists.")
-
-            # Ensure that the lists contain only numeric values (ints and floats)
-            if not all(isinstance(val, (int, float)) for val in x_vals):
-                raise ValueError("The 'x' values must be numeric.")
-
-            # Ensure that the lengths of the x and y values are the same
-            if len(x_vals) != len(y_vals):
-                raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
-
-        else:
-            y_vals = x
-            x_vals = None
-
-        nanoplot = _generate_nanoplot(
-            y_vals=y_vals,
-            y_ref_line=reference_line,
-            y_ref_area=reference_area,
-            x_vals=x_vals,
-            expand_x=expand_x,
-            expand_y=expand_y,
-            missing_vals=missing_vals,
-            all_single_y_vals=all_single_y_vals,
-            plot_type=plot_type,
-            svg_height=plot_height,
-            **options_plots,
-        )
-
-        return nanoplot
-
-    return fmt_by_context(self, pf_format=fmt_nanoplot_fn, columns=columns, rows=rows)
 
 
 def _generate_data_vals(
@@ -6476,75 +6736,82 @@ def _generate_data_vals(
         data_vals = to_list(data_vals)
 
     if isinstance(data_vals, list):
-        # If the list contains string values, determine whether they are date values
-        if all(isinstance(val, str) for val in data_vals):
-            if not is_x_axis:
-                raise ValueError("Only the x-axis of a nanoplot allows strings.")
-            if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals[0]):
-                data_vals = [_iso_str_to_date(val) for val in data_vals]
+        return _generate_data_vals_from_list(data_vals=data_vals, is_x_axis=is_x_axis)
 
-                # Transform the date values to numeric values
-                data_vals = [val.toordinal() for val in data_vals]
-
-        # If the cell value is a list of floats/ints, then return the same value
-
-        # Check that the values within the list are numeric; missing values are allowed
-        for val in data_vals:
-            if val is not None and not isinstance(val, (int, float)):
-                raise ValueError(f"The input data values must be numeric.\n\nValue received: {val}")
-
+    if isinstance(data_vals, (int, float)):
         return data_vals
 
-    elif isinstance(data_vals, int) or isinstance(data_vals, float):
-        return data_vals
+    if isinstance(data_vals, str):
+        return _generate_data_vals_from_string(data_vals=data_vals, is_x_axis=is_x_axis)
 
-    elif isinstance(data_vals, str):
-        # If the cell value is a string, assume it is a value stream and convert to a list
+    if isinstance(data_vals, dict):
+        return _generate_data_vals_from_dict(data_vals=data_vals)
 
-        # Detect whether there are time values or numeric values in the string
-        if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals) and is_x_axis:
-            data_vals = _process_time_stream(data_vals)
-        else:
-            data_vals = _process_number_stream(data_vals)
+    raise NotImplementedError("The input data values must be a string.")
 
-    elif isinstance(data_vals, dict):
-        # If the cell value is a dictionary, assume it contains data values
-        # This is possibly for x and for y
 
-        # Determine the number of keys in the dictionary
-        num_keys = len(data_vals.keys())
+def _generate_data_vals_from_list(
+    data_vals: list[Any], is_x_axis: bool
+) -> list[float]:
+    # If the list contains string values, determine whether they are date values.
+    if all(isinstance(val, str) for val in data_vals):
+        if not is_x_axis:
+            raise ValueError("Only the x-axis of a nanoplot allows strings.")
+        if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals[0]):
+            data_vals = [_iso_str_to_date(val) for val in data_vals]
 
-        # If the dictionary contains only one key, then assume that the values are for y
-        if num_keys == 1:
-            data_vals = list(data_vals.values())[0]
+            # Transform the date values to numeric values.
+            data_vals = [val.toordinal() for val in data_vals]
 
-            # The data values can be anything, so recursively call this function to process them
-            data_vals = _generate_data_vals(data_vals=data_vals)
-
-        if num_keys >= 2:
-            # For two or more keys, we need to see if the 'x' and 'y' keys are present
-            if "x" in data_vals and "y" in data_vals:
-                x_vals: Any = data_vals["x"]
-                y_vals: Any = data_vals["y"]
-
-                # The data values can be anything, so recursively call this function to process them
-                x_vals = _generate_data_vals(data_vals=x_vals, is_x_axis=True)
-                y_vals = _generate_data_vals(data_vals=y_vals)
-
-                # Ensure that the lengths of the x and y values are the same
-                if len(x_vals) != len(y_vals):
-                    raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
-
-                return x_vals, y_vals
-
-            else:
-                raise ValueError("The dictionary must contain 'x' and 'y' keys.")
-
-    else:
-        # Raise not implemented
-        raise NotImplementedError("The input data values must be a string.")
+    # Check that the values within the list are numeric; missing values are allowed.
+    for val in data_vals:
+        if val is not None and not isinstance(val, (int, float)):
+            raise ValueError(f"The input data values must be numeric.\n\nValue received: {val}")
 
     return data_vals
+
+
+def _generate_data_vals_from_string(data_vals: str, is_x_axis: bool) -> list[float]:
+    # Detect whether there are time values or numeric values in the string.
+    if re.search(r"\d{1,4}-\d{2}-\d{2}", data_vals) and is_x_axis:
+        return _process_time_stream(data_vals)
+
+    return _process_number_stream(data_vals)
+
+
+def _generate_data_vals_from_dict(
+    data_vals: dict[str, Any],
+) -> list[float] | tuple[list[float], list[float]]:
+    # If the cell value is a dictionary, assume it contains data values.
+    # This is possibly for x and for y.
+    num_keys = len(data_vals.keys())
+
+    # If the dictionary contains only one key, then assume that the values are for y.
+    if num_keys == 1:
+        data_vals = list(data_vals.values())[0]
+
+        # The data values can be anything, so recursively call this function to process them.
+        return _generate_data_vals(data_vals=data_vals)
+
+    if num_keys >= 2:
+        # For two or more keys, we need to see if the 'x' and 'y' keys are present.
+        if "x" in data_vals and "y" in data_vals:
+            x_vals: Any = data_vals["x"]
+            y_vals: Any = data_vals["y"]
+
+            # The data values can be anything, so recursively call this function to process them.
+            x_vals = _generate_data_vals(data_vals=x_vals, is_x_axis=True)
+            y_vals = _generate_data_vals(data_vals=y_vals)
+
+            # Ensure that the lengths of the x and y values are the same.
+            if len(x_vals) != len(y_vals):
+                raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
+
+            return x_vals, y_vals
+
+        raise ValueError("The dictionary must contain 'x' and 'y' keys.")
+
+    raise NotImplementedError("The input data values must be a string.")
 
 
 def _process_number_stream(data_vals: str) -> list[float]:

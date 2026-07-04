@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Literal
 from typing_extensions import TypeAlias, TypedDict
 
 from ._boxhead import cols_label
+from ._helpers import UnitStr
 from ._gt_data import ColMergeInfo, SpannerInfo, Spanners
 from ._locations import resolve_cols_c, resolve_rows_i
 from ._tbl_data import SelectExpr
@@ -22,6 +23,48 @@ if TYPE_CHECKING:
 
 
 SpannerMatrix: TypeAlias = list[dict[str, "str | None"]]
+
+
+def _normalize_tab_spanner_inputs(
+    label: str | BaseText,
+    columns: SelectExpr,
+    spanners: str | list[str] | None,
+    id: str | None,
+) -> tuple[str | BaseText, list[str | int], list[str | int], str]:
+    if id is None:
+        # The label may contain HTML or Markdown, so we need to extract
+        # it from the Text object.
+        id = label.text if isinstance(label, Text) else label
+
+    if isinstance(columns, (str, int)):
+        columns = [columns]
+    elif columns is None:
+        columns = []
+
+    if isinstance(spanners, (str, int)):
+        spanners = [spanners]
+    elif spanners is None:
+        spanners = []
+
+    return label, columns, spanners, id
+
+
+def _resolve_tab_spanner_label(label: str | BaseText) -> str | BaseText | UnitStr:
+    # Handle units syntax in the label (e.g., "Density ({{ppl / mi^2}})")
+    if isinstance(label, str):
+        unitstr = UnitStr.from_str(label)
+
+        if len(unitstr.units_str) == 1 and isinstance(unitstr.units_str[0], str):
+            return unitstr.units_str[0]
+
+        return unitstr
+
+    if isinstance(label, BaseText):
+        return label
+
+    raise ValueError(
+        "Spanner labels must be strings or Text objects. Use `md()` or `html()` for formatting."
+    )
 
 
 def tab_spanner(
@@ -176,27 +219,8 @@ def tab_spanner(
     )
     ```
     """
-    from great_tables._helpers import UnitStr
-
     crnt_spanner_ids = set([span.spanner_id for span in self._spanners])
-
-    if id is None:
-        # The label may contain HTML or Markdown, so we need to extract
-        # it from the Text object
-        if isinstance(label, Text):
-            id = label.text
-        else:
-            id = label
-
-    if isinstance(columns, (str, int)):
-        columns = [columns]
-    elif columns is None:
-        columns = []
-
-    if isinstance(spanners, (str, int)):
-        spanners = [spanners]
-    elif spanners is None:
-        spanners = []
+    label, columns, spanners, id = _normalize_tab_spanner_inputs(label, columns, spanners, id)
 
     # validations ----
     if level is not None and level < 0:
@@ -237,23 +261,7 @@ def tab_spanner(
     # TODO: grep units from {{.*}}, may need to switch delimiters
     spanner_units = None
     spanner_pattern = None
-
-    # Handle units syntax in the label (e.g., "Density ({{ppl / mi^2}})")
-    if isinstance(label, str):
-        unitstr = UnitStr.from_str(label)
-
-        if len(unitstr.units_str) == 1 and isinstance(unitstr.units_str[0], str):
-            new_label = unitstr.units_str[0]
-        else:
-            new_label = unitstr
-
-    elif isinstance(label, BaseText):
-        new_label = label
-
-    else:
-        raise ValueError(
-            "Spanner labels must be strings or Text objects. Use `md()` or `html()` for formatting."
-        )
+    new_label = _resolve_tab_spanner_label(label)
 
     new_span = SpannerInfo(
         spanner_id=id,

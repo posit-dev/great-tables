@@ -705,126 +705,25 @@ class UnitDefinition:
         return cls(token, unit, unit_subscript, exponent, sub_super_overstrike, chemical_formula)
 
     def to_html(self):
-        units_str = ""
+        units_str = _format_units_unit(self.unit)
+        exponent = _format_units_optional_superscript(self.exponent)
+        unit_subscript = _format_units_optional_subscript(self.unit_subscript)
 
-        units_object = self
-
-        # Perform formatting of of the unit:
-        #   * The `unit` attribute is the main part of the unit (e.g., 'm' in 'm^2')
-        #   * The `unit` component should never be `None`
-        #   * We take a simpler approach to formatting the unit when it only contains
-        #     a single character (no use of `_units_symbol_replacements()` here)
-        if len(units_object.unit) > 1:
-            unit = _md_html(
-                _escape_html_tags(
-                    _units_symbol_replacements(text=units_object.unit.replace("-", "&minus;"))
-                )
-            )
-
-        else:
-            unit = _md_html(units_object.unit.replace("-", "&minus;"))
-
-        # In the special case where the unit is 'x10', we replace the 'x' with a
-        # multiplication symbol:
-        #   * This isn't done unit is a chemical formula since it's not necessary
-        #   * This is practical for having scalar multipliers mixed in with units and typically
-        #     this is raised to a power (e.g., 'x10^6') and often placed before the inline units
-        if "x10" in unit and not units_object.chemical_formula:
-            unit = unit.replace("x", "&times;")
-
-        # Perform formatting of the exponent:
-        #   * The `exponent` attribute is the exponent part of the unit (e.g., '2' in 'm^2')
-        #   * The `exponent` component can be `None` if the unit does not have an exponent
-        #   * When the `exponent` component is a string of length greater than 2, we also use
-        #     `_units_symbol_replacements()` function to format the exponent)
-        if units_object.exponent is None:
-            exponent = None
-
-        elif len(units_object.exponent) > 2:
-            exponent = _units_to_superscript(
-                _md_html(
-                    _escape_html_tags(
-                        _units_symbol_replacements(
-                            text=units_object.exponent.replace("-", "&minus;")
-                        )
-                    )
-                )
-            )
-
-        else:
-            exponent = _units_to_superscript(content=units_object.exponent.replace("-", "&minus;"))
-
-        # Perform formatting of the unit subscript:
-        #   * The `unit_subscript` attribute is the subscript part of the unit (e.g., '2' in
-        #     'm_2')
-        #   * The `unit_subscript` component can be `None` if the unit does not have a subscript
-        #   * When the `unit_subscript` component is a string of length greater than 2, we also
-        #     use `_units_symbol_replacements()` function to format the subscript)
-        if units_object.unit_subscript is None:
-            unit_subscript = None
-
-        elif len(units_object.unit_subscript) > 2:
-            unit_subscript = _units_to_subscript(
-                _md_html(
-                    _escape_html_tags(
-                        _units_symbol_replacements(
-                            text=units_object.unit_subscript.replace("-", "&minus;")
-                        )
-                    )
-                )
-            )
-
-        else:
-            unit_subscript = _units_to_subscript(
-                content=units_object.unit_subscript.replace("-", "&minus;")
-            )
-
-        units_str += unit
-
-        # In the special case where the subscript and exponents are present and overstriking
-        # is required, we use the `_units_html_sub_super()` function to format the subscript
-        # and exponent:
-        #   * The subscript and exponent are placed on top of each other, with left alignment
-        #   * This bypasses the earlier formatting of the subscript and exponent
-        #   * The result is placed to the right of the unit
-        if (
-            units_object.sub_super_overstrike
-            and units_object.unit_subscript is not None
-            and units_object.exponent is not None
-        ):
+        # When subscript and exponent must overlap, format them together and skip the normal path.
+        if self.sub_super_overstrike and self.unit_subscript is not None and self.exponent is not None:
             units_str += _units_html_sub_super(
-                content_sub=_md_html(
-                    _escape_html_tags(
-                        _units_symbol_replacements(
-                            text=units_object.unit_subscript.replace("-", "&minus;")
-                        )
-                    )
-                ),
-                content_sup=_md_html(
-                    _escape_html_tags(
-                        _units_symbol_replacements(
-                            text=units_object.exponent.replace("-", "&minus;")
-                        )
-                    )
-                ),
+                content_sub=_format_units_symbol_content(self.unit_subscript),
+                content_sup=_format_units_symbol_content(self.exponent),
             )
-
-        # In the special case where the unit is a chemical formula, we take the formatted unit
-        # and place all numbers (which are recognized now to be part of the chemical formula)
-        # into spans that are styled to be subscripts:
-        elif units_object.chemical_formula:
+        elif self.chemical_formula:
             units_str = re.sub(
                 "(\\d+)",
                 '<span style="white-space:nowrap;"><sub style="line-height:0;">\\1</sub></span>',
                 units_str,
             )
-
         else:
-            if unit_subscript is not None:
-                units_str += unit_subscript
-
-            if exponent is not None:
-                units_str += exponent
+            units_str += unit_subscript or ""
+            units_str += exponent or ""
 
         return units_str
 
@@ -941,6 +840,38 @@ def _units_html_sub_super(content_sub: str, content_sup: str) -> str:
         + content_sub
         + "</span>"
     )
+
+
+def _format_units_symbol_content(content: str) -> str:
+    return _md_html(_escape_html_tags(_units_symbol_replacements(text=content.replace("-", "&minus;"))))
+
+
+def _format_units_unit(unit: str) -> str:
+    # Keep the simpler path for single-character units.
+    if len(unit) > 1:
+        return _md_html(_escape_html_tags(_units_symbol_replacements(text=unit.replace("-", "&minus;"))))
+
+    return _md_html(unit.replace("-", "&minus;"))
+
+
+def _format_units_optional_superscript(content: str | None) -> str | None:
+    if content is None:
+        return None
+
+    if len(content) > 2:
+        return _units_to_superscript(_format_units_symbol_content(content))
+
+    return _units_to_superscript(content=content.replace("-", "&minus;"))
+
+
+def _format_units_optional_subscript(content: str | None) -> str | None:
+    if content is None:
+        return None
+
+    if len(content) > 2:
+        return _units_to_subscript(_format_units_symbol_content(content))
+
+    return _units_to_subscript(content=content.replace("-", "&minus;"))
 
 
 def _replace_units_symbol(text: str, detect: str, pattern: str, replace: str) -> str:

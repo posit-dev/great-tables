@@ -186,30 +186,8 @@ def data_color(
     ```
     """
 
-    # TODO: there is a circular import in palettes (which imports functions from this module)
-    from great_tables._data_color.palettes import GradientPalette
-
-    # If no color is provided to `na_color`, use a light gray color as a default
-    if na_color is None:
-        na_color = "#808080"
-    else:
-        na_color = _html_color(colors=[na_color], alpha=alpha)[0]
-
-    # If palette is not provided, use a default palette
-    if palette is None:
-        palette = DEFAULT_PALETTE
-    elif isinstance(palette, str):
-        # Check if the `palette` value refers to a ColorBrewer or viridis palette
-        # and, if it is, then convert it to a list of hexadecimal color values; otherwise,
-        # convert it to a list (this assumes that the value is a single color)
-        palette = ALL_PALETTES.get(palette, [palette])
-
-    # Reverse the palette if `reverse` is set to `True`
-    if reverse:
-        palette = palette[::-1]
-
-    # Standardize values in `palette` to hexadecimal color values
-    palette = _html_color(colors=palette, alpha=alpha)
+    na_color = _resolve_na_color(na_color=na_color, alpha=alpha)
+    palette = _resolve_palette(palette=palette, reverse=reverse, alpha=alpha)
 
     # Set a flag to indicate whether or not the domain should be calculated automatically
     autocalc_domain = domain is None
@@ -217,14 +195,7 @@ def data_color(
     # Get the internal data table
     data_table = self._tbl_data
 
-    # If `columns` is a single value, convert it to a list; if it is None then
-    # get a list of all columns in the table body
-    columns_resolved: list[str]
-
-    if columns is None:
-        columns_resolved = get_column_names(data_table)
-    else:
-        columns_resolved = resolve_cols_c(data=self, expr=columns)
+    columns_resolved = _resolve_columns(self=self, columns=columns)
 
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]
@@ -239,63 +210,132 @@ def data_color(
         # Filter out NA values from `column_vals`
         filtered_column_vals = [x for x in column_vals if not is_na(data_table, x)]
 
-        # The methodology for domain calculation and rescaling depends on column values being:
-        # (1) numeric (integers or floats), then the method should be 'numeric'
-        # (2) strings, then the method should be 'factor'
-        if len(filtered_column_vals) and all(
-            isinstance(x, (int, float)) for x in filtered_column_vals
-        ):
-            # If `domain` is not provided, then infer it from the data values
-            if autocalc_domain:
-                domain = _get_domain_numeric(df=data_table, vals=column_vals)
-
-            # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_numeric(
-                df=data_table, vals=column_vals, domain=domain, truncate=truncate
-            )
-
-        elif all(isinstance(x, str) for x in filtered_column_vals):
-            # If `domain` is not provided, then infer it from the data values
-            if autocalc_domain:
-                domain = _get_domain_factor(df=data_table, vals=column_vals)
-
-            # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_factor(
-                df=data_table, vals=column_vals, domain=domain, palette=palette
-            )
-
-        else:
-            raise ValueError(
-                f"Invalid column type provided ({col}). Please ensure that all columns are either numeric or strings."
-            )
+        domain, scaled_vals = _scale_column_values(
+            df=data_table,
+            col=col,
+            column_vals=column_vals,
+            filtered_column_vals=filtered_column_vals,
+            domain=domain,
+            palette=palette,
+            autocalc_domain=autocalc_domain,
+            truncate=truncate,
+        )
 
         # Replace NA values in `scaled_vals` with `None`
         scaled_vals = [None if is_na(data_table, x) else x for x in scaled_vals]
 
-        # Create a color scale function from the palette
-        color_scale_fn = GradientPalette(colors=palette)
+        gt_obj = _apply_column_styles(
+            gt_obj=gt_obj,
+            df=data_table,
+            col=col,
+            row_pos=row_pos,
+            scaled_vals=scaled_vals,
+            palette=palette,
+            na_color=na_color,
+            autocolor_text=autocolor_text,
+        )
+    return gt_obj
 
-        # Call the color scale function on the scaled values to get a list of colors
-        color_vals = color_scale_fn(scaled_vals)
 
-        # Replace 'None' values in `color_vals` with the `na_color=` color
-        color_vals = [na_color if is_na(data_table, x) else x for x in color_vals]
+def _resolve_na_color(na_color: str | None, alpha: int | float | None) -> str:
+    if na_color is None:
+        return "#808080"
 
-        # for every color value in color_vals, apply a fill to the corresponding cell
-        # by using `tab_style()`
-        for i, color_val in zip(row_pos, color_vals):
-            if autocolor_text:
-                fgnd_color = _ideal_fgnd_color(bgnd_color=color_val)
+    return _html_color(colors=[na_color], alpha=alpha)[0]
 
-                gt_obj = gt_obj.tab_style(
-                    style=[text(color=fgnd_color), fill(color=color_val)],
-                    locations=body(columns=col, rows=[i]),
-                )
 
-            else:
-                gt_obj = gt_obj.tab_style(
-                    style=fill(color=color_val), locations=body(columns=col, rows=[i])
-                )
+def _resolve_palette(
+    palette: str | list[str] | None,
+    reverse: bool,
+    alpha: int | float | None,
+) -> list[str]:
+    if palette is None:
+        palette = DEFAULT_PALETTE
+    elif isinstance(palette, str):
+        # Check if the `palette` value refers to a ColorBrewer or viridis palette
+        # and, if it is, then convert it to a list of hexadecimal color values; otherwise,
+        # convert it to a list (this assumes that the value is a single color)
+        palette = ALL_PALETTES.get(palette, [palette])
+
+    if reverse:
+        palette = palette[::-1]
+
+    return _html_color(colors=palette, alpha=alpha)
+
+
+def _resolve_columns(self: GTSelf, columns: SelectExpr = None) -> list[str]:
+    if columns is None:
+        return get_column_names(self._tbl_data)
+
+    return resolve_cols_c(data=self, expr=columns)
+
+
+def _scale_column_values(
+    df: DataFrameLike,
+    col: str,
+    column_vals: list[int | float | str],
+    filtered_column_vals: list[int | float | str],
+    domain: list[str] | list[float] | None,
+    palette: list[str],
+    autocalc_domain: bool,
+    truncate: bool,
+) -> tuple[list[str] | list[float] | None, list[float | None]]:
+    # The methodology for domain calculation and rescaling depends on column values being:
+    # (1) numeric (integers or floats), then the method should be 'numeric'
+    # (2) strings, then the method should be 'factor'
+    if len(filtered_column_vals) and all(isinstance(x, (int, float)) for x in filtered_column_vals):
+        if autocalc_domain:
+            domain = _get_domain_numeric(df=df, vals=column_vals)
+
+        return domain, _rescale_numeric(df=df, vals=column_vals, domain=domain, truncate=truncate)
+
+    if all(isinstance(x, str) for x in filtered_column_vals):
+        if autocalc_domain:
+            domain = _get_domain_factor(df=df, vals=column_vals)
+
+        return domain, _rescale_factor(df=df, vals=column_vals, domain=domain, palette=palette)
+
+    raise ValueError(
+        f"Invalid column type provided ({col}). Please ensure that all columns are either numeric or strings."
+    )
+
+
+def _apply_column_styles(
+    gt_obj: GTSelf,
+    df: DataFrameLike,
+    col: str,
+    row_pos: list[int],
+    scaled_vals: list[float | None],
+    palette: list[str],
+    na_color: str,
+    autocolor_text: bool,
+) -> GTSelf:
+    # TODO: there is a circular import in palettes (which imports functions from this module)
+    from great_tables._data_color.palettes import GradientPalette
+
+    # Create a color scale function from the palette
+    color_scale_fn = GradientPalette(colors=palette)
+
+    # Call the color scale function on the scaled values to get a list of colors
+    color_vals = color_scale_fn([None if is_na(df, x) else x for x in scaled_vals])
+
+    # Replace 'None' values in `color_vals` with the `na_color=` color
+    color_vals = [na_color if is_na(df, x) else x for x in color_vals]
+
+    # For every color value in color_vals, apply a fill to the corresponding cell by using `tab_style()`
+    for i, color_val in zip(row_pos, color_vals):
+        if autocolor_text:
+            fgnd_color = _ideal_fgnd_color(bgnd_color=color_val)
+
+            gt_obj = gt_obj.tab_style(
+                style=[text(color=fgnd_color), fill(color=color_val)],
+                locations=body(columns=col, rows=[i]),
+            )
+        else:
+            gt_obj = gt_obj.tab_style(
+                style=fill(color=color_val), locations=body(columns=col, rows=[i])
+            )
+
     return gt_obj
 
 

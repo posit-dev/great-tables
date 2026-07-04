@@ -100,6 +100,17 @@ def test_cell_style_text_multiple_properties_with_google_font():
     assert "text-align: center;" in res
 
 
+def test_cell_style_text_invalid_font_type():
+    style = CellStyleText(font=object())
+
+    try:
+        style._to_html_style()
+    except ValueError as err:
+        assert "Invalid font type" in str(err)
+    else:
+        raise AssertionError("Expected ValueError")
+
+
 def test_tab_style_spanner_id_differs_from_label():
     # Regression test for #829: a style targeting a spanner by its `id` should be
     # applied to the spanner header cell, even when the `id` differs from the
