@@ -287,6 +287,9 @@ def as_latex(
         table will be placed at the top of the page; if in the Quarto render then the table
         positioning option will be ignored in favor of any setting within the Quarto rendering
         environment.
+    tbl_label
+        The label for the table in LaTeX output. This is used for referencing the table in the document.
+        If a value is not provided then no label will be included in the LaTeX output.
 
     Returns
     -------
