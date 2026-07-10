@@ -265,7 +265,7 @@ For example, the option `row_group_border_top_color` has these pieces:
 
 - **part**: `row_group`
 - **type**: `border_top`
-- **attribute**: [color](../reference/style.text.md#great_tables.style.text.color)
+- **attribute**: [color](../reference/style.borders.md#great_tables.style.borders.color)
 
 > **Note: Note**
 >
@@ -387,7 +387,7 @@ gt_ex.tab_options(
 </table>
 
 
-The column labels section now has a thick blue border on top. Each border option follows the same triplet of [color](../reference/style.text.md#great_tables.style.text.color), [style](../reference/style.text.md#great_tables.style.text.style), and `width` attributes, which you can combine to create the exact look you want.
+The column labels section now has a thick blue border on top. Each border option follows the same triplet of [color](../reference/style.borders.md#great_tables.style.borders.color), [style](../reference/style.borders.md#great_tables.style.borders.style), and `width` attributes, which you can combine to create the exact look you want.
 
 
 # Styling background color

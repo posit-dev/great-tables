@@ -37,10 +37,10 @@ The specific value or values that should be replaced with a `replacement` value.
 A regex pattern that can target solely those values in character-based columns. If `values` is also supplied, `pattern` will take precedence.
 
 `fn: Callable[…, bool] | None = None`  
-A supplied function that operates on each cell value `x` and should return a boolean indicating whether that value should be replaced. If either of `values` or `pattern` is also supplied, [fn](from_column.md#great_tables.from_column.fn) will take precedence.
+A supplied function that operates on each cell value `x` and should return a boolean indicating whether that value should be replaced. If either of `values` or `pattern` is also supplied, `fn` will take precedence.
 
 `replacement: str | int | float | None = None`  
-The replacement value for any cell values matched by either `values`, `pattern`, or [fn](from_column.md#great_tables.from_column.fn). Must be a string or numeric value.
+The replacement value for any cell values matched by either `values`, `pattern`, or `fn`. Must be a string or numeric value.
 
 
 ## Returns
@@ -82,7 +82,7 @@ GT(tbl).sub_values(values=[74, 500], replacement="--")
 | 84.3  | -32     | G    |
 
 
-For the most flexibility, use the [fn](from_column.md#great_tables.from_column.fn) argument. The function you provide should accept a cell value and return a boolean indicating whether it should be replaced.
+For the most flexibility, use the `fn` argument. The function you provide should accept a cell value and return a boolean indicating whether it should be replaced.
 
 
 ``` python

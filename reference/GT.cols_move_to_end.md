@@ -11,7 +11,7 @@ GT.cols_move_to_end(columns)
 ```
 
 
-We can easily move set of columns to the beginning of the column series and we only need to specify which [columns](loc.body.md#great_tables.loc.body.columns). It's possible to do this upstream of **Great Tables**, however, it is easier with this method and it presents less possibility for error. The ordering of the [columns](loc.body.md#great_tables.loc.body.columns) that are moved to the end is preserved (same with the ordering of all other columns in the table).
+We can easily move set of columns to the beginning of the column series and we only need to specify which `columns`. It's possible to do this upstream of **Great Tables**, however, it is easier with this method and it presents less possibility for error. The ordering of the `columns` that are moved to the end is preserved (same with the ordering of all other columns in the table).
 
 
 ## Parameters

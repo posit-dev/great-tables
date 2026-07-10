@@ -206,7 +206,7 @@ The `mask=` parameter acts as a syntactic sugar, streamlining the process and re
 
 > **Warning: Using `mask=` Independently**
 >
-> `mask=` should not be used in combination with the [columns](../../reference/loc.body.md#great_tables.loc.body.columns) or [rows](../../reference/loc.stub.md#great_tables.loc.stub.rows) arguments. Attempting to do so will raise a `ValueError`.
+> `mask=` should not be used in combination with the `columns` or `rows` arguments. Attempting to do so will raise a `ValueError`.
 
 
 ## Utilizing the `locations=` parameter in [GT.tab_style()](../../reference/GT.tab_style.md#great_tables.GT.tab_style)

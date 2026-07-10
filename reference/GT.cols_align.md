@@ -14,7 +14,7 @@ GT.cols_align(
 ```
 
 
-The [cols_align()](GT.cols_align.md#great_tables.GT.cols_align) method sets the alignment of one or more columns. The [align](style.text.md#great_tables.style.text.align) argument can be set to one of `"left"`, `"center"`, or `"right"` and the [columns](loc.body.md#great_tables.loc.body.columns) argument can be used to specify which columns to apply the alignment to. If [columns](loc.body.md#great_tables.loc.body.columns) is not specified, the alignment is applied to all columns.
+The [cols_align()](GT.cols_align.md#great_tables.GT.cols_align) method sets the alignment of one or more columns. The `align` argument can be set to one of `"left"`, `"center"`, or `"right"` and the `columns` argument can be used to specify which columns to apply the alignment to. If `columns` is not specified, the alignment is applied to all columns.
 
 
 ## Parameters

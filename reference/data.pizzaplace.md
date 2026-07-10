@@ -62,7 +62,7 @@ This is a dataset with 49,574 rows and 7 columns.
 - `date`: A string-based representation of the order date, expressed in the ISO 8601 date format ('YYYY-MM-DD').
 - `time`: A string-based representation of the order time, expressed as a 24-hour time the ISO 8601 extended time format ('hh:mm:ss').
 - `name`: The short name for the pizza.
-- [size](style.text.md#great_tables.style.text.size): The size of the pizza, which can either be `"S"`, `"M"`, `"L"`, `"XL"` (rare!), or `"XXL"` (even rarer!); most pizzas are available in the `"S"`, `"M"`, and `"L"` sizes but exceptions apply.
+- `size`: The size of the pizza, which can either be `"S"`, `"M"`, `"L"`, `"XL"` (rare!), or `"XXL"` (even rarer!); most pizzas are available in the `"S"`, `"M"`, and `"L"` sizes but exceptions apply.
 - `type`: The category or type of pizza, which can either be `"classic"`, `"chicken"`, `"supreme"`, or `"veggie"`.
 - `price`: The price of the pizza and the amount that it sold for (in USD).
 

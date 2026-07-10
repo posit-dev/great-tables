@@ -5,7 +5,7 @@ Column labels are the primary way readers identify what data each column contain
 
 # Working with Column Data
 
-The table's **Column Labels** part contains, at a minimum, columns and their *column labels*. The last example had a single column: [size](../reference/style.text.md#great_tables.style.text.size). Just as in the **Stub**, we can create groupings called *spanner labels* that encompass one or more columns.
+The table's **Column Labels** part contains, at a minimum, columns and their *column labels*. The last example had a single column: `size`. Just as in the **Stub**, we can create groupings called *spanner labels* that encompass one or more columns.
 
 To better demonstrate how **Column Labels** work and are displayed, let's use an input data table with more columns. In this case, that input table will be `airquality`. It has the following columns:
 

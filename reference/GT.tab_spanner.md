@@ -34,16 +34,16 @@ The text to use for the spanner label. We can optionally use the <a href="md.htm
 The columns to target. Can either be a single column name or a series of column names provided in a list.
 
 `spanners: str | list[str] | None = None`  
-The spanners that should be spanned over, should they already be defined. One or more spanner ID values (in quotes) can be supplied here. This argument works in tandem with the [columns](loc.body.md#great_tables.loc.body.columns) argument.
+The spanners that should be spanned over, should they already be defined. One or more spanner ID values (in quotes) can be supplied here. This argument works in tandem with the `columns` argument.
 
 `level: int | None = None`  
-An explicit level to which the spanner should be placed. If not provided, **Great Tables** will choose the level based on the inputs provided within [columns](loc.body.md#great_tables.loc.body.columns) and `spanners`, placing the spanner label where it will fit. The first spanner level (right above the column labels) is `0`.
+An explicit level to which the spanner should be placed. If not provided, **Great Tables** will choose the level based on the inputs provided within `columns` and `spanners`, placing the spanner label where it will fit. The first spanner level (right above the column labels) is `0`.
 
 `id: str | None = None`  
 The ID for the spanner. When accessing a spanner through the `spanners` argument of [tab_spanner()](GT.tab_spanner.md#great_tables.GT.tab_spanner) the `id` value is used as the reference (and not the `label`). If an `id` is not explicitly provided here, it will be taken from the `label` value. It is advisable to set an explicit `id` value if you plan to access this cell in a later call and the label text is complicated (e.g., contains markup, is lengthy, or both). Finally, when providing an `id` value you must ensure that it is unique across all ID values set for spanner labels (the method will throw an error if `id` isn't unique).
 
 `gather: bool = ``True`  
-An option to move the specified [columns](loc.body.md#great_tables.loc.body.columns) such that they are unified under the spanner. Ordering of the moved-into-place columns will be preserved in all cases. By default, this is set to `True`.
+An option to move the specified `columns` such that they are unified under the spanner. Ordering of the moved-into-place columns will be preserved in all cases. By default, this is set to `True`.
 
 `replace: bool = ``False`  
 Should new spanners be allowed to partially or fully replace existing spanners? (This is a possibility if setting spanners at an already populated `level`.) By default, this is set to `False` and an error will occur if some replacement is attempted.

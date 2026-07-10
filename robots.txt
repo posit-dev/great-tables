@@ -4,3 +4,7 @@ User-agent: *
 Allow: /
 
 Sitemap: https://posit-dev.github.io/great-tables/sitemap.xml
+
+# AI agent context files
+Llms-txt: https://posit-dev.github.io/great-tables/llms.txt
+Llms-txt: https://posit-dev.github.io/great-tables/llms-full.txt

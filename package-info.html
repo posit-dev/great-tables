@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Contributing – Great Tables | Great Tables</title>
+<title>Package Info – Great Tables | Great Tables</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -89,20 +89,20 @@ ul.task-list li input[type="checkbox"] {
 <meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table&quot;]">
 
 
-  <link rel="alternate" type="text/markdown" href="contributing.md">
-  <link rel="canonical" href="https://posit-dev.github.io/great-tables/contributing.html">
-  <meta name="description" content="There are many ways to contribute to the ongoing development of the Great Tables package. Some contributions can be rather easy to do (e.g., fixing...">
+  <link rel="alternate" type="text/markdown" href="package-info.md">
+  <link rel="canonical" href="https://posit-dev.github.io/great-tables/package-info.html">
+  <meta name="description" content="Easily generate information-rich, publication-quality tables from Python.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Contributing – Great Tables | Great Tables">
-  <meta property="og:description" content="There are many ways to contribute to the ongoing development of the Great Tables package. Some contributions can be rather easy to do (e.g., fixing...">
-  <meta property="og:url" content="https://posit-dev.github.io/great-tables/contributing.html">
+  <meta property="og:title" content="Package Info – Great Tables | Great Tables">
+  <meta property="og:description" content="Easily generate information-rich, publication-quality tables from Python.">
+  <meta property="og:url" content="https://posit-dev.github.io/great-tables/package-info.html">
   <meta property="og:site_name" content="Great Tables">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Contributing – Great Tables | Great Tables">
-  <meta name="twitter:description" content="There are many ways to contribute to the ongoing development of the Great Tables package. Some contributions can be rather easy to do (e.g., fixing...">
+  <meta name="twitter:title" content="Package Info – Great Tables | Great Tables">
+  <meta name="twitter:description" content="Easily generate information-rich, publication-quality tables from Python.">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed gd-package-info-page quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -163,14 +163,15 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#filing-issues" id="toc-filing-issues" class="nav-link active" data-scroll-target="#filing-issues">Filing Issues</a></li>
-  <li><a href="#answering-questions" id="toc-answering-questions" class="nav-link" data-scroll-target="#answering-questions">Answering questions</a>
+  <li><a href="#runtime-dependencies" id="toc-runtime-dependencies" class="nav-link active" data-scroll-target="#runtime-dependencies">Runtime Dependencies</a></li>
+  <li><a href="#optional-dependencies" id="toc-optional-dependencies" class="nav-link" data-scroll-target="#optional-dependencies">Optional Dependencies</a>
   <ul class="collapse">
-  <li><a href="#making-pull-requests" id="toc-making-pull-requests" class="nav-link" data-scroll-target="#making-pull-requests">Making Pull Requests</a></li>
-  <li><a href="#setting-up-your-development-environment" id="toc-setting-up-your-development-environment" class="nav-link" data-scroll-target="#setting-up-your-development-environment">Setting Up Your Development Environment</a></li>
-  <li><a href="#building-the-documentation-locally" id="toc-building-the-documentation-locally" class="nav-link" data-scroll-target="#building-the-documentation-locally">Building the Documentation Locally</a></li>
-  <li><a href="#running-tests-locally" id="toc-running-tests-locally" class="nav-link" data-scroll-target="#running-tests-locally">Running Tests Locally</a></li>
+  <li><a href="#all" id="toc-all" class="nav-link" data-scroll-target="#all"><code>all</code></a></li>
+  <li><a href="#dev" id="toc-dev" class="nav-link" data-scroll-target="#dev"><code>dev</code></a></li>
+  <li><a href="#dev-no-pandas" id="toc-dev-no-pandas" class="nav-link" data-scroll-target="#dev-no-pandas"><code>dev-no-pandas</code></a></li>
+  <li><a href="#extra" id="toc-extra" class="nav-link" data-scroll-target="#extra"><code>extra</code></a></li>
   </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
   </ul>
 </nav>
     </div>
@@ -179,7 +180,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Contributing</h1>
+<h1 class="title">Package Info</h1>
 </div>
 
 
@@ -196,51 +197,268 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>There are many ways to contribute to the ongoing development of the Great Tables package. Some contributions can be rather easy to do (e.g., fixing typos, improving documentation, filing issues for feature requests or problems, etc.) whereas other contributions can require more time and patience (like answering questions and submitting pull requests with code changes). Just know that that help provided in any capacity is very much appreciated. :)</p>
-<section id="filing-issues" class="level1">
-<h1>Filing Issues</h1>
-<p>If you believe you found a bug, minimal reproducible example (MRE) for your posting to the <a href="https://github.com/posit-dev/great-tables/issues">Great Tables issue tracker</a>. Try not to include anything unnecessary, just the minimal amount of code that constitutes the reproducible bug. For useful guidelines on how to create an MRE, take a look at <a href="https://stackoverflow.com/help/minimal-reproducible-example">this guide on Stack Overflow</a>. We will try to verify the bug by running the code in the provided MRE. The quality of the MRE will reduce the amount of back-and-forth communication in trying to understand how to execute the code on our systems.</p>
+<section id="runtime-dependencies" class="level1">
+<h1>Runtime Dependencies</h1>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Version Constraint</th>
+<th>Last Published</th>
+<th>PyPI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code class="gd-no-link">multimark</code></td>
+<td><code>&gt;=0.1.3</code></td>
+<td>2026-06-09</td>
+<td><a href="https://pypi.org/project/multimark/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">faicons</code></td>
+<td><code>&gt;=0.2.2</code></td>
+<td>2024-01-16</td>
+<td><a href="https://pypi.org/project/faicons/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">htmltools</code></td>
+<td><code>&gt;=0.4.1</code></td>
+<td>2026-05-21</td>
+<td><a href="https://pypi.org/project/htmltools/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">importlib-metadata</code></td>
+<td>—</td>
+<td>2026-03-20</td>
+<td><a href="https://pypi.org/project/importlib-metadata/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">nokap</code></td>
+<td><code>&gt;=0.1.0</code></td>
+<td>2026-06-08</td>
+<td><a href="https://pypi.org/project/nokap/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">typing_extensions</code></td>
+<td><code>&gt;=3.10.0.0</code></td>
+<td>2026-07-02</td>
+<td><a href="https://pypi.org/project/typing_extensions/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">Babel</code></td>
+<td><code>&gt;=2.13.1</code></td>
+<td>2026-02-01</td>
+<td><a href="https://pypi.org/project/Babel/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">importlib-resources</code></td>
+<td>—</td>
+<td>2026-04-12</td>
+<td><a href="https://pypi.org/project/importlib-resources/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+</tbody>
+</table>
 </section>
-<section id="answering-questions" class="level1">
-<h1>Answering questions</h1>
-<p>One way to help is by simply answering questions. It’s amazing how a little conversation could lead to better insights on a problem. Don’t quite know the answer? That’s okay too. We’re all in this together.</p>
-<p>Where might you answer user questions? Some of the forums for Q&amp;A on Great Tables include the <em>Issues</em> and <em>Discussion</em> pages in the repo. Good etiquette is key during these interactions: be a good person to all who ask questions.</p>
-<section id="making-pull-requests" class="level2">
-<h2 class="anchored" data-anchor-id="making-pull-requests">Making Pull Requests</h2>
-<p>Should you consider making a pull request (PR), please file an issue first and explain the problem in some detail. If the PR is an enhancement, detail how the change would make things better for package users. Bugfix PRs also require some explanation about the bug and how the proposed fix will remove that bug. A great way to illustrate the bug is to include an MRE. While all this upfront work prior to preparing a PR can be time-consuming it opens a line of communication with the package authors and the community, perhaps leading to a better enhancement or more effective fixes!</p>
-<p>Once there is consensus that a PR based on the issue would be helpful, adhering to the following process will make things proceed more quickly:</p>
+<section id="optional-dependencies" class="level1">
+<h1>Optional Dependencies</h1>
+<section id="all" class="level2">
+<h2 class="anchored" data-anchor-id="all"><code>all</code></h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Version Constraint</th>
+<th>Last Published</th>
+<th>PyPI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code class="gd-no-link">great_tables</code></td>
+<td>—</td>
+<td>2026-06-12</td>
+<td><a href="https://pypi.org/project/great_tables/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">great_tables</code></td>
+<td>—</td>
+<td>2026-06-12</td>
+<td><a href="https://pypi.org/project/great_tables/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="dev" class="level2">
+<h2 class="anchored" data-anchor-id="dev"><code>dev</code></h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Version Constraint</th>
+<th>Last Published</th>
+<th>PyPI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code class="gd-no-link">great_tables</code></td>
+<td>—</td>
+<td>2026-06-12</td>
+<td><a href="https://pypi.org/project/great_tables/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">pandas</code></td>
+<td>—</td>
+<td>2026-05-11</td>
+<td><a href="https://pypi.org/project/pandas/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">plotnine</code></td>
+<td>—</td>
+<td>2026-06-13</td>
+<td><a href="https://pypi.org/project/plotnine/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">numpy</code></td>
+<td><code>&gt;=1.22.4</code></td>
+<td>2026-07-04</td>
+<td><a href="https://pypi.org/project/numpy/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="dev-no-pandas" class="level2">
+<h2 class="anchored" data-anchor-id="dev-no-pandas"><code>dev-no-pandas</code></h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Version Constraint</th>
+<th>Last Published</th>
+<th>PyPI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code class="gd-no-link">ruff</code></td>
+<td><code>==0.8.0</code></td>
+<td>2026-07-09</td>
+<td><a href="https://pypi.org/project/ruff/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">jupyter</code></td>
+<td>—</td>
+<td>2024-08-30</td>
+<td><a href="https://pypi.org/project/jupyter/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">gt-extras</code></td>
+<td><code>&gt;=0.0.7</code></td>
+<td>2025-08-18</td>
+<td><a href="https://pypi.org/project/gt-extras/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">polars</code></td>
+<td>—</td>
+<td>2026-06-30</td>
+<td><a href="https://pypi.org/project/polars/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">pre-commit</code></td>
+<td><code>==2.15.0</code></td>
+<td>2026-04-21</td>
+<td><a href="https://pypi.org/project/pre-commit/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">pyarrow</code></td>
+<td>—</td>
+<td>2026-04-21</td>
+<td><a href="https://pypi.org/project/pyarrow/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">pyright</code></td>
+<td><code>&gt;=1.1.244</code></td>
+<td>2026-06-25</td>
+<td><a href="https://pypi.org/project/pyright/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">pytest</code></td>
+<td><code>&gt;=3</code></td>
+<td>2026-06-19</td>
+<td><a href="https://pypi.org/project/pytest/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">pytest-cov</code></td>
+<td>—</td>
+<td>2026-03-21</td>
+<td><a href="https://pypi.org/project/pytest-cov/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">shiny</code></td>
+<td>—</td>
+<td>2026-06-01</td>
+<td><a href="https://pypi.org/project/shiny/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">svg.py</code></td>
+<td>—</td>
+<td>2025-12-28</td>
+<td><a href="https://pypi.org/project/svg.py/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">syrupy</code></td>
+<td>—</td>
+<td>2026-07-08</td>
+<td><a href="https://pypi.org/project/syrupy/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="extra" class="level2">
+<h2 class="anchored" data-anchor-id="extra"><code>extra</code></h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Version Constraint</th>
+<th>Last Published</th>
+<th>PyPI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code class="gd-no-link">css-inline</code></td>
+<td><code>&lt;0.21,&gt;=0.20.2</code></td>
+<td>2026-06-16</td>
+<td><a href="https://pypi.org/project/css-inline/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="even">
+<td><code class="gd-no-link">selenium</code></td>
+<td><code>&gt;=4.18.1</code></td>
+<td>2026-06-16</td>
+<td><a href="https://pypi.org/project/selenium/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+<tr class="odd">
+<td><code class="gd-no-link">Pillow</code></td>
+<td><code>&gt;=10.2.0</code></td>
+<td>2026-07-01</td>
+<td><a href="https://pypi.org/project/Pillow/" class="gd-pypi-link"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg></a></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="summary" class="level1">
+<h1>Summary</h1>
 <ul>
-<li>Create a separate Git branch for each PR</li>
-<li>Look at the build status badges before and after making changes; these badges are available in the package <a href="https://github.com/posit-dev/great-tables">README</a></li>
-<li>The Great Tables package follows the <a href="https://peps.python.org/pep-0008/">Style Guide for Python Code</a> so please adopt those guidelines in your submitted code as best as possible</li>
-<li>Comment your code, particularly in those hard-to-understand areas</li>
-<li>Add test cases that cover the changes made in the PR; having tests for any new codepaths will help guard against regressions</li>
+<li><strong>Requires:</strong> Python <code>&gt;=3.10</code></li>
+<li><strong>Runtime Dependencies:</strong> 8</li>
+<li><strong>Optional Dependencies:</strong> 4 groups (19 unique packages)</li>
+<li><strong>Total unique dependencies:</strong> 27</li>
 </ul>
-</section>
-<section id="setting-up-your-development-environment" class="level2">
-<h2 class="anchored" data-anchor-id="setting-up-your-development-environment">Setting Up Your Development Environment</h2>
-<p>To set up your development environment, you can follow these steps:</p>
-<ul>
-<li>Clone the posit-dev/great-tables repository</li>
-<li>Create a virtual environment for the folder</li>
-<li>Install the package in editable mode with <code>pip install -e .</code> from the root of the project folder</li>
-<li>Install the development dependencies with <code>pip install .[dev]</code> (have a look at the <code>pyproject.toml</code> file for the list of development dependencies)</li>
-</ul>
-<p>Our documentation use <code>quartodoc</code> which in turn requires a local install of the Quarto CLI. To install Quarto, go to <a href="https://quarto.org/docs/get-started/" class="uri">https://quarto.org/docs/get-started/</a> to get the latest build for your platform.</p>
-<p>We also use <code>ruff</code> for linting and formatting (this is part of our development dependencies). If using VS Code as your editor, it may be useful to install the <code>Ruff</code> extension. This will make it so any commits will pass the <code>pre-commit</code> checks. You can verify that any changes pass all pre-commit checks by running <code>pre-commit run --all-files</code>.</p>
-<p>If you are planning to investigate or submit a PR concerning the generation of table images, you need to install additional dependencies (<code>selenium</code>and<code>Pillow</code>) and this can be done by using <code>pip install .[all]</code>.</p>
-</section>
-<section id="building-the-documentation-locally" class="level2">
-<h2 class="anchored" data-anchor-id="building-the-documentation-locally">Building the Documentation Locally</h2>
-<p>Building the documentation can be done with <code>make docs-build</code> from the root of the project folder. Locally building the documentation site is useful when you want to see how your changes will look during iteration. The site will be built in the <code>docs/_site</code> folder.</p>
-</section>
-<section id="running-tests-locally" class="level2">
-<h2 class="anchored" data-anchor-id="running-tests-locally">Running Tests Locally</h2>
-<p>The tests are located in the <code>tests</code> folder and we use <code>pytest</code> for running them. To run all of the tests, use <code>make test</code>. If you want to run a specific test file, you can use <code>pytest tests/test_file.py</code>.</p>
-<p>If you create new tests involving snapshots, please ensure that the resulting snapshots are relatively small. After adding snapshots, use <code>make test-update</code> (this runs <code>pytest --snapshot-update</code>). A subsequent use of <code>make test</code> should pass without any issues.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

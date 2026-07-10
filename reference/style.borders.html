@@ -124,6 +124,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table&quot;]">
 
 
+  <link rel="alternate" type="text/markdown" href="style.borders.md">
   <link rel="canonical" href="https://posit-dev.github.io/great-tables/reference/style.borders.html">
   <meta name="description" content="A style specification for cell borders.">
   <script type="application/ld+json">
@@ -285,6 +286,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.tab_stubhead.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_stubhead()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_stub_indent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_stub_indent()</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1217,7 +1224,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 )</span></code></pre></div>
 </div>
 <div class="doc-text">
-<p>The <code>styles.borders()</code> class is to be used with the <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> method, which itself allows for the setting of custom styles to one or more cells. The <a href="style.borders.html#great_tables.style.borders.sides" class="gdls-link gdls-code">sides</a> argument is where we define which borders should be modified (e.g., <code>"left"</code>, <code>"right"</code>, etc.). With that selection, the <a href="style.text.html#great_tables.style.text.color" class="gdls-link gdls-code">color</a>, <a href="style.text.html#great_tables.style.text.style" class="gdls-link gdls-code">style</a>, and <a href="style.text.html#great_tables.style.text.weight" class="gdls-link gdls-code">weight</a> of the selected borders can then be modified.</p>
+<p>The <code>styles.borders()</code> class is to be used with the <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> method, which itself allows for the setting of custom styles to one or more cells. The <a href="style.borders.html#great_tables.style.borders.sides" class="gdls-link gdls-code">sides</a> argument is where we define which borders should be modified (e.g., <code>"left"</code>, <code>"right"</code>, etc.). With that selection, the <a href="style.borders.html#great_tables.style.borders.color" class="gdls-link gdls-code">color</a>, <a href="style.borders.html#great_tables.style.borders.style" class="gdls-link gdls-code">style</a>, and <a href="style.borders.html#great_tables.style.borders.weight" class="gdls-link gdls-code">weight</a> of the selected borders can then be modified.</p>
 </div>
 <section id="parameters" class="level2 doc-parameters">
 <h2 class="doc-parameters">Parameters</h2>
@@ -1229,15 +1236,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">color</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | ColumnExpr</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"#000000"</span></span></code></dt>
 <dd>
-<p>The border <a href="style.text.html#great_tables.style.text.color" class="gdls-link gdls-code">color</a> can be defined with any valid CSS color value, such as a hex code, a named color, or an RGB value. The default <a href="style.text.html#great_tables.style.text.color" class="gdls-link gdls-code">color</a> value is <code>"#000000"</code> (black).</p>
+<p>The border <a href="style.borders.html#great_tables.style.borders.color" class="gdls-link gdls-code">color</a> can be defined with any valid CSS color value, such as a hex code, a named color, or an RGB value. The default <a href="style.borders.html#great_tables.style.borders.color" class="gdls-link gdls-code">color</a> value is <code>"#000000"</code> (black).</p>
 </dd>
 <dt><code><span class="doc-parameter-name">style</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | ColumnExpr</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"solid"</span></span></code></dt>
 <dd>
-<p>The border <a href="style.text.html#great_tables.style.text.style" class="gdls-link gdls-code">style</a> can be one of either <code>"solid"</code> (the default), <code>"dashed"</code>, <code>"dotted"</code>, <code>"hidden"</code>, or <code>"double"</code>.</p>
+<p>The border <a href="style.borders.html#great_tables.style.borders.style" class="gdls-link gdls-code">style</a> can be one of either <code>"solid"</code> (the default), <code>"dashed"</code>, <code>"dotted"</code>, <code>"hidden"</code>, or <code>"double"</code>.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">weight</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | ColumnExpr</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"1px"</span></span></code></dt>
 <dd>
-The default value for <a href="style.text.html#great_tables.style.text.weight" class="gdls-link gdls-code">weight</a> is <code>"1px"</code> and higher values will become more visually prominent.
+The default value for <a href="style.borders.html#great_tables.style.borders.weight" class="gdls-link gdls-code">weight</a> is <code>"1px"</code> and higher values will become more visually prominent.
 </dd>
 </dl>
 </div>

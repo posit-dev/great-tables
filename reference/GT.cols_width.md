@@ -21,7 +21,7 @@ Manual specifications of column widths can be performed using the [cols_width()]
 
 
 `cases: dict[str, str] | None = None`  
-A dictionary where the keys are column names and the values are the widths. Widths can be specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`).
+A dictionary where the keys are column names and the values are the widths. Widths can be specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`). Use the [`stub`](%60great_tables.stub%60) sentinel as a key to set the width of the stub column without risk of collision with a data column named `"stub"`.
 
 `**kwargs: str`  
 Keyword arguments to specify column widths. Each keyword corresponds to a column name, with its value indicating the width in pixels or percentages.
@@ -149,3 +149,35 @@ If we set the width of all columns, the table will be forced to use the specifie
 
 
 Notice that in the above example, the `num` column is very small (only `30px`) and the content overflows. When not specifying the width of all columns, the table will automatically adjust the column widths based on the content (and you wouldn't get the overflowing behavior seen in the previous example).
+
+When a table has a stub (row labels), use the [`stub`](%60great_tables.stub%60) sentinel to set its width. This avoids any ambiguity with a data column that happens to be named `"stub"`.
+
+
+``` python
+from great_tables import GT, stub
+from great_tables.data import gtcars
+
+gtcars_mini = gtcars[["model", "year", "hp", "msrp"]].head(6)
+
+(
+    GT(gtcars_mini, rowname_col="model")
+    .cols_width(
+        cases={
+            stub: "200px",
+            "year": "60px",
+            "hp": "60px",
+            "msrp": "120px",
+        }
+    )
+)
+```
+
+
+|              | year | hp    | msrp     |
+|--------------|------|-------|----------|
+| GT           | 2017 | 647.0 | 447000.0 |
+| 458 Speciale | 2015 | 597.0 | 291744.0 |
+| 458 Spider   | 2015 | 562.0 | 263553.0 |
+| 458 Italia   | 2014 | 562.0 | 233509.0 |
+| 488 GTB      | 2016 | 661.0 | 245400.0 |
+| California   | 2015 | 553.0 | 198973.0 |

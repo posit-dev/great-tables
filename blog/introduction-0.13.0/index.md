@@ -626,7 +626,7 @@ We've dressed up the stub so that it is that much more prominent. And that linen
 
 ## Using custom style rules with the new [style.css()](../../reference/style.css.md#great_tables.style.css)
 
-Aside from decking out the `loc` module with all manner of location methods, we've added a little something to the [style](../../reference/style.text.md#great_tables.style.text.style) module: [style.css()](../../reference/style.css.md#great_tables.style.css)! What's it for? It lets you supply style declarations to its single `rule=` argument.
+Aside from decking out the `loc` module with all manner of location methods, we've added a little something to the [style](../../reference/style.borders.md#great_tables.style.borders.style) module: [style.css()](../../reference/style.css.md#great_tables.style.css)! What's it for? It lets you supply style declarations to its single `rule=` argument.
 
 As an example, I might want to indent some text in one or more table cells. You can't really do that with the [style.text()](../../reference/style.text.md#great_tables.style.text) method since it doesn't have an `indent=` argument. So, in Great Tables `0.13.0` you can manually indent the row label text for the 'STABLE' rows using a CSS style rule:
 

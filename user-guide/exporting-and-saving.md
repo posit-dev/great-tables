@@ -82,9 +82,9 @@ print(html_str[:200])
 ```
 
 
-    <div id="fpcsxwtpuv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+    <div id="uehjpavoec" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
     <style>
-    #fpcsxwtpuv table {
+    #uehjpavoec table {
               font
 
 
@@ -93,7 +93,7 @@ The method accepts several arguments that control the output format.
 
 ## Inline CSS for Email
 
-Email clients typically strip `<style>` blocks, so you need inline CSS for the table to render correctly. Set `inline_css=True` to move all styles into [style](../reference/style.text.md#great_tables.style.text.style) attributes.
+Email clients typically strip `<style>` blocks, so you need inline CSS for the table to render correctly. Set `inline_css=True` to move all styles into [style](../reference/style.borders.md#great_tables.style.borders.style) attributes.
 
 ``` python
 email_html = gt_tbl.as_raw_html(inline_css=True)

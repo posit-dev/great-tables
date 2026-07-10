@@ -127,6 +127,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table&quot;]">
 
 
+  <link rel="alternate" type="text/markdown" href="GT.with_id.md">
   <link rel="canonical" href="https://posit-dev.github.io/great-tables/reference/GT.with_id.html">
   <meta name="description" content="Easily generate information-rich, publication-quality tables from Python.">
   <script type="application/ld+json">
@@ -288,6 +289,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.tab_stubhead.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_stubhead()</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.tab_stub_indent.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="doc-object-name doc-function doc-label doc-label-method">GT.tab_stub_indent()</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1242,7 +1249,7 @@ The GT object is returned. This is the same object that the method is called on 
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples">Examples</h2>
 <p>The use of <a href="GT.with_id.html#great_tables.GT.with_id" class="gdls-link gdls-code">with_id</a> is straightforward—simply pass a string to <code>id=</code> to set the table ID:</p>
-<div id="3477d956" class="cell" data-execution_count="1">
+<div id="f0f98399" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>GT(exibble).with_id(<span class="st">"your-table-id"</span>)</span></code></pre></div>
@@ -1277,6 +1284,11 @@ The GT object is returned. This is the same object that the method is called on 
  #your-table-id .gt_from_md> :last-child { margin-bottom: 0; }
  #your-table-id .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
  #your-table-id .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #your-table-id .gt_indent_1 { text-indent: 5px; }
+ #your-table-id .gt_indent_2 { text-indent: calc(5px * 2); }
+ #your-table-id .gt_indent_3 { text-indent: calc(5px * 3); }
+ #your-table-id .gt_indent_4 { text-indent: calc(5px * 4); }
+ #your-table-id .gt_indent_5 { text-indent: calc(5px * 5); }
  #your-table-id .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
  #your-table-id .gt_row_group_first td { border-top-width: 2px; }
  #your-table-id .gt_row_group_first th { border-top-width: 2px; }

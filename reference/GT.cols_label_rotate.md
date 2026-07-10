@@ -16,7 +16,7 @@ GT.cols_label_rotate(
 ```
 
 
-The [cols_label_rotate()](GT.cols_label_rotate.md#great_tables.GT.cols_label_rotate) method sets the orientation of the column label text to make it flow vertically. The `dir` argument can be set to one of `"sideways-lr"`, `"sideways-rl"`, or `"vertical-lr"`, and the [columns](loc.body.md#great_tables.loc.body.columns) argument can be used to specify which columns to apply the alignment to. If [columns](loc.body.md#great_tables.loc.body.columns) is not specified, the alignment is applied to all columns.
+The [cols_label_rotate()](GT.cols_label_rotate.md#great_tables.GT.cols_label_rotate) method sets the orientation of the column label text to make it flow vertically. The `dir` argument can be set to one of `"sideways-lr"`, `"sideways-rl"`, or `"vertical-lr"`, and the `columns` argument can be used to specify which columns to apply the alignment to. If `columns` is not specified, the alignment is applied to all columns.
 
 
 ## Parameters

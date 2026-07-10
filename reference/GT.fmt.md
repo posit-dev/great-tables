@@ -18,7 +18,7 @@ GT.fmt(
 
 The [fmt()](GT.fmt.md#great_tables.GT.fmt) method provides a way to execute custom formatting functionality with raw data values in a way that can consider all output contexts.
 
-Along with the [columns](loc.body.md#great_tables.loc.body.columns) and [rows](loc.stub.md#great_tables.loc.stub.rows) arguments that provide some precision in targeting data cells, the `fns` argument allows you to define a function for manipulating the raw data.
+Along with the `columns` and `rows` arguments that provide some precision in targeting data cells, the `fns` argument allows you to define a function for manipulating the raw data.
 
 
 ## Parameters
@@ -31,7 +31,7 @@ A formatting function to apply to the targeted cells.
 The columns to target. Can either be a single column name or a series of column names provided in a list.
 
 `rows: int | list[int] | None = None`  
-In conjunction with `columns=`, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in [columns](loc.body.md#great_tables.loc.body.columns) being formatted. Alternatively, we can supply a list of row indices.
+In conjunction with `columns=`, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in `columns` being formatted. Alternatively, we can supply a list of row indices.
 
 `is_substitution: bool = ``False`  
 Whether the formatter is a substitution. Substitutions are run last, after other formatters.

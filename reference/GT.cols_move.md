@@ -14,9 +14,9 @@ GT.cols_move(
 ```
 
 
-On those occasions where you need to move columns this way or that way, we can make use of the [cols_move()](GT.cols_move.md#great_tables.GT.cols_move) method. While it's true that the movement of columns can be done upstream of **Great Tables**, it is much easier and less error prone to use the method provided here. The movement procedure here takes one or more specified columns (in the [columns](loc.body.md#great_tables.loc.body.columns) argument) and places them to the right of a different column (the `after` argument). The ordering of the [columns](loc.body.md#great_tables.loc.body.columns) to be moved is preserved, as is the ordering of all other columns in the table.
+On those occasions where you need to move columns this way or that way, we can make use of the [cols_move()](GT.cols_move.md#great_tables.GT.cols_move) method. While it's true that the movement of columns can be done upstream of **Great Tables**, it is much easier and less error prone to use the method provided here. The movement procedure here takes one or more specified columns (in the `columns` argument) and places them to the right of a different column (the `after` argument). The ordering of the `columns` to be moved is preserved, as is the ordering of all other columns in the table.
 
-The columns supplied in [columns](loc.body.md#great_tables.loc.body.columns) must all exist in the table and none of them can be in the `after` argument. The `after` column must also exist and only one column should be provided here. If you need to place one more or columns at the beginning of the column series, the [cols_move_to_start()](GT.cols_move_to_start.md#great_tables.GT.cols_move_to_start) method should be used. Similarly, if those columns to move should be placed at the end of the column series then use [cols_move_to_end()](GT.cols_move_to_end.md#great_tables.GT.cols_move_to_end).
+The columns supplied in `columns` must all exist in the table and none of them can be in the `after` argument. The `after` column must also exist and only one column should be provided here. If you need to place one more or columns at the beginning of the column series, the [cols_move_to_start()](GT.cols_move_to_start.md#great_tables.GT.cols_move_to_start) method should be used. Similarly, if those columns to move should be placed at the end of the column series then use [cols_move_to_end()](GT.cols_move_to_end.md#great_tables.GT.cols_move_to_end).
 
 
 ## Parameters
@@ -26,7 +26,7 @@ The columns supplied in [columns](loc.body.md#great_tables.loc.body.columns) mus
 The columns to target. Can either be a single column name or a series of column names provided in a list.
 
 `after: str`  
-The column after which the [columns](loc.body.md#great_tables.loc.body.columns) should be placed. This can be any column name that exists in the table.
+The column after which the `columns` should be placed. This can be any column name that exists in the table.
 
 
 ## Returns

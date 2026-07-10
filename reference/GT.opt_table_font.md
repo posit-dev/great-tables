@@ -36,7 +36,7 @@ An option to modify the text style. Can be one of either `"normal"`, `"italic"`,
 Option to set the weight of the font. Can be a text-based keyword such as `"normal"`, `"bold"`, `"lighter"`, `"bolder"`, or, a numeric value between `1` and `1000`. Please note that typefaces have varying support for the numeric mapping of weight.
 
 `add: bool = ``True`  
-Should fonts be added to the beginning of any already-defined fonts for the table? By default, this is `True` and is recommended since those fonts already present can serve as fallbacks when everything specified in [font](style.text.md#great_tables.style.text.font) is not available. If a `stack=` value is provided, then `add` will automatically set to `False`.
+Should fonts be added to the beginning of any already-defined fonts for the table? By default, this is `True` and is recommended since those fonts already present can serve as fallbacks when everything specified in `font` is not available. If a `stack=` value is provided, then `add` will automatically set to `False`.
 
 
 ## Returns

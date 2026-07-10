@@ -21,6 +21,7 @@
 - [GT.tab_spanner_delim](https://posit-dev.github.io/great-tables/reference/GT.tab_spanner_delim.html)
 - [GT.tab_stub](https://posit-dev.github.io/great-tables/reference/GT.tab_stub.html)
 - [GT.tab_stubhead](https://posit-dev.github.io/great-tables/reference/GT.tab_stubhead.html)
+- [GT.tab_stub_indent](https://posit-dev.github.io/great-tables/reference/GT.tab_stub_indent.html)
 - [GT.tab_footnote](https://posit-dev.github.io/great-tables/reference/GT.tab_footnote.html)
 - [GT.tab_source_note](https://posit-dev.github.io/great-tables/reference/GT.tab_source_note.html)
 - [GT.rm_header](https://posit-dev.github.io/great-tables/reference/GT.rm_header.html)

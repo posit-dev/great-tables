@@ -30,7 +30,7 @@ The [style.text()](style.text.md#great_tables.style.text) class is to be used wi
 
 
 `color: str | ColumnExpr | None = None`  
-The text color can be modified through the [color](style.text.md#great_tables.style.text.color) argument.
+The text color can be modified through the [color](style.borders.md#great_tables.style.borders.color) argument.
 
 `font: str | ColumnExpr | GoogleFont | None = None`  
 The font or collection of fonts (subsequent font names are) used as fallbacks.

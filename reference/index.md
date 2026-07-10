@@ -32,6 +32,9 @@ Add a table stub, to emphasize row and group information.
 [GT.tab_stubhead()](GT.tab_stubhead.md#great_tables.GT.tab_stubhead)  
 Add label text to the stubhead.
 
+[GT.tab_stub_indent()](GT.tab_stub_indent.md#great_tables.GT.tab_stub_indent)  
+Control indentation of row labels in the stub.
+
 [GT.tab_footnote()](GT.tab_footnote.md#great_tables.GT.tab_footnote)  
 Add a table footnote.
 

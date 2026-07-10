@@ -109,6 +109,7 @@ GT.tab_options(
     stub_border_style=None,
     stub_border_width=None,
     stub_border_color=None,
+    stub_indent_length=None,
     stub_row_group_font_size=None,
     stub_row_group_font_weight=None,
     stub_row_group_text_transform=None,
@@ -454,6 +455,9 @@ The width of the vertical border of the table stub.
 
 `stub_border_color: str | None = None`  
 The color of the vertical border of the table stub.
+
+`stub_indent_length: str | None = None`  
+The width of each indentation level for row labels set by <a href="GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent" class="gdls-link"><code>tab_stub_indent()</code></a>. Defaults to `"5px"`.
 
 `stub_row_group_font_size: str | None = None`  
 The font size for the row group column in the stub.

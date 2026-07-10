@@ -52,7 +52,7 @@ There are two types of templating for the `pattern` string:
 - `{` `}` for arranging single column values in a row-wise fashion
 - `<<` `>>` to surround spans of text that will be removed if any of the contained `{` `}` yields a missing value
 
-Integer values are placed in `{}` and those values correspond to the columns involved in the merge, in the order they are provided in the `columns=` argument. So the pattern `"{0} ({1}-{2})"` corresponds to the target column value listed first in [columns](loc.body.md#great_tables.loc.body.columns) and the second and third columns cited (formatted as a range in parentheses). With hypothetical values, this might result as the merged string `"38.2 (3-8)"`.
+Integer values are placed in `{}` and those values correspond to the columns involved in the merge, in the order they are provided in the `columns=` argument. So the pattern `"{0} ({1}-{2})"` corresponds to the target column value listed first in `columns` and the second and third columns cited (formatted as a range in parentheses). With hypothetical values, this might result as the merged string `"38.2 (3-8)"`.
 
 Because some values involved in merging may be missing, it is likely that something like `"38.2 (3-None)"` would be undesirable. For such cases, placing sections of text in `<<>>` results in the entire span being eliminated if there were to be an `None` value (arising from `{}` values). We could instead opt for a pattern like `"{0}<< ({1}-{2})>>"`, which results in `"38.2"` if either columns `{1}` or `{2}` have a `None` value. We can even use a more complex nesting pattern like `"{0}<< ({1}-<<{2}>>)>>"` to retain a lower limit in parentheses (where `{2}` is `None`) but remove the range altogether if `{1}` is `None`.
 

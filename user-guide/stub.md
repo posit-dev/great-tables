@@ -63,7 +63,7 @@ Notice that the landmass names are now placed to the left? That's the **Stub**. 
 | Celebes      | 73    |
 
 
-A very important thing to note here is that the table now has one column. Before, when there was no **Stub**, two columns were present (with the **Column Labels** of `"name"` and `"size"`) but now column number `1` (the only column remaining) is [size](../reference/style.text.md#great_tables.style.text.size).
+A very important thing to note here is that the table now has one column. Before, when there was no **Stub**, two columns were present (with the **Column Labels** of `"name"` and `"size"`) but now column number `1` (the only column remaining) is `size`.
 
 
 # Row groups

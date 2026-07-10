@@ -14,7 +14,7 @@ GT.cols_label_with(
 ```
 
 
-The [cols_label_with()](GT.cols_label_with.md#great_tables.GT.cols_label_with) function allows for modification of column labels through a supplied function. By default, the function will be invoked on all column labels but this can be limited to a subset via the [columns](loc.body.md#great_tables.loc.body.columns) parameter.
+The [cols_label_with()](GT.cols_label_with.md#great_tables.GT.cols_label_with) function allows for modification of column labels through a supplied function. By default, the function will be invoked on all column labels but this can be limited to a subset via the `columns` parameter.
 
 
 ## Parameters
@@ -62,7 +62,7 @@ gt
 | 2015-12-24 | 2063.52   | 2067.3601 | 2058.73 | 2060.99   | 1411860000.0 | 2060.99   |
 
 
-We can pass `str.upper` to the [fn](from_column.md#great_tables.from_column.fn) parameter to convert all column labels to uppercase.
+We can pass `str.upper` to the `fn` parameter to convert all column labels to uppercase.
 
 
 ``` python
