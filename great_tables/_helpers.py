@@ -152,6 +152,46 @@ FONT_STACKS = {
 }
 
 
+class _StubSentinel:
+    """Sentinel that refers to the stub column in column-selection helpers.
+
+    Use the module-level `stub` instance (importable from `great_tables`) rather than instantiating
+    this class directly. The sentinel is hashable and can therefore be used as a dictionary key,
+    (e.g., `cols_width(cases={stub: "250px"})`).
+    """
+
+    _instance: "_StubSentinel | None" = None
+
+    def __new__(cls) -> "_StubSentinel":
+        # Singleton so that `stub is stub` holds everywhere.
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __repr__(self) -> str:
+        return "stub"
+
+    def __hash__(self) -> int:
+        return hash("__great_tables_stub__")
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, _StubSentinel)
+
+
+stub = _StubSentinel()
+"""Sentinel for selecting the stub column in `~great_tables.GT.cols_width`.
+
+Pass this as a dictionary key to set the width of the stub column without risking a collision with a
+data column named `"stub"`:
+
+```python
+from great_tables import GT, stub, px
+
+GT(df, rowname_col="row").cols_width(cases={stub: "200px", "value": "100px"})
+```
+"""
+
+
 def px(x: int | float) -> str:
     """
     Helper for providing a CSS length value in pixels.

@@ -117,6 +117,7 @@ def tab_options(
     stub_border_style: str | None = None,
     stub_border_width: str | None = None,
     stub_border_color: str | None = None,
+    stub_indent_length: str | None = None,
     stub_row_group_font_size: str | None = None,
     stub_row_group_font_weight: str | int | float | None = None,
     stub_row_group_text_transform: str | None = None,
@@ -430,6 +431,9 @@ def tab_options(
         The width of the vertical border of the table stub.
     stub_border_color
         The color of the vertical border of the table stub.
+    stub_indent_length
+        The width of each indentation level for row labels set by
+        [`tab_stub_indent()`](`great_tables.GT.tab_stub_indent`). Defaults to `"5px"`.
     stub_row_group_font_size
         The font size for the row group column in the stub.
     stub_row_group_font_weight

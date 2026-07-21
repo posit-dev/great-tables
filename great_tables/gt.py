@@ -95,6 +95,7 @@ from ._tab_create_modify import (
     text_replace,
     text_transform,
 )
+from ._tab_stub_indent import tab_stub_indent
 from ._tbl_data import _get_cell, _set_cell, n_rows
 from ._utils import _migrate_unformatted_to_output
 from ._utils_render_html import (
@@ -422,6 +423,7 @@ class GT(
     tab_spanner = tab_spanner
     tab_spanner_delim = tab_spanner_delim
     tab_stubhead = tab_stubhead
+    tab_stub_indent = tab_stub_indent
     tab_style = tab_style
     tab_options = tab_options
 

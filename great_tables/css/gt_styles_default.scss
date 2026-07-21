@@ -241,6 +241,26 @@ p {
   padding-right: $data_row_padding_horizontal;
 }
 
+.gt_indent_1 {
+  text-indent: $stub_indent_length;
+}
+
+.gt_indent_2 {
+  text-indent: calc($stub_indent_length * 2);
+}
+
+.gt_indent_3 {
+  text-indent: calc($stub_indent_length * 3);
+}
+
+.gt_indent_4 {
+  text-indent: calc($stub_indent_length * 4);
+}
+
+.gt_indent_5 {
+  text-indent: calc($stub_indent_length * 5);
+}
+
 .gt_stub_row_group {
   color: $font_color_stub_row_group_background_color;
   background-color: $stub_row_group_background_color;

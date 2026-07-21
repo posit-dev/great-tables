@@ -895,7 +895,9 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
     ----------
     cases
         A dictionary where the keys are column names and the values are the widths. Widths can be
-        specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`).
+        specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`). Use the
+        [`stub`](`great_tables.stub`) sentinel as a key to set the width of the stub column without
+        risk of collision with a data column named `"stub"`.
 
     **kwargs
         Keyword arguments to specify column widths. Each keyword corresponds to a column name, with
@@ -991,6 +993,28 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
     overflows. When not specifying the width of all columns, the table will automatically adjust the
     column widths based on the content (and you wouldn't get the overflowing behavior seen in the
     previous example).
+
+    When a table has a stub (row labels), use the [`stub`](`great_tables.stub`) sentinel to set its
+    width. This avoids any ambiguity with a data column that happens to be named `"stub"`.
+
+    ```{python}
+    from great_tables import GT, stub
+    from great_tables.data import gtcars
+
+    gtcars_mini = gtcars[["model", "year", "hp", "msrp"]].head(6)
+
+    (
+        GT(gtcars_mini, rowname_col="model")
+        .cols_width(
+            cases={
+                stub: "200px",
+                "year": "60px",
+                "hp": "60px",
+                "msrp": "120px",
+            }
+        )
+    )
+    ```
     """
     cases = cases if cases is not None else {}
     new_cases = cases | kwargs
@@ -1000,6 +1024,20 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
         return self
 
     curr_boxhead = self._boxhead
+
+    # Resolve a stub sentinel key to the actual stub column variable name
+    from ._helpers import _StubSentinel
+
+    stub_keys = [k for k in new_cases if isinstance(k, _StubSentinel)]
+    if stub_keys:
+        stub_col = curr_boxhead._get_stub_column()
+        if stub_col is not None:
+            stub_width = new_cases.pop(stub_keys[0])
+            new_cases = {stub_col.var: stub_width} | new_cases
+        else:
+            # No stub column present — drop the sentinel key silently
+            for k in stub_keys:
+                new_cases.pop(k)
 
     # Get the full list of column names for the data
     column_names = curr_boxhead._get_columns()

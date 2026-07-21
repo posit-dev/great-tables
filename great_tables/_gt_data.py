@@ -541,6 +541,7 @@ class RowInfo:
     rowname: str | None = None
     group_label: str | None = None
     built: bool = False
+    indent: int = 0
 
     # The components of the stub are:
     # `rownum_i` (The initial row indices for the table at ingest time)
@@ -548,6 +549,7 @@ class RowInfo:
     # `rowname` = None
     # `group_label` = None
     # `built` = False
+    # `indent` = 0
 
 
 class Stub:
@@ -623,6 +625,15 @@ class Stub:
     def reorder_rows(self, indices) -> Self:
         new_rows = [self.rows[ii] for ii in indices]
 
+        return self.__class__(new_rows, self.group_rows)
+
+    def set_row_indent(self, row_positions: list[int], indent: int) -> Self:
+        """Return a new Stub with the indent set on the specified row positions."""
+        position_set = set(row_positions)
+        new_rows = [
+            replace(row, indent=indent) if ii in position_set else row
+            for ii, row in enumerate(self.rows)
+        ]
         return self.__class__(new_rows, self.group_rows)
 
     def order_groups(self, group_order: RowGroups) -> Self:
@@ -1386,6 +1397,7 @@ class Options:
     stub_border_style: OptionsInfo = OptionsInfo(True, "stub", "value", "solid")
     stub_border_width: OptionsInfo = OptionsInfo(True, "stub", "px", "2px")
     stub_border_color: OptionsInfo = OptionsInfo(True, "stub", "value", "#D3D3D3")
+    stub_indent_length: OptionsInfo = OptionsInfo(True, "stub", "px", "5px")
     stub_row_group_background_color: OptionsInfo = OptionsInfo(True, "stub", "value", None)
     stub_row_group_font_size: OptionsInfo = OptionsInfo(True, "stub", "px", "100%")
     stub_row_group_font_weight: OptionsInfo = OptionsInfo(True, "stub", "value", "initial")

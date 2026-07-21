@@ -250,6 +250,26 @@
     padding-right: 5px;
   }
   
+  #abc .gt_indent_1 {
+    text-indent: 5px;
+  }
+  
+  #abc .gt_indent_2 {
+    text-indent: calc(5px * 2);
+  }
+  
+  #abc .gt_indent_3 {
+    text-indent: calc(5px * 3);
+  }
+  
+  #abc .gt_indent_4 {
+    text-indent: calc(5px * 4);
+  }
+  
+  #abc .gt_indent_5 {
+    text-indent: calc(5px * 5);
+  }
+  
   #abc .gt_stub_row_group {
     color: #333333;
     background-color: #FFFFFF;

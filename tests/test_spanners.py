@@ -296,6 +296,40 @@ def test_cols_width_html_colgroup_stub():
     )
 
 
+def test_cols_width_stub_key():
+    # `stub` sentinel resolves to the stub column's variable name
+    from great_tables import stub
+
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6]})
+    gt_tbl = GT(df, rowname_col="b").cols_width({stub: "20px", "a": "10px", "c": "30px"})
+
+    tbl_built = gt_tbl._build_data(context="html")
+    table_defs = _get_table_defs(tbl_built)
+
+    assert (
+        str(table_defs["table_colgroups"])
+        == '<colgroup>\n  <col style="width:20px;"/>\n  <col style="width:10px;"/>\n  <col style="width:30px;"/>\n</colgroup>'
+    )
+
+
+def test_cols_width_stub_key_no_stub():
+    # `stub` sentinel with no stub column is silently ignored
+    from great_tables import stub
+
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+    gt_tbl = GT(df).cols_width({stub: "99px", "a": "10px", "b": "20px"})
+    assert gt_tbl._boxhead._get_column_widths() == ["10px", "20px"]
+
+
+def test_cols_width_stub_key_no_collision():
+    # A data column actually named "stub" is NOT treated as the sentinel
+    from great_tables import stub
+
+    df = pd.DataFrame({"stub": [1, 2], "a": [3, 4]})
+    gt_tbl = GT(df).cols_width({"stub": "10px", "a": "20px"})
+    assert gt_tbl._boxhead._get_column_widths() == ["10px", "20px"]
+
+
 def test_cols_width_html_colgroup_complex():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8], "e": [9, 10]})
     gt_tbl = (

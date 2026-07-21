@@ -31,6 +31,11 @@
    #test .gt_from_md> :last-child { margin-bottom: 0; }
    #test .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
    #test .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+   #test .gt_indent_1 { text-indent: 5px; }
+   #test .gt_indent_2 { text-indent: calc(5px * 2); }
+   #test .gt_indent_3 { text-indent: calc(5px * 3); }
+   #test .gt_indent_4 { text-indent: calc(5px * 4); }
+   #test .gt_indent_5 { text-indent: calc(5px * 5); }
    #test .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
    #test .gt_row_group_first td { border-top-width: 2px; }
    #test .gt_row_group_first th { border-top-width: 2px; }
@@ -116,6 +121,11 @@
    #test .gt_from_md> :last-child { margin-bottom: 0; }
    #test .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
    #test .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+   #test .gt_indent_1 { text-indent: 5px; }
+   #test .gt_indent_2 { text-indent: calc(5px * 2); }
+   #test .gt_indent_3 { text-indent: calc(5px * 3); }
+   #test .gt_indent_4 { text-indent: calc(5px * 4); }
+   #test .gt_indent_5 { text-indent: calc(5px * 5); }
    #test .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
    #test .gt_row_group_first td { border-top-width: 2px; }
    #test .gt_row_group_first th { border-top-width: 2px; }
@@ -207,6 +217,11 @@
    #test .gt_from_md> :last-child { margin-bottom: 0 !important; }
    #test .gt_row { padding-top: 8px !important; padding-bottom: 8px !important; padding-left: 5px !important; padding-right: 5px !important; margin: 10px !important; border-top-style: solid !important; border-top-width: 1px !important; border-top-color: #D3D3D3 !important; border-left-style: none !important; border-left-width: 1px !important; border-left-color: #D3D3D3 !important; border-right-style: none !important; border-right-width: 1px !important; border-right-color: #D3D3D3 !important; vertical-align: middle !important; overflow-x: hidden !important; }
    #test .gt_stub { color: #333333 !important; background-color: #FFFFFF !important; font-size: 100% !important; font-weight: initial !important; text-transform: inherit !important; border-right-style: solid !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; padding-left: 5px !important; padding-right: 5px !important; }
+   #test .gt_indent_1 { text-indent: 5px !important; }
+   #test .gt_indent_2 { text-indent: calc(5px * 2) !important; }
+   #test .gt_indent_3 { text-indent: calc(5px * 3) !important; }
+   #test .gt_indent_4 { text-indent: calc(5px * 4) !important; }
+   #test .gt_indent_5 { text-indent: calc(5px * 5) !important; }
    #test .gt_stub_row_group { color: #333333 !important; background-color: #FFFFFF !important; font-size: 100% !important; font-weight: initial !important; text-transform: inherit !important; border-right-style: solid !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; padding-left: 5px !important; padding-right: 5px !important; vertical-align: top !important; }
    #test .gt_row_group_first td { border-top-width: 2px !important; }
    #test .gt_row_group_first th { border-top-width: 2px !important; }
@@ -295,6 +310,11 @@
    #test .gt_from_md> :last-child { margin-bottom: 0; }
    #test .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
    #test .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+   #test .gt_indent_1 { text-indent: 5px; }
+   #test .gt_indent_2 { text-indent: calc(5px * 2); }
+   #test .gt_indent_3 { text-indent: calc(5px * 3); }
+   #test .gt_indent_4 { text-indent: calc(5px * 4); }
+   #test .gt_indent_5 { text-indent: calc(5px * 5); }
    #test .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
    #test .gt_row_group_first td { border-top-width: 2px; }
    #test .gt_row_group_first th { border-top-width: 2px; }
@@ -380,6 +400,11 @@
    #test .gt_from_md> :last-child { margin-bottom: 0 !important; }
    #test .gt_row { padding-top: 8px !important; padding-bottom: 8px !important; padding-left: 5px !important; padding-right: 5px !important; margin: 10px !important; border-top-style: solid !important; border-top-width: 1px !important; border-top-color: #D3D3D3 !important; border-left-style: none !important; border-left-width: 1px !important; border-left-color: #D3D3D3 !important; border-right-style: none !important; border-right-width: 1px !important; border-right-color: #D3D3D3 !important; vertical-align: middle !important; overflow-x: hidden !important; }
    #test .gt_stub { color: #333333 !important; background-color: #FFFFFF !important; font-size: 100% !important; font-weight: initial !important; text-transform: inherit !important; border-right-style: solid !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; padding-left: 5px !important; padding-right: 5px !important; }
+   #test .gt_indent_1 { text-indent: 5px !important; }
+   #test .gt_indent_2 { text-indent: calc(5px * 2) !important; }
+   #test .gt_indent_3 { text-indent: calc(5px * 3) !important; }
+   #test .gt_indent_4 { text-indent: calc(5px * 4) !important; }
+   #test .gt_indent_5 { text-indent: calc(5px * 5) !important; }
    #test .gt_stub_row_group { color: #333333 !important; background-color: #FFFFFF !important; font-size: 100% !important; font-weight: initial !important; text-transform: inherit !important; border-right-style: solid !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; padding-left: 5px !important; padding-right: 5px !important; vertical-align: top !important; }
    #test .gt_row_group_first td { border-top-width: 2px !important; }
    #test .gt_row_group_first th { border-top-width: 2px !important; }

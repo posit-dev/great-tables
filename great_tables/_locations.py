@@ -63,7 +63,7 @@ def footnotes_split_style_list(
 # Misc Types ===========================================================================
 
 PlacementOptions: TypeAlias = Literal["auto", "left", "right"]
-RowSelectExpr: TypeAlias = 'list[int] | int | PlExpr | Callable[["TblData"], bool] | None'
+RowSelectExpr: TypeAlias = 'bool | list[int] | int | PlExpr | Callable[["TblData"], bool] | None'
 
 # Locations ============================================================================
 # TODO: these are called cells_* in gt. I prefixed them with Loc just to keep things
@@ -1041,6 +1041,13 @@ def resolve_rows_i(
     Unlike tidyselect::eval_select, this function returns names in
     the order they appear in the data (rather than ordered by selectors).
     """
+
+    # bool is a subclass of int; handle it before the int check to avoid True/False
+    # being interpreted as row indices 1/0.
+    if expr is True:
+        expr = None  # Treated as "select everything"
+    elif expr is False:
+        return []
 
     if isinstance(expr, (str, int)):
         expr: list[str | int] = [expr]
