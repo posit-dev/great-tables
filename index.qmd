@@ -37,8 +37,6 @@ islands_mini = (
 )
 ```
 
-## Why Great Tables?
-
 We can think of display tables as output only, where we'd not want to use them as input ever again.
 Other features include annotations, table element styling, and text transformations that serve to
 communicate the subject matter more clearly.
@@ -54,5 +52,5 @@ Install with:
 pip install great_tables
 ```
 
-Then head over to the [User Guide](/user_guide/) to learn how to build your
+Then head over to the [User Guide](/user-guide/) to learn how to build your
 first table, or explore the [Examples](/examples/) gallery for inspiration.
