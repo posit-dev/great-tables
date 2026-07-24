@@ -3,14 +3,14 @@
 
 display_name: Great Tables
 
+# Site URL
+site_url: "https://posit-dev.github.io/great-tables/"
+
 # Docstring Parser
 parser: numpy
 
 # Dynamic Introspection
 dynamic: true
-
-# Site
-site_url: "https://posit-dev.github.io/great-tables/"
 
 # Logo
 logo:
