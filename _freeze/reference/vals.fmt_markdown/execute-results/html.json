@@ -1,0 +1,12 @@
+{
+  "hash": "e62ca24761131e62b89ec6469ec88d30",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: \"[vals.fmt_markdown()]{.doc-object-name .doc-function .doc-label .doc-label-function}\"\nbody-classes: doc-api-page\npage-navigation: false\nhtml-table-processing: none\n---\n\n::: {.doc-subject}\n\nFormat Markdown text.\n:::\n\n::: {.doc-usage-source}\nUsage\n\n[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats_vals.py#L1410-L1461){target=\"_blank\" rel=\"noopener\"}\n:::\n\n::: {.doc-signature .doc-Kind.FUNCTION}\n```python\nvals.fmt_markdown(x)\n```\n:::\n\n::: {.doc-text}\n\nAny Markdown-formatted text can be transformed to HTML when using the `fmt_markdown()` function.\n:::\n\n## Parameters {.doc-parameters}\n\n::: {.doc-definition-items}\n<code>[x]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [X]{.doc-parameter-annotation}</code>\n\n:   A list of values to be formatted.\n:::\n\n## Returns {.doc-returns}\n\n::: {.doc-definition-items}\n<code> [list[str]]{.doc-parameter-annotation}</code>\n\n:   A list of formatted values is returned.\n:::\n\n## Examples {.doc-examples}\n\n::: {#f2761839 .cell execution_count=1}\n``` {.python .cell-code}\nfrom great_tables import vals\n\ntext_1 = \"\"\"\n### This is Markdown.\n\nMarkdown’s syntax is comprised entirely of\npunctuation characters, which punctuation\ncharacters have been carefully chosen so as\nto look like what they mean... assuming\nyou’ve ever used email.\n\"\"\"\n\ntext_2 = \"\"\"\nInfo on Markdown syntax can be found\n[here](https://daringfireball.net/projects/markdown/).\n\"\"\"\n\nvals.fmt_markdown([text_1, text_2])\n```\n\n::: {.cell-output .cell-output-display execution_count=1}\n```\n['<h3>This is Markdown.</h3>\\n<p>Markdown’s syntax is comprised entirely of\\npunctuation characters, which punctuation\\ncharacters have been carefully chosen so as\\nto look like what they mean... assuming\\nyou’ve ever used email.',\n 'Info on Markdown syntax can be found\\n<a href=\"https://daringfireball.net/projects/markdown/\">here</a>.']\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "vals.fmt_markdown_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
