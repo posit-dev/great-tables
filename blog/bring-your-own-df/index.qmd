@@ -188,7 +188,7 @@ Users are able to bring their DataFrame of choice without the collective baggage
 
 For more on the special things you can do with Polars expressions, see these resources:
 
-* [Guide: basic styling using Polars expressions](/get-started/basic-styling.qmd#using-polars-expressions)
+* [Guide: basic styling using Polars expressions](/user-guide/styling-the-table-body.qmd#using-polars-expressions)
 * [Post: Great Tables, the Polars DataFrame Styler of Your Dreams](/blog/polars-styling/index.qmd)
 * [The narwhals library](https://github.com/MarcoGorelli/narwhals): a neat library for running Polars expressions on Pandas DataFrames.
 
