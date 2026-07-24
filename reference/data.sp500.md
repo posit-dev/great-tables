@@ -4,7 +4,7 @@
 Daily S&P 500 Index data from 1950 to 2015.
 
 
-`data.sp500=_read_csv(_sp500_fname, dtype=_sp500_dtype)`  
+`data.sp500=_read_csv(_sp500_fname, dtype=_sp500_dtype)`\
 
 
 This dataset provides daily price indicators for the S&P 500 index from the beginning of 1950 to the end of 2015. The index includes 500 leading companies and captures about 80 percent coverage of available market capitalization.

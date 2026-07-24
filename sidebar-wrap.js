@@ -104,7 +104,7 @@
      * Process all <span class="menu-text"> elements inside the sidebar.
      */
     function processSidebar() {
-        var sidebar = document.getElementById('quarto-sidebar');
+        var sidebar = document.querySelector('.gd-ref-sidebar');
         if (!sidebar) return;
 
         var spans = sidebar.querySelectorAll('.menu-text');
@@ -129,7 +129,7 @@
      * data attributes and ensuring all sections stay expanded.
      */
     function disableSidebarCollapse() {
-        var sidebar = document.getElementById('quarto-sidebar');
+        var sidebar = document.querySelector('.gd-ref-sidebar');
         if (!sidebar) return;
 
         // Remove data-bs-toggle/target from all sidebar collapse triggers

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -14,10 +14,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -77,10 +80,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-f594b883fa7f57eff983ceed828115fe.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-bf476c94c8758bc321fd5fd3b984c438.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -184,7 +187,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2698" data-forks="127"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2704" data-forks="127"></div>
     </span>
   </li>  
 </ul>
@@ -254,7 +257,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="generating-a-latex-table-with-great-tables" class="level1">
 <h1>Generating a LaTeX table with Great Tables</h1>
 <p>We can use the <a href="../../reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">GT.as_latex()</a> method to generate LaTeX table code. This code includes important structural pieces like titles, spanners, and value formatting. For example, here’s a simple table output as LaTeX code:</p>
-<div id="62dd579b" class="cell" data-execution_count="1">
+<div id="91ea1beb" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
@@ -296,34 +299,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(gt_tbl.as_latex())</span></code></pre></div>
 </details>
 </div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource latex number-lines"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">\begin</span>{<span class="ex">table</span>}</span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">\caption*</span>{</span>
-<span id="cb2-3"><a href="#cb2-3"></a>{<span class="fu">\large</span> Some Cars from the gtcars Dataset} <span class="fu">\\</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a>{<span class="fu">\small</span> Five Cars are shown here}</span>
-<span id="cb2-5"><a href="#cb2-5"></a>}</span>
-<span id="cb2-6"><a href="#cb2-6"></a></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="fu">\fontsize</span>{12.0pt}{14.4pt}<span class="fu">\selectfont</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="kw">\begin</span>{<span class="ex">tabular*</span>}{<span class="fu">\linewidth</span>}{<span class="ch">@{\extracolsep{\fill}}</span>llrrr}</span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="fu">\toprule</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="fu">\multicolumn</span>{4}{c}{Everything but the cost} <span class="op">&amp;</span>  <span class="fu">\\</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a><span class="fu">\cmidrule</span>(lr){1-4}</span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="fu">\multicolumn</span>{2}{c}{Make and Model} <span class="op">&amp;</span> <span class="fu">\multicolumn</span>{3}{c}{Performance} <span class="fu">\\</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a><span class="fu">\cmidrule</span>(lr){1-2} <span class="fu">\cmidrule</span>(lr){3-5}</span>
-<span id="cb2-15"><a href="#cb2-15"></a>mfr <span class="op">&amp;</span> model <span class="op">&amp;</span> hp <span class="op">&amp;</span> trq <span class="op">&amp;</span> msrp <span class="fu">\\</span></span>
-<span id="cb2-16"><a href="#cb2-16"></a><span class="fu">\midrule\addlinespace</span>[2.5pt]</span>
-<span id="cb2-17"><a href="#cb2-17"></a>Ford <span class="op">&amp;</span> GT <span class="op">&amp;</span> 647 <span class="op">&amp;</span> 550 <span class="op">&amp;</span> <span class="fu">\$</span>447,000.00 <span class="fu">\\</span></span>
-<span id="cb2-18"><a href="#cb2-18"></a>Ferrari <span class="op">&amp;</span> 458 Speciale <span class="op">&amp;</span> 597 <span class="op">&amp;</span> 398 <span class="op">&amp;</span> <span class="fu">\$</span>291,744.00 <span class="fu">\\</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a>Ferrari <span class="op">&amp;</span> 458 Spider <span class="op">&amp;</span> 562 <span class="op">&amp;</span> 398 <span class="op">&amp;</span> <span class="fu">\$</span>263,553.00 <span class="fu">\\</span></span>
-<span id="cb2-20"><a href="#cb2-20"></a>Ferrari <span class="op">&amp;</span> 458 Italia <span class="op">&amp;</span> 562 <span class="op">&amp;</span> 398 <span class="op">&amp;</span> <span class="fu">\$</span>233,509.00 <span class="fu">\\</span></span>
-<span id="cb2-21"><a href="#cb2-21"></a>Ferrari <span class="op">&amp;</span> 488 GTB <span class="op">&amp;</span> 661 <span class="op">&amp;</span> 561 <span class="op">&amp;</span> <span class="fu">\$</span>245,400.00 <span class="fu">\\</span></span>
-<span id="cb2-22"><a href="#cb2-22"></a><span class="fu">\bottomrule</span></span>
-<span id="cb2-23"><a href="#cb2-23"></a><span class="kw">\end</span>{<span class="ex">tabular*</span>}</span>
-<span id="cb2-24"><a href="#cb2-24"></a><span class="kw">\begin</span>{<span class="ex">minipage</span>}{<span class="fu">\linewidth</span>}</span>
-<span id="cb2-25"><a href="#cb2-25"></a>Cars are all 2015 models.<span class="fu">\\</span></span>
-<span id="cb2-26"><a href="#cb2-26"></a>Horsepower and Torque values are estimates.<span class="fu">\\</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a><span class="kw">\end</span>{<span class="ex">minipage</span>}</span>
-<span id="cb2-28"><a href="#cb2-28"></a><span class="kw">\end</span>{<span class="ex">table</span>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource latex number-lines"><code class="sourceCode latex"><span id="cb2-1"><a href="#cb2-1" aria-label="1"></a><span class="kw">\begin</span>{<span class="ex">table</span>}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-label="2"></a><span class="fu">\caption*</span>{</span>
+<span id="cb2-3"><a href="#cb2-3" aria-label="3"></a>{<span class="fu">\large</span> Some Cars from the gtcars Dataset} <span class="fu">\\</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-label="4"></a>{<span class="fu">\small</span> Five Cars are shown here}</span>
+<span id="cb2-5"><a href="#cb2-5" aria-label="5"></a>}</span>
+<span id="cb2-6"><a href="#cb2-6" aria-label="6"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-label="7"></a><span class="fu">\fontsize</span>{12.0pt}{14.4pt}<span class="fu">\selectfont</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-label="8"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-label="9"></a><span class="kw">\begin</span>{<span class="ex">tabular*</span>}{<span class="fu">\linewidth</span>}{<span class="ch">@{\extracolsep{\fill}}</span>llrrr}</span>
+<span id="cb2-10"><a href="#cb2-10" aria-label="10"></a><span class="fu">\toprule</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-label="11"></a><span class="fu">\multicolumn</span>{4}{c}{Everything but the cost} <span class="op">&amp;</span>  <span class="fu">\\</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-label="12"></a><span class="fu">\cmidrule</span>(lr){1-4}</span>
+<span id="cb2-13"><a href="#cb2-13" aria-label="13"></a><span class="fu">\multicolumn</span>{2}{c}{Make and Model} <span class="op">&amp;</span> <span class="fu">\multicolumn</span>{3}{c}{Performance} <span class="fu">\\</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-label="14"></a><span class="fu">\cmidrule</span>(lr){1-2} <span class="fu">\cmidrule</span>(lr){3-5}</span>
+<span id="cb2-15"><a href="#cb2-15" aria-label="15"></a>mfr <span class="op">&amp;</span> model <span class="op">&amp;</span> hp <span class="op">&amp;</span> trq <span class="op">&amp;</span> msrp <span class="fu">\\</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-label="16"></a><span class="fu">\midrule\addlinespace</span>[2.5pt]</span>
+<span id="cb2-17"><a href="#cb2-17" aria-label="17"></a>Ford <span class="op">&amp;</span> GT <span class="op">&amp;</span> 647 <span class="op">&amp;</span> 550 <span class="op">&amp;</span> <span class="fu">\$</span>447,000.00 <span class="fu">\\</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-label="18"></a>Ferrari <span class="op">&amp;</span> 458 Speciale <span class="op">&amp;</span> 597 <span class="op">&amp;</span> 398 <span class="op">&amp;</span> <span class="fu">\$</span>291,744.00 <span class="fu">\\</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-label="19"></a>Ferrari <span class="op">&amp;</span> 458 Spider <span class="op">&amp;</span> 562 <span class="op">&amp;</span> 398 <span class="op">&amp;</span> <span class="fu">\$</span>263,553.00 <span class="fu">\\</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-label="20"></a>Ferrari <span class="op">&amp;</span> 458 Italia <span class="op">&amp;</span> 562 <span class="op">&amp;</span> 398 <span class="op">&amp;</span> <span class="fu">\$</span>233,509.00 <span class="fu">\\</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-label="21"></a>Ferrari <span class="op">&amp;</span> 488 GTB <span class="op">&amp;</span> 661 <span class="op">&amp;</span> 561 <span class="op">&amp;</span> <span class="fu">\$</span>245,400.00 <span class="fu">\\</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-label="22"></a><span class="fu">\bottomrule</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-label="23"></a><span class="kw">\end</span>{<span class="ex">tabular*</span>}</span>
+<span id="cb2-24"><a href="#cb2-24" aria-label="24"></a><span class="kw">\begin</span>{<span class="ex">minipage</span>}{<span class="fu">\linewidth</span>}</span>
+<span id="cb2-25"><a href="#cb2-25" aria-label="25"></a>Cars are all 2015 models.<span class="fu">\\</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-label="26"></a>Horsepower and Torque values are estimates.<span class="fu">\\</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-label="27"></a><span class="kw">\end</span>{<span class="ex">minipage</span>}</span>
+<span id="cb2-28"><a href="#cb2-28" aria-label="28"></a><span class="kw">\end</span>{<span class="ex">table</span>}</span></code></pre></div>
 <p>The returned LaTeX table code shows how some of Great Tables’ structural components are represented in LaTeX. Note these three important pieces of LaTeX code:</p>
 <ul>
 <li><code>\caption*{</code> produces our title and subtitle (line 2)</li>
@@ -417,70 +420,70 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="current-limitations-of-latex-table-output" class="level1">
 <h1>Current limitations of LaTeX table output</h1>
 <p>The <a href="../../reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">as_latex()</a> method is still experimental and has some limitations. The following table lists the work epics that have been done and those planned:</p>
-<div id="62f545b2" class="cell" data-execution_count="2">
+<div id="c6f305f6" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="fzqsoyqwjk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ujeiiofcqu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap');
-#fzqsoyqwjk table {
+#ujeiiofcqu table {
           font-family: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#fzqsoyqwjk thead, tbody, tfoot, tr, td, th { border-style: none; }
+#ujeiiofcqu thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#fzqsoyqwjk p { margin: 0; padding: 0; }
- #fzqsoyqwjk .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: 450px; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #fzqsoyqwjk .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #fzqsoyqwjk .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #fzqsoyqwjk .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #fzqsoyqwjk .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #fzqsoyqwjk .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #fzqsoyqwjk .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #fzqsoyqwjk .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 18px; font-weight: bolder; text-transform: uppercase; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #fzqsoyqwjk .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 18px; font-weight: bolder; text-transform: uppercase; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #fzqsoyqwjk .gt_column_spanner_outer:first-child { padding-left: 0; }
- #fzqsoyqwjk .gt_column_spanner_outer:last-child { padding-right: 0; }
- #fzqsoyqwjk .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #fzqsoyqwjk .gt_spanner_row { border-bottom-style: hidden; }
- #fzqsoyqwjk .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 80%; font-weight: bolder; text-transform: uppercase; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #fzqsoyqwjk .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 80%; font-weight: bolder; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #fzqsoyqwjk .gt_from_md> :first-child { margin-top: 0; }
- #fzqsoyqwjk .gt_from_md> :last-child { margin-bottom: 0; }
- #fzqsoyqwjk .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #fzqsoyqwjk .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 80%; font-weight: bolder; text-transform: uppercase; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #fzqsoyqwjk .gt_indent_1 { text-indent: 5px; }
- #fzqsoyqwjk .gt_indent_2 { text-indent: calc(5px * 2); }
- #fzqsoyqwjk .gt_indent_3 { text-indent: calc(5px * 3); }
- #fzqsoyqwjk .gt_indent_4 { text-indent: calc(5px * 4); }
- #fzqsoyqwjk .gt_indent_5 { text-indent: calc(5px * 5); }
- #fzqsoyqwjk .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #fzqsoyqwjk .gt_row_group_first td { border-top-width: 2px; }
- #fzqsoyqwjk .gt_row_group_first th { border-top-width: 2px; }
- #fzqsoyqwjk .gt_striped { color: #333333; background-color: #F4F4F4; }
- #fzqsoyqwjk .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #fzqsoyqwjk .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #fzqsoyqwjk .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #fzqsoyqwjk .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #fzqsoyqwjk .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #fzqsoyqwjk .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #fzqsoyqwjk .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #fzqsoyqwjk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #fzqsoyqwjk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #fzqsoyqwjk .gt_left { text-align: left; }
- #fzqsoyqwjk .gt_center { text-align: center; }
- #fzqsoyqwjk .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #fzqsoyqwjk .gt_font_normal { font-weight: normal; }
- #fzqsoyqwjk .gt_font_bold { font-weight: bold; }
- #fzqsoyqwjk .gt_font_italic { font-style: italic; }
- #fzqsoyqwjk .gt_super { font-size: 65%; }
- #fzqsoyqwjk .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #fzqsoyqwjk .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #fzqsoyqwjk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #fzqsoyqwjk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #fzqsoyqwjk .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #fzqsoyqwjk .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#ujeiiofcqu p { margin: 0; padding: 0; }
+ #ujeiiofcqu .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: 450px; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #ujeiiofcqu .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #ujeiiofcqu .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #ujeiiofcqu .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #ujeiiofcqu .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ujeiiofcqu .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ujeiiofcqu .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #ujeiiofcqu .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 18px; font-weight: bolder; text-transform: uppercase; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #ujeiiofcqu .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 18px; font-weight: bolder; text-transform: uppercase; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #ujeiiofcqu .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #ujeiiofcqu .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #ujeiiofcqu .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #ujeiiofcqu .gt_spanner_row { border-bottom-style: hidden; }
+ #ujeiiofcqu .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 80%; font-weight: bolder; text-transform: uppercase; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #ujeiiofcqu .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 80%; font-weight: bolder; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #ujeiiofcqu .gt_from_md> :first-child { margin-top: 0; }
+ #ujeiiofcqu .gt_from_md> :last-child { margin-bottom: 0; }
+ #ujeiiofcqu .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #ujeiiofcqu .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 80%; font-weight: bolder; text-transform: uppercase; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #ujeiiofcqu .gt_indent_1 { text-indent: 5px; }
+ #ujeiiofcqu .gt_indent_2 { text-indent: calc(5px * 2); }
+ #ujeiiofcqu .gt_indent_3 { text-indent: calc(5px * 3); }
+ #ujeiiofcqu .gt_indent_4 { text-indent: calc(5px * 4); }
+ #ujeiiofcqu .gt_indent_5 { text-indent: calc(5px * 5); }
+ #ujeiiofcqu .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #ujeiiofcqu .gt_row_group_first td { border-top-width: 2px; }
+ #ujeiiofcqu .gt_row_group_first th { border-top-width: 2px; }
+ #ujeiiofcqu .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #ujeiiofcqu .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ujeiiofcqu .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #ujeiiofcqu .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #ujeiiofcqu .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #ujeiiofcqu .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #ujeiiofcqu .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #ujeiiofcqu .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #ujeiiofcqu .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #ujeiiofcqu .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #ujeiiofcqu .gt_left { text-align: left; }
+ #ujeiiofcqu .gt_center { text-align: center; }
+ #ujeiiofcqu .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #ujeiiofcqu .gt_font_normal { font-weight: normal; }
+ #ujeiiofcqu .gt_font_bold { font-weight: bold; }
+ #ujeiiofcqu .gt_font_italic { font-style: italic; }
+ #ujeiiofcqu .gt_super { font-size: 65%; }
+ #ujeiiofcqu .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #ujeiiofcqu .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #ujeiiofcqu .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #ujeiiofcqu .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #ujeiiofcqu .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #ujeiiofcqu .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">

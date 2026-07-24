@@ -4,7 +4,7 @@
 Data on photolysis rates for gas-phase organic compounds.
 
 
-`data.photolysis=_read_csv(_photolysis_fname, dtype=_photolysis_dtype)`  
+`data.photolysis=_read_csv(_photolysis_fname, dtype=_photolysis_dtype)`\
 
 
 The [photolysis](data.photolysis.md#great_tables.data.photolysis) dataset contains numerical values for describing the photolytic degradation pathways of 25 compounds of relevance in atmospheric chemistry. Many volatile organic compounds (VOCs) are emitted in substantial quantities from both biogenic and anthropogenic sources, and they can have a major influence on the chemistry of the lower atmosphere. A portion of these can be transformed into other VOCs via the energy provided from light.

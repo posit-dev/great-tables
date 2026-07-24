@@ -4,7 +4,7 @@
 Lab tests for one suffering from an illness.
 
 
-`data.illness=_read_csv(_illness_fname, dtype=_illness_dtype)`  
+`data.illness=_read_csv(_illness_fname, dtype=_illness_dtype)`\
 
 
 A dataset with artificial daily lab data for a patient with Yellow Fever (YF). The table comprises laboratory findings for the patient from day 3 of illness onset until day 9 (after which the patient died). YF viral DNA was found in serum samples from day 3, where the viral load reached 14,000 copies per mL. Several medical interventions were taken to help the patient, including the administration of fresh frozen plasma, platelets, red cells, and coagulation factor VIII. The patient also received advanced support treatment in the form of mechanical ventilation and plasmapheresis. Though the patient's temperature remained stable during their illness, unfortunately, the patient's condition did not improve. On days 7 and 8, the patient's health declined further, with symptoms such as nosebleeds, gastrointestinal bleeding, and hematoma.

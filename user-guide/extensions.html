@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -76,10 +79,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-f594b883fa7f57eff983ceed828115fe.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bf476c94c8758bc321fd5fd3b984c438.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -180,7 +183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2698" data-forks="127"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2704" data-forks="127"></div>
     </span>
   </li>  
 </ul>
@@ -443,7 +446,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="wrapping" class="level2">
 <h2 class="anchored" data-anchor-id="wrapping">Wrapping</h2>
 <p>Let’s wrap <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> to perform a specific action supported by the general function. <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> takes <code>locations=</code> and <code>style=</code> parameters, so let’s assign those. Something this lightweight might be useful for someone who knows what effect they want, but doesn’t want to investigate the entire space of options for styling.</p>
-<div id="4a2d8189" class="cell" data-execution_count="1">
+<div id="48a0349e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> highlight_cols(gt: GT, columns: SelectExpr) <span class="op">-&gt;</span> GT:</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    locations <span class="op">=</span> [</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        loc.body(columns<span class="op">=</span>columns),</span>
@@ -462,7 +465,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="composing">Composing</h2>
 <p>A little more complex than wrapping, we can also compose methods to perform several steps, such as applying multiple styles, formatting, or themes all at once.</p>
 <p>Here’s a flavor of the composed methods that <strong>gt-extras</strong> used in the <a href="https://posit-dev.github.io/gt-extras/reference/gt_theme_espn">ESPN theme</a>:</p>
-<div id="30f03b8c" class="cell" data-execution_count="2">
+<div id="37205620" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> some_theme(gt: GT) <span class="op">-&gt;</span> GT:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        gt.opt_all_caps()</span>
@@ -478,7 +481,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="extending" class="level2">
 <h2 class="anchored" data-anchor-id="extending">Extending</h2>
 <p>Perhaps the most complex, this involves new behavior not supported by <strong>Great Tables</strong> methods alone. Formatting values is a common way to do this:</p>
-<div id="d8d62a84" class="cell" data-execution_count="3">
+<div id="f4072366" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt_threshold(gt, columns, threshold: <span class="bu">float</span>):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Format values to 0 if they are under threshold."""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _truncate(val: <span class="bu">float</span>):</span>
@@ -487,7 +490,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> gt.fmt(_truncate, columns)</span></code></pre></div>
 </div>
 <p>Alternatively, we can extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> objects, renders them as HTML using <a href="../reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a>, and then joins them in custom HTML structure, which would not be possible with <strong>Great Tables</strong> methods alone.</p>
-<div id="f2a901d7" class="cell" data-execution_count="4">
+<div id="e35b5b6e" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> double_table(gt1: GT, gt2: GT) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    table_1_html <span class="op">=</span> gt1.as_raw_html()</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    table_2_html <span class="op">=</span> gt2.as_raw_html()</span>
@@ -502,7 +505,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called <a href="../user-guide/nanoplots.html">nanoplots</a>. But there are endless plot types you could want in your great tables, and for these <a href="../reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link gdls-code">fmt()</a> is your friend.</p>
 <p>The key to adding custom plots to your tables is using <a href="../reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link gdls-code">fmt()</a> with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot (whether that’s an SVG, a series of styled <code>&lt;div&gt;</code> elements, or even embedded images).</p>
 <p>Here’s a basic pattern for a plot extension:</p>
-<div id="1ab97278" class="cell" data-execution_count="5">
+<div id="698bff63" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_my_plot(value):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Transform the data value into a visual representation</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># This could use any plotting library or even pure HTML/CSS</span></span>
@@ -523,7 +526,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><em>Apply custom styling:</em> Add animations, colors, or hover effects to your icons</li>
 </ul>
 <p>Here’s an example of how you might create a custom icon extension that maps numerical ratings to star icons:</p>
-<div id="6de8a752" class="cell" data-execution_count="6">
+<div id="3a1ddceb" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fmt_star_rating(filled_stars: <span class="bu">int</span>):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    star_html <span class="op">=</span> <span class="st">"★"</span> <span class="op">*</span> filled_stars</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f'&lt;span style="color: gold; font-size: 18px;"&gt;</span><span class="sc">{</span>star_html<span class="sc">}</span><span class="ss">&lt;/span&gt;'</span></span>

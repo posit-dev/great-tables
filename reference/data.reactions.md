@@ -4,7 +4,7 @@
 Reaction rates for gas-phase atmospheric reactions of organic compounds.
 
 
-`data.reactions=_read_csv(_reactions_fname, dtype=_reactions_dtype)`  
+`data.reactions=_read_csv(_reactions_fname, dtype=_reactions_dtype)`\
 
 
 The [reactions](data.reactions.md#great_tables.data.reactions) dataset contains kinetic data for second-order (two body) gas-phase chemical reactions for 1,683 organic compounds. The reaction-rate values and parameters within this dataset are useful for studies of the atmospheric environment. Organic pollutants, which are present in trace amounts in the atmosphere, have been extensively studied by research groups since their persistence in the atmosphere requires specific attention. Many researchers have reported kinetic data on specific gas-phase reactions and these mainly involve oxidation reactions with OH, nitrate radicals, ozone, and chlorine atoms.

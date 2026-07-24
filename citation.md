@@ -5,7 +5,7 @@ To cite this package in publications, please use the following citation.
 
 # Authors
 
-Richard Iannone. Maintainer.  
+Richard Iannone. Maintainer.\
 Chow Michael. Author.
 
 

@@ -4,7 +4,7 @@
 Twice hourly solar zenith angles by month & latitude.
 
 
-`data.sza=_read_csv(_sza_fname, dtype=_sza_dtype)`  
+`data.sza=_read_csv(_sza_fname, dtype=_sza_dtype)`\
 
 
 This dataset contains solar zenith angles (in degrees, with the range of 0-90) every half hour from 04:00 to 12:00, true solar time. This set of values is calculated on the first of every month for 4 different northern hemisphere latitudes. For determination of afternoon values, the presented tabulated values are symmetric about noon.

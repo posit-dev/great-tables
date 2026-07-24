@@ -4,7 +4,7 @@
 Nuclide data.
 
 
-`data.nuclides=_read_csv(_nuclides_fname, dtype=_nuclides_dtype)`  
+`data.nuclides=_read_csv(_nuclides_fname, dtype=_nuclides_dtype)`\
 
 
 The [nuclides](data.nuclides.md#great_tables.data.nuclides) dataset contains information on all known nuclides, providing data on nuclear structure and decay modes across 118 elements. There is data here on natural abundances, atomic mass, spin, half-life, and more. The typical users for such a dataset include researchers in fields such as nuclear physics, radiochemistry, and nuclear medicine.

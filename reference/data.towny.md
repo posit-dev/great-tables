@@ -4,7 +4,7 @@
 Populations of all municipalities in Ontario from 1996 to 2021.
 
 
-`data.towny=_read_csv(_towny_fname, dtype=_towny_dtype)`  
+`data.towny=_read_csv(_towny_fname, dtype=_towny_dtype)`\
 
 
 A dataset containing census population data from six census years (1996 to 2021) for all 414 of Ontario's local municipalities. The Municipal Act of Ontario (2001) defines a local municipality as "a single-tier municipality or a lower-tier municipality". There are 173 single-tier municipalities and 241 lower-tier municipalities representing 99 percent of Ontario's population and 17 percent of its land use.

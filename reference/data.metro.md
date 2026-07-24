@@ -4,7 +4,7 @@
 The stations of the Paris Metro.
 
 
-`data.metro=_read_csv(_metro_fname, dtype=_metro_dtype)`  
+`data.metro=_read_csv(_metro_fname, dtype=_metro_dtype)`\
 
 
 A dataset with information on all 314 Paris Metro stations as of June 2024. Each record represents a station, describing which Metro lines are serviced by the station, which other connections are available, and annual passenger volumes. Basic location information is provided for each station in terms where they reside on a municipal level, and, through latitude/longitude coordinates.
