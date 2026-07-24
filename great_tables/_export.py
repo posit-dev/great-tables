@@ -146,8 +146,6 @@ def as_raw_html(
 
     Parameters
     ----------
-    gt
-        A GT object.
     inline_css
         If `True`, all CSS styles are inlined into the HTML elements as `style` attributes.
         This is essential for email clients, which often strip out `<style>` blocks but preserve
