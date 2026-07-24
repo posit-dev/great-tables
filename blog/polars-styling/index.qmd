@@ -178,7 +178,7 @@ Note two important pieces:
 
 Currently, Great Tables only supports styling the table body. In the (very near) future, other `loc.*` functions will allow styling other parts of the table (e.g. the title, column labels, etc..).
 
-For more details on styles, see [Styling the Table Body](/get-started/basic-styling.qmd) in the Getting Started guide.
+For more details on styles, see [Styling the Table Body](/user-guide/styling-the-table-body.qmd) in the User Guide.
 
 
 ## Set column spanners
@@ -230,7 +230,7 @@ from great_tables import html
 
 This is helpful because labels are often in a funky format (e.g. `cal_m_2`) because they're easier to work with programmatically, so need to be cleaned up for presentation.
 
-See the [Column Labels](/get-started/basic-column-labels.qmd) page of the guide for more details.
+See the [Column Labels](/user-guide/column-labels.qmd) page of the guide for more details.
 
 ## Putting it all together
 
@@ -292,6 +292,6 @@ gt_air = GT(pl_airquality)
 
 Not too bad!
 
-Table styling is a surprisingly deep topic, and we've only scratched the surface on what Great Tables can do. A big one not covered here is the many [column formatting methods](/get-started/basic-formatting.qmd), like `GT.fmt_currency()`.
+Table styling is a surprisingly deep topic, and we've only scratched the surface on what Great Tables can do. A big one not covered here is the many [column formatting methods](/user-guide/formatting-values.qmd), like `GT.fmt_currency()`.
 
 Thoughtfully styled tables tell viewers that you care as much about communicating the table, as much as the data wrangling behind it.  Working with polars has been an absolute dream, and we're excited to explore different ways it and Great Tables make for easy table styling!
