@@ -77,7 +77,7 @@ wide_pops = (
 
 This was just a sampler of what you can do with the all-new `data_color()` method. Take a look at these pages for more information:
 
-- The [*Colorizing with Data*](/get-started/colorizing-with-data.qmd) page in the *Get Started* Guide, which provides more details on how to use `data_color()`
+- The [*Colorizing with Data*](/user-guide/colorizing-with-data.qmd) page in the *User Guide*, which provides more details on how to use `data_color()`
 - The guide on [Basic Styling](https://posit-dev.github.io/great-tables/get-started/basic-styling.html) covers general styling (e.g., bold text, underlines, etc.) with `tab_style()`
 - The reference pages for [`data_color()`](https://posit-dev.github.io/great-tables/reference/GT.data_color.html) and [`tab_style()`](https://posit-dev.github.io/great-tables/reference/GT.tab_style.html)
 
