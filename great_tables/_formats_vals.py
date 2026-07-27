@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import partial, wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, overload
+from typing import TYPE_CHECKING, Any, Concatenate, TypeAlias, overload
 
-from typing_extensions import Concatenate, ParamSpec, TypeAlias
+from typing_extensions import ParamSpec
 
 # TODO: these imports make it so that vals.fmt_integer does not require pandas
 # as part of broader work to remove the pandas dependency from val functions.
@@ -27,16 +28,16 @@ P = ParamSpec("P")
 
 
 def expressive(
-    func: Callable[Concatenate[X, P], "list[str]"],
-) -> Callable[Concatenate[X, P], "list[str] | PlExpr"]:
+    func: Callable[Concatenate[X, P], list[str]],
+) -> Callable[Concatenate[X, P], list[str] | PlExpr]:
     @overload
     def wrapper(data: PlExpr, *args: P.args, **kwargs: P.kwargs) -> PlExpr: ...
 
     @overload
-    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> "list[str]": ...
+    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> list[str]: ...
 
     @wraps(func)
-    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> "list[str] | PlExpr":
+    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> list[str] | PlExpr:
         if isinstance(data, PlExpr):
             from polars import String
 
@@ -1293,9 +1294,9 @@ def val_fmt_bytes(
 def val_fmt_duration(
     x: X,
     input_units: str | None = None,
-    output_units: "str | list[str] | None" = None,
+    output_units: str | list[str] | None = None,
     duration_style: str = "narrow",
-    trim_zero_units: "bool | list[str]" = True,
+    trim_zero_units: bool | list[str] = True,
     max_output_units: int | None = None,
     pattern: str = "{x}",
     use_seps: bool = True,
