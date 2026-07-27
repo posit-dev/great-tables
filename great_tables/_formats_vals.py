@@ -588,6 +588,7 @@ def val_fmt_number_si(
     x: X,
     unit: str | None = None,
     decimals: int = 2,
+    n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     scale_by: float = 1,
@@ -620,7 +621,14 @@ def val_fmt_number_si(
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`.
+        can be removed with `drop_trailing_zeros=True`. If `n_sigfig` is provided, `decimals` is
+        ignored.
+    n_sigfig
+        A option to format numbers to *n* significant figures. By default, this is `None` and thus
+        number values will be formatted according to the number of decimal places set via
+        `decimals=`. If opting to format according to the rules of significant figures, `n_sigfig=`
+        must be a number greater than or equal to `1`. Any values passed to the `decimals=` and
+        `drop_trailing_zeros=` arguments will be ignored.
     drop_trailing_zeros
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).
@@ -698,6 +706,7 @@ def val_fmt_number_si(
         columns="x",
         unit=unit,
         decimals=decimals,
+        n_sigfig=n_sigfig,
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         scale_by=scale_by,

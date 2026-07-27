@@ -1191,6 +1191,7 @@ def fmt_number_si(
     rows: int | list[int] | None = None,
     unit: str | None = None,
     decimals: int = 2,
+    n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
     scale_by: float = 1,
@@ -1238,10 +1239,17 @@ def fmt_number_si(
         grams, `"W"` for watts, `"Hz"` for hertz, `"m"` for meters). If `None`, only the prefix
         will be shown.
     decimals
-        The `decimals` values corresponds to the exact number of decimal places to use. A value such
+        The `decimals=` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
         `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
-        can be removed with `drop_trailing_zeros=True`.
+        can be removed with `drop_trailing_zeros=True`. If `n_sigfig` is provided, `decimals` is
+        ignored.
+    n_sigfig
+        A option to format numbers to *n* significant figures. By default, this is `None` and thus
+        number values will be formatted according to the number of decimal places set via
+        `decimals=`. If opting to format according to the rules of significant figures, `n_sigfig=`
+        must be a number greater than or equal to `1`. Any values passed to the `decimals=` and
+        `drop_trailing_zeros=` arguments will be ignored.
     drop_trailing_zeros
         A boolean value that allows for removal of trailing zeros (those redundant zeros after the
         decimal mark).
@@ -1407,11 +1415,16 @@ def fmt_number_si(
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=True, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
+    # Stop if `n_sigfig` does not have a valid value
+    if n_sigfig is not None:
+        _validate_n_sigfig(n_sigfig=n_sigfig)
+
     pf_format = partial(
         fmt_number_si_context,
         data=self,
         unit=unit,
         decimals=decimals,
+        n_sigfig=n_sigfig,
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         scale_by=scale_by,
@@ -1485,6 +1498,7 @@ def fmt_number_si_context(
     data: GTData,
     unit: str | None,
     decimals: int,
+    n_sigfig: int | None,
     drop_trailing_zeros: bool,
     drop_trailing_dec_mark: bool,
     scale_by: float,
@@ -1539,7 +1553,7 @@ def fmt_number_si_context(
     x_formatted = _value_to_decimal_notation(
         value=x,
         decimals=decimals,
-        n_sigfig=None,
+        n_sigfig=n_sigfig,
         drop_trailing_zeros=drop_trailing_zeros,
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=True,
