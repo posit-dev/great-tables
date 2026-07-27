@@ -35,13 +35,13 @@ A list of numeric values to be formatted as durations.
 `input_units: str | None = None`  
 The time units of the input numeric values. Required for numeric input. The accepted units are: `"seconds"`, `"minutes"`, `"hours"`, `"days"`, and `"weeks"`.
 
-`output_units: 'str | list[str] | None' = None`  
+`output_units: str | list[str] | None = None`  
 Controls the output time units. The default (`None`) means that output units will be automatically chosen. Can be a list of keywords from: `"weeks"`, `"days"`, `"hours"`, `"minutes"`, or `"seconds"`.
 
 `duration_style: str = ``"narrow"`  
 Style for representing duration values. One of `"narrow"` (default, e.g., `"1d 8h 24m"`), `"wide"` (e.g., `"1 day 8 hours 24 minutes"`), `"colon-sep"` (e.g., `"1/08:24:00"`), or `"iso"` (e.g., `"P1DT8H24M"`).
 
-`trim_zero_units: 'bool | list[str]' = ``True`  
+`trim_zero_units: bool | list[str] = ``True`  
 Provides methods to remove output time units that have zero values. By default this is `True`. Can also be a list of `"leading"`, `"trailing"`, and/or `"internal"`.
 
 `max_output_units: int | None = None`  

@@ -209,7 +209,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2704" data-forks="127"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2707" data-forks="127"></div>
     </span>
   </li>  
 </ul>
@@ -381,6 +381,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.fmt_engineering.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">GT.fmt_engineering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_number_si.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GT.fmt_number_si</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1003,6 +1009,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/vals.fmt_number_si.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_number_si</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/vals.fmt_percent.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">vals.fmt_percent</span></a>
   </div>
@@ -1216,7 +1228,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats_vals.py#L1160-L1245" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats_vals.py#L1302-L1387" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-Kind.FUNCTION">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sig-class">vals</span><span class="op">.</span><span class="sig-name">fmt_duration</span>(</span>
@@ -1248,7 +1260,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>The time units of the input numeric values. Required for numeric input. The accepted units are: <code>"seconds"</code>, <code>"minutes"</code>, <code>"hours"</code>, <code>"days"</code>, and <code>"weeks"</code>.</p>
 </dd>
-<dt><code><span class="doc-parameter-name">output_units</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">‘str | list[str] | None’</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
+<dt><code><span class="doc-parameter-name">output_units</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | list[str] | None</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>
 <p>Controls the output time units. The default (<code>None</code>) means that output units will be automatically chosen. Can be a list of keywords from: <code>"weeks"</code>, <code>"days"</code>, <code>"hours"</code>, <code>"minutes"</code>, or <code>"seconds"</code>.</p>
 </dd>
@@ -1256,7 +1268,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dd>
 <p>Style for representing duration values. One of <code>"narrow"</code> (default, e.g., <code>"1d 8h 24m"</code>), <code>"wide"</code> (e.g., <code>"1 day 8 hours 24 minutes"</code>), <code>"colon-sep"</code> (e.g., <code>"1/08:24:00"</code>), or <code>"iso"</code> (e.g., <code>"P1DT8H24M"</code>).</p>
 </dd>
-<dt><code><span class="doc-parameter-name">trim_zero_units</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">‘bool | list[str]’</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="va">True</span></span></code></dt>
+<dt><code><span class="doc-parameter-name">trim_zero_units</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool | list[str]</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="va">True</span></span></code></dt>
 <dd>
 <p>Provides methods to remove output time units that have zero values. By default this is <code>True</code>. Can also be a list of <code>"leading"</code>, <code>"trailing"</code>, and/or <code>"internal"</code>.</p>
 </dd>
@@ -1300,7 +1312,7 @@ A list of formatted values is returned.
 </section>
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples">Examples</h2>
-<div id="7d78eb2b" class="cell" data-execution_count="1">
+<div id="2694c4c1" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> vals</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>vals.fmt_duration([<span class="dv">3661</span>, <span class="dv">86400</span>, <span class="dv">172800</span>], input_units<span class="op">=</span><span class="st">"seconds"</span>)</span></code></pre></div>

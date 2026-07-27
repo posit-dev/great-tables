@@ -81,6 +81,9 @@ Format values to scientific notation.
 [GT.fmt_engineering()](GT.fmt_engineering.md#great_tables.GT.fmt_engineering)  
 Format values to engineering notation.
 
+[GT.fmt_number_si()](GT.fmt_number_si.md#great_tables.GT.fmt_number_si)  
+Format values with SI (metric) prefixes.
+
 [GT.fmt_percent()](GT.fmt_percent.md#great_tables.GT.fmt_percent)  
 Format values as a percentage.
 
@@ -416,6 +419,9 @@ Format values to scientific notation.
 
 [vals.fmt_engineering()](vals.fmt_engineering.md#great_tables.vals.fmt_engineering)  
 Format values to engineering notation.
+
+[vals.fmt_number_si()](vals.fmt_number_si.md#great_tables.vals.fmt_number_si)  
+Format values with SI (metric) prefixes.
 
 [vals.fmt_percent()](vals.fmt_percent.md#great_tables.vals.fmt_percent)  
 Format values as a percentage.

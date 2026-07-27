@@ -55,6 +55,7 @@ Columns of data can be formatted with the `fmt_*()` methods. We can specify the 
 - `GT.fmt_integer`
 - `GT.fmt_scientific`
 - `GT.fmt_engineering`
+- `GT.fmt_number_si`
 - `GT.fmt_percent`
 - `GT.fmt_partsper`
 - `GT.fmt_currency`
@@ -200,6 +201,7 @@ If you have single values (or lists of them) in need of formatting, we have a se
 - `vals.fmt_integer`
 - `vals.fmt_scientific`
 - `vals.fmt_engineering`
+- `vals.fmt_number_si`
 - `vals.fmt_percent`
 - `vals.fmt_partsper`
 - `vals.fmt_currency`
