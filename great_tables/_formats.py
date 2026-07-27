@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime, time
 from decimal import Decimal
@@ -10,12 +11,11 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     ClassVar,
     Literal,
+    TypeAlias,
     TypedDict,
     TypeVar,
-    Union,
     cast,
     overload,
 )
@@ -23,7 +23,6 @@ from typing import (
 import babel
 import faicons
 from babel.dates import format_date, format_datetime, format_time
-from typing_extensions import TypeAlias
 
 from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
 from ._helpers import px
@@ -1174,6 +1173,405 @@ def fmt_engineering_context(
         n_part = _replace_minus(n_part, minus_mark=minus_mark)
 
         x_formatted = m_part + exp_str + n_part
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
+
+
+def fmt_number_si(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    unit: str | None = None,
+    decimals: int = 2,
+    n_sigfig: int | None = None,
+    drop_trailing_zeros: bool = False,
+    drop_trailing_dec_mark: bool = True,
+    scale_by: float = 1,
+    prefix_mode: str = "engineering",
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+    force_sign: bool = False,
+    incl_space: bool = True,
+    locale: str | None = None,
+) -> GTSelf:
+    """
+    Format values with SI (metric) prefixes.
+
+    Format numeric values with SI (International System of Units) prefixes, automatically selecting
+    the appropriate prefix to keep the mantissa in a readable range. SI prefixes range from quetta
+    (Q, 10^30) to quecto (q, 10^-30) and are commonly used in scientific and engineering contexts
+    to represent very large or very small quantities with units (e.g., `"5.2 kW"`, `"3.8 ng"`,
+    `"1.2 GHz"`, etc.).
+
+    This function provides fine control over SI prefix formatting with the following options:
+
+    - unit specification: define a unit to append after the SI prefix (e.g., `"g"` for grams,
+    `"W"` for watts, `"Hz"` for hertz, `"m"` for meters)
+    - prefix selection: choose between all SI prefixes or only engineering prefixes (powers of
+    1000)
+    - precision control: specify decimal places for consistent formatting
+    - spacing: customize the separator between number, prefix, and unit
+    - scaling: we can choose to scale targeted values by a multiplier value (useful for unit
+    conversions)
+    - pattern: option to use a text pattern for decoration of the formatted values
+    - locale-based formatting: use locale-specific decimal and thousands separators
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    unit
+        A character string specifying the unit to append after the SI prefix (e.g., `"g"` for
+        grams, `"W"` for watts, `"Hz"` for hertz, `"m"` for meters). If `None`, only the prefix
+        will be shown.
+    decimals
+        The `decimals=` values corresponds to the exact number of decimal places to use. A value such
+        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
+        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
+        can be removed with `drop_trailing_zeros=True`. If `n_sigfig` is provided, `decimals` is
+        ignored.
+    n_sigfig
+        A option to format numbers to *n* significant figures. By default, this is `None` and thus
+        number values will be formatted according to the number of decimal places set via
+        `decimals=`. If opting to format according to the rules of significant figures, `n_sigfig=`
+        must be a number greater than or equal to `1`. Any values passed to the `decimals=` and
+        `drop_trailing_zeros=` arguments will be ignored.
+    drop_trailing_zeros
+        A boolean value that allows for removal of trailing zeros (those redundant zeros after the
+        decimal mark).
+    drop_trailing_dec_mark
+        A boolean value that determines whether decimal marks should always appear even if there are
+        no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
+        default trailing decimal marks are not shown.
+    scale_by
+        All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
+        Since the `default` value is `1`, no values will be changed unless a different multiplier
+        value is supplied. This is useful for unit conversions (e.g., converting metric tons to
+        grams by using `scale_by=1_000_000`).
+    prefix_mode
+        The type of SI prefixes to use. Use `"engineering"` (the default) for prefixes that
+        correspond to powers of 1000 only. Use `"decimal"` to include all SI prefixes (also those
+        for powers of 10 and 100). See the *SI Prefix Modes* section for details.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    sep_mark
+        The string to use as a separator between groups of digits. For example, using `sep_mark=","`
+        with a value of `1000` would result in a formatted value of `"1,000"`. This argument is
+        ignored if a `locale` is supplied (i.e., is not `None`).
+    dec_mark
+        The string to be used as the decimal mark. For example, using `dec_mark=","` with the value
+        `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a
+        `locale` is supplied (i.e., is not `None`).
+    force_sign
+        Should the positive sign be shown for positive values (effectively showing a sign for all
+        values except zero)? If so, use `True` for this option. The default is `False`, where only
+        negative numbers will display a minus sign.
+    incl_space
+        An option for whether to include a space between the numerical value and the SI prefix +
+        unit (e.g., `True` for `"1.5 kW"`, `False` for `"1.5kW"`). Per SI convention, there should
+        be a space between the value and the unit symbol. The default is `True`.
+    locale
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+        When provided, overrides `sep_mark` and `dec_mark` with locale-appropriate values.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    SI Prefix Modes
+    ---------------
+    The `prefix_mode=` argument controls which SI prefixes are used:
+
+    - `"engineering"`: Uses only prefixes for powers of 1000. This includes:
+
+      - greater than 1: k (kilo), M (mega), G (giga), T (tera), P (peta), E (exa), Z (zetta),
+        Y (yotta), R (ronna), Q (quetta)
+      - less than 1: m (milli), µ (micro), n (nano), p (pico), f (femto), a (atto), z (zepto),
+        y (yocto), r (ronto), q (quecto)
+      - this is the most common convention in scientific and engineering contexts
+
+    - `"decimal"`: Uses all SI prefixes including those for powers of 10 and 100:
+
+      - additional prefixes for greater-than-1 values: da (deca), h (hecto)
+      - additional prefixes for less-than-1 values: d (deci), c (centi)
+      - this mode is less commonly used but follows the complete SI standard
+
+    Adapting output to a specific `locale`
+    --------------------------------------
+    This formatting method can adapt outputs according to a provided `locale` value. Examples
+    include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid
+    locale ID here means separator and decimal marks will be correct for the given locale. Should
+    any values be provided in `sep_mark` or `dec_mark`, they will be overridden by the locale's
+    preferred values.
+
+    Note that a `locale=` value provided here will override any global locale setting performed in
+    [`GT()`](`great_tables.GT`)'s own `locale=` argument (it is settable there as a value received
+    by all other methods that have a `locale=` argument).
+
+    Examples
+    --------
+    Create a table showing the masses of obelisks located in Rome. The masses are initially in
+    metric tons, which we'll convert to grams using `scale_by=1_000_000`. The resulting values are
+    then formatted with SI prefixes, which are all here as `M` (mega).
+
+    ```{python}
+    import polars as pl
+    from great_tables import GT
+
+    obelisks_df = pl.DataFrame(
+        {
+            "obelisk": [
+                "Lateran Obelisk",
+                "Vatican Obelisk",
+                "Flaminio Obelisk",
+                "Pantheon Obelisk",
+            ],
+            "mass_ton": [455, 331, 235, 30],
+        }
+    )
+
+    (
+        GT(obelisks_df)
+        .fmt_number_si(
+            columns="mass_ton",
+            unit="g",
+            decimals=0,
+            scale_by=1_000_000,
+        )
+        .cols_label(obelisk="Obelisk", mass_ton="Mass")
+    )
+    ```
+
+    Create a table showing measurements of different substances. Each value is formatted with the
+    appropriate SI prefix and unit.
+
+    ```{python}
+    substances_df = pl.DataFrame(
+        {
+            "substance": ["Glucose", "Vitamin C", "Caffeine"],
+            "amount": [0.0051, 0.000075, 0.0002],
+        }
+    )
+
+    (
+        GT(substances_df)
+        .fmt_number_si(columns="amount", unit="g", n_sigfig=2)
+    )
+    ```
+
+    You can combine `fmt_number_si()` with `fmt_units()` and `cols_merge()` to format measurements
+    with SI prefixes on units that need special typesetting.
+
+    ```{python}
+    measurements_df = pl.DataFrame(
+        {
+            "measurement": ["Power", "Resistance", "Energy", "Fall Velocity"],
+            "value": [1500.0, 2400000.0, 3600000.0, 0.033],
+            "unit": ["W", "Ω", "J", "m/s"],
+        }
+    )
+
+    (
+        GT(measurements_df)
+        .fmt_number_si(columns="value", decimals=1)
+    )
+    ```
+
+    We can control the space between the number and prefix/unit with `incl_space`.
+
+    ```{python}
+    freqs_df = pl.DataFrame({"frequency": [2.4e9, 5.0e9, 900e6]})
+
+    (
+        GT(freqs_df)
+        .fmt_number_si(columns="frequency", unit="Hz", incl_space=False, decimals=1)
+    )
+    ```
+    """
+
+    locale = _resolve_locale(self, locale=locale)
+
+    # Use locale-based marks if a locale ID is provided
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=True, locale=locale)
+    dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
+
+    # Stop if `n_sigfig` does not have a valid value
+    if n_sigfig is not None:
+        _validate_n_sigfig(n_sigfig=n_sigfig)
+
+    pf_format = partial(
+        fmt_number_si_context,
+        data=self,
+        unit=unit,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        scale_by=scale_by,
+        prefix_mode=prefix_mode,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        incl_space=incl_space,
+        pattern=pattern,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+# SI prefix definitions
+# Engineering mode: only powers of 1000 (exponents that are multiples of 3)
+_SI_PREFIXES_ENGINEERING: list[tuple[int, str]] = [
+    (30, "Q"),
+    (27, "R"),
+    (24, "Y"),
+    (21, "Z"),
+    (18, "E"),
+    (15, "P"),
+    (12, "T"),
+    (9, "G"),
+    (6, "M"),
+    (3, "k"),
+    (-3, "m"),
+    (-6, "\u00b5"),
+    (-9, "n"),
+    (-12, "p"),
+    (-15, "f"),
+    (-18, "a"),
+    (-21, "z"),
+    (-24, "y"),
+    (-27, "r"),
+    (-30, "q"),
+]
+
+# Decimal mode: includes all SI prefixes (adds centi, deci, deca, hecto)
+_SI_PREFIXES_DECIMAL: list[tuple[int, str]] = [
+    (30, "Q"),
+    (27, "R"),
+    (24, "Y"),
+    (21, "Z"),
+    (18, "E"),
+    (15, "P"),
+    (12, "T"),
+    (9, "G"),
+    (6, "M"),
+    (3, "k"),
+    (2, "h"),
+    (1, "da"),
+    (-1, "d"),
+    (-2, "c"),
+    (-3, "m"),
+    (-6, "\u00b5"),
+    (-9, "n"),
+    (-12, "p"),
+    (-15, "f"),
+    (-18, "a"),
+    (-21, "z"),
+    (-24, "y"),
+    (-27, "r"),
+    (-30, "q"),
+]
+
+
+def fmt_number_si_context(
+    x: float | None,
+    data: GTData,
+    unit: str | None,
+    decimals: int,
+    n_sigfig: int | None,
+    drop_trailing_zeros: bool,
+    drop_trailing_dec_mark: bool,
+    scale_by: float,
+    prefix_mode: str,
+    sep_mark: str,
+    dec_mark: str,
+    force_sign: bool,
+    incl_space: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if is_na(data._tbl_data, x):
+        return x
+
+    # Scale `x` value by a defined `scale_by` value
+    x = x * scale_by
+
+    # Determine whether the value is negative
+    is_negative = _has_negative_value(value=x)
+
+    # Select the appropriate SI prefix table
+    if prefix_mode == "decimal":
+        si_table = _SI_PREFIXES_DECIMAL
+    else:
+        si_table = _SI_PREFIXES_ENGINEERING
+
+    # Determine the appropriate SI prefix
+    abs_x = abs(x)
+    si_symbol = ""
+
+    if abs_x == 0:
+        # Zero gets no prefix
+        pass
+    elif abs_x >= 1 and abs_x < 1000:
+        # Values in [1, 1000) need no prefix in engineering mode
+        # In decimal mode, values in [1, 10) need no prefix
+        if prefix_mode == "decimal" and abs_x >= 10:
+            for exp, symbol in si_table:
+                if exp > 0 and abs_x >= 10**exp:
+                    x = x / (10**exp)
+                    si_symbol = symbol
+                    break
+    else:
+        # Find the best SI prefix: the largest exponent where mantissa >= 1
+        for exp, symbol in si_table:
+            if abs_x >= 10.0**exp:
+                x = x / (10.0**exp)
+                si_symbol = symbol
+                break
+
+    # Format the value to decimal notation
+    x_formatted = _value_to_decimal_notation(
+        value=x,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=True,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+    )
+
+    # Build the suffix string (space + prefix + unit)
+    space_character = " " if incl_space else ""
+    suffix = si_symbol + (unit if unit is not None else "")
+
+    if suffix:
+        x_formatted = f"{x_formatted}{space_character}{suffix}"
+
+    # Implement minus sign replacement
+    if is_negative:
+        minus_mark = _context_minus_mark(context=context)
+        x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -2537,9 +2935,7 @@ def _apply_duration_pattern(patterns: dict[str, str], value: int, formatted_valu
     # Try the specific plural form, then fall back to "other"
     if plural in patterns:
         pattern = patterns[plural]
-    elif plural == "zero" and "other" in patterns:
-        pattern = patterns["other"]
-    elif plural == "two" and "other" in patterns:
+    elif plural == "zero" and "other" in patterns or plural == "two" and "other" in patterns:
         pattern = patterns["other"]
     else:
         pattern = patterns.get("other", "{0}")
@@ -2837,9 +3233,11 @@ def fmt_duration(
         resolved_output_units = ["days", "hours", "minutes", "seconds"]
 
         # Handle trim_zero_units for colon-sep
-        if isinstance(trim_zero_units, list) and trim_zero_units == ["leading"]:
-            colon_sep_trim_leading = True
-        elif trim_zero_units == "leading":
+        if (
+            isinstance(trim_zero_units, list)
+            and trim_zero_units == ["leading"]
+            or trim_zero_units == "leading"
+        ):
             colon_sep_trim_leading = True
 
     if duration_style == "iso":
@@ -2893,7 +3291,7 @@ def fmt_duration(
 
 
 def fmt_duration_context(
-    x: int | float | None,
+    x: float | None,
     data: GTData,
     input_units: str | None,
     output_units: list[str],
@@ -3839,7 +4237,7 @@ def fmt_tf_context(
     elif not isinstance(x, bool):
         raise ValueError(f"Expected boolean value or NA, but got {type(x)}.")
 
-    x = cast(Union[bool, None], x)
+    x = cast(bool | None, x)
 
     # Validate `tf_style=` value
     if tf_style not in TF_FORMATS:
@@ -4237,7 +4635,7 @@ def fmt_units(
 
 
 def _value_to_decimal_notation(
-    value: int | float,
+    value: float,
     decimals: int = 2,
     n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
@@ -4298,7 +4696,7 @@ def _value_to_decimal_notation(
 
 
 def _value_to_scientific_notation(
-    value: int | float,
+    value: float,
     decimals: int = 2,
     n_sigfig: int | None = None,
     dec_mark: str = ".",
@@ -4329,7 +4727,7 @@ def _value_to_scientific_notation(
 
 
 def _format_number_n_sigfig(
-    value: int | float,
+    value: float,
     n_sigfig: int,
     use_seps: bool = True,
     sep_mark: str = ",",
@@ -4353,7 +4751,7 @@ def _format_number_n_sigfig(
     formatted_decimal = dec_mark + decimal_part if decimal_part else ""
 
     if preserve_integer and "." not in formatted_value:
-        formatted_value = "{:0.0f}".format(value)
+        formatted_value = f"{value:0.0f}"
 
     # Insert grouping separators within the integer part
     if use_seps:
@@ -4377,7 +4775,7 @@ def _format_number_n_sigfig(
 
 
 def _format_number_fixed_decimals(
-    value: int | float,
+    value: float,
     decimals: int,
     drop_trailing_zeros: bool = False,
     use_seps: bool = True,
@@ -4438,7 +4836,7 @@ def _format_number_fixed_decimals(
 
 
 def _format_number_compactly(
-    value: int | float,
+    value: float,
     decimals: int,
     n_sigfig: int | None,
     drop_trailing_zeros: bool,
@@ -4499,11 +4897,11 @@ def _format_number_compactly(
 
 def _expand_exponential_to_full_string(str_number: str) -> str:
     decimal_number = Decimal(str_number)
-    formatted_number = "{:f}".format(decimal_number)
+    formatted_number = f"{decimal_number:f}"
     return formatted_number
 
 
-def _get_number_profile(value: int | float, n_sigfig: int) -> tuple[str, int, bool]:
+def _get_number_profile(value: float, n_sigfig: int) -> tuple[str, int, bool]:
     """
     Get key components of a number for decimal number formatting.
 
@@ -4532,7 +4930,7 @@ def _get_number_profile(value: int | float, n_sigfig: int) -> tuple[str, int, bo
     return sig_digits, -power, is_negative
 
 
-def _get_sci_parts(value: int | float, n_sigfig: int) -> tuple[bool, str, int, int]:
+def _get_sci_parts(value: float, n_sigfig: int) -> tuple[bool, str, int, int]:
     """
     Returns the properties for constructing a number in scientific notation.
     """
@@ -4620,19 +5018,19 @@ def _listify(
         return cast(Any, x)
 
 
-def _has_negative_value(value: int | float) -> bool:
+def _has_negative_value(value: float) -> bool:
     return value < 0
 
 
-def _has_positive_value(value: int | float) -> bool:
+def _has_positive_value(value: float) -> bool:
     return value > 0
 
 
-def _has_zero_value(value: int | float) -> bool:
+def _has_zero_value(value: float) -> bool:
     return value == 0
 
 
-def _has_sci_order_zero(value: int | float) -> bool:
+def _has_sci_order_zero(value: float) -> bool:
     return (value >= 1 and value < 10) or (value <= -1 and value > -10) or value == 0
 
 
@@ -4722,7 +5120,7 @@ T_dict = TypeVar("T_dict", bound=TypedDict)
 
 
 # TODO: remove pandas
-def _filter_pd_df_to_row(pd_df: "list[T_dict]", column: str, filter_expr: str) -> T_dict:
+def _filter_pd_df_to_row(pd_df: list[T_dict], column: str, filter_expr: str) -> T_dict:
     filtered_pd_df = [entry for entry in pd_df if entry[column] == filter_expr]
     if len(filtered_pd_df) != 1:
         raise Exception(
@@ -5084,7 +5482,7 @@ def _validate_n_sigfig(n_sigfig: int) -> None:
         raise ValueError("The value for `n_sigfig` must be greater than or equal to `1`.")
 
 
-def _round_rhu(x: int | float, digits: int = 0) -> float:
+def _round_rhu(x: float, digits: int = 0) -> float:
     """
     Rounds a number using the 'Round-Half-Up' (R-H-U) algorithm.
 
@@ -5868,7 +6266,7 @@ def fmt_flag(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: int | list[int] | None = None,
-    height: str | int | float | None = "1em",
+    height: str | float | None = "1em",
     sep: str = " ",
     use_title: bool = True,
 ) -> GTSelf:
@@ -6082,7 +6480,7 @@ def fmt_nanoplot(
     plot_height: str = "2em",
     missing_vals: MissingVals = "gap",
     autoscale: bool = False,
-    reference_line: str | int | float | None = None,
+    reference_line: str | float | None = None,
     reference_area: list[Any] | None = None,
     expand_x: list[int] | list[float] | list[int | float] | None = None,
     expand_y: list[int] | list[float] | list[int | float] | None = None,
@@ -6402,7 +6800,7 @@ def fmt_nanoplot(
         plot_type: PlotType = plot_type,
         plot_height: str = plot_height,
         missing_vals: MissingVals = missing_vals,
-        reference_line: str | int | float | None = reference_line,
+        reference_line: str | float | None = reference_line,
         reference_area: list[Any] | None = reference_area,
         all_single_y_vals: list[int | float] | None = all_single_y_vals,
         options_plots: dict[str, Any] = options_plots,

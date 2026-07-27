@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import partial, wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, overload
+from typing import TYPE_CHECKING, Any, Concatenate, TypeAlias, overload
 
-from typing_extensions import Concatenate, ParamSpec, TypeAlias
+from typing_extensions import ParamSpec
 
 # TODO: these imports make it so that vals.fmt_integer does not require pandas
 # as part of broader work to remove the pandas dependency from val functions.
@@ -27,16 +28,16 @@ P = ParamSpec("P")
 
 
 def expressive(
-    func: Callable[Concatenate[X, P], "list[str]"],
-) -> Callable[Concatenate[X, P], "list[str] | PlExpr"]:
+    func: Callable[Concatenate[X, P], list[str]],
+) -> Callable[Concatenate[X, P], list[str] | PlExpr]:
     @overload
     def wrapper(data: PlExpr, *args: P.args, **kwargs: P.kwargs) -> PlExpr: ...
 
     @overload
-    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> "list[str]": ...
+    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> list[str]: ...
 
     @wraps(func)
-    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> "list[str] | PlExpr":
+    def wrapper(data: X, *args: P.args, **kwargs: P.kwargs) -> list[str] | PlExpr:
         if isinstance(data, PlExpr):
             from polars import String
 
@@ -574,6 +575,147 @@ def val_fmt_engineering(
         dec_mark=dec_mark,
         force_sign_m=force_sign_m,
         force_sign_n=force_sign_n,
+        locale=locale,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
+def val_fmt_number_si(
+    x: X,
+    unit: str | None = None,
+    decimals: int = 2,
+    n_sigfig: int | None = None,
+    drop_trailing_zeros: bool = False,
+    drop_trailing_dec_mark: bool = True,
+    scale_by: float = 1,
+    prefix_mode: str = "engineering",
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    dec_mark: str = ".",
+    force_sign: bool = False,
+    incl_space: bool = True,
+    locale: str | None = None,
+) -> list[str]:
+    """
+    Format values with SI (metric) prefixes.
+
+    Format numeric values with SI (International System of Units) prefixes, automatically selecting
+    the appropriate prefix to keep the mantissa in a readable range. SI prefixes range from quetta
+    (Q, 10^30) to quecto (q, 10^-30) and are commonly used in scientific and engineering contexts
+    to represent very large or very small quantities with units (e.g., `"5.2 kW"`, `"3.8 ng"`,
+    `"1.2 GHz"`, etc.).
+
+    Parameters
+    ----------
+    x
+        A list of values to be formatted.
+    unit
+        A character string specifying the unit to append after the SI prefix (e.g., `"g"` for
+        grams, `"W"` for watts, `"Hz"` for hertz, `"m"` for meters). If `None`, only the prefix
+        will be shown.
+    decimals
+        The `decimals` values corresponds to the exact number of decimal places to use. A value such
+        as `2.34` can, for example, be formatted with `0` decimal places and it would result in
+        `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros
+        can be removed with `drop_trailing_zeros=True`. If `n_sigfig` is provided, `decimals` is
+        ignored.
+    n_sigfig
+        A option to format numbers to *n* significant figures. By default, this is `None` and thus
+        number values will be formatted according to the number of decimal places set via
+        `decimals=`. If opting to format according to the rules of significant figures, `n_sigfig=`
+        must be a number greater than or equal to `1`. Any values passed to the `decimals=` and
+        `drop_trailing_zeros=` arguments will be ignored.
+    drop_trailing_zeros
+        A boolean value that allows for removal of trailing zeros (those redundant zeros after the
+        decimal mark).
+    drop_trailing_dec_mark
+        A boolean value that determines whether decimal marks should always appear even if there are
+        no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By
+        default trailing decimal marks are not shown.
+    scale_by
+        All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
+        Since the `default` value is `1`, no values will be changed unless a different multiplier
+        value is supplied. This is useful for unit conversions (e.g., converting metric tons to
+        grams by using `scale_by=1_000_000`).
+    prefix_mode
+        The type of SI prefixes to use. Use `"engineering"` (the default) for prefixes that
+        correspond to powers of 1000 only. Use `"decimal"` to include all SI prefixes (also those
+        for powers of 10 and 100).
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    sep_mark
+        The string to use as a separator between groups of digits.
+    dec_mark
+        The string to be used as the decimal mark.
+    force_sign
+        Should the positive sign be shown for positive values (effectively showing a sign for all
+        values except zero)? If so, use `True` for this option.
+    incl_space
+        An option for whether to include a space between the numerical value and the SI prefix +
+        unit (e.g., `True` for `"1.5 kW"`, `False` for `"1.5kW"`). Per SI convention, there should
+        be a space between the value and the unit symbol. The default is `True`.
+    locale
+        An optional locale identifier that can be used for formatting values according the locale's
+        rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+        When provided, overrides `sep_mark` and `dec_mark` with locale-appropriate values.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+
+    Examples
+    --------
+    Let's format a vector of numeric values with SI prefixes.
+
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_number_si([1.5e9, 2.7e6, 4200, 0.3, 0.00012, 2.4e-8])
+    ```
+
+    We can add a unit designation to show what the values represent (e.g., watts).
+
+    ```{python}
+    vals.fmt_number_si([1.5e9, 2.7e6, 4200], unit="W")
+    ```
+
+    The `scale_by` option is useful for unit conversions. For instance, to convert metric tons to
+    grams before formatting:
+
+    ```{python}
+    vals.fmt_number_si([455, 331, 235, 30], unit="g", scale_by=1_000_000, decimals=0)
+    ```
+
+    We can control the space between the number and unit with `incl_space`.
+
+    ```{python}
+    vals.fmt_number_si([2.4e9, 5.0e9, 900e6], unit="Hz", incl_space=False, decimals=1)
+    ```
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=x)
+
+    gt_obj_fmt = gt_obj.fmt_number_si(
+        columns="x",
+        unit=unit,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        scale_by=scale_by,
+        prefix_mode=prefix_mode,
+        pattern=pattern,
+        sep_mark=sep_mark,
+        dec_mark=dec_mark,
+        force_sign=force_sign,
+        incl_space=incl_space,
         locale=locale,
     )
 
@@ -1161,9 +1303,9 @@ def val_fmt_bytes(
 def val_fmt_duration(
     x: X,
     input_units: str | None = None,
-    output_units: "str | list[str] | None" = None,
+    output_units: str | list[str] | None = None,
     duration_style: str = "narrow",
-    trim_zero_units: "bool | list[str]" = True,
+    trim_zero_units: bool | list[str] = True,
     max_output_units: int | None = None,
     pattern: str = "{x}",
     use_seps: bool = True,
