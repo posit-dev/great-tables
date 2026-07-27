@@ -3221,9 +3221,11 @@ def fmt_duration(
         resolved_output_units = ["days", "hours", "minutes", "seconds"]
 
         # Handle trim_zero_units for colon-sep
-        if isinstance(trim_zero_units, list) and trim_zero_units == ["leading"]:
-            colon_sep_trim_leading = True
-        elif trim_zero_units == "leading":
+        if (
+            isinstance(trim_zero_units, list)
+            and trim_zero_units == ["leading"]
+            or trim_zero_units == "leading"
+        ):
             colon_sep_trim_leading = True
 
     if duration_style == "iso":
