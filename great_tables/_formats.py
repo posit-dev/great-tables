@@ -1367,15 +1367,14 @@ def fmt_number_si(
     ```{python}
     substances_df = pl.DataFrame(
         {
-            "substance": ["Glucose", "Vitamin C", "Caffeine", "Water"],
-            "amount": [0.0051, 0.000075, 0.0002, 0.250],
-            "unit": ["g", "g", "g", "L"],
+            "substance": ["Glucose", "Vitamin C", "Caffeine"],
+            "amount": [0.0051, 0.000075, 0.0002],
         }
     )
 
     (
         GT(substances_df)
-        .fmt_number_si(columns="amount", unit="g")
+        .fmt_number_si(columns="amount", unit="g", n_sigfig=2)
     )
     ```
 
