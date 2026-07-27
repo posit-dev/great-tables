@@ -82,6 +82,14 @@ class TestFmtNumberSi:
         result = vals.fmt_number_si([4200], dec_mark=",")
         assert result == ["4,20 k"]
 
+    def test_n_sigfig(self):
+        result = vals.fmt_number_si([0.0051, 0.000075, 0.0002], n_sigfig=2)
+        assert result == ["5.1 m", "75 µ", "200 µ"]
+
+    def test_n_sigfig_large(self):
+        result = vals.fmt_number_si([1500, 2400000], n_sigfig=3)
+        assert result == ["1.50 k", "2.40 M"]
+
     def test_gt_method(self, gt_tbl):
         # Verify the method exists and returns a GT object
         result = gt_tbl.fmt_number_si(columns="x", unit="W")
