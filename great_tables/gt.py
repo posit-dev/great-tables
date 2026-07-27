@@ -26,6 +26,7 @@ from ._formats import (
     fmt_markdown,
     fmt_nanoplot,
     fmt_number,
+    fmt_number_si,
     fmt_partsper,
     fmt_percent,
     fmt_roman,
@@ -116,7 +117,7 @@ __all__ = ["GT"]
 # =============================================================================
 # Helper for text transforms
 # =============================================================================
-def _apply_text_transforms(data: "GT", body: "Body") -> "Body":
+def _apply_text_transforms(data: GT, body: Body) -> Body:
     """Apply all registered text transforms to the body cells."""
     from ._tbl_data import is_na
 
@@ -144,7 +145,7 @@ def _apply_text_transforms(data: "GT", body: "Body") -> "Body":
     return body
 
 
-def _apply_text_transforms_stub(data: "GT", stub: "Stub", body: "Body") -> tuple["Stub", "Body"]:
+def _apply_text_transforms_stub(data: GT, stub: Stub, body: Body) -> tuple[Stub, Body]:
     """Apply text transforms targeting loc.stub() and loc.row_groups()."""
 
     from ._gt_data import ColInfoTypeEnum, GroupRows, Stub
@@ -191,7 +192,7 @@ def _apply_text_transforms_stub(data: "GT", stub: "Stub", body: "Body") -> tuple
     return stub, body
 
 
-def _apply_text_transforms_boxhead(data: "GT") -> "Boxhead":
+def _apply_text_transforms_boxhead(data: GT) -> Boxhead:
     """Apply text transforms targeting loc.column_labels()."""
     from ._gt_data import Boxhead
 
@@ -370,6 +371,7 @@ class GT(
     fmt_engineering = fmt_engineering
     fmt_currency = fmt_currency
     fmt_bytes = fmt_bytes
+    fmt_number_si = fmt_number_si
     fmt_duration = fmt_duration
     fmt_roman = fmt_roman
     fmt_date = fmt_date
