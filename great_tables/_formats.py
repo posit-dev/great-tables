@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime, time
 from decimal import Decimal
@@ -10,12 +11,11 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     ClassVar,
     Literal,
+    TypeAlias,
     TypedDict,
     TypeVar,
-    Union,
     cast,
     overload,
 )
@@ -23,7 +23,6 @@ from typing import (
 import babel
 import faicons
 from babel.dates import format_date, format_datetime, format_time
-from typing_extensions import TypeAlias
 
 from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
 from ._helpers import px
@@ -3279,7 +3278,7 @@ def fmt_duration(
 
 
 def fmt_duration_context(
-    x: int | float | None,
+    x: float | None,
     data: GTData,
     input_units: str | None,
     output_units: list[str],
@@ -4225,7 +4224,7 @@ def fmt_tf_context(
     elif not isinstance(x, bool):
         raise ValueError(f"Expected boolean value or NA, but got {type(x)}.")
 
-    x = cast(Union[bool, None], x)
+    x = cast(bool | None, x)
 
     # Validate `tf_style=` value
     if tf_style not in TF_FORMATS:
@@ -4623,7 +4622,7 @@ def fmt_units(
 
 
 def _value_to_decimal_notation(
-    value: int | float,
+    value: float,
     decimals: int = 2,
     n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
@@ -4684,7 +4683,7 @@ def _value_to_decimal_notation(
 
 
 def _value_to_scientific_notation(
-    value: int | float,
+    value: float,
     decimals: int = 2,
     n_sigfig: int | None = None,
     dec_mark: str = ".",
@@ -4715,7 +4714,7 @@ def _value_to_scientific_notation(
 
 
 def _format_number_n_sigfig(
-    value: int | float,
+    value: float,
     n_sigfig: int,
     use_seps: bool = True,
     sep_mark: str = ",",
@@ -4739,7 +4738,7 @@ def _format_number_n_sigfig(
     formatted_decimal = dec_mark + decimal_part if decimal_part else ""
 
     if preserve_integer and "." not in formatted_value:
-        formatted_value = "{:0.0f}".format(value)
+        formatted_value = f"{value:0.0f}"
 
     # Insert grouping separators within the integer part
     if use_seps:
@@ -4763,7 +4762,7 @@ def _format_number_n_sigfig(
 
 
 def _format_number_fixed_decimals(
-    value: int | float,
+    value: float,
     decimals: int,
     drop_trailing_zeros: bool = False,
     use_seps: bool = True,
@@ -4824,7 +4823,7 @@ def _format_number_fixed_decimals(
 
 
 def _format_number_compactly(
-    value: int | float,
+    value: float,
     decimals: int,
     n_sigfig: int | None,
     drop_trailing_zeros: bool,
@@ -4885,11 +4884,11 @@ def _format_number_compactly(
 
 def _expand_exponential_to_full_string(str_number: str) -> str:
     decimal_number = Decimal(str_number)
-    formatted_number = "{:f}".format(decimal_number)
+    formatted_number = f"{decimal_number:f}"
     return formatted_number
 
 
-def _get_number_profile(value: int | float, n_sigfig: int) -> tuple[str, int, bool]:
+def _get_number_profile(value: float, n_sigfig: int) -> tuple[str, int, bool]:
     """
     Get key components of a number for decimal number formatting.
 
@@ -4918,7 +4917,7 @@ def _get_number_profile(value: int | float, n_sigfig: int) -> tuple[str, int, bo
     return sig_digits, -power, is_negative
 
 
-def _get_sci_parts(value: int | float, n_sigfig: int) -> tuple[bool, str, int, int]:
+def _get_sci_parts(value: float, n_sigfig: int) -> tuple[bool, str, int, int]:
     """
     Returns the properties for constructing a number in scientific notation.
     """
@@ -5006,19 +5005,19 @@ def _listify(
         return cast(Any, x)
 
 
-def _has_negative_value(value: int | float) -> bool:
+def _has_negative_value(value: float) -> bool:
     return value < 0
 
 
-def _has_positive_value(value: int | float) -> bool:
+def _has_positive_value(value: float) -> bool:
     return value > 0
 
 
-def _has_zero_value(value: int | float) -> bool:
+def _has_zero_value(value: float) -> bool:
     return value == 0
 
 
-def _has_sci_order_zero(value: int | float) -> bool:
+def _has_sci_order_zero(value: float) -> bool:
     return (value >= 1 and value < 10) or (value <= -1 and value > -10) or value == 0
 
 
@@ -5108,7 +5107,7 @@ T_dict = TypeVar("T_dict", bound=TypedDict)
 
 
 # TODO: remove pandas
-def _filter_pd_df_to_row(pd_df: "list[T_dict]", column: str, filter_expr: str) -> T_dict:
+def _filter_pd_df_to_row(pd_df: list[T_dict], column: str, filter_expr: str) -> T_dict:
     filtered_pd_df = [entry for entry in pd_df if entry[column] == filter_expr]
     if len(filtered_pd_df) != 1:
         raise Exception(
@@ -5470,7 +5469,7 @@ def _validate_n_sigfig(n_sigfig: int) -> None:
         raise ValueError("The value for `n_sigfig` must be greater than or equal to `1`.")
 
 
-def _round_rhu(x: int | float, digits: int = 0) -> float:
+def _round_rhu(x: float, digits: int = 0) -> float:
     """
     Rounds a number using the 'Round-Half-Up' (R-H-U) algorithm.
 
@@ -6254,7 +6253,7 @@ def fmt_flag(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: int | list[int] | None = None,
-    height: str | int | float | None = "1em",
+    height: str | float | None = "1em",
     sep: str = " ",
     use_title: bool = True,
 ) -> GTSelf:
@@ -6468,7 +6467,7 @@ def fmt_nanoplot(
     plot_height: str = "2em",
     missing_vals: MissingVals = "gap",
     autoscale: bool = False,
-    reference_line: str | int | float | None = None,
+    reference_line: str | float | None = None,
     reference_area: list[Any] | None = None,
     expand_x: list[int] | list[float] | list[int | float] | None = None,
     expand_y: list[int] | list[float] | list[int | float] | None = None,
@@ -6788,7 +6787,7 @@ def fmt_nanoplot(
         plot_type: PlotType = plot_type,
         plot_height: str = plot_height,
         missing_vals: MissingVals = missing_vals,
-        reference_line: str | int | float | None = reference_line,
+        reference_line: str | float | None = reference_line,
         reference_area: list[Any] | None = reference_area,
         all_single_y_vals: list[int | float] | None = all_single_y_vals,
         options_plots: dict[str, Any] = options_plots,
