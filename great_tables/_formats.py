@@ -2923,9 +2923,7 @@ def _apply_duration_pattern(patterns: dict[str, str], value: int, formatted_valu
     # Try the specific plural form, then fall back to "other"
     if plural in patterns:
         pattern = patterns[plural]
-    elif plural == "zero" and "other" in patterns:
-        pattern = patterns["other"]
-    elif plural == "two" and "other" in patterns:
+    elif plural == "zero" and "other" in patterns or plural == "two" and "other" in patterns:
         pattern = patterns["other"]
     else:
         pattern = patterns.get("other", "{0}")
