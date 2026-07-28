@@ -3,6 +3,27 @@
 This changelog is generated automatically from [GitHub Releases](https://github.com/posit-dev/great-tables/releases).
 
 
+# v0.23.0
+
+*2026-07-27* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.23.0)
+
+Great Tables `v0.23.0` adds new table management and formatting capabilities. This release introduces `rm_*()` methods for selectively removing table components, a [tab_stub_indent()](reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent) method for controlling row label hierarchy, and the [fmt_number_si()](reference/GT.fmt_number_si.html#great_tables.GT.fmt_number_si) formatter for rendering values with SI (metric) prefixes like kilo, mega, and milli. A targeted bug fix for footnote resolution on spanners is also included.
+
+
+### New Features
+
+- **`rm_*()` methods** -- New methods ([rm_header()](reference/GT.rm_header.html#great_tables.GT.rm_header), [rm_stubhead()](reference/GT.rm_stubhead.html#great_tables.GT.rm_stubhead), [rm_source_notes()](reference/GT.rm_source_notes.html#great_tables.GT.rm_source_notes), [rm_footnotes()](reference/GT.rm_footnotes.html#great_tables.GT.rm_footnotes), [rm_spanners()](reference/GT.rm_spanners.html#great_tables.GT.rm_spanners)) allow selective removal of table components, making it easier to reshape tables received from other functions or saved objects. ([\#847](https://github.com/posit-dev/great-tables/issues/847))
+
+- **[tab_stub_indent()](reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent)** -- Control indentation of row labels in the stub to establish visual hierarchy. Supports explicit integer levels (0-5) or `"increase"`/`"decrease"` keyword directives for fine-grained control. ([\#849](https://github.com/posit-dev/great-tables/issues/849))
+
+- **[fmt_number_si()](reference/GT.fmt_number_si.html#great_tables.GT.fmt_number_si)** -- Format numeric values with SI (International System of Units) prefixes, automatically selecting the appropriate prefix (e.g., k, M, G, m, µ, n) to keep values readable. Supports unit designation, engineering/decimal prefix modes, significant figures, and locale-aware formatting. Also available as [vals.fmt_number_si()](reference/vals.fmt_number_si.html#great_tables.vals.fmt_number_si). ([\#851](https://github.com/posit-dev/great-tables/issues/851))
+
+
+### Bug Fixes
+
+- Footnotes targeting a spanner with a different `id` compared to its `label` are now correctly resolved. ([\#844](https://github.com/posit-dev/great-tables/issues/844))
+
+
 # v0.22.0
 
 *2026-06-12* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.22.0)
