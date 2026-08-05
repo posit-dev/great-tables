@@ -4,7 +4,7 @@
 A table of personal information for people all over the world.
 
 
-`data.peeps=_read_csv(_peeps_fname, dtype=_peeps_dtype)`\
+`data.peeps=_read_csv(_peeps_fname, dtype=_peeps_dtype)`
 
 
 The [peeps](data.peeps.md#great_tables.data.peeps) dataset contains records for one hundred people residing in ten different countries. Each person in the table has address information along with their email address and phone number. There are also personal characteristics like date of birth, height, and weight. This data has been synthesized, and so the names within the table have not been taken or based on individuals in real life. The street addresses were generated from actual street names within real geographic localities, however, the street numbers were assigned randomly from a constrained number set. While these records do not relate to real people, efforts were made to make the data as realistic as possible.

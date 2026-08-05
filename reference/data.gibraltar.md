@@ -4,7 +4,7 @@
 Weather conditions in Gibraltar, May 2023.
 
 
-`data.gibraltar=_read_csv(_gibraltar_fname, dtype=_gibraltar_dtype)`\
+`data.gibraltar=_read_csv(_gibraltar_fname, dtype=_gibraltar_dtype)`
 
 
 The [gibraltar](data.gibraltar.md#great_tables.data.gibraltar) dataset has meteorological data for the Gibraltar Airport Station from May 1 to May 31, 2023. Gibraltar is a British Overseas Territory and city located at the southern end of the Iberian Peninsula, on the Bay of Gibraltar. This weather station is located at the airport (GIB), where it's at an elevation of 5 meters above mean sea level (AMSL).

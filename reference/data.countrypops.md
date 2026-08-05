@@ -4,7 +4,7 @@
 Yearly populations of countries from 1960 to 2022.
 
 
-`data.countrypops=_read_csv(_countrypops_fname, dtype=_countrypops_dtype)`\
+`data.countrypops=_read_csv(_countrypops_fname, dtype=_countrypops_dtype)`
 
 
 A dataset that presents yearly, total populations of countries. Total population is based on counts of all residents regardless of legal status or citizenship. Country identifiers include the English-language country names, and the 2- and 3-letter ISO 3166-1 country codes. Each row contains a population value for a given year (from 1960 to 2022). Any missing values for populations indicate the non-existence of the entity during that year.

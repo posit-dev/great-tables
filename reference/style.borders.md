@@ -25,8 +25,7 @@ The `styles.borders()` class is to be used with the [tab_style()](GT.tab_style.m
 `sides: (`\
 `    Literal[``"all", `<span class="st">`"top"``, ``"bottom"``, ``"left"``, ``"right"``]`\
 `    | list[Literal[``"all"``, ``"top"``, ``"bottom"``, ``"left"``, ``"right"``]]`\
-`)`\
-</span>` = ``"all"`  
+`)`</span>` = ``"all"`  
 The border sides to be modified. Options include `"left"`, `"right"`, `"top"`, and `"bottom"`. For all borders surrounding the selected cells, we can use the `"all"` option.
 
 `color: str | ColumnExpr = ``"#000000"`  

@@ -2348,7 +2348,7 @@
     "href": "package-info.html#dev-no-pandas",
     "title": "Package Info",
     "section": "dev-no-pandas",
-    "text": "dev-no-pandas\n\n\n\nPackage\nVersion Constraint\nLast Published\nPyPI\n\n\n\n\nruff\n==0.8.0\n2026-07-23\n\n\n\njupyter\n—\n2024-08-30\n\n\n\ngt-extras\n&gt;=0.0.7\n2025-08-18\n\n\n\npolars\n—\n2026-07-27\n\n\n\npre-commit\n==2.15.0\n2026-07-21\n\n\n\npyarrow\n—\n2026-07-10\n\n\n\npyright\n&gt;=1.1.244\n2026-06-25\n\n\n\npytest\n&gt;=3\n2026-06-19\n\n\n\npytest-cov\n—\n2026-03-21\n\n\n\nshiny\n—\n2026-06-01\n\n\n\nsvg.py\n—\n2025-12-28\n\n\n\nsyrupy\n—\n2026-07-11"
+    "text": "dev-no-pandas\n\n\n\nPackage\nVersion Constraint\nLast Published\nPyPI\n\n\n\n\nruff\n==0.8.0\n2026-07-30\n\n\n\njupyter\n—\n2024-08-30\n\n\n\ngt-extras\n&gt;=0.0.7\n2025-08-18\n\n\n\npolars\n—\n2026-08-01\n\n\n\npre-commit\n==2.15.0\n2026-07-21\n\n\n\npyarrow\n—\n2026-07-10\n\n\n\npyright\n&gt;=1.1.244\n2026-06-25\n\n\n\npytest\n&gt;=3\n2026-06-19\n\n\n\npytest-cov\n—\n2026-03-21\n\n\n\nshiny\n—\n2026-07-29\n\n\n\nsvg.py\n—\n2025-12-28\n\n\n\nsyrupy\n—\n2026-07-11"
   },
   {
     "objectID": "package-info.html#extra",

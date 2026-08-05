@@ -4,7 +4,7 @@
 The fundamental physical constants.
 
 
-`data.constants=_read_csv(_constants_fname, dtype=_constants_dtype)`\
+`data.constants=_read_csv(_constants_fname, dtype=_constants_dtype)`
 
 
 This dataset contains values for over 300 basic fundamental constants in nature. The values originate from the 2018 adjustment which is based on the latest relevant precision measurements and improvements of theoretical calculations. Such work has been carried out under the authority of the Task Group on Fundamental Constants (TGFC) of the Committee on Data of the International Science Council (CODATA). These updated values became available on May 20, 2019. They are published at http://physics.nist.gov/constants, a website of the Fundamental Constants Data Center of the National Institute of Standards and Technology (NIST), Gaithersburg, Maryland, USA.

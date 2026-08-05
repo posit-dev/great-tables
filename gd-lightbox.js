@@ -1374,6 +1374,7 @@
     if (allItems.length === 0) return;
 
     allItems.forEach(bindClick);
+    swapThumbnails();
     setupDarkModeObserver();
 
     // Global keyboard handler

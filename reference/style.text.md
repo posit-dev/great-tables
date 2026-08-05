@@ -64,16 +64,14 @@ The weight of the font can be modified thorough a text-based option such as `"no
 `    ]`\
 `    | ColumnExpr`\
 `    | None`\
-`)`\
-</span>` = None`  
+`)`</span>` = None`  
 Allows for text to either be condensed or expanded. We can use one of the following text-based keywords to describe the degree of condensation/expansion: `"ultra-condensed"`, `"extra-condensed"`, `"condensed"`, `"semi-condensed"`, `"normal"`, `"semi-expanded"`, `"expanded"`, `"extra-expanded"`, or `"ultra-expanded"`. Alternatively, we can supply percentage values from `0%` to `200%`, inclusive. Negative percentage values are not allowed.
 
 `decorate: (`\
 `    Literal[``"overline", `<span class="st">`"line-through"``, ``"underline"``, ``"underline overline"``]`\
 `    | ColumnExpr`\
 `    | None`\
-`)`\
-</span>` = None`  
+`)`</span>` = None`  
 Allows for text decoration effect to be applied. Here, we can use `"overline"`, `"line-through"`, or `"underline"`.
 
 `transform: Literal[``"uppercase", `<span class="st">`"lowercase"``, ``"capitalize"``] | ColumnExpr | None`</span>` = None`  
@@ -83,8 +81,7 @@ Allows for the transformation of text. Options are `"uppercase"`, `"lowercase"`,
 `    Literal[``"normal", `<span class="st">`"nowrap"``, ``"pre"``, ``"pre-wrap"``, ``"pre-line"``, ``"break-spaces"``]`\
 `    | ColumnExpr`\
 `    | None`\
-`)`\
-</span>` = None`  
+`)`</span>` = None`  
 A white-space preservation option. By default, runs of white-space will be collapsed into single spaces but several options exist to govern how white-space is collapsed and how lines might wrap at soft-wrap opportunities. The options are `"normal"`, `"nowrap"`, `"pre"`, `"pre-wrap"`, `"pre-line"`, and `"break-spaces"`.
 
 

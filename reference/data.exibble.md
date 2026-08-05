@@ -4,7 +4,7 @@
 A toy example table for testing with great_tables: exibble.
 
 
-`data.exibble=_read_csv(_exibble_fname, dtype=_exibble_dtype)`\
+`data.exibble=_read_csv(_exibble_fname, dtype=_exibble_dtype)`
 
 
 This table contains data of a few different classes, which makes it well-suited for quick experimentation with the functions in this package. It contains only eight rows with numeric and string columns. The last 4 rows contain missing values in the majority of this table's columns (1 missing value per column). The date, time, and datetime columns are string-based dates/times in the familiar ISO 8601 format. The row and group columns provide for unique rownames and two groups (grp_a and grp_b) for experimenting with the `rowname_col` and `groupname_col` arguments.

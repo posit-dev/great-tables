@@ -4,7 +4,7 @@
 Feature films in competition at the Cannes Film Festival.
 
 
-`data.films=_read_csv(_films_fname, dtype=_films_dtype)`\
+`data.films=_read_csv(_films_fname, dtype=_films_dtype)`
 
 
 Each entry in the [films](data.films.md#great_tables.data.films) is a feature film that appeared in the official selection during a festival year (starting in 1946 and active to the present day). The `year` column refers to the year of the festival and this figure doesn't always coincide with the release year of the film. The film's title reflects the most common title of the film in English, where the `original_title` column provides the title of the film in its spoken language (transliterated to Roman script where necessary).

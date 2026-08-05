@@ -4,7 +4,7 @@
 Deluxe automobiles from the 2014-2017 period.
 
 
-`data.gtcars=_read_csv(_gtcars_fname, dtype=_gtcars_dtype)`\
+`data.gtcars=_read_csv(_gtcars_fname, dtype=_gtcars_dtype)`
 
 
 Expensive and fast cars. Each row describes a car of a certain make, model, year, and trim. Basic specifications such as horsepower, torque, EPA MPG ratings, type of drivetrain, and transmission characteristics are provided. The country of origin for the car manufacturer is also given.
