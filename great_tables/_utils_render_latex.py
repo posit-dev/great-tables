@@ -639,8 +639,8 @@ def create_table_end_l(use_longtable: bool) -> str:
 
     Parameters
     ----------
-    data : GTData
-        The GTData object that contains all the information about the table.
+    use_longtable : bool
+        Whether the table uses the `longtable` environment.
 
     Returns
     -------
