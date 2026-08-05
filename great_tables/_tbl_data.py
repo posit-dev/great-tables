@@ -898,7 +898,7 @@ def eval_aggregate(df, expr) -> dict[str, Any]:
 
     Parameters
     ----------
-    data
+    df
         The input data (DataFrame)
     expr
         The expression to evaluate (Polars expression or callable)

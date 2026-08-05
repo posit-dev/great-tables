@@ -66,7 +66,7 @@ def _make_one_col_table(vals: X) -> GT:
 
     Parameters
     ----------
-    x
+    vals
         The list of values to be converted into a table.
 
     Returns
