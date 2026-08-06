@@ -205,7 +205,7 @@ def create_table_start_l(data: GTData, use_longtable: bool) -> str:
     return table_start
 
 
-def create_heading_component_l(data: GTData, use_longtable: bool) -> str:
+def create_heading_component_l(data: GTData, use_longtable: bool, tbl_label: str | None = None) -> str:
     """
     Create the heading component for LaTeX output.
 
@@ -217,6 +217,9 @@ def create_heading_component_l(data: GTData, use_longtable: bool) -> str:
     ----------
     data : GTData
         The GTData object that contains all the information about the table.
+
+    tbl_label : str | None
+        The label for the table in LaTeX output. This is used for referencing the table in the document.
 
     Returns
     -------
@@ -233,28 +236,29 @@ def create_heading_component_l(data: GTData, use_longtable: bool) -> str:
 
     # If there is no title, then return an empty string
     if not has_title:
-        return ""
+        if tbl_label is None:
+            return ""
+        else:
+            # Labels need a caption to work correctly in LaTeX
+            return f"\\caption{{}}\n\\label{{{tbl_label}}}"
 
     title_str = _process_text(title, context="latex")
 
-    title_row = f"{{\\large {title_str}}}"
+    title_row = f"{title_str}"
 
     has_subtitle = heading_has_subtitle(subtitle)
 
     if has_subtitle:
         subtitle_str = _process_text(subtitle, context="latex")
+        subtitle_row = f"{subtitle_str}"
 
-        subtitle_row = f"{{\\small {subtitle_str}}}"
-
-        header_component = f"""\\caption*{{
-{title_row} \\\\
-{subtitle_row}
-}} {line_continuation if use_longtable else ""}"""
+        header_component = f"""\\caption{{{title_row} {subtitle_row}}} {line_continuation if use_longtable else ""}"""
 
     else:
-        header_component = f"""\\caption*{{
-{title_row}
-}} {line_continuation if use_longtable else ""}"""
+        header_component = f"""\\caption{{{title_row}}} {line_continuation if use_longtable else ""}"""
+
+    if tbl_label is not None:
+        header_component += f"\n\\label{{{tbl_label}}}"
 
     return header_component
 
@@ -688,6 +692,10 @@ def derive_table_width_statement_l(data: GTData, use_longtable: bool) -> str:
 def create_fontsize_statement_l(data: GTData) -> str:
     table_font_size = data._options.table_font_size.value
 
+    # skip the font size statement when the default (16px) is used
+    if table_font_size == "16px":
+        return ""
+
     fs_fmt = "\\fontsize{%3.1fpt}{%3.1fpt}\\selectfont\n"
 
     if table_font_size.endswith("%"):
@@ -727,7 +735,12 @@ def create_wrap_end_l(use_longtable: bool) -> str:
     return wrap_end
 
 
-def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | None = None) -> str:
+def _render_as_latex(
+        data: GTData,
+        use_longtable: bool = False,
+        tbl_pos: str | None = None,
+        tbl_label: str | None = None
+    ) -> str:
     # Check for styles (not yet supported so warn user)
     if data._styles:
         _not_implemented("Styles are not yet supported in LaTeX output.")
@@ -743,7 +756,7 @@ def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | N
     table_start = create_table_start_l(data=data, use_longtable=use_longtable)
 
     # Create the heading component
-    heading_component = create_heading_component_l(data=data, use_longtable=use_longtable)
+    heading_component = create_heading_component_l(data=data, use_longtable=use_longtable, tbl_label=tbl_label)
 
     # Create the columns component
     columns_component = create_columns_component_l(data=data)

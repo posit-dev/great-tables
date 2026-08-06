@@ -255,7 +255,12 @@ def as_raw_html(
     return table_html
 
 
-def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) -> str:
+def as_latex(
+        self: GT,
+        use_longtable: bool = False,
+        tbl_pos: str | None = None,
+        tbl_label: str | None = None
+    ) -> str:
     """
     Output a GT object as LaTeX
 
@@ -280,6 +285,9 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
         table will be placed at the top of the page; if in the Quarto render then the table
         positioning option will be ignored in favor of any setting within the Quarto rendering
         environment.
+    tbl_label
+        The label for the table in LaTeX output. This is used for referencing the table in the document.
+        If a value is not provided then no label will be included in the LaTeX output.
 
     Returns
     -------
@@ -343,7 +351,7 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
     """
     built_table = self._build_data(context="latex")
 
-    latex_table = _render_as_latex(data=built_table, use_longtable=use_longtable, tbl_pos=tbl_pos)
+    latex_table = _render_as_latex(data=built_table, use_longtable=use_longtable, tbl_pos=tbl_pos, tbl_label=tbl_label)
 
     return latex_table
 
