@@ -72,6 +72,15 @@ sections:
     dir: blog
     type: blog
 
+# Agent Skills
+# ------------
+# A single hand-written skill: the deterministic table-design flowchart that
+# drives every great_tables build through the same 7-step procedure. Great
+# Docs copies it into the build and places it under .well-known/agent-skills/
+# for auto-discovery (e.g. `npx skills add`).
+skill:
+  file: skills/great-tables/SKILL.md
+
 # API Reference Structure
 reference:
   title: "Reference"
