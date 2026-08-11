@@ -67,9 +67,33 @@ may coexist.)
 **IF a requested measure has more than one reasonable definition** (e.g. "highest
 single-day gain" = `close − open`? intraday `high − low`? day-over-day
 `close.diff()`?) **⇒ pick ONE canonical definition, compute it, and STATE the chosen
-definition** in the subtitle or a source note so the number is reproducible. Do **not**
+definition** in the subtitle or a source note (on a table with ≥5 body rows, this
+definition is the analytical caption half of (f) below's two-call footer — put it
+there, not the subtitle) so the number is reproducible. Do **not**
 silently pick one — an unstated choice makes the same prompt yield different numbers
 across runs.
+
+### Hero-measure tie-break when 2+ measures are named (Step 3, before `data_color`)
+
+**IF the prompt names 2+ numeric measures with no explicit ranking** ("Horsepower and
+Price," "density changes... with percentage changes") **⇒ do NOT default to coloring
+both just because two fits under the ≤2 ceiling.** Fitting under the ceiling is not
+the same as both measures deserving it — resolve which ONE gets the fill, in this
+order:
+
+1. An explicitly named ranking/selection metric ("top 10 by revenue") always wins the
+   colored slot.
+2. Otherwise, the measure in the request's **topic clause** — the noun phrase right
+   after "a table of/showing…" — gets the fill; a measure named later as a secondary
+   comparison stays **bold-uncolored** (`style.text(weight="bold")`), not a second fill.
+3. Genuinely tied? Color the one with the wider real spread across the selected rows,
+   and leave the other bold.
+
+A secondary measure that's merely mentioned, not the request's main comparison, is
+exactly the bold-uncolored case Step 3's own rule describes ("hero text that is not a
+colored measure gets bold text") — that rule only does its job if you actually
+identify which named measure is secondary instead of coloring every measure that fits
+under the ceiling.
 
 ---
 
@@ -191,6 +215,41 @@ overridable by an explicit user instruction.
 Always: `use_seps=True` for thousands separators, and `sub_missing(columns=…,
 missing_text="—")` for empty cells. Put units in the column **label** only when the
 formatter doesn't already convey them.
+
+---
+
+## (f) Titles & annotations (Step 6) — two footer calls, not one
+
+**Gate:** every table (title/subtitle are handled by SKILL.md's Step 6; this item is
+about the footer).
+
+1. **An analytical caption** — one `tab_source_note(...)` call stating the table's
+   actual finding or a definition you had to pick (the "Ambiguous measures" trigger
+   above), e.g. *"Fastest-growing means highest percent change across the full
+   1996–2021 span, not the average of the intervening Census periods."* Required
+   whenever the table has **≥5 body rows**.
+2. **A separate source/provenance note** — a second `tab_source_note(...)` call
+   naming where the data came from, e.g. *"Source: Statistics Canada Census
+   subdivisions, 1996–2021."*
+
+**Two calls, not one.** A single combined line (*"Source: towny.csv. Density =
+population ÷ land area."*) is provenance only — it never satisfies the
+analytical-caption half, even when it mentions a definition in passing.
+`tab_source_note(...)` stacks every call as its own footer line, so calling it twice
+costs nothing structurally:
+
+```python
+gt = (
+    gt.tab_source_note(source_note="Fastest-growing means highest percent change across the full span, not a per-period average.")
+      .tab_source_note(source_note="Source: Statistics Canada Census subdivisions, 1996-2021.")
+)
+```
+
+**A bold, uncolored hero still needs the bold.** When Step 3 leaves the hero measure
+uncolored (a categorical/text table, or a 2nd measure that lost the ≤2-colored-measure
+ceiling), apply `style.text(weight="bold")` to it — bold is the *prescribed
+alternative* to a fill, not an optional extra. A hero column with neither color nor
+bold reads as just another plain column.
 
 ---
 

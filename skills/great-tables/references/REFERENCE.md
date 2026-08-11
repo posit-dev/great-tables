@@ -71,7 +71,15 @@ hex** — a washed tint of the Big-Color hue if the table has ANY Big Color, els
 **dark DA solid with white text** — and the **DA hue-selection rule**. Keep the
 column-label bottom rule regardless of band (hex in `small_color.md`).
 
-## 4. Your data matches an archetype (Steps 2 & 5)
+## 4. Titles & annotations (Step 6)
+
+**Before writing the footer**, open **`small_color.md` → "(f) Titles &
+annotations"**: the footer is **two separate `tab_source_note(...)` calls**
+(an analytical caption + a source/provenance note), not one combined line —
+and a bold-but-uncolored hero measure still needs `style.text(weight="bold")`
+explicitly set.
+
+## 5. Your data matches an archetype (Steps 2 & 5)
 
 Open the matching worked example for a full runnable table to pattern-match against
 (`../assets/examples/EXAMPLES.md` indexes them all).

@@ -70,6 +70,48 @@ conflicting default silently — do not fight it or add it back later.
 The order is fixed: color intent (Step 3) is decided before the quiet polish (Step 5),
 and the band (Step 4) can only be decided once Big Color is known.
 
+## Step 7 is an audit against a checklist, not a vibe check
+
+"Read it back and audit every rule" is not one vague pass — it means going through
+every item below **against the actual code you wrote**, not against your memory of
+what you intended. Big Color (Step 3) gets attention because it's the visible,
+interesting decision; these are the small, boring items that are just as easy to
+silently skip — and skipping them is what makes an otherwise well-colored table read
+as bare or half-finished. Before you consider the table done:
+
+1. **Title AND subtitle** — both set (Step 6).
+2. **Frame** — a boxed border on all four sides, not flat/edge-to-edge (Global
+   constants above).
+3. **Body-row hairlines** — `table_body_hlines_style` set to a visible style
+   (`small_color.md` (a)). Unconditional, every table, never gated on row count or
+   Big Color.
+4. **Footer: TWO separate `tab_source_note(...)` calls**, not one combined line, on
+   any table with ≥5 rows (`small_color.md` (f)) — an analytical caption (a finding
+   or a definition you had to pick) AND a separate source/provenance note.
+5. **Striping gate — count, don't guess.** Count the body rows and estimate the
+   fraction of body cells carrying a color fill. If rows ≥ 10 **and** the body is NOT
+   essentially fully filled, `opt_row_striping()` is REQUIRED, not a nice-to-have.
+   If you haven't actually counted, count now before answering this item.
+6. **Stub tint gate — independent of item 5, not either/or.** If a stub
+   (`rowname_col`) exists, it needs a light tint (`small_color.md` (d)) —
+   striping being on doesn't excuse skipping it; stripes still show on an
+   unfilled stub (`small_color.md` (c)). If a stub, a striped/filled body,
+   AND a colored heading band are all in play at once and the grey starts
+   to look monotonous, that's the grey-budget rule's job (`small_color.md`
+   "The grey-budget rule") — recolor the highest-priority element, don't
+   drop one.
+7. **Hero-uncolored measures are bold, not bare.** Every measure the request names
+   that is NOT one of your ≤2 colored measures gets `style.text(weight="bold")`. If
+   you named 2 measures and colored both, stop — re-read Step 3's ceiling: color the
+   one that's the request's actual topic, bold the other instead of adding a second
+   fill.
+8. **≤2 colored measures, total, counted across the WHOLE table** — recount every
+   `data_color`/`heatmap` call now; a 3rd is always a bug.
+
+An item you can't check off because you never evaluated its gate (didn't count rows,
+didn't check whether a stub exists) is not "not applicable" — go compute the gate
+condition, then check the item for real.
+
 ## Withhold values, forbid guessing — open the file the action needs
 
 SKILL.md names *what* to decide; the *value* you type lives only in a reference file.

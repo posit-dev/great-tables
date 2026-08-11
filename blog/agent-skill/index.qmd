@@ -1,7 +1,7 @@
 ---
 title: "One Flowchart, So Every Table Looks Like It Came from the Same Designer"
 author: Hrudith Lakshminarasimman
-date: 2026-08-07
+date: 2026-08-11
 ---
 
 Ask an AI coding agent to turn a CSV into a [**Great Tables**][great-tables] display
@@ -51,6 +51,15 @@ The order is fixed on purpose. Color intent (step 3) is decided before the quiet
 polish (step 5), and the heading band (step 4) can only be decided once the color
 decision is already made.
 
+Step 7 is not a vibe check, either. The most recent revision turned "read it back and
+audit every rule" into an explicit eight-item checklist: title and subtitle both set,
+a real frame, visible hairlines, two separate footer notes instead of one, the
+striping gate counted rather than guessed, stub tint checked independently of
+striping, every hero measure the request names either colored or bold, and no more
+than two colored measures total, recounted by hand. An item you never evaluated the
+gate for is not "not applicable" — the checklist makes you compute the condition and
+check it for real, every time.
+
 ### What actually happens when the model runs it
 
 The skill is not a suggestion the model glances at once. It is a chain of files the
@@ -77,76 +86,79 @@ the data looked like, not because it seemed like a good idea at the time.
 
 ### Does it actually work?
 
-Take that same prompt. Forty-seven cars, two numbers. About as plain a table request
-as you can write, and a good test of what a model does with no help at all.
+Take a different prompt from the same evaluation corpus, one that names a real
+structural requirement instead of just a topic: *"Build a table showing the top 10
+most expensive gt cars, grouped by country of origin, including their drivetrain and
+transmission details."* Ten cars, three countries, a price column, and an explicit
+grouping instruction — a good test of what a model does when the request names a
+requirement, not just a subject.
 
 **Before**, no skill loaded, the model doing whatever seemed reasonable in the moment:
 
-![](gtcars_baseline.png)
+![](gtcars_baseline.png){width="82%" fig-align="center" fig-alt="A plain table of the ten most expensive GT cars with no color, no row grouping, and Country repeated as an ordinary text column."}
 
-<p style="font-size: 12px;">The baseline run: manufacturer and model kept as two
-plain columns instead of one stub, no color, no frame, no subtitle.</p>
+<p style="font-size: 12px;">The baseline run: Country repeated as a plain text column
+instead of a real row group, Manufacturer and Model kept as two separate columns, no
+color anywhere, no frame, and no source note at all.</p>
 
-It is not a broken table. It runs, and it shows the right numbers. The title is even
-good: a judge model scoring this table against a hand-authored answer key gave the
-baseline's title a perfect match, word for word, against the answer key's own title.
-But almost everything past the title is a default: manufacturer and model as two
-plain columns rather than one combined stub, no color on either measure, no
-subtitle, no source note.
+It runs, and the numbers in it are correct. But scored against the project's own
+hand-authored answer key for this prompt, it manages 25 of 90 possible points (27.8
+percent): 10 of 51 on Data-compliance, 15 of 39 on Formatting. The prompt's own
+"grouped by country of origin" instruction never becomes a real `great_tables` row
+group, so the mechanical grouping check fails outright even though a human reader can
+still tell what the table is going for. There is no stub, no color, no frame, no
+hairlines between rows, and one title/subtitle with nothing in the footer.
 
 **After**, the skill loaded, same prompt, same data:
 
-![](gtcars_skill.png)
+![](gtcars_skill.png){width="82%" fig-align="center" fig-alt="The same ten cars grouped into Italy, United Kingdom, and United States row groups, with the price column colored on a sequential scale and a combined manufacturer-and-model stub."}
 
-<p style="font-size: 12px;">The skill's run on the identical prompt: cars as the
-stub, both horsepower and price colored on sequential scales, a light heading band,
-a subtitle, a caption, and a source note.</p>
+<p style="font-size: 12px;">The skill's run: a real row group per country, a stub
+combining manufacturer and model, price colored on a sequential scale from lightest up
+to the LaFerrari's dark navy high point, humanized Drivetrain and Transmission labels,
+a heading band, a frame, and hairlines between rows.</p>
+
+That climbs to 46 of 90 (51.1 percent): 20 of 51 Data-compliance, 26 of 39 Formatting.
+The grouping instruction is now a real `groupname_col`, the price column is colored on
+a domain-appropriate sequential scale, and the table picked up the frame, hairlines,
+and row-group emphasis the checklist requires unconditionally.
 
 **The answer key**, the project's own hand-authored ground truth for this exact
-prompt, pinning which row selection, which measure gets colored, and why:
+prompt:
 
-![](gtcars_ground_truth.png)
+![](gtcars_ground_truth.png){width="82%" fig-align="center" fig-alt="The hand-authored ground truth table: a bare Model stub, MSRP colored sequentially, and a two-line footer with an analytical caption and a separate source note."}
 
-<p style="font-size: 12px;">The answer key colors only price (the measure the prompt
-names as a hero), bolds horsepower instead of giving it a second fill, and
-spends its caption on an actual finding in the data rather than a source citation
-alone.</p>
+<p style="font-size: 12px;">The answer key: a bare "Model" stub with no manufacturer
+prefix, the country groups reordered so United States sits between Italy and United
+Kingdom, and two separate footer notes — one stating how "most expensive" and the sort
+order were defined, the other citing the source data.</p>
 
-A comparator built for this project scores each candidate against that answer key on
-two buckets: Data-compliance (did it select the right rows, the right measures, the
-right computed values) and Formatting-compliance (did it color, label, and structure
-them the way the answer key does). The baseline table above scored 29 percent, 10 of
-43 possible Data-compliance points and 19 of 56 Formatting points. The skill's table
-scored 84 percent: a perfect 44 of 44 on Data-compliance, 40 of 56 on Formatting.
-
-Most of the baseline's lost points trace back to the same handful of defaults. It
-kept "Manufacturer" and "Model" as two separate value columns instead of one row-
-identifying stub, so the column-overlap check only found 2 of 4 points. It never
-called a coloring method at all, so every color-domain and color-mechanics check
-failed outright rather than partially. It had no subtitle, so a judge model scored
-that dimension 1 out of 5 against the answer key's subtitle, which states both the
-row count and the sort order.
-
-The skill's table is not a perfect match either, and the checks that cost it points
-are worth naming honestly. It applied row striping to a table whose body is already
-fully covered by color, a combination the checklist explicitly says to skip, costing
-5 points. That same miscall carried into the stub-tint check, which is gated on
-whether striping is already active, for another 5 points. And rather than coloring
-one measure and bolding the other the way the answer key does, it colored both
-horsepower and price, a defensible reading of the "at most 2 colored measures" rule
-on its own, but not what the answer key's tighter "one hero, one bold" call was
-checking for. A judge model also preferred the answer key's subtitle (it names the
-row count and the real sort order) and its caption (it states an actual finding, that
-the Bentley Continental GT costs more than the Corvette despite 150 fewer horsepower,
-instead of just citing the data source).
+The gap between the skill's table and the answer key is worth naming as honestly as
+the gap it already closed. The skill's table still calls `tab_source_note` only once,
+a single combined line, not the two the newest checklist item specifically added to
+catch this. It still skips row striping on a ten-row body that is not fully covered by
+color, the exact gate the project's evaluation corpus keeps catching runs of this skill
+missing. Its stub reads "Ferrari LaFerrari," manufacturer folded into the model name,
+where the answer key's row identity is the bare model alone, "LaFerrari" — a naming
+mismatch, not a wrong car. And its group order is Italy, United Kingdom, United States,
+alphabetical among the two "United" names, while the answer key reorders to Italy,
+United States, United Kingdom specifically so the group sequence itself still reads
+most-expensive-first — the US's single $447,000 entry outranks every UK car, so it
+has to come before the UK group for that to hold across the whole table, not just
+inside each one.
 
 ### Does this hold up past one prompt?
 
 One prompt is an anecdote. The project's own evaluation corpus runs six prompts
-spanning easy, medium, and hard difficulty, and different data shapes: car listings,
-monthly air-quality summaries, town population growth, and monthly S&P 500 returns.
-Each prompt runs three repeats with the skill plus one baseline run with no skill,
-every run scored against its own hand-authored answer key the same way as above.
+spanning easy, medium, and hard difficulty and different data shapes: car listings,
+monthly air-quality summaries, town population growth, island populations, and
+monthly S&P 500 returns. Each prompt runs three repeats with the skill plus one
+baseline run with no skill, every run scored against its own hand-authored answer key
+the same way as above — against a comparator that has itself been tightened since the
+first version of this post. Two consensus-tuning passes removed six checks that scored
+near-zero or scored identically for every skill regardless of quality, so what is left
+actually discriminates real differences instead of penalizing every run alike for
+something none of them do.
 
 ![](comparator_score.png)
 
@@ -154,10 +166,14 @@ every run scored against its own hand-authored answer key the same way as above.
 baseline run, for each of the six corpus prompts. The skill's repeats cluster well
 above the baseline on every single prompt.</p>
 
-Averaged across all six prompts, the skill scores 70.5 percent against a 24.8 percent
-baseline, nearly three times over. It is also the most repeatable outcome we measured
-on this corpus: a mean spread of only 11.1 points between the best and worst of three
-repeats on the same prompt.
+Averaged across all six prompts, the skill scores 74.9 percent against a 25.7 percent
+baseline — nearly three times over. One honest asterisk on that baseline number: one of
+the six baseline runs failed for a harness reason rather than a design one, a
+variable-naming mismatch that cost it credit for what was otherwise a normal render;
+leaving it out, the baseline reads closer to 28 percent, still a wide gap. The skill's
+own side of the comparison is also the most repeatable outcome measured on this
+corpus: a mean spread of only 10.6 points between the best and worst of three repeats
+on the same prompt, the tightest spread measured yet for this skill.
 
 ![](consistency.png)
 
@@ -166,10 +182,10 @@ repeats per prompt, skill against baseline. A single baseline run has no spread 
 show, since it is only run once per prompt.</p>
 
 None of this is free, and we are not rounding that part away either. The skill's
-extra reference reads show up directly in cost: a mean of $0.150 per invocation
-against the baseline's $0.082, roughly 80 percent more, for the reads that happen
-before a single line of table code gets written. Token use moves the same direction
-for the same reason.
+extra reference reads show up directly in cost: a mean of $0.167 per invocation
+against the baseline's $0.077, more than double, for the reads that happen before a
+single line of table code gets written. Token use moves the same direction for the
+same reason.
 
 ![](cost.png)
 
@@ -199,18 +215,33 @@ lines to 225 by extracting a long API reference into its own file; a second pass
 further and restructured everything around a single doorway, one router file that
 names every other filename, with the top-level instructions themselves cut down to
 117 lines that name decisions but hold no values of their own. A later audit of over
-a hundred and fifty real run transcripts found
-defects a design review alone would not have caught: none of six flagship examples
-complied with the skill's own frame rule, and a summary row once rendered as raw
-floating-point noise because currency formatting does not reach grand summary rows
-by default. Each became a named, specific fix rather than a general rewrite.
+a hundred and fifty real run transcripts found defects a design review alone would not
+have caught: none of six flagship examples complied with the skill's own frame rule,
+and a summary row once rendered as raw floating-point noise because currency
+formatting does not reach grand summary rows by default. Each became a named,
+specific fix rather than a general rewrite.
+
+A newer audit went further still, and looked specifically at what was still going
+wrong rather than rewriting broadly again. It surfaced two gaps that never fail
+outright, they just quietly under-deliver. Given two numeric measures with no explicit
+ranking between them — "horsepower and price," for instance — the flowchart's own "at
+most two colored measures" ceiling was being read as permission to color both, when
+the checklist actually wants one hero measure colored and the other bold instead. And
+the footer rule was being satisfied by a single source line that named where the data
+came from without ever stating what the table's own numbers meant — technically
+present, never analytical. Both are now named, gated rules instead of left to
+judgment: a hero-measure tie-break that picks exactly one colored measure when two are
+named with no ranking, and an explicit two-call footer requirement that a single
+combined source-and-caption line no longer satisfies.
 
 ### Where it still falls short
 
-The striping-and-stub-tint miss above was not a one-off. The same two checks failed
-for the same reason on a second, unrelated prompt in the corpus (an island-size
-ranking, one colored measure, a fully covered body), which suggests it is a real,
-recurring gap in the checklist's striping gate rather than a fluke of one run. We are
+The striping miss above was not only this one candidate's problem. A separate,
+independent run of the skill against this same prompt missed the identical gate — a
+body with at least ten rows that is not fully covered by color, still missing
+`opt_row_striping()` — even though the other repeats of that same run got it right.
+Right most of the time, wrong often enough that it is not a typo: that is exactly why
+the checklist now spells the gate out as something to count, not eyeball. We are
 naming it here rather than picking a cleaner example to show instead.
 
 There is also a structural limit worth stating plainly: inside this project's own
