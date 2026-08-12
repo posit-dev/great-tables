@@ -1,2 +1,4 @@
 include great_tables/css/*.scss
 include great_tables/data/*.csv
+include great_tables/skill/SKILL.md
+recursive-include great_tables/skill/references *.md
