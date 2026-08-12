@@ -142,4 +142,4 @@ it's the one file that tells you where everything else in the skill lives.
 We're happy to talk more about any of this over on our [Discord server](https://discord.com/invite/Ux7nrcXHVV).
 
 [great-tables]: https://github.com/posit-dev/great-tables
-[great-docs-skills]: https://posit-dev.github.io/great-docs/
+[great-docs-skills]: https://posit-dev.github.io/great-docs/skills.html
