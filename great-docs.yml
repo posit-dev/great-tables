@@ -75,11 +75,13 @@ sections:
 # Agent Skills
 # ------------
 # A single hand-written skill: the deterministic table-design flowchart that
-# drives every great_tables build through the same 7-step procedure. Great
-# Docs copies it into the build and places it under .well-known/agent-skills/
-# for auto-discovery (e.g. `npx skills add`).
+# drives every great_tables build through the same 7-step procedure. It lives
+# inside the great_tables package itself (great_tables/skill/) so it ships
+# with every `pip install great_tables` too -- see great_tables.skill.install().
+# Great Docs copies it into the build and places it under
+# .well-known/agent-skills/ for auto-discovery (e.g. `npx skills add`).
 skill:
-  file: skills/great-tables/SKILL.md
+  file: great_tables/skill/SKILL.md
 
 # API Reference Structure
 reference:

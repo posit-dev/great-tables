@@ -125,10 +125,18 @@ right.
 
 ### Get it
 
-The skill lives at `skills/great-tables/` in this repository. Point your agent's
-skill installer at it, or just copy the folder into your own project. Read
-`references/REFERENCE.md` first; it's the one file that tells you where everything
-else in the skill lives.
+The skill ships with the `great_tables` package itself, so if you already have it
+installed, you already have the skill sitting on disk. Copy it into your project
+with:
+
+```bash
+python -m great_tables.skill install
+```
+
+That drops it at `.claude/skills/great-tables`, ready for an agent to pick up. Point
+a different agent's skill installer at the same folder, or copy it out by hand,
+either works. Read `references/REFERENCE.md` first; it's the one file that tells you
+where everything else in the skill lives.
 
 We're happy to talk more about any of this over on our [Discord server](https://discord.com/invite/Ux7nrcXHVV).
 

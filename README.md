@@ -104,6 +104,16 @@ conda install conda-forge::great_tables
 
 If you encounter a bug, have usage questions, or want to share ideas to make this package better, please feel free to file an [issue](https://github.com/posit-dev/great-tables/issues).
 
+### Agent Skill
+
+Every install of **Great Tables** comes with an [Agent Skill](https://posit-dev.github.io/great-tables/skills.html) for AI coding agents, so an agent building tables with **Great Tables** makes the same design decisions on every run instead of a different set each time. Copy it into your project with:
+
+```bash
+python -m great_tables.skill install
+```
+
+That places it at `.claude/skills/great-tables`, ready for an agent to read.
+
 ## Code of Conduct
 
 Please note that the **Great Tables** project is released with a [contributor code of conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).<br>By participating in this project you agree to abide by its terms.
