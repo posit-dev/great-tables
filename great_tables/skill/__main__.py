@@ -30,16 +30,14 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
 
-    if args.command == "install":
-        try:
-            dest = install(args.dest, force=args.force)
-        except FileExistsError as e:
-            print(str(e), file=sys.stderr)
-            return 1
-        print(f"Installed the great-tables skill to {dest}")
-        return 0
+    try:
+        dest = install(args.dest, force=args.force)
+    except FileExistsError as e:
+        print(str(e), file=sys.stderr)
+        return 1
 
-    return 1
+    print(f"Installed the great-tables skill to {dest}")
+    return 0
 
 
 if __name__ == "__main__":
