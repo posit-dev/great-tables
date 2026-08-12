@@ -480,4 +480,3 @@ html("<span style='...'>X</span>")  # Raw HTML
 define_units("m^2 s^-1")         # Unit notation for labels
 system_fonts("humanist")         # Font stacks: "humanist", "old-style", "transitional", "geometric-humanist", "classical-humanist", "neo-grotesque", "monospace-slab-serif", "monospace-code", "industrial", "rounded-sans", "slab-serif", "system-ui"
 ```
-
