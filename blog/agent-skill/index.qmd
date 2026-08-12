@@ -1,266 +1,136 @@
 ---
 title: "One Flowchart, So Every Table Looks Like It Came from the Same Designer"
 author: Hrudith Lakshminarasimman
-date: 2026-08-11
+date: 2026-08-12
 ---
 
-Ask an AI coding agent to turn a CSV into a [**Great Tables**][great-tables] display
-table with no guidance at all, and you will get *something*, but not the same
-something twice. One run colors the revenue column, the next colors margin, the one
-after that colors both. One run adds a heading band, the next does not. Sometimes the
-agent forgets a subtitle, or a source note, or leaves an obvious row label sitting in
-the body instead of the stub. Ask the same question ten times and you can get ten
-tables that do not look like they came from the same product.
+Plenty of data scientists now let an LLM write the code behind their tables instead
+of writing it themselves. The trouble is you get something back, but you have no
+real way of knowing if it's any good until you actually look at it yourself. The
+colors, the layout, the column choices are all just whatever the model happened to
+feel like doing on that particular run. [**Great Tables**][great-tables] already
+gives you everything you need to build a genuinely good table in Python. The harder
+part is getting an LLM to actually use all of that well, on purpose, every time you
+ask it. That's what this [**Agent Skill**][great-docs-skills] is for: a folder of
+instructions the agent reads before it writes any code, so the same design decisions
+get made the same way on every run instead of getting reinvented from scratch each
+time.
 
-### Why does that happen?
+### Why table design is worth getting right
 
-A general-purpose model's sense of what makes a table look good is not stable from one
-run to the next, even against the exact same input. Left alone, it re-derives taste
-every time it is asked, and taste re-derived from scratch on every run is, almost by
-definition, inconsistent. So we did not try to make the model better at inventing
-table design. We tried to stop asking it to invent one at all, and instead gave it an
-[**Agent Skill**][great-docs-skills]: a folder of instructions and reference files
-that the agent is required to read before it writes any code, so the decisions that
-used to be a fresh judgment call on every run become a fixed, repeatable branch
-instead.
+A table isn't good just because the numbers in it happen to be correct. Getting it
+right means a whole list of smaller decisions actually line up. Color should draw
+your eye toward what matters instead of sitting there for decoration. A title and
+subtitle should tell you what you're even looking at. Column labels need to be
+readable instead of raw variable names you have to translate in your head. Data
+should be grouped so you're comparing within a category rather than across the whole
+table at once. Units and abbreviations should stay compact without leaving you
+guessing. A caption should say where the numbers came from, and a stub column should
+anchor the row labels so you always know which row you're on.
 
-### One flowchart, not a menu
+An LLM makes every one of those calls whether you notice it happening or not. Left
+alone, it tends to make a different set of them each time you ask it the same thing.
 
-The skill is written as a flowchart, not a menu of options. For every part of a table
-there is one deterministic rule, or one explicit branch keyed off what the data
-looks like, so the same input always produces the same output:
+### What the skill actually changes
 
-```
-1. UNDERSTAND THE DATA   grain? identifiers? measures? categories? units? quality?
-                         clean -> ONE correctly-typed DataFrame
-                         validate request vs data (blank table if unanswerable)
-2. ORGANIZE COLUMNS      show/hide, limit rows, stub (default), groups (gated),
-                         spanners (column groups), name the hero column
-3. BIG COLOR             at most 2 colored MEASURES (the hero if only 1); encoding
-                         by data shape, gradients use sequential/diverging,
-                         everything else uses a fixed solid palette
-4. HEADING BAND          any Big Color? light band. none? dark saturated band
-5. SMALL COLOR           fixed checklist: borders, dividers, striping, stub tint,
-                         formatting per column, a grey-budget rule
-6. TITLES & ANNOTATIONS  title + subtitle (both required), caption and source
-                         when known, stacked footer notes
-7. RENDER & VERIFY       save the table, read it back, audit every rule
-```
+Here's the same prompt, run against the same data with the same model, once without
+the skill and once with it attached: "Create a table showing population growth
+trends for the top 15 fastest-growing Ontario towns, comparing their density changes
+across all census years from 1996 to 2021, with the percentage changes between each
+period."
 
-The order is fixed on purpose. Color intent (step 3) is decided before the quiet
-polish (step 5), and the heading band (step 4) can only be decided once the color
-decision is already made.
+Without the skill loaded, this is what comes back.
 
-Step 7 is not a vibe check, either. The most recent revision turned "read it back and
-audit every rule" into an explicit eight-item checklist: title and subtitle both set,
-a real frame, visible hairlines, two separate footer notes instead of one, the
-striping gate counted rather than guessed, stub tint checked independently of
-striping, every hero measure the request names either colored or bold, and no more
-than two colored measures total, recounted by hand. An item you never evaluated the
-gate for is not "not applicable" — the checklist makes you compute the condition and
-check it for real, every time.
+![](bad-table.png){width="90%" fig-align="center" fig-alt="A table of Ontario cities sorted by raw population, colored with an arbitrary rainbow of unrelated hues per row, decimals left unformatted, no title or caption."}
 
-### What actually happens when the model runs it
+With the skill attached, same prompt and same data, this is what comes back instead.
 
-The skill is not a suggestion the model glances at once. It is a chain of files the
-model is routed through, one hop at a time, before it is allowed to write a line of
-table code. Here is what that looked like on a real run, prompted with "Show me a
-table of the gt cars with their horsepower and price":
+![](good-table.png){width="82%" fig-align="center" fig-alt="A table of Ontario's fastest-growing towns from 1996 to 2021, grouped under density and growth-rate column spanners, growth percentages colored on a green sequential scale, with a title, subtitle, and source note."}
 
-```
-Skill({"skill": "great-tables"})
-Read   references/REFERENCE.md              the router, read first, as instructed
-Read   gtcars.csv                            then the data
-Read   (4 reads into references/)            data-cleaning + Big-Color rules for
-                                              these two numeric measures specifically
-Read   references/big_color/column_label_emphasis.md   the heading-band decision
-Write  table.py
-```
+Nobody touched the prompt, went back and forth with the model, or cleaned the output
+up by hand afterward. The first table doesn't hit a single item from the list above.
+The second one hits all of them.
 
-The model's own commentary tracked the routing exactly: "Let me start by reading the
-REFERENCE.md file as instructed by the skill," then, once it reached the data, "Since
-we have two numeric measures (horsepower and price), I need to read the relevant
-references." Nothing in that sequence is the model deciding "I like blue" in the
-moment. Every file it opened was named by the router because of what the request and
-the data looked like, not because it seemed like a good idea at the time.
+It isn't just that one table has color and the other doesn't. The skill runs
+through the same handful of decisions on every table it builds, and you can see
+each one land in the towns example above. Color choice isn't a free pick: a measure
+that's a plain magnitude, like price or population density, always gets a blue
+scale, and a measure with a clear direction, like growth, gets green for more and
+red for less, so a reader learns the color language once and it holds across every
+table the skill produces. The bad table breaks that immediately. Every row gets an
+unrelated color pulled from a different part of the spectrum, which tells you
+nothing about which numbers are actually good or bad. The good table sticks to one
+green scale for growth, and the shade alone tells you roughly how big the change was
+without reading a single number.
 
-### Does it actually work?
+The same discipline shows up in the smaller details. A shaded band sits behind the
+column headers whenever there's a color story to introduce. Row dividers stay thin
+and consistent instead of turning into a heavy grid. A stub column holds the row
+labels apart from the rest of the data instead of letting them blend into an
+ordinary column like everything else. None of these are dramatic on their own, but a
+table that gets all of them right looks like someone actually planned it out instead
+of assembling it in a hurry.
 
-Take a different prompt from the same evaluation corpus, one that names a real
-structural requirement instead of just a topic: *"Build a table showing the top 10
-most expensive gt cars, grouped by country of origin, including their drivetrain and
-transmission details."* Ten cars, three countries, a price column, and an explicit
-grouping instruction — a good test of what a model does when the request names a
-requirement, not just a subject.
+### The Numbers
 
-**Before**, no skill loaded, the model doing whatever seemed reasonable in the moment:
+One example doesn't prove much on its own, so the project ran this same comparison
+across a whole corpus of prompts and three different skill designs, scoring every
+run against its own hand-built answer key instead of trusting a gut feeling about
+which table looked nicer.
 
-![](gtcars_baseline.png){width="82%" fig-align="center" fig-alt="A plain table of the ten most expensive GT cars with no color, no row grouping, and Country repeated as an ordinary text column."}
+![](formatting-compliance.png){width="95%" fig-align="center" fig-alt="Dot plot of formatting-checklist compliance per skill design and prompt, no-skill baseline versus with-skill average, ranging roughly 11 to 23 percent baseline against 39 to 100 percent with the skill."}
 
-<p style="font-size: 12px;">The baseline run: Country repeated as a plain text column
-instead of a real row group, Manufacturer and Model kept as two separate columns, no
-color anywhere, no frame, and no source note at all.</p>
+Averaged across every skill and prompt combination, checklist compliance goes from 14
+percent with no skill to 51 percent with the skill attached, and that holds up
+prompt by prompt, not only once everything gets averaged together.
 
-It runs, and the numbers in it are correct. But scored against the project's own
-hand-authored answer key for this prompt, it manages 25 of 90 possible points (27.8
-percent): 10 of 51 on Data-compliance, 15 of 39 on Formatting. The prompt's own
-"grouped by country of origin" instruction never becomes a real `great_tables` row
-group, so the mechanical grouping check fails outright even though a human reader can
-still tell what the table is going for. There is no stub, no color, no frame, no
-hairlines between rows, and one title/subtitle with nothing in the footer.
+![](consistency.png){width="95%" fig-align="center" fig-alt="Dot plot of run-to-run consistency per skill design and prompt, a single no-skill attempt against the skill's own repeats, ranging roughly 31 to 94 percent baseline against 69 to 100 percent with the skill."}
 
-**After**, the skill loaded, same prompt, same data:
+Consistency is where the skill earns its keep the most. A single no-skill attempt
+only lands on the skill's own consensus about 54 percent of the time. Ask the skill
+to repeat the same prompt several times over, though, and its own outputs agree with
+each other 80 percent of the time. For anyone handing this off without babysitting
+every single run, that number matters more than the compliance score does.
 
-![](gtcars_skill.png){width="82%" fig-align="center" fig-alt="The same ten cars grouped into Italy, United Kingdom, and United States row groups, with the price column colored on a sequential scale and a combined manufacturer-and-model stub."}
+![](token-usage.png){width="95%" fig-align="center" fig-alt="Dot plot of token usage and cost per iteration per skill design and prompt, no-skill baseline against with-skill average, most baseline runs under 300,000 tokens and most with-skill runs between 250,000 and 750,000 tokens."}
 
-<p style="font-size: 12px;">The skill's run: a real row group per country, a stub
-combining manufacturer and model, price colored on a sequential scale from lightest up
-to the LaFerrari's dark navy high point, humanized Drivetrain and Transmission labels,
-a heading band, a frame, and hairlines between rows.</p>
+That consistency costs something. Tokens per iteration run about 109 percent higher
+on average once the skill is attached, and the price per iteration climbs by roughly
+62 percent along with it. More reading happens before the model writes a single
+line, and the result is steadier once it does.
 
-That climbs to 46 of 90 (51.1 percent): 20 of 51 Data-compliance, 26 of 39 Formatting.
-The grouping instruction is now a real `groupname_col`, the price column is colored on
-a domain-appropriate sequential scale, and the table picked up the frame, hairlines,
-and row-group emphasis the checklist requires unconditionally.
+### Checking it against the answer key
 
-**The answer key**, the project's own hand-authored ground truth for this exact
-prompt:
+Looking better is the easy part. What actually matters for a data scientist handing a
+request off to an LLM is whether the table is right: the correct measure colored, the
+correct structure, the story the data is actually telling. So put the skill's table
+next to the project's own hand-built answer key for that same prompt, made the way a
+careful analyst would build it.
 
-![](gtcars_ground_truth.png){width="82%" fig-align="center" fig-alt="The hand-authored ground truth table: a bare Model stub, MSRP colored sequentially, and a two-line footer with an analytical caption and a separate source note."}
+Here's the answer key.
 
-<p style="font-size: 12px;">The answer key: a bare "Model" stub with no manufacturer
-prefix, the country groups reordered so United States sits between Italy and United
-Kingdom, and two separate footer notes — one stating how "most expensive" and the sort
-order were defined, the other citing the source data.</p>
+![](ground-truth.png){width="82%" fig-align="center" fig-alt="The hand-authored ground truth table: a ranked stub column, a total-growth summary column, both density and growth columns colored, and two separate footer notes."}
 
-The gap between the skill's table and the answer key is worth naming as honestly as
-the gap it already closed. The skill's table still calls `tab_source_note` only once,
-a single combined line, not the two the newest checklist item specifically added to
-catch this. It still skips row striping on a ten-row body that is not fully covered by
-color, the exact gate the project's evaluation corpus keeps catching runs of this skill
-missing. Its stub reads "Ferrari LaFerrari," manufacturer folded into the model name,
-where the answer key's row identity is the bare model alone, "LaFerrari" — a naming
-mismatch, not a wrong car. And its group order is Italy, United Kingdom, United States,
-alphabetical among the two "United" names, while the answer key reorders to Italy,
-United States, United Kingdom specifically so the group sequence itself still reads
-most-expensive-first — the US's single $447,000 entry outranks every UK car, so it
-has to come before the UK group for that to hold across the whole table, not just
-inside each one.
+And here's the skill's table again, side by side with it.
 
-### Does this hold up past one prompt?
+![](good-table.png){width="82%" fig-align="center" fig-alt="The skill's output table again, shown for direct comparison against the ground truth above."}
 
-One prompt is an anecdote. The project's own evaluation corpus runs six prompts
-spanning easy, medium, and hard difficulty and different data shapes: car listings,
-monthly air-quality summaries, town population growth, island populations, and
-monthly S&P 500 returns. Each prompt runs three repeats with the skill plus one
-baseline run with no skill, every run scored against its own hand-authored answer key
-the same way as above — against a comparator that has itself been tightened since the
-first version of this post. Two consensus-tuning passes removed six checks that scored
-near-zero or scored identically for every skill regardless of quality, so what is left
-actually discriminates real differences instead of penalizing every run alike for
-something none of them do.
+The skill's table gets the part that actually counts. It colors the right measure on
+the right kind of scale, groups the data the way the prompt asked for, formats the
+percentages properly, and writes a real caption. A careful human reviewer would still
+add a rank column, color the density measure too instead of leaving it plain, and
+split that one footer note into two. None of that is a misreading of the assignment.
+It's the kind of polish a person adds on top of an answer the model already got
+right.
 
-![](comparator_score.png)
+### Get it
 
-<p style="font-size: 12px;">Comparator score across all three repeats and the
-baseline run, for each of the six corpus prompts. The skill's repeats cluster well
-above the baseline on every single prompt.</p>
+The skill lives at `skills/great-tables/` in this repository. Point your agent's
+skill installer at it, or just copy the folder into your own project. Read
+`references/REFERENCE.md` first; it's the one file that tells you where everything
+else in the skill lives.
 
-Averaged across all six prompts, the skill scores 74.9 percent against a 25.7 percent
-baseline — nearly three times over. One honest asterisk on that baseline number: one of
-the six baseline runs failed for a harness reason rather than a design one, a
-variable-naming mismatch that cost it credit for what was otherwise a normal render;
-leaving it out, the baseline reads closer to 28 percent, still a wide gap. The skill's
-own side of the comparison is also the most repeatable outcome measured on this
-corpus: a mean spread of only 10.6 points between the best and worst of three repeats
-on the same prompt, the tightest spread measured yet for this skill.
-
-![](consistency.png)
-
-<p style="font-size: 12px;">Minimum, mean, and maximum comparator score across three
-repeats per prompt, skill against baseline. A single baseline run has no spread to
-show, since it is only run once per prompt.</p>
-
-None of this is free, and we are not rounding that part away either. The skill's
-extra reference reads show up directly in cost: a mean of $0.167 per invocation
-against the baseline's $0.077, more than double, for the reads that happen before a
-single line of table code gets written. Token use moves the same direction for the
-same reason.
-
-![](cost.png)
-
-<p style="font-size: 12px;">Cost per invocation, skill against baseline, by
-prompt.</p>
-
-![](tokens.png)
-
-<p style="font-size: 12px;">Total tokens per invocation (input, output, and cache
-creation), skill against baseline, by prompt.</p>
-
-### How we made it good
-
-The flowchart itself traces back to a concrete problem, not a hunch: two early
-reference tables built for this project, a car-sales ranking and a town-growth
-summary, looked like they came from two different products. Every rule since then,
-the two-measure ceiling on color, the rule that a light band only appears alongside
-Big Color, the grey-budget rule that promotes one neutral surface to a tint when too
-many grey elements stack up, traces back to making tables from two different domains
-still read as one.
-
-Writing down where the values lived was not enough by itself. A forensic read of
-early runs showed the model never opening a single reference file that held
-a pinned value, across a dozen repeats. So the skill's instructions went through two
-rewrites, not just a wording pass: the first cut the top-level instructions from 976
-lines to 225 by extracting a long API reference into its own file; a second pass went
-further and restructured everything around a single doorway, one router file that
-names every other filename, with the top-level instructions themselves cut down to
-117 lines that name decisions but hold no values of their own. A later audit of over
-a hundred and fifty real run transcripts found defects a design review alone would not
-have caught: none of six flagship examples complied with the skill's own frame rule,
-and a summary row once rendered as raw floating-point noise because currency
-formatting does not reach grand summary rows by default. Each became a named,
-specific fix rather than a general rewrite.
-
-A newer audit went further still, and looked specifically at what was still going
-wrong rather than rewriting broadly again. It surfaced two gaps that never fail
-outright, they just quietly under-deliver. Given two numeric measures with no explicit
-ranking between them — "horsepower and price," for instance — the flowchart's own "at
-most two colored measures" ceiling was being read as permission to color both, when
-the checklist actually wants one hero measure colored and the other bold instead. And
-the footer rule was being satisfied by a single source line that named where the data
-came from without ever stating what the table's own numbers meant — technically
-present, never analytical. Both are now named, gated rules instead of left to
-judgment: a hero-measure tie-break that picks exactly one colored measure when two are
-named with no ranking, and an explicit two-call footer requirement that a single
-combined source-and-caption line no longer satisfies.
-
-### Where it still falls short
-
-The striping miss above was not only this one candidate's problem. A separate,
-independent run of the skill against this same prompt missed the identical gate — a
-body with at least ten rows that is not fully covered by color, still missing
-`opt_row_striping()` — even though the other repeats of that same run got it right.
-Right most of the time, wrong often enough that it is not a typo: that is exactly why
-the checklist now spells the gate out as something to count, not eyeball. We are
-naming it here rather than picking a cleaner example to show instead.
-
-There is also a structural limit worth stating plainly: inside this project's own
-evaluation harness, the routing works because the skill is the only thing loaded and
-the harness controls what the agent can reach. Once a skill is published for general
-use, nothing stops an agent from skipping the mandated reads and writing table code
-straight from memory. The flowchart is a strong default, not an enforced constraint,
-outside the environment that was built to test it.
-
-### Try it
-
-The skill lives at `skills/great-tables/` in this repository, and installs the same
-way any other skill on this site does, point an agent's skill installer at it, or
-copy the folder into your own project. Reading `references/REFERENCE.md` first is the
-one rule that matters most; it is the single place every other filename in the skill
-lives, and it is written to be read before any data or any Python.
-
-We are glad to talk more about any of this, the flowchart, the comparator, or where
-either one should go next, over on our [Discord server](https://discord.com/invite/Ux7nrcXHVV).
+We're happy to talk more about any of this over on our [Discord server](https://discord.com/invite/Ux7nrcXHVV).
 
 [great-tables]: https://github.com/posit-dev/great-tables
 [great-docs-skills]: https://posit-dev.github.io/great-docs/
