@@ -18,10 +18,11 @@ _NOT_SKILL_CONTENT = shutil.ignore_patterns("__init__.py", "__main__.py", "__pyc
 def install(dest: str | Path = DEFAULT_DEST, *, force: bool = False) -> Path:
     """Copy the bundled `great-tables` Agent Skill to `dest`.
 
-    The skill teaches an AI coding agent the same house table-design rules on
-    every run, so tables built by an agent look consistent from one run to the
-    next. This copies the skill's own files (`SKILL.md`, `references/`,
-    `scripts/`), unmodified, out of the installed `great_tables` package.
+    The skill teaches an AI coding agent to drive every `great_tables` build
+    through the same deterministic design flowchart, so tables built by an
+    agent look consistent from one run to the next. This copies the skill's
+    own files (`SKILL.md`, `references/`, `assets/`), unmodified, out of the
+    installed `great_tables` package.
 
     Parameters
     ----------

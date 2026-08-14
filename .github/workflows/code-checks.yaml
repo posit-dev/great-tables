@@ -28,4 +28,4 @@ jobs:
         with:
           python-version: "3.10"
       - run: |
-          python .github/scripts/no_pandas.py great_tables _tbl_data.py data/__init__.py skill/scripts/house_table.py
+          python .github/scripts/no_pandas.py great_tables _tbl_data.py data/__init__.py skill/assets/examples/financial/financial.py skill/assets/examples/heatmap/heatmap.py skill/assets/examples/ranking/ranking.py skill/assets/examples/scientific/scientific.py skill/assets/examples/summary_stats/summary_stats.py skill/assets/examples/time_series/time_series.py
