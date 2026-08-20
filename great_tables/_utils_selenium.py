@@ -14,7 +14,7 @@ WebDrivers: TypeAlias = Literal[
 ]
 
 
-class _BaseWebDriver:
+class _BaseWebDriver:  # pragma: no cover
     def __init__(self, debug_port: int | None = None):
         self.debug_port = debug_port
         self.wd_options = self.cls_wd_options()
@@ -35,7 +35,7 @@ class _BaseWebDriver:
         self.driver.quit()
 
 
-class _ChromeWebDriver(_BaseWebDriver):
+class _ChromeWebDriver(_BaseWebDriver):  # pragma: no cover
     cls_driver = webdriver.Chrome
     cls_wd_options = webdriver.ChromeOptions
 
@@ -45,12 +45,12 @@ class _ChromeWebDriver(_BaseWebDriver):
             self.wd_options.add_argument(f"--remote-debugging-port={self.debug_port}")
 
 
-class _SafariWebDriver(_BaseWebDriver):
+class _SafariWebDriver(_BaseWebDriver):  # pragma: no cover
     cls_driver = webdriver.Safari
     cls_wd_options = webdriver.SafariOptions
 
 
-class _FirefoxWebDriver(_BaseWebDriver):
+class _FirefoxWebDriver(_BaseWebDriver):  # pragma: no cover
     cls_driver = webdriver.Firefox
     cls_wd_options = webdriver.FirefoxOptions
 
@@ -60,7 +60,7 @@ class _FirefoxWebDriver(_BaseWebDriver):
             self.wd_options.add_argument(f"--start-debugger-server {self.debug_port}")
 
 
-class _EdgeWebDriver(_BaseWebDriver):
+class _EdgeWebDriver(_BaseWebDriver):  # pragma: no cover
     cls_driver = webdriver.Edge
     cls_wd_options = webdriver.EdgeOptions
 
@@ -68,14 +68,14 @@ class _EdgeWebDriver(_BaseWebDriver):
         self.wd_options.add_argument("--headless")
 
 
-def no_op_callable(web_driver: webdriver.Remote):
+def no_op_callable(web_driver: webdriver.Remote):  # pragma: no cover
     def wrapper(*args, **kwargs):
         return web_driver
 
     return wrapper
 
 
-def _get_web_driver(web_driver: WebDrivers | webdriver.Remote):
+def _get_web_driver(web_driver: WebDrivers | webdriver.Remote):  # pragma: no cover
     if isinstance(web_driver, webdriver.Remote):
         return no_op_callable(web_driver)
     elif web_driver == "chrome":
