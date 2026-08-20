@@ -21,6 +21,7 @@ from great_tables._tbl_data import (
     eval_select,
     get_column_names,
     group_splits,
+    is_na,
     is_series,
     reorder,
     to_frame,
@@ -464,3 +465,32 @@ def test_eval_aggregate_pyarrow_raises2():
     with pytest.raises(ValueError) as exc_info:
         eval_aggregate(df, expr)
     assert "Expression must produce exactly 1 row (aggregation)" in str(exc_info.value)
+
+
+def test_is_na_singledispatch_fallback_raises():
+    fallback = is_na.dispatch(object)
+    with pytest.raises(NotImplementedError, match="Unsupported type"):
+        fallback("not_a_dataframe", None)
+
+
+def test_eval_select_singledispatch_fallback_raises():
+    fallback = eval_select.dispatch(object)
+    with pytest.raises(NotImplementedError, match="Unsupported type"):
+        fallback("not_a_dataframe", ["col"])
+
+
+def test_pyarrow_validate_frame_duplicate_columns_raises():
+    # Line 828: ValueError when PyArrow table has duplicate column names
+    import pyarrow as pa
+
+    tbl = pa.table({"x": [1, 2], "y": [3, 4]})
+    # Manually create a table with duplicate column names (PyArrow allows this)
+    dup_tbl = pa.table([pa.array([1, 2]), pa.array([3, 4])], names=["x", "x"])
+    with pytest.raises(ValueError, match="Column names must be unique"):
+        validate_frame(dup_tbl)
+
+
+def test_to_frame_list_without_name_raises():
+    # Line 842: ValueError when converting list to frame without specifying name
+    with pytest.raises(ValueError, match="name must be specified"):
+        to_frame([1, 2, 3], name=None)
