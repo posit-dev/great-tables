@@ -2382,3 +2382,10 @@ def test_calc_ref_value_unsupported_string_raises():
 
     with pytest.raises(ValueError, match="Unsupported nanoplot area value"):
         calc_ref_value("unknown_keyword", [1, 2, 3])
+
+
+def test_normalize_to_dict_fewer_than_two_raises():
+    from great_tables._utils_nanoplots import _normalize_to_dict
+
+    with pytest.raises(ValueError, match="At least two values must be provided"):
+        _normalize_to_dict(val=[1.0])
