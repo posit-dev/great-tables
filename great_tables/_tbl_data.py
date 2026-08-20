@@ -113,7 +113,7 @@ else:
 
 
 def _raise_not_implemented(data: Any):
-    raise NotImplementedError(f"Unsupported data type: {type(data)}")
+    raise NotImplementedError(f"Unsupported data type: {type(data)}")  # pragma: no cover
 
 
 def _re_version(raw_version: str) -> tuple[int, int, int]:
@@ -142,7 +142,7 @@ class Agnostic:
 @singledispatch
 def copy_data(data: DataFrameLike) -> DataFrameLike:
     """Copy the stored table data"""
-    _raise_not_implemented(data)
+    _raise_not_implemented(data)  # pragma: no cover
 
 
 @copy_data.register(PdDataFrame)
@@ -166,7 +166,7 @@ def _(data: PyArrowTable):
 @singledispatch
 def get_column_names(data: DataFrameLike) -> list[str]:
     """Get a list of column names from the input data table"""
-    _raise_not_implemented(data)
+    _raise_not_implemented(data)  # pragma: no cover
 
 
 @get_column_names.register(PdDataFrame)
@@ -190,7 +190,7 @@ def _(data: PyArrowTable):
 @singledispatch
 def n_rows(data: DataFrameLike) -> int:
     """Get the number of rows from the input data table"""
-    raise _raise_not_implemented(data)
+    raise _raise_not_implemented(data)  # pragma: no cover
 
 
 @n_rows.register(PdDataFrame)
@@ -211,7 +211,7 @@ def _(data: PyArrowTable) -> int:
 def _get_cell(data: DataFrameLike, row: int, column: str) -> Any:
     """Get the content from a single cell in the input data table"""
 
-    _raise_not_implemented(data)
+    _raise_not_implemented(data)  # pragma: no cover
 
 
 @_get_cell.register(PlDataFrame)
@@ -231,7 +231,7 @@ def _(data: Any, row: int, column: str) -> Any:
 def _(data: Any, row: int, col: str) -> Any:
     col_ii = data.columns.get_loc(col)
 
-    if not isinstance(col_ii, int):
+    if not isinstance(col_ii, int):  # pragma: no cover
         raise ValueError("Column named " + col + " matches multiple columns.")
 
     return data.iloc[row, col_ii]
@@ -247,7 +247,7 @@ def _(data: PyArrowTable, row: int, column: str) -> Any:
 
 @singledispatch
 def _set_cell(data: DataFrameLike, row: int, column: str, value: Any):
-    _raise_not_implemented(data)
+    _raise_not_implemented(data)  # pragma: no cover
 
 
 @_set_cell.register(PdDataFrame)
@@ -295,7 +295,7 @@ def _(data: PyArrowTable, column: str) -> Any:
 @singledispatch
 def reorder(data: DataFrameLike, rows: list[int], columns: list[str]) -> DataFrameLike:
     """Return a re-ordered DataFrame."""
-    _raise_not_implemented(data)
+    _raise_not_implemented(data)  # pragma: no cover
 
 
 @reorder.register
@@ -319,7 +319,7 @@ def _(data: PyArrowTable, rows: list[int], columns: list[str]) -> PyArrowTable:
 # group_splits ----
 @singledispatch
 def group_splits(data: DataFrameLike, group_key: str) -> dict[Any, list[int]]:
-    raise NotImplementedError(f"Unsupported data type: {type(data)}")
+    raise NotImplementedError(f"Unsupported data type: {type(data)}")  # pragma: no cover
 
 
 @group_splits.register
@@ -456,7 +456,7 @@ def _(data: PyArrowTable, expr: Union[list[str], PlSelectExpr], strict: bool = T
         col_pos = {k: ii for ii, k in enumerate(data.column_names)}
         return [(col, col_pos[col]) for col in data.column_names if expr(col)]
 
-    raise NotImplementedError(f"Unsupported selection expr: {expr}")
+    raise NotImplementedError(f"Unsupported selection expr: {expr}")  # pragma: no cover
 
 
 def _validate_selector_list(selectors: list, strict=True):
@@ -503,7 +503,7 @@ def _eval_select_from_list(
 @singledispatch
 def create_empty_frame(df: DataFrameLike) -> DataFrameLike:
     """Return a DataFrame with the same shape, but all nan string columns"""
-    raise NotImplementedError(f"Unsupported type: {type(df)}")
+    raise NotImplementedError(f"Unsupported type: {type(df)}")  # pragma: no cover
 
 
 @create_empty_frame.register
@@ -530,7 +530,7 @@ def _(df: PyArrowTable):
 @singledispatch
 def copy_frame(df: DataFrameLike) -> DataFrameLike:
     """Return a copy of the input DataFrame"""
-    raise NotImplementedError(f"Unsupported type: {type(df)}")
+    raise NotImplementedError(f"Unsupported type: {type(df)}")  # pragma: no cover
 
 
 @copy_frame.register
@@ -556,7 +556,7 @@ def _(df: PyArrowTable):
 @singledispatch
 def cast_frame_to_string(df: DataFrameLike) -> DataFrameLike:
     """Return a copy of the input DataFrame with all columns cast to string"""
-    raise NotImplementedError(f"Unsupported type: {type(df)}")
+    raise NotImplementedError(f"Unsupported type: {type(df)}")  # pragma: no cover
 
 
 @cast_frame_to_string.register
@@ -599,7 +599,7 @@ def _(df: PyArrowTable):
 @singledispatch
 def replace_null_frame(df: DataFrameLike, replacement: DataFrameLike) -> DataFrameLike:
     """Return a copy of the input DataFrame with all null values replaced with replacement"""
-    raise NotImplementedError(f"Unsupported type: {type(df)}")
+    raise NotImplementedError(f"Unsupported type: {type(df)}")  # pragma: no cover
 
 
 @replace_null_frame.register
@@ -630,7 +630,7 @@ def _(df: PyArrowTable, replacement: PyArrowTable):
 
 @singledispatch
 def to_list(ser: SeriesLike) -> list[Any]:
-    raise NotImplementedError(f"Unsupported type: {type(ser)}")
+    raise NotImplementedError(f"Unsupported type: {type(ser)}")  # pragma: no cover
 
 
 @to_list.register
@@ -686,16 +686,16 @@ def _(ser: PyArrowChunkedArray) -> bool:
 
 @singledispatch
 def eval_transform(df: DataFrameLike, expr: Any) -> list[Any]:
-    raise NotImplementedError(f"Unsupported type: {type(df)}")
+    raise NotImplementedError(f"Unsupported type: {type(df)}")  # pragma: no cover
 
 
 @eval_transform.register
 def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> list[Any]:
     res = expr(df)
 
-    if not isinstance(res, PdSeries):
+    if not isinstance(res, PdSeries):  # pragma: no cover
         raise ValueError(f"Result must be a pandas Series. Received {type(res)}")
-    elif not len(res) == len(df):
+    elif not len(res) == len(df):  # pragma: no cover
         raise ValueError(
             f"Result must be same length as input data. Observed different lengths."
             f"\n\nInput data: {len(df)}.\nResult: {len(res)}."
@@ -708,14 +708,14 @@ def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> list[Any]:
 def _(df: PlDataFrame, expr: PlExpr) -> list[Any]:
     df_res = df.select(expr)
 
-    if len(df_res.columns) > 1:
+    if len(df_res.columns) > 1:  # pragma: no cover
         raise ValueError(f"Result must be a single column. Received {len(df_res.columns)} columns.")
     else:
         res = df_res[df_res.columns[0]]
 
-    if not isinstance(res, PlSeries):
+    if not isinstance(res, PlSeries):  # pragma: no cover
         raise ValueError(f"Result must be a polars Series. Received {type(res)}")
-    elif not len(res) == len(df):
+    elif not len(res) == len(df):  # pragma: no cover
         raise ValueError(
             f"Result must be same length as input data. Observed different lengths."
             f"\n\nInput data: {len(df)}.\nResult: {len(res)}."
@@ -728,9 +728,9 @@ def _(df: PlDataFrame, expr: PlExpr) -> list[Any]:
 def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowArray]) -> list[Any]:
     res = expr(df)
 
-    if not isinstance(res, PyArrowArray):
+    if not isinstance(res, PyArrowArray):  # pragma: no cover
         raise ValueError(f"Result must be an Arrow Array. Received {type(res)}")
-    elif not len(res) == len(df):
+    elif not len(res) == len(df):  # pragma: no cover
         raise ValueError(
             f"Result must be same length as input data. Observed different lengths."
             f"\n\nInput data: {df.num_rows}.\nResult: {len(res)}."
@@ -776,7 +776,7 @@ def validate_frame(df: DataFrameLike) -> DataFrameLike:
     Note that this is only relevant for pandas, which allows duplicate names
     on DataFrames, and multi-index columns (and probably other things).
     """
-    raise NotImplementedError(f"Unsupported type: {type(df)}")
+    raise NotImplementedError(f"Unsupported type: {type(df)}")  # pragma: no cover
 
 
 @validate_frame.register
@@ -836,7 +836,7 @@ def _(df: PyArrowTable) -> PyArrowTable:
 @singledispatch
 def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataFrameLike:
     if not isinstance(ser, list):
-        raise NotImplementedError(f"Unsupported type: {type(ser)}")
+        raise NotImplementedError(f"Unsupported type: {type(ser)}")  # pragma: no cover
 
     if not name:
         raise ValueError("name must be specified, when converting a list to a DataFrame.")
@@ -846,17 +846,17 @@ def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataF
         import polars as pl
 
         return pl.DataFrame({name: ser}, strict=False)
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pass
 
     try:
         import pandas as pd
 
         return pd.DataFrame({name: ser})
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pass
 
-    raise ImportError(
+    raise ImportError(  # pragma: no cover
         "Passing a plain list of values requires either polars or pandas to be installed. "
         "You can also pass a polars Series or pandas Series directly."
     )
@@ -908,7 +908,9 @@ def eval_aggregate(df, expr) -> dict[str, Any]:
     dict[str, Any]
         A dictionary mapping column names to their aggregated values
     """
-    raise NotImplementedError(f"eval_aggregate not implemented for type: {type(df)}")
+    raise NotImplementedError(
+        f"eval_aggregate not implemented for type: {type(df)}"
+    )  # pragma: no cover
 
 
 @eval_aggregate.register
@@ -951,7 +953,7 @@ def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowTable]) -> dict[st
 @singledispatch
 def get_rows(ser: SeriesLike, indexes: list[int]) -> SeriesLike:
     """Returns values of the series at `indexes` position.`"""
-    raise NotImplementedError(f"Unsupported type: {type(ser)}")
+    raise NotImplementedError(f"Unsupported type: {type(ser)}")  # pragma: no cover
 
 
 @get_rows.register
