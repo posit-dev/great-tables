@@ -133,3 +133,10 @@ def test_final_columns_hidden_and_row_group_cols_handled():
     all_columns = [col.var for col in final_columns]
 
     assert all_columns == ["y", "z"]
+
+
+def test_cols_label_invalid_type_raises():
+    import polars as pl
+
+    with pytest.raises(ValueError, match="Column labels must be strings or BaseText objects"):
+        GT(pl.DataFrame({"x": [1]})).cols_label(x=42)
