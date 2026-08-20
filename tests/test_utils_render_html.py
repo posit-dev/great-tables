@@ -545,3 +545,18 @@ def test_column_labels_hidden_returns_empty_string():
     result = create_columns_component_h(built)
 
     assert result == ""
+
+
+def test_spanner_covering_all_columns_else_branch():
+    # When a spanner covers all columns, remaining_headings is empty,
+    # triggering the else branch at line 525 of _utils_render_html.py
+    from great_tables._utils_render_html import create_columns_component_h
+    import polars as pl
+
+    df = pl.DataFrame({"a": [1, 2], "b": [3, 4]})
+    gt = GT(df).tab_spanner("All", ["a", "b"])
+    built = gt._build_data("html")
+    result = create_columns_component_h(built)
+
+    assert result is not None
+    assert "All" in str(result)
