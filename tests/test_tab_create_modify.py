@@ -469,3 +469,21 @@ def test_text_case_when_first_match_wins():
     )
     assert "FIRST" in html
     assert "SECOND" not in html
+
+
+def test_text_case_match_with_default_no_match():
+    # `return default` when no match is found but default is set
+    df = pd.DataFrame({"x": ["cat", "dog"]})
+    html = (
+        GT(df)
+        .text_case_match(
+            ("bird", "BIRD"),
+            default="OTHER",
+            locations=loc.body(columns="x"),
+        )
+        .as_raw_html()
+    )
+
+    assert "OTHER" in html
+    assert "cat" not in html
+    assert "dog" not in html
