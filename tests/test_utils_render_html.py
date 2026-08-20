@@ -548,8 +548,6 @@ def test_column_labels_hidden_returns_empty_string():
 
 
 def test_spanner_covering_all_columns_else_branch():
-    # When a spanner covers all columns, remaining_headings is empty,
-    # triggering the else branch at line 525 of _utils_render_html.py
     from great_tables._utils_render_html import create_columns_component_h
     import polars as pl
 
