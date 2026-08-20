@@ -318,15 +318,15 @@ def test_cols_width_stub_key_no_stub():
 
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
     gt_tbl = GT(df).cols_width({stub: "99px", "a": "10px", "b": "20px"})
+
     assert gt_tbl._boxhead._get_column_widths() == ["10px", "20px"]
 
 
 def test_cols_width_stub_key_no_collision():
     # A data column actually named "stub" is NOT treated as the sentinel
-    from great_tables import stub
-
     df = pd.DataFrame({"stub": [1, 2], "a": [3, 4]})
     gt_tbl = GT(df).cols_width({"stub": "10px", "a": "20px"})
+
     assert gt_tbl._boxhead._get_column_widths() == ["10px", "20px"]
 
 
@@ -353,6 +353,7 @@ def test_cols_move_single_col(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move(src_gt, columns=columns, after="b")
+
     assert [col.var for col in new_gt._boxhead] == ["b", "a", "c", "d"]
 
 
@@ -364,6 +365,7 @@ def test_cols_move_multi_cols(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move(src_gt, columns=columns, after="b")
+
     assert [col.var for col in new_gt._boxhead] == ["b", "a", "d", "c"]
 
 
@@ -372,6 +374,7 @@ def test_cols_move_to_start_single_col(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_start(src_gt, columns=columns)
+
     assert [col.var for col in new_gt._boxhead] == ["c", "a", "b", "d"]
 
 
@@ -383,6 +386,7 @@ def test_cols_move_to_start_multi_cols(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_start(src_gt, columns=columns)
+
     assert [col.var for col in new_gt._boxhead] == ["c", "d", "a", "b"]
 
 
@@ -391,6 +395,7 @@ def test_cols_move_to_end_single_col(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_end(src_gt, columns=columns)
+
     assert [col.var for col in new_gt._boxhead] == ["a", "b", "d", "c"]
 
 
@@ -402,6 +407,7 @@ def test_cols_move_to_end_multi_cols(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_move_to_end(src_gt, columns=columns)
+
     assert [col.var for col in new_gt._boxhead] == ["b", "d", "a", "c"]
 
 
@@ -417,6 +423,7 @@ def test_cols_reorder(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_reorder(src_gt, columns=columns)
+
     assert [col.var for col in new_gt._boxhead] == ["a", "d", "c", "b"]
 
 
@@ -427,6 +434,7 @@ def test_cols_reorder(DF, columns):
 def test_cols_reorder_raises(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
+
     with pytest.raises(Exception) as exc_info:
         new_gt = cols_reorder(src_gt, columns=columns)
 
@@ -438,6 +446,7 @@ def test_cols_hide_single_col(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_hide(src_gt, columns=columns)
+
     assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "d"]
 
 
@@ -449,6 +458,7 @@ def test_cols_hide_multi_cols(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_hide(src_gt, columns=columns)
+
     assert [col.var for col in new_gt._boxhead if col.visible] == ["b", "c"]
 
 
@@ -457,6 +467,7 @@ def test_cols_unhide_single_col(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_unhide(cols_hide(src_gt, columns=columns), columns=columns)
+
     assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "c", "d"]
 
 
@@ -468,6 +479,7 @@ def test_cols_unhide_multi_cols(DF, columns):
     df = DF({"a": [1, 2], "b": [3, 4], "c": [5, 6], "d": [7, 8]})
     src_gt = GT(df)
     new_gt = cols_unhide(cols_hide(src_gt, columns=columns), columns=columns)
+
     assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "c", "d"]
 
 
@@ -515,10 +527,10 @@ def test_spanner_transformer_split(params: dict[str, Any], src: str, dst: list[s
 
 
 def test_spanner_transformer_split_columns():
-    #
     res = SpannerTransformer(delim=",", limit=1, split="first").split_columns(
         ["span_1,A", "span_1,B,x"]
     )
+
     assert res == {
         "span_1,A": ["span_1", "A"],
         "span_1,B,x": ["span_1", "B,x"],
@@ -546,7 +558,9 @@ def test_tab_spanner_delim_level_one():
     gt = GT(df).tab_spanner_delim()
 
     assert len(gt._spanners) == 2
+
     info1, info2 = gt._spanners
+
     assert info1.spanner_id == "span_1"
     assert info1.spanner_level == 0
 
@@ -568,7 +582,9 @@ def test_tab_spanner_delim_level_multi():
     gt = GT(df).tab_spanner_delim()
 
     assert len(gt._spanners) == 2
+
     info1, info2 = gt._spanners
+
     assert info1.spanner_id == "mid"
     assert info1.spanner_level == 0
 
@@ -593,3 +609,165 @@ def test_spanners_styled(snapshot: str):
     )
 
     assert_rendered_columns(snapshot, gt)
+
+
+def test_tab_spanner_negative_level_raises():
+    df = pd.DataFrame({"x": [1], "y": [2]})
+    with pytest.raises(ValueError, match="negative"):
+        GT(df).tab_spanner(label="test", columns=["x"], level=-1)
+
+
+def test_tab_spanner_duplicate_id_raises():
+    df = pd.DataFrame({"x": [1], "y": [2]})
+    with pytest.raises(ValueError, match="already exists"):
+        GT(df).tab_spanner(label="test", columns=["x"], id="span1").tab_spanner(
+            label="test2", columns=["y"], id="span1"
+        )
+
+
+def test_tab_spanner_invalid_label_type_raises():
+    df = pd.DataFrame({"x": [1], "y": [2]})
+    with pytest.raises(ValueError, match="Spanner labels must be strings"):
+        GT(df).tab_spanner(label=23, columns=["x"])
+
+
+def test_tab_spanner_no_columns_raises():
+    df = pd.DataFrame({"x": [1], "y": [2]})
+    with pytest.raises(NotImplementedError, match="columns/spanners must be specified"):
+        GT(df).tab_spanner(label="test", columns=[])
+
+
+def test_cols_move_after_not_found_raises():
+    df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
+    with pytest.raises(ValueError, match="not found"):
+        GT(df).cols_move(columns=["x"], after="nonexistent")
+
+
+def test_sequence_slice_indexing():
+    # _Sequence slice indexing covers the `isinstance(ii, slice)` branch
+    spans = Spanners(
+        [
+            SpannerInfo(spanner_id="a", spanner_level=0, vars=[], spanner_label="A"),
+            SpannerInfo(spanner_id="b", spanner_level=1, vars=[], spanner_label="B"),
+            SpannerInfo(spanner_id="c", spanner_level=2, vars=[], spanner_label="C"),
+        ]
+    )
+    sliced = spans[0:2]
+
+    assert len(sliced) == 2
+    assert isinstance(sliced, Spanners)
+
+
+def test_sequence_list_indexing():
+    # _Sequence list indexing covers the `isinstance(ii, list)` branch
+    spans = Spanners(
+        [
+            SpannerInfo(spanner_id="a", spanner_level=0, vars=[], spanner_label="A"),
+            SpannerInfo(spanner_id="b", spanner_level=1, vars=[], spanner_label="B"),
+        ]
+    )
+    indexed = spans[[0, 1]]
+
+    assert len(indexed) == 2
+    assert isinstance(indexed, Spanners)
+
+
+def test_sequence_repr():
+    # _Sequence.__repr__ coverage
+    spans = Spanners([])
+    r = repr(spans)
+
+    assert "Spanners" in r
+
+
+def test_sequence_eq():
+    # _Sequence.__eq__ coverage
+    spans1 = Spanners([])
+    spans2 = Spanners([])
+    spans3 = Spanners([SpannerInfo(spanner_id="a", spanner_level=0, vars=[], spanner_label="A")])
+
+    assert spans1 == spans2
+    assert spans1 != spans3
+    assert spans1 != "not a spanners"
+
+
+def test_tab_spanner_md_label_auto_id():
+    from great_tables import md
+
+    df = pl.DataFrame({"x": [1], "y": [2]})
+
+    # When label is a Text (md/html) and id is None, id is derived from label.text
+    gt = GT(df).tab_spanner(label=md("**Bold**"), columns=["x", "y"])
+
+    assert len(gt._spanners) == 1
+    assert gt._spanners[0].spanner_id == "**Bold**"
+
+
+def test_tab_spanner_string_columns_arg():
+    df = pl.DataFrame({"x": [1], "y": [2]})
+
+    # When columns is a single string (not a list), it gets wrapped in a list
+    gt = GT(df).tab_spanner(label="A", columns="x")
+
+    assert len(gt._spanners) == 1
+    assert "x" in gt._spanners[0].vars
+
+
+def test_tab_spanner_unitstr_label():
+    df = pl.DataFrame({"x": [1], "y": [2]})
+
+    # UnitStr is a BaseText but not a Text — triggers the elif isinstance(label, BaseText) branch
+    unit_label = UnitStr.from_str("{{kg m^-2}}")
+    gt = GT(df).tab_spanner(label=unit_label, columns=["x", "y"])
+
+    assert len(gt._spanners) == 1
+
+
+def test_spanners_print_matrix_all_hidden_cols():
+    # Line 847: spanners covering only hidden columns → non_empty_spans becomes empty
+    from great_tables._spanners import spanners_print_matrix
+
+    df = pl.DataFrame({"x": [1], "y": [2]})
+    gt = GT(df).tab_spanner(label="A", columns="x").cols_hide("x")
+    built = gt._build_data("html")
+    matrix, vars = spanners_print_matrix(
+        spanners=built._spanners, boxhead=built._boxhead, include_hidden=False
+    )
+
+    # Only 'y' is visible; spanner over 'x' is dropped (empty_spanner_matrix returned)
+    assert matrix == [{"y": "y"}]
+
+
+def test_cols_width_no_args_returns_unchanged():
+    # cols_width() with no args -> not new_cases -> return self unchanged
+    df = pl.DataFrame({"x": [1], "y": [2]})
+    gt = GT(df)
+    result = gt.cols_width()
+
+    assert result is gt
+
+
+def test_cols_reorder_string_arg():
+    # cols_reorder with a single string column -> wrapped in list
+    df = pl.DataFrame({"a": [1], "b": [2]})
+    # Single string means "put column 'a' first" but must include all columns -> raises
+    import pytest
+
+    with pytest.raises(Exception, match="Column reordering must include all columns"):
+        GT(df).cols_reorder(columns="a")
+
+
+def test_cols_width_nonexistent_column_raises():
+    # cols_width validates columns before calling
+    # _set_column_width (column not found raises AssertionError)
+    df = pl.DataFrame({"a": [1], "b": [2]})
+    with pytest.raises((ValueError, AssertionError)):
+        GT(df).cols_width({"nonexistent": "100px"}).as_raw_html()
+
+
+def test_spanner_info_drop_var_returns_self_when_not_found():
+    # Return self when var name not in SpannerInfo.vars
+    span = SpannerInfo(spanner_id="a", spanner_level=0, vars=["col1", "col2"], built="A")
+    result = span.drop_var("col3")  # col3 not in vars
+
+    assert result is span
