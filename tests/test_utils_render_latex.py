@@ -633,3 +633,37 @@ def test_snap_render_as_latex_stub_and_groups_as_column(snapshot):
     latex_str = _render_as_latex(data=gt_tbl._build_data(context="latex"))
 
     assert snapshot == latex_str
+
+
+def test_create_columns_component_l_with_stub_and_spanner():
+    gt_tbl = GT(exibble.head(3), rowname_col="row").tab_spanner(
+        label="Numbers", columns=["num", "currency"]
+    )
+    built = gt_tbl._build_data("latex")
+    result = create_columns_component_l(built)
+
+    assert "Numbers" in result
+
+
+def test_render_as_latex_grand_summary_no_stub():
+    import polars as pl
+
+    # grand_summary_rows with no stub/group column triggers the else branch in _create_summary_row_l
+    df = pl.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+    gt = GT(df).grand_summary_rows(fns={"Total": pl.col("a", "b").sum()})
+    built = gt._build_data("latex")
+    result = _render_as_latex(built)
+
+    assert "Total" in result
+
+
+def test_create_summary_row_l_both_stubs():
+    # Both group and row stub column present with summary rows.
+    # Use exibble (has 'row' and 'group' columns) with grand_summary_rows.
+    gt_tbl = GT(exibble.head(4), rowname_col="row", groupname_col="group").grand_summary_rows(
+        fns={"Total": lambda df: df.sum(numeric_only=True)}
+    )
+    built = gt_tbl._build_data("latex")
+    result = _render_as_latex(built)
+
+    assert "Total" in result
