@@ -48,3 +48,12 @@ def test_google_font_imports_is_set():
     from great_tables._helpers import GoogleFontImports
 
     assert isinstance(gt_table._google_font_imports, GoogleFontImports)
+
+
+def test_gt_data_replace_invalid_key_raises():
+    gt = GT(pd.DataFrame({"x": [1]}))
+    data = gt._build_data("html")
+    import pytest
+
+    with pytest.raises(ValueError, match="Replacements not in data"):
+        data._replace(_nonexistent_field=23)
