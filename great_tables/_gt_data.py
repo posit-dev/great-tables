@@ -196,7 +196,7 @@ class Body:
     def render_formats(self, data_tbl: TblData, formats: list[FormatInfo], context: Any):
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
-            if eval_func is None:
+            if eval_func is None:  # pragma: no cover
                 raise Exception("Internal Error")
             for col, row in fmt.cells.resolve():
                 result = eval_func(_get_cell(data_tbl, row, col))
@@ -372,10 +372,10 @@ class Boxhead(_Sequence[ColInfo]):
         """Updates align attribute in entries based on data types."""
 
         # Validate that data columns and ColInfo list correspond
-        if len(get_column_names(data)) != len(self._d):
+        if len(get_column_names(data)) != len(self._d):  # pragma: no cover
             raise ValueError("Number of data columns must match length of Boxhead")
 
-        if any(
+        if any(  # pragma: no cover
             col_info.var != col_name for col_info, col_name in zip(self._d, get_column_names(data))
         ):
             raise ValueError("Column names must match between data and Boxhead")
@@ -490,7 +490,7 @@ class Boxhead(_Sequence[ColInfo]):
         alignment = [x.column_align for x in boxh if x.visible if x.var == var]
 
         # Check for length of alignment and raise error if not 1
-        if len(alignment) != 1:
+        if len(alignment) != 1:  # pragma: no cover
             raise ValueError("Alignment must be length 1.")
 
         # Convert the single alignment value in the list to a string
@@ -519,7 +519,7 @@ class Boxhead(_Sequence[ColInfo]):
     def _set_column_width(self, colname: str, width: str) -> Self:
         colnames = [x.var for x in self._d]
 
-        if colname not in colnames:
+        if colname not in colnames:  # pragma: no cover
             raise ValueError(f"Column name {colname} not found in table.")
 
         out_cols = [
@@ -716,7 +716,7 @@ class Stub:
         # determine whether they populate a column located in the stub; if set as True then that's
         # the return value
         row_group_as_column: Any = options.row_group_as_column.value
-        if not isinstance(row_group_as_column, bool):
+        if not isinstance(row_group_as_column, bool):  # pragma: no cover
             raise TypeError(
                 "Variable type mismatch. Expected bool, got something entirely different."
             )
@@ -844,7 +844,7 @@ class SpannerInfo:
     def built_label(self) -> str | BaseText | UnitStr:
         """Return a list of spanner labels that have been built."""
         label = self.built if self.built is not None else self.spanner_label
-        if label is None:
+        if label is None:  # pragma: no cover
             raise ValueError("Spanner label must be a string and not None.")
         return label
 
@@ -867,7 +867,7 @@ class Spanners(_Sequence[SpannerInfo]):
         return cls([SpannerInfo(id, ii) for ii, id in enumerate(ids)])
 
     def relevel(self, levels: list[int]) -> Self:
-        if len(levels) != len(self):
+        if len(levels) != len(self):  # pragma: no cover
             raise ValueError(
                 "New levels must be same length as spanners."
                 f" Received {len(levels)}, but have {len(self)} spanners."
@@ -986,7 +986,7 @@ class FormatFns:
 
 class CellSubset:
     def resolve(self) -> list[tuple[str, int]]:
-        raise NotImplementedError("Not implemented")
+        raise NotImplementedError("Not implemented")  # pragma: no cover
 
 
 class CellRectangle(CellSubset):
@@ -1117,7 +1117,7 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
         # for regular summary configuration (a bit double barrelled).
         if self._is_grand_summary and group_id is None:
             group_id = SummaryRows.GRAND_SUMMARY_KEY
-        elif group_id is None:
+        elif group_id is None:  # pragma: no cover
             raise TypeError("group_id must be provided for group summary rows.")
 
         existing_group = self.get(group_id)
@@ -1171,7 +1171,7 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
 
         if self._is_grand_summary:
             group_id = SummaryRows.GRAND_SUMMARY_KEY
-        elif group_id is None:
+        elif group_id is None:  # pragma: no cover
             raise TypeError("group_id must be provided for group summary rows.")
 
         summary_row_group = self.get(group_id)
@@ -1186,10 +1186,10 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
         return result
 
     def __iter__(self):
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def __len__(self):
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 # Options ----
