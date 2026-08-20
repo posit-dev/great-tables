@@ -1518,7 +1518,7 @@ def _apply_footnotes_to_text(footnotes: list[FootnoteInfo], data: GTData, text: 
         # Apply placement logic
         return _apply_footnote_placement(text, marks_html, placement)
 
-    return text
+    return text  # pragma: no cover
 
 
 def _apply_footnote_placement(
