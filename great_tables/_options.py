@@ -1320,7 +1320,7 @@ def opt_table_font(
     existing_fonts = self._options.table_font_names.value
 
     # If `existing_fonts` is not a list, throw an error
-    if not isinstance(existing_fonts, list):
+    if not isinstance(existing_fonts, list):  # pragma: no cover
         raise ValueError("The value from `_options.table_font_names` must be a list.")
 
     res = self
