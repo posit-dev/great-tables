@@ -487,3 +487,17 @@ def test_gradient_n_pal_out_of_bounds_raises(data: list[float], msg: str) -> Non
 
     with pytest.raises(ValueError, match=msg):
         palette(data)
+
+
+def test_add_alpha_int_alpha_converts_to_float():
+    """_add_alpha converts int alpha to float."""
+    colors = ["#FF0000"]
+    result = _add_alpha(colors, alpha=1)  # int, not float
+    assert result == ["#FF0000FF"]
+
+
+def test_add_alpha_strips_existing_alpha():
+    """_add_alpha strips existing alpha from #RRGGBBAA colors."""
+    colors = ["#FF0000AA"]  # already has alpha (9 chars)
+    result = _add_alpha(colors, alpha=1.0)
+    assert result == ["#FF0000FF"]
