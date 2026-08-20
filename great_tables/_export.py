@@ -359,7 +359,7 @@ WebDrivers: TypeAlias = Literal[
 DebugDumpOptions: TypeAlias = Literal["zoom", "width_resize", "final_resize"]
 
 
-def save(
+def save(  # pragma: no cover
     self: GT,
     file: Path | str,
     selector: str = "table",
@@ -491,7 +491,7 @@ def save(
     return self
 
 
-def _save_screenshot(
+def _save_screenshot(  # pragma: no cover
     driver: webdriver.Chrome, scale: float, path: str, debug: DebugDumpOptions | None
 ) -> None:
     from io import BytesIO
@@ -571,7 +571,7 @@ def _save_screenshot(
     Image.open(fp=BytesIO(el.screenshot_as_png)).save(fp=path)
 
 
-def _dump_debug_screenshot(driver, path):
+def _dump_debug_screenshot(driver, path):  # pragma: no cover
     driver.execute_script(
         "document.body.style.border = '3px solid blue'; "
         "document.body.childNodes[0].style.border = '3px solid orange'; "
