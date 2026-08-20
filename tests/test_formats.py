@@ -3532,3 +3532,10 @@ def test_fmt_flag_invalid_country_code_length_raises():
     df = pl.DataFrame({"flag": ["U"]})
     with pytest.raises(ValueError, match="2 or 3 characters long"):
         GT(df).fmt_flag(columns="flag").as_raw_html()
+
+
+def test_fmt_flag_height_none_defaults_to_1em():
+    df = pl.DataFrame({"country": ["US"]})
+    gt = GT(df).fmt_flag(columns="country", height=None)
+    html = gt.as_raw_html()
+    assert 'height="1em"' in html or "1em" in html
