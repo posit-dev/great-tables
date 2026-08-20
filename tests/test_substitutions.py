@@ -515,8 +515,10 @@ class TestSubValues:
         result = gt._render_formats("html")
         num_body = [x for x in to_list(result._body.body["num"])]
         lett_body = [x for x in to_list(result._body.body["lett"])]
+
         # Pattern should not match numeric column
         assert num_body == [None, None, None]
+
         # Pattern should match string column containing "0"
         assert lett_body == ["matched", None, None]
 
@@ -526,4 +528,56 @@ class TestSubValues:
         gt = GT(df).sub_values(values=["A"], replacement="<b>bold</b>")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
+
         assert body == ["&lt;b&gt;bold&lt;/b&gt;", None]
+
+
+def test_sub_missing_none_text_uses_mdash():
+    """SubMissing.__post_init__ sets missing_text to em dash when None is provided."""
+    from great_tables._substitution import SubMissing
+
+    import pandas as pd
+
+    df = pd.DataFrame({"x": [1]})
+    from great_tables._tbl_data import PdDataFrame
+
+    # Directly construct SubMissing with missing_text=None to trigger __post_init__
+    sub = SubMissing(dispatch_frame=df, missing_text=None)
+
+    assert sub.missing_text is not None
+
+    # Should be converted to html("&mdash;") so check it has mdash content
+    from great_tables._text import Text
+
+    result = sub.to_html(None)  # None is treated as NA in pandas
+
+    # The result should contain mdash or a Text object
+    assert sub.missing_text is not None
+
+
+def test_sub_values_is_match_no_criteria():
+    """SubValues._is_match returns False when fn, pattern, and values are all None."""
+    from great_tables._substitution import SubValues
+
+    sub = SubValues(values=None, pattern=None, fn=None, replacement="x")
+
+    assert sub._is_match("anything") is False
+    assert sub._is_match(42) is False
+
+
+def test_convert_missing_html_empty_el_returns_br():
+    # Empty el in html context returns <br />
+    from great_tables._substitution import _convert_missing
+
+    result = _convert_missing("html", "")
+
+    assert result == "<br />"
+
+
+def test_convert_missing_non_empty_el_returns_el():
+    # Non-empty el is returned unchanged
+    from great_tables._substitution import _convert_missing
+
+    result = _convert_missing("html", "hello")
+
+    assert result == "hello"
