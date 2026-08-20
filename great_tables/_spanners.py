@@ -214,7 +214,7 @@ def tab_spanner(
     if spanners is not None:
         assert set(spanners).issubset(set(crnt_spanner_ids))
         spanner_ids = spanners
-    else:
+    else:  # pragma: no cover
         spanner_ids = []
 
     # Check that we've selected something explicitly
@@ -539,7 +539,7 @@ def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
 
     if not sel_after:
         raise ValueError(f"Column {after} not found in table.")
-    elif len(sel_after) > 1:
+    elif len(sel_after) > 1:  # pragma: no cover
         raise ValueError(
             f"Only 1 value should be supplied to `after`, received argument: {sel_after}"
         )
