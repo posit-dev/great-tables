@@ -480,10 +480,11 @@ def test_eval_select_singledispatch_fallback_raises():
 
 
 def test_pyarrow_validate_frame_duplicate_columns_raises():
-    # Line 828: ValueError when PyArrow table has duplicate column names
+    # ValueError when PyArrow table has duplicate column names
     import pyarrow as pa
 
     tbl = pa.table({"x": [1, 2], "y": [3, 4]})
+
     # Manually create a table with duplicate column names (PyArrow allows this)
     dup_tbl = pa.table([pa.array([1, 2]), pa.array([3, 4])], names=["x", "x"])
     with pytest.raises(ValueError, match="Column names must be unique"):
@@ -491,6 +492,6 @@ def test_pyarrow_validate_frame_duplicate_columns_raises():
 
 
 def test_to_frame_list_without_name_raises():
-    # Line 842: ValueError when converting list to frame without specifying name
+    # ValueError when converting list to frame without specifying name
     with pytest.raises(ValueError, match="name must be specified"):
         to_frame([1, 2, 3], name=None)
