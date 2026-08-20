@@ -21,8 +21,7 @@ def _try_import(name: str, pip_install_line: str | None = None) -> ModuleType:
     except ImportError:
         if pip_install_line is not None:
             raise ImportError(
-                f"Module {name} not found. Run the following to install."
-                f"\n\n`{pip_install_line}`"
+                f"Module {name} not found. Run the following to install.\n\n`{pip_install_line}`"
             ) from None
         else:
             raise ImportError(f"Module {name} not found.")
@@ -247,7 +246,7 @@ def _migrate_unformatted_to_output(
 
     for fmt in formats:
         eval_func = getattr(fmt.func, context, fmt.func.default)
-        if eval_func is None:
+        if eval_func is None:  # pragma: no cover
             raise Exception("Internal Error")
 
         # Accumulate all formatted cells in the table
