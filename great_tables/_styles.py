@@ -90,7 +90,7 @@ class CellStyle:
     """A style specification."""
 
     def _to_html_style(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def _evaluate_expressions(self, data: TblData) -> Self:
         new_fields: dict[str, FromValues] = {}
