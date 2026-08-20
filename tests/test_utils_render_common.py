@@ -24,3 +24,25 @@ def test_get_row_reorder_df_no_groups():
 
     with pytest.raises(ValueError):
         get_row_reorder_df(stub, groups)
+
+
+def test_get_row_reorder_df_groups_from_stub():
+    # groups=None falls back to stub.group_ids
+    stub = Stub(
+        [RowInfo(0, "a"), RowInfo(1, "b"), RowInfo(2, "a")],
+        [GroupRowInfo("a", indices=[0, 2]), GroupRowInfo("b", indices=[1])],
+    )
+    start_end = get_row_reorder_df(stub)
+
+    assert len(start_end) == 3
+
+
+def test_get_row_reorder_df_empty_groups_no_group_rows():
+    # No group rows, no group_ids -> early return identity pairs
+    stub = Stub(
+        [RowInfo(0), RowInfo(1), RowInfo(2)],
+        [],
+    )
+    result = get_row_reorder_df(stub, groups=[])
+
+    assert result == [(0, 0), (1, 1), (2, 2)]
