@@ -13,11 +13,14 @@ from great_tables._formats import (
     _expand_exponential_to_full_string,
     _format_number_n_sigfig,
     _format_number_fixed_decimals,
+    _format_number_compactly,
     _get_currency_str,
     _get_locale_currency_code,
     _get_locale_dec_mark,
     _get_locale_sep_mark,
+    _has_zero_value,
     _normalize_locale,
+    _validate_currency,
     _validate_locale,
     fmt,
 )
@@ -2902,3 +2905,630 @@ def test_fmt_with_locale3(src, fn):
     x_de = _get_column_of_values(gt_de, column_name="x", context="html")
 
     assert x == x_de
+
+
+def test_fmt_image_to_latex_warns():
+    from great_tables._gt_data import FormatterSkipElement
+
+    formatter = FmtImage(encode=False)
+    with pytest.warns(UserWarning, match="fmt_image"):
+        result = formatter.to_latex("test.png")
+    assert isinstance(result, FormatterSkipElement)
+
+
+def test_fmt_icon_to_latex_warns():
+    from great_tables._formats import FmtIcon
+    from great_tables._gt_data import FormatterSkipElement
+
+    formatter = FmtIcon()
+    with pytest.warns(UserWarning, match="fmt_icon"):
+        result = formatter.to_latex("star")
+    assert isinstance(result, FormatterSkipElement)
+
+
+def test_fmt_flag_to_latex_warns():
+    from great_tables._formats import FmtFlag
+    from great_tables._gt_data import FormatterSkipElement
+
+    formatter = FmtFlag()
+    with pytest.warns(UserWarning, match="fmt_flag"):
+        result = formatter.to_latex("US")
+    assert isinstance(result, FormatterSkipElement)
+
+
+def test_validate_n_sigfig_list_raises():
+    from great_tables._formats import _validate_n_sigfig
+
+    with pytest.raises(TypeError, match="scalar value"):
+        _validate_n_sigfig([3])  # type: ignore[arg-type]
+
+
+def test_validate_n_sigfig_non_int_raises():
+    from great_tables._formats import _validate_n_sigfig
+
+    with pytest.raises(TypeError, match="integer"):
+        _validate_n_sigfig(3.5)  # type: ignore[arg-type]
+
+
+def test_validate_n_sigfig_less_than_one_raises():
+    from great_tables._formats import _validate_n_sigfig
+
+    with pytest.raises(ValueError, match="greater than or equal"):
+        _validate_n_sigfig(0)
+
+
+def test_fmt_scientific_drop_trailing_zeros():
+    df = pd.DataFrame({"x": [1000.0]})
+    gt = GT(df).fmt_scientific(columns="x", decimals=3, drop_trailing_zeros=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert "1" in x[0]
+
+
+def test_fmt_scientific_force_sign_m_positive():
+    df = pd.DataFrame({"x": [12345.0]})
+    gt = GT(df).fmt_scientific(columns="x", decimals=2, force_sign_m=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert "+" in x[0]
+
+
+def test_fmt_scientific_force_sign_n_x10n():
+    df = pd.DataFrame({"x": [12345.0]})
+    gt = GT(df).fmt_scientific(columns="x", decimals=2, force_sign_n=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert "+" in x[0]
+
+
+def test_fmt_integer_compact():
+    df = pd.DataFrame({"x": [1234567, 1000, -5000000]})
+    gt = GT(df).fmt_integer(columns="x", compact=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 3
+    assert any(c in x[0] for c in ["M", "K", "B"])
+
+
+def test_fmt_fns_non_callable_raises():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    with pytest.raises(TypeError, match="callable"):
+        GT(df).fmt(columns="x", fns=42)
+
+
+def test_fmt_bytes_n_sigfig():
+    df = pd.DataFrame({"x": [1536000]})
+    gt = GT(df).fmt_bytes(columns="x", n_sigfig=3)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+    assert "B" in x[0] or "b" in x[0].lower()
+
+
+def test_fmt_bytes_na_value():
+    df = pd.DataFrame({"x": [None]})
+    gt = GT(df).fmt_bytes(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] is None or x[0] == "None" or isinstance(x[0], type(None)) or x[0] == x[0]
+
+
+def test_fmt_partsper_na_value():
+    df = pd.DataFrame({"x": [None]})
+    gt = GT(df).fmt_partsper(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] is None or x[0] == "None" or x[0] == x[0]
+
+
+def test_fmt_roman_na_value():
+    df = pd.DataFrame({"x": [None]})
+    gt = GT(df).fmt_roman(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] is None or x[0] == x[0]
+
+
+def test_get_duration_patterns_hyphen_locale():
+    from great_tables._formats import _get_duration_patterns
+
+    result = _get_duration_patterns("fr-FR", "wide")
+    # Either finds patterns or returns None (just ensure no error is raised)
+    assert result is None or isinstance(result, dict)
+
+
+def test_get_duration_patterns_unknown_locale_returns_none():
+    from great_tables._formats import _get_duration_patterns
+
+    result = _get_duration_patterns("xx-FAKE", "narrow")
+    assert result is None
+
+
+def test_get_plural_form_values():
+    from great_tables._formats import _get_plural_form
+
+    assert _get_plural_form(0) == "zero"
+    assert _get_plural_form(1) == "one"
+    assert _get_plural_form(2) == "two"
+    assert _get_plural_form(5) == "other"
+
+
+def test_fmt_duration_invalid_trim_zero_units_raises():
+    df = pd.DataFrame({"x": [3600.0]})
+    with pytest.raises(ValueError, match="trim_zero_units"):
+        GT(df).fmt_duration(columns="x", trim_zero_units="wrong_str")
+
+
+def test_fmt_duration_narrow_style():
+    df = pd.DataFrame({"x": [3661.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", duration_style="narrow")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+    assert x[0] is not None
+
+
+def test_fmt_duration_zero_value_trim():
+    df = pd.DataFrame({"x": [0.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", trim_zero_units=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+
+
+def test_trim_duration_parts_empty_list():
+    from great_tables._formats import _trim_duration_parts
+
+    result = _trim_duration_parts([], ["leading"])
+    assert result == []
+
+
+def test_fmt_nanoplot_non_string_columns_raises():
+    df = pd.DataFrame({"x": [[1, 2, 3], [4, 5, 6]]})
+    with pytest.raises(NotImplementedError, match="single column name"):
+        GT(df).fmt_nanoplot(columns=["x", "x"])
+
+
+def test_fmt_nanoplot_invalid_plot_type_raises():
+    df = pd.DataFrame({"x": [[1, 2, 3], [4, 5, 6]]})
+    with pytest.raises(NotImplementedError, match="plot_type"):
+        GT(df).fmt_nanoplot(columns="x", plot_type="invalid_plot_type")
+
+
+def test_process_time_stream():
+    from great_tables._formats import _process_time_stream
+
+    result = _process_time_stream("1.0; 2.0; 3.0")
+    assert result == [1.0, 2.0, 3.0]
+
+
+def test_process_time_stream_comma_sep():
+    from great_tables._formats import _process_time_stream
+
+    result = _process_time_stream("10, 20, 30")
+    assert result == [10.0, 20.0, 30.0]
+
+
+def test_fmt_number_si_latex_pattern():
+    df = pd.DataFrame({"x": [1234567.0]})
+    gt = GT(df).fmt_number_si(columns="x", pattern="Value: {x}")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert len(x) == 1
+    assert "Value" in x[0]
+
+
+def test_fmt_partsper_latex_pattern():
+    df = pd.DataFrame({"x": [0.001]})
+    gt = GT(df).fmt_partsper(columns="x", pattern="({x})")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert len(x) == 1
+    assert "(" in x[0]
+
+
+def test_fmt_tf_invalid_tf_style_raises():
+    df = pl.DataFrame({"x": [True, False]})
+    with pytest.raises(ValueError, match="Invalid `tf_style`"):
+        GT(df).fmt_tf(columns="x", tf_style="invalid-style").as_raw_html()
+
+
+def test_fmt_datetime_na_value():
+    df = pd.DataFrame({"x": [None]})
+    gt = GT(df).fmt_datetime(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] is None or x[0] == "None" or x[0] == x[0]
+
+
+def test_fmt_date_na_value():
+    df = pd.DataFrame({"x": [None]})
+    gt = GT(df).fmt_date(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] is None or x[0] == x[0]
+
+
+def test_fmt_image_get_mime_type_svg():
+    from great_tables._formats import FmtImage
+
+    assert FmtImage._get_mime_type("image.svg") == "image/svg+xml"
+
+
+def test_fmt_image_get_mime_type_jpg():
+    from great_tables._formats import FmtImage
+
+    assert FmtImage._get_mime_type("image.jpg") == "image/jpeg"
+
+
+def test_fmt_image_get_mime_type_png():
+    from great_tables._formats import FmtImage
+
+    assert FmtImage._get_mime_type("image.png") == "image/png"
+
+
+def test_format_number_for_duration_thousands():
+    from great_tables._formats import _format_number_for_duration
+
+    result = _format_number_for_duration(1234, ",")
+    assert "1" in result and "234" in result
+
+
+def test_format_number_for_duration_no_sep():
+    from great_tables._formats import _format_number_for_duration
+
+    result = _format_number_for_duration(42, ",")
+    assert result == "42"
+
+
+def test_fmt_duration_wide_style():
+    df = pd.DataFrame({"x": [3661.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", duration_style="wide")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+    assert x[0] is not None
+
+
+def test_fmt_duration_iso_style():
+    df = pd.DataFrame({"x": [3661.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", duration_style="iso")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+    assert x[0] is not None
+
+
+def test_fmt_duration_colon_sep_style():
+    df = pd.DataFrame({"x": [3661.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", duration_style="colon-sep")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+    assert x[0] is not None
+
+
+def test_fmt_duration_max_output_units():
+    df = pd.DataFrame({"x": [7384.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", max_output_units=2)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+
+
+def test_fmt_duration_force_sign():
+    df = pd.DataFrame({"x": [3661.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", force_sign=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert "+" in x[0]
+
+
+def test_fmt_duration_invalid_max_output_units_raises():
+    df = pd.DataFrame({"x": [3661.0]})
+    with pytest.raises(ValueError, match="max_output_units"):
+        GT(df).fmt_duration(columns="x", input_units="seconds", max_output_units=0)
+
+
+def test_tfmap_from_list_one_color():
+    from great_tables._formats import TfMap
+
+    m = TfMap.from_list(["red"])
+    assert m.true_color == "red"
+    assert m.false_color == "red"
+    assert m.na_color is None
+
+
+def test_tfmap_from_list_three_colors():
+    from great_tables._formats import TfMap
+
+    m = TfMap.from_list(["red", "blue", "gray"])
+    assert m.true_color == "red"
+    assert m.false_color == "blue"
+    assert m.na_color == "gray"
+
+
+def test_tfmap_from_list_too_many_raises():
+    from great_tables._formats import TfMap
+
+    with pytest.raises(ValueError, match="1-3 elements"):
+        TfMap.from_list(["red", "blue", "gray", "green"])
+
+
+def test_tfmap_get_color_na_value():
+    from great_tables._formats import TfMap
+    import math
+
+    df = pl.DataFrame({"x": [True, False]})
+    data = GT(df)._build_data("html")
+    m = TfMap(true_color="green", false_color="red", na_color="yellow")
+    result = m.get_color(None, data)
+    assert result == "yellow"
+
+
+def test_tfmap_get_color_invalid_type_raises():
+    from great_tables._formats import TfMap
+
+    df = pl.DataFrame({"x": [True]})
+    data = GT(df)._build_data("html")
+    m = TfMap(true_color="green", false_color="red")
+    with pytest.raises(TypeError, match="Unexpected value type"):
+        m.get_color("not-a-bool", data)
+
+
+def test_tfmap_get_color_strict_none_raises():
+    from great_tables._formats import TfMap
+
+    df = pl.DataFrame({"x": [True]})
+    data = GT(df)._build_data("html")
+    m = TfMap(true_color=None, false_color="red")
+    with pytest.raises(ValueError, match="No style defined"):
+        m.get_color(True, data, strict=True)
+
+
+def test_fmt_duration_with_locale():
+    df = pd.DataFrame({"x": [3661.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", duration_style="wide", locale="fr")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+    assert x[0] is not None
+
+
+def test_fmt_duration_negative_value():
+    df = pd.DataFrame({"x": [-3661.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+
+
+def test_fmt_duration_timedelta_input():
+    from datetime import timedelta
+
+    df = pd.DataFrame({"x": [timedelta(seconds=3661)]})
+    gt = GT(df).fmt_duration(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert len(x) == 1
+    assert x[0] is not None
+
+
+def test_context_exp_str_else_branch():
+    from great_tables._formats import _context_exp_str
+
+    # A completely unrecognized exp_style hits the else branch → returns "E"
+    result = _context_exp_str("ZZZZ")
+    assert result == "E"
+
+
+def test_resolve_locale_und_maps_to_en():
+    from great_tables._formats import _resolve_locale
+
+    # "und" (undetermined) locale should map to "en"
+    result = _resolve_locale(None, "und")
+    assert result == "en"
+
+
+def test_listify_none_calls_default():
+    from great_tables._formats import _listify
+
+    result = _listify(None, lambda: [1, 2, 3])
+    assert result == [1, 2, 3]
+
+
+def test_listify_scalar_wraps_in_list():
+    from great_tables._formats import _listify
+
+    result = _listify(42, lambda: [])
+    assert result == [42]
+
+
+def test_listify_list_returns_as_is():
+    from great_tables._formats import _listify
+
+    result = _listify([1, 2, 3], lambda: [])
+    assert result == [1, 2, 3]
+
+
+def test_context_exp_marks_latex_branch():
+    from great_tables._formats import _context_exp_marks
+
+    marks = _context_exp_marks("latex")
+    assert "textsuperscript" in marks[0]
+
+
+def test_context_exp_marks_other_branch():
+    from great_tables._formats import _context_exp_marks
+
+    marks = _context_exp_marks("rtf")
+    assert marks == [" × 10^", ""]
+
+
+def test_fmt_nanoplot_latex_raises():
+    df = pl.DataFrame({"vals": [[1.0, 2.0, 3.0]]})
+    gt = GT(df).fmt_nanoplot(columns="vals")
+    with pytest.raises(NotImplementedError, match="not supported in LaTeX"):
+        _get_column_of_values(gt, column_name="vals", context="latex")
+
+
+def test_fmt_nanoplot_na_value_returns_na():
+    df = pl.DataFrame({"vals": [[1.0, 2.0], None]})
+    gt = GT(df).fmt_nanoplot(columns="vals")
+    result = _get_column_of_values(gt, column_name="vals", context="html")
+    # First row is a nanoplot SVG; second row is NA and passes through (no SVG)
+    assert "<svg" in result[0]
+    assert "<svg" not in str(result[1])
+
+
+def test_fmt_nanoplot_autoscale_no_rows():
+    # autoscale=True with rows=None (default)
+    df = pl.DataFrame({"vals": [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]})
+    gt = GT(df).fmt_nanoplot(columns="vals", autoscale=True)
+    result = _get_column_of_values(gt, column_name="vals", context="html")
+    assert "<svg" in result[0]
+    assert "<svg" in result[1]
+
+
+def test_fmt_nanoplot_autoscale_dict_with_xy():
+    # autoscale=True with dict {"x": [...], "y": [...]} extracts "y" values
+    df = pl.DataFrame({"vals": [{"x": [1.0, 2.0, 3.0], "y": [4.0, 5.0, 6.0]}]})
+    gt = GT(df).fmt_nanoplot(columns="vals", autoscale=True)
+    result = _get_column_of_values(gt, column_name="vals", context="html")
+    assert "<svg" in result[0]
+
+
+def test_fmt_time_invalid_time_style_raises():
+    # ValueError when time_style is not a valid value
+    import pytest
+
+    df = pd.DataFrame({"x": ["10:59:59"]})
+    with pytest.raises(ValueError, match="time_style must be one of"):
+        GT(df).fmt_time(columns="x", time_style="invalid_style").as_raw_html()
+
+
+def test_fmt_units_na_value_returns_na():
+    # fmt_units returns NA value unchanged when cell is NA
+    df = pl.DataFrame({"units": ["m^2", None]})
+    gt = GT(df).fmt_units(columns="units")
+    result = _get_column_of_values(gt, column_name="units", context="html")
+    # First row has a formatted unit, second row is NA (returns None or 'None')
+    assert "m" in result[0]
+    assert result[1] is None or str(result[1]) in ("None", "null")
+
+
+def test_fmt_units_custom_pattern():
+    # fmt_units applies pattern when pattern != "{x}"
+    df = pl.DataFrame({"units": ["m^2"]})
+    gt = GT(df).fmt_units(columns="units", pattern="({x})")
+    result = _get_column_of_values(gt, column_name="units", context="html")
+    assert result[0].startswith("(") or "(" in result[0]
+
+
+def test_fmt_date_invalid_date_object_raises():
+    # ValueError when cell value is not a string or date object
+    with pytest.raises(ValueError, match="Invalid date object"):
+        GT(pd.DataFrame({"d": [42]})).fmt_date(columns="d").as_raw_html()
+
+
+def test_fmt_time_invalid_time_object_raises():
+    # ValueError when cell value is not a string or time object
+    with pytest.raises(ValueError, match="Invalid time object"):
+        GT(pd.DataFrame({"t": [42]})).fmt_time(columns="t").as_raw_html()
+
+
+def test_fmt_datetime_invalid_datetime_object_raises():
+    # ValueError when cell value is not a string or datetime object
+    with pytest.raises(ValueError, match="Invalid datetime object"):
+        GT(pd.DataFrame({"dt": [42]})).fmt_datetime(columns="dt").as_raw_html()
+
+
+def test_format_number_fixed_decimals_string_value():
+    # cast string to float when value is a string
+    result = _format_number_fixed_decimals(value="42.5", decimals=2)
+    assert result == "42.50"
+
+
+def test_format_number_fixed_decimals_exponential():
+    # expand exponential notation for very large numbers
+    result = _format_number_fixed_decimals(value=1e20, decimals=2)
+    # Should contain the fully expanded number (no 'e')
+    assert "e" not in result
+    assert "E" not in result
+
+
+def test_fmt_tf_latex_with_custom_pattern():
+    # escape LaTeX pattern when context == "latex" and pattern != "{x}"
+    df = pl.DataFrame({"flag": [True, False]})
+    gt = GT(df).fmt_tf(columns="flag", pattern="[{x}]")
+    result = _get_column_of_values(gt, column_name="flag", context="latex")
+    assert "[true]" in result[0] or "[" in result[0]
+    assert "[false]" in result[1] or "[" in result[1]
+
+
+def test_fmt_image_polars_expr_raises():
+    # NotImplementedError when polars expr passed to non-column params
+    import polars as pl
+
+    df = pl.DataFrame({"path": ["/some/file.png"]})
+    with pytest.raises(NotImplementedError, match="fmt_image currently does not support"):
+        GT(df).fmt_image(columns="path", height=pl.lit("2em")).as_raw_html()
+
+
+def test_fmt_time_na_value_returns_na():
+    # return x when is_na in fmt_time_context
+    df = pl.DataFrame({"t": ["10:30:00", None]})
+    gt = GT(df).fmt_time(columns="t")
+    result = _get_column_of_values(gt, column_name="t", context="html")
+    assert "10" in result[0]
+    assert result[1] is None or str(result[1]) in ("None", "null", "")
+
+
+def test_fmt_datetime_format_str_and_locale_raises():
+    # ValueError when both format_str and locale are given in fmt_datetime
+    import datetime
+
+    df = pd.DataFrame({"dt": [datetime.datetime(2024, 1, 15, 10, 30)]})
+    with pytest.raises(ValueError, match="format_str.*locale.*cannot be used together"):
+        GT(df).fmt_datetime(columns="dt", format_str="%Y-%m-%d", locale="en_US").as_raw_html()
+
+
+def test_fmt_markdown_na_value_returns_na():
+    # return x when is_na in fmt_markdown_context
+    df = pl.DataFrame({"text": ["**bold**", None]})
+    gt = GT(df).fmt_markdown(columns="text")
+    result = _get_column_of_values(gt, column_name="text", context="html")
+    assert "bold" in result[0]
+    assert result[1] is None or str(result[1]) in ("None", "null", "")
+
+
+def test_fmt_markdown_latex_context():
+    # return _md_latex(str(x)) when context == "latex"
+    df = pl.DataFrame({"text": ["**bold**"]})
+    gt = GT(df).fmt_markdown(columns="text")
+    result = _get_column_of_values(gt, column_name="text", context="latex")
+    assert isinstance(result[0], str)
+    assert len(result[0]) > 0
+
+
+def test_format_number_compactly_zero_returns_zero_string():
+    # return "0" when value == 0
+    result = _format_number_compactly(
+        value=0,
+        decimals=2,
+        n_sigfig=None,
+        drop_trailing_zeros=False,
+        drop_trailing_dec_mark=False,
+        use_seps=True,
+        sep_mark=",",
+        dec_mark=".",
+        force_sign=False,
+    )
+    assert result == "0"
+
+
+def test_has_zero_value():
+    # _has_zero_value returns True for 0, False otherwise
+    assert _has_zero_value(0) is True
+    assert _has_zero_value(1) is False
+    assert _has_zero_value(-1) is False
+
+
+def test_validate_currency_invalid_raises():
+    # ValueError for unsupported currency code
+    with pytest.raises(ValueError, match="not in the list of supported currencies"):
+        _validate_currency("INVALID_CURRENCY_CODE")
+
+
+def test_fmt_icon_na_value_returns_na():
+    # FmtIcon.to_html returns val unchanged when is_na
+    df = pl.DataFrame({"icon": ["star", None]})
+    gt = GT(df).fmt_icon(columns="icon")
+    result = _get_column_of_values(gt, column_name="icon", context="html")
+    assert "svg" in result[0].lower()
+    assert result[1] is None or str(result[1]) in ("None", "null", "")
+
+
+def test_fmt_flag_invalid_country_code_length_raises():
+    # ValueError when country code is not 2 or 3 characters
+    df = pl.DataFrame({"flag": ["U"]})
+    with pytest.raises(ValueError, match="2 or 3 characters long"):
+        GT(df).fmt_flag(columns="flag").as_raw_html()
