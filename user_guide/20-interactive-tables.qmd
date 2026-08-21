@@ -40,9 +40,13 @@ Pass `use_search=True` to add a global search box, and `use_filters=True` to add
 filter row beneath the headers.
 
 ```{python}
+from great_tables import GT
+from great_tables.data import gtcars
+import polars as pl
+
 (
     GT(gtcars_pl)
-    .tab_header(title="GT Cars — Search and Filter")
+    .tab_header(title="GT Cars: Search and Filter")
     .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
     .fmt_currency(columns="msrp")
@@ -59,9 +63,13 @@ Control the number of rows per page and let users choose from a list of sizes wi
 `pagination_type=` (`"numbers"`, `"simple"`, or `"full"`).
 
 ```{python}
+from great_tables import GT
+from great_tables.data import gtcars
+import polars as pl
+
 (
     GT(gtcars_pl)
-    .tab_header(title="GT Cars — Pagination options")
+    .tab_header(title="GT Cars: Pagination options")
     .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
     .fmt_currency(columns="msrp")
@@ -88,7 +96,7 @@ from great_tables import style, loc
 
 (
     GT(gtcars_pl)
-    .tab_header(title="GT Cars — Targeted styles")
+    .tab_header(title="GT Cars: Targeted styles")
     .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
     .fmt_currency(columns="msrp")
@@ -125,7 +133,7 @@ scale to each cell based on the underlying value. Because `data_color()` is impl
 ```{python}
 (
     GT(gtcars_pl)
-    .tab_header(title="GT Cars — data_color()")
+    .tab_header(title="GT Cars: data_color()")
     .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
     .fmt_currency(columns="msrp")
@@ -146,8 +154,8 @@ Pass `domain=` to lock the color range across columns so they share a common sca
 (
     GT(gtcars_pl)
     .tab_header(
-        title="GT Cars — HP and Torque on a shared scale",
-        subtitle="Higher values are darker; both columns use the same domain",
+        title="GT Cars: HP and Torque on a shared scale",
+        subtitle="Higher values are darker and both columns use the same domain",
     )
     .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
