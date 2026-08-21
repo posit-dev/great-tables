@@ -317,6 +317,23 @@ class TestTabStyle:
         html = GT(df).opt_interactive().as_raw_html()
         assert "_cellStyles" not in html
 
+    def test_data_color_produces_cell_styles(self):
+        df = pl.DataFrame({"a": [10, 50, 100], "b": ["x", "y", "z"]})
+        html = (
+            GT(df)
+            .data_color(columns="a", palette=["#ffffff", "#ff0000"])
+            .opt_interactive()
+            .as_raw_html()
+        )
+        m = re.search(r"var _cellStyles = (\{.*?\});", html, re.DOTALL)
+        assert m, "_cellStyles not found — data_color() styles were not applied"
+        cell_styles = json.loads(m.group(1))
+        # All 3 rows should have a style on column "a"
+        assert len(cell_styles) == 3
+        for row_styles in cell_styles.values():
+            assert "a" in row_styles
+            assert "background-color" in row_styles["a"]
+
     def test_unsupported_location_does_not_crash(self):
         df = pl.DataFrame({"x": [1, 2]})
         # loc.header() is unsupported in interactive mode — should render without error
