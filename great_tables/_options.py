@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import warnings
+from collections.abc import Iterable
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, Iterable, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from . import _utils
 from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
@@ -29,7 +30,7 @@ def tab_options(
     table_additional_css: str | list[str] | None = None,
     table_font_names: str | list[str] | None = None,
     table_font_size: str | None = None,
-    table_font_weight: str | int | float | None = None,
+    table_font_weight: str | float | None = None,
     table_font_style: str | None = None,
     table_font_color: str | None = None,
     table_font_color_light: str | None = None,
@@ -48,9 +49,9 @@ def tab_options(
     heading_background_color: str | None = None,
     heading_align: str | None = None,
     heading_title_font_size: str | None = None,
-    heading_title_font_weight: str | int | float | None = None,
+    heading_title_font_weight: str | float | None = None,
     heading_subtitle_font_size: str | None = None,
-    heading_subtitle_font_weight: str | int | float | None = None,
+    heading_subtitle_font_weight: str | float | None = None,
     heading_padding: str | None = None,
     heading_padding_horizontal: str | None = None,
     heading_border_bottom_style: str | None = None,
@@ -61,7 +62,7 @@ def tab_options(
     heading_border_lr_color: str | None = None,
     column_labels_background_color: str | None = None,
     column_labels_font_size: str | None = None,
-    column_labels_font_weight: str | int | float | None = None,
+    column_labels_font_weight: str | float | None = None,
     column_labels_text_transform: str | None = None,
     column_labels_padding: str | None = None,
     column_labels_padding_horizontal: str | None = None,
@@ -80,7 +81,7 @@ def tab_options(
     column_labels_hidden: bool | None = None,
     row_group_background_color: str | None = None,
     row_group_font_size: str | None = None,
-    row_group_font_weight: str | int | float | None = None,
+    row_group_font_weight: str | float | None = None,
     row_group_text_transform: str | None = None,
     row_group_padding: str | None = None,
     row_group_padding_horizontal: str | None = None,
@@ -112,14 +113,14 @@ def tab_options(
     table_body_border_bottom_color: str | None = None,
     stub_background_color: str | None = None,
     stub_font_size: str | None = None,
-    stub_font_weight: str | int | float | None = None,
+    stub_font_weight: str | float | None = None,
     stub_text_transform: str | None = None,
     stub_border_style: str | None = None,
     stub_border_width: str | None = None,
     stub_border_color: str | None = None,
     stub_indent_length: str | None = None,
     stub_row_group_font_size: str | None = None,
-    stub_row_group_font_weight: str | int | float | None = None,
+    stub_row_group_font_weight: str | float | None = None,
     stub_row_group_text_transform: str | None = None,
     stub_row_group_border_style: str | None = None,
     stub_row_group_border_width: str | None = None,
@@ -169,6 +170,22 @@ def tab_options(
     row_striping_include_stub: bool | None = None,
     row_striping_include_table_body: bool | None = None,
     quarto_disable_processing: bool | None = None,
+    ihtml_active: bool | None = None,
+    ihtml_use_pagination: bool | None = None,
+    ihtml_use_pagination_info: bool | None = None,
+    ihtml_use_sorting: bool | None = None,
+    ihtml_use_search: bool | None = None,
+    ihtml_use_filters: bool | None = None,
+    ihtml_use_resizers: bool | None = None,
+    ihtml_use_highlight: bool | None = None,
+    ihtml_use_compact_mode: bool | None = None,
+    ihtml_use_text_wrapping: bool | None = None,
+    ihtml_use_page_size_select: bool | None = None,
+    ihtml_page_size_default: int | None = None,
+    ihtml_page_size_values: list[int] | None = None,
+    ihtml_pagination_type: str | None = None,
+    ihtml_height: str | None = None,
+    ihtml_selection_mode: str | None = None,
 ) -> GTSelf:
     """
     Modify the table output options.
@@ -564,16 +581,16 @@ def tab_options(
 
     # Intercept modified args and modify before replacing options:
     # - `table_font_names` should be a list but if given as a string, ensure it is list
-    if "table_font_names" in modified_args:
-        if isinstance(modified_args["table_font_names"], str):
-            modified_args["table_font_names"] = [modified_args["table_font_names"]]
+    if "table_font_names" in modified_args and isinstance(modified_args["table_font_names"], str):
+        modified_args["table_font_names"] = [modified_args["table_font_names"]]
 
     # - `table_additional_css` should be a list but if given as a string, ensure it is list
     #   Also filter out empty strings to avoid extra newlines in CSS output
-    if "table_additional_css" in modified_args:
-        if isinstance(modified_args["table_additional_css"], str):
-            css_val = modified_args["table_additional_css"].strip()
-            modified_args["table_additional_css"] = [css_val] if css_val else []
+    if "table_additional_css" in modified_args and isinstance(
+        modified_args["table_additional_css"], str
+    ):
+        css_val = modified_args["table_additional_css"].strip()
+        modified_args["table_additional_css"] = [css_val] if css_val else []
 
     # Validate and coerce option values based on their declared types
     new_options_info = {}
@@ -937,10 +954,8 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 def opt_all_caps(
     self: GTSelf,
     all_caps: bool = True,
-    locations: type[LocColumnLabels]
-    | type[LocRowGroups]
-    | type[LocStub]
-    | list[type[LocColumnLabels] | type[LocRowGroups] | type[LocStub]]
+    locations: type[LocColumnLabels | LocRowGroups | LocStub]
+    | list[type[LocColumnLabels | LocRowGroups | LocStub]]
     | str
     | list[str]
     | None = None,
@@ -1192,7 +1207,7 @@ def opt_table_font(
     self: GTSelf,
     font: str | list[str] | dict[str, str] | GoogleFont | None = None,
     stack: FontStackName | None = None,
-    weight: str | int | float | None = None,
+    weight: str | float | None = None,
     style: str | None = None,
     add: bool = True,
 ) -> GTSelf:
@@ -1613,6 +1628,113 @@ def opt_css(
     res = tab_options(self, table_additional_css=additional_css)
 
     return res
+
+
+def opt_interactive(
+    self: GTSelf,
+    active: bool = True,
+    use_pagination: bool = True,
+    use_pagination_info: bool = True,
+    use_sorting: bool = True,
+    use_search: bool = False,
+    use_filters: bool = False,
+    use_resizers: bool = False,
+    use_highlight: bool = False,
+    use_compact_mode: bool = False,
+    use_text_wrapping: bool = True,
+    use_page_size_select: bool = False,
+    page_size_default: int = 10,
+    page_size_values: list[int] | None = None,
+    pagination_type: str = "numbers",
+    height: str = "auto",
+    selection_mode: str | None = None,
+) -> GTSelf:
+    """
+    Option to enable an interactive table.
+
+    With `opt_interactive()`, a GT table can be transformed to an interactive HTML table.
+    Interactive tables allow users to sort columns, search/filter rows, paginate through data,
+    and more. All interactivity is handled in the browser with no server required.
+
+    Parameters
+    ----------
+    active
+        Whether to activate interactive mode. Set to `False` to disable while keeping the
+        stored options.
+    use_pagination
+        Whether to paginate rows. Enabled by default.
+    use_pagination_info
+        Whether to show the pagination info text (e.g., "Showing 1 to 10 of 100 entries").
+    use_sorting
+        Whether to enable column sorting by clicking headers.
+    use_search
+        Whether to add a global search box above the table.
+    use_filters
+        Whether to add per-column filter inputs below the column headers.
+    use_resizers
+        Whether to allow columns to be resized by dragging their edges.
+    use_highlight
+        Whether to highlight the row under the cursor on hover.
+    use_compact_mode
+        Whether to use compact row padding to fit more rows on screen.
+    use_text_wrapping
+        Whether to allow cell text to wrap. When `False`, cells clip to a single line.
+    use_page_size_select
+        Whether to show a dropdown for the user to change the number of rows per page.
+    page_size_default
+        The default number of rows displayed per page.
+    page_size_values
+        The list of page-size options available in the page-size dropdown. Defaults to
+        `[10, 25, 50, 100]`.
+    pagination_type
+        The pagination control style. One of `"numbers"` (page number buttons),
+        `"simple"` (previous/next only), or `"full"` (first/previous/next/last).
+    height
+        The height of the table's scrollable body. Use `"auto"` (the default) to let the
+        table grow with its content, or supply a CSS length (e.g., `"400px"`) to fix the
+        height and enable vertical scrolling.
+    selection_mode
+        Row selection mode. One of `"single"`, `"multiple"`, or `None` (the default,
+        which disables row selection).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that
+        we can facilitate method chaining.
+
+    Examples
+    --------
+    Using the `exibble` dataset, create an interactive table with search and filtering enabled.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    GT(exibble).opt_interactive(use_search=True, use_filters=True)
+    ```
+    """
+    if page_size_values is None:
+        page_size_values = [10, 25, 50, 100]
+
+    return tab_options(
+        self,
+        ihtml_active=active,
+        ihtml_use_pagination=use_pagination,
+        ihtml_use_pagination_info=use_pagination_info,
+        ihtml_use_sorting=use_sorting,
+        ihtml_use_search=use_search,
+        ihtml_use_filters=use_filters,
+        ihtml_use_resizers=use_resizers,
+        ihtml_use_highlight=use_highlight,
+        ihtml_use_compact_mode=use_compact_mode,
+        ihtml_use_text_wrapping=use_text_wrapping,
+        ihtml_use_page_size_select=use_page_size_select,
+        ihtml_page_size_default=page_size_default,
+        ihtml_page_size_values=page_size_values,
+        ihtml_pagination_type=pagination_type,
+        ihtml_height=height,
+        ihtml_selection_mode=selection_mode,
+    )
 
 
 @dataclass

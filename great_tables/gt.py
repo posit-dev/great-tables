@@ -59,6 +59,7 @@ from ._options import (
     opt_css,
     opt_footnote_marks,
     opt_horizontal_padding,
+    opt_interactive,
     opt_row_striping,
     opt_stylize,
     opt_table_font,
@@ -402,6 +403,7 @@ class GT(
     opt_horizontal_padding = opt_horizontal_padding
     opt_table_outline = opt_table_outline
     opt_table_font = opt_table_font
+    opt_interactive = opt_interactive
 
     cols_align = cols_align
     cols_width = cols_width

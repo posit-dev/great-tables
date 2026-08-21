@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import copy
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum, auto
 from itertools import chain, product
-from typing import TYPE_CHECKING, Any, Callable, Literal, Protocol, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeAlias, TypeVar, overload
 
-from typing_extensions import Self, TypeAlias, Union
+from typing_extensions import Self
 
 from ._cols_merge import ColMergeInfo, ColMerges  # noqa: F401 (re-exported)
 from ._helpers import GoogleFontImports
@@ -176,7 +176,7 @@ class _Sequence(Sequence[T]):
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self._d.__repr__()})"
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return (type(self) is type(other)) and (self._d == other._d)
 
 
@@ -470,7 +470,7 @@ class Boxhead(_Sequence[ColInfo]):
         return None if not column else column[0]
 
     # Get a list of visible column labels
-    def _get_default_column_labels(self) -> list[Union[str, BaseText, None]]:
+    def _get_default_column_labels(self) -> list[str | BaseText | None]:
         default_column_labels = [
             x.column_label for x in self._d if x.type == ColInfoTypeEnum.default
         ]
@@ -1029,7 +1029,7 @@ Formats = list
 class TextTransformInfo:
     """Stores a text transformation function and the location to apply it."""
 
-    loc: "Loc"
+    loc: Loc
     fn: Callable[[str], str]
 
 
@@ -1486,6 +1486,22 @@ class Options:
     # page_footer_height: OptionsInfo = OptionsInfo(False, "page", "value", "0.5in")
     quarto_disable_processing: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
     quarto_use_bootstrap: OptionsInfo = OptionsInfo(False, "quarto", "logical", False)
+    ihtml_active: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", False)
+    ihtml_use_pagination: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", True)
+    ihtml_use_pagination_info: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", True)
+    ihtml_use_sorting: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", True)
+    ihtml_use_search: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", False)
+    ihtml_use_filters: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", False)
+    ihtml_use_resizers: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", False)
+    ihtml_use_highlight: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", False)
+    ihtml_use_compact_mode: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", False)
+    ihtml_use_text_wrapping: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", True)
+    ihtml_use_page_size_select: OptionsInfo = OptionsInfo(False, "ihtml", "boolean", False)
+    ihtml_page_size_default: OptionsInfo = OptionsInfo(False, "ihtml", "value", 10)
+    ihtml_page_size_values: OptionsInfo = OptionsInfo(False, "ihtml", "values", [10, 25, 50, 100])
+    ihtml_pagination_type: OptionsInfo = OptionsInfo(False, "ihtml", "value", "numbers")
+    ihtml_height: OptionsInfo = OptionsInfo(False, "ihtml", "value", "auto")
+    ihtml_selection_mode: OptionsInfo = OptionsInfo(False, "ihtml", "value", None)
 
     def __getitem__(self, k: str) -> Any:
         return getattr(self, k).value

@@ -7,9 +7,7 @@ import webbrowser
 from functools import partial
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
-
-from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, Literal, TypeAlias
 
 from ._helpers import random_id
 from ._scss import compile_scss
@@ -58,9 +56,7 @@ def _infer_render_target(
             # e.g. if you're in the normal python repl
             ipy = IPython.get_ipython()
 
-        if isinstance(ipy, TerminalInteractiveShell):
-            target = "browser"
-        elif ipy is None:
+        if isinstance(ipy, TerminalInteractiveShell) or ipy is None:
             target = "browser"
         else:
             target = "notebook"
@@ -223,6 +219,17 @@ def as_raw_html(
     gt_tbl.as_raw_html(inline_css=True)
     ```
     """
+
+    if self._options.ihtml_active.value:
+        from ._ihtml import render_as_ihtml
+
+        fragment = render_as_ihtml(self)
+        if make_page:
+            return (
+                '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+                '<meta charset="utf-8"/>\n</head>\n<body>\n' + fragment + "\n</body>\n</html>\n"
+            )
+        return fragment
 
     built_table = self._build_data(context="html")
 
