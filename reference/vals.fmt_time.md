@@ -1,4 +1,4 @@
-## vals.fmt_time()
+# vals.fmt_time()
 
 
 Format values as times.

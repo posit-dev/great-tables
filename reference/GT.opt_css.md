@@ -1,4 +1,4 @@
-## GT.opt_css()
+# GT.opt_css()
 
 
 Option to add custom CSS for the table.

@@ -1,4 +1,4 @@
-## nanoplot_options()
+# nanoplot_options()
 
 
 Helper for setting the options for a nanoplot.

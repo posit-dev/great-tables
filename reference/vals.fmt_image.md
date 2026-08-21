@@ -1,4 +1,4 @@
-## vals.fmt_image()
+# vals.fmt_image()
 
 
 Format image paths to generate images in cells.

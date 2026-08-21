@@ -1,4 +1,4 @@
-## vals.fmt_duration()
+# vals.fmt_duration()
 
 
 Format values as time duration strings.

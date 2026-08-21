@@ -1,4 +1,4 @@
-## GT.opt_footnote_marks()
+# GT.opt_footnote_marks()
 
 
 Option to modify the set of footnote marks.

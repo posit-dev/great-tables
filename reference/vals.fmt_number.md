@@ -1,4 +1,4 @@
-## vals.fmt_number()
+# vals.fmt_number()
 
 
 Format numeric values.

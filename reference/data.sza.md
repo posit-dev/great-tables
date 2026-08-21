@@ -1,4 +1,4 @@
-## data.sza
+# data.sza
 
 
 Twice hourly solar zenith angles by month & latitude.

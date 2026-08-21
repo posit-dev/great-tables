@@ -1,4 +1,4 @@
-## GT.with_id()
+# GT.with_id()
 
 
 Set the id for this table.

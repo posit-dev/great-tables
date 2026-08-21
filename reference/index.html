@@ -46,7 +46,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-67a0ef9aa61b89fd655bf4e62ec923d0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-a548297dc882640771aadabfda74b676.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -75,7 +75,6 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'termshow.css'}));</script>
 <script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox.css'}));</script>
 <script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'gd-lightbox.js';s.defer=true;document.head.appendChild(s);})();</script>
 <script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox-compare.css'}));</script>
@@ -120,7 +119,7 @@ ul.task-list li input[type="checkbox"] {
   <meta name="twitter:description" content="All tables created in Great Tables begin by using GT(). With this class, we supply the input data table and some basic options for creating a stub and...">
 </head>
 
-<body class="gd-ref-sidebar nav-sidebar floating nav-fixed doc-reference quarto-light">
+<body class="gd-ref-sidebar nav-sidebar floating nav-fixed doc-reference doc-py-reference quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -162,7 +161,7 @@ ul.task-list li input[type="checkbox"] {
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2711" data-forks="129"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2719" data-forks="128"></div>
     </span>
   </li>  
 </ul>
@@ -176,7 +175,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <h1 class="quarto-secondary-nav-title no-breadcrumbs gd-ref-title"><span class="gd-ref-title-prefix">API</span><span class="gd-ref-title-sep">/</span><span class="gd-ref-title-name">Index</span></h1>
+        <h5 class="quarto-secondary-nav-title no-breadcrumbs gd-ref-title"><span class="gd-ref-title-prefix">API</span><span class="gd-ref-title-sep">/</span><span class="gd-ref-title-name">Index</span></h5>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -1147,7 +1146,7 @@ ul.task-list li input[type="checkbox"] {
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
-  <ul class="collapse">
+  <ul>
   <li><a href="#table-creation" id="toc-table-creation" class="nav-link active" data-scroll-target="#table-creation">Table Creation</a></li>
   <li><a href="#major-structural-table-parts" id="toc-major-structural-table-parts" class="nav-link" data-scroll-target="#major-structural-table-parts">Major structural table parts</a></li>
   <li><a href="#formatting-column-data" id="toc-formatting-column-data" class="nav-link" data-scroll-target="#formatting-column-data">Formatting column data</a></li>
@@ -1187,7 +1186,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <section id="table-creation" class="level2 doc-group">
-<h2 class="doc-group">Table Creation</h2>
+<h2 class="doc-group anchored" data-anchor-id="table-creation">Table Creation</h2>
 <div class="doc-description">
 <p>All tables created in Great Tables begin by using <code>GT()</code>. With this class, we supply the input data table and some basic options for creating a stub and row groups (with the <code>rowname_col=</code> and <code>groupname_col=</code> arguments). All GT methods are documented on their own pages.</p>
 </div>
@@ -1199,7 +1198,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="major-structural-table-parts" class="level2 doc-group">
-<h2 class="doc-group">Major structural table parts</h2>
+<h2 class="doc-group anchored" data-anchor-id="major-structural-table-parts">Major structural table parts</h2>
 <div class="doc-description">
 <p>A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can perform styling on targeted table locations with the <a href="`great_tables.GT.tab_style`"><code>tab_style()</code></a> method.</p>
 </div>
@@ -1267,7 +1266,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="formatting-column-data" class="level2 doc-group">
-<h2 class="doc-group">Formatting column data</h2>
+<h2 class="doc-group anchored" data-anchor-id="formatting-column-data">Formatting column data</h2>
 <div class="doc-description">
 <p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <a href="`great_tables.GT.fmt`"><code>fmt()</code></a> method and define your own formatter. The <code>sub_*()</code> methods allow you to perform substitution operations and <code>data_color()</code> provides a lot of power for colorizing body cells based on their data values.</p>
 </div>
@@ -1387,7 +1386,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="text-transformation" class="level2 doc-group">
-<h2 class="doc-group">Text transformation</h2>
+<h2 class="doc-group anchored" data-anchor-id="text-transformation">Text transformation</h2>
 <div class="doc-description">
 <p>The text_*() method take cell data that are solidified into strings and allow for flexible transformations of those string values. Whereas the <code>fmt_*()</code> and <code>sub_*()</code> methods are phases 1 and 2 of cell data metamorphoses, the text transformation functions are the final phase, acting on strings generated by formatting and substitution functions with no reference to the source values.</p>
 </div>
@@ -1411,7 +1410,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="modifying-columns" class="level2 doc-group">
-<h2 class="doc-group">Modifying columns</h2>
+<h2 class="doc-group anchored" data-anchor-id="modifying-columns">Modifying columns</h2>
 <div class="doc-description">
 <p>The <code>cols_*()</code> methods allow for modifications that act on entire columns. This includes alignment of the data in columns (<a href="`great_tables.GT.cols_align`"><code>cols_align()</code></a>), hiding columns from view (<a href="`great_tables.GT.cols_hide`"><code>cols_hide()</code></a>), re-labeling the column labels (<a href="`great_tables.GT.cols_label`"><code>cols_label()</code></a>), and moving columns around (with the <code>cols_move*()</code> methods).</p>
 </div>
@@ -1479,7 +1478,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="adding-rows" class="level2 doc-group">
-<h2 class="doc-group">Adding rows</h2>
+<h2 class="doc-group anchored" data-anchor-id="adding-rows">Adding rows</h2>
 <div class="doc-description">
 <p>The <a href="`great_tables.GT.summary_rows`"><code>summary_rows()</code></a> function adds rows to summarize data within each row group, while <a href="`great_tables.GT.grand_summary_rows`"><code>grand_summary_rows()</code></a> summarizes across the entire table.</p>
 </div>
@@ -1495,7 +1494,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="location-targeting-and-styling-classes" class="level2 doc-group">
-<h2 class="doc-group">Location Targeting and Styling Classes</h2>
+<h2 class="doc-group anchored" data-anchor-id="location-targeting-and-styling-classes">Location Targeting and Styling Classes</h2>
 <div class="doc-description">
 <p>Location targeting is a powerful feature of Great Tables. It allows for the precise selection of table locations for styling (using the <code>tab_style()</code> method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.</p>
 </div>
@@ -1575,7 +1574,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="helper-functions" class="level2 doc-group">
-<h2 class="doc-group">Helper Functions</h2>
+<h2 class="doc-group anchored" data-anchor-id="helper-functions">Helper Functions</h2>
 <div class="doc-description">
 <p>An assortment of helper functions is available in the Great Tables package. The <code>md()</code> and <code>html()</code> helper functions can be used during label creation with the <code>tab_header()</code>, <code>tab_spanner()</code>, <code>tab_stubhead()</code>, and <code>tab_source_note()</code> methods.</p>
 </div>
@@ -1619,7 +1618,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="table-options" class="level2 doc-group">
-<h2 class="doc-group">Table options</h2>
+<h2 class="doc-group anchored" data-anchor-id="table-options">Table options</h2>
 <div class="doc-description">
 <p>With the <code>opt_*()</code> functions, we have an easy way to set commonly-used table options without having to use <code>tab_options()</code> directly.</p>
 </div>
@@ -1667,7 +1666,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="export" class="level2 doc-group">
-<h2 class="doc-group">Export</h2>
+<h2 class="doc-group anchored" data-anchor-id="export">Export</h2>
 <div class="doc-description">
 <p>There may come a day when you need to export a table to some specific format. A great method for that is <code>gtsave()</code>, which allows us to save the table as a standalone image file or PDF. You can also get the table code as an HTML fragment with the <code>*_raw_html()</code> methods.</p>
 </div>
@@ -1695,7 +1694,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="pipeline" class="level2 doc-group">
-<h2 class="doc-group">Pipeline</h2>
+<h2 class="doc-group anchored" data-anchor-id="pipeline">Pipeline</h2>
 <div class="doc-description">
 <p>Sometimes, you might want to programmatically manipulate the table while still benefiting from the chained API that <strong>Great Tables</strong> offers. <code>pipe()</code> is designed to tackle this issue.</p>
 </div>
@@ -1707,7 +1706,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="value-formatting-functions" class="level2 doc-group">
-<h2 class="doc-group">Value Formatting Functions</h2>
+<h2 class="doc-group anchored" data-anchor-id="value-formatting-functions">Value Formatting Functions</h2>
 <div class="doc-description">
 <p>If you have single values (or lists of them) in need of formatting, we have a set of <code>val_fmt_*()</code> functions that have been adapted from the corresponding <code>fmt_*()</code> methods.</p>
 </div>
@@ -1779,7 +1778,7 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </section>
 <section id="built-in-datasets" class="level2 doc-group">
-<h2 class="doc-group">Built-in Datasets</h2>
+<h2 class="doc-group anchored" data-anchor-id="built-in-datasets">Built-in Datasets</h2>
 <div class="doc-description">
 <p>The Great Tables package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package.</p>
 </div>
@@ -2215,7 +2214,6 @@ ul.task-list li input[type="checkbox"] {
 <script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'color-swatch.js';document.body.appendChild(s);})();</script>
 <script src="../responsive-tables.js"></script>
 <script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'video-embed.js';document.body.appendChild(s);})();</script>
-<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'termshow.js';document.body.appendChild(s);})();</script>
 <script src="../navbar-widgets.js"></script>
 
 

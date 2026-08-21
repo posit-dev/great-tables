@@ -1,4 +1,4 @@
-## data.exibble
+# data.exibble
 
 
 A toy example table for testing with great_tables: exibble.

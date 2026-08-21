@@ -1,4 +1,4 @@
-## vals.fmt_scientific()
+# vals.fmt_scientific()
 
 
 Format values to scientific notation.

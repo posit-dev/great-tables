@@ -1,4 +1,4 @@
-## style.fill
+# style.fill
 
 
 A style specification for the background fill of targeted cells.

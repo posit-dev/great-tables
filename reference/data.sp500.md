@@ -1,4 +1,4 @@
-## data.sp500
+# data.sp500
 
 
 Daily S&P 500 Index data from 1950 to 2015.

@@ -1,4 +1,4 @@
-## vals.fmt_integer()
+# vals.fmt_integer()
 
 
 Format values as integers.

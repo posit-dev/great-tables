@@ -1,4 +1,4 @@
-## vals.fmt_bytes()
+# vals.fmt_bytes()
 
 
 Format values as bytes.

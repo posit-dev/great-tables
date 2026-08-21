@@ -1,4 +1,4 @@
-## vals.fmt_date()
+# vals.fmt_date()
 
 
 Format values as dates.

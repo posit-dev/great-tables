@@ -1,4 +1,4 @@
-## md()
+# md()
 
 
 Interpret input text as Markdown-formatted text.

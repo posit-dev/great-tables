@@ -1,4 +1,4 @@
-## data.pizzaplace
+# data.pizzaplace
 
 
 A year of pizza sales from a pizza place.

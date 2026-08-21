@@ -1,4 +1,4 @@
-## vals.fmt_percent()
+# vals.fmt_percent()
 
 
 Format values as a percentage.

@@ -1,4 +1,4 @@
-## vals.fmt_currency()
+# vals.fmt_currency()
 
 
 Format values as currencies.

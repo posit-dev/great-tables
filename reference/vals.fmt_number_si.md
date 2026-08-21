@@ -1,4 +1,4 @@
-## vals.fmt_number_si()
+# vals.fmt_number_si()
 
 
 Format values with SI (metric) prefixes.

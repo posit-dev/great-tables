@@ -156,7 +156,7 @@ The method accepts several arguments that control the output format.
 
 ## Inline CSS for Email
 
-Email clients typically strip `<style>` blocks, so you need inline CSS for the table to render correctly. Set `inline_css=True` to move all styles into [style](../reference/style.borders.md#great_tables.style.borders.style) attributes.
+Email clients typically strip `<style>` blocks, so you need inline CSS for the table to render correctly. Set `inline_css=True` to move all styles into `style` attributes.
 
 ``` python
 email_html = gt_tbl.as_raw_html(inline_css=True)

@@ -1,4 +1,4 @@
-## GT.gtsave()
+# GT.gtsave()
 
 
 Save a GT table to a file (PNG, JPEG, WebP, or PDF).

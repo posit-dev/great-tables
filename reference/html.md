@@ -1,4 +1,4 @@
-## html()
+# html()
 
 
 Interpret input text as HTML-formatted text.

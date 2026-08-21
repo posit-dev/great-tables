@@ -1,4 +1,4 @@
-## vals.fmt_partsper()
+# vals.fmt_partsper()
 
 
 Format values as parts-per quantities.

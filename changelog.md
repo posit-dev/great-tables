@@ -678,7 +678,7 @@ Great Tables `v0.5.2` is a patch release addressing several bugs in borders, ima
 
 ### Bug Fixes
 
-- [CellStyleBorders](reference/style.borders.html#great_tables.style.borders) is now properly constructed when [sides](reference/style.borders.html#great_tables.style.borders.sides) is set to `"all"`. ([\#326](https://github.com/posit-dev/great-tables/issues/326), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- [CellStyleBorders](reference/style.borders.html#great_tables.style.borders) is now properly constructed when `sides` is set to `"all"`. ([\#326](https://github.com/posit-dev/great-tables/issues/326), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - [fmt_image()](reference/GT.fmt_image.html#great_tables.GT.fmt_image) no longer errors on missing values. ([\#329](https://github.com/posit-dev/great-tables/issues/329))
 - Nanoplots now work with list columns, and Polars list columns no longer raise an error. ([\#330](https://github.com/posit-dev/great-tables/issues/330))
 - Nanoplots no longer fail for lists of large integers. ([\#335](https://github.com/posit-dev/great-tables/issues/335))

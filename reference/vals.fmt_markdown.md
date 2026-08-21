@@ -1,4 +1,4 @@
-## vals.fmt_markdown()
+# vals.fmt_markdown()
 
 
 Format Markdown text.

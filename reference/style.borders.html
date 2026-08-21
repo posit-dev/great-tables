@@ -81,7 +81,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-67a0ef9aa61b89fd655bf4e62ec923d0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-a548297dc882640771aadabfda74b676.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -110,7 +110,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'termshow.css'}));</script>
 <script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox.css'}));</script>
 <script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'gd-lightbox.js';s.defer=true;document.head.appendChild(s);})();</script>
 <script>document.head.appendChild(Object.assign(document.createElement('link'),{rel:'stylesheet',href:(document.querySelector('meta[name="quarto:offset"]')||{content:''}).content+'gd-lightbox-compare.css'}));</script>
@@ -167,7 +166,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <meta name="twitter:description" content="A style specification for cell borders.">
 </head>
 
-<body class="gd-ref-sidebar nav-sidebar floating nav-fixed doc-api-page quarto-light">
+<body class="gd-ref-sidebar nav-sidebar floating nav-fixed doc-api-page doc-py-api-page quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -209,7 +208,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2711" data-forks="129"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2719" data-forks="128"></div>
     </span>
   </li>  
 </ul>
@@ -223,7 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <h1 class="quarto-secondary-nav-title no-breadcrumbs gd-ref-title"><span class="gd-ref-title-prefix">API</span><span class="gd-ref-title-sep">/</span><span class="gd-ref-title-name">style.borders</span></h1>
+        <h5 class="quarto-secondary-nav-title no-breadcrumbs gd-ref-title"><span class="gd-ref-title-prefix">API</span><span class="gd-ref-title-sep">/</span><span class="gd-ref-title-name">style.borders</span></h5>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -1192,9 +1191,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
-    <h3 id="toc-title">On this page</h3>
+    <h2 id="toc-title">On this page</h2>
    
-  <ul class="collapse">
+  <ul>
   <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
@@ -1206,7 +1205,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h2 class="title" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 1.25rem;"><span class="doc-object-name doc-class doc-label doc-label-dataclass">style.borders</span></h2>
+<h1 class="title"><span class="doc-object-name doc-class doc-label doc-label-dataclass">style.borders</span></h1>
 </div>
 
 
@@ -1232,17 +1231,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="doc-signature doc-Kind.CLASS">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sig-class">style</span><span class="op">.</span><span class="sig-name">borders</span>(
-    <span class="va">sides</span><span class="op">=</span><span class="st">&quot;all&quot;</span>,
-    <span class="va">color</span><span class="op">=</span><span class="st">&quot;#000000&quot;</span>,
-    <span class="va">style</span><span class="op">=</span><span class="st">&quot;solid&quot;</span>,
-    <span class="va">weight</span><span class="op">=</span><span class="st">&quot;1px&quot;</span>,
+    <span class="va">sides</span><span class="op">=</span><span class="st">"all"</span>,
+    <span class="va">color</span><span class="op">=</span><span class="st">"#000000"</span>,
+    <span class="va">style</span><span class="op">=</span><span class="st">"solid"</span>,
+    <span class="va">weight</span><span class="op">=</span><span class="st">"1px"</span>,
 )</span></code></pre></div>
 </div>
 <div class="doc-text">
-<p>The <code>styles.borders()</code> class is to be used with the <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> method, which itself allows for the setting of custom styles to one or more cells. The <a href="style.borders.html#great_tables.style.borders.sides" class="gdls-link gdls-code">sides</a> argument is where we define which borders should be modified (e.g., <code>"left"</code>, <code>"right"</code>, etc.). With that selection, the <a href="style.borders.html#great_tables.style.borders.color" class="gdls-link gdls-code">color</a>, <a href="style.borders.html#great_tables.style.borders.style" class="gdls-link gdls-code">style</a>, and <a href="style.borders.html#great_tables.style.borders.weight" class="gdls-link gdls-code">weight</a> of the selected borders can then be modified.</p>
+<p>The <code>styles.borders()</code> class is to be used with the <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> method, which itself allows for the setting of custom styles to one or more cells. The <code>sides</code> argument is where we define which borders should be modified (e.g., <code>"left"</code>, <code>"right"</code>, etc.). With that selection, the <code>color</code>, <code>style</code>, and <code>weight</code> of the selected borders can then be modified.</p>
 </div>
 <section id="parameters" class="level2 doc-parameters">
-<h2 class="doc-parameters">Parameters</h2>
+<h2 class="doc-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <div class="doc-definition-items">
 <dl>
 <dt><code><span class="doc-parameter-name">sides</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">(<br>&nbsp;&nbsp;&nbsp;&nbsp;Literal[<span class="st">"all"</span>, <span class="st">"top"</span>, <span class="st">"bottom"</span>, <span class="st">"left"</span>, <span class="st">"right"</span>]<br>&nbsp;&nbsp;&nbsp;&nbsp;| list[Literal[<span class="st">"all"</span>, <span class="st">"top"</span>, <span class="st">"bottom"</span>, <span class="st">"left"</span>, <span class="st">"right"</span>]]<br>)</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"all"</span></span></code></dt>
@@ -1251,21 +1250,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">color</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | ColumnExpr</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"#000000"</span></span></code></dt>
 <dd>
-<p>The border <a href="style.borders.html#great_tables.style.borders.color" class="gdls-link gdls-code">color</a> can be defined with any valid CSS color value, such as a hex code, a named color, or an RGB value. The default <a href="style.borders.html#great_tables.style.borders.color" class="gdls-link gdls-code">color</a> value is <code>"#000000"</code> (black).</p>
+<p>The border <code>color</code> can be defined with any valid CSS color value, such as a hex code, a named color, or an RGB value. The default <code>color</code> value is <code>"#000000"</code> (black).</p>
 </dd>
 <dt><code><span class="doc-parameter-name">style</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | ColumnExpr</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"solid"</span></span></code></dt>
 <dd>
-<p>The border <a href="style.borders.html#great_tables.style.borders.style" class="gdls-link gdls-code">style</a> can be one of either <code>"solid"</code> (the default), <code>"dashed"</code>, <code>"dotted"</code>, <code>"hidden"</code>, or <code>"double"</code>.</p>
+<p>The border <code>style</code> can be one of either <code>"solid"</code> (the default), <code>"dashed"</code>, <code>"dotted"</code>, <code>"hidden"</code>, or <code>"double"</code>.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">weight</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | ColumnExpr</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"1px"</span></span></code></dt>
 <dd>
-The default value for <a href="style.borders.html#great_tables.style.borders.weight" class="gdls-link gdls-code">weight</a> is <code>"1px"</code> and higher values will become more visually prominent.
+The default value for <code>weight</code> is <code>"1px"</code> and higher values will become more visually prominent.
 </dd>
 </dl>
 </div>
 </section>
 <section id="returns" class="level2 doc-returns">
-<h2 class="doc-returns">Returns</h2>
+<h2 class="doc-returns anchored" data-anchor-id="returns">Returns</h2>
 <div class="doc-definition-items">
 <dl>
 <dt><code> <span class="doc-parameter-annotation">CellStyleBorders</span></code></dt>
@@ -1276,7 +1275,7 @@ A CellStyleBorders object, which is used for a <code>styles</code> argument if s
 </div>
 </section>
 <section id="examples" class="level2 doc-examples">
-<h2 class="doc-examples">Examples</h2>
+<h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>See <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>GT.tab_style()</code></a>.</p>
 
 
@@ -1647,7 +1646,6 @@ A CellStyleBorders object, which is used for a <code>styles</code> argument if s
 <script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'color-swatch.js';document.body.appendChild(s);})();</script>
 <script src="../responsive-tables.js"></script>
 <script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'video-embed.js';document.body.appendChild(s);})();</script>
-<script>(function(){var s=document.createElement('script');var m=document.querySelector('meta[name="quarto:offset"]');s.src=(m?m.content:'')+'termshow.js';document.body.appendChild(s);})();</script>
 <script src="../navbar-widgets.js"></script>
 
 

@@ -1,4 +1,4 @@
-## GT.write_raw_html()
+# GT.write_raw_html()
 
 
 Write the table to an HTML file.
