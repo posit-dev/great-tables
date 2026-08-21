@@ -5,7 +5,10 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools_scm]
 
 [tool.setuptools.packages.find]
-include = ["great_tables"]
+include = ["great_tables", "great_tables.*"]
+
+[tool.setuptools.package-data]
+great_tables = ["js/*.js", "js/*.css"]
 
 [project]
 name = "great-tables"
