@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import warnings
+from collections.abc import Iterable
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, Iterable, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from . import _utils
 from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
@@ -29,7 +30,7 @@ def tab_options(
     table_additional_css: str | list[str] | None = None,
     table_font_names: str | list[str] | None = None,
     table_font_size: str | None = None,
-    table_font_weight: str | int | float | None = None,
+    table_font_weight: str | float | None = None,
     table_font_style: str | None = None,
     table_font_color: str | None = None,
     table_font_color_light: str | None = None,
@@ -48,9 +49,9 @@ def tab_options(
     heading_background_color: str | None = None,
     heading_align: str | None = None,
     heading_title_font_size: str | None = None,
-    heading_title_font_weight: str | int | float | None = None,
+    heading_title_font_weight: str | float | None = None,
     heading_subtitle_font_size: str | None = None,
-    heading_subtitle_font_weight: str | int | float | None = None,
+    heading_subtitle_font_weight: str | float | None = None,
     heading_padding: str | None = None,
     heading_padding_horizontal: str | None = None,
     heading_border_bottom_style: str | None = None,
@@ -61,7 +62,7 @@ def tab_options(
     heading_border_lr_color: str | None = None,
     column_labels_background_color: str | None = None,
     column_labels_font_size: str | None = None,
-    column_labels_font_weight: str | int | float | None = None,
+    column_labels_font_weight: str | float | None = None,
     column_labels_text_transform: str | None = None,
     column_labels_padding: str | None = None,
     column_labels_padding_horizontal: str | None = None,
@@ -80,7 +81,7 @@ def tab_options(
     column_labels_hidden: bool | None = None,
     row_group_background_color: str | None = None,
     row_group_font_size: str | None = None,
-    row_group_font_weight: str | int | float | None = None,
+    row_group_font_weight: str | float | None = None,
     row_group_text_transform: str | None = None,
     row_group_padding: str | None = None,
     row_group_padding_horizontal: str | None = None,
@@ -112,14 +113,14 @@ def tab_options(
     table_body_border_bottom_color: str | None = None,
     stub_background_color: str | None = None,
     stub_font_size: str | None = None,
-    stub_font_weight: str | int | float | None = None,
+    stub_font_weight: str | float | None = None,
     stub_text_transform: str | None = None,
     stub_border_style: str | None = None,
     stub_border_width: str | None = None,
     stub_border_color: str | None = None,
     stub_indent_length: str | None = None,
     stub_row_group_font_size: str | None = None,
-    stub_row_group_font_weight: str | int | float | None = None,
+    stub_row_group_font_weight: str | float | None = None,
     stub_row_group_text_transform: str | None = None,
     stub_row_group_border_style: str | None = None,
     stub_row_group_border_width: str | None = None,
@@ -169,6 +170,22 @@ def tab_options(
     row_striping_include_stub: bool | None = None,
     row_striping_include_table_body: bool | None = None,
     quarto_disable_processing: bool | None = None,
+    ihtml_active: bool | None = None,
+    ihtml_use_pagination: bool | None = None,
+    ihtml_use_pagination_info: bool | None = None,
+    ihtml_use_sorting: bool | None = None,
+    ihtml_use_search: bool | None = None,
+    ihtml_use_filters: bool | None = None,
+    ihtml_use_resizers: bool | None = None,
+    ihtml_use_highlight: bool | None = None,
+    ihtml_use_compact_mode: bool | None = None,
+    ihtml_use_text_wrapping: bool | None = None,
+    ihtml_use_page_size_select: bool | None = None,
+    ihtml_page_size_default: int | None = None,
+    ihtml_page_size_values: list[int] | None = None,
+    ihtml_pagination_type: str | None = None,
+    ihtml_height: str | None = None,
+    ihtml_selection_mode: str | None = None,
 ) -> GTSelf:
     """
     Modify the table output options.
@@ -564,16 +581,16 @@ def tab_options(
 
     # Intercept modified args and modify before replacing options:
     # - `table_font_names` should be a list but if given as a string, ensure it is list
-    if "table_font_names" in modified_args:
-        if isinstance(modified_args["table_font_names"], str):
-            modified_args["table_font_names"] = [modified_args["table_font_names"]]
+    if "table_font_names" in modified_args and isinstance(modified_args["table_font_names"], str):
+        modified_args["table_font_names"] = [modified_args["table_font_names"]]
 
     # - `table_additional_css` should be a list but if given as a string, ensure it is list
     #   Also filter out empty strings to avoid extra newlines in CSS output
-    if "table_additional_css" in modified_args:
-        if isinstance(modified_args["table_additional_css"], str):
-            css_val = modified_args["table_additional_css"].strip()
-            modified_args["table_additional_css"] = [css_val] if css_val else []
+    if "table_additional_css" in modified_args and isinstance(
+        modified_args["table_additional_css"], str
+    ):
+        css_val = modified_args["table_additional_css"].strip()
+        modified_args["table_additional_css"] = [css_val] if css_val else []
 
     # Validate and coerce option values based on their declared types
     new_options_info = {}
