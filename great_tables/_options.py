@@ -954,10 +954,8 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
 def opt_all_caps(
     self: GTSelf,
     all_caps: bool = True,
-    locations: type[LocColumnLabels]
-    | type[LocRowGroups]
-    | type[LocStub]
-    | list[type[LocColumnLabels] | type[LocRowGroups] | type[LocStub]]
+    locations: type[LocColumnLabels | LocRowGroups | LocStub]
+    | list[type[LocColumnLabels | LocRowGroups | LocStub]]
     | str
     | list[str]
     | None = None,
@@ -1209,7 +1207,7 @@ def opt_table_font(
     self: GTSelf,
     font: str | list[str] | dict[str, str] | GoogleFont | None = None,
     stack: FontStackName | None = None,
-    weight: str | int | float | None = None,
+    weight: str | float | None = None,
     style: str | None = None,
     add: bool = True,
 ) -> GTSelf:
