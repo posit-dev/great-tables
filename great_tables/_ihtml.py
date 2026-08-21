@@ -5,6 +5,7 @@ import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from ._locations import LocBody, LocColumnLabels
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import _process_text
 from ._utils import heading_has_subtitle, heading_has_title
@@ -113,7 +114,15 @@ def render_as_ihtml(data: GT) -> str:
             "Column labels are shown in a flat header row.",
             stacklevel=3,
         )
-    thead_html = _build_thead(built, visible_cols)
+
+    # ------------------------------------------------------------------
+    # Collect tab_style() declarations for supported locations.
+    # ------------------------------------------------------------------
+    body_cell_styles = _collect_body_styles(built, visible_cols)
+    col_label_styles = _collect_col_label_styles(built, visible_cols)
+    col_idx = {col.var: i for i, col in enumerate(visible_cols)}
+
+    thead_html = _build_thead(built, visible_cols, col_label_styles)
 
     # ------------------------------------------------------------------
     # Map opt_interactive options to DataTables config.
@@ -173,6 +182,8 @@ def render_as_ihtml(data: GT) -> str:
         use_filters=use_filters,
         use_highlight=use_highlight,
         use_resizers=use_resizers,
+        body_cell_styles=body_cell_styles,
+        col_idx=col_idx,
     )
 
     html = f"""\
@@ -224,10 +235,49 @@ def _parse_px(value: str | None, default: float = 16.0) -> float:
         return default
 
 
-def _build_thead(built: GT, visible_cols: list[ColInfo]) -> str:
+def _collect_body_styles(built: GT, visible_cols: list[ColInfo]) -> dict[int, dict[str, str]]:
+    """Return {rownum: {colname: css}} for all tab_style(loc.body()) declarations."""
+    col_vars = {c.var for c in visible_cols}
+    result: dict[int, dict[str, str]] = {}
+    for si in built._styles:
+        if not isinstance(si.locname, LocBody):
+            continue
+        if si.rownum is None or si.colname not in col_vars:
+            continue
+        css = "".join(s._to_html_style() for s in si.styles)
+        if css:
+            row_entry = result.setdefault(si.rownum, {})
+            row_entry[si.colname] = row_entry.get(si.colname, "") + css
+    return result
+
+
+def _collect_col_label_styles(built: GT, visible_cols: list[ColInfo]) -> dict[str, str]:
+    """Return {colname: css} for all tab_style(loc.column_labels()) declarations."""
+    col_vars = {c.var for c in visible_cols}
+    result: dict[str, str] = {}
+    for si in built._styles:
+        if not isinstance(si.locname, LocColumnLabels):
+            continue
+        if si.colname not in col_vars:
+            continue
+        css = "".join(s._to_html_style() for s in si.styles)
+        if css:
+            result[si.colname] = result.get(si.colname, "") + css
+    return result
+
+
+def _build_thead(
+    built: GT,
+    visible_cols: list[ColInfo],
+    col_label_styles: dict[str, str] | None = None,
+) -> str:
     """Build a flat single-row <thead>. Spanners are omitted in interactive mode."""
-    cells = "".join(f"<th>{_col_label(c)}</th>" for c in visible_cols)
-    return f"<thead><tr>{cells}</tr></thead>"
+    col_label_styles = col_label_styles or {}
+    cells = []
+    for c in visible_cols:
+        style_attr = f' style="{col_label_styles[c.var]}"' if c.var in col_label_styles else ""
+        cells.append(f"<th{style_attr}>{_col_label(c)}</th>")
+    return f"<thead><tr>{''.join(cells)}</tr></thead>"
 
 
 def _build_header_html(built: GT) -> str:
@@ -338,8 +388,25 @@ def _build_init_extras(
     use_filters: bool,
     use_highlight: bool,
     use_resizers: bool,
+    body_cell_styles: dict[int, dict[str, str]] | None = None,
+    col_idx: dict[str, int] | None = None,
 ) -> str:
     lines: list[str] = []
+
+    if body_cell_styles and col_idx:
+        cell_styles_json = json.dumps(
+            {str(k): v for k, v in body_cell_styles.items()}, ensure_ascii=False
+        )
+        col_idx_json = json.dumps(col_idx, ensure_ascii=False)
+        lines.append(
+            f"  var _cellStyles = {cell_styles_json};\n"
+            f"  var _colIdx = {col_idx_json};\n"
+            "  cfg.createdRow = function(row, rowData, dataIndex) {\n"
+            "    var s = _cellStyles[String(dataIndex)]; if (!s) return;\n"
+            "    var cells = row.cells;\n"
+            "    for (var col in s) { var i = _colIdx[col]; if (i !== undefined) cells[i].style.cssText += s[col]; }\n"
+            "  };"
+        )
 
     if use_filters:
         # Append filter inputs to a new <tr> row using <td> (not <th>) so
