@@ -1078,7 +1078,7 @@ from great_tables import GT, style, loc, exibble
 )
 ```
 
-tab_options(self: 'GTSelf', container_width: 'str | None' = None, container_height: 'str | None' = None, container_padding_x: 'str | None' = None, container_padding_y: 'str | None' = None, container_overflow_x: 'str | None' = None, container_overflow_y: 'str | None' = None, table_width: 'str | None' = None, table_layout: 'str | None' = None, table_margin_left: 'str | None' = None, table_margin_right: 'str | None' = None, table_background_color: 'str | None' = None, table_additional_css: 'str | list[str] | None' = None, table_font_names: 'str | list[str] | None' = None, table_font_size: 'str | None' = None, table_font_weight: 'str | int | float | None' = None, table_font_style: 'str | None' = None, table_font_color: 'str | None' = None, table_font_color_light: 'str | None' = None, table_border_top_style: 'str | None' = None, table_border_top_width: 'str | None' = None, table_border_top_color: 'str | None' = None, table_border_bottom_style: 'str | None' = None, table_border_bottom_width: 'str | None' = None, table_border_bottom_color: 'str | None' = None, table_border_left_style: 'str | None' = None, table_border_left_width: 'str | None' = None, table_border_left_color: 'str | None' = None, table_border_right_style: 'str | None' = None, table_border_right_width: 'str | None' = None, table_border_right_color: 'str | None' = None, heading_background_color: 'str | None' = None, heading_align: 'str | None' = None, heading_title_font_size: 'str | None' = None, heading_title_font_weight: 'str | int | float | None' = None, heading_subtitle_font_size: 'str | None' = None, heading_subtitle_font_weight: 'str | int | float | None' = None, heading_padding: 'str | None' = None, heading_padding_horizontal: 'str | None' = None, heading_border_bottom_style: 'str | None' = None, heading_border_bottom_width: 'str | None' = None, heading_border_bottom_color: 'str | None' = None, heading_border_lr_style: 'str | None' = None, heading_border_lr_width: 'str | None' = None, heading_border_lr_color: 'str | None' = None, column_labels_background_color: 'str | None' = None, column_labels_font_size: 'str | None' = None, column_labels_font_weight: 'str | int | float | None' = None, column_labels_text_transform: 'str | None' = None, column_labels_padding: 'str | None' = None, column_labels_padding_horizontal: 'str | None' = None, column_labels_vlines_style: 'str | None' = None, column_labels_vlines_width: 'str | None' = None, column_labels_vlines_color: 'str | None' = None, column_labels_border_top_style: 'str | None' = None, column_labels_border_top_width: 'str | None' = None, column_labels_border_top_color: 'str | None' = None, column_labels_border_bottom_style: 'str | None' = None, column_labels_border_bottom_width: 'str | None' = None, column_labels_border_bottom_color: 'str | None' = None, column_labels_border_lr_style: 'str | None' = None, column_labels_border_lr_width: 'str | None' = None, column_labels_border_lr_color: 'str | None' = None, column_labels_hidden: 'bool | None' = None, row_group_background_color: 'str | None' = None, row_group_font_size: 'str | None' = None, row_group_font_weight: 'str | int | float | None' = None, row_group_text_transform: 'str | None' = None, row_group_padding: 'str | None' = None, row_group_padding_horizontal: 'str | None' = None, row_group_border_top_style: 'str | None' = None, row_group_border_top_width: 'str | None' = None, row_group_border_top_color: 'str | None' = None, row_group_border_bottom_style: 'str | None' = None, row_group_border_bottom_width: 'str | None' = None, row_group_border_bottom_color: 'str | None' = None, row_group_border_left_style: 'str | None' = None, row_group_border_left_width: 'str | None' = None, row_group_border_left_color: 'str | None' = None, row_group_border_right_style: 'str | None' = None, row_group_border_right_width: 'str | None' = None, row_group_border_right_color: 'str | None' = None, row_group_as_column: 'bool | None' = None, table_body_hlines_style: 'str | None' = None, table_body_hlines_width: 'str | None' = None, table_body_hlines_color: 'str | None' = None, table_body_vlines_style: 'str | None' = None, table_body_vlines_width: 'str | None' = None, table_body_vlines_color: 'str | None' = None, table_body_border_top_style: 'str | None' = None, table_body_border_top_width: 'str | None' = None, table_body_border_top_color: 'str | None' = None, table_body_border_bottom_style: 'str | None' = None, table_body_border_bottom_width: 'str | None' = None, table_body_border_bottom_color: 'str | None' = None, stub_background_color: 'str | None' = None, stub_font_size: 'str | None' = None, stub_font_weight: 'str | int | float | None' = None, stub_text_transform: 'str | None' = None, stub_border_style: 'str | None' = None, stub_border_width: 'str | None' = None, stub_border_color: 'str | None' = None, stub_indent_length: 'str | None' = None, stub_row_group_font_size: 'str | None' = None, stub_row_group_font_weight: 'str | int | float | None' = None, stub_row_group_text_transform: 'str | None' = None, stub_row_group_border_style: 'str | None' = None, stub_row_group_border_width: 'str | None' = None, stub_row_group_border_color: 'str | None' = None, data_row_padding: 'str | None' = None, data_row_padding_horizontal: 'str | None' = None, summary_row_background_color: 'str | None' = None, summary_row_text_transform: 'str | None' = None, summary_row_padding: 'str | None' = None, summary_row_padding_horizontal: 'str | None' = None, summary_row_border_style: 'str | None' = None, summary_row_border_width: 'str | None' = None, summary_row_border_color: 'str | None' = None, grand_summary_row_background_color: 'str | None' = None, grand_summary_row_text_transform: 'str | None' = None, grand_summary_row_padding: 'str | None' = None, grand_summary_row_padding_horizontal: 'str | None' = None, grand_summary_row_border_style: 'str | None' = None, grand_summary_row_border_width: 'str | None' = None, grand_summary_row_border_color: 'str | None' = None, footnotes_marks: 'str | list[str] | None' = None, source_notes_background_color: 'str | None' = None, source_notes_font_size: 'str | None' = None, source_notes_padding: 'str | None' = None, source_notes_padding_horizontal: 'str | None' = None, source_notes_border_bottom_style: 'str | None' = None, source_notes_border_bottom_width: 'str | None' = None, source_notes_border_bottom_color: 'str | None' = None, source_notes_border_lr_style: 'str | None' = None, source_notes_border_lr_width: 'str | None' = None, source_notes_border_lr_color: 'str | None' = None, source_notes_multiline: 'bool | None' = None, source_notes_sep: 'str | None' = None, row_striping_background_color: 'str | None' = None, row_striping_include_stub: 'bool | None' = None, row_striping_include_table_body: 'bool | None' = None, quarto_disable_processing: 'bool | None' = None) -> 'GTSelf'
+tab_options(self: 'GTSelf', container_width: 'str | None' = None, container_height: 'str | None' = None, container_padding_x: 'str | None' = None, container_padding_y: 'str | None' = None, container_overflow_x: 'str | None' = None, container_overflow_y: 'str | None' = None, table_width: 'str | None' = None, table_layout: 'str | None' = None, table_margin_left: 'str | None' = None, table_margin_right: 'str | None' = None, table_background_color: 'str | None' = None, table_additional_css: 'str | list[str] | None' = None, table_font_names: 'str | list[str] | None' = None, table_font_size: 'str | None' = None, table_font_weight: 'str | float | None' = None, table_font_style: 'str | None' = None, table_font_color: 'str | None' = None, table_font_color_light: 'str | None' = None, table_border_top_style: 'str | None' = None, table_border_top_width: 'str | None' = None, table_border_top_color: 'str | None' = None, table_border_bottom_style: 'str | None' = None, table_border_bottom_width: 'str | None' = None, table_border_bottom_color: 'str | None' = None, table_border_left_style: 'str | None' = None, table_border_left_width: 'str | None' = None, table_border_left_color: 'str | None' = None, table_border_right_style: 'str | None' = None, table_border_right_width: 'str | None' = None, table_border_right_color: 'str | None' = None, heading_background_color: 'str | None' = None, heading_align: 'str | None' = None, heading_title_font_size: 'str | None' = None, heading_title_font_weight: 'str | float | None' = None, heading_subtitle_font_size: 'str | None' = None, heading_subtitle_font_weight: 'str | float | None' = None, heading_padding: 'str | None' = None, heading_padding_horizontal: 'str | None' = None, heading_border_bottom_style: 'str | None' = None, heading_border_bottom_width: 'str | None' = None, heading_border_bottom_color: 'str | None' = None, heading_border_lr_style: 'str | None' = None, heading_border_lr_width: 'str | None' = None, heading_border_lr_color: 'str | None' = None, column_labels_background_color: 'str | None' = None, column_labels_font_size: 'str | None' = None, column_labels_font_weight: 'str | float | None' = None, column_labels_text_transform: 'str | None' = None, column_labels_padding: 'str | None' = None, column_labels_padding_horizontal: 'str | None' = None, column_labels_vlines_style: 'str | None' = None, column_labels_vlines_width: 'str | None' = None, column_labels_vlines_color: 'str | None' = None, column_labels_border_top_style: 'str | None' = None, column_labels_border_top_width: 'str | None' = None, column_labels_border_top_color: 'str | None' = None, column_labels_border_bottom_style: 'str | None' = None, column_labels_border_bottom_width: 'str | None' = None, column_labels_border_bottom_color: 'str | None' = None, column_labels_border_lr_style: 'str | None' = None, column_labels_border_lr_width: 'str | None' = None, column_labels_border_lr_color: 'str | None' = None, column_labels_hidden: 'bool | None' = None, row_group_background_color: 'str | None' = None, row_group_font_size: 'str | None' = None, row_group_font_weight: 'str | float | None' = None, row_group_text_transform: 'str | None' = None, row_group_padding: 'str | None' = None, row_group_padding_horizontal: 'str | None' = None, row_group_border_top_style: 'str | None' = None, row_group_border_top_width: 'str | None' = None, row_group_border_top_color: 'str | None' = None, row_group_border_bottom_style: 'str | None' = None, row_group_border_bottom_width: 'str | None' = None, row_group_border_bottom_color: 'str | None' = None, row_group_border_left_style: 'str | None' = None, row_group_border_left_width: 'str | None' = None, row_group_border_left_color: 'str | None' = None, row_group_border_right_style: 'str | None' = None, row_group_border_right_width: 'str | None' = None, row_group_border_right_color: 'str | None' = None, row_group_as_column: 'bool | None' = None, table_body_hlines_style: 'str | None' = None, table_body_hlines_width: 'str | None' = None, table_body_hlines_color: 'str | None' = None, table_body_vlines_style: 'str | None' = None, table_body_vlines_width: 'str | None' = None, table_body_vlines_color: 'str | None' = None, table_body_border_top_style: 'str | None' = None, table_body_border_top_width: 'str | None' = None, table_body_border_top_color: 'str | None' = None, table_body_border_bottom_style: 'str | None' = None, table_body_border_bottom_width: 'str | None' = None, table_body_border_bottom_color: 'str | None' = None, stub_background_color: 'str | None' = None, stub_font_size: 'str | None' = None, stub_font_weight: 'str | float | None' = None, stub_text_transform: 'str | None' = None, stub_border_style: 'str | None' = None, stub_border_width: 'str | None' = None, stub_border_color: 'str | None' = None, stub_indent_length: 'str | None' = None, stub_row_group_font_size: 'str | None' = None, stub_row_group_font_weight: 'str | float | None' = None, stub_row_group_text_transform: 'str | None' = None, stub_row_group_border_style: 'str | None' = None, stub_row_group_border_width: 'str | None' = None, stub_row_group_border_color: 'str | None' = None, data_row_padding: 'str | None' = None, data_row_padding_horizontal: 'str | None' = None, summary_row_background_color: 'str | None' = None, summary_row_text_transform: 'str | None' = None, summary_row_padding: 'str | None' = None, summary_row_padding_horizontal: 'str | None' = None, summary_row_border_style: 'str | None' = None, summary_row_border_width: 'str | None' = None, summary_row_border_color: 'str | None' = None, grand_summary_row_background_color: 'str | None' = None, grand_summary_row_text_transform: 'str | None' = None, grand_summary_row_padding: 'str | None' = None, grand_summary_row_padding_horizontal: 'str | None' = None, grand_summary_row_border_style: 'str | None' = None, grand_summary_row_border_width: 'str | None' = None, grand_summary_row_border_color: 'str | None' = None, footnotes_marks: 'str | list[str] | None' = None, source_notes_background_color: 'str | None' = None, source_notes_font_size: 'str | None' = None, source_notes_padding: 'str | None' = None, source_notes_padding_horizontal: 'str | None' = None, source_notes_border_bottom_style: 'str | None' = None, source_notes_border_bottom_width: 'str | None' = None, source_notes_border_bottom_color: 'str | None' = None, source_notes_border_lr_style: 'str | None' = None, source_notes_border_lr_width: 'str | None' = None, source_notes_border_lr_color: 'str | None' = None, source_notes_multiline: 'bool | None' = None, source_notes_sep: 'str | None' = None, row_striping_background_color: 'str | None' = None, row_striping_include_stub: 'bool | None' = None, row_striping_include_table_body: 'bool | None' = None, quarto_disable_processing: 'bool | None' = None, ihtml_active: 'bool | None' = None, ihtml_use_pagination: 'bool | None' = None, ihtml_use_pagination_info: 'bool | None' = None, ihtml_use_sorting: 'bool | None' = None, ihtml_use_search: 'bool | None' = None, ihtml_use_filters: 'bool | None' = None, ihtml_use_resizers: 'bool | None' = None, ihtml_use_highlight: 'bool | None' = None, ihtml_use_compact_mode: 'bool | None' = None, ihtml_use_text_wrapping: 'bool | None' = None, ihtml_use_page_size_select: 'bool | None' = None, ihtml_page_size_default: 'int | None' = None, ihtml_page_size_values: 'list[int] | None' = None, ihtml_pagination_type: 'str | None' = None, ihtml_height: 'str | None' = None, ihtml_selection_mode: 'str | None' = None) -> 'GTSelf'
 
 Modify the table output options.
 
@@ -8145,7 +8145,7 @@ What you get in this case is more condensed text across the horizontal axis. Thi
 be desired when cells consist mainly of text, but it could be useful when the table is more
 visual and the cells are filled with graphics or other non-textual elements.
 
-opt_all_caps(self: 'GTSelf', all_caps: 'bool' = True, locations: 'type[LocColumnLabels] | type[LocRowGroups] | type[LocStub] | list[type[LocColumnLabels] | type[LocRowGroups] | type[LocStub]] | str | list[str] | None' = None) -> 'GTSelf'
+opt_all_caps(self: 'GTSelf', all_caps: 'bool' = True, locations: 'type[LocColumnLabels | LocRowGroups | LocStub] | list[type[LocColumnLabels | LocRowGroups | LocStub]] | str | list[str] | None' = None) -> 'GTSelf'
 
 Option to use all caps in select table locations.
 
@@ -8271,7 +8271,7 @@ from great_tables import GT, exibble, md
 )
 ```
 
-opt_table_font(self: 'GTSelf', font: 'str | list[str] | dict[str, str] | GoogleFont | None' = None, stack: 'FontStackName | None' = None, weight: 'str | int | float | None' = None, style: 'str | None' = None, add: 'bool' = True) -> 'GTSelf'
+opt_table_font(self: 'GTSelf', font: 'str | list[str] | dict[str, str] | GoogleFont | None' = None, stack: 'FontStackName | None' = None, weight: 'str | float | None' = None, style: 'str | None' = None, add: 'bool' = True) -> 'GTSelf'
 
 Options to define font choices for the entire table.
 
@@ -14737,6 +14737,179 @@ to exactly the right cells. For more details on styling itself, see
 [Styling the Table Body](./11-styling-the-table-body.qmd) and
 [Styling the Whole Table](./12-styling-the-whole-table.qmd).
 
+
+
+## Interactive Tables
+
+### Interactive Tables
+
+**Great Tables** can render a fully interactive table (with sorting, searching, filtering, and
+pagination) by calling `opt_interactive()`. The result is a self-contained HTML widget powered by
+[DataTables](https://datatables.net/) that works in Jupyter notebooks, Quarto documents, and any
+HTML output.
+
+## Enabling interactivity
+
+A single call to `opt_interactive()` switches the table from static to interactive. All of the
+normal formatting and styling methods continue to work exactly as before.
+
+```{python}
+from great_tables import GT
+from great_tables.data import gtcars
+import polars as pl
+
+gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", "msrp"])
+
+(
+    GT(gtcars_pl)
+    .tab_header(title="GT Cars", subtitle="The full dataset, interactively")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .opt_interactive()
+)
+```
+
+Click on any column header to sort. The table is paginated by default with 10 rows per page.
+
+## Search and per-column filters
+
+Pass `use_search=True` to add a global search box, and `use_filters=True` to add a per-column text
+filter row beneath the headers.
+
+```{python}
+from great_tables import GT
+from great_tables.data import gtcars
+import polars as pl
+
+(
+    GT(gtcars_pl)
+    .tab_header(title="GT Cars: Search and Filter")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .opt_interactive(use_search=True, use_filters=True)
+)
+```
+
+Try typing `"Audi"` in the `Make` filter or `"2017"` in the `Year` filter to narrow the results.
+
+## Pagination options
+
+Control the number of rows per page and let users choose from a list of sizes with
+`page_size_default=` and `page_size_values=`. The pagination style can also be changed with
+`pagination_type=` (`"numbers"`, `"simple"`, or `"full"`).
+
+```{python}
+from great_tables import GT
+from great_tables.data import gtcars
+import polars as pl
+
+(
+    GT(gtcars_pl)
+    .tab_header(title="GT Cars: Pagination options")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .opt_interactive(
+        use_page_size_select=True,
+        page_size_default=5,
+        page_size_values=[5, 10, 25, 50],
+        pagination_type="simple",
+    )
+)
+```
+
+Set `use_pagination=False` to display the full table without paging. This is useful for smaller
+datasets.
+
+## Styling with `tab_style()`
+
+The `tab_style()` methods works in interactive mode for `loc.body()` and `loc.column_labels()`.
+Styles are applied row-by-row as DataTables renders each page, so they follow the data when you sort
+or filter.
+
+```{python}
+from great_tables import style, loc
+
+(
+    GT(gtcars_pl)
+    .tab_header(title="GT Cars: Targeted styles")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .tab_style(
+        style=style.fill(color="#fff3cd"),
+        locations=loc.body(columns="hp", rows=pl.col("hp") > 500),
+    )
+    .tab_style(
+        style=[style.text(color="#c0392b", weight="bold")],
+        locations=loc.body(columns="msrp", rows=pl.col("msrp") > 200_000),
+    )
+    .tab_style(
+        style=[style.fill(color="#ddeeff"), style.text(weight="bold")],
+        locations=loc.column_labels(columns=["hp", "trq"]),
+    )
+    .opt_interactive(use_search=True, use_filters=True, page_size_default=10)
+)
+```
+
+From the output you might notice:
+
+- rows where HP exceeds 500 are highlighted in amber
+- MSRP values over \$200,000 appear in bold red
+- the `HP` and `Torque` column headers have a blue-tinted background
+
+Sort by `HP` or `MSRP` to confirm that the styling moves with the data.
+
+## Colorizing with `data_color()`
+
+The use of `data_color()` is fully supported in interactive tables. It applies a continuous color
+scale to each cell based on the underlying value. Because `data_color()` is implemented via
+`tab_style()` internally, it inherits the same interactive behavior automatically.
+
+```{python}
+(
+    GT(gtcars_pl)
+    .tab_header(title="GT Cars: data_color()")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .data_color(columns="hp",  palette=["#fff7ec", "#ef6c00"])
+    .data_color(columns="msrp", palette="Blues")
+    .opt_interactive(use_search=True, use_filters=True, page_size_default=10)
+)
+```
+
+Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. Try filtering by
+`Make` to see how the scales update in context.
+
+### Multiple columns, shared scale
+
+Pass `domain=` to lock the color range across columns so they share a common scale.
+
+```{python}
+(
+    GT(gtcars_pl)
+    .tab_header(
+        title="GT Cars: HP and Torque on a shared scale",
+        subtitle="Higher values are darker and both columns use the same domain",
+    )
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .data_color(
+        columns=["hp", "trq"],
+        palette=["#edf8fb", "#006d2c"],
+        domain=[200, 700],
+    )
+    .opt_interactive(use_search=True, page_size_default=10)
+)
+```
+
+
+
+## Advanced Topics
 
 ### Exporting and Saving Tables
 
