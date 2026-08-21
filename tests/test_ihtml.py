@@ -8,7 +8,7 @@ import re
 import pytest
 import polars as pl
 
-from great_tables import GT
+from great_tables import GT, style, loc
 from great_tables.data import exibble
 
 
@@ -236,3 +236,149 @@ class TestHeaderFooter:
     def test_no_header_when_absent(self, gt_mini: GT):
         html = gt_mini.opt_interactive().as_raw_html()
         assert '<div class="gt-ihtml-header">' not in html
+
+
+# ---------------------------------------------------------------------------
+# tab_style() integration — loc.body() and loc.column_labels()
+# ---------------------------------------------------------------------------
+
+
+class TestTabStyle:
+    @pytest.fixture()
+    def gt_styled(self) -> GT:
+        df = pl.DataFrame({"a": [1, 2, 3], "b": [10, 20, 30]})
+        return (
+            GT(df)
+            .tab_style(
+                style=style.fill(color="yellow"),
+                locations=loc.body(columns="a", rows=pl.col("a") == 2),
+            )
+            .tab_style(
+                style=style.text(color="red", weight="bold"),
+                locations=loc.body(columns="b", rows=pl.col("b") == 30),
+            )
+            .tab_style(
+                style=style.fill(color="#abc"),
+                locations=loc.column_labels(columns="b"),
+            )
+            .opt_interactive()
+        )
+
+    def test_cell_styles_var_present(self, gt_styled: GT):
+        html = gt_styled.as_raw_html()
+        assert "_cellStyles" in html
+
+    def test_col_idx_var_present(self, gt_styled: GT):
+        html = gt_styled.as_raw_html()
+        assert "_colIdx" in html
+
+    def test_created_row_callback_present(self, gt_styled: GT):
+        html = gt_styled.as_raw_html()
+        assert "createdRow" in html
+
+    def test_body_fill_css_in_cell_styles(self, gt_styled: GT):
+        html = gt_styled.as_raw_html()
+        m = re.search(r"var _cellStyles = (\{.*?\});", html, re.DOTALL)
+        assert m, "_cellStyles not found"
+        cell_styles = json.loads(m.group(1))
+        # row index 1 is where a==2
+        assert "1" in cell_styles
+        assert "a" in cell_styles["1"]
+        assert "yellow" in cell_styles["1"]["a"]
+
+    def test_body_text_css_in_cell_styles(self, gt_styled: GT):
+        html = gt_styled.as_raw_html()
+        m = re.search(r"var _cellStyles = (\{.*?\});", html, re.DOTALL)
+        assert m, "_cellStyles not found"
+        cell_styles = json.loads(m.group(1))
+        # row index 2 is where b==30
+        assert "2" in cell_styles
+        assert "b" in cell_styles["2"]
+        css = cell_styles["2"]["b"]
+        assert "red" in css
+        assert "bold" in css
+
+    def test_col_idx_maps_column_names(self, gt_styled: GT):
+        html = gt_styled.as_raw_html()
+        m = re.search(r"var _colIdx = (\{.*?\});", html, re.DOTALL)
+        assert m, "_colIdx not found"
+        col_idx = json.loads(m.group(1))
+        assert col_idx["a"] == 0
+        assert col_idx["b"] == 1
+
+    def test_col_label_style_on_th(self, gt_styled: GT):
+        html = gt_styled.as_raw_html()
+        # The <th> for column "b" should carry an inline style
+        assert 'style="' in html
+        assert "#abc" in html
+
+    def test_no_cell_styles_var_when_no_tab_style(self):
+        df = pl.DataFrame({"x": [1, 2]})
+        html = GT(df).opt_interactive().as_raw_html()
+        assert "_cellStyles" not in html
+
+    def test_unsupported_location_does_not_crash(self):
+        df = pl.DataFrame({"x": [1, 2]})
+        # loc.header() is unsupported in interactive mode — should render without error
+        html = (
+            GT(df)
+            .tab_header(title="T")
+            .tab_style(style=style.fill(color="blue"), locations=loc.header())
+            .opt_interactive()
+            .as_raw_html()
+        )
+        assert "DataTable(" in html
+
+
+# ---------------------------------------------------------------------------
+# Column width pre-sizing
+# ---------------------------------------------------------------------------
+
+
+class TestColumnWidths:
+    def _extract_config(self, html: str) -> dict:
+        m = re.search(r"var cfg = (\{.*?\});", html, re.DOTALL)
+        assert m, "Could not find DataTables config JSON in HTML"
+        return json.loads(m.group(1))
+
+    def test_auto_width_false(self, gt_mini: GT):
+        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
+        assert cfg["autoWidth"] is False
+
+    def test_every_column_has_width(self, gt_mini: GT):
+        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
+        for col_def in cfg["columns"]:
+            assert "width" in col_def, f"column {col_def.get('data')} missing 'width'"
+
+    def test_width_is_px_string(self, gt_mini: GT):
+        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
+        for col_def in cfg["columns"]:
+            assert col_def["width"].endswith("px")
+
+
+# ---------------------------------------------------------------------------
+# Row striping
+# ---------------------------------------------------------------------------
+
+
+class TestRowStriping:
+    def test_stripe_not_in_class_name_by_default(self, gt_mini: GT):
+        html = gt_mini.opt_interactive().as_raw_html()
+        m = re.search(r"var cfg = (\{.*?\});", html, re.DOTALL)
+        assert m
+        cfg = json.loads(m.group(1))
+        assert "stripe" not in cfg.get("className", "")
+
+    def test_stripe_css_absent_by_default(self, gt_mini: GT):
+        # Our scoped rule uses "nth-child(odd) > td" with !important.
+        # The vendored DataTables CSS also uses nth-child(odd) but never "> td".
+        html = gt_mini.opt_interactive().as_raw_html()
+        assert "nth-child(odd) > td" not in html
+
+    def test_stripe_css_present_when_option_enabled(self, gt_mini: GT):
+        html = (
+            gt_mini.tab_options(row_striping_include_table_body=True)
+            .opt_interactive()
+            .as_raw_html()
+        )
+        assert "nth-child(odd) > td" in html
