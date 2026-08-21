@@ -232,3 +232,49 @@ class TestAutoAlignIntegration:
         gt_tbl = gt.GT(table)
         aligns = [col.column_align for col in gt_tbl._boxhead._d]
         assert aligns == ["right", "right", "left", "center"]
+
+
+class TestClassifyDtypeFallback:
+    """Test the singledispatch fallback for unknown data types."""
+
+    def test_fallback_dispatches_for_unknown_type(self):
+        # The singledispatch fallback uses string-based pattern matching.
+        # Call it directly via dispatch(object) to test the fallback path.
+        fallback_fn = classify_dtype_for_alignment.dispatch(object)
+        import pandas as pd
+
+        df = pd.DataFrame({"col": [1, 2, 3]})
+
+        # Calling the fallback directly bypasses the registered pandas handler
+        result = fallback_fn(df, "col")
+
+        assert result in ("numeric", "string", "other")
+
+    def test_fallback_numeric_detection(self):
+        fallback_fn = classify_dtype_for_alignment.dispatch(object)
+        import pandas as pd
+
+        df = pd.DataFrame({"col": pd.array([1.0, 2.0], dtype="float64")})
+        result = fallback_fn(df, "col")
+
+        assert result == "numeric"
+
+    def test_fallback_string_detection(self):
+        fallback_fn = classify_dtype_for_alignment.dispatch(object)
+        import pandas as pd
+
+        df = pd.DataFrame({"col": pd.array(["a", "b"], dtype="object")})
+        result = fallback_fn(df, "col")
+
+        assert result == "string"
+
+    def test_fallback_other_detection(self):
+        # The "other" branch in the fallback is triggered when dtype is
+        # neither numeric nor string (e.g., boolean)
+        fallback_fn = classify_dtype_for_alignment.dispatch(object)
+        import pandas as pd
+
+        df = pd.DataFrame({"col": pd.array([True, False], dtype="bool")})
+        result = fallback_fn(df, "col")
+
+        assert result == "other"

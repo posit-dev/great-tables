@@ -407,3 +407,158 @@ def test_define_units_latex_raises():
 )
 def test_intify_scaled_px(value: str, scale: float, expected: int):
     assert _intify_scaled_px(value, scale) == expected
+
+
+def test_define_units_empty_string():
+    result = define_units("")
+    assert isinstance(result, UnitDefinitionList)
+    assert len(result) == 0
+
+
+def test_google_font_make_import_stmt():
+    font = GoogleFont("Roboto")
+    stmt = font.make_import_stmt()
+    assert "fonts.googleapis.com" in stmt
+    assert "Roboto" in stmt
+
+
+def test_google_font_make_import_stmt_spaces():
+    font = GoogleFont("IBM Plex Sans")
+    stmt = font.make_import_stmt()
+    assert "IBM+Plex+Sans" in stmt
+
+
+def test_google_font_get_font_name():
+    font = GoogleFont("Open Sans")
+    assert font.get_font_name() == "Open Sans"
+
+
+def test_stub_sentinel_repr():
+    from great_tables._helpers import _StubSentinel
+
+    s = _StubSentinel()
+    assert repr(s) == "stub"
+
+
+def test_stub_sentinel_eq_same_type():
+    from great_tables._helpers import _StubSentinel, stub
+
+    assert stub == _StubSentinel()
+    assert not (stub == "other")
+    assert not (stub == 23)
+
+
+def test_normalize_listable_nanoplot_options_wrong_type_raises():
+    from great_tables._helpers import _normalize_listable_nanoplot_options
+
+    with pytest.raises(ValueError, match="must be a"):
+        _normalize_listable_nanoplot_options("not_an_int", int)
+
+
+def test_normalize_listable_nanoplot_options_wrong_list_element_raises():
+    from great_tables._helpers import _normalize_listable_nanoplot_options
+
+    with pytest.raises(ValueError, match="must be a list of"):
+        _normalize_listable_nanoplot_options(["a", "b"], int)
+
+
+def test_unit_str_to_latex_raises():
+    from great_tables._helpers import UnitStr
+
+    unit_str = UnitStr.from_str("{{kg m^-2}}")
+    with pytest.raises(NotImplementedError, match="LaTeX"):
+        unit_str.to_latex()
+
+
+def test_unit_str_repr():
+    from great_tables._helpers import UnitStr
+
+    unit_str = UnitStr.from_str("{{kg}}")
+    r = repr(unit_str)
+    assert "UnitStr" in r
+
+
+def test_unit_str_len():
+    from great_tables._helpers import UnitStr
+
+    unit_str = UnitStr.from_str("{{kg m^-2}}")
+    assert len(unit_str) >= 1
+
+
+def test_intify_scaled_px():
+    from great_tables._helpers import _intify_scaled_px
+
+    assert _intify_scaled_px("10px", 2.0) == 20
+    assert _intify_scaled_px("5px", 1.5) == 7
+
+
+def test_as_css_font_family_attr_value_only():
+    from great_tables._utils import _as_css_font_family_attr
+
+    result = _as_css_font_family_attr(["Arial", "Helvetica"], value_only=True)
+    assert result == "Arial, Helvetica"
+    assert "font-family:" not in result
+
+
+def test_as_css_font_family_attr_with_spaces_value_only():
+    from great_tables._utils import _as_css_font_family_attr
+
+    result = _as_css_font_family_attr(["Times New Roman", "Georgia"], value_only=True)
+    assert result == "'Times New Roman', Georgia"
+
+
+def test_try_import_with_pip_install_line():
+    # ImportError with pip_install_line message
+    from great_tables._utils import _try_import
+
+    with pytest.raises(ImportError, match="Run the following to install"):
+        _try_import("nonexistent_module_xyz", pip_install_line="pip install xyz")
+
+
+def test_try_import_without_pip_install_line():
+    # ImportError without pip_install_line
+    from great_tables._utils import _try_import
+
+    with pytest.raises(ImportError, match="Module nonexistent_module_xyz not found"):
+        _try_import("nonexistent_module_xyz", pip_install_line=None)
+
+
+def test_unit_str_repr_html():
+    # _repr_html_ calls to_html()
+    from great_tables._helpers import UnitStr
+
+    unit = UnitStr.from_str("{{m^2}}")
+    html = unit._repr_html_()
+    assert isinstance(html, str)
+    assert len(html) > 0
+
+
+def test_unit_definition_list_repr_html():
+    # UnitDefinitionList._repr_html_ calls to_html()
+    from great_tables._helpers import UnitDefinitionList, define_units
+
+    unit_def = define_units("m^2")
+    udl = UnitDefinitionList(units_list=list(unit_def))
+    html = udl._repr_html_()
+    assert isinstance(html, str)
+    assert len(html) > 0
+
+
+def test_stub_sentinel_singleton_first_call():
+    # _StubSentinel.__new__ creates instance when _instance is None
+    from great_tables._helpers import _StubSentinel
+
+    original = _StubSentinel._instance
+
+    try:
+        _StubSentinel._instance = None
+        s = _StubSentinel()
+
+        assert isinstance(s, _StubSentinel)
+        assert _StubSentinel._instance is s
+
+        s2 = _StubSentinel()
+
+        assert s is s2
+    finally:
+        _StubSentinel._instance = original

@@ -487,3 +487,48 @@ def test_gradient_n_pal_out_of_bounds_raises(data: list[float], msg: str) -> Non
 
     with pytest.raises(ValueError, match=msg):
         palette(data)
+
+
+def test_add_alpha_int_alpha_converts_to_float():
+    """_add_alpha converts int alpha to float."""
+    colors = ["#FF0000"]
+    result = _add_alpha(colors, alpha=1)  # int, not float
+    assert result == ["#FF0000FF"]
+
+
+def test_add_alpha_strips_existing_alpha():
+    """_add_alpha strips existing alpha from #RRGGBBAA colors."""
+    colors = ["#FF0000AA"]  # already has alpha (9 chars)
+    result = _add_alpha(colors, alpha=1.0)
+    assert result == ["#FF0000FF"]
+
+
+def test_color_name_list_returns_list_of_strings():
+    from great_tables._data_color.base import _color_name_list
+
+    result = _color_name_list()
+    assert isinstance(result, list)
+    assert len(result) > 0
+    assert all(isinstance(name, str) for name in result)
+    assert "red" in result
+
+
+def test_coeff_sequence_lookup_returns_correct_coeff():
+    from great_tables._data_color.palettes import CoeffSequence
+
+    coeffs = [
+        {"starting": 0.0, "a": 1.0, "b": 0.0},
+        {"starting": 0.5, "a": 0.5, "b": 0.5},
+    ]
+    seq = CoeffSequence(coeffs)
+    result = seq.lookup(0.7)
+    assert result["starting"] == 0.5
+
+
+def test_coeff_sequence_lookup_no_match_raises():
+    from great_tables._data_color.palettes import CoeffSequence
+
+    coeffs = [{"starting": 0.5, "a": 1.0, "b": 0.0}]
+    seq = CoeffSequence(coeffs)
+    with pytest.raises(ValueError, match="No coefficients found"):
+        seq.lookup(0.1)

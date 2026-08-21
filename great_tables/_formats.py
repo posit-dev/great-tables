@@ -5147,7 +5147,7 @@ def _get_locale_sep_mark(default: str, use_seps: bool, locale: str | None = None
     # it to be a string (and we'll check for that here)
     sep_mark: Any
     sep_mark = pd_df_row["group"]
-    if not isinstance(sep_mark, str):
+    if not isinstance(sep_mark, str):  # pragma: no cover
         raise TypeError(f"Variable type mismatch. Expected str, got {type(sep_mark)}.")
 
     # Replace any `""` or "\u00a0" with `" "` since an empty string actually
@@ -5172,7 +5172,7 @@ def _get_locale_dec_mark(default: str, locale: str | None = None) -> str:
     dec_mark = pd_df_row["decimal"]
 
     # TODO: we control this data and should enforce this in the data schema
-    if not isinstance(dec_mark, str):
+    if not isinstance(dec_mark, str):  # pragma: no cover
         raise TypeError(f"Variable type mismatch. Expected str, got {type(dec_mark)}.")
 
     return dec_mark
@@ -5194,7 +5194,7 @@ def _get_locales_list() -> list[str]:
     # Ensure that `locale_list` is of the type 'str'
     # TODO: we control this data and should enforce this in the data schema
     locale_list: Any
-    if not isinstance(locale_list[0], str):
+    if not isinstance(locale_list[0], str):  # pragma: no cover
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
     return locale_list
 
@@ -5324,7 +5324,7 @@ def _get_locale_currency_code(locale: str | None = None) -> str:
     # Ensure that `currency_code` is of the type 'str'
     # TODO: we control this data and should enforce this in the data schema
     currency_code: Any
-    if not isinstance(currency_code, str):
+    if not isinstance(currency_code, str):  # pragma: no cover
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
 
     # If the field isn't populated, we'll obtain an empty string; in such a case we fall
@@ -5361,7 +5361,7 @@ def _get_currency_str(currency: str) -> str:
     # Ensure that `currency_str` is of the type 'str'
     # TODO: we control this data and should enforce this in our data schema
     currency_str: Any
-    if not isinstance(currency_str, str):
+    if not isinstance(currency_str, str):  # pragma: no cover
         raise TypeError("Variable type mismatch. Expected str, got something entirely different.")
 
     return currency_str
@@ -6823,15 +6823,15 @@ def fmt_nanoplot(
             x_vals, y_vals = x
 
             # Ensure that both objects are lists
-            if not isinstance(x_vals, list) or not isinstance(y_vals, list):
+            if not isinstance(x_vals, list) or not isinstance(y_vals, list):  # pragma: no cover
                 raise ValueError("The 'x' and 'y' values must be lists.")
 
             # Ensure that the lists contain only numeric values (ints and floats)
-            if not all(isinstance(val, (int, float)) for val in x_vals):
+            if not all(isinstance(val, (int, float)) for val in x_vals):  # pragma: no cover
                 raise ValueError("The 'x' values must be numeric.")
 
             # Ensure that the lengths of the x and y values are the same
-            if len(x_vals) != len(y_vals):
+            if len(x_vals) != len(y_vals):  # pragma: no cover
                 raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
 
         else:

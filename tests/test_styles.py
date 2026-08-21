@@ -1,5 +1,6 @@
 import pandas as pd
 import polars as pl
+import pytest
 from great_tables._styles import CellStyleText, CellStyleBorders, FromColumn
 from great_tables._helpers import GoogleFont
 
@@ -133,3 +134,50 @@ def test_tab_style_multilevel_spanner_id_differs_from_label():
     html = gt_table.as_raw_html()
 
     assert "color: red" in html
+
+
+def test_cell_style_text_all_properties():
+    style_obj = CellStyleText(
+        v_align="middle",
+        style="italic",
+        weight="bold",
+        stretch="condensed",
+        decorate="underline",
+        transform="uppercase",
+        whitespace="nowrap",
+    )
+    res = style_obj._to_html_style()
+
+    assert "vertical-align: middle;" in res
+    assert "font-style: italic;" in res
+    assert "font-weight: bold;" in res
+    assert "font-stretch: condensed;" in res
+    assert "text-decoration: underline;" in res
+    assert "text-transform: uppercase;" in res
+    assert "white-space: nowrap;" in res
+
+
+def test_cell_style_text_invalid_font_raises():
+    style_obj = CellStyleText(font=123)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="Invalid font type"):
+        style_obj._to_html_style()
+
+
+def test_cell_style_borders_empty_sides_returns_empty():
+    style_obj = CellStyleBorders(sides=[])
+
+    assert style_obj._to_html_style() == ""
+
+
+def test_cell_style_borders_invalid_side_raises():
+    style_obj = CellStyleBorders(sides=["diagonal"])  # type: ignore[list-item]
+    with pytest.raises(ValueError, match="Invalid side"):
+        style_obj._to_html_style()
+
+
+def test_cell_style_borders_weight_as_int():
+    style_obj = CellStyleBorders(sides=["top"], weight=2)  # type: ignore[arg-type]
+    res = style_obj._to_html_style()
+
+    assert "border-top:" in res
+    assert "2px" in res

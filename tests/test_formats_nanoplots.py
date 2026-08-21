@@ -85,3 +85,30 @@ def test_process_number_stream(src: str, dst: list[float]):
             assert math.isnan(r)
         else:
             assert r == d
+
+
+def test_generate_data_vals_date_list_is_x_axis():
+    # List of date strings with is_x_axis=True triggers ISO date parsing
+    result = _generate_data_vals(["2022-01-01", "2022-01-02", "2022-01-03"], is_x_axis=True)
+    assert isinstance(result, list)
+    assert len(result) == 3
+    # Should be ordinal integers
+    assert all(isinstance(v, int) for v in result)
+
+
+def test_generate_data_vals_dict_xy_mismatched_lengths():
+    # Dict with 'x' and 'y' of different lengths raises ValueError
+    with pytest.raises(ValueError, match="lengths"):
+        _generate_data_vals({"x": [1, 2], "y": [1, 2, 3]})
+
+
+def test_generate_data_vals_dict_wrong_keys():
+    # Dict without 'x' and 'y' keys raises ValueError
+    with pytest.raises(ValueError, match="'x' and 'y' keys"):
+        _generate_data_vals({"a": [1, 2], "b": [3, 4]})
+
+
+def test_generate_data_vals_unsupported_type():
+    # Unsupported type raises NotImplementedError
+    with pytest.raises(NotImplementedError):
+        _generate_data_vals(object())

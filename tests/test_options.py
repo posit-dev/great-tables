@@ -769,3 +769,50 @@ def test_opt_all_caps_raises(gt_tbl: GT):
 def test_opt_all_caps_string_deprecated(gt_tbl: GT):
     with pytest.warns(DeprecationWarning, match="string-based locations"):
         gt_tbl.opt_all_caps(locations="column_labels")
+
+
+def test_tab_options_table_font_names_as_string():
+    # `table_font_names` as a string should be converted to a list
+    gt = GT(exibble).tab_options(table_font_names="Arial")
+    assert "Arial" in gt._options.table_font_names.value
+
+
+def test_tab_options_table_additional_css_as_string():
+    # `table_additional_css` as a string should be converted to a list
+    gt = GT(exibble).tab_options(table_additional_css="body { color: red; }")
+    assert "body { color: red; }" in gt._options.table_additional_css.value
+
+
+def test_tab_options_table_additional_css_empty_string():
+    # `table_additional_css` as an empty string should result in an empty list
+    gt = GT(exibble).tab_options(table_additional_css="   ")
+    assert gt._options.table_additional_css.value == []
+
+
+def test_font_color_inherit():
+    # Color in ("inherit", "initial", "unset") returns as-is
+    from great_tables._scss import font_color
+
+    assert font_color("inherit", dark_option="#000000", light_option="#FFFFFF") == "inherit"
+    assert font_color("initial", dark_option="#000000", light_option="#FFFFFF") == "initial"
+    assert font_color("unset", dark_option="#000000", light_option="#FFFFFF") == "unset"
+
+
+def test_css_add_unsupported_units_raises():
+    # NotImplementedError when value has unsupported units
+    from great_tables._scss import css_add
+
+    with pytest.raises(NotImplementedError, match="Unable to add to CSS value"):
+        css_add("3em", 1)
+
+
+def test_opt_all_caps_invalid_location_type_raises(gt_tbl: GT):
+    # TypeError from issubclass when location is not a class
+    with pytest.raises(AssertionError, match="Only `loc.column_labels`"):
+        gt_tbl.opt_all_caps(locations=[42])
+
+
+def test_opt_stylize_invalid_style_raises(gt_tbl: GT):
+    # ValueError when style is not 1-6
+    with pytest.raises(ValueError, match="style.*must be an integer value from.*1.*to.*6"):
+        gt_tbl.opt_stylize(style=7)

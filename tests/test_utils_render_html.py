@@ -1,5 +1,6 @@
 import pandas as pd
 import polars as pl
+import pytest
 from great_tables import GT, exibble, html, loc, md, style
 from great_tables._utils_render_html import (
     create_body_component_h,
@@ -281,3 +282,279 @@ def test_table_id_used_in_headers(snapshot):
     ).with_id("test_id")
 
     assert_rendered_columns(snapshot, new_gt)
+
+
+def test_source_notes_non_multiline():
+    gt = (
+        GT(small_exibble)
+        .tab_source_note("Note A")
+        .tab_source_note("Note B")
+        .tab_options(source_notes_multiline=False, source_notes_sep=" | ")
+    )
+    built = gt._build_data("html")
+    html_out = create_source_notes_component_h(built)
+
+    assert "Note A" in html_out
+    assert "Note B" in html_out
+    assert " | " in html_out
+    assert "<tfoot>" in html_out
+    assert "<tr class=" not in html_out.replace('<tr class="gt_sourcenotes">', "")
+
+
+def test_generate_footnote_mark_numbers():
+    from great_tables._utils_render_html import _generate_footnote_mark
+
+    assert _generate_footnote_mark(1, "numbers") == "1"
+    assert _generate_footnote_mark(5, "numbers") == "5"
+
+
+def test_generate_footnote_mark_letters():
+    from great_tables._utils_render_html import _generate_footnote_mark
+
+    result = _generate_footnote_mark(1, "letters")
+
+    assert len(result) >= 1
+
+
+def test_generate_footnote_mark_standard_symbols():
+    from great_tables._utils_render_html import _generate_footnote_mark
+
+    result = _generate_footnote_mark(1, "standard")
+
+    assert result == "*"
+
+    result2 = _generate_footnote_mark(2, "standard")
+
+    assert result2 == "†"
+
+
+def test_generate_footnote_mark_unknown_type_returns_number():
+    from great_tables._utils_render_html import _generate_footnote_mark
+
+    result = _generate_footnote_mark(3, "bogus_type")
+
+    assert result == "3"
+
+
+def test_generate_footnote_mark_list_type():
+    from great_tables._utils_render_html import _generate_footnote_mark
+
+    result = _generate_footnote_mark(1, ["A", "B", "C"])
+
+    assert result == "A"
+
+    result2 = _generate_footnote_mark(4, ["A", "B", "C"])
+
+    assert result2 == "AA"
+
+
+def test_create_footnote_mark_html_empty_mark():
+    from great_tables._utils_render_html import _create_footnote_mark_html
+
+    result = _create_footnote_mark_html("")
+
+    assert result == ""
+
+
+def test_create_footnote_mark_html_with_mark():
+    from great_tables._utils_render_html import _create_footnote_mark_html
+
+    result = _create_footnote_mark_html("*")
+
+    assert "gt_footnote_marks" in result
+    assert "*" in result
+
+
+def test_apply_footnote_placement_left():
+    from great_tables._utils_render_html import _apply_footnote_placement
+    from great_tables._gt_data import FootnotePlacement
+
+    result = _apply_footnote_placement("text", "<mark>", FootnotePlacement.left)
+
+    assert result == "<mark> text"
+
+
+def test_apply_footnote_placement_right():
+    from great_tables._utils_render_html import _apply_footnote_placement
+    from great_tables._gt_data import FootnotePlacement
+
+    result = _apply_footnote_placement("text", "<mark>", FootnotePlacement.right)
+
+    assert result == "text<mark>"
+
+
+def test_apply_footnote_placement_auto_numeric():
+    from great_tables._utils_render_html import _apply_footnote_placement
+
+    result = _apply_footnote_placement("42.5", "<mark>", None)
+
+    assert result.startswith("<mark>")
+
+
+def test_apply_footnote_placement_auto_text():
+    from great_tables._utils_render_html import _apply_footnote_placement
+
+    result = _apply_footnote_placement("hello world", "<mark>", None)
+
+    assert result.endswith("<mark>")
+
+
+def test_is_numeric_content_number():
+    from great_tables._utils_render_html import _is_numeric_content
+
+    assert _is_numeric_content("23") is True
+    assert _is_numeric_content("3.14") is True
+
+
+def test_is_numeric_content_text():
+    from great_tables._utils_render_html import _is_numeric_content
+
+    assert _is_numeric_content("hello") is False
+
+
+def test_is_numeric_content_empty():
+    from great_tables._utils_render_html import _is_numeric_content
+
+    assert _is_numeric_content("") is False
+    assert _is_numeric_content("   ") is False
+
+
+def test_get_footnote_marks_option_default():
+    from great_tables._utils_render_html import _get_footnote_marks_option
+
+    gt = GT(small_exibble)
+    built = gt._build_data("html")
+    result = _get_footnote_marks_option(built)
+    assert result is not None
+
+
+def test_get_spanners_matrix_height():
+    from great_tables._utils_render_html import _get_spanners_matrix_height
+
+    gt = GT(small_exibble)
+    built = gt._build_data("html")
+    height = _get_spanners_matrix_height(built)
+
+    assert isinstance(height, int)
+    assert height >= 1
+
+
+def test_get_footnote_marks_option_fallback_no_options():
+    from great_tables._utils_render_html import _get_footnote_marks_option
+
+    # Test the fallback `return "numbers"` path when data has no _options attribute
+    class FakeData:
+        pass
+
+    result = _get_footnote_marks_option(FakeData())
+
+    assert result == "numbers"
+
+
+def test_get_footnote_marks_option_fallback_none_value():
+    from great_tables._utils_render_html import _get_footnote_marks_option
+    from unittest.mock import MagicMock
+
+    # Test the fallback when marks_value is None
+    mock_option = MagicMock()
+    mock_option.value = None
+    mock_options = MagicMock()
+    mock_options.footnotes_marks = mock_option
+    mock_data = MagicMock()
+    mock_data._options = mock_options
+    result = _get_footnote_marks_option(mock_data)
+
+    assert result == "numbers"
+
+
+def test_get_column_index_invalid_column():
+    from great_tables._utils_render_html import _get_column_index
+
+    gt = GT(small_exibble)
+    built = gt._build_data("html")
+
+    # Column not found returns 0
+    result = _get_column_index(built, "nonexistent_column")
+
+    assert result == 0
+
+
+def test_get_column_index_no_colname():
+    from great_tables._utils_render_html import _get_column_index
+
+    gt = GT(small_exibble)
+    built = gt._build_data("html")
+    result = _get_column_index(built, None)
+
+    assert result == 0
+
+
+def test_source_notes_empty_returns_empty_string():
+    from great_tables._utils_render_html import create_source_notes_component_h
+
+    gt = GT(small_exibble)  # no source notes
+    built = gt._build_data("html")
+    result = create_source_notes_component_h(built)
+
+    assert result == ""
+
+
+def test_footer_empty_returns_empty_string():
+    from great_tables._utils_render_html import create_footer_component_h
+
+    gt = GT(small_exibble)  # no source notes or footnotes
+    built = gt._build_data("html")
+    result = create_footer_component_h(built)
+
+    assert result == ""
+
+
+def test_get_table_defs_percentage_widths():
+    from great_tables._utils_render_html import _get_table_defs
+
+    gt = GT(small_exibble).cols_width(cases={"num": "50%", "char": "50%"})
+    built = gt._build_data("html")
+    result = _get_table_defs(built)
+
+    # table_width should be set to "100%" when all columns use % widths and table_width is "auto"
+    assert result["table_style"] is not None
+    assert "100%" in result["table_style"]
+
+
+def test_heading_subtitle_without_title_raises():
+    # ValueError when subtitle is provided without a title
+    from great_tables._utils_render_html import create_heading_component_h
+    import great_tables._gt_data as gt_data
+
+    gt = GT(small_exibble)
+    built = gt._build_data("html")
+
+    # Use GTData._replace() helper to swap in a heading that has subtitle but no title
+    heading_no_title = gt_data.Heading(title=None, subtitle="a subtitle")
+    built_modified = built._replace(_heading=heading_no_title)
+    with pytest.raises(ValueError, match="subtitle was provided without a title"):
+        create_heading_component_h(built_modified)
+
+
+def test_column_labels_hidden_returns_empty_string():
+    # Return "" when column_labels_hidden option is True
+    from great_tables._utils_render_html import create_columns_component_h
+
+    gt = GT(small_exibble).tab_options(column_labels_hidden=True)
+    built = gt._build_data("html")
+    result = create_columns_component_h(built)
+
+    assert result == ""
+
+
+def test_spanner_covering_all_columns_else_branch():
+    from great_tables._utils_render_html import create_columns_component_h
+    import polars as pl
+
+    df = pl.DataFrame({"a": [1, 2], "b": [3, 4]})
+    gt = GT(df).tab_spanner("All", ["a", "b"])
+    built = gt._build_data("html")
+    result = create_columns_component_h(built)
+
+    assert result is not None
+    assert "All" in str(result)

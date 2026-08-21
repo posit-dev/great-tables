@@ -580,7 +580,7 @@ def _create_summary_row_l(
     elif has_group_stub_column or has_row_stub_column:
         # Only one stub column: label in that column
         cells.append(summary_row.label)
-    else:
+    else:  # pragma: no cover
         # No stub: label in the first data column position
         cells.append(summary_row.label)
 

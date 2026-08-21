@@ -348,3 +348,10 @@ def test_data_color_truncate(df: DataFrameLike):
     assert get_first_style(new_gt._styles[-1], style.fill).color == "#123456"
     # check if the first cell (out of range of domain) is colored with the first color in the palette
     assert get_first_style(new_gt._styles[0], style.fill).color == "#654321"
+
+
+def test_data_color_invalid_column_type_raises():
+    """data_color raises ValueError for mixed-type (non-numeric, non-string) columns."""
+    df = pd.DataFrame({"x": [1, "two", 3]})
+    with pytest.raises(ValueError, match="Invalid column type"):
+        GT(df).data_color(columns="x").as_raw_html()

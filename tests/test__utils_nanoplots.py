@@ -2202,3 +2202,190 @@ def test_nanoplot_remove_drops_nan():
     circles_no_nan = len(re.findall(r"<circle ", result_no_nan))
     circles = len(re.findall(r"<circle ", result))
     assert circles == circles_no_nan
+
+
+def test_format_number_compactly_custom_fn():
+    result = _format_number_compactly(val=42.5, fn=lambda x: f"${x:.2f}")
+    assert result == "$42.50"
+
+
+def test_format_number_compactly_fn_non_string_raises():
+    with pytest.raises(ValueError, match="single string value"):
+        _format_number_compactly(val=42.5, fn=lambda x: 42)  # type: ignore[return-value]
+
+
+@pytest.mark.xfail(reason="x_vals NaN removal path has a known bug")
+def test_nanoplot_x_vals_with_nan_removes_positions():
+    import re
+
+    x_vals = [1.0, float("nan"), 3.0, 4.0, 5.0]
+    y_vals = [10.0, 20.0, 30.0, 40.0, 50.0]
+    result = _generate_nanoplot(y_vals=y_vals, x_vals=x_vals)
+
+    assert result is not None
+
+    circles = re.findall(r"<circle ", result)
+
+    assert len(circles) == 4
+
+
+def test_nanoplot_boxplot_type():
+    result = _generate_nanoplot(y_vals=[1, 2, 3, 4, 5], plot_type="boxplot")
+
+    assert result is not None
+    assert "<svg" in result
+
+
+def test_nanoplot_horizontal_bar_zero_value():
+    result = _generate_nanoplot(
+        y_vals=0,
+        plot_type="bar",
+        all_single_y_vals=[0, 5, -5],
+    )
+    assert result is not None
+    assert "#808080" in result
+
+
+def test_nanoplot_horizontal_bar_all_zero():
+    result = _generate_nanoplot(
+        y_vals=0,
+        plot_type="bar",
+        all_single_y_vals=[0, 0, 0],
+    )
+    assert result is not None
+    assert "#808080" in result
+
+
+def test_nanoplot_empty_y_vals():
+    result = _generate_nanoplot(y_vals=[])
+    assert result == ""
+
+
+def test_nanoplot_all_na_y_vals():
+    result = _generate_nanoplot(y_vals=[float("nan"), float("nan")])
+    assert result == ""
+
+
+def test_nanoplot_x_vals_all_na():
+    result = _generate_nanoplot(
+        y_vals=[1.0, 2.0, 3.0], x_vals=[float("nan"), float("nan"), float("nan")]
+    )
+    assert result == ""
+
+
+def test_nanoplot_large_21_to_30_points():
+    result = _generate_nanoplot(y_vals=list(range(25)))
+    assert "<svg" in result
+
+
+def test_nanoplot_large_31_to_40_points():
+    result = _generate_nanoplot(y_vals=list(range(35)))
+    assert "<svg" in result
+
+
+def test_nanoplot_large_41_to_50_points():
+    result = _generate_nanoplot(y_vals=list(range(45)))
+    assert "<svg" in result
+
+
+def test_nanoplot_large_over_50_points():
+    result = _generate_nanoplot(y_vals=list(range(55)))
+    assert "<svg" in result
+
+
+def test_nanoplot_horizontal_bar_zero_all_negative():
+    result = _generate_nanoplot(
+        y_vals=0,
+        plot_type="bar",
+        all_single_y_vals=[-1, -2, -3],
+    )
+    assert "<svg" in result
+
+
+def test_nanoplot_horizontal_line_zero_all_zero():
+    result = _generate_nanoplot(
+        y_vals=0,
+        plot_type="line",
+        all_single_y_vals=[0, 0, 0],
+    )
+    assert "<svg" in result
+
+
+def test_nanoplot_horizontal_line_zero_all_negative():
+    result = _generate_nanoplot(
+        y_vals=0,
+        plot_type="line",
+        all_single_y_vals=[-1, -2, -3],
+    )
+    assert "<svg" in result
+
+
+def test_nanoplot_horizontal_line_zero_mixed():
+    result = _generate_nanoplot(
+        y_vals=0,
+        plot_type="line",
+        all_single_y_vals=[0, 5, -5],
+    )
+    assert "<svg" in result
+
+
+def test_nanoplot_string_expand_x_raises():
+    with pytest.raises(NotImplementedError, match="expand_x as a string"):
+        _generate_nanoplot(y_vals=Y_VALS, x_vals=X_VALS, expand_x="2024-01-01")
+
+
+def test_nanoplot_ref_line_keyword_and_ref_area():
+    result = _generate_nanoplot(y_vals=Y_VALS, y_ref_line="mean", y_ref_area=[0.1, 5.3])
+    assert "<svg" in result
+
+
+def test_nanoplot_remove_missing_with_x_vals():
+    y = [1.0, float("nan"), 3.0, 4.0]
+    x = [1.0, 2.0, 3.0, 4.0]
+    result = _generate_nanoplot(y_vals=y, x_vals=x, missing_vals="remove")
+    assert "<svg" in result
+
+
+def test_nanoplot_ref_area_with_na_suppresses_area():
+    # Line 746: y_ref_area with NA value sets show_reference_area=False
+    result = _generate_nanoplot(y_vals=Y_VALS, y_ref_area=[float("nan"), 5.0])
+    assert "<svg" in result
+
+
+def test_remove_exponent_non_integer_string():
+    # Line 1563: non-integer decimal string goes to normalize() branch
+    result = _remove_exponent("3.14")
+    # Returns string representation of int truncation
+    assert isinstance(result, str)
+
+
+def test_check_any_na_in_list_raises():
+    # Line 76: _check_any_na_in_list raises when list contains NA values
+    from great_tables._utils_nanoplots import _check_any_na_in_list
+    import math
+
+    with pytest.raises(ValueError, match="cannot contain missing values"):
+        _check_any_na_in_list([1.0, math.nan, 3.0])
+
+
+def test_normalize_option_list_wrong_length_raises():
+    # Line 98: _normalize_option_list raises when length != 1 and != num_y_vals
+    from great_tables._utils_nanoplots import _normalize_option_list
+
+    with pytest.raises(ValueError, match="length 1 or"):
+        _normalize_option_list([1, 2], num_y_vals=5)
+
+
+def test_calc_ref_value_unsupported_string_raises():
+    # Line 112: calc_ref_value raises for unsupported string keyword
+    from great_tables._utils_nanoplots import calc_ref_value
+
+    with pytest.raises(ValueError, match="Unsupported nanoplot area value"):
+        calc_ref_value("unknown_keyword", [1, 2, 3])
+
+
+def test_normalize_to_dict_fewer_than_two_raises():
+    from great_tables._utils_nanoplots import _normalize_to_dict
+
+    with pytest.raises(ValueError, match="At least two values must be provided"):
+        _normalize_to_dict(val=[1.0])

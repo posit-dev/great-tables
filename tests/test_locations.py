@@ -344,3 +344,62 @@ def test_resolve_loc_grand_summary(cols, rows, resolved_subset, length):
     assert isinstance(cells, list)
     assert len(cells) == length
     assert resolved_subset in cells
+
+
+def test_set_style_singledispatch_fallback_raises():
+    fallback = set_style.dispatch(object)
+    with pytest.raises(NotImplementedError, match="Unsupported location type"):
+        fallback("not_a_loc", None, [])
+
+
+def test_resolve_unknown_loc_type_raises():
+    # singledispatch fallback raises NotImplementedError for unknown Loc type
+    class UnknownLoc:
+        pass
+
+    fallback = resolve.dispatch(object)
+    with pytest.raises(NotImplementedError, match="Unsupported location type"):
+        fallback(UnknownLoc())
+
+
+def test_resolve_grand_summary_with_mask_raises():
+    # NotImplementedError when mask is provided for LocGrandSummary
+    import polars as pl
+
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    gt = GT(df).grand_summary_rows(fns={"total": lambda df: df.sum()})
+    built = gt._build_data("html")
+    loc_gs = LocGrandSummary(mask=pl.col("x") > 0)
+    with pytest.raises(NotImplementedError, match="Masked selection is not yet implemented"):
+        resolve(loc_gs, built)
+
+
+def test_resolve_grand_summary_columns_and_mask_raises():
+    # ValueError when both columns/rows and mask specified for LocGrandSummary
+    import polars as pl
+
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    gt = GT(df).grand_summary_rows(fns={"total": lambda df: df.sum()})
+    built = gt._build_data("html")
+    loc_gs = LocGrandSummary(columns="x", mask=pl.col("x") > 0)
+    with pytest.raises(ValueError, match="Cannot specify.*mask.*along with.*columns.*rows"):
+        resolve(loc_gs, built)
+
+
+def test_resolve_cols_i_stub_expr():
+    # Resolve_cols_i with "stub()" in expr list returns stub column
+    gt = GT(pd.DataFrame({"x": [1, 2], "y": [3, 4]}), rowname_col="x")
+    built = gt._build_data("html")
+    result = resolve_cols_i(built, ["stub()"])
+
+    # When stub_var exists, returns [(stub_var[0], 1)]
+    assert isinstance(result, list)
+
+
+def test_resolve_cols_i_null_means_nothing():
+    # Resolve_cols_i with expr=None and null_means="nothing" returns []
+    gt = GT(pd.DataFrame({"x": [1, 2], "y": [3, 4]}))
+    built = gt._build_data("html")
+    result = resolve_cols_i(built, None, null_means="nothing")
+
+    assert result == []

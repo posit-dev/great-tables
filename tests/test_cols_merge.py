@@ -978,3 +978,57 @@ class TestColsMergeNPct:
         html = gt.as_raw_html()
         assert "10 (16.7%)" in html
         assert "5\u201315" in html
+
+
+def test_merge_n_pct_non_numeric_original_falls_through():
+    """Test cols_merge_n_pct when original col_n value can't be converted to float."""
+    # Use a string column for col_n so float(original_n) raises ValueError
+    df = pd.DataFrame({"n": ["ten", "twenty"], "pct": ["10%", "20%"]})
+    gt = GT(df).cols_merge_n_pct(col_n="n", col_pct="pct")
+    html = gt.as_raw_html()
+
+    # Should still produce output since col_n is not None
+    assert "ten" in html or "ten (10%)" in html
+
+
+def test_col_merge_info_validate_pattern_out_of_bounds_raises():
+    """validate_pattern raises ValueError when pattern references index out of range."""
+    from great_tables._cols_merge import ColMergeInfo
+
+    info = ColMergeInfo(vars=["a", "b"], rows=[0], type="merge", pattern="{2}")
+    import pytest
+
+    with pytest.raises(ValueError, match="Pattern references column"):
+        info.validate_pattern()
+
+
+def test_cols_merge_hide_columns_outside_columns_warns(simple_df):
+    # Lines 1223-1225 in _spanners.py: warn when hide_columns includes columns not in 'columns'
+    import warnings
+
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        GT(simple_df).cols_merge(columns=["a", "b"], hide_columns=["c"])
+    assert len(w) == 1
+    assert "Only columns supplied in `columns` will be hidden" in str(w[0].message)
+
+
+def test_cols_merge_uncert_invalid_col_uncert_zero_cols():
+    # Line 1359: col_uncert resolves to 0 columns → ValueError
+    df = pd.DataFrame({"val": [1.0], "uncert": [0.1]})
+    with pytest.raises(ValueError, match="col_uncert.*one or two columns"):
+        GT(df).cols_merge_uncert(col_val="val", col_uncert="nonexistent")
+
+
+def test_cols_merge_range_invalid_col_end():
+    # Lines 1506-1508: col_end resolves to 0 columns → ValueError
+    df = pd.DataFrame({"low": [1], "high": [2]})
+    with pytest.raises(ValueError, match="col_end.*exactly one column"):
+        GT(df).cols_merge_range(col_begin="low", col_end="nonexistent")
+
+
+def test_cols_merge_n_pct_invalid_col_pct():
+    # Lines 1654-1656: col_pct resolves to 0 columns → ValueError
+    df = pd.DataFrame({"n": [1], "pct": [0.5]})
+    with pytest.raises(ValueError, match="col_pct.*exactly one column"):
+        GT(df).cols_merge_n_pct(col_n="n", col_pct="nonexistent")

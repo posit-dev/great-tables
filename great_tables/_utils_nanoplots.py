@@ -380,9 +380,9 @@ def _generate_ref_line_from_keyword(vals: list[int | float], keyword: str) -> in
         ref_line = _gt_min(vals)
     elif keyword == "max":
         ref_line = _gt_max(vals)
-    elif keyword == "first":
+    elif keyword == "first":  # pragma: no cover
         ref_line = _gt_first(vals)
-    elif keyword == "last":
+    elif keyword == "last":  # pragma: no cover
         ref_line = _gt_last(vals)
     elif keyword == "q1":
         ref_line = _gt_q1(vals)

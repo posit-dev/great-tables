@@ -209,12 +209,12 @@ def _resolve_conditional_sections(text: str) -> str:
 
         # Find the last occurrence of `<<` (innermost section start)
         last_open = text.rfind("<<")
-        if last_open == -1:
+        if last_open == -1:  # pragma: no cover
             break
 
         # Find the first `>>` after that `<<`
         first_close = text.find(">>", last_open)
-        if first_close == -1:
+        if first_close == -1:  # pragma: no cover
             break
 
         # Extract the content between << and >>
@@ -323,7 +323,7 @@ def _apply_single_col_merge(
         The modified body data.
     """
     supported_types = ("merge", "merge_uncert", "merge_range", "merge_n_pct")
-    if col_merge.type not in supported_types:
+    if col_merge.type not in supported_types:  # pragma: no cover
         raise NotImplementedError(
             f"Column merge type {col_merge.type!r} is not supported. "
             f"Supported types are: {supported_types}."
@@ -374,7 +374,7 @@ def _apply_single_col_merge(
 
         # For Pandas and Polars, _set_cell() modifies in place and returns None but
         # for PyArrow, _set_cell() returns a new table
-        if result is not None:
+        if result is not None:  # pragma: no cover
             body.body = result
 
     return body

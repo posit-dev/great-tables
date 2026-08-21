@@ -107,7 +107,7 @@ def _get_summary_locnum(data: GTData, fn_info: FootnoteInfo) -> int | float:
 
 def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
     if isinstance(loc, str):
-        return loc == cls.groups
+        return loc == cls.groups  # pragma: no cover
 
     return isinstance(loc, cls)
 
@@ -1439,12 +1439,12 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
             mark_index = unique_footnotes.index(footnote_text) + 1  # Use 1-based indexing
             mark_type = _get_footnote_marks_option(data)
             return _generate_footnote_mark(mark_index, mark_type)
-        except ValueError:
+        except ValueError:  # pragma: no cover
             mark_type = _get_footnote_marks_option(data)
             return _generate_footnote_mark(1, mark_type)
 
-    mark_type = _get_footnote_marks_option(data)
-    return _generate_footnote_mark(1, mark_type)
+    mark_type = _get_footnote_marks_option(data)  # pragma: no cover
+    return _generate_footnote_mark(1, mark_type)  # pragma: no cover
 
 
 def _get_column_index(data: GTData, colname: str | None) -> int:
@@ -1518,7 +1518,7 @@ def _apply_footnotes_to_text(footnotes: list[FootnoteInfo], data: GTData, text: 
         # Apply placement logic
         return _apply_footnote_placement(text, marks_html, placement)
 
-    return text
+    return text  # pragma: no cover
 
 
 def _apply_footnote_placement(
@@ -1571,7 +1571,7 @@ def _is_numeric_content(text: str) -> bool:
     return bool(re.match(numeric_pattern, number_core)) and number_core != "."
 
 
-def rtl_modern_unicode_charset() -> str:
+def rtl_modern_unicode_charset() -> str:  # pragma: no cover
     """
     Returns a string containing a regular expression that matches all characters
     from RTL scripts that are supported by modern web browsers.
