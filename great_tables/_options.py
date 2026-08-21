@@ -1630,6 +1630,113 @@ def opt_css(
     return res
 
 
+def opt_interactive(
+    self: GTSelf,
+    active: bool = True,
+    use_pagination: bool = True,
+    use_pagination_info: bool = True,
+    use_sorting: bool = True,
+    use_search: bool = False,
+    use_filters: bool = False,
+    use_resizers: bool = False,
+    use_highlight: bool = False,
+    use_compact_mode: bool = False,
+    use_text_wrapping: bool = True,
+    use_page_size_select: bool = False,
+    page_size_default: int = 10,
+    page_size_values: list[int] | None = None,
+    pagination_type: str = "numbers",
+    height: str = "auto",
+    selection_mode: str | None = None,
+) -> GTSelf:
+    """
+    Option to enable an interactive table.
+
+    With `opt_interactive()`, a GT table can be transformed to an interactive HTML table.
+    Interactive tables allow users to sort columns, search/filter rows, paginate through data,
+    and more. All interactivity is handled in the browser with no server required.
+
+    Parameters
+    ----------
+    active
+        Whether to activate interactive mode. Set to `False` to disable while keeping the
+        stored options.
+    use_pagination
+        Whether to paginate rows. Enabled by default.
+    use_pagination_info
+        Whether to show the pagination info text (e.g., "Showing 1 to 10 of 100 entries").
+    use_sorting
+        Whether to enable column sorting by clicking headers.
+    use_search
+        Whether to add a global search box above the table.
+    use_filters
+        Whether to add per-column filter inputs below the column headers.
+    use_resizers
+        Whether to allow columns to be resized by dragging their edges.
+    use_highlight
+        Whether to highlight the row under the cursor on hover.
+    use_compact_mode
+        Whether to use compact row padding to fit more rows on screen.
+    use_text_wrapping
+        Whether to allow cell text to wrap. When `False`, cells clip to a single line.
+    use_page_size_select
+        Whether to show a dropdown for the user to change the number of rows per page.
+    page_size_default
+        The default number of rows displayed per page.
+    page_size_values
+        The list of page-size options available in the page-size dropdown. Defaults to
+        `[10, 25, 50, 100]`.
+    pagination_type
+        The pagination control style. One of `"numbers"` (page number buttons),
+        `"simple"` (previous/next only), or `"full"` (first/previous/next/last).
+    height
+        The height of the table's scrollable body. Use `"auto"` (the default) to let the
+        table grow with its content, or supply a CSS length (e.g., `"400px"`) to fix the
+        height and enable vertical scrolling.
+    selection_mode
+        Row selection mode. One of `"single"`, `"multiple"`, or `None` (the default,
+        which disables row selection).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that
+        we can facilitate method chaining.
+
+    Examples
+    --------
+    Using the `exibble` dataset, create an interactive table with search and filtering enabled.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    GT(exibble).opt_interactive(use_search=True, use_filters=True)
+    ```
+    """
+    if page_size_values is None:
+        page_size_values = [10, 25, 50, 100]
+
+    return tab_options(
+        self,
+        ihtml_active=active,
+        ihtml_use_pagination=use_pagination,
+        ihtml_use_pagination_info=use_pagination_info,
+        ihtml_use_sorting=use_sorting,
+        ihtml_use_search=use_search,
+        ihtml_use_filters=use_filters,
+        ihtml_use_resizers=use_resizers,
+        ihtml_use_highlight=use_highlight,
+        ihtml_use_compact_mode=use_compact_mode,
+        ihtml_use_text_wrapping=use_text_wrapping,
+        ihtml_use_page_size_select=use_page_size_select,
+        ihtml_page_size_default=page_size_default,
+        ihtml_page_size_values=page_size_values,
+        ihtml_pagination_type=pagination_type,
+        ihtml_height=height,
+        ihtml_selection_mode=selection_mode,
+    )
+
+
 @dataclass
 class StyleMapper:
     table_hlines_color: str
