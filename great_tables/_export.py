@@ -223,7 +223,13 @@ def as_raw_html(
     if self._options.ihtml_active.value:
         from ._ihtml import render_as_ihtml
 
-        return render_as_ihtml(self)
+        fragment = render_as_ihtml(self)
+        if make_page:
+            return (
+                '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+                '<meta charset="utf-8"/>\n</head>\n<body>\n' + fragment + "\n</body>\n</html>\n"
+            )
+        return fragment
 
     built_table = self._build_data(context="html")
 
