@@ -29,6 +29,18 @@ def gt_with_header(gt_mini: GT) -> GT:
 
 
 # ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _extract_props(html: str) -> dict:
+    """Extract the props dict from rendered HTML."""
+    m = re.search(r"const _props = (\{.*?\});\n", html, re.DOTALL)
+    assert m, "Could not find props JSON in HTML"
+    return json.loads(m.group(1))
+
+
+# ---------------------------------------------------------------------------
 # opt_interactive stores options correctly
 # ---------------------------------------------------------------------------
 
@@ -81,15 +93,15 @@ class TestOptInteractiveOptions:
 
 
 class TestStaticPathUnchanged:
-    def test_static_html_no_datatable(self, gt_mini: GT):
+    def test_static_html_no_interactive(self, gt_mini: GT):
         html = gt_mini.as_raw_html()
         assert "gt_table" in html
-        assert "DataTable" not in html
+        assert "Reactable2" not in html
 
     def test_active_false_static(self, gt_mini: GT):
         html = gt_mini.opt_interactive(active=False).as_raw_html()
         assert "gt_table" in html
-        assert "DataTable" not in html
+        assert "Reactable2" not in html
 
 
 # ---------------------------------------------------------------------------
@@ -103,14 +115,22 @@ class TestRenderAsIhtml:
         assert isinstance(html, str)
         assert len(html) > 1000
 
-    def test_contains_datatable_init(self, gt_mini: GT):
+    def test_contains_init(self, gt_mini: GT):
         html = gt_mini.opt_interactive().as_raw_html()
-        assert "DataTable(" in html
+        assert "Reactable2" in html
 
-    def test_contains_vendored_js(self, gt_mini: GT):
+    def test_contains_importmap(self, gt_mini: GT):
         html = gt_mini.opt_interactive().as_raw_html()
-        # DataTables minified JS exports the DataTable symbol
-        assert "DataTable" in html
+        assert 'type="importmap"' in html
+        assert "esm.sh/react" in html
+
+    def test_contains_module_script(self, gt_mini: GT):
+        html = gt_mini.opt_interactive().as_raw_html()
+        assert 'type="module"' in html
+
+    def test_no_meta_charset(self, gt_mini: GT):
+        html = gt_mini.opt_interactive().as_raw_html()
+        assert "<meta charset" not in html
 
     def test_mount_id_present(self, gt_mini: GT):
         html = gt_mini.opt_interactive().as_raw_html()
@@ -120,96 +140,98 @@ class TestRenderAsIhtml:
         df = pl.from_pandas(exibble[["num"]].head(3))
         html_a = GT(df).opt_interactive().as_raw_html()
         html_b = GT(df).opt_interactive().as_raw_html()
-        # Extract mount IDs
         ids_a = re.findall(r'id="(gt-ihtml-[^"]+)"', html_a)
         ids_b = re.findall(r'id="(gt-ihtml-[^"]+)"', html_b)
         assert ids_a and ids_b
         assert ids_a[0] != ids_b[0]
 
-    def test_all_columns_in_config(self, gt_mini: GT):
-        html = gt_mini.opt_interactive().as_raw_html()
-        # num, char, currency should all appear as column data keys
+    def test_all_columns_in_props(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        col_ids = [c["id"] for c in props["columns"]]
         for col in ["num", "char", "currency"]:
-            assert f'"data": "{col}"' in html or f'"data":"{col}"' in html
+            assert col in col_ids
 
-    def test_row_data_in_output(self, gt_mini: GT):
-        html = gt_mini.opt_interactive().as_raw_html()
-        # The data array must be present in the config JSON
-        assert '"data":' in html or '"data": ' in html
+    def test_columnar_data_in_props(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        assert isinstance(props["data"], dict)
+        for col in ["num", "char", "currency"]:
+            assert col in props["data"]
+            assert isinstance(props["data"][col], list)
 
 
 # ---------------------------------------------------------------------------
-# Feature flags map to DataTables config
+# Feature flags map to props
 # ---------------------------------------------------------------------------
 
 
 class TestFeatureFlags:
-    def _extract_config(self, html: str) -> dict:
-        """Extract the DataTables config dict from the rendered HTML."""
-        # The config JSON is assigned as: var cfg = {...};
-        m = re.search(r"var cfg = (\{.*?\});", html, re.DOTALL)
-        assert m, "Could not find DataTables config JSON in HTML"
-        return json.loads(m.group(1))
-
     def test_search_disabled_by_default(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
-        assert cfg["searching"] is False
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        assert props["searchable"] is False
 
     def test_search_enabled(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive(use_search=True).as_raw_html())
-        assert cfg["searching"] is True
+        props = _extract_props(gt_mini.opt_interactive(use_search=True).as_raw_html())
+        assert props["searchable"] is True
 
     def test_sorting_enabled_by_default(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
-        assert cfg["ordering"] is True
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        assert props["sortable"] is True
 
     def test_sorting_disabled(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive(use_sorting=False).as_raw_html())
-        assert cfg["ordering"] is False
+        props = _extract_props(gt_mini.opt_interactive(use_sorting=False).as_raw_html())
+        assert props["sortable"] is False
 
     def test_pagination_enabled_by_default(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
-        assert cfg["paging"] is True
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        assert props["pagination"] is True
 
     def test_pagination_disabled(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive(use_pagination=False).as_raw_html())
-        assert cfg["paging"] is False
+        props = _extract_props(gt_mini.opt_interactive(use_pagination=False).as_raw_html())
+        assert props["pagination"] is False
+
+    def test_filter_enabled(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive(use_filters=True).as_raw_html())
+        assert props["filterable"] is True
+
+    def test_filter_disabled_by_default(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        assert props["filterable"] is False
 
     def test_page_info_enabled_by_default(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
-        assert cfg["info"] is True
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        assert props["showPageInfo"] is True
 
     def test_page_size_default(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive(page_size_default=25).as_raw_html())
-        assert cfg["pageLength"] == 25
+        props = _extract_props(gt_mini.opt_interactive(page_size_default=25).as_raw_html())
+        assert props["defaultPageSize"] == 25
 
     def test_page_size_values(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive(page_size_values=[5, 10]).as_raw_html())
-        assert cfg["lengthMenu"] == [5, 10]
+        props = _extract_props(gt_mini.opt_interactive(page_size_values=[5, 10]).as_raw_html())
+        assert props["pageSizeOptions"] == [5, 10]
 
     def test_pagination_type_numbers(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive(pagination_type="numbers").as_raw_html())
-        assert cfg["pagingType"] == "numbers"
+        props = _extract_props(gt_mini.opt_interactive(pagination_type="numbers").as_raw_html())
+        assert props["paginationType"] == "numbers"
 
     def test_pagination_type_simple(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive(pagination_type="simple").as_raw_html())
-        assert cfg["pagingType"] == "simple"
+        props = _extract_props(gt_mini.opt_interactive(pagination_type="simple").as_raw_html())
+        assert props["paginationType"] == "simple"
 
-    def test_scroll_y_empty_when_auto_height(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive(height="auto").as_raw_html())
-        assert cfg["scrollY"] == ""
+    def test_height_set(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive(height="400px").as_raw_html())
+        assert props["height"] == "400px"
 
-    def test_scroll_y_set_when_height_given(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive(height="400px").as_raw_html())
-        assert cfg["scrollY"] == "400px"
+    def test_height_auto_not_in_props(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive(height="auto").as_raw_html())
+        assert "height" not in props
 
-    def test_filter_init_complete_present(self, gt_mini: GT):
-        html = gt_mini.opt_interactive(use_filters=True).as_raw_html()
-        assert "initComplete" in html
+    def test_compact_disabled_by_default(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        assert props["compact"] is False
 
-    def test_filter_init_complete_absent_by_default(self, gt_mini: GT):
-        html = gt_mini.opt_interactive().as_raw_html()
-        assert "initComplete" not in html
+    def test_compact_enabled(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive(use_compact_mode=True).as_raw_html())
+        assert props["compact"] is True
 
 
 # ---------------------------------------------------------------------------
@@ -264,79 +286,71 @@ class TestTabStyle:
             .opt_interactive()
         )
 
-    def test_cell_styles_var_present(self, gt_styled: GT):
-        html = gt_styled.as_raw_html()
-        assert "_cellStyles" in html
+    def test_body_fill_style_in_col_def(self, gt_styled: GT):
+        props = _extract_props(gt_styled.as_raw_html())
+        col_a = next(c for c in props["columns"] if c["id"] == "a")
+        assert "style" in col_a
+        # style is a {code: "..."} JS callback for sort-stability
+        assert "code" in col_a["style"]
+        # row index 1 is where a==2 — check the lookup table embedded in the code
+        assert '"1"' in col_a["style"]["code"]
+        assert "yellow" in col_a["style"]["code"]
 
-    def test_col_idx_var_present(self, gt_styled: GT):
-        html = gt_styled.as_raw_html()
-        assert "_colIdx" in html
-
-    def test_created_row_callback_present(self, gt_styled: GT):
-        html = gt_styled.as_raw_html()
-        assert "createdRow" in html
-
-    def test_body_fill_css_in_cell_styles(self, gt_styled: GT):
-        html = gt_styled.as_raw_html()
-        m = re.search(r"var _cellStyles = (\{.*?\});", html, re.DOTALL)
-        assert m, "_cellStyles not found"
-        cell_styles = json.loads(m.group(1))
-        # row index 1 is where a==2
-        assert "1" in cell_styles
-        assert "a" in cell_styles["1"]
-        assert "yellow" in cell_styles["1"]["a"]
-
-    def test_body_text_css_in_cell_styles(self, gt_styled: GT):
-        html = gt_styled.as_raw_html()
-        m = re.search(r"var _cellStyles = (\{.*?\});", html, re.DOTALL)
-        assert m, "_cellStyles not found"
-        cell_styles = json.loads(m.group(1))
+    def test_body_text_style_in_col_def(self, gt_styled: GT):
+        props = _extract_props(gt_styled.as_raw_html())
+        col_b = next(c for c in props["columns"] if c["id"] == "b")
+        assert "style" in col_b
         # row index 2 is where b==30
-        assert "2" in cell_styles
-        assert "b" in cell_styles["2"]
-        css = cell_styles["2"]["b"]
-        assert "red" in css
-        assert "bold" in css
+        assert '"2"' in col_b["style"]["code"]
+        assert "red" in col_b["style"]["code"]
+        assert "bold" in col_b["style"]["code"]
 
-    def test_col_idx_maps_column_names(self, gt_styled: GT):
-        html = gt_styled.as_raw_html()
-        m = re.search(r"var _colIdx = (\{.*?\});", html, re.DOTALL)
-        assert m, "_colIdx not found"
-        col_idx = json.loads(m.group(1))
-        assert col_idx["a"] == 0
-        assert col_idx["b"] == 1
+    def test_unstyles_rows_absent_from_lookup(self, gt_styled: GT):
+        props = _extract_props(gt_styled.as_raw_html())
+        col_a = next(c for c in props["columns"] if c["id"] == "a")
+        code = col_a["style"]["code"]
+        # rows 0 and 2 (a==1 and a==3) have no style — their keys absent from lookup
+        import json, re
 
-    def test_col_label_style_on_th(self, gt_styled: GT):
-        html = gt_styled.as_raw_html()
-        # The <th> for column "b" should carry an inline style
-        assert 'style="' in html
-        assert "#abc" in html
+        m = re.search(r"var s=(\{.*?\});", code)
+        lookup = json.loads(m.group(1))
+        assert "0" not in lookup
+        assert "2" not in lookup
 
-    def test_no_cell_styles_var_when_no_tab_style(self):
+    def test_col_label_style_in_header_style(self, gt_styled: GT):
+        props = _extract_props(gt_styled.as_raw_html())
+        col_b = next(c for c in props["columns"] if c["id"] == "b")
+        assert "headerStyle" in col_b
+        assert "abc" in col_b["headerStyle"].get("backgroundColor", "")
+
+    def test_no_style_fn_when_no_tab_style(self):
         df = pl.DataFrame({"x": [1, 2]})
-        html = GT(df).opt_interactive().as_raw_html()
-        assert "_cellStyles" not in html
+        props = _extract_props(GT(df).opt_interactive().as_raw_html())
+        for col_def in props["columns"]:
+            assert "style" not in col_def
 
-    def test_data_color_produces_cell_styles(self):
+    def test_data_color_produces_style_fn(self):
         df = pl.DataFrame({"a": [10, 50, 100], "b": ["x", "y", "z"]})
-        html = (
+        props = _extract_props(
             GT(df)
             .data_color(columns="a", palette=["#ffffff", "#ff0000"])
             .opt_interactive()
             .as_raw_html()
         )
-        m = re.search(r"var _cellStyles = (\{.*?\});", html, re.DOTALL)
-        assert m, "_cellStyles not found — data_color() styles were not applied"
-        cell_styles = json.loads(m.group(1))
-        # All 3 rows should have a style on column "a"
-        assert len(cell_styles) == 3
-        for row_styles in cell_styles.values():
-            assert "a" in row_styles
-            assert "background-color" in row_styles["a"]
+        col_a = next(c for c in props["columns"] if c["id"] == "a")
+        assert "style" in col_a
+        assert "code" in col_a["style"]
+        # All 3 rows get a background color — keys "0", "1", "2" in the lookup
+        import json, re
+
+        m = re.search(r"var s=(\{.*?\});", col_a["style"]["code"])
+        lookup = json.loads(m.group(1))
+        assert len(lookup) == 3
+        for s in lookup.values():
+            assert "backgroundColor" in s
 
     def test_unsupported_location_does_not_crash(self):
         df = pl.DataFrame({"x": [1, 2]})
-        # loc.header() is unsupported in interactive mode — should render without error
         html = (
             GT(df)
             .tab_header(title="T")
@@ -344,7 +358,7 @@ class TestTabStyle:
             .opt_interactive()
             .as_raw_html()
         )
-        assert "DataTable(" in html
+        assert "Reactable2" in html
 
 
 # ---------------------------------------------------------------------------
@@ -353,24 +367,15 @@ class TestTabStyle:
 
 
 class TestColumnWidths:
-    def _extract_config(self, html: str) -> dict:
-        m = re.search(r"var cfg = (\{.*?\});", html, re.DOTALL)
-        assert m, "Could not find DataTables config JSON in HTML"
-        return json.loads(m.group(1))
+    def test_every_column_has_min_width(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        for col_def in props["columns"]:
+            assert "minWidth" in col_def, f"column {col_def.get('id')} missing 'minWidth'"
 
-    def test_auto_width_false(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
-        assert cfg["autoWidth"] is False
-
-    def test_every_column_has_width(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
-        for col_def in cfg["columns"]:
-            assert "width" in col_def, f"column {col_def.get('data')} missing 'width'"
-
-    def test_width_is_px_string(self, gt_mini: GT):
-        cfg = self._extract_config(gt_mini.opt_interactive().as_raw_html())
-        for col_def in cfg["columns"]:
-            assert col_def["width"].endswith("px")
+    def test_min_width_is_integer(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        for col_def in props["columns"]:
+            assert isinstance(col_def["minWidth"], int)
 
 
 # ---------------------------------------------------------------------------
@@ -379,23 +384,45 @@ class TestColumnWidths:
 
 
 class TestRowStriping:
-    def test_stripe_not_in_class_name_by_default(self, gt_mini: GT):
-        html = gt_mini.opt_interactive().as_raw_html()
-        m = re.search(r"var cfg = (\{.*?\});", html, re.DOTALL)
-        assert m
-        cfg = json.loads(m.group(1))
-        assert "stripe" not in cfg.get("className", "")
+    def test_striped_false_by_default(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive().as_raw_html())
+        assert props["striped"] is False
 
-    def test_stripe_css_absent_by_default(self, gt_mini: GT):
-        # Our scoped rule uses "nth-child(odd) > td" with !important.
-        # The vendored DataTables CSS also uses nth-child(odd) but never "> td".
-        html = gt_mini.opt_interactive().as_raw_html()
-        assert "nth-child(odd) > td" not in html
-
-    def test_stripe_css_present_when_option_enabled(self, gt_mini: GT):
-        html = (
+    def test_striped_true_when_option_enabled(self, gt_mini: GT):
+        props = _extract_props(
             gt_mini.tab_options(row_striping_include_table_body=True)
             .opt_interactive()
             .as_raw_html()
         )
-        assert "nth-child(odd) > td" in html
+        assert props["striped"] is True
+
+
+# ---------------------------------------------------------------------------
+# CSS conversion helper
+# ---------------------------------------------------------------------------
+
+
+class TestCssToReactStyle:
+    def test_background_color(self):
+        from great_tables._ihtml import _css_str_to_react_style
+
+        result = _css_str_to_react_style("background-color: yellow;")
+        assert result == {"backgroundColor": "yellow"}
+
+    def test_font_weight_and_color(self):
+        from great_tables._ihtml import _css_str_to_react_style
+
+        result = _css_str_to_react_style("color:red;font-weight:bold;")
+        assert result["color"] == "red"
+        assert result["fontWeight"] == "bold"
+
+    def test_important_stripped(self):
+        from great_tables._ihtml import _css_str_to_react_style
+
+        result = _css_str_to_react_style("background-color: blue !important;")
+        assert result["backgroundColor"] == "blue"
+
+    def test_empty_string(self):
+        from great_tables._ihtml import _css_str_to_react_style
+
+        assert _css_str_to_react_style("") == {}
