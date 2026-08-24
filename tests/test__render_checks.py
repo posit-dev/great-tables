@@ -111,3 +111,23 @@ def test_render_check_runs_quarto_check():
     gt = GT(exibble).cols_width({"num": "100px"})
     with set_quarto_env(), pytest.warns(RenderWarning):
         _render_check(gt)
+
+
+def test_infer_render_env_no_ipython():
+    """When IPython is not installed, infer_render_env falls back to 'default'."""
+    import sys
+    from unittest.mock import patch
+
+    clean_env = {
+        k: v
+        for k, v in os.environ.items()
+        if k
+        not in {"QUARTO_BIN_PATH", "DATABRICKS_RUNTIME_VERSION", "POSITRON_VERSION", "VSCODE_PID"}
+    }
+
+    # Remove IPython from sys.modules and make the import fail
+    with patch.dict(os.environ, clean_env, clear=True):
+        with patch.dict(sys.modules, {"IPython": None}):
+            result = infer_render_env()
+
+    assert result == "default"

@@ -1,7 +1,13 @@
 import pandas as pd
 import polars as pl
 import pytest
-from great_tables._styles import CellStyleText, CellStyleBorders, FromColumn
+from great_tables._styles import (
+    CellStyleCss,
+    CellStyleFill,
+    CellStyleText,
+    CellStyleBorders,
+    FromColumn,
+)
 from great_tables._helpers import GoogleFont
 
 
@@ -181,3 +187,60 @@ def test_cell_style_borders_weight_as_int():
 
     assert "border-top:" in res
     assert "2px" in res
+
+
+def test_cell_style_css_to_html_style():
+    style_obj = CellStyleCss(rule="color: red; font-size: 14px;")
+    assert style_obj._to_html_style() == "color: red; font-size: 14px;"
+
+
+def test_cell_style_css_empty_rule():
+    style_obj = CellStyleCss(rule="")
+    assert style_obj._to_html_style() == ""
+
+
+def test_cell_style_fill_to_html_style():
+    style_obj = CellStyleFill(color="blue")
+    assert style_obj._to_html_style() == "background-color: blue;"
+
+
+def test_cell_style_fill_hex_color():
+    style_obj = CellStyleFill(color="#ff5733")
+    assert style_obj._to_html_style() == "background-color: #ff5733;"
+
+
+def test_evaluate_expressions_no_expressions_returns_self():
+    """_evaluate_expressions returns self unchanged when no Polars expressions are present."""
+    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+    style_obj = CellStyleText(color="red")
+    result = style_obj._evaluate_expressions(df)
+    assert result is style_obj
+
+
+def test_from_row_no_special_fields_returns_self():
+    """_from_row returns self unchanged when no FromColumn or FromValues fields are present."""
+    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+    style_obj = CellStyleText(color="red", size="14px")
+    result = style_obj._from_row(df, 0)
+    assert result is style_obj
+
+
+def test_raise_if_requires_data_with_from_column():
+    """_raise_if_requires_data raises TypeError when a FromColumn field is present."""
+    from great_tables import loc as loc_mod
+
+    style_obj = CellStyleText(color=FromColumn("color"))
+    location = loc_mod.body(columns=["x"])
+
+    with pytest.raises(TypeError, match="FromColumn"):
+        style_obj._raise_if_requires_data(location)
+
+
+def test_raise_if_requires_data_no_from_column():
+    """_raise_if_requires_data does not raise when no FromColumn fields are present."""
+    from great_tables import loc as loc_mod
+
+    style_obj = CellStyleText(color="red")
+    location = loc_mod.body(columns=["x"])
+    # Should not raise
+    style_obj._raise_if_requires_data(location)

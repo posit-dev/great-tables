@@ -1806,3 +1806,16 @@ def test_get_summary_locnum_summary_empty_rows_for_group():
     locnum = _get_summary_locnum(built, fn_info)
 
     assert isinstance(locnum, (int, float))
+
+
+def test_tab_footnote_none_in_locations_list():
+    """A None entry inside a locations list adds an unanchored footnote."""
+    df = pl.DataFrame({"col1": [10, 20], "col2": [30, 40]})
+    gt_table = GT(df).tab_footnote(
+        footnote="General note",
+        locations=[None, loc.column_labels(columns="col1")],
+    )
+
+    html = gt_table._render_as_html()
+
+    assert "General note" in html
