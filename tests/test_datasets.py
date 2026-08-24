@@ -80,3 +80,15 @@ def test_namespace_dir():
     assert pd_datasets == pl_datasets
     for name in _DATASET_NAMES:
         assert name in pd_datasets
+
+
+def test_pd_namespace_private_attr_raises():
+    """Accessing a private attribute (starts with _) raises AttributeError."""
+    with pytest.raises(AttributeError):
+        data.pd._private_attr
+
+
+def test_pl_namespace_private_attr_raises():
+    """Accessing a private attribute (starts with _) raises AttributeError."""
+    with pytest.raises(AttributeError):
+        data.pl._private_attr

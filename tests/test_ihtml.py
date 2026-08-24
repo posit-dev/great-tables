@@ -426,3 +426,79 @@ class TestCssToReactStyle:
         from great_tables._ihtml import _css_str_to_react_style
 
         assert _css_str_to_react_style("") == {}
+
+
+# ---------------------------------------------------------------------------
+# ihtml helper functions
+# ---------------------------------------------------------------------------
+
+
+class TestColLabel:
+    def test_label_set_returns_label(self):
+        from great_tables._ihtml import _col_label
+        from great_tables._gt_data import ColInfo, ColInfoTypeEnum
+
+        col = ColInfo(var="my_col", type=ColInfoTypeEnum.default, column_label="Display Name")
+        assert _col_label(col) == "Display Name"
+
+    def test_label_equals_var_when_not_set(self):
+        from great_tables._ihtml import _col_label
+        from great_tables._gt_data import ColInfo, ColInfoTypeEnum
+
+        col = ColInfo(var="my_col", type=ColInfoTypeEnum.default)
+        # ColInfo sets column_label = var when not supplied, so label is the var name
+        assert _col_label(col) == "my_col"
+
+
+class TestParsePx:
+    def test_none_returns_default(self):
+        from great_tables._ihtml import _parse_px
+
+        assert _parse_px(None) == 16.0
+
+    def test_empty_string_returns_default(self):
+        from great_tables._ihtml import _parse_px
+
+        assert _parse_px("") == 16.0
+
+    def test_px_value_parsed(self):
+        from great_tables._ihtml import _parse_px
+
+        assert _parse_px("14px") == 14.0
+
+    def test_invalid_value_returns_default(self):
+        from great_tables._ihtml import _parse_px
+
+        assert _parse_px("not-a-number") == 16.0
+
+    def test_custom_default(self):
+        from great_tables._ihtml import _parse_px
+
+        assert _parse_px(None, default=12.0) == 12.0
+
+
+class TestIhtmlWarnings:
+    def test_summary_rows_warn_in_interactive(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"grp": ["A", "A", "B"], "x": [1, 2, 3]})
+        gt = (
+            GT(df, groupname_col="grp")
+            .summary_rows(groups="A", fns={"sum": lambda x: x.sum()})
+            .opt_interactive()
+        )
+        with pytest.warns(UserWarning, match="summary_rows"):
+            gt.as_raw_html()
+
+    def test_spanners_warn_in_interactive(self):
+        df = pl.DataFrame({"a": [1], "b": [2], "c": [3]})
+        gt = GT(df).tab_spanner(label="Group", columns=["a", "b"]).opt_interactive()
+        with pytest.warns(UserWarning, match="tab_spanner"):
+            gt.as_raw_html()
+
+    def test_column_width_px_used_in_interactive(self):
+        df = pl.DataFrame({"a": [1, 2], "b": [3, 4]})
+        gt = GT(df).cols_width({"a": "120px"}).opt_interactive()
+        html = gt.as_raw_html()
+        # The column width should influence the rendered output in some way
+        assert "120" in html

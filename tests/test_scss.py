@@ -53,3 +53,12 @@ def test_scss_default_generated(snapshot):
     gt = GT(pd.DataFrame({"x": [1, 2, 3]}))
 
     assert snapshot == compile_scss(gt, id="abc", compress=False)
+
+
+def test_compile_scss_no_font_names():
+    """compile_scss works when table_font_names is None (font_family_attr becomes empty string)."""
+    gt = GT(pd.DataFrame({"x": [1, 2]})).tab_options(table_font_names=None)
+    css = compile_scss(gt, id="abc", compress=False)
+    # Should produce CSS without a font-family rule
+    assert isinstance(css, str)
+    assert len(css) > 0

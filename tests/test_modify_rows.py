@@ -473,3 +473,41 @@ def test_summary_rows_with_stub_style():
 
     assert "font-weight: bold;" in html
     assert "gt_summary_row" in html
+
+
+def test_summary_rows_loc_groups_as_list():
+    """loc.summary(groups=[...]) with a list of group names hits the else branch."""
+    df = pd.DataFrame(
+        {"group": ["A", "A", "B", "B"], "row": ["r1", "r2", "r3", "r4"], "x": [1, 2, 3, 4]}
+    )
+    res = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(
+            fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        )
+        .tab_style(
+            style=[style.text(color="blue")],
+            locations=loc.summary(groups=["A", "B"]),
+        )
+    )
+    html = render_only_body(res)
+    assert "color: blue;" in html
+
+
+def test_summary_stub_loc_groups_as_list():
+    """loc.summary_stub(groups=[...]) with a list of group names hits the else branch."""
+    df = pd.DataFrame(
+        {"group": ["A", "A", "B", "B"], "row": ["r1", "r2", "r3", "r4"], "x": [1, 2, 3, 4]}
+    )
+    res = (
+        GT(df, rowname_col="row", groupname_col="group")
+        .summary_rows(
+            fns={"Sum": lambda df: df.sum(numeric_only=True)},
+        )
+        .tab_style(
+            style=[style.text(weight="bold")],
+            locations=loc.summary_stub(groups=["A", "B"]),
+        )
+    )
+    html = render_only_body(res)
+    assert "font-weight: bold;" in html
