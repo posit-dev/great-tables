@@ -3,6 +3,23 @@
 This changelog is generated automatically from [GitHub Releases](https://github.com/posit-dev/great-tables/releases).
 
 
+# v0.24.0
+
+*2026-08-24* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.24.0)
+
+Great Tables `v0.24.0` introduces interactive tables, letting users sort, search, filter, and paginate directly in the browser. A single call to `opt_interactive()` transforms any GT table into a client-side interactive widget while preserving all existing formatting and styling.
+
+
+### New Features
+
+- **Interactive tables** -- The new `opt_interactive()` method enables column sorting, global search, per-column filters, pagination, row highlighting, etc. Works well with Jupyter, Quarto, and Shiny. ([\#856](https://github.com/posit-dev/great-tables/issues/856))
+
+
+### Bug Fixes
+
+- Three incorrect parameter names in docstrings were corrected. ([\#853](https://github.com/posit-dev/great-tables/issues/853))
+
+
 # v0.23.0
 
 *2026-07-27* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.23.0)
