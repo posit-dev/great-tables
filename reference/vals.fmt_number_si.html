@@ -208,7 +208,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2722" data-forks="129"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2723" data-forks="129"></div>
     </span>
   </li>  
 </ul>
@@ -1327,7 +1327,7 @@ A list of formatted values is returned.
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Let’s format a vector of numeric values with SI prefixes.</p>
-<div id="99c5caed" class="cell" data-execution_count="1">
+<div id="f6ff14ee" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> vals</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>vals.fmt_number_si([<span class="fl">1.5e9</span>, <span class="fl">2.7e6</span>, <span class="dv">4200</span>, <span class="fl">0.3</span>, <span class="fl">0.00012</span>, <span class="fl">2.4e-8</span>])</span></code></pre></div>
@@ -1336,21 +1336,21 @@ A list of formatted values is returned.
 </div>
 </div>
 <p>We can add a unit designation to show what the values represent (e.g., watts).</p>
-<div id="337fe8c8" class="cell" data-execution_count="2">
+<div id="1c8754d5" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_number_si([<span class="fl">1.5e9</span>, <span class="fl">2.7e6</span>, <span class="dv">4200</span>], unit<span class="op">=</span><span class="st">"W"</span>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <pre><code>['1.50 GW', '2.70 MW', '4.20 kW']</code></pre>
 </div>
 </div>
 <p>The <code>scale_by</code> option is useful for unit conversions. For instance, to convert metric tons to grams before formatting:</p>
-<div id="8c84fdfa" class="cell" data-execution_count="3">
+<div id="d79d1fe0" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_number_si([<span class="dv">455</span>, <span class="dv">331</span>, <span class="dv">235</span>, <span class="dv">30</span>], unit<span class="op">=</span><span class="st">"g"</span>, scale_by<span class="op">=</span><span class="dv">1_000_000</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>['455 Mg', '331 Mg', '235 Mg', '30 Mg']</code></pre>
 </div>
 </div>
 <p>We can control the space between the number and unit with <code>incl_space</code>.</p>
-<div id="fa09fa6b" class="cell" data-execution_count="4">
+<div id="d38b8a41" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_number_si([<span class="fl">2.4e9</span>, <span class="fl">5.0e9</span>, <span class="fl">900e6</span>], unit<span class="op">=</span><span class="st">"Hz"</span>, incl_space<span class="op">=</span><span class="va">False</span>, decimals<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>['2.4GHz', '5.0GHz', '900.0MHz']</code></pre>
