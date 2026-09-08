@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal, get_args
 
 from importlib_resources import files
 
@@ -1451,3 +1451,91 @@ class _BackendNamespace:
 
 pd = _BackendNamespace(_read_csv_pandas)
 pl = _BackendNamespace(_read_csv_polars)
+
+
+_DatasetNames = Literal[
+    "countrypops",
+    "sza",
+    "gtcars",
+    "sp500",
+    "pizzaplace",
+    "exibble",
+    "towny",
+    "peeps",
+    "films",
+    "metro",
+    "gibraltar",
+    "constants",
+    "illness",
+    "reactions",
+    "photolysis",
+    "nuclides",
+]
+
+_TblTypes = Literal["pandas", "polars"]
+
+
+def load_dataset(
+    dataset: _DatasetNames = "exibble",
+    tbl_type: _TblTypes = "pandas",
+) -> Any:
+    """
+    Load a dataset from the library as a specified table type.
+
+    The Great Tables library includes several datasets that can be loaded using the `load_dataset()`
+    function. The datasets can be loaded as either a Pandas DataFrame or a Polars DataFrame. These
+    datasets are used throughout the documentation's examples and are useful for experimenting with
+    the library's functionality.
+
+    Parameters
+    ----------
+    dataset
+        The name of the dataset to load. Available datasets are: `"countrypops"`, `"sza"`,
+        `"gtcars"`, `"sp500"`, `"pizzaplace"`, `"exibble"`, `"towny"`, `"peeps"`, `"films"`,
+        `"metro"`, `"gibraltar"`, `"constants"`, `"illness"`, `"reactions"`, `"photolysis"`, and
+        `"nuclides"`.
+    tbl_type
+        The type of table to generate from the dataset. Options are `"pandas"` (the default) and
+        `"polars"`.
+
+    Returns
+    -------
+    Any
+        A Pandas DataFrame or Polars DataFrame, depending on the value of `tbl_type`.
+
+    Examples
+    --------
+    Load the `"exibble"` dataset as a Pandas DataFrame (the default):
+
+    ```python
+    from great_tables.data import load_dataset
+
+    exibble_pd = load_dataset(dataset="exibble", tbl_type="pandas")
+    ```
+
+    Load the `"gtcars"` dataset as a Polars DataFrame:
+
+    ```python
+    gtcars_pl = load_dataset(dataset="gtcars", tbl_type="polars")
+    ```
+    """
+
+    valid_datasets = get_args(_DatasetNames)
+    valid_tbl_types = get_args(_TblTypes)
+
+    if dataset not in valid_datasets:
+        raise ValueError(
+            f"Invalid dataset name: {dataset!r}. Available datasets: {', '.join(valid_datasets)}"
+        )
+
+    if tbl_type not in valid_tbl_types:
+        raise ValueError(
+            f"Invalid table type: {tbl_type!r}. Available types: {', '.join(valid_tbl_types)}"
+        )
+
+    fname, dtype = _DATASETS[dataset]
+
+    if tbl_type == "pandas":
+        return _read_csv_pandas(fname, dtype=dtype)
+    else:
+        return _read_csv_polars(fname, dtype=dtype)
