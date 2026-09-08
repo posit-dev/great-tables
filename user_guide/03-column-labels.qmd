@@ -115,7 +115,7 @@ For example, you can use a lambda function:
 ```
 
 Inputs like strings, integers, and polars selectors are also supported. For more information, see
-[Column Selection](./17-column-selection.qmd).
+[Column Selection](./18-column-selection.qmd).
 
 Between spanners, relabeling, and reordering, you have full control over how your column labels
 communicate the structure of your data. These tools let you transform raw DataFrame column names

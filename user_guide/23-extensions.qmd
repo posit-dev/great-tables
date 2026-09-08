@@ -88,8 +88,8 @@ def some_theme(gt: GT) -> GT:
 
 This is where composing really shines. Maybe you want a very standardized look, or you want all of
 your tables to mimic your favorite one. Take advantage of `~~GT.tab_options()` for your own
-[premade themes](./15-premade-themes.qmd), with styles from any of the
-[table theme options](./14-table-theme-options.qmd) of your choosing.
+[premade themes](./16-premade-themes.qmd), with styles from any of the
+[table theme options](./15-table-theme-options.qmd) of your choosing.
 
 ### Extending
 
@@ -128,7 +128,7 @@ adding new behavior.
 ## Extending with Plots
 
 Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some
-plotting is already built in, called [nanoplots](./16-nanoplots.qmd). But there are endless plot
+plotting is already built in, called [nanoplots](./17-nanoplots.qmd). But there are endless plot
 types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
 
 The key to adding custom plots to your tables is using `~~GT.fmt()` with a function that converts

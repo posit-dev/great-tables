@@ -4,7 +4,7 @@ jupyter: python3
 guide-section: Styling and Presentation
 ---
 
-In [Styling the Table Body](./11-styling-the-table-body.qmd), we discussed styling table data with
+In [Styling the Table Body](./12-styling-the-table-body.qmd), we discussed styling table data with
 `~~GT.tab_style()`. In this article we'll cover how the same method can be used to style many other
 parts of the table, like the header, specific spanner labels, the footer, and more. By targeting
 different location specifiers, you can apply fill colors, borders, and text styles to virtually any

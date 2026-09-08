@@ -1,0 +1,114 @@
+---
+title: Working with Datasets
+jupyter: python3
+html-table-processing: none
+guide-section: Getting Started
+---
+
+**Great Tables** includes sixteen built-in datasets that are used throughout this User Guide and in
+the API documentation. These datasets cover a range of subject areas and sizes, from the small
+`exibble` toy table (8 rows) to the larger `pizzaplace` dataset (nearly 50,000 rows). You can load
+any of them as a Pandas DataFrame, a Polars DataFrame, or both, depending on how you prefer to
+work.
+
+## Accessing Datasets Directly
+
+The simplest way to use a dataset is to import it by name from `great_tables.data`. This returns a
+Pandas DataFrame by default (or a Polars DataFrame if Pandas is not installed).
+
+```{python}
+from great_tables import GT
+from great_tables.data import exibble
+
+GT(exibble)
+```
+
+The `exibble` dataset is also available directly on the top-level `great_tables` module, which can
+be convenient for quick experimentation:
+
+```{python}
+import great_tables as gt
+
+GT(gt.exibble)
+```
+
+All sixteen datasets are available this way: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`,
+`exibble`, `towny`, `peeps`, `films`, `metro`, `gibraltar`, `constants`, `illness`, `reactions`,
+`photolysis`, and `nuclides`. Each one has its own documentation page in the API reference with a
+full description of its columns and contents.
+
+This direct import approach is the most concise option and works well when you're writing examples
+or exploring the package. Since the default backend is Pandas, existing code that imports datasets
+this way will continue to work without any changes.
+
+## Choosing a Backend with `data.pd` and `data.pl`
+
+If you want to be explicit about whether you get a Pandas or Polars DataFrame, use the `data.pd` and
+`data.pl` namespaces. Datasets accessed through these namespaces are loaded on first access and
+cached for subsequent use, so there's no performance penalty for repeated access.
+
+To get a dataset as a Polars DataFrame, use `data.pl`:
+
+```{python}
+from great_tables import GT, data
+
+GT(data.pl.exibble)
+```
+
+To explicitly request a Pandas DataFrame, use `data.pd`:
+
+```{python}
+GT(data.pd.exibble)
+```
+
+The `data.pl` namespace is especially useful in Polars-only workflows. It reads directly from the
+underlying CSV files using Polars' own reader, so there is no dependency on Pandas and no need to
+convert with `pl.from_pandas()`. Similarly, `data.pd` always uses the Pandas CSV reader regardless
+of what other libraries are installed.
+
+## Using `load_dataset()`
+
+The `load_dataset()` function provides a programmatic way to load any dataset in a specific format.
+This is convenient when the dataset name or backend is determined at runtime, for example in a
+loop, a parameterized notebook, or a function that accepts the table type as an argument.
+
+```{python}
+from great_tables import GT, load_dataset
+
+gtcars_pl = load_dataset(dataset="gtcars", tbl_type="polars")
+
+GT(gtcars_pl).cols_hide(
+    columns=["trim", "trsmn", "drivetrain", "bdy_style"]
+).head(5)
+```
+
+The `tbl_type=` parameter accepts `"pandas"` (the default) or `"polars"`, and the `dataset=`
+parameter accepts any of the sixteen dataset names listed above. Here is the same idea with a Pandas
+DataFrame:
+
+```{python}
+sp500_pd = load_dataset(dataset="sp500", tbl_type="pandas")
+
+GT(sp500_pd.head(5))
+```
+
+If you pass an unrecognized dataset name or table type, `load_dataset()` raises a `ValueError` with
+a message listing the valid options. This makes it safe to use in automated workflows where a typo
+might otherwise lead to a confusing `AttributeError`.
+
+## Summary of Access Patterns
+
+The table below summarizes the three approaches. All of them read directly from the package's
+bundled CSV files, so no network access is needed and the data is always available.
+
+| Pattern | Returns | Use when... |
+|---|---|---|
+| `data.exibble` | Pandas (default) | You want the simplest import |
+| `data.pd.exibble` | Pandas (always) | You want to be explicit about Pandas |
+| `data.pl.exibble` | Polars (always) | You're working in a Polars-only workflow |
+| `load_dataset("exibble", tbl_type="polars")` | Polars | The dataset name or type is a variable |
+
+Whichever approach you choose, the resulting DataFrame can be passed directly to `GT()` to start
+building a table. In the rest of this User Guide we'll mostly use the simple `from great_tables.data
+import ...` style, but everything you see works just as well with a Polars DataFrame loaded through
+`data.pl` or `load_dataset()`.
