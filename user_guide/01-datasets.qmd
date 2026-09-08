@@ -77,8 +77,9 @@ from great_tables import GT, load_dataset
 
 gtcars_pl = load_dataset(dataset="gtcars", tbl_type="polars")
 
-GT(gtcars_pl.head(5)).cols_hide(
-    columns=["trim", "trsmn", "drivetrain", "bdy_style"]
+(
+    GT(gtcars_pl.head(5))
+    .cols_hide(columns=["trim", "trsmn", "drivetrain", "bdy_style"])
 )
 ```
 
