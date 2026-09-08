@@ -136,7 +136,7 @@ basis.
 )
 ```
 
-This is discussed in detail in [Styling the Table Body](./11-styling-the-table-body.qmd).
+This is discussed in detail in [Styling the Table Body](./12-styling-the-table-body.qmd).
 
 ## Column labels
 
@@ -225,5 +225,5 @@ gt.tab_style(
 The `loc` module provides a complete vocabulary for addressing any part of your table. By combining
 location specifiers with column selectors, row filters, and Polars expressions, you can apply styles
 to exactly the right cells. For more details on styling itself, see
-[Styling the Table Body](./11-styling-the-table-body.qmd) and
-[Styling the Whole Table](./12-styling-the-whole-table.qmd).
+[Styling the Table Body](./12-styling-the-table-body.qmd) and
+[Styling the Whole Table](./13-styling-the-whole-table.qmd).

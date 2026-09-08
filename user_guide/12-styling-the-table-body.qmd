@@ -221,7 +221,7 @@ gt_pl_air.tab_style(
 )
 ```
 
-See [Column Selection](./17-column-selection.qmd) for details on selecting columns.
+See [Column Selection](./18-column-selection.qmd) for details on selecting columns.
 
 ### Using a function
 
