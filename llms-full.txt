@@ -10010,9 +10010,50 @@ list[str]
 
 ## Built-in Datasets
 
-The Great Tables package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package.
+The Great Tables package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package. The `load_dataset()` function provides a convenient way to load any dataset as either a Pandas or Polars DataFrame.
 
 
+
+load_dataset(dataset: '_DatasetNames' = 'exibble', tbl_type: '_TblTypes' = 'pandas') -> 'Any'
+
+Load a dataset from the library as a specified table type.
+
+The Great Tables library includes several datasets that can be loaded using the `load_dataset()`
+function. The datasets can be loaded as either a Pandas DataFrame or a Polars DataFrame. These
+datasets are used throughout the documentation's examples and are useful for experimenting with
+the library's functionality.
+
+Parameters
+----------
+dataset
+    The name of the dataset to load. Available datasets are: `"countrypops"`, `"sza"`,
+    `"gtcars"`, `"sp500"`, `"pizzaplace"`, `"exibble"`, `"towny"`, `"peeps"`, `"films"`,
+    `"metro"`, `"gibraltar"`, `"constants"`, `"illness"`, `"reactions"`, `"photolysis"`, and
+    `"nuclides"`.
+tbl_type
+    The type of table to generate from the dataset. Options are `"pandas"` (the default) and
+    `"polars"`.
+
+Returns
+-------
+Any
+    A Pandas DataFrame or Polars DataFrame, depending on the value of `tbl_type`.
+
+Examples
+--------
+Load the `"exibble"` dataset as a Pandas DataFrame (the default):
+
+```python
+from great_tables.data import load_dataset
+
+exibble_pd = load_dataset(dataset="exibble", tbl_type="pandas")
+```
+
+Load the `"gtcars"` dataset as a Polars DataFrame:
+
+```python
+gtcars_pl = load_dataset(dataset="gtcars", tbl_type="polars")
+```
 
 data.countrypops
 
@@ -11176,22 +11217,132 @@ organize your column labels with spanners, format cell values, and apply styling
 table.
 
 
+### Working with Datasets
+
+**Great Tables** includes sixteen built-in datasets that are used throughout this User Guide and in
+the API documentation. These datasets cover a range of subject areas and sizes, from the small
+`exibble` toy table (8 rows) to the larger `pizzaplace` dataset (nearly 50,000 rows). You can load
+any of them as a Pandas DataFrame, a Polars DataFrame, or both, depending on how you prefer to
+work.
+
+## Accessing Datasets Directly
+
+The simplest way to use a dataset is to import it by name from `great_tables.data`. This returns a
+Pandas DataFrame by default (or a Polars DataFrame if Pandas is not installed).
+
+```{python}
+from great_tables import GT
+from great_tables.data import exibble
+
+GT(exibble)
+```
+
+The `exibble` dataset is also available directly on the top-level `great_tables` module, which can
+be convenient for quick experimentation:
+
+```{python}
+import great_tables as gt
+
+GT(gt.exibble)
+```
+
+All sixteen datasets are available this way: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`,
+`exibble`, `towny`, `peeps`, `films`, `metro`, `gibraltar`, `constants`, `illness`, `reactions`,
+`photolysis`, and `nuclides`. Each one has its own documentation page in the API reference with a
+full description of its columns and contents.
+
+This direct import approach is the most concise option and works well when you're writing examples
+or exploring the package. Since the default backend is Pandas, existing code that imports datasets
+this way will continue to work without any changes.
+
+## Choosing a Backend with `data.pd` and `data.pl`
+
+If you want to be explicit about whether you get a Pandas or Polars DataFrame, use the `data.pd` and
+`data.pl` namespaces. Datasets accessed through these namespaces are loaded on first access and
+cached for subsequent use, so there's no performance penalty for repeated access.
+
+To get a dataset as a Polars DataFrame, use `data.pl`:
+
+```{python}
+from great_tables import GT, data
+
+GT(data.pl.exibble)
+```
+
+To explicitly request a Pandas DataFrame, use `data.pd`:
+
+```{python}
+GT(data.pd.exibble)
+```
+
+The `data.pl` namespace is especially useful in Polars-only workflows. It reads directly from the
+underlying CSV files using Polars' own reader, so there is no dependency on Pandas and no need to
+convert with `pl.from_pandas()`. Similarly, `data.pd` always uses the Pandas CSV reader regardless
+of what other libraries are installed.
+
+## Using `load_dataset()`
+
+The `load_dataset()` function provides a programmatic way to load any dataset in a specific format.
+This is convenient when the dataset name or backend is determined at runtime, for example in a
+loop, a parameterized notebook, or a function that accepts the table type as an argument.
+
+```{python}
+from great_tables import GT, load_dataset
+
+gtcars_pl = load_dataset(dataset="gtcars", tbl_type="polars")
+
+(
+    GT(gtcars_pl.head(5))
+    .cols_hide(columns=["trim", "trsmn", "drivetrain", "bdy_style"])
+)
+```
+
+The `tbl_type=` parameter accepts `"pandas"` (the default) or `"polars"`, and the `dataset=`
+parameter accepts any of the sixteen dataset names listed above. Here is the same idea with a Pandas
+DataFrame:
+
+```{python}
+sp500_pd = load_dataset(dataset="sp500", tbl_type="pandas")
+
+GT(sp500_pd.head(5))
+```
+
+If you pass an unrecognized dataset name or table type, `load_dataset()` raises a `ValueError` with
+a message listing the valid options. This makes it safe to use in automated workflows where a typo
+might otherwise lead to a confusing `AttributeError`.
+
+## Summary of Access Patterns
+
+The table below summarizes the three approaches. All of them read directly from the package's
+bundled CSV files, so no network access is needed and the data is always available.
+
+| Pattern | Returns | Use when... |
+|---|---|---|
+| `data.exibble` | Pandas (default) | You want the simplest import |
+| `data.pd.exibble` | Pandas (always) | You want to be explicit about Pandas |
+| `data.pl.exibble` | Polars (always) | You're working in a Polars-only workflow |
+| `load_dataset("exibble", tbl_type="polars")` | Polars | The dataset name or type is a variable |
+
+Whichever approach you choose, the resulting DataFrame can be passed directly to `GT()` to start
+building a table. In the rest of this User Guide we'll mostly use the simple `from great_tables.data
+import ...` style, but everything you see works just as well with a Polars DataFrame loaded through
+`data.pl` or `load_dataset()`.
+
+
 
 ## Table Structure
 
-### Header and Footer
+### Header, Footer, and Stub
 
-The **Table Header** and **Table Footer** are bookend components that provide context for the data
-presented in your table. The header introduces the table with a title and optional subtitle, while
-the footer anchors it with source notes or other supplementary information. Both are added using the
-`tab_*()` family of methods.
+Three structural components frame the data in your table: the **Table Header** introduces it with a
+title and optional subtitle, the **Table Footer** anchors it with source notes or other supplementary
+information, and the **Stub** provides a left-hand column of row identifiers. All three are added
+using the `tab_*()` family of methods.
 
 ## Adding a Table Header
 
-The way that we add components like the **Table Header** and *source notes* in the **Table Footer**
-is to use the `tab_*()` family of methods. A **Table Header** is easy to add so let's see how the
-previous table looks with a *title* and a *subtitle*. We can add this component using the
-`~~GT.tab_header()` method:
+A **Table Header** is easy to add with the `~~GT.tab_header()` method. Let's see how a basic table
+looks with a *title* and a *subtitle*:
 
 ```{python}
 from great_tables import GT, md, html
@@ -11210,11 +11361,11 @@ islands_mini = islands.head(10)
 )
 ```
 
-The **Header** table component provides an opportunity to describe the data that's presented. Using
-`subtitle=` allows us to insert a subtitle, which is an optional part of the **Header**. We may also
-style the `title=` and `subtitle=` using Markdown! We do this by wrapping the values passed to
-`title=` or `subtitle=` with the `md()` helper function (we may also use `html()` in a similar
-fashion). Here is an example with the table data truncated for brevity:
+The **Header** provides an opportunity to describe the data that's presented. Using `subtitle=`
+allows us to insert a subtitle, which is an optional part of the **Header**. We may also style the
+`title=` and `subtitle=` using Markdown! We do this by wrapping the values passed to `title=` or
+`subtitle=` with the `md()` helper function (we may also use `html()` in a similar fashion). Here is
+an example with the table data truncated for brevity:
 
 ```{python}
 # Make a display table with the `islands_tbl` table;
@@ -11230,11 +11381,14 @@ gt_tbl = (
 gt_tbl
 ```
 
-A *source note* can be added to the table's **Footer** through use of the `~~GT.tab_source_note()`
-method. It works in the same way as `~~GT.tab_header()` (it also allows for Markdown inputs) except
-it can be called multiple times---each invocation results in the addition of a source note.
+With a title and subtitle in place, the reader immediately knows what the table is about before
+looking at any data.
 
 ## Adding Source Notes
+
+A *source note* can be added to the table's **Footer** through use of the `~~GT.tab_source_note()`
+method. It works in the same way as `~~GT.tab_header()` (it also allows for Markdown inputs) except
+it can be called multiple times --- each invocation results in the addition of a source note.
 
 ```{python}
 # Display the `islands_tbl` data with a heading and two source notes
@@ -11253,24 +11407,13 @@ With just a few method calls, we have added essential context to the table. The 
 tell the reader what data is being presented, and the source notes provide attribution. Together,
 these components frame the table body and help your audience understand the data at a glance.
 
+## The Stub: Row Labels
 
-### Stub (Row Labels)
-
-The **Stub** is a structural component that gives your table a left-hand column of row identifiers.
-Rather than treating row labels as just another data column, the stub elevates them to a distinct
-organizational role. This section covers how to create a stub, label it with a stubhead, and
-organize rows into logical groups.
-
-## Overview
-
-The **Stub** component of a table is the area to the left that typically contains *row labels* and
-may also contain *row group labels*. Those subparts can be grouped in a sequence of *row groups*.
-The **Stub Head** provides a location for a label that describes the **Stub** (and could also be
-used to describe the column labels). The **Stub** is optional since there are cases where a **Stub**
-wouldn't be useful (the display tables presented in the previous section looked just fine without a
-**Stub**).
-
-## Row names
+The **Stub** is the area to the left of the table body that typically contains *row labels* and may
+also contain *row group labels*. Those subparts can be grouped in a sequence of *row groups*. The
+**Stub Head** provides a location for a label that describes the **Stub** (and could also be used to
+describe the column labels). The **Stub** is optional since there are cases where it wouldn't be
+useful (the display tables presented earlier looked just fine without one).
 
 An easy way to generate a **Stub** part is by specifying a stub column in the `GT()` class with the
 `rowname_col=` argument. This will signal to **Great Tables** that the named column should be used
@@ -11278,11 +11421,6 @@ as the stub, using the contents of that column to make *row labels*. Let's add a
 `islands` dataset by using `rowname_col=` in the call to `GT`:
 
 ```{python}
-from great_tables import GT
-from great_tables.data import islands
-
-islands_mini = islands.head(10)
-
 GT(islands_mini).tab_stub(rowname_col="name")
 ```
 
@@ -11302,13 +11440,13 @@ A very important thing to note here is that the table now has one column. Before
 **Stub**, two columns were present (with the **Column Labels** of `"name"` and `"size"`) but now
 column number `1` (the only column remaining) is `size`.
 
-## Row groups
+## Row Groups
 
 Let's incorporate row groups into the display table. This divides rows into groups, creating
-*row groups*, and results in a display of a *row group labels* right above the each group. This can
-be easily done with a table containing row labels and the key is to use the `groupname_col=`
-argument of the `GT` class. Here we will create three row groups (with row group labels
-`"continent"`, `"country"`, and `"subregion"`) to have a grouping of rows.
+*row groups*, and results in a display of a *row group labels* right above each group. This can be
+easily done with a table containing row labels and the key is to use the `groupname_col=` argument
+of the `GT` class. Here we will create three row groups (with row group labels `"continent"`,
+`"country"`, and `"subregion"`) to have a grouping of rows.
 
 ```{python}
 island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] * 2 + ["continent"] * 6)
@@ -11323,11 +11461,10 @@ island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] 
 The table now groups its rows by continent, country, and subregion, with labels appearing above each
 group. Row groups make it much easier for readers to scan and compare related entries.
 
-## GT convenience arguments
+## GT Convenience Arguments
 
 Rather than using the `~~GT.tab_stub()` method, the `GT(rowname_col=..., groupname_col=...)`
 arguments provide a quick way to specify row names and groups.
-
 
 ```{python}
 GT(island_groups, rowname_col="name", groupname_col="group")
@@ -11451,7 +11588,7 @@ For example, you can use a lambda function:
 ```
 
 Inputs like strings, integers, and polars selectors are also supported. For more information, see
-[Column Selection](./17-column-selection.qmd).
+[Column Selection](./18-column-selection.qmd).
 
 Between spanners, relabeling, and reordering, you have full control over how your column labels
 communicate the structure of your data. These tools let you transform raw DataFrame column names
@@ -13237,7 +13374,7 @@ gt_pl_air.tab_style(
 )
 ```
 
-See [Column Selection](./17-column-selection.qmd) for details on selecting columns.
+See [Column Selection](./18-column-selection.qmd) for details on selecting columns.
 
 ### Using a function
 
@@ -13328,7 +13465,7 @@ For further reference, consult the API documentation:
 
 ### Styling the Whole Table
 
-In [Styling the Table Body](./11-styling-the-table-body.qmd), we discussed styling table data with
+In [Styling the Table Body](./12-styling-the-table-body.qmd), we discussed styling table data with
 `~~GT.tab_style()`. In this article we'll cover how the same method can be used to style many other
 parts of the table, like the header, specific spanner labels, the footer, and more. By targeting
 different location specifiers, you can apply fill colors, borders, and text styles to virtually any
@@ -14645,7 +14782,7 @@ basis.
 )
 ```
 
-This is discussed in detail in [Styling the Table Body](./11-styling-the-table-body.qmd).
+This is discussed in detail in [Styling the Table Body](./12-styling-the-table-body.qmd).
 
 ## Column labels
 
@@ -14734,8 +14871,8 @@ gt.tab_style(
 The `loc` module provides a complete vocabulary for addressing any part of your table. By combining
 location specifiers with column selectors, row filters, and Polars expressions, you can apply styles
 to exactly the right cells. For more details on styling itself, see
-[Styling the Table Body](./11-styling-the-table-body.qmd) and
-[Styling the Whole Table](./12-styling-the-whole-table.qmd).
+[Styling the Table Body](./12-styling-the-table-body.qmd) and
+[Styling the Whole Table](./13-styling-the-whole-table.qmd).
 
 
 
@@ -15219,8 +15356,8 @@ def some_theme(gt: GT) -> GT:
 
 This is where composing really shines. Maybe you want a very standardized look, or you want all of
 your tables to mimic your favorite one. Take advantage of `~~GT.tab_options()` for your own
-[premade themes](./15-premade-themes.qmd), with styles from any of the
-[table theme options](./14-table-theme-options.qmd) of your choosing.
+[premade themes](./16-premade-themes.qmd), with styles from any of the
+[table theme options](./15-table-theme-options.qmd) of your choosing.
 
 ### Extending
 
@@ -15259,7 +15396,7 @@ adding new behavior.
 ## Extending with Plots
 
 Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some
-plotting is already built in, called [nanoplots](./16-nanoplots.qmd). But there are endless plot
+plotting is already built in, called [nanoplots](./17-nanoplots.qmd). But there are endless plot
 types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
 
 The key to adding custom plots to your tables is using `~~GT.fmt()` with a function that converts

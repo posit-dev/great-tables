@@ -21,7 +21,7 @@ vals.fmt_partsper(
     dec_mark=".",
     force_sign=False,
     incl_space="auto",
-    locale=None
+    locale=None,
 )
 ```
 

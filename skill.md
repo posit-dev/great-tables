@@ -216,9 +216,10 @@ If you have single values (or lists of them) in need of formatting, we have a se
 
 ### Built-in Datasets
 
-The Great Tables package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package.
+The Great Tables package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package. The `load_dataset()` function provides a convenient way to load any dataset as either a Pandas or Polars DataFrame.
 
 
+- `load_dataset`: Load a dataset from the library as a specified table type
 - `data.countrypops`
 - `data.sza`
 - `data.gtcars`

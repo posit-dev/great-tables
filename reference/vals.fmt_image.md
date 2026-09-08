@@ -14,7 +14,7 @@ vals.fmt_image(
     sep=" ",
     path=None,
     file_pattern="{}",
-    encode=True
+    encode=True,
 )
 ```
 

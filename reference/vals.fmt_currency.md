@@ -23,7 +23,7 @@ vals.fmt_currency(
     force_sign=False,
     placement="left",
     incl_space=False,
-    locale=None
+    locale=None,
 )
 ```
 

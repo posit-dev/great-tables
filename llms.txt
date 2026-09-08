@@ -191,9 +191,10 @@
 - [vals.fmt_image](https://posit-dev.github.io/great-tables/reference/vals.fmt_image.html)
 
 #### Built-in Datasets
-> The Great Tables package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package.
+> The Great Tables package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package. The `load_dataset()` function provides a convenient way to load any dataset as either a Pandas or Polars DataFrame.
 
 
+- [load_dataset](https://posit-dev.github.io/great-tables/reference/load_dataset.html): Load a dataset from the library as a specified table type
 - [data.countrypops](https://posit-dev.github.io/great-tables/reference/data.countrypops.html)
 - [data.sza](https://posit-dev.github.io/great-tables/reference/data.sza.html)
 - [data.gtcars](https://posit-dev.github.io/great-tables/reference/data.gtcars.html)

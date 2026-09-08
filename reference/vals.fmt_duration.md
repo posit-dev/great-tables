@@ -18,7 +18,7 @@ vals.fmt_duration(
     use_seps=True,
     sep_mark=",",
     force_sign=False,
-    locale=None
+    locale=None,
 )
 ```
 

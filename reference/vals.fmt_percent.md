@@ -21,7 +21,7 @@ vals.fmt_percent(
     force_sign=False,
     placement="right",
     incl_space=False,
-    locale=None
+    locale=None,
 )
 ```
 

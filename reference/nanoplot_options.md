@@ -37,7 +37,7 @@ nanoplot_options(
     y_val_fmt_fn=None,
     y_axis_fmt_fn=None,
     y_ref_line_fmt_fn=None,
-    currency=None
+    currency=None,
 )
 ```
 

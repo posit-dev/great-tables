@@ -16,7 +16,7 @@ vals.fmt_integer(
     pattern="{x}",
     sep_mark=",",
     force_sign=False,
-    locale=None
+    locale=None,
 )
 ```
 

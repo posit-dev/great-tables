@@ -21,7 +21,7 @@ vals.fmt_number(
     sep_mark=",",
     dec_mark=".",
     force_sign=False,
-    locale=None
+    locale=None,
 )
 ```
 

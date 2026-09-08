@@ -18,7 +18,7 @@ style.text(
     stretch=None,
     decorate=None,
     transform=None,
-    whitespace=None
+    whitespace=None,
 )
 ```
 

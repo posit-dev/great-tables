@@ -20,7 +20,7 @@ vals.fmt_scientific(
     dec_mark=".",
     force_sign_m=False,
     force_sign_n=False,
-    locale=None
+    locale=None,
 )
 ```
 

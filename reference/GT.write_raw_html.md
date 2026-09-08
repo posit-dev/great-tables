@@ -14,7 +14,7 @@ GT.write_raw_html(
     inline_css=False,
     newline=None,
     make_page=False,
-    all_important=False
+    all_important=False,
 )
 ```
 

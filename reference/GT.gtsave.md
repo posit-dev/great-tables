@@ -14,7 +14,7 @@ GT.gtsave(
     zoom=2.0,
     delay=0.2,
     vwidth=992,
-    vheight=744
+    vheight=744,
 )
 ```
 

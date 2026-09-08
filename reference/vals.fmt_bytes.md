@@ -20,7 +20,7 @@ vals.fmt_bytes(
     dec_mark=".",
     force_sign=False,
     incl_space=True,
-    locale=None
+    locale=None,
 )
 ```
 
