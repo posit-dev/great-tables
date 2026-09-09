@@ -560,7 +560,6 @@ def test_spanner_covering_all_columns_else_branch():
     assert "All" in str(result)
 
 
-# ── Multi-column stub (2b) ────────────────────────────────────────────────────
 
 
 def _get_body_html(gt: GT) -> str:
@@ -719,7 +718,6 @@ def test_multi_col_stub_overlap_with_groupname_col_raises():
         GT(df, rowname_col=["sector", "ticker"], groupname_col="sector")
 
 
-# ── Bug-fix regression tests ──────────────────────────────────────────────────
 
 
 def test_text_transform_stub_applies_to_all_stub_cols():
