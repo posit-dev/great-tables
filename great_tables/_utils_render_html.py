@@ -18,7 +18,7 @@ from ._gt_data import (
     SummaryRowInfo,
 )
 from ._spanners import spanners_print_matrix
-from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
+from ._tbl_data import TblData, _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
@@ -614,6 +614,70 @@ def create_columns_component_h(data: GTData) -> str:
     return table_col_headings
 
 
+def _calculate_hierarchical_stub_rowspans(
+    stub_col_names: list[str],
+    ordered_index: list[tuple[int, Any]],
+    tbl_data: TblData,
+) -> list[list[int]]:
+    """Compute per-column rowspan values for a hierarchical multi-column stub.
+
+    For each stub column (left = outer, right = primary), a run of adjacent rows
+    collapses into a single rowspan cell when every column to the left has the same
+    value across the run *and* all rows belong to the same group.
+
+    Returns a list (one per stub col) of lists (one int per ordered row):
+      - > 1  : this row starts a span of that length
+      - == 1 : normal single-row cell
+      - == 0 : this row is covered by a previous cell's rowspan (omit the cell)
+    """
+    n = len(ordered_index)
+    n_cols = len(stub_col_names)
+
+    if n == 0 or n_cols == 0:
+        return []
+
+    all_rowspans: list[list[int]] = []
+
+    for k, col_name in enumerate(stub_col_names):
+        spans = [1] * n
+        j = 0
+        while j < n:
+            row_idx_j, group_j = ordered_index[j]
+            val_j = _get_cell(tbl_data, row_idx_j, col_name)
+            # Values of left-side columns at run start, for hierarchical comparison
+            left_vals = [
+                _get_cell(tbl_data, row_idx_j, stub_col_names[lk]) for lk in range(k)
+            ]
+
+            run_len = 1
+            j2 = j + 1
+            while j2 < n:
+                row_idx_j2, group_j2 = ordered_index[j2]
+                # Group boundary always resets collapsing
+                if group_j2 is not group_j:
+                    break
+                # Every column to the left must still match the run-start value
+                if any(
+                    _get_cell(tbl_data, row_idx_j2, stub_col_names[lk]) != left_vals[lk]
+                    for lk in range(k)
+                ):
+                    break
+                # This column must match
+                if _get_cell(tbl_data, row_idx_j2, col_name) != val_j:
+                    break
+                run_len += 1
+                j2 += 1
+
+            spans[j] = run_len
+            for jj in range(j + 1, j + run_len):
+                spans[jj] = 0
+            j += run_len
+
+        all_rowspans.append(spans)
+
+    return all_rowspans
+
+
 def create_body_component_h(data: GTData) -> str:
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
@@ -648,11 +712,14 @@ def create_body_component_h(data: GTData) -> str:
     has_group_stub_column = "group_label" in stub_layout
     has_groups = data._stub.group_ids is not None and len(data._stub.group_ids) > 0
 
+    # All stub columns in hierarchy order (outer → primary); may be >1 for multi-col stubs
+    stub_col_vars = data._boxhead._get_stub_columns()
+
     # If there is a stub, then prepend that to the `column_vars` list
     if has_row_stub_column:
-        # There is already a column assigned to the rownames
-        if row_stub_var:
-            column_vars = [row_stub_var] + column_vars
+        # There are one or more stub columns assigned to rownames
+        if stub_col_vars:
+            column_vars = stub_col_vars + column_vars
         # Else we have summary rows but no stub yet
         else:
             # TODO: this naming is not ideal
@@ -692,6 +759,16 @@ def create_body_component_h(data: GTData) -> str:
     prev_group_info = None
 
     ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
+
+    # Pre-compute hierarchical rowspan values for multi-column stubs.
+    # stub_col_names follows the user-specified hierarchy order (outer → primary).
+    stub_col_names = [c.var for c in stub_col_vars]
+    if len(stub_col_names) > 1:
+        stub_rowspans_by_col = _calculate_hierarchical_stub_rowspans(
+            stub_col_names, ordered_index, data._tbl_data
+        )
+    else:
+        stub_rowspans_by_col = []
 
     for j, (i, group_info) in enumerate(ordered_index):
         # For table striping we want to add a striping CSS class to the even-numbered
@@ -793,6 +870,13 @@ def create_body_component_h(data: GTData) -> str:
                     if leading_cell:
                         leading_cell = None
 
+        # For multi-column stubs, extract the pre-computed rowspan values for row j
+        row_stub_rowspans = (
+            [stub_rowspans_by_col[k][j] for k in range(len(stub_col_names))]
+            if stub_rowspans_by_col
+            else None
+        )
+
         # Create data row
         row_html = _create_row_component_h(
             column_vars=column_vars,
@@ -808,6 +892,7 @@ def create_body_component_h(data: GTData) -> str:
             tbl_data=tbl_data,
             data=data,
             row_class="gt_row_group_first" if leading_cell else None,
+            stub_col_rowspans=row_stub_rowspans,
         )
         body_rows.append(row_html)
 
@@ -888,6 +973,7 @@ def _create_row_component_h(
     data: GTData | None = None,  # For footnote handling
     summary_group_id: str | None = None,  # For group summary rows (distinguishes from grand)
     row_class: str | None = None,  # CSS class for the <tr> element
+    stub_col_rowspans: list[int] | None = None,  # Rowspan values for stub cols (multi-col stub)
 ) -> str:
     """Create a single table row (either data row or summary row)"""
 
@@ -949,6 +1035,8 @@ def _create_row_component_h(
     else:
         # Normal case: process all column_vars
         column_vars_to_process = column_vars
+
+    stub_cell_idx = 0  # tracks which stub column we're on (for rowspan lookup)
 
     for colinfo in column_vars_to_process:
         # Get cell content
@@ -1062,9 +1150,23 @@ def _create_row_component_h(
         classes_str = " ".join(classes)
         cell_styles = _flatten_styles(_body_styles + _rowname_styles, wrap=True)
 
-        body_cells.append(
-            f"""    <{el_name}{cell_styles} class="{classes_str}">{cell_str}</{el_name}>"""
-        )
+        # Handle rowspan for multi-column stub cells
+        if colinfo.is_stub and stub_col_rowspans is not None and not is_summary_row:
+            rowspan_val = stub_col_rowspans[stub_cell_idx] if stub_cell_idx < len(stub_col_rowspans) else 1
+            stub_cell_idx += 1
+            if rowspan_val == 0:
+                # This cell is covered by a previous row's rowspan — omit it
+                continue
+            rowspan_attr = f' rowspan="{rowspan_val}"' if rowspan_val > 1 else ""
+            body_cells.append(
+                f"""    <{el_name}{cell_styles}{rowspan_attr} class="{classes_str}">{cell_str}</{el_name}>"""
+            )
+        else:
+            if colinfo.is_stub:
+                stub_cell_idx += 1
+            body_cells.append(
+                f"""    <{el_name}{cell_styles} class="{classes_str}">{cell_str}</{el_name}>"""
+            )
 
     tr_open = f'  <tr class="{row_class}">' if row_class else "  <tr>"
     return tr_open + "\n" + "\n".join(body_cells) + "\n  </tr>"

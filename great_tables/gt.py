@@ -347,7 +347,7 @@ class GT(
     def __init__(
         self,
         data: Any,
-        rowname_col: str | None = None,
+        rowname_col: str | list[str] | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
         id: str | None = None,
