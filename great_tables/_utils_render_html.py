@@ -261,6 +261,11 @@ def create_columns_component_h(data: GTData) -> str:
         stub_label = ""
         stub_var = None
 
+    # When stub_label is a list, build per-column labels matching the rowname cols in stub_layout
+    stub_labels_list: list | None = None
+    if isinstance(stub_label, list):
+        stub_labels_list = stub_label
+
     # Set a default alignment for the stubhead label
     stubhead_label_alignment = "left"
 
@@ -276,23 +281,42 @@ def create_columns_component_h(data: GTData) -> str:
     # If there are no spanners, then we have to create the cells for the stubhead label
     # (if present) and for the column headings
     if spanner_row_count == 0:
-        # Create the cell for the stubhead label
+        # Create the cell(s) for the stubhead label
         if stub_layout:
-            table_col_headings.append(
-                tags.th(
-                    HTML(
-                        _apply_footnotes_to_text(
-                            footnotes_stubhead, data, _process_text(stub_label)
+            if stub_labels_list is not None:
+                # One <th colspan=1> per stub column
+                for lbl in stub_labels_list:
+                    table_col_headings.append(
+                        tags.th(
+                            HTML(
+                                _apply_footnotes_to_text(
+                                    footnotes_stubhead, data, _process_text(lbl)
+                                )
+                            ),
+                            class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
+                            rowspan="1",
+                            colspan=1,
+                            style=_flatten_styles(styles_stubhead),
+                            scope="col",
+                            id=_create_element_id(table_id, lbl),
                         )
-                    ),
-                    class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
-                    rowspan="1",
-                    colspan=len(stub_layout),
-                    style=_flatten_styles(styles_stubhead),
-                    scope="colgroup" if len(stub_layout) > 1 else "col",
-                    id=_create_element_id(table_id, stub_label),
+                    )
+            else:
+                table_col_headings.append(
+                    tags.th(
+                        HTML(
+                            _apply_footnotes_to_text(
+                                footnotes_stubhead, data, _process_text(stub_label)
+                            )
+                        ),
+                        class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
+                        rowspan="1",
+                        colspan=len(stub_layout),
+                        style=_flatten_styles(styles_stubhead),
+                        scope="colgroup" if len(stub_layout) > 1 else "col",
+                        id=_create_element_id(table_id, stub_label),
+                    )
                 )
-            )
 
         # Create the headings in the case where there are no spanners at all -------------------------
         for info in headings_info:
@@ -357,23 +381,42 @@ def create_columns_component_h(data: GTData) -> str:
         # all column labels that DO have spanners above them.
         spanned_column_labels = []
 
-        # Create the cell for the stubhead label
+        # Create the cell(s) for the stubhead label
         if stub_layout:
-            level_1_spanners.append(
-                tags.th(
-                    HTML(
-                        _apply_footnotes_to_text(
-                            footnotes_stubhead, data, _process_text(stub_label)
+            if stub_labels_list is not None:
+                # One <th colspan=1 rowspan=2> per stub column
+                for lbl in stub_labels_list:
+                    level_1_spanners.append(
+                        tags.th(
+                            HTML(
+                                _apply_footnotes_to_text(
+                                    footnotes_stubhead, data, _process_text(lbl)
+                                )
+                            ),
+                            class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
+                            rowspan=2,
+                            colspan=1,
+                            style=_flatten_styles(styles_stubhead),
+                            scope="col",
+                            id=_create_element_id(table_id, lbl),
                         )
-                    ),
-                    class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
-                    rowspan=2,
-                    colspan=len(stub_layout),
-                    style=_flatten_styles(styles_stubhead),
-                    scope="colgroup" if len(stub_layout) > 1 else "col",
-                    id=_create_element_id(table_id, stub_label),
-                )
-            )  # NOTE: Run-length encoding treats missing values as distinct from each other; in other
+                    )
+            else:
+                level_1_spanners.append(
+                    tags.th(
+                        HTML(
+                            _apply_footnotes_to_text(
+                                footnotes_stubhead, data, _process_text(stub_label)
+                            )
+                        ),
+                        class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
+                        rowspan=2,
+                        colspan=len(stub_layout),
+                        style=_flatten_styles(styles_stubhead),
+                        scope="colgroup" if len(stub_layout) > 1 else "col",
+                        id=_create_element_id(table_id, stub_label),
+                    )
+                )  # NOTE: Run-length encoding treats missing values as distinct from each other; in other
         # words, each missing value starts a new run of length 1
 
         spanner_ids_level_1 = spanner_ids[level_1_index]
@@ -582,18 +625,33 @@ def create_columns_component_h(data: GTData) -> str:
                     )
 
             if stub_layout:
-                level_i_spanners.insert(
-                    0,
-                    tags.th(
-                        tags.span(HTML("&nbsp")),
-                        class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
-                        rowspan=1,
-                        colspan=len(stub_layout),
-                        scope="colgroup" if len(stub_layout) > 1 else "col",
-                        # TODO check if ok to just use base styling?
-                        style=_flatten_styles(styles_column_labels),
-                    ),
-                )
+                if stub_labels_list is not None:
+                    # One blank placeholder per stub column for higher spanner rows
+                    for _lbl in reversed(stub_labels_list):
+                        level_i_spanners.insert(
+                            0,
+                            tags.th(
+                                tags.span(HTML("&nbsp")),
+                                class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
+                                rowspan=1,
+                                colspan=1,
+                                scope="col",
+                                style=_flatten_styles(styles_column_labels),
+                            ),
+                        )
+                else:
+                    level_i_spanners.insert(
+                        0,
+                        tags.th(
+                            tags.span(HTML("&nbsp")),
+                            class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
+                            rowspan=1,
+                            colspan=len(stub_layout),
+                            scope="colgroup" if len(stub_layout) > 1 else "col",
+                            # TODO check if ok to just use base styling?
+                            style=_flatten_styles(styles_column_labels),
+                        ),
+                    )
 
             higher_spanner_rows = TagList(
                 higher_spanner_rows,
