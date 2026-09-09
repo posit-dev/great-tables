@@ -483,23 +483,63 @@ def test_cols_unhide_multi_cols(DF, columns):
     assert [col.var for col in new_gt._boxhead if col.visible] == ["a", "b", "c", "d"]
 
 
+@pytest.mark.parametrize(
+    "fn, kwargs",
+    [
+        (cols_hide, {}),
+        (cols_unhide, {}),
+        (cols_move_to_start, {}),
+        (cols_move_to_end, {}),
+        (cols_move, {"after": "a"}),
+        (cols_reorder, {}),
+    ],
+)
+def test_cols_methods_raise_on_invalid_col_in_list(fn, kwargs):
+    # A single unmatched string column name already raises; a list containing one should too
+    # (previously the unmatched name was silently dropped instead of raising).
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+    src_gt = GT(df)
+
+    with pytest.raises(Exception):
+        fn(src_gt, columns=["a", "nope"], **kwargs)
+
+
 def test_validate_sel_cols():
+    columns = ["a", "b", "c"]
     sel_cols = ["a", "b", "c"]
     col_vars = ["a", "b", "c", "d"]
-    _validate_sel_cols(sel_cols, col_vars)
+    _validate_sel_cols(columns, sel_cols, col_vars)
 
 
 def test_validate_sel_cols_raises():
+    columns = []
     sel_cols = []
     col_vars = ["a", "b", "c", "d"]
     with pytest.raises(Exception) as exc_info:
-        _validate_sel_cols(sel_cols, col_vars)
+        _validate_sel_cols(columns, sel_cols, col_vars)
 
     assert "No columns selected." in exc_info.value.args[0]
 
+    columns = ["a", "b", "c", "x"]
     sel_cols = ["a", "b", "c", "x"]
     with pytest.raises(ValueError) as exc_info:
-        _validate_sel_cols(sel_cols, col_vars)
+        _validate_sel_cols(columns, sel_cols, col_vars)
+
+    assert (
+        "All `columns` must exist and be visible in the input `data` table."
+        in exc_info.value.args[0]
+    )
+
+
+def test_validate_sel_cols_raises_on_unresolved_column_in_list():
+    # A column name in `columns` that doesn't exist in the table gets silently dropped by
+    # column resolution, so `sel_cols` alone can look valid. `_validate_sel_cols` must also
+    # check the originally-requested column list to catch this.
+    columns = ["a", "nope"]
+    sel_cols = ["a"]
+    col_vars = ["a", "b", "c", "d"]
+    with pytest.raises(ValueError) as exc_info:
+        _validate_sel_cols(columns, sel_cols, col_vars)
 
     assert (
         "All `columns` must exist and be visible in the input `data` table."

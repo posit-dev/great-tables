@@ -466,10 +466,19 @@ def tab_spanner_delim(
     return new_obj
 
 
-def _validate_sel_cols(sel_cols: list[str], col_vars: list[str]) -> None:
+def _validate_sel_cols(columns: SelectExpr, sel_cols: list[str], col_vars: list[str]) -> None:
     if not sel_cols:
         raise Exception("No columns selected.")
-    elif not all(col in col_vars for col in sel_cols):
+
+    # `resolve_cols_c()` silently drops any string entries in `columns` that don't match a
+    # column in the data, so `sel_cols` can never catch that case on its own; validate the
+    # originally-requested string names directly against the table's columns as well.
+    if isinstance(columns, list):
+        requested_cols = [col for col in columns if isinstance(col, str)]
+        if not all(col in col_vars for col in requested_cols):
+            raise ValueError("All `columns` must exist and be visible in the input `data` table.")
+
+    if not all(col in col_vars for col in sel_cols):
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
 
@@ -544,7 +553,7 @@ def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
             f"Only 1 value should be supplied to `after`, received argument: {sel_after}"
         )
 
-    _validate_sel_cols(sel_cols, col_vars)
+    _validate_sel_cols(columns, sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols if col not in sel_after]
     other_columns = [col for col in col_vars if col not in moving_columns]
@@ -620,7 +629,7 @@ def cols_move_to_start(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     col_vars = [col.var for col in self._boxhead]
 
-    _validate_sel_cols(sel_cols, col_vars)
+    _validate_sel_cols(columns, sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols]
     other_columns = [col for col in col_vars if col not in moving_columns]
@@ -686,7 +695,7 @@ def cols_move_to_end(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     col_vars = [col.var for col in self._boxhead]
 
-    _validate_sel_cols(sel_cols, col_vars)
+    _validate_sel_cols(columns, sel_cols, col_vars)
 
     moving_columns = [col for col in sel_cols]
     other_columns = [col for col in col_vars if col not in moving_columns]
@@ -754,7 +763,7 @@ def cols_hide(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     col_vars = [col.var for col in self._boxhead]
 
-    _validate_sel_cols(sel_cols, col_vars)
+    _validate_sel_cols(columns, sel_cols, col_vars)
 
     # New boxhead with hidden columns
     new_boxhead = self._boxhead.set_cols_hidden(sel_cols)
@@ -808,7 +817,7 @@ def cols_unhide(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     col_vars = [col.var for col in self._boxhead]
 
-    _validate_sel_cols(sel_cols, col_vars)
+    _validate_sel_cols(columns, sel_cols, col_vars)
 
     # New boxhead with hidden columns
     new_boxhead = self._boxhead.set_cols_unhidden(sel_cols)
@@ -1763,7 +1772,7 @@ def cols_reorder(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     col_vars = [col.var for col in self._boxhead]
 
-    _validate_sel_cols(sel_cols, col_vars)
+    _validate_sel_cols(columns, sel_cols, col_vars)
 
     new_boxhead = self._boxhead.reorder(sel_cols)
     return self._replace(_boxhead=new_boxhead)
