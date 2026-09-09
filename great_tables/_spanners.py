@@ -1030,10 +1030,11 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
 
     stub_keys = [k for k in new_cases if isinstance(k, _StubSentinel)]
     if stub_keys:
-        stub_col = curr_boxhead._get_stub_column()
-        if stub_col is not None:
+        stub_cols = curr_boxhead._get_stub_columns()
+        if stub_cols:
             stub_width = new_cases.pop(stub_keys[0])
-            new_cases = {stub_col.var: stub_width} | new_cases
+            # Apply the same width to every stub column (covers multi-col stubs)
+            new_cases = {col.var: stub_width for col in stub_cols} | new_cases
         else:
             # No stub column present — drop the sentinel key silently
             for k in stub_keys:

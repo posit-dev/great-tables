@@ -1015,15 +1015,21 @@ def _create_row_component_h(
                 ]
             stub_label = _apply_footnotes_to_text(footnotes_i, data, stub_label)
 
+        # Count row stub columns (may be >1 for multi-col stubs)
+        n_row_stub_cols = sum(1 for c in column_vars if c.is_stub)
+
         if is_group_summary:
-            # Group summary rows are covered by the group label cell's rowspan,
-            # so we only need a single stub cell for the summary label
-            body_cells.append(f"""    <th{cell_styles} class="{classes_str}">{stub_label}</th>""")
-        elif has_row_stub_column:
-            # Grand summary rows are outside any group and need colspan=2
-            # to span across both the group stub column and the row stub column
+            # Group summary rows are covered by the group label cell's rowspan.
+            # Span across all row stub columns with a single label cell.
+            colspan_attr = f' colspan="{n_row_stub_cols}"' if n_row_stub_cols > 1 else ""
             body_cells.append(
-                f"""    <th{cell_styles} class="{classes_str}" colspan="2">{stub_label}</th>"""
+                f"""    <th{cell_styles}{colspan_attr} class="{classes_str}">{stub_label}</th>"""
+            )
+        elif has_row_stub_column:
+            # Grand summary rows must span the group stub column AND all row stub columns.
+            grand_colspan = 1 + n_row_stub_cols
+            body_cells.append(
+                f"""    <th{cell_styles} class="{classes_str}" colspan="{grand_colspan}">{stub_label}</th>"""
             )
         else:
             # Grand summary rows with only group stub column (no row stub)

@@ -717,3 +717,72 @@ def test_multi_col_stub_overlap_with_groupname_col_raises():
     df = pd.DataFrame({"sector": ["Tech"], "ticker": ["AAPL"], "price": [150]})
     with pytest.raises(ValueError):
         GT(df, rowname_col=["sector", "ticker"], groupname_col="sector")
+
+
+# ── Bug-fix regression tests ──────────────────────────────────────────────────
+
+
+def test_text_transform_stub_applies_to_all_stub_cols():
+    """text_transform(loc.stub()) must transform every stub column, not just the first."""
+    from great_tables import loc, style
+    from great_tables._tab_create_modify import text_transform
+
+    df = pd.DataFrame({
+        "sector": ["Tech", "Finance"],
+        "ticker": ["AAPL", "JPM"],
+        "price": [150, 140],
+    })
+    gt = GT(df, rowname_col=["sector", "ticker"]).text_transform(
+        locations=loc.stub(),
+        fn=lambda x: x.upper(),
+    )
+    body = _get_body_html(gt)
+
+    # Both stub columns should be upper-cased
+    assert "TECH" in body
+    assert "FINANCE" in body
+    assert "AAPL" in body
+    assert "JPM" in body
+    # Original casing should not appear
+    assert ">Tech<" not in body
+    assert ">Finance<" not in body
+
+
+def test_cols_width_stub_sentinel_applies_to_all_stub_cols():
+    """cols_width(stub) must set width on every stub column for multi-col stubs."""
+    from great_tables import stub
+
+    df = pd.DataFrame({
+        "sector": ["Tech"],
+        "ticker": ["AAPL"],
+        "price": [150],
+    })
+    gt = GT(df, rowname_col=["sector", "ticker"]).cols_width({stub: "120px"})
+
+    # Both stub columns should have the width recorded in the boxhead
+    stub_cols = gt._boxhead._get_stub_columns()
+    assert len(stub_cols) == 2
+    assert all(c.column_width == "120px" for c in stub_cols)
+
+
+def test_grand_summary_colspan_correct_for_multi_col_stub_with_group():
+    """Grand summary row colspan must cover group col + all row stub cols."""
+    df = pd.DataFrame({
+        "region": ["North", "North"],
+        "sector": ["Tech", "Finance"],
+        "ticker": ["AAPL", "JPM"],
+        "price": [150.0, 140.0],
+    })
+    gt = (
+        GT(df, rowname_col=["sector", "ticker"], groupname_col="region")
+        .tab_options(row_group_as_column=True)
+        .grand_summary_rows(
+            fns={"Total": lambda x: x.sum()},
+        )
+    )
+    body = _get_body_html(gt)
+
+    # With row_group_as_column=True: 1 group col + 2 row stub cols = colspan 3
+    assert 'colspan="3"' in body
+    # The old hardcoded colspan="2" must NOT appear in the grand summary row
+    assert 'colspan="2"' not in body

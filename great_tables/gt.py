@@ -160,24 +160,23 @@ def _apply_text_transforms_stub(data: GT, stub: Stub, body: Body) -> tuple[Stub,
         fn = transform.fn
 
         if isinstance(loc, LocStub):
-            # Find the stub column name
-            stub_col = next(
-                (col.var for col in data._boxhead if col.type == ColInfoTypeEnum.stub), None
-            )
-            if stub_col is None:
+            # Apply the transform to every stub column (all levels of a multi-col stub)
+            stub_cols = [col.var for col in data._boxhead._get_stub_columns()]
+            if not stub_cols:
                 continue
 
             resolved_rows: set[int] = resolve(loc, data)
-            for row_idx in resolved_rows:
-                cell_value = _get_cell(body.body, row_idx, stub_col)
-                if is_na(body.body, cell_value):
-                    cell_value = _get_cell(data._tbl_data, row_idx, stub_col)
-                    if is_na(data._tbl_data, cell_value):
-                        continue
-                new_value = fn(str(cell_value))
-                result = _set_cell(body.body, row_idx, stub_col, new_value)
-                if result is not None:
-                    body.body = result
+            for stub_col in stub_cols:
+                for row_idx in resolved_rows:
+                    cell_value = _get_cell(body.body, row_idx, stub_col)
+                    if is_na(body.body, cell_value):
+                        cell_value = _get_cell(data._tbl_data, row_idx, stub_col)
+                        if is_na(data._tbl_data, cell_value):
+                            continue
+                    new_value = fn(str(cell_value))
+                    result = _set_cell(body.body, row_idx, stub_col, new_value)
+                    if result is not None:
+                        body.body = result
 
         elif isinstance(loc, LocRowGroups):
             resolved_groups: set[str] = resolve(loc, data)
