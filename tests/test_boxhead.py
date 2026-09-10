@@ -140,3 +140,23 @@ def test_cols_label_invalid_type_raises():
 
     with pytest.raises(ValueError, match="Column labels must be strings or BaseText objects"):
         GT(pl.DataFrame({"x": [1]})).cols_label(x=42)
+
+
+def test_cols_align_single_col_raises():
+    df = pd.DataFrame({"x": [1], "y": [2]})
+    with pytest.raises(AssertionError):
+        GT(df).cols_align(columns="nope")
+
+
+def test_cols_align_list_with_invalid_col_raises():
+    # A single invalid column name already raised; a list containing one should too
+    # (previously the invalid name was silently dropped instead of raising).
+    df = pd.DataFrame({"x": [1], "y": [2]})
+    with pytest.raises(AssertionError):
+        GT(df).cols_align(columns=["x", "nope"])
+
+
+def test_cols_label_with_list_with_invalid_col_raises():
+    df = pd.DataFrame({"x": [1], "y": [2]})
+    with pytest.raises(AssertionError):
+        GT(df).cols_label_with(columns=["x", "nope"], fn=str.upper)
