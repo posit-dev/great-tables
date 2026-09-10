@@ -25,7 +25,7 @@ vals.fmt_bytes(
 ```
 
 
-With numeric values in a list, we can transform those to values of bytes with human readable units. The [val_fmt_bytes()](vals.fmt_bytes.md#great_tables.vals.fmt_bytes) function allows for the formatting of byte sizes to either of two common representations: (1) with decimal units (powers of 1000, examples being `"kB"` and `"MB"`), and (2) with binary units (powers of 1024, examples being `"KiB"` and `"MiB"`). It is assumed the input numeric values represent the number of bytes and automatic truncation of values will occur. The numeric values will be scaled to be in the range of 1 to \<1000 and then decorated with the correct unit symbol according to the standard chosen. For more control over the formatting of byte sizes, we can use the following options:
+With numeric values in a list, we can transform those to values of bytes with human readable units. The `val_fmt_bytes()` function allows for the formatting of byte sizes to either of two common representations: (1) with decimal units (powers of 1000, examples being `"kB"` and `"MB"`), and (2) with binary units (powers of 1024, examples being `"KiB"` and `"MiB"`). It is assumed the input numeric values represent the number of bytes and automatic truncation of values will occur. The numeric values will be scaled to be in the range of 1 to \<1000 and then decorated with the correct unit symbol according to the standard chosen. For more control over the formatting of byte sizes, we can use the following options:
 
 - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice of the decimal symbol
 - digit grouping separators: options to enable/disable digit separators and provide a choice of separator symbol

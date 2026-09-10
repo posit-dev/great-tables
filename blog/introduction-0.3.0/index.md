@@ -204,7 +204,7 @@ gt_tbl.tab_options(table_font_names=system_fonts(name="industrial"))
 <th colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
 </tr>
 <tr class="gt_heading">
-<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">[exibble](../../reference/data.exibble.md#great_tables.data.exibble) is a <strong>Great Tables</strong> dataset.</th>
+<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
 </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
@@ -357,7 +357,7 @@ gt_tbl.tab_options(table_width="100%")
 <th colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
 </tr>
 <tr class="gt_heading">
-<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">[exibble](../../reference/data.exibble.md#great_tables.data.exibble) is a <strong>Great Tables</strong> dataset.</th>
+<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
 </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
@@ -508,7 +508,7 @@ gt_tbl.tab_options(table_background_color="lightcyan")
 <th colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
 </tr>
 <tr class="gt_heading">
-<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">[exibble](../../reference/data.exibble.md#great_tables.data.exibble) is a <strong>Great Tables</strong> dataset.</th>
+<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
 </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
@@ -664,7 +664,7 @@ gt_tbl.opt_align_table_header(align="left")
 <th colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
 </tr>
 <tr class="gt_heading">
-<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">[exibble](../../reference/data.exibble.md#great_tables.data.exibble) is a <strong>Great Tables</strong> dataset.</th>
+<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
 </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
@@ -817,7 +817,7 @@ gt_tbl.opt_all_caps()
 <th colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
 </tr>
 <tr class="gt_heading">
-<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">[exibble](../../reference/data.exibble.md#great_tables.data.exibble) is a <strong>Great Tables</strong> dataset.</th>
+<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
 </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
@@ -970,7 +970,7 @@ gt_tbl.opt_vertical_padding(scale=0.5)
 <th colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
 </tr>
 <tr class="gt_heading">
-<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">[exibble](../../reference/data.exibble.md#great_tables.data.exibble) is a <strong>Great Tables</strong> dataset.</th>
+<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
 </tr>
 <tr class="gt_col_headings">
 <th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
@@ -1054,7 +1054,7 @@ We have the following methods available in the `opt_*()` family
 and we plan to add more `opt_*()` methods in future releases.
 
 
-## A new formatting method: [fmt_image()](../../reference/GT.fmt_image.md#great_tables.GT.fmt_image)
+## A new formatting method: `fmt_image()`
 
 Wouldn't it be great to add graphics to your table? The <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link"><code>fmt_image()</code></a> method provides an easy way to add image files on disk into table body cells. The cells need to contain some reference to an image file. The `path=` and `file_pattern=` arguments give you some flexibility in defining exactly where the image files live.
 

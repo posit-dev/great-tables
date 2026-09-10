@@ -19,7 +19,7 @@ vals.fmt_image(
 ```
 
 
-To more easily insert graphics into body cells, we can use the [fmt_image()](GT.fmt_image.md#great_tables.GT.fmt_image) method. This allows for one or more images to be placed in the targeted cells. The cells need to contain some reference to an image file, either: (1) complete http/https or local paths to the files; (2) the file names, where a common path can be provided via `path=`; or (3) a fragment of the file name, where the `file_pattern=` argument helps to compose the entire file name and `path=` provides the path information. This should be expressly used on columns that contain *only* references to image files (i.e., no image references as part of a larger block of text). Multiple images can be included per cell by separating image references by commas. The `sep=` argument allows for a common separator to be applied between images.
+To more easily insert graphics into body cells, we can use the `fmt_image()` method. This allows for one or more images to be placed in the targeted cells. The cells need to contain some reference to an image file, either: (1) complete http/https or local paths to the files; (2) the file names, where a common path can be provided via `path=`; or (3) a fragment of the file name, where the `file_pattern=` argument helps to compose the entire file name and `path=` provides the path information. This should be expressly used on columns that contain *only* references to image files (i.e., no image references as part of a larger block of text). Multiple images can be included per cell by separating image references by commas. The `sep=` argument allows for a common separator to be applied between images.
 
 
 ## Parameters

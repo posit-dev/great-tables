@@ -94,4 +94,4 @@ A CellStyleText object, which is used for a `styles` argument if specifying any 
 
 ## Examples
 
-See <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>GT.tab_style()</code></a>.
+See <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>GT.tab_style()</code></a>.

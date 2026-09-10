@@ -211,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2727" data-forks="129"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2726" data-forks="131"></div>
     </span>
   </li>  
 </ul>
@@ -1246,7 +1246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div class="doc-text">
-<p><a href="GT.tab_footnote.html#great_tables.GT.tab_footnote" class="gdls-link gdls-code">tab_footnote()</a> can make it a painless process to add a footnote to a table. There are commonly two components to a footnote: (1) a footnote mark that is attached to the targeted cell content, and (2) the footnote text itself that is placed in the table’s footer area. Each unit of footnote text in the footer is linked to an element of text or otherwise through the footnote mark.</p>
+<p><a href="../reference/GT.tab_footnote.html#great_tables.GT.tab_footnote" class="gdls-link gdls-code">tab_footnote()</a> can make it a painless process to add a footnote to a table. There are commonly two components to a footnote: (1) a footnote mark that is attached to the targeted cell content, and (2) the footnote text itself that is placed in the table’s footer area. Each unit of footnote text in the footer is linked to an element of text or otherwise through the footnote mark.</p>
 <p>The footnote system in <strong>Great Tables</strong> presents footnotes in a way that matches the usual expectations, where:</p>
 <ol type="1">
 <li>footnote marks have a sequence, whether they are symbols, numbers, or letters</li>
@@ -1254,7 +1254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>footnote text in the footer is never exactly repeated, <strong>Great Tables</strong> reuses footnote marks where needed throughout the table</li>
 <li>footnote marks are ordered across the table in a consistent manner (left to right, top to bottom)</li>
 </ol>
-<p>Each call of <a href="GT.tab_footnote.html#great_tables.GT.tab_footnote" class="gdls-link gdls-code">tab_footnote()</a> will either add a different footnote to the footer or reuse existing footnote text therein. One or more cells outside of the footer are targeted using location classes from the <code>loc</code> module (e.g., <a href="loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a>, <a href="loc.column_labels.html#great_tables.loc.column_labels" class="gdls-link gdls-code">loc.column_labels()</a>, etc.). You can choose to <em>not</em> attach a footnote mark by simply not specifying anything in the <code>locations</code> argument.</p>
+<p>Each call of <a href="../reference/GT.tab_footnote.html#great_tables.GT.tab_footnote" class="gdls-link gdls-code">tab_footnote()</a> will either add a different footnote to the footer or reuse existing footnote text therein. One or more cells outside of the footer are targeted using location classes from the <code>loc</code> module (e.g., <a href="../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a>, <a href="../reference/loc.column_labels.html#great_tables.loc.column_labels" class="gdls-link gdls-code">loc.column_labels()</a>, etc.). You can choose to <em>not</em> attach a footnote mark by simply not specifying anything in the <code>locations</code> argument.</p>
 <p>By default, <strong>Great Tables</strong> will choose which side of the text to place the footnote mark via the <code>placement="auto"</code> option. You are, however, always free to choose the placement of the footnote mark (either to the <code>"left"</code> or <code>"right"</code> of the targeted cell content).</p>
 </div>
 <section id="parameters" class="level2 doc-parameters">
@@ -1263,11 +1263,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dl>
 <dt><code><span class="doc-parameter-name">footnote</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | Text</span></code></dt>
 <dd>
-<p>The text to be used in the footnote. We can optionally use <a href="md.html#great_tables.md" class="gdls-link"><code>md()</code></a> or <a href="html.html#great_tables.html" class="gdls-link"><code>html()</code></a> to style the text as Markdown or to retain HTML elements in the footnote text.</p>
+<p>The text to be used in the footnote. We can optionally use <a href="../reference/md.html#great_tables.md" class="gdls-link"><code>md()</code></a> or <a href="../reference/html.html#great_tables.html" class="gdls-link"><code>html()</code></a> to style the text as Markdown or to retain HTML elements in the footnote text.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">locations</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">Loc | None | list[Loc | None]</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>
-<p>The cell or set of cells to be associated with the footnote. Supplying any of the location classes from the <code>loc</code> module is a useful way to target the location cells that are associated with the footnote text. These location classes are: <a href="loc.title.html#great_tables.loc.title" class="gdls-link gdls-code">loc.title</a>, <a href="loc.stubhead.html#great_tables.loc.stubhead" class="gdls-link gdls-code">loc.stubhead</a>, <a href="loc.spanner_labels.html#great_tables.loc.spanner_labels" class="gdls-link gdls-code">loc.spanner_labels</a>, <a href="loc.column_labels.html#great_tables.loc.column_labels" class="gdls-link gdls-code">loc.column_labels</a>, <a href="loc.row_groups.html#great_tables.loc.row_groups" class="gdls-link gdls-code">loc.row_groups</a>, <a href="loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub</a>, <a href="loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body</a>, etc. Additionally, we can enclose several location calls within a <code>list()</code> if we wish to link the footnote text to different types of locations (e.g., body cells, row group labels, the table title, etc.).</p>
+<p>The cell or set of cells to be associated with the footnote. Supplying any of the location classes from the <code>loc</code> module is a useful way to target the location cells that are associated with the footnote text. These location classes are: <a href="../reference/loc.title.html#great_tables.loc.title" class="gdls-link gdls-code">loc.title</a>, <a href="../reference/loc.stubhead.html#great_tables.loc.stubhead" class="gdls-link gdls-code">loc.stubhead</a>, <a href="../reference/loc.spanner_labels.html#great_tables.loc.spanner_labels" class="gdls-link gdls-code">loc.spanner_labels</a>, <a href="../reference/loc.column_labels.html#great_tables.loc.column_labels" class="gdls-link gdls-code">loc.column_labels</a>, <a href="../reference/loc.row_groups.html#great_tables.loc.row_groups" class="gdls-link gdls-code">loc.row_groups</a>, <a href="../reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub</a>, <a href="../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body</a>, etc. Additionally, we can enclose several location calls within a <code>list()</code> if we wish to link the footnote text to different types of locations (e.g., body cells, row group labels, the table title, etc.).</p>
 </dd>
 <dt><code><span class="doc-parameter-name">placement</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">PlacementOptions</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"auto"</span></span></code></dt>
 <dd>
@@ -1289,8 +1289,8 @@ The GT object is returned. This is the same object that the method is called on 
 </section>
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
-<p>This example table will be based on the <a href="data.towny.html#great_tables.data.towny" class="gdls-link gdls-code">towny</a> dataset. We have a header part, with a title and a subtitle. We can choose which of these could be associated with a footnote and in this case it is the <code>"subtitle"</code>. This table has a stub with row labels and some of those labels are associated with a footnote. So long as row labels are unique, they can be easily used as row identifiers in <a href="loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub()</a>. The third footnote is placed on the <code>"Density"</code> column label. Here, changing the order of the <a href="GT.tab_footnote.html#great_tables.GT.tab_footnote" class="gdls-link gdls-code">tab_footnote()</a> calls has no effect on the final table rendering.</p>
-<div id="3e5ba928" class="cell" data-execution_count="1">
+<p>This example table will be based on the <a href="../reference/data.towny.html#great_tables.data.towny" class="gdls-link gdls-code">towny</a> dataset. We have a header part, with a title and a subtitle. We can choose which of these could be associated with a footnote and in this case it is the <code>"subtitle"</code>. This table has a stub with row labels and some of those labels are associated with a footnote. So long as row labels are unique, they can be easily used as row identifiers in <a href="../reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub()</a>. The third footnote is placed on the <code>"Density"</code> column label. Here, changing the order of the <a href="../reference/GT.tab_footnote.html#great_tables.GT.tab_footnote" class="gdls-link gdls-code">tab_footnote()</a> calls has no effect on the final table rendering.</p>
+<div id="38772cf6" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, loc, md</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> towny</span>
@@ -1334,74 +1334,74 @@ The GT object is returned. This is the same object that the method is called on 
 <span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    .opt_footnote_marks(marks<span class="op">=</span><span class="st">"letters"</span>)</span>
 <span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="ysvwheilpv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="lnadmhkkjl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#ysvwheilpv table {
+#lnadmhkkjl table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#ysvwheilpv thead, tbody, tfoot, tr, td, th { border-style: none; }
+#lnadmhkkjl thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#ysvwheilpv p { margin: 0; padding: 0; }
- #ysvwheilpv .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #ysvwheilpv .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #ysvwheilpv .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #ysvwheilpv .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #ysvwheilpv .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ysvwheilpv .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ysvwheilpv .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ysvwheilpv .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #ysvwheilpv .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #ysvwheilpv .gt_column_spanner_outer:first-child { padding-left: 0; }
- #ysvwheilpv .gt_column_spanner_outer:last-child { padding-right: 0; }
- #ysvwheilpv .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #ysvwheilpv .gt_spanner_row { border-bottom-style: hidden; }
- #ysvwheilpv .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #ysvwheilpv .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #ysvwheilpv .gt_from_md> :first-child { margin-top: 0; }
- #ysvwheilpv .gt_from_md> :last-child { margin-bottom: 0; }
- #ysvwheilpv .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #ysvwheilpv .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #ysvwheilpv .gt_indent_1 { text-indent: 5px; }
- #ysvwheilpv .gt_indent_2 { text-indent: calc(5px * 2); }
- #ysvwheilpv .gt_indent_3 { text-indent: calc(5px * 3); }
- #ysvwheilpv .gt_indent_4 { text-indent: calc(5px * 4); }
- #ysvwheilpv .gt_indent_5 { text-indent: calc(5px * 5); }
- #ysvwheilpv .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #ysvwheilpv .gt_row_group_first td { border-top-width: 2px; }
- #ysvwheilpv .gt_row_group_first th { border-top-width: 2px; }
- #ysvwheilpv .gt_striped { color: #333333; background-color: #F4F4F4; }
- #ysvwheilpv .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ysvwheilpv .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ysvwheilpv .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #ysvwheilpv .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ysvwheilpv .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ysvwheilpv .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #ysvwheilpv .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #ysvwheilpv .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ysvwheilpv .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #ysvwheilpv .gt_left { text-align: left; }
- #ysvwheilpv .gt_center { text-align: center; }
- #ysvwheilpv .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #ysvwheilpv .gt_font_normal { font-weight: normal; }
- #ysvwheilpv .gt_font_bold { font-weight: bold; }
- #ysvwheilpv .gt_font_italic { font-style: italic; }
- #ysvwheilpv .gt_super { font-size: 65%; }
- #ysvwheilpv .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ysvwheilpv .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #ysvwheilpv .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ysvwheilpv .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #ysvwheilpv .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #ysvwheilpv .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#lnadmhkkjl p { margin: 0; padding: 0; }
+ #lnadmhkkjl .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #lnadmhkkjl .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #lnadmhkkjl .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #lnadmhkkjl .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #lnadmhkkjl .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #lnadmhkkjl .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #lnadmhkkjl .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #lnadmhkkjl .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #lnadmhkkjl .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #lnadmhkkjl .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #lnadmhkkjl .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #lnadmhkkjl .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #lnadmhkkjl .gt_spanner_row { border-bottom-style: hidden; }
+ #lnadmhkkjl .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #lnadmhkkjl .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #lnadmhkkjl .gt_from_md> :first-child { margin-top: 0; }
+ #lnadmhkkjl .gt_from_md> :last-child { margin-bottom: 0; }
+ #lnadmhkkjl .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #lnadmhkkjl .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #lnadmhkkjl .gt_indent_1 { text-indent: 5px; }
+ #lnadmhkkjl .gt_indent_2 { text-indent: calc(5px * 2); }
+ #lnadmhkkjl .gt_indent_3 { text-indent: calc(5px * 3); }
+ #lnadmhkkjl .gt_indent_4 { text-indent: calc(5px * 4); }
+ #lnadmhkkjl .gt_indent_5 { text-indent: calc(5px * 5); }
+ #lnadmhkkjl .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #lnadmhkkjl .gt_row_group_first td { border-top-width: 2px; }
+ #lnadmhkkjl .gt_row_group_first th { border-top-width: 2px; }
+ #lnadmhkkjl .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #lnadmhkkjl .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #lnadmhkkjl .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #lnadmhkkjl .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #lnadmhkkjl .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #lnadmhkkjl .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #lnadmhkkjl .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #lnadmhkkjl .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #lnadmhkkjl .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #lnadmhkkjl .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #lnadmhkkjl .gt_left { text-align: left; }
+ #lnadmhkkjl .gt_center { text-align: center; }
+ #lnadmhkkjl .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #lnadmhkkjl .gt_font_normal { font-weight: normal; }
+ #lnadmhkkjl .gt_font_bold { font-weight: bold; }
+ #lnadmhkkjl .gt_font_italic { font-style: italic; }
+ #lnadmhkkjl .gt_super { font-size: 65%; }
+ #lnadmhkkjl .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #lnadmhkkjl .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #lnadmhkkjl .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #lnadmhkkjl .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #lnadmhkkjl .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #lnadmhkkjl .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead>
 
   <tr class="gt_heading">
-    <td colspan="3" class="gt_heading gt_title gt_font_normal">The 10 Largest Municipalities in <a href="data.towny.html#great_tables.data.towny" class="gdls-link gdls-code">towny</a></td>
+    <td colspan="3" class="gt_heading gt_title gt_font_normal">The 10 Largest Municipalities in <code>towny</code></td>
   </tr>
   <tr class="gt_heading">
     <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Population values taken from the 2021 census.<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">a</span></td>
@@ -1464,7 +1464,7 @@ The GT object is returned. This is the same object that the method is called on 
     <td class="gt_row gt_right">229,660</td>
   </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="3"><span class="gt_from_md">Data taken from the <a href="data.towny.html#great_tables.data.towny" class="gdls-link gdls-code">towny</a> dataset.</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">a</span> Census results made public on February 9, 2022.</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">b</span> <span class="gt_from_md">Density is in terms of persons per km<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>.</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">c</span> Part of the Greater Toronto Area.</td></tr></tfoot>
+<tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="3"><span class="gt_from_md">Data taken from the <code>towny</code> dataset.</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">a</span> Census results made public on February 9, 2022.</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">b</span> <span class="gt_from_md">Density is in terms of persons per km<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>.</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">c</span> Part of the Greater Toronto Area.</td></tr></tfoot>
 </table>
 
 </div>

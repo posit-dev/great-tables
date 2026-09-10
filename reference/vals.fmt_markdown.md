@@ -11,7 +11,7 @@ vals.fmt_markdown(x)
 ```
 
 
-Any Markdown-formatted text can be transformed to HTML when using the [fmt_markdown()](GT.fmt_markdown.md#great_tables.GT.fmt_markdown) function.
+Any Markdown-formatted text can be transformed to HTML when using the `fmt_markdown()` function.
 
 
 ## Parameters

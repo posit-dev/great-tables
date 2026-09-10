@@ -1964,16 +1964,16 @@ font-style: inherit;">"IBM Plex Sans"</span>))</span>
 
 <p>The development of Great Tables continues! We’re excited to announce the release of <code>v0.18.0</code>, which brings several powerful new features. These features make it even easier to create beautiful, informative tables. The key additions in this release include new methods (and a tweak to an existing one):</p>
 <ul>
-<li><code>~~.GT.tab_spanner_delim()</code>: quick spanner creation</li>
-<li><code>~~.GT.fmt_tf()</code>: easy boolean value formatting</li>
-<li><code>~~.GT.cols_label_rotate()</code>: enables column label rotation</li>
-<li><code>~~.GT.fmt_datetime()</code>: added <code>format_str=</code> parameter for extra customization</li>
+<li><a href="../../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">.tab_spanner_delim()</a>: quick spanner creation</li>
+<li><a href="../../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">.fmt_tf()</a>: easy boolean value formatting</li>
+<li><a href="../../reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate" class="gdls-link gdls-code">.cols_label_rotate()</a>: enables column label rotation</li>
+<li><a href="../../reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime" class="gdls-link gdls-code">.fmt_datetime()</a>: added <code>format_str=</code> parameter for extra customization</li>
 </ul>
 <p>Let’s explore each of these interesting new features!</p>
 <section id="quick-spanner-creation-with-tab_spanner_delim" class="level2">
-<h2 class="anchored" data-anchor-id="quick-spanner-creation-with-tab_spanner_delim">Quick spanner creation with <code>tab_spanner_delim()</code></h2>
-<p>Working with data that has hierarchical column names can be tedious when manually creating spanners. The new <code>~~.GT.tab_spanner_delim()</code> method automates this process by intelligently splitting column names based on a delimiter and creating the appropriate spanner structure.</p>
-<p>Here’s a practical example using the <code>towny</code> dataset, which contains population data for a collection of municipalities across multiple census years. Let’s start by looking at the most populated cities and examining their column structure:</p>
+<h2 class="anchored" data-anchor-id="quick-spanner-creation-with-tab_spanner_delim">Quick spanner creation with <a href="../../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">tab_spanner_delim()</a></h2>
+<p>Working with data that has hierarchical column names can be tedious when manually creating spanners. The new <a href="../../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">.tab_spanner_delim()</a> method automates this process by intelligently splitting column names based on a delimiter and creating the appropriate spanner structure.</p>
+<p>Here’s a practical example using the <a href="../../reference/data.towny.html#great_tables.data.towny" class="gdls-link gdls-code">towny</a> dataset, which contains population data for a collection of municipalities across multiple census years. Let’s start by looking at the most populated cities and examining their column structure:</p>
 <div id="0188f84d" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -2260,11 +2260,11 @@ font-style: inherit;">"left"</span>)</span>
 </div>
 </div>
 </div>
-<p>The <code>~~.GT.tab_spanner_delim()</code> method recognizes the underscore delimiter and creates a hierarchical structure: <code>"population"</code> and <code>"density"</code> become top-level spanners, with the years (<code>1996</code>, <code>2001</code>, <code>2021</code>) as the final column labels. This creates a clean, organized appearance that clearly groups related metrics together. And, this one method can be used instead of a combination of <code>~~.GT.cols_label()</code> and <code>~~.GT.tab_spanner()</code> (which requires a separate invocation per spanner added).</p>
+<p>The <a href="../../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">.tab_spanner_delim()</a> method recognizes the underscore delimiter and creates a hierarchical structure: <code>"population"</code> and <code>"density"</code> become top-level spanners, with the years (<code>1996</code>, <code>2001</code>, <code>2021</code>) as the final column labels. This creates a clean, organized appearance that clearly groups related metrics together. And, this one method can be used instead of a combination of <a href="../../reference/GT.cols_label.html#great_tables.GT.cols_label" class="gdls-link gdls-code">.cols_label()</a> and <a href="../../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">.tab_spanner()</a> (which requires a separate invocation per spanner added).</p>
 </section>
 <section id="beautiful-boolean-formatting-with-fmt_tf" class="level2">
-<h2 class="anchored" data-anchor-id="beautiful-boolean-formatting-with-fmt_tf">Beautiful boolean formatting with <code>fmt_tf()</code></h2>
-<p>Boolean data is common in analytical tables, but raw <code>True</code>/<code>False</code> values can look unprofessional. The new <code>~~.GT.fmt_tf()</code> method provides elegant ways to display boolean data using symbols, words, or custom formatting.</p>
+<h2 class="anchored" data-anchor-id="beautiful-boolean-formatting-with-fmt_tf">Beautiful boolean formatting with <a href="../../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">fmt_tf()</a></h2>
+<p>Boolean data is common in analytical tables, but raw <code>True</code>/<code>False</code> values can look unprofessional. The new <a href="../../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">.fmt_tf()</a> method provides elegant ways to display boolean data using symbols, words, or custom formatting.</p>
 <p>Here’s a simple example showing different <code>tf_style=</code> options:</p>
 <div id="cf201013" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><span class="im" style="color: #00769E;
@@ -2610,12 +2610,12 @@ font-style: inherit;">"Using circles style"</span>)</span>
 </div>
 </div>
 </div>
-<p>The <code>~~.GT.fmt_tf()</code> method transforms boolean values into visually appealing symbols that make it easy to quickly scan and compare data across rows and columns.</p>
+<p>The <a href="../../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">.fmt_tf()</a> method transforms boolean values into visually appealing symbols that make it easy to quickly scan and compare data across rows and columns.</p>
 </section>
 <section id="rotating-column-labels-with-cols_label_rotate" class="level2">
-<h2 class="anchored" data-anchor-id="rotating-column-labels-with-cols_label_rotate">Rotating column labels with <code>cols_label_rotate()</code></h2>
-<p>When dealing with many columns or long column names, horizontal space becomes precious. The <code>~~.GT.cols_label_rotate()</code> method solves this by rotating column labels vertically, allowing for more compact table layouts.</p>
-<p>Here’s an example where we use the <code>gtcars</code> dataset to create a table which communicates a feature matrix:</p>
+<h2 class="anchored" data-anchor-id="rotating-column-labels-with-cols_label_rotate">Rotating column labels with <a href="../../reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate" class="gdls-link gdls-code">cols_label_rotate()</a></h2>
+<p>When dealing with many columns or long column names, horizontal space becomes precious. The <a href="../../reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate" class="gdls-link gdls-code">.cols_label_rotate()</a> method solves this by rotating column labels vertically, allowing for more compact table layouts.</p>
+<p>Here’s an example where we use the <a href="../../reference/data.gtcars.html#great_tables.data.gtcars" class="gdls-link gdls-code">gtcars</a> dataset to create a table which communicates a feature matrix:</p>
 <div id="b60676ad" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -2944,12 +2944,12 @@ font-style: inherit;">=</span>loc.body()</span>
 </div>
 </div>
 </div>
-<p>This example demonstrates how both the <code>~~.GT.fmt_tf()</code> and <code>~~.GT.cols_label_rotate()</code> methods can work well together. The boolean columns use checkmarks (✓/✗) with custom <code>colors=</code>, while the rotated labels save horizontal space in this dense feature matrix. The combination allows you to put more information into a compact and still readable format.</p>
+<p>This example demonstrates how both the <a href="../../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">.fmt_tf()</a> and <a href="../../reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate" class="gdls-link gdls-code">.cols_label_rotate()</a> methods can work well together. The boolean columns use checkmarks (✓/✗) with custom <code>colors=</code>, while the rotated labels save horizontal space in this dense feature matrix. The combination allows you to put more information into a compact and still readable format.</p>
 </section>
 <section id="enhanced-datetime-formatting-with-fmt_datetime" class="level2">
-<h2 class="anchored" data-anchor-id="enhanced-datetime-formatting-with-fmt_datetime">Enhanced datetime formatting with <code>fmt_datetime()</code></h2>
-<p>The <code>~~.GT.fmt_datetime()</code> method now supports custom format strings through the new <code>format_str=</code> parameter, giving you complete control over how datetime values appear in your tables.</p>
-<p>Here’s an example using the included <code>gibraltar</code> weather dataset:</p>
+<h2 class="anchored" data-anchor-id="enhanced-datetime-formatting-with-fmt_datetime">Enhanced datetime formatting with <a href="../../reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime" class="gdls-link gdls-code">fmt_datetime()</a></h2>
+<p>The <a href="../../reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime" class="gdls-link gdls-code">.fmt_datetime()</a> method now supports custom format strings through the new <code>format_str=</code> parameter, giving you complete control over how datetime values appear in your tables.</p>
+<p>Here’s an example using the included <a href="../../reference/data.gibraltar.html#great_tables.data.gibraltar" class="gdls-link gdls-code">gibraltar</a> weather dataset:</p>
 <div id="c43991b3" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -3725,7 +3725,7 @@ font-style: inherit;">=</span> GT(df)</span></code></pre></div>
 </section>
 <section id="the-binding-component-gt.fmt" class="level1">
 <h1>The Binding Component: GT.fmt()</h1>
-<p>Let’s take advantage of the <a href="https://posit-dev.github.io/great-tables/reference/GT.fmt.html#great_tables.GT.fmt"><code>fmt()</code></a> method to apply a plotting function that formats our row values into plots. To see how we might use <code>fmt()</code>, we first need to define a formatting function to apply to each cell in a column. It will take as input the value in the cell, and should return whatever you want in that cell. Before plotting, let’s imagine we wanted to replace the number with a tally of the number of legs:</p>
+<p>Let’s take advantage of the <a href="https://posit-dev.github.io/great-tables/reference/GT.fmt.html#great_tables.GT.fmt"><code>fmt()</code></a> method to apply a plotting function that formats our row values into plots. To see how we might use <a href="../../reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link gdls-code">fmt()</a>, we first need to define a formatting function to apply to each cell in a column. It will take as input the value in the cell, and should return whatever you want in that cell. Before plotting, let’s imagine we wanted to replace the number with a tally of the number of legs:</p>
 <div id="18daa598" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><span class="kw" style="color: #003B4F;
 background-color: null;
@@ -3853,7 +3853,7 @@ font-style: inherit;">"Plot"</span>)</span></code></pre></div>
 </section>
 <section id="a-lightweight-approach-svg.py" class="level1">
 <h1>A Lightweight Approach: Svg.py</h1>
-<p>Now we can apply that same logic to making our plots. Let’s start with the function that will eventually be passed into <code>fmt()</code>:</p>
+<p>Now we can apply that same logic to making our plots. Let’s start with the function that will eventually be passed into <a href="../../reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link gdls-code">fmt()</a>:</p>
 <div id="fdada409" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -3966,7 +3966,7 @@ background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> html</span></code></pre></div>
 </div>
-<p>Here you get to call <code>fmt()</code> to modify the column you want to apply the plotting function to.</p>
+<p>Here you get to call <a href="../../reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link gdls-code">fmt()</a> to modify the column you want to apply the plotting function to.</p>
 <div id="da98aeb0" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1">gt.fmt(fns<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -4219,7 +4219,7 @@ background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> html</span></code></pre></div>
 </div>
-<p>Now that we’ve defined our <code>create_plot_*</code> formatting function, the call to <code>fmt()</code> is identical to the one above.</p>
+<p>Now that we’ve defined our <code>create_plot_*</code> formatting function, the call to <a href="../../reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link gdls-code">fmt()</a> is identical to the one above.</p>
 <div id="ffcd3dac" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1">gt.fmt(fns<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -5054,12 +5054,12 @@ font-style: inherit;">"a"</span>)</span></code></pre></div>
 </section>
 <section id="technical-wiring-work" class="level2">
 <h2 class="anchored" data-anchor-id="technical-wiring-work">Technical wiring work</h2>
-<p>The last hurdle was tweaking the <code>great_tables.GT</code> class to fit the flow of <code>DataFrame.style</code>. For example, here is what creating a <code>GT()</code> object looked like before and after <code>.style</code>:</p>
+<p>The last hurdle was tweaking the <a href="../../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">great_tables.GT</a> class to fit the flow of <code>DataFrame.style</code>. For example, here is what creating a <a href="../../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a> object looked like before and after <code>.style</code>:</p>
 <ul>
 <li>Before: <code>GT(my_data, id="my-table")</code></li>
 <li>After: <code>my_data.style.with_id("my-table")</code></li>
 </ul>
-<p>Notice that before, the <code>GT(id=...)</code> argument could set the html id for a table. However, <code>DataFrame.style</code> is a property that can’t take arguments, so we needed methods like <code>with_id()</code> to set these kinds of options.</p>
+<p>Notice that before, the <code>GT(id=...)</code> argument could set the html id for a table. However, <code>DataFrame.style</code> is a property that can’t take arguments, so we needed methods like <a href="../../reference/GT.with_id.html#great_tables.GT.with_id" class="gdls-link gdls-code">with_id()</a> to set these kinds of options.</p>
 <p>Here’s a full code example, in case you want to see it in action.</p>
 <div id="b8d0b541" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
@@ -5269,7 +5269,7 @@ font-style: inherit;"># create GT object via .style property ----</span></span>
 </div>
 </div>
 <p>The <code>DataFrame.style</code> property is special, in that you don’t pass any parameters to it. The motivation for this in Polars is that it matches the Pandas <code>pandas.DataFrame.style</code> approach, so provides a familiar interface for users coming from that package. It also matches the <code>DataFrame.plot</code> flow of both packages.</p>
-<p>As it turns out, allowing every options settable in the <code>GT()</code> constructor to be set somewhere else was not something anticipated in the design of Great Tables. But after some light architectural wrestling, we introduced <code>.tab_stub()</code>, <code>.with_id()</code>, and <code>.with_locale()</code> to capture arguments you might pass to <code>GT()</code>.</p>
+<p>As it turns out, allowing every options settable in the <a href="../../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a> constructor to be set somewhere else was not something anticipated in the design of Great Tables. But after some light architectural wrestling, we introduced <code>.tab_stub()</code>, <code>.with_id()</code>, and <code>.with_locale()</code> to capture arguments you might pass to <a href="../../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a>.</p>
 </section>
 </section>
 <section id="whats-next" class="level1">
@@ -6260,15 +6260,15 @@ font-style: inherit;">"duckdb"</span>)</span></code></pre></div>
 
 
 
-<p>In Great Tables <code>0.16.0</code>, we introduced the <code>mask=</code> parameter in <code>loc.body()</code>, enabling users to apply conditional styling to rows on a per-column basis more efficiently when working with a Polars DataFrame. This post will demonstrate how it works and compare it with the “old-fashioned” approach:</p>
+<p>In Great Tables <code>0.16.0</code>, we introduced the <code>mask=</code> parameter in <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a>, enabling users to apply conditional styling to rows on a per-column basis more efficiently when working with a Polars DataFrame. This post will demonstrate how it works and compare it with the “old-fashioned” approach:</p>
 <ul>
-<li><strong>Leveraging the <code>mask=</code> parameter in <code>loc.body()</code>:</strong> Use Polars expressions for streamlined styling.</li>
-<li><strong>Utilizing the <code>locations=</code> parameter in <code>GT.tab_style()</code>:</strong> Pass a list of <code>loc.body()</code> objects.</li>
+<li><strong>Leveraging the <code>mask=</code> parameter in <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a>:</strong> Use Polars expressions for streamlined styling.</li>
+<li><strong>Utilizing the <code>locations=</code> parameter in <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">GT.tab_style()</a>:</strong> Pass a list of <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> objects.</li>
 </ul>
 <p>Let’s dive in.</p>
 <section id="preparations" class="level2">
 <h2 class="anchored" data-anchor-id="preparations">Preparations</h2>
-<p>We’ll use the built-in dataset <code>gtcars</code> to create a Polars DataFrame. Next, we’ll select the columns <code>mfr</code>, <code>drivetrain</code>, <code>year</code>, and <code>hp</code> to create a small pivoted table named <code>df_mini</code>. Finally, we’ll pass <code>df_mini</code> to the <code>GT</code> object to create a table named <code>gt</code>, using <code>drivetrain</code> as the <code>rowname_col=</code> and <code>mfr</code> as the <code>groupname_col=</code>, as shown below:</p>
+<p>We’ll use the built-in dataset <a href="../../reference/data.gtcars.html#great_tables.data.gtcars" class="gdls-link gdls-code">gtcars</a> to create a Polars DataFrame. Next, we’ll select the columns <code>mfr</code>, <code>drivetrain</code>, <code>year</code>, and <code>hp</code> to create a small pivoted table named <code>df_mini</code>. Finally, we’ll pass <code>df_mini</code> to the <a href="../../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> object to create a table named <code>gt</code>, using <code>drivetrain</code> as the <code>rowname_col=</code> and <code>mfr</code> as the <code>groupname_col=</code>, as shown below:</p>
 <div id="6a2e2507" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the Code</summary>
@@ -6506,8 +6506,8 @@ font-style: inherit;">"cyan"</span>)</span>
 <p>The numbers in the cells represent the average horsepower for each combination of <code>mfr</code> and <code>drivetrain</code> for a specific year.</p>
 </section>
 <section id="leveraging-the-mask-parameter-in-loc.body" class="level2">
-<h2 class="anchored" data-anchor-id="leveraging-the-mask-parameter-in-loc.body">Leveraging the <code>mask=</code> parameter in <code>loc.body()</code></h2>
-<p>The <code>mask=</code> parameter in <code>loc.body()</code> accepts a Polars expression that evaluates to a boolean result for each cell.</p>
+<h2 class="anchored" data-anchor-id="leveraging-the-mask-parameter-in-loc.body">Leveraging the <code>mask=</code> parameter in <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a></h2>
+<p>The <code>mask=</code> parameter in <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> accepts a Polars expression that evaluates to a boolean result for each cell.</p>
 <p>Here’s how we can use it to achieve the two goals:</p>
 <ul>
 <li>Highlight the cell text in red if the column datatype is numerical and the cell value exceeds 650.</li>
@@ -6712,8 +6712,8 @@ font-style: inherit;">1</span>).is_null()),</span>
 </div>
 </section>
 <section id="utilizing-the-locations-parameter-in-gt.tab_style" class="level2">
-<h2 class="anchored" data-anchor-id="utilizing-the-locations-parameter-in-gt.tab_style">Utilizing the <code>locations=</code> parameter in <code>GT.tab_style()</code></h2>
-<p>A more “old-fashioned” approach involves passing a list of <code>loc.body()</code> objects to the <code>locations=</code> parameter in <code>GT.tab_style()</code>:</p>
+<h2 class="anchored" data-anchor-id="utilizing-the-locations-parameter-in-gt.tab_style">Utilizing the <code>locations=</code> parameter in <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">GT.tab_style()</a></h2>
+<p>A more “old-fashioned” approach involves passing a list of <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> objects to the <code>locations=</code> parameter in <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">GT.tab_style()</a>:</p>
 <div id="6dbf1039" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1">(</span>
 <span id="cb3-2">    gt.tab_style(</span>
@@ -6772,13 +6772,13 @@ font-style: inherit;">2</span>:]],</span>
 <p>This approach, though functional, demands additional effort:</p>
 <ul>
 <li>Explicitly preparing the column names in advance.</li>
-<li>Specifying the <code>columns=</code> and <code>rows=</code> arguments for each <code>loc.body()</code> in the loop.</li>
+<li>Specifying the <code>columns=</code> and <code>rows=</code> arguments for each <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> in the loop.</li>
 </ul>
 <p>While effective, it is less efficient and more verbose compared to the first approach.</p>
 </section>
 <section id="wrapping-up" class="level2">
 <h2 class="anchored" data-anchor-id="wrapping-up">Wrapping up</h2>
-<p>With the introduction of the <code>mask=</code> parameter in <code>loc.body()</code>, users can now style the table body in a more vectorized-like manner, akin to using <code>df.apply()</code> in Pandas, enhancing the overall user experience.</p>
+<p>With the introduction of the <code>mask=</code> parameter in <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a>, users can now style the table body in a more vectorized-like manner, akin to using <code>df.apply()</code> in Pandas, enhancing the overall user experience.</p>
 <p>We extend our gratitude to <a href="https://github.com/igorcalabria"><span class="citation" data-cites="igorcalabria">@igorcalabria</span></a> for suggesting this feature in <a href="https://github.com/posit-dev/great-tables/issues/389">#389</a> and providing an insightful explanation of its utility. A special thanks to <a href="https://github.com/henryharbeck"><span class="citation" data-cites="henryharbeck">@henryharbeck</span></a> for providing the second approach.</p>
 <p>We hope you enjoy this new functionality as much as we do! Have ideas to make Great Tables even better? Share them with us via <a href="https://github.com/posit-dev/great-tables/issues">GitHub Issues</a>. We’re always amazed by the creativity of our users! See you, until the next great table.</p>
 
@@ -6800,15 +6800,15 @@ font-style: inherit;">2</span>:]],</span>
 
 <p>The development of Great Tables is really moving along these days. We just released version <code>0.15.0</code> and it adds quite a few nice things to the package. The features we’ll highlight in this post are:</p>
 <ul>
-<li>adding flag icons with the new <code>fmt_flag()</code> method</li>
-<li>peppering your table cells with Font Awesome icons via <code>fmt_icon()</code></li>
+<li>adding flag icons with the new <a href="../../reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a> method</li>
+<li>peppering your table cells with Font Awesome icons via <a href="../../reference/GT.fmt_icon.html#great_tables.GT.fmt_icon" class="gdls-link gdls-code">fmt_icon()</a></li>
 <li>support for displaying accounting notation with four number-based formatting methods</li>
 </ul>
 <p>Let’s look at each of these in turn!</p>
 <section id="using-fmt_flag-to-incorporate-country-flag-icons" class="level2">
-<h2 class="anchored" data-anchor-id="using-fmt_flag-to-incorporate-country-flag-icons">Using <code>fmt_flag()</code> to incorporate country flag icons</h2>
-<p>When tables contain country-level data, having a more visual representation for a country can help the reader more quickly parse the table contents. The new <code>fmt_flag()</code> method makes this easy to accomplish. You just need to have either <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">two-letter country codes</a> or <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3">three-letter country codes</a> in a column.</p>
-<p>Here’s an example where country flags, shown as simplified circular icons, can be added to a table with <code>fmt_flag()</code>:</p>
+<h2 class="anchored" data-anchor-id="using-fmt_flag-to-incorporate-country-flag-icons">Using <a href="../../reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a> to incorporate country flag icons</h2>
+<p>When tables contain country-level data, having a more visual representation for a country can help the reader more quickly parse the table contents. The new <a href="../../reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a> method makes this easy to accomplish. You just need to have either <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">two-letter country codes</a> or <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3">three-letter country codes</a> in a column.</p>
+<p>Here’s an example where country flags, shown as simplified circular icons, can be added to a table with <a href="../../reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a>:</p>
 <div id="ad189da3" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -7053,8 +7053,8 @@ font-style: inherit;">"Zip/Postcode"</span>,</span>
 </div>
 </div>
 </div>
-<p>This slice of the <code>peeps</code> dataset has country codes in their 3-letter form (i.e., <code>"USA"</code>, <code>"SVN"</code>, and <code>"CAN"</code>) within the <code>country</code> column. So long as they are correct, <code>fmt_flag()</code> will perform the conversion to flag icons. Also, there’s a little bit of interactivity here: when hovering over a flag, the country name will appear as a tooltip!</p>
-<p>We have the power to display multiple flag icons within a single cell. To make this happen, the country codes need to be combined in a single string where each code is separated by a comma (e.g., <code>"US,DE,GB"</code>). Here’s an example that uses a portion of the <code>films</code> dataset:</p>
+<p>This slice of the <a href="../../reference/data.peeps.html#great_tables.data.peeps" class="gdls-link gdls-code">peeps</a> dataset has country codes in their 3-letter form (i.e., <code>"USA"</code>, <code>"SVN"</code>, and <code>"CAN"</code>) within the <code>country</code> column. So long as they are correct, <a href="../../reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a> will perform the conversion to flag icons. Also, there’s a little bit of interactivity here: when hovering over a flag, the country name will appear as a tooltip!</p>
+<p>We have the power to display multiple flag icons within a single cell. To make this happen, the country codes need to be combined in a single string where each code is separated by a comma (e.g., <code>"US,DE,GB"</code>). Here’s an example that uses a portion of the <a href="../../reference/data.films.html#great_tables.data.films" class="gdls-link gdls-code">films</a> dataset:</p>
 <div id="c841adf1" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -7251,11 +7251,11 @@ font-style: inherit;">"PT Sans"</span>))</span>
 </div>
 </div>
 </div>
-<p>The column <code>countries_of_origin</code> has these combined strings for each of the co-production films, where countries are arranged by decreasing level of contribution (e.g., <code>"FR,AT,RO,DE"</code> in the second row). The <code>fmt_flag()</code> method parses these strings into a sequence of flag icons that are displayed in the order provided. Each of the flags is separated by a space character but you can always change that default separator with the <code>sep=</code> argument.</p>
+<p>The column <code>countries_of_origin</code> has these combined strings for each of the co-production films, where countries are arranged by decreasing level of contribution (e.g., <code>"FR,AT,RO,DE"</code> in the second row). The <a href="../../reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a> method parses these strings into a sequence of flag icons that are displayed in the order provided. Each of the flags is separated by a space character but you can always change that default separator with the <code>sep=</code> argument.</p>
 </section>
 <section id="using-fmt_icon-to-include-font-awesome-icons" class="level2">
-<h2 class="anchored" data-anchor-id="using-fmt_icon-to-include-font-awesome-icons">Using <code>fmt_icon()</code> to include Font Awesome icons</h2>
-<p>The new <code>fmt_icon()</code> method gives you the ability to easily include Font Awesome icons in a table. It uses a similar input/output scheme as with <code>fmt_flag()</code>: provide the <em>short</em> icon name (e.g., <code>"table"</code>, <code>"music"</code>, <code>"globe"</code>, etc.) or a comma-separated list of them, and <code>fmt_icon()</code> will provide the Font Awesome icon in place. Let’s see it in action with an example that uses the <code>metro</code> dataset:</p>
+<h2 class="anchored" data-anchor-id="using-fmt_icon-to-include-font-awesome-icons">Using <a href="../../reference/GT.fmt_icon.html#great_tables.GT.fmt_icon" class="gdls-link gdls-code">fmt_icon()</a> to include Font Awesome icons</h2>
+<p>The new <a href="../../reference/GT.fmt_icon.html#great_tables.GT.fmt_icon" class="gdls-link gdls-code">fmt_icon()</a> method gives you the ability to easily include Font Awesome icons in a table. It uses a similar input/output scheme as with <a href="../../reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a>: provide the <em>short</em> icon name (e.g., <code>"table"</code>, <code>"music"</code>, <code>"globe"</code>, etc.) or a comma-separated list of them, and <a href="../../reference/GT.fmt_icon.html#great_tables.GT.fmt_icon" class="gdls-link gdls-code">fmt_icon()</a> will provide the Font Awesome icon in place. Let’s see it in action with an example that uses the <a href="../../reference/data.metro.html#great_tables.data.metro" class="gdls-link gdls-code">metro</a> dataset:</p>
 <div id="04d25f24" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -7806,7 +7806,7 @@ font-style: inherit;">"percent"</span></span>
 <ul>
 <li>enhancing the <code>fmt_image()</code> to support <code>http</code>/<code>https</code> schema in the <code>columns=</code> parameter, and writing an <a href="https://posit-dev.github.io/great-tables/blog/rendering-images/">incredible blog post</a> about incorporating images in your tables</li>
 <li>improving the <code>save()</code> method, giving it the ability to perform intermediate saves (since the method returns itself)</li>
-<li>adding the <code>pipe()</code> method, which operates similarly to that of the Pandas and Polars APIs</li>
+<li>adding the <a href="../../reference/GT.pipe.html#great_tables.GT.pipe" class="gdls-link gdls-code">pipe()</a> method, which operates similarly to that of the Pandas and Polars APIs</li>
 <li>all sorts of little QoL fixes</li>
 </ul>
 <p>We extend our gratitude also to <a href="https://github.com/amol-">Alessandro Molina</a> for adding experimental support for <code>pyarrow.Table</code> inputs in this release.</p>
@@ -7860,7 +7860,7 @@ font-style: inherit;">"percent"</span></span>
 <p>It gives me the opportunity to show off a lot of interesting, transit related tables!</p>
 <section id="great-tables-data-paris-metro-lines" class="level2">
 <h2 class="anchored" data-anchor-id="great-tables-data-paris-metro-lines">Great Tables data: Paris metro lines</h2>
-<p>If you’ve seen the Great Tables documentation for <a href="`great_tables.GT.fmt_image`"><code>GT.fmt_image()</code></a>, then you’ve basked in this beautiful example from our Paris <a href="`~great_tables.data.metro`"></a> dataset.</p>
+<p>If you’ve seen the Great Tables documentation for <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link"><code>GT.fmt_image()</code></a>, then you’ve basked in this beautiful example from our Paris <a href="../../reference/data.metro.html#great_tables.data.metro" class="gdls-link gdls-code">metro</a> dataset.</p>
 <div id="c8e55a0a" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
@@ -8115,11 +8115,11 @@ font-style: inherit;">"passengers"</span>)</span>
 
 
 
-<p>Rendering images in Great Tables is straightforward with <code>GT.fmt_image()</code> and <code>vals.fmt_image()</code>. In this post, we’ll explore three key topics:</p>
+<p>Rendering images in Great Tables is straightforward with <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a> and <a href="../../reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">vals.fmt_image()</a>. In this post, we’ll explore three key topics:</p>
 <ul>
-<li>Four examples demonstrating how to render images within the body using <code>GT.fmt_image()</code>.</li>
-<li>How to render images anywhere using <code>vals.fmt_image()</code> and <code>html()</code>.</li>
-<li>How to manually render images anywhere using <code>html()</code>.</li>
+<li>Four examples demonstrating how to render images within the body using <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a>.</li>
+<li>How to render images anywhere using <a href="../../reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">vals.fmt_image()</a> and <a href="../../reference/html.html#great_tables.html" class="gdls-link gdls-code">html()</a>.</li>
+<li>How to manually render images anywhere using <a href="../../reference/html.html#great_tables.html" class="gdls-link gdls-code">html()</a>.</li>
 </ul>
 <section id="rendering-images-in-the-body" class="level1">
 <h1>Rendering Images in the Body</h1>
@@ -8272,7 +8272,7 @@ font-style: inherit;">"""</span>)</span></code></pre></div>
 }</code></pre>
 </div>
 </div>
-<p>Attentive readers may have noticed that the values for the key <code>lines</code> are lists of strings, each containing one or more numbers separated by commas. <code>GT.fmt_image()</code> is specifically designed to handle such cases, allowing users to render multiple images in a single row.</p>
+<p>Attentive readers may have noticed that the values for the key <code>lines</code> are lists of strings, each containing one or more numbers separated by commas. <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a> is specifically designed to handle such cases, allowing users to render multiple images in a single row.</p>
 </section>
 <section id="case-1-local-file-paths" class="level2">
 <h2 class="anchored" data-anchor-id="case-1-local-file-paths">Case 1: Local File Paths</h2>
@@ -8430,7 +8430,7 @@ font-style: inherit;"># True</span></span></code></pre></div>
 </div>
 </div>
 <p>The <code>case1</code> column is quite lengthy due to the inclusion of <code>img_local_paths</code>. In <strong>Case 3</strong>, we’ll share a useful trick to avoid repeating the directory name each time—stay tuned!</p>
-<p>For now, let’s use <code>GT.fmt_image()</code> to render images by passing <code>"case1"</code> as the first argument:</p>
+<p>For now, let’s use <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a> to render images by passing <code>"case1"</code> as the first argument:</p>
 <div id="a8a8808b" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1">GT(metro_mini1).fmt_image(<span class="st" style="color: #20794D;
 background-color: null;
@@ -8662,7 +8662,7 @@ font-style: inherit;">"lines"</span>]</span>
 </div>
 </div>
 <p>The lengthy <code>case2</code> column issue can also be addressed using the trick shared in <strong>Case 3</strong>.</p>
-<p>Similarly, we can use <code>GT.fmt_image()</code> to render images by passing <code>"case2"</code> as the first argument:</p>
+<p>Similarly, we can use <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a> to render images by passing <code>"case2"</code> as the first argument:</p>
 <div id="5eaca417" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1">GT(metro_mini2).fmt_image(<span class="st" style="color: #20794D;
 background-color: null;
@@ -8879,7 +8879,7 @@ font-style: inherit;">"lines"</span>]</span>
 </div>
 </div>
 </div>
-<p>Now we can use <code>GT.fmt_image()</code> to render the images by passing <code>"case3"</code> as the first argument and specifying either <code>img_local_paths</code> or <code>img_url_paths</code> as the <code>path=</code> argument:</p>
+<p>Now we can use <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a> to render the images by passing <code>"case3"</code> as the first argument and specifying either <code>img_local_paths</code> or <code>img_url_paths</code> as the <code>path=</code> argument:</p>
 <div id="81296270" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -9108,7 +9108,7 @@ font-style: inherit;">{}</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">.svg"</span></span></code></pre></div>
 </div>
-<p>Next, pass <code>"case4"</code> as the first argument, along with <code>img_local_paths</code> or <code>img_url_paths</code> as the <code>path=</code> argument, and <code>file_pattern</code> as the <code>file_pattern=</code> argument. This allows <code>GT.fmt_image()</code> to render the images:</p>
+<p>Next, pass <code>"case4"</code> as the first argument, along with <code>img_local_paths</code> or <code>img_url_paths</code> as the <code>path=</code> argument, and <code>file_pattern</code> as the <code>file_pattern=</code> argument. This allows <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a> to render the images:</p>
 <div id="b06b1fdd" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -9419,8 +9419,8 @@ font-style: inherit;">"case4"</span>)</span>
 </section>
 <section id="rendering-images-anywhere" class="level1">
 <h1>Rendering Images Anywhere</h1>
-<p>While <code>GT.fmt_image()</code> is primarily designed for rendering images in the table body, what if you need to display images in other locations, such as the header? In such cases, you can turn to the versatile <a href="https://posit-dev.github.io/great-tables/reference/vals.fmt_image.html#great_tables.vals.fmt_image">vals.fmt_image()</a>.</p>
-<p><code>vals.fmt_image()</code> is a hidden gem in Great Tables. Its usage is similar to <code>GT.fmt_image()</code>, but instead of working directly with DataFrame columns, it lets you pass a string or a list of strings as the first argument, returning a list of strings, each representing an image. You can then wrap these strings with <a href="https://posit-dev.github.io/great-tables/reference/html.html#great_tables.html">html()</a>, allowing Great Tables to render the images anywhere in the table.</p>
+<p>While <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a> is primarily designed for rendering images in the table body, what if you need to display images in other locations, such as the header? In such cases, you can turn to the versatile <a href="https://posit-dev.github.io/great-tables/reference/vals.fmt_image.html#great_tables.vals.fmt_image">vals.fmt_image()</a>.</p>
+<p><a href="../../reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">vals.fmt_image()</a> is a hidden gem in Great Tables. Its usage is similar to <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a>, but instead of working directly with DataFrame columns, it lets you pass a string or a list of strings as the first argument, returning a list of strings, each representing an image. You can then wrap these strings with <a href="https://posit-dev.github.io/great-tables/reference/html.html#great_tables.html">html()</a>, allowing Great Tables to render the images anywhere in the table.</p>
 <section id="preparations-1" class="level2">
 <h2 class="anchored" data-anchor-id="preparations-1">Preparations</h2>
 <p>We will create a <code>Pandas</code> DataFrame named <code>metro_mini</code> using the <code>data</code> dictionary. This will be used for demonstration in the following examples:</p>
@@ -9539,7 +9539,7 @@ font-style: inherit;">"gray"</span>)</span>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-14" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-14" data-code-lines="3" data-code-annotation="1"><code>vals.fmt_image()</code> returns a list of strings. Here, we use tuple unpacking to extract the first item from the list.</span>
+<span data-code-cell="annotated-cell-14" data-code-lines="3" data-code-annotation="1"><a href="../../reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">vals.fmt_image()</a> returns a list of strings. Here, we use tuple unpacking to extract the first item from the list.</span>
 </dd>
 </dl>
 </div>
@@ -9714,7 +9714,7 @@ font-style: inherit;">"gray"</span>)</span>
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-15" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-15" data-code-lines="4" data-code-annotation="1">Note that if you need to render images with different <code>height</code> or <code>width</code>, you might need to make two separate calls to <code>vals.fmt_image()</code>.</span>
+<span data-code-cell="annotated-cell-15" data-code-lines="4" data-code-annotation="1">Note that if you need to render images with different <code>height</code> or <code>width</code>, you might need to make two separate calls to <a href="../../reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">vals.fmt_image()</a>.</span>
 </dd>
 </dl>
 </div>
@@ -9828,7 +9828,7 @@ font-style: inherit;">"gray"</span>)</span>
 </section>
 <section id="manually-rendering-images-anywhere" class="level1">
 <h1>Manually Rendering Images Anywhere</h1>
-<p>Remember, you can always use <code>html()</code> to manually construct your desired output. For example, the previous table can be created without relying on <code>vals.fmt_image()</code> like this:</p>
+<p>Remember, you can always use <a href="../../reference/html.html#great_tables.html" class="gdls-link gdls-code">html()</a> to manually construct your desired output. For example, the previous table can be created without relying on <a href="../../reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">vals.fmt_image()</a> like this:</p>
 <div id="e509fce4" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1">(</span>
 <span id="cb16-2">    GT(metro_mini)</span>
@@ -9889,7 +9889,7 @@ background-color: null;
 font-style: inherit;">"gray"</span>)</span>
 <span id="cb16-10">)</span></code></pre></div>
 </div>
-<p>Alternatively, you can manually encode the image using Python’s built-in <a href="https://docs.python.org/3/library/base64.html">base64</a> module, specify the appropriate MIME type and HTML attributes, and then wrap it in <code>html()</code> to display the table.</p>
+<p>Alternatively, you can manually encode the image using Python’s built-in <a href="https://docs.python.org/3/library/base64.html">base64</a> module, specify the appropriate MIME type and HTML attributes, and then wrap it in <a href="../../reference/html.html#great_tables.html" class="gdls-link gdls-code">html()</a> to display the table.</p>
 </section>
 <section id="final-words" class="level1">
 <h1>Final Words</h1>
@@ -9925,7 +9925,7 @@ font-style: inherit;">"gray"</span>)</span>
 
 
 
-<p>We’ve been doing quite a bit of work on getting <strong>Great Tables</strong> to produce LaTeX table code and <code>v0.14.0</code> introduces the <code>as_latex()</code> method to make this possible. For those publishing workflows involving LaTeX documents, it’s useful to have a reproducible solution for generating data tables as native LaTeX tables.</p>
+<p>We’ve been doing quite a bit of work on getting <strong>Great Tables</strong> to produce LaTeX table code and <code>v0.14.0</code> introduces the <a href="../../reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">as_latex()</a> method to make this possible. For those publishing workflows involving LaTeX documents, it’s useful to have a reproducible solution for generating data tables as native LaTeX tables.</p>
 <p>In this post, we will go over the following:</p>
 <ul>
 <li>generating LaTeX table code: how we handle the different parts of a table</li>
@@ -9934,7 +9934,7 @@ font-style: inherit;">"gray"</span>)</span>
 </ul>
 <section id="generating-a-latex-table-with-great-tables" class="level1">
 <h1>Generating a LaTeX table with Great Tables</h1>
-<p>We can use the <code>GT.as_latex()</code> method to generate LaTeX table code. This code includes important structural pieces like titles, spanners, and value formatting. For example, here’s a simple table output as LaTeX code:</p>
+<p>We can use the <a href="../../reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">GT.as_latex()</a> method to generate LaTeX table code. This code includes important structural pieces like titles, spanners, and value formatting. For example, here’s a simple table output as LaTeX code:</p>
 <div id="a7cb03fe" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the Code</summary>
@@ -10312,7 +10312,7 @@ font-style: inherit;">```</span></span></code></pre></div>
 <ol type="1">
 <li>set <code>"format: pdf"</code> in YAML header</li>
 <li>set <code>"output: asis"</code> in the code cell that’s outputting LaTeX table code</li>
-<li>use the <code>as_latex()</code> method on a GT object and <code>print()</code> the text</li>
+<li>use the <a href="../../reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">as_latex()</a> method on a GT object and <code>print()</code> the text</li>
 </ol>
 <p>The example above used a very simple table, but here’s the table from the previous example rendered to PDF in Quarto:</p>
 <details>
@@ -10497,7 +10497,7 @@ font-style: inherit;">```</span></span></code></pre></div>
 </section>
 <section id="current-limitations-of-latex-table-output" class="level1">
 <h1>Current limitations of LaTeX table output</h1>
-<p>The <code>as_latex()</code> method is still experimental and has some limitations. The following table lists the work epics that have been done and those planned:</p>
+<p>The <a href="../../reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">as_latex()</a> method is still experimental and has some limitations. The following table lists the work epics that have been done and those planned:</p>
 <div id="c9654e30" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div id="nyqamuvkcw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -10616,10 +10616,10 @@ font-style: inherit;">```</span></span></code></pre></div>
 </div>
 </div>
 </div>
-<p>Some of these TODOs are short-term, notably the ones dealing with the use of the table stub and row groups. We plan to address this soon but having those structural components in a table currently will raise an error when using <code>as_latex()</code>.</p>
+<p>Some of these TODOs are short-term, notably the ones dealing with the use of the table stub and row groups. We plan to address this soon but having those structural components in a table currently will raise an error when using <a href="../../reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">as_latex()</a>.</p>
 <p>We don’t yet see an obvious solution for Markdown-to-LaTeX conversion. We depend on the <code>commonmark</code> library to perform Markdown-to-HTML transformation but the library doesn’t support LaTeX output.</p>
-<p>Styling a LaTeX table is currently not possible. Having a <code>tab_style()</code> statement in your GT code and subsequently using <code>as_latex()</code> won’t raise an error, but it will warn and essentially no-op. Many of the options available in <code>tab_options()</code> are those that perform styling</p>
-<p>As development continues, we will work to expand the capabilities of the <code>as_latex()</code> method to reduce these limitations and more clearly document what is and is not supported.</p>
+<p>Styling a LaTeX table is currently not possible. Having a <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> statement in your GT code and subsequently using <a href="../../reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">as_latex()</a> won’t raise an error, but it will warn and essentially no-op. Many of the options available in <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> are those that perform styling</p>
+<p>As development continues, we will work to expand the capabilities of the <a href="../../reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">as_latex()</a> method to reduce these limitations and more clearly document what is and is not supported.</p>
 </section>
 <section id="lets-latex" class="level1">
 <h1>Let’s LaTeX!</h1>
@@ -10644,8 +10644,8 @@ font-style: inherit;">```</span></span></code></pre></div>
 
 <p>We did something in Great Tables (<code>0.13.0</code>) that’ll make your tables that much more customizable: super <em>fine-grained</em> ways of setting styles throughout the table. Before you were largely constrained to styling through the following strategies:</p>
 <ol type="1">
-<li>use a limited set of styles (e.g., background color, font weight, etc.) to different table locations like the stub, the column labels, etc., through <code>tab_options()</code></li>
-<li>use <code>tab_style()</code> with a larger set of styling options for the table body cells (specified by <code>loc.body()</code>)</li>
+<li>use a limited set of styles (e.g., background color, font weight, etc.) to different table locations like the stub, the column labels, etc., through <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a></li>
+<li>use <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> with a larger set of styling options for the table body cells (specified by <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a>)</li>
 </ol>
 <p>In <code>v0.13.0</code>, we can target much more than just the table body! Here is the expanded set of <code>loc.*()</code> methods along with the locations that they can target.</p>
 <p><img src="https://posit-dev.github.io/great-tables/blog/introduction-0.13.0/GT-locations-map.png" class="img-fluid"></p>
@@ -10653,7 +10653,7 @@ font-style: inherit;">```</span></span></code></pre></div>
 <p>Let’s make a table and see how this new feature could be used.</p>
 <section id="starting-things-off-with-a-big-gt-table" class="level2">
 <h2 class="anchored" data-anchor-id="starting-things-off-with-a-big-gt-table">Starting things off with a big GT table</h2>
-<p>The table we’ll make uses the <code>nuclides</code> dataset (available in the <code>great_tables.data</code> module). Through use of the <code>tab_*()</code> methods, quite a few table components (hence <em>locations</em>) will be added. We have hidden the code here because it is quite lengthy but you’re encouraged to check it out to glean some interesting GT tricks.</p>
+<p>The table we’ll make uses the <a href="../../reference/data.nuclides.html#great_tables.data.nuclides" class="gdls-link gdls-code">nuclides</a> dataset (available in the <code>great_tables.data</code> module). Through use of the <code>tab_*()</code> methods, quite a few table components (hence <em>locations</em>) will be added. We have hidden the code here because it is quite lengthy but you’re encouraged to check it out to glean some interesting GT tricks.</p>
 <div id="300f1f76" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -11118,19 +11118,19 @@ font-style: inherit;">2</span>)</span>
 </div>
 </div>
 </div>
-<p>This table will serve as a great starting point for demonstrating all the things you can now do with <code>tab_style()</code>. And the following checklist will serve as a rough plan for how we will style the table:</p>
+<p>This table will serve as a great starting point for demonstrating all the things you can now do with <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a>. And the following checklist will serve as a rough plan for how we will style the table:</p>
 <ul>
-<li>use <code>loc.body()</code> to emphasize isotope half-life values</li>
-<li>employ <code>loc.stub()</code> to draw attention to isotope names (and also point out the ‘STABLE’ rows)</li>
-<li>use <code>style.css()</code> for creating custom CSS styles (e.g., to indent row labels for stable isotopes)</li>
+<li>use <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> to emphasize isotope half-life values</li>
+<li>employ <a href="../../reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub()</a> to draw attention to isotope names (and also point out the ‘STABLE’ rows)</li>
+<li>use <a href="../../reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css()</a> for creating custom CSS styles (e.g., to indent row labels for stable isotopes)</li>
 <li>work with composite locations and style the whole header and footer quite simply</li>
-<li>set the default table body fill with <code>tab_options()</code></li>
+<li>set the default table body fill with <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a></li>
 </ul>
-<p>Really this’ll be <code>tab_style()</code> like you’ve never seen it before, so let’s get on with it.</p>
+<p>Really this’ll be <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> like you’ve never seen it before, so let’s get on with it.</p>
 </section>
 <section id="styling-the-body" class="level2">
 <h2 class="anchored" data-anchor-id="styling-the-body">Styling the body</h2>
-<p>First, we’ll use <code>loc.body()</code> to emphasize half life values in two ways:</p>
+<p>First, we’ll use <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> to emphasize half life values in two ways:</p>
 <ul>
 <li>Make the values in the <code>atomic_mass</code> and <code>half_life</code> use a monospace font.</li>
 <li>fill the background of isotopes with STABLE half lives to be PaleTurquoise.</li>
@@ -11414,7 +11414,7 @@ font-style: inherit;">"half_life"</span>).is_not_null())</span>
 <p>Note these important pieces in the code:</p>
 <ul>
 <li>setting monospace font: we used <a href="../../reference/google_font.html"><code>google_font()</code></a> (added in the previous release) to apply the monospaced font IBM Plex Mono.</li>
-<li>filling unstable half lives to turquoise: because the half life cells with the value STABLE are actually missing in the underlying data, and filled in using <code>GT.sub_missing()</code>, we used the polars expression <code>pl.col("half_life").is_not_null()</code> to target everything that isn’t STABLE.</li>
+<li>filling unstable half lives to turquoise: because the half life cells with the value STABLE are actually missing in the underlying data, and filled in using <a href="../../reference/GT.sub_missing.html#great_tables.GT.sub_missing" class="gdls-link gdls-code">GT.sub_missing()</a>, we used the polars expression <code>pl.col("half_life").is_not_null()</code> to target everything that isn’t STABLE.</li>
 </ul>
 <p>This is mainly a reminder that Polars expressions are quite something. And targeting cells in the body with <code>loc.body(rows=...)</code> can be powerful by extension.</p>
 </section>
@@ -11697,13 +11697,13 @@ font-style: inherit;">"half_life"</span>).is_null())</span>
 </div>
 </div>
 <p>For task #1, a simple <code>.tab_style(..., locations=loc.stub())</code> targeted the entire stub.</p>
-<p>Task #2 is more interesting. Like <code>loc.body()</code>, <code>loc.stub()</code> has a <code>rows=</code> argument that can target specific rows with Polars expressions. We used the same Polars expression as in the previous section to target those rows that belong to the stable isotopes.</p>
+<p>Task #2 is more interesting. Like <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a>, <a href="../../reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub()</a> has a <code>rows=</code> argument that can target specific rows with Polars expressions. We used the same Polars expression as in the previous section to target those rows that belong to the stable isotopes.</p>
 <p>We’ve dressed up the stub so that it is that much more prominent. And that linen-colored stub goes so well with the light-cyan rows, representative of carbon-12 and carbon-13!</p>
 </section>
 <section id="using-custom-style-rules-with-the-new-style.css" class="level2">
-<h2 class="anchored" data-anchor-id="using-custom-style-rules-with-the-new-style.css">Using custom style rules with the new <code>style.css()</code></h2>
-<p>Aside from decking out the <code>loc</code> module with all manner of location methods, we’ve added a little something to the <code>style</code> module: <code>style.css()</code>! What’s it for? It lets you supply style declarations to its single <code>rule=</code> argument.</p>
-<p>As an example, I might want to indent some text in one or more table cells. You can’t really do that with the <code>style.text()</code> method since it doesn’t have an <code>indent=</code> argument. So, in Great Tables <code>0.13.0</code> you can manually indent the row label text for the ‘STABLE’ rows using a CSS style rule:</p>
+<h2 class="anchored" data-anchor-id="using-custom-style-rules-with-the-new-style.css">Using custom style rules with the new <a href="../../reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css()</a></h2>
+<p>Aside from decking out the <code>loc</code> module with all manner of location methods, we’ve added a little something to the <code>style</code> module: <a href="../../reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css()</a>! What’s it for? It lets you supply style declarations to its single <code>rule=</code> argument.</p>
+<p>As an example, I might want to indent some text in one or more table cells. You can’t really do that with the <a href="../../reference/style.text.html#great_tables.style.text" class="gdls-link gdls-code">style.text()</a> method since it doesn’t have an <code>indent=</code> argument. So, in Great Tables <code>0.13.0</code> you can manually indent the row label text for the ‘STABLE’ rows using a CSS style rule:</p>
 <div id="b1372b81" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1">gt_tbl <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -11955,7 +11955,7 @@ font-style: inherit;">"half_life"</span>).is_null())</span>
 <p>We targeted the cells in the stub that corresponded to the stable isotopes (carbon-12 and -13) with a Polars expression (same one as in the previous code cell) and now we have a 4px indentation of the ‘C-12’ and ‘C-13’ text! This new bonus functionality really allows almost any type of styling possible, provided you have those CSS skillz.</p>
 </section>
 <section id="the-combined-location-helpers-loc.column_header-and-loc.footer" class="level2">
-<h2 class="anchored" data-anchor-id="the-combined-location-helpers-loc.column_header-and-loc.footer">The <em>combined</em> location helpers: <code>loc.column_header()</code> and <code>loc.footer()</code></h2>
+<h2 class="anchored" data-anchor-id="the-combined-location-helpers-loc.column_header-and-loc.footer">The <em>combined</em> location helpers: <a href="../../reference/loc.column_header.html#great_tables.loc.column_header" class="gdls-link gdls-code">loc.column_header()</a> and <a href="../../reference/loc.footer.html#great_tables.loc.footer" class="gdls-link gdls-code">loc.footer()</a></h2>
 <p>Look, I know we brought up the expression <em>fine-grained</em> before—right in the first paragraph—but sometimes you need just the opposite. There are lots of little locations in a GT table and some make for logical groupings. To that end, we have the concept of <em>combined</em> location helpers.</p>
 <p>Let’s set a grey background fill on the stubhead, column header, and footer:</p>
 <div id="f4aa06e3" class="cell" data-execution_count="5">
@@ -12206,12 +12206,12 @@ font-style: inherit;">=</span>[loc.stubhead(), loc.column_header(), loc.footer()
 </div>
 </div>
 </div>
-<p>The <a href="../../reference/loc.column_header.html"><code>loc.column_header()</code></a> location always targets both <code>loc.column_labels()</code> and <code>loc.spanner_labels()</code>.</p>
-<p>A good strategy for your tables would be to style with combined location helpers first and then drill into the specific cells of those super locations with more fine-grained styles in a later <code>tab_style()</code> call.</p>
+<p>The <a href="../../reference/loc.column_header.html"><code>loc.column_header()</code></a> location always targets both <a href="../../reference/loc.column_labels.html#great_tables.loc.column_labels" class="gdls-link gdls-code">loc.column_labels()</a> and <a href="../../reference/loc.spanner_labels.html#great_tables.loc.spanner_labels" class="gdls-link gdls-code">loc.spanner_labels()</a>.</p>
+<p>A good strategy for your tables would be to style with combined location helpers first and then drill into the specific cells of those super locations with more fine-grained styles in a later <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> call.</p>
 </section>
 <section id="styling-the-title-and-the-subtitle" class="level2">
 <h2 class="anchored" data-anchor-id="styling-the-title-and-the-subtitle">Styling the title and the subtitle</h2>
-<p>Although it really doesn’t appear to have separate locations, the table header (produced by way of <code>tab_header()</code>) can have two of them: the title and the subtitle (the latter is optional). These can be targeted via <code>loc.title()</code> and <code>loc.subtitle()</code>. Let’s focus in on the title location and set an aliceblue background fill on the title, along with some font and border adjustments.</p>
+<p>Although it really doesn’t appear to have separate locations, the table header (produced by way of <a href="../../reference/GT.tab_header.html#great_tables.GT.tab_header" class="gdls-link gdls-code">tab_header()</a>) can have two of them: the title and the subtitle (the latter is optional). These can be targeted via <a href="../../reference/loc.title.html#great_tables.loc.title" class="gdls-link gdls-code">loc.title()</a> and <a href="../../reference/loc.subtitle.html#great_tables.loc.subtitle" class="gdls-link gdls-code">loc.subtitle()</a>. Let’s focus in on the title location and set an aliceblue background fill on the title, along with some font and border adjustments.</p>
 <div id="76cb6796" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1">gt_tbl <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -12477,7 +12477,7 @@ font-style: inherit;">=</span>loc.title()</span>
 </div>
 </div>
 <p>Looks good. Notice that the title location is separate from the subtitle one, the background fill reveals the extent of its area.</p>
-<p>A subtitle is an optional part of the header. We do have one in our table example, so let’s style that as well. The <code>style.css()</code> method will be used to give the subtitle text some additional top and bottom padding, and, we’ll put in a fancy background involving a linear gradient.</p>
+<p>A subtitle is an optional part of the header. We do have one in our table example, so let’s style that as well. The <a href="../../reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css()</a> method will be used to give the subtitle text some additional top and bottom padding, and, we’ll put in a fancy background involving a linear gradient.</p>
 <div id="3a7b8b10" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1">gt_tbl <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -12729,8 +12729,8 @@ font-style: inherit;">=</span>loc.subtitle()</span>
 </div>
 </div>
 </div>
-<p>None of what was done above could be done prior to <code>v0.13.0</code>. The <code>style.css()</code> method makes this all possible.</p>
-<p>The combined location helper for the title and the subtitle locations is <code>loc.header()</code>. As mentioned before, it can be used as a shorthand for <code>locations=[loc.title(), loc_subtitle()]</code> and it’s useful here where we want to change the font for the title and subtitle text.</p>
+<p>None of what was done above could be done prior to <code>v0.13.0</code>. The <a href="../../reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css()</a> method makes this all possible.</p>
+<p>The combined location helper for the title and the subtitle locations is <a href="../../reference/loc.header.html#great_tables.loc.header" class="gdls-link gdls-code">loc.header()</a>. As mentioned before, it can be used as a shorthand for <code>locations=[loc.title(), loc_subtitle()]</code> and it’s useful here where we want to change the font for the title and subtitle text.</p>
 <div id="34d8f26d" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1">gt_tbl <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -12976,11 +12976,11 @@ font-style: inherit;">=</span>loc.header()</span>
 </div>
 </div>
 </div>
-<p>Though the order of things matters when setting styles via <code>tab_style()</code>, it’s not a problem here to set a style for the combined ‘header’ location after doing so for the ‘title’ and ‘subtitle’ locations because the ‘font’ attribute <em>wasn’t</em> set by <code>tab_style()</code> for those smaller locations.</p>
+<p>Though the order of things matters when setting styles via <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a>, it’s not a problem here to set a style for the combined ‘header’ location after doing so for the ‘title’ and ‘subtitle’ locations because the ‘font’ attribute <em>wasn’t</em> set by <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> for those smaller locations.</p>
 </section>
 <section id="how-tab_style-fits-in-with-tab_options" class="level2">
-<h2 class="anchored" data-anchor-id="how-tab_style-fits-in-with-tab_options">How <code>tab_style()</code> fits in with <code>tab_options()</code></h2>
-<p>When it comes to styling, you can use <code>tab_options()</code> for some of the basics and use <code>tab_style()</code> for the more demanding styling tasks. And you could combine the usage of both in your table. Let’s set a default honeydew background fill on the body values:</p>
+<h2 class="anchored" data-anchor-id="how-tab_style-fits-in-with-tab_options">How <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> fits in with <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a></h2>
+<p>When it comes to styling, you can use <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> for some of the basics and use <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> for the more demanding styling tasks. And you could combine the usage of both in your table. Let’s set a default honeydew background fill on the body values:</p>
 <div id="67747149" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1">gt_tbl <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -13216,7 +13216,7 @@ font-style: inherit;">"HoneyDew"</span>)</span>
 </div>
 </div>
 </div>
-<p>In the example, we asked for the HoneyDew background fill on the entire table with <code>tab_options()</code>. However, even though <code>tab_options()</code> was used after those <code>tab_style()</code> invocations, the ‘HoneyDew’ background color was only applied to the locations that didn’t have a background color set through <code>tab_style(). The important takeaway here is that the precedence (or priority) is *always* given to</code>tab_style()`, regardless of the order of invocation.</p>
+<p>In the example, we asked for the HoneyDew background fill on the entire table with <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a>. However, even though <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> was used after those <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> invocations, the ‘HoneyDew’ background color was only applied to the locations that didn’t have a background color set through <code>tab_style(). The important takeaway here is that the precedence (or priority) is *always* given to</code>tab_style()`, regardless of the order of invocation.</p>
 </section>
 <section id="wrapping-up" class="level2">
 <h2 class="anchored" data-anchor-id="wrapping-up">Wrapping up</h2>
@@ -13241,16 +13241,16 @@ font-style: inherit;">"HoneyDew"</span>)</span>
 
 <p>In Great Tables <code>0.12.0</code> we focused on adding options for customizing the appearance of a table. In this post, we’ll present two new features:</p>
 <ul>
-<li>using typefaces from Google Fonts via <code>tab_style()</code> and <code>opt_table_font()</code></li>
-<li>adding table striping via <code>tab_options()</code> and <code>opt_row_striping()</code></li>
+<li>using typefaces from Google Fonts via <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> and <a href="../../reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="gdls-link gdls-code">opt_table_font()</a></li>
+<li>adding table striping via <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> and <a href="../../reference/GT.opt_row_striping.html#great_tables.GT.opt_row_striping" class="gdls-link gdls-code">opt_row_striping()</a></li>
 </ul>
 <p>Let’s have a look at how these new features can be used!</p>
 <section id="using-fonts-from-google-fonts" class="level2">
 <h2 class="anchored" data-anchor-id="using-fonts-from-google-fonts">Using fonts from Google Fonts</h2>
-<p>Google Fonts is a free service that allows use of hosted typefaces in your own websites. In Great Tables, we added the <code>google_font()</code> helper function to easily incorporate such fonts in your tables. There are two ways to go about this:</p>
+<p>Google Fonts is a free service that allows use of hosted typefaces in your own websites. In Great Tables, we added the <a href="../../reference/google_font.html#great_tables.google_font" class="gdls-link gdls-code">google_font()</a> helper function to easily incorporate such fonts in your tables. There are two ways to go about this:</p>
 <ol type="1">
-<li>use <code>google_font()</code> with <code>opt_table_font()</code> to set a Google Font for the entire table</li>
-<li>invoke <code>google_font()</code> within <code>tab_style(styles=style.text(font=...))</code> to set the font within a location</li>
+<li>use <a href="../../reference/google_font.html#great_tables.google_font" class="gdls-link gdls-code">google_font()</a> with <a href="../../reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="gdls-link gdls-code">opt_table_font()</a> to set a Google Font for the entire table</li>
+<li>invoke <a href="../../reference/google_font.html#great_tables.google_font" class="gdls-link gdls-code">google_font()</a> within <code>tab_style(styles=style.text(font=...))</code> to set the font within a location</li>
 </ol>
 <p>Let’s start with this small table that uses the default set of fonts for the entire table.</p>
 <div id="3027a8bc" class="cell" data-execution_count="1">
@@ -13432,7 +13432,7 @@ font-style: inherit;">"This dataset is included in Great Tables."</span></span>
 </div>
 </div>
 </div>
-<p>Now, with <code>opt_table_font()</code> + <code>google_font()</code>, we’ll change the table’s font to one from Google Fonts. I like <a href="https://fonts.google.com/noto/specimen/Noto+Serif"><code>Noto Serif</code></a> so let’s use that here!</p>
+<p>Now, with <a href="../../reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="gdls-link gdls-code">opt_table_font()</a> + <a href="../../reference/google_font.html#great_tables.google_font" class="gdls-link gdls-code">google_font()</a>, we’ll change the table’s font to one from Google Fonts. I like <a href="https://fonts.google.com/noto/specimen/Noto+Serif"><code>Noto Serif</code></a> so let’s use that here!</p>
 <div id="bb3c83e3" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -13575,7 +13575,7 @@ font-style: inherit;">"Noto Serif"</span>))</span>
 </div>
 </div>
 </div>
-<p>Looking good! And we don’t have to apply the font to the entire table. We might just wanted to use a Google Font in the table body. For that use case, <code>tab_style()</code> is the preferred method. Here’s an example that uses the <a href="https://fonts.google.com/specimen/IBM+Plex+Mono"><code>IBM Plex Mono</code></a> typeface.</p>
+<p>Looking good! And we don’t have to apply the font to the entire table. We might just wanted to use a Google Font in the table body. For that use case, <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> is the preferred method. Here’s an example that uses the <a href="https://fonts.google.com/specimen/IBM+Plex+Mono"><code>IBM Plex Mono</code></a> typeface.</p>
 <div id="66355076" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1">(</span>
 <span id="cb3-2">    gt_tbl</span>
@@ -13719,16 +13719,16 @@ font-style: inherit;">=</span>loc.body()</span>
 </div>
 </div>
 </div>
-<p>Nice! And it’s refreshing to see tables with fonts different from default set, as good as it might be. We kept the <code>google_font()</code> helper function as simple as possible, requiring only the font name in its <code>name=</code> argument. There are hundreds of fonts hosted on <a href="https://fonts.google.com">Google Fonts</a> so look through the site, experiment, and find the fonts that you think look best in your tables!</p>
+<p>Nice! And it’s refreshing to see tables with fonts different from default set, as good as it might be. We kept the <a href="../../reference/google_font.html#great_tables.google_font" class="gdls-link gdls-code">google_font()</a> helper function as simple as possible, requiring only the font name in its <code>name=</code> argument. There are hundreds of fonts hosted on <a href="https://fonts.google.com">Google Fonts</a> so look through the site, experiment, and find the fonts that you think look best in your tables!</p>
 </section>
 <section id="striping-rows-in-your-table" class="level2">
 <h2 class="anchored" data-anchor-id="striping-rows-in-your-table">Striping rows in your table</h2>
 <p>Some people like having row striping (a.k.a. zebra stripes) in their display tables. We also know that some <a href="https://www.darkhorseanalytics.com/blog/clear-off-the-table/">advise against the practice</a>. We understand it’s a controversial table issue, however, we also want to give you the creative freedom to just include the stripes. To that end, we now have that option in the package. There are two ways to enable this look:</p>
 <ol type="1">
-<li>invoking <code>opt_row_striping()</code> to quickly set row stripes in the table body</li>
-<li>using some combination of three <code>row_striping_*</code> arguments in <code>tab_options()</code></li>
+<li>invoking <a href="../../reference/GT.opt_row_striping.html#great_tables.GT.opt_row_striping" class="gdls-link gdls-code">opt_row_striping()</a> to quickly set row stripes in the table body</li>
+<li>using some combination of three <code>row_striping_*</code> arguments in <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a></li>
 </ol>
-<p>Let’s use that example table with <code>opt_row_striping()</code>.</p>
+<p>Let’s use that example table with <a href="../../reference/GT.opt_row_striping.html#great_tables.GT.opt_row_striping" class="gdls-link gdls-code">opt_row_striping()</a>.</p>
 <div id="8892e756" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1">gt_tbl.opt_row_striping()</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
@@ -13856,7 +13856,7 @@ font-style: inherit;">=</span>loc.body()</span>
 </div>
 </div>
 <p>It’s somewhat subtle but there is an alternating, slightly gray background (starting on the <code>"row_2"</code> row). The color is <code>#808080</code> but with an alpha (transparency) value of <code>0.05</code>.</p>
-<p>If this is not exactly what you want, there is an alternative to this. The <code>tab_options()</code> method has three new arguments:</p>
+<p>If this is not exactly what you want, there is an alternative to this. The <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> method has three new arguments:</p>
 <ul>
 <li><code>row_striping_background_color</code>: color to use for row striping</li>
 <li><code>row_striping_include_stub</code>: should striping include cells in the stub?</li>
@@ -14037,7 +14037,7 @@ font-style: inherit;">True</span>,</span>
 <li><strong>Scientific notation</strong>: formatting for very large and small numbers (e.g., 3.50 × 10<sup>−11</sup>)</li>
 <li><strong>Nanoplots</strong>: compact visualizations for revealing trends.</li>
 </ul>
-<p>We’ve added <strong>six new datasets</strong>, to help quickly show off scientific publishing! We’ll use the new <code>reactions</code> and <code>gibraltar</code> datasets to create examples in the fields of Atmospheric Chemistry and Meteorology, respectively.</p>
+<p>We’ve added <strong>six new datasets</strong>, to help quickly show off scientific publishing! We’ll use the new <a href="../../reference/data.reactions.html#great_tables.data.reactions" class="gdls-link gdls-code">reactions</a> and <a href="../../reference/data.gibraltar.html#great_tables.data.gibraltar" class="gdls-link gdls-code">gibraltar</a> datasets to create examples in the fields of Atmospheric Chemistry and Meteorology, respectively.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -14054,7 +14054,7 @@ Tip
 </div>
 <section id="unit-and-scientific-notation" class="level1">
 <h1>Unit and scientific notation</h1>
-<p>We added the <code>reactions</code> dataset to serve as the basis for examples in the discipline of Atmospheric Chemistry. The dataset contains reaction rate constants for gas-phase reactions of 1,683 organic compounds. Each of these compounds can potentially undergo reaction with hydroxyl radicals (OH), nitrate radicals (NO<sub>3</sub>), or chlorine atoms (Cl). These reaction rate constants are typically very small values in units of cm<sup>3</sup> molecules<sup>–1</sup> s<sup>–1</sup>. In the upcoming example, we’ll pare down this massive dataset to only 11 rows representing the class of organic compounds known as mercaptans.</p>
+<p>We added the <a href="../../reference/data.reactions.html#great_tables.data.reactions" class="gdls-link gdls-code">reactions</a> dataset to serve as the basis for examples in the discipline of Atmospheric Chemistry. The dataset contains reaction rate constants for gas-phase reactions of 1,683 organic compounds. Each of these compounds can potentially undergo reaction with hydroxyl radicals (OH), nitrate radicals (NO<sub>3</sub>), or chlorine atoms (Cl). These reaction rate constants are typically very small values in units of cm<sup>3</sup> molecules<sup>–1</sup> s<sup>–1</sup>. In the upcoming example, we’ll pare down this massive dataset to only 11 rows representing the class of organic compounds known as mercaptans.</p>
 <p>To make this table work well in a scientific reporting context, we need three pieces:</p>
 <ul>
 <li>way to represent units, like cm<sup>3</sup></li>
@@ -14406,8 +14406,8 @@ font-style: inherit;">"humanist"</span>)</span>
 <section id="nanoplots" class="level1">
 <h1>Nanoplots</h1>
 <p>We added the nanoplots feature to <strong>Great Tables</strong> in v0.4.0 (check out the <a href="https://posit-dev.github.io/great-tables/blog/introduction-0.4.0/">intro blog post</a> for a quick explainer) so that tables can contain small, info-packed plots that fit reasonably well into a table context. They are interactive in that hovering over the data points provides additional plot information. This approach brings together the advantages of plots (elucidation of trends in data) and tables (access to numerical values representing the data points) in a single summary visualization.</p>
-<p>Version <code>0.10.0</code> of <strong>Great Tables</strong> adds the <code>gibraltar</code> dataset, which provides meteorological data (temeperature, humidity, wind speed, etc.) for the entire month of May 2024 at Gibraltar Airport Station.</p>
-<p>Nanoplots, as mentioned, are great for condensing a lot of information into a small area. Our example here with the <code>gibraltar</code> dataset takes all of the temperature and humidity data for the first 10 days of May 2023 and displays them in easy-to-explore nanoplots across two columns:</p>
+<p>Version <code>0.10.0</code> of <strong>Great Tables</strong> adds the <a href="../../reference/data.gibraltar.html#great_tables.data.gibraltar" class="gdls-link gdls-code">gibraltar</a> dataset, which provides meteorological data (temeperature, humidity, wind speed, etc.) for the entire month of May 2024 at Gibraltar Airport Station.</p>
+<p>Nanoplots, as mentioned, are great for condensing a lot of information into a small area. Our example here with the <a href="../../reference/data.gibraltar.html#great_tables.data.gibraltar" class="gdls-link gdls-code">gibraltar</a> dataset takes all of the temperature and humidity data for the first 10 days of May 2023 and displays them in easy-to-explore nanoplots across two columns:</p>
 <div id="a176511c" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Show the Code</summary>
@@ -55099,7 +55099,7 @@ font-style: inherit;">"14px"</span>,</span>
 A table of named individuals redone, <strong>Great Tables</strong> style!
 </p>
 <p>Notice that there is a blue row stub component that makes the row labels distinct from the body of the table. This is important because each person described forms a unique observation and we want to highlight the subject of each row. The heading provides context on what’s contained within the table. The two column spanners arrange the columns into sensible groupings (e.g., ‘Location’). The consistent use of blue lines and cell backgrounds gives the table a professional look.</p>
-<p>If you look at the table code above you’ll see that every method for modifying the table starts with <code>tab_</code>. These particular methods are concerned with adding a table component (e.g., <code>tab_header()</code> creates a <strong>Table Header</strong>) and they’re designed to be easy and straightforward to use.</p>
+<p>If you look at the table code above you’ll see that every method for modifying the table starts with <code>tab_</code>. These particular methods are concerned with adding a table component (e.g., <a href="../../reference/GT.tab_header.html#great_tables.GT.tab_header" class="gdls-link gdls-code">tab_header()</a> creates a <strong>Table Header</strong>) and they’re designed to be easy and straightforward to use.</p>
 <section id="formatting" class="level3">
 <h3 class="anchored" data-anchor-id="formatting">Formatting</h3>
 <p>Table structuring is important, but not the only thing. Tables in different disciplines have a certain set of display requirements specific for any values shown. Even something as simple as a number can be formatted in many different ways depending on a community’s norms and expectations. This extends to a very wide area when we consider that dates, times, and currencies also need to be formatted.</p>
@@ -55109,7 +55109,7 @@ A table of named individuals redone, <strong>Great Tables</strong> style!
 <li>a number in the German locale (<code>fmt_number()</code>): 134.000,00</li>
 <li>a compact integer value (<code>fmt_integer()</code>): 134K</li>
 </ul>
-<p>The problem grows worse when values need to be conveyed as images or plots. If you’re a medical analyst, for example, you might need to effectively convey whether test results for a patient are improving or worsening over time. Reading such data as a sequence of numbers across a row can slow interpretation. But by using <em>nanoplots</em>, available as the <code>fmt_nanoplot()</code> formatting method, readers can spot trends right away. Here’s an example that provides test results over a series of days.</p>
+<p>The problem grows worse when values need to be conveyed as images or plots. If you’re a medical analyst, for example, you might need to effectively convey whether test results for a patient are improving or worsening over time. Reading such data as a sequence of numbers across a row can slow interpretation. But by using <em>nanoplots</em>, available as the <a href="../../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">fmt_nanoplot()</a> formatting method, readers can spot trends right away. Here’s an example that provides test results over a series of days.</p>
 <div id="33e73e38" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -55329,7 +55329,7 @@ font-style: inherit;">"Measurements from Day 3 through Day 9."</span>)</span>
 </div>
 </div>
 <p>Notice that if you hover over the data points, you still get values for each of the days. We designed nanoplots to be stripped down plotting visualizations that balance the quick visual interpretation of a plot against the compactness of a table.</p>
-<p><a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with <code>fmt_</code> (i.e., <code>fmt_date()</code>, <code>fmt_integer()</code>, <code>fmt_nanoplot()</code>). We want to make many formatting methods available to serve different users’ needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.</p>
+<p><a href="https://github.com/posit-dev/great-tables"><strong>Great Tables</strong></a> contains a lot of functionality for formatting. If you peeked at the code in the above table displays you might have noticed there are methods beginning with <code>fmt_</code> (i.e., <code>fmt_date()</code>, <code>fmt_integer()</code>, <a href="../../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">fmt_nanoplot()</a>). We want to make many formatting methods available to serve different users’ needs. We also want them to be easy to use, but with many useful options to provide flexibility for all your formatting tasks.</p>
 </section>
 <section id="great-tables-is-focused-on-display" class="level3">
 <h3 class="anchored" data-anchor-id="great-tables-is-focused-on-display">Great Tables is focused on display</h3>
@@ -55595,17 +55595,17 @@ font-style: inherit;">"Measurements from Day 3 through to Day 8."</span>)</span>
 </div>
 <p>While the emphasis here will be on the aforementioned nanoplots feature, the last two releases (<code>v0.3.1</code> and <code>v0.4.0</code>) overall gave us a nice collection of improvements which includes:</p>
 <ul>
-<li>the <a href="`great_tables.GT.fmt_nanoplot`"><code>fmt_nanoplot()</code></a> method for adding nanoplots to your table</li>
+<li>the <a href="../../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link"><code>fmt_nanoplot()</code></a> method for adding nanoplots to your table</li>
 <li>improved HTML table representations in different code environments</li>
 <li>integration of Polars selectors in the <code>columns=</code> arg of all formatting (<code>fmt_*()</code>) methods</li>
-<li>the <a href="`great_tables.GT.save`"><code>save()</code></a> method for saving a <strong>GT</strong> table as an image file</li>
-<li>rendering a <strong>GT</strong> table as an HTML string though <a href="`great_tables.GT.as_raw_html`"><code>as_raw_html()</code></a></li>
+<li>the <code>save()</code> method for saving a <strong>GT</strong> table as an image file</li>
+<li>rendering a <strong>GT</strong> table as an HTML string though <a href="../../reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link"><code>as_raw_html()</code></a></li>
 </ul>
 <p>Now let’s dive into the wonderful world of nanoplots!</p>
 <section id="nanoplots-small-interactive-plots-in-your-table" class="level2">
 <h2 class="anchored" data-anchor-id="nanoplots-small-interactive-plots-in-your-table">Nanoplots, small interactive plots in your table</h2>
 <p>Nanoplots are small yet information-laden plots that fit nicely into table cells. They are interactive, allowing for more information to be shown on hovering (or through touch when that interaction is available). Nanoplots try to show individual data points with reasonably good visibility (space is limited, this is going in a table after all!) and the plot representations change depending on the data fed into them.</p>
-<p>We can generate nanoplots via the <a href="`great_tables.GT.fmt_nanoplot`"><code>fmt_nanoplot()</code></a> method. Let’s make two nanoplots of the two different available plot types: <code>"line"</code> and <code>"bar"</code>:</p>
+<p>We can generate nanoplots via the <a href="../../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link"><code>fmt_nanoplot()</code></a> method. Let’s make two nanoplots of the two different available plot types: <code>"line"</code> and <code>"bar"</code>:</p>
 <div id="7c57d22b" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1">random_numbers_df <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -55929,7 +55929,7 @@ font-style: inherit;">"median"</span>])</span>
 </section>
 <section id="simple-bars" class="level2">
 <h2 class="anchored" data-anchor-id="simple-bars">Simple bars</h2>
-<p>We can also have single-value bar plots and line plots. These will run in the horizontal direction and such plots are meant for easy value comparisons (which works great in tables). To make this work, give <a href="`great_tables.GT.fmt_nanoplot`"><code>fmt_nanoplot()</code></a> a column of numeric values. The following example shows how <a href="`great_tables.GT.fmt_nanoplot`"><code>fmt_nanoplot()</code></a> can be used to create single-value bar and line plots.</p>
+<p>We can also have single-value bar plots and line plots. These will run in the horizontal direction and such plots are meant for easy value comparisons (which works great in tables). To make this work, give <a href="../../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link"><code>fmt_nanoplot()</code></a> a column of numeric values. The following example shows how <a href="../../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link"><code>fmt_nanoplot()</code></a> can be used to create single-value bar and line plots.</p>
 <div id="62b2de6c" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1">single_vals_df <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -56111,8 +56111,8 @@ font-style: inherit;">"line"</span>)</span>
 <p>Notice that there is some light interactivity available here as well! When hovering over a plotted bar or line the data value will appear.</p>
 </section>
 <section id="customizing-with-nanoplot_options" class="level2">
-<h2 class="anchored" data-anchor-id="customizing-with-nanoplot_options">Customizing with <code>nanoplot_options()</code></h2>
-<p>We provide a lot of options for customizing your nanoplots. With the <a href="`great_tables.nanoplot_options`"><code>nanoplot_options()</code></a> helper function, it’s possible to change the look and feel for a set of nanoplots. The <code>options=</code> argument of <a href="`great_tables.GT.fmt_nanoplot`"><code>fmt_nanoplot()</code></a> is where you’d need to invoke that helper function. Some possibilities for customization include determining which nanoplot elements are present, changing the sizes and colors of different elements, and a whole lot more! Here’s an example where both line- and bar-based nanoplots retain their basic compositional elements, but their appearance is quite different.</p>
+<h2 class="anchored" data-anchor-id="customizing-with-nanoplot_options">Customizing with <a href="../../reference/nanoplot_options.html#great_tables.nanoplot_options" class="gdls-link gdls-code">nanoplot_options()</a></h2>
+<p>We provide a lot of options for customizing your nanoplots. With the <a href="../../reference/nanoplot_options.html#great_tables.nanoplot_options" class="gdls-link"><code>nanoplot_options()</code></a> helper function, it’s possible to change the look and feel for a set of nanoplots. The <code>options=</code> argument of <a href="../../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link"><code>fmt_nanoplot()</code></a> is where you’d need to invoke that helper function. Some possibilities for customization include determining which nanoplot elements are present, changing the sizes and colors of different elements, and a whole lot more! Here’s an example where both line- and bar-based nanoplots retain their basic compositional elements, but their appearance is quite different.</p>
 <div id="091cdfe8" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -56316,7 +56316,7 @@ font-style: inherit;">"blue"</span>,</span>
 </div>
 </div>
 </div>
-<p>We want you to have a lot of creative control for how these tiny plots are displayed. So, when you need it, <a href="`great_tables.nanoplot_options`"><code>nanoplot_options()</code></a> is there for you!</p>
+<p>We want you to have a lot of creative control for how these tiny plots are displayed. So, when you need it, <a href="../../reference/nanoplot_options.html#great_tables.nanoplot_options" class="gdls-link"><code>nanoplot_options()</code></a> is there for you!</p>
 </section>
 <section id="wrapping-up" class="level2">
 <h2 class="anchored" data-anchor-id="wrapping-up">Wrapping up</h2>
@@ -56341,7 +56341,7 @@ font-style: inherit;">"blue"</span>,</span>
 <p>As our work on <strong>Great Tables</strong> continues, we want you to be able to produce increasingly sophisticated tables. The look of an HTML table really matters and we believe aesthetics can elevate the presentation of tabular data. In the <code>v0.3.0</code> release, we’ve implemented features that are concerned with modifying the visual aspects of a table. Let’s get down to what’s new in this version.</p>
 <section id="modifying-the-widths-of-columns" class="level2">
 <h2 class="anchored" data-anchor-id="modifying-the-widths-of-columns">Modifying the widths of columns</h2>
-<p>Before <code>v0.3.0</code>, you could not alter the widths of individual columns. This meant that to great extent your content decided the width of individual columns. Even though browsers do an adequate job in sizing the widths of table columns, it doesn’t always result in a pleasing-to-look-at table. What if you want more space? Maybe you want consistently-sized columns? There’s many reasons to want to have a choice in the matter and the new <a href="`great_tables.GT.cols_width`"><code>cols_width()</code></a> method now makes this possible.</p>
+<p>Before <code>v0.3.0</code>, you could not alter the widths of individual columns. This meant that to great extent your content decided the width of individual columns. Even though browsers do an adequate job in sizing the widths of table columns, it doesn’t always result in a pleasing-to-look-at table. What if you want more space? Maybe you want consistently-sized columns? There’s many reasons to want to have a choice in the matter and the new <a href="../../reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link"><code>cols_width()</code></a> method now makes this possible.</p>
 <p>Here’s an example where the widths of all columns are set with our preferred length values (in <code>px</code>).</p>
 <div id="67028839" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
@@ -56531,12 +56531,12 @@ font-style: inherit;">"50px"</span></span>
 </div>
 </div>
 </div>
-<p>You don’t have to define widths for all columns with <a href="`great_tables.GT.cols_width`"><code>cols_width()</code></a>, and you’re free to use either <code>px</code> or <code>%</code> values when defining widths. See the <a href="`great_tables.GT.cols_width`">reference page</a> for more information and relevant examples.</p>
+<p>You don’t have to define widths for all columns with <a href="../../reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link"><code>cols_width()</code></a>, and you’re free to use either <code>px</code> or <code>%</code> values when defining widths. See the <a href="../../reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link">reference page</a> for more information and relevant examples.</p>
 </section>
 <section id="setting-options-across-the-entire-table-with-tab_options" class="level2">
-<h2 class="anchored" data-anchor-id="setting-options-across-the-entire-table-with-tab_options">Setting options across the entire table with <code>tab_options()</code></h2>
-<p>The new <a href="`great_tables.GT.tab_options`"><code>tab_options()</code></a> method gives you the freedom to specify any of dozens of global style and layout options for the table. Want a font that’s used across all cells? Use the <code>table_font_names=</code> option. Do you need to make the text smaller, but only in the stub? Use <code>stub_font_size=</code> for that. The number of options is perhaps overwhelming at first but we think you’ll enjoy having them around nonetheless. It makes styling the table (and developing your own table themes) a relatively simple task.</p>
-<p>Here’s an example that creates a table with a few common components and then uses <a href="`great_tables.GT.tab_options`"><code>tab_options()</code></a> to set up a collection of fonts for the table with the (also new) <a href="`great_tables.system_fonts`"><code>system_fonts()</code></a> function:</p>
+<h2 class="anchored" data-anchor-id="setting-options-across-the-entire-table-with-tab_options">Setting options across the entire table with <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a></h2>
+<p>The new <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link"><code>tab_options()</code></a> method gives you the freedom to specify any of dozens of global style and layout options for the table. Want a font that’s used across all cells? Use the <code>table_font_names=</code> option. Do you need to make the text smaller, but only in the stub? Use <code>stub_font_size=</code> for that. The number of options is perhaps overwhelming at first but we think you’ll enjoy having them around nonetheless. It makes styling the table (and developing your own table themes) a relatively simple task.</p>
+<p>Here’s an example that creates a table with a few common components and then uses <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link"><code>tab_options()</code></a> to set up a collection of fonts for the table with the (also new) <a href="../../reference/system_fonts.html#great_tables.system_fonts" class="gdls-link"><code>system_fonts()</code></a> function:</p>
 <div id="22fdc3ae" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -56748,7 +56748,7 @@ font-style: inherit;">"industrial"</span>))</span></code></pre></div>
 </div>
 </div>
 </div>
-<p>Note that <code>table_font_names=</code> accepts a list of fonts that operate as fallbacks for users across different systems (i.e., they may not have the font you have). And the <a href="`great_tables.system_fonts`"><code>system_fonts()</code></a> helper function in <strong>Great Tables</strong> makes this easy by providing you with themed, local font stacks that are meant to work across different computing platforms.</p>
+<p>Note that <code>table_font_names=</code> accepts a list of fonts that operate as fallbacks for users across different systems (i.e., they may not have the font you have). And the <a href="../../reference/system_fonts.html#great_tables.system_fonts" class="gdls-link"><code>system_fonts()</code></a> helper function in <strong>Great Tables</strong> makes this easy by providing you with themed, local font stacks that are meant to work across different computing platforms.</p>
 <p>Here’s another example where we set the width of the table to span across the entire page (or containing element).</p>
 <div id="d1e2faf9" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1">gt_tbl.tab_options(table_width<span class="op" style="color: #5E5E5E;
@@ -57047,11 +57047,11 @@ font-style: inherit;">"lightcyan"</span>)</span></code></pre></div>
 </div>
 </div>
 </div>
-<p>There are many more options available in <a href="`great_tables.GT.tab_options`"><code>tab_options()</code></a>, so have a look at its <a href="`great_tables.GT.tab_options`">reference page</a> for more information and useful examples.</p>
+<p>There are many more options available in <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link"><code>tab_options()</code></a>, so have a look at its <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link">reference page</a> for more information and useful examples.</p>
 </section>
 <section id="using-the-new-opt_-methods-to-do-more-complex-tasks-with-table-options" class="level2">
 <h2 class="anchored" data-anchor-id="using-the-new-opt_-methods-to-do-more-complex-tasks-with-table-options">Using the new <code>opt_*()</code> methods to do more complex tasks with table options</h2>
-<p>While <a href="`great_tables.GT.tab_options`"><code>tab_options()</code></a> is a great method for setting global table options, sometimes you want to set a number of them at once for a combined effect. For that type of operation, we have the <code>opt_*()</code> series of methods. A common thing you might do is align the content in the table header, we can make that an easy thing with <a href="`great_tables.GT.opt_align_table_header`"><code>opt_align_table_header()</code></a>:</p>
+<p>While <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link"><code>tab_options()</code></a> is a great method for setting global table options, sometimes you want to set a number of them at once for a combined effect. For that type of operation, we have the <code>opt_*()</code> series of methods. A common thing you might do is align the content in the table header, we can make that an easy thing with <a href="../../reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header" class="gdls-link"><code>opt_align_table_header()</code></a>:</p>
 <div id="3f9d2ccb" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1">gt_tbl.opt_align_table_header(align<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -57200,8 +57200,8 @@ font-style: inherit;">"left"</span>)</span></code></pre></div>
 </div>
 </div>
 </div>
-<p>With that, you don’t have to hunt through the myriad options within <a href="`great_tables.GT.tab_options`"><code>tab_options()</code></a> to find the two args you need to get the job done.</p>
-<p>The <a href="`great_tables.GT.opt_all_caps`"><code>opt_all_caps()</code></a> method transforms the text within the column labels, the stub, and in all row groups so that we get an all-capitalized (yet somewhat sized down) look that better differentiates the labels from the data. It’s rather easy to use, just do this:</p>
+<p>With that, you don’t have to hunt through the myriad options within <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link"><code>tab_options()</code></a> to find the two args you need to get the job done.</p>
+<p>The <a href="../../reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="gdls-link"><code>opt_all_caps()</code></a> method transforms the text within the column labels, the stub, and in all row groups so that we get an all-capitalized (yet somewhat sized down) look that better differentiates the labels from the data. It’s rather easy to use, just do this:</p>
 <div id="b51c3173" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1">gt_tbl.opt_all_caps()</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
@@ -57346,8 +57346,8 @@ font-style: inherit;">"left"</span>)</span></code></pre></div>
 </div>
 </div>
 </div>
-<p>This sets nine options you’d otherwise set in <a href="`great_tables.GT.tab_options`"><code>tab_options()</code></a> all at once, making life generally easier.</p>
-<p>Here’s one last example, this time using <a href="`great_tables.GT.opt_vertical_padding`"><code>opt_vertical_padding()</code></a>. You’d use that if you’re dissatisfied with the level of top/bottom padding within cells of all locations (e.g., in the table body, in the column labels, etc.). You can either make a table taller or more ‘compressed’ with a single argument: <code>scale=</code>. Here’s an example where the amount of vertical padding is reduced, resulting in a table taking up less vertical space.</p>
+<p>This sets nine options you’d otherwise set in <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link"><code>tab_options()</code></a> all at once, making life generally easier.</p>
+<p>Here’s one last example, this time using <a href="../../reference/GT.opt_vertical_padding.html#great_tables.GT.opt_vertical_padding" class="gdls-link"><code>opt_vertical_padding()</code></a>. You’d use that if you’re dissatisfied with the level of top/bottom padding within cells of all locations (e.g., in the table body, in the column labels, etc.). You can either make a table taller or more ‘compressed’ with a single argument: <code>scale=</code>. Here’s an example where the amount of vertical padding is reduced, resulting in a table taking up less vertical space.</p>
 <div id="ecaafe02" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1">gt_tbl.opt_vertical_padding(scale<span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -57498,17 +57498,17 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 </div>
 <p>We have the following methods available in the <code>opt_*()</code> family</p>
 <ul>
-<li><a href="`great_tables.GT.opt_align_table_header`"><code>opt_align_table_header()</code></a></li>
-<li><a href="`great_tables.GT.opt_all_caps`"><code>opt_all_caps()</code></a></li>
-<li><a href="`great_tables.GT.opt_vertical_padding`"><code>opt_vertical_padding()</code></a></li>
-<li><a href="`great_tables.GT.opt_horizontal_padding`"><code>opt_horizontal_padding()</code></a></li>
+<li><a href="../../reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header" class="gdls-link"><code>opt_align_table_header()</code></a></li>
+<li><a href="../../reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="gdls-link"><code>opt_all_caps()</code></a></li>
+<li><a href="../../reference/GT.opt_vertical_padding.html#great_tables.GT.opt_vertical_padding" class="gdls-link"><code>opt_vertical_padding()</code></a></li>
+<li><a href="../../reference/GT.opt_horizontal_padding.html#great_tables.GT.opt_horizontal_padding" class="gdls-link"><code>opt_horizontal_padding()</code></a></li>
 </ul>
 <p>and we plan to add more <code>opt_*()</code> methods in future releases.</p>
 </section>
 <section id="a-new-formatting-method-fmt_image" class="level2">
 <h2 class="anchored" data-anchor-id="a-new-formatting-method-fmt_image">A new formatting method: <code>fmt_image()</code></h2>
-<p>Wouldn’t it be great to add graphics to your table? The <a href="`great_tables.GT.fmt_image`"><code>fmt_image()</code></a> method provides an easy way to add image files on disk into table body cells. The cells need to contain some reference to an image file. The <code>path=</code> and <code>file_pattern=</code> arguments give you some flexibility in defining exactly where the image files live.</p>
-<p>Here’s an example using the <code>metro</code> dataset that’s included within <strong>Great Tables</strong>.</p>
+<p>Wouldn’t it be great to add graphics to your table? The <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link"><code>fmt_image()</code></a> method provides an easy way to add image files on disk into table body cells. The cells need to contain some reference to an image file. The <code>path=</code> and <code>file_pattern=</code> arguments give you some flexibility in defining exactly where the image files live.</p>
+<p>Here’s an example using the <a href="../../reference/data.metro.html#great_tables.data.metro" class="gdls-link gdls-code">metro</a> dataset that’s included within <strong>Great Tables</strong>.</p>
 <div id="da6f90a9" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -57694,9 +57694,9 @@ font-style: inherit;">"700px"</span>)</span>
 </div>
 </div>
 <p>Notice that <code>path=img_paths</code> specified the folder the images live in, and <code>file_pattern="metro_{}.svg"</code> provided a template for converting each value in the <code>lines</code> column to an SVG file name.</p>
-<p>The <a href="`great_tables.GT.fmt_image`"><code>fmt_image()</code></a> method supports three kinds of files as inputs, either: (1) complete http/https or local paths to the files; (2) the file names, where a common path can be provided via the <code>path=</code> arg; or (3) a fragment of the file name, as shown in the example above.</p>
+<p>The <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link"><code>fmt_image()</code></a> method supports three kinds of files as inputs, either: (1) complete http/https or local paths to the files; (2) the file names, where a common path can be provided via the <code>path=</code> arg; or (3) a fragment of the file name, as shown in the example above.</p>
 <p>The package has some graphics stored in the <code>data/metro_images</code> directory. They are SVGs and they look <em>very</em> nice in the example table!</p>
-<p>See the <a href="`great_tables.GT.fmt_image`"><code>fmt_image()</code></a> reference page for more information on this new method.</p>
+<p>See the <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link"><code>fmt_image()</code></a> reference page for more information on this new method.</p>
 </section>
 <section id="wrapping-up" class="level2">
 <h2 class="anchored" data-anchor-id="wrapping-up">Wrapping up</h2>

@@ -30,4 +30,4 @@ A CellStyleCss object, which is used for a `styles` argument if specifying a cus
 
 ## Examples
 
-See <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>GT.tab_style()</code></a>.
+See <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>GT.tab_style()</code></a>.

@@ -183,7 +183,7 @@ The above example is suitable for emphasizing large values, but, maybe you consi
 | row_4 | £65,100  | 2015-04-15 |
 
 
-Now the very large value is in `"lightgray"`, making all other values easier to compare. We did setting `domain=[0, 50]` and specifying `na_color="lightgray"`. This caused the out-of-bounds value of `65100` to have a light gray background. Notice that the values are also formatted as currencies, and this is thanks to [fmt_currency()](../../reference/GT.fmt_currency.md#great_tables.GT.fmt_currency) which never interferes with styling.
+Now the very large value is in `"lightgray"`, making all other values easier to compare. We did setting `domain=[0, 50]` and specifying `na_color="lightgray"`. This caused the out-of-bounds value of `65100` to have a light gray background. Notice that the values are also formatted as currencies, and this is thanks to `fmt_currency()` which never interferes with styling.
 
 Here's a more inspirational example that uses a heavily-manipulated version of the [countrypops](../../reference/data.countrypops.md#great_tables.data.countrypops) dataset (thanks again, **Polars**!) along with a color treatment that's mediated by [data_color()](../../reference/GT.data_color.md#great_tables.GT.data_color). Here, the population values can be easily compared by the amount of `"purple"` within them.
 

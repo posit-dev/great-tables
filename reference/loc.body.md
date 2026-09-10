@@ -15,7 +15,7 @@ loc.body(
 ```
 
 
-With [loc.body()](loc.body.md#great_tables.loc.body), we can target the data cells in the table body. This is useful for applying custom styling with the <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>tab_style()</code></a> method. That method has a `locations=` argument and this class should be used there to perform the targeting.
+With [loc.body()](loc.body.md#great_tables.loc.body), we can target the data cells in the table body. This is useful for applying custom styling with the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>tab_style()</code></a> method. That method has a `locations=` argument and this class should be used there to perform the targeting.
 
 > **Warning: Warning**
 >
@@ -44,7 +44,7 @@ A LocBody object, which is used for a `locations=` argument if specifying the ta
 
 ## Examples
 
-Let's use a subset of the [gtcars](data.gtcars.md#great_tables.data.gtcars) dataset in a new table. We will style all of the body cells by using `locations=loc.body()` within <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>tab_style()</code></a>.
+Let's use a subset of the [gtcars](data.gtcars.md#great_tables.data.gtcars) dataset in a new table. We will style all of the body cells by using `locations=loc.body()` within <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>tab_style()</code></a>.
 
 
 ``` python

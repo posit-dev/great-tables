@@ -43,7 +43,7 @@ With numeric values in a list, we can perform number-based formatting so that th
 A list of values to be formatted.
 
 `decimals: int = ``2`  
-The `decimals` values corresponds to the exact number of decimal places to use. A value such as `2.34` can, for example, be formatted with `0` decimal places and it would result in `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the <a href="vals.fmt_integer.html#great_tables.vals.fmt_integer" class="gdls-link"><code>val_fmt_integer()</code></a> function should be considered.
+The `decimals` values corresponds to the exact number of decimal places to use. A value such as `2.34` can, for example, be formatted with `0` decimal places and it would result in `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros can be removed with `drop_trailing_zeros=True`. If you always need `decimals = 0`, the <a href="../reference/vals.fmt_integer.html#great_tables.vals.fmt_integer" class="gdls-link"><code>val_fmt_integer()</code></a> function should be considered.
 
 `n_sigfig: int | None = None`  
 A option to format numbers to *n* significant figures. By default, this is `None` and thus number values will be formatted according to the number of decimal places set via `decimals`. If opting to format according to the rules of significant figures, `n_sigfig` must be a number greater than or equal to `1`. Any values passed to the `decimals` and `drop_trailing_zeros` arguments will be ignored.

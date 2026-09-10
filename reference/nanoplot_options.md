@@ -141,4 +141,4 @@ If the values are to be displayed as currency values, supply either: (1) a 3-let
 
 ## Examples
 
-See <a href="GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link"><code>fmt_nanoplot()</code></a>.
+See <a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link"><code>fmt_nanoplot()</code></a>.

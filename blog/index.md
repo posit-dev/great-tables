@@ -12,7 +12,7 @@
 | Jun 24, 2025 | [Great Tables + marimo = Interactive Tables](marimo-and-great-tables/index.md) | Rich Iannone and Jerry Wu |
 | Apr 16, 2025 | <a href="../blog/polars-dot-style/index.html" class="title listing-title">Great Tables: Becoming the Polars <code>.style</code> Property</a> | Michael Chow |
 | Feb 11, 2025 | [How We Used Great Tables to Supercharge Reporting in Pointblank](pointblank-intro/index.md) | Rich Iannone |
-| Jan 24, 2025 | <a href="../blog/locbody-mask/index.html" class="title listing-title">Style Table Body with <code>mask=</code> in <code>loc.body()</code></a> | Jerry Wu |
+| Jan 24, 2025 | <a href="../blog/locbody-mask/index.html" class="title listing-title">Style Table Body with <code>mask=</code> in</a> [loc.body()](../reference/loc.body.md#great_tables.loc.body) | Jerry Wu |
 | Dec 19, 2024 | <a href="../blog/introduction-0.15.0/index.html" class="title listing-title">Great Tables <code>v0.15.0</code>: Flags, Icons, and Other Formatting Goodies</a> | Rich Iannone |
 | Dec 19, 2024 | [Contributing to Public Transit Data Analysis and Tooling](open-transit-tools/index.md) | Michael Chow |
 | Dec 13, 2024 | [Rendering images anywhere in Great Tables](rendering-images/index.md) | Jerry Wu |

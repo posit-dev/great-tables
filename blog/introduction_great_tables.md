@@ -115,7 +115,7 @@ That looks pretty good! Indeed, it is a basic table but we really didn't really 
 
 Let's take things a bit further and create a table with the included [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) dataset. **Great Tables** provides a large selection of methods and they let you refine the table display. They were designed so that you can easily create a really presentable and *beautiful* table visualization.
 
-For this next table, we'll incorporate a *Stub* component and this provides a place for the row labels. Groupings of rows will be generated through categorical values in a particular column (we just have to cite the column name for that to work). We'll add a table title and subtitle with [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header). The numerical values will be formatted with the [fmt_integer()](../reference/GT.fmt_integer.md#great_tables.GT.fmt_integer) and [fmt_currency()](../reference/GT.fmt_currency.md#great_tables.GT.fmt_currency) methods. Column labels will be enhanced via [cols_label()](../reference/GT.cols_label.md#great_tables.GT.cols_label) and a source note will be included through use of the [tab_source_note()](../reference/GT.tab_source_note.md#great_tables.GT.tab_source_note) method. Here is the table code, followed by the table itself.
+For this next table, we'll incorporate a *Stub* component and this provides a place for the row labels. Groupings of rows will be generated through categorical values in a particular column (we just have to cite the column name for that to work). We'll add a table title and subtitle with [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header). The numerical values will be formatted with the `fmt_integer()` and `fmt_currency()` methods. Column labels will be enhanced via [cols_label()](../reference/GT.cols_label.md#great_tables.GT.cols_label) and a source note will be included through use of the [tab_source_note()](../reference/GT.tab_source_note.md#great_tables.GT.tab_source_note) method. Here is the table code, followed by the table itself.
 
 
 ``` python
@@ -546,17 +546,17 @@ That table looks really good, and the nice thing about all these methods is that
 
 We didn't want to skimp on formatting methods for table cells with this early release. There are 12 `fmt_*()` methods available right now:
 
-- [fmt_number()](../reference/GT.fmt_number.md#great_tables.GT.fmt_number): format numeric values
-- [fmt_integer()](../reference/GT.fmt_integer.md#great_tables.GT.fmt_integer): format values as integers
-- [fmt_percent()](../reference/GT.fmt_percent.md#great_tables.GT.fmt_percent): format values as percentages
-- [fmt_scientific()](../reference/GT.fmt_scientific.md#great_tables.GT.fmt_scientific): format values to scientific notation
-- [fmt_currency()](../reference/GT.fmt_currency.md#great_tables.GT.fmt_currency): format values as currencies
-- [fmt_bytes()](../reference/GT.fmt_bytes.md#great_tables.GT.fmt_bytes): format values as bytes
-- [fmt_roman()](../reference/GT.fmt_roman.md#great_tables.GT.fmt_roman): format values as Roman numerals
-- [fmt_date()](../reference/GT.fmt_date.md#great_tables.GT.fmt_date): format values as dates
-- [fmt_time()](../reference/GT.fmt_time.md#great_tables.GT.fmt_time): format values as times
+- `fmt_number()`: format numeric values
+- `fmt_integer()`: format values as integers
+- `fmt_percent()`: format values as percentages
+- `fmt_scientific()`: format values to scientific notation
+- `fmt_currency()`: format values as currencies
+- `fmt_bytes()`: format values as bytes
+- `fmt_roman()`: format values as Roman numerals
+- `fmt_date()`: format values as dates
+- `fmt_time()`: format values as times
 - [fmt_datetime()](../reference/GT.fmt_datetime.md#great_tables.GT.fmt_datetime): format values as datetimes
-- [fmt_markdown()](../reference/GT.fmt_markdown.md#great_tables.GT.fmt_markdown): format Markdown text
+- `fmt_markdown()`: format Markdown text
 - [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt): set a column format with a formatting function
 
 We strive to make formatting a simple task but we also want to provide the user a lot of power through advanced options and we ensure that varied combinations of options works well. For example, most of the formatting methods have a `locale=` argument. We want as many users as possible to be able to format numbers, dates, and times in ways that are familiar to them and are adapted to their own regional specifications. Now let's take a look at an example of this with a smaller version of the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset:

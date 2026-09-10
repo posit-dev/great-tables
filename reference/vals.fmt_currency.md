@@ -28,7 +28,7 @@ vals.fmt_currency(
 ```
 
 
-With numeric values, we can perform currency-based formatting with the [val_fmt_currency()](vals.fmt_currency.md#great_tables.vals.fmt_currency) function. This supports both automatic formatting with a three-letter currency code. We have fine control over the conversion from numeric values to currency values, where we could take advantage of the following options:
+With numeric values, we can perform currency-based formatting with the `val_fmt_currency()` function. This supports both automatic formatting with a three-letter currency code. We have fine control over the conversion from numeric values to currency values, where we could take advantage of the following options:
 
 - the currency: providing a currency code or common currency name will procure the correct currency symbol and number of currency subunits
 - currency symbol placement: the currency symbol can be placed before or after the values

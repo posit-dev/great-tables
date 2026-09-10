@@ -260,13 +260,13 @@ The [as_latex()](../../reference/GT.as_latex.md#great_tables.GT.as_latex) method
 |----|----|
 | Escaping | ✅ |
 | Most `fmt_*()` methods | ✅ |
-| [as_latex()](../../reference/GT.as_latex.md#great_tables.GT.as_latex) table code generation | ✅ |
-| [tab_stub()](../../reference/GT.tab_stub.md#great_tables.GT.tab_stub) for row and group labels | 🚧 |
-| [md()](../../reference/md.md#great_tables.md) to render Markdown to LaTeX | 🚧 |
+| `as_latex()` table code generation | ✅ |
+| `tab_stub()` for row and group labels | 🚧 |
+| `md()` to render Markdown to LaTeX | 🚧 |
 | Implementation of Units Notation | 🚧 |
-| Allow [fmt_markdown()](../../reference/GT.fmt_markdown.md#great_tables.GT.fmt_markdown), [fmt_units()](../../reference/GT.fmt_units.md#great_tables.GT.fmt_units), [fmt_image()](../../reference/GT.fmt_image.md#great_tables.GT.fmt_image), and [fmt_nanoplot()](../../reference/GT.fmt_nanoplot.md#great_tables.GT.fmt_nanoplot) | 🚧 |
-| [sub_missing()](../../reference/GT.sub_missing.md#great_tables.GT.sub_missing) and [sub_zero()](../../reference/GT.sub_zero.md#great_tables.GT.sub_zero) methods | 🚧 |
-| [tab_style()](../../reference/GT.tab_style.md#great_tables.GT.tab_style) method | 🚧 |
+| Allow `fmt_markdown()`, `fmt_units()`, `fmt_image()`, and `fmt_nanoplot()` | 🚧 |
+| `sub_missing()` and `sub_zero()` methods | 🚧 |
+| `tab_style()` method | 🚧 |
 
 
 Some of these TODOs are short-term, notably the ones dealing with the use of the table stub and row groups. We plan to address this soon but having those structural components in a table currently will raise an error when using [as_latex()](../../reference/GT.as_latex.md#great_tables.GT.as_latex).

@@ -211,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2727" data-forks="129"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2726" data-forks="131"></div>
     </span>
   </li>  
 </ul>
@@ -1246,8 +1246,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div class="doc-text">
-<p><a href="GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> makes it possible to add extra CSS rules to a table. This CSS will be added after the compiled CSS that Great Tables generates automatically when the object is transformed to an HTML output table.</p>
-<p>If you want to set CSS styles on a specific table location, use <a href="GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> with <a href="style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css()</a> instead.</p>
+<p><a href="../reference/GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> makes it possible to add extra CSS rules to a table. This CSS will be added after the compiled CSS that Great Tables generates automatically when the object is transformed to an HTML output table.</p>
+<p>If you want to set CSS styles on a specific table location, use <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> with <a href="../reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css()</a> instead.</p>
 </div>
 <section id="parameters" class="level2 doc-parameters">
 <h2 class="doc-parameters anchored" data-anchor-id="parameters">Parameters</h2>
@@ -1259,7 +1259,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">add</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="va">True</span></span></code></dt>
 <dd>
-<p>If <code>True</code>, the default, the CSS is added to any already-defined CSS (typically from previous calls of <a href="GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> or <code>tab_options(table_additional_css=...)</code>). If this is set to <code>False</code>, the CSS provided here will replace any previously-stored CSS.</p>
+<p>If <code>True</code>, the default, the CSS is added to any already-defined CSS (typically from previous calls of <a href="../reference/GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> or <code>tab_options(table_additional_css=...)</code>). If this is set to <code>False</code>, the CSS provided here will replace any previously-stored CSS.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">allow_duplicates</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="va">False</span></span></code></dt>
 <dd>
@@ -1281,8 +1281,8 @@ The GT object is returned. This is the same object that the method is called on 
 </section>
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
-<p>Let’s use the <a href="data.exibble.html#great_tables.data.exibble" class="gdls-link gdls-code">exibble</a> dataset to create a simple, two-column table (keeping only the <code>num</code> and <code>currency</code> columns). Through use of the <a href="GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> method, we can insert CSS rulesets as a string. We need to ensure that the table ID is set explicitly (we’ve done so here with the ID value of <code>"one"</code>, setting it up with <code>GT(id=)</code>).</p>
-<div id="b68433c5" class="cell" data-execution_count="1">
+<p>Let’s use the <a href="../reference/data.exibble.html#great_tables.data.exibble" class="gdls-link gdls-code">exibble</a> dataset to create a simple, two-column table (keeping only the <code>num</code> and <code>currency</code> columns). Through use of the <a href="../reference/GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> method, we can insert CSS rulesets as a string. We need to ensure that the table ID is set explicitly (we’ve done so here with the ID value of <code>"one"</code>, setting it up with <code>GT(id=)</code>).</p>
+<div id="fb8a6cf0" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>

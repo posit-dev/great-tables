@@ -24,16 +24,16 @@ Great Tables `v0.24.0` introduces interactive tables, letting users sort, search
 
 *2026-07-27* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.23.0)
 
-Great Tables `v0.23.0` adds new table management and formatting capabilities. This release introduces `rm_*()` methods for selectively removing table components, a [tab_stub_indent()](reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent) method for controlling row label hierarchy, and the [fmt_number_si()](reference/GT.fmt_number_si.html#great_tables.GT.fmt_number_si) formatter for rendering values with SI (metric) prefixes like kilo, mega, and milli. A targeted bug fix for footnote resolution on spanners is also included.
+Great Tables `v0.23.0` adds new table management and formatting capabilities. This release introduces `rm_*()` methods for selectively removing table components, a [tab_stub_indent()](./reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent) method for controlling row label hierarchy, and the `fmt_number_si()` formatter for rendering values with SI (metric) prefixes like kilo, mega, and milli. A targeted bug fix for footnote resolution on spanners is also included.
 
 
 ### New Features
 
-- **`rm_*()` methods** -- New methods ([rm_header()](reference/GT.rm_header.html#great_tables.GT.rm_header), [rm_stubhead()](reference/GT.rm_stubhead.html#great_tables.GT.rm_stubhead), [rm_source_notes()](reference/GT.rm_source_notes.html#great_tables.GT.rm_source_notes), [rm_footnotes()](reference/GT.rm_footnotes.html#great_tables.GT.rm_footnotes), [rm_spanners()](reference/GT.rm_spanners.html#great_tables.GT.rm_spanners)) allow selective removal of table components, making it easier to reshape tables received from other functions or saved objects. ([\#847](https://github.com/posit-dev/great-tables/issues/847))
+- **`rm_*()` methods** -- New methods ([rm_header()](./reference/GT.rm_header.html#great_tables.GT.rm_header), [rm_stubhead()](./reference/GT.rm_stubhead.html#great_tables.GT.rm_stubhead), [rm_source_notes()](./reference/GT.rm_source_notes.html#great_tables.GT.rm_source_notes), [rm_footnotes()](./reference/GT.rm_footnotes.html#great_tables.GT.rm_footnotes), [rm_spanners()](./reference/GT.rm_spanners.html#great_tables.GT.rm_spanners)) allow selective removal of table components, making it easier to reshape tables received from other functions or saved objects. ([\#847](https://github.com/posit-dev/great-tables/issues/847))
 
-- **[tab_stub_indent()](reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent)** -- Control indentation of row labels in the stub to establish visual hierarchy. Supports explicit integer levels (0-5) or `"increase"`/`"decrease"` keyword directives for fine-grained control. ([\#849](https://github.com/posit-dev/great-tables/issues/849))
+- **[tab_stub_indent()](./reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent)** -- Control indentation of row labels in the stub to establish visual hierarchy. Supports explicit integer levels (0-5) or `"increase"`/`"decrease"` keyword directives for fine-grained control. ([\#849](https://github.com/posit-dev/great-tables/issues/849))
 
-- **[fmt_number_si()](reference/GT.fmt_number_si.html#great_tables.GT.fmt_number_si)** -- Format numeric values with SI (International System of Units) prefixes, automatically selecting the appropriate prefix (e.g., k, M, G, m, µ, n) to keep values readable. Supports unit designation, engineering/decimal prefix modes, significant figures, and locale-aware formatting. Also available as [vals.fmt_number_si()](reference/vals.fmt_number_si.html#great_tables.vals.fmt_number_si). ([\#851](https://github.com/posit-dev/great-tables/issues/851))
+- **`fmt_number_si()`** -- Format numeric values with SI (International System of Units) prefixes, automatically selecting the appropriate prefix (e.g., k, M, G, m, µ, n) to keep values readable. Supports unit designation, engineering/decimal prefix modes, significant figures, and locale-aware formatting. Also available as [vals.fmt_number_si()](./reference/vals.fmt_number_si.html#great_tables.vals.fmt_number_si). ([\#851](https://github.com/posit-dev/great-tables/issues/851))
 
 
 ### Bug Fixes
@@ -45,20 +45,20 @@ Great Tables `v0.23.0` adds new table management and formatting capabilities. Th
 
 *2026-06-12* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.22.0)
 
-Great Tables `v0.22.0` is a feature-rich release that greatly expands the formatting, text manipulation, and export capabilities of the library. Highlights include new methods for footnotes, duration formatting, parts-per notation, summary rows, and specialized column merges. A new suite of `text_*()` methods provides powerful cell-content transformations, while [gtsave()](reference/GT.gtsave.html#great_tables.GT.gtsave) replaces the deprecated `save()` with a modern headless-Chrome export pipeline. LaTeX output now supports stubs, row groups, and Markdown/HTML conversion. Pandas is no longer a required dependency--Polars-only usage is fully supported.
+Great Tables `v0.22.0` is a feature-rich release that greatly expands the formatting, text manipulation, and export capabilities of the library. Highlights include new methods for footnotes, duration formatting, parts-per notation, summary rows, and specialized column merges. A new suite of `text_*()` methods provides powerful cell-content transformations, while [gtsave()](./reference/GT.gtsave.html#great_tables.GT.gtsave) replaces the deprecated `save()` with a modern headless-Chrome export pipeline. LaTeX output now supports stubs, row groups, and Markdown/HTML conversion. Pandas is no longer a required dependency--Polars-only usage is fully supported.
 
 
 ### New Features
 
-- **[tab_footnote()](reference/GT.tab_footnote.html#great_tables.GT.tab_footnote)** -- Add table footnotes with automatic, sequentially-ordered marks (symbols, numbers, or letters) attached to targeted cells. Supports placement control and styled text via [md()](reference/md.html#great_tables.md) and [html()](reference/html.html#great_tables.html). ([\#763](https://github.com/posit-dev/great-tables/issues/763))
-- **[fmt_duration()](reference/GT.fmt_duration.html#great_tables.GT.fmt_duration)** -- Format duration values in narrow (`5d 3h`), wide (`5 days, 3 hours`), colon-separated (`02:15:30`), or ISO 8601 styles. Auto-detects Polars `Duration` dtype and supports locale-aware plural forms. ([\#831](https://github.com/posit-dev/great-tables/issues/831))
-- **[fmt_partsper()](reference/GT.fmt_partsper.html#great_tables.GT.fmt_partsper)** -- Format values as parts-per quantities (per-mille ‰, ppm, ppb, ppt, and more) with automatic scaling and context-aware symbol rendering for HTML and LaTeX. ([\#837](https://github.com/posit-dev/great-tables/issues/837))
-- **[cols_reorder()](reference/GT.cols_reorder.html#great_tables.GT.cols_reorder)** -- Completely rearrange all table columns in a single call, replacing multiple `cols_move_*()` invocations for full reordering. ([\#625](https://github.com/posit-dev/great-tables/issues/625))
-- **`cols_merge_*()` methods** -- Specialized column merge variants: [cols_merge_uncert()](reference/GT.cols_merge_uncert.html#great_tables.GT.cols_merge_uncert) for value ± uncertainty, [cols_merge_range()](reference/GT.cols_merge_range.html#great_tables.GT.cols_merge_range) for begin-end ranges, [cols_merge_n_pct()](reference/GT.cols_merge_n_pct.html#great_tables.GT.cols_merge_n_pct) for count (percent) pairs, and the generic [cols_merge()](reference/GT.cols_merge.html#great_tables.GT.cols_merge) with pattern templating. ([\#832](https://github.com/posit-dev/great-tables/issues/832))
-- **[summary_rows()](reference/GT.summary_rows.html#great_tables.GT.summary_rows)** -- Add group-wise summary rows (e.g., totals, means) above or below each row group, with support for Polars expressions and custom aggregation functions. ([\#834](https://github.com/posit-dev/great-tables/issues/834))
-- **[text_transform()](reference/GT.text_transform.html#great_tables.GT.text_transform) and `text_*()` methods** -- New text manipulation suite: [text_transform()](reference/GT.text_transform.html#great_tables.GT.text_transform) for custom functions, [text_replace()](reference/GT.text_replace.html#great_tables.GT.text_replace) for regex substitution, [text_case_match()](reference/GT.text_case_match.html#great_tables.GT.text_case_match) for switch-like replacements, and [text_case_when()](reference/GT.text_case_when.html#great_tables.GT.text_case_when) for predicate-based logic. ([\#835](https://github.com/posit-dev/great-tables/issues/835), [\#836](https://github.com/posit-dev/great-tables/issues/836))
-- **Substitution family methods** -- Replace specific cell values with [sub_missing()](reference/GT.sub_missing.html#great_tables.GT.sub_missing), [sub_zero()](reference/GT.sub_zero.html#great_tables.GT.sub_zero), [sub_small_vals()](reference/GT.sub_small_vals.html#great_tables.GT.sub_small_vals), [sub_large_vals()](reference/GT.sub_large_vals.html#great_tables.GT.sub_large_vals), and [sub_values()](reference/GT.sub_values.html#great_tables.GT.sub_values) for clean, readable tables. ([\#833](https://github.com/posit-dev/great-tables/issues/833))
-- **[gtsave()](reference/GT.gtsave.html#great_tables.GT.gtsave)** -- Save tables to PNG, JPEG, WebP, or PDF using headless Chrome with viewport, zoom, and padding controls. Replaces the deprecated `save()` method. ([\#841](https://github.com/posit-dev/great-tables/issues/841))
+- **[tab_footnote()](./reference/GT.tab_footnote.html#great_tables.GT.tab_footnote)** -- Add table footnotes with automatic, sequentially-ordered marks (symbols, numbers, or letters) attached to targeted cells. Supports placement control and styled text via [md()](./reference/md.html#great_tables.md) and [html()](./reference/html.html#great_tables.html). ([\#763](https://github.com/posit-dev/great-tables/issues/763))
+- **`fmt_duration()`** -- Format duration values in narrow (`5d 3h`), wide (`5 days, 3 hours`), colon-separated (`02:15:30`), or ISO 8601 styles. Auto-detects Polars `Duration` dtype and supports locale-aware plural forms. ([\#831](https://github.com/posit-dev/great-tables/issues/831))
+- **`fmt_partsper()`** -- Format values as parts-per quantities (per-mille ‰, ppm, ppb, ppt, and more) with automatic scaling and context-aware symbol rendering for HTML and LaTeX. ([\#837](https://github.com/posit-dev/great-tables/issues/837))
+- **[cols_reorder()](./reference/GT.cols_reorder.html#great_tables.GT.cols_reorder)** -- Completely rearrange all table columns in a single call, replacing multiple `cols_move_*()` invocations for full reordering. ([\#625](https://github.com/posit-dev/great-tables/issues/625))
+- **`cols_merge_*()` methods** -- Specialized column merge variants: [cols_merge_uncert()](./reference/GT.cols_merge_uncert.html#great_tables.GT.cols_merge_uncert) for value ± uncertainty, [cols_merge_range()](./reference/GT.cols_merge_range.html#great_tables.GT.cols_merge_range) for begin-end ranges, [cols_merge_n_pct()](./reference/GT.cols_merge_n_pct.html#great_tables.GT.cols_merge_n_pct) for count (percent) pairs, and the generic [cols_merge()](./reference/GT.cols_merge.html#great_tables.GT.cols_merge) with pattern templating. ([\#832](https://github.com/posit-dev/great-tables/issues/832))
+- **[summary_rows()](./reference/GT.summary_rows.html#great_tables.GT.summary_rows)** -- Add group-wise summary rows (e.g., totals, means) above or below each row group, with support for Polars expressions and custom aggregation functions. ([\#834](https://github.com/posit-dev/great-tables/issues/834))
+- **[text_transform()](./reference/GT.text_transform.html#great_tables.GT.text_transform) and `text_*()` methods** -- New text manipulation suite: [text_transform()](./reference/GT.text_transform.html#great_tables.GT.text_transform) for custom functions, [text_replace()](./reference/GT.text_replace.html#great_tables.GT.text_replace) for regex substitution, [text_case_match()](./reference/GT.text_case_match.html#great_tables.GT.text_case_match) for switch-like replacements, and [text_case_when()](./reference/GT.text_case_when.html#great_tables.GT.text_case_when) for predicate-based logic. ([\#835](https://github.com/posit-dev/great-tables/issues/835), [\#836](https://github.com/posit-dev/great-tables/issues/836))
+- **Substitution family methods** -- Replace specific cell values with [sub_missing()](./reference/GT.sub_missing.html#great_tables.GT.sub_missing), [sub_zero()](./reference/GT.sub_zero.html#great_tables.GT.sub_zero), [sub_small_vals()](./reference/GT.sub_small_vals.html#great_tables.GT.sub_small_vals), [sub_large_vals()](./reference/GT.sub_large_vals.html#great_tables.GT.sub_large_vals), and [sub_values()](./reference/GT.sub_values.html#great_tables.GT.sub_values) for clean, readable tables. ([\#833](https://github.com/posit-dev/great-tables/issues/833))
+- **[gtsave()](./reference/GT.gtsave.html#great_tables.GT.gtsave)** -- Save tables to PNG, JPEG, WebP, or PDF using headless Chrome with viewport, zoom, and padding controls. Replaces the deprecated `save()` method. ([\#841](https://github.com/posit-dev/great-tables/issues/841))
 
 
 ### Enhancements
@@ -72,7 +72,7 @@ Great Tables `v0.22.0` is a feature-rich release that greatly expands the format
 ### Bug Fixes
 
 - Polars container dtype entries (e.g., lists) are now correctly converted in `_get_cell`. ([\#794](https://github.com/posit-dev/great-tables/issues/794))
-- PyArrow array slicing in [data_color](reference/GT.data_color.html#great_tables.GT.data_color) now works correctly. ([\#741](https://github.com/posit-dev/great-tables/issues/741))
+- PyArrow array slicing in [data_color](./reference/GT.data_color.html#great_tables.GT.data_color) now works correctly. ([\#741](https://github.com/posit-dev/great-tables/issues/741))
 - A charset meta tag is now prepended to HTML output in `save()` for proper encoding. ([\#823](https://github.com/posit-dev/great-tables/issues/823))
 - Nanoplot number streams now gracefully handle `nan` values. ([\#838](https://github.com/posit-dev/great-tables/issues/838))
 - Removed the internal `NpNan` backend in favor of expanded normalization logic. ([\#840](https://github.com/posit-dev/great-tables/issues/840))
@@ -98,21 +98,21 @@ Great Tables `v0.22.0` is a feature-rich release that greatly expands the format
 
 *2026-03-03* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.21.0)
 
-This release adds [cols_merge()](reference/GT.cols_merge.html#great_tables.GT.cols_merge) for combining cell contents across columns, [cols_label_with()](reference/GT.cols_label_with.html#great_tables.GT.cols_label_with) for function-based relabeling, [fmt_engineering()](reference/GT.fmt_engineering.html#great_tables.GT.fmt_engineering) for engineering notation, and [opt_css()](reference/GT.opt_css.html#great_tables.GT.opt_css) for injecting custom CSS rules.
+This release adds [cols_merge()](./reference/GT.cols_merge.html#great_tables.GT.cols_merge) for combining cell contents across columns, [cols_label_with()](./reference/GT.cols_label_with.html#great_tables.GT.cols_label_with) for function-based relabeling, `fmt_engineering()` for engineering notation, and [opt_css()](./reference/GT.opt_css.html#great_tables.GT.opt_css) for injecting custom CSS rules.
 
 
 ### Deprecations
 
-- [opt_all_caps()](reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps) now uses [loc.column_labels](reference/loc.column_labels.html#great_tables.loc.column_labels), [loc.stub](reference/loc.stub.html#great_tables.loc.stub), and [loc.row_groups](reference/loc.row_groups.html#great_tables.loc.row_groups) for the `locations=` argument. String-based locations still work but trigger a deprecation warning. ([\#436](https://github.com/posit-dev/great-tables/issues/436), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- [opt_all_caps()](./reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps) now uses [loc.column_labels](./reference/loc.column_labels.html#great_tables.loc.column_labels), [loc.stub](./reference/loc.stub.html#great_tables.loc.stub), and [loc.row_groups](./reference/loc.row_groups.html#great_tables.loc.row_groups) for the `locations=` argument. String-based locations still work but trigger a deprecation warning. ([\#436](https://github.com/posit-dev/great-tables/issues/436), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 
 
 ### New Features
 
-- **[cols_merge()](reference/GT.cols_merge.html#great_tables.GT.cols_merge) method** -- Combine cell contents across two or more columns using format patterns. ([\#780](https://github.com/posit-dev/great-tables/issues/780))
-- **[cols_label_with()](reference/GT.cols_label_with.html#great_tables.GT.cols_label_with) method** -- Relabel columns using a function (e.g., `str.upper`, `str.replace`). ([\#816](https://github.com/posit-dev/great-tables/issues/816))
-- **[fmt_engineering()](reference/GT.fmt_engineering.html#great_tables.GT.fmt_engineering) method** -- Format values in engineering notation (exponents that are multiples of 3). ([\#786](https://github.com/posit-dev/great-tables/issues/786))
-- **[opt_css()](reference/GT.opt_css.html#great_tables.GT.opt_css) method** -- Define arbitrary CSS rules for an HTML table. ([\#775](https://github.com/posit-dev/great-tables/issues/775))
-- **Container padding in [tab_options()](reference/GT.tab_options.html#great_tables.GT.tab_options)** -- Set padding around the table container element. ([\#802](https://github.com/posit-dev/great-tables/issues/802), [<span class="citation" data-cites="thriller08">@thriller08</span>](https://github.com/thriller08))
+- **[cols_merge()](./reference/GT.cols_merge.html#great_tables.GT.cols_merge) method** -- Combine cell contents across two or more columns using format patterns. ([\#780](https://github.com/posit-dev/great-tables/issues/780))
+- **[cols_label_with()](./reference/GT.cols_label_with.html#great_tables.GT.cols_label_with) method** -- Relabel columns using a function (e.g., `str.upper`, `str.replace`). ([\#816](https://github.com/posit-dev/great-tables/issues/816))
+- **`fmt_engineering()` method** -- Format values in engineering notation (exponents that are multiples of 3). ([\#786](https://github.com/posit-dev/great-tables/issues/786))
+- **[opt_css()](./reference/GT.opt_css.html#great_tables.GT.opt_css) method** -- Define arbitrary CSS rules for an HTML table. ([\#775](https://github.com/posit-dev/great-tables/issues/775))
+- **Container padding in [tab_options()](./reference/GT.tab_options.html#great_tables.GT.tab_options)** -- Set padding around the table container element. ([\#802](https://github.com/posit-dev/great-tables/issues/802), [<span class="citation" data-cites="thriller08">@thriller08</span>](https://github.com/thriller08))
 
 
 ### Bug Fixes
@@ -120,18 +120,18 @@ This release adds [cols_merge()](reference/GT.cols_merge.html#great_tables.GT.co
 - Refactored internal auto-align code for Pandas 3.0.0 compatibility. ([\#810](https://github.com/posit-dev/great-tables/issues/810))
 - Added `int` to the `RowSelectExpr` type definition. ([\#800](https://github.com/posit-dev/great-tables/issues/800), [<span class="citation" data-cites="tylerriccio33">@tylerriccio33</span>](https://github.com/tylerriccio33))
 - Updated the Polars selector type annotation to use `Selector`. ([\#770](https://github.com/posit-dev/great-tables/issues/770), [<span class="citation" data-cites="schmidma">@schmidma</span>](https://github.com/schmidma))
-- Annotated the [pipe()](reference/GT.pipe.html#great_tables.GT.pipe) method's first argument type as [GT](reference/GT.html#great_tables.GT). ([\#757](https://github.com/posit-dev/great-tables/issues/757), [<span class="citation" data-cites="FBruzzesi">@FBruzzesi</span>](https://github.com/FBruzzesi))
+- Annotated the [pipe()](./reference/GT.pipe.html#great_tables.GT.pipe) method's first argument type as [GT](./reference/GT.html#great_tables.GT). ([\#757](https://github.com/posit-dev/great-tables/issues/757), [<span class="citation" data-cites="FBruzzesi">@FBruzzesi</span>](https://github.com/FBruzzesi))
 - `interactive_data_values=` is now handled correctly in nanoplots. ([\#792](https://github.com/posit-dev/great-tables/issues/792), [<span class="citation" data-cites="lorenzo-w">@lorenzo-w</span>](https://github.com/lorenzo-w))
 - Group labels are now properly modified when `render_formats()` is called. ([\#769](https://github.com/posit-dev/great-tables/issues/769), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
 
 
 ### Documentation
 
-- Added docs for [val_fmt_engineering()](reference/vals.fmt_engineering.html#great_tables.vals.fmt_engineering). ([\#808](https://github.com/posit-dev/great-tables/issues/808), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- Corrected the `fns=` parameter docs in [fmt()](reference/GT.fmt.html#great_tables.GT.fmt). ([\#818](https://github.com/posit-dev/great-tables/issues/818))
-- Improved docs for the [from_column()](reference/from_column.html#great_tables.from_column) function. ([\#766](https://github.com/posit-dev/great-tables/issues/766), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Added docs for `val_fmt_engineering()`. ([\#808](https://github.com/posit-dev/great-tables/issues/808), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Corrected the `fns=` parameter docs in [fmt()](./reference/GT.fmt.html#great_tables.GT.fmt). ([\#818](https://github.com/posit-dev/great-tables/issues/818))
+- Improved docs for the [from_column()](./reference/from_column.html#great_tables.from_column) function. ([\#766](https://github.com/posit-dev/great-tables/issues/766), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Added a gt-extras example to the Examples page. ([\#759](https://github.com/posit-dev/great-tables/issues/759), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
-- Added an example demonstrating [define_units()](reference/define_units.html#great_tables.define_units). ([\#446](https://github.com/posit-dev/great-tables/issues/446), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Added an example demonstrating [define_units()](./reference/define_units.html#great_tables.define_units). ([\#446](https://github.com/posit-dev/great-tables/issues/446), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 
 
 ### Internal
@@ -139,7 +139,7 @@ This release adds [cols_merge()](reference/GT.cols_merge.html#great_tables.GT.co
 - Updated copyright end year to 2026. ([\#804](https://github.com/posit-dev/great-tables/issues/804))
 - Fixed several typos. ([\#798](https://github.com/posit-dev/great-tables/issues/798), [<span class="citation" data-cites="kianmeng">@kianmeng</span>](https://github.com/kianmeng))
 - Added Plausible analytics to the project website. ([\#806](https://github.com/posit-dev/great-tables/issues/806))
-- Added tests for [opt_all_caps()](reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps). ([\#812](https://github.com/posit-dev/great-tables/issues/812))
+- Added tests for [opt_all_caps()](./reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps). ([\#812](https://github.com/posit-dev/great-tables/issues/812))
 - Fixed the checkout version tag in CI. ([\#768](https://github.com/posit-dev/great-tables/issues/768), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
 
 
@@ -155,12 +155,12 @@ This release adds [cols_merge()](reference/GT.cols_merge.html#great_tables.GT.co
 
 *2025-10-31* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.20.0)
 
-This release adds the [grand_summary_rows()](reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows) method for table-wide aggregation rows and Polars expression support in `vals` functions.
+This release adds the [grand_summary_rows()](./reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows) method for table-wide aggregation rows and Polars expression support in `vals` functions.
 
 
 ### New Features
 
-- **[grand_summary_rows()](reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows) method** -- Add summary rows at the bottom of the entire table for grand totals and other aggregate statistics. ([\#765](https://github.com/posit-dev/great-tables/issues/765), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
+- **[grand_summary_rows()](./reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows) method** -- Add summary rows at the bottom of the entire table for grand totals and other aggregate statistics. ([\#765](https://github.com/posit-dev/great-tables/issues/765), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
 - **Polars expressions in `vals` functions** -- The `vals` module now accepts Polars expressions for more flexible value formatting. ([\#793](https://github.com/posit-dev/great-tables/issues/793))
 
 
@@ -168,7 +168,7 @@ This release adds the [grand_summary_rows()](reference/GT.grand_summary_rows.htm
 
 *2025-10-07* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.19.0)
 
-This release removes NumPy from the dependencies list, fixes `row_group_as_column` to work as intended, and improves color contrast in [data_color()](reference/GT.data_color.html#great_tables.GT.data_color) and row striping.
+This release removes NumPy from the dependencies list, fixes `row_group_as_column` to work as intended, and improves color contrast in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) and row striping.
 
 
 ### Enhancements
@@ -180,8 +180,8 @@ This release removes NumPy from the dependencies list, fixes `row_group_as_colum
 
 ### Bug Fixes
 
-- Fixed an error when setting `groupname_col=` without `rowname_col=` in the [GT](reference/GT.html#great_tables.GT) constructor. ([\#756](https://github.com/posit-dev/great-tables/issues/756), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
-- [data_color()](reference/GT.data_color.html#great_tables.GT.data_color) now accounts for the alpha value of cell background colors when choosing foreground text color. ([\#747](https://github.com/posit-dev/great-tables/issues/747), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
+- Fixed an error when setting `groupname_col=` without `rowname_col=` in the [GT](./reference/GT.html#great_tables.GT) constructor. ([\#756](https://github.com/posit-dev/great-tables/issues/756), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
+- [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) now accounts for the alpha value of cell background colors when choosing foreground text color. ([\#747](https://github.com/posit-dev/great-tables/issues/747), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
 - Row striping now has better color contrast between text and the cell background. ([\#745](https://github.com/posit-dev/great-tables/issues/745), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
 - Column names are now accessed consistently via `get_column_names()` instead of `.columns`. ([\#736](https://github.com/posit-dev/great-tables/issues/736), [<span class="citation" data-cites="FBruzzesi">@FBruzzesi</span>](https://github.com/FBruzzesi))
 - Avoided double use of `clear` internally with Polars DataFrames. ([\#729](https://github.com/posit-dev/great-tables/issues/729), [<span class="citation" data-cites="FBruzzesi">@FBruzzesi</span>](https://github.com/FBruzzesi))
@@ -207,43 +207,43 @@ This release removes NumPy from the dependencies list, fixes `row_group_as_colum
 
 *2025-07-10* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.18.0)
 
-This release introduces [tab_spanner_delim()](reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim) for automatic spanner creation from delimited column names, rotatable column labels, boolean formatting with [fmt_tf()](reference/GT.fmt_tf.html#great_tables.GT.fmt_tf), and custom datetime format strings. Tables can now be pickled for serialization.
+This release introduces [tab_spanner_delim()](./reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim) for automatic spanner creation from delimited column names, rotatable column labels, boolean formatting with [fmt_tf()](./reference/GT.fmt_tf.html#great_tables.GT.fmt_tf), and custom datetime format strings. Tables can now be pickled for serialization.
 
 
 ### New Features
 
-- **[tab_spanner_delim()](reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim) method** -- Automatically create column spanners by splitting column names on a delimiter. ([\#647](https://github.com/posit-dev/great-tables/issues/647))
-- **[cols_label_rotate()](reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate) method** -- Rotate column label text 90 degrees for compact headers. ([\#696](https://github.com/posit-dev/great-tables/issues/696), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
-- **[fmt_tf()](reference/GT.fmt_tf.html#great_tables.GT.fmt_tf) method** -- Format boolean values with customizable true/false representations. ([\#665](https://github.com/posit-dev/great-tables/issues/665), [\#704](https://github.com/posit-dev/great-tables/issues/704))
-- **Custom datetime format strings** -- [fmt_datetime()](reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime) now accepts a `format_str=` parameter for arbitrary datetime formatting. ([\#645](https://github.com/posit-dev/great-tables/issues/645))
+- **[tab_spanner_delim()](./reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim) method** -- Automatically create column spanners by splitting column names on a delimiter. ([\#647](https://github.com/posit-dev/great-tables/issues/647))
+- **[cols_label_rotate()](./reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate) method** -- Rotate column label text 90 degrees for compact headers. ([\#696](https://github.com/posit-dev/great-tables/issues/696), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
+- **[fmt_tf()](./reference/GT.fmt_tf.html#great_tables.GT.fmt_tf) method** -- Format boolean values with customizable true/false representations. ([\#665](https://github.com/posit-dev/great-tables/issues/665), [\#704](https://github.com/posit-dev/great-tables/issues/704))
+- **Custom datetime format strings** -- [fmt_datetime()](./reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime) now accepts a `format_str=` parameter for arbitrary datetime formatting. ([\#645](https://github.com/posit-dev/great-tables/issues/645))
 - **Pickle support** -- GT tables can now be serialized with `pickle`. ([\#641](https://github.com/posit-dev/great-tables/issues/641), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- **Compact currency formatting** -- [fmt_currency()](reference/GT.fmt_currency.html#great_tables.GT.fmt_currency) gained a `compact=` parameter (e.g., `$13.4M`). ([\#664](https://github.com/posit-dev/great-tables/issues/664))
-- **`truncate=` option in [data_color()](reference/GT.data_color.html#great_tables.GT.data_color)** -- Truncate values to the domain bounds instead of erroring on out-of-range data. ([\#673](https://github.com/posit-dev/great-tables/issues/673), [<span class="citation" data-cites="mahdibaghbanzadeh">@mahdibaghbanzadeh</span>](https://github.com/mahdibaghbanzadeh))
+- **Compact currency formatting** -- `fmt_currency()` gained a `compact=` parameter (e.g., `$13.4M`). ([\#664](https://github.com/posit-dev/great-tables/issues/664))
+- **`truncate=` option in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color)** -- Truncate values to the domain bounds instead of erroring on out-of-range data. ([\#673](https://github.com/posit-dev/great-tables/issues/673), [<span class="citation" data-cites="mahdibaghbanzadeh">@mahdibaghbanzadeh</span>](https://github.com/mahdibaghbanzadeh))
 
 
 ### Enhancements
 
-- Removed the Pandas dependency from [vals.fmt_integer()](reference/vals.fmt_integer.html#great_tables.vals.fmt_integer). ([\#719](https://github.com/posit-dev/great-tables/issues/719))
+- Removed the Pandas dependency from [vals.fmt_integer()](./reference/vals.fmt_integer.html#great_tables.vals.fmt_integer). ([\#719](https://github.com/posit-dev/great-tables/issues/719))
 
 
 ### Bug Fixes
 
-- Fixed an off-by-one bug in `rescale_factor()` that affected [data_color()](reference/GT.data_color.html#great_tables.GT.data_color) output. ([\#718](https://github.com/posit-dev/great-tables/issues/718), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
+- Fixed an off-by-one bug in `rescale_factor()` that affected [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) output. ([\#718](https://github.com/posit-dev/great-tables/issues/718), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
 - Google Fonts import statements are no longer duplicated in HTML output. ([\#708](https://github.com/posit-dev/great-tables/issues/708))
 - Fixed row striping applying to incorrect rows due to an indexing issue. ([\#701](https://github.com/posit-dev/great-tables/issues/701), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
-- Spanners can now be correctly styled with [tab_style()](reference/GT.tab_style.html#great_tables.GT.tab_style). ([\#695](https://github.com/posit-dev/great-tables/issues/695), [<span class="citation" data-cites="ChristopherRussell">@ChristopherRussell</span>](https://github.com/ChristopherRussell))
-- Removed unused `sep_mark=` parameter from [fmt_scientific()](reference/GT.fmt_scientific.html#great_tables.GT.fmt_scientific). ([\#642](https://github.com/posit-dev/great-tables/issues/642))
+- Spanners can now be correctly styled with [tab_style()](./reference/GT.tab_style.html#great_tables.GT.tab_style). ([\#695](https://github.com/posit-dev/great-tables/issues/695), [<span class="citation" data-cites="ChristopherRussell">@ChristopherRussell</span>](https://github.com/ChristopherRussell))
+- Removed unused `sep_mark=` parameter from `fmt_scientific()`. ([\#642](https://github.com/posit-dev/great-tables/issues/642))
 
 
 ### Documentation
 
 - Added note about using `.show("browser")` in VS Code. ([\#643](https://github.com/posit-dev/great-tables/issues/643))
-- Suppressed a [cols_width()](reference/GT.cols_width.html#great_tables.GT.cols_width) warning that appeared in the docs. ([\#659](https://github.com/posit-dev/great-tables/issues/659), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Suppressed a [cols_width()](./reference/GT.cols_width.html#great_tables.GT.cols_width) warning that appeared in the docs. ([\#659](https://github.com/posit-dev/great-tables/issues/659), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Updated docstrings for date/time formatting methods. ([\#658](https://github.com/posit-dev/great-tables/issues/658))
 - Improved interlinking with quartodoc. ([\#697](https://github.com/posit-dev/great-tables/issues/697))
 - Added underline to active link in top navigation bar. ([\#706](https://github.com/posit-dev/great-tables/issues/706))
-- Improved documentation for [as_raw_html()](reference/GT.as_raw_html.html#great_tables.GT.as_raw_html). ([\#707](https://github.com/posit-dev/great-tables/issues/707))
-- Better introduction of the [show()](reference/GT.show.html#great_tables.GT.show) method via a callout. ([\#712](https://github.com/posit-dev/great-tables/issues/712))
+- Improved documentation for [as_raw_html()](./reference/GT.as_raw_html.html#great_tables.GT.as_raw_html). ([\#707](https://github.com/posit-dev/great-tables/issues/707))
+- Better introduction of the [show()](./reference/GT.show.html#great_tables.GT.show) method via a callout. ([\#712](https://github.com/posit-dev/great-tables/issues/712))
 
 
 ### Internal
@@ -263,7 +263,7 @@ This release introduces [tab_spanner_delim()](reference/GT.tab_spanner_delim.htm
 
 *2025-03-11* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.17.0)
 
-This release adds Quarto integration with a table-processing disable option, a new [cols_unhide()](reference/GT.cols_unhide.html#great_tables.GT.cols_unhide) method, and ensures unique HTML ID attributes for tables. The `css-inline` package is now an optional extra.
+This release adds Quarto integration with a table-processing disable option, a new [cols_unhide()](./reference/GT.cols_unhide.html#great_tables.GT.cols_unhide) method, and ensures unique HTML ID attributes for tables. The `css-inline` package is now an optional extra.
 
 
 ### Breaking Changes
@@ -275,7 +275,7 @@ This release adds Quarto integration with a table-processing disable option, a n
 ### New Features
 
 - **Quarto table-processing option** -- Disable Quarto's default table processing and receive a warning on render when needed. ([\#611](https://github.com/posit-dev/great-tables/issues/611))
-- **[cols_unhide()](reference/GT.cols_unhide.html#great_tables.GT.cols_unhide) method** -- Reveal previously hidden columns. ([\#629](https://github.com/posit-dev/great-tables/issues/629), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- **[cols_unhide()](./reference/GT.cols_unhide.html#great_tables.GT.cols_unhide) method** -- Reveal previously hidden columns. ([\#629](https://github.com/posit-dev/great-tables/issues/629), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - **`inline_css=` argument** -- Inline CSS directly on table elements for constrained output contexts. ([\#633](https://github.com/posit-dev/great-tables/issues/633), [<span class="citation" data-cites="tylerriccio33">@tylerriccio33</span>](https://github.com/tylerriccio33))
 
 
@@ -290,10 +290,10 @@ This release adds Quarto integration with a table-processing disable option, a n
 
 ### Documentation
 
-- Updated docs for the `mask=` parameter in [loc.body()](reference/loc.body.html#great_tables.loc.body). ([\#589](https://github.com/posit-dev/great-tables/issues/589), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- Updated the preview of the `year` column in the [gtcars](reference/data.gtcars.html#great_tables.data.gtcars) dataset. ([\#587](https://github.com/posit-dev/great-tables/issues/587), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Updated docs for the `mask=` parameter in [loc.body()](./reference/loc.body.html#great_tables.loc.body). ([\#589](https://github.com/posit-dev/great-tables/issues/589), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Updated the preview of the `year` column in the [gtcars](./reference/data.gtcars.html#great_tables.data.gtcars) dataset. ([\#587](https://github.com/posit-dev/great-tables/issues/587), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Added examples to the documentation. ([\#618](https://github.com/posit-dev/great-tables/issues/618), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- Added [style.css](reference/style.css.html#great_tables.style.css) entry to the API reference. ([\#624](https://github.com/posit-dev/great-tables/issues/624))
+- Added [style.css](./reference/style.css.html#great_tables.style.css) entry to the API reference. ([\#624](https://github.com/posit-dev/great-tables/issues/624))
 - Aligned the *Getting Started* guide with the README. ([\#627](https://github.com/posit-dev/great-tables/issues/627), [<span class="citation" data-cites="zachvalenta">@zachvalenta</span>](https://github.com/zachvalenta))
 
 
@@ -318,25 +318,25 @@ Great Tables `v0.16.1` is a patch release with a single data fix.
 
 ### Bug Fixes
 
-- Updated the `year` column dtype in the [gtcars](reference/data.gtcars.html#great_tables.data.gtcars) dataset. ([\#586](https://github.com/posit-dev/great-tables/issues/586))
+- Updated the `year` column dtype in the [gtcars](./reference/data.gtcars.html#great_tables.data.gtcars) dataset. ([\#586](https://github.com/posit-dev/great-tables/issues/586))
 
 
 # v0.16.0
 
 *2025-01-24* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.16.0)
 
-This release introduces the `mask=` argument for enhanced body cell targeting and a [write_raw_html()](reference/GT.write_raw_html.html#great_tables.GT.write_raw_html) helper for convenient HTML file output.
+This release introduces the `mask=` argument for enhanced body cell targeting and a [write_raw_html()](./reference/GT.write_raw_html.html#great_tables.GT.write_raw_html) helper for convenient HTML file output.
 
 
 ### New Features
 
-- **`mask=` argument in [loc.body()](reference/loc.body.html#great_tables.loc.body)** -- Target specific body cells using a boolean mask for more flexible styling and formatting. ([\#566](https://github.com/posit-dev/great-tables/issues/566), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- **[write_raw_html()](reference/GT.write_raw_html.html#great_tables.GT.write_raw_html) helper** -- Write table HTML output directly to a file without manual string handling. ([\#485](https://github.com/posit-dev/great-tables/issues/485), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- **`mask=` argument in [loc.body()](./reference/loc.body.html#great_tables.loc.body)** -- Target specific body cells using a boolean mask for more flexible styling and formatting. ([\#566](https://github.com/posit-dev/great-tables/issues/566), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- **[write_raw_html()](./reference/GT.write_raw_html.html#great_tables.GT.write_raw_html) helper** -- Write table HTML output directly to a file without manual string handling. ([\#485](https://github.com/posit-dev/great-tables/issues/485), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 
 
 ### Bug Fixes
 
-- Fixed a deprecation warning in [as_raw_html()](reference/GT.as_raw_html.html#great_tables.GT.as_raw_html) for Python 3.13. ([\#563](https://github.com/posit-dev/great-tables/issues/563), [<span class="citation" data-cites="stinodego">@stinodego</span>](https://github.com/stinodego))
+- Fixed a deprecation warning in [as_raw_html()](./reference/GT.as_raw_html.html#great_tables.GT.as_raw_html) for Python 3.13. ([\#563](https://github.com/posit-dev/great-tables/issues/563), [<span class="citation" data-cites="stinodego">@stinodego</span>](https://github.com/stinodego))
 - Nanoplots now support the `pl.UInt` type. ([\#577](https://github.com/posit-dev/great-tables/issues/577), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 
 
@@ -356,19 +356,19 @@ This release introduces the `mask=` argument for enhanced body cell targeting an
 
 *2024-12-14* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.15.0)
 
-This release brings several new formatting methods ([fmt_flag()](reference/GT.fmt_flag.html#great_tables.GT.fmt_flag) for country flags, [fmt_icon()](reference/GT.fmt_icon.html#great_tables.GT.fmt_icon) for FontAwesome icons), and accounting notation in numeric formatters. PyArrow tables are now experimentally supported as input, [as_raw_html()](reference/GT.as_raw_html.html#great_tables.GT.as_raw_html) can inline CSS, and the new [pipe()](reference/GT.pipe.html#great_tables.GT.pipe) method enables functional composition in table-building pipelines.
+This release brings several new formatting methods ([fmt_flag()](./reference/GT.fmt_flag.html#great_tables.GT.fmt_flag) for country flags, [fmt_icon()](./reference/GT.fmt_icon.html#great_tables.GT.fmt_icon) for FontAwesome icons), and accounting notation in numeric formatters. PyArrow tables are now experimentally supported as input, [as_raw_html()](./reference/GT.as_raw_html.html#great_tables.GT.as_raw_html) can inline CSS, and the new [pipe()](./reference/GT.pipe.html#great_tables.GT.pipe) method enables functional composition in table-building pipelines.
 
 
 ### New Features
 
-- **[fmt_flag()](reference/GT.fmt_flag.html#great_tables.GT.fmt_flag) method** -- Display country flag icons in table cells based on country codes. ([\#523](https://github.com/posit-dev/great-tables/issues/523))
-- **[fmt_icon()](reference/GT.fmt_icon.html#great_tables.GT.fmt_icon) method** -- Render FontAwesome icons within table cells. ([\#515](https://github.com/posit-dev/great-tables/issues/515))
-- **Accounting notation** -- [fmt_number()](reference/GT.fmt_number.html#great_tables.GT.fmt_number), [fmt_percent()](reference/GT.fmt_percent.html#great_tables.GT.fmt_percent), [fmt_integer()](reference/GT.fmt_integer.html#great_tables.GT.fmt_integer), and [fmt_currency()](reference/GT.fmt_currency.html#great_tables.GT.fmt_currency) now support accounting notation for negative values. ([\#513](https://github.com/posit-dev/great-tables/issues/513))
+- **[fmt_flag()](./reference/GT.fmt_flag.html#great_tables.GT.fmt_flag) method** -- Display country flag icons in table cells based on country codes. ([\#523](https://github.com/posit-dev/great-tables/issues/523))
+- **[fmt_icon()](./reference/GT.fmt_icon.html#great_tables.GT.fmt_icon) method** -- Render FontAwesome icons within table cells. ([\#515](https://github.com/posit-dev/great-tables/issues/515))
+- **Accounting notation** -- `fmt_number()`, `fmt_percent()`, `fmt_integer()`, and `fmt_currency()` now support accounting notation for negative values. ([\#513](https://github.com/posit-dev/great-tables/issues/513))
 - **PyArrow table support (experimental)** -- Use a `pyarrow.Table` as input data. ([\#487](https://github.com/posit-dev/great-tables/issues/487), [<span class="citation" data-cites="amol">@amol</span>](https://github.com/amol)-)
-- **Inline CSS in [as_raw_html()](reference/GT.as_raw_html.html#great_tables.GT.as_raw_html)** -- New `inline_css=` argument writes CSS-inlined HTML strings for email and other constrained environments. ([\#557](https://github.com/posit-dev/great-tables/issues/557))
-- **[pipe()](reference/GT.pipe.html#great_tables.GT.pipe) method** -- Chain custom functions in a table pipeline, similar to the Pandas and Polars [pipe()](reference/GT.pipe.html#great_tables.GT.pipe) APIs. ([\#363](https://github.com/posit-dev/great-tables/issues/363), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- **Inline CSS in [as_raw_html()](./reference/GT.as_raw_html.html#great_tables.GT.as_raw_html)** -- New `inline_css=` argument writes CSS-inlined HTML strings for email and other constrained environments. ([\#557](https://github.com/posit-dev/great-tables/issues/557))
+- **[pipe()](./reference/GT.pipe.html#great_tables.GT.pipe) method** -- Chain custom functions in a table pipeline, similar to the Pandas and Polars [pipe()](./reference/GT.pipe.html#great_tables.GT.pipe) APIs. ([\#363](https://github.com/posit-dev/great-tables/issues/363), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - **Enhanced `save()` method** -- Now supports intermediate saves by returning `self`, enabling chained workflows. ([\#499](https://github.com/posit-dev/great-tables/issues/499), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- **HTTP/HTTPS support in [fmt_image()](reference/GT.fmt_image.html#great_tables.GT.fmt_image)** -- The `columns=` parameter now supports URLs with `http`/`https` schemes. ([\#520](https://github.com/posit-dev/great-tables/issues/520), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- **HTTP/HTTPS support in `fmt_image()`** -- The `columns=` parameter now supports URLs with `http`/`https` schemes. ([\#520](https://github.com/posit-dev/great-tables/issues/520), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 
 
 ### Bug Fixes
@@ -384,7 +384,7 @@ This release brings several new formatting methods ([fmt_flag()](reference/GT.fm
 - Updated README with conda install instructions and usage environment details. ([\#552](https://github.com/posit-dev/great-tables/issues/552))
 - Improved presentation of Contributing Guidelines. ([\#550](https://github.com/posit-dev/great-tables/issues/550))
 - Added information about Pandas requirement when using internal datasets. ([\#549](https://github.com/posit-dev/great-tables/issues/549), [\#559](https://github.com/posit-dev/great-tables/issues/559))
-- Included [vals.fmt_image()](reference/vals.fmt_image.html#great_tables.vals.fmt_image) in the API reference. ([\#486](https://github.com/posit-dev/great-tables/issues/486), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Included [vals.fmt_image()](./reference/vals.fmt_image.html#great_tables.vals.fmt_image) in the API reference. ([\#486](https://github.com/posit-dev/great-tables/issues/486), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Fixed spelling in the contributing guide. ([\#516](https://github.com/posit-dev/great-tables/issues/516), [<span class="citation" data-cites="glemaitre">@glemaitre</span>](https://github.com/glemaitre))
 
 
@@ -426,13 +426,13 @@ This release adds experimental LaTeX output support, enabling tables to be rende
 
 *2024-10-04* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.13.0)
 
-This release adds granular section restyling via convenience methods, image rendering in non-body components through [val_fmt_image()](reference/vals.fmt_image.html#great_tables.vals.fmt_image), and the ability to pass a webdriver instance directly to `.save()`.
+This release adds granular section restyling via convenience methods, image rendering in non-body components through `val_fmt_image()`, and the ability to pass a webdriver instance directly to `.save()`.
 
 
 ### New Features
 
 - **Granular section restyling** -- Convenience API for restyling individual table sections (header, body, footer, etc.) without touching global options. ([\#341](https://github.com/posit-dev/great-tables/issues/341), [<span class="citation" data-cites="timkpaine">@timkpaine</span>](https://github.com/timkpaine))
-- **[val_fmt_image()](reference/vals.fmt_image.html#great_tables.vals.fmt_image)** -- Render images in table components beyond the body (e.g., column labels, spanners). ([\#451](https://github.com/posit-dev/great-tables/issues/451), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- **`val_fmt_image()`** -- Render images in table components beyond the body (e.g., column labels, spanners). ([\#451](https://github.com/posit-dev/great-tables/issues/451), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - **Webdriver passthrough in `.save()`** -- Pass an existing webdriver instance to `.save()` for reuse across multiple exports. ([\#478](https://github.com/posit-dev/great-tables/issues/478))
 
 
@@ -444,8 +444,8 @@ This release adds granular section restyling via convenience methods, image rend
 
 ### Documentation
 
-- Added [google_font()](reference/google_font.html#great_tables.google_font) helper to the API reference. ([\#464](https://github.com/posit-dev/great-tables/issues/464), [\#471](https://github.com/posit-dev/great-tables/issues/471), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- Updated docs and code to support `GoogleFont` in [opt_table_font()](reference/GT.opt_table_font.html#great_tables.GT.opt_table_font). ([\#470](https://github.com/posit-dev/great-tables/issues/470), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Added [google_font()](./reference/google_font.html#great_tables.google_font) helper to the API reference. ([\#464](https://github.com/posit-dev/great-tables/issues/464), [\#471](https://github.com/posit-dev/great-tables/issues/471), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Updated docs and code to support `GoogleFont` in [opt_table_font()](./reference/GT.opt_table_font.html#great_tables.GT.opt_table_font). ([\#470](https://github.com/posit-dev/great-tables/issues/470), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Added docstrings for new location methods. ([\#474](https://github.com/posit-dev/great-tables/issues/474), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Fixed deprecated warning for `pl.DataFrame.pivot()`. ([\#472](https://github.com/posit-dev/great-tables/issues/472))
 - GT members are no longer documented inline on the reference page. ([\#475](https://github.com/posit-dev/great-tables/issues/475))
@@ -455,19 +455,19 @@ This release adds granular section restyling via convenience methods, image rend
 
 *2024-09-27* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.12.0)
 
-This release adds Google Fonts integration and row striping support, with [opt_stylize()](reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) now producing striped tables by default.
+This release adds Google Fonts integration and row striping support, with [opt_stylize()](./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) now producing striped tables by default.
 
 
 ### Breaking Changes
 
-- [opt_stylize()](reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) now produces row stripes by default. Set `add_row_striping=False` to remove them. ([\#461](https://github.com/posit-dev/great-tables/issues/461))
-- [opt_stylize()](reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) now adds borders to certain styles, matching the original design intent. ([\#463](https://github.com/posit-dev/great-tables/issues/463))
+- [opt_stylize()](./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) now produces row stripes by default. Set `add_row_striping=False` to remove them. ([\#461](https://github.com/posit-dev/great-tables/issues/461))
+- [opt_stylize()](./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) now adds borders to certain styles, matching the original design intent. ([\#463](https://github.com/posit-dev/great-tables/issues/463))
 
 
 ### New Features
 
-- **[google_font()](reference/google_font.html#great_tables.google_font) helper** -- Easily use Google Fonts in [opt_table_font()](reference/GT.opt_table_font.html#great_tables.GT.opt_table_font) and [style.text()](reference/style.text.html#great_tables.style.text). ([\#423](https://github.com/posit-dev/great-tables/issues/423))
-- **Row striping options** -- Configure row striping behavior through [opt_stylize()](reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) and related options. ([\#461](https://github.com/posit-dev/great-tables/issues/461), [\#463](https://github.com/posit-dev/great-tables/issues/463))
+- **[google_font()](./reference/google_font.html#great_tables.google_font) helper** -- Easily use Google Fonts in [opt_table_font()](./reference/GT.opt_table_font.html#great_tables.GT.opt_table_font) and [style.text()](./reference/style.text.html#great_tables.style.text). ([\#423](https://github.com/posit-dev/great-tables/issues/423))
+- **Row striping options** -- Configure row striping behavior through [opt_stylize()](./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) and related options. ([\#461](https://github.com/posit-dev/great-tables/issues/461), [\#463](https://github.com/posit-dev/great-tables/issues/463))
 
 
 ### Bug Fixes
@@ -487,9 +487,9 @@ This release adds Google Fonts integration and row striping support, with [opt_s
 
 ## Fixes
 
-- Do not error when URL string supplied to `path=` argument in [fmt_image()](reference/GT.fmt_image.html#great_tables.GT.fmt_image) by [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw) in https://github.com/posit-dev/great-tables/pull/444
+- Do not error when URL string supplied to `path=` argument in `fmt_image()` by [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw) in https://github.com/posit-dev/great-tables/pull/444
 - Include an `encoding=` arg in `GT.save()` (with default `"utf-8"`) for more dependable saving in Windows by [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw) in https://github.com/posit-dev/great-tables/pull/454
-- Unify the method signatures of [cols_label()](reference/GT.cols_label.html#great_tables.GT.cols_label) and [cols_width()](reference/GT.cols_width.html#great_tables.GT.cols_width) by having them both accept `cases=` and `**kwargs` by [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw) in https://github.com/posit-dev/great-tables/pull/452
+- Unify the method signatures of [cols_label()](./reference/GT.cols_label.html#great_tables.GT.cols_label) and [cols_width()](./reference/GT.cols_width.html#great_tables.GT.cols_width) by having them both accept `cases=` and `**kwargs` by [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw) in https://github.com/posit-dev/great-tables/pull/452
 
 
 ## Chores
@@ -504,9 +504,9 @@ This release adds Google Fonts integration and row striping support, with [opt_s
 
 ## Docs
 
-- Update import statement in the [GT.data_color()](reference/GT.data_color.html#great_tables.GT.data_color) example by [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw) in https://github.com/posit-dev/great-tables/pull/432
-- Indicate that [tab_spanner()](reference/GT.tab_spanner.html#great_tables.GT.tab_spanner) allows for use of units notation in its `label=` argument by [<span class="citation" data-cites="rich-iannone">@rich-iannone</span>](https://github.com/rich-iannone) in https://github.com/posit-dev/great-tables/pull/426
-- Visually document options for theming table with [opt_stylize()](reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) by [<span class="citation" data-cites="rich-iannone">@rich-iannone</span>](https://github.com/rich-iannone) in https://github.com/posit-dev/great-tables/pull/438
+- Update import statement in the [GT.data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) example by [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw) in https://github.com/posit-dev/great-tables/pull/432
+- Indicate that [tab_spanner()](./reference/GT.tab_spanner.html#great_tables.GT.tab_spanner) allows for use of units notation in its `label=` argument by [<span class="citation" data-cites="rich-iannone">@rich-iannone</span>](https://github.com/rich-iannone) in https://github.com/posit-dev/great-tables/pull/426
+- Visually document options for theming table with [opt_stylize()](./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) by [<span class="citation" data-cites="rich-iannone">@rich-iannone</span>](https://github.com/rich-iannone) in https://github.com/posit-dev/great-tables/pull/438
 - Provide updates to PyCon- and SciPy-related blog posts by [<span class="citation" data-cites="rich-iannone">@rich-iannone</span>](https://github.com/rich-iannone) in https://github.com/posit-dev/great-tables/pull/445
 
 **Full Changelog**: [https://github.com/posit-dev/great-tables/compare/v0.11.0…v0.11.1](https://github.com/posit-dev/great-tables/compare/v0.11.0...v0.11.1)
@@ -548,21 +548,21 @@ This release restructures the HTML output so that `<thead>` properly encloses bo
 
 *2024-07-08* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.10.0)
 
-This release adds units notation support in column labels and spanners, a new [opt_table_font()](reference/GT.opt_table_font.html#great_tables.GT.opt_table_font) method, the `.show()` method for interactive display, and several new built-in datasets.
+This release adds units notation support in column labels and spanners, a new [opt_table_font()](./reference/GT.opt_table_font.html#great_tables.GT.opt_table_font) method, the `.show()` method for interactive display, and several new built-in datasets.
 
 
 ### New Features
 
-- **Units notation in [cols_label()](reference/GT.cols_label.html#great_tables.GT.cols_label)** -- Express measurement units directly in column labels using the units notation syntax. ([\#380](https://github.com/posit-dev/great-tables/issues/380))
-- **Units notation in [tab_spanner()](reference/GT.tab_spanner.html#great_tables.GT.tab_spanner)** -- Spanner labels can also use units notation for scientific and technical headers. ([\#393](https://github.com/posit-dev/great-tables/issues/393))
-- **[opt_table_font()](reference/GT.opt_table_font.html#great_tables.GT.opt_table_font) method** -- Easily set a default font for the entire table. ([\#272](https://github.com/posit-dev/great-tables/issues/272))
+- **Units notation in [cols_label()](./reference/GT.cols_label.html#great_tables.GT.cols_label)** -- Express measurement units directly in column labels using the units notation syntax. ([\#380](https://github.com/posit-dev/great-tables/issues/380))
+- **Units notation in [tab_spanner()](./reference/GT.tab_spanner.html#great_tables.GT.tab_spanner)** -- Spanner labels can also use units notation for scientific and technical headers. ([\#393](https://github.com/posit-dev/great-tables/issues/393))
+- **[opt_table_font()](./reference/GT.opt_table_font.html#great_tables.GT.opt_table_font) method** -- Easily set a default font for the entire table. ([\#272](https://github.com/posit-dev/great-tables/issues/272))
 - **`.show()` method** -- Display a table interactively in notebooks and other environments. ([\#379](https://github.com/posit-dev/great-tables/issues/379))
 - **New datasets** -- Several new built-in datasets added, bringing the total to 16. ([\#382](https://github.com/posit-dev/great-tables/issues/382))
 
 
 ### Bug Fixes
 
-- Fixed [fmt_percent()](reference/GT.fmt_percent.html#great_tables.GT.fmt_percent) issue with Polars `u64-idx` builds. ([\#388](https://github.com/posit-dev/great-tables/issues/388), [<span class="citation" data-cites="lostmygithubaccount">@lostmygithubaccount</span>](https://github.com/lostmygithubaccount))
+- Fixed `fmt_percent()` issue with Polars `u64-idx` builds. ([\#388](https://github.com/posit-dev/great-tables/issues/388), [<span class="citation" data-cites="lostmygithubaccount">@lostmygithubaccount</span>](https://github.com/lostmygithubaccount))
 - Added render target for HTML pages. ([\#377](https://github.com/posit-dev/great-tables/issues/377), [<span class="citation" data-cites="isabelizimm">@isabelizimm</span>](https://github.com/isabelizimm))
 - `.show()` no longer raises or prints to stderr. ([\#384](https://github.com/posit-dev/great-tables/issues/384))
 
@@ -582,50 +582,50 @@ This release adds units notation support in column labels and spanners, a new [o
 
 *2024-06-06* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.9.0)
 
-This release adds row subsetting to [data_color()](reference/GT.data_color.html#great_tables.GT.data_color), allowing color scales to be applied to specific rows.
+This release adds row subsetting to [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color), allowing color scales to be applied to specific rows.
 
 
 ### New Features
 
-- **Row selection in [data_color()](reference/GT.data_color.html#great_tables.GT.data_color)** -- A `rows=` argument enables applying color scales to a subset of rows rather than the entire column. ([\#364](https://github.com/posit-dev/great-tables/issues/364), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- **Row selection in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color)** -- A `rows=` argument enables applying color scales to a subset of rows rather than the entire column. ([\#364](https://github.com/posit-dev/great-tables/issues/364), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 
 
 ### Breaking Changes
 
-- The `rows=` parameter is now the third positional argument in [data_color()](reference/GT.data_color.html#great_tables.GT.data_color), which may break code that relied on positional argument order.
+- The `rows=` parameter is now the third positional argument in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color), which may break code that relied on positional argument order.
 
 
 # v0.8.0
 
 *2024-06-06* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.8.0)
 
-This release adds method equivalents for several constructor options, allowing them to be set in a chained pipeline rather than only at [GT()](reference/GT.html#great_tables.GT) instantiation.
+This release adds method equivalents for several constructor options, allowing them to be set in a chained pipeline rather than only at [GT()](./reference/GT.html#great_tables.GT) instantiation.
 
 
 ### New Features
 
-- **[GT.tab_stub()](reference/GT.tab_stub.html#great_tables.GT.tab_stub)** -- Set `rowname_col=` and `groupname_col=` as a method call instead of only in the [GT()](reference/GT.html#great_tables.GT) constructor. ([\#371](https://github.com/posit-dev/great-tables/issues/371))
-- **[GT.with_locale()](reference/GT.with_locale.html#great_tables.GT.with_locale)** -- Set the locale after construction. ([\#371](https://github.com/posit-dev/great-tables/issues/371))
-- **[GT.with_id()](reference/GT.with_id.html#great_tables.GT.with_id)** -- Set the table ID after construction. ([\#371](https://github.com/posit-dev/great-tables/issues/371))
+- **[GT.tab_stub()](./reference/GT.tab_stub.html#great_tables.GT.tab_stub)** -- Set `rowname_col=` and `groupname_col=` as a method call instead of only in the [GT()](./reference/GT.html#great_tables.GT) constructor. ([\#371](https://github.com/posit-dev/great-tables/issues/371))
+- **[GT.with_locale()](./reference/GT.with_locale.html#great_tables.GT.with_locale)** -- Set the locale after construction. ([\#371](https://github.com/posit-dev/great-tables/issues/371))
+- **[GT.with_id()](./reference/GT.with_id.html#great_tables.GT.with_id)** -- Set the table ID after construction. ([\#371](https://github.com/posit-dev/great-tables/issues/371))
 
 
 # v0.7.0
 
 *2024-06-04* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.7.0)
 
-This release adds the [fmt_units()](reference/GT.fmt_units.html#great_tables.GT.fmt_units) method for rendering scientific units and improves Polars selector compatibility.
+This release adds the [fmt_units()](./reference/GT.fmt_units.html#great_tables.GT.fmt_units) method for rendering scientific units and improves Polars selector compatibility.
 
 
 ### New Features
 
-- **[fmt_units()](reference/GT.fmt_units.html#great_tables.GT.fmt_units) method** -- Format measurement units with proper subscripts, superscripts, and symbols for scientific notation. ([\#240](https://github.com/posit-dev/great-tables/issues/240))
+- **[fmt_units()](./reference/GT.fmt_units.html#great_tables.GT.fmt_units) method** -- Format measurement units with proper subscripts, superscripts, and symbols for scientific notation. ([\#240](https://github.com/posit-dev/great-tables/issues/240))
 - **Non-strict Polars `expand_selector()` support** -- Polars selectors now use non-strict mode, avoiding errors when selectors match no columns. ([\#368](https://github.com/posit-dev/great-tables/issues/368))
 
 
 ### Bug Fixes
 
 - General enhancements and fixes to several `cols_*()` methods. ([\#366](https://github.com/posit-dev/great-tables/issues/366), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- Better error message when list data is used incorrectly in [fmt_nanoplot()](reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot). ([\#356](https://github.com/posit-dev/great-tables/issues/356), [<span class="citation" data-cites="marcozzxx810">@marcozzxx810</span>](https://github.com/marcozzxx810))
+- Better error message when list data is used incorrectly in [fmt_nanoplot()](./reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot). ([\#356](https://github.com/posit-dev/great-tables/issues/356), [<span class="citation" data-cites="marcozzxx810">@marcozzxx810</span>](https://github.com/marcozzxx810))
 
 
 ### Documentation
@@ -695,11 +695,11 @@ Great Tables `v0.5.2` is a patch release addressing several bugs in borders, ima
 
 ### Bug Fixes
 
-- [CellStyleBorders](reference/style.borders.html#great_tables.style.borders) is now properly constructed when `sides` is set to `"all"`. ([\#326](https://github.com/posit-dev/great-tables/issues/326), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- [fmt_image()](reference/GT.fmt_image.html#great_tables.GT.fmt_image) no longer errors on missing values. ([\#329](https://github.com/posit-dev/great-tables/issues/329))
+- `CellStyleBorders` is now properly constructed when `sides` is set to `"all"`. ([\#326](https://github.com/posit-dev/great-tables/issues/326), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- `fmt_image()` no longer errors on missing values. ([\#329](https://github.com/posit-dev/great-tables/issues/329))
 - Nanoplots now work with list columns, and Polars list columns no longer raise an error. ([\#330](https://github.com/posit-dev/great-tables/issues/330))
 - Nanoplots no longer fail for lists of large integers. ([\#335](https://github.com/posit-dev/great-tables/issues/335))
-- [fmt_number()](reference/GT.fmt_number.html#great_tables.GT.fmt_number) no longer inserts an improper comma for 3-digit compact, negative numbers. ([\#335](https://github.com/posit-dev/great-tables/issues/335))
+- `fmt_number()` no longer inserts an improper comma for 3-digit compact, negative numbers. ([\#335](https://github.com/posit-dev/great-tables/issues/335))
 
 
 ### Documentation
@@ -726,10 +726,10 @@ Great Tables `v0.5.1` is a maintenance release focused on bug fixes, code qualit
 
 ### Bug Fixes
 
-- `table_font_color=` in [tab_options()](reference/GT.tab_options.html#great_tables.GT.tab_options) now correctly accepts named colors. ([\#285](https://github.com/posit-dev/great-tables/issues/285), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- `table_font_color=` in [tab_options()](./reference/GT.tab_options.html#great_tables.GT.tab_options) now correctly accepts named colors. ([\#285](https://github.com/posit-dev/great-tables/issues/285), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Group label rows now produce valid HTML. ([\#308](https://github.com/posit-dev/great-tables/issues/308))
-- Fixed Polars selectors error in [cols_hide()](reference/GT.cols_hide.html#great_tables.GT.cols_hide). ([\#316](https://github.com/posit-dev/great-tables/issues/316), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- [fmt_number()](reference/GT.fmt_number.html#great_tables.GT.fmt_number) now handles missing values correctly. ([\#317](https://github.com/posit-dev/great-tables/issues/317), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Fixed Polars selectors error in [cols_hide()](./reference/GT.cols_hide.html#great_tables.GT.cols_hide). ([\#316](https://github.com/posit-dev/great-tables/issues/316), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- `fmt_number()` now handles missing values correctly. ([\#317](https://github.com/posit-dev/great-tables/issues/317), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Fixed display of integer-like values in nanoplots. ([\#319](https://github.com/posit-dev/great-tables/issues/319), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 
 
@@ -741,13 +741,13 @@ Great Tables `v0.5.1` is a maintenance release focused on bug fixes, code qualit
 
 ### Internal
 
-- Cleaned up implementation of [fmt_nanoplot()](reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot) and [data_color()](reference/GT.data_color.html#great_tables.GT.data_color). ([\#294](https://github.com/posit-dev/great-tables/issues/294), [\#295](https://github.com/posit-dev/great-tables/issues/295), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- Refactored [fmt_time()](reference/GT.fmt_time.html#great_tables.GT.fmt_time), [fmt_date()](reference/GT.fmt_date.html#great_tables.GT.fmt_date), and [fmt_datetime()](reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime). ([\#290](https://github.com/posit-dev/great-tables/issues/290), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Cleaned up implementation of [fmt_nanoplot()](./reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot) and [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color). ([\#294](https://github.com/posit-dev/great-tables/issues/294), [\#295](https://github.com/posit-dev/great-tables/issues/295), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Refactored `fmt_time()`, `fmt_date()`, and [fmt_datetime()](./reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime). ([\#290](https://github.com/posit-dev/great-tables/issues/290), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Refactored `letters` and `Letters` functions in helpers. ([\#289](https://github.com/posit-dev/great-tables/issues/289), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Updated type hints and organized imports. ([\#315](https://github.com/posit-dev/great-tables/issues/315), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Codebase cleanup and minor improvements. ([\#292](https://github.com/posit-dev/great-tables/issues/292), [\#305](https://github.com/posit-dev/great-tables/issues/305), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Improved test coverage. ([\#311](https://github.com/posit-dev/great-tables/issues/311), [\#325](https://github.com/posit-dev/great-tables/issues/325), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- Added tests for [cols_align()](reference/GT.cols_align.html#great_tables.GT.cols_align) and extended Polars expression support. ([\#320](https://github.com/posit-dev/great-tables/issues/320), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Added tests for [cols_align()](./reference/GT.cols_align.html#great_tables.GT.cols_align) and extended Polars expression support. ([\#320](https://github.com/posit-dev/great-tables/issues/320), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 
 
 # v0.5.0
@@ -759,7 +759,7 @@ This release significantly reduces the dependency footprint by removing mizani a
 
 ### New Features
 
-- **[sub_missing()](reference/GT.sub_missing.html#great_tables.GT.sub_missing) and [sub_zero()](reference/GT.sub_zero.html#great_tables.GT.sub_zero) methods** -- Substitute missing or zero values with custom text or symbols. ([\#244](https://github.com/posit-dev/great-tables/issues/244))
+- **[sub_missing()](./reference/GT.sub_missing.html#great_tables.GT.sub_missing) and [sub_zero()](./reference/GT.sub_zero.html#great_tables.GT.sub_zero) methods** -- Substitute missing or zero values with custom text or symbols. ([\#244](https://github.com/posit-dev/great-tables/issues/244))
 - **Webdriver selection in `.save()`** -- Choose between different webdrivers (e.g., Chrome, Firefox) when saving tables as images. ([\#262](https://github.com/posit-dev/great-tables/issues/262))
 
 
@@ -777,7 +777,7 @@ This release significantly reduces the dependency footprint by removing mizani a
 
 ### Documentation
 
-- Added examples for [fmt_nanoplot()](reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot). ([\#245](https://github.com/posit-dev/great-tables/issues/245))
+- Added examples for [fmt_nanoplot()](./reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot). ([\#245](https://github.com/posit-dev/great-tables/issues/245))
 - Added docs site and Codecov badges to the README. ([\#254](https://github.com/posit-dev/great-tables/issues/254))
 - Improved examples in the Examples section. ([\#267](https://github.com/posit-dev/great-tables/issues/267))
 - Fixed variable names in the Oceania example. ([\#264](https://github.com/posit-dev/great-tables/issues/264))
@@ -815,35 +815,35 @@ This release introduces nanoplots (small inline plots embedded directly in table
 
 ### Documentation
 
-- Fixed the [opt_horizontal_padding()](reference/GT.opt_horizontal_padding.html#great_tables.GT.opt_horizontal_padding) example. ([\#215](https://github.com/posit-dev/great-tables/issues/215))
+- Fixed the [opt_horizontal_padding()](./reference/GT.opt_horizontal_padding.html#great_tables.GT.opt_horizontal_padding) example. ([\#215](https://github.com/posit-dev/great-tables/issues/215))
 
 
 # v0.3.1
 
 *2024-02-27* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.3.1)
 
-This release adds table export capabilities with `.save()` and `.as_raw_html()`, plus two new styling convenience methods. Several [data_color()](reference/GT.data_color.html#great_tables.GT.data_color) edge cases are now handled correctly.
+This release adds table export capabilities with `.save()` and `.as_raw_html()`, plus two new styling convenience methods. Several [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) edge cases are now handled correctly.
 
 
 ### New Features
 
 - **`.save()` and `.as_raw_html()` methods** -- Export tables to HTML files or retrieve raw HTML strings for embedding. ([\#208](https://github.com/posit-dev/great-tables/issues/208))
-- **[opt_stylize()](reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) method** -- Apply one of several pre-built table themes with a single method call. ([\#198](https://github.com/posit-dev/great-tables/issues/198))
-- **[opt_table_outline()](reference/GT.opt_table_outline.html#great_tables.GT.opt_table_outline) method** -- Add or customize the table's outer border. ([\#209](https://github.com/posit-dev/great-tables/issues/209))
+- **[opt_stylize()](./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) method** -- Apply one of several pre-built table themes with a single method call. ([\#198](https://github.com/posit-dev/great-tables/issues/198))
+- **[opt_table_outline()](./reference/GT.opt_table_outline.html#great_tables.GT.opt_table_outline) method** -- Add or customize the table's outer border. ([\#209](https://github.com/posit-dev/great-tables/issues/209))
 
 
 ### Bug Fixes
 
 - Fixed row rendering order to iterate over sorted rows. ([\#202](https://github.com/posit-dev/great-tables/issues/202))
-- `np.nan` values are now correctly replaced with the `na_color=` value in [data_color()](reference/GT.data_color.html#great_tables.GT.data_color). ([\#205](https://github.com/posit-dev/great-tables/issues/205))
-- [data_color()](reference/GT.data_color.html#great_tables.GT.data_color) now handles edge cases with single-value columns and all-missing columns. ([\#213](https://github.com/posit-dev/great-tables/issues/213))
+- `np.nan` values are now correctly replaced with the `na_color=` value in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color). ([\#205](https://github.com/posit-dev/great-tables/issues/205))
+- [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) now handles edge cases with single-value columns and all-missing columns. ([\#213](https://github.com/posit-dev/great-tables/issues/213))
 
 
 ### Documentation
 
 - Added the `v0.3.0` release blog post. ([\#200](https://github.com/posit-dev/great-tables/issues/200))
 - Added documentation on table themes. ([\#197](https://github.com/posit-dev/great-tables/issues/197))
-- Added docs for the [fmt_image()](reference/GT.fmt_image.html#great_tables.GT.fmt_image) method. ([\#216](https://github.com/posit-dev/great-tables/issues/216))
+- Added docs for the `fmt_image()` method. ([\#216](https://github.com/posit-dev/great-tables/issues/216))
 
 
 ### Internal
@@ -855,25 +855,25 @@ This release adds table export capabilities with `.save()` and `.as_raw_html()`,
 
 *2024-02-16* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.3.0)
 
-This release brings extensive table customization with [tab_options()](reference/GT.tab_options.html#great_tables.GT.tab_options) for global styling, [cols_width()](reference/GT.cols_width.html#great_tables.GT.cols_width) for column sizing, [fmt_image()](reference/GT.fmt_image.html#great_tables.GT.fmt_image) for embedding images, and several convenience methods for common styling patterns. ColorBrewer palettes are now available in [data_color()](reference/GT.data_color.html#great_tables.GT.data_color).
+This release brings extensive table customization with [tab_options()](./reference/GT.tab_options.html#great_tables.GT.tab_options) for global styling, [cols_width()](./reference/GT.cols_width.html#great_tables.GT.cols_width) for column sizing, `fmt_image()` for embedding images, and several convenience methods for common styling patterns. ColorBrewer palettes are now available in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color).
 
 
 ### New Features
 
-- **[tab_options()](reference/GT.tab_options.html#great_tables.GT.tab_options) method** -- Configure global table styling options including fonts, colors, padding, and borders. ([\#146](https://github.com/posit-dev/great-tables/issues/146))
-- **[cols_width()](reference/GT.cols_width.html#great_tables.GT.cols_width) method** -- Set explicit column widths using absolute or relative values. ([\#143](https://github.com/posit-dev/great-tables/issues/143))
-- **[fmt_image()](reference/GT.fmt_image.html#great_tables.GT.fmt_image) method** -- Embed images directly in table cells from file paths or URLs. ([\#163](https://github.com/posit-dev/great-tables/issues/163))
-- **[opt_align_table_header()](reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header) method** -- Quickly align the table header to the left, center, or right. ([\#147](https://github.com/posit-dev/great-tables/issues/147))
-- **[opt_all_caps()](reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps) method** -- Apply all-caps styling to column labels, spanner labels, or stub text. ([\#150](https://github.com/posit-dev/great-tables/issues/150))
+- **[tab_options()](./reference/GT.tab_options.html#great_tables.GT.tab_options) method** -- Configure global table styling options including fonts, colors, padding, and borders. ([\#146](https://github.com/posit-dev/great-tables/issues/146))
+- **[cols_width()](./reference/GT.cols_width.html#great_tables.GT.cols_width) method** -- Set explicit column widths using absolute or relative values. ([\#143](https://github.com/posit-dev/great-tables/issues/143))
+- **`fmt_image()` method** -- Embed images directly in table cells from file paths or URLs. ([\#163](https://github.com/posit-dev/great-tables/issues/163))
+- **[opt_align_table_header()](./reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header) method** -- Quickly align the table header to the left, center, or right. ([\#147](https://github.com/posit-dev/great-tables/issues/147))
+- **[opt_all_caps()](./reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps) method** -- Apply all-caps styling to column labels, spanner labels, or stub text. ([\#150](https://github.com/posit-dev/great-tables/issues/150))
 - **Vertical and horizontal padding options** -- New `opt_*` methods for adjusting cell padding. ([\#154](https://github.com/posit-dev/great-tables/issues/154))
-- **[system_fonts()](reference/system_fonts.html#great_tables.system_fonts) helper** -- Access curated system font stacks for use in table options. ([\#158](https://github.com/posit-dev/great-tables/issues/158))
-- **ColorBrewer palettes in [data_color()](reference/GT.data_color.html#great_tables.GT.data_color)** -- Use any ColorBrewer palette for data-driven coloring. ([\#186](https://github.com/posit-dev/great-tables/issues/186))
+- **[system_fonts()](./reference/system_fonts.html#great_tables.system_fonts) helper** -- Access curated system font stacks for use in table options. ([\#158](https://github.com/posit-dev/great-tables/issues/158))
+- **ColorBrewer palettes in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color)** -- Use any ColorBrewer palette for data-driven coloring. ([\#186](https://github.com/posit-dev/great-tables/issues/186))
 
 
 ### Bug Fixes
 
 - Replaced deprecated `with_row_count` with `with_row_index` for Polars compatibility. ([\#189](https://github.com/posit-dev/great-tables/issues/189), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- Table font names in [tab_options()](reference/GT.tab_options.html#great_tables.GT.tab_options) now accept both a string and a list. ([\#155](https://github.com/posit-dev/great-tables/issues/155))
+- Table font names in [tab_options()](./reference/GT.tab_options.html#great_tables.GT.tab_options) now accept both a string and a list. ([\#155](https://github.com/posit-dev/great-tables/issues/155))
 - Fixed `FutureWarning` for `DataFrameGroupBy.grouper`. ([\#193](https://github.com/posit-dev/great-tables/issues/193), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 
 
@@ -884,7 +884,7 @@ This release brings extensive table customization with [tab_options()](reference
 
 ### Documentation
 
-- Added example using [sza](reference/data.sza.html#great_tables.data.sza) dataset with [data_color()](reference/GT.data_color.html#great_tables.GT.data_color). ([\#136](https://github.com/posit-dev/great-tables/issues/136))
+- Added example using [sza](./reference/data.sza.html#great_tables.data.sza) dataset with [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color). ([\#136](https://github.com/posit-dev/great-tables/issues/136))
 - Published a Super Bowl blog post. ([\#184](https://github.com/posit-dev/great-tables/issues/184), [\#185](https://github.com/posit-dev/great-tables/issues/185))
 - Added sports examples to the docs. ([\#195](https://github.com/posit-dev/great-tables/issues/195))
 - Cleaned up examples in the API docs. ([\#191](https://github.com/posit-dev/great-tables/issues/191))
@@ -901,12 +901,12 @@ This release brings extensive table customization with [tab_options()](reference
 
 *2024-01-24* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.2.0)
 
-This release introduces the [data_color()](reference/GT.data_color.html#great_tables.GT.data_color) method for applying color scales to table data, along with several bug fixes for frame validation and spanner columns.
+This release introduces the [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) method for applying color scales to table data, along with several bug fixes for frame validation and spanner columns.
 
 
 ### New Features
 
-- **[data_color()](reference/GT.data_color.html#great_tables.GT.data_color) method** -- Apply color scales to columns based on their underlying data values, with support for custom palettes and domains. ([\#109](https://github.com/posit-dev/great-tables/issues/109))
+- **[data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) method** -- Apply color scales to columns based on their underlying data values, with support for custom palettes and domains. ([\#109](https://github.com/posit-dev/great-tables/issues/109))
 
 
 ### Bug Fixes
@@ -923,7 +923,7 @@ This release introduces the [data_color()](reference/GT.data_color.html#great_ta
 
 ### Documentation
 
-- Added a guide for [data_color()](reference/GT.data_color.html#great_tables.GT.data_color) and an introductory blog post for the new version. ([\#131](https://github.com/posit-dev/great-tables/issues/131))
+- Added a guide for [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) and an introductory blog post for the new version. ([\#131](https://github.com/posit-dev/great-tables/issues/131))
 - Published a blog post on Polars styling. ([\#113](https://github.com/posit-dev/great-tables/issues/113))
 
 
@@ -936,12 +936,12 @@ This release introduces the [data_color()](reference/GT.data_color.html#great_ta
 
 *2024-01-05* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.1.5)
 
-This release adds [fmt_datetime()](reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime) for date-time formatting and generalizes row selection across all methods that accept a `rows=` argument.
+This release adds [fmt_datetime()](./reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime) for date-time formatting and generalizes row selection across all methods that accept a `rows=` argument.
 
 
 ### New Features
 
-- **[fmt_datetime()](reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime) method** -- Format datetime values in the table body with flexible date-time patterns. ([\#101](https://github.com/posit-dev/great-tables/issues/101))
+- **[fmt_datetime()](./reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime) method** -- Format datetime values in the table body with flexible date-time patterns. ([\#101](https://github.com/posit-dev/great-tables/issues/101))
 - **Generalized row selectors** -- All `rows=` arguments now accept a function that operates on a DataFrame, making row selection in Pandas much easier. ([\#107](https://github.com/posit-dev/great-tables/issues/107))
 
 
@@ -959,18 +959,18 @@ This release adds data-driven styling via `style.from_column()`, fixes column hi
 
 ### New Features
 
-- **`style.from_column()`** -- Apply styles dynamically based on column values, implemented for [loc.body()](reference/loc.body.html#great_tables.loc.body). ([\#83](https://github.com/posit-dev/great-tables/issues/83))
+- **`style.from_column()`** -- Apply styles dynamically based on column values, implemented for [loc.body()](./reference/loc.body.html#great_tables.loc.body). ([\#83](https://github.com/posit-dev/great-tables/issues/83))
 
 
 ### Enhancements
 
-- [tab_style()](reference/GT.tab_style.html#great_tables.GT.tab_style) now accepts lists of styles and lists of locations. ([\#87](https://github.com/posit-dev/great-tables/issues/87))
+- [tab_style()](./reference/GT.tab_style.html#great_tables.GT.tab_style) now accepts lists of styles and lists of locations. ([\#87](https://github.com/posit-dev/great-tables/issues/87))
 - The compiled CSS ID value is now correctly applied to all rules. ([\#92](https://github.com/posit-dev/great-tables/issues/92))
 
 
 ### Bug Fixes
 
-- Fixed [cols_hide()](reference/GT.cols_hide.html#great_tables.GT.cols_hide) not working correctly. ([\#86](https://github.com/posit-dev/great-tables/issues/86))
+- Fixed [cols_hide()](./reference/GT.cols_hide.html#great_tables.GT.cols_hide) not working correctly. ([\#86](https://github.com/posit-dev/great-tables/issues/86))
 
 
 ### Documentation
@@ -984,18 +984,18 @@ This release adds data-driven styling via `style.from_column()`, fixes column hi
 
 *2023-12-12* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.1.3)
 
-This release introduces the [tab_style()](reference/GT.tab_style.html#great_tables.GT.tab_style) method for targeted cell styling and includes several fixes to table rendering and source notes.
+This release introduces the [tab_style()](./reference/GT.tab_style.html#great_tables.GT.tab_style) method for targeted cell styling and includes several fixes to table rendering and source notes.
 
 
 ### New Features
 
-- **[tab_style()](reference/GT.tab_style.html#great_tables.GT.tab_style) method** -- Apply custom styles to specific cells, columns, or rows using location selectors. ([\#68](https://github.com/posit-dev/great-tables/issues/68))
+- **[tab_style()](./reference/GT.tab_style.html#great_tables.GT.tab_style) method** -- Apply custom styles to specific cells, columns, or rows using location selectors. ([\#68](https://github.com/posit-dev/great-tables/issues/68))
 
 
 ### Enhancements
 
-- [loc.body()](reference/loc.body.html#great_tables.loc.body) now defaults to all columns and rows when called without arguments. ([\#79](https://github.com/posit-dev/great-tables/issues/79))
-- [tab_source_note()](reference/GT.tab_source_note.html#great_tables.GT.tab_source_note) now works correctly with [md()](reference/md.html#great_tables.md) and [html()](reference/html.html#great_tables.html) helpers. ([\#77](https://github.com/posit-dev/great-tables/issues/77))
+- [loc.body()](./reference/loc.body.html#great_tables.loc.body) now defaults to all columns and rows when called without arguments. ([\#79](https://github.com/posit-dev/great-tables/issues/79))
+- [tab_source_note()](./reference/GT.tab_source_note.html#great_tables.GT.tab_source_note) now works correctly with [md()](./reference/md.html#great_tables.md) and [html()](./reference/html.html#great_tables.html) helpers. ([\#77](https://github.com/posit-dev/great-tables/issues/77))
 
 
 ### Bug Fixes
@@ -1049,7 +1049,7 @@ Great Tables v0.1.1 is a maintenance release with bug fixes, improved test cover
 
 ### Enhancements
 
-- Datasets (except [exibble](reference/data.exibble.html#great_tables.data.exibble)) are no longer exported from the top-level module; a `data` submodule is now the access point for all built-in datasets. ([\#57](https://github.com/posit-dev/great-tables/issues/57))
+- Datasets (except [exibble](./reference/data.exibble.html#great_tables.data.exibble)) are no longer exported from the top-level module; a `data` submodule is now the access point for all built-in datasets. ([\#57](https://github.com/posit-dev/great-tables/issues/57))
 
 
 ### Bug Fixes
@@ -1093,12 +1093,12 @@ This release rounds out the initial API, delivering full table structuring with 
 
 *2023-11-10* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.0.2)
 
-This release introduces the foundational [GT](reference/GT.html#great_tables.GT) object with core table-building capabilities, including value formatting, header content, and annotation methods.
+This release introduces the foundational [GT](./reference/GT.html#great_tables.GT) object with core table-building capabilities, including value formatting, header content, and annotation methods.
 
 
 ### New Features
 
-- **[GT](reference/GT.html#great_tables.GT) class** -- A top-level table object providing the primary interface for building and customizing tables.
+- **[GT](./reference/GT.html#great_tables.GT) class** -- A top-level table object providing the primary interface for building and customizing tables.
 - **`fmt_*()` methods** -- A comprehensive set of formatting methods for transforming cell values in the table body.
 - **Title and note methods** -- Methods for adding titles, subtitles, and table notes to provide context and annotations.
 

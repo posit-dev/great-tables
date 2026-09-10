@@ -468,10 +468,10 @@ For a list of available icons, their names, and what they look like, check out [
 
 For certain types of tables, it may be preferable to use accounting notation for numerical figures. This type of notation renders negative values in parentheses while omitting the minus sign. This is often seen for monetary and percentage figures but it's also sensible for plain numbers in the right context. We've added support for accounting notation in four formatting methods:
 
-- [fmt_number()](../../reference/GT.fmt_number.md#great_tables.GT.fmt_number)
-- [fmt_integer()](../../reference/GT.fmt_integer.md#great_tables.GT.fmt_integer)
-- [fmt_currency()](../../reference/GT.fmt_currency.md#great_tables.GT.fmt_currency)
-- [fmt_percent()](../../reference/GT.fmt_percent.md#great_tables.GT.fmt_percent)
+- `fmt_number()`
+- `fmt_integer()`
+- `fmt_currency()`
+- `fmt_percent()`
 
 Here's a comprehensive example table that demonstrates how this type of formatting looks.
 
@@ -633,7 +633,7 @@ For the formatting in the final four columns, we use `accounting=True` to get th
 
 We are *very* grateful for the work that [Jerry Wu](https://github.com/jrycw) has done during this release, some of which includes:
 
-- enhancing the [fmt_image()](../../reference/GT.fmt_image.md#great_tables.GT.fmt_image) to support `http`/`https` schema in the `columns=` parameter, and writing an [incredible blog post](https://posit-dev.github.io/great-tables/blog/rendering-images/) about incorporating images in your tables
+- enhancing the `fmt_image()` to support `http`/`https` schema in the `columns=` parameter, and writing an [incredible blog post](https://posit-dev.github.io/great-tables/blog/rendering-images/) about incorporating images in your tables
 - improving the `save()` method, giving it the ability to perform intermediate saves (since the method returns itself)
 - adding the [pipe()](../../reference/GT.pipe.md#great_tables.GT.pipe) method, which operates similarly to that of the Pandas and Polars APIs
 - all sorts of little QoL fixes

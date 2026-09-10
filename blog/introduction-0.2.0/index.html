@@ -186,7 +186,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2727" data-forks="129"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2726" data-forks="131"></div>
     </span>
   </li>  
 </ul>
@@ -468,7 +468,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Now the very large value is in <code>"lightgray"</code>, making all other values easier to compare. We did setting <code>domain=[0, 50]</code> and specifying <code>na_color="lightgray"</code>. This caused the out-of-bounds value of <code>65100</code> to have a light gray background. Notice that the values are also formatted as currencies, and this is thanks to <a href="../../reference/GT.fmt_currency.html#great_tables.GT.fmt_currency" class="gdls-link gdls-code">fmt_currency()</a> which never interferes with styling.</p>
+<p>Now the very large value is in <code>"lightgray"</code>, making all other values easier to compare. We did setting <code>domain=[0, 50]</code> and specifying <code>na_color="lightgray"</code>. This caused the out-of-bounds value of <code>65100</code> to have a light gray background. Notice that the values are also formatted as currencies, and this is thanks to <code>fmt_currency()</code> which never interferes with styling.</p>
 <p>Here’s a more inspirational example that uses a heavily-manipulated version of the <a href="../../reference/data.countrypops.html#great_tables.data.countrypops" class="gdls-link gdls-code">countrypops</a> dataset (thanks again, <strong>Polars</strong>!) along with a color treatment that’s mediated by <a href="../../reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>. Here, the population values can be easily compared by the amount of <code>"purple"</code> within them.</p>
 <div id="fa50858a" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> countrypops</span>

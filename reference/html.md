@@ -23,4 +23,4 @@ The text that is understood to contain HTML formatting.
 
 ## Examples
 
-See <a href="GT.tab_header.html#great_tables.GT.tab_header" class="gdls-link"><code>GT.tab_header()</code></a>.
+See <a href="../reference/GT.tab_header.html#great_tables.GT.tab_header" class="gdls-link"><code>GT.tab_header()</code></a>.
