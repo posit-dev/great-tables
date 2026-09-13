@@ -1,4 +1,4 @@
-exclude: "(.*\\.svg)|(.*\\.qmd)|(.*\\.ambr)|(.*\\.csv)|(.*\\.txt)|(.*\\.json)|(.*\\.ipynb)"
+exclude: "(.*\\.svg)|(.*\\.qmd)|(.*\\.ambr)|(.*\\.csv)|(.*\\.txt)|(.*\\.json)|(.*\\.ipynb)|(^great_tables/skill/(SKILL\\.md|references/|assets/).*)"
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
