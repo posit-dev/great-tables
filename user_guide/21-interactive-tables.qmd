@@ -10,6 +10,12 @@ pagination) by calling `opt_interactive()`. The result is a self-contained HTML 
 [DataTables](https://datatables.net/) that works in Jupyter notebooks, Quarto documents, and any
 HTML output.
 
+Interactive tables are ideal for exploratory contexts where the reader needs to find specific values
+in a larger dataset (e.g., dashboards, internal tools, or notebook-based analysis). Sorting and
+filtering let readers answer their own questions about the data without you having to anticipate
+every view. For static outputs like PDF reports, printed documents, or email, stick with static
+tables since the interactivity features won't be functional in those formats.
+
 ## Enabling interactivity
 
 A single call to `opt_interactive()` switches the table from static to interactive. All of the
@@ -33,6 +39,11 @@ gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", 
 ```
 
 Click on any column header to sort. The table is paginated by default with 10 rows per page.
+
+One important thing to note: all of your existing formatting, styling, and structural methods
+(headers, footnotes, spanners) continue to work in interactive mode. You don't need to rebuild your
+table or learn a separate API. Instead, just append `.opt_interactive()` to the end of your method
+chain and the table gains sorting and pagination while keeping everything else intact.
 
 ## Search and per-column filters
 
