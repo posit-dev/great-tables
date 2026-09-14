@@ -10,6 +10,13 @@ single, combined value. For example, a measurement and its uncertainty, a low an
 a range, or a count with its corresponding percentage. The `cols_merge*()` family of methods
 combines the content of two or more columns into one, giving you a more compact and readable table.
 
+Merging works best when two columns are conceptually a single value: a measurement and its
+uncertainty, a low and high bound forming a range, or a count paired with its percentage. In these
+cases, presenting the values separately forces the reader to mentally combine them anyway. If,
+however, the columns represent independent quantities that a reader might want to compare on their
+own (say, revenue and profit), keep them as separate columns so each value can be scanned
+independently.
+
 ## Setting Up the Example Data
 
 We will use a small dataset that includes a measurement with uncertainty, a range, and a count with
@@ -74,6 +81,11 @@ omitted entirely if any referenced column value inside is missing.
 
 In this example, Trial 4 has missing values for both columns. The conditional section `<< ± {1}>>`
 is dropped when `uncertainty` is missing, producing a cleaner result than showing placeholder text.
+
+Handling missing values gracefully matters because real-world data is rarely complete: not every row
+will have values for every field. Without the `<<>>` syntax, the merged cell might display awkward
+artifacts like " ± " with nothing around it. Conditional sections let the pattern degrade naturally,
+showing only the parts that have actual data behind them.
 
 ## Merging Value and Uncertainty
 
