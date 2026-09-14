@@ -5,10 +5,14 @@ html-table-processing: none
 guide-section: Table Structure
 ---
 
-Column labels are the primary way readers identify what data each column contains. Beyond simple
-labels, **Great Tables** lets you group related columns together under spanner labels, reorder
-columns for clarity, and customize label text with rich formatting. This page walks through each of
-these capabilities.
+Column labels are the primary way readers identify what data each column contains. Raw DataFrame
+column names are often abbreviated, inconsistently cased, or full of underscores.
+Presentation-ready column labels are one of the highest-impact improvements you can make to a table,
+and they require very little effort.
+
+Beyond simple labels, **Great Tables** lets you group related columns together under spanner labels,
+reorder columns for clarity, and customize label text with rich formatting. This page walks through
+each of these capabilities.
 
 ## Working with Column Data
 
@@ -43,6 +47,12 @@ This ten-row subset of the New York air quality dataset has both measurement and
 making it a good candidate for organizing with column spanners.
 
 ## Adding Column Spanners
+
+Column spanners are most useful when you have a logical grouping of columns and want the reader to
+grasp the table's structure at a glance. For example, grouping all measurement columns under
+"Measurement" and all date-related columns under "Time" immediately communicates the two-part nature
+of the data. Spanners work especially well in wide tables where the column count might otherwise feel
+overwhelming.
 
 Let's organize the time information under a `Time` *spanner label*, and put the other columns under
 a `Measurement` *spanner label*. We can do this with the `~~GT.tab_spanner()` method.
@@ -89,10 +99,15 @@ Let's do both of these things in the next example:
 )
 ```
 
+Column order matters because readers scan left to right. Placing the most important or identifying
+columns first improves usability. In many tables, time or context columns work well on the left,
+with measurements and results on the right. This mirrors how people naturally ask questions about
+data: "when and where" before "what happened."
+
 Note that even though columns were moved using `~~GT.cols_move_to_start()`, the
 *spanner column labels* still spanned above the correct *column labels*. There are a number of
-methods on `GT` to move columns, including `~~GT.cols_move()`, `~~GT.cols_move_to_end()`; there's
-even a method to hide columns: `~~GT.cols_hide()`.
+methods on `GT` to move columns, including `~~GT.cols_move()`, `~~GT.cols_move_to_end()`. And
+there's even a method to hide columns: `~~GT.cols_hide()`.
 
 Multiple columns can be renamed in a single use of `~~GT.cols_label()`. Further to this, the helper
 functions `md()` and `html()` can be used to create column labels with additional styling. In the
