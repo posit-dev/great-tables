@@ -10,6 +10,11 @@ title and optional subtitle, the **Table Footer** anchors it with source notes o
 information, and the **Stub** provides a left-hand column of row identifiers. All three are added
 using the `tab_*()` family of methods.
 
+A well-structured frame transforms a bare data grid into something self-explanatory. Without these
+components, your reader has to look outside the table for context: what is this data? Where did it
+come from? What do the rows represent? Adding a header, footer, and stub answers those questions
+inside the table itself, so it can stand on its own in a report, slide deck, or web page.
+
 ## Adding a Table Header
 
 A **Table Header** is easy to add with the `~~GT.tab_header()` method. Let's see how a basic table
@@ -21,7 +26,7 @@ from great_tables.data import islands
 
 islands_mini = islands.head(10)
 
-# Make a display table with the `islands_tbl` table;
+# Make a display table with the `islands_tbl` table and
 # put a heading just above the column labels
 (
     GT(islands_mini)
@@ -32,6 +37,9 @@ islands_mini = islands.head(10)
 )
 ```
 
+As a rule of thumb, any table that will be seen outside your own notebook benefits from a title. It
+also immediately orients the reader as to what the table's all about.
+
 The **Header** provides an opportunity to describe the data that's presented. Using `subtitle=`
 allows us to insert a subtitle, which is an optional part of the **Header**. We may also style the
 `title=` and `subtitle=` using Markdown! We do this by wrapping the values passed to `title=` or
@@ -39,7 +47,7 @@ allows us to insert a subtitle, which is an optional part of the **Header**. We 
 an example with the table data truncated for brevity:
 
 ```{python}
-# Make a display table with the `islands_tbl` table;
+# Make a display table with the `islands_tbl` table and
 # put a heading just above the column labels
 gt_tbl = (
     GT(islands.head(2))
@@ -59,7 +67,7 @@ looking at any data.
 
 A *source note* can be added to the table's **Footer** through use of the `~~GT.tab_source_note()`
 method. It works in the same way as `~~GT.tab_header()` (it also allows for Markdown inputs) except
-it can be called multiple times --- each invocation results in the addition of a source note.
+it can be called multiple times. Each invocation results in the addition of a source note.
 
 ```{python}
 # Display the `islands_tbl` data with a heading and two source notes
@@ -74,11 +82,21 @@ it can be called multiple times --- each invocation results in the addition of a
 )
 ```
 
+Source notes are pretty valuable because they provide provenance and credibility. Academic and
+business audiences might expect to know where data comes from. Including that information directly
+in the table saves readers from hunting through surrounding text. Source notes are also a good place
+for methodological caveats or disclaimers that apply to the entire table.
+
 With just a few method calls, we have added essential context to the table. The title and subtitle
 tell the reader what data is being presented, and the source notes provide attribution. Together,
 these components frame the table body and help your audience understand the data at a glance.
 
 ## The Stub: Row Labels
+
+The **Stub** is good to have whenever the first column of your data serves as an identifier rather
+than a measured value. Moving identifiers into the stub visually separates "what this row is about"
+from "what was measured", making the table easier to scan. If your rows represent people, places,
+time periods, or categories, those labels would go nicely in the stub.
 
 The **Stub** is the area to the left of the table body that typically contains *row labels* and may
 also contain *row group labels*. Those subparts can be grouped in a sequence of *row groups*. The
@@ -112,6 +130,10 @@ A very important thing to note here is that the table now has one column. Before
 column number `1` (the only column remaining) is `size`.
 
 ## Row Groups
+
+Grouping is most useful when your data has a natural categorical structure and you want readers to
+compare within and across categories. Rather than forcing the reader to mentally sort the rows, row
+groups do that work up front.
 
 Let's incorporate row groups into the display table. This divides rows into groups, creating
 *row groups*, and results in a display of a *row group labels* right above each group. This can be
