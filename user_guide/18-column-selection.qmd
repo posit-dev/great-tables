@@ -10,6 +10,13 @@ than limiting you to a simple list of column names, the package supports a flexi
 that includes positional indexing, pattern-matching functions, and Polars selectors. This page
 demonstrates each of these approaches.
 
+As your table-building code grows, hardcoding column names becomes fragile. If a column is renamed
+or added upstream, your table code breaks silently or raises an error. Pattern-based selection
+(whether through functions or Polars selectors) makes your code more resilient to upstream changes
+and more expressive about intent. Instead of listing every column by name, you can declare
+*what kind* of columns you want (e.g., all numeric columns, all columns starting with a prefix), and
+the selection adapts automatically as the data evolves.
+
 ## Selection Options
 
 The `columns=` argument for methods like `~~GT.tab_spanner()`, `~~GT.cols_move()`, and
@@ -87,6 +94,12 @@ or `False`.
 ```{python}
 gt_ex.cols_move_to_start(columns=lambda x: "c" in x)
 ```
+
+To summarize when to reach for each approach: use a plain list of names when you know exactly which
+columns you want and the list is short. Use Polars selectors when you want to match by dtype,
+prefix, suffix, or other structural properties of the columns. Use a function when you need custom
+logic that doesn't fit neatly into a selector (e.g., matching against an external list or applying a
+complex naming convention rule).
 
 These selection methods work consistently across all **Great Tables** methods that accept a
 `columns=` argument. Whether you prefer explicit column names, positional indexing, Polars
