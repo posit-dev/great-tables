@@ -19,6 +19,13 @@ nanoplots include the following:
 - you can annotate plots with a reference line and/or area
 - plenty of easy-to-use options for composing your plots
 
+Nanoplots shine when you want to show trends or distributions alongside other tabular data, so the
+reader can correlate a visual pattern with the row's other values at a glance. They are not a
+replacement for full-sized charts but should instead be used when the visual is supplementary
+context rather than the primary message. If a chart needs its own axis labels, legend, or detailed
+annotations, it belongs in a standalone figure. But when a compact sparkline or bar sequence adds
+meaning to a row without pulling the reader out of the table, a nanoplot is the right tool.
+
 ## A simple line-based nanoplot
 
 Let's make some simple plots with a Polars DataFrame. Here we are using lists to define data values
@@ -116,6 +123,12 @@ magnitudes of values across rows in addition to their trends. It won't, however,
 the overall magnitudes of values vary wildly across rows (e.g., comparing changing currency values
 or stock prices over time).
 
+Keep in mind the tradeoff: `autoscale=True` sacrifices within-row detail for cross-row
+comparability. If some rows have values in the thousands and others in single digits, autoscaling
+may compress the smaller series into a nearly flat line, hiding their internal variation. In those
+cases, independent scales (the default) are a better choice because they let each row's nanoplot use
+its full vertical range to show that row's own pattern.
+
 ## Using the `nanoplot_options()`{.qd-no-link} helper function
 
 There are many options for customization. You can radically change the look of a collection of
@@ -151,7 +164,14 @@ As can be seen, you have a lot of fine-grained control over the look of a nanopl
 ## Making nanoplots with bars using `plot_type="bar"`
 
 We don't just support line plots in `~~GT.fmt_nanoplot()`, we also have the option to show bar
-plots. The only thing you need to change is the value of `plot_type=` argument to `"bar"`:
+plots. The only thing you need to change is the value of `plot_type=` argument to `"bar"`.
+
+Choosing between line and bar nanoplots depends on what you want to emphasize. Line plots highlight
+trends and continuity over time or a sequence. And they make it easy to see whether values are
+rising, falling, or oscillating. Bar plots, on the other hand, emphasize individual values and make
+it straightforward to compare magnitudes across positions. Bar plots also handle negative values
+more naturally, with bars projecting downward from a zero line, giving the reader an immediate sense
+of sign and scale.
 
 ```{python}
 GT(random_numbers_df).fmt_nanoplot(columns="numbers", plot_type="bar")
