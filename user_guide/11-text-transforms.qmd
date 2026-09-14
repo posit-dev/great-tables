@@ -11,6 +11,12 @@ giving you a post-processing layer for tasks like replacing abbreviations, apply
 labels, or inserting custom HTML. These methods complement the `fmt_*()` methods, which work on raw
 data values.
 
+To clarify the distinction: `fmt_*()` methods work on raw data values *before* they become text.
+Text transforms work on the *already-rendered text* after formatting. This means you can use
+`fmt_number()` to get consistent decimal places, and then use `text_transform()` to wrap the result
+in custom HTML or append a unit label. The two layers complement each other, where formatting
+handles the numeric conversion, and text transforms handle the final presentation touches.
+
 ## Setting Up the Example Data
 
 ```{python}
@@ -128,6 +134,12 @@ Each status code is mapped to a more readable label. By default, `text_case_matc
 entire cell text (i.e., `replace="all"`). You can set `replace="partial"` to match substrings
 instead.
 
+When you have a known, finite set of values to map (like status codes, country abbreviations, or
+category labels) `text_case_match()` is more readable and self-documenting than a `text_transform()`
+call with a lambda containing if/elif chains. The mapping is declared as data rather than buried in
+control flow. Reserve `text_transform()` for open-ended transformations where the logic can't be
+expressed as a simple lookup table.
+
 ### Matching Multiple Values to One Replacement
 
 The first element of each case tuple can be a list of strings, allowing you to map multiple values
@@ -186,6 +198,12 @@ and returns `True` or `False`. The first matching predicate determines the repla
 
 This approach is particularly powerful when your replacement logic depends on the value itself (such
 as numeric thresholds) rather than exact string matching.
+
+The key difference from `text_case_match()` is that `text_case_when()` is predicate-based: each case
+is a function that can express numeric thresholds, string containment tests, length checks, or any
+other boolean logic. Use it when your replacement logic goes beyond exact string matching. If you
+find yourself writing predicates that are just `lambda x: x == "some_value"`, that's a sign you
+should use `text_case_match()` instead.
 
 ## Targeting Different Locations
 
