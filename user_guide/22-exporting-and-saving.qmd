@@ -10,6 +10,12 @@ cell, a standalone HTML file, a LaTeX document, or an image file for inclusion i
 presentation. **Great Tables** provides several export methods to cover these use cases, each with
 options to control the output format.
 
+The general principle is: build your table once, export it many ways. The same `GT` object can be
+displayed interactively, saved as HTML, rendered as LaTeX, or captured as an image. This means you
+don't need to maintain separate table-building code for different output formats. Your single chain
+of formatting, styling, and structural methods produces the canonical table, and the export step
+simply serializes it for the target medium.
+
 ## Displaying Tables
 
 In most notebook environments (Jupyter, Quarto, Marimo), simply placing a `GT` object as the last
@@ -69,6 +75,11 @@ email_html = gt_tbl.as_raw_html(inline_css=True)
 With inline CSS, your table will render correctly in Gmail, Outlook, and other email clients that
 strip external stylesheets.
 
+This matters because most email clients aggressively strip `<style>` blocks and external CSS
+references for security reasons. Without inline CSS, your carefully styled table will appear as
+plain, unstyled HTML in the recipient's inbox. If you are sharing tables via email (whether through
+automated reports or one-off sends), `inline_css=True` is almost always what you want.
+
 ### Complete HTML Page
 
 If you need a self-contained HTML document (with `<html>`, `<head>`, and `<body>` tags), set
@@ -122,6 +133,12 @@ positioned_latex = gt_tbl.as_latex(tbl_pos="!h")
 LaTeX output is still experimental. Not all table features (such as certain styling options) are
 fully supported in the LaTeX renderer.
 :::
+
+LaTeX output is the bridge between Great Tables and the world of academic publishing and
+typesetting. If you are writing papers in LaTeX or producing PDF reports via Quarto, this method
+lets you bring your Python-built tables into that workflow without manual conversion. You get the
+convenience of building tables programmatically in Python with the typographic quality of LaTeX's
+table rendering.
 
 ## Saving as an Image
 
