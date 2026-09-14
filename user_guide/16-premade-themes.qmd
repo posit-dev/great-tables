@@ -10,6 +10,11 @@ convenience methods that bundle these options into simple, one-line calls. This 
 how to use premade themes and the various convenience methods available for quick table
 customization.
 
+Premade themes are ideal for getting a polished look quickly, especially during exploratory work or
+when building dashboards where visual consistency matters more than pixel-perfect custom styling.
+For publication or brand-specific tables, you may want to start with a premade theme and then
+customize it further with `tab_options()` to match your exact requirements.
+
 Great Tables provides convenience methods starting with `opt_` (e.g. `~~GT.opt_row_striping()`), as
 a shortcut for various styles that can be set via `~~GT.tab_options()`.
 
@@ -96,6 +101,12 @@ for ii in range(1, 7):
 
 print(":::")
 ```
+
+When choosing a style, consider your audience and context. Styles 1 and 2 emphasize structure
+through color, making table regions visually distinct. Styles 3 and 4 use lines and shading for a
+more traditional look. Styles 5 and 6 are more minimal, relying on subtle separation. Heavier
+styling works well for standalone presentations, while lighter styling is better suited for tables
+embedded in text-heavy reports where the table should complement rather than dominate the page.
 
 ## `opt_*()` convenience methods
 
