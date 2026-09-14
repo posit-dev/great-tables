@@ -10,7 +10,13 @@ spot. **Great Tables** provides a flexible system for applying fills, borders, a
 cells in the table body. This page covers the fundamentals of cell-level styling, from targeting
 specific cells to using column values and expressions to drive dynamic styles.
 
-**Great Tables** can add styles---like color, text properties, and borders---on many different parts
+Targeted styling is most effective when used sparingly to draw attention to specific values
+(outliers, thresholds, or key comparisons). Overusing color and borders can make a table harder to
+read rather than easier. A good rule of thumb: if everything is highlighted, nothing is. Start with
+the most important insight you want the reader to take away, and style just enough to guide their
+eye there.
+
+**Great Tables** can add styles (like color, text properties, and borders) on many different parts
 of the displayed table. The following set of examples shows how to set styles on the body of table,
 where the data cells are located.
 
@@ -97,6 +103,8 @@ In addition to setting styles to specific values (e.g., a `"yellow"` background 
 use parameter values from table columns to specify styles. The way to do this is to use the
 `from_column()` helper function to access those values.
 
+Column-based styling is powerful because it lets the data itself drive the visual presentation. Instead of manually specifying which cells to highlight, you define a rule and let it apply automatically. This is especially valuable for tables that are regenerated with updated data, since the styling adapts without any code changes.
+
 ```{python}
 df = pl.DataFrame({"x": [1, 2], "background": ["lightyellow", "lightblue"]})
 
@@ -177,6 +185,12 @@ gt_pl_air.tab_style(
 
 The Polars expression evaluates per row and produces a color string for each cell. This approach
 avoids creating and hiding an extra column, keeping the code concise.
+
+Each of the three approaches (`from_column()` with `cols_hide()`, Polars expressions, and functions)
+has its strengths. Polars expressions are the most concise for Polars DataFrames and keep the
+styling logic self-contained. The `from_column()` approach works with both Pandas and Polars
+backends but requires an extra column. Functions are the most flexible option for Pandas workflows.
+Choose whichever matches your data library and preference.
 
 ### Using functions
 
