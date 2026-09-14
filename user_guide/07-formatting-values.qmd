@@ -11,6 +11,12 @@ appropriate symbols. The `fmt_*()` family of methods in **Great Tables** handles
 letting you transform cell values into well-formatted text while preserving the underlying data for
 things like sorting and colorization.
 
+Unformatted numbers are hard to scan. When every number has a different number of decimal places, or
+when large numbers lack digit separators, readers slow down as they try to parse each value.
+Consistent formatting reduces cognitive load and makes comparisons across rows immediate. The same
+principle applies to dates and currencies: a reader should never have to guess whether "03/04" means
+March 4th or April 3rd.
+
 ## Formatting Cells in the Table Body
 
 The values within the table body, specifically those within the body cells, can be formatted with a
@@ -38,6 +44,10 @@ gt_ex = gt_ex.fmt_number(columns="num", decimals=2).fmt_currency(columns="curren
 
 gt_ex
 ```
+
+Formatting methods can be called in any order and on overlapping column selections. The last
+formatter to touch a given cell wins, which gives you flexibility to set a broad default across an
+entire column and then override specific rows or subsets afterward.
 
 Dates and times can be formatted as well. As long as they are in ISO 8601 form, the
 `~~GT.fmt_date()` and `~~GT.fmt_time()` methods can be used to format such values. These methods
@@ -74,6 +84,11 @@ gt_ex
 
 Now the first two rows display in USD and the last three in GBP, demonstrating how the same column
 can present different currencies by targeting specific rows.
+
+Per-row formatting like this is particularly useful for international datasets where different rows
+may need different currency symbols, date formats, or number conventions. Rather than splitting the
+data into separate tables by locale, you can handle everything in a single table with targeted
+formatting calls.
 
 ## Arguments Common to Several Formatting Methods/Functions
 
@@ -129,8 +144,9 @@ fmt_time_2 = vals.fmt_time(["23:03", "00:55", "08:23"], time_style="h_p")
 print(fmt_date_1, fmt_date_2, fmt_time_1, fmt_time_2, sep="\n")
 ```
 
-Sometimes it's easier and more convenient to experiment with formatting using the formatting
-functions in the `vals` module. There are many options to explore with each type of formatting and
+The `vals` functions are especially handy during development, when you want to quickly test how a
+formatting option looks without building a full table. Sometimes it's easier and more convenient to
+experiment with formatting using the formatting functions in the `vals` module. There are many options to explore with each type of formatting and
 so visiting the [API Reference](/reference/) is certainly worthwhile.
 
 Formatting is one of the most impactful things you can do to improve a table's readability. With the
