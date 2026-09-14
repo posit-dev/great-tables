@@ -10,6 +10,13 @@ context without cluttering the main display. **Great Tables** manages footnotes 
 are automatically sequenced, placed consistently, and matched to their explanatory text in the table
 footer.
 
+Footnotes are best suited for cell-specific or column-specific context that would clutter the main
+display if placed inline. For information that applies to the entire table, a source note in the
+footer (via `tab_source_note()`) is usually a better fit because it avoids attaching a mark to any
+one location. And for systematic column descriptions, such as units or definitions, consider
+relabeling the column itself so the context is always visible without requiring the reader to look
+down at the footer.
+
 ## A Basic Footnote
 
 Adding a footnote requires two things: the footnote text and a location specifier indicating where
@@ -113,6 +120,11 @@ footnote with its own sequenced mark. The marks are numbered in the order they a
 Three footnote marks are placed in the table, and three corresponding notes appear in the footer,
 each with its sequential number.
 
+While you can add many footnotes to a single table, use restraint. More than three or four footnotes
+can overwhelm the reader and make the footer itself difficult to navigate. If you find yourself
+adding footnotes to most cells, consider whether the information would be better conveyed through
+more descriptive column labels, a subtitle, or a separate explanatory paragraph outside the table.
+
 ## Footnotes Without a Mark
 
 If you want to include explanatory text in the footer without attaching a mark to any cell, omit
@@ -127,7 +139,9 @@ the `locations=` argument (or set it to `None`).
 ```
 
 This is useful for general notes that apply to the entire table rather than to a specific cell or
-label.
+label. Markless footnotes work well for disclaimers, methodological notes, or data-source
+attributions that apply broadly rather than to any single cell. Because they carry no superscript
+mark, they read as supplementary context for the table as a whole.
 
 ## Controlling Mark Placement
 
