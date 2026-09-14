@@ -11046,6 +11046,12 @@ straight from the web:
 
 ![](/assets/tables_from_the_web.png)
 
+Display tables exist because raw DataFrames are working artifacts, not communication tools. When you
+share findings with colleagues, stakeholders, or readers, the formatting of your table directly
+affects how well your message lands. Good structure and styling reduce cognitive load, draw
+attention to what matters, and help your audience reach the right conclusions faster. A well-built
+table is an act of respect for your reader’s time.
+
 We can think of display tables as output only, where we’d not want to use them as input ever again.
 Other features include annotations, table element styling, and text transformations that serve to
 communicate the subject matter more clearly.
@@ -11089,7 +11095,12 @@ gt_tbl
 ```
 
 That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive
-a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a
+a proper table with column labels and the data. Even this minimal output is an improvement over a raw
+DataFrame: you get proper HTML rendering, consistent spacing, and a clean visual structure that works
+in notebooks, reports, and web pages alike. But the real power of Great Tables comes from layering on
+the structural components described next.
+
+Oftentimes however, you'll want a bit more: a
 **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
 
 ::: {.callout-note}
@@ -11101,7 +11112,9 @@ open the HTML table in your default browser.
 ## **Polars** DataFrame support
 
 `GT` accepts both **Pandas** and **Polars** DataFrames. You can pass a **Polars** DataFrame to `GT`,
-or use its `DataFrame.style` property.
+or use its `DataFrame.style` property. Supporting both backends matters because teams often have
+mixed workflows, and you shouldn't have to rewrite your table code just because a project uses a
+different DataFrame library.
 
 ```{python}
 import polars as pl
@@ -11204,12 +11217,18 @@ This is the way the main parts of a table (and their subparts) fit together:
 The following list describes each major component of a **Great Tables** output, ordered from top to
 bottom:
 
-- the **Table Header** (optional; with a **title** and possibly a **subtitle**)
-- the **Stub** and the **Stub Head** (optional; contains *row labels*, optionally within
+- the **Table Header** (optional, with a **title** and possibly a **subtitle**)
+- the **Stub** and the **Stub Head** (optional, contains *row labels*, optionally within
 *row groups* having *row group labels*)
 - the **Column Labels** (contains *column labels*, optionally under *spanner labels*)
 - the **Table Body** (contains *columns* and *rows* of *cells*)
-- the **Table Footer** (optional; possibly with one or more **source notes**)
+- the **Table Footer** (optional, possibly with one or more **source notes**)
+
+Not every table needs every component. A simple table may only require column labels and a body, and
+that is perfectly fine. The components listed above are opt-in: you add whichever ones help your
+reader understand the data, and leave the rest out. A title might be essential for a published
+report but unnecessary in an exploratory notebook. Source notes matter when provenance is important
+but can be skipped for internal dashboards. Let the context guide your choices.
 
 Each of these parts is covered in detail throughout the rest of this User Guide. The pages that
 follow will show you how to add a header and footer, create a stub with row labels and groupings,
@@ -11224,6 +11243,12 @@ the API documentation. These datasets cover a range of subject areas and sizes, 
 `exibble` toy table (8 rows) to the larger `pizzaplace` dataset (nearly 50,000 rows). You can load
 any of them as a Pandas DataFrame, a Polars DataFrame, or both, depending on how you prefer to
 work.
+
+These built-in datasets exist so you can experiment with Great Tables features without needing to
+bring your own data. They make it easy to follow along with examples, test table-building code, and
+explore different formatting options. They also demonstrate the range of data types and structures
+that Great Tables handles well, from small categorical tables to large transactional datasets with
+dates, currencies, and numeric measurements.
 
 ## Accessing Datasets Directly
 
@@ -11258,8 +11283,10 @@ this way will continue to work without any changes.
 ## Choosing a Backend with `data.pd` and `data.pl`
 
 If you want to be explicit about whether you get a Pandas or Polars DataFrame, use the `data.pd` and
-`data.pl` namespaces. Datasets accessed through these namespaces are loaded on first access and
-cached for subsequent use, so there's no performance penalty for repeated access.
+`data.pl` namespaces. Being explicit about your backend is especially important in shared codebases
+or library code where you want to guarantee the DataFrame type, regardless of what packages happen
+to be installed in a given environment. Datasets accessed through these namespaces are loaded on
+first access and cached for subsequent use, so there's no performance penalty for repeated access.
 
 To get a dataset as a Polars DataFrame, use `data.pl`:
 
@@ -11339,6 +11366,11 @@ title and optional subtitle, the **Table Footer** anchors it with source notes o
 information, and the **Stub** provides a left-hand column of row identifiers. All three are added
 using the `tab_*()` family of methods.
 
+A well-structured frame transforms a bare data grid into something self-explanatory. Without these
+components, your reader has to look outside the table for context: what is this data? Where did it
+come from? What do the rows represent? Adding a header, footer, and stub answers those questions
+inside the table itself, so it can stand on its own in a report, slide deck, or web page.
+
 ## Adding a Table Header
 
 A **Table Header** is easy to add with the `~~GT.tab_header()` method. Let's see how a basic table
@@ -11350,7 +11382,7 @@ from great_tables.data import islands
 
 islands_mini = islands.head(10)
 
-# Make a display table with the `islands_tbl` table;
+# Make a display table with the `islands_tbl` table and
 # put a heading just above the column labels
 (
     GT(islands_mini)
@@ -11361,6 +11393,9 @@ islands_mini = islands.head(10)
 )
 ```
 
+As a rule of thumb, any table that will be seen outside your own notebook benefits from a title. It
+also immediately orients the reader as to what the table's all about.
+
 The **Header** provides an opportunity to describe the data that's presented. Using `subtitle=`
 allows us to insert a subtitle, which is an optional part of the **Header**. We may also style the
 `title=` and `subtitle=` using Markdown! We do this by wrapping the values passed to `title=` or
@@ -11368,7 +11403,7 @@ allows us to insert a subtitle, which is an optional part of the **Header**. We 
 an example with the table data truncated for brevity:
 
 ```{python}
-# Make a display table with the `islands_tbl` table;
+# Make a display table with the `islands_tbl` table and
 # put a heading just above the column labels
 gt_tbl = (
     GT(islands.head(2))
@@ -11388,7 +11423,7 @@ looking at any data.
 
 A *source note* can be added to the table's **Footer** through use of the `~~GT.tab_source_note()`
 method. It works in the same way as `~~GT.tab_header()` (it also allows for Markdown inputs) except
-it can be called multiple times --- each invocation results in the addition of a source note.
+it can be called multiple times. Each invocation results in the addition of a source note.
 
 ```{python}
 # Display the `islands_tbl` data with a heading and two source notes
@@ -11403,11 +11438,21 @@ it can be called multiple times --- each invocation results in the addition of a
 )
 ```
 
+Source notes are pretty valuable because they provide provenance and credibility. Academic and
+business audiences might expect to know where data comes from. Including that information directly
+in the table saves readers from hunting through surrounding text. Source notes are also a good place
+for methodological caveats or disclaimers that apply to the entire table.
+
 With just a few method calls, we have added essential context to the table. The title and subtitle
 tell the reader what data is being presented, and the source notes provide attribution. Together,
 these components frame the table body and help your audience understand the data at a glance.
 
 ## The Stub: Row Labels
+
+The **Stub** is good to have whenever the first column of your data serves as an identifier rather
+than a measured value. Moving identifiers into the stub visually separates "what this row is about"
+from "what was measured", making the table easier to scan. If your rows represent people, places,
+time periods, or categories, those labels would go nicely in the stub.
 
 The **Stub** is the area to the left of the table body that typically contains *row labels* and may
 also contain *row group labels*. Those subparts can be grouped in a sequence of *row groups*. The
@@ -11441,6 +11486,10 @@ A very important thing to note here is that the table now has one column. Before
 column number `1` (the only column remaining) is `size`.
 
 ## Row Groups
+
+Grouping is most useful when your data has a natural categorical structure and you want readers to
+compare within and across categories. Rather than forcing the reader to mentally sort the rows, row
+groups do that work up front.
 
 Let's incorporate row groups into the display table. This divides rows into groups, creating
 *row groups*, and results in a display of a *row group labels* right above each group. This can be
@@ -11478,10 +11527,14 @@ readers navigate your table.
 
 ### Column Labels
 
-Column labels are the primary way readers identify what data each column contains. Beyond simple
-labels, **Great Tables** lets you group related columns together under spanner labels, reorder
-columns for clarity, and customize label text with rich formatting. This page walks through each of
-these capabilities.
+Column labels are the primary way readers identify what data each column contains. Raw DataFrame
+column names are often abbreviated, inconsistently cased, or full of underscores.
+Presentation-ready column labels are one of the highest-impact improvements you can make to a table,
+and they require very little effort.
+
+Beyond simple labels, **Great Tables** lets you group related columns together under spanner labels,
+reorder columns for clarity, and customize label text with rich formatting. This page walks through
+each of these capabilities.
 
 ## Working with Column Data
 
@@ -11516,6 +11569,12 @@ This ten-row subset of the New York air quality dataset has both measurement and
 making it a good candidate for organizing with column spanners.
 
 ## Adding Column Spanners
+
+Column spanners are most useful when you have a logical grouping of columns and want the reader to
+grasp the table's structure at a glance. For example, grouping all measurement columns under
+"Measurement" and all date-related columns under "Time" immediately communicates the two-part nature
+of the data. Spanners work especially well in wide tables where the column count might otherwise feel
+overwhelming.
 
 Let's organize the time information under a `Time` *spanner label*, and put the other columns under
 a `Measurement` *spanner label*. We can do this with the `~~GT.tab_spanner()` method.
@@ -11562,10 +11621,15 @@ Let's do both of these things in the next example:
 )
 ```
 
+Column order matters because readers scan left to right. Placing the most important or identifying
+columns first improves usability. In many tables, time or context columns work well on the left,
+with measurements and results on the right. This mirrors how people naturally ask questions about
+data: "when and where" before "what happened."
+
 Note that even though columns were moved using `~~GT.cols_move_to_start()`, the
 *spanner column labels* still spanned above the correct *column labels*. There are a number of
-methods on `GT` to move columns, including `~~GT.cols_move()`, `~~GT.cols_move_to_end()`; there's
-even a method to hide columns: `~~GT.cols_hide()`.
+methods on `GT` to move columns, including `~~GT.cols_move()`, `~~GT.cols_move_to_end()`. And
+there's even a method to hide columns: `~~GT.cols_hide()`.
 
 Multiple columns can be renamed in a single use of `~~GT.cols_label()`. Further to this, the helper
 functions `md()` and `html()` can be used to create column labels with additional styling. In the
@@ -11601,6 +11665,13 @@ Tables often contain related data spread across multiple columns that would be b
 single, combined value. For example, a measurement and its uncertainty, a low and high bound forming
 a range, or a count with its corresponding percentage. The `cols_merge*()` family of methods
 combines the content of two or more columns into one, giving you a more compact and readable table.
+
+Merging works best when two columns are conceptually a single value: a measurement and its
+uncertainty, a low and high bound forming a range, or a count paired with its percentage. In these
+cases, presenting the values separately forces the reader to mentally combine them anyway. If,
+however, the columns represent independent quantities that a reader might want to compare on their
+own (say, revenue and profit), keep them as separate columns so each value can be scanned
+independently.
 
 ## Setting Up the Example Data
 
@@ -11666,6 +11737,11 @@ omitted entirely if any referenced column value inside is missing.
 
 In this example, Trial 4 has missing values for both columns. The conditional section `<< ± {1}>>`
 is dropped when `uncertainty` is missing, producing a cleaner result than showing placeholder text.
+
+Handling missing values gracefully matters because real-world data is rarely complete: not every row
+will have values for every field. Without the `<<>>` syntax, the merged cell might display awkward
+artifacts like " ± " with nothing around it. Conditional sections let the pattern degrade naturally,
+showing only the parts that have actual data behind them.
 
 ## Merging Value and Uncertainty
 
@@ -11770,6 +11846,13 @@ context without cluttering the main display. **Great Tables** manages footnotes 
 are automatically sequenced, placed consistently, and matched to their explanatory text in the table
 footer.
 
+Footnotes are best suited for cell-specific or column-specific context that would clutter the main
+display if placed inline. For information that applies to the entire table, a source note in the
+footer (via `tab_source_note()`) is usually a better fit because it avoids attaching a mark to any
+one location. And for systematic column descriptions, such as units or definitions, consider
+relabeling the column itself so the context is always visible without requiring the reader to look
+down at the footer.
+
 ## A Basic Footnote
 
 Adding a footnote requires two things: the footnote text and a location specifier indicating where
@@ -11873,6 +11956,11 @@ footnote with its own sequenced mark. The marks are numbered in the order they a
 Three footnote marks are placed in the table, and three corresponding notes appear in the footer,
 each with its sequential number.
 
+While you can add many footnotes to a single table, use restraint. More than three or four footnotes
+can overwhelm the reader and make the footer itself difficult to navigate. If you find yourself
+adding footnotes to most cells, consider whether the information would be better conveyed through
+more descriptive column labels, a subtitle, or a separate explanatory paragraph outside the table.
+
 ## Footnotes Without a Mark
 
 If you want to include explanatory text in the footer without attaching a mark to any cell, omit
@@ -11887,7 +11975,9 @@ the `locations=` argument (or set it to `None`).
 ```
 
 This is useful for general notes that apply to the entire table rather than to a specific cell or
-label.
+label. Markless footnotes work well for disclaimers, methodological notes, or data-source
+attributions that apply broadly rather than to any single cell. Because they carry no superscript
+mark, they read as supplementary context for the table as a whole.
 
 ## Controlling Mark Placement
 
@@ -11936,6 +12026,11 @@ Summary rows provide aggregated values (such as totals, means, or counts) direct
 adjacent to the data they summarize. **Great Tables** supports two types: group-level summaries that
 appear next to each row group, and grand summaries that aggregate across the entire table. Both
 types let you define multiple aggregation functions at once and control where the summary appears.
+
+Embedding aggregations directly in the table keeps the reader's eye on the data. When a total or
+average lives in a separate paragraph or a footnote, the reader has to scan back and forth between
+the table and the surrounding text to compare a group's summary to its individual rows. Summary rows
+eliminate that friction by placing the computed values right next to the data they describe.
 
 ## Setting Up the Example Data
 
@@ -12022,6 +12117,11 @@ by setting `side="top"`.
 The summary row now sits above the data rows in each group rather than below them, making the totals
 immediately visible.
 
+Top placement works well when the summary is the main takeaway and the detail rows serve as
+supporting evidence. Readers see the headline number first and can drill into the breakdown below it.
+Bottom placement (the default) follows the more conventional reading order where you examine the data
+first and arrive at the summary as a natural conclusion.
+
 ### Targeting Specific Groups
 
 If you only want summaries for certain groups, use the `groups=` argument with a list of group
@@ -12078,6 +12178,11 @@ aggregation at both levels.
 
 Each group now has a `"Subtotal"` row, and the table finishes with a `"Grand Total"` and
 `"Overall Average"` row that span across all groups.
+
+This combination of group and grand summaries is common in financial and sales reporting, where
+readers expect both subtotals per category and an overall total. The visual hierarchy (group
+summaries, then a grand summary at the bottom) mirrors how people naturally reason about grouped
+data: understand the parts first, then see how they add up to the whole.
 
 ## Working with Pandas DataFrames
 
@@ -12142,6 +12247,12 @@ appropriate symbols. The `fmt_*()` family of methods in **Great Tables** handles
 letting you transform cell values into well-formatted text while preserving the underlying data for
 things like sorting and colorization.
 
+Unformatted numbers are hard to scan. When every number has a different number of decimal places, or
+when large numbers lack digit separators, readers slow down as they try to parse each value.
+Consistent formatting reduces cognitive load and makes comparisons across rows immediate. The same
+principle applies to dates and currencies: a reader should never have to guess whether "03/04" means
+March 4th or April 3rd.
+
 ## Formatting Cells in the Table Body
 
 The values within the table body, specifically those within the body cells, can be formatted with a
@@ -12169,6 +12280,10 @@ gt_ex = gt_ex.fmt_number(columns="num", decimals=2).fmt_currency(columns="curren
 
 gt_ex
 ```
+
+Formatting methods can be called in any order and on overlapping column selections. The last
+formatter to touch a given cell wins, which gives you flexibility to set a broad default across an
+entire column and then override specific rows or subsets afterward.
 
 Dates and times can be formatted as well. As long as they are in ISO 8601 form, the
 `~~GT.fmt_date()` and `~~GT.fmt_time()` methods can be used to format such values. These methods
@@ -12205,6 +12320,11 @@ gt_ex
 
 Now the first two rows display in USD and the last three in GBP, demonstrating how the same column
 can present different currencies by targeting specific rows.
+
+Per-row formatting like this is particularly useful for international datasets where different rows
+may need different currency symbols, date formats, or number conventions. Rather than splitting the
+data into separate tables by locale, you can handle everything in a single table with targeted
+formatting calls.
 
 ## Arguments Common to Several Formatting Methods/Functions
 
@@ -12260,8 +12380,9 @@ fmt_time_2 = vals.fmt_time(["23:03", "00:55", "08:23"], time_style="h_p")
 print(fmt_date_1, fmt_date_2, fmt_time_1, fmt_time_2, sep="\n")
 ```
 
-Sometimes it's easier and more convenient to experiment with formatting using the formatting
-functions in the `vals` module. There are many options to explore with each type of formatting and
+The `vals` functions are especially handy during development, when you want to quickly test how a
+formatting option looks without building a full table. Sometimes it's easier and more convenient to
+experiment with formatting using the formatting functions in the `vals` module. There are many options to explore with each type of formatting and
 so visiting the [API Reference](/reference/) is certainly worthwhile.
 
 Formatting is one of the most impactful things you can do to improve a table's readability. With the
@@ -12274,9 +12395,22 @@ comprehensive toolkit for turning raw values into polished, publication-ready co
 
 ### Removing Table Parts
 
-Just as the `tab_*()` family of methods lets you *add* components to a table, the `rm_*()` family lets you *remove* them. This is useful when you're handed a `GT` object that already carries a header, footnotes, or spanners (perhaps from a shared helper function or a template) and you'd like to strip a component out rather than rebuild the table from scratch. Every `rm_*()` method returns the `GT` object, so these calls chain like any other.
+Just as the `tab_*()` family of methods lets you *add* components to a table, the `rm_*()` family
+lets you *remove* them. This is useful when you're handed a `GT` object that already carries a
+header, footnotes, or spanners (perhaps from a shared helper function or a template) and you'd like
+to strip a component out rather than rebuild the table from scratch. Every `rm_*()` method returns
+the `GT` object, so these calls chain like any other.
 
-To have something to remove, let's build up a table that uses several components at once. We'll take a small slice of the `gtcars` dataset and give it a header, a stubhead label, a spanner, a footnote, and two source notes.
+A common workflow where removal shines is when you start with a template or shared helper function
+that builds a fully-decorated table and then strip away the parts that aren't relevant for a
+particular audience or context. For example, a detailed report might include footnotes and source
+notes that provide full attribution and methodology details, while a dashboard version of the same
+table might strip those away for a cleaner, more compact look. Rather than maintaining two separate
+table-building functions, you maintain one and selectively remove what you don't need.
+
+To have something to remove, let's build up a table that uses several components at once. We'll take
+a small slice of the `gtcars` dataset and give it a header, a stubhead label, a spanner, a footnote,
+and two source notes.
 
 ```{python}
 from great_tables import GT, md, loc
@@ -12299,7 +12433,8 @@ gt_tbl
 
 ## Removing the Header
 
-The **Table Header** (the title and optional subtitle) is removed with the `~~GT.rm_header()` method. It takes no arguments and clears the entire header at once.
+The **Table Header** (the title and optional subtitle) is removed with the `~~GT.rm_header()`
+method. It takes no arguments and clears the entire header at once.
 
 ```{python}
 gt_tbl.rm_header()
@@ -12307,7 +12442,8 @@ gt_tbl.rm_header()
 
 ## Removing the Stubhead Label
 
-The *stubhead label* is the label that sits above the table stub. It's removed with `~~GT.rm_stubhead()`, which leaves the stub itself in place and takes away only the label.
+The *stubhead label* is the label that sits above the table stub. It's removed with
+`~~GT.rm_stubhead()`, which leaves the stub itself in place and takes away only the label.
 
 ```{python}
 gt_tbl.rm_stubhead()
@@ -12315,13 +12451,16 @@ gt_tbl.rm_stubhead()
 
 ## Removing Source Notes
 
-Source notes live in the **Table Footer**. Calling `~~GT.rm_source_notes()` with no arguments removes all of them.
+Source notes live in the **Table Footer**. Calling `~~GT.rm_source_notes()` with no arguments
+removes all of them.
 
 ```{python}
 gt_tbl.rm_source_notes()
 ```
 
-To remove only *some* of the source notes, supply the `source_notes=` argument with a `0`-based index (or a list of indices) reflecting the order in which the notes were added. Here we drop just the first source note and keep the second.
+To remove only *some* of the source notes, supply the `source_notes=` argument with a `0`-based
+index (or a list of indices) reflecting the order in which the notes were added. Here we drop just
+the first source note and keep the second.
 
 ```{python}
 gt_tbl.rm_source_notes(source_notes=0)
@@ -12329,7 +12468,9 @@ gt_tbl.rm_source_notes(source_notes=0)
 
 ## Removing Footnotes
 
-Footnotes are removed the same way through the `~~GT.rm_footnotes()` method. Called without arguments, all footnotes are removed. The `footnotes=` argument accepts a `0`-based index or a list of indices when you want to remove specific ones while keeping the rest.
+Footnotes are removed the same way through the `~~GT.rm_footnotes()` method. Called without
+arguments, all footnotes are removed. The `footnotes=` argument accepts a `0`-based index or a list
+of indices when you want to remove specific ones while keeping the rest.
 
 ```{python}
 gt_tbl.rm_footnotes()
@@ -12337,15 +12478,30 @@ gt_tbl.rm_footnotes()
 
 ## Removing Spanners
 
-Spanners are removed with `~~GT.rm_spanners()`, which takes away the spanner labels while leaving the underlying columns untouched. With no arguments, all spanners are removed. To target specific ones, pass their ID values to the `spanners=` argument.
+Spanners are removed with `~~GT.rm_spanners()`, which takes away the spanner labels while leaving
+the underlying columns untouched. With no arguments, all spanners are removed. To target specific
+ones, pass their ID values to the `spanners=` argument.
 
 ```{python}
 gt_tbl.rm_spanners(spanners="performance")
 ```
 
-Spanners can also be removed by *level* using the `levels=` argument. Levels are numbered starting at `0` for the row of spanners closest to the column labels, increasing as you move upward. This is handy when a table has stacked (nested) spanners and you want to clear an entire tier at once. When both `spanners=` and `levels=` are supplied, only the spanners that match *both* conditions are removed.
+Spanners can also be removed by *level* using the `levels=` argument. Levels are numbered starting
+at `0` for the row of spanners closest to the column labels, increasing as you move upward. This is
+handy when a table has stacked (nested) spanners and you want to clear an entire tier at once. When
+both `spanners=` and `levels=` are supplied, only the spanners that match *both* conditions are
+removed.
 
-The `rm_*()` methods round out the table-building workflow: the `tab_*()` methods put components in place, and their `rm_*()` counterparts take them back out. Because each returns a `GT` object, you can freely mix additions and removals within a single chain, which makes it easy to adapt a table that was created elsewhere to suit your needs.
+The ability to remove by level is especially useful when working with deeply nested spanners
+(spanners that span other spanners). Rather than tracking individual spanner IDs (which can become
+unwieldy as the number of spanners grows) you can clear an entire tier at once. For instance, if you
+have a three-level spanner hierarchy and want to simplify the table down to a single level, two
+`rm_spanners()` calls with the appropriate `levels=` values will do the job cleanly.
+
+The `rm_*()` methods round out the table-building workflow: the `tab_*()` methods put components in
+place, and their `rm_*()` counterparts take them back out. Because each returns a `GT` object, you
+can freely mix additions and removals within a single chain, which makes it easy to adapt a table
+that was created elsewhere to suit your needs.
 
 
 
@@ -12358,6 +12514,12 @@ The [Formatting Values](./07-formatting-values.qmd) page introduced the basics o
 toolkit. This page covers additional formatters that handle percentages, byte sizes, durations,
 scientific units, icons, flags, images, boolean values, Markdown, and more. Each formatter
 transforms raw cell data into presentation-ready content.
+
+When choosing a formatter, start with the semantic meaning of your data. If a column represents a
+file size, reach for `fmt_bytes()` rather than `fmt_number()` with manual suffix logic. If a column
+holds time durations, use `fmt_duration()` instead of formatting seconds by hand. Semantic
+formatters produce more consistent output and handle edge cases (like unit boundaries and scaling)
+automatically, so you get correct results without writing extra logic.
 
 ## Percentage Formatting
 
@@ -12414,6 +12576,12 @@ or `"binary"` for powers of 1024 (KiB, MiB, GiB).
 
 With the binary standard, the same byte values display in KiB, MiB, and GiB units. Choose whichever
 standard matches the conventions of your domain.
+
+As a rule of thumb, use decimal units (kB, MB, GB) for storage marketed to consumers (disk drives,
+cloud storage quotas, and network transfer speeds all use powers of 1000). Use binary units (KiB,
+MiB, GiB) for memory and technical contexts where powers of 1024 are precise, such as RAM capacity,
+cache sizes, and buffer allocations. Picking the right standard avoids confusing your readers with
+numbers that don't match what they see elsewhere.
 
 ## Duration Formatting
 
@@ -12478,6 +12646,12 @@ eng_df = pl.DataFrame({
 
 Each value is expressed with a mantissa between 1 and 999 and an exponent that is a multiple of 3.
 This makes it straightforward to mentally convert to SI prefixes (e.g., `4.7 x 10^3` = 4.7 kilo).
+
+Engineering notation is preferred over scientific notation when your audience thinks in terms of SI
+prefixes. Because the exponent is always a multiple of 3, values map directly to familiar units:
+kilohms, microfarads, gigahertz, milliwatts, and so on. Readers can interpret the numbers without
+mental conversion. If your data spans a wide range of magnitudes in a technical domain, engineering
+notation is almost always the better choice.
 
 ## Parts-Per Formatting
 
@@ -12712,6 +12886,12 @@ grades_df = pl.DataFrame({
 The `~~GT.fmt()` method is the escape hatch for any formatting logic that the specialized `fmt_*()`
 methods do not cover. Your function can return plain text or HTML strings for rich formatting.
 
+`fmt()` is what makes **Great Tables**' formatting system fully extensible. Any transformation you
+can express in Python (lookups, conditional logic, external API calls) can become a cell formatter.
+If you find yourself writing the same custom formatter repeatedly, consider wrapping it in a
+reusable function and sharing it across tables. This is exactly the pattern described in the
+[Extending Great Tables](./23-extensions.qmd) page.
+
 The formatting methods in **Great Tables** cover a wide spectrum of data types and presentation
 needs. From scientific notation to country flags, from boolean indicators to custom functions, you
 have the tools to make every column in your table look exactly right for its audience and context.
@@ -12723,6 +12903,8 @@ Real-world data often contains missing values, zeros, or extreme numbers that ca
 misleading when displayed directly in a table. The `sub_*()` family of methods lets you replace
 these problematic values with more meaningful text, improving readability without altering your
 underlying data.
+
+It is worth noting that substitution is about communication, not data cleaning. The underlying DataFrame is unchanged---what changes is how problematic values are *presented* to the reader. A `None` displayed as "N/A" or an em dash is immediately understood as intentionally missing, whereas a raw `None` can look like a bug or an incomplete pipeline. Similarly, replacing a zero with "none" or capping an extreme value with ">10B" tells the reader that you've accounted for these cases deliberately.
 
 ## Setting Up the Example Data
 
@@ -12894,6 +13076,8 @@ methods are applied in the order they are called.
 This combination addresses missing data, zero values, very small numbers, and very large numbers all
 at once, producing a clean and informative table.
 
+Because substitutions are applied before formatting, you can chain `sub_*()` and `fmt_*()` calls freely. The substitution handles the special cases first---missing values, zeros, outliers---and the formatter handles everything else. This separation keeps your table code clean and predictable: each layer has a single responsibility, and you don't need to write conditional logic inside your formatters to account for edge cases.
+
 The `sub_*()` methods work as a pre-processing step before formatting. This means you can apply
 `fmt_*()` methods to the same columns and the substituted text will remain in place for cells that
 were already replaced, while the formatter handles the remaining values.
@@ -12906,6 +13090,12 @@ formatting has been applied. The `text_*()` methods operate on the already-rende
 giving you a post-processing layer for tasks like replacing abbreviations, applying conditional
 labels, or inserting custom HTML. These methods complement the `fmt_*()` methods, which work on raw
 data values.
+
+To clarify the distinction: `fmt_*()` methods work on raw data values *before* they become text.
+Text transforms work on the *already-rendered text* after formatting. This means you can use
+`fmt_number()` to get consistent decimal places, and then use `text_transform()` to wrap the result
+in custom HTML or append a unit label. The two layers complement each other, where formatting
+handles the numeric conversion, and text transforms handle the final presentation touches.
 
 ## Setting Up the Example Data
 
@@ -13024,6 +13214,12 @@ Each status code is mapped to a more readable label. By default, `text_case_matc
 entire cell text (i.e., `replace="all"`). You can set `replace="partial"` to match substrings
 instead.
 
+When you have a known, finite set of values to map (like status codes, country abbreviations, or
+category labels) `text_case_match()` is more readable and self-documenting than a `text_transform()`
+call with a lambda containing if/elif chains. The mapping is declared as data rather than buried in
+control flow. Reserve `text_transform()` for open-ended transformations where the logic can't be
+expressed as a simple lookup table.
+
 ### Matching Multiple Values to One Replacement
 
 The first element of each case tuple can be a list of strings, allowing you to map multiple values
@@ -13082,6 +13278,12 @@ and returns `True` or `False`. The first matching predicate determines the repla
 
 This approach is particularly powerful when your replacement logic depends on the value itself (such
 as numeric thresholds) rather than exact string matching.
+
+The key difference from `text_case_match()` is that `text_case_when()` is predicate-based: each case
+is a function that can express numeric thresholds, string containment tests, length checks, or any
+other boolean logic. Use it when your replacement logic goes beyond exact string matching. If you
+find yourself writing predicates that are just `lambda x: x == "some_value"`, that's a sign you
+should use `text_case_match()` instead.
 
 ## Targeting Different Locations
 
@@ -13163,7 +13365,13 @@ spot. **Great Tables** provides a flexible system for applying fills, borders, a
 cells in the table body. This page covers the fundamentals of cell-level styling, from targeting
 specific cells to using column values and expressions to drive dynamic styles.
 
-**Great Tables** can add styles---like color, text properties, and borders---on many different parts
+Targeted styling is most effective when used sparingly to draw attention to specific values
+(outliers, thresholds, or key comparisons). Overusing color and borders can make a table harder to
+read rather than easier. A good rule of thumb: if everything is highlighted, nothing is. Start with
+the most important insight you want the reader to take away, and style just enough to guide their
+eye there.
+
+**Great Tables** can add styles (like color, text properties, and borders) on many different parts
 of the displayed table. The following set of examples shows how to set styles on the body of table,
 where the data cells are located.
 
@@ -13250,6 +13458,8 @@ In addition to setting styles to specific values (e.g., a `"yellow"` background 
 use parameter values from table columns to specify styles. The way to do this is to use the
 `from_column()` helper function to access those values.
 
+Column-based styling is powerful because it lets the data itself drive the visual presentation. Instead of manually specifying which cells to highlight, you define a rule and let it apply automatically. This is especially valuable for tables that are regenerated with updated data, since the styling adapts without any code changes.
+
 ```{python}
 df = pl.DataFrame({"x": [1, 2], "background": ["lightyellow", "lightblue"]})
 
@@ -13330,6 +13540,12 @@ gt_pl_air.tab_style(
 
 The Polars expression evaluates per row and produces a color string for each cell. This approach
 avoids creating and hiding an extra column, keeping the code concise.
+
+Each of the three approaches (`from_column()` with `cols_hide()`, Polars expressions, and functions)
+has its strengths. Polars expressions are the most concise for Polars DataFrames and keep the
+styling logic self-contained. The `from_column()` approach works with both Pandas and Polars
+backends but requires an extra column. Functions are the most flexible option for Pandas workflows.
+Choose whichever matches your data library and preference.
 
 ### Using functions
 
@@ -13471,10 +13687,10 @@ parts of the table, like the header, specific spanner labels, the footer, and mo
 different location specifiers, you can apply fill colors, borders, and text styles to virtually any
 region of your table.
 
-:::{.callout-warning}
-This feature is new, and this page of documentation is still in development.
-:::
-
+Whole-table styling is valuable when you want to establish visual hierarchy or brand consistency
+across the table. For example, giving the header a distinct background separates it from the data,
+while styling the stub helps readers distinguish identifiers from values. This kind of structural
+styling works well alongside the cell-level techniques covered on the previous page.
 
 ## All locations example
 
@@ -13539,7 +13755,13 @@ gt = (
 )
 ```
 
-Each color in the output maps to a specific table region, making it easy to identify the scope of every location specifier available in **Great Tables**.
+Each color in the output maps to a specific table region, making it easy to identify the scope of
+every location specifier available in **Great Tables**.
+
+This comprehensive example is useful as a reference, but in practice you would style only the parts
+that need visual distinction. The goal is to guide the reader's eye, not to color every region
+differently. Most tables benefit from styling just two or three regions (enough to create clear
+visual separation without overwhelming the content).
 
 ## Body
 
@@ -13549,7 +13771,8 @@ The table body is styled using `loc.body()`, which targets all data cells at onc
 gt.tab_style(style.fill("yellow"), loc.body())
 ```
 
-The yellow fill is applied to every data cell in the table body, leaving headers, stubs, and footers unchanged.
+The yellow fill is applied to every data cell in the table body, leaving headers, stubs, and footers
+unchanged.
 
 ## Column labels
 
@@ -13565,7 +13788,9 @@ labels and spanner labels separately for more precise control.
 )
 ```
 
-Here, `loc.column_header()` applies a yellow background to the entire column labels row, then individual labels and spanners are overridden with more specific colors. This layered approach lets you set a base style and refine as needed.
+Here, `loc.column_header()` applies a yellow background to the entire column labels row, then
+individual labels and spanners are overridden with more specific colors. This layered approach lets
+you set a base style and refine as needed.
 
 ## Header
 
@@ -13580,7 +13805,8 @@ with `loc.header()`, or target the title and subtitle individually.
 )
 ```
 
-The yellow covers the full header area, while the blue and red target the title and subtitle independently. When styles overlap, the more specific location wins.
+The yellow covers the full header area, while the blue and red target the title and subtitle
+independently. When styles overlap, the more specific location wins.
 
 ## Footer
 
@@ -13599,7 +13825,9 @@ individual source note level with `loc.source_notes()`.
 )
 ```
 
-The source notes receive a yellow fill, while the entire footer region gets a heavy border. Both `loc.footer()` and `loc.source_notes()` target the same visual area but at different levels of granularity.
+The source notes receive a yellow fill, while the entire footer region gets a heavy border. Both
+`loc.footer()` and `loc.source_notes()` target the same visual area but at different levels of
+granularity.
 
 ## Stub
 
@@ -13617,7 +13845,8 @@ individually, and even target specific rows within the stub.
 )
 ```
 
-The stub fills yellow, row group labels turn blue, and a dashed red border highlights a specific row in the stub. Using `rows=` within `loc.stub()` lets you target individual row labels.
+The stub fills yellow, row group labels turn blue, and a dashed red border highlights a specific row
+in the stub. Using `rows=` within `loc.stub()` lets you target individual row labels.
 
 ## Stubhead
 
@@ -13627,7 +13856,8 @@ The stubhead label sits above the stub column and can be styled with `loc.stubhe
 gt.tab_style(style.fill("yellow"), loc.stubhead())
 ```
 
-The stubhead label cell receives the yellow background. This is useful for visually linking the stubhead to the stub column below it.
+The stubhead label cell receives the yellow background. This is useful for visually linking the
+stubhead to the stub column below it.
 
 ## Grand Summary Rows
 
@@ -13658,6 +13888,12 @@ with color gradients. This technique is great for identifying patterns, trends, 
 missing data when there's lots of data. Tables can have this sort of treatment as well! Typically,
 formatted numeric values are shown along with some color treatment coinciding with the underlying
 data values.
+
+Data coloring works best when you want readers to spot patterns across many values at once (e.g.,
+trends over time, outliers, relative magnitude, etc.). For tables with just a few rows, explicit
+formatting or footnotes may be more effective since the reader can take in all the values directly.
+But when a table has dozens or hundreds of cells, color provides a visual shortcut that no amount of
+bold or italics can match.
 
 We can make this possible in **Great Tables** by using the `~~GT.data_color()` method. Let's start
 with a simple example, using a Polars DataFrame with three columns of values. We can introduce that
@@ -13696,9 +13932,15 @@ GT(simple_df).data_color(palette=["blue", "red"])
 
 Now that we've moved away from the default palette and specified colors, we can see that lower
 numerical values are closer to blue and higher values are closer to red (those in the middle have
-colors that are a blend of the two; in this case, more in the purple range). Categorical values
+colors that are a blend of the two and, in this case, more in the purple range). Categorical values
 behave similarly, they take on ordinal values based on their first appearance (from top to bottom)
 and those values are used to generate the background colors.
+
+When choosing palette colors, consider the nature of your data. For sequential data (low to high),
+use a single-hue gradient or a well-known sequential palette. For diverging data (values above and
+below a midpoint), use a diverging palette with a neutral middle color. Avoid using red-green
+combinations, which are difficult for colorblind readers (blue-orange or purple-green are safer
+alternatives).
 
 ## Coloring missing values with `na_color`
 
@@ -13737,6 +13979,12 @@ string-based values). Here's the table code for that:
 Nice! We can clearly see that the color ramp in the first column (`integer`) only proceeds from blue
 (value: `1`) to purple (value: `5`) and there isn't a reddish color in sight (would need a value
 close to 10).
+
+Setting an explicit domain matters because without one, each column scales independently (the same
+color can represent different values in different columns). By setting a shared domain, you ensure
+that colors are comparable across columns, which is critical when columns measure the same quantity.
+In this example, both `integer` and `float` use the `[0, 10]` range, so a given shade of purple
+means the same thing regardless of which column it appears in.
 
 ## Bringing it all together
 
@@ -13792,6 +14040,12 @@ colors, fonts, borders, and spacing for entire table parts in a single call. Thi
 structure of option names, demonstrates how to style different parts, and shows how to build a
 complete table theme.
 
+A useful way to think about the relationship between `~~GT.tab_options()` and `~~GT.tab_style()`:
+use `tab_options()` when you want to set broad defaults for entire table parts (e.g., "all column
+labels should have this background color"). Use `tab_style()` when you need to target specific
+cells, columns, or rows. The two work together naturally: `tab_options()` sets the base theme, and
+`tab_style()` applies targeted overrides on top of it.
+
 Great Tables exposes options to customize the appearance of tables via two methods:
 
 * `~~GT.tab_style()`: targeted styles (e.g. color a specific cell of data, or a specific group
@@ -13823,12 +14077,11 @@ gt_ex
 
 ## Table option parts
 
-As the graph above showed, tables are made of many parts---such as the heading, column labels, and
-stub. `~~GT.tab_options()` organizes options based on table part.
+As the graph above showed, tables are made of many parts. These include the heading, column labels,
+and the stub. `~~GT.tab_options()` organizes options based on table part.
 
 The code below illustrates the table parts `~~GT.tab_options()` can target, by setting the
 background color for various parts.
-
 
 ```{python}
 (
@@ -13855,8 +14108,8 @@ Notice two important pieces:
 ## Finding options: part, type, attribute
 
 Option names in `~~GT.tab_options()` follow a consistent naming convention. Understanding the
-pattern makes it easy to find the exact option you need without searching through documentation.
-The format is:
+pattern makes it easy to find the exact option you need without searching through documentation. The
+format is:
 
 ```python
 {part name}_{type}_{attribute}
@@ -13921,9 +14174,8 @@ gt_ex.tab_options(
 )
 ```
 
-In order to define the vertical lines between cells, set `vline` styles. For example, the code
-below makes both horizontal and vertical lines between cells solid.
-
+In order to define the vertical lines between cells, set `vline` styles. For example, the code below
+makes both horizontal and vertical lines between cells solid.
 
 ```{python}
 gt_ex.tab_options(
@@ -13963,13 +14215,19 @@ The orange background applies everywhere except the heading, which overrides it 
 layered approach means you can set sensible table-wide defaults and then customize individual parts
 as needed.
 
+If you find yourself applying the same `tab_options()` settings across multiple tables, consider
+wrapping them in a function. This ensures visual consistency and lets you update the theme in one
+place. The next page on [Premade Themes](./16-premade-themes.qmd) shows exactly how this works with
+the `opt_*()` convenience methods, which are essentially pre-built theme functions that are included
+in **Great Tables**.
+
 ## A basic theme
 
 Based on the sections above, we can design an overall theme for a table.
 
-This requires setting a decent number of options, but makes a big difference when presenting a
+This requires setting a decent number of options, but it makes a big difference when presenting a
 table! Below is a table with a simple, blue theme. (The code is hidden by default, but can be
-expanded to see all the options set).
+expanded to see all the options set.)
 
 ```{python}
 #| code-fold: true
@@ -14030,6 +14288,11 @@ individual options. For common styling needs, **Great Tables** offers a collecti
 convenience methods that bundle these options into simple, one-line calls. This page demonstrates
 how to use premade themes and the various convenience methods available for quick table
 customization.
+
+Premade themes are ideal for getting a polished look quickly, especially during exploratory work or
+when building dashboards where visual consistency matters more than pixel-perfect custom styling.
+For publication or brand-specific tables, you may want to start with a premade theme and then
+customize it further with `tab_options()` to match your exact requirements.
 
 Great Tables provides convenience methods starting with `opt_` (e.g. `~~GT.opt_row_striping()`), as
 a shortcut for various styles that can be set via `~~GT.tab_options()`.
@@ -14118,6 +14381,12 @@ for ii in range(1, 7):
 print(":::")
 ```
 
+When choosing a style, consider your audience and context. Styles 1 and 2 emphasize structure
+through color, making table regions visually distinct. Styles 3 and 4 use lines and shading for a
+more traditional look. Styles 5 and 6 are more minimal, relying on subtle separation. Heavier
+styling works well for standalone presentations, while lighter styling is better suited for tables
+embedded in text-heavy reports where the table should complement rather than dominate the page.
+
 ## `opt_*()` convenience methods
 
 This section shows the different `opt_*()` methods available. They serve as convenience methods for
@@ -14183,6 +14452,13 @@ nanoplots include the following:
 - choice of line and bar charting
 - you can annotate plots with a reference line and/or area
 - plenty of easy-to-use options for composing your plots
+
+Nanoplots shine when you want to show trends or distributions alongside other tabular data, so the
+reader can correlate a visual pattern with the row's other values at a glance. They are not a
+replacement for full-sized charts but should instead be used when the visual is supplementary
+context rather than the primary message. If a chart needs its own axis labels, legend, or detailed
+annotations, it belongs in a standalone figure. But when a compact sparkline or bar sequence adds
+meaning to a row without pulling the reader out of the table, a nanoplot is the right tool.
 
 ## A simple line-based nanoplot
 
@@ -14281,6 +14557,12 @@ magnitudes of values across rows in addition to their trends. It won't, however,
 the overall magnitudes of values vary wildly across rows (e.g., comparing changing currency values
 or stock prices over time).
 
+Keep in mind the tradeoff: `autoscale=True` sacrifices within-row detail for cross-row
+comparability. If some rows have values in the thousands and others in single digits, autoscaling
+may compress the smaller series into a nearly flat line, hiding their internal variation. In those
+cases, independent scales (the default) are a better choice because they let each row's nanoplot use
+its full vertical range to show that row's own pattern.
+
 ## Using the `nanoplot_options()`{.qd-no-link} helper function
 
 There are many options for customization. You can radically change the look of a collection of
@@ -14316,7 +14598,14 @@ As can be seen, you have a lot of fine-grained control over the look of a nanopl
 ## Making nanoplots with bars using `plot_type="bar"`
 
 We don't just support line plots in `~~GT.fmt_nanoplot()`, we also have the option to show bar
-plots. The only thing you need to change is the value of `plot_type=` argument to `"bar"`:
+plots. The only thing you need to change is the value of `plot_type=` argument to `"bar"`.
+
+Choosing between line and bar nanoplots depends on what you want to emphasize. Line plots highlight
+trends and continuity over time or a sequence. And they make it easy to see whether values are
+rising, falling, or oscillating. Bar plots, on the other hand, emphasize individual values and make
+it straightforward to compare magnitudes across positions. Bar plots also handle negative values
+more naturally, with bars projecting downward from a zero line, giving the reader an immediate sense
+of sign and scale.
 
 ```{python}
 GT(random_numbers_df).fmt_nanoplot(columns="numbers", plot_type="bar")
@@ -14452,6 +14741,13 @@ than limiting you to a simple list of column names, the package supports a flexi
 that includes positional indexing, pattern-matching functions, and Polars selectors. This page
 demonstrates each of these approaches.
 
+As your table-building code grows, hardcoding column names becomes fragile. If a column is renamed
+or added upstream, your table code breaks silently or raises an error. Pattern-based selection
+(whether through functions or Polars selectors) makes your code more resilient to upstream changes
+and more expressive about intent. Instead of listing every column by name, you can declare
+*what kind* of columns you want (e.g., all numeric columns, all columns starting with a prefix), and
+the selection adapts automatically as the data evolves.
+
 ## Selection Options
 
 The `columns=` argument for methods like `~~GT.tab_spanner()`, `~~GT.cols_move()`, and
@@ -14530,6 +14826,12 @@ or `False`.
 gt_ex.cols_move_to_start(columns=lambda x: "c" in x)
 ```
 
+To summarize when to reach for each approach: use a plain list of names when you know exactly which
+columns you want and the list is short. Use Polars selectors when you want to match by dtype,
+prefix, suffix, or other structural properties of the columns. Use a function when you need custom
+logic that doesn't fit neatly into a selector (e.g., matching against an external list or applying a
+complex naming convention rule).
+
 These selection methods work consistently across all **Great Tables** methods that accept a
 `columns=` argument. Whether you prefer explicit column names, positional indexing, Polars
 selectors, or custom functions, you can choose the approach that best fits your workflow and data.
@@ -14541,6 +14843,12 @@ Just as you can target specific columns, **Great Tables** also provides flexible
 rows. The `rows=` argument appears in formatting methods, location specifiers, and styling calls,
 allowing you to apply operations to a precise subset of your data. This page covers each of the
 available selection mechanisms.
+
+Row selection matters because many table operations (formatting, styling, footnotes) need to target
+specific rows. Without it, you would need to pre-filter your DataFrame or apply formatting to an
+entire column and then somehow undo it for the rows that don't apply. Row selection keeps the logic
+in the table layer, close to where it's used, so your data preparation stays clean and your
+formatting intent is expressed declaratively alongside the styling calls.
 
 ## Selection Options
 
@@ -14616,6 +14924,11 @@ gt_polars.tab_style(
 The row with the maximum currency value is highlighted with a yellow background. Using expressions
 for row selection keeps the logic declarative and close to the styling call.
 
+Expression-based row selection is especially powerful for conditional formatting, where the styling
+rule depends on the data itself. For example, you can highlight rows where a metric exceeds a
+threshold, format only the rows that contain the maximum or minimum value, or apply different styles
+based on category membership (all without any imperative filtering logic).
+
 ## Using a function
 
 Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a
@@ -14654,6 +14967,12 @@ The `loc` module is what connects your styling intentions to specific parts of t
 location specifier identifies a region of the table (such as the header, body, stub, or footer) and
 many of them also support targeting specific columns or rows within that region. This page provides
 a comprehensive overview of all available location specifiers and how to use them effectively.
+
+Understanding the `loc` module is valuable because it provides a single, consistent vocabulary for
+addressing any part of the table. Rather than learning separate APIs for styling the header vs. the
+body vs. the stub, you use the same `loc.*()` specifiers everywhere. This means that once you know
+how to style a column label, the pattern for styling a row group label or a source note is
+immediately familiar.
 
 ## Overview
 
@@ -14885,6 +15204,12 @@ pagination) by calling `opt_interactive()`. The result is a self-contained HTML 
 [DataTables](https://datatables.net/) that works in Jupyter notebooks, Quarto documents, and any
 HTML output.
 
+Interactive tables are ideal for exploratory contexts where the reader needs to find specific values
+in a larger dataset (e.g., dashboards, internal tools, or notebook-based analysis). Sorting and
+filtering let readers answer their own questions about the data without you having to anticipate
+every view. For static outputs like PDF reports, printed documents, or email, stick with static
+tables since the interactivity features won't be functional in those formats.
+
 ## Enabling interactivity
 
 A single call to `opt_interactive()` switches the table from static to interactive. All of the
@@ -14908,6 +15233,11 @@ gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", 
 ```
 
 Click on any column header to sort. The table is paginated by default with 10 rows per page.
+
+One important thing to note: all of your existing formatting, styling, and structural methods
+(headers, footnotes, spanners) continue to work in interactive mode. You don't need to rebuild your
+table or learn a separate API. Instead, just append `.opt_interactive()` to the end of your method
+chain and the table gains sorting and pagination while keeping everything else intact.
 
 ## Search and per-column filters
 
@@ -15055,6 +15385,12 @@ cell, a standalone HTML file, a LaTeX document, or an image file for inclusion i
 presentation. **Great Tables** provides several export methods to cover these use cases, each with
 options to control the output format.
 
+The general principle is: build your table once, export it many ways. The same `GT` object can be
+displayed interactively, saved as HTML, rendered as LaTeX, or captured as an image. This means you
+don't need to maintain separate table-building code for different output formats. Your single chain
+of formatting, styling, and structural methods produces the canonical table, and the export step
+simply serializes it for the target medium.
+
 ## Displaying Tables
 
 In most notebook environments (Jupyter, Quarto, Marimo), simply placing a `GT` object as the last
@@ -15114,6 +15450,11 @@ email_html = gt_tbl.as_raw_html(inline_css=True)
 With inline CSS, your table will render correctly in Gmail, Outlook, and other email clients that
 strip external stylesheets.
 
+This matters because most email clients aggressively strip `<style>` blocks and external CSS
+references for security reasons. Without inline CSS, your carefully styled table will appear as
+plain, unstyled HTML in the recipient's inbox. If you are sharing tables via email (whether through
+automated reports or one-off sends), `inline_css=True` is almost always what you want.
+
 ### Complete HTML Page
 
 If you need a self-contained HTML document (with `<html>`, `<head>`, and `<body>` tags), set
@@ -15167,6 +15508,12 @@ positioned_latex = gt_tbl.as_latex(tbl_pos="!h")
 LaTeX output is still experimental. Not all table features (such as certain styling options) are
 fully supported in the LaTeX renderer.
 :::
+
+LaTeX output is the bridge between Great Tables and the world of academic publishing and
+typesetting. If you are writing papers in LaTeX or producing PDF reports via Quarto, this method
+lets you bring your Python-built tables into that workflow without manual conversion. You get the
+convenience of building tables programmatically in Python with the typographic quality of LaTeX's
+table rendering.
 
 ## Saving as an Image
 
@@ -15286,6 +15633,13 @@ pull request.
 [**gt-extras**](https://posit-dev.github.io/gt-extras/) is a great case study in this, filling your
 table desires that aren't supported by **Great Tables** directly.
 
+This reflects a deliberate design philosophy: **Great Tables** aims to cover the most common
+table-building needs out of the box, but every domain has specialized requirements. The extension
+points (`fmt()`, `as_raw_html()`, `tab_style()`, and others) are intentionally designed to be
+composable, so you can build domain-specific additions without forking the package. Whether you are
+adding custom visualizations, specialized formatting, or entirely new layout patterns, the same
+building blocks that power the built-in methods are available to you.
+
 ## Writing an Add-on Function
 
 When adding to **Great Tables**, you have three main approaches: *wrapping*, *extending*, and what
@@ -15398,6 +15752,12 @@ adding new behavior.
 Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some
 plotting is already built in, called [nanoplots](./17-nanoplots.qmd). But there are endless plot
 types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
+
+When deciding between nanoplots and custom plot extensions, consider what you need. Nanoplots handle
+the most common cases (line and bar charts) with built-in interactivity and consistent styling that
+matches your table's look. Reach for custom plot extensions when you need a chart type that
+nanoplots don't support (scatter plots, pie charts, gauges, heatmap cells) or when you want full
+control over the rendering using a specific plotting library's aesthetics and capabilities.
 
 The key to adding custom plots to your tables is using `~~GT.fmt()` with a function that converts
 your data values into visual representations. Your formatting function should take a value from your

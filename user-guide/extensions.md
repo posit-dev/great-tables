@@ -6,6 +6,8 @@ But what happens when there's something you want to add to your table, and it's 
 
 [**gt-extras**](https://posit-dev.github.io/gt-extras/) is a great case study in this, filling your table desires that aren't supported by **Great Tables** directly.
 
+This reflects a deliberate design philosophy: **Great Tables** aims to cover the most common table-building needs out of the box, but every domain has specialized requirements. The extension points ([fmt()](../reference/GT.fmt.md#great_tables.GT.fmt), [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html), [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style), and others) are intentionally designed to be composable, so you can build domain-specific additions without forking the package. Whether you are adding custom visualizations, specialized formatting, or entirely new layout patterns, the same building blocks that power the built-in methods are available to you.
+
 
 # Writing an Add-on Function
 
@@ -97,6 +99,8 @@ Again, this is a sneak peek of the **gt-extras** function, [`gt_two_column_layou
 # Extending with Plots
 
 Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called [nanoplots](nanoplots.md). But there are endless plot types you could want in your great tables, and for these [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt) is your friend.
+
+When deciding between nanoplots and custom plot extensions, consider what you need. Nanoplots handle the most common cases (line and bar charts) with built-in interactivity and consistent styling that matches your table's look. Reach for custom plot extensions when you need a chart type that nanoplots don't support (scatter plots, pie charts, gauges, heatmap cells) or when you want full control over the rendering using a specific plotting library's aesthetics and capabilities.
 
 The key to adding custom plots to your tables is using [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt) with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot (whether that's an SVG, a series of styled `<div>` elements, or even embedded images).
 
