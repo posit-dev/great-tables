@@ -10,6 +10,8 @@ misleading when displayed directly in a table. The `sub_*()` family of methods l
 these problematic values with more meaningful text, improving readability without altering your
 underlying data.
 
+It is worth noting that substitution is about communication, not data cleaning. The underlying DataFrame is unchanged---what changes is how problematic values are *presented* to the reader. A `None` displayed as "N/A" or an em dash is immediately understood as intentionally missing, whereas a raw `None` can look like a bug or an incomplete pipeline. Similarly, replacing a zero with "none" or capping an extreme value with ">10B" tells the reader that you've accounted for these cases deliberately.
+
 ## Setting Up the Example Data
 
 For the examples on this page, we will use a small DataFrame with a mix of values that includes
@@ -179,6 +181,8 @@ methods are applied in the order they are called.
 
 This combination addresses missing data, zero values, very small numbers, and very large numbers all
 at once, producing a clean and informative table.
+
+Because substitutions are applied before formatting, you can chain `sub_*()` and `fmt_*()` calls freely. The substitution handles the special cases first---missing values, zeros, outliers---and the formatter handles everything else. This separation keeps your table code clean and predictable: each layer has a single responsibility, and you don't need to write conditional logic inside your formatters to account for edge cases.
 
 The `sub_*()` methods work as a pre-processing step before formatting. This means you can apply
 `fmt_*()` methods to the same columns and the substituted text will remain in place for cells that
