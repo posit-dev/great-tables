@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from ._types import GTSelf
 
 
-def tab_stubhead(self: GTSelf, label: str | Text) -> GTSelf:
+def tab_stubhead(self: GTSelf, label: str | list[str] | Text) -> GTSelf:
     """
     Add label text to the stubhead.
 
@@ -24,7 +24,9 @@ def tab_stubhead(self: GTSelf, label: str | Text) -> GTSelf:
     label
         The text to be used as the stubhead label. We can optionally use the
         [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`) helper functions to style
-        the text as Markdown or to retain HTML elements in the text.
+        the text as Markdown or to retain HTML elements in the text. When a multi-column stub is
+        used (i.e. `rowname_col` is a list), `label` may be a list of strings — one per stub
+        column (outermost first). Each label is rendered as a separate cell with `colspan=1`.
 
     Returns
     -------
@@ -64,5 +66,17 @@ def tab_stubhead(self: GTSelf, label: str | Text) -> GTSelf:
     )
     ```
     """
+
+    if isinstance(label, list):
+        has_summary_rows = bool(self._summary_rows or self._summary_rows_grand)
+        stub_layout = self._stub._get_stub_layout(
+            has_summary_rows=has_summary_rows, options=self._options
+        )
+        n_stub_cols = stub_layout.count("rowname")
+        if len(label) != n_stub_cols:
+            raise ValueError(
+                f"tab_stubhead(): `label` list has {len(label)} item(s) but the stub has "
+                f"{n_stub_cols} column(s). Provide exactly one label per stub column."
+            )
 
     return self._replace(_stubhead=label)
