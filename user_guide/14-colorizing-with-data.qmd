@@ -11,6 +11,12 @@ missing data when there's lots of data. Tables can have this sort of treatment a
 formatted numeric values are shown along with some color treatment coinciding with the underlying
 data values.
 
+Data coloring works best when you want readers to spot patterns across many values at once (e.g.,
+trends over time, outliers, relative magnitude, etc.). For tables with just a few rows, explicit
+formatting or footnotes may be more effective since the reader can take in all the values directly.
+But when a table has dozens or hundreds of cells, color provides a visual shortcut that no amount of
+bold or italics can match.
+
 We can make this possible in **Great Tables** by using the `~~GT.data_color()` method. Let's start
 with a simple example, using a Polars DataFrame with three columns of values. We can introduce that
 data to `GT` and use `~~GT.data_color()` without any arguments.
@@ -48,9 +54,15 @@ GT(simple_df).data_color(palette=["blue", "red"])
 
 Now that we've moved away from the default palette and specified colors, we can see that lower
 numerical values are closer to blue and higher values are closer to red (those in the middle have
-colors that are a blend of the two; in this case, more in the purple range). Categorical values
+colors that are a blend of the two and, in this case, more in the purple range). Categorical values
 behave similarly, they take on ordinal values based on their first appearance (from top to bottom)
 and those values are used to generate the background colors.
+
+When choosing palette colors, consider the nature of your data. For sequential data (low to high),
+use a single-hue gradient or a well-known sequential palette. For diverging data (values above and
+below a midpoint), use a diverging palette with a neutral middle color. Avoid using red-green
+combinations, which are difficult for colorblind readers (blue-orange or purple-green are safer
+alternatives).
 
 ## Coloring missing values with `na_color`
 
@@ -89,6 +101,12 @@ string-based values). Here's the table code for that:
 Nice! We can clearly see that the color ramp in the first column (`integer`) only proceeds from blue
 (value: `1`) to purple (value: `5`) and there isn't a reddish color in sight (would need a value
 close to 10).
+
+Setting an explicit domain matters because without one, each column scales independently (the same
+color can represent different values in different columns). By setting a shared domain, you ensure
+that colors are comparable across columns, which is critical when columns measure the same quantity.
+In this example, both `integer` and `float` use the `[0, 10]` range, so a given shade of purple
+means the same thing regardless of which column it appears in.
 
 ## Bringing it all together
 
