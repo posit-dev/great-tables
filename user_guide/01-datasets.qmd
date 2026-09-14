@@ -11,6 +11,12 @@ the API documentation. These datasets cover a range of subject areas and sizes, 
 any of them as a Pandas DataFrame, a Polars DataFrame, or both, depending on how you prefer to
 work.
 
+These built-in datasets exist so you can experiment with Great Tables features without needing to
+bring your own data. They make it easy to follow along with examples, test table-building code, and
+explore different formatting options. They also demonstrate the range of data types and structures
+that Great Tables handles well, from small categorical tables to large transactional datasets with
+dates, currencies, and numeric measurements.
+
 ## Accessing Datasets Directly
 
 The simplest way to use a dataset is to import it by name from `great_tables.data`. This returns a
@@ -44,8 +50,10 @@ this way will continue to work without any changes.
 ## Choosing a Backend with `data.pd` and `data.pl`
 
 If you want to be explicit about whether you get a Pandas or Polars DataFrame, use the `data.pd` and
-`data.pl` namespaces. Datasets accessed through these namespaces are loaded on first access and
-cached for subsequent use, so there's no performance penalty for repeated access.
+`data.pl` namespaces. Being explicit about your backend is especially important in shared codebases
+or library code where you want to guarantee the DataFrame type, regardless of what packages happen
+to be installed in a given environment. Datasets accessed through these namespaces are loaded on
+first access and cached for subsequent use, so there's no performance penalty for repeated access.
 
 To get a dataset as a Polars DataFrame, use `data.pl`:
 
