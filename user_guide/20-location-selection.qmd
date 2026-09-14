@@ -9,6 +9,12 @@ location specifier identifies a region of the table (such as the header, body, s
 many of them also support targeting specific columns or rows within that region. This page provides
 a comprehensive overview of all available location specifiers and how to use them effectively.
 
+Understanding the `loc` module is valuable because it provides a single, consistent vocabulary for
+addressing any part of the table. Rather than learning separate APIs for styling the header vs. the
+body vs. the stub, you use the same `loc.*()` specifiers everywhere. This means that once you know
+how to style a column label, the pattern for styling a row group label or a source note is
+immediately familiar.
+
 ## Overview
 
 Great Tables uses the `loc` module to specify locations for styling in `~~GT.tab_style()`. Some
