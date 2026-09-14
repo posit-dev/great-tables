@@ -10,10 +10,10 @@ parts of the table, like the header, specific spanner labels, the footer, and mo
 different location specifiers, you can apply fill colors, borders, and text styles to virtually any
 region of your table.
 
-:::{.callout-warning}
-This feature is new, and this page of documentation is still in development.
-:::
-
+Whole-table styling is valuable when you want to establish visual hierarchy or brand consistency
+across the table. For example, giving the header a distinct background separates it from the data,
+while styling the stub helps readers distinguish identifiers from values. This kind of structural
+styling works well alongside the cell-level techniques covered on the previous page.
 
 ## All locations example
 
@@ -78,7 +78,13 @@ gt = (
 )
 ```
 
-Each color in the output maps to a specific table region, making it easy to identify the scope of every location specifier available in **Great Tables**.
+Each color in the output maps to a specific table region, making it easy to identify the scope of
+every location specifier available in **Great Tables**.
+
+This comprehensive example is useful as a reference, but in practice you would style only the parts
+that need visual distinction. The goal is to guide the reader's eye, not to color every region
+differently. Most tables benefit from styling just two or three regions (enough to create clear
+visual separation without overwhelming the content).
 
 ## Body
 
@@ -88,7 +94,8 @@ The table body is styled using `loc.body()`, which targets all data cells at onc
 gt.tab_style(style.fill("yellow"), loc.body())
 ```
 
-The yellow fill is applied to every data cell in the table body, leaving headers, stubs, and footers unchanged.
+The yellow fill is applied to every data cell in the table body, leaving headers, stubs, and footers
+unchanged.
 
 ## Column labels
 
@@ -104,7 +111,9 @@ labels and spanner labels separately for more precise control.
 )
 ```
 
-Here, `loc.column_header()` applies a yellow background to the entire column labels row, then individual labels and spanners are overridden with more specific colors. This layered approach lets you set a base style and refine as needed.
+Here, `loc.column_header()` applies a yellow background to the entire column labels row, then
+individual labels and spanners are overridden with more specific colors. This layered approach lets
+you set a base style and refine as needed.
 
 ## Header
 
@@ -119,7 +128,8 @@ with `loc.header()`, or target the title and subtitle individually.
 )
 ```
 
-The yellow covers the full header area, while the blue and red target the title and subtitle independently. When styles overlap, the more specific location wins.
+The yellow covers the full header area, while the blue and red target the title and subtitle
+independently. When styles overlap, the more specific location wins.
 
 ## Footer
 
@@ -138,7 +148,9 @@ individual source note level with `loc.source_notes()`.
 )
 ```
 
-The source notes receive a yellow fill, while the entire footer region gets a heavy border. Both `loc.footer()` and `loc.source_notes()` target the same visual area but at different levels of granularity.
+The source notes receive a yellow fill, while the entire footer region gets a heavy border. Both
+`loc.footer()` and `loc.source_notes()` target the same visual area but at different levels of
+granularity.
 
 ## Stub
 
@@ -156,7 +168,8 @@ individually, and even target specific rows within the stub.
 )
 ```
 
-The stub fills yellow, row group labels turn blue, and a dashed red border highlights a specific row in the stub. Using `rows=` within `loc.stub()` lets you target individual row labels.
+The stub fills yellow, row group labels turn blue, and a dashed red border highlights a specific row
+in the stub. Using `rows=` within `loc.stub()` lets you target individual row labels.
 
 ## Stubhead
 
@@ -166,7 +179,8 @@ The stubhead label sits above the stub column and can be styled with `loc.stubhe
 gt.tab_style(style.fill("yellow"), loc.stubhead())
 ```
 
-The stubhead label cell receives the yellow background. This is useful for visually linking the stubhead to the stub column below it.
+The stubhead label cell receives the yellow background. This is useful for visually linking the
+stubhead to the stub column below it.
 
 ## Grand Summary Rows
 
