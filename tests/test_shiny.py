@@ -19,6 +19,12 @@ def test_output_gt_class_attribute():
     assert "shiny-html-output" in str(tag)
 
 
+def test_output_gt_placeholder_changes_output():
+    with_placeholder = str(output_gt("my_id", placeholder=True))
+    without_placeholder = str(output_gt("my_id", placeholder=False))
+    assert with_placeholder != without_placeholder
+
+
 def test_render_gt_callable():
     # render_gt() with no args returns a decorator
     decorator = render_gt()

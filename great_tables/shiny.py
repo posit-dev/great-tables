@@ -6,7 +6,7 @@ __all__ = (
 )
 
 from .gt import GT
-from htmltools import Tag, div, HTML
+from htmltools import Tag, HTML
 
 try:
     from shiny.render.transformer import (
@@ -15,7 +15,7 @@ try:
         ValueFn,
         resolve_value_fn,
     )
-    from shiny._namespaces import resolve_id
+    from shiny.ui import output_ui
 except ImportError:
     raise ImportError(
         "The great_tables.shiny module requires the shiny package to be installed."
@@ -30,8 +30,17 @@ if TYPE_CHECKING:
 
 
 def output_gt(id: str, placeholder: bool = False) -> Tag:
-    """Output UI for a great_tables table."""
-    return div({"class": "shiny-html-output"}, id=resolve_id(id))
+    """Output UI for a great_tables table.
+
+    Parameters
+    ----------
+    id:
+        An output id.
+    placeholder:
+        If ``True``, forward a placeholder attribute onto the Shiny HTML output
+        container so an empty box can be shown before the table arrives.
+    """
+    return output_ui(id, placeholder=placeholder)
 
 
 @output_transformer(default_ui=output_gt)
