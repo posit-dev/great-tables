@@ -5561,7 +5561,7 @@ def _validate_case(case: str) -> None:
 
 def _get_date_formats_dict() -> dict[str, str]:
     date_formats = {
-        "iso": "y-MM-dd",
+        "iso": "yyyy-MM-dd",
         "wday_month_day_year": "EEEE, MMMM d, y",
         "wd_m_day_year": "EEE, MMM d, y",
         "wday_day_month_year": "EEEE d MMMM y",
