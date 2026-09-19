@@ -352,15 +352,14 @@ def create_columns_component_l(data: GTData) -> str:
                 span_accumulator = len(stub_layout)
 
             for j, level_i_spanner_j in enumerate(level_i_spanners):
+                # Get the number of columns the group covers
+                span = group_spans[j][0]
+
                 if level_i_spanner_j is None:
-                    # Get the number of columns to span nothing
-                    span = group_spans[j][0]
-                    spanner_labs.append("" * span)
+                    # An unspanned group still needs one cell per column it covers
+                    spanner_labs.extend([""] * span)
 
-                elif level_i_spanner_j is not None:
-                    # Get the number of columns to span the spanner
-                    span = group_spans[j][0]
-
+                else:
                     # TODO: Get alignment for spanner, for now it's center (`c`)
 
                     # Get multicolumn statement for spanner
@@ -368,19 +367,18 @@ def create_columns_component_l(data: GTData) -> str:
 
                     spanner_labs.append(multicolumn_stmt)
 
-                    # Get cmidrule statement for spanner, it uses 1-based indexing
-                    # and the span is the number of columns to span; we use the `span_accumulator`
-                    # across iterations to adjust the starting index (j) to adjust for previous
-                    # multicolumn spanning values
+                    # Get cmidrule statement for spanner, it uses 1-based indexing over the
+                    # columns of the table; `span_accumulator` holds how many columns the
+                    # preceding groups, and any stub columns, already cover
 
-                    begin = j + span_accumulator + 1
-                    end = j + span_accumulator + span
+                    begin = span_accumulator + 1
+                    end = span_accumulator + span
 
                     cmidrule = f"\\cmidrule(lr){{{begin}-{end}}}"
 
-                    span_accumulator += span - 1
-
                     spanner_lines.append(cmidrule)
+
+                span_accumulator += span
 
             spanner_labs_row = " & ".join(spanner_labs) + " \\\\ \n"
             spanner_lines_row = " ".join(spanner_lines) + "\n"
