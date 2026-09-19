@@ -49,13 +49,23 @@ def _match_arg(x: str, lst: list[str]) -> str:
     if len(lst) != len(set(lst)):
         raise ValueError("The `lst` object must contain unique elements.")
 
-    matched = [el for el in lst if x in el]
+    # Options may be abbreviated by a prefix, as with match.arg() in R
+    matched = [el for el in lst if el.startswith(x)]
 
     # Raise error if there is no match
     if not matched:
         raise ValueError(f"The supplied value (`{x}`) is not an allowed option.")
 
-    return matched.pop()
+    # An exact match wins over a prefix shared with longer options
+    if x in matched:
+        return x
+
+    if len(matched) > 1:
+        raise ValueError(
+            f"The supplied value (`{x}`) is ambiguous; it matches {', '.join(matched)}."
+        )
+
+    return matched[0]
 
 
 def _assert_str_scalar(x: Any) -> None:
