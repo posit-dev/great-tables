@@ -3555,3 +3555,14 @@ def test_fmt_flag_height_none_defaults_to_1em():
     gt = GT(df).fmt_flag(columns="country", height=None)
     html = gt.as_raw_html()
     assert 'height="1em"' in html or "1em" in html
+
+
+def test_normalize_locale_is_case_insensitive():
+    assert _normalize_locale("af-za") == "af"
+    assert _normalize_locale("AF-ZA") == "af"
+    assert _normalize_locale("de-ch") == "de-CH"
+
+
+def test_validate_locale_is_case_insensitive():
+    _validate_locale("pt-br")
+    _validate_locale("EN-US")
