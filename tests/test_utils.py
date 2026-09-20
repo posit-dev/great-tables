@@ -247,3 +247,30 @@ def test_is_valid_http_schema(url: str):
 def test_str_detect_align_right_pattern(string: str, expected: bool) -> None:
     pattern = r"int|uint|float|date"
     assert _str_detect(string, pattern) is expected
+
+
+def test_match_arg_rejects_non_prefix():
+    with pytest.raises(ValueError) as exc_info:
+        _match_arg("ight", ["left", "right"])
+
+    assert "is not an allowed option" in exc_info.value.args[0]
+
+
+def test_match_arg_rejects_empty_string():
+    with pytest.raises(ValueError):
+        _match_arg("", ["left", "right"])
+
+
+def test_match_arg_rejects_ambiguous_abbreviation():
+    with pytest.raises(ValueError) as exc_info:
+        _match_arg("c", ["cyan", "center"])
+
+    assert "ambiguous" in exc_info.value.args[0]
+
+
+def test_match_arg_accepts_unambiguous_abbreviation():
+    assert _match_arg("le", ["left", "right"]) == "left"
+
+
+def test_match_arg_prefers_exact_match_over_longer_option():
+    assert _match_arg("red", ["red", "reddish"]) == "red"
