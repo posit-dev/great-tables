@@ -37,7 +37,18 @@ def test_html_class():
 def test_latex_escape():
     assert _latex_escape("a & b") == "a \\& b"
     assert _latex_escape("a & b & c") == "a \\& b \\& c"
-    assert _latex_escape("\\a_\\d") == "\\\\a\\_\\\\d"
+    assert _latex_escape("\\a_\\d") == "\\textbackslash{}a\\_\\textbackslash{}d"
+
+
+def test_latex_escape_backslash_tilde_and_circumflex():
+    # these three cannot simply be prefixed: "\\\\" is a line break, and "\\~" / "\\^" are accents
+    assert _latex_escape("a\\b") == "a\\textbackslash{}b"
+    assert _latex_escape("a~b") == "a\\textasciitilde{}b"
+    assert _latex_escape("a^b") == "a\\textasciicircum{}b"
+
+
+def test_latex_escape_prefixed_characters_are_unchanged():
+    assert _latex_escape("&%$#_{}") == "\\&\\%\\$\\#\\_\\{\\}"
 
 
 def test_escape_pattern_str_latex():

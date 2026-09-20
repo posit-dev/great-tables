@@ -102,9 +102,22 @@ def _html_escape(x: str) -> str:
     return html.escape(x)
 
 
+# A backslash, a tilde and a circumflex have no prefixed form in LaTeX: a doubled backslash is a
+# line break, and a prefixed tilde or circumflex is an accent that takes the next character.
+_LATEX_MACRO_CHARS = {
+    "\\": "\\textbackslash{}",
+    "~": "\\textasciitilde{}",
+    "^": "\\textasciicircum{}",
+}
+
+
 def _latex_escape(text: str) -> str:
     latex_escape_regex = "[\\\\&%$#_{}~^]"
-    text = re.sub(latex_escape_regex, lambda match: "\\" + match.group(), text)
+    text = re.sub(
+        latex_escape_regex,
+        lambda match: _LATEX_MACRO_CHARS.get(match.group(), "\\" + match.group()),
+        text,
+    )
 
     return text
 
