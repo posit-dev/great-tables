@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import random
+import warnings
 from typing import Any, Callable
 
 from ._tbl_data import Agnostic, NpInteger, is_na
@@ -596,6 +597,15 @@ def _generate_nanoplot(
         lst=["curved", "straight"],
     )
 
+    # A curved data line is interpolated from evenly spaced x positions, so it cannot
+    # be drawn once `x_vals` set the positions; fall back to a straight line and say so
+    if x_vals is not None and data_line_type == "curved":
+        warnings.warn(
+            "A curved data line is not supported when `x_vals` is supplied; "
+            "using `data_line_type='straight'` instead."
+        )
+        data_line_type = "straight"
+
     #
     # Determine where a zero line is considered and provide the stroke color and width
     #
@@ -671,12 +681,6 @@ def _generate_nanoplot(
             # Retain only `x_vals_non_missing` from `x_vals` and `y_vals`
             x_vals = [x for x, keep in zip(x_vals, x_vals_non_missing) if keep]
             y_vals = [y for y, keep in zip(y_vals, x_vals_non_missing) if keep]
-
-        # If `x` values are present, we cannot use a curved line so
-        # we'll force the use of the 'straight' line type
-        # TODO: if someone specifies the options curved, and we can't do it
-        # then we should raise an error.
-        data_line_type = "straight"
 
     # For the `missing_vals` options of 'zero' or 'remove', either replace NAs
     # with `0` or remove NAs entirely
