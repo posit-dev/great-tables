@@ -74,13 +74,17 @@ def font_color(color: str, dark_option: str, light_option: str) -> str:
     return ideal_font_color
 
 
-def css_add(value: str | int, amount: int):
-    if isinstance(value, int):
+def _clean_num(x: float) -> int | float:
+    return int(x) if x == int(x) else x
+
+
+def css_add(value: str | int | float, amount: int | float):
+    if isinstance(value, (int, float)):
         return value + amount
     elif value.endswith("px"):
-        return px(int(value[:-2]) + amount)
+        return px(_clean_num(float(value[:-2]) + amount))
     elif value.endswith("%"):
-        return pct(int(value[:-1]) + amount)
+        return pct(_clean_num(float(value[:-1]) + amount))
     else:
         raise NotImplementedError(f"Unable to add to CSS value: {value}")
 

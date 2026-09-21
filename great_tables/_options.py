@@ -6,7 +6,7 @@ from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from . import _utils
-from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
+from ._helpers import FontStackName, GoogleFont, _scaled_px, px
 
 if TYPE_CHECKING:
     from ._locations import LocColumnLabels, LocRowGroups, LocStub
@@ -848,8 +848,7 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
     # TODO: a current limitation is that the padding values must be in pixels and not percentages
-    # TODO: another limitation is that the returned values must be in integer pixel values
-    new_vertical_padding_vals = [px(_intify_scaled_px(v, scale)) for v in vertical_padding_vals]
+    new_vertical_padding_vals = [px(_scaled_px(v, scale)) for v in vertical_padding_vals]
 
     return tab_options(self, **dict(zip(vertical_padding_params, new_vertical_padding_vals)))
 
@@ -945,8 +944,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
     # TODO: a current limitation is that the padding values must be in pixels and not percentages
-    # TODO: another limitation is that the returned values must be in integer pixel values
-    new_horizontal_padding_vals = [px(_intify_scaled_px(v, scale)) for v in horizontal_padding_vals]
+    new_horizontal_padding_vals = [px(_scaled_px(v, scale)) for v in horizontal_padding_vals]
 
     return tab_options(self, **dict(zip(horizontal_padding_params, new_horizontal_padding_vals)))
 
