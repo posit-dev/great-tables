@@ -656,8 +656,21 @@ def _generate_tokens_list(units_notation: str) -> list[str]:
     return tokens_list
 
 
-def _intify_scaled_px(v: str, scale: float) -> int:
-    return int(float(v.removesuffix("px")) * scale)
+# Sub-pixel lengths are valid CSS, so a scaled padding keeps its fractional part.
+# Rounding is only there to keep binary floating point out of the stylesheet:
+# 5px scaled by 0.07 is 0.35000000000000003 without it.
+_SCALED_PX_DIGITS = 4
+
+
+def _scaled_px(v: str, scale: float) -> int | float:
+    """Scale a pixel length, keeping a fractional result.
+
+    A result that lands on a whole number is returned as an `int` so that it renders
+    as `"2px"` rather than `"2.0px"`, matching what the R **gt** package emits.
+    """
+    scaled = round(float(v.removesuffix("px")) * scale, _SCALED_PX_DIGITS)
+
+    return int(scaled) if scaled.is_integer() else scaled
 
 
 @dataclass
