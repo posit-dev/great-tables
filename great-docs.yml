@@ -140,6 +140,7 @@ reference:
         - GT.fmt_flag
         - GT.fmt_icon
         - GT.fmt_nanoplot
+        - GT.fmt_passthrough
         - GT.fmt
         - GT.sub_missing
         - GT.sub_zero

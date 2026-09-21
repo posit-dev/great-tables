@@ -140,6 +140,11 @@ def as_raw_html(
     CSS styles in a `<style>` block. However, the method provides several parameters for customizing
     the output format--like `inline_css=`, `make_page=`, and `all_important=`.
 
+    Body cells that have not been processed by a `fmt_*()` method are automatically HTML-escaped to
+    prevent cross-site scripting (XSS). Cells that have been formatted (e.g., with `fmt_number()`,
+    `fmt_markdown()`, etc.) are trusted as safe HTML. To include raw HTML in unformatted cells, use
+    the `html()` helper (e.g., `html("<b>bold</b>")`) via a `fmt_*()` method or `text_transform()`.
+
     Parameters
     ----------
     inline_css

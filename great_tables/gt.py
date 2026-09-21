@@ -28,6 +28,7 @@ from ._formats import (
     fmt_number,
     fmt_number_si,
     fmt_partsper,
+    fmt_passthrough,
     fmt_percent,
     fmt_roman,
     fmt_scientific,
@@ -385,6 +386,7 @@ class GT(
     fmt_units = fmt_units
     fmt_nanoplot = fmt_nanoplot
     fmt_tf = fmt_tf
+    fmt_passthrough = fmt_passthrough
     data_color = data_color
 
     sub_missing = sub_missing
@@ -483,20 +485,25 @@ class GT(
         new_body.render_formats(self._tbl_data, self._formats, context)
         new_body.render_formats(self._tbl_data, self._substitutions, context)
 
-        # Update group row labels with formatted values when a row_group column exists
-        new_stub = self._stub.update_group_row_labels(new_body, self._tbl_data, self._boxhead)
+        # Escape unformatted cells before extracting group labels so that
+        # group labels derived from body cells are already safe for the output context
+        result = self._replace(_body=new_body)
+        result = _migrate_unformatted_to_output(
+            data=result,
+            data_tbl=self._tbl_data,
+            formats=self._formats + self._substitutions,
+            context=context,
+        )
 
-        return self._replace(_body=new_body, _stub=new_stub)
+        # Update group row labels with formatted values when a row_group column exists
+        new_stub = self._stub.update_group_row_labels(result._body, self._tbl_data, self._boxhead)
+
+        return result._replace(_stub=new_stub)
 
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = self._render_formats(context)
-
-        if context == "latex":
-            built = _migrate_unformatted_to_output(
-                data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
-            )
 
         # Perform column merging
         built = perform_col_merge(built)
