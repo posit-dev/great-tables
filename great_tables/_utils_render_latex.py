@@ -463,10 +463,12 @@ def create_body_component_l(data: GTData) -> str:
         if has_groups and group_info is not None:
             # Only create group row if this is first row of the group
             if group_info is not prev_group_info:
-                group_label = group_info.defaulted_label()
-
-                # Process the group label for LaTeX
-                group_label = _process_text(group_label, context="latex")
+                # When a groupname_col formatter ran, group_label is already
+                # safe for the output context; when it's the raw group_id, escape it.
+                if group_info.group_label is not None:
+                    group_label = group_info.group_label
+                else:
+                    group_label = _process_text(group_info.group_id, context="latex")
 
                 # When group is shown as a column, we don't add a separate row
                 # Instead, it will be added as a cell in each data row
@@ -490,9 +492,10 @@ def create_body_component_l(data: GTData) -> str:
                 # Use an empty cell for continuation rows in same group
                 body_cells.append("")
             else:
-                # Get the group label from the group info
-                group_label = group_info.defaulted_label()
-                group_label = _process_text(group_label, context="latex")
+                if group_info.group_label is not None:
+                    group_label = group_info.group_label
+                else:
+                    group_label = _process_text(group_info.group_id, context="latex")
 
                 body_cells.append(group_label)
 
