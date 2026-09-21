@@ -1,4 +1,5 @@
 import re
+from datetime import date
 from typing import Any, Union
 
 import pandas as pd
@@ -1429,6 +1430,21 @@ def test_fmt_date():
         "Wed, May 20, 2020",
         "Wed, May 20, 2020",
         "Wed, May 20, 2020",
+    ]
+
+
+def test_fmt_date_iso_pads_the_year():
+    df = pd.DataFrame({"x": ["0001-01-05", "0999-01-05", "1999-01-05"]})
+
+    gt = GT(df).fmt_date(columns="x", date_style="iso")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["0001-01-05", "0999-01-05", "1999-01-05"]
+
+    # The iso style has to produce something date.fromisoformat() accepts
+    assert [date.fromisoformat(value) for value in x] == [
+        date(1, 1, 5),
+        date(999, 1, 5),
+        date(1999, 1, 5),
     ]
 
 
@@ -3539,3 +3555,14 @@ def test_fmt_flag_height_none_defaults_to_1em():
     gt = GT(df).fmt_flag(columns="country", height=None)
     html = gt.as_raw_html()
     assert 'height="1em"' in html or "1em" in html
+
+
+def test_normalize_locale_is_case_insensitive():
+    assert _normalize_locale("af-za") == "af"
+    assert _normalize_locale("AF-ZA") == "af"
+    assert _normalize_locale("de-ch") == "de-CH"
+
+
+def test_validate_locale_is_case_insensitive():
+    _validate_locale("pt-br")
+    _validate_locale("EN-US")

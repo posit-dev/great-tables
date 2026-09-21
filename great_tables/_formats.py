@@ -5220,12 +5220,24 @@ def _validate_locale(locale: str | None = None) -> None:
 
     # Replace any underscores with hyphens
     supplied_locale = _str_replace(locale, "_", "-")
+    supplied_locale = _match_locale_case(supplied_locale, locales_list + default_locales_list)
 
     # Stop if the `locale` provided isn't a valid one
     if supplied_locale not in locales_list and supplied_locale not in default_locales_list:
         raise ValueError(
             f"The normalized locale name `{supplied_locale}` is not in the list of locales."
         )
+
+
+def _match_locale_case(supplied_locale: str, known_locales: list[str]) -> str:
+    """Return the known spelling of a locale, since BCP 47 tags are case insensitive."""
+    lowered = supplied_locale.lower()
+
+    for known_locale in known_locales:
+        if known_locale.lower() == lowered:
+            return known_locale
+
+    return supplied_locale
 
 
 def _normalize_locale(locale: str | None = None) -> str | None:
@@ -5252,6 +5264,11 @@ def _normalize_locale(locale: str | None = None) -> str | None:
     # Resolve any default locales into their base names (e.g., 'en-US' -> 'en')
     # TODO: remove pandas
     default_locales = _get_default_locales_data()
+
+    supplied_locale = _match_locale_case(
+        supplied_locale,
+        _get_locales_list() + [entry["default_locale"] for entry in default_locales],
+    )
 
     matches = [
         entry["base_locale"]
@@ -5561,7 +5578,7 @@ def _validate_case(case: str) -> None:
 
 def _get_date_formats_dict() -> dict[str, str]:
     date_formats = {
-        "iso": "y-MM-dd",
+        "iso": "yyyy-MM-dd",
         "wday_month_day_year": "EEEE, MMMM d, y",
         "wd_m_day_year": "EEE, MMM d, y",
         "wday_day_month_year": "EEEE d MMMM y",

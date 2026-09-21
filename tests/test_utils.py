@@ -222,10 +222,28 @@ def test_migrate_unformatted_to_output_html():
 
 
 @pytest.mark.parametrize(
-    "url", ["http://posit.co/", "http://posit.co", "https://posit.co/", "https://posit.co"]
+    "url",
+    [
+        "http://posit.co/",
+        "http://posit.co",
+        "https://posit.co/",
+        "https://posit.co",
+        # URI schemes are case-insensitive (RFC 3986, Section 3.1)
+        "HTTP://posit.co",
+        "HTTPS://posit.co",
+        "Https://posit.co",
+        "hTTpS://posit.co",
+    ],
 )
 def test_is_valid_http_schema(url: str):
     assert is_valid_http_schema(url)
+
+
+@pytest.mark.parametrize(
+    "url", ["posit.co", "ftp://posit.co", "/tmp/http://x.png", "httpx://posit.co", ""]
+)
+def test_is_valid_http_schema_false(url: str):
+    assert not is_valid_http_schema(url)
 
 
 @pytest.mark.parametrize(
@@ -247,3 +265,30 @@ def test_is_valid_http_schema(url: str):
 def test_str_detect_align_right_pattern(string: str, expected: bool) -> None:
     pattern = r"int|uint|float|date"
     assert _str_detect(string, pattern) is expected
+
+
+def test_match_arg_rejects_non_prefix():
+    with pytest.raises(ValueError) as exc_info:
+        _match_arg("ight", ["left", "right"])
+
+    assert "is not an allowed option" in exc_info.value.args[0]
+
+
+def test_match_arg_rejects_empty_string():
+    with pytest.raises(ValueError):
+        _match_arg("", ["left", "right"])
+
+
+def test_match_arg_rejects_ambiguous_abbreviation():
+    with pytest.raises(ValueError) as exc_info:
+        _match_arg("c", ["cyan", "center"])
+
+    assert "ambiguous" in exc_info.value.args[0]
+
+
+def test_match_arg_accepts_unambiguous_abbreviation():
+    assert _match_arg("le", ["left", "right"]) == "left"
+
+
+def test_match_arg_prefers_exact_match_over_longer_option():
+    assert _match_arg("red", ["red", "reddish"]) == "red"

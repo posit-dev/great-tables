@@ -2346,6 +2346,28 @@ def test_nanoplot_remove_missing_with_x_vals():
     assert "<svg" in result
 
 
+def test_nanoplot_curved_line_without_x_vals_is_curved():
+    curved = _generate_nanoplot(y_vals=Y_VALS, show_data_line=True, data_line_type="curved")
+    straight = _generate_nanoplot(y_vals=Y_VALS, show_data_line=True, data_line_type="straight")
+
+    assert "<path" in curved
+    assert "<polyline" in straight
+    assert curved != straight
+
+
+def test_nanoplot_curved_line_with_x_vals_warns_and_falls_back():
+    with pytest.warns(UserWarning, match="curved data line is not supported"):
+        curved = _generate_nanoplot(
+            y_vals=Y_VALS, x_vals=X_VALS, show_data_line=True, data_line_type="curved"
+        )
+
+    straight = _generate_nanoplot(
+        y_vals=Y_VALS, x_vals=X_VALS, show_data_line=True, data_line_type="straight"
+    )
+
+    assert curved == straight
+
+
 def test_nanoplot_ref_area_with_na_suppresses_area():
     # Line 746: y_ref_area with NA value sets show_reference_area=False
     result = _generate_nanoplot(y_vals=Y_VALS, y_ref_area=[float("nan"), 5.0])
