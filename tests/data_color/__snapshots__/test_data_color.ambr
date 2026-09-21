@@ -3,11 +3,11 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td style="color: #000000; background-color: #FF0000;" class="gt_row gt_right"><NA></td>
+      <td style="color: #000000; background-color: #FF0000;" class="gt_row gt_right">None</td>
       <td class="gt_row gt_right">3</td>
     </tr>
     <tr>
-      <td style="color: #000000; background-color: #FF0000;" class="gt_row gt_right"><NA></td>
+      <td style="color: #000000; background-color: #FF0000;" class="gt_row gt_right">None</td>
       <td class="gt_row gt_right">6</td>
     </tr>
   </tbody>
@@ -39,11 +39,11 @@
       <td class="gt_row gt_right">4</td>
     </tr>
     <tr>
-      <td style="color: #000000; background-color: #808080;" class="gt_row gt_right"><NA></td>
+      <td style="color: #000000; background-color: #808080;" class="gt_row gt_right">None</td>
       <td class="gt_row gt_right">5</td>
     </tr>
     <tr>
-      <td style="color: #000000; background-color: #808080;" class="gt_row gt_right"><NA></td>
+      <td style="color: #000000; background-color: #808080;" class="gt_row gt_right">None</td>
       <td class="gt_row gt_right">6</td>
     </tr>
   </tbody>
@@ -764,7 +764,7 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td style="color: #000000; background-color: #FF0000;" class="gt_row gt_right"><NA></td>
+      <td style="color: #000000; background-color: #FF0000;" class="gt_row gt_right">None</td>
       <td class="gt_row gt_right">3</td>
     </tr>
   </tbody>
@@ -788,7 +788,7 @@
       <td class="gt_row gt_right">3</td>
     </tr>
     <tr>
-      <td style="color: #000000; background-color: #FF0000;" class="gt_row gt_right"><NA></td>
+      <td style="color: #000000; background-color: #FF0000;" class="gt_row gt_right">None</td>
       <td class="gt_row gt_right">4</td>
     </tr>
   </tbody>
