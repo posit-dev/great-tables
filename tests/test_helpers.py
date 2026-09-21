@@ -403,7 +403,15 @@ def test_define_units_latex_raises():
 
 
 @pytest.mark.parametrize(
-    "value, scale, expected", [("0.5px", 0.5, 0), ["1px", 1, 1], ["2.1px", 2.1, 4]]
+    "value, scale, expected",
+    [
+        ("0.5px", 0.5, 0),
+        ("1px", 1, 1),
+        ("2.1px", 2.1, 4),
+        ("10px", 2.0, 20),
+        # the result is truncated toward zero, not rounded: 5 * 1.5 is 7.5
+        ("5px", 1.5, 7),
+    ],
 )
 def test_intify_scaled_px(value: str, scale: float, expected: int):
     assert _intify_scaled_px(value, scale) == expected
@@ -483,13 +491,6 @@ def test_unit_str_len():
 
     unit_str = UnitStr.from_str("{{kg m^-2}}")
     assert len(unit_str) >= 1
-
-
-def test_intify_scaled_px():
-    from great_tables._helpers import _intify_scaled_px
-
-    assert _intify_scaled_px("10px", 2.0) == 20
-    assert _intify_scaled_px("5px", 1.5) == 7
 
 
 def test_as_css_font_family_attr_value_only():
