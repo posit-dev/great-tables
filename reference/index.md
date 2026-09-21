@@ -132,6 +132,9 @@ Use icons within a table's body cells.
 [GT.fmt_nanoplot()](GT.fmt_nanoplot.md#great_tables.GT.fmt_nanoplot)  
 Format data for nanoplot visualizations.
 
+[GT.fmt_passthrough()](GT.fmt_passthrough.md#great_tables.GT.fmt_passthrough)  
+Format values by passing them through, optionally escaping and decorating.
+
 [GT.fmt()](GT.fmt.md#great_tables.GT.fmt)  
 Set a column format with a formatter function.
 

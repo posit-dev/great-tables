@@ -126,7 +126,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo" data-tippy-content="<code>v0.24.0</code><br>Released 2026-08-24">
     <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo light-content">
     <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo dark-content">
     </a>
@@ -153,11 +153,15 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2848" data-forks="135"></div>
     </span>
   </li>  
 </ul>
@@ -431,6 +435,12 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.fmt_nanoplot.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">GT.fmt_nanoplot</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/GT.fmt_passthrough.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GT.fmt_passthrough</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1356,6 +1366,10 @@ ul.task-list li input[type="checkbox"] {
 <dt><a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="doc-function doc-label doc-label-method">GT.fmt_nanoplot()</a></dt>
 <dd>
 <p>Format data for nanoplot visualizations.</p>
+</dd>
+<dt><a href="../reference/GT.fmt_passthrough.html#great_tables.GT.fmt_passthrough" class="doc-function doc-label doc-label-method">GT.fmt_passthrough()</a></dt>
+<dd>
+<p>Format values by passing them through, optionally escaping and decorating.</p>
 </dd>
 <dt><a href="../reference/GT.fmt.html#great_tables.GT.fmt" class="doc-function doc-label doc-label-method">GT.fmt()</a></dt>
 <dd>

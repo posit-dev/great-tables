@@ -57,6 +57,7 @@
 - [GT.fmt_flag](https://posit-dev.github.io/great-tables/reference/GT.fmt_flag.html)
 - [GT.fmt_icon](https://posit-dev.github.io/great-tables/reference/GT.fmt_icon.html)
 - [GT.fmt_nanoplot](https://posit-dev.github.io/great-tables/reference/GT.fmt_nanoplot.html)
+- [GT.fmt_passthrough](https://posit-dev.github.io/great-tables/reference/GT.fmt_passthrough.html)
 - [GT.fmt](https://posit-dev.github.io/great-tables/reference/GT.fmt.html)
 - [GT.sub_missing](https://posit-dev.github.io/great-tables/reference/GT.sub_missing.html)
 - [GT.sub_zero](https://posit-dev.github.io/great-tables/reference/GT.sub_zero.html)

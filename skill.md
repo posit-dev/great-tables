@@ -72,6 +72,7 @@ Columns of data can be formatted with the `fmt_*()` methods. We can specify the 
 - `GT.fmt_flag`
 - `GT.fmt_icon`
 - `GT.fmt_nanoplot`
+- `GT.fmt_passthrough`
 - `GT.fmt`
 - `GT.sub_missing`
 - `GT.sub_zero`
