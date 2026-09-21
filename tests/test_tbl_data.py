@@ -495,3 +495,55 @@ def test_to_frame_list_without_name_raises():
     # ValueError when converting list to frame without specifying name
     with pytest.raises(ValueError, match="name must be specified"):
         to_frame([1, 2, 3], name=None)
+
+
+@pytest.mark.parametrize("DF", params_frames)
+def test_cast_frame_to_string_is_consistent_across_backends(DF):
+    """A cell must read the same no matter which dataframe library built the table.
+
+    pandas spelled missing values `<NA>` while polars and pyarrow spelled them `None`,
+    and polars and pyarrow spelled booleans `true`/`false` while pandas spelled them
+    `True`/`False`. See #875.
+    """
+    df = DF({"flag": [True, False, None], "txt": ["true", "false", None]})
+
+    res = cast_frame_to_string(df)
+
+    assert to_list(res["flag"] if not isinstance(res, pa.Table) else res.column("flag")) == [
+        "True",
+        "False",
+        None,
+    ]
+    # a string column that happens to spell "true" is left alone
+    assert to_list(res["txt"] if not isinstance(res, pa.Table) else res.column("txt")) == [
+        "true",
+        "false",
+        None,
+    ]
+
+
+@pytest.mark.parametrize("DF", params_frames)
+def test_cast_frame_to_string_drops_the_sign_on_zero(DF):
+    """-0.0 is a floating point detail that should not reach a rendered table."""
+    df = DF({"x": [-0.0, 0.0, -1.5]})
+
+    res = cast_frame_to_string(df)
+    col = to_list(res["x"] if not isinstance(res, pa.Table) else res.column("x"))
+
+    assert not col[0].startswith("-")
+    assert col[0] == col[1]
+    # a genuinely negative value keeps its sign
+    assert col[2].startswith("-")
+
+
+@pytest.mark.parametrize("DF", params_frames)
+def test_render_body_is_consistent_across_backends(DF):
+    """The rendered cells for booleans and missing values do not depend on the backend."""
+    gt = GT(DF({"flag": [True, False, None]}))
+
+    body = create_body_component_h(gt._build_data("html"))
+
+    assert ">True<" in body
+    assert ">False<" in body
+    assert ">None<" in body
+    assert "<NA>" not in body

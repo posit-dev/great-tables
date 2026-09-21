@@ -114,12 +114,12 @@
     <tr>
       <th class="gt_row gt_left gt_stub">row_5</th>
       <td class="gt_row gt_right">5,550.00</td>
-      <td class="gt_row gt_left"><NA></td>
+      <td class="gt_row gt_left">None</td>
       <td class="gt_row gt_right">$1,325.81</td>
     </tr>
     <tr>
       <th class="gt_row gt_left gt_stub">row_6</th>
-      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_right">None</td>
       <td class="gt_row gt_left">fig</td>
       <td class="gt_row gt_right">$13.26</td>
     </tr>
@@ -127,7 +127,7 @@
       <th class="gt_row gt_left gt_stub">row_7</th>
       <td class="gt_row gt_right">777,000.00</td>
       <td class="gt_row gt_left">grapefruit</td>
-      <td class="gt_row gt_right"><NA></td>
+      <td class="gt_row gt_right">None</td>
     </tr>
     <tr>
       <th class="gt_row gt_left gt_stub">row_8</th>

@@ -561,7 +561,17 @@ def cast_frame_to_string(df: DataFrameLike) -> DataFrameLike:
 
 @cast_frame_to_string.register
 def _(df: PdDataFrame):
-    return df.astype("string")
+    numeric = df.select_dtypes(include="number").columns
+
+    if len(numeric):
+        # -0.0 is a floating point detail, not something a table should show
+        df = df.copy()
+        df[numeric] = df[numeric].mask(df[numeric] == 0, 0)
+
+    # pandas leaves pd.NA here, which renders as "<NA>"; None is what the other
+    # backends produce and what Python spells a missing value. The object dtype is
+    # needed because the "string" dtype coerces None back to pd.NA.
+    return df.astype("string").astype(object).where(df.notna(), None)
 
 
 @cast_frame_to_string.register
@@ -580,6 +590,10 @@ def _(df: PlDataFrame):
     ]
 
     return df.with_columns(
+        # polars spells booleans "true"/"false" and keeps the sign on -0.0
+        cs.boolean().cast(pl.Utf8).str.to_titlecase(),
+        pl.when(cs.float() == 0).then(pl.lit(0.0)).otherwise(cs.float()).name.keep(),
+    ).with_columns(
         cs.by_name(list_cols).map_elements(lambda x: str(x.to_list()), return_dtype=pl.String),
         cs.by_name(duration_cols).map_elements(str, return_dtype=pl.String),
         cs.all().exclude(list_cols + duration_cols).cast(pl.Utf8),
@@ -589,8 +603,20 @@ def _(df: PlDataFrame):
 @cast_frame_to_string.register
 def _(df: PyArrowTable):
     import pyarrow as pa
+    import pyarrow.compute as pc
 
-    return pa.table({col: pa.array(df.column(col).cast(pa.string())) for col in df.column_names})
+    def _to_string(column: "pa.ChunkedArray") -> "pa.Array":
+        if pa.types.is_boolean(column.type):
+            # pyarrow spells booleans "true"/"false"
+            return pa.array(pc.if_else(column, pa.scalar("True"), pa.scalar("False")))
+
+        if pa.types.is_floating(column.type):
+            # adding zero turns -0.0 into 0.0 and leaves every other value alone
+            column = pc.add(column, pa.scalar(0.0, type=column.type))
+
+        return pa.array(column.cast(pa.string()))
+
+    return pa.table({col: _to_string(df.column(col)) for col in df.column_names})
 
 
 # replace_null_frame ----
@@ -604,7 +630,9 @@ def replace_null_frame(df: DataFrameLike, replacement: DataFrameLike) -> DataFra
 
 @replace_null_frame.register
 def _(df: PdDataFrame, replacement: DataFrameLike):
-    return df.fillna(replacement)
+    # under the "string" dtype a None coming from the replacement is coerced back to
+    # pd.NA, which renders as "<NA>" instead of the "None" the other backends produce
+    return df.astype(object).fillna(replacement)
 
 
 @replace_null_frame.register
