@@ -4,7 +4,6 @@ import pytest
 
 
 from great_tables import GT, exibble
-from great_tables._tbl_data import is_na
 from great_tables._utils import (
     _assert_list_is_subset,
     _assert_str_in_set,
@@ -13,7 +12,6 @@ from great_tables._utils import (
     _collapse_list_elements,
     _insert_into_list,
     _match_arg,
-    _migrate_unformatted_to_output,
     OrderedSet,
     _str_detect,
     _str_scalar_to_list,
@@ -188,37 +186,200 @@ def test_seq_groups_raises():
 def test_migrate_unformatted_to_output_latex():
     gt_tbl = GT(exibble.head(2)).fmt_number(columns="num", decimals=3)
 
-    # After rendering the data cells all the unformatted cells will be NA values in the
-    # body of the table
+    # _render_formats escapes unformatted cells for the output context;
+    # after rendering, the 'char' column should contain the original values
+    # escaped for LaTeX (plain text like "apricot" is unchanged)
     rendered = gt_tbl._render_formats(context="latex")
 
-    assert is_na(rendered._body.body, rendered._body.body["char"].tolist()).tolist() == [True, True]
-
-    # Migrate unformatted data to their corresponding data cells, the expectation is that
-    # unformatted cells will no longer be NA but have the values from the original data
-    migrated = _migrate_unformatted_to_output(
-        data=rendered, data_tbl=rendered._tbl_data, formats=rendered._formats, context="latex"
-    )
-
-    assert migrated._body.body["char"].tolist() == ["apricot", "banana"]
+    assert rendered._body.body["char"].tolist() == ["apricot", "banana"]
 
 
 def test_migrate_unformatted_to_output_html():
     gt_tbl = GT(exibble.head(2)).fmt_number(columns="num", decimals=3)
 
-    # After rendering the data cells all the unformatted cells will be NA values in the
-    # body of the table
+    # _render_formats escapes unformatted cells for the output context;
+    # after rendering, the 'char' column should contain the original values
+    # escaped for HTML (plain text like "apricot" is unchanged)
     rendered = gt_tbl._render_formats(context="html")
 
-    assert is_na(rendered._body.body, rendered._body.body["char"].tolist()).tolist() == [True, True]
+    assert rendered._body.body["char"].tolist() == ["apricot", "banana"]
 
-    # For HTML output, the `_migrate_unformatted_to_output()` has not been implemented yet so
-    # we expect the same output as the input (NA values for unformatted cells)
-    migrated = _migrate_unformatted_to_output(
-        data=rendered, data_tbl=rendered._tbl_data, formats=rendered._formats, context="html"
-    )
 
-    assert is_na(migrated._body.body, migrated._body.body["char"].tolist()).tolist() == [True, True]
+class TestHtmlEscaping:
+    """Regression tests for HTML escaping of unformatted body cells (XSS prevention)."""
+
+    def test_body_cells_are_escaped(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["<img src=x onerror=alert(1)>", "<script>alert(1)</script>"]})
+        html = GT(df).as_raw_html()
+
+        assert "<img src=x onerror=alert(1)>" not in html
+        assert "<script>alert(1)</script>" not in html
+        assert "&lt;img src=x onerror=alert(1)&gt;" in html
+        assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
+
+    def test_ampersand_and_angle_brackets_escaped(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["x & y", "a < b", "c > d"]})
+        html = GT(df).as_raw_html()
+
+        assert "x &amp; y" in html
+        assert "a &lt; b" in html
+        assert "c &gt; d" in html
+
+    def test_formatted_cells_preserve_html(self):
+        import pandas as pd
+        from great_tables import html as gt_html
+
+        df = pd.DataFrame({"x": ["hello"]})
+        html = GT(df).fmt(columns="x", fns=lambda x: gt_html("<b>bold</b>").to_html()).as_raw_html()
+
+        assert "<b>bold</b>" in html
+
+    def test_mixed_formatted_and_unformatted(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["<b>not bold</b>", "safe"], "y": [1, 2]})
+        html = GT(df).fmt_number(columns="y", decimals=1).as_raw_html()
+
+        assert "&lt;b&gt;not bold&lt;/b&gt;" in html
+        assert ">safe<" in html
+        assert ">1.0<" in html
+
+    def test_group_label_escaped_without_groupname_col(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"x": [1, 2], "grp": ["<script>xss</script>", "<script>xss</script>"]})
+        html = GT(df, groupname_col="grp").as_raw_html()
+
+        assert "<script>xss</script>" not in html
+        assert "&lt;script&gt;xss&lt;/script&gt;" in html
+
+    def test_summary_stub_label_escaped(self):
+        import pandas as pd
+        from great_tables import GT
+
+        df = pd.DataFrame({"x": [1, 2], "grp": ["a", "a"]})
+        gt_tbl = GT(df, groupname_col="grp", rowname_col="x").summary_rows(
+            fns={"<b>mean</b>": lambda df: df.mean(numeric_only=True)}
+        )
+        html = gt_tbl.as_raw_html()
+
+        assert "<b>mean</b>" not in html
+        assert "&lt;b&gt;mean&lt;/b&gt;" in html
+
+
+class TestFmtPassthrough:
+    """Tests for fmt_passthrough()."""
+
+    def test_escape_true_escapes_html(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["<b>bold</b>", "x & y"]})
+        html = GT(df).fmt_passthrough(columns="x").as_raw_html()
+
+        assert "&lt;b&gt;bold&lt;/b&gt;" in html
+        assert "x &amp; y" in html
+
+    def test_escape_false_passes_through_html(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["<b>bold</b>", "x & y"]})
+        html = GT(df).fmt_passthrough(columns="x", escape=False).as_raw_html()
+
+        assert "<b>bold</b>" in html
+        assert "x & y" in html
+
+    def test_pattern_decorates_values(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["ABC", "DEF"]})
+        html = GT(df).fmt_passthrough(columns="x", pattern="[{x}]").as_raw_html()
+
+        assert "[ABC]" in html
+        assert "[DEF]" in html
+
+    def test_pattern_with_escape(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["a < b"]})
+        html = GT(df).fmt_passthrough(columns="x", pattern="({x})").as_raw_html()
+
+        assert "(a &lt; b)" in html
+
+    def test_escape_true_matches_auto_escaping(self):
+        """fmt_passthrough(escape=True) should produce the same result as automatic escaping."""
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["<b>bold</b>", "x & y"]})
+
+        auto_escaped = GT(df).as_raw_html()
+        passthrough_escaped = GT(df).fmt_passthrough(columns="x").as_raw_html()
+
+        assert "&lt;b&gt;bold&lt;/b&gt;" in auto_escaped
+        assert "&lt;b&gt;bold&lt;/b&gt;" in passthrough_escaped
+        assert "x &amp; y" in auto_escaped
+        assert "x &amp; y" in passthrough_escaped
+
+    def test_no_double_escape(self):
+        """Cells formatted by fmt_passthrough should not be escaped again by the auto-escaping pass."""
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["a & b"]})
+        html = GT(df).fmt_passthrough(columns="x").as_raw_html()
+
+        assert "a &amp; b" in html
+        assert "a &amp;amp; b" not in html
+
+    def test_ordering_passthrough_then_other_formatter(self):
+        """A later fmt_*() call overwrites fmt_passthrough (last-formatted-wins)."""
+        import pandas as pd
+
+        df = pd.DataFrame({"x": [1.5]})
+        html = (
+            GT(df)
+            .fmt_passthrough(columns="x", escape=False)
+            .fmt_number(columns="x", decimals=2)
+            .as_raw_html()
+        )
+
+        assert "1.50" in html
+
+    def test_ordering_other_formatter_then_passthrough(self):
+        """fmt_passthrough called after another formatter wins (last-formatted-wins)."""
+        import pandas as pd
+
+        df = pd.DataFrame({"x": [1.5]})
+        html = (
+            GT(df)
+            .fmt_number(columns="x", decimals=2)
+            .fmt_passthrough(columns="x", pattern="({x})")
+            .as_raw_html()
+        )
+
+        assert "(1.5)" in html
+
+    def test_mixed_columns_escape_and_no_escape(self):
+        """Different columns can have different escape settings."""
+        import pandas as pd
+
+        df = pd.DataFrame(
+            {
+                "safe": ["<b>text</b>"],
+                "raw": ["<b>text</b>"],
+            }
+        )
+        html = (
+            GT(df)
+            .fmt_passthrough(columns="safe", escape=True)
+            .fmt_passthrough(columns="raw", escape=False)
+            .as_raw_html()
+        )
+
+        assert "&lt;b&gt;text&lt;/b&gt;" in html
+        assert "<b>text</b>" in html
 
 
 @pytest.mark.parametrize(
