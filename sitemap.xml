@@ -1003,12 +1003,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://posit-dev.github.io/great-tables/changelog.html</loc>
-    <lastmod>2026-09-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://posit-dev.github.io/great-tables/blog/</loc>
     <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
