@@ -222,10 +222,28 @@ def test_migrate_unformatted_to_output_html():
 
 
 @pytest.mark.parametrize(
-    "url", ["http://posit.co/", "http://posit.co", "https://posit.co/", "https://posit.co"]
+    "url",
+    [
+        "http://posit.co/",
+        "http://posit.co",
+        "https://posit.co/",
+        "https://posit.co",
+        # URI schemes are case-insensitive (RFC 3986, Section 3.1)
+        "HTTP://posit.co",
+        "HTTPS://posit.co",
+        "Https://posit.co",
+        "hTTpS://posit.co",
+    ],
 )
 def test_is_valid_http_schema(url: str):
     assert is_valid_http_schema(url)
+
+
+@pytest.mark.parametrize(
+    "url", ["posit.co", "ftp://posit.co", "/tmp/http://x.png", "httpx://posit.co", ""]
+)
+def test_is_valid_http_schema_false(url: str):
+    assert not is_valid_http_schema(url)
 
 
 @pytest.mark.parametrize(
