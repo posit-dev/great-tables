@@ -52,7 +52,10 @@ gt_tbl.show(target="browser")
 ## Getting HTML as a String
 
 The `~~GT.as_raw_html()` method returns the table as an HTML string. This is useful for embedding
-tables in web applications, email templates, or custom HTML documents.
+tables in web applications, email templates, or custom HTML documents. Body cells that have not been
+processed by a `fmt_*()` method are automatically HTML-escaped to prevent cross-site scripting (XSS)
+when rendering untrusted data. See the [Formatting Values](07-formatting-values.qmd) guide for
+details on how to include raw HTML in cells using `html()` and `fmt()`.
 
 ```{python}
 html_str = gt_tbl.as_raw_html()
