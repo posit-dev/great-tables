@@ -293,4 +293,6 @@ def _get_visible_cells(data: TblData) -> list[tuple[str, int]]:
 
 
 def is_valid_http_schema(url: str) -> bool:
-    return url.startswith(("http://", "https://"))
+    # URI schemes are case-insensitive (RFC 3986, Section 3.1), so `HTTPS://x.com/a.png`
+    # names the same remote resource as `https://x.com/a.png`
+    return url.lower().startswith(("http://", "https://"))
