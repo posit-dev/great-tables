@@ -671,10 +671,25 @@ def test_tab_spanner_invalid_label_type_raises():
         GT(df).tab_spanner(label=23, columns=["x"])
 
 
-def test_tab_spanner_no_columns_raises():
+def test_tab_spanner_no_columns_is_noop():
     df = pd.DataFrame({"x": [1], "y": [2]})
-    with pytest.raises(NotImplementedError, match="columns/spanners must be specified"):
-        GT(df).tab_spanner(label="test", columns=[])
+    src_gt = GT(df)
+
+    new_gt = src_gt.tab_spanner(label="test", columns=[])
+
+    assert len(new_gt._spanners) == 0
+    assert new_gt._boxhead == src_gt._boxhead
+
+
+def test_tab_spanner_selector_without_matches_is_noop():
+    # https://github.com/posit-dev/great-tables/issues/714
+    df = pl.DataFrame({"name": ["a", "b"], "size": [1, 2]})
+    src_gt = GT(df, rowname_col="name")
+
+    new_gt = src_gt.tab_spanner(label="area", columns=cs.contains("area"), gather=True)
+
+    assert len(new_gt._spanners) == 0
+    assert new_gt._boxhead == src_gt._boxhead
 
 
 def test_cols_move_after_not_found_raises():

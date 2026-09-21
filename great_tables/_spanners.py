@@ -217,10 +217,9 @@ def tab_spanner(
     else:  # pragma: no cover
         spanner_ids = []
 
-    # Check that we've selected something explicitly
+    # If no columns or spanners were selected, return the table unchanged (as in R's gt)
     if not len(selected_column_names) and not len(spanner_ids):
-        # TODO: null_means is unimplemented
-        raise NotImplementedError("columns/spanners must be specified")
+        return self
 
     # get column names associated with selected spanners ----
     _vars = (span.vars for span in self._spanners if span.spanner_id in spanner_ids)
