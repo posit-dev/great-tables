@@ -114,7 +114,7 @@ def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
 
 def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # flatten all StyleInfo.styles lists
-    style_entries = list(chain.from_iterable((x.styles for x in styles)))
+    style_entries = list(chain.from_iterable(x.styles for x in styles))
     rendered_styles = [el._to_html_style() for el in style_entries]
 
     # TODO dedupe rendered styles in sequence
@@ -706,7 +706,12 @@ def create_body_component_h(data: GTData) -> str:
         if has_groups:
             # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
-                group_label = group_info.defaulted_label()
+                # When a groupname_col formatter ran, group_label is already
+                # safe HTML; when it's the raw group_id, escape it.
+                if group_info.group_label is not None:
+                    group_label = group_info.group_label
+                else:
+                    group_label = _process_text(group_info.group_id)
 
                 _styles = [
                     style
@@ -911,7 +916,7 @@ def _create_row_component_h(
         classes_str = " ".join(classes)
 
         # Apply footnotes to the summary stub label
-        stub_label = summary_row.id
+        stub_label = _process_text(summary_row.id)
         if data is not None:
             if is_group_summary:
                 footnotes_i = [
@@ -954,7 +959,7 @@ def _create_row_component_h(
         # Get cell content
         if is_summary_row:
             if colinfo == row_stub_var or colinfo.is_stub:
-                cell_content = summary_row.id
+                cell_content = _process_text(summary_row.id)
             else:
                 cell_content = summary_row.values.get(colinfo.var)
         elif colinfo.type == ColInfoTypeEnum.summary_placeholder:
