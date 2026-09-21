@@ -43,7 +43,7 @@ from ._tbl_data import (
     is_series,
     to_list,
 )
-from ._text import _md_html, _md_latex, escape_pattern_str_latex
+from ._text import _html_escape, _latex_escape, _md_html, _md_latex, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace, is_valid_http_schema
 from ._utils_nanoplots import _generate_nanoplot
 
@@ -7005,6 +7005,124 @@ def _process_time_stream(data_vals: str) -> list[float]:
     time_stream_vals = [float(val) for val in time_stream]
 
     return time_stream_vals
+
+
+def fmt_passthrough(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    escape: bool = True,
+    pattern: str = "{x}",
+) -> GTSelf:
+    """
+    Format values by passing them through, optionally escaping and decorating.
+
+    The `fmt_passthrough()` method allows you to mark cells as formatted without transforming
+    them. This is useful in two situations:
+
+    - **Escaping**: When `escape=True` (the default), special characters in cell values are escaped
+      for the output context (HTML or LaTeX). This protects against cross-site scripting (XSS) while
+      giving you explicit control over which cells are escaped.
+    - **Decoration**: The `pattern=` argument lets you wrap values in a text pattern (e.g.,
+      `pattern="[{x}]"`) without changing the underlying value.
+
+    Since `fmt_passthrough()` marks cells as formatted, they are no longer subject to the automatic
+    escaping that applies to unformatted cells. Setting `escape=False` is the way to include raw
+    HTML or LaTeX in cell values without using the `html()` helper.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    escape
+        Should the cell values be escaped for the output context? When `True` (the default),
+        HTML special characters like `<`, `>`, and `&` are escaped in HTML output, and LaTeX special
+        characters are escaped in LaTeX output. Set to `False` to pass values through without
+        escaping, which is useful when cell values already contain trusted HTML or LaTeX markup.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Using `fmt_passthrough()` with `escape=True` (the default) to safely render user-supplied data:
+
+    ```{python}
+    from great_tables import GT
+    import pandas as pd
+
+    df = pd.DataFrame({"input": ["<b>bold</b>", "x & y", "normal text"]})
+
+    GT(df).fmt_passthrough(columns="input")
+    ```
+
+    Using `pattern=` to decorate values without otherwise changing them:
+
+    ```{python}
+    from great_tables import GT
+    import pandas as pd
+
+    df = pd.DataFrame({"code": ["ABC", "DEF", "GHI"]})
+
+    GT(df).fmt_passthrough(columns="code", pattern="[{x}]")
+    ```
+
+    Using `escape=False` to pass through trusted HTML:
+
+    ```{python}
+    from great_tables import GT
+    import pandas as pd
+
+    df = pd.DataFrame({"content": ["<b>bold</b>", "<em>italic</em>"]})
+
+    GT(df).fmt_passthrough(columns="content", escape=False)
+    ```
+    """
+
+    pf_format = partial(
+        fmt_passthrough_context,
+        escape=escape,
+        pattern=pattern,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+def fmt_passthrough_context(
+    x: Any,
+    escape: bool,
+    pattern: str,
+    context: str,
+) -> str:
+    if x is None:
+        return x
+
+    x_formatted = str(x)
+
+    if escape:
+        if context == "html":
+            x_formatted = _html_escape(x_formatted)
+        elif context == "latex":
+            x_formatted = _latex_escape(x_formatted)
+
+    if pattern != "{x}":
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def fmt_by_context(
