@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Callable, Literal
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Literal
 
 from ._gt_data import TextTransformInfo
 from ._helpers import GoogleFont
@@ -9,6 +10,8 @@ from ._locations import Loc, set_style
 from ._styles import CellStyle
 
 if TYPE_CHECKING:
+    from ._locations import RowSelectExpr
+    from ._tbl_data import SelectExpr
     from ._types import GTSelf
 
 
@@ -148,6 +151,265 @@ def tab_style(
         new_data = set_style(loc, new_data, style)
 
     return new_data
+
+
+def tab_style_body(
+    self: GTSelf,
+    style: CellStyle | list[CellStyle],
+    columns: SelectExpr = None,
+    rows: RowSelectExpr = None,
+    values: list[Any] | None = None,
+    pattern: str | None = None,
+    fn: Callable[[Any], bool] | None = None,
+    targets: Literal["cell", "row", "column"] | list[Literal["cell", "row", "column"]] = "cell",
+    extents: Literal["body", "stub"] | list[Literal["body", "stub"]] = "body",
+) -> GTSelf:
+    """Apply styles to body cells based on their data values.
+
+    With `tab_style_body()`, we can target body cells for styling based on the *values* they
+    contain rather than their positions. Three matching strategies are available: exact value
+    matching (`values=`), regular-expression matching (`pattern=`), and arbitrary predicate
+    functions (`fn=`). When more than one of these is supplied, the precedence is `fn` >
+    `pattern` > `values`.
+
+    After matching cells are identified the styling can optionally be expanded to entire rows or
+    columns via `targets=`, and projected into the stub region via `extents=`.
+
+    Parameters
+    ----------
+    style
+        The styles to apply to matched cells. Use the `style.text()`, `style.fill()`,
+        `style.borders()`, and `style.css()` classes to define styles.
+    columns
+        The columns to consider for matching. Can be a single column name, a list of column
+        names, or a column selection expression. By default, all columns in the body are
+        considered.
+    rows
+        The rows to consider for matching. Can be a single row index or name, a list of row
+        indices or names, or a row selection expression. By default, all rows are considered.
+    values
+        A list of specific values to match against. A body cell whose value equals any element
+        in this list will be styled. Ignored when `pattern` or `fn` is supplied.
+    pattern
+        A regex pattern string. Body cells whose *string representation* matches this pattern
+        will be styled. Takes precedence over `values`; ignored when `fn` is supplied.
+    fn
+        A function that receives a cell's raw value and returns `True` (style the cell) or
+        `False` (skip). This is the most flexible matching option and takes the highest
+        precedence.
+    targets
+        How to expand matched cells. `"cell"` (the default) styles only matched cells;
+        `"row"` styles the entire row of each match; `"column"` styles the entire column. A
+        list can combine these (e.g., `["cell", "row"]`).
+    extents
+        Where styling is applied. `"body"` (the default) styles only body cells; `"stub"`
+        also projects the styling into the stub (row labels). A list can combine these (e.g.,
+        `["body", "stub"]`).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that
+        we can facilitate method chaining.
+
+    Examples
+    --------
+    Use `tab_style_body()` to highlight specific values in a table. Here we color the background
+    of cells that contain the values `49.95` or `33.33`.
+
+    ```{python}
+    from great_tables import GT, style, exibble
+
+    (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .tab_style_body(
+            style=style.fill(color="orange"),
+            values=[49.95, 33.33],
+        )
+    )
+    ```
+
+    Apply multiple styles to matched cells using a list of style objects.
+
+    ```{python}
+    from great_tables import GT, style, exibble
+
+    (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .tab_style_body(
+            style=[
+                style.text(color="white", weight="bold"),
+                style.fill(color="red"),
+            ],
+            values=[49.95, 33.33],
+        )
+    )
+    ```
+
+    A predicate function (`fn=`) provides the most flexible matching. Below we style all
+    numeric cells with a value between 0 and 50.
+
+    ```{python}
+    from great_tables import GT, style, exibble
+
+    (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .tab_style_body(
+            style=style.fill(color="pink"),
+            fn=lambda x: isinstance(x, (int, float)) and 0 <= x < 50,
+        )
+    )
+    ```
+
+    Use `pattern=` to target cells by regex. This matches any cell whose string value contains
+    "ne" or "na".
+
+    ```{python}
+    from great_tables import GT, style, exibble
+
+    (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .tab_style_body(
+            style=style.fill(color="green"),
+            pattern="ne|na",
+        )
+    )
+    ```
+
+    Expand the styling to entire rows using `targets="row"`, and project into the stub with
+    `extents=["body", "stub"]`.
+
+    ```{python}
+    from great_tables import GT, style, exibble
+
+    (
+        GT(exibble, rowname_col="row", groupname_col="group")
+        .tab_style_body(
+            style=style.fill(color="lightblue"),
+            values=[49.95],
+            targets="row",
+            extents=["body", "stub"],
+        )
+    )
+    ```
+    """
+    from ._locations import LocBody, LocStub, resolve_cols_i, resolve_rows_i
+    from ._tbl_data import _get_cell
+
+    if fn is None and pattern is None and values is None:
+        raise ValueError(
+            "At least one of `values`, `pattern`, or `fn` must be provided to `tab_style_body()`."
+        )
+
+    if isinstance(targets, str):
+        targets = [targets]
+    if isinstance(extents, str):
+        extents = [extents]
+
+    data = self._tbl_data
+
+    cols = resolve_cols_i(data=self, expr=columns)
+    resolved_rows = resolve_rows_i(data=self, expr=rows)
+
+    # Determine the matching function (precedence: fn > pattern > values)
+    if fn is not None:
+        match_fn = fn
+    elif pattern is not None:
+        compiled = re.compile(pattern)
+
+        def match_fn(x: Any) -> bool:
+            if x is None:
+                return False
+            return compiled.search(str(x)) is not None
+
+    else:
+        has_none = None in values
+        values_set = set(v for v in values if v is not None)
+
+        def match_fn(x: Any) -> bool:
+            if x is None:
+                return has_none
+            return x in values_set
+
+    def _normalize_cell_value(val: Any) -> Any:
+        # Normalize NaN (pandas/numpy) to None so that `x is None` works uniformly
+        if isinstance(val, float) and val != val:
+            return None
+        return val
+
+    # Find all matching (column_name, row_index) pairs
+    matched_cells: list[tuple[str, int]] = []
+    for col_name, _col_idx in cols:
+        for _row_name, row_idx in resolved_rows:
+            cell_value = _normalize_cell_value(_get_cell(data, row_idx, col_name))
+            try:
+                is_match = match_fn(cell_value)
+            except Exception:
+                is_match = False
+            if is_match:
+                matched_cells.append((col_name, row_idx))
+
+    if not matched_cells:
+        return self
+
+    # Expand targets: collect the final set of (column_name, row_index) pairs
+    matched_col_names: set[str] = set()
+    matched_row_indices: set[int] = set()
+
+    if "row" in targets or "column" in targets:
+        for col_name, row_idx in matched_cells:
+            matched_col_names.add(col_name)
+            matched_row_indices.add(row_idx)
+
+    all_col_names = [name for name, _ in cols]
+    all_row_indices = [idx for _, idx in resolved_rows]
+
+    final_cells: set[tuple[str, int]] = set()
+
+    if "cell" in targets:
+        final_cells.update(matched_cells)
+
+    if "row" in targets:
+        for row_idx in matched_row_indices:
+            for col_name in all_col_names:
+                final_cells.add((col_name, row_idx))
+
+    if "column" in targets:
+        for col_name in matched_col_names:
+            for row_idx in all_row_indices:
+                final_cells.add((col_name, row_idx))
+
+    # Build location objects and apply the style
+    new_self = self
+
+    if "body" in extents and final_cells:
+        # Group by column for efficient loc.body() calls
+        col_to_rows: dict[str, list[int]] = {}
+        for col_name, row_idx in final_cells:
+            col_to_rows.setdefault(col_name, []).append(row_idx)
+
+        locations: list[Loc] = [
+            LocBody(columns=col_name, rows=sorted(row_indices))
+            for col_name, row_indices in col_to_rows.items()
+        ]
+        new_self = tab_style(new_self, style=style, locations=locations)
+
+    if "stub" in extents:
+        # Project to stub for matched rows
+        stub_row_indices: set[int] = set()
+        if "row" in targets:
+            stub_row_indices = matched_row_indices
+        else:
+            stub_row_indices = {row_idx for _, row_idx in final_cells}
+
+        if stub_row_indices:
+            new_self = tab_style(
+                new_self,
+                style=style,
+                locations=LocStub(rows=sorted(stub_row_indices)),
+            )
+
+    return new_self
 
 
 def text_transform(self: GTSelf, locations: Loc | list[Loc], fn: Callable[[str], str]) -> GTSelf:
