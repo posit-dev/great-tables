@@ -108,6 +108,7 @@ reference:
         - GT.rm_footnotes
         - GT.rm_source_notes
         - GT.tab_style
+        - GT.tab_style_body
         - GT.tab_options
 
     - title: Formatting column data
