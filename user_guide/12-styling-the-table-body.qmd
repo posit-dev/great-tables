@@ -25,7 +25,6 @@ both **Pandas** and **Polars** DataFrames.
 
 ```{python}
 import polars as pl
-
 from great_tables import GT, from_column, style, loc
 from great_tables.data import airquality
 
@@ -309,16 +308,179 @@ The `mask=` argument applies row/column logic jointly, highlighting only the cel
 value equals its own maximum. This is a powerful way to perform per-column conditional formatting in
 a single statement.
 
+## Value-driven styling with `tab_style_body()`
+
+While `tab_style()` targets cells by their *position* (specific rows and columns),
+`tab_style_body()` targets cells by their *values*. This is useful when you want to style cells that
+meet a condition without having to figure out which rows and columns contain those values ahead of
+time.
+
+Three matching strategies are available, in order of precedence:
+
+1. `fn=`: a predicate function that receives each cell's value and returns `True` or `False`
+2. `pattern=`: a regex matched against the string representation of each cell
+3. `values=`: a list of exact values to match
+
+### Highlighting specific values
+
+The simplest use case involves passing a list of values, where any cell containing one of those
+values gets styled.
+
+```{python}
+from great_tables import style, exibble
+
+(
+    GT(exibble[["num", "char", "currency", "row", "group"]], rowname_col="row", groupname_col="group")
+    .tab_style_body(
+        style=style.fill(color="orange"),
+        values=[49.95, 33.33],
+    )
+)
+```
+
+### Using a predicate function
+
+For more flexibility, pass a function to `fn=`. The function receives the raw cell value and should
+return `True` to apply the style. Missing values (`NaN` in Pandas) are normalized to `None` before
+being passed to your function, so `x is None` works reliably.
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.text(color="red"),
+        fn=lambda x: x is None,
+    )
+    .sub_missing(missing_text="NA")
+)
+```
+
+The predicate function is the most flexible option. Here we style all numeric cells with a value
+under 50:
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightgreen"),
+        fn=lambda x: x >= 0 and x < 50,
+    )
+)
+```
+
+If the function raises an exception for a cell (e.g., comparing a string with `>=`), that cell is
+silently skipped.
+
+### Using a regex pattern
+
+The `pattern=` argument matches against the string representation of each cell. `None` values are
+skipped.
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightyellow"),
+        pattern="^[a-d]",
+    )
+)
+```
+
+### Scoping with `columns=` and `rows=`
+
+You can restrict which cells are considered for matching by providing `columns=` and `rows=`,
+exactly as you would with `loc.body()`.
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightcyan"),
+        fn=lambda x: x >= 0 and x < 50,
+        columns="num",
+    )
+)
+```
+
+### Expanding matches with `targets=`
+
+By default, only the matched cell itself is styled (`targets="cell"`). You can expand the styling to
+entire rows or columns that contain a match:
+
+- `targets="row"`: style the full row of each match
+- `targets="column"`: style the full column of each match
+- `targets=["row", "column"]`: both
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightblue"),
+        values=[49.95],
+        targets="row",
+    )
+    .tab_style_body(
+        style=style.fill(color="bisque"),
+        values=[33.33],
+        targets="column",
+    )
+)
+```
+
+### Projecting into the stub with `extents=`
+
+When your table has a stub (row labels), you can extend the styling into it with
+`extents=["body", "stub"]`. This is especially useful with `targets="row"` to highlight an entire
+row including its label.
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightblue"),
+        values=[49.95],
+        targets="row",
+        extents=["body", "stub"],
+    )
+)
+```
+
 ## Learning more
 
-The combination of `~~GT.tab_style()`, location specifiers, and the various style functions gives
-you precise control over the visual presentation of your table body. Whether you are highlighting
-outliers, applying conditional formatting, or using column-driven styles, these tools let you
-communicate data insights through visual cues that complement the numeric values themselves.
+The combination of `~~GT.tab_style()`, `~~GT.tab_style_body()`, location specifiers, and the various
+style functions gives you precise control over the visual presentation of your table body. Whether
+you are highlighting outliers, applying conditional formatting, or using column-driven styles, these
+tools let you communicate data insights through visual cues that complement the numeric values
+themselves.
 
 For further reference, consult the API documentation:
 
 * API Docs:
   - `~~GT.tab_style()`
+  - `~~GT.tab_style_body()`
   - [`style.*` and `loc.*` functions](/reference/index.qmd#location-targeting-and-styling-classes)
   - `from_column()`
