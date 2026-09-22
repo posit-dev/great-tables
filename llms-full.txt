@@ -1078,6 +1078,137 @@ from great_tables import GT, style, loc, exibble
 )
 ```
 
+tab_style_body(self: 'GTSelf', style: 'CellStyle | list[CellStyle]', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, values: 'list[Any] | None' = None, pattern: 'str | None' = None, fn: 'Callable[[Any], bool] | None' = None, targets: "Literal['cell', 'row', 'column'] | list[Literal['cell', 'row', 'column']]" = 'cell', extents: "Literal['body', 'stub'] | list[Literal['body', 'stub']]" = 'body') -> 'GTSelf'
+
+Apply styles to body cells based on their data values.
+
+With `tab_style_body()`, we can target body cells for styling based on the *values* they
+contain rather than their positions. Three matching strategies are available: exact value
+matching (`values=`), regular-expression matching (`pattern=`), and arbitrary predicate
+functions (`fn=`). When more than one of these is supplied, the precedence is `fn` >
+`pattern` > `values`.
+
+After matching cells are identified the styling can optionally be expanded to entire rows or
+columns via `targets=`, and projected into the stub region via `extents=`.
+
+Parameters
+----------
+style
+    The styles to apply to matched cells. Use the `style.text()`, `style.fill()`,
+    `style.borders()`, and `style.css()` classes to define styles.
+columns
+    The columns to consider for matching. Can be a single column name, a list of column
+    names, or a column selection expression. By default, all columns in the body are
+    considered.
+rows
+    The rows to consider for matching. Can be a single row index or name, a list of row
+    indices or names, or a row selection expression. By default, all rows are considered.
+values
+    A list of specific values to match against. A body cell whose value equals any element
+    in this list will be styled. Ignored when `pattern` or `fn` is supplied.
+pattern
+    A regex pattern string. Body cells whose *string representation* matches this pattern
+    will be styled. Takes precedence over `values`; ignored when `fn` is supplied.
+fn
+    A function that receives a cell's raw value and returns `True` (style the cell) or
+    `False` (skip). This is the most flexible matching option and takes the highest
+    precedence.
+targets
+    How to expand matched cells. `"cell"` (the default) styles only matched cells;
+    `"row"` styles the entire row of each match; `"column"` styles the entire column. A
+    list can combine these (e.g., `["cell", "row"]`).
+extents
+    Where styling is applied. `"body"` (the default) styles only body cells; `"stub"`
+    also projects the styling into the stub (row labels). A list can combine these (e.g.,
+    `["body", "stub"]`).
+
+Returns
+-------
+GT
+    The GT object is returned. This is the same object that the method is called on so that
+    we can facilitate method chaining.
+
+Examples
+--------
+Use `tab_style_body()` to highlight specific values in a table. Here we color the background
+of cells that contain the values `49.95` or `33.33`.
+
+```{python}
+from great_tables import GT, style, exibble
+
+(
+    GT(exibble, rowname_col="row", groupname_col="group")
+    .tab_style_body(
+        style=style.fill(color="orange"),
+        values=[49.95, 33.33],
+    )
+)
+```
+
+Apply multiple styles to matched cells using a list of style objects.
+
+```{python}
+from great_tables import GT, style, exibble
+
+(
+    GT(exibble, rowname_col="row", groupname_col="group")
+    .tab_style_body(
+        style=[
+            style.text(color="white", weight="bold"),
+            style.fill(color="red"),
+        ],
+        values=[49.95, 33.33],
+    )
+)
+```
+
+A predicate function (`fn=`) provides the most flexible matching. Below we style all
+numeric cells with a value between 0 and 50.
+
+```{python}
+from great_tables import GT, style, exibble
+
+(
+    GT(exibble, rowname_col="row", groupname_col="group")
+    .tab_style_body(
+        style=style.fill(color="pink"),
+        fn=lambda x: isinstance(x, (int, float)) and 0 <= x < 50,
+    )
+)
+```
+
+Use `pattern=` to target cells by regex. This matches any cell whose string value contains
+"ne" or "na".
+
+```{python}
+from great_tables import GT, style, exibble
+
+(
+    GT(exibble, rowname_col="row", groupname_col="group")
+    .tab_style_body(
+        style=style.fill(color="green"),
+        pattern="ne|na",
+    )
+)
+```
+
+Expand the styling to entire rows using `targets="row"`, and project into the stub with
+`extents=["body", "stub"]`.
+
+```{python}
+from great_tables import GT, style, exibble
+
+(
+    GT(exibble, rowname_col="row", groupname_col="group")
+    .tab_style_body(
+        style=style.fill(color="lightblue"),
+        values=[49.95],
+        targets="row",
+        extents=["body", "stub"],
+    )
+)
+```
+
 tab_options(self: 'GTSelf', container_width: 'str | None' = None, container_height: 'str | None' = None, container_padding_x: 'str | None' = None, container_padding_y: 'str | None' = None, container_overflow_x: 'str | None' = None, container_overflow_y: 'str | None' = None, table_width: 'str | None' = None, table_layout: 'str | None' = None, table_margin_left: 'str | None' = None, table_margin_right: 'str | None' = None, table_background_color: 'str | None' = None, table_additional_css: 'str | list[str] | None' = None, table_font_names: 'str | list[str] | None' = None, table_font_size: 'str | None' = None, table_font_weight: 'str | float | None' = None, table_font_style: 'str | None' = None, table_font_color: 'str | None' = None, table_font_color_light: 'str | None' = None, table_border_top_style: 'str | None' = None, table_border_top_width: 'str | None' = None, table_border_top_color: 'str | None' = None, table_border_bottom_style: 'str | None' = None, table_border_bottom_width: 'str | None' = None, table_border_bottom_color: 'str | None' = None, table_border_left_style: 'str | None' = None, table_border_left_width: 'str | None' = None, table_border_left_color: 'str | None' = None, table_border_right_style: 'str | None' = None, table_border_right_width: 'str | None' = None, table_border_right_color: 'str | None' = None, heading_background_color: 'str | None' = None, heading_align: 'str | None' = None, heading_title_font_size: 'str | None' = None, heading_title_font_weight: 'str | float | None' = None, heading_subtitle_font_size: 'str | None' = None, heading_subtitle_font_weight: 'str | float | None' = None, heading_padding: 'str | None' = None, heading_padding_horizontal: 'str | None' = None, heading_border_bottom_style: 'str | None' = None, heading_border_bottom_width: 'str | None' = None, heading_border_bottom_color: 'str | None' = None, heading_border_lr_style: 'str | None' = None, heading_border_lr_width: 'str | None' = None, heading_border_lr_color: 'str | None' = None, column_labels_background_color: 'str | None' = None, column_labels_font_size: 'str | None' = None, column_labels_font_weight: 'str | float | None' = None, column_labels_text_transform: 'str | None' = None, column_labels_padding: 'str | None' = None, column_labels_padding_horizontal: 'str | None' = None, column_labels_vlines_style: 'str | None' = None, column_labels_vlines_width: 'str | None' = None, column_labels_vlines_color: 'str | None' = None, column_labels_border_top_style: 'str | None' = None, column_labels_border_top_width: 'str | None' = None, column_labels_border_top_color: 'str | None' = None, column_labels_border_bottom_style: 'str | None' = None, column_labels_border_bottom_width: 'str | None' = None, column_labels_border_bottom_color: 'str | None' = None, column_labels_border_lr_style: 'str | None' = None, column_labels_border_lr_width: 'str | None' = None, column_labels_border_lr_color: 'str | None' = None, column_labels_hidden: 'bool | None' = None, row_group_background_color: 'str | None' = None, row_group_font_size: 'str | None' = None, row_group_font_weight: 'str | float | None' = None, row_group_text_transform: 'str | None' = None, row_group_padding: 'str | None' = None, row_group_padding_horizontal: 'str | None' = None, row_group_border_top_style: 'str | None' = None, row_group_border_top_width: 'str | None' = None, row_group_border_top_color: 'str | None' = None, row_group_border_bottom_style: 'str | None' = None, row_group_border_bottom_width: 'str | None' = None, row_group_border_bottom_color: 'str | None' = None, row_group_border_left_style: 'str | None' = None, row_group_border_left_width: 'str | None' = None, row_group_border_left_color: 'str | None' = None, row_group_border_right_style: 'str | None' = None, row_group_border_right_width: 'str | None' = None, row_group_border_right_color: 'str | None' = None, row_group_as_column: 'bool | None' = None, table_body_hlines_style: 'str | None' = None, table_body_hlines_width: 'str | None' = None, table_body_hlines_color: 'str | None' = None, table_body_vlines_style: 'str | None' = None, table_body_vlines_width: 'str | None' = None, table_body_vlines_color: 'str | None' = None, table_body_border_top_style: 'str | None' = None, table_body_border_top_width: 'str | None' = None, table_body_border_top_color: 'str | None' = None, table_body_border_bottom_style: 'str | None' = None, table_body_border_bottom_width: 'str | None' = None, table_body_border_bottom_color: 'str | None' = None, stub_background_color: 'str | None' = None, stub_font_size: 'str | None' = None, stub_font_weight: 'str | float | None' = None, stub_text_transform: 'str | None' = None, stub_border_style: 'str | None' = None, stub_border_width: 'str | None' = None, stub_border_color: 'str | None' = None, stub_indent_length: 'str | None' = None, stub_row_group_font_size: 'str | None' = None, stub_row_group_font_weight: 'str | float | None' = None, stub_row_group_text_transform: 'str | None' = None, stub_row_group_border_style: 'str | None' = None, stub_row_group_border_width: 'str | None' = None, stub_row_group_border_color: 'str | None' = None, data_row_padding: 'str | None' = None, data_row_padding_horizontal: 'str | None' = None, summary_row_background_color: 'str | None' = None, summary_row_text_transform: 'str | None' = None, summary_row_padding: 'str | None' = None, summary_row_padding_horizontal: 'str | None' = None, summary_row_border_style: 'str | None' = None, summary_row_border_width: 'str | None' = None, summary_row_border_color: 'str | None' = None, grand_summary_row_background_color: 'str | None' = None, grand_summary_row_text_transform: 'str | None' = None, grand_summary_row_padding: 'str | None' = None, grand_summary_row_padding_horizontal: 'str | None' = None, grand_summary_row_border_style: 'str | None' = None, grand_summary_row_border_width: 'str | None' = None, grand_summary_row_border_color: 'str | None' = None, footnotes_marks: 'str | list[str] | None' = None, source_notes_background_color: 'str | None' = None, source_notes_font_size: 'str | None' = None, source_notes_padding: 'str | None' = None, source_notes_padding_horizontal: 'str | None' = None, source_notes_border_bottom_style: 'str | None' = None, source_notes_border_bottom_width: 'str | None' = None, source_notes_border_bottom_color: 'str | None' = None, source_notes_border_lr_style: 'str | None' = None, source_notes_border_lr_width: 'str | None' = None, source_notes_border_lr_color: 'str | None' = None, source_notes_multiline: 'bool | None' = None, source_notes_sep: 'str | None' = None, row_striping_background_color: 'str | None' = None, row_striping_include_stub: 'bool | None' = None, row_striping_include_table_body: 'bool | None' = None, quarto_disable_processing: 'bool | None' = None, ihtml_active: 'bool | None' = None, ihtml_use_pagination: 'bool | None' = None, ihtml_use_pagination_info: 'bool | None' = None, ihtml_use_sorting: 'bool | None' = None, ihtml_use_search: 'bool | None' = None, ihtml_use_filters: 'bool | None' = None, ihtml_use_resizers: 'bool | None' = None, ihtml_use_highlight: 'bool | None' = None, ihtml_use_compact_mode: 'bool | None' = None, ihtml_use_text_wrapping: 'bool | None' = None, ihtml_use_page_size_select: 'bool | None' = None, ihtml_page_size_default: 'int | None' = None, ihtml_page_size_values: 'list[int] | None' = None, ihtml_pagination_type: 'str | None' = None, ihtml_height: 'str | None' = None, ihtml_selection_mode: 'str | None' = None) -> 'GTSelf'
 
 Modify the table output options.
@@ -13522,7 +13653,6 @@ both **Pandas** and **Polars** DataFrames.
 
 ```{python}
 import polars as pl
-
 from great_tables import GT, from_column, style, loc
 from great_tables.data import airquality
 
@@ -13806,17 +13936,180 @@ The `mask=` argument applies row/column logic jointly, highlighting only the cel
 value equals its own maximum. This is a powerful way to perform per-column conditional formatting in
 a single statement.
 
+## Value-driven styling with `tab_style_body()`
+
+While `tab_style()` targets cells by their *position* (specific rows and columns),
+`tab_style_body()` targets cells by their *values*. This is useful when you want to style cells that
+meet a condition without having to figure out which rows and columns contain those values ahead of
+time.
+
+Three matching strategies are available, in order of precedence:
+
+1. `fn=`: a predicate function that receives each cell's value and returns `True` or `False`
+2. `pattern=`: a regex matched against the string representation of each cell
+3. `values=`: a list of exact values to match
+
+### Highlighting specific values
+
+The simplest use case involves passing a list of values, where any cell containing one of those
+values gets styled.
+
+```{python}
+from great_tables import style, exibble
+
+(
+    GT(exibble[["num", "char", "currency", "row", "group"]], rowname_col="row", groupname_col="group")
+    .tab_style_body(
+        style=style.fill(color="orange"),
+        values=[49.95, 33.33],
+    )
+)
+```
+
+### Using a predicate function
+
+For more flexibility, pass a function to `fn=`. The function receives the raw cell value and should
+return `True` to apply the style. Missing values (`NaN` in Pandas) are normalized to `None` before
+being passed to your function, so `x is None` works reliably.
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.text(color="red"),
+        fn=lambda x: x is None,
+    )
+    .sub_missing(missing_text="NA")
+)
+```
+
+The predicate function is the most flexible option. Here we style all numeric cells with a value
+under 50:
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightgreen"),
+        fn=lambda x: x >= 0 and x < 50,
+    )
+)
+```
+
+If the function raises an exception for a cell (e.g., comparing a string with `>=`), that cell is
+silently skipped.
+
+### Using a regex pattern
+
+The `pattern=` argument matches against the string representation of each cell. `None` values are
+skipped.
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightyellow"),
+        pattern="^[a-d]",
+    )
+)
+```
+
+### Scoping with `columns=` and `rows=`
+
+You can restrict which cells are considered for matching by providing `columns=` and `rows=`,
+exactly as you would with `loc.body()`.
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightcyan"),
+        fn=lambda x: x >= 0 and x < 50,
+        columns="num",
+    )
+)
+```
+
+### Expanding matches with `targets=`
+
+By default, only the matched cell itself is styled (`targets="cell"`). You can expand the styling to
+entire rows or columns that contain a match:
+
+- `targets="row"`: style the full row of each match
+- `targets="column"`: style the full column of each match
+- `targets=["row", "column"]`: both
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightblue"),
+        values=[49.95],
+        targets="row",
+    )
+    .tab_style_body(
+        style=style.fill(color="bisque"),
+        values=[33.33],
+        targets="column",
+    )
+)
+```
+
+### Projecting into the stub with `extents=`
+
+When your table has a stub (row labels), you can extend the styling into it with
+`extents=["body", "stub"]`. This is especially useful with `targets="row"` to highlight an entire
+row including its label.
+
+```{python}
+(
+    GT(
+        exibble[["num", "char", "currency", "row", "group"]],
+        rowname_col="row",
+        groupname_col="group"
+    )
+    .tab_style_body(
+        style=style.fill(color="lightblue"),
+        values=[49.95],
+        targets="row",
+        extents=["body", "stub"],
+    )
+)
+```
+
 ## Learning more
 
-The combination of `~~GT.tab_style()`, location specifiers, and the various style functions gives
-you precise control over the visual presentation of your table body. Whether you are highlighting
-outliers, applying conditional formatting, or using column-driven styles, these tools let you
-communicate data insights through visual cues that complement the numeric values themselves.
+The combination of `~~GT.tab_style()`, `~~GT.tab_style_body()`, location specifiers, and the various
+style functions gives you precise control over the visual presentation of your table body. Whether
+you are highlighting outliers, applying conditional formatting, or using column-driven styles, these
+tools let you communicate data insights through visual cues that complement the numeric values
+themselves.
 
 For further reference, consult the API documentation:
 
 * API Docs:
   - `~~GT.tab_style()`
+  - `~~GT.tab_style_body()`
   - [`style.*` and `loc.*` functions](/reference/index.qmd#location-targeting-and-styling-classes)
   - `from_column()`
 

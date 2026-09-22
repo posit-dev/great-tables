@@ -44,6 +44,7 @@ A table can contain a few useful components for conveying additional information
 - `GT.rm_footnotes`
 - `GT.rm_source_notes`
 - `GT.tab_style`
+- `GT.tab_style_body`
 - `GT.tab_options`
 
 ### Formatting column data

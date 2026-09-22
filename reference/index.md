@@ -59,6 +59,9 @@ Remove table source notes.
 [GT.tab_style()](GT.tab_style.md#great_tables.GT.tab_style)  
 Add custom style to one or more cells
 
+[GT.tab_style_body()](GT.tab_style_body.md#great_tables.GT.tab_style_body)  
+Apply styles to body cells based on their data values.
+
 [GT.tab_options()](GT.tab_options.md#great_tables.GT.tab_options)  
 Modify the table output options.
 
