@@ -154,6 +154,213 @@ def test_tab_style_loc_body_mask_rows_not_equal_raises(gt2: GT):
 # =============================================================================
 
 
+# =============================================================================
+# tab_style_body tests
+# =============================================================================
+
+
+def test_tab_style_body_values():
+    df = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="orange"), values=[2, 5])
+    assert len(new_gt._styles) == 2
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 1) in styled_cells
+    assert ("y", 1) in styled_cells
+
+
+def test_tab_style_body_pattern():
+    df = pd.DataFrame({"name": ["alice", "bob", "anna"], "score": [1, 2, 3]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="green"), pattern="^a")
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("name", 0) in styled_cells  # alice
+    assert ("name", 2) in styled_cells  # anna
+    assert ("score", 0) not in styled_cells  # "1" doesn't match "^a"
+
+
+def test_tab_style_body_fn():
+    df = pd.DataFrame({"x": [10, 20, 30], "y": [40, 50, 60]})
+    new_gt = GT(df).tab_style_body(
+        style=style.fill(color="pink"),
+        fn=lambda val: val >= 30,
+    )
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 2) in styled_cells  # 30
+    assert ("y", 0) in styled_cells  # 40
+    assert ("y", 1) in styled_cells  # 50
+    assert ("y", 2) in styled_cells  # 60
+    assert ("x", 0) not in styled_cells  # 10
+
+
+def test_tab_style_body_fn_precedence_over_values():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    new_gt = GT(df).tab_style_body(
+        style=style.fill(color="red"),
+        values=[1],
+        fn=lambda val: val == 3,
+    )
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 2) in styled_cells  # fn matched 3
+    assert ("x", 0) not in styled_cells  # values=[1] ignored
+
+
+def test_tab_style_body_pattern_precedence_over_values():
+    df = pd.DataFrame({"x": ["apple", "banana", "avocado"]})
+    new_gt = GT(df).tab_style_body(
+        style=style.fill(color="red"),
+        values=["banana"],
+        pattern="^a",
+    )
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 0) in styled_cells  # apple matches ^a
+    assert ("x", 2) in styled_cells  # avocado matches ^a
+    assert ("x", 1) not in styled_cells  # banana doesn't match ^a
+
+
+def test_tab_style_body_columns_filter():
+    df = pd.DataFrame({"x": [1, 2], "y": [1, 2]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="blue"), values=[1], columns="x")
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 0) in styled_cells
+    assert ("y", 0) not in styled_cells  # y column excluded
+
+
+def test_tab_style_body_rows_filter():
+    df = pd.DataFrame({"x": [1, 1, 1]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="blue"), values=[1], rows=[0, 2])
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 0) in styled_cells
+    assert ("x", 2) in styled_cells
+    assert ("x", 1) not in styled_cells  # row 1 excluded
+
+
+def test_tab_style_body_targets_row():
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="blue"), values=[1], targets="row")
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 0) in styled_cells
+    assert ("y", 0) in styled_cells  # entire row 0 styled
+    assert ("x", 1) not in styled_cells
+    assert ("y", 1) not in styled_cells
+
+
+def test_tab_style_body_targets_column():
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="blue"), values=[1], targets="column")
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 0) in styled_cells
+    assert ("x", 1) in styled_cells  # entire column x styled
+    assert ("y", 0) not in styled_cells
+    assert ("y", 1) not in styled_cells
+
+
+def test_tab_style_body_targets_combined():
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    new_gt = GT(df).tab_style_body(
+        style=style.fill(color="blue"), values=[1], targets=["row", "column"]
+    )
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    # row 0 and column x should all be styled
+    assert ("x", 0) in styled_cells
+    assert ("y", 0) in styled_cells  # row expansion
+    assert ("x", 1) in styled_cells  # column expansion
+
+
+def test_tab_style_body_extents_stub():
+    from great_tables import exibble
+
+    new_gt = GT(exibble, rowname_col="row", groupname_col="group").tab_style_body(
+        style=style.fill(color="coral"),
+        values=[49.95],
+        targets="row",
+        extents=["body", "stub"],
+    )
+    html = new_gt.as_raw_html()
+    assert "coral" in html
+
+
+def test_tab_style_body_no_match():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    gt_obj = GT(df)
+    new_gt = gt_obj.tab_style_body(style=style.fill(color="red"), values=[999])
+    assert len(new_gt._styles) == 0
+
+
+def test_tab_style_body_no_matching_arg_raises():
+    df = pd.DataFrame({"x": [1]})
+    with pytest.raises(ValueError, match="At least one of"):
+        GT(df).tab_style_body(style=style.fill(color="red"))
+
+
+def test_tab_style_body_fn_exception_skips():
+    df = pd.DataFrame({"x": [1, "text", 3]})
+    new_gt = GT(df).tab_style_body(
+        style=style.fill(color="blue"),
+        fn=lambda val: val > 2,
+    )
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 2) in styled_cells  # 3 > 2
+    assert ("x", 1) not in styled_cells  # "text" > 2 raises, skipped
+
+
+def test_tab_style_body_pattern_none_skipped():
+    df = pd.DataFrame({"x": [None, "hello", None]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="blue"), pattern="hello")
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 1) in styled_cells
+    assert ("x", 0) not in styled_cells
+    assert ("x", 2) not in styled_cells
+
+
+def test_tab_style_body_polars():
+    df = pl.DataFrame({"x": [10, 20, 30], "y": [1, 2, 3]})
+    new_gt = GT(df).tab_style_body(
+        style=style.fill(color="yellow"),
+        fn=lambda val: val >= 20,
+    )
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 1) in styled_cells  # 20
+    assert ("x", 2) in styled_cells  # 30
+    assert ("y", 2) not in styled_cells  # 3 < 20
+
+
+def test_tab_style_body_multiple_styles():
+    df = pd.DataFrame({"x": [1, 2]})
+    new_gt = GT(df).tab_style_body(
+        style=[style.fill(color="red"), style.text(color="white")],
+        values=[1],
+    )
+    assert len(new_gt._styles) == 1
+    assert len(new_gt._styles[0].styles) == 2
+
+
+def test_tab_style_body_renders_html():
+    df = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+    html = GT(df).tab_style_body(style=style.fill(color="orange"), values=[2]).as_raw_html()
+    assert "orange" in html
+
+
+def test_tab_style_body_nan_normalized_to_none_fn():
+    df = pd.DataFrame({"x": [1.0, None, 3.0], "y": ["a", None, "c"]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="red"), fn=lambda x: x is None)
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 1) in styled_cells  # NaN normalized to None
+    assert ("y", 1) in styled_cells  # actual None
+    assert len(styled_cells) == 2
+
+
+def test_tab_style_body_nan_normalized_to_none_values():
+    df = pd.DataFrame({"x": [1.0, None, 3.0]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="red"), values=[None])
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert ("x", 1) in styled_cells
+    assert len(styled_cells) == 1
+
+
+# =============================================================================
+# text_transform tests
+# =============================================================================
+
+
 def test_text_transform_basic(gt: GT):
     new_gt = gt.text_transform(locations=loc.body(columns="x"), fn=lambda x: f"[{x}]")
     html = new_gt.as_raw_html()
