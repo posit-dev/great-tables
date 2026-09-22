@@ -93,6 +93,7 @@ from ._stubhead import tab_stubhead
 from ._substitution import sub_large_vals, sub_missing, sub_small_vals, sub_values, sub_zero
 from ._tab_create_modify import (
     tab_style,
+    tab_style_body,
     text_case_match,
     text_case_when,
     text_replace,
@@ -431,6 +432,7 @@ class GT(
     tab_stubhead = tab_stubhead
     tab_stub_indent = tab_stub_indent
     tab_style = tab_style
+    tab_style_body = tab_style_body
     tab_options = tab_options
 
     rm_header = rm_header
