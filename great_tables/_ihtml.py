@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
+import math
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ._locations import LocBody, LocColumnLabels
-from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
+from ._tbl_data import _get_cell, _get_column_dtype, cast_frame_to_string, replace_null_frame
 from ._text import _process_text
 from ._utils import heading_has_subtitle, heading_has_title
 
@@ -48,6 +49,9 @@ def render_as_ihtml(data: GT) -> str:
 
     visible_cols = [c for c in built._boxhead._get_default_columns() if c.visible]
 
+    orig_data = built._tbl_data
+    numeric_cols: set[str] = {c.var for c in visible_cols if _is_numeric_dtype(orig_data, c.var)}
+
     if built._summary_rows or built._summary_rows_grand:
         warnings.warn(
             "opt_interactive(): summary_rows() and grand_summary_rows() are not rendered "
@@ -66,11 +70,19 @@ def render_as_ihtml(data: GT) -> str:
     # then converted to reactable's columnar format.
     # ------------------------------------------------------------------
     rows_data: list[dict] = []
+    orig_numeric_vals: dict[str, list[float | None]] = {c: [] for c in numeric_cols}
     for row_idx, _group_info in built._stub.group_indices_map():
         row: dict = {}
         for col in visible_cols:
             cell_val = _get_cell(tbl_data, row_idx, col.var)
             row[col.var] = str(cell_val) if cell_val is not None else ""
+            if col.var in numeric_cols:
+                raw = _get_cell(orig_data, row_idx, col.var)
+                if raw is None:
+                    orig_numeric_vals[col.var].append(None)
+                else:
+                    v = float(raw)
+                    orig_numeric_vals[col.var].append(None if math.isnan(v) else v)
         rows_data.append(row)
 
     n_rows = len(rows_data)
@@ -134,6 +146,10 @@ def render_as_ihtml(data: GT) -> str:
             "align": col.column_align or "left",
             "headerAlign": col.column_align or "left",
         }
+        if col.var in numeric_cols:
+            col_def["type"] = "numeric"
+            col_def["cell"] = [row.get(col.var, "") for row in rows_data]
+            col_def["html"] = True
         if col.var in body_style_fns:
             col_def["style"] = body_style_fns[col.var]
         if col.var in col_label_styles:
@@ -143,9 +159,12 @@ def render_as_ihtml(data: GT) -> str:
     # ------------------------------------------------------------------
     # Build columnar data (reactable expects {colId: [values]}).
     # ------------------------------------------------------------------
-    columnar_data: dict[str, list] = {
-        col.var: [row.get(col.var, "") for row in rows_data] for col in visible_cols
-    }
+    columnar_data: dict[str, list] = {}
+    for col in visible_cols:
+        if col.var in numeric_cols:
+            columnar_data[col.var] = orig_numeric_vals[col.var]
+        else:
+            columnar_data[col.var] = [row.get(col.var, "") for row in rows_data]
 
     # ------------------------------------------------------------------
     # Map GT options to reactable props.
@@ -233,10 +252,23 @@ if (requireReactDom.createRoot) {{
 def _escape_nonascii(s: str) -> str:
     """Escape non-ASCII characters to numeric HTML entities.
 
-    Converts e.g. U+2014 EM DASH to &#8212; so the HTML fragment is
-    safe to embed in pages regardless of their declared charset.
+    Converts e.g. U+2014 EM DASH to &#8212; so the HTML fragment is safe to embed in pages
+    regardless of their declared charset.
     """
     return s.encode("ascii", "xmlcharrefreplace").decode("ascii")
+
+
+def _is_numeric_dtype(data, column: str) -> bool:
+    """Check whether a column in the original data has a numeric dtype."""
+    try:
+        dtype = _get_column_dtype(data, column)
+    except Exception:
+        return False
+    dtype_str = str(dtype).lower()
+    for token in ("int", "float", "decimal", "double", "numeric", "number"):
+        if token in dtype_str:
+            return True
+    return False
 
 
 def _col_label(col: ColInfo) -> str:
@@ -258,7 +290,7 @@ def _parse_px(value: str | None, default: float = 16.0) -> float:
 def _css_str_to_react_style(css: str) -> dict:
     """Convert a CSS declaration string to a React-style camelCase dict.
 
-    e.g. 'background-color: yellow; font-weight: bold;' →
+    e.g. 'background-color: yellow; font-weight: bold;' ->
          {'backgroundColor': 'yellow', 'fontWeight': 'bold'}
     """
     result: dict = {}
