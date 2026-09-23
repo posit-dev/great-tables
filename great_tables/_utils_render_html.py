@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from itertools import chain
 from typing import TYPE_CHECKING, Any, cast
 
@@ -1197,12 +1198,17 @@ def create_footer_component_h(data: GTData) -> str:
         footnotes_with_marks = _process_footnotes_for_display(data, footnotes)
 
         if footnotes_with_marks:
+            styles_footer = [x for x in data._styles if _is_loc(x.locname, loc.LocFooter)]
+            styles_footnotes = [x for x in data._styles if _is_loc(x.locname, loc.LocFootnotes)]
+            _fn_styles = _flatten_styles(styles_footer + styles_footnotes, wrap=True)
+
             # Each footnote gets its own row
             for footnote_data in footnotes_with_marks:
                 mark = footnote_data.get("mark", "")
                 text = footnote_data.get("text", "")
 
-                footnote_mark_html = _create_footnote_mark_html(mark=mark)
+                ftr_spec = _parse_footnote_spec(cast(str, data._options.footnotes_spec_ftr.value))
+                footnote_mark_html = _create_footnote_mark_html(mark=mark, spec=ftr_spec)
 
                 # Wrap footnote text in `gt_from_md` span if it contains HTML markup
                 if "<" in text and ">" in text:
@@ -1212,7 +1218,7 @@ def create_footer_component_h(data: GTData) -> str:
 
                 footnote_html = f"{footnote_mark_html} {footnote_text}"
                 footer_rows.append(
-                    f'<tr class="gt_footnotes"><td class="gt_footnote" colspan="{n_cols_total}">{footnote_html}</td></tr>'
+                    f'<tr class="gt_footnotes"><td class="gt_footnote" colspan="{n_cols_total}"{_fn_styles}>{footnote_html}</td></tr>'
                 )
 
     # If no footer content, return empty string
@@ -1291,22 +1297,9 @@ def _process_footnotes_for_display(
                 footnote_data[footnote_text] = mark_string
                 footnote_order.append(footnote_text)
 
-    # Add footnotes without marks at the beginning (also filter for visibility)
-    markless_footnotes = [f for f in visible_footnotes if f.locname is None]  # type: ignore
-    result: list[dict[str, str]] = []
-
-    # Add markless footnotes first
-    for footnote in markless_footnotes:
-        if footnote.footnotes:
-            footnote_text = footnote.footnotes[0]
-            result.append({"mark": "", "text": footnote_text})
-
-    # Add footnotes with marks and maintain visual order (order they appear in table);
-    # the `footnote_order` list already contains footnotes in visual order based on how
-    # `_get_footnote_mark_string()` assigns marks
+    # Build the marked footnotes list (sorted by visual order)
     mark_type = _get_footnote_marks_option(data)
     if isinstance(mark_type, str) and mark_type == "numbers":
-        # For numbers, sort by numeric mark value to handle any edge cases
         sorted_texts = sorted(
             footnote_order,
             key=lambda text: (
@@ -1314,14 +1307,45 @@ def _process_footnotes_for_display(
             ),
         )
     else:
-        # For letters/symbols, maintain visual order (don't sort alphabetically)
         sorted_texts = footnote_order
 
-    for text in sorted_texts:
-        mark_string = footnote_data[text]
-        result.append({"mark": mark_string, "text": text})
+    marked_items: list[dict[str, str]] = [
+        {"mark": footnote_data[text], "text": text} for text in sorted_texts
+    ]
 
-    return result
+    # Build the markless footnotes list (also filter for visibility)
+    markless_footnotes = [f for f in visible_footnotes if f.locname is None]  # type: ignore
+    markless_items: list[dict[str, str]] = []
+    for footnote in markless_footnotes:
+        if footnote.footnotes:
+            markless_items.append({"mark": "", "text": footnote.footnotes[0]})
+
+    # Arrange marked vs markless based on the footnotes_order option
+    order_option = cast(str, data._options.footnotes_order.value)
+
+    if order_option == "marks_first":
+        return marked_items + markless_items
+    elif order_option == "preserve_order":
+        # Maintain insertion order from data._footnotes
+        seen_texts: set[str] = set()
+        result: list[dict[str, str]] = []
+        for fn_info in data._footnotes:
+            if not fn_info.footnotes:
+                continue
+            if not _should_display_footnote(data, fn_info):
+                continue
+            footnote_text = fn_info.footnotes[0]
+            if footnote_text in seen_texts:
+                continue
+            seen_texts.add(footnote_text)
+            if fn_info.locname is None:
+                result.append({"mark": "", "text": footnote_text})
+            elif footnote_text in footnote_data:
+                result.append({"mark": footnote_data[footnote_text], "text": footnote_text})
+        return result
+    else:
+        # "marks_last" (default): markless first, then marked
+        return markless_items + marked_items
 
 
 def _get_footnote_mark_symbols() -> dict[str, list[str]]:
@@ -1372,14 +1396,72 @@ def _get_footnote_marks_option(data: GTData) -> str | list[str]:
     return "numbers"
 
 
-def _create_footnote_mark_html(mark: str) -> str:
-    # Handle markless footnotes (footnotes added with `locations=None`)
-    # These appear in the footer without marks in the table body
+@dataclass(frozen=True)
+class FootnoteMarkSpec:
+    superscript: bool = False
+    bold: bool = False
+    italic: bool = False
+    enclosure: str | None = None  # "()", "[]", or None
+    period: bool = False
+
+
+def _parse_footnote_spec(spec: str) -> FootnoteMarkSpec:
+    superscript = "^" in spec
+    bold = "b" in spec
+    italic = "i" in spec
+    period = "." in spec
+
+    enclosure: str | None = None
+    if "(" in spec or ")" in spec:
+        enclosure = "()"
+    elif "[" in spec or "]" in spec:
+        enclosure = "[]"
+
+    return FootnoteMarkSpec(
+        superscript=superscript,
+        bold=bold,
+        italic=italic,
+        enclosure=enclosure,
+        period=period,
+    )
+
+
+def _apply_footnote_spec_to_mark(mark: str, spec: FootnoteMarkSpec) -> str:
+    if spec.enclosure == "()":
+        mark = f"({mark})"
+    elif spec.enclosure == "[]":
+        mark = f"[{mark}]"
+
+    if spec.period:
+        mark = f"{mark}."
+
+    return mark
+
+
+def _build_footnote_mark_style(spec: FootnoteMarkSpec) -> str:
+    parts = ["white-space:nowrap"]
+    parts.append(f"font-style:{'italic' if spec.italic else 'normal'}")
+    parts.append(f"font-weight:{'bold' if spec.bold else 'normal'}")
+    if spec.superscript:
+        parts.append("line-height:0")
+    else:
+        # Override the .gt_footnote_marks class defaults (vertical-align:0.4em; font-size:75%)
+        parts.append("vertical-align:baseline")
+        parts.append("font-size:100%")
+    return ";".join(parts) + ";"
+
+
+def _create_footnote_mark_html(mark: str, spec: FootnoteMarkSpec | None = None) -> str:
     if not mark:
         return ""
 
-    # Use consistent span structure for both references and footer
-    return f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{mark}</span>'
+    if spec is None:
+        spec = FootnoteMarkSpec(superscript=True, italic=True)
+
+    mark = _apply_footnote_spec_to_mark(mark, spec)
+    style = _build_footnote_mark_style(spec)
+
+    return f'<span class="gt_footnote_marks" style="{style}">{mark}</span>'
 
 
 def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
@@ -1387,55 +1469,60 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         mark_type = _get_footnote_marks_option(data)
         return _generate_footnote_mark(1, mark_type)
 
-    # Create a list of all footnote positions with their text, following R gt approach
-    footnote_positions: list[tuple[tuple[int | float, int, int], str]] = []
+    order_option = cast(str, data._options.footnotes_order.value)
 
-    for fn_info in data._footnotes:
-        if not fn_info.footnotes or fn_info.locname is None:
-            continue
+    # Build unique footnote texts in the appropriate order
+    if order_option == "preserve_order":
+        # Insertion order: walk data._footnotes as-is
+        unique_footnotes: list[str] = []
+        for fn_info in data._footnotes:
+            if not fn_info.footnotes or fn_info.locname is None:
+                continue
+            if not _should_display_footnote(data, fn_info):
+                continue
+            footnote_text = _process_text(fn_info.footnotes[0])
+            if footnote_text not in unique_footnotes:
+                unique_footnotes.append(footnote_text)
+    else:
+        # Visual reading order (default): sort by (locnum, rownum, colnum)
+        footnote_positions: list[tuple[tuple[int | float, int, int], str]] = []
 
-        # Skip footnotes for hidden columns
-        if not _should_display_footnote(data, fn_info):
-            continue
+        for fn_info in data._footnotes:
+            if not fn_info.footnotes or fn_info.locname is None:
+                continue
 
-        footnote_text = _process_text(fn_info.footnotes[0])
+            if not _should_display_footnote(data, fn_info):
+                continue
 
-        # Assign locnum (location number) based on the location hierarchy where
-        # lower numbers appear first in reading order (summary side-aware)
-        locnum = _get_summary_locnum(data, fn_info)
+            footnote_text = _process_text(fn_info.footnotes[0])
 
-        # Get colnum (column number) and assign row groups/stub lower values than data columns
-        if isinstance(fn_info.locname, loc.LocRowGroups):
-            colnum = -2  # Row group column is leftmost
-        elif isinstance(
-            fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)
-        ):
-            colnum = -1  # Stub appears before data columns but after row group column
-        elif isinstance(fn_info.locname, loc.LocSpannerLabels):
-            # For spanners, use the leftmost column index to ensure left-to-right ordering
-            colnum = _get_spanner_leftmost_column_index(data, fn_info.grpname)
-        else:
-            colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
+            locnum = _get_summary_locnum(data, fn_info)
 
-        # Get rownum; for headers use 0, for body use actual row number
-        if isinstance(fn_info.locname, loc.LocColumnLabels):
-            rownum = 0  # Headers are row 0
-        else:
-            rownum = fn_info.rownum if fn_info.rownum is not None else 0
+            if isinstance(fn_info.locname, loc.LocRowGroups):
+                colnum = -2
+            elif isinstance(
+                fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)
+            ):
+                colnum = -1
+            elif isinstance(fn_info.locname, loc.LocSpannerLabels):
+                colnum = _get_spanner_leftmost_column_index(data, fn_info.grpname)
+            else:
+                colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
 
-        # Sort key: (locnum, rownum, colnum); this should match reading order
-        # of top-to-bottom, left-to-right
-        sort_key = (locnum, rownum, colnum)
-        footnote_positions.append((sort_key, footnote_text))
+            if isinstance(fn_info.locname, loc.LocColumnLabels):
+                rownum = 0
+            else:
+                rownum = fn_info.rownum if fn_info.rownum is not None else 0
 
-    # Sort by (locnum, rownum, colnum): headers before body
-    footnote_positions.sort(key=lambda x: x[0])
+            sort_key = (locnum, rownum, colnum)
+            footnote_positions.append((sort_key, footnote_text))
 
-    # Get unique footnote texts in sorted order
-    unique_footnotes: list[str] = []
-    for _, text in footnote_positions:
-        if text not in unique_footnotes:
-            unique_footnotes.append(text)
+        footnote_positions.sort(key=lambda x: x[0])
+
+        unique_footnotes = []
+        for _, text in footnote_positions:
+            if text not in unique_footnotes:
+                unique_footnotes.append(text)
 
     # Find the mark index for this footnote's text
     if footnote_info.footnotes:
@@ -1509,12 +1596,13 @@ def _apply_footnotes_to_text(footnotes: list[FootnoteInfo], data: GTData, text: 
 
     # Create a single footnote mark span with comma-separated marks
     if mark_strings:
-        # Join mark strings with commas (no spaces)
-        marks_text = ",".join(mark_strings)
-        marks_html = (
-            '<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;'
-            f'font-weight:normal;line-height:0;">{marks_text}</span>'
-        )
+        ref_spec = _parse_footnote_spec(cast(str, data._options.footnotes_spec_ref.value))
+
+        # Apply enclosure and period to each individual mark, then join
+        decorated_marks = [_apply_footnote_spec_to_mark(m, ref_spec) for m in mark_strings]
+        marks_text = ",".join(decorated_marks)
+        style = _build_footnote_mark_style(ref_spec)
+        marks_html = f'<span class="gt_footnote_marks" style="{style}">{marks_text}</span>'
 
         # Determine placement based on the first footnote's placement setting
         # (all footnotes for the same location should have the same placement)
