@@ -17,6 +17,7 @@ from ._locations import (
     #
     # Footer ----
     LocFooter as footer,
+    LocFootnotes as footnotes,
 )
 from ._locations import (
     LocGrandSummary as grand_summary,
@@ -82,5 +83,6 @@ __all__ = (
     "summary",
     "grand_summary",
     "footer",
+    "footnotes",
     "source_notes",
 )
