@@ -1342,6 +1342,7 @@ def set_style(loc: Loc, data: GTData, style: list[CellStyle | FootnoteEntry]) ->
 @set_style.register(LocStubheadLabel)
 @set_style.register(LocColumnHeader)
 @set_style.register(LocFooter)
+@set_style.register(LocFootnotes)
 @set_style.register(LocSourceNotes)
 def _(
     loc: (
@@ -1352,6 +1353,7 @@ def _(
         | LocStubheadLabel
         | LocColumnHeader
         | LocFooter
+        | LocFootnotes
         | LocSourceNotes
     ),
     data: GTData,
