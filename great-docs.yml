@@ -218,6 +218,7 @@ reference:
         - loc.body
         - loc.footer
         - loc.source_notes
+        - loc.footnotes
         - style.fill
         - style.text
         - style.borders
@@ -246,6 +247,7 @@ reference:
       contents:
         - GT.opt_stylize
         - GT.opt_footnote_marks
+        - GT.opt_footnote_spec
         - GT.opt_row_striping
         - GT.opt_align_table_header
         - GT.opt_vertical_padding

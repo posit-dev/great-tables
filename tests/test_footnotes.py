@@ -3,7 +3,7 @@ import pandas as pd
 import re
 import pytest
 
-from great_tables import GT, loc, md, html
+from great_tables import GT, loc, md, html, style
 from great_tables._gt_data import FootnotePlacement, FootnoteInfo
 from great_tables._text import Text
 from great_tables._utils_render_html import (
@@ -1819,3 +1819,149 @@ def test_tab_footnote_none_in_locations_list():
     html = gt_table._render_as_html()
 
     assert "General note" in html
+
+
+# ---------------------------------------------------------------------------
+# loc.footnotes() — styling and interactions with loc.footer / loc.source_notes
+# ---------------------------------------------------------------------------
+
+
+def _build_styled_footer_table(**style_kwargs):
+    """Helper that builds a table with both footnotes and source notes."""
+    df = pd.DataFrame({"x": [1, 2], "y": ["a", "b"]})
+    gt = (
+        GT(df)
+        .tab_footnote("A footnote", locations=loc.body(columns="x", rows=[0]))
+        .tab_footnote("General note", locations=None)
+        .tab_source_note("A source note.")
+    )
+    for location, sty in style_kwargs.items():
+        if location == "footnotes":
+            gt = gt.tab_style(style=sty, locations=loc.footnotes())
+        elif location == "source_notes":
+            gt = gt.tab_style(style=sty, locations=loc.source_notes())
+        elif location == "footer":
+            gt = gt.tab_style(style=sty, locations=loc.footer())
+    return gt.as_raw_html()
+
+
+def _footnote_cells(html_str: str) -> list[str]:
+    tfoot = re.search(r"<tfoot>(.*)</tfoot>", html_str, re.DOTALL)
+    if not tfoot:
+        return []
+    return re.findall(r'<td class="gt_footnote"[^>]*>.*?</td>', tfoot.group(1))
+
+
+def _source_note_cells(html_str: str) -> list[str]:
+    tfoot = re.search(r"<tfoot>(.*)</tfoot>", html_str, re.DOTALL)
+    if not tfoot:
+        return []
+    return re.findall(r'<td class="gt_sourcenote"[^>]*>.*?</td>', tfoot.group(1))
+
+
+def test_loc_footnotes_applies_style():
+    rendered = _build_styled_footer_table(footnotes=style.fill(color="lightyellow"))
+    for cell in _footnote_cells(rendered):
+        assert "lightyellow" in cell
+    for cell in _source_note_cells(rendered):
+        assert "lightyellow" not in cell
+
+
+def test_loc_source_notes_applies_style():
+    rendered = _build_styled_footer_table(source_notes=style.fill(color="lightblue"))
+    for cell in _source_note_cells(rendered):
+        assert "lightblue" in cell
+    for cell in _footnote_cells(rendered):
+        assert "lightblue" not in cell
+
+
+def test_loc_footnotes_does_not_bleed_to_source_notes():
+    rendered = _build_styled_footer_table(
+        footnotes=style.fill(color="lightyellow"),
+        source_notes=style.fill(color="lightblue"),
+    )
+    for cell in _footnote_cells(rendered):
+        assert "lightyellow" in cell
+        assert "lightblue" not in cell
+    for cell in _source_note_cells(rendered):
+        assert "lightblue" in cell
+        assert "lightyellow" not in cell
+
+
+def test_loc_footer_applies_to_both():
+    rendered = _build_styled_footer_table(footer=style.fill(color="lightgreen"))
+    for cell in _footnote_cells(rendered):
+        assert "lightgreen" in cell
+    for cell in _source_note_cells(rendered):
+        assert "lightgreen" in cell
+
+
+def test_loc_footer_plus_loc_footnotes():
+    """loc.footnotes() style adds to loc.footer() style on footnote rows."""
+    rendered = _build_styled_footer_table(
+        footer=style.fill(color="lightgreen"),
+        footnotes=style.fill(color="lightyellow"),
+    )
+    for cell in _footnote_cells(rendered):
+        assert "lightyellow" in cell
+    for cell in _source_note_cells(rendered):
+        assert "lightgreen" in cell
+        assert "lightyellow" not in cell
+
+
+def test_loc_footer_plus_loc_source_notes():
+    """loc.source_notes() style adds to loc.footer() style on source note rows."""
+    rendered = _build_styled_footer_table(
+        footer=style.fill(color="lightgreen"),
+        source_notes=style.fill(color="lightblue"),
+    )
+    for cell in _source_note_cells(rendered):
+        assert "lightblue" in cell
+    for cell in _footnote_cells(rendered):
+        assert "lightgreen" in cell
+        assert "lightblue" not in cell
+
+
+def test_all_three_footer_locations():
+    """loc.footer(), loc.footnotes(), loc.source_notes() all applied independently."""
+    rendered = _build_styled_footer_table(
+        footer=style.css("color: red"),
+        footnotes=style.fill(color="lightyellow"),
+        source_notes=style.fill(color="lightblue"),
+    )
+    for cell in _footnote_cells(rendered):
+        assert "lightyellow" in cell
+        assert "color: red" in cell
+        assert "lightblue" not in cell
+    for cell in _source_note_cells(rendered):
+        assert "lightblue" in cell
+        assert "color: red" in cell
+        assert "lightyellow" not in cell
+
+
+def test_loc_footnotes_with_no_footnotes():
+    """Styling loc.footnotes() when there are no footnotes doesn't error."""
+    df = pd.DataFrame({"x": [1]})
+    gt = (
+        GT(df)
+        .tab_source_note("A source note.")
+        .tab_style(style=style.fill(color="lightyellow"), locations=loc.footnotes())
+    )
+    rendered = gt.as_raw_html()
+    assert len(_footnote_cells(rendered)) == 0
+    for cell in _source_note_cells(rendered):
+        assert "lightyellow" not in cell
+
+
+def test_loc_footnotes_with_no_source_notes():
+    """Styling loc.footnotes() when there are no source notes doesn't error."""
+    df = pd.DataFrame({"x": [1]})
+    gt = (
+        GT(df)
+        .tab_footnote("A footnote", locations=loc.body(columns="x", rows=[0]))
+        .tab_style(style=style.fill(color="lightyellow"), locations=loc.footnotes())
+    )
+    rendered = gt.as_raw_html()
+    assert len(_source_note_cells(rendered)) == 0
+    for cell in _footnote_cells(rendered):
+        assert "lightyellow" in cell

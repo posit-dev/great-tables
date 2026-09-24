@@ -59,6 +59,8 @@ from ._options import (
     opt_all_caps,
     opt_css,
     opt_footnote_marks,
+    opt_footnote_order,
+    opt_footnote_spec,
     opt_horizontal_padding,
     opt_interactive,
     opt_row_striping,
@@ -401,6 +403,8 @@ class GT(
     opt_all_caps = opt_all_caps
     opt_css = opt_css
     opt_footnote_marks = opt_footnote_marks
+    opt_footnote_spec = opt_footnote_spec
+    opt_footnote_order = opt_footnote_order
     opt_row_striping = opt_row_striping
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
