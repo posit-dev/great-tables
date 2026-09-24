@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import itertools
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Literal, Union
-
-from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 # note that types like Spanners are only used in annotations for concretes of the
 # resolve generic, but we need to import at runtime, due to singledispatch looking
@@ -1159,7 +1158,7 @@ def resolve_rows_i(
         return [(row_names[ii], ii) for ii in result["__row_number__"]]
 
     elif callable(expr):
-        res: "list[bool]" = eval_transform(data._tbl_data, expr)
+        res: list[bool] = eval_transform(data._tbl_data, expr)
         if not all(map(lambda x: isinstance(x, bool), res)):
             raise ValueError(
                 "If you select rows using a callable, it must take a DataFrame, "
@@ -1448,7 +1447,7 @@ def _(
 
 
 @set_style.register
-def _(loc: LocColumnLabels, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
+def _(loc: LocColumnLabels, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
     styles, new_footnotes = footnotes_split_style_list(style)
 
     selected = resolve(loc, data)
@@ -1479,7 +1478,7 @@ def _(loc: LocColumnLabels, data: GTData, style: list[Union[CellStyle, FootnoteE
 
 
 @set_style.register
-def _(loc: LocSpannerLabels, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
+def _(loc: LocSpannerLabels, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
     styles, new_footnotes = footnotes_split_style_list(style)
 
     # validate ----
@@ -1503,7 +1502,7 @@ def _(loc: LocSpannerLabels, data: GTData, style: list[Union[CellStyle, Footnote
 
 
 @set_style.register
-def _(loc: LocRowGroups, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
+def _(loc: LocRowGroups, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
     styles, new_footnotes = footnotes_split_style_list(style)
 
     # validate ----
@@ -1529,7 +1528,7 @@ def _(loc: LocRowGroups, data: GTData, style: list[Union[CellStyle, FootnoteEntr
 @set_style.register(LocStub)
 @set_style.register(LocGrandSummaryStub)
 def _(
-    loc: (LocStub | LocGrandSummaryStub), data: GTData, style: list[Union[CellStyle, FootnoteEntry]]
+    loc: (LocStub | LocGrandSummaryStub), data: GTData, style: list[CellStyle | FootnoteEntry]
 ) -> GTData:
     styles, new_footnotes = footnotes_split_style_list(style)
 
@@ -1554,7 +1553,7 @@ def _(
 
 
 @set_style.register(LocSummaryStub)
-def _(loc: LocSummaryStub, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
+def _(loc: LocSummaryStub, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
     styles, new_footnotes = footnotes_split_style_list(style)
 
     # validate ----
@@ -1581,7 +1580,7 @@ def _(loc: LocSummaryStub, data: GTData, style: list[Union[CellStyle, FootnoteEn
 
 
 @set_style.register(LocSummary)
-def _(loc: LocSummary, data: GTData, style: list[Union[CellStyle, FootnoteEntry]]) -> GTData:
+def _(loc: LocSummary, data: GTData, style: list[CellStyle | FootnoteEntry]) -> GTData:
     positions = resolve(loc, data)  # list of (group_id, CellPos)
 
     styles, new_footnotes = footnotes_split_style_list(style)
@@ -1623,7 +1622,7 @@ def _(loc: LocSummary, data: GTData, style: list[Union[CellStyle, FootnoteEntry]
 @set_style.register(LocBody)
 @set_style.register(LocGrandSummary)
 def _(
-    loc: (LocBody | LocGrandSummary), data: GTData, style: list[Union[CellStyle, FootnoteEntry]]
+    loc: (LocBody | LocGrandSummary), data: GTData, style: list[CellStyle | FootnoteEntry]
 ) -> GTData:
     positions: list[CellPos] = resolve(loc, data)
 
