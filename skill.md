@@ -61,6 +61,7 @@ Columns of data can be formatted with the `fmt_*()` methods. We can specify the 
 - `GT.fmt_partsper`
 - `GT.fmt_currency`
 - `GT.fmt_roman`
+- `GT.fmt_fraction`
 - `GT.fmt_bytes`
 - `GT.fmt_date`
 - `GT.fmt_time`
@@ -210,6 +211,7 @@ If you have single values (or lists of them) in need of formatting, we have a se
 - `vals.fmt_partsper`
 - `vals.fmt_currency`
 - `vals.fmt_roman`
+- `vals.fmt_fraction`
 - `vals.fmt_bytes`
 - `vals.fmt_duration`
 - `vals.fmt_date`
