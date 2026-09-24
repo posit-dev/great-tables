@@ -140,6 +140,20 @@ def test_val_fmt_chem():
     assert "<sup" in result3[1]
 
 
+def test_val_fmt_index():
+    result = vals.fmt_index([1, 2, 3])
+    assert result == ["A", "B", "C"]
+
+    result2 = vals.fmt_index(1)
+    assert result2 == ["A"]
+
+    result3 = vals.fmt_index([1, 2, 3], case="lower")
+    assert result3 == ["a", "b", "c"]
+
+    result4 = vals.fmt_index([27, 28], index_algo="excel")
+    assert result4 == ["AA", "AB"]
+
+
 def test_val_fmt_number_si():
     result = vals.fmt_number_si(1500)
     assert "k" in result[0] or "1" in result[0]
