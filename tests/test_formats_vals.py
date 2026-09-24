@@ -117,6 +117,13 @@ def test_val_fmt_markdown():
     assert result == ["<strong>bold</strong>"]
 
 
+def test_val_fmt_fraction():
+    assert vals.fmt_fraction([0.5, 1.25, 3.75]) == ["1/2", "1 1/4", "3 3/4"]
+    assert vals.fmt_fraction(0.5) == ["1/2"]
+    assert vals.fmt_fraction([0.5], accuracy=4, simplify=False) == ["2/4"]
+    assert vals.fmt_fraction([0.333], accuracy="high") == ["332/997"]
+
+
 def test_val_fmt_number_si():
     result = vals.fmt_number_si(1500)
     assert "k" in result[0] or "1" in result[0]
