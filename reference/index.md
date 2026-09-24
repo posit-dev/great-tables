@@ -102,6 +102,9 @@ Format values as Roman numerals.
 [GT.fmt_fraction()](GT.fmt_fraction.md#great_tables.GT.fmt_fraction)  
 Format values as mixed fractions.
 
+[GT.fmt_chem()](GT.fmt_chem.md#great_tables.GT.fmt_chem)  
+Format chemical formulas.
+
 [GT.fmt_bytes()](GT.fmt_bytes.md#great_tables.GT.fmt_bytes)  
 Format values as bytes.
 
@@ -452,6 +455,9 @@ Format values as Roman numerals.
 
 [vals.fmt_fraction()](vals.fmt_fraction.md#great_tables.vals.fmt_fraction)  
 Format values as mixed fractions.
+
+[vals.fmt_chem()](vals.fmt_chem.md#great_tables.vals.fmt_chem)  
+Format chemical formulas.
 
 [vals.fmt_bytes()](vals.fmt_bytes.md#great_tables.vals.fmt_bytes)  
 Format values as bytes.
