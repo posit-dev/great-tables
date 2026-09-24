@@ -124,6 +124,22 @@ def test_val_fmt_fraction():
     assert vals.fmt_fraction([0.333], accuracy="high") == ["332/997"]
 
 
+def test_val_fmt_chem():
+    result = vals.fmt_chem(["H2O", "CO2"])
+
+    assert "<sub" in result[0]
+    assert "<sub" in result[1]
+
+    result2 = vals.fmt_chem("CH4")
+
+    assert "<sub" in result2[0] and "CH" in result2[0]
+
+    result3 = vals.fmt_chem(["H+", "OH-"])
+
+    assert "<sup" in result3[0]
+    assert "<sup" in result3[1]
+
+
 def test_val_fmt_number_si():
     result = vals.fmt_number_si(1500)
     assert "k" in result[0] or "1" in result[0]
