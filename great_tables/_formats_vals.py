@@ -1256,6 +1256,45 @@ def val_fmt_fraction(
 
 
 @expressive
+def val_fmt_chem(
+    x: X,
+) -> list[str]:
+    """
+    Format chemical formulas.
+
+    With string values in a list, we can transform chemical formula notation into properly typeset
+    HTML with subscripted numbers, superscripted charges, reaction arrows, and more. The input text
+    should conform to the chemistry notation described in `fmt_chem()`.
+
+    Parameters
+    ----------
+    x
+        A list of string values to be formatted as chemical formulas.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_chem(["C6H12O6", "H2O", "CH4 + 2 O2 -> CO2 + 2 H2O"])
+    ```
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=x)
+
+    gt_obj_fmt = gt_obj.fmt_chem(columns="x")
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
 def val_fmt_bytes(
     x: X,
     standard: str = "decimal",

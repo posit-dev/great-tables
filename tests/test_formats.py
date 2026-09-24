@@ -3690,6 +3690,7 @@ def test_fmt_fraction_negative_pure_fraction():
     df = pd.DataFrame({"x": [-0.75]})
     gt = GT(df).fmt_fraction(columns="x")
     x = _get_column_of_values(gt, column_name="x", context="html")
+
     assert x == ["−3/4"]
 
 
@@ -3697,6 +3698,7 @@ def test_fmt_fraction_round_up_negative():
     df = pd.DataFrame({"x": [-0.999]})
     gt = GT(df).fmt_fraction(columns="x")
     x = _get_column_of_values(gt, column_name="x", context="html")
+
     assert x == ["−1"]
 
 
@@ -3704,6 +3706,168 @@ def test_fmt_fraction_rows_subset():
     df = pd.DataFrame({"x": [0.5, 1.25, 3.75]})
     gt = GT(df).fmt_fraction(columns="x", rows=[0, 2])
     x = _get_column_of_values(gt, column_name="x", context="html")
+
     assert x[0] == "1/2"
     assert x[1] == "1.25"  # unformatted
     assert x[2] == "3 3/4"
+
+
+# --- fmt_chem tests ---
+
+df_fmt_chem = pd.DataFrame({"x": ["CH4", "C6H12O6", "H2O", "(NH4)2S"]})
+
+
+def test_fmt_chem_simple_formula():
+    gt = GT(df_fmt_chem).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<sub" in x[0] and "4" in x[0]  # CH4 -> CH<sub>4</sub>
+    assert x[0].startswith("CH")
+    assert "12" in x[1] and "<sub" in x[1]  # C6H12O6
+    assert x[2].startswith("H")  # H2O
+
+
+def test_fmt_chem_parenthesized_group():
+    df = pd.DataFrame({"x": ["(NH4)2S", "Ca3(PO4)2"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "(NH" in x[0]
+    assert ")2" not in x[0]  # the 2 after ) should be subscripted
+    assert "<sub" in x[0]
+
+
+def test_fmt_chem_charges():
+    df = pd.DataFrame({"x": ["H+", "OH-", "CrO4^2-", "Fe^n+", "[AgCl2]-"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<sup" in x[0] and "+" in x[0]  # H+
+    assert "<sup" in x[1] and "&minus;" in x[1]  # OH-
+    assert "2&minus;" in x[2]  # CrO4^2-
+    assert "<em>n</em>" in x[3]  # Fe^n+
+    assert "<sup" in x[4] and "&minus;" in x[4]  # [AgCl2]-
+
+
+def test_fmt_chem_stoichiometric():
+    df = pd.DataFrame({"x": ["2 H2O", "0.5 H2O", "1/2 H2O"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0].startswith("2")
+    assert "&#8201;" in x[0]  # thin space
+    assert "0.5" in x[1]
+    assert "1/2" in x[2]
+
+
+def test_fmt_chem_reaction_arrows():
+    df = pd.DataFrame({"x": ["A -> B", "A <- B", "A <-> B", "A <=> B", "A <=>> B", "A <<=> B"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "&#8594;" in x[0]  # ->
+    assert "&#8592;" in x[1]  # <-
+    assert "&#8596;" in x[2]  # <->
+    assert "&#8652;" in x[3]  # <=>
+    assert "&#8640;" in x[4]  # <=>>
+    assert "&#8637;" in x[5]  # <<=>
+
+
+def test_fmt_chem_bonds():
+    df = pd.DataFrame({"x": ["C6H5-CHO", "CH3CH=CH2"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "-" in x[0] and "<sub" in x[0]
+    assert "=" in x[1] and "<sub" in x[1]
+
+
+def test_fmt_chem_addition_compound():
+    df = pd.DataFrame({"x": ["KCr(SO4)2 . 12 H2O", "CuSO4 * 5 H2O"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "&middot;" in x[0]
+    assert "&middot;" in x[1]
+
+
+def test_fmt_chem_isotope():
+    df = pd.DataFrame({"x": ["^{227}_{90}Th", "^227_90Th", "^{13}C"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "227" in x[0] and "90" in x[0] and "Th" in x[0]
+    assert "227" in x[1] and "90" in x[1] and "Th" in x[1]
+    assert "13" in x[2] and "C" in x[2]
+
+
+def test_fmt_chem_italic_subscript():
+    df = pd.DataFrame({"x": ["NO_x", "x Na(NH4)HPO4"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<em>x</em>" in x[0] and "<sub" in x[0]
+    assert "<em>x</em>" in x[1]
+
+
+def test_fmt_chem_greek_letters():
+    df = pd.DataFrame({"x": [":delta: ^13C"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "&delta;" in x[0]
+
+
+def test_fmt_chem_full_reaction():
+    df = pd.DataFrame({"x": ["CH4 + 2 O2 -> CO2 + 2 H2O"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "&#8594;" in x[0]
+    assert " + " in x[0]
+    assert "<sub" in x[0]
+
+
+def test_fmt_chem_na():
+    df = pd.DataFrame({"x": [float("nan")]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert len(x) == 1
+
+
+def test_fmt_chem_polars():
+    df = pl.DataFrame({"x": ["H2O", "CO2"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<sub" in x[0]
+    assert "<sub" in x[1]
+
+
+def test_fmt_chem_rows_subset():
+    df = pd.DataFrame({"x": ["CH4", "H2O", "CO2"]})
+    gt = GT(df).fmt_chem(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<sub" in x[0]
+    assert x[1] == "H2O"  # unformatted
+    assert "<sub" in x[2]
+
+
+def test_fmt_chem_brace_charge():
+    df = pd.DataFrame({"x": ["Y^{99+}"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "99+" in x[0]
+    assert "<sup" in x[0]
+
+
+def test_fmt_chem_nuclide():
+    df = pd.DataFrame({"x": ["^{0}_{-1}n^{-}"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "0" in x[0]
+    assert "n" in x[0]

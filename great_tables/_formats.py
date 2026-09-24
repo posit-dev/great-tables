@@ -2845,6 +2845,384 @@ def fmt_fraction_context(
     return x_formatted
 
 
+def fmt_chem(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+) -> GTSelf:
+    """
+    Format chemical formulas.
+
+    With `fmt_chem()` you can format chemical formulas and reactions in the table body. Often the
+    input text will be in a common form representing single compounds (like `"C2H4O"` for
+    acetaldehyde) but chemical reactions can also be used (e.g., `"2 CH3OH -> CH3OCH3 + H2O"`).
+    So long as the text within the targeted cells conforms to the specialized chemistry notation,
+    the appropriate conversions will occur. Details on chemistry notation can be found in the
+    section entitled *How to use chemistry notation*.
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    How to use chemistry notation
+    -----------------------------
+    The chemistry notation involves a shorthand for writing chemical formulas and reactions. It
+    should feel familiar in its basic usage and the more advanced typesetting tries to limit the
+    amount of syntax needed. Here are examples of the supported features:
+
+    - `"CH3O2"` and `"(NH4)2S"` will render with subscripted numerals
+
+    - Charges can be expressed with terminating `"+"` or `"-"`, as in `"H+"` and `"[AgCl2]-"`;
+      numbered charges use: `"CrO4^2-"`, `"Fe^n+"`, `"Y^99+"`, or `"Y^{99+}"`
+
+    - Stoichiometric values can prepend formulas: `"2H2O2"`, `"2 H2O2"`, `"0.5 H2O"`,
+      `"1/2 H2O"`, `"(1/2) H2O"`
+
+    - Certain standalone lowercase letters are automatically italicized: `"NO_x"` and
+      `"x Na(NH4)HPO4"` will have italic *x* characters; you can always italicize with `"*"`
+      (as in `"*n* H2O"`)
+
+    - Chemical isotopes can be rendered as: `"^{227}_{90}Th"` or `"^227_90Th"`; nuclides are
+      similar: `"^{0}_{-1}n^{-}"`, `"^0_-1n-"`
+
+    - Chemical reactions can use `"+"` signs and a variety of reaction arrows:
+      `"->"`, `"<-"`, `"<->"`, `"<-->"`, `"<=>"`, `"<=>>"`, `"<<=>"`
+
+    - Center dots (for addition compounds) use a single `"."` or `"*"` surrounded by spaces:
+      `"KCr(SO4)2 . 12 H2O"` or `"KCr(SO4)2 * 12 H2O"`
+
+    - Single and double bonds between adjacent characters use `"-"` or `"="`:
+      `"C6H5-CHO"`, `"CH3CH=CH2"`
+
+    - Greek letters can be inserted using colon notation: `":delta: ^13C"`
+
+    Examples
+    --------
+    Let's use the `reactions` dataset and create a table of gas-phase reaction rate constants for
+    selected terminal alkenes. The `cmpd_formula` column contains chemical formulas and `fmt_chem()`
+    will render them with properly subscripted numerals. Notice that the column labels for O₃ and
+    NO₃ use the `{{%...%}}` chemistry notation within `cols_label()`.
+
+    ```{python}
+    import polars as pl
+    import polars.selectors as cs
+    from great_tables import GT, data
+
+    reactions_mini = (
+        data.pl.reactions
+        .filter(
+            (pl.col("cmpd_type") == "terminal monoalkene")
+            & pl.col("cmpd_name").str.starts_with("1-")
+        )
+        .select("cmpd_name", "cmpd_formula", cs.ends_with("k298"))
+    )
+
+    (
+        GT(reactions_mini)
+        .tab_header(title="Gas-Phase Reactions of Selected Terminal Alkenes")
+        .tab_spanner(
+            label="Reaction Rate Constant at 298 K",
+            columns=cs.ends_with("k298"),
+        )
+        .fmt_chem(columns="cmpd_formula")
+        .fmt_scientific(columns=cs.ends_with("k298"))
+        .sub_missing()
+        .cols_label(
+            cmpd_name="Alkene",
+            cmpd_formula="Formula",
+            OH_k298="OH",
+            O3_k298="{{%O3%}}",
+            NO3_k298="{{%NO3%}}",
+            Cl_k298="Cl",
+        )
+        .opt_align_table_header(align="left")
+    )
+    ```
+
+    The `photolysis` dataset contains photolysis pathways where both the `cmpd_formula` and
+    `products` columns hold chemistry notation. We can format both columns with `fmt_chem()` and use
+    `cols_merge()` to combine the compound name with its formatted formula.
+
+    ```{python}
+    photolysis_mini = (
+        data.pl.photolysis
+        .filter(pl.col("cmpd_name").is_in([
+            "hydrogen peroxide", "nitrous acid",
+            "nitric acid", "acetaldehyde",
+            "methyl peroxide", "methyl nitrate",
+            "ethyl nitrate", "isopropyl nitrate",
+        ]))
+        .select(pl.exclude("l", "m", "n", "quantum_yield", "type"))
+    )
+
+    (
+        GT(photolysis_mini)
+        .tab_header(title="Photolysis Pathways of Selected VOCs")
+        .fmt_chem(columns=["cmpd_formula", "products"])
+        .cols_merge(
+            columns=["cmpd_name", "cmpd_formula"],
+            pattern="{0}, {1}",
+        )
+        .cols_label(cmpd_name="Compound", products="Products")
+        .cols_hide(columns=["wavelength_nm", "sigma_298_cm2"])
+        .opt_align_table_header(align="left")
+    )
+    ```
+
+    The `nuclides` dataset contains isotope data with nuclide notation (e.g., `"^{12}_{6}C"`) that
+    `fmt_chem()` renders with properly overstruck mass and atomic numbers. Here we show isotopes of
+    hydrogen and carbon.
+
+    ```{python}
+    from great_tables import md
+
+    nuclides_mini = (
+        data.pl.nuclides
+        .filter(pl.col("element").is_in(["H", "C"]))
+        .with_columns(pl.col("nuclide").str.replace(r"[0-9]+$", ""))
+        .select("nuclide", "atomic_mass", "half_life", "decay_1", "is_stable")
+    )
+
+    stable = (
+        nuclides_mini.with_row_index()
+        .filter(pl.col("is_stable") == "TRUE")["index"].to_list()
+    )
+    unstable = (
+        nuclides_mini.with_row_index()
+        .filter(pl.col("is_stable") == "FALSE")["index"].to_list()
+    )
+
+    (
+        GT(nuclides_mini, rowname_col="nuclide")
+        .tab_header(title="Isotopes of Hydrogen and Carbon")
+        .tab_stubhead(label="Isotope")
+        .fmt_chem(columns="nuclide")
+        .fmt_scientific(columns="half_life")
+        .fmt_number(columns="atomic_mass", decimals=4, scale_by=1 / 1e6)
+        .sub_missing(
+            columns="half_life", rows=stable, missing_text=md("**STABLE**")
+        )
+        .sub_missing(columns="half_life", rows=unstable)
+        .sub_missing(columns="decay_1")
+        .cols_hide(columns="is_stable")
+        .cols_align(align="center", columns="decay_1")
+        .cols_label(decay_1="Decay Mode")
+        .opt_align_table_header(align="left")
+        .opt_vertical_padding(scale=0.5)
+    )
+    ```
+    """
+
+    def fmt_chem_fn(x: str):
+        if is_na(self._tbl_data, x):
+            return x
+
+        return _chem_to_html(x)
+
+    return fmt(self, fns=fmt_chem_fn, columns=columns, rows=rows)
+
+
+_REACTION_ARROWS = [
+    ("<-->", "&#8596;"),
+    ("<=>>", "&#8640;"),
+    ("<<=>", "&#8637;"),
+    ("<=>", "&#8652;"),
+    ("<->", "&#8596;"),
+    ("->", "&#8594;"),
+    ("<-", "&#8592;"),
+]
+
+_SUB = '<sub style="line-height:0;">'
+_SUP = '<span style="white-space:nowrap;"><sup style="line-height:0;">'
+_THIN_SP = "&#8201;"
+
+
+def _chem_to_html(formula: str) -> str:
+    from great_tables._helpers import (
+        _md_html,
+        _units_html_sub_super,
+        _units_symbol_replacements,
+    )
+
+    for arrow_text, arrow_char in _REACTION_ARROWS:
+        formula = formula.replace(arrow_text, f" \x00ARROW{arrow_char}\x00 ")
+
+    tokens = formula.split()
+    parts: list[str] = []
+    pending_coeff: str | None = None
+
+    for token in tokens:
+        if token.startswith("\x00ARROW") and token.endswith("\x00"):
+            if pending_coeff is not None:
+                parts.append(pending_coeff)
+                pending_coeff = None
+            arrow = token[6:-1]
+            parts.append(f" {arrow} ")
+            continue
+
+        if token == "+" and parts:
+            if pending_coeff is not None:
+                parts.append(pending_coeff)
+                pending_coeff = None
+            parts.append(" + ")
+            continue
+
+        if token in (".", "*"):
+            if pending_coeff is not None:
+                parts.append(pending_coeff)
+                pending_coeff = None
+            parts.append(" &middot; ")
+            continue
+
+        if pending_coeff is not None:
+            part = _chem_token_to_html(
+                token, _md_html, _units_html_sub_super, _units_symbol_replacements
+            )
+            parts.append(pending_coeff + _THIN_SP + part)
+            pending_coeff = None
+            continue
+
+        if re.match(r"^[0-9]+(?:\.[0-9]+)?$|^[0-9]+/[0-9]+$|^\([0-9]+/[0-9]+\)$", token):
+            pending_coeff = token
+            continue
+
+        if token in ("x", "n"):
+            pending_coeff = f"<em>{token}</em>"
+            continue
+
+        star_m = re.match(r"^\*([a-zA-Z])\*$", token)
+        if star_m:
+            pending_coeff = f"<em>{star_m.group(1)}</em>"
+            continue
+
+        part = _chem_token_to_html(
+            token, _md_html, _units_html_sub_super, _units_symbol_replacements
+        )
+        parts.append(part)
+
+    if pending_coeff is not None:
+        parts.append(pending_coeff)
+
+    return "".join(parts)
+
+
+def _chem_token_to_html(
+    token: str,
+    md_html: Callable[[str], str],
+    html_sub_super: Callable[[str, str], str],
+    symbol_replacements: Callable[[str], str],
+) -> str:
+    isotope_m = re.match(
+        r"^\^(?:\{([0-9+-]+)\}|([0-9+-]+))(?:_(?:\{([0-9+-]+)\}|([0-9+-]+)))?(.+)$",
+        token,
+    )
+    if isotope_m:
+        mass = isotope_m.group(1) or isotope_m.group(2)
+        atomic = isotope_m.group(3) or isotope_m.group(4) or ""
+        rest = isotope_m.group(5)
+        if not atomic:
+            atomic = "&nbsp;"
+        prefix = html_sub_super(content_sub=atomic, content_sup=mass)
+        return prefix + _chem_token_to_html(rest, md_html, html_sub_super, symbol_replacements)
+
+    colon_m = re.match(r"^(:[a-zA-Z]+:)(.*)$", token)
+    if colon_m:
+        sym = symbol_replacements(colon_m.group(1))
+        rest = colon_m.group(2)
+        if rest:
+            return sym + _chem_token_to_html(rest, md_html, html_sub_super, symbol_replacements)
+        return sym
+
+    stoich_m = re.match(r"^([0-9]+(?:\.[0-9]+)?|[0-9]+/[0-9]+|\([0-9]+/[0-9]+\))([A-Z].*)$", token)
+    if stoich_m:
+        coeff = stoich_m.group(1)
+        rest = stoich_m.group(2)
+        return coeff + _THIN_SP + _chem_simple_formula_html(rest)
+
+    bond_m = re.match(r"^([^-=]+)([-=])([^-=]+)$", token)
+    if bond_m and re.search(r"[A-Z]", bond_m.group(1)) and re.search(r"[A-Z]", bond_m.group(3)):
+        left = _chem_simple_formula_html(bond_m.group(1))
+        bond = bond_m.group(2)
+        right = _chem_simple_formula_html(bond_m.group(3))
+        return f"{left}{bond}{right}"
+
+    italic_m = re.match(r"^\*([a-zA-Z])\*(.*)$", token)
+    if italic_m:
+        letter = italic_m.group(1)
+        rest = italic_m.group(2)
+        result = f"<em>{letter}</em>"
+        if rest:
+            if rest.startswith("-") or rest.startswith("="):
+                result += rest[0]
+                rest = rest[1:]
+            if rest:
+                result += _chem_simple_formula_html(rest)
+        return result
+
+    if token == "x" or token == "n":
+        return f"<em>{token}</em>"
+
+    return _chem_simple_formula_html(token)
+
+
+def _chem_simple_formula_html(token: str) -> str:
+    charge_m = re.match(r"^(.*?)(?:\^(?:\{([^}]+)\}|([0-9]*[+-]|n[+-]?)))$", token)
+    charge = None
+    if charge_m:
+        token = charge_m.group(1)
+        charge = charge_m.group(2) or charge_m.group(3)
+
+    if not charge:
+        single_charge_m = re.match(r"^(.*[A-Za-z\])])([+-])$", token)
+        if single_charge_m:
+            token = single_charge_m.group(1)
+            charge = single_charge_m.group(2)
+
+    italic_sub_m = re.match(r"^(.+)_([a-z])$", token)
+    if italic_sub_m:
+        base = _chem_subscript_numbers(italic_sub_m.group(1))
+        sub_letter = italic_sub_m.group(2)
+        result = (
+            base
+            + '<span style="white-space:nowrap;"><sub style="line-height:0;">'
+            + f"<em>{sub_letter}</em></sub></span>"
+        )
+    else:
+        result = _chem_subscript_numbers(token)
+
+    if charge is not None:
+        charge_html = charge.replace("-", "&minus;")
+        if re.match(r"^[a-z]", charge):
+            charge_html = f"<em>{charge_html[0]}</em>{charge_html[1:]}"
+        result += f"{_SUP}{charge_html}</sup></span>"
+
+    return result
+
+
+def _chem_subscript_numbers(text: str) -> str:
+    result = re.sub(
+        r"(?<=[A-Za-z)\]])(\d+)",
+        lambda m: f"{_SUB}{m.group(1)}</sub></span>",
+        text,
+    )
+    return result.replace(
+        _SUB,
+        '<span style="white-space:nowrap;"><sub style="line-height:0;">',
+    )
+
+
 def fmt_bytes(
     self: GTSelf,
     columns: SelectExpr = None,
