@@ -3566,3 +3566,144 @@ def test_normalize_locale_is_case_insensitive():
 def test_validate_locale_is_case_insensitive():
     _validate_locale("pt-br")
     _validate_locale("EN-US")
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_fraction()`
+# ------------------------------------------------------------------------------
+
+df_fmt_fraction = pd.DataFrame({"x": [0.5, 1.25, 3.75, 0.333, 0.0, 5.0, -1.5, -0.25, 0.999, 0.001]})
+
+
+def test_fmt_fraction_low():
+    gt = GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy="low")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] == "1/2"
+    assert x[1] == "1 1/4"
+    assert x[2] == "3 3/4"
+    assert x[3] == "1/3"
+    assert x[4] == "0"
+    assert x[5] == "5"
+    assert x[6] == "−1 1/2"
+    assert x[7] == "−1/4"
+    assert x[8] == "1"  # 0.999 rounds up
+    assert x[9] == "0"  # 0.001 rounds to 0 at low accuracy
+
+
+def test_fmt_fraction_med():
+    gt = GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy="med")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] == "1/2"
+    assert x[3] == "1/3"
+
+
+def test_fmt_fraction_high():
+    gt = GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy="high")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] == "1/2"
+    assert x[3] == "332/997"
+    assert x[9] == "1/999"
+
+
+def test_fmt_fraction_fixed_denominator():
+    df = pd.DataFrame({"x": [0.5, 0.125, 0.375, 0.875]})
+    gt = GT(df).fmt_fraction(columns="x", accuracy=8)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1/2", "1/8", "3/8", "7/8"]
+
+
+def test_fmt_fraction_fixed_no_simplify():
+    df = pd.DataFrame({"x": [0.5, 0.25]})
+    gt = GT(df).fmt_fraction(columns="x", accuracy=4, simplify=False)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["2/4", "1/4"]
+
+
+def test_fmt_fraction_diagonal_html():
+    df = pd.DataFrame({"x": [1.5]})
+    gt = GT(df).fmt_fraction(columns="x", layout="diagonal")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert " " in x[0]  # narrow no-break space between whole and fraction
+    assert "&#x2044;" in x[0]  # fraction slash
+    assert "vertical-align:0.45em" in x[0]  # raised numerator
+
+
+def test_fmt_fraction_sep_marks():
+    df = pd.DataFrame({"x": [1000000.5]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1,000,000 1/2"]
+
+
+def test_fmt_fraction_no_seps():
+    df = pd.DataFrame({"x": [1000000.5]})
+    gt = GT(df).fmt_fraction(columns="x", use_seps=False)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1000000 1/2"]
+
+
+def test_fmt_fraction_pattern():
+    df = pd.DataFrame({"x": [0.5]})
+    gt = GT(df).fmt_fraction(columns="x", pattern="~{x}~")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["~1/2~"]
+
+
+def test_fmt_fraction_na():
+    df = pd.DataFrame({"x": [float("nan")]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    # pandas NA values pass through the is_na check and are not formatted
+    assert len(x) == 1
+
+
+def test_fmt_fraction_inf():
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["inf", "-inf"]
+
+
+def test_fmt_fraction_polars():
+    df = pl.DataFrame({"x": [0.5, 1.25, 3.75]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1/2", "1 1/4", "3 3/4"]
+
+
+def test_fmt_fraction_invalid_accuracy_str():
+    with pytest.raises(ValueError, match="accuracy must be"):
+        GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy="ultra")
+
+
+def test_fmt_fraction_invalid_accuracy_int():
+    with pytest.raises(ValueError, match="accuracy must be a positive integer"):
+        GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy=0)
+
+
+def test_fmt_fraction_invalid_layout():
+    with pytest.raises(ValueError, match="layout must be"):
+        GT(df_fmt_fraction).fmt_fraction(columns="x", layout="stacked")
+
+
+def test_fmt_fraction_negative_pure_fraction():
+    df = pd.DataFrame({"x": [-0.75]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["−3/4"]
+
+
+def test_fmt_fraction_round_up_negative():
+    df = pd.DataFrame({"x": [-0.999]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["−1"]
+
+
+def test_fmt_fraction_rows_subset():
+    df = pd.DataFrame({"x": [0.5, 1.25, 3.75]})
+    gt = GT(df).fmt_fraction(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] == "1/2"
+    assert x[1] == "1.25"  # unformatted
+    assert x[2] == "3 3/4"
