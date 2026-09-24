@@ -287,13 +287,13 @@ Target the data cells in grand summary rows.
 Target data cells in the table body.
 
 [loc.footer](loc.footer.md#great_tables.loc.footer)  
-Target the table footer.
+Target the entire table footer.
 
 [loc.source_notes](loc.source_notes.md#great_tables.loc.source_notes)  
 Target the source notes.
 
 [loc.footnotes](loc.footnotes.md#great_tables.loc.footnotes)  
-Target the footnotes.
+Target the footnotes section of the footer.
 
 [style.fill](style.fill.md#great_tables.style.fill)  
 A style specification for the background fill of targeted cells.
