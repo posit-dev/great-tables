@@ -1295,6 +1295,64 @@ def val_fmt_chem(
 
 
 @expressive
+def val_fmt_index(
+    x: X,
+    case: str = "upper",
+    index_algo: str = "repeat",
+    pattern: str = "{x}",
+    locale: str | None = None,
+) -> list[str]:
+    """
+    Format values as index characters.
+
+    With numeric values in a list, we can transform those to index values based on letters. The
+    value `1` maps to `"A"`, `2` to `"B"`, and so on through the alphabet. When values exceed 26,
+    the `index_algo` parameter controls how additional characters are generated.
+
+    Parameters
+    ----------
+    x
+        A list of numeric values to be formatted as index characters.
+    case
+        The case of the resulting characters. `"upper"` (default) or `"lower"`.
+    index_algo
+        The algorithm for values exceeding the character set size. `"repeat"` (default) repeats
+        characters whereas `"excel"` uses Excel-style column naming.
+    pattern
+        A formatting pattern; `{x}` is the formatted value placeholder.
+    locale
+        An optional locale ID. Currently reserved for future use.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_index([1, 2, 3, 26, 27])
+    ```
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=x)
+
+    gt_obj_fmt = gt_obj.fmt_index(
+        columns="x",
+        case=case,
+        index_algo=index_algo,
+        pattern=pattern,
+        locale=locale,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
 def val_fmt_bytes(
     x: X,
     standard: str = "decimal",
