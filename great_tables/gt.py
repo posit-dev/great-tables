@@ -20,6 +20,7 @@ from ._formats import (
     fmt_duration,
     fmt_engineering,
     fmt_flag,
+    fmt_fraction,
     fmt_icon,
     fmt_image,
     fmt_integer,
@@ -379,6 +380,7 @@ class GT(
     fmt_number_si = fmt_number_si
     fmt_duration = fmt_duration
     fmt_roman = fmt_roman
+    fmt_fraction = fmt_fraction
     fmt_date = fmt_date
     fmt_time = fmt_time
     fmt_datetime = fmt_datetime
