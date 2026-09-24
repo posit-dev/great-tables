@@ -140,6 +140,7 @@ Location targeting is a powerful feature of Great Tables. It allows for the prec
 - `loc.body`
 - `loc.footer`
 - `loc.source_notes`
+- `loc.footnotes`
 - `style.fill`
 - `style.text`
 - `style.borders`
@@ -167,6 +168,7 @@ With the `opt_*()` functions, we have an easy way to set commonly-used table opt
 
 - `GT.opt_stylize`
 - `GT.opt_footnote_marks`
+- `GT.opt_footnote_spec`
 - `GT.opt_row_striping`
 - `GT.opt_align_table_header`
 - `GT.opt_vertical_padding`

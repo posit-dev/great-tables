@@ -292,6 +292,9 @@ Target the table footer.
 [loc.source_notes](loc.source_notes.md#great_tables.loc.source_notes)  
 Target the source notes.
 
+[loc.footnotes](loc.footnotes.md#great_tables.loc.footnotes)  
+Target the footnotes.
+
 [style.fill](style.fill.md#great_tables.style.fill)  
 A style specification for the background fill of targeted cells.
 
@@ -350,6 +353,9 @@ Stylize your table with a colorful look.
 
 [GT.opt_footnote_marks()](GT.opt_footnote_marks.md#great_tables.GT.opt_footnote_marks)  
 Option to modify the set of footnote marks.
+
+[GT.opt_footnote_spec()](GT.opt_footnote_spec.md#great_tables.GT.opt_footnote_spec)  
+Option to modify the formatting of footnote marks.
 
 [GT.opt_row_striping()](GT.opt_row_striping.md#great_tables.GT.opt_row_striping)  
 Option to add or remove row striping.

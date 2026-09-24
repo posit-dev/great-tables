@@ -121,6 +121,7 @@
 - [loc.body](https://posit-dev.github.io/great-tables/reference/loc.body.html)
 - [loc.footer](https://posit-dev.github.io/great-tables/reference/loc.footer.html)
 - [loc.source_notes](https://posit-dev.github.io/great-tables/reference/loc.source_notes.html)
+- [loc.footnotes](https://posit-dev.github.io/great-tables/reference/loc.footnotes.html)
 - [style.fill](https://posit-dev.github.io/great-tables/reference/style.fill.html)
 - [style.text](https://posit-dev.github.io/great-tables/reference/style.text.html)
 - [style.borders](https://posit-dev.github.io/great-tables/reference/style.borders.html)
@@ -146,6 +147,7 @@
 
 - [GT.opt_stylize](https://posit-dev.github.io/great-tables/reference/GT.opt_stylize.html)
 - [GT.opt_footnote_marks](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_marks.html)
+- [GT.opt_footnote_spec](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_spec.html)
 - [GT.opt_row_striping](https://posit-dev.github.io/great-tables/reference/GT.opt_row_striping.html)
 - [GT.opt_align_table_header](https://posit-dev.github.io/great-tables/reference/GT.opt_align_table_header.html)
 - [GT.opt_vertical_padding](https://posit-dev.github.io/great-tables/reference/GT.opt_vertical_padding.html)

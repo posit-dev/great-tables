@@ -1209,7 +1209,7 @@ from great_tables import GT, style, exibble
 )
 ```
 
-tab_options(self: 'GTSelf', container_width: 'str | None' = None, container_height: 'str | None' = None, container_padding_x: 'str | None' = None, container_padding_y: 'str | None' = None, container_overflow_x: 'str | None' = None, container_overflow_y: 'str | None' = None, table_width: 'str | None' = None, table_layout: 'str | None' = None, table_margin_left: 'str | None' = None, table_margin_right: 'str | None' = None, table_background_color: 'str | None' = None, table_additional_css: 'str | list[str] | None' = None, table_font_names: 'str | list[str] | None' = None, table_font_size: 'str | None' = None, table_font_weight: 'str | float | None' = None, table_font_style: 'str | None' = None, table_font_color: 'str | None' = None, table_font_color_light: 'str | None' = None, table_border_top_style: 'str | None' = None, table_border_top_width: 'str | None' = None, table_border_top_color: 'str | None' = None, table_border_bottom_style: 'str | None' = None, table_border_bottom_width: 'str | None' = None, table_border_bottom_color: 'str | None' = None, table_border_left_style: 'str | None' = None, table_border_left_width: 'str | None' = None, table_border_left_color: 'str | None' = None, table_border_right_style: 'str | None' = None, table_border_right_width: 'str | None' = None, table_border_right_color: 'str | None' = None, heading_background_color: 'str | None' = None, heading_align: 'str | None' = None, heading_title_font_size: 'str | None' = None, heading_title_font_weight: 'str | float | None' = None, heading_subtitle_font_size: 'str | None' = None, heading_subtitle_font_weight: 'str | float | None' = None, heading_padding: 'str | None' = None, heading_padding_horizontal: 'str | None' = None, heading_border_bottom_style: 'str | None' = None, heading_border_bottom_width: 'str | None' = None, heading_border_bottom_color: 'str | None' = None, heading_border_lr_style: 'str | None' = None, heading_border_lr_width: 'str | None' = None, heading_border_lr_color: 'str | None' = None, column_labels_background_color: 'str | None' = None, column_labels_font_size: 'str | None' = None, column_labels_font_weight: 'str | float | None' = None, column_labels_text_transform: 'str | None' = None, column_labels_padding: 'str | None' = None, column_labels_padding_horizontal: 'str | None' = None, column_labels_vlines_style: 'str | None' = None, column_labels_vlines_width: 'str | None' = None, column_labels_vlines_color: 'str | None' = None, column_labels_border_top_style: 'str | None' = None, column_labels_border_top_width: 'str | None' = None, column_labels_border_top_color: 'str | None' = None, column_labels_border_bottom_style: 'str | None' = None, column_labels_border_bottom_width: 'str | None' = None, column_labels_border_bottom_color: 'str | None' = None, column_labels_border_lr_style: 'str | None' = None, column_labels_border_lr_width: 'str | None' = None, column_labels_border_lr_color: 'str | None' = None, column_labels_hidden: 'bool | None' = None, row_group_background_color: 'str | None' = None, row_group_font_size: 'str | None' = None, row_group_font_weight: 'str | float | None' = None, row_group_text_transform: 'str | None' = None, row_group_padding: 'str | None' = None, row_group_padding_horizontal: 'str | None' = None, row_group_border_top_style: 'str | None' = None, row_group_border_top_width: 'str | None' = None, row_group_border_top_color: 'str | None' = None, row_group_border_bottom_style: 'str | None' = None, row_group_border_bottom_width: 'str | None' = None, row_group_border_bottom_color: 'str | None' = None, row_group_border_left_style: 'str | None' = None, row_group_border_left_width: 'str | None' = None, row_group_border_left_color: 'str | None' = None, row_group_border_right_style: 'str | None' = None, row_group_border_right_width: 'str | None' = None, row_group_border_right_color: 'str | None' = None, row_group_as_column: 'bool | None' = None, table_body_hlines_style: 'str | None' = None, table_body_hlines_width: 'str | None' = None, table_body_hlines_color: 'str | None' = None, table_body_vlines_style: 'str | None' = None, table_body_vlines_width: 'str | None' = None, table_body_vlines_color: 'str | None' = None, table_body_border_top_style: 'str | None' = None, table_body_border_top_width: 'str | None' = None, table_body_border_top_color: 'str | None' = None, table_body_border_bottom_style: 'str | None' = None, table_body_border_bottom_width: 'str | None' = None, table_body_border_bottom_color: 'str | None' = None, stub_background_color: 'str | None' = None, stub_font_size: 'str | None' = None, stub_font_weight: 'str | float | None' = None, stub_text_transform: 'str | None' = None, stub_border_style: 'str | None' = None, stub_border_width: 'str | None' = None, stub_border_color: 'str | None' = None, stub_indent_length: 'str | None' = None, stub_row_group_font_size: 'str | None' = None, stub_row_group_font_weight: 'str | float | None' = None, stub_row_group_text_transform: 'str | None' = None, stub_row_group_border_style: 'str | None' = None, stub_row_group_border_width: 'str | None' = None, stub_row_group_border_color: 'str | None' = None, data_row_padding: 'str | None' = None, data_row_padding_horizontal: 'str | None' = None, summary_row_background_color: 'str | None' = None, summary_row_text_transform: 'str | None' = None, summary_row_padding: 'str | None' = None, summary_row_padding_horizontal: 'str | None' = None, summary_row_border_style: 'str | None' = None, summary_row_border_width: 'str | None' = None, summary_row_border_color: 'str | None' = None, grand_summary_row_background_color: 'str | None' = None, grand_summary_row_text_transform: 'str | None' = None, grand_summary_row_padding: 'str | None' = None, grand_summary_row_padding_horizontal: 'str | None' = None, grand_summary_row_border_style: 'str | None' = None, grand_summary_row_border_width: 'str | None' = None, grand_summary_row_border_color: 'str | None' = None, footnotes_marks: 'str | list[str] | None' = None, source_notes_background_color: 'str | None' = None, source_notes_font_size: 'str | None' = None, source_notes_padding: 'str | None' = None, source_notes_padding_horizontal: 'str | None' = None, source_notes_border_bottom_style: 'str | None' = None, source_notes_border_bottom_width: 'str | None' = None, source_notes_border_bottom_color: 'str | None' = None, source_notes_border_lr_style: 'str | None' = None, source_notes_border_lr_width: 'str | None' = None, source_notes_border_lr_color: 'str | None' = None, source_notes_multiline: 'bool | None' = None, source_notes_sep: 'str | None' = None, row_striping_background_color: 'str | None' = None, row_striping_include_stub: 'bool | None' = None, row_striping_include_table_body: 'bool | None' = None, quarto_disable_processing: 'bool | None' = None, ihtml_active: 'bool | None' = None, ihtml_use_pagination: 'bool | None' = None, ihtml_use_pagination_info: 'bool | None' = None, ihtml_use_sorting: 'bool | None' = None, ihtml_use_search: 'bool | None' = None, ihtml_use_filters: 'bool | None' = None, ihtml_use_resizers: 'bool | None' = None, ihtml_use_highlight: 'bool | None' = None, ihtml_use_compact_mode: 'bool | None' = None, ihtml_use_text_wrapping: 'bool | None' = None, ihtml_use_page_size_select: 'bool | None' = None, ihtml_page_size_default: 'int | None' = None, ihtml_page_size_values: 'list[int] | None' = None, ihtml_pagination_type: 'str | None' = None, ihtml_height: 'str | None' = None, ihtml_selection_mode: 'str | None' = None) -> 'GTSelf'
+tab_options(self: 'GTSelf', container_width: 'str | None' = None, container_height: 'str | None' = None, container_padding_x: 'str | None' = None, container_padding_y: 'str | None' = None, container_overflow_x: 'str | None' = None, container_overflow_y: 'str | None' = None, table_width: 'str | None' = None, table_layout: 'str | None' = None, table_margin_left: 'str | None' = None, table_margin_right: 'str | None' = None, table_background_color: 'str | None' = None, table_additional_css: 'str | list[str] | None' = None, table_font_names: 'str | list[str] | None' = None, table_font_size: 'str | None' = None, table_font_weight: 'str | float | None' = None, table_font_style: 'str | None' = None, table_font_color: 'str | None' = None, table_font_color_light: 'str | None' = None, table_border_top_style: 'str | None' = None, table_border_top_width: 'str | None' = None, table_border_top_color: 'str | None' = None, table_border_bottom_style: 'str | None' = None, table_border_bottom_width: 'str | None' = None, table_border_bottom_color: 'str | None' = None, table_border_left_style: 'str | None' = None, table_border_left_width: 'str | None' = None, table_border_left_color: 'str | None' = None, table_border_right_style: 'str | None' = None, table_border_right_width: 'str | None' = None, table_border_right_color: 'str | None' = None, heading_background_color: 'str | None' = None, heading_align: 'str | None' = None, heading_title_font_size: 'str | None' = None, heading_title_font_weight: 'str | float | None' = None, heading_subtitle_font_size: 'str | None' = None, heading_subtitle_font_weight: 'str | float | None' = None, heading_padding: 'str | None' = None, heading_padding_horizontal: 'str | None' = None, heading_border_bottom_style: 'str | None' = None, heading_border_bottom_width: 'str | None' = None, heading_border_bottom_color: 'str | None' = None, heading_border_lr_style: 'str | None' = None, heading_border_lr_width: 'str | None' = None, heading_border_lr_color: 'str | None' = None, column_labels_background_color: 'str | None' = None, column_labels_font_size: 'str | None' = None, column_labels_font_weight: 'str | float | None' = None, column_labels_text_transform: 'str | None' = None, column_labels_padding: 'str | None' = None, column_labels_padding_horizontal: 'str | None' = None, column_labels_vlines_style: 'str | None' = None, column_labels_vlines_width: 'str | None' = None, column_labels_vlines_color: 'str | None' = None, column_labels_border_top_style: 'str | None' = None, column_labels_border_top_width: 'str | None' = None, column_labels_border_top_color: 'str | None' = None, column_labels_border_bottom_style: 'str | None' = None, column_labels_border_bottom_width: 'str | None' = None, column_labels_border_bottom_color: 'str | None' = None, column_labels_border_lr_style: 'str | None' = None, column_labels_border_lr_width: 'str | None' = None, column_labels_border_lr_color: 'str | None' = None, column_labels_hidden: 'bool | None' = None, row_group_background_color: 'str | None' = None, row_group_font_size: 'str | None' = None, row_group_font_weight: 'str | float | None' = None, row_group_text_transform: 'str | None' = None, row_group_padding: 'str | None' = None, row_group_padding_horizontal: 'str | None' = None, row_group_border_top_style: 'str | None' = None, row_group_border_top_width: 'str | None' = None, row_group_border_top_color: 'str | None' = None, row_group_border_bottom_style: 'str | None' = None, row_group_border_bottom_width: 'str | None' = None, row_group_border_bottom_color: 'str | None' = None, row_group_border_left_style: 'str | None' = None, row_group_border_left_width: 'str | None' = None, row_group_border_left_color: 'str | None' = None, row_group_border_right_style: 'str | None' = None, row_group_border_right_width: 'str | None' = None, row_group_border_right_color: 'str | None' = None, row_group_as_column: 'bool | None' = None, table_body_hlines_style: 'str | None' = None, table_body_hlines_width: 'str | None' = None, table_body_hlines_color: 'str | None' = None, table_body_vlines_style: 'str | None' = None, table_body_vlines_width: 'str | None' = None, table_body_vlines_color: 'str | None' = None, table_body_border_top_style: 'str | None' = None, table_body_border_top_width: 'str | None' = None, table_body_border_top_color: 'str | None' = None, table_body_border_bottom_style: 'str | None' = None, table_body_border_bottom_width: 'str | None' = None, table_body_border_bottom_color: 'str | None' = None, stub_background_color: 'str | None' = None, stub_font_size: 'str | None' = None, stub_font_weight: 'str | float | None' = None, stub_text_transform: 'str | None' = None, stub_border_style: 'str | None' = None, stub_border_width: 'str | None' = None, stub_border_color: 'str | None' = None, stub_indent_length: 'str | None' = None, stub_row_group_font_size: 'str | None' = None, stub_row_group_font_weight: 'str | float | None' = None, stub_row_group_text_transform: 'str | None' = None, stub_row_group_border_style: 'str | None' = None, stub_row_group_border_width: 'str | None' = None, stub_row_group_border_color: 'str | None' = None, data_row_padding: 'str | None' = None, data_row_padding_horizontal: 'str | None' = None, summary_row_background_color: 'str | None' = None, summary_row_text_transform: 'str | None' = None, summary_row_padding: 'str | None' = None, summary_row_padding_horizontal: 'str | None' = None, summary_row_border_style: 'str | None' = None, summary_row_border_width: 'str | None' = None, summary_row_border_color: 'str | None' = None, grand_summary_row_background_color: 'str | None' = None, grand_summary_row_text_transform: 'str | None' = None, grand_summary_row_padding: 'str | None' = None, grand_summary_row_padding_horizontal: 'str | None' = None, grand_summary_row_border_style: 'str | None' = None, grand_summary_row_border_width: 'str | None' = None, grand_summary_row_border_color: 'str | None' = None, footnotes_marks: 'str | list[str] | None' = None, footnotes_spec_ref: 'str | None' = None, footnotes_spec_ftr: 'str | None' = None, footnotes_order: 'str | None' = None, source_notes_background_color: 'str | None' = None, source_notes_font_size: 'str | None' = None, source_notes_padding: 'str | None' = None, source_notes_padding_horizontal: 'str | None' = None, source_notes_border_bottom_style: 'str | None' = None, source_notes_border_bottom_width: 'str | None' = None, source_notes_border_bottom_color: 'str | None' = None, source_notes_border_lr_style: 'str | None' = None, source_notes_border_lr_width: 'str | None' = None, source_notes_border_lr_color: 'str | None' = None, source_notes_multiline: 'bool | None' = None, source_notes_sep: 'str | None' = None, row_striping_background_color: 'str | None' = None, row_striping_include_stub: 'bool | None' = None, row_striping_include_table_body: 'bool | None' = None, quarto_disable_processing: 'bool | None' = None, ihtml_active: 'bool | None' = None, ihtml_use_pagination: 'bool | None' = None, ihtml_use_pagination_info: 'bool | None' = None, ihtml_use_sorting: 'bool | None' = None, ihtml_use_search: 'bool | None' = None, ihtml_use_filters: 'bool | None' = None, ihtml_use_resizers: 'bool | None' = None, ihtml_use_highlight: 'bool | None' = None, ihtml_use_compact_mode: 'bool | None' = None, ihtml_use_text_wrapping: 'bool | None' = None, ihtml_use_page_size_select: 'bool | None' = None, ihtml_page_size_default: 'int | None' = None, ihtml_page_size_values: 'list[int] | None' = None, ihtml_pagination_type: 'str | None' = None, ihtml_height: 'str | None' = None, ihtml_selection_mode: 'str | None' = None) -> 'GTSelf'
 
 Modify the table output options.
 
@@ -7151,6 +7151,10 @@ from great_tables.data import gtcars
 )
 ```
 
+LocFootnotes() -> None
+
+Target the footnotes.
+
 CellStyleFill(color: 'str | ColumnExpr') -> None
 
 A style specification for the background fill of targeted cells.
@@ -8128,6 +8132,86 @@ Returns
 GT
     The GT object is returned. This is the same object that the method is called on so that we
     can facilitate method chaining.
+
+opt_footnote_spec(self: 'GTSelf', spec_ref: 'str | None' = None, spec_ftr: 'str | None' = None) -> 'GTSelf'
+
+Option to modify the formatting of footnote marks.
+
+Control how footnote marks are styled in two independent contexts: inline references next to
+cell content (`spec_ref`) and marks in the footer listing (`spec_ftr`). Each takes a compact
+DSL string composed of formatting codes.
+
+The spec DSL codes are:
+
+- `"^"`: superscript
+- `"b"`: bold
+- `"i"`: italic
+- `"()"` or `"(x)"`: parentheses around the mark
+- `"[]"` or `"[x]"`: square brackets around the mark
+- `"."`: trailing period
+- `"x"`: optional placeholder for readability (ignored in parsing)
+
+Parameters
+----------
+spec_ref
+    A spec string controlling the formatting of inline reference marks (marks that appear
+    next to cell content). If `None`, the current setting is unchanged. The default value in
+    the options system is `"^i"` (superscript + italic).
+spec_ftr
+    A spec string controlling the formatting of footer marks (marks that appear in the
+    footnote listing at the bottom of the table). If `None`, the current setting is unchanged.
+    The default value in the options system is `"^i"` (superscript + italic).
+
+Returns
+-------
+GT
+    The GT object is returned. This is the same object that the method is called on so that we
+    can facilitate method chaining.
+
+Examples
+--------
+Let's create a table with footnotes to demonstrate the spec DSL. We'll use superscript bold
+marks for inline references and superscript italic marks in the footer (the default).
+
+```{python}
+from great_tables import GT, loc
+import pandas as pd
+
+df = pd.DataFrame({"city": ["Paris", "London", "Tokyo"], "pop_m": [2.1, 8.8, 13.9]})
+
+(
+    GT(df)
+    .tab_header(title="Major Cities")
+    .tab_footnote("2023 estimate", locations=loc.body(columns="pop_m", rows=[0, 1, 2]))
+    .tab_footnote("Metropolitan area", locations=loc.column_labels(columns="pop_m"))
+    .opt_footnote_spec(spec_ref="^b", spec_ftr="^i")
+)
+```
+
+Use parenthesized marks at baseline (no superscript) in both the inline references and the
+footer listing.
+
+```{python}
+(
+    GT(df)
+    .tab_header(title="Major Cities")
+    .tab_footnote("2023 estimate", locations=loc.body(columns="pop_m", rows=[0, 1, 2]))
+    .tab_footnote("Metropolitan area", locations=loc.column_labels(columns="pop_m"))
+    .opt_footnote_spec(spec_ref="(x)", spec_ftr="(x)")
+)
+```
+
+Use superscript bold marks inline with bracketed marks and a trailing period in the footer.
+
+```{python}
+(
+    GT(df)
+    .tab_header(title="Major Cities")
+    .tab_footnote("2023 estimate", locations=loc.body(columns="pop_m", rows=[0, 1, 2]))
+    .tab_footnote("Metropolitan area", locations=loc.column_labels(columns="pop_m"))
+    .opt_footnote_spec(spec_ref="^b", spec_ftr="[x].")
+)
+```
 
 opt_row_striping(self: 'GTSelf', row_striping: 'bool' = True) -> 'GTSelf'
 
