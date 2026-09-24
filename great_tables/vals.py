@@ -12,6 +12,7 @@ from ._formats_vals import (
     val_fmt_partsper as fmt_partsper,
     val_fmt_currency as fmt_currency,
     val_fmt_roman as fmt_roman,
+    val_fmt_fraction as fmt_fraction,
     val_fmt_bytes as fmt_bytes,
     val_fmt_duration as fmt_duration,
     val_fmt_date as fmt_date,

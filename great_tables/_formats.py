@@ -2535,6 +2535,316 @@ def fmt_roman_context(
     return x_formatted
 
 
+def fmt_fraction(
+    self: GTSelf,
+    columns: SelectExpr = None,
+    rows: int | list[int] | None = None,
+    accuracy: str | int = "low",
+    simplify: bool = True,
+    layout: str = "inline",
+    use_seps: bool = True,
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    locale: str | None = None,
+) -> GTSelf:
+    """
+    Format values as mixed fractions.
+
+    With numeric values in a **gt** table, we can perform mixed-fraction-based formatting. There are
+    several options for setting the accuracy of the fractions. Furthermore, there is an option for
+    choosing a layout (i.e., typesetting style) for the mixed-fraction output.
+
+    The `accuracy=` parameter controls the type of fractions generated. It can be one of the
+    keywords `"low"`, `"med"`, or `"high"` (to generate fractions with denominators of up to 1, 2,
+    or 3 digits, respectively) or an integer value greater than zero to obtain fractions with a
+    fixed denominator (`2` yields halves, `3` is for thirds, `4` is quarters, etc.). If choosing to
+    provide a numeric value for `accuracy=`, the option to simplify the fraction (where possible)
+    can be taken with `simplify=True` (the default for this is `True`).
+
+    For HTML output, the `"inline"` layout (the default) places the numerals of the fraction on the
+    baseline and uses a standard slash character. The `"diagonal"` layout will generate fractions
+    that are typeset with raised and lowered numerals and a virgule (i.e., a fraction slash).
+
+    Parameters
+    ----------
+    columns
+        The columns to target. Can either be a single column name or a series of column names
+        provided in a list.
+    rows
+        In conjunction with `columns=`, we can specify which of their rows should undergo
+        formatting. The default is all rows, resulting in all rows in targeted columns being
+        formatted. Alternatively, we can supply a list of row indices.
+    accuracy
+        The accuracy of the fraction. Use `"low"` for denominators up to 1 digit (e.g., halves,
+        thirds, quarters, etc.), `"med"` for up to 2-digit denominators, and `"high"` for up to
+        3-digit denominators. Alternatively, supply a positive integer to fix the denominator to
+        that value (e.g., `accuracy=8` gives eighths). The default is `"low"`.
+    simplify
+        When `accuracy=` is an integer, should the fraction be simplified via GCD reduction? For
+        while `simplify=False` yields `"2/4"`. Has no effect when `accuracy=` is a keyword example,
+        with `accuracy=4` and a value of `0.5`, `simplify=True` yields a `"1/2"` string
+        representation. The default is `True`.
+    layout
+        The layout of the fraction. `"inline"` renders the fraction on the baseline with a standard
+        slash (e.g., `3/4`). `"diagonal"` renders a diagonal fraction with a raised numerator,
+        lowered denominator, and a fraction slash character (HTML only and falls back to inline in
+        other contexts). The default is `"inline"`.
+    use_seps
+        Whether to use digit grouping separators in the whole-number part. The default is `True`.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` (which can be used multiple times, if needed) and all other
+        characters will be interpreted as string literals.
+    sep_mark
+        The mark to use as a thousands separator. The default is `","` and can be overridden by a
+        locale setting.
+    locale
+        An optional locale ID that can be used for applying a locale-specific thousands separator.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's format the `num` column of the `exibble` dataset as fractions with the default `"low"`
+    accuracy.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import exibble
+
+    (
+        GT(exibble[["num", "char"]])
+        .fmt_fraction(columns="num")
+    )
+    ```
+
+    We can increase the accuracy to `"med"` or `"high"` for more precise fractions. We can also use
+    a fixed denominator (here, tenths) to get uniform fractions. With `simplify=False`, the
+    denominator stays fixed even when the fraction could be reduced, and `layout="diagonal"` gives
+    us a typeset diagonal-fraction style.
+
+    ```{python}
+    import polars as pl
+
+    df = pl.DataFrame({
+        "item": ["Icate", "Octyl", "Sepal", "Unkel"],
+        "frac_sales": [0.3, 0.1, 0.8, 0.5],
+        "frac_revenue": [0.2, 0.4, 0.7, 0.9],
+    })
+
+    (
+        GT(df, rowname_col="item")
+        .fmt_fraction(
+            columns=["frac_sales", "frac_revenue"],
+            accuracy=10,
+            simplify=False,
+            layout="diagonal",
+        )
+    )
+    ```
+
+    The `pizzaplace` dataset has a full year of sales data. We can summarize the sell count and
+    revenue by pizza size within each type, then express those as fractions. Using
+    `layout="diagonal"` with `accuracy=10` and `simplify=False` gives uniform tenths in a typeset
+    style, and `text_transform()` replaces any zero-fraction values with *nil*.
+
+    ```{python}
+    import polars as pl
+    import polars.selectors as cs
+    from great_tables import md, loc, data
+
+    grouped = (
+        data.pl.pizzaplace
+        .group_by("type", "size")
+        .agg(
+            pl.col("id").count().alias("sold"),
+            pl.col("price").sum().alias("income"),
+        )
+        .with_columns(
+            (pl.col("sold") / pl.col("sold").sum().over("type")).alias("f_sold"),
+            (pl.col("income") / pl.col("income").sum().over("type")).alias("f_income"),
+        )
+        .sort(["type", "income"], descending=[False, True])
+    )
+
+    (
+        GT(grouped, rowname_col="size", groupname_col="type")
+        .tab_header(
+            title="Pizzas Sold in 2015",
+            subtitle="Fraction of Sell Count and Revenue by Size per Type",
+        )
+        .fmt_integer(columns="sold")
+        .fmt_currency(columns="income")
+        .fmt_fraction(
+            columns=cs.starts_with("f_"),
+            accuracy=10,
+            simplify=False,
+            layout="diagonal",
+        )
+        .sub_missing(missing_text="")
+        .tab_spanner(label="Sold", columns=cs.contains("sold"))
+        .tab_spanner(label="Revenue", columns=cs.contains("income"))
+        .text_transform(
+            locations=loc.body(),
+            fn=lambda x: "<em>nil</em>" if x == "0" else x,
+        )
+        .cols_label(
+            sold="Amount",
+            income="Amount",
+            f_sold=md("_f_"),
+            f_income=md("_f_"),
+        )
+        .cols_align(align="center", columns=cs.starts_with("f"))
+        .tab_options(
+            table_width="400px",
+            row_group_as_column=True,
+        )
+    )
+    ```
+    """
+    if isinstance(accuracy, str) and accuracy not in ("low", "med", "high"):
+        raise ValueError(
+            f"accuracy must be 'low', 'med', 'high', or a positive integer, got {accuracy!r}"
+        )
+    if isinstance(accuracy, int) and accuracy < 1:
+        raise ValueError(f"accuracy must be a positive integer when numeric, got {accuracy}")
+    if layout not in ("inline", "diagonal"):
+        raise ValueError(f"layout must be 'inline' or 'diagonal', got {layout!r}")
+
+    locale = _resolve_locale(self, locale=locale)
+    sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+
+    pf_format = partial(
+        fmt_fraction_context,
+        data=self,
+        accuracy=accuracy,
+        simplify=simplify,
+        layout=layout,
+        use_seps=use_seps,
+        sep_mark=sep_mark,
+        pattern=pattern,
+    )
+
+    return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
+
+
+def _gcd(a: int, b: int) -> int:
+    while b:
+        a, b = b, a % b
+    return a
+
+
+def _format_whole_number(value: int, use_seps: bool, sep_mark: str) -> str:
+    s = str(value)
+    if not use_seps or not sep_mark:
+        return s
+    result = ""
+    count = 0
+    for digit in reversed(s):
+        if count and count % 3 == 0:
+            result = sep_mark + result
+        result = digit + result
+        count += 1
+    return result
+
+
+def _make_diagonal_fraction_html(numerator: str, denominator: str) -> str:
+    return (
+        f'<span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">{numerator}</span>'
+        f'<span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">&#x2044;</span>'
+        f'<span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">{denominator}</span>'
+    )
+
+
+def fmt_fraction_context(
+    x: float,
+    data: GTData,
+    accuracy: str | int,
+    simplify: bool,
+    layout: str,
+    use_seps: bool,
+    sep_mark: str,
+    pattern: str,
+    context: str,
+) -> str:
+    from ._fractions_data import _lookup_fraction
+
+    if is_na(data._tbl_data, x):
+        return x
+
+    if not math.isfinite(x):
+        return str(x)
+
+    is_negative = x < 0
+    x_abs = abs(x)
+
+    big_x = int(math.trunc(x_abs))
+    small_x = x_abs - big_x
+
+    # Round fractional part to 3 decimal places (Round-Half-Up for consistency with gt R)
+    small_x = _round_rhu(small_x * 1000, 0) / 1000
+
+    if isinstance(accuracy, str):
+        fraction_str = _lookup_fraction(small_x, accuracy)
+    else:
+        numerator = int(_round_rhu(small_x * accuracy, 0))
+        if numerator == 0:
+            fraction_str = "0"
+        elif numerator == accuracy:
+            fraction_str = "1"
+        else:
+            if simplify:
+                g = _gcd(numerator, accuracy)
+                numerator //= g
+                denominator = accuracy // g
+            else:
+                denominator = accuracy
+            fraction_str = f"{numerator}/{denominator}"
+
+    # Handle sentinel "1" (fractional part rounds up to next integer)
+    if fraction_str == "1":
+        big_x += 1
+        fraction_str = ""
+    elif fraction_str == "0":
+        fraction_str = ""
+
+    # Format the whole-number part
+    big_x_str = _format_whole_number(big_x, use_seps, sep_mark) if big_x != 0 else ""
+
+    # Build the diagonal fraction HTML if needed
+    if fraction_str and layout == "diagonal" and context == "html" and "/" in fraction_str:
+        num_str, den_str = fraction_str.split("/")
+        fraction_str = _make_diagonal_fraction_html(num_str, den_str)
+
+    # Combine whole number and fraction
+    if big_x_str and fraction_str:
+        if layout == "diagonal" and context == "html":
+            x_formatted = big_x_str + " " + fraction_str
+        else:
+            x_formatted = big_x_str + " " + fraction_str
+    elif big_x_str:
+        x_formatted = big_x_str
+    elif fraction_str:
+        x_formatted = fraction_str
+    else:
+        x_formatted = "0"
+
+    if is_negative and x_formatted != "0":
+        minus_mark = _context_minus_mark(context=context)
+        x_formatted = minus_mark + x_formatted
+
+    if pattern != "{x}":
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
+
+
 def fmt_bytes(
     self: GTSelf,
     columns: SelectExpr = None,
