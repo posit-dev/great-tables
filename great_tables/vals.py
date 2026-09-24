@@ -14,6 +14,7 @@ from ._formats_vals import (
     val_fmt_roman as fmt_roman,
     val_fmt_fraction as fmt_fraction,
     val_fmt_chem as fmt_chem,
+    val_fmt_index as fmt_index,
     val_fmt_bytes as fmt_bytes,
     val_fmt_duration as fmt_duration,
     val_fmt_date as fmt_date,
