@@ -3871,3 +3871,149 @@ def test_fmt_chem_nuclide():
 
     assert "0" in x[0]
     assert "n" in x[0]
+
+
+# ==============================================================================
+# fmt_index tests
+# ==============================================================================
+
+
+def test_fmt_index_repeat_basic():
+    df = pd.DataFrame({"x": [1, 2, 3, 26, 27, 28]})
+    gt = GT(df).fmt_index(columns="x", index_algo="repeat")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "B"
+    assert x[2] == "C"
+    assert x[3] == "Z"
+    assert x[4] == "AA"
+    assert x[5] == "BB"
+
+
+def test_fmt_index_excel_basic():
+    df = pd.DataFrame({"x": [1, 2, 26, 27, 28, 52]})
+    gt = GT(df).fmt_index(columns="x", index_algo="excel")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "B"
+    assert x[2] == "Z"
+    assert x[3] == "AA"
+    assert x[4] == "AB"
+    assert x[5] == "AZ"
+
+
+def test_fmt_index_lowercase():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    gt = GT(df).fmt_index(columns="x", case="lower")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "a"
+    assert x[1] == "b"
+    assert x[2] == "c"
+
+
+def test_fmt_index_pattern():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    gt = GT(df).fmt_index(columns="x", pattern="{x}.")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A."
+    assert x[1] == "B."
+    assert x[2] == "C."
+
+
+def test_fmt_index_zero():
+    df = pd.DataFrame({"x": [0, 1, 2]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == ""
+    assert x[1] == "A"
+    assert x[2] == "B"
+
+
+def test_fmt_index_zero_with_pattern():
+    df = pd.DataFrame({"x": [0, 1]})
+    gt = GT(df).fmt_index(columns="x", pattern="{x}.")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == ""
+    assert x[1] == "A."
+
+
+def test_fmt_index_negative():
+    df = pd.DataFrame({"x": [-1, -2, -3]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == ""  # _round_rhu(-1, 0) -> 0.0 -> empty
+    assert x[1] == "A"
+    assert x[2] == "B"
+
+
+def test_fmt_index_na():
+    df = pd.DataFrame({"x": [float("nan"), 1.0]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[1] == "A"
+
+
+def test_fmt_index_float_rounds():
+    df = pd.DataFrame({"x": [1.4, 2.6, 3.5]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "C"
+    assert x[2] == "D"
+
+
+def test_fmt_index_repeat_large():
+    df = pd.DataFrame({"x": [53, 78]})
+    gt = GT(df).fmt_index(columns="x", index_algo="repeat")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "AAA"
+    assert x[1] == "ZZZ"
+
+
+def test_fmt_index_excel_large():
+    df = pd.DataFrame({"x": [53, 702, 703]})
+    gt = GT(df).fmt_index(columns="x", index_algo="excel")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "BA"
+    assert x[1] == "ZZ"
+    assert x[2] == "AAA"
+
+
+def test_fmt_index_polars():
+    df = pl.DataFrame({"x": [1, 2, 3]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "B"
+    assert x[2] == "C"
+
+
+def test_fmt_index_rows_subset():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    gt = GT(df).fmt_index(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "2"  # unformatted
+    assert x[2] == "C"
+
+
+def test_fmt_index_inf():
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "inf"
+    assert x[1] == "-inf"

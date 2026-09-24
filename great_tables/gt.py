@@ -22,6 +22,7 @@ from ._formats import (
     fmt_flag,
     fmt_fraction,
     fmt_chem,
+    fmt_index,
     fmt_icon,
     fmt_image,
     fmt_integer,
@@ -383,6 +384,7 @@ class GT(
     fmt_roman = fmt_roman
     fmt_fraction = fmt_fraction
     fmt_chem = fmt_chem
+    fmt_index = fmt_index
     fmt_date = fmt_date
     fmt_time = fmt_time
     fmt_datetime = fmt_datetime
