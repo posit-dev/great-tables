@@ -105,6 +105,9 @@ Format values as mixed fractions.
 [GT.fmt_chem()](GT.fmt_chem.md#great_tables.GT.fmt_chem)  
 Format chemical formulas.
 
+[GT.fmt_index()](GT.fmt_index.md#great_tables.GT.fmt_index)  
+Format values as index characters.
+
 [GT.fmt_bytes()](GT.fmt_bytes.md#great_tables.GT.fmt_bytes)  
 Format values as bytes.
 
@@ -458,6 +461,9 @@ Format values as mixed fractions.
 
 [vals.fmt_chem()](vals.fmt_chem.md#great_tables.vals.fmt_chem)  
 Format chemical formulas.
+
+[vals.fmt_index()](vals.fmt_index.md#great_tables.vals.fmt_index)  
+Format values as index characters.
 
 [vals.fmt_bytes()](vals.fmt_bytes.md#great_tables.vals.fmt_bytes)  
 Format values as bytes.
