@@ -3541,7 +3541,7 @@ def fmt_url(
     --------
     Using a subset of the `towny` dataset, let's format the `website` column as URL links.
 
-    ```python
+    ```{python}
     import polars as pl
     from great_tables import GT, md, data
 
@@ -3572,7 +3572,7 @@ def fmt_url(
     We can use a static label and disable underlines for a cleaner look, merging the URL column into
     the name column.
 
-    ```python
+    ```{python}
     (
         GT(towny_top)
         .tab_header(
@@ -3588,7 +3588,7 @@ def fmt_url(
 
     Button-styled links can be created with `as_button=True`.
 
-    ```python
+    ```{python}
     (
         GT(towny_top)
         .fmt_integer(columns="population_2021")
@@ -3734,7 +3734,7 @@ def fmt_email(
     Using a subset of the `peeps` dataset filtered to contacts in Australia, let's format the
     `email_addr` column as email links.
 
-    ```python
+    ```{python}
     import polars as pl
     from great_tables import GT, md, data
 
@@ -3766,7 +3766,7 @@ def fmt_email(
     We can use `display_name=` with a callable to show just the local part of the email address
     before the `@` sign.
 
-    ```python
+    ```{python}
     (
         GT(peeps_aus, rowname_col="name_family")
         .tab_header(title="Our Contacts in Australia")
@@ -3789,7 +3789,7 @@ def fmt_email(
 
     Button-styled email links are also supported.
 
-    ```python
+    ```{python}
     (
         GT(peeps_aus.head(5), rowname_col="name_family")
         .tab_header(title="Contact Us")
