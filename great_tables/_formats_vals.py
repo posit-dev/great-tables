@@ -1353,6 +1353,136 @@ def val_fmt_index(
 
 
 @expressive
+def val_fmt_url(
+    x: X,
+    label: str | Callable[[str], str] | None = None,
+    as_button: bool = False,
+    color: str = "auto",
+    show_underline: str | bool = "auto",
+    button_fill: str = "auto",
+    button_width: str | None = None,
+    button_outline: str | None = None,
+    target: str | None = "_blank",
+) -> list[str]:
+    """
+    Format values as URL links.
+
+    The `val_fmt_url()` function lets you format string values as clickable URL links. This is the
+    standalone version of `GT.fmt_url()`.
+
+    Parameters
+    ----------
+    x
+        A list of URL strings (or a single URL string) to be formatted.
+    label
+        An optional label for the link. Can be a string or a callable.
+    as_button
+        Should the link be styled as a button? By default this is `False`.
+    color
+        The color of the link text. The default `"auto"` uses dark cyan for links and white
+        for buttons.
+    show_underline
+        Should the link be underlined? The default `"auto"` enables underlines for links
+        and disables them for buttons.
+    button_fill
+        The background color for button-style links.
+    button_width
+        The width of the button as a CSS width string.
+    button_outline
+        The CSS outline for the button.
+    target
+        The `target` attribute for the anchor element.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+    """
+
+    gt_obj = _make_one_col_table(x)
+
+    gt_obj_fmt = gt_obj.fmt_url(
+        columns="x",
+        label=label,
+        as_button=as_button,
+        color=color,
+        show_underline=show_underline,
+        button_fill=button_fill,
+        button_width=button_width,
+        button_outline=button_outline,
+        target=target,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
+def val_fmt_email(
+    x: X,
+    display_name: str | Callable[[str], str] | None = None,
+    as_button: bool = False,
+    color: str = "auto",
+    show_underline: str | bool = "auto",
+    button_fill: str = "auto",
+    button_width: str | None = None,
+    button_outline: str | None = None,
+    target: str | None = "_blank",
+) -> list[str]:
+    """
+    Format values as email links.
+
+    The `val_fmt_email()` function lets you format string values as clickable `mailto:` links. This
+    is the standalone version of `GT.fmt_email()`.
+
+    Parameters
+    ----------
+    x
+        A list of email address strings (or a single string) to be formatted.
+    display_name
+        An optional display name for the link. Can be a string or a callable.
+    as_button
+        Should the link be styled as a button? By default this is `False`.
+    color
+        The color of the link text.
+    show_underline
+        Should the link be underlined?
+    button_fill
+        The background color for button-style links.
+    button_width
+        The width of the button as a CSS width string.
+    button_outline
+        The CSS outline for the button.
+    target
+        The `target` attribute for the anchor element.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+    """
+
+    gt_obj = _make_one_col_table(x)
+
+    gt_obj_fmt = gt_obj.fmt_email(
+        columns="x",
+        display_name=display_name,
+        as_button=as_button,
+        color=color,
+        show_underline=show_underline,
+        button_fill=button_fill,
+        button_width=button_width,
+        button_outline=button_outline,
+        target=target,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
 def val_fmt_bytes(
     x: X,
     standard: str = "decimal",
