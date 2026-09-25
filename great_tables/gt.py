@@ -14,17 +14,18 @@ from ._footnotes import tab_footnote
 from ._formats import (
     fmt,
     fmt_bytes,
+    fmt_chem,
     fmt_currency,
     fmt_date,
     fmt_datetime,
     fmt_duration,
+    fmt_email,
     fmt_engineering,
     fmt_flag,
     fmt_fraction,
-    fmt_chem,
-    fmt_index,
     fmt_icon,
     fmt_image,
+    fmt_index,
     fmt_integer,
     fmt_markdown,
     fmt_nanoplot,
@@ -38,6 +39,7 @@ from ._formats import (
     fmt_tf,
     fmt_time,
     fmt_units,
+    fmt_url,
 )
 from ._gt_data import GTData
 from ._heading import tab_header
@@ -384,7 +386,9 @@ class GT(
     fmt_roman = fmt_roman
     fmt_fraction = fmt_fraction
     fmt_chem = fmt_chem
+    fmt_email = fmt_email
     fmt_index = fmt_index
+    fmt_url = fmt_url
     fmt_date = fmt_date
     fmt_time = fmt_time
     fmt_datetime = fmt_datetime
