@@ -523,13 +523,13 @@ input[type=radio].rt-select-input {
 .rt-search:focus {
   border: 1px solid rgba(0, 0, 0, 0.25);
 }
-</style> <style>#gt-ihtml-dswvsgdqle-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
-#gt-ihtml-dswvsgdqle-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-dswvsgdqle-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-dswvsgdqle-container .rt-search { margin-top: 8px; }
-#gt-ihtml-dswvsgdqle-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
-#gt-ihtml-dswvsgdqle-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
-#gt-ihtml-dswvsgdqle-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
+</style> <style>#gt-ihtml-izbmmwwjmp-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
+#gt-ihtml-izbmmwwjmp-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-izbmmwwjmp-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-izbmmwwjmp-container .rt-search { margin-top: 8px; }
+#gt-ihtml-izbmmwwjmp-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
+#gt-ihtml-izbmmwwjmp-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
+#gt-ihtml-izbmmwwjmp-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
 
 
 Click on any column header to sort. The table is paginated by default with 10 rows per page.
@@ -1051,13 +1051,13 @@ input[type=radio].rt-select-input {
 .rt-search:focus {
   border: 1px solid rgba(0, 0, 0, 0.25);
 }
-</style> <style>#gt-ihtml-hxrtcbqhsm-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
-#gt-ihtml-hxrtcbqhsm-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-hxrtcbqhsm-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-hxrtcbqhsm-container .rt-search { margin-top: 8px; }
-#gt-ihtml-hxrtcbqhsm-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
-#gt-ihtml-hxrtcbqhsm-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
-#gt-ihtml-hxrtcbqhsm-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
+</style> <style>#gt-ihtml-otlmqzqrro-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
+#gt-ihtml-otlmqzqrro-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-otlmqzqrro-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-otlmqzqrro-container .rt-search { margin-top: 8px; }
+#gt-ihtml-otlmqzqrro-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
+#gt-ihtml-otlmqzqrro-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
+#gt-ihtml-otlmqzqrro-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
 
 
 Try typing `"Audi"` in the `Make` filter or `"2017"` in the `Year` filter to narrow the results.
@@ -1582,13 +1582,13 @@ input[type=radio].rt-select-input {
 .rt-search:focus {
   border: 1px solid rgba(0, 0, 0, 0.25);
 }
-</style> <style>#gt-ihtml-nvmczsjcde-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
-#gt-ihtml-nvmczsjcde-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-nvmczsjcde-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-nvmczsjcde-container .rt-search { margin-top: 8px; }
-#gt-ihtml-nvmczsjcde-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
-#gt-ihtml-nvmczsjcde-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
-#gt-ihtml-nvmczsjcde-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
+</style> <style>#gt-ihtml-echbxbyzrt-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
+#gt-ihtml-echbxbyzrt-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-echbxbyzrt-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-echbxbyzrt-container .rt-search { margin-top: 8px; }
+#gt-ihtml-echbxbyzrt-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
+#gt-ihtml-echbxbyzrt-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
+#gt-ihtml-echbxbyzrt-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
 
 
 Set `use_pagination=False` to display the full table without paging. This is useful for smaller datasets.
@@ -2118,13 +2118,13 @@ input[type=radio].rt-select-input {
 .rt-search:focus {
   border: 1px solid rgba(0, 0, 0, 0.25);
 }
-</style> <style>#gt-ihtml-ommwmnfiir-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
-#gt-ihtml-ommwmnfiir-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-ommwmnfiir-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-ommwmnfiir-container .rt-search { margin-top: 8px; }
-#gt-ihtml-ommwmnfiir-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
-#gt-ihtml-ommwmnfiir-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
-#gt-ihtml-ommwmnfiir-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
+</style> <style>#gt-ihtml-cvwrnmtxcz-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
+#gt-ihtml-cvwrnmtxcz-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-cvwrnmtxcz-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-cvwrnmtxcz-container .rt-search { margin-top: 8px; }
+#gt-ihtml-cvwrnmtxcz-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
+#gt-ihtml-cvwrnmtxcz-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
+#gt-ihtml-cvwrnmtxcz-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
 
 
 From the output you might notice:
@@ -2648,13 +2648,13 @@ input[type=radio].rt-select-input {
 .rt-search:focus {
   border: 1px solid rgba(0, 0, 0, 0.25);
 }
-</style> <style>#gt-ihtml-huixbrsyee-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
-#gt-ihtml-huixbrsyee-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-huixbrsyee-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-huixbrsyee-container .rt-search { margin-top: 8px; }
-#gt-ihtml-huixbrsyee-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
-#gt-ihtml-huixbrsyee-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
-#gt-ihtml-huixbrsyee-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
+</style> <style>#gt-ihtml-jlracgqlhx-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
+#gt-ihtml-jlracgqlhx-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-jlracgqlhx-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-jlracgqlhx-container .rt-search { margin-top: 8px; }
+#gt-ihtml-jlracgqlhx-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
+#gt-ihtml-jlracgqlhx-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
+#gt-ihtml-jlracgqlhx-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
 
 
 Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. Try filtering by `Make` to see how the scales update in context.
@@ -3180,10 +3180,10 @@ input[type=radio].rt-select-input {
 .rt-search:focus {
   border: 1px solid rgba(0, 0, 0, 0.25);
 }
-</style> <style>#gt-ihtml-cbrlexeoxt-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
-#gt-ihtml-cbrlexeoxt-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-cbrlexeoxt-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
-#gt-ihtml-cbrlexeoxt-container .rt-search { margin-top: 8px; }
-#gt-ihtml-cbrlexeoxt-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
-#gt-ihtml-cbrlexeoxt-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
-#gt-ihtml-cbrlexeoxt-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
+</style> <style>#gt-ihtml-eqlmsyewxn-container { display: block; width: 100%; font-size: 16px; margin: 10px 0; }
+#gt-ihtml-eqlmsyewxn-container .gt-ihtml-header { display: block; width: 100%; text-align: center; padding: 10px 5px 8px 5px; border-top: 2px solid #A8A8A8; border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-eqlmsyewxn-container .rt-tbody { border-bottom: 2px solid #D3D3D3; }
+#gt-ihtml-eqlmsyewxn-container .rt-search { margin-top: 8px; }
+#gt-ihtml-eqlmsyewxn-container .gt-ihtml-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.5em; font-weight: initial; margin: 0; }
+#gt-ihtml-eqlmsyewxn-container .gt-ihtml-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 1.05em; font-weight: initial; margin: 0; }
+#gt-ihtml-eqlmsyewxn-container .gt-ihtml-source-note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", "Fira Sans", "Droid Sans", Arial, sans-serif; font-size: 90%; padding: 4px; margin: 0; }</style>
