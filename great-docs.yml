@@ -132,6 +132,8 @@ reference:
         - GT.fmt_fraction
         - GT.fmt_chem
         - GT.fmt_index
+        - GT.fmt_url
+        - GT.fmt_email
         - GT.fmt_bytes
         - GT.fmt_date
         - GT.fmt_time
@@ -297,6 +299,8 @@ reference:
         - vals.fmt_fraction
         - vals.fmt_chem
         - vals.fmt_index
+        - vals.fmt_url
+        - vals.fmt_email
         - vals.fmt_bytes
         - vals.fmt_duration
         - vals.fmt_date
