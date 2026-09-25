@@ -4018,3 +4018,232 @@ def test_fmt_index_inf():
 
     assert x[0] == "inf"
     assert x[1] == "-inf"
+
+
+# ==============================================================================
+# fmt_url tests
+# ==============================================================================
+
+
+def test_fmt_url_basic():
+    df = pd.DataFrame({"x": ["https://example.com", "https://google.com"]})
+    gt = GT(df).fmt_url(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="https://example.com"' in x[0]
+    assert 'href="https://google.com"' in x[1]
+    assert "#008B8B" in x[0]
+    assert "underline" in x[0]
+    assert "example.com" in x[0]
+
+
+def test_fmt_url_label_string():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", label="Click")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert ">Click</a>" in x[0]
+    assert 'href="https://example.com"' in x[0]
+
+
+def test_fmt_url_label_callable():
+    df = pd.DataFrame({"x": ["https://www.example.com"]})
+    gt = GT(df).fmt_url(columns="x", label=lambda u: u.replace("https://www.", ""))
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert ">example.com</a>" in x[0]
+
+
+def test_fmt_url_no_underline():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", show_underline=False)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "text-decoration:none" in x[0]
+
+
+def test_fmt_url_custom_color():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", color="#FF0000")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "#FF0000" in x[0]
+
+
+def test_fmt_url_as_button():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "background-color:#4682B4" in x[0]
+    assert "#FFFFFF" in x[0]
+    assert "text-decoration:none" in x[0]
+    assert "padding" in x[0]
+
+
+def test_fmt_url_button_light_fill_outline():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True, button_fill="#FFFFFF")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "2px solid #DFDFDF" in x[0]
+
+
+def test_fmt_url_button_dark_fill_no_outline():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True, button_fill="steelblue")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "outline-style:none" in x[0]
+
+
+def test_fmt_url_button_width():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True, button_width="200px")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "width:200px" in x[0]
+    assert "text-align:center" in x[0]
+
+
+def test_fmt_url_markdown_link():
+    df = pd.DataFrame({"x": ["[My Site](https://example.com)"]})
+    gt = GT(df).fmt_url(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="https://example.com"' in x[0]
+    assert ">My Site</a>" in x[0]
+
+
+def test_fmt_url_target_none():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", target=None)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "target=" not in x[0]
+
+
+def test_fmt_url_na():
+    df = pd.DataFrame({"x": [float("nan")]})
+    gt = GT(df).fmt_url(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert len(x) == 1
+
+
+def test_fmt_url_polars():
+    df = pl.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="https://example.com"' in x[0]
+
+
+def test_fmt_url_rows_subset():
+    df = pd.DataFrame({"x": ["https://a.com", "https://b.com", "https://c.com"]})
+    gt = GT(df).fmt_url(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "href=" in x[0]
+    assert x[1] == "https://b.com"  # unformatted
+    assert "href=" in x[2]
+
+
+def test_fmt_url_button_auto_text_color():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True, button_fill="#000000")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "color:#FFFFFF" in x[0]
+
+
+# ==============================================================================
+# fmt_email tests
+# ==============================================================================
+
+
+def test_fmt_email_basic():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="mailto:user@example.com"' in x[0]
+    assert "#008B8B" in x[0]
+    assert "underline" in x[0]
+    assert ">user@example.com</a>" in x[0]
+
+
+def test_fmt_email_display_name_string():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x", display_name="Contact Us")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert ">Contact Us</a>" in x[0]
+    assert 'href="mailto:user@example.com"' in x[0]
+
+
+def test_fmt_email_display_name_callable():
+    df = pd.DataFrame({"x": ["john.doe@example.com"]})
+    gt = GT(df).fmt_email(columns="x", display_name=lambda e: e.split("@")[0])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert ">john.doe</a>" in x[0]
+
+
+def test_fmt_email_noopener():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'rel="noopener noreferrer"' in x[0]
+
+
+def test_fmt_email_no_noopener_without_blank():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x", target=None)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "noopener" not in x[0]
+
+
+def test_fmt_email_as_button():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x", as_button=True, button_fill="#228B22")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "background-color:#228B22" in x[0]
+    assert "padding" in x[0]
+
+
+def test_fmt_email_custom_color():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x", color="gray25")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="mailto:user@example.com"' in x[0]
+
+
+def test_fmt_email_na():
+    df = pd.DataFrame({"x": [float("nan")]})
+    gt = GT(df).fmt_email(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert len(x) == 1
+
+
+def test_fmt_email_polars():
+    df = pl.DataFrame({"x": ["test@test.com"]})
+    gt = GT(df).fmt_email(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="mailto:test@test.com"' in x[0]
+
+
+def test_fmt_email_rows_subset():
+    df = pd.DataFrame({"x": ["a@a.com", "b@b.com", "c@c.com"]})
+    gt = GT(df).fmt_email(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "mailto:" in x[0]
+    assert x[1] == "b@b.com"  # unformatted
+    assert "mailto:" in x[2]
