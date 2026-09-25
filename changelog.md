@@ -3,6 +3,57 @@
 This changelog is generated automatically from [GitHub Releases](https://github.com/posit-dev/great-tables/releases).
 
 
+# v1.0.0
+
+*2026-09-25* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v1.0.0)
+
+Great Tables `v1.0.0` is here. This milestone release introduces these powerful new formatting methods: `fmt_fraction()` for mixed fractions, `fmt_chem()` for chemical formulas, `fmt_index()` for alphabetical indices, and `fmt_url()`/`fmt_email()` for clickable links and buttons. The new [tab_style_body()](./reference/GT.tab_style_body.html#great_tables.GT.tab_style_body) method lets you style cells based on their data values, and [opt_footnote_spec()](./reference/GT.opt_footnote_spec.html#great_tables.GT.opt_footnote_spec) gives you fine-grained control over footnote presentation. Cell body values are now HTML-escaped by default, a breaking change that strengthens security against XSS. A new [load_dataset()](./reference/load_dataset.html#great_tables.load_dataset) function provides a single entry point for all bundled example datasets.
+
+
+### Breaking Changes
+
+- **Automatic HTML escaping** -- Unformatted body cell values are now automatically HTML-escaped before rendering. Cells that previously contained intentional raw HTML will now display the literal markup. Use the [html()](./reference/html.html#great_tables.html) helper, `fmt_passthrough(escape=False)`, `fmt_markdown()`, or other formatting methods to opt out of escaping for specific cells. ([\#881](https://github.com/posit-dev/great-tables/issues/881))
+
+
+### New Features
+
+- **`fmt_fraction()`** -- Format numeric values as mixed fractions (e.g., 2.5 becomes "2 1/2") with control over precision via `accuracy=` and a choice between `"inline"` and `"diagonal"` typesetting layouts. ([\#886](https://github.com/posit-dev/great-tables/issues/886))
+- **`fmt_chem()`** -- Format text as properly typeset chemical formulas and reactions, automatically rendering subscripts, superscripts, isotope notation, and reaction arrows. ([\#887](https://github.com/posit-dev/great-tables/issues/887))
+- **`fmt_index()`** -- Convert numeric values to alphabetical index characters (1 → "A", 2 → "B") with `"repeat"` and `"excel"` modes for values beyond the alphabet. ([\#888](https://github.com/posit-dev/great-tables/issues/888))
+- **`fmt_url()` and `fmt_email()`** -- Transform URLs and email addresses into clickable links with options for custom labels, button styling, and configurable colors. ([\#891](https://github.com/posit-dev/great-tables/issues/891))
+- **[tab_style_body()](./reference/GT.tab_style_body.html#great_tables.GT.tab_style_body)** -- Apply styles to body cells based on their data values using exact matches, regex patterns, or predicate functions, with optional expansion to entire rows or columns. ([\#883](https://github.com/posit-dev/great-tables/issues/883))
+- **Footnote specs and ordering** -- New [opt_footnote_spec()](./reference/GT.opt_footnote_spec.html#great_tables.GT.opt_footnote_spec) controls how footnote marks are styled using a compact DSL, and `opt_footnote_order()` controls the arrangement of marked vs. unmarked footnotes in the footer. ([\#884](https://github.com/posit-dev/great-tables/issues/884))
+- **[load_dataset()](./reference/load_dataset.html#great_tables.load_dataset)** -- Load any of Great Tables' bundled datasets as a Pandas or Polars DataFrame through a single, consistent entry point. ([\#858](https://github.com/posit-dev/great-tables/issues/858))
+
+
+### Bug Fixes
+
+- Interactive table sorting now uses original numeric values rather than formatted string representations, ensuring correct sort order for numeric columns. ([\#882](https://github.com/posit-dev/great-tables/issues/882))
+- Booleans, missing values, and zero now render consistently across all backends. ([\#880](https://github.com/posit-dev/great-tables/issues/880))
+- Nanoplots now drop positions whose x value is missing instead of breaking. ([\#889](https://github.com/posit-dev/great-tables/issues/889))
+- Nanoplots warn when a curved data line is dropped due to insufficient x values. ([\#867](https://github.com/posit-dev/great-tables/issues/867))
+- LaTeX output now correctly escapes backslash, tilde, and circumflex characters. ([\#872](https://github.com/posit-dev/great-tables/issues/872))
+- LaTeX spanner rows now emit one cell per column. ([\#870](https://github.com/posit-dev/great-tables/issues/870))
+- The ISO date style now correctly pads the year. ([\#869](https://github.com/posit-dev/great-tables/issues/869))
+- Locale names are now accepted regardless of case. ([\#874](https://github.com/posit-dev/great-tables/issues/874))
+- Options matching now uses prefix instead of substring, preventing false matches. ([\#873](https://github.com/posit-dev/great-tables/issues/873))
+- HTTP scheme matching is now case-insensitive. ([\#876](https://github.com/posit-dev/great-tables/issues/876))
+- Fractional parts are now preserved when scaling padding values. ([\#879](https://github.com/posit-dev/great-tables/issues/879))
+- [tab_spanner()](./reference/GT.tab_spanner.html#great_tables.GT.tab_spanner) is now a no-op when no columns or spanners are selected, instead of raising an error. ([\#865](https://github.com/posit-dev/great-tables/issues/865))
+- The LSL currency symbol was corrected. ([\#890](https://github.com/posit-dev/great-tables/issues/890))
+
+
+### Enhancements
+
+- `cols_*()` methods no longer raise an error when a list of column names are not all present in the data. ([\#860](https://github.com/posit-dev/great-tables/issues/860))
+
+
+### Documentation
+
+- Added a glossary reference page. ([\#862](https://github.com/posit-dev/great-tables/issues/862))
+- Added documentation for [loc.footnotes()](./reference/loc.footnotes.html#great_tables.loc.footnotes). ([\#885](https://github.com/posit-dev/great-tables/issues/885))
+
+
 # v0.24.0
 
 *2026-08-24* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.24.0)
