@@ -108,6 +108,12 @@ Format chemical formulas.
 [GT.fmt_index()](GT.fmt_index.md#great_tables.GT.fmt_index)  
 Format values as index characters.
 
+[GT.fmt_url()](GT.fmt_url.md#great_tables.GT.fmt_url)  
+Format values as URL links.
+
+[GT.fmt_email()](GT.fmt_email.md#great_tables.GT.fmt_email)  
+Format values as email links.
+
 [GT.fmt_bytes()](GT.fmt_bytes.md#great_tables.GT.fmt_bytes)  
 Format values as bytes.
 
@@ -464,6 +470,12 @@ Format chemical formulas.
 
 [vals.fmt_index()](vals.fmt_index.md#great_tables.vals.fmt_index)  
 Format values as index characters.
+
+[vals.fmt_url()](vals.fmt_url.md#great_tables.vals.fmt_url)  
+Format values as URL links.
+
+[vals.fmt_email()](vals.fmt_email.md#great_tables.vals.fmt_email)  
+Format values as email links.
 
 [vals.fmt_bytes()](vals.fmt_bytes.md#great_tables.vals.fmt_bytes)  
 Format values as bytes.

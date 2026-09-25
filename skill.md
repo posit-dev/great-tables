@@ -64,6 +64,8 @@ Columns of data can be formatted with the `fmt_*()` methods. We can specify the 
 - `GT.fmt_fraction`
 - `GT.fmt_chem`
 - `GT.fmt_index`
+- `GT.fmt_url`
+- `GT.fmt_email`
 - `GT.fmt_bytes`
 - `GT.fmt_date`
 - `GT.fmt_time`
@@ -216,6 +218,8 @@ If you have single values (or lists of them) in need of formatting, we have a se
 - `vals.fmt_fraction`
 - `vals.fmt_chem`
 - `vals.fmt_index`
+- `vals.fmt_url`
+- `vals.fmt_email`
 - `vals.fmt_bytes`
 - `vals.fmt_duration`
 - `vals.fmt_date`

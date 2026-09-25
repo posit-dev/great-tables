@@ -30,10 +30,10 @@ gt.opt_stylize(
 The marimo team must have seen that post and liked what they saw! They recently released a video showcasing how marimo widgets work with Great Tables to create reactive tables.
 
 
-# Se produjo un error.
+# An error occurred.
 
 
-No se puede ejecutar JavaScript.
+Unable to execute JavaScript.
 
 
 For more details on marimo's widget system, check out their [UI elements documentation](https://docs.marimo.io/api/inputs/) and [reactivity guide](https://docs.marimo.io/guides/reactivity/).
@@ -44,10 +44,10 @@ For more details on marimo's widget system, check out their [UI elements documen
 For those interested in embedding marimo notebooks directly in Quarto documents, the marimo team has also created a [quarto-marimo plugin](https://github.com/marimo-team/quarto-marimo). This extension allows you to run marimo code blocks natively within Quarto documents, making it easy to create interactive content that combines the best of both tools. It's a very exciting development since we use Quarto extensively (our docs and this very blog post were authored through Quarto!). And naturally there's a video for this as well.
 
 
-# Se produjo un error.
+# An error occurred.
 
 
-No se puede ejecutar JavaScript.
+Unable to execute JavaScript.
 
 
 # Wrapping Up
