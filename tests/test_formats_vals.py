@@ -154,6 +154,36 @@ def test_val_fmt_index():
     assert result4 == ["AA", "AB"]
 
 
+def test_val_fmt_url():
+    result = vals.fmt_url(["https://example.com", "https://google.com"])
+
+    assert 'href="https://example.com"' in result[0]
+    assert 'href="https://google.com"' in result[1]
+
+    result2 = vals.fmt_url("https://example.com", label="Click")
+
+    assert ">Click</a>" in result2[0]
+
+    result3 = vals.fmt_url(["https://x.com"], as_button=True)
+
+    assert "background-color" in result3[0]
+
+
+def test_val_fmt_email():
+    result = vals.fmt_email(["user@example.com"])
+
+    assert 'href="mailto:user@example.com"' in result[0]
+
+    result2 = vals.fmt_email("test@test.com", display_name="Test")
+
+    assert ">Test</a>" in result2[0]
+
+    result3 = vals.fmt_email(["a@b.com"], as_button=True)
+
+    assert "background-color" in result3[0]
+
+
 def test_val_fmt_number_si():
     result = vals.fmt_number_si(1500)
+
     assert "k" in result[0] or "1" in result[0]
