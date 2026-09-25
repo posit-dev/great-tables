@@ -672,11 +672,8 @@ def _generate_nanoplot(
         # values in `x_vals` means removal of positional values from both
         # `x_vals` and `y_vals`)
         if any(_map_is_na(x_vals)):
-            # TODO: this code did not have test coverage and likely didn't
-            # work. It should work now, but we need to test it.
-
             # Determine which values from `x_vals` are non-missing values
-            x_vals_non_missing = [~_is_na(val) for val in x_vals]
+            x_vals_non_missing = [not _is_na(val) for val in x_vals]
 
             # Retain only `x_vals_non_missing` from `x_vals` and `y_vals`
             x_vals = [x for x, keep in zip(x_vals, x_vals_non_missing) if keep]
