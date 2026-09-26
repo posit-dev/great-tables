@@ -350,6 +350,33 @@ def test_data_color_truncate(df: DataFrameLike):
     assert get_first_style(new_gt._styles[0], style.fill).color == "#654321"
 
 
+def test_data_color_alpha_gradient_palette():
+    """`data_color` applies `alpha=` to colors interpolated from a gradient palette (#711)."""
+    df = pd.DataFrame({"x": [0, 50, 100]})
+    new_gt = GT(df).data_color(columns="x", palette=["#FF0000", "#0000FF"], alpha=0.5)
+
+    colors = [get_first_style(s, style.fill).color.lower() for s in new_gt._styles]
+    assert colors == ["#ff00007f", "#8000807f", "#0000ff7f"]
+
+
+def test_data_color_alpha_factor_palette():
+    """`data_color` applies `alpha=` to colors interpolated for a factor (categorical) column."""
+    df = pd.DataFrame({"x": ["a", "b", "c"]})
+    new_gt = GT(df).data_color(columns="x", palette=["#FF0000", "#0000FF"], alpha=0.5)
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert all(len(c) == 9 and c.lower().endswith("7f") for c in colors)
+
+
+def test_data_color_alpha_na_color_not_double_applied():
+    """`alpha=` is applied once to `na_color=`, not compounded by the gradient-palette fix."""
+    df = pd.DataFrame({"x": [1.0, 2.0, None]})
+    new_gt = GT(df).data_color(columns="x", palette=["red", "blue"], alpha=0.5, na_color="#00FF00")
+
+    na_style_color = get_first_style(new_gt._styles[-1], style.fill).color.lower()
+    assert na_style_color == "#00ff007f"
+
+
 def test_data_color_invalid_column_type_raises():
     """data_color raises ValueError for mixed-type (non-numeric, non-string) columns."""
     df = pd.DataFrame({"x": [1, "two", 3]})
