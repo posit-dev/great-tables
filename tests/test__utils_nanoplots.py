@@ -2093,6 +2093,18 @@ def test_nanoplot_options_interactive_data_values():
     assert opts_true["interactive_data_values"] is True
 
 
+def test_nanoplot_options_zero_stroke_width():
+    # A width of zero is a value, not a missing option, and must survive
+    opts_zero = nanoplot_options(data_line_stroke_width=0, vertical_guide_stroke_width=0)
+    assert opts_zero["data_line_stroke_width"] == 0
+    assert opts_zero["vertical_guide_stroke_width"] == 0
+
+    # When not set, the documented defaults still apply
+    opts_default = nanoplot_options()
+    assert opts_default["data_line_stroke_width"] == 8
+    assert opts_default["vertical_guide_stroke_width"] == 12
+
+
 # -------------------------------------------------------
 # Tests for NaN / missing value handling in nanoplots
 # -------------------------------------------------------

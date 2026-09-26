@@ -1472,7 +1472,7 @@ def nanoplot_options(
 
     data_line_type = data_line_type or "curved"
     data_line_stroke_color = data_line_stroke_color or "#4682B4"
-    data_line_stroke_width = data_line_stroke_width or 8
+    data_line_stroke_width = 8 if data_line_stroke_width is None else data_line_stroke_width
 
     data_area_fill_color = data_area_fill_color or "#FF0000"
 
@@ -1488,7 +1488,9 @@ def nanoplot_options(
     reference_area_fill_color = reference_area_fill_color or "#A6E6F2"
 
     vertical_guide_stroke_color = vertical_guide_stroke_color or "#911EB4"
-    vertical_guide_stroke_width = vertical_guide_stroke_width or 12
+    vertical_guide_stroke_width = (
+        12 if vertical_guide_stroke_width is None else vertical_guide_stroke_width
+    )
 
     show_data_points = True if show_data_points is None else show_data_points
     show_data_line = True if show_data_line is None else show_data_line
