@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import random
 import warnings
+import zlib
 from typing import Any, Callable
 
 from ._tbl_data import Agnostic, NpInteger, is_na
@@ -1437,9 +1438,13 @@ def _generate_nanoplot(
     # Generate background with repeating line pattern
     #
 
+    # All nanoplots end up in the same HTML document, so the pattern id has to differ
+    # between fill colors. Otherwise every area uses the first pattern with that id.
+    area_pattern_id = f"area_pattern_{zlib.crc32(str(data_area_fill_color).encode()):08x}"
+
     svg_defs = (
         f"<defs>"
-        f'<pattern id="area_pattern" width="8" height="8" patternUnits="userSpaceOnUse">'
+        f'<pattern id="{area_pattern_id}" width="8" height="8" patternUnits="userSpaceOnUse">'
         f'<path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="'
         f"{data_area_fill_color}"
         f'" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision">'
@@ -1463,7 +1468,7 @@ def _generate_nanoplot(
 
             area_path_i = f"M {' '.join(area_path_string)} {area_x[-1]},{bottom_y - safe_y_d + data_point_radius[0]} {area_x[0]},{bottom_y - safe_y_d + data_point_radius[0]} Z"
 
-            area_path_tag_i = f'<path class="area-closed" d="{area_path_i}" stroke="transparent" stroke-width="2" fill="url(#area_pattern)" fill-opacity="0.7"></path>'
+            area_path_tag_i = f'<path class="area-closed" d="{area_path_i}" stroke="transparent" stroke-width="2" fill="url(#{area_pattern_id})" fill-opacity="0.7"></path>'
 
             area_path_tags.append(area_path_tag_i)
 

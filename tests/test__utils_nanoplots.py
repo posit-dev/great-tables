@@ -2079,6 +2079,28 @@ def test_noerror_list_of_strings() -> None:
     )
 
 
+def test_nanoplot_area_fill_color_per_column() -> None:
+    import re
+
+    df = pl.DataFrame({"y1": ["1 2 3", "2 3 4"], "y2": ["3 4 5", "4 5 6"]})
+    html = (
+        GT(df)
+        .fmt_nanoplot(columns="y1", options=nanoplot_options(data_area_fill_color="red"))
+        .fmt_nanoplot(columns="y2", options=nanoplot_options(data_area_fill_color="blue"))
+        .as_raw_html()
+    )
+
+    colors_by_id: dict[str, str] = {}
+    for pattern_id, color in re.findall(
+        r'<pattern id="([^"]+)".*?stroke="([^"]+)"', html, flags=re.DOTALL
+    ):
+        # a browser resolves every reference to an id with its first definition
+        assert colors_by_id.setdefault(pattern_id, color) == color
+
+    area_ids = re.findall(r'fill="url\(#([^)]+)\)"', html)
+    assert [colors_by_id[i] for i in area_ids] == ["red", "blue", "red", "blue"]
+
+
 def test_nanoplot_options_interactive_data_values():
     # When interactive_data_values is not set, it should default to True
     opts_default = nanoplot_options()
