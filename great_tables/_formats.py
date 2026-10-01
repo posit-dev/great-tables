@@ -3401,6 +3401,10 @@ def fmt_index_context(
         x_formatted = x_formatted.lower()
 
     if x_formatted and pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
         x_formatted = pattern.replace("{x}", x_formatted)
 
     return x_formatted
