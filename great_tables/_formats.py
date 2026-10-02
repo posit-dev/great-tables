@@ -32,7 +32,7 @@ from ._locale import (
     _get_flags_data,
     _get_locales_data,
 )
-from ._locations import resolve_cols_c, resolve_rows_i
+from ._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
@@ -93,7 +93,7 @@ def fmt(
     self: GTSelf,
     fns: FormatFn,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     is_substitution: bool = False,
 ) -> GTSelf:
     """
@@ -165,7 +165,7 @@ def fmt(
 def fmt_number(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     decimals: int = 2,
     n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
@@ -394,7 +394,7 @@ def fmt_number_context(
 def fmt_integer(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     use_seps: bool = True,
     scale_by: float = 1,
     accounting: bool = False,
@@ -584,7 +584,7 @@ def fmt_integer_context(
 def fmt_scientific(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     decimals: int = 2,
     n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
@@ -847,7 +847,7 @@ def fmt_scientific_context(
 def fmt_engineering(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     decimals: int = 2,
     n_sigfig: int | None = None,
     drop_trailing_zeros: bool = False,
@@ -1188,7 +1188,7 @@ def fmt_engineering_context(
 def fmt_number_si(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     unit: str | None = None,
     decimals: int = 2,
     n_sigfig: int | None = None,
@@ -1587,7 +1587,7 @@ def fmt_number_si_context(
 def fmt_percent(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     decimals: int = 2,
     drop_trailing_zeros: bool = False,
     drop_trailing_dec_mark: bool = True,
@@ -1846,7 +1846,7 @@ _PARTSPER_UNITS: dict[str, dict[str, Any]] = {
 def fmt_partsper(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     to_units: str = "per-mille",
     symbol: str = "auto",
     decimals: int = 2,
@@ -2141,7 +2141,7 @@ def fmt_partsper_context(
 def fmt_currency(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     currency: str | None = None,
     use_subunits: bool = True,
     decimals: int | None = None,
@@ -2421,7 +2421,7 @@ def fmt_currency_context(
 def fmt_roman(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     case: str = "upper",
     pattern: str = "{x}",
 ) -> GTSelf:
@@ -2538,7 +2538,7 @@ def fmt_roman_context(
 def fmt_fraction(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     accuracy: str | int = "low",
     simplify: bool = True,
     layout: str = "inline",
@@ -2848,7 +2848,7 @@ def fmt_fraction_context(
 def fmt_chem(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
 ) -> GTSelf:
     """
     Format chemical formulas.
@@ -3229,7 +3229,7 @@ _INDEX_LETTERS = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 def fmt_index(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     case: str = "upper",
     index_algo: str = "repeat",
     pattern: str = "{x}",
@@ -3484,7 +3484,7 @@ def _build_link_html(
 def fmt_url(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     label: str | Callable[[str], str] | None = None,
     as_button: bool = False,
     color: str = "auto",
@@ -3676,7 +3676,7 @@ def fmt_url(
 def fmt_email(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     display_name: str | Callable[[str], str] | None = None,
     as_button: bool = False,
     color: str = "auto",
@@ -3878,7 +3878,7 @@ def fmt_email(
 def fmt_bytes(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     standard: str = "decimal",
     decimals: int = 1,
     n_sigfig: int | None = None,
@@ -4286,7 +4286,7 @@ def _apply_duration_pattern(patterns: dict[str, str], value: int, formatted_valu
 def fmt_duration(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     input_units: str | None = None,
     output_units: str | list[str] | None = None,
     duration_style: DurationStyle = "narrow",
@@ -4946,7 +4946,7 @@ def _format_duration_colon_sep(
 def fmt_date(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     date_style: DateStyle = "iso",
     pattern: str = "{x}",
     locale: str | None = None,
@@ -5095,7 +5095,7 @@ def fmt_date_context(
 def fmt_time(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     time_style: TimeStyle = "iso",
     pattern: str = "{x}",
     locale: str | None = None,
@@ -5233,7 +5233,7 @@ def fmt_time_context(
 def fmt_datetime(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     date_style: DateStyle = "iso",
     time_style: TimeStyle = "iso",
     format_str: str | None = None,
@@ -5426,7 +5426,7 @@ def fmt_datetime_context(
 def fmt_tf(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     tf_style: str = "true-false",
     pattern: str = "{x}",
     true_val: str | None = None,
@@ -5741,7 +5741,7 @@ class TfMap:
 def fmt_markdown(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
 ) -> GTSelf:
     """
     Format Markdown text.
@@ -5826,7 +5826,7 @@ def fmt_markdown_context(
 def fmt_units(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     pattern: str = "{x}",
 ) -> GTSelf:
     """
@@ -7127,7 +7127,7 @@ def _validate_datetime_obj(x: Any) -> None:
 def fmt_image(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     height: str | int | None = None,
     width: str | int | None = None,
     sep: str = " ",
@@ -7353,7 +7353,7 @@ class FmtImage:
 def fmt_icon(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     height: str | None = None,
     sep: str = " ",
     stroke_color: str | None = None,
@@ -7622,7 +7622,7 @@ class FmtIcon:
 def fmt_flag(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     height: str | float | None = "1em",
     sep: str = " ",
     use_title: bool = True,
@@ -7832,7 +7832,7 @@ class FmtFlag:
 def fmt_nanoplot(
     self: GTSelf,
     columns: str | None = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     plot_type: PlotType = "line",
     plot_height: str = "2em",
     missing_vals: MissingVals = "gap",
@@ -8073,6 +8073,10 @@ def fmt_nanoplot(
     # Get the internal data table
     data_tbl = self._tbl_data
 
+    # Values in the targeted rows, which are resolved the same way as in the other fmt_*() methods
+    col_vals = to_list(data_tbl[columns])
+    target_vals = [col_vals[i] for _, i in resolve_rows_i(self, rows)]
+
     column_d_type = _get_column_dtype(data_tbl, columns)
 
     col_class = str(column_d_type).lower()
@@ -8091,10 +8095,7 @@ def fmt_nanoplot(
     if plot_type in ("line", "bar") and scalar_vals:
         # Check each cell in the column and get each of them that contains a scalar value
         # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
-        if rows is not None:
-            all_single_y_vals = to_list(data_tbl[columns][rows])
-        else:
-            all_single_y_vals = to_list(data_tbl[columns])
+        all_single_y_vals = target_vals
 
         autoscale = False
 
@@ -8115,10 +8116,7 @@ def fmt_nanoplot(
         # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
         # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
         # downstream?
-        if rows is not None:
-            all_y_vals_raw = to_list(data_tbl[columns][rows])
-        else:
-            all_y_vals_raw = to_list(data_tbl[columns])
+        all_y_vals_raw = target_vals
 
         all_y_vals = []
 
@@ -8350,7 +8348,7 @@ def _process_time_stream(data_vals: str) -> list[float]:
 def fmt_passthrough(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     escape: bool = True,
     pattern: str = "{x}",
 ) -> GTSelf:
@@ -8469,7 +8467,7 @@ def fmt_by_context(
     self: GTSelf,
     pf_format: Callable[[Any], str],
     columns: SelectExpr,
-    rows: int | list[int] | None,
+    rows: RowSelectExpr,
 ) -> GTSelf:
     return fmt(
         self,

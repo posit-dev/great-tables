@@ -11,7 +11,7 @@ from typing_extensions import TypeAlias, TypedDict
 
 from ._boxhead import cols_label
 from ._gt_data import ColMergeInfo, SpannerInfo, Spanners
-from ._locations import resolve_cols_c, resolve_rows_i
+from ._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
 from ._tbl_data import SelectExpr
 from ._text import BaseText, Text
 from ._utils import OrderedSet, _assert_list_is_subset
@@ -1073,7 +1073,7 @@ def cols_merge(
     self: GTSelf,
     columns: SelectExpr,
     hide_columns: SelectExpr | Literal[False] = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     pattern: str | None = None,
 ) -> GTSelf:
     """Merge data from two or more columns into a single column.
@@ -1256,7 +1256,7 @@ def cols_merge_uncert(
     self: GTSelf,
     col_val: SelectExpr,
     col_uncert: SelectExpr,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     sep: str = " +/- ",
     autohide: bool = True,
 ) -> GTSelf:
@@ -1403,7 +1403,7 @@ def cols_merge_range(
     self: GTSelf,
     col_begin: SelectExpr,
     col_end: SelectExpr,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     sep: str | None = None,
     autohide: bool = True,
     locale: str | None = None,
@@ -1553,7 +1553,7 @@ def cols_merge_n_pct(
     self: GTSelf,
     col_n: SelectExpr,
     col_pct: SelectExpr,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     autohide: bool = True,
 ) -> GTSelf:
     """Merge two columns to combine counts and percentages.

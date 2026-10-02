@@ -11,6 +11,7 @@ from ._tbl_data import DataFrameLike, SelectExpr, is_na
 from ._text import Text, _process_text
 
 if TYPE_CHECKING:
+    from ._locations import RowSelectExpr
     from ._types import GTSelf
 
 
@@ -32,7 +33,7 @@ def _convert_missing(context: Literal["html"], el: str):
 def sub_missing(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     missing_text: str | Text | None = None,
 ) -> GTSelf:
     """
@@ -98,7 +99,7 @@ def sub_missing(
 def sub_zero(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     zero_text: str = "nil",
 ) -> GTSelf:
     """
@@ -186,7 +187,7 @@ class SubZero:
 def sub_small_vals(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     threshold: int | float = 0.01,
     small_pattern: str | None = None,
     sign: str = "+",
@@ -287,7 +288,7 @@ def sub_small_vals(
 def sub_large_vals(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     threshold: int | float = 1e12,
     large_pattern: str = ">={x}",
     sign: str = "+",
@@ -379,7 +380,7 @@ def sub_large_vals(
 def sub_values(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     values: list[Any] | Any | None = None,
     pattern: str | None = None,
     fn: Callable[..., bool] | None = None,
