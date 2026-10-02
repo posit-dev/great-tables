@@ -5,8 +5,7 @@ To cite this package in publications, please use the following citation.
 
 # Authors
 
-Richard Iannone. Maintainer.\
-Chow Michael. Author.
+Richard Iannone. Maintainer.
 
 
 # Citation
@@ -19,7 +18,7 @@ Chow Michael. Author.
 ``` bibtex
 @Manual{,
   title = {great-tables: Make awesome display tables using Python.},
-  author = {Richard Iannone and Chow Michael},
+  author = {Richard Iannone},
   year = {2026},
   note = {Python package version 1.0.0},
   url = {https://posit-dev.github.io/great-tables/},
@@ -29,7 +28,7 @@ Chow Michael. Author.
 
 ## APA
 
-Iannone, R. & Michael, C. (2026). *great-tables: Make awesome display tables using Python.* (Version 1.0.0) \[Computer software\]. https://posit-dev.github.io/great-tables/
+Iannone, R. (2026). *great-tables: Make awesome display tables using Python.* (Version 1.0.0) \[Computer software\]. https://posit-dev.github.io/great-tables/
 
 
 ## RIS
@@ -38,7 +37,6 @@ Iannone, R. & Michael, C. (2026). *great-tables: Make awesome display tables usi
 TY  - COMP
 TI  - great-tables: Make awesome display tables using Python.
 AU  - Iannone, Richard
-AU  - Michael, Chow
 PY  - 2026
 VL  - 1.0.0
 UR  - https://posit-dev.github.io/great-tables/

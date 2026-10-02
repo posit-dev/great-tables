@@ -502,7 +502,7 @@ Format image paths to generate images in cells.
 ## Built-in Datasets
 
 
-The Great Tables package is equipped with sixteen datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package. The [load_dataset()](load_dataset.md#great_tables.load_dataset) function provides a convenient way to load any dataset as either a Pandas or Polars DataFrame.
+The Great Tables package is equipped with 16 datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package. The [load_dataset()](load_dataset.md#great_tables.load_dataset) function provides a convenient way to load any dataset as either a Pandas or Polars DataFrame.
 
 
 [load_dataset()](load_dataset.md#great_tables.load_dataset)  
