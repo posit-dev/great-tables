@@ -115,7 +115,8 @@ def fmt(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in `columns` being formatted.
-        Alternatively, we can supply a list of row indices.
+        Alternatively, we can supply a row index, a list of row indices, or (for Polars DataFrames)
+        a Polars expression such as `pl.col("x") > 0`.
     is_substitution
         Whether the formatter is a substitution. Substitutions are run last, after other formatters.
 
@@ -206,7 +207,8 @@ def fmt_number(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -429,7 +431,8 @@ def fmt_integer(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     use_seps
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
@@ -627,7 +630,8 @@ def fmt_scientific(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -892,7 +896,8 @@ def fmt_engineering(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -1233,7 +1238,8 @@ def fmt_number_si(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     unit
         A character string specifying the unit to append after the SI prefix (e.g., `"g"` for
         grams, `"W"` for watts, `"Hz"` for hertz, `"m"` for meters). If `None`, only the prefix
@@ -1631,7 +1637,8 @@ def fmt_percent(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     decimals
         The `decimals` values corresponds to the exact number of decimal places to use. A value such
         as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -1897,7 +1904,8 @@ def fmt_partsper(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     to_units
         A keyword that signifies the desired output quantity. This can be any from the following
         set: `"per-mille"`, `"per-myriad"`, `"pcm"`, `"ppm"`, `"ppb"`, `"ppt"`, or `"ppq"`.
@@ -2186,7 +2194,8 @@ def fmt_currency(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     currency
         The currency to use for the numeric value. This input can be supplied as a 3-letter currency
         code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
@@ -2439,7 +2448,8 @@ def fmt_roman(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     case
         Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
         letters? By default, this is set to `"upper"`.
@@ -2573,7 +2583,8 @@ def fmt_fraction(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     accuracy
         The accuracy of the fraction. Use `"low"` for denominators up to 1 digit (e.g., halves,
         thirds, quarters, etc.), `"med"` for up to 2-digit denominators, and `"high"` for up to
@@ -2868,7 +2879,8 @@ def fmt_chem(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
 
     Returns
     -------
@@ -3254,7 +3266,8 @@ def fmt_index(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     case
         The case of the resulting index characters. Use `"upper"` (the default) for uppercase
         letters or `"lower"` for lowercase.
@@ -3509,7 +3522,8 @@ def fmt_url(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     label
         An optional label to use for the link. If a string is provided, it will be used as the
         visible text for all links. If a callable is provided, it will be called with the URL string
@@ -3701,7 +3715,8 @@ def fmt_email(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     display_name
         An optional display name to use instead of the raw email address. If a string is
         provided, it will be used as the visible text for all links. If a callable is provided, it
@@ -3920,7 +3935,8 @@ def fmt_bytes(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     standard
         The form of expressing large byte sizes is divided between: (1) decimal units (powers of
         1000; e.g., `"kB"` and `"MB"`), and (2) binary units (powers of 1024; e.g., `"KiB"` and
@@ -4315,7 +4331,8 @@ def fmt_duration(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     input_units
         If one or more selected columns contains numeric values (not `timedelta` values, which
         contain the duration units), a keyword must be provided for `input_units` for the values to
@@ -4965,7 +4982,8 @@ def fmt_date(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
         ISO 8601 date formatting. There are 41 date styles in total.
@@ -5114,7 +5132,8 @@ def fmt_time(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
         times are formatted within ISO 8601 datetime values. There are 5 time styles in total.
@@ -5256,7 +5275,8 @@ def fmt_datetime(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     date_style
         The date style to use. By default this is the short name `"iso"` which corresponds to
         ISO 8601 date formatting. There are 41 date styles in total.
@@ -5456,7 +5476,8 @@ def fmt_tf(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     tf_style
         The `True`/`False` mapping style to use. By default this is the short name `"true-false"`
         which corresponds to the words `"true"` and `"false"`. Two other `tf_style=` values produce
@@ -5757,7 +5778,8 @@ def fmt_markdown(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
 
     Returns
     -------
@@ -5847,7 +5869,8 @@ def fmt_units(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -7155,7 +7178,8 @@ def fmt_image(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     height
         The height of the rendered images.
     width
@@ -7381,7 +7405,8 @@ def fmt_icon(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     height
         The absolute height of the icon in the table cell. By default, this is set to "1em".
     sep
@@ -7649,7 +7674,8 @@ def fmt_flag(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     height
         The height of the flag icons. The default value is `"1em"`. If given as a number, it is
         assumed to be in pixels.
@@ -7861,7 +7887,8 @@ def fmt_nanoplot(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     plot_type
         Nanoplots can either take the form of a line plot (using `"line"`) or a bar plot (with
         `"bar"`). A line plot, by default, contains layers for a data line, data points, and a data
@@ -8376,7 +8403,8 @@ def fmt_passthrough(
     rows
         In conjunction with `columns=`, we can specify which of their rows should undergo
         formatting. The default is all rows, resulting in all rows in targeted columns being
-        formatted. Alternatively, we can supply a list of row indices.
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     escape
         Should the cell values be escaped for the output context? When `True` (the default),
         HTML special characters like `<`, `>`, and `&` are escaped in HTML output, and LaTeX special

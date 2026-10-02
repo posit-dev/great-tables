@@ -1099,9 +1099,10 @@ def cols_merge(
         suppress any hiding of columns, `False` can be used here. By default, all columns other
         than the first one specified in `columns=` will be hidden.
     rows
-        In conjunction with `columns=`, we can specify which of their rows should participate in
-        the merging process. The default is all rows, resulting in all rows in `columns=` being
-        formatted. Alternatively, we can supply a list of row indices.
+        In conjunction with `columns=`, we can specify which of their rows should participate in the
+        merging process. The default is all rows, resulting in all rows in `columns=` being
+        formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+        DataFrames) a Polars expression such as `pl.col("x") > 0`.
     pattern
         A formatting pattern that specifies the arrangement of the column values and any string
         literals. The pattern uses numbers (within `{}`) that correspond to the indices of columns
@@ -1283,7 +1284,8 @@ def cols_merge_uncert(
         respectively, should be provided as a list.
     rows
         In conjunction with `col_val`, we can specify which rows should participate in the merging
-        process. The default is all rows. Alternatively, we can supply a list of row indices.
+        process. The default is all rows. Alternatively, we can supply a row index, a list of row
+        indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
     sep
         The separator text that contains the uncertainty mark for a single uncertainty value. The
         default value of `" +/- "` indicates that an appropriate plus/minus mark will be used
@@ -1426,9 +1428,9 @@ def cols_merge_range(
         expressions can be used, it's recommended that a single column name be used to ensure that
         exactly one column is provided here.
     rows
-        In conjunction with `col_begin`, we can specify which rows should participate in the
-        merging process. The default is all rows. Alternatively, we can supply a list of row
-        indices.
+        In conjunction with `col_begin`, we can specify which rows should participate in the merging
+        process. The default is all rows. Alternatively, we can supply a row index, a list of row
+        indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
     sep
         The separator text that indicates the values are ranged. If not provided, an en dash
         (`"–"`) will be used. You can use `"--"` for an en dash or `"---"` for an em dash.
@@ -1577,7 +1579,8 @@ def cols_merge_n_pct(
         are displayed (e.g., with `fmt_percent()`).
     rows
         In conjunction with `col_n`, we can specify which rows should participate in the merging
-        process. The default is all rows. Alternatively, we can supply a list of row indices.
+        process. The default is all rows. Alternatively, we can supply a row index, a list of row
+        indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
     autohide
         An option to automatically hide the column specified as `col_pct`. Any columns with their
         state changed to hidden will behave the same as before, they just won't be displayed in
