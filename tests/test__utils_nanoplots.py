@@ -2101,6 +2101,44 @@ def test_nanoplot_area_fill_color_per_column() -> None:
     assert [colors_by_id[i] for i in area_ids] == ["red", "blue", "red", "blue"]
 
 
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+def test_fmt_nanoplot_rows_expression(plot_type: str) -> None:
+    df = pl.DataFrame({"name": ["a", "b", "c"], "vals": [1.0, 2.0, 50.0]})
+
+    by_position = GT(df, id="t").fmt_nanoplot(columns="vals", rows=[0, 1], plot_type=plot_type)
+    by_expression = GT(df, id="t").fmt_nanoplot(
+        columns="vals", rows=pl.col("name") != "c", plot_type=plot_type
+    )
+
+    assert by_expression.as_raw_html() == by_position.as_raw_html()
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+@pytest.mark.parametrize("rows", [1, -1])
+def test_fmt_nanoplot_rows_single_int(plot_type: str, rows: int) -> None:
+    df = pl.DataFrame({"vals": [1.0, 2.0, 50.0]})
+
+    by_int = GT(df, id="t").fmt_nanoplot(columns="vals", rows=rows, plot_type=plot_type)
+    by_list = GT(df, id="t").fmt_nanoplot(columns="vals", rows=[rows], plot_type=plot_type)
+
+    assert by_int.as_raw_html() == by_list.as_raw_html()
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+def test_fmt_nanoplot_rows_pandas_non_default_index(plot_type: str) -> None:
+    pd = pytest.importorskip("pandas")
+
+    vals = [1.0, 2.0, 50.0]
+    df_default = pd.DataFrame({"vals": vals})
+    df_custom = pd.DataFrame({"vals": vals}, index=[10, 20, 30])
+
+    # Rows are positional, so the index labels of the DataFrame should not matter
+    expected = GT(df_default, id="t").fmt_nanoplot(columns="vals", rows=[0, 1], plot_type=plot_type)
+    result = GT(df_custom, id="t").fmt_nanoplot(columns="vals", rows=[0, 1], plot_type=plot_type)
+
+    assert result.as_raw_html() == expected.as_raw_html()
+
+
 def test_nanoplot_options_interactive_data_values():
     # When interactive_data_values is not set, it should default to True
     opts_default = nanoplot_options()

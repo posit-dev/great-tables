@@ -11,6 +11,7 @@ from ._tbl_data import DataFrameLike, SelectExpr, is_na
 from ._text import Text, _process_text
 
 if TYPE_CHECKING:
+    from ._locations import RowSelectExpr
     from ._types import GTSelf
 
 
@@ -32,7 +33,7 @@ def _convert_missing(context: Literal["html"], el: str):
 def sub_missing(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     missing_text: str | Text | None = None,
 ) -> GTSelf:
     """
@@ -52,7 +53,8 @@ def sub_missing(
     rows
         In conjunction with `columns=`, we can specify which of their rows should be scanned for
         missing values. The default is all rows, resulting in all rows in all targeted columns being
-        considered for this substitution. Alternatively, we can supply a list of row indices.
+        considered for this substitution. Alternatively, we can supply a row index, a list of row
+        indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
     missing_text
         The text to be used in place of missing values in the rendered table. We can optionally use
         the [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helper functions to style
@@ -98,7 +100,7 @@ def sub_missing(
 def sub_zero(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     zero_text: str = "nil",
 ) -> GTSelf:
     """
@@ -116,7 +118,8 @@ def sub_zero(
     rows
         In conjunction with `columns=`, we can specify which of their rows should be scanned for
         zeros. The default is all rows, resulting in all rows in all targeted columns being
-        considered for this substitution. Alternatively, we can supply a list of row indices.
+        considered for this substitution. Alternatively, we can supply a row index, a list of row
+        indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
     zero_text
         The text to be used in place of zero values in the rendered table. We can optionally use the
         [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) functions to style the text
@@ -186,7 +189,7 @@ class SubZero:
 def sub_small_vals(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     threshold: int | float = 0.01,
     small_pattern: str | None = None,
     sign: str = "+",
@@ -210,7 +213,8 @@ def sub_small_vals(
     rows
         In conjunction with `columns=`, we can specify which of their rows should be scanned for
         small values. The default is all rows, resulting in all rows in all targeted columns being
-        considered for this substitution. Alternatively, we can supply a list of row indices.
+        considered for this substitution. Alternatively, we can supply a row index, a list of row
+        indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
     threshold
         The threshold value with which values should be considered small enough for replacement.
     small_pattern
@@ -287,7 +291,7 @@ def sub_small_vals(
 def sub_large_vals(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     threshold: int | float = 1e12,
     large_pattern: str = ">={x}",
     sign: str = "+",
@@ -308,7 +312,8 @@ def sub_large_vals(
     rows
         In conjunction with `columns=`, we can specify which of their rows should be scanned for
         large values. The default is all rows, resulting in all rows in all targeted columns being
-        considered for this substitution. Alternatively, we can supply a list of row indices.
+        considered for this substitution. Alternatively, we can supply a row index, a list of row
+        indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
     threshold
         The threshold value with which values should be considered large enough for replacement.
     large_pattern
@@ -379,7 +384,7 @@ def sub_large_vals(
 def sub_values(
     self: GTSelf,
     columns: SelectExpr = None,
-    rows: int | list[int] | None = None,
+    rows: RowSelectExpr = None,
     values: list[Any] | Any | None = None,
     pattern: str | None = None,
     fn: Callable[..., bool] | None = None,
@@ -399,7 +404,8 @@ def sub_values(
     rows
         In conjunction with `columns=`, we can specify which of their rows should be targeted for
         substitution. The default is all rows, resulting in all rows in all targeted columns being
-        considered for this substitution. Alternatively, we can supply a list of row indices.
+        considered for this substitution. Alternatively, we can supply a row index, a list of row
+        indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
     values
         The specific value or values that should be replaced with a `replacement` value. If
         `pattern` is also supplied then `values` will be ignored.
