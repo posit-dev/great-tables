@@ -16,9 +16,6 @@ authors:
     given-names: Richard
     email: rich@posit.co
     orcid: https://orcid.org/0000-0003-3925-190X
-  - family-names: Michael
-    given-names: Chow
-    email: michael.chow@posit.co
 repository: https://pypi.org/project/great-tables/
 repository-code: https://github.com/posit-dev/great-tables
 url: https://posit-dev.github.io/great-tables/
