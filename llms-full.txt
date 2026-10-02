@@ -1603,7 +1603,7 @@ Columns of data can be formatted with the `fmt_*()` methods. We can specify the 
 
 
 
-fmt_number(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_number(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format numeric values.
 
@@ -1630,7 +1630,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 decimals
     The `decimals` values corresponds to the exact number of decimal places to use. A value such
     as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -1718,7 +1719,7 @@ from great_tables import GT, exibble
 )
 ```
 
-fmt_integer(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, use_seps: 'bool' = True, scale_by: 'float' = 1, accounting: 'bool' = False, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_integer(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, use_seps: 'bool' = True, scale_by: 'float' = 1, accounting: 'bool' = False, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as integers.
 
@@ -1744,7 +1745,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 use_seps
     The `use_seps` option allows for the use of digit group separators. The type of digit group
     separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
@@ -1808,7 +1810,7 @@ from great_tables import GT, exibble
 )
 ```
 
-fmt_scientific(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_by: 'float' = 1, exp_style: 'str' = 'x10n', pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign_m: 'bool' = False, force_sign_n: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_scientific(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_by: 'float' = 1, exp_style: 'str' = 'x10n', pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign_m: 'bool' = False, force_sign_n: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values to scientific notation.
 
@@ -1838,7 +1840,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 decimals
     The `decimals` values corresponds to the exact number of decimal places to use. A value such
     as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -1920,7 +1923,7 @@ from great_tables import GT, exibble
 )
 ```
 
-fmt_engineering(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_by: 'float' = 1, exp_style: 'str' = 'x10n', pattern: 'str' = '{x}', dec_mark: 'str' = '.', force_sign_m: 'bool' = False, force_sign_n: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_engineering(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_by: 'float' = 1, exp_style: 'str' = 'x10n', pattern: 'str' = '{x}', dec_mark: 'str' = '.', force_sign_m: 'bool' = False, force_sign_n: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values to engineering notation.
 
@@ -1953,7 +1956,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 decimals
     The `decimals` values corresponds to the exact number of decimal places to use. A value such
     as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -2090,7 +2094,7 @@ prefixes_df = prefixes_df.with_columns(
 )
 ```
 
-fmt_number_si(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, unit: 'str | None' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_by: 'float' = 1, prefix_mode: 'str' = 'engineering', pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'bool' = True, locale: 'str | None' = None) -> 'GTSelf'
+fmt_number_si(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, unit: 'str | None' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_by: 'float' = 1, prefix_mode: 'str' = 'engineering', pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'bool' = True, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values with SI (metric) prefixes.
 
@@ -2121,7 +2125,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 unit
     A character string specifying the unit to append after the SI prefix (e.g., `"g"` for
     grams, `"W"` for watts, `"Hz"` for hertz, `"m"` for meters). If `None`, only the prefix
@@ -2295,7 +2300,7 @@ freqs_df = pl.DataFrame({"frequency": [2.4e9, 5.0e9, 900e6]})
 )
 ```
 
-fmt_percent(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, decimals: 'int' = 2, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_values: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'right', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_percent(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_values: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'right', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as a percentage.
 
@@ -2325,7 +2330,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 decimals
     The `decimals` values corresponds to the exact number of decimal places to use. A value such
     as `2.34` can, for example, be formatted with `0` decimal places and it would result in
@@ -2412,7 +2418,7 @@ towny_mini = (
 (GT(towny_mini).fmt_percent("pop_change_2016_2021_pct", decimals=2))
 ```
 
-fmt_partsper(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, to_units: 'str' = 'per-mille', symbol: 'str' = 'auto', decimals: 'int' = 2, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_values: 'bool' = True, use_seps: 'bool' = True, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'str | bool' = 'auto', locale: 'str | None' = None) -> 'GTSelf'
+fmt_partsper(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, to_units: 'str' = 'per-mille', symbol: 'str' = 'auto', decimals: 'int' = 2, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_values: 'bool' = True, use_seps: 'bool' = True, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'str | bool' = 'auto', locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as parts-per quantities.
 
@@ -2449,7 +2455,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 to_units
     A keyword that signifies the desired output quantity. This can be any from the following
     set: `"per-mille"`, `"per-myriad"`, `"pcm"`, `"ppm"`, `"ppb"`, `"ppt"`, or `"ppq"`.
@@ -2558,7 +2565,7 @@ concentrations = pl.DataFrame({"gas": ["CO", "NO2", "O3"], "conc": [1.5, 35.0, 1
 GT(concentrations).fmt_partsper(columns="conc", to_units="ppb", scale_values=False, symbol="ppbV")
 ```
 
-fmt_currency(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, currency: 'str | None' = None, use_subunits: 'bool' = True, decimals: 'int | None' = None, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'left', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_currency(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, currency: 'str | None' = None, use_subunits: 'bool' = True, decimals: 'int | None' = None, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'left', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as currencies.
 
@@ -2587,7 +2594,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 currency
     The currency to use for the numeric value. This input can be supplied as a 3-letter currency
     code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
@@ -2683,7 +2691,7 @@ from great_tables import GT, exibble
 )
 ```
 
-fmt_roman(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, case: 'str' = 'upper', pattern: 'str' = '{x}') -> 'GTSelf'
+fmt_roman(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, case: 'str' = 'upper', pattern: 'str' = '{x}') -> 'GTSelf'
 
 Format values as Roman numerals.
 
@@ -2698,7 +2706,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 case
     Should Roman numerals should be rendered as uppercase (`"upper"`) or lowercase (`"lower"`)
     letters? By default, this is set to `"upper"`.
@@ -2731,7 +2740,7 @@ numbers_tbl = pd.DataFrame({"arabic": [1, 8, 24, 85], "roman": [1, 8, 24, 85]})
 )
 ```
 
-fmt_fraction(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, accuracy: 'str | int' = 'low', simplify: 'bool' = True, layout: 'str' = 'inline', use_seps: 'bool' = True, pattern: 'str' = '{x}', sep_mark: 'str' = ',', locale: 'str | None' = None) -> 'GTSelf'
+fmt_fraction(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, accuracy: 'str | int' = 'low', simplify: 'bool' = True, layout: 'str' = 'inline', use_seps: 'bool' = True, pattern: 'str' = '{x}', sep_mark: 'str' = ',', locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as mixed fractions.
 
@@ -2758,7 +2767,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 accuracy
     The accuracy of the fraction. Use `"low"` for denominators up to 1 digit (e.g., halves,
     thirds, quarters, etc.), `"med"` for up to 2-digit denominators, and `"high"` for up to
@@ -2891,7 +2901,7 @@ grouped = (
 )
 ```
 
-fmt_chem(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None) -> 'GTSelf'
+fmt_chem(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None) -> 'GTSelf'
 
 Format chemical formulas.
 
@@ -2910,7 +2920,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 
 Returns
 -------
@@ -3066,7 +3077,7 @@ unstable = (
 )
 ```
 
-fmt_index(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, case: 'str' = 'upper', index_algo: 'str' = 'repeat', pattern: 'str' = '{x}', locale: 'str | None' = None) -> 'GTSelf'
+fmt_index(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, case: 'str' = 'upper', index_algo: 'str' = 'repeat', pattern: 'str' = '{x}', locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as index characters.
 
@@ -3086,7 +3097,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 case
     The case of the resulting index characters. Use `"upper"` (the default) for uppercase
     letters or `"lower"` for lowercase.
@@ -3167,7 +3179,7 @@ df = pl.DataFrame({
 )
 ```
 
-fmt_url(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, label: 'str | Callable[[str], str] | None' = None, as_button: 'bool' = False, color: 'str' = 'auto', show_underline: 'str | bool' = 'auto', button_fill: 'str' = 'auto', button_width: 'str | None' = None, button_outline: 'str | None' = None, target: 'str | None' = '_blank') -> 'GTSelf'
+fmt_url(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, label: 'str | Callable[[str], str] | None' = None, as_button: 'bool' = False, color: 'str' = 'auto', show_underline: 'str | bool' = 'auto', button_fill: 'str' = 'auto', button_width: 'str | None' = None, button_outline: 'str | None' = None, target: 'str | None' = '_blank') -> 'GTSelf'
 
 Format values as URL links.
 
@@ -3183,7 +3195,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 label
     An optional label to use for the link. If a string is provided, it will be used as the
     visible text for all links. If a callable is provided, it will be called with the URL string
@@ -3285,7 +3298,7 @@ Button-styled links can be created with `as_button=True`.
 )
 ```
 
-fmt_email(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, display_name: 'str | Callable[[str], str] | None' = None, as_button: 'bool' = False, color: 'str' = 'auto', show_underline: 'str | bool' = 'auto', button_fill: 'str' = 'auto', button_width: 'str | None' = None, button_outline: 'str | None' = None, target: 'str | None' = '_blank') -> 'GTSelf'
+fmt_email(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, display_name: 'str | Callable[[str], str] | None' = None, as_button: 'bool' = False, color: 'str' = 'auto', show_underline: 'str | bool' = 'auto', button_fill: 'str' = 'auto', button_width: 'str | None' = None, button_outline: 'str | None' = None, target: 'str | None' = '_blank') -> 'GTSelf'
 
 Format values as email links.
 
@@ -3301,7 +3314,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 display_name
     An optional display name to use instead of the raw email address. If a string is
     provided, it will be used as the visible text for all links. If a callable is provided, it
@@ -3415,7 +3429,7 @@ Button-styled email links are also supported.
 )
 ```
 
-fmt_bytes(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, standard: 'str' = 'decimal', decimals: 'int' = 1, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = True, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'bool' = True, locale: 'str | None' = None) -> 'GTSelf'
+fmt_bytes(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, standard: 'str' = 'decimal', decimals: 'int' = 1, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = True, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'bool' = True, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as bytes.
 
@@ -3444,7 +3458,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 standard
     The form of expressing large byte sizes is divided between: (1) decimal units (powers of
     1000; e.g., `"kB"` and `"MB"`), and (2) binary units (powers of 1024; e.g., `"KiB"` and
@@ -3522,7 +3537,7 @@ from great_tables import GT, exibble
 )
 ```
 
-fmt_date(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, date_style: 'DateStyle' = 'iso', pattern: 'str' = '{x}', locale: 'str | None' = None) -> 'GTSelf'
+fmt_date(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, date_style: 'DateStyle' = 'iso', pattern: 'str' = '{x}', locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as dates.
 
@@ -3537,7 +3552,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 date_style
     The date style to use. By default this is the short name `"iso"` which corresponds to
     ISO 8601 date formatting. There are 41 date styles in total.
@@ -3607,7 +3623,7 @@ exibble_mini = exibble[["date", "time"]]
 )
 ```
 
-fmt_time(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, time_style: 'TimeStyle' = 'iso', pattern: 'str' = '{x}', locale: 'str | None' = None) -> 'GTSelf'
+fmt_time(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, time_style: 'TimeStyle' = 'iso', pattern: 'str' = '{x}', locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as times.
 
@@ -3622,7 +3638,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 time_style
     The time style to use. By default this is the short name `"iso"` which corresponds to how
     times are formatted within ISO 8601 datetime values. There are 5 time styles in total.
@@ -3680,7 +3697,7 @@ exibble_mini = exibble[["date", "time"]]
 )
 ```
 
-fmt_datetime(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, date_style: 'DateStyle' = 'iso', time_style: 'TimeStyle' = 'iso', format_str: 'str | None' = None, sep: 'str' = ' ', pattern: 'str' = '{x}', locale: 'str | None' = None) -> 'GTSelf'
+fmt_datetime(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, date_style: 'DateStyle' = 'iso', time_style: 'TimeStyle' = 'iso', format_str: 'str | None' = None, sep: 'str' = ' ', pattern: 'str' = '{x}', locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as datetimes.
 
@@ -3696,7 +3713,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 date_style
     The date style to use. By default this is the short name `"iso"` which corresponds to
     ISO 8601 date formatting. There are 41 date styles in total.
@@ -3787,7 +3805,7 @@ exibble_mini = exibble[["date", "time"]]
 )
 ```
 
-fmt_duration(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, input_units: 'str | None' = None, output_units: 'str | list[str] | None' = None, duration_style: 'DurationStyle' = 'narrow', trim_zero_units: 'bool | list[str]' = True, max_output_units: 'int | None' = None, pattern: 'str' = '{x}', use_seps: 'bool' = True, sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_duration(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, input_units: 'str | None' = None, output_units: 'str | list[str] | None' = None, duration_style: 'DurationStyle' = 'narrow', trim_zero_units: 'bool | list[str]' = True, max_output_units: 'int | None' = None, pattern: 'str' = '{x}', use_seps: 'bool' = True, sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format numeric or duration values as styled time duration strings.
 
@@ -3805,7 +3823,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 input_units
     If one or more selected columns contains numeric values (not `timedelta` values, which
     contain the duration units), a keyword must be provided for `input_units` for the values to
@@ -4003,7 +4022,7 @@ df = pl.DataFrame({
 )
 ```
 
-fmt_tf(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, tf_style: 'str' = 'true-false', pattern: 'str' = '{x}', true_val: 'str | None' = None, false_val: 'str | None' = None, na_val: 'str | None' = None, colors: 'list[str] | None' = None) -> 'GTSelf'
+fmt_tf(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, tf_style: 'str' = 'true-false', pattern: 'str' = '{x}', true_val: 'str | None' = None, false_val: 'str | None' = None, na_val: 'str | None' = None, colors: 'list[str] | None' = None) -> 'GTSelf'
 
 Format True and False values
 
@@ -4026,7 +4045,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 tf_style
     The `True`/`False` mapping style to use. By default this is the short name `"true-false"`
     which corresponds to the words `"true"` and `"false"`. Two other `tf_style=` values produce
@@ -4113,7 +4133,7 @@ sp500_mini = (
 )
 ```
 
-fmt_markdown(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None) -> 'GTSelf'
+fmt_markdown(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None) -> 'GTSelf'
 
 Format Markdown text.
 
@@ -4128,7 +4148,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 
 Returns
 -------
@@ -4167,7 +4188,7 @@ df = pd.DataFrame({"md": [text_1, text_2]})
 (GT(df).fmt_markdown("md"))
 ```
 
-fmt_units(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, pattern: 'str' = '{x}') -> 'GTSelf'
+fmt_units(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, pattern: 'str' = '{x}') -> 'GTSelf'
 
 Format measurement units.
 
@@ -4186,7 +4207,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 pattern
     A formatting pattern that allows for decoration of the formatted value. The formatted value
     is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -4291,7 +4313,7 @@ constants_mini = (
 )
 ```
 
-fmt_image(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, height: 'str | int | None' = None, width: 'str | int | None' = None, sep: 'str' = ' ', path: 'str | Path | None' = None, file_pattern: 'str' = '{}', encode: 'bool' = True) -> 'GTSelf'
+fmt_image(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, height: 'str | int | None' = None, width: 'str | int | None' = None, sep: 'str' = ' ', path: 'str | Path | None' = None, file_pattern: 'str' = '{}', encode: 'bool' = True) -> 'GTSelf'
 
 Format image paths to generate images in cells.
 
@@ -4313,7 +4335,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 height
     The height of the rendered images.
 width
@@ -4370,7 +4393,7 @@ metro_mini = metro[["name", "lines", "passengers"]].head(5)
 )
 ```
 
-fmt_flag(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, height: 'str | float | None' = '1em', sep: 'str' = ' ', use_title: 'bool' = True) -> 'GTSelf'
+fmt_flag(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, height: 'str | float | None' = '1em', sep: 'str' = ' ', use_title: 'bool' = True) -> 'GTSelf'
 
 Generate flag icons for countries from their country codes.
 
@@ -4394,7 +4417,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 height
     The height of the flag icons. The default value is `"1em"`. If given as a number, it is
     assumed to be in pixels.
@@ -4473,7 +4497,7 @@ countrypops_mini = (
 )
 ```
 
-fmt_icon(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, height: 'str | None' = None, sep: 'str' = ' ', stroke_color: 'str | None' = None, stroke_width: 'str | int | None' = None, stroke_alpha: 'float | None' = None, fill_color: 'str | dict[str, str] | None' = None, fill_alpha: 'float | None' = None, margin_left: 'str | None' = None, margin_right: 'str | None' = None) -> 'GTSelf'
+fmt_icon(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, height: 'str | None' = None, sep: 'str' = ' ', stroke_color: 'str | None' = None, stroke_width: 'str | int | None' = None, stroke_alpha: 'float | None' = None, fill_color: 'str | dict[str, str] | None' = None, fill_alpha: 'float | None' = None, margin_left: 'str | None' = None, margin_right: 'str | None' = None) -> 'GTSelf'
 
 Use icons within a table's body cells.
 
@@ -4492,7 +4516,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 height
     The absolute height of the icon in the table cell. By default, this is set to "1em".
 sep
@@ -4632,7 +4657,7 @@ sp500_mini = (
 )
 ```
 
-fmt_nanoplot(self: 'GTSelf', columns: 'str | None' = None, rows: 'int | list[int] | None' = None, plot_type: 'PlotType' = 'line', plot_height: 'str' = '2em', missing_vals: 'MissingVals' = 'gap', autoscale: 'bool' = False, reference_line: 'str | float | None' = None, reference_area: 'list[Any] | None' = None, expand_x: 'list[int] | list[float] | list[int | float] | None' = None, expand_y: 'list[int] | list[float] | list[int | float] | None' = None, options: 'dict[str, Any] | None' = None) -> 'GTSelf'
+fmt_nanoplot(self: 'GTSelf', columns: 'str | None' = None, rows: 'RowSelectExpr' = None, plot_type: 'PlotType' = 'line', plot_height: 'str' = '2em', missing_vals: 'MissingVals' = 'gap', autoscale: 'bool' = False, reference_line: 'str | float | None' = None, reference_area: 'list[Any] | None' = None, expand_x: 'list[int] | list[float] | list[int | float] | None' = None, expand_y: 'list[int] | list[float] | list[int | float] | None' = None, options: 'dict[str, Any] | None' = None) -> 'GTSelf'
 
 Format data for nanoplot visualizations.
 
@@ -4652,7 +4677,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 plot_type
     Nanoplots can either take the form of a line plot (using `"line"`) or a bar plot (with
     `"bar"`). A line plot, by default, contains layers for a data line, data points, and a data
@@ -4843,7 +4869,7 @@ single_vals_df = pl.DataFrame(
 )
 ```
 
-fmt_passthrough(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, escape: 'bool' = True, pattern: 'str' = '{x}') -> 'GTSelf'
+fmt_passthrough(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, escape: 'bool' = True, pattern: 'str' = '{x}') -> 'GTSelf'
 
 Format values by passing them through, optionally escaping and decorating.
 
@@ -4868,7 +4894,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in targeted columns being
-    formatted. Alternatively, we can supply a list of row indices.
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 escape
     Should the cell values be escaped for the output context? When `True` (the default),
     HTML special characters like `<`, `>`, and `&` are escaped in HTML output, and LaTeX special
@@ -4920,7 +4947,7 @@ df = pd.DataFrame({"content": ["<b>bold</b>", "<em>italic</em>"]})
 GT(df).fmt_passthrough(columns="content", escape=False)
 ```
 
-fmt(self: 'GTSelf', fns: 'FormatFn', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, is_substitution: 'bool' = False) -> 'GTSelf'
+fmt(self: 'GTSelf', fns: 'FormatFn', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, is_substitution: 'bool' = False) -> 'GTSelf'
 
 Set a column format with a formatter function.
 
@@ -4940,7 +4967,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should undergo
     formatting. The default is all rows, resulting in all rows in `columns` being formatted.
-    Alternatively, we can supply a list of row indices.
+    Alternatively, we can supply a row index, a list of row indices, or (for Polars DataFrames)
+    a Polars expression such as `pl.col("x") > 0`.
 is_substitution
     Whether the formatter is a substitution. Substitutions are run last, after other formatters.
 
@@ -4964,7 +4992,7 @@ from great_tables import GT, exibble
 )
 ```
 
-sub_missing(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, missing_text: 'str | Text | None' = None) -> 'GTSelf'
+sub_missing(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, missing_text: 'str | Text | None' = None) -> 'GTSelf'
 
 Substitute missing values in the table body.
 
@@ -4982,7 +5010,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should be scanned for
     missing values. The default is all rows, resulting in all rows in all targeted columns being
-    considered for this substitution. Alternatively, we can supply a list of row indices.
+    considered for this substitution. Alternatively, we can supply a row index, a list of row
+    indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 missing_text
     The text to be used in place of missing values in the rendered table. We can optionally use
     the [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) helper functions to style
@@ -5020,7 +5049,7 @@ exibble_mini = pl.from_pandas(exibble).drop("row", "group", "fctr").slice(4, 8)
 )
 ```
 
-sub_zero(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, zero_text: 'str' = 'nil') -> 'GTSelf'
+sub_zero(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, zero_text: 'str' = 'nil') -> 'GTSelf'
 
 Substitute zero values in the table body.
 
@@ -5036,7 +5065,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should be scanned for
     zeros. The default is all rows, resulting in all rows in all targeted columns being
-    considered for this substitution. Alternatively, we can supply a list of row indices.
+    considered for this substitution. Alternatively, we can supply a row index, a list of row
+    indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 zero_text
     The text to be used in place of zero values in the rendered table. We can optionally use the
     [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`) functions to style the text
@@ -5070,7 +5100,7 @@ single_vals_df = pl.DataFrame(
 GT(single_vals_df).fmt_scientific(columns="numbers").sub_zero()
 ```
 
-sub_small_vals(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, threshold: 'int | float' = 0.01, small_pattern: 'str | None' = None, sign: 'str' = '+') -> 'GTSelf'
+sub_small_vals(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, threshold: 'int | float' = 0.01, small_pattern: 'str | None' = None, sign: 'str' = '+') -> 'GTSelf'
 
 Substitute small values in the table body.
 
@@ -5090,7 +5120,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should be scanned for
     small values. The default is all rows, resulting in all rows in all targeted columns being
-    considered for this substitution. Alternatively, we can supply a list of row indices.
+    considered for this substitution. Alternatively, we can supply a row index, a list of row
+    indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 threshold
     The threshold value with which values should be considered small enough for replacement.
 small_pattern
@@ -5148,7 +5179,7 @@ neg_vals_df = pl.DataFrame(
 )
 ```
 
-sub_large_vals(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, threshold: 'int | float' = 1000000000000.0, large_pattern: 'str' = '>={x}', sign: 'str' = '+') -> 'GTSelf'
+sub_large_vals(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, threshold: 'int | float' = 1000000000000.0, large_pattern: 'str' = '>={x}', sign: 'str' = '+') -> 'GTSelf'
 
 Substitute large values in the table body.
 
@@ -5165,7 +5196,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should be scanned for
     large values. The default is all rows, resulting in all rows in all targeted columns being
-    considered for this substitution. Alternatively, we can supply a list of row indices.
+    considered for this substitution. Alternatively, we can supply a row index, a list of row
+    indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 threshold
     The threshold value with which values should be considered large enough for replacement.
 large_pattern
@@ -5223,7 +5255,7 @@ neg_vals_df = pl.DataFrame(
 )
 ```
 
-sub_values(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'int | list[int] | None' = None, values: 'list[Any] | Any | None' = None, pattern: 'str | None' = None, fn: 'Callable[..., bool] | None' = None, replacement: 'str | int | float | None' = None) -> 'GTSelf'
+sub_values(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, values: 'list[Any] | Any | None' = None, pattern: 'str | None' = None, fn: 'Callable[..., bool] | None' = None, replacement: 'str | int | float | None' = None) -> 'GTSelf'
 
 Substitute targeted values in the table body.
 
@@ -5238,7 +5270,8 @@ columns
 rows
     In conjunction with `columns=`, we can specify which of their rows should be targeted for
     substitution. The default is all rows, resulting in all rows in all targeted columns being
-    considered for this substitution. Alternatively, we can supply a list of row indices.
+    considered for this substitution. Alternatively, we can supply a row index, a list of row
+    indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 values
     The specific value or values that should be replaced with a `replacement` value. If
     `pattern` is also supplied then `values` will be ignored.
@@ -6463,7 +6496,7 @@ countrypops_mini = countrypops.loc[countrypops["country_name"] == "Benin"][
 GT(countrypops_mini).cols_hide(columns="year").cols_unhide(columns="year")
 ```
 
-cols_merge(self: 'GTSelf', columns: 'SelectExpr', hide_columns: 'SelectExpr | Literal[False]' = None, rows: 'int | list[int] | None' = None, pattern: 'str | None' = None) -> 'GTSelf'
+cols_merge(self: 'GTSelf', columns: 'SelectExpr', hide_columns: 'SelectExpr | Literal[False]' = None, rows: 'RowSelectExpr' = None, pattern: 'str | None' = None) -> 'GTSelf'
 
 Merge data from two or more columns into a single column.
 
@@ -6488,9 +6521,10 @@ hide_columns
     suppress any hiding of columns, `False` can be used here. By default, all columns other
     than the first one specified in `columns=` will be hidden.
 rows
-    In conjunction with `columns=`, we can specify which of their rows should participate in
-    the merging process. The default is all rows, resulting in all rows in `columns=` being
-    formatted. Alternatively, we can supply a list of row indices.
+    In conjunction with `columns=`, we can specify which of their rows should participate in the
+    merging process. The default is all rows, resulting in all rows in `columns=` being
+    formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
+    DataFrames) a Polars expression such as `pl.col("x") > 0`.
 pattern
     A formatting pattern that specifies the arrangement of the column values and any string
     literals. The pattern uses numbers (within `{}`) that correspond to the indices of columns
@@ -6589,7 +6623,7 @@ gtcars_pl = (
 )
 ```
 
-cols_merge_uncert(self: 'GTSelf', col_val: 'SelectExpr', col_uncert: 'SelectExpr', rows: 'int | list[int] | None' = None, sep: 'str' = ' +/- ', autohide: 'bool' = True) -> 'GTSelf'
+cols_merge_uncert(self: 'GTSelf', col_val: 'SelectExpr', col_uncert: 'SelectExpr', rows: 'RowSelectExpr' = None, sep: 'str' = ' +/- ', autohide: 'bool' = True) -> 'GTSelf'
 
 Merge columns to a value-with-uncertainty column.
 
@@ -6614,7 +6648,8 @@ col_uncert
     respectively, should be provided as a list.
 rows
     In conjunction with `col_val`, we can specify which rows should participate in the merging
-    process. The default is all rows. Alternatively, we can supply a list of row indices.
+    process. The default is all rows. Alternatively, we can supply a row index, a list of row
+    indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 sep
     The separator text that contains the uncertainty mark for a single uncertainty value. The
     default value of `" +/- "` indicates that an appropriate plus/minus mark will be used
@@ -6685,7 +6720,7 @@ df = pl.DataFrame({
 )
 ```
 
-cols_merge_range(self: 'GTSelf', col_begin: 'SelectExpr', col_end: 'SelectExpr', rows: 'int | list[int] | None' = None, sep: 'str | None' = None, autohide: 'bool' = True, locale: 'str | None' = None) -> 'GTSelf'
+cols_merge_range(self: 'GTSelf', col_begin: 'SelectExpr', col_end: 'SelectExpr', rows: 'RowSelectExpr' = None, sep: 'str | None' = None, autohide: 'bool' = True, locale: 'str | None' = None) -> 'GTSelf'
 
 Merge two columns to a value range column.
 
@@ -6705,9 +6740,9 @@ col_end
     expressions can be used, it's recommended that a single column name be used to ensure that
     exactly one column is provided here.
 rows
-    In conjunction with `col_begin`, we can specify which rows should participate in the
-    merging process. The default is all rows. Alternatively, we can supply a list of row
-    indices.
+    In conjunction with `col_begin`, we can specify which rows should participate in the merging
+    process. The default is all rows. Alternatively, we can supply a row index, a list of row
+    indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 sep
     The separator text that indicates the values are ranged. If not provided, an en dash
     (`"–"`) will be used. You can use `"--"` for an en dash or `"---"` for an em dash.
@@ -6780,7 +6815,7 @@ df = pl.DataFrame({
 )
 ```
 
-cols_merge_n_pct(self: 'GTSelf', col_n: 'SelectExpr', col_pct: 'SelectExpr', rows: 'int | list[int] | None' = None, autohide: 'bool' = True) -> 'GTSelf'
+cols_merge_n_pct(self: 'GTSelf', col_n: 'SelectExpr', col_pct: 'SelectExpr', rows: 'RowSelectExpr' = None, autohide: 'bool' = True) -> 'GTSelf'
 
 Merge two columns to combine counts and percentages.
 
@@ -6803,7 +6838,8 @@ col_pct
     are displayed (e.g., with `fmt_percent()`).
 rows
     In conjunction with `col_n`, we can specify which rows should participate in the merging
-    process. The default is all rows. Alternatively, we can supply a list of row indices.
+    process. The default is all rows. Alternatively, we can supply a row index, a list of row
+    indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 autohide
     An option to automatically hide the column specified as `col_pct`. Any columns with their
     state changed to hidden will behave the same as before, they just won't be displayed in
