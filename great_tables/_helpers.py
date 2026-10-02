@@ -1481,7 +1481,9 @@ def nanoplot_options(
     data_bar_fill_color = data_bar_fill_color or "#3FB5FF"
 
     data_bar_negative_stroke_color = data_bar_negative_stroke_color or "#CC3243"
-    data_bar_negative_stroke_width = data_bar_negative_stroke_width or 4
+    data_bar_negative_stroke_width = (
+        4 if data_bar_negative_stroke_width is None else data_bar_negative_stroke_width
+    )
     data_bar_negative_fill_color = data_bar_negative_fill_color or "#D75A68"
 
     reference_line_color = reference_line_color or "#75A8B0"
