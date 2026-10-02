@@ -3925,6 +3925,14 @@ def test_fmt_index_pattern():
     assert x[2] == "C."
 
 
+def test_fmt_index_pattern_latex_escaped():
+    df = pd.DataFrame({"x": [1, 2]})
+    gt = GT(df).fmt_index(columns="x", pattern="#{x}%")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+
+    assert x == ["\\#A\\%", "\\#B\\%"]
+
+
 def test_fmt_index_zero():
     df = pd.DataFrame({"x": [0, 1, 2]})
     gt = GT(df).fmt_index(columns="x")
