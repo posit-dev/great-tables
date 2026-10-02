@@ -46,7 +46,7 @@ def _remove_from_group_styles(styles: Styles, column: str):
 
 
 def tab_stub(
-    self: GTSelf, rowname_col: str | None = None, groupname_col: str | None = None
+    self: GTSelf, rowname_col: str | list[str] | None = None, groupname_col: str | None = None
 ) -> GTSelf:
     """Add a table stub, to emphasize row and group information.
 
@@ -103,7 +103,9 @@ def tab_stub(
         self = self._replace(_spanners=self._spanners.remove_column(groupname_col))
 
     if rowname_col is not None:
-        self = self._replace(_spanners=self._spanners.remove_column(rowname_col))
+        cols_to_remove = rowname_col if isinstance(rowname_col, list) else [rowname_col]
+        for col in cols_to_remove:
+            self = self._replace(_spanners=self._spanners.remove_column(col))
 
     # set new row and group name cols ----
     stub, boxhead = self._stub._set_cols(self._tbl_data, self._boxhead, rowname_col, groupname_col)

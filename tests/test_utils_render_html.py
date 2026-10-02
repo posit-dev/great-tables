@@ -558,3 +558,229 @@ def test_spanner_covering_all_columns_else_branch():
 
     assert result is not None
     assert "All" in str(result)
+
+
+
+
+def _get_body_html(gt: GT) -> str:
+    built = gt._build_data("html")
+    return create_body_component_h(built)
+
+
+def _get_columns_html(gt: GT) -> str:
+    built = gt._build_data("html")
+    return str(create_columns_component_h(built))
+
+
+def test_multi_col_stub_data_model_two_levels():
+    """rowname_col list sets extra_stub_cols and stub_col_order correctly."""
+    df = pd.DataFrame({"sector": ["Tech"], "ticker": ["AAPL"], "price": [150]})
+    gt = GT(df, rowname_col=["sector", "ticker"])
+
+    assert gt._stub._extra_stub_cols == ["sector"]
+    assert gt._boxhead._stub_col_order == ["sector", "ticker"]
+    stub_cols = [c.var for c in gt._boxhead._get_stub_columns()]
+    assert stub_cols == ["sector", "ticker"]
+
+
+def test_multi_col_stub_layout_length():
+    """_get_stub_layout returns one entry per stub column."""
+    df = pd.DataFrame({"sector": ["Tech"], "ticker": ["AAPL"], "price": [150]})
+    gt = GT(df, rowname_col=["sector", "ticker"])
+    built = gt._build_data("html")
+    layout = built._stub._get_stub_layout(has_summary_rows=False, options=built._options)
+    assert len(layout) == 2
+    assert all(e == "rowname" for e in layout)
+
+
+def test_multi_col_stub_header_colspan():
+    """Column header emits colspan=2 for a two-column stub."""
+    df = pd.DataFrame({"sector": ["Tech"], "ticker": ["AAPL"], "price": [150]})
+    gt = GT(df, rowname_col=["sector", "ticker"])
+    col_html = _get_columns_html(gt)
+    assert 'colspan="2"' in col_html
+
+
+def test_multi_col_stub_three_levels_header_colspan():
+    """Column header emits colspan=3 for a three-column stub."""
+    df = pd.DataFrame({"a": ["x"], "b": ["y"], "c": ["z"], "val": [1]})
+    gt = GT(df, rowname_col=["a", "b", "c"])
+    col_html = _get_columns_html(gt)
+    assert 'colspan="3"' in col_html
+
+
+def test_multi_col_stub_renders_all_columns_in_body():
+    """All stub column values appear in the body HTML."""
+    df = pd.DataFrame({"sector": ["Tech"], "ticker": ["AAPL"], "price": [150]})
+    gt = GT(df, rowname_col=["sector", "ticker"])
+    body = _get_body_html(gt)
+    assert "Tech" in body
+    assert "AAPL" in body
+    assert "150" in body
+
+
+def test_multi_col_stub_rowspan_collapse():
+    """Repeated outer-level values get rowspan > 1; inner values are not collapsed."""
+    df = pd.DataFrame({
+        "sector": ["Tech", "Tech", "Finance"],
+        "ticker": ["AAPL", "MSFT", "JPM"],
+        "price": [150, 280, 140],
+    })
+    gt = GT(df, rowname_col=["sector", "ticker"])
+    body = _get_body_html(gt)
+
+    # "Tech" should appear with rowspan="2"
+    assert 'rowspan="2"' in body
+    # The second Tech row should NOT repeat the sector cell
+    # (it is omitted because covered by the rowspan)
+    tech_count = body.count(">Tech<")
+    assert tech_count == 1
+
+    # All ticker values still appear
+    assert "AAPL" in body
+    assert "MSFT" in body
+    assert "JPM" in body
+
+
+def test_multi_col_stub_no_spurious_collapse_when_values_differ():
+    """Non-repeating outer values each get their own cell (rowspan=1)."""
+    df = pd.DataFrame({
+        "sector": ["Tech", "Finance", "Healthcare"],
+        "ticker": ["AAPL", "JPM", "JNJ"],
+        "price": [150, 140, 90],
+    })
+    gt = GT(df, rowname_col=["sector", "ticker"])
+    body = _get_body_html(gt)
+
+    # No rowspan attribute should appear
+    assert 'rowspan="' not in body
+
+
+def test_multi_col_stub_group_boundary_resets_rowspan():
+    """The same outer value in different groups is NOT collapsed across the boundary."""
+    df = pd.DataFrame({
+        "region": ["North", "North", "South", "South"],
+        "sector": ["Tech", "Finance", "Tech", "Finance"],
+        "ticker": ["AAPL", "JPM", "NVDA", "BAC"],
+        "price": [150, 140, 430, 33],
+    })
+    gt = GT(df, rowname_col=["sector", "ticker"], groupname_col="region")
+    body = _get_body_html(gt)
+
+    # "Tech" appears in both groups — should NOT have rowspan="2" across groups
+    # Each group's Tech gets its own cell (rowspan=1, no attribute)
+    assert 'rowspan="2"' not in body
+    # Both Tech and Finance appear (once per group)
+    assert body.count(">Tech<") == 2
+    assert body.count(">Finance<") == 2
+
+
+def test_multi_col_stub_rowspan_within_group():
+    """When using row_group_as_column, rowspan collapsing still works within each group."""
+    df = pd.DataFrame({
+        "region": ["North", "North", "South"],
+        "sector": ["Tech", "Tech", "Tech"],
+        "ticker": ["AAPL", "MSFT", "NVDA"],
+        "price": [150, 280, 430],
+    })
+    gt = GT(df, rowname_col=["sector", "ticker"], groupname_col="region")
+    body = _get_body_html(gt)
+
+    # North group has 2 Tech rows → sector should get rowspan="2"
+    assert 'rowspan="2"' in body
+    # South group has 1 Tech row → no rowspan
+    assert body.count(">Tech<") == 2  # once with rowspan, once without
+
+
+def test_multi_col_stub_single_col_unchanged():
+    """Single string rowname_col behaves exactly as before."""
+    df = pd.DataFrame({"ticker": ["AAPL", "MSFT"], "price": [150, 280]})
+    gt = GT(df, rowname_col="ticker")
+
+    assert gt._stub._extra_stub_cols == []
+    assert gt._boxhead._stub_col_order == ["ticker"]
+    body = _get_body_html(gt)
+    # No rowspan attributes for single-column stub
+    assert 'rowspan="' not in body
+
+
+def test_multi_col_stub_list_with_one_element_raises():
+    """A list with fewer than 2 elements raises ValueError."""
+    df = pd.DataFrame({"ticker": ["AAPL"], "price": [150]})
+    with pytest.raises(ValueError, match="at least 2"):
+        GT(df, rowname_col=["ticker"])
+
+
+def test_multi_col_stub_overlap_with_groupname_col_raises():
+    """A column name cannot appear in both rowname_col list and groupname_col."""
+    df = pd.DataFrame({"sector": ["Tech"], "ticker": ["AAPL"], "price": [150]})
+    with pytest.raises(ValueError):
+        GT(df, rowname_col=["sector", "ticker"], groupname_col="sector")
+
+
+
+
+def test_text_transform_stub_applies_to_all_stub_cols():
+    """text_transform(loc.stub()) must transform every stub column, not just the first."""
+    from great_tables import loc, style
+    from great_tables._tab_create_modify import text_transform
+
+    df = pd.DataFrame({
+        "sector": ["Tech", "Finance"],
+        "ticker": ["AAPL", "JPM"],
+        "price": [150, 140],
+    })
+    gt = GT(df, rowname_col=["sector", "ticker"]).text_transform(
+        locations=loc.stub(),
+        fn=lambda x: x.upper(),
+    )
+    body = _get_body_html(gt)
+
+    # Both stub columns should be upper-cased
+    assert "TECH" in body
+    assert "FINANCE" in body
+    assert "AAPL" in body
+    assert "JPM" in body
+    # Original casing should not appear
+    assert ">Tech<" not in body
+    assert ">Finance<" not in body
+
+
+def test_cols_width_stub_sentinel_applies_to_all_stub_cols():
+    """cols_width(stub) must set width on every stub column for multi-col stubs."""
+    from great_tables import stub
+
+    df = pd.DataFrame({
+        "sector": ["Tech"],
+        "ticker": ["AAPL"],
+        "price": [150],
+    })
+    gt = GT(df, rowname_col=["sector", "ticker"]).cols_width({stub: "120px"})
+
+    # Both stub columns should have the width recorded in the boxhead
+    stub_cols = gt._boxhead._get_stub_columns()
+    assert len(stub_cols) == 2
+    assert all(c.column_width == "120px" for c in stub_cols)
+
+
+def test_grand_summary_colspan_correct_for_multi_col_stub_with_group():
+    """Grand summary row colspan must cover group col + all row stub cols."""
+    df = pd.DataFrame({
+        "region": ["North", "North"],
+        "sector": ["Tech", "Finance"],
+        "ticker": ["AAPL", "JPM"],
+        "price": [150.0, 140.0],
+    })
+    gt = (
+        GT(df, rowname_col=["sector", "ticker"], groupname_col="region")
+        .tab_options(row_group_as_column=True)
+        .grand_summary_rows(
+            fns={"Total": lambda x: x.sum()},
+        )
+    )
+    body = _get_body_html(gt)
+
+    # With row_group_as_column=True: 1 group col + 2 row stub cols = colspan 3
+    assert 'colspan="3"' in body
+    # The old hardcoded colspan="2" must NOT appear in the grand summary row
+    assert 'colspan="2"' not in body

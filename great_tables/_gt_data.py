@@ -58,7 +58,7 @@ class FramelessData:
 
 
 def _prep_gt(
-    data, rowname_col: str | None, groupname_col: str | None, auto_align: bool
+    data, rowname_col: str | list[str] | None, groupname_col: str | None, auto_align: bool
 ) -> tuple[Stub, Boxhead]:
     # this function is similar to Stub._set_cols, except it differs in two ways.
     #   * it supports auto-alignment (an expensive operation)
@@ -110,7 +110,7 @@ class GTData:
     def from_data(
         cls,
         data: TblData,
-        rowname_col: str | None = None,
+        rowname_col: str | list[str] | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
         id: str | None = None,
@@ -296,10 +296,11 @@ class Boxhead(_Sequence[ColInfo]):
         cls,
         data: TblData | list[ColInfo],
         auto_align: bool = True,
-        rowname_col: str | None = None,
+        rowname_col: str | list[str] | None = None,
         groupname_col: str | None = None,
     ) -> Self:
         obj = super().__new__(cls)
+        obj._stub_col_order: list[str] = []
 
         if isinstance(data, list):
             obj._d = data
@@ -319,7 +320,7 @@ class Boxhead(_Sequence[ColInfo]):
         self,
         data: TblData | list[ColInfo],
         auto_align: bool = True,
-        rowname_col: str | None = None,
+        rowname_col: str | list[str] | None = None,
         groupname_col: str | None = None,
     ):
         pass
@@ -327,13 +328,32 @@ class Boxhead(_Sequence[ColInfo]):
     def __getnewargs__(self):
         return (self._d,)
 
-    def set_stub_cols(self, rowname_col: str | None, groupname_col: str | None) -> Self:
+    def _rebuild(self, new_cols: list[ColInfo]) -> Self:
+        """Rebuild from a new column list, preserving _stub_col_order."""
+        new_bh = self.__class__(new_cols)
+        new_bh._stub_col_order = self._stub_col_order
+        return new_bh
+
+    def set_stub_cols(self, rowname_col: str | list[str] | None, groupname_col: str | None) -> Self:
         # Note that None unsets a column
+        # Normalize rowname_col to a list for uniform handling
+        if isinstance(rowname_col, list):
+            rowname_cols = rowname_col
+            if len(rowname_cols) < 2:
+                raise ValueError(
+                    "rowname_col list must contain at least 2 column names. "
+                    "Use a string for a single stub column."
+                )
+        else:
+            rowname_cols = [rowname_col] if rowname_col is not None else []
+
+        rowname_col_set = set(rowname_cols)
+
         # TODO: validate that rowname_col is in the boxhead
-        if rowname_col is not None and rowname_col == groupname_col:
+        if groupname_col is not None and groupname_col in rowname_col_set:
             raise ValueError(
                 "rowname_col and groupname_col may not be set to the same column. "
-                f"Received column name: `{rowname_col}`."
+                f"Received column name: `{groupname_col}`."
             )
 
         new_cols = []
@@ -341,7 +361,7 @@ class Boxhead(_Sequence[ColInfo]):
         for col in self:
             # either set the col to be the new stub or row_group ----
             # note that this assumes col.var is always a string, so never equals None
-            if col.var == rowname_col:
+            if col.var in rowname_col_set:
                 new_col = replace(col, type=ColInfoTypeEnum.stub)
             elif col.var == groupname_col:
                 new_col = replace(col, type=ColInfoTypeEnum.row_group)
@@ -353,14 +373,16 @@ class Boxhead(_Sequence[ColInfo]):
 
             new_cols.append(new_col)
 
-        return self.__class__(new_cols)
+        new_bh = self.__class__(new_cols)
+        new_bh._stub_col_order = rowname_cols
+        return new_bh
 
     def _set_cols_info_type(self, colnames: list[str], colinfo_type: ColInfoTypeEnum) -> Self:
         # TODO: validate that colname is in the boxhead
         res: list[ColInfo] = [
             replace(col, type=colinfo_type) if col.var in colnames else col for col in self._d
         ]
-        return self.__class__(res)
+        return self._rebuild(res)
 
     def set_cols_hidden(self, colnames: list[str]) -> Self:
         return self._set_cols_info_type(colnames=colnames, colinfo_type=ColInfoTypeEnum.hidden)
@@ -399,7 +421,7 @@ class Boxhead(_Sequence[ColInfo]):
             replace(col_info, column_align=alignment) for col_info, alignment in zip(self._d, align)
         ]
 
-        return self.__class__(new_cols)
+        return self._rebuild(new_cols)
 
     def vars_from_type(self, type: ColInfoTypeEnum) -> list[str]:
         return [x.var for x in self._d if x.type == type]
@@ -411,7 +433,7 @@ class Boxhead(_Sequence[ColInfo]):
 
         new_order = [boxh_vars.index(var) for var in vars]
 
-        return self[new_order]
+        return self._rebuild([self._d[el] for el in new_order])
 
     def final_columns(self, options: Options) -> list[ColInfo]:
         row_group_info = self._get_row_group_column()
@@ -419,8 +441,7 @@ class Boxhead(_Sequence[ColInfo]):
             [row_group_info] if row_group_info and options.row_group_as_column.value else []
         )
 
-        stub_info = self._get_stub_column()
-        stub_column = [stub_info] if stub_info else []
+        stub_column = self._get_stub_columns()
 
         default_columns = self._get_default_columns()
 
@@ -441,7 +462,7 @@ class Boxhead(_Sequence[ColInfo]):
             for x in self._d
         ]
 
-        return self.__class__(out_cols)
+        return self._rebuild(out_cols)
 
     # Set column alignments
     def _set_column_aligns(self, columns: list[str], align: str) -> Self:
@@ -450,7 +471,7 @@ class Boxhead(_Sequence[ColInfo]):
             replace(x, column_align=align) if x.var in set_cols else x for x in self._d
         ]
 
-        return self.__class__(out_cols)
+        return self._rebuild(out_cols)
 
     # Get a list of all column widths
     def _get_column_widths(self) -> list[str | None]:
@@ -464,6 +485,18 @@ class Boxhead(_Sequence[ColInfo]):
     def _get_stub_column(self) -> ColInfo | None:
         stub_column = [x for x in self._d if x.type == ColInfoTypeEnum.stub]
         return None if not stub_column else stub_column[0]
+
+    def _get_stub_columns(self) -> list[ColInfo]:
+        """Return all stub columns in hierarchy order (outer → primary/rightmost).
+
+        When rowname_col was a list, order follows the user-specified list.
+        Falls back to dataframe order when no explicit order is stored.
+        """
+        if self._stub_col_order:
+            stub_cols_by_name = {c.var: c for c in self._d if c.type == ColInfoTypeEnum.stub}
+            return [stub_cols_by_name[name] for name in self._stub_col_order if name in stub_cols_by_name]
+        col = self._get_stub_column()
+        return [col] if col else []
 
     def _get_row_group_column(self) -> ColInfo | None:
         column = [x for x in self._d if x.type == ColInfoTypeEnum.row_group]
@@ -527,7 +560,7 @@ class Boxhead(_Sequence[ColInfo]):
             for x, xvar in zip(self._d, colnames)
         ]
 
-        return self.__class__(out_cols)
+        return self._rebuild(out_cols)
 
 
 # Stub ----
@@ -571,25 +604,35 @@ class Stub:
     rows: list[RowInfo]
     group_rows: GroupRows
 
-    def __init__(self, rows: list[RowInfo], group_rows: GroupRows):
+    def __init__(self, rows: list[RowInfo], group_rows: GroupRows, extra_stub_cols: list[str] | None = None):
         self.rows = self._d = rows.copy()
         self.group_rows = group_rows
+        self._extra_stub_cols: list[str] = extra_stub_cols if extra_stub_cols is not None else []
 
     @classmethod
     def from_data(
-        cls, data, rowname_col: str | None = None, groupname_col: str | None = None
+        cls, data, rowname_col: str | list[str] | None = None, groupname_col: str | None = None
     ) -> Self:
         # Obtain a list of row indices from the data and initialize
         # the `_stub` from that
         row_indices = list(range(n_rows(data)))
+
+        # Normalize rowname_col: support a list for hierarchical stubs.
+        # The rightmost column is the primary row identifier; the rest are outer levels.
+        if isinstance(rowname_col, list):
+            extra_stub_cols = rowname_col[:-1]
+            primary_rowname_col: str | None = rowname_col[-1]
+        else:
+            extra_stub_cols = []
+            primary_rowname_col = rowname_col
 
         if groupname_col is not None:
             group_id = to_list(data[groupname_col])
         else:
             group_id = [None] * n_rows(data)
 
-        if rowname_col is not None:
-            row_names = to_list(data[rowname_col])
+        if primary_rowname_col is not None:
+            row_names = to_list(data[primary_rowname_col])
         else:
             row_names = [None] * n_rows(data)
 
@@ -603,10 +646,10 @@ class Stub:
         ).as_list()
         group_rows = GroupRows(data, group_key=groupname_col).reorder(group_names)
 
-        return cls(row_info, group_rows)
+        return cls(row_info, group_rows, extra_stub_cols)
 
     def _set_cols(
-        self, data: TblData, boxhead: Boxhead, rowname_col: str | None, groupname_col: str | None
+        self, data: TblData, boxhead: Boxhead, rowname_col: str | list[str] | None, groupname_col: str | None
     ) -> tuple[Stub, Boxhead]:
         """Return a new Stub and Boxhead, with updated rowname and groupname columns.
 
@@ -625,7 +668,7 @@ class Stub:
     def reorder_rows(self, indices) -> Self:
         new_rows = [self.rows[ii] for ii in indices]
 
-        return self.__class__(new_rows, self.group_rows)
+        return self.__class__(new_rows, self.group_rows, self._extra_stub_cols)
 
     def set_row_indent(self, row_positions: list[int], indent: int) -> Self:
         """Return a new Stub with the indent set on the specified row positions."""
@@ -634,11 +677,11 @@ class Stub:
             replace(row, indent=indent) if ii in position_set else row
             for ii, row in enumerate(self.rows)
         ]
-        return self.__class__(new_rows, self.group_rows)
+        return self.__class__(new_rows, self.group_rows, self._extra_stub_cols)
 
     def order_groups(self, group_order: RowGroups) -> Self:
         # TODO: validate
-        return self.__class__(self.rows, self.group_rows.reorder(group_order))
+        return self.__class__(self.rows, self.group_rows.reorder(group_order), self._extra_stub_cols)
 
     def update_group_row_labels(self, body: Body, tbl_data: TblData, boxhead: Boxhead) -> Self:
         """Update group row labels using formatted values from the rendered body.
@@ -681,7 +724,7 @@ class Stub:
 
             new_group_rows.append(group_row.with_group_label(cell_content))
 
-        return self.__class__(self.rows, GroupRows(new_group_rows))
+        return self.__class__(self.rows, GroupRows(new_group_rows), self._extra_stub_cols)
 
     def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
         return self.group_rows.indices_map(len(self.rows))
@@ -749,6 +792,16 @@ class Stub:
                 )
                 if condition
             ]
+            # Expand "rowname" to cover all extra stub columns (outer levels).
+            # Each extra column gets an additional "rowname" entry so that colspan
+            # calculations and membership checks remain correct.
+            if stub_rownames_is_column and self._extra_stub_cols:
+                rowname_idx = stub_layout.index("rowname")
+                stub_layout = (
+                    stub_layout[:rowname_idx]
+                    + ["rowname"] * len(self._extra_stub_cols)
+                    + stub_layout[rowname_idx:]
+                )
 
         return stub_layout
 
@@ -909,7 +962,7 @@ class Heading:
 
 
 # Stubhead ----
-Stubhead: TypeAlias = "str | None"
+Stubhead: TypeAlias = "str | list[str] | None"
 
 
 # Sourcenotes ----
