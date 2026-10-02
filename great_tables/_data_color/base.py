@@ -278,6 +278,16 @@ def data_color(
         # Call the color scale function on the scaled values to get a list of colors
         color_vals = color_scale_fn(scaled_vals)
 
+        # `GradientPalette` interpolates using RGB tuples, which have no alpha channel, so the
+        # `alpha=` value baked into `palette` above is lost here; reapply it to the interpolated
+        # colors (skipping `None` entries, which stand in for NA values)
+        if alpha is not None:
+            not_na_idx = [i for i, x in enumerate(color_vals) if x is not None]
+            not_na_colors = [x for x in color_vals if x is not None]
+            not_na_vals = _html_color(colors=not_na_colors, alpha=alpha)
+            for i, val in zip(not_na_idx, not_na_vals):
+                color_vals[i] = val
+
         # Replace 'None' values in `color_vals` with the `na_color=` color
         color_vals = [na_color if is_na(data_table, x) else x for x in color_vals]
 
