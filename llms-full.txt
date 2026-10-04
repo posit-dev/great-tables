@@ -5336,7 +5336,7 @@ tbl = pl.DataFrame(
 )
 ```
 
-data_color(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, palette: 'str | list[str] | None' = None, domain: 'list[str] | list[int] | list[float] | None' = None, na_color: 'str | None' = None, alpha: 'int | float | None' = None, reverse: 'bool' = False, autocolor_text: 'bool' = True, truncate: 'bool' = False) -> 'GTSelf'
+data_color(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, palette: 'str | list[str] | None' = None, domain: 'list[str] | list[int] | list[float] | None' = None, na_color: 'str | None' = None, alpha: 'int | float | None' = None, reverse: 'bool' = False, autocolor_text: 'bool' = True, contrast_algo: 'ContrastAlgo' = 'apca', truncate: 'bool' = False) -> 'GTSelf'
 
 Perform data cell colorization.
 
@@ -5381,6 +5381,11 @@ reverse
 autocolor_text
     Whether or not to automatically color the text of the data values. If `True`, then the text
     will be colored according to the background color of the cell.
+contrast_algo
+    The color contrast algorithm to use when `autocolor_text=True`. By default this is
+    `"apca"` (Accessible Perceptual Contrast Algorithm) and the alternative to this is
+    `"wcag"` (Web Content Accessibility Guidelines). The chosen algorithm determines whether
+    light or dark text provides better contrast against each cell's background color.
 truncate
     If `True`, then any values that fall outside of the domain will be truncated to the
     minimum or maximum value of the domain (will have the same color). If `False`, then any
@@ -15470,6 +15475,45 @@ color can represent different values in different columns). By setting a shared 
 that colors are comparable across columns, which is critical when columns measure the same quantity.
 In this example, both `integer` and `float` use the `[0, 10]` range, so a given shade of purple
 means the same thing regardless of which column it appears in.
+
+## Choosing a contrast algorithm with `contrast_algo=`
+
+We noted earlier that `~~GT.data_color()` automatically picks a light or dark text color for each
+cell so that values remain legible against their background fill. How that choice gets made depends
+on the contrast algorithm in use, and that's settable with the `contrast_algo=` argument. There are
+two options:
+
+- `"apca"` (the default): the Accessible Perceptual Contrast Algorithm, which models how people
+actually perceive the lightness contrast of text against a background
+- `"wcag"`: the contrast ratio formula from the Web Content Accessibility Guidelines (WCAG 2.x)
+
+The two algorithms agree on very light and very dark backgrounds but they can differ on mid-tone
+colors. The WCAG formula is known to overstate the contrast of dark text on saturated, medium-dark
+backgrounds (e.g., reds and blues), so it often selects black text where white text is easier to
+read. APCA does a better job with these colors. To see the difference, let's color the same set of
+values twice, once with each algorithm:
+
+```{python}
+contrast_df = pl.DataFrame(
+    {
+        "apca": [1, 2, 3, 4, 5, 6, 7],
+        "wcag": [1, 2, 3, 4, 5, 6, 7],
+    }
+)
+
+palette = ["#2C7BB6", "#ABD9E9", "#FDAE61", "#D7191C"]
+
+(
+    GT(contrast_df)
+    .data_color(columns="apca", palette=palette, contrast_algo="apca")
+    .data_color(columns="wcag", palette=palette, contrast_algo="wcag")
+)
+```
+
+Both columns have identical background colors, but the blue and red-orange cells get white text
+under APCA and black text under WCAG. The APCA choices are noticeably more legible for those cells.
+If you need to match the WCAG 2.x guidelines for compliance reasons, then use
+`contrast_algo="wcag"`. Otherwise, the default of `"apca"` is the better choice for readability.
 
 ## Bringing it all together
 
