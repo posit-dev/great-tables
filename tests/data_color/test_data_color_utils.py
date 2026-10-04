@@ -13,6 +13,7 @@ from great_tables._data_color.base import (
     _expand_short_hex,
     _float_to_hex,
     _get_domain_factor,
+    _get_apca_contrast,
     _get_domain_numeric,
     _get_wcag_contrast_ratio,
     _hex_to_rgb,
@@ -22,6 +23,7 @@ from great_tables._data_color.base import (
     _is_short_hex,
     _is_standard_hex_col,
     _relative_luminance,
+    _relative_luminance_apca,
     _rescale_numeric,
     _srgb,
 )
@@ -74,6 +76,61 @@ def test_ideal_fgnd_color_custom_contrast(
     bgnd_color: str, fgnd_color: str, light_color: str, dark_color: str
 ) -> None:
     assert _ideal_fgnd_color(bgnd_color, light=light_color, dark=dark_color) == fgnd_color
+
+
+@pytest.mark.parametrize(
+    ("bgnd_color", "apca_fgnd", "wcag_fgnd"),
+    [
+        ("#FF0000", "#FFFFFF", "#000000"),  # Red: algorithms disagree
+        ("#808080", "#FFFFFF", "#000000"),  # Mid gray: algorithms disagree
+        ("#00FF00", "#000000", "#000000"),  # Green: both choose dark text
+        ("#0000FF", "#FFFFFF", "#FFFFFF"),  # Blue: both choose light text
+    ],
+)
+def test_ideal_fgnd_color_algo(bgnd_color: str, apca_fgnd: str, wcag_fgnd: str) -> None:
+    assert _ideal_fgnd_color(bgnd_color) == apca_fgnd
+    assert _ideal_fgnd_color(bgnd_color, algo="apca") == apca_fgnd
+    assert _ideal_fgnd_color(bgnd_color, algo="wcag") == wcag_fgnd
+
+
+@pytest.mark.parametrize("algo", ["apca", "wcag"])
+def test_ideal_fgnd_color_tie_prefers_dark(algo: str) -> None:
+    # Equal contrast for both options resolves to the dark color (as in R's gt)
+    assert _ideal_fgnd_color("#808080", light="#123456", dark="#123456AA", algo=algo) == "#123456AA"
+
+
+def test_ideal_fgnd_color_invalid_algo() -> None:
+    with pytest.raises(ValueError, match="contrast_algo"):
+        _ideal_fgnd_color("#FFFFFF", algo="foo")  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("txt_color", "bgnd_color", "contrast"),
+    [
+        # Reference values from the APCA (0.0.98G-4g) implementation
+        ("#000000", "#FFFFFF", 106.04067321268862),  # Dark text on light background
+        ("#FFFFFF", "#000000", -107.88473318309848),  # Light text on dark background
+        ("#888888", "#FFFFFF", 63.056469930209424),
+        ("#FFFFFF", "#888888", -68.54146436644962),
+        ("#FF0000", "#FF0000", 0.0),  # Same color -> no contrast
+        ("#FF0000FF", "#FF0000", 0.0),  # Alpha channel is ignored
+    ],
+)
+def test_get_apca_contrast(txt_color: str, bgnd_color: str, contrast: float) -> None:
+    assert _get_apca_contrast(txt_color, bgnd_color) == pytest.approx(contrast)
+
+
+@pytest.mark.parametrize(
+    ("rgb", "luminance"),
+    [
+        ((255, 255, 255), 1.0),  # White color
+        ((0, 0, 0), 0.022**1.414),  # Black color (soft clamped)
+        ((255, 0, 0), 0.2126729),  # Red color
+        ((0, 255, 0), 0.7151522),  # Green color
+    ],
+)
+def test_relative_luminance_apca(rgb: tuple[int, int, int], luminance: float) -> None:
+    assert _relative_luminance_apca(rgb) == pytest.approx(luminance)
 
 
 @pytest.mark.parametrize(
