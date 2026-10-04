@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from typing_extensions import TypeAlias
 
@@ -23,6 +23,26 @@ if TYPE_CHECKING:
 
 
 RGBColor: TypeAlias = tuple[int, int, int]
+ContrastAlgo: TypeAlias = Literal["apca", "wcag"]
+
+# Coefficients for the SAPC APCA (Accessible Perceptual Contrast Algorithm); these values are
+# current as of Beta 0.0.98G-4g (Oct 1, 2021)
+_APCA_COEFFS = {
+    "mainTRC": 2.4,
+    "sRco": 0.2126729,
+    "sGco": 0.7151522,
+    "sBco": 0.0721750,
+    "normBG": 0.56,
+    "normTXT": 0.57,
+    "revTXT": 0.62,
+    "revBG": 0.65,
+    "blkThrs": 0.022,
+    "blkClmp": 1.414,
+    "scaleBoW": 1.14,
+    "scaleWoB": 1.14,
+    "loBoWoffset": 0.027,
+    "deltaYmin": 0.0005,
+}
 
 
 def data_color(
@@ -35,6 +55,7 @@ def data_color(
     alpha: int | float | None = None,
     reverse: bool = False,
     autocolor_text: bool = True,
+    contrast_algo: ContrastAlgo = "apca",
     truncate: bool = False,
 ) -> GTSelf:
     """
@@ -81,6 +102,11 @@ def data_color(
     autocolor_text
         Whether or not to automatically color the text of the data values. If `True`, then the text
         will be colored according to the background color of the cell.
+    contrast_algo
+        The color contrast algorithm to use when `autocolor_text=True`. By default this is
+        `"apca"` (Accessible Perceptual Contrast Algorithm) and the alternative to this is
+        `"wcag"` (Web Content Accessibility Guidelines). The chosen algorithm determines whether
+        light or dark text provides better contrast against each cell's background color.
     truncate
         If `True`, then any values that fall outside of the domain will be truncated to the
         minimum or maximum value of the domain (will have the same color). If `False`, then any
@@ -189,6 +215,8 @@ def data_color(
     # TODO: there is a circular import in palettes (which imports functions from this module)
     from great_tables._data_color.palettes import GradientPalette
 
+    _validate_contrast_algo(contrast_algo)
+
     # If no color is provided to `na_color`, use a light gray color as a default
     if na_color is None:
         na_color = "#808080"
@@ -295,7 +323,7 @@ def data_color(
         # by using `tab_style()`
         for i, color_val in zip(row_pos, color_vals):
             if autocolor_text:
-                fgnd_color = _ideal_fgnd_color(bgnd_color=color_val)
+                fgnd_color = _ideal_fgnd_color(bgnd_color=color_val, algo=contrast_algo)
 
                 gt_obj = gt_obj.tab_style(
                     style=[text(color=fgnd_color), fill(color=color_val)],
@@ -309,14 +337,31 @@ def data_color(
     return gt_obj
 
 
-def _ideal_fgnd_color(bgnd_color: str, light: str = "#FFFFFF", dark: str = "#000000") -> str:
+def _validate_contrast_algo(algo: str) -> None:
+    if algo not in ("apca", "wcag"):
+        raise ValueError(f'`contrast_algo=` must be either "apca" or "wcag", not {algo!r}.')
+
+
+def _ideal_fgnd_color(
+    bgnd_color: str,
+    light: str = "#FFFFFF",
+    dark: str = "#000000",
+    algo: ContrastAlgo = "apca",
+) -> str:
+    _validate_contrast_algo(algo)
+
     # Compose alpha value from hexadecimal color value in `bgnd_color=`
     bgnd_color = _alpha_composite_with_white(bgnd_color)
 
-    contrast_dark = _get_wcag_contrast_ratio(color_1=dark, color_2=bgnd_color)
-    contrast_light = _get_wcag_contrast_ratio(color_1=light, color_2=bgnd_color)
+    if algo == "apca":
+        # The APCA contrast value is signed (its sign reflects polarity) so `abs()` is used below
+        contrast_dark = _get_apca_contrast(txt_color=dark, bgnd_color=bgnd_color)
+        contrast_light = _get_apca_contrast(txt_color=light, bgnd_color=bgnd_color)
+    else:
+        contrast_dark = _get_wcag_contrast_ratio(color_1=dark, color_2=bgnd_color)
+        contrast_light = _get_wcag_contrast_ratio(color_1=light, color_2=bgnd_color)
 
-    fgnd_color = dark if abs(contrast_dark) > abs(contrast_light) else light
+    fgnd_color = dark if abs(contrast_dark) >= abs(contrast_light) else light
 
     return fgnd_color
 
@@ -393,6 +438,78 @@ def _get_wcag_contrast_ratio(color_1: str, color_2: str) -> float:
     contrast_ratio = (max(l_1, l_2) + 0.05) / (min(l_1, l_2) + 0.05)
 
     return contrast_ratio
+
+
+def _get_apca_contrast(txt_color: str, bgnd_color: str) -> float:
+    """
+    Calculate the APCA lightness contrast (Lc) of text overlaid on a background color.
+
+    Parameters
+    ----------
+    txt_color
+        The text (foreground) color.
+    bgnd_color
+        The background color.
+
+    Returns
+    -------
+    float
+        The Lc contrast value, which lies roughly in the range of -108 to 106. Positive values
+        indicate dark text on a light background whereas negative values indicate light text on a
+        dark background.
+    """
+
+    txt_lum = _relative_luminance_apca(rgb=_hex_to_rgb(hex_color=txt_color))
+    bgnd_lum = _relative_luminance_apca(rgb=_hex_to_rgb(hex_color=bgnd_color))
+
+    return _get_apca_contrast_from_luminance(txt_lum=txt_lum, bgnd_lum=bgnd_lum)
+
+
+def _get_apca_contrast_from_luminance(txt_lum: float, bgnd_lum: float) -> float:
+    c = _APCA_COEFFS
+
+    # If the luminance difference between background and text is nearly the same, treat that
+    # as zero contrast
+    if abs(bgnd_lum - txt_lum) < c["deltaYmin"]:
+        return 0.0
+
+    if bgnd_lum > txt_lum:
+        # Normal polarity: dark text on a light background
+        ratio = (bgnd_lum ** c["normBG"] - txt_lum ** c["normTXT"]) * c["scaleBoW"]
+        ratio = 0.0 if ratio < 0.1 else ratio - c["loBoWoffset"]
+    else:
+        # Reverse polarity: light text on a dark background
+        ratio = (bgnd_lum ** c["revBG"] - txt_lum ** c["revTXT"]) * c["scaleWoB"]
+        ratio = 0.0 if ratio > -0.1 else ratio + c["loBoWoffset"]
+
+    return ratio * 100
+
+
+def _relative_luminance_apca(rgb: RGBColor) -> float:
+    """
+    Calculate the APCA screen luminance (Y) of an RGB color.
+
+    Parameters
+    ----------
+    rgb
+        The RGB color.
+
+    Returns
+    -------
+    float
+        The screen luminance, with a soft clamp applied to very dark colors.
+    """
+
+    c = _APCA_COEFFS
+
+    r, g, b = ((x / 255) ** c["mainTRC"] for x in rgb)
+    lum = r * c["sRco"] + g * c["sGco"] + b * c["sBco"]
+
+    # Soft clamp near-black colors
+    if lum <= c["blkThrs"]:
+        lum += (c["blkThrs"] - lum) ** c["blkClmp"]
+
+    return lum
 
 
 def _hex_to_rgb(hex_color: str) -> RGBColor:
