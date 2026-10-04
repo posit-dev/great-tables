@@ -108,6 +108,45 @@ that colors are comparable across columns, which is critical when columns measur
 In this example, both `integer` and `float` use the `[0, 10]` range, so a given shade of purple
 means the same thing regardless of which column it appears in.
 
+## Choosing a contrast algorithm with `contrast_algo=`
+
+We noted earlier that `~~GT.data_color()` automatically picks a light or dark text color for each
+cell so that values remain legible against their background fill. How that choice gets made depends
+on the contrast algorithm in use, and that's settable with the `contrast_algo=` argument. There are
+two options:
+
+- `"apca"` (the default): the Accessible Perceptual Contrast Algorithm, which models how people
+actually perceive the lightness contrast of text against a background
+- `"wcag"`: the contrast ratio formula from the Web Content Accessibility Guidelines (WCAG 2.x)
+
+The two algorithms agree on very light and very dark backgrounds but they can differ on mid-tone
+colors. The WCAG formula is known to overstate the contrast of dark text on saturated, medium-dark
+backgrounds (e.g., reds and blues), so it often selects black text where white text is easier to
+read. APCA does a better job with these colors. To see the difference, let's color the same set of
+values twice, once with each algorithm:
+
+```{python}
+contrast_df = pl.DataFrame(
+    {
+        "apca": [1, 2, 3, 4, 5, 6, 7],
+        "wcag": [1, 2, 3, 4, 5, 6, 7],
+    }
+)
+
+palette = ["#2C7BB6", "#ABD9E9", "#FDAE61", "#D7191C"]
+
+(
+    GT(contrast_df)
+    .data_color(columns="apca", palette=palette, contrast_algo="apca")
+    .data_color(columns="wcag", palette=palette, contrast_algo="wcag")
+)
+```
+
+Both columns have identical background colors, but the blue and red-orange cells get white text
+under APCA and black text under WCAG. The APCA choices are noticeably more legible for those cells.
+If you need to match the WCAG 2.x guidelines for compliance reasons, then use
+`contrast_algo="wcag"`. Otherwise, the default of `"apca"` is the better choice for readability.
+
 ## Bringing it all together
 
 For a more advanced treatment of data colorization in the table, let's take the `sza` dataset
