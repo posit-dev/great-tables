@@ -165,6 +165,22 @@ def test_data_color_autocolor_text_false(snapshot: str, df: DataFrameLike):
     assert_rendered_body(snapshot, gt)
 
 
+def test_data_color_contrast_algo(df: DataFrameLike):
+    """`contrast_algo=` controls how autocolored text is chosen."""
+
+    def text_color(algo: str) -> str:
+        gt = GT(df).data_color(columns="num", palette=["red", "red"], contrast_algo=algo)
+        return get_first_style(gt._styles[0], style.text).color
+
+    assert text_color("apca") == "#FFFFFF"
+    assert text_color("wcag") == "#000000"
+
+
+def test_data_color_contrast_algo_invalid(df: DataFrameLike):
+    with pytest.raises(ValueError, match="contrast_algo"):
+        GT(df).data_color(contrast_algo="foo")  # type: ignore[arg-type]
+
+
 def test_data_color_colorbrewer_palettes(df: DataFrameLike):
     palettes = [
         "Accent",
