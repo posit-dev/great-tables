@@ -1,5 +1,7 @@
 """Tests for dtype classification and auto-alignment."""
 
+import re
+
 import pandas as pd
 import polars as pl
 import pyarrow as pa
@@ -213,6 +215,40 @@ class TestAutoAlignIntegration:
         gt_tbl = gt.GT(df)
         aligns = [col.column_align for col in gt_tbl._boxhead._d]
         assert aligns == ["left"]  # mixed text -> left
+
+    @pytest.mark.parametrize("arrow_str", [pa.string(), pa.large_string()])
+    def test_pandas_pyarrow_string_auto_align(self, arrow_str):
+        df = pd.DataFrame(
+            {
+                "num": pd.array([1, 2], dtype=pd.ArrowDtype(pa.int64())),
+                "text": pd.array(["a", "b"], dtype=pd.ArrowDtype(arrow_str)),
+            }
+        )
+        html = gt.GT(df).as_raw_html()
+        assert re.findall(r'class="gt_row gt_(\w+)', html)[:2] == ["right", "left"]
+
+    def test_pandas_pyarrow_string_matches_object(self):
+        df = pd.DataFrame(
+            {
+                "text": ["Row 1", "Row 2"],
+                "dates": ["2024-01-15", "2024-02-20"],
+                "numbers": ["20 23 6", "2.3 6.8"],
+            }
+        )
+        df_arrow = df.convert_dtypes(dtype_backend="pyarrow")
+        assert df_arrow["text"].dtype == pd.ArrowDtype(pa.string())
+
+        expected = re.findall(r'class="gt_row gt_(\w+)', gt.GT(df).as_raw_html())[:3]
+        result = re.findall(r'class="gt_row gt_(\w+)', gt.GT(df_arrow).as_raw_html())[:3]
+        assert expected == ["left", "right", "right"]
+        assert result == expected
+
+    def test_pandas_pyarrow_string_mixed_text_left_align(self):
+        df = pd.DataFrame(
+            {"mixed": pd.array(["hello", "123", None], dtype=pd.ArrowDtype(pa.string()))}
+        )
+        html = gt.GT(df).as_raw_html()
+        assert re.findall(r'class="gt_row gt_(\w+)', html)[0] == "left"
 
     def test_pyarrow_auto_align(self):
         table = pa.table({"num": [1, 2], "text": ["a", "b"]})
