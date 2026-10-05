@@ -526,6 +526,56 @@ def _is_whole_number(x: int | float) -> bool:
     return float(x).is_integer()
 
 
+def _nanoplot_svg_style(
+    interactive_data_values: bool, vertical_guide_stroke_color: str
+) -> tuple[str, str]:
+    """Generate the `<style>` tag for a nanoplot, along with the class that scopes it.
+
+    Styles inside an inline SVG apply to the whole page, so every rule is prefixed with a class
+    that is set on the nanoplot's `<svg>` element. The class is derived from the rules themselves,
+    so nanoplots with the same styling share a class while differently-styled nanoplots (e.g., in
+    another table on the same page) can't affect each other."""
+
+    text_shown = "stroke: white; fill: #212427;"
+
+    rules = [
+        "text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, "
+        "'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; "
+        "stroke-linejoin: round; cursor: default; }",
+    ]
+
+    if interactive_data_values:
+        # Values, guides, and the reference line are highlighted when hovered over
+        rules += [
+            f".vert-line:hover rect {{ fill: {vertical_guide_stroke_color}; fill-opacity: 40%; "
+            "stroke: #FFFFFF60; color: red; }",
+            f".vert-line:hover text {{ {text_shown} }}",
+            f".horizontal-line:hover text {{ {text_shown} }}",
+            ".ref-line:hover rect { stroke: #FFFFFF60; }",
+            ".ref-line:hover line { stroke: #FF0000; }",
+            f".ref-line:hover text {{ {text_shown} }}",
+            ".y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; "
+            "color: red; }",
+            ".y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; }",
+        ]
+    else:
+        # Values are always shown, so the hover highlights of the guides and the reference line
+        # are left out (they would otherwise be shown all at once)
+        rules += [
+            f".vert-line text {{ {text_shown} }}",
+            f".horizontal-line text {{ {text_shown} }}",
+            f".ref-line text {{ {text_shown} }}",
+            ".y-axis-line rect { fill: #EDEDED; fill-opacity: 60%; }",
+            ".y-axis-line text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; }",
+        ]
+
+    scope_class = f"gt-nanoplot-{zlib.crc32(''.join(rules).encode()):08x}"
+
+    svg_style = "<style> " + " ".join(f".{scope_class} {rule}" for rule in rules) + " </style>"
+
+    return scope_class, svg_style
+
+
 def _single_value_proportions(
     y_val: int | float,
     all_vals: list[int] | list[float] | list[int | float],
@@ -572,6 +622,7 @@ def _construct_nanoplot_svg(
     circle_tags: str | None = None,
     g_y_axis_tags: str | None = None,
     g_guide_tags: str | None = None,
+    svg_class: str | None = None,
 ) -> str:
     """
     Construct an SVG nanoplot from a collection of SVG tags.
@@ -588,7 +639,9 @@ def _construct_nanoplot_svg(
     g_y_axis_tags = "" if g_y_axis_tags is None or show_y_axis_guide is False else g_y_axis_tags
     g_guide_tags = "" if g_guide_tags is None or show_vertical_guides is False else g_guide_tags
 
-    return f'<div><svg role="img" viewBox="{viewbox}" style="height: {svg_height}; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;">{svg_defs}{svg_style}{ref_area_tags}{area_path_tags}{data_path_tags}{zero_line_tags}{bar_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
+    class_attr = "" if svg_class is None else f'class="{svg_class}" '
+
+    return f'<div><svg {class_attr}role="img" viewBox="{viewbox}" style="height: {svg_height}; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;">{svg_defs}{svg_style}{ref_area_tags}{area_path_tags}{data_path_tags}{zero_line_tags}{bar_tags}{ref_line_tags}{circle_tags}{g_y_axis_tags}{g_guide_tags}</svg></div>'
 
 
 def _generate_nanoplot(
@@ -1486,7 +1539,12 @@ def _generate_nanoplot(
         g_guide_strings = []
 
         for i, (data_x_point_i, y_val_i) in enumerate(zip(data_x_points, y_vals)):
-            rect_strings_i = f'<rect x="{data_x_point_i - 10}" y="{top_y}" width="20" height="{bottom_y}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
+            if interactive_data_values:
+                # A hover target, highlighted by the nanoplot's style rules
+                rect_strings_i = f'<rect x="{data_x_point_i - 10}" y="{top_y}" width="20" height="{bottom_y}" stroke="transparent" stroke-width="{vertical_guide_stroke_width}" fill="transparent"></rect>'
+            else:
+                # With all values always shown, each guide is a thin, dim line
+                rect_strings_i = f'<line x1="{data_x_point_i}" y1="{top_y}" x2="{data_x_point_i}" y2="{top_y + bottom_y}" stroke="{vertical_guide_stroke_color}" stroke-opacity="0.25" stroke-width="1" vector-effect="non-scaling-stroke"></line>'
 
             # Format value in a compact manner
             y_value_i = _format_number_compactly(
@@ -1553,19 +1611,9 @@ def _generate_nanoplot(
     # Generate style tag for vertical guidelines and y-axis
     #
 
-    hover_param = ":hover" if interactive_data_values else ""
-
-    svg_style = (
-        f"<style> text {{ font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; }} "
-        f".vert-line{hover_param} rect {{ fill: {vertical_guide_stroke_color}; fill-opacity: 40%; stroke: #FFFFFF60; color: red; }} "
-        f".vert-line{hover_param} text {{ stroke: white; fill: #212427; }} "
-        f".horizontal-line{hover_param} text {{stroke: white; fill: #212427; }} "
-        f".ref-line{hover_param} rect {{ stroke: #FFFFFF60; }} "
-        f".ref-line{hover_param} line {{ stroke: #FF0000; }} "
-        f".ref-line{hover_param} text {{ stroke: white; fill: #212427; }} "
-        f".y-axis-line{hover_param} rect {{ fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; }} "
-        f".y-axis-line{hover_param} text {{ stroke: white; stroke-width: 0.20em; fill: #1A1C1F; }} "
-        f"</style>"
+    svg_class, svg_style = _nanoplot_svg_style(
+        interactive_data_values=interactive_data_values,
+        vertical_guide_stroke_color=vertical_guide_stroke_color,
     )
 
     if single_horizontal_plot and ref_line_tags is not None:
@@ -1592,6 +1640,7 @@ def _generate_nanoplot(
         circle_tags=circle_tags,
         g_y_axis_tags=g_y_axis_tags,
         g_guide_tags=g_guide_tags,
+        svg_class=svg_class,
     )
 
     return nanoplot_svg
