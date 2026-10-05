@@ -398,3 +398,117 @@ def test_data_color_invalid_column_type_raises():
     df = pd.DataFrame({"x": [1, "two", 3]})
     with pytest.raises(ValueError, match="Invalid column type"):
         GT(df).data_color(columns="x").as_raw_html()
+
+
+def test_data_color_fn(df: DataFrameLike):
+    """`fn=` maps column values directly to colors."""
+    new_gt = GT(df).data_color(
+        columns="num",
+        fn=lambda vals: ["red" if x < 1 else "#00F" for x in vals],
+        autocolor_text=False,
+    )
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#FF0000", "#0000FF", "#0000FF", "#0000FF"]
+
+
+def test_data_color_fn_ignores_palette_and_domain():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    new_gt = GT(df).data_color(
+        columns="x",
+        palette=["green", "yellow"],
+        domain=[100, 200],
+        fn=lambda vals: ["#123456"] * len(vals),
+    )
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#123456"] * 3
+
+
+@pytest.mark.parametrize("df_cls", [pd.DataFrame, pl.DataFrame])
+def test_data_color_fn_receives_missing_values(df_cls):
+    """Missing values are passed to `fn=` (as in gt); `None` results get `na_color=`."""
+    df = df_cls({"x": [1.0, None, 3.0, 4.0]})
+    received = []
+
+    def color_fn(vals):
+        received.extend(vals)
+        return [None if pd.isna(x) or x == 4.0 else "red" for x in vals]
+
+    new_gt = GT(df).data_color(columns="x", fn=color_fn, na_color="#00FF00")
+
+    assert len(received) == 4
+    assert pd.isna(received[1])
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#FF0000", "#00FF00", "#FF0000", "#00FF00"]
+
+
+def test_data_color_fn_can_color_missing_values():
+    """`fn=` decides the color of missing values, overriding `na_color=`."""
+    df = pd.DataFrame({"x": [1.0, None]})
+    new_gt = GT(df).data_color(
+        columns="x",
+        fn=lambda vals: ["#800080" if pd.isna(x) else "red" for x in vals],
+        na_color="#00FF00",
+    )
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#FF0000", "#800080"]
+
+
+def test_data_color_fn_alpha_and_autocolor_text():
+    df = pd.DataFrame({"x": [1, 2]})
+    new_gt = GT(df).data_color(
+        columns="x", fn=lambda vals: ["black", "white"], alpha=0.5, contrast_algo="wcag"
+    )
+
+    fills = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    texts = [get_first_style(s, style.text).color for s in new_gt._styles]
+    assert fills == ["#0000007F", "#FFFFFF7F"]
+    assert texts == ["#000000", "#000000"]
+
+
+def test_data_color_fn_with_rows():
+    df = pd.DataFrame({"x": [1, 2, 3, 4]})
+    received = []
+
+    def color_fn(vals):
+        received.extend(vals)
+        return ["red"] * len(vals)
+
+    new_gt = GT(df).data_color(columns="x", rows=[1, 3], fn=color_fn)
+
+    assert received == [2, 4]
+    assert [s.rownum for s in new_gt._styles] == [1, 3]
+
+
+def test_data_color_fn_non_numeric_non_string_column():
+    """`fn=` bypasses the numeric/string column type requirement."""
+    df = pd.DataFrame({"x": [True, False]})
+    new_gt = GT(df).data_color(columns="x", fn=lambda vals: ["green" if x else "red" for x in vals])
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#008000", "#FF0000"]
+
+
+def test_data_color_fn_snap(snapshot: str):
+    gt = GT(exibble).data_color(
+        columns=["num", "char"],
+        fn=lambda vals: ["lightblue" if i % 2 else "orange" for i in range(len(vals))],
+        na_color="lightgray",
+    )
+
+    assert_rendered_body(snapshot, gt)
+
+
+def test_data_color_fn_wrong_length_raises():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    with pytest.raises(ValueError, match="returned 2 colors for column 'x' but 3 were expected"):
+        GT(df).data_color(columns="x", fn=lambda vals: ["red", "blue"])
+
+
+def test_data_color_fn_non_string_raises():
+    df = pd.DataFrame({"x": [1, 2]})
+    with pytest.raises(TypeError, match="must return colors as strings"):
+        GT(df).data_color(columns="x", fn=lambda vals: [1, 2])  # type: ignore[arg-type]

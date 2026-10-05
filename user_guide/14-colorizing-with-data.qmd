@@ -147,6 +147,208 @@ under APCA and black text under WCAG. The APCA choices are noticeably more legib
 If you need to match the WCAG 2.x guidelines for compliance reasons, then use
 `contrast_algo="wcag"`. Otherwise, the default of `"apca"` is the better choice for readability.
 
+## Custom color mapping with `fn=`
+
+A palette spread across a domain covers many needs, but sometimes the rules for coloring are more
+specific: a color for every value above a threshold, different colors for positive and negative
+values, or a fixed color for each category. For these cases, `~~GT.data_color()` accepts a
+color-mapping function through its `fn=` argument.
+
+The function is called once for each targeted column. It receives a list of that column's values and
+must return a list of colors of the same length. Here's a function that colors values in the `float`
+column according to whether they're below or above `3`:
+
+```{python}
+def above_below_3(vals):
+    return [None if x is None else "lightblue" if x < 3 else "orange" for x in vals]
+
+GT(simple_df).data_color(columns="float", fn=above_below_3, na_color="lightgray")
+```
+
+There are a few things to know about how this works:
+
+- **Missing values are passed to the function.** In a Polars DataFrame they arrive as `None` (with
+pandas, they usually arrive as `NaN`, and `pd.isna()` is a reliable way to check for missing values
+from either library). The function needs to handle them, or a comparison like `x < 3` will fail.
+- **Returning `None` gives the `na_color=` color.** That's what happened to the missing value above.
+It's also a handy way to leave out any value you'd rather not color.
+- **Some arguments step aside.** The `palette=`, `domain=`, `reverse=`, and `truncate=` arguments
+are ignored when `fn=` is used, since the function takes over their job. The `na_color=`, `alpha=`,
+and `autocolor_text=` arguments still apply, so text is automatically recolored for contrast as
+usual.
+- **Any column type works.** The function decides what the values mean, so you can color columns
+that the built-in mapping can't handle, such as booleans.
+
+Here's that last point in action, with a column of booleans and a translucent fill (through
+`alpha=`):
+
+```{python}
+tasks_df = pl.DataFrame(
+    {
+        "task": ["Build", "Test", "Docs", "Release"],
+        "done": [True, True, False, None],
+    }
+)
+
+GT(tasks_df).data_color(
+    columns="done",
+    fn=lambda vals: [None if v is None else "seagreen" if v else "firebrick" for v in vals],
+    na_color="#FFF3B0",
+    alpha=0.6,
+)
+```
+
+A common use of a custom function is to call out the sign of values, perhaps in a table of changes
+over time:
+
+```{python}
+changes_df = pl.DataFrame(
+    {
+        "region": ["North", "South", "East", "West", "Central"],
+        "change": [12.5, -8.1, 0.0, 3.2, -1.0],
+    }
+)
+
+def sign_colors(vals):
+    return [
+        None if x is None else "#1B9E77" if x > 0 else "#D95F02" if x < 0 else "#FFFFFF"
+        for x in vals
+    ]
+
+(
+    GT(changes_df)
+    .data_color(columns="change", fn=sign_colors)
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+## Color-mapping helpers
+
+Writing a function by hand is fine for a few fixed colors, but interpolating along a gradient or
+cutting values into bins takes more work. **Great Tables** provides three helpers that create
+color-mapping functions for you, ready to be passed to `fn=`:
+
+- `~~col_numeric()` maps numeric values to a continuous gradient
+- `~~col_bin()` cuts numeric values into bins and gives each bin a color
+- `~~col_factor()` gives each category its own color
+
+If you've used gt in R, these will be familiar: they're modeled on the `col_numeric()`, `col_bin()`,
+and `col_factor()` functions from the **scales** package. Each one takes a `palette=`, which can be
+a list of colors or the name of a ColorBrewer or viridis palette (e.g., `"Blues"` or `"viridis"`),
+just as with `~~GT.data_color()`.
+
+### Continuous gradients with `col_numeric()`
+
+A good use for `~~col_numeric()` is a diverging scale, where values become more intensely colored
+the further they are from a midpoint. With a three-color palette and a domain centered on zero,
+negative changes become increasingly red and positive changes increasingly green:
+
+```{python}
+from great_tables import col_numeric
+
+red_white_green = ["#D7191C", "white", "#1A9641"]
+
+(
+    GT(changes_df)
+    .data_color(columns="change", fn=col_numeric(palette=red_white_green, domain=[-15, 15]))
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+Values outside of the domain are treated as missing by default and receive the `na_color=` color. If
+you'd rather they took on the colors at the ends of the palette, use `truncate=True`. Here, the
+domain is narrowed to `[-5, 5]`, so both `12.5` and `-8.1` are fully saturated:
+
+```{python}
+(
+    GT(changes_df)
+    .data_color(
+        columns="change",
+        fn=col_numeric(palette=red_white_green, domain=[-5, 5], truncate=True),
+    )
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+If `domain=` isn't given, then the domain is taken from the range of values in each column. That's
+often useful, but for a diverging scale it would put the midpoint color at the middle of the data
+rather than at zero.
+
+### Bins with `col_bin()`
+
+Sometimes it's clearer to group values into a few ranges than to show a smooth gradient. The
+`~~col_bin()` helper does this. Its `bins=` argument is either a number of equal-width bins, or a
+list of bin boundaries:
+
+```{python}
+from great_tables import col_bin
+
+scores_df = pl.DataFrame(
+    {
+        "student": ["Ana", "Ben", "Cai", "Dee", "Eli", "Fay"],
+        "score": [38, 45, 62, 78, 95, 100],
+    }
+)
+
+GT(scores_df).data_color(columns="score", fn=col_bin(palette="YlGn", bins=[0, 50, 70, 90, 100]))
+```
+
+By default, each bin includes its lower boundary but not its upper one, so a score of exactly `70`
+falls in the `[70, 90)` bin. The last bin includes both of its boundaries, so the perfect score of
+`100` is still colored. Use `right=True` to flip this, so that bins include their upper boundaries
+instead. And as with `~~col_numeric()`, values outside of the outermost boundaries are treated as
+missing unless `truncate=True` is used.
+
+### Categories with `col_factor()`
+
+The `~~col_factor()` helper gives each distinct value its own color. On its own that's similar to
+what `~~GT.data_color()` does with a string column, but `~~col_factor()` lets you fix the set of
+levels and their order with `domain=`. This means a level always receives the same color, no matter
+which levels are present in the column or in what order they appear. That's important when building
+several tables that should be colored consistently. Any value not in the domain receives the
+missing-value color, which we can use here to flag an unexpected value:
+
+```{python}
+from great_tables import col_factor
+
+tickets_df = pl.DataFrame(
+    {
+        "ticket": [101, 102, 103, 104, 105],
+        "priority": ["low", "high", "medium", "high", "urgent"],
+    }
+)
+
+GT(tickets_df).data_color(
+    columns="priority",
+    fn=col_factor(palette=["#FEF0D9", "#FDCC8A", "#FC8D59"], domain=["low", "medium", "high"]),
+    na_color="#D7301F",
+)
+```
+
+If the palette has fewer colors than there are levels, then the in-between colors are interpolated
+along the palette.
+
+### Combining helpers with your own logic
+
+The helpers return ordinary functions, so they can be called from inside a function of your own.
+This is handy when part of the mapping depends on the data. For example, to center a diverging scale
+on zero while still fitting the data, we can compute a symmetric domain from the largest absolute
+value in the column and then hand off to `~~col_numeric()`:
+
+```{python}
+def centered_on_zero(vals):
+    m = max(abs(x) for x in vals if x is not None)
+    return col_numeric(palette=red_white_green, domain=[-m, m])(vals)
+
+(
+    GT(changes_df)
+    .data_color(columns="change", fn=centered_on_zero)
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+The largest change (`12.5`) now gets the full green, and a change of `-12.5` would get the full red.
+
 ## Bringing it all together
 
 For a more advanced treatment of data colorization in the table, let's take the `sza` dataset
