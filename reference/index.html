@@ -521,6 +521,24 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">GT.data_color</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/col_numeric.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">col_numeric</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/col_bin.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">col_bin</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/col_factor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">col_factor</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -1362,7 +1380,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="formatting-column-data" class="level2 doc-group">
 <h2 class="doc-group anchored" data-anchor-id="formatting-column-data">Formatting column data</h2>
 <div class="doc-description">
-<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <a href="../reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link"><code>fmt()</code></a> method and define your own formatter. The <code>sub_*()</code> methods allow you to perform substitution operations and <a href="../reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> provides a lot of power for colorizing body cells based on their data values.</p>
+<p>Columns of data can be formatted with the <code>fmt_*()</code> methods. We can specify the rows of these columns quite precisely with the <code>rows</code> argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the <a href="../reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link"><code>fmt()</code></a> method and define your own formatter. The <code>sub_*()</code> methods allow you to perform substitution operations and <a href="../reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> provides a lot of power for colorizing body cells based on their data values. The <a href="../reference/col_numeric.html#great_tables.col_numeric" class="gdls-link gdls-code">col_numeric()</a>, <a href="../reference/col_bin.html#great_tables.col_bin" class="gdls-link gdls-code">col_bin()</a>, and <a href="../reference/col_factor.html#great_tables.col_factor" class="gdls-link gdls-code">col_factor()</a> helpers create color-mapping functions for use with its <code>fn=</code> argument.</p>
 </div>
 <dl>
 <dt><a href="../reference/GT.fmt_number.html#great_tables.GT.fmt_number" class="doc-function doc-label doc-label-method">GT.fmt_number()</a></dt>
@@ -1500,6 +1518,18 @@ ul.task-list li input[type="checkbox"] {
 <dt><a href="../reference/GT.data_color.html#great_tables.GT.data_color" class="doc-function doc-label doc-label-method">GT.data_color()</a></dt>
 <dd>
 <p>Perform data cell colorization.</p>
+</dd>
+<dt><a href="../reference/col_numeric.html#great_tables.col_numeric" class="doc-function doc-label doc-label-function">col_numeric()</a></dt>
+<dd>
+<p>Create a color-mapping function for continuous numeric values.</p>
+</dd>
+<dt><a href="../reference/col_bin.html#great_tables.col_bin" class="doc-function doc-label doc-label-function">col_bin()</a></dt>
+<dd>
+<p>Create a color-mapping function for numeric values cut into bins.</p>
+</dd>
+<dt><a href="../reference/col_factor.html#great_tables.col_factor" class="doc-function doc-label doc-label-function">col_factor()</a></dt>
+<dd>
+<p>Create a color-mapping function for categorical values.</p>
 </dd>
 </dl>
 </section>

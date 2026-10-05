@@ -49,7 +49,7 @@ A table can contain a few useful components for conveying additional information
 
 ### Formatting column data
 
-Columns of data can be formatted with the `fmt_*()` methods. We can specify the rows of these columns quite precisely with the `rows` argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the [`fmt()`](`great_tables.GT.fmt`) method and define your own formatter. The `sub_*()` methods allow you to perform substitution operations and `data_color()` provides a lot of power for colorizing body cells based on their data values.
+Columns of data can be formatted with the `fmt_*()` methods. We can specify the rows of these columns quite precisely with the `rows` argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the [`fmt()`](`great_tables.GT.fmt`) method and define your own formatter. The `sub_*()` methods allow you to perform substitution operations and `data_color()` provides a lot of power for colorizing body cells based on their data values. The `col_numeric()`, `col_bin()`, and `col_factor()` helpers create color-mapping functions for use with its `fn=` argument.
 
 
 - `GT.fmt_number`
@@ -86,6 +86,9 @@ Columns of data can be formatted with the `fmt_*()` methods. We can specify the 
 - `GT.sub_large_vals`
 - `GT.sub_values`
 - `GT.data_color`
+- `col_numeric`: Create a color-mapping function for continuous numeric values
+- `col_bin`: Create a color-mapping function for numeric values cut into bins
+- `col_factor`: Create a color-mapping function for categorical values
 
 ### Text transformation
 
