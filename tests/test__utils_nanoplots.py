@@ -1995,9 +1995,73 @@ def test_generate_nanoplot_interactive_data_values_toggles_hover_css(interactive
 
     if interactive_data_values:
         assert ".vert-line:hover rect" in svg
+        assert ".vert-line:hover text" in svg
     else:
+        # Values are always shown, without the hover highlights of the guides or reference line
         assert ":hover" not in svg
-        assert ".vert-line rect" in svg
+        assert ".vert-line text" in svg
+        assert ".vert-line rect" not in svg
+        assert ".ref-line line" not in svg
+
+
+@pytest.mark.parametrize("interactive_data_values", [True, False])
+def test_generate_nanoplot_style_is_scoped(interactive_data_values):
+    import re
+
+    svg = _generate_nanoplot(
+        y_vals=[1.0, 2.0, 3.0],
+        y_ref_line="mean",
+        interactive_data_values=interactive_data_values,
+    )
+
+    # The `<svg>` element carries the class that every style rule is prefixed with
+    svg_class = re.search(r'<svg class="(gt-nanoplot-[0-9a-f]{8})"', svg).group(1)
+    style = re.search(r"<style>(.*?)</style>", svg).group(1)
+    selectors = [sel.strip() for sel in re.findall(r"([^{}]+)\{", style)]
+
+    assert selectors
+    assert all(sel.startswith(f".{svg_class} ") for sel in selectors)
+
+
+def test_generate_nanoplot_scope_class_depends_on_styling():
+    import re
+
+    def svg_class(y_vals: tuple[float, ...] = (1.0, 2.0, 3.0), **kwargs: Any) -> str:
+        svg = _generate_nanoplot(y_vals=list(y_vals), **kwargs)
+        return re.search(r'<svg class="(gt-nanoplot-[0-9a-f]{8})"', svg).group(1)
+
+    # Nanoplots styled the same way share a class (whatever their data)
+    assert svg_class() == svg_class(y_vals=(5.0, 1.0))
+    assert svg_class(interactive_data_values=False) == svg_class(interactive_data_values=False)
+
+    # Differently-styled nanoplots get different classes, so their rules can't leak
+    assert svg_class() != svg_class(interactive_data_values=False)
+    assert svg_class() != svg_class(vertical_guide_stroke_color="#FF0000")
+
+
+@pytest.mark.parametrize("interactive_data_values", [True, False])
+def test_generate_nanoplot_vertical_guides(interactive_data_values):
+    import re
+
+    svg = _generate_nanoplot(
+        y_vals=[1.0, 2.0, 3.0],
+        vertical_guide_stroke_color="#123456",
+        interactive_data_values=interactive_data_values,
+    )
+
+    guides = re.findall(r'<g class="vert-line">(<(rect|line)[^>]*>)', svg)
+    assert len(guides) == 3
+
+    if interactive_data_values:
+        # Wide, transparent hover targets that the style rules highlight
+        assert all(tag == "rect" and 'fill="transparent"' in el for el, tag in guides)
+    else:
+        # Thin, dim lines in the guide color
+        assert all(tag == "line" for _, tag in guides)
+        assert all(
+            'stroke="#123456"' in el and 'stroke-opacity="0.25"' in el and 'stroke-width="1"' in el
+            for el, _ in guides
+        )
 
 
 @pytest.mark.parametrize(
