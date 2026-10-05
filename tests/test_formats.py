@@ -25,16 +25,9 @@ from great_tables._formats import (
     _validate_locale,
     fmt,
 )
-from great_tables._utils_render_html import create_body_component_h
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
-
-
-def assert_rendered_body(snapshot, gt):
-    built = gt._build_data("html")
-    body = create_body_component_h(built)
-
-    assert snapshot == body
+from tests.utils import assert_rendered_body
 
 
 def assert_repr_html(snapshot, gt):

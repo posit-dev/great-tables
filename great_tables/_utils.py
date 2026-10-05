@@ -68,31 +68,9 @@ def _match_arg(x: str, lst: list[str]) -> str:
     return matched[0]
 
 
-def _assert_str_scalar(x: Any) -> None:
-    if not isinstance(x, str):
-        raise AssertionError(f"The supplied value (`{x}`) is not a string.")
-
-
-def _assert_str_list(x: Any) -> None:
-    if not isinstance(x, list):
-        raise AssertionError(f"The supplied value (`{x}`) is not a list.")
-    if not all(map(lambda x: isinstance(x, str), x)):
-        raise AssertionError("Not all elements of the supplied list are strings.")
-
-
-def _assert_str_in_set(x: str, set: list[str]) -> None:
-    if x not in set:
-        raise AssertionError(f"The string `{x}` is not part of the defined `set`.")
-
-
 def _assert_list_is_subset(x: list[Any], set_list: list[Any]) -> None:
     if not set(x).issubset(set(set_list)):
         raise AssertionError("The columns provided are not present in the table.")
-
-
-def _str_scalar_to_list(x: str) -> list[str]:
-    _assert_str_scalar(x)
-    return [x]
 
 
 class OrderedSet(Set[Any]):

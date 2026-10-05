@@ -3,7 +3,7 @@ import pytest
 from great_tables import GT
 from great_tables.gt import _get_column_labels
 from great_tables._helpers import UnitStr
-from tests.test_utils_render_html import assert_rendered_columns
+from tests.utils import assert_rendered_columns
 
 
 def test_cols_label():

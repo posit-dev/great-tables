@@ -7,7 +7,6 @@ from great_tables import GT, loc, md, html, style
 from great_tables._gt_data import FootnotePlacement, FootnoteInfo
 from great_tables._text import Text
 from great_tables._utils_render_html import (
-    create_body_component_h,
     _apply_footnote_placement,
     _create_footnote_mark_html,
     _generate_footnote_mark,
@@ -38,13 +37,7 @@ from great_tables._locations import (
     LocFooter,
     LocSourceNotes,
 )
-
-
-def assert_rendered_body(snapshot, gt):
-    built = gt._build_data("html")
-    body = create_body_component_h(built)
-
-    assert snapshot == body
+from tests.utils import assert_rendered_body
 
 
 def assert_complete_html_without_style(snapshot, gt):

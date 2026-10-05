@@ -28,15 +28,6 @@ def df_empty(request) -> DataFrameLike:
     return request.param({})
 
 
-def assert_frame_equal(src: DataFrameLike, target: DataFrameLike):
-    if isinstance(src, pd.DataFrame):
-        pd.testing.assert_frame_equal(src, target)
-    elif isinstance(src, pl.DataFrame):
-        pl.testing.assert_frame_equal(src, target)
-    else:
-        raise NotImplementedError(f"Unsupported data type: {type(src)}")
-
-
 def assert_series_equals(src, target: list):
     # polars is kind and converts its null type to None, but
     # pandas needs the NA -> None to be done manually.
