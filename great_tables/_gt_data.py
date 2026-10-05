@@ -31,6 +31,7 @@ from ._tbl_data import (
 )
 from ._tbl_data_align import (
     ALIGNMENT_MAP,
+    PANDAS_ARROW_STRING_DTYPES,
     classify_dtype_for_alignment,
     is_number_like_column,
 )
@@ -386,10 +387,11 @@ class Boxhead(_Sequence[ColInfo]):
             classification = classify_dtype_for_alignment(data, col)
 
             # Special case: string columns with number-like content -> right-align
-            # This handles both "object" (pandas 2.x) and "str" (pandas 3.x) dtypes
+            # This handles "object" (pandas 2.x), "str" (pandas 3.x) and pyarrow-backed dtypes
             if classification == "string":
                 dtype = str(_get_column_dtype(data, col)).lower()
-                if dtype in ("object", "str") and is_number_like_column(data, col):
+                checks_number_like = dtype in {"object", "str", *PANDAS_ARROW_STRING_DTYPES}
+                if checks_number_like and is_number_like_column(data, col):
                     classification = "numeric"
 
             align.append(ALIGNMENT_MAP[classification])
