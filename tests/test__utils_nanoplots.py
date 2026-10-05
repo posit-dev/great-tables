@@ -2139,6 +2139,36 @@ def test_fmt_nanoplot_rows_pandas_non_default_index(plot_type: str) -> None:
     assert result.as_raw_html() == expected.as_raw_html()
 
 
+@pytest.mark.parametrize("plot_type", ["bar", "line"])
+@pytest.mark.parametrize(
+    "reference_line, label, x",
+    [(275, "275", 275 / 290 * 600), ("min", "85", 85 / 290 * 600), (None, None, None)],
+)
+def test_nanoplot_single_value_reference_line(
+    plot_type: str, reference_line: Any, label: Any, x: Any
+) -> None:
+    import re
+
+    df = pl.DataFrame({"size": [163, 290, 85]})
+    html = (
+        GT(df)
+        .fmt_nanoplot(columns="size", plot_type=plot_type, reference_line=reference_line)
+        .as_raw_html()
+    )
+
+    ref_lines = re.findall(
+        r'<g class="ref-line">.*?<line class="ref-line" x1="([^"]+)".*?<text[^>]*>([^<]*)</text>',
+        html,
+    )
+    if reference_line is None:
+        assert ref_lines == []
+    else:
+        # one line per row, at the same position on the scale shared by all rows
+        assert len(ref_lines) == 3
+        assert {ref_label for _, ref_label in ref_lines} == {label}
+        assert all(float(ref_x) == pytest.approx(x) for ref_x, _ in ref_lines)
+
+
 def test_nanoplot_options_interactive_data_values():
     # When interactive_data_values is not set, it should default to True
     opts_default = nanoplot_options()

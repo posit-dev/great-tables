@@ -2294,7 +2294,8 @@ def test_fmt_nanoplot_single_vals_only_line():
     )
 
     # All other test cases for the horizontal line nanoplot will produce the same output
-    # as this previous one (none will error as the non-relevant options are no ops)
+    # as this previous one (none will error as the non-relevant options are no ops), except
+    # that a reference line is drawn when one is given
 
     for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
         gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
@@ -2303,6 +2304,10 @@ def test_fmt_nanoplot_single_vals_only_line():
             **params,
         )
         res_other = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+        if "reference_line" in params:
+            assert '<g class="ref-line">' in res_other
+            res_other = re.sub(r'<g class="ref-line">.*?</g>', "", res_other)
 
         assert res == res_other
 
@@ -2346,7 +2351,8 @@ def test_fmt_nanoplot_single_vals_only_bar():
     )
 
     # All other test cases for the horizontal bar nanoplot will produce the same output
-    # as this previous one (none will error as the non-relevant options are no ops)
+    # as this previous one (none will error as the non-relevant options are no ops), except
+    # that a reference line is drawn when one is given
     for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
         gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
             columns="vals",
@@ -2354,6 +2360,10 @@ def test_fmt_nanoplot_single_vals_only_bar():
             **params,
         )
         res_other = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+        if "reference_line" in params:
+            assert '<g class="ref-line">' in res_other
+            res_other = re.sub(r'<g class="ref-line">.*?</g>', "", res_other)
 
         assert res == res_other
 
