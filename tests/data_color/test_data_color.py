@@ -1,4 +1,5 @@
-from typing import Type, TypeVar
+from decimal import Decimal
+from typing import Any, Type, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -361,7 +362,7 @@ def test_data_color_truncate(df: DataFrameLike):
 
 
 def test_data_color_alpha_gradient_palette():
-    """`data_color` applies `alpha=` to colors interpolated from a gradient palette (#711)."""
+    """`data_color` applies `alpha=` to colors interpolated from a gradient palette."""
     df = pd.DataFrame({"x": [0, 50, 100]})
     new_gt = GT(df).data_color(columns="x", palette=["#FF0000", "#0000FF"], alpha=0.5)
 
@@ -506,3 +507,140 @@ def test_data_color_fn_non_string_raises():
     df = pd.DataFrame({"x": [1, 2]})
     with pytest.raises(TypeError, match="must return colors as strings"):
         GT(df).data_color(columns="x", fn=lambda vals: [1, 2])  # type: ignore[arg-type]
+
+
+def get_fill_colors(gt: GT) -> list[str]:
+    return [get_first_style(s, style.fill).color.lower() for s in gt._styles]
+
+
+@pytest.mark.parametrize("storage", ["python", "pyarrow"])
+def test_data_color_pd_string_dtype_with_na(storage: str):
+    """`data_color` handles `pd.NA` in a pandas `string` column rather than raising."""
+    df = pd.DataFrame({"x": pd.array(["a", None, "b"], dtype=f"string[{storage}]")})
+    new_gt = GT(df).data_color(columns="x", palette=["red", "blue"])
+
+    assert get_fill_colors(new_gt) == ["#ff0000", "#808080", "#0000ff"]
+
+
+def test_data_color_pd_string_dtype_with_na_and_domain():
+    """`pd.NA` gets the `na_color=` color when a factor `domain=` is supplied."""
+    df = pd.DataFrame({"x": pd.array(["a", None, "b"], dtype="string")})
+    new_gt = GT(df).data_color(columns="x", palette=["red", "blue"], domain=["b", "a"])
+
+    assert get_fill_colors(new_gt) == ["#0000ff", "#808080", "#ff0000"]
+
+
+@pytest.mark.parametrize(
+    "x",
+    [
+        pytest.param(
+            pd.Categorical(["high", "low", "mid"], categories=["low", "mid", "high"], ordered=True),
+            id="pandas-ordered-categorical",
+        ),
+        pytest.param(
+            pl.Series(["high", "low", "mid"], dtype=pl.Enum(["low", "mid", "high"])),
+            id="polars-enum",
+        ),
+    ],
+)
+def test_data_color_ordered_categorical_uses_levels(x: Any):
+    """An inferred domain follows the declared level order, not the order of appearance."""
+    frame = pd.DataFrame if isinstance(x, pd.Categorical) else pl.DataFrame
+    new_gt = GT(frame({"x": x})).data_color(columns="x", palette=["red", "blue"])
+
+    assert get_fill_colors(new_gt) == ["#0000ff", "#ff0000", "#800080"]
+
+
+def test_data_color_unordered_categorical_uses_appearance_order():
+    """An unordered pandas `Categorical` keeps the order-of-appearance domain."""
+    x = pd.Categorical(["high", "low", "mid"], categories=["low", "mid", "high"])
+    new_gt = GT(pd.DataFrame({"x": x})).data_color(columns="x", palette=["red", "blue"])
+
+    assert get_fill_colors(new_gt) == ["#ff0000", "#800080", "#0000ff"]
+
+
+def test_data_color_enum_unused_levels_and_rows():
+    """Declared levels define the domain even when some are unused or rows are filtered."""
+    df = pl.DataFrame({"x": pl.Series(["a", "c"], dtype=pl.Enum(["a", "b", "c"]))})
+
+    assert get_fill_colors(GT(df).data_color(columns="x", palette=["red", "blue"])) == [
+        "#ff0000",
+        "#0000ff",
+    ]
+    assert get_fill_colors(GT(df).data_color(columns="x", rows=[1], palette=["red", "blue"])) == [
+        "#0000ff"
+    ]
+
+
+def test_data_color_enum_explicit_domain_takes_precedence():
+    """A supplied `domain=` overrides the declared levels of an ordered column."""
+    df = pl.DataFrame(
+        {"x": pl.Series(["high", "low", "mid"], dtype=pl.Enum(["low", "mid", "high"]))}
+    )
+    new_gt = GT(df).data_color(columns="x", palette=["red", "blue"], domain=["mid", "high", "low"])
+
+    assert get_fill_colors(new_gt) == ["#800080", "#0000ff", "#ff0000"]
+
+
+@pytest.mark.parametrize("frame", params_frames)
+def test_data_color_decimal_values(frame):
+    """`Decimal` values are scaled as numbers."""
+    df = frame({"x": [Decimal("0"), Decimal("5"), None, Decimal("10")]})
+    new_gt = GT(df).data_color(columns="x", palette=["red", "blue"])
+
+    assert get_fill_colors(new_gt) == ["#ff0000", "#800080", "#808080", "#0000ff"]
+
+
+def test_data_color_decimal_values_with_domain():
+    """`Decimal` values can be scaled against an integer `domain=`."""
+    df = pd.DataFrame({"x": [Decimal("0"), Decimal("5")]})
+    new_gt = GT(df).data_color(columns="x", palette=["red", "blue"], domain=[0, 10])
+
+    assert get_fill_colors(new_gt) == ["#ff0000", "#800080"]
+
+
+def test_data_color_fn_receives_decimal_values():
+    """Values passed to `fn=` are not converted from `Decimal`."""
+    seen: list[Any] = []
+
+    def fn(vals: list[Any]) -> list[str]:
+        seen.extend(vals)
+        return ["red"] * len(vals)
+
+    GT(pd.DataFrame({"x": [Decimal("1.5")]})).data_color(columns="x", fn=fn)
+
+    assert seen == [Decimal("1.5")] and isinstance(seen[0], Decimal)
+
+
+@pytest.mark.parametrize("frame", params_frames)
+def test_data_color_infinite_values_inferred_domain(frame):
+    """Infinite values are left out of an inferred domain and placed at its ends."""
+    df = frame({"x": [-np.inf, 1.0, 2.0, 3.0, np.inf]})
+    new_gt = GT(df).data_color(columns="x", palette=["red", "blue"])
+
+    assert get_fill_colors(new_gt) == ["#ff0000", "#ff0000", "#800080", "#0000ff", "#0000ff"]
+
+
+@pytest.mark.parametrize(
+    "vals, expected",
+    [
+        ([np.inf, -np.inf], ["#0000ff", "#ff0000"]),
+        ([2.0, np.inf], ["#ff0000", "#0000ff"]),
+    ],
+)
+def test_data_color_infinite_values_degenerate_domain(vals: list[float], expected: list[str]):
+    """Infinite values still take the end colors when there is no finite range to infer."""
+    new_gt = GT(pd.DataFrame({"x": vals})).data_color(columns="x", palette=["red", "blue"])
+
+    assert get_fill_colors(new_gt) == expected
+
+
+@pytest.mark.parametrize("truncate, expected", [(False, "#808080"), (True, "#0000ff")])
+def test_data_color_infinite_values_explicit_domain(truncate: bool, expected: str):
+    """With a supplied `domain=`, infinite values are handled like any out-of-domain value."""
+    df = pd.DataFrame({"x": [1.0, np.inf]})
+    new_gt = GT(df).data_color(
+        columns="x", palette=["red", "blue"], domain=[0, 2], truncate=truncate
+    )
+
+    assert get_fill_colors(new_gt) == ["#800080", expected]
