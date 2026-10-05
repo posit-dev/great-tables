@@ -11,6 +11,7 @@ from great_tables._gt_data import CellStyle, StyleInfo
 from great_tables._tbl_data import DataFrameLike
 from great_tables._utils_render_html import create_body_component_h
 from great_tables.data import exibble
+from tests.utils import assert_rendered_body
 
 T_CellStyle = TypeVar("T_CellStyle", bound=CellStyle)
 
@@ -24,13 +25,6 @@ params_frames = [
 @pytest.fixture(params=params_frames, scope="function")
 def df(request) -> DataFrameLike:
     return request.param(exibble[["num", "char", "currency"]].head(4))
-
-
-def assert_rendered_body(snapshot, gt):
-    built = gt._build_data("html")
-    body = create_body_component_h(built)
-
-    assert snapshot == body
 
 
 def get_first_style(obj: StyleInfo, cls: Type[T_CellStyle]) -> Type[T_CellStyle]:

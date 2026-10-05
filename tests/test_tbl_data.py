@@ -29,6 +29,7 @@ from great_tables._tbl_data import (
     validate_frame,
 )
 from great_tables._utils_render_html import create_body_component_h
+from tests.utils import assert_frame_equal
 
 params_frames = [
     pytest.param(pd.DataFrame, id="pandas"),
@@ -75,17 +76,6 @@ def df_container_dtypes(request):
 @pytest.fixture(params=params_series, scope="function")
 def ser(request) -> SeriesLike:
     return request.param([1.0, 2.0, None])
-
-
-def assert_frame_equal(src, target):
-    if isinstance(src, pd.DataFrame):
-        pd.testing.assert_frame_equal(src, target)
-    elif isinstance(src, pl.DataFrame):
-        pl.testing.assert_frame_equal(src, target)
-    elif isinstance(src, pa.Table):
-        assert src.equals(target)
-    else:
-        raise NotImplementedError(f"Unsupported data type: {type(src)}")
 
 
 def test_get_column_names(df: DataFrameLike):

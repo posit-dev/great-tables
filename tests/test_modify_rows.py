@@ -4,6 +4,7 @@ import pytest
 
 from great_tables import GT, loc, style, vals
 from great_tables._utils_render_html import create_body_component_h
+from tests.utils import assert_rendered_body
 
 
 def render_only_body(gt) -> str:
@@ -11,12 +12,6 @@ def render_only_body(gt) -> str:
     body = create_body_component_h(built)
 
     return body
-
-
-def assert_rendered_body(snapshot, gt):
-    body = render_only_body(gt)
-
-    assert snapshot == body
 
 
 def mean_expr(df: pd.DataFrame):

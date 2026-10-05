@@ -20,7 +20,7 @@ from great_tables._spanners import (
     SpannerTransformer,
 )
 from great_tables._utils_render_html import _get_table_defs
-from .test_utils_render_html import assert_rendered_columns
+from tests.utils import assert_rendered_columns
 from typing import Any
 
 
