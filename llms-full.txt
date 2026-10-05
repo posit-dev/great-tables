@@ -5336,7 +5336,7 @@ tbl = pl.DataFrame(
 )
 ```
 
-data_color(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, palette: 'str | list[str] | None' = None, domain: 'list[str] | list[int] | list[float] | None' = None, na_color: 'str | None' = None, alpha: 'int | float | None' = None, reverse: 'bool' = False, autocolor_text: 'bool' = True, contrast_algo: 'ContrastAlgo' = 'apca', truncate: 'bool' = False, fn: 'Callable[[list[Any]], list[str | None]] | None' = None) -> 'GTSelf'
+data_color(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, palette: 'str | list[str] | None' = None, domain: 'list[str] | list[int] | list[float] | None' = None, na_color: 'str | None' = None, alpha: 'float | None' = None, reverse: 'bool' = False, autocolor_text: 'bool' = True, contrast_algo: 'ContrastAlgo' = 'apca', truncate: 'bool' = False, fn: 'Callable[[list[Any]], list[str | None]] | None' = None) -> 'GTSelf'
 
 Perform data cell colorization.
 
@@ -5370,7 +5370,8 @@ palette
     palette will be used.
 domain
     The domain of values to use for the color scheme. This can be a list of floats, integers, or
-    strings. If `None`, then the domain will be inferred from the data values.
+    strings. If `None`, then the domain will be inferred from the data values (see the
+    *How column values are mapped to colors* section for details).
 na_color
     The color to use for missing values. If `None`, then the default color (`"#808080"`) will be
     used.
@@ -5410,6 +5411,33 @@ Returns
 GT
     The GT object is returned. This is the same object that the method is called on so that we
     can facilitate method chaining.
+
+How column values are mapped to colors
+--------------------------------------
+Without `fn=`, each targeted column is mapped to colors in one of two ways, depending on the
+values it contains (missing values are set aside first):
+
+- numeric values (integers, floats, and `Decimal` values) are spread along the palette as a
+continuous gradient, from the lowest value in the domain to the highest
+- string values (including categorical columns) are treated as categories, with each one
+taking its own position along the palette
+
+Columns of any other type (e.g., dates) or with a mix of types will raise an error. To color
+these, supply a color-mapping function to `fn=` (see the *Custom color-mapping functions*
+section). Some further details on how values are handled:
+
+- missing values (`None`, `NaN`, and `pd.NA`) always receive the `na_color=` color
+- booleans are treated as numbers, so `True` takes the high end of the palette and `False` the
+low end
+- an inferred numeric domain spans the finite values only; any infinite values are given the
+color at the matching end of the palette (with a supplied `domain=`, infinite values are treated
+like any other value outside of the domain, following the `truncate=` setting)
+- an inferred categorical domain lists the categories in the order they first appear in the
+column, except for ordered categorical columns (an ordered Pandas `Categorical` or a Polars
+`Enum`), where the declared levels are used in their declared order (this includes any levels
+that don't appear in the data, so colors stay consistent no matter which `rows=` are colored)
+
+Supplying `domain=` overrides any of the inferred domains described above.
 
 Color palette access from ColorBrewer and viridis
 -------------------------------------------------
