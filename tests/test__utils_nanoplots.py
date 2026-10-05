@@ -2139,6 +2139,114 @@ def test_fmt_nanoplot_rows_pandas_non_default_index(plot_type: str) -> None:
     assert result.as_raw_html() == expected.as_raw_html()
 
 
+@pytest.mark.parametrize("plot_type", ["bar", "line"])
+@pytest.mark.parametrize(
+    "reference_line, label, x",
+    [(275, "275", 275 / 290 * 600), ("min", "85", 85 / 290 * 600), (None, None, None)],
+)
+def test_nanoplot_single_value_reference_line(
+    plot_type: str, reference_line: Any, label: Any, x: Any
+) -> None:
+    import re
+
+    df = pl.DataFrame({"size": [163, 290, 85]})
+    html = (
+        GT(df)
+        .fmt_nanoplot(columns="size", plot_type=plot_type, reference_line=reference_line)
+        .as_raw_html()
+    )
+
+    ref_lines = re.findall(
+        r'<g class="ref-line">.*?<line class="ref-line" x1="([^"]+)".*?<text[^>]*>([^<]*)</text>',
+        html,
+    )
+    if reference_line is None:
+        assert ref_lines == []
+    else:
+        # one line per row, at the same position on the scale shared by all rows
+        assert len(ref_lines) == 3
+        assert {ref_label for _, ref_label in ref_lines} == {label}
+        assert all(float(ref_x) == pytest.approx(x) for ref_x, _ in ref_lines)
+
+
+@pytest.mark.parametrize("plot_type", ["bar", "line"])
+@pytest.mark.parametrize("reference_line", ["mean", "median", "min", "max"])
+@pytest.mark.parametrize("missing", [None, float("nan")], ids=["None", "nan"])
+def test_nanoplot_single_value_reference_line_keyword_with_missing(
+    plot_type: str, reference_line: str, missing: Any
+) -> None:
+    import re
+
+    # Missing values are left out of the keyword calculation instead of raising an error
+    df = pl.DataFrame({"size": [10.0, missing, 30.0]}, strict=False)
+    html = (
+        GT(df)
+        .fmt_nanoplot(columns="size", plot_type=plot_type, reference_line=reference_line)
+        .as_raw_html()
+    )
+
+    labels = re.findall(r'<g class="ref-line">.*?<text[^>]*>([^<]*)</text>', html)
+    expected = {"mean": "20.0", "median": "20.0", "min": "10.0", "max": "30.0"}[reference_line]
+    assert labels == [expected, expected]
+
+
+@pytest.mark.parametrize(
+    "y_vals, reference_line, label",
+    [
+        # Single-value plots (the reference line is shared by all rows)
+        ([1, 2], 1.5, "1.50"),
+        ([1, 2], "mean", "1.50"),
+        ([1, 3], "mean", "2"),
+        # Multi-value plots
+        ([[1, 2], [1, 2]], 1.5, "1.50"),
+        ([[1, 2], [1, 2]], "mean", "1.50"),
+        ([[1, 3], [1, 3]], "mean", "2"),
+    ],
+)
+def test_nanoplot_reference_line_label_integer_data(
+    y_vals: list[Any], reference_line: Any, label: str
+) -> None:
+    import re
+
+    # A fractional reference value isn't rounded just because the data values are integers
+    df = pl.DataFrame({"size": y_vals})
+    html = (
+        GT(df).fmt_nanoplot(columns="size", plot_type="line", reference_line=reference_line)
+    ).as_raw_html()
+
+    labels = re.findall(r'<g class="ref-line">.*?<text[^>]*>([^<]*)</text>', html)
+    assert labels == [label, label]
+
+
+@pytest.mark.parametrize(
+    "reference_line, label_on_left",
+    [(275, True), (500, True), ("max", True), ("min", False), (-100, False)],
+)
+def test_nanoplot_single_value_reference_line_label_side(
+    reference_line: Any, label_on_left: bool
+) -> None:
+    import re
+
+    # The label goes on the left of a line in the right half of the plot so it isn't clipped
+    df = pl.DataFrame({"size": [163, 290, 85]})
+    html = (
+        GT(df).fmt_nanoplot(columns="size", plot_type="bar", reference_line=reference_line)
+    ).as_raw_html()
+
+    ref_lines = re.findall(
+        r'<g class="ref-line">.*?<line class="ref-line" x1="([^"]+)".*?<text ([^>]*)>', html
+    )
+    assert len(ref_lines) == 3
+    for line_x, text_attrs in ref_lines:
+        text_x = float(re.search(r'x="([^"]+)"', text_attrs).group(1))
+        if label_on_left:
+            assert 'text-anchor="end"' in text_attrs
+            assert text_x == pytest.approx(float(line_x) - 10)
+        else:
+            assert "text-anchor" not in text_attrs
+            assert text_x == pytest.approx(float(line_x) + 10)
+
+
 def test_nanoplot_options_interactive_data_values():
     # When interactive_data_values is not set, it should default to True
     opts_default = nanoplot_options()

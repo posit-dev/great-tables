@@ -501,6 +501,56 @@ def _normalize_to_dict(**kwargs: list[int | float]) -> dict[str, list[int | floa
     return args
 
 
+def _single_value_ref_line_tags(
+    x: float, y1: float, y2: float, stroke: str, label: str, label_on_left: bool = False
+) -> str:
+    """Vertical reference line for single-value (horizontal) bar and line plots.
+
+    The label is placed to the left of the line when `label_on_left=True`, which keeps it within
+    the plot when the line is close to the right edge."""
+
+    text_position = f'x="{x - 10}" text-anchor="end"' if label_on_left else f'x="{x + 10}"'
+
+    return (
+        f'<g class="ref-line"><rect x="{x - 10}" y="{y1}" width="20" height="{y2 - y1}" '
+        'stroke="transparent" stroke-width="1" fill="transparent"></rect>'
+        f'<line class="ref-line" x1="{x}" y1="{y1}" x2="{x}" y2="{y2}" stroke="{stroke}" '
+        'stroke-width="1" stroke-dasharray="4 3" stroke-linecap="round" '
+        'vector-effect="non-scaling-stroke"></line>'
+        f'<text {text_position} y="{y1 - 10}" fill="transparent" stroke="transparent" '
+        f'font-size="30px">{label}</text></g>'
+    )
+
+
+def _is_whole_number(x: int | float) -> bool:
+    return float(x).is_integer()
+
+
+def _single_value_proportions(
+    y_val: int | float,
+    all_vals: list[int] | list[float] | list[int | float],
+    ref_line: int | float | None = None,
+) -> tuple[float, float, float | None]:
+    """Scale a single `y` value, the zero line and an optional reference line to the common
+    scale shared by the single-value plots of all rows."""
+
+    if all(val == 0 for val in all_vals) and not ref_line:
+        # Handle case where all values across rows (and the reference line) are `0`
+        return 0.5, 0.5, None if ref_line is None else 0.5
+
+    scale = {"val": [y_val], "all_vals": all_vals, "zero": 0}
+    if ref_line is not None:
+        scale["ref_line"] = ref_line
+
+    proportions = _normalize_to_dict(**scale)
+
+    return (
+        proportions["val"][0],
+        proportions["zero"][0],
+        None if ref_line is None else proportions["ref_line"][0],
+    )
+
+
 def _construct_nanoplot_svg(
     viewbox: str,
     svg_height: str,
@@ -630,6 +680,7 @@ def _generate_nanoplot(
 
     # Initialize the `single_horizontal_plot` variable with `False`
     single_horizontal_plot = False
+    single_ref_line = None
 
     # If the number of `y` values in a list is zero or if all consist of NA values,
     # return an empty string
@@ -703,6 +754,15 @@ def _generate_nanoplot(
     # reset several parameters
     if isinstance(y_vals, (int, float)) and plot_type in ("line", "bar"):
         single_horizontal_plot = True
+
+        # A reference line is drawn on the scale shared by all rows, so keywords such as
+        # "mean" are computed from the values of all rows
+        # (missing values in other rows are left out of that calculation)
+        if show_reference_line and not _is_na(y_ref_line):
+            single_ref_line = calc_ref_value(
+                y_ref_line, [val for val in all_single_y_vals if not _is_na(val)]
+            )
+
         show_data_points = True
         show_data_line = True
         show_data_area = False
@@ -1144,18 +1204,9 @@ def _generate_nanoplot(
 
         bar_thickness = data_point_radius[0] * 4
 
-        if all(val == 0 for val in all_single_y_vals):
-            # Handle case where all values across rows are `0`
-
-            y_proportion = 0.5
-            y_proportion_zero = 0.5
-
-        else:
-            # Scale to proportional values
-            y_proportions_list = _normalize_to_dict(val=y_vals, all_vals=all_single_y_vals, zero=0)
-
-            y_proportion = y_proportions_list["val"][0]
-            y_proportion_zero = y_proportions_list["zero"][0]
+        y_proportion, y_proportion_zero, y_proportion_ref_line = _single_value_proportions(
+            y_vals[0], all_single_y_vals, single_ref_line
+        )
 
         y0_width = y_proportion_zero * data_x_width
         y_width = y_proportion * data_x_width
@@ -1218,6 +1269,21 @@ def _generate_nanoplot(
 
         zero_line_tags = f'<line x1="{y0_width}" y1="{(bottom_y / 2) - (bar_thickness * 1.5)}" x2="{y0_width}" y2="{(bottom_y / 2) + (bar_thickness * 1.5)}" stroke="{zero_line_stroke_color}" stroke-width="{zero_line_stroke_width}"></line>'
 
+        if y_proportion_ref_line is not None:
+            ref_line_tags = _single_value_ref_line_tags(
+                x=y_proportion_ref_line * data_x_width,
+                y1=(bottom_y / 2) - (bar_thickness * 1.5),
+                y2=(bottom_y / 2) + (bar_thickness * 1.5),
+                stroke=reference_line_color,
+                label=_format_number_compactly(
+                    val=single_ref_line,
+                    currency=currency,
+                    as_integer=y_vals_integerlike and _is_whole_number(single_ref_line),
+                    fn=y_ref_line_fmt_fn,
+                ),
+                label_on_left=y_proportion_ref_line > 0.5,
+            )
+
         # Redefine the `viewbox` in terms of the `data_x_width` value; this ensures
         # that the horizontal bars are centered about their extreme values
         viewbox = f"{left_x} {top_y} {data_x_width} {bottom_y}"
@@ -1239,18 +1305,9 @@ def _generate_nanoplot(
 
         bar_thickness = data_point_radius[0] * 4
 
-        if all(val == 0 for val in all_single_y_vals):
-            # Handle case where all values across rows are `0`
-
-            y_proportion = 0.5
-            y_proportion_zero = 0.5
-
-        else:
-            # Scale to proportional values
-            y_proportions_list = _normalize_to_dict(val=y_vals, all_vals=all_single_y_vals, zero=0)
-
-            y_proportion = y_proportions_list["val"][0]
-            y_proportion_zero = y_proportions_list["zero"][0]
+        y_proportion, y_proportion_zero, y_proportion_ref_line = _single_value_proportions(
+            y_vals[0], all_single_y_vals, single_ref_line
+        )
 
         y0_width = y_proportion_zero * data_x_width
         y_width = y_proportion * data_x_width
@@ -1309,6 +1366,21 @@ def _generate_nanoplot(
 
         zero_line_tags = f'<line x1="{y0_width}" y1="{(bottom_y / 2) - (bar_thickness * 1.5)}" x2="{y0_width}" y2="{(bottom_y / 2) + (bar_thickness * 1.5)}" stroke="{zero_line_stroke_color}" stroke-width="{zero_line_stroke_width}"></line>'
 
+        if y_proportion_ref_line is not None:
+            ref_line_tags = _single_value_ref_line_tags(
+                x=y_proportion_ref_line * data_x_width,
+                y1=(bottom_y / 2) - (bar_thickness * 1.5),
+                y2=(bottom_y / 2) + (bar_thickness * 1.5),
+                stroke=reference_line_color,
+                label=_format_number_compactly(
+                    val=single_ref_line,
+                    currency=currency,
+                    as_integer=y_vals_integerlike and _is_whole_number(single_ref_line),
+                    fn=y_ref_line_fmt_fn,
+                ),
+                label_on_left=y_proportion_ref_line > 0.5,
+            )
+
         # Redefine the `viewbox` in terms of the `data_x_width` value; this ensures
         # that the horizontal bars are centered about their extreme values
         viewbox = f"{left_x} {top_y} {data_x_width} {bottom_y}"
@@ -1341,7 +1413,10 @@ def _generate_nanoplot(
 
         # Format value in a compact manner
         y_ref_line = _format_number_compactly(
-            val=y_ref_line, currency=currency, as_integer=y_vals_integerlike, fn=y_ref_line_fmt_fn
+            val=y_ref_line,
+            currency=currency,
+            as_integer=y_vals_integerlike and _is_whole_number(y_ref_line),
+            fn=y_ref_line_fmt_fn,
         )
 
         ref_line_tags = f'<g class="ref-line"><rect x="{data_x_points[0] - 10}" y="{data_y_ref_line - 10}" width="{data_x_width + 20}" height="20" stroke="transparent" stroke-width="1" fill="transparent"></rect><line class="ref-line" x1="{data_x_points[0]}" y1="{data_y_ref_line}" x2="{data_x_width + safe_x_d}" y2="{data_y_ref_line}" stroke="{stroke}" stroke-width="{stroke_width}" stroke-dasharray="{stroke_dasharray}" transform="{transform}" stroke-linecap="{stroke_linecap}" vector-effect="{vector_effect}"></line><text x="{data_x_width + safe_x_d + 10}" y="{data_y_ref_line + 10}" fill="transparent" stroke="transparent" font-size="30px">{y_ref_line}</text></g>'
@@ -1492,6 +1567,9 @@ def _generate_nanoplot(
         f".y-axis-line{hover_param} text {{ stroke: white; stroke-width: 0.20em; fill: #1A1C1F; }} "
         f"</style>"
     )
+
+    if single_horizontal_plot and ref_line_tags is not None:
+        show_reference_line = True
 
     nanoplot_svg = _construct_nanoplot_svg(
         viewbox=viewbox,
