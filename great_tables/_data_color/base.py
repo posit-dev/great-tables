@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
 from typing_extensions import TypeAlias
 
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
+from great_tables._tab_create_modify import tab_style
 from great_tables._tbl_data import (
     DataFrameLike,
     SelectExpr,
@@ -57,6 +58,7 @@ def data_color(
     autocolor_text: bool = True,
     contrast_algo: ContrastAlgo = "apca",
     truncate: bool = False,
+    fn: Callable[[list[Any]], list[str | None]] | None = None,
 ) -> GTSelf:
     """
     Perform data cell colorization.
@@ -70,6 +72,8 @@ def data_color(
     values or color names
     - value domain: we can either opt to have the range of values define the domain, or, specify
     one explicitly with the `domain=` argument
+    - color-mapping function: for complete control over the mapping of values to colors, a
+    function can be supplied to `fn=`
     - text autocoloring: `data_color()` will automatically recolor the foreground text to provide
     the best contrast (can be deactivated with `autocolor_text=False`)
 
@@ -112,6 +116,17 @@ def data_color(
         minimum or maximum value of the domain (will have the same color). If `False`, then any
         values that fall outside of the domain will be set to `NaN` and will follow the `na_color=`
         color.
+    fn
+        A color-mapping function. The function should take a list of data values (from a single
+        column) as input and return a list of colors of the same length. Each color may be a
+        hexadecimal color value (e.g., `"#FF0000"`) or a color name (e.g., `"red"`). All values are
+        passed to the function, including missing values, so the function must handle those
+        itself. Any position where the function returns `None` receives the `na_color=` color. If
+        a function is supplied, then the `palette=`, `domain=`, `reverse=`, and `truncate=`
+        arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=` arguments
+        still apply to the returned colors. The [`col_numeric()`](`great_tables.col_numeric`),
+        [`col_bin()`](`great_tables.col_bin`), and [`col_factor()`](`great_tables.col_factor`)
+        helpers create ready-made color-mapping functions that can be supplied here.
 
     Returns
     -------
@@ -165,6 +180,44 @@ def data_color(
     We can also use the *viridis* and associated color palettes by providing to `palette=` any of
     the following string values: `"viridis"`, `"plasma"`, `"inferno"`, `"magma"`, or `"cividis"`.
 
+    Custom color-mapping functions
+    ------------------------------
+    When the built-in mapping (a palette spread across a domain) isn't what you need, you can
+    supply your own color-mapping function to `fn=`. This gives complete control over how values
+    become colors. Here's how such a function is used:
+
+    - it's called once per targeted column, receiving a list of that column's values (only for the
+    rows selected by `rows=`, in table order)
+    - it must return a list of colors of the same length, where each color is a hexadecimal value
+    (`"#RRGGBB"`, `"#RRGGBBAA"`, or the short `"#RGB"` form) or a CSS/X11 color name
+    - missing values are included in the list, so the function must handle them: with pandas they
+    usually arrive as `NaN` (or `None`/`pd.NA`, depending on the column type), and with Polars and
+    PyArrow they arrive as `None`; `pd.isna()` catches all of these
+    - returning `None` at any position gives that cell the `na_color=` color, which is the easiest
+    way to deal with missing values
+    - columns of any type can be colored (e.g., booleans or dates), since the numeric-or-string
+    requirement of the built-in mapping doesn't apply
+
+    When `fn=` is used, the `palette=`, `domain=`, `reverse=`, and `truncate=` arguments are ignored
+    because the function takes over their roles. The `na_color=`, `alpha=`, `autocolor_text=`, and
+    `contrast_algo=` arguments still apply to the colors that the function returns.
+
+    Rather than writing a function from scratch, you can create one with these helpers (modeled on
+    the color-mapping functions of the R **scales** package, which are commonly used with gt):
+
+    - [`col_numeric()`](`great_tables.col_numeric`): a continuous gradient across a numeric domain
+    (useful for diverging scales centered on a value like zero)
+    - [`col_bin()`](`great_tables.col_bin`): numeric values cut into bins, with one color per bin
+    - [`col_factor()`](`great_tables.col_factor`): one color per category, optionally with a fixed
+    set of levels so colors stay consistent across tables
+
+    Each helper accepts a palette in the same forms as `palette=` here (including ColorBrewer and
+    viridis palette names). The numeric helpers also have their own `domain=` and `truncate=`
+    arguments. Missing values, and values outside of the domain, give `None` by default, so the
+    `na_color=` value given to `data_color()` is used for those cells. Because the helpers return
+    ordinary functions, they can also be called inside your own function, for instance to compute a
+    domain from the data before mapping it.
+
     Examples
     --------
     The `data_color()` method can be used without any supplied arguments to colorize a table. Let's
@@ -210,6 +263,68 @@ def data_color(
         na_color="lightgray"
     )
     ```
+
+    For complete control over how values map to colors, we can supply a function to `fn=`. The
+    function receives the list of values in a column (missing values included) and must return a
+    list of colors of the same length. Here, values in the `num` column are colored according to
+    whether they are below or above `100`. Returning `None` for the missing value means that it
+    gets the `na_color=` color:
+
+    ```{python}
+    import pandas as pd
+
+    def above_below_100(vals):
+        return [None if pd.isna(x) else "lightblue" if x < 100 else "orange" for x in vals]
+
+    GT(exibble).data_color(
+        columns="num",
+        fn=above_below_100,
+        na_color="lightgray"
+    )
+    ```
+
+    A color-mapping function is also useful for highlighting the sign of values. Here, positive
+    changes are colored green, negative changes orange, and zero values are left white. Because
+    the function assigns its own color to the missing value, `na_color=` isn't needed:
+
+    ```{python}
+    df = pd.DataFrame(
+        {
+            "region": ["North", "South", "East", "West", "Central"],
+            "change": [12.5, -8.1, 0.0, 3.2, None],
+        }
+    )
+
+    def sign_colors(vals):
+        return [
+            "#E0E0E0" if pd.isna(x) else "#1B9E77" if x > 0 else "#D95F02" if x < 0 else "#FFFFFF"
+            for x in vals
+        ]
+
+    (
+        GT(df)
+        .data_color(columns="change", fn=sign_colors)
+        .fmt_number(columns="change", decimals=1, force_sign=True)
+    )
+    ```
+
+    For a gradient, rather than fixed colors, we can build the function with one of the
+    color-mapping helpers. Here, [`col_numeric()`](`great_tables.col_numeric`) makes negative
+    changes increasingly red and positive changes increasingly green, the further they are from
+    zero. A domain centered on zero keeps zero values white:
+
+    ```{python}
+    from great_tables import col_numeric
+
+    (
+        GT(df)
+        .data_color(
+            columns="change",
+            fn=col_numeric(palette=["#D7191C", "white", "#1A9641"], domain=[-15, 15]),
+        )
+        .fmt_number(columns="change", decimals=1, force_sign=True)
+    )
+    ```
     """
 
     # TODO: there is a circular import in palettes (which imports functions from this module)
@@ -223,21 +338,8 @@ def data_color(
     else:
         na_color = _html_color(colors=[na_color], alpha=alpha)[0]
 
-    # If palette is not provided, use a default palette
-    if palette is None:
-        palette = DEFAULT_PALETTE
-    elif isinstance(palette, str):
-        # Check if the `palette` value refers to a ColorBrewer or viridis palette
-        # and, if it is, then convert it to a list of hexadecimal color values; otherwise,
-        # convert it to a list (this assumes that the value is a single color)
-        palette = ALL_PALETTES.get(palette, [palette])
-
-    # Reverse the palette if `reverse` is set to `True`
-    if reverse:
-        palette = palette[::-1]
-
-    # Standardize values in `palette` to hexadecimal color values
-    palette = _html_color(colors=palette, alpha=alpha)
+    # Resolve the palette to a list of hexadecimal color values
+    palette = _resolve_palette(palette=palette, reverse=reverse, alpha=alpha)
 
     # Set a flag to indicate whether or not the domain should be calculated automatically
     autocalc_domain = domain is None
@@ -266,6 +368,28 @@ def data_color(
 
         # Filter out NA values from `column_vals`
         filtered_column_vals = [x for x in column_vals if not is_na(data_table, x)]
+
+        # If a color-mapping function is provided, it determines the colors directly (bypassing
+        # the palette, domain, and rescaling logic below)
+        if fn is not None:
+            color_vals = _apply_color_fn(
+                fn=fn,
+                col=col,
+                vals=column_vals,
+                na_color=na_color,
+                alpha=alpha,
+            )
+
+            gt_obj = _apply_data_color_styles(
+                gt_obj,
+                col=col,
+                row_pos=row_pos,
+                color_vals=color_vals,
+                autocolor_text=autocolor_text,
+                contrast_algo=contrast_algo,
+            )
+
+            continue
 
         # The methodology for domain calculation and rescaling depends on column values being:
         # (1) numeric (integers or floats), then the method should be 'numeric'
@@ -317,24 +441,120 @@ def data_color(
                 color_vals[i] = val
 
         # Replace 'None' values in `color_vals` with the `na_color=` color
-        color_vals = [na_color if is_na(data_table, x) else x for x in color_vals]
+        color_vals = [na_color if x is None else x for x in color_vals]
 
-        # for every color value in color_vals, apply a fill to the corresponding cell
-        # by using `tab_style()`
-        for i, color_val in zip(row_pos, color_vals):
-            if autocolor_text:
-                fgnd_color = _ideal_fgnd_color(bgnd_color=color_val, algo=contrast_algo)
+        gt_obj = _apply_data_color_styles(
+            gt_obj,
+            col=col,
+            row_pos=row_pos,
+            color_vals=color_vals,
+            autocolor_text=autocolor_text,
+            contrast_algo=contrast_algo,
+        )
 
-                gt_obj = gt_obj.tab_style(
-                    style=[text(color=fgnd_color), fill(color=color_val)],
-                    locations=body(columns=col, rows=[i]),
-                )
-
-            else:
-                gt_obj = gt_obj.tab_style(
-                    style=fill(color=color_val), locations=body(columns=col, rows=[i])
-                )
     return gt_obj
+
+
+def _resolve_palette(
+    palette: str | list[str] | None,
+    reverse: bool = False,
+    alpha: int | float | None = None,
+) -> list[str]:
+    """
+    Resolve a palette specification to a list of hexadecimal color values.
+
+    A value of `None` gives the default palette. A string is first checked against the names of
+    the ColorBrewer and viridis palettes; if it isn't one of those, it's treated as a single color.
+    """
+
+    # If palette is not provided, use a default palette
+    if palette is None:
+        palette = DEFAULT_PALETTE
+    elif isinstance(palette, str):
+        # Check if the `palette` value refers to a ColorBrewer or viridis palette
+        # and, if it is, then convert it to a list of hexadecimal color values; otherwise,
+        # convert it to a list (this assumes that the value is a single color)
+        palette = ALL_PALETTES.get(palette, [palette])
+
+    # Reverse the palette if `reverse` is set to `True`
+    if reverse:
+        palette = palette[::-1]
+
+    # Standardize values in `palette` to hexadecimal color values
+    return _html_color(colors=list(palette), alpha=alpha)
+
+
+def _apply_data_color_styles(
+    gt_obj: GTSelf,
+    col: str,
+    row_pos: list[int],
+    color_vals: list[str],
+    autocolor_text: bool,
+    contrast_algo: ContrastAlgo,
+) -> GTSelf:
+    # For every color value in `color_vals`, apply a fill to the corresponding cell
+    # by using `tab_style()`
+    for i, color_val in zip(row_pos, color_vals):
+        if autocolor_text:
+            fgnd_color = _ideal_fgnd_color(bgnd_color=color_val, algo=contrast_algo)
+
+            gt_obj = tab_style(
+                gt_obj,
+                style=[text(color=fgnd_color), fill(color=color_val)],
+                locations=body(columns=col, rows=[i]),
+            )
+
+        else:
+            gt_obj = tab_style(
+                gt_obj, style=fill(color=color_val), locations=body(columns=col, rows=[i])
+            )
+
+    return gt_obj
+
+
+def _apply_color_fn(
+    fn: Callable[[list[Any]], list[str | None]],
+    col: str,
+    vals: list[Any],
+    na_color: str,
+    alpha: int | float | None,
+) -> list[str]:
+    """
+    Map column values to colors with a user-supplied color-mapping function.
+
+    All values in `vals=` (including missing values) are passed to `fn=`, as in gt. Any positions
+    where `fn=` returns `None` receive the `na_color=` color. All other colors are normalized to
+    hexadecimal values (with `alpha=` applied, if provided).
+    """
+
+    fn_colors = list(fn(vals))
+
+    if len(fn_colors) != len(vals):
+        raise ValueError(
+            f"The function supplied to `fn=` returned {len(fn_colors)} colors for column "
+            f"'{col}' but {len(vals)} were expected. The function must return a list of "
+            "colors with the same length as its input."
+        )
+
+    for color in fn_colors:
+        if color is not None and not isinstance(color, str):
+            raise TypeError(
+                "The function supplied to `fn=` must return colors as strings (or `None`), "
+                f"but returned a value of type {type(color).__name__} for column '{col}'."
+            )
+
+    color_vals = [na_color] * len(vals)
+
+    # Normalize the returned colors (skipping `None` entries, which get the `na_color=` color)
+    mapped = [(i, color) for i, color in enumerate(fn_colors) if color is not None]
+
+    if mapped:
+        normalized = _html_color(colors=[color for _, color in mapped], alpha=alpha)
+
+        for (i, _), color in zip(mapped, normalized):
+            color_vals[i] = color
+
+    return color_vals
 
 
 def _validate_contrast_algo(algo: str) -> None:
