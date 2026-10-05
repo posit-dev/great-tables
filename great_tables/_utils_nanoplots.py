@@ -501,17 +501,29 @@ def _normalize_to_dict(**kwargs: list[int | float]) -> dict[str, list[int | floa
     return args
 
 
-def _single_value_ref_line_tags(x: float, y1: float, y2: float, stroke: str, label: str) -> str:
-    """Vertical reference line for single-value (horizontal) bar and line plots."""
+def _single_value_ref_line_tags(
+    x: float, y1: float, y2: float, stroke: str, label: str, label_on_left: bool = False
+) -> str:
+    """Vertical reference line for single-value (horizontal) bar and line plots.
+
+    The label is placed to the left of the line when `label_on_left=True`, which keeps it within
+    the plot when the line is close to the right edge."""
+
+    text_position = f'x="{x - 10}" text-anchor="end"' if label_on_left else f'x="{x + 10}"'
+
     return (
         f'<g class="ref-line"><rect x="{x - 10}" y="{y1}" width="20" height="{y2 - y1}" '
         'stroke="transparent" stroke-width="1" fill="transparent"></rect>'
         f'<line class="ref-line" x1="{x}" y1="{y1}" x2="{x}" y2="{y2}" stroke="{stroke}" '
         'stroke-width="1" stroke-dasharray="4 3" stroke-linecap="round" '
         'vector-effect="non-scaling-stroke"></line>'
-        f'<text x="{x + 10}" y="{y1 - 10}" fill="transparent" stroke="transparent" '
+        f'<text {text_position} y="{y1 - 10}" fill="transparent" stroke="transparent" '
         f'font-size="30px">{label}</text></g>'
     )
+
+
+def _is_whole_number(x: int | float) -> bool:
+    return float(x).is_integer()
 
 
 def _single_value_proportions(
@@ -745,8 +757,11 @@ def _generate_nanoplot(
 
         # A reference line is drawn on the scale shared by all rows, so keywords such as
         # "mean" are computed from the values of all rows
+        # (missing values in other rows are left out of that calculation)
         if show_reference_line and not _is_na(y_ref_line):
-            single_ref_line = calc_ref_value(y_ref_line, all_single_y_vals)
+            single_ref_line = calc_ref_value(
+                y_ref_line, [val for val in all_single_y_vals if not _is_na(val)]
+            )
 
         show_data_points = True
         show_data_line = True
@@ -1263,9 +1278,10 @@ def _generate_nanoplot(
                 label=_format_number_compactly(
                     val=single_ref_line,
                     currency=currency,
-                    as_integer=y_vals_integerlike,
+                    as_integer=y_vals_integerlike and _is_whole_number(single_ref_line),
                     fn=y_ref_line_fmt_fn,
                 ),
+                label_on_left=y_proportion_ref_line > 0.5,
             )
 
         # Redefine the `viewbox` in terms of the `data_x_width` value; this ensures
@@ -1359,9 +1375,10 @@ def _generate_nanoplot(
                 label=_format_number_compactly(
                     val=single_ref_line,
                     currency=currency,
-                    as_integer=y_vals_integerlike,
+                    as_integer=y_vals_integerlike and _is_whole_number(single_ref_line),
                     fn=y_ref_line_fmt_fn,
                 ),
+                label_on_left=y_proportion_ref_line > 0.5,
             )
 
         # Redefine the `viewbox` in terms of the `data_x_width` value; this ensures
@@ -1396,7 +1413,10 @@ def _generate_nanoplot(
 
         # Format value in a compact manner
         y_ref_line = _format_number_compactly(
-            val=y_ref_line, currency=currency, as_integer=y_vals_integerlike, fn=y_ref_line_fmt_fn
+            val=y_ref_line,
+            currency=currency,
+            as_integer=y_vals_integerlike and _is_whole_number(y_ref_line),
+            fn=y_ref_line_fmt_fn,
         )
 
         ref_line_tags = f'<g class="ref-line"><rect x="{data_x_points[0] - 10}" y="{data_y_ref_line - 10}" width="{data_x_width + 20}" height="20" stroke="transparent" stroke-width="1" fill="transparent"></rect><line class="ref-line" x1="{data_x_points[0]}" y1="{data_y_ref_line}" x2="{data_x_width + safe_x_d}" y2="{data_y_ref_line}" stroke="{stroke}" stroke-width="{stroke_width}" stroke-dasharray="{stroke_dasharray}" transform="{transform}" stroke-linecap="{stroke_linecap}" vector-effect="{vector_effect}"></line><text x="{data_x_width + safe_x_d + 10}" y="{data_y_ref_line + 10}" fill="transparent" stroke="transparent" font-size="30px">{y_ref_line}</text></g>'
