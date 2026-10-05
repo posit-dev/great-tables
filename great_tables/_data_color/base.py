@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Literal
-
-from typing_extensions import TypeAlias
+from collections.abc import Callable
+from decimal import Decimal
+from math import isinf
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
 from great_tables._tab_create_modify import tab_style
 from great_tables._tbl_data import (
     DataFrameLike,
     SelectExpr,
+    _get_column_levels,
     get_column_names,
     get_rows,
     is_na,
@@ -53,7 +55,7 @@ def data_color(
     palette: str | list[str] | None = None,
     domain: list[str] | list[int] | list[float] | None = None,
     na_color: str | None = None,
-    alpha: int | float | None = None,
+    alpha: float | None = None,
     reverse: bool = False,
     autocolor_text: bool = True,
     contrast_algo: ContrastAlgo = "apca",
@@ -93,7 +95,8 @@ def data_color(
         palette will be used.
     domain
         The domain of values to use for the color scheme. This can be a list of floats, integers, or
-        strings. If `None`, then the domain will be inferred from the data values.
+        strings. If `None`, then the domain will be inferred from the data values (see the
+        *How column values are mapped to colors* section for details).
     na_color
         The color to use for missing values. If `None`, then the default color (`"#808080"`) will be
         used.
@@ -133,6 +136,33 @@ def data_color(
     GT
         The GT object is returned. This is the same object that the method is called on so that we
         can facilitate method chaining.
+
+    How column values are mapped to colors
+    --------------------------------------
+    Without `fn=`, each targeted column is mapped to colors in one of two ways, depending on the
+    values it contains (missing values are set aside first):
+
+    - numeric values (integers, floats, and `Decimal` values) are spread along the palette as a
+    continuous gradient, from the lowest value in the domain to the highest
+    - string values (including categorical columns) are treated as categories, with each one
+    taking its own position along the palette
+
+    Columns of any other type (e.g., dates) or with a mix of types will raise an error. To color
+    these, supply a color-mapping function to `fn=` (see the *Custom color-mapping functions*
+    section). Some further details on how values are handled:
+
+    - missing values (`None`, `NaN`, and `pd.NA`) always receive the `na_color=` color
+    - booleans are treated as numbers, so `True` takes the high end of the palette and `False` the
+    low end
+    - an inferred numeric domain spans the finite values only; any infinite values are given the
+    color at the matching end of the palette (with a supplied `domain=`, infinite values are treated
+    like any other value outside of the domain, following the `truncate=` setting)
+    - an inferred categorical domain lists the categories in the order they first appear in the
+    column, except for ordered categorical columns (an ordered Pandas `Categorical` or a Polars
+    `Enum`), where the declared levels are used in their declared order (this includes any levels
+    that don't appear in the data, so colors stay consistent no matter which `rows=` are colored)
+
+    Supplying `domain=` overrides any of the inferred domains described above.
 
     Color palette access from ColorBrewer and viridis
     -------------------------------------------------
@@ -366,9 +396,6 @@ def data_color(
         # This line handles both pandas and polars dataframes
         column_vals = to_list(get_rows(data_table[col], indexes=row_pos))
 
-        # Filter out NA values from `column_vals`
-        filtered_column_vals = [x for x in column_vals if not is_na(data_table, x)]
-
         # If a color-mapping function is provided, it determines the colors directly (bypassing
         # the palette, domain, and rescaling logic below)
         if fn is not None:
@@ -391,6 +418,12 @@ def data_color(
 
             continue
 
+        # Convert any `Decimal` values to floats so that they can be scaled like other numbers
+        column_vals = [float(x) if isinstance(x, Decimal) else x for x in column_vals]
+
+        # Filter out NA values from `column_vals`
+        filtered_column_vals = [x for x in column_vals if not is_na(data_table, x)]
+
         # The methodology for domain calculation and rescaling depends on column values being:
         # (1) numeric (integers or floats), then the method should be 'numeric'
         # (2) strings, then the method should be 'factor'
@@ -406,10 +439,20 @@ def data_color(
                 df=data_table, vals=column_vals, domain=domain, truncate=truncate
             )
 
+            # Infinite values are left out of an inferred domain, so place them at either end of it
+            if autocalc_domain:
+                scaled_vals = [
+                    (1.0 if x > 0 else 0.0) if _is_infinite(x) else scaled
+                    for x, scaled in zip(column_vals, scaled_vals)
+                ]
+
         elif all(isinstance(x, str) for x in filtered_column_vals):
             # If `domain` is not provided, then infer it from the data values
+            # (for ordered categorical columns, use the declared levels instead)
             if autocalc_domain:
-                domain = _get_domain_factor(df=data_table, vals=column_vals)
+                domain = _get_column_levels(data_table, col) or _get_domain_factor(
+                    df=data_table, vals=column_vals
+                )
 
             # Rescale only the non-NA values in `column_vals` to the range [0, 1]
             scaled_vals = _rescale_factor(
@@ -458,7 +501,7 @@ def data_color(
 def _resolve_palette(
     palette: str | list[str] | None,
     reverse: bool = False,
-    alpha: int | float | None = None,
+    alpha: float | None = None,
 ) -> list[str]:
     """
     Resolve a palette specification to a list of hexadecimal color values.
@@ -517,7 +560,7 @@ def _apply_color_fn(
     col: str,
     vals: list[Any],
     na_color: str,
-    alpha: int | float | None,
+    alpha: float | None,
 ) -> list[str]:
     """
     Map column values to colors with a user-supplied color-mapping function.
@@ -807,7 +850,7 @@ def _srgb(x: int) -> float:
     return x_frac
 
 
-def _html_color(colors: list[str], alpha: int | float | None = None) -> list[str]:
+def _html_color(colors: list[str], alpha: float | None = None) -> list[str]:
     """
     Normalize HTML colors.
 
@@ -835,7 +878,7 @@ def _html_color(colors: list[str], alpha: int | float | None = None) -> list[str
     return colors
 
 
-def _add_alpha(colors: list[str], alpha: int | float) -> list[str]:
+def _add_alpha(colors: list[str], alpha: float) -> list[str]:
     # If `alpha` is an integer, then convert it to a float
     if isinstance(alpha, int):
         alpha = float(alpha)
@@ -1006,7 +1049,7 @@ def _rescale_factor(
     # use NA; then scale these index values to the range [0, 1]
     scaled_vals = _rescale_numeric(
         df=df,
-        vals=[domain.index(x) if x in domain else None for x in vals],
+        vals=[None if is_na(df, x) or x not in domain else domain.index(x) for x in vals],
         domain=[0, domain_length - 1],
     )
 
@@ -1020,8 +1063,12 @@ def _get_domain_numeric(df: DataFrameLike, vals: list[int | float]) -> list[floa
     Get the domain of numeric values in `vals=` as a list of two values: the min and max values.
     """
 
-    # Exclude any NA values from `vals`
-    vals = [x for x in vals if not is_na(df, x)]
+    # Exclude any NA and infinite values from `vals`
+    vals = [x for x in vals if not is_na(df, x) and not _is_infinite(x)]
+
+    # Without any finite values there is no range to infer, so use a zero-width domain
+    if not vals:
+        return [0, 0]
 
     # Get the minimum and maximum values from `vals`
     domain_min = min(vals)
@@ -1031,6 +1078,10 @@ def _get_domain_numeric(df: DataFrameLike, vals: list[int | float]) -> list[floa
     domain = [domain_min, domain_max]
 
     return domain
+
+
+def _is_infinite(x: Any) -> bool:
+    return isinstance(x, float) and isinf(x)
 
 
 def _get_domain_factor(df: DataFrameLike, vals: list[str]) -> list[str]:

@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import re
 import warnings
+from collections.abc import Callable
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union
-
-from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 from ._databackend import AbstractBackend
 
@@ -289,6 +288,39 @@ def _(data: PyArrowTable, column: str) -> Any:
     return data.column(column).type
 
 
+# _get_column_levels ----
+
+
+@singledispatch
+def _get_column_levels(data: DataFrameLike, column: str) -> list[Any] | None:
+    """Get the declared levels of an ordered categorical column (or `None` if there are none)"""
+    return None
+
+
+@_get_column_levels.register
+def _(data: PdDataFrame, column: str) -> list[Any] | None:
+    import pandas as pd
+
+    dtype = data[column].dtype
+
+    if isinstance(dtype, pd.CategoricalDtype) and dtype.ordered:
+        return dtype.categories.to_list()
+
+    return None
+
+
+@_get_column_levels.register
+def _(data: PlDataFrame, column: str) -> list[Any] | None:
+    import polars as pl
+
+    dtype = data[column].dtype
+
+    if isinstance(dtype, pl.Enum):
+        return dtype.categories.to_list()
+
+    return None
+
+
 # reorder ----
 
 
@@ -360,17 +392,17 @@ def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
 
 # eval_select ----
 
-SelectExpr: TypeAlias = Union[
-    str,
-    list[str],
-    int,
-    list[int],
-    list["str | int"],
-    PlSelectExpr,
-    list[PlSelectExpr],
-    Callable[[str], bool],
-    None,
-]
+SelectExpr: TypeAlias = (
+    str
+    | list[str]
+    | int
+    | list[int]
+    | list["str | int"]
+    | PlSelectExpr
+    | list[PlSelectExpr]
+    | Callable[[str], bool]
+    | None
+)
 _NamePos: TypeAlias = list[tuple[str, int]]
 
 
@@ -384,7 +416,7 @@ def eval_select(data: DataFrameLike, expr: SelectExpr, strict: bool = True) -> _
 @eval_select.register
 def _(
     data: PdDataFrame,
-    expr: Union[list[Union[str, int]], Callable[[str], bool]],
+    expr: list[str | int] | Callable[[str], bool],
     strict: bool = True,
 ) -> _NamePos:
     if isinstance(expr, (str, int)):
@@ -402,7 +434,7 @@ def _(
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: Union[list[str], PlSelectExpr], strict: bool = True) -> _NamePos:
+def _(data: PlDataFrame, expr: list[str] | PlSelectExpr, strict: bool = True) -> _NamePos:
     import polars as pl
     import polars.selectors as cs
     from polars import Expr
@@ -446,7 +478,7 @@ def _(data: PlDataFrame, expr: Union[list[str], PlSelectExpr], strict: bool = Tr
 
 
 @eval_select.register
-def _(data: PyArrowTable, expr: Union[list[str], PlSelectExpr], strict: bool = True) -> _NamePos:
+def _(data: PyArrowTable, expr: list[str] | PlSelectExpr, strict: bool = True) -> _NamePos:
     if isinstance(expr, (str, int)):
         expr = [expr]
 
@@ -474,9 +506,7 @@ def _validate_selector_list(selectors: list, strict=True):
             raise TypeError(f"Expected a list of selectors, but entry {ii} is type: {type(sel)}.")
 
 
-def _eval_select_from_list(
-    columns: list[str], expr: list[Union[str, int]]
-) -> list[tuple[str, int]]:
+def _eval_select_from_list(columns: list[str], expr: list[str | int]) -> list[tuple[str, int]]:
     col_pos = {k: ii for ii, k in enumerate(columns)}
 
     # TODO: should prohibit duplicate names in expr?
@@ -605,7 +635,7 @@ def _(df: PyArrowTable):
     import pyarrow as pa
     import pyarrow.compute as pc
 
-    def _to_string(column: "pa.ChunkedArray") -> "pa.Array":
+    def _to_string(column: pa.ChunkedArray) -> pa.Array:
         if pa.types.is_boolean(column.type):
             # pyarrow spells booleans "true"/"false"
             return pa.array(pc.if_else(column, pa.scalar("True"), pa.scalar("False")))
@@ -862,7 +892,7 @@ def _(df: PyArrowTable) -> PyArrowTable:
 
 
 @singledispatch
-def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataFrameLike:
+def to_frame(ser: list[Any] | SeriesLike, name: str | None = None) -> DataFrameLike:
     if not isinstance(ser, list):
         raise NotImplementedError(f"Unsupported type: {type(ser)}")  # pragma: no cover
 
@@ -891,24 +921,24 @@ def to_frame(ser: "list[Any] | SeriesLike", name: Optional[str] = None) -> DataF
 
 
 @to_frame.register
-def _(ser: PdSeries, name: Optional[str] = None) -> PdDataFrame:
+def _(ser: PdSeries, name: str | None = None) -> PdDataFrame:
     return ser.to_frame(name)
 
 
 @to_frame.register
-def _(ser: PlSeries, name: Optional[str] = None) -> PlDataFrame:
+def _(ser: PlSeries, name: str | None = None) -> PlDataFrame:
     return ser.to_frame(name)
 
 
 @to_frame.register
-def _(ser: PyArrowArray, name: Optional[str] = None) -> PyArrowTable:
+def _(ser: PyArrowArray, name: str | None = None) -> PyArrowTable:
     import pyarrow as pa
 
     return pa.table({name: ser})
 
 
 @to_frame.register
-def _(ser: PyArrowChunkedArray, name: Optional[str] = None) -> PyArrowTable:
+def _(ser: PyArrowChunkedArray, name: str | None = None) -> PyArrowTable:
     import pyarrow as pa
 
     return pa.table({name: ser})

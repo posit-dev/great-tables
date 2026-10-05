@@ -39,6 +39,9 @@ NUMERIC_DTYPE_PATTERN = re.compile(r"int|uint|float|date|double")
 # Includes "str" for pandas 3.x compatibility (pandas 2.x uses "object")
 STRING_DTYPES = {"object", "utf8", "string", "str"}
 
+# pandas ArrowDtype string columns report their backend in the dtype name
+PANDAS_ARROW_STRING_DTYPES = {"string[pyarrow]", "large_string[pyarrow]", "string_view[pyarrow]"}
+
 # Pattern for "number-like" strings (dates, times, formatted numbers)
 # NOTE: Preserves original behavior including the character class quirk
 # The original pattern [0-9 -/:\\.] has " -/" which is technically a range from space to /
@@ -90,7 +93,7 @@ def _classify_pandas(data: PdDataFrame, column: str) -> AlignmentClass:
     # Match original behavior: pattern-based detection
     if NUMERIC_DTYPE_PATTERN.match(dtype):
         return "numeric"
-    elif dtype in STRING_DTYPES:
+    elif dtype in STRING_DTYPES or dtype in PANDAS_ARROW_STRING_DTYPES:
         return "string"
     else:
         return "other"
