@@ -1,7 +1,5 @@
 """Tests for dtype classification and auto-alignment."""
 
-import re
-
 import pandas as pd
 import polars as pl
 import pyarrow as pa
@@ -216,16 +214,30 @@ class TestAutoAlignIntegration:
         aligns = [col.column_align for col in gt_tbl._boxhead._d]
         assert aligns == ["left"]  # mixed text -> left
 
-    @pytest.mark.parametrize("arrow_str", [pa.string(), pa.large_string()])
+    @pytest.mark.parametrize(
+        "arrow_str",
+        [
+            pytest.param("string", id="string"),
+            pytest.param("large_string", id="large_string"),
+            pytest.param(
+                "string_view",
+                id="string_view",
+                marks=pytest.mark.skipif(
+                    not hasattr(pa, "string_view"), reason="requires pyarrow>=16"
+                ),
+            ),
+        ],
+    )
     def test_pandas_pyarrow_string_auto_align(self, arrow_str):
         df = pd.DataFrame(
             {
                 "num": pd.array([1, 2], dtype=pd.ArrowDtype(pa.int64())),
-                "text": pd.array(["a", "b"], dtype=pd.ArrowDtype(arrow_str)),
+                "text": pd.array(["a", "b"], dtype=pd.ArrowDtype(getattr(pa, arrow_str)())),
             }
         )
-        html = gt.GT(df).as_raw_html()
-        assert re.findall(r'class="gt_row gt_(\w+)', html)[:2] == ["right", "left"]
+        gt_tbl = gt.GT(df)
+        aligns = [col.column_align for col in gt_tbl._boxhead._d]
+        assert aligns == ["right", "left"]
 
     def test_pandas_pyarrow_string_matches_object(self):
         df = pd.DataFrame(
@@ -238,8 +250,8 @@ class TestAutoAlignIntegration:
         df_arrow = df.convert_dtypes(dtype_backend="pyarrow")
         assert df_arrow["text"].dtype == pd.ArrowDtype(pa.string())
 
-        expected = re.findall(r'class="gt_row gt_(\w+)', gt.GT(df).as_raw_html())[:3]
-        result = re.findall(r'class="gt_row gt_(\w+)', gt.GT(df_arrow).as_raw_html())[:3]
+        expected = [col.column_align for col in gt.GT(df)._boxhead._d]
+        result = [col.column_align for col in gt.GT(df_arrow)._boxhead._d]
         assert expected == ["left", "right", "right"]
         assert result == expected
 
@@ -247,8 +259,9 @@ class TestAutoAlignIntegration:
         df = pd.DataFrame(
             {"mixed": pd.array(["hello", "123", None], dtype=pd.ArrowDtype(pa.string()))}
         )
-        html = gt.GT(df).as_raw_html()
-        assert re.findall(r'class="gt_row gt_(\w+)', html)[0] == "left"
+        gt_tbl = gt.GT(df)
+        aligns = [col.column_align for col in gt_tbl._boxhead._d]
+        assert aligns == ["left"]
 
     def test_pyarrow_auto_align(self):
         table = pa.table({"num": [1, 2], "text": ["a", "b"]})

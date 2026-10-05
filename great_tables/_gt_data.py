@@ -390,9 +390,8 @@ class Boxhead(_Sequence[ColInfo]):
             # This handles "object" (pandas 2.x), "str" (pandas 3.x) and pyarrow-backed dtypes
             if classification == "string":
                 dtype = str(_get_column_dtype(data, col)).lower()
-                if (
-                    dtype in ("object", "str") or dtype in PANDAS_ARROW_STRING_DTYPES
-                ) and is_number_like_column(data, col):
+                checks_number_like = dtype in {"object", "str", *PANDAS_ARROW_STRING_DTYPES}
+                if checks_number_like and is_number_like_column(data, col):
                     classification = "numeric"
 
             align.append(ALIGNMENT_MAP[classification])

@@ -40,7 +40,7 @@ NUMERIC_DTYPE_PATTERN = re.compile(r"int|uint|float|date|double")
 STRING_DTYPES = {"object", "utf8", "string", "str"}
 
 # pandas ArrowDtype string columns report their backend in the dtype name
-PANDAS_ARROW_STRING_DTYPES = {"string[pyarrow]", "large_string[pyarrow]"}
+PANDAS_ARROW_STRING_DTYPES = {"string[pyarrow]", "large_string[pyarrow]", "string_view[pyarrow]"}
 
 # Pattern for "number-like" strings (dates, times, formatted numbers)
 # NOTE: Preserves original behavior including the character class quirk
