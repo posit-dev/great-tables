@@ -1,4 +1,5 @@
 import asyncio
+import warnings
 
 import pytest
 import polars as pl
@@ -17,6 +18,23 @@ def test_output_gt_returns_tag():
 def test_output_gt_class_attribute():
     tag = output_gt("my_id")
     assert "shiny-html-output" in str(tag)
+
+
+def test_output_gt_no_placeholder_no_warning():
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        output_gt("my_id")
+
+
+@pytest.mark.parametrize("placeholder", [True, False])
+def test_output_gt_placeholder_deprecated(placeholder: bool):
+    with pytest.warns(
+        FutureWarning, match="`placeholder` argument of `output_gt\\(\\)` is deprecated"
+    ):
+        tag = output_gt("my_id", placeholder=placeholder)
+
+    # The argument has no effect on the output
+    assert str(tag) == str(output_gt("my_id"))
 
 
 def test_render_gt_callable():
