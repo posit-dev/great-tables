@@ -1334,7 +1334,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L1285-L1545" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L1285-L1549" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-Kind.FUNCTION">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sig-name">nanoplot_options</span>(</span>
@@ -1447,7 +1447,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">vertical_guide_stroke_width</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">int | None</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>
-<p>The vertical guide’s stroke width, by default, is relatively large at <code>12</code> (this is ‘12px’). This is modifiable by setting a different value with <code>vertical_guide_stroke_width=</code>.</p>
+<p>The vertical guide’s stroke width, by default, is relatively large at <code>12</code> (this is ‘12px’). This is modifiable by setting a different value with <code>vertical_guide_stroke_width=</code>. This width applies to the hover highlight, so it has no effect when <code>interactive_data_values=False</code>.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">show_data_points</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool | None</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>
@@ -1479,7 +1479,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">interactive_data_values</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool | None</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>
-<p>By default, numeric data values will be shown only when the user interacts with certain regions of a nanoplot. This is because the values may be numerous (i.e., clutter the display when all are visible) and it can be argued that the values themselves are secondary to the presentation. However, for some types of plots (like horizontal bar plots), a persistent display of values alongside the plot marks may be desirable. By setting <code>interactive_data_values=False</code> we can opt for always displaying the data values alongside the plot components.</p>
+<p>By default, numeric data values will be shown only when the user interacts with certain regions of a nanoplot. This is because the values may be numerous (i.e., clutter the display when all are visible) and it can be argued that the values themselves are secondary to the presentation. However, for some types of plots (like horizontal bar plots), a persistent display of values alongside the plot marks may be desirable. By setting <code>interactive_data_values=False</code> we can opt for always displaying the data values alongside the plot components. In this static view, the hover highlights are left out: vertical guides are drawn as thin, faint lines (in the <code>vertical_guide_stroke_color=</code> color) and any reference line keeps its regular color.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">y_val_fmt_fn</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">Callable[…, str] | None</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>

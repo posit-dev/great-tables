@@ -100,7 +100,7 @@ If a reference area has been defined and is visible it has by default a fill col
 Vertical guides appear when hovering in the vicinity of data points. Their default color is `"#911EB4"` (a strong magenta color) and a fill opacity value of `0.4` is automatically applied to this. However, the base color can be changed with the `vertical_guide_stroke_color=` option.
 
 `vertical_guide_stroke_width: int | None = None`  
-The vertical guide's stroke width, by default, is relatively large at `12` (this is '12px'). This is modifiable by setting a different value with `vertical_guide_stroke_width=`.
+The vertical guide's stroke width, by default, is relatively large at `12` (this is '12px'). This is modifiable by setting a different value with `vertical_guide_stroke_width=`. This width applies to the hover highlight, so it has no effect when `interactive_data_values=False`.
 
 `show_data_points: bool | None = None`  
 By default, all data points in a nanoplot are shown but this layer can be hidden by setting `show_data_points=` to `False`.
@@ -124,7 +124,7 @@ Vertical guides appear when hovering over data points. This hidden layer is acti
 The *y*-axis guide will appear when hovering over the far left side of a nanoplot. This hidden layer is active by default but can be deactivated by using `show_y_axis_guide=False`.
 
 `interactive_data_values: bool | None = None`  
-By default, numeric data values will be shown only when the user interacts with certain regions of a nanoplot. This is because the values may be numerous (i.e., clutter the display when all are visible) and it can be argued that the values themselves are secondary to the presentation. However, for some types of plots (like horizontal bar plots), a persistent display of values alongside the plot marks may be desirable. By setting `interactive_data_values=False` we can opt for always displaying the data values alongside the plot components.
+By default, numeric data values will be shown only when the user interacts with certain regions of a nanoplot. This is because the values may be numerous (i.e., clutter the display when all are visible) and it can be argued that the values themselves are secondary to the presentation. However, for some types of plots (like horizontal bar plots), a persistent display of values alongside the plot marks may be desirable. By setting `interactive_data_values=False` we can opt for always displaying the data values alongside the plot components. In this static view, the hover highlights are left out: vertical guides are drawn as thin, faint lines (in the `vertical_guide_stroke_color=` color) and any reference line keeps its regular color.
 
 `y_val_fmt_fn: Callable[…, str] | None = None`  
 If providing a function to `y_val_fmt_fn=`, customized formatting of the *y* values associated with the data points/bars is possible.
