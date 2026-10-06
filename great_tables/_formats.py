@@ -8080,8 +8080,6 @@ def fmt_nanoplot(
     ```
     """
 
-    from great_tables._utils import _str_detect
-
     # guards ----
 
     if not isinstance(columns, str):
@@ -8104,123 +8102,50 @@ def fmt_nanoplot(
     col_vals = to_list(data_tbl[columns])
     target_vals = [col_vals[i] for _, i in resolve_rows_i(self, rows)]
 
-    column_d_type = _get_column_dtype(data_tbl, columns)
+    col_class = str(_get_column_dtype(data_tbl, columns)).lower()
 
-    col_class = str(column_d_type).lower()
-
-    if (
-        _str_detect(col_class, "int")
-        or _str_detect(col_class, "uint")
-        or _str_detect(col_class, "float")
-    ):
-        scalar_vals = True
-    else:
-        scalar_vals = False
-
-    # If a bar plot is requested and the data consists of single y values, then we need to
-    # obtain a list of all single y values in the targeted column (from `columns`)
-    if plot_type in ("line", "bar") and scalar_vals:
-        # Check each cell in the column and get each of them that contains a scalar value
-        # Why are we grabbing the first element of a tuple? (Note this also happens again below.)
+    # A numeric column has a single `y` value per cell; these are drawn as horizontal bars or lines
+    # on a scale shared by all of the targeted cells (so autoscaling doesn't apply)
+    if col_class.startswith(("int", "uint", "float")):
         all_single_y_vals = target_vals
-
         autoscale = False
-
     else:
         all_single_y_vals = None
 
     if options is None:
         from great_tables._helpers import nanoplot_options
 
-        options_plots = nanoplot_options()
-    else:
-        options_plots = options
+        options = nanoplot_options()
 
-    # For autoscale, we need to get the minimum and maximum from all values for the y-axis
+    # For autoscale, the `y` scale of every nanoplot spans the `y` values of all targeted cells
     if autoscale:
-        from great_tables._utils import _flatten_list
+        all_y_vals = [val for cell in target_vals for val in _get_cell_y_vals(cell)]
 
-        # TODO: if a column of delimiter separated strings is passed. E.g. "1 2 3 4". Does this mean
-        # that autoscale does not work? In this case, is col_i_y_vals_raw a string that gets processed?
-        # downstream?
-        all_y_vals_raw = target_vals
-
-        all_y_vals = []
-
-        for data_vals_i in all_y_vals_raw:
-            # TODO: this dictionary handling seems redundant with _generate_data_vals dict handling?
-            # Can this if-clause be removed?
-            if isinstance(data_vals_i, dict):
-                if len(data_vals_i) == 1:
-                    # If there is only one key in the dictionary, then we can assume that the
-                    # dictionary deals with y-values only
-                    data_vals_i = list(data_vals_i.values())[0]
-
-                else:
-                    # Otherwise assume that the dictionary contains x and y values; extract
-                    # the y values
-                    data_vals_i = data_vals_i["y"]
-
-            data_vals_i = _generate_data_vals(data_vals=data_vals_i)
-
-            # If not a list, then convert to a list
-            if not isinstance(data_vals_i, list):
-                data_vals_i = [data_vals_i]
-
-            all_y_vals.extend(data_vals_i)
-
-        all_y_vals = _flatten_list(all_y_vals)
-
-        # Get the minimum and maximum values from the list
         expand_y = [min(all_y_vals), max(all_y_vals)]
 
-    # Generate a function that will operate on single `x` values in the table body using both
-    # the date and time format strings
-    def fmt_nanoplot_fn(
-        x: Any,
-        context: str,
-        plot_type: PlotType = plot_type,
-        plot_height: str = plot_height,
-        missing_vals: MissingVals = missing_vals,
-        reference_line: str | float | None = reference_line,
-        reference_area: list[Any] | None = reference_area,
-        all_single_y_vals: list[int | float] | None = all_single_y_vals,
-        options_plots: dict[str, Any] = options_plots,
-    ) -> str:
+    # Generate a function that turns the nanoplot data in a cell into an SVG nanoplot
+    def fmt_nanoplot_fn(x: Any, context: str) -> str:
         if context == "latex":
             raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
 
-        # If the `x` value is a Pandas 'NA', then return the same value
-        # We have to pass in a dataframe to this function. Everything action that
-        # requires a dataframe import should go through _tbl_data.
+        # A missing cell value is returned as is
         if is_na(data_tbl, x):
             return x
 
-        # Generate data vals from the input `x` value
-        x = _generate_data_vals(data_vals=x)
+        data_vals = _generate_data_vals(data_vals=x)
 
-        # TODO: where are tuples coming from? Need example / tests that induce tuples
-        # If `x` is a tuple, then we have x and y values; otherwise, we only have y values
-        if isinstance(x, tuple):
-            x_vals, y_vals = x
+        # A cell with both `x` and `y` values (a dictionary with "x" and "y" keys) gives a tuple of
+        # two lists of the same length
+        if isinstance(data_vals, tuple):
+            x_vals, y_vals = data_vals
 
-            # Ensure that both objects are lists
-            if not isinstance(x_vals, list) or not isinstance(y_vals, list):  # pragma: no cover
-                raise ValueError("The 'x' and 'y' values must be lists.")
-
-            # Ensure that the lists contain only numeric values (ints and floats)
-            if not all(isinstance(val, (int, float)) for val in x_vals):  # pragma: no cover
+            if not all(isinstance(val, (int, float)) for val in x_vals):
                 raise ValueError("The 'x' values must be numeric.")
 
-            # Ensure that the lengths of the x and y values are the same
-            if len(x_vals) != len(y_vals):  # pragma: no cover
-                raise ValueError("The lengths of the 'x' and 'y' values must be the same.")
-
         else:
-            y_vals = x
-            x_vals = None
+            x_vals, y_vals = None, data_vals
 
-        nanoplot = _generate_nanoplot(
+        return _generate_nanoplot(
             y_vals=y_vals,
             y_ref_line=reference_line,
             y_ref_area=reference_area,
@@ -8231,12 +8156,22 @@ def fmt_nanoplot(
             all_single_y_vals=all_single_y_vals,
             plot_type=plot_type,
             svg_height=plot_height,
-            **options_plots,
+            **options,
         )
 
-        return nanoplot
-
     return fmt_by_context(self, pf_format=fmt_nanoplot_fn, columns=columns, rows=rows)
+
+
+def _get_cell_y_vals(cell: Any) -> list[int | float]:
+    """Get the `y` values from a cell of nanoplot data (see `_generate_data_vals()`)."""
+
+    data_vals = _generate_data_vals(data_vals=cell)
+
+    # A cell with both `x` and `y` values gives a tuple of the two lists
+    if isinstance(data_vals, tuple):
+        data_vals = data_vals[1]
+
+    return data_vals if isinstance(data_vals, list) else [data_vals]
 
 
 def _generate_data_vals(

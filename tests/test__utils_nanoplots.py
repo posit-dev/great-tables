@@ -2672,3 +2672,98 @@ def test_normalize_to_dict_fewer_than_two_raises():
 
     with pytest.raises(ValueError, match="At least two values must be provided"):
         _normalize_to_dict(val=[1.0])
+
+
+def test_normalize_to_dict_leaves_out_none_values():
+    assert _normalize_to_dict(a=1, b=None, c=3) == {"a": [0.0], "c": [1.0]}
+
+
+def test_generate_ref_line_from_keyword_does_not_sort_input():
+    vals = [3, 1, 2]
+
+    _generate_ref_line_from_keyword(vals, keyword="median")
+
+    assert vals == [3, 1, 2]
+
+
+def test_nanoplot_bar_with_x_vals_raises():
+    with pytest.raises(NotImplementedError, match="Bar plots with `x` values"):
+        _generate_nanoplot(
+            y_vals=[1, 2, 3], x_vals=[1, 2, 3], plot_type="bar", data_line_type="straight"
+        )
+
+
+def test_nanoplot_missing_single_value_is_empty():
+    assert _generate_nanoplot(y_vals=float("nan"), all_single_y_vals=[1.0, float("nan")]) == ""
+
+
+@pytest.mark.parametrize(
+    "num_y_vals,data_x_width,x_d",
+    [(1, 50, 50), (20, 1000, 50), (21, 840, 40), (31, 930, 30), (41, 1025, 25), (51, 1020, 20)],
+)
+def test_canvas_spacing_shrinks_with_more_points(num_y_vals: int, data_x_width: int, x_d: int):
+    from great_tables._utils_nanoplots import _Canvas
+
+    assert _Canvas.create(num_y_vals, evenly_spaced=True) == _Canvas(data_x_width, x_d)
+
+
+def test_canvas_not_evenly_spaced_has_fixed_width():
+    from great_tables._utils_nanoplots import _Canvas
+
+    assert _Canvas.create(5, evenly_spaced=False) == _Canvas(data_x_width=600, x_d=None)
+
+
+def test_nanoplot_options_per_point_expands_single_values():
+    from great_tables._utils_nanoplots import _NanoplotOptions
+
+    opts = _NanoplotOptions(data_point_radius=3, data_bar_fill_color=["red", "blue"])
+
+    per_point = opts.per_point(2)
+
+    assert per_point.data_point_radius == [3, 3]
+    assert per_point.data_bar_fill_color == ["red", "blue"]
+
+
+def test_nanoplot_options_hide_layers():
+    from dataclasses import asdict
+    from great_tables._utils_nanoplots import _NanoplotOptions
+
+    hidden = _NanoplotOptions().hide_layers()
+
+    assert not any(val for key, val in asdict(hidden).items() if key.startswith("show_"))
+
+
+def test_nanoplot_options_rejects_unknown_option():
+    with pytest.raises(TypeError):
+        _generate_nanoplot(y_vals=[1, 2, 3], not_an_option=True)
+
+
+def test_curved_path_d():
+    from great_tables._utils_nanoplots import _curved_path_d
+
+    assert _curved_path_d((0, 10), (5, 15), x_d=10) == "M 0,5 C 5.0,5 5.0,15 10,15"
+
+
+def test_polyline_points():
+    from great_tables._utils_nanoplots import _polyline_points
+
+    assert _polyline_points((0, 10, 20), (5, 15, 25)) == "0,5 10,15 20,25"
+
+
+def test_nanoplot_spec_segments_split_at_missing_values():
+    from great_tables._utils_nanoplots import _NanoplotOptions, _NanoplotSpec
+
+    spec = _NanoplotSpec.from_inputs(
+        [1, None, 2, 3, None, None, 4],
+        None,
+        plot_type="line",
+        data_line_type="curved",
+        missing_vals="gap",
+        y_ref_line=None,
+        y_ref_area=None,
+        expand_x=None,
+        expand_y=None,
+        opts=_NanoplotOptions(),
+    )
+
+    assert spec.segments == [slice(0, 1), slice(2, 4), slice(6, 7)]
