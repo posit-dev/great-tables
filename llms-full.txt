@@ -5336,7 +5336,7 @@ tbl = pl.DataFrame(
 )
 ```
 
-data_color(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, palette: 'str | list[str] | None' = None, domain: 'list[str] | list[int] | list[float] | None' = None, na_color: 'str | None' = None, alpha: 'float | None' = None, reverse: 'bool' = False, autocolor_text: 'bool' = True, contrast_algo: 'ContrastAlgo' = 'apca', truncate: 'bool' = False, fn: 'Callable[[list[Any]], list[str | None]] | None' = None) -> 'GTSelf'
+data_color(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, palette: 'str | list[str] | None' = None, domain: 'list[str] | list[int] | list[float] | None' = None, midpoint: 'int | float | None' = None, na_color: 'str | None' = None, alpha: 'float | None' = None, reverse: 'bool' = False, autocolor_text: 'bool' = True, contrast_algo: 'ContrastAlgo' = 'apca', truncate: 'bool' = False, fn: 'Callable[[list[Any]], list[str | None]] | None' = None) -> 'GTSelf'
 
 Perform data cell colorization.
 
@@ -5372,6 +5372,15 @@ domain
     The domain of values to use for the color scheme. This can be a list of floats, integers, or
     strings. If `None`, then the domain will be inferred from the data values (see the
     *How column values are mapped to colors* section for details).
+midpoint
+    A value to center the color scale on, for numeric columns (e.g., `0` for values that
+    represent a change). The midpoint receives the color at the center of the palette, which
+    makes this most useful with a diverging palette like `["red", "white", "green"]` or
+    `"RdBu"`. If `domain=` is `None`, then the domain is made symmetric around the midpoint so
+    that values equally far from it on either side are equally strong in color. If `domain=`
+    is supplied, then each side of the midpoint is scaled separately to its end of the domain
+    (and the midpoint must lie within the domain). See the *Centering colors on a midpoint*
+    section for details.
 na_color
     The color to use for missing values. If `None`, then the default color (`"#808080"`) will be
     used.
@@ -5400,11 +5409,12 @@ fn
     hexadecimal color value (e.g., `"#FF0000"`) or a color name (e.g., `"red"`). All values are
     passed to the function, including missing values, so the function must handle those
     itself. Any position where the function returns `None` receives the `na_color=` color. If
-    a function is supplied, then the `palette=`, `domain=`, `reverse=`, and `truncate=`
-    arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=` arguments
-    still apply to the returned colors. The [`col_numeric()`](`great_tables.col_numeric`),
-    [`col_bin()`](`great_tables.col_bin`), and [`col_factor()`](`great_tables.col_factor`)
-    helpers create ready-made color-mapping functions that can be supplied here.
+    a function is supplied, then the `palette=`, `domain=`, `reverse=`, `truncate=`, and
+    `midpoint=` arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=`
+    arguments still apply to the returned colors. The
+    [`col_numeric()`](`great_tables.col_numeric`), [`col_bin()`](`great_tables.col_bin`), and
+    [`col_factor()`](`great_tables.col_factor`) helpers create ready-made color-mapping
+    functions that can be supplied here.
 
 Returns
 -------
@@ -5438,6 +5448,25 @@ column, except for ordered categorical columns (an ordered Pandas `Categorical` 
 that don't appear in the data, so colors stay consistent no matter which `rows=` are colored)
 
 Supplying `domain=` overrides any of the inferred domains described above.
+
+Centering colors on a midpoint
+------------------------------
+For numeric values that are naturally centered on some value (changes centered on `0`, ratios
+centered on `1`, scores centered on a target), the `midpoint=` argument pins that value to the
+center color of the palette. How the rest of the values map to colors depends on whether
+`domain=` is supplied. As an example, suppose a column spans from `-2` to `10` and we use
+`palette=["red", "white", "green"]` with `midpoint=0`:
+
+- without `domain=`, the domain becomes symmetric around the midpoint (here, `[-10, 10]`), so
+`10` is fully green while `-2` is only a pale red: the strength of a color reflects the distance
+from the midpoint, the same on both sides
+- with `domain=[-2, 10]`, each side of the midpoint is scaled separately, so `-2` is fully red
+and `10` is fully green (this is how three-color scales work in spreadsheet software, where both
+sides always use their full range of colors)
+
+For finer control (such as pinning every palette color to a specific value, or to a percentage
+of the way through the range of values), use `fn=col_numeric(stops=...)` (see
+[`col_numeric()`](`great_tables.col_numeric`)).
 
 Color palette access from ColorBrewer and viridis
 -------------------------------------------------
@@ -5503,15 +5532,17 @@ way to deal with missing values
 - columns of any type can be colored (e.g., booleans or dates), since the numeric-or-string
 requirement of the built-in mapping doesn't apply
 
-When `fn=` is used, the `palette=`, `domain=`, `reverse=`, and `truncate=` arguments are ignored
-because the function takes over their roles. The `na_color=`, `alpha=`, `autocolor_text=`, and
-`contrast_algo=` arguments still apply to the colors that the function returns.
+When `fn=` is used, the `palette=`, `domain=`, `reverse=`, `truncate=`, and `midpoint=` arguments
+are ignored because the function takes over their roles. The `na_color=`, `alpha=`,
+`autocolor_text=`, and `contrast_algo=` arguments still apply to the colors that the function
+returns.
 
 Rather than writing a function from scratch, you can create one with these helpers (modeled on
 the color-mapping functions of the R **scales** package, which are commonly used with gt):
 
-- [`col_numeric()`](`great_tables.col_numeric`): a continuous gradient across a numeric domain
-(useful for diverging scales centered on a value like zero)
+- [`col_numeric()`](`great_tables.col_numeric`): a continuous gradient across a numeric domain,
+optionally with each palette color pinned to a specific value (or a percentage of the way
+through the range of values) with `stops=`
 - [`col_bin()`](`great_tables.col_bin`): numeric values cut into bins, with one color per bin
 - [`col_factor()`](`great_tables.col_factor`): one color per category, optionally with a fixed
 set of levels so colors stay consistent across tables
@@ -5613,10 +5644,51 @@ def sign_colors(vals):
 )
 ```
 
-For a gradient, rather than fixed colors, we can build the function with one of the
-color-mapping helpers. Here, [`col_numeric()`](`great_tables.col_numeric`) makes negative
-changes increasingly red and positive changes increasingly green, the further they are from
-zero. A domain centered on zero keeps zero values white:
+For a gradient that's centered on zero, rather than fixed colors, we can use `midpoint=0` with a
+diverging palette. Negative changes become increasingly red and positive changes increasingly
+green, the further they are from zero. Because no `domain=` is given, the domain is made
+symmetric around zero, so the largest decrease (`-8.1`) is a less intense red than the largest
+increase (`12.5`) is green:
+
+```{python}
+(
+    GT(df)
+    .data_color(columns="change", palette=["#D7191C", "white", "#1A9641"], midpoint=0)
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+The midpoint doesn't have to be zero, and it doesn't have to sit in the middle of the domain.
+Here, sales are shown as a fraction of a target, so the midpoint is `1`. Supplying a `domain=`
+means that each side of the midpoint is scaled separately: the colors go from red to white over
+the wide range from 50% of the target up to the target, and from white to green over the
+narrower range from the target up to 120% of it:
+
+```{python}
+sales_df = pd.DataFrame(
+    {
+        "rep": ["Ana", "Ben", "Cai", "Dee", "Eli"],
+        "pct_of_target": [0.62, 0.88, 1.0, 1.08, 1.17],
+    }
+)
+
+(
+    GT(sales_df)
+    .data_color(
+        columns="pct_of_target",
+        palette=["#D7191C", "white", "#1A9641"],
+        domain=[0.5, 1.2],
+        midpoint=1,
+    )
+    .fmt_percent(columns="pct_of_target", decimals=0)
+)
+```
+
+To pin more than the midpoint, we can build the function with
+[`col_numeric()`](`great_tables.col_numeric`) and its `stops=` argument, which gives a value
+for each palette color. A stop can be a data value or a percentage of the way through the range
+of values in the column. Here, the lowest value is red, zero is white, and the highest value is
+green, so both sides use their full range of colors:
 
 ```{python}
 from great_tables import col_numeric
@@ -5625,13 +5697,13 @@ from great_tables import col_numeric
     GT(df)
     .data_color(
         columns="change",
-        fn=col_numeric(palette=["#D7191C", "white", "#1A9641"], domain=[-15, 15]),
+        fn=col_numeric(palette=["#D7191C", "white", "#1A9641"], stops=["0%", 0, "100%"]),
     )
     .fmt_number(columns="change", decimals=1, force_sign=True)
 )
 ```
 
-col_numeric(palette: 'str | list[str] | None' = None, domain: 'list[int] | list[float] | None' = None, na_color: 'str | None' = None, reverse: 'bool' = False, truncate: 'bool' = False) -> 'ColorFn'
+col_numeric(palette: 'str | list[str] | None' = None, domain: 'list[int] | list[float] | None' = None, midpoint: 'int | float | None' = None, stops: 'list[int | float | str] | None' = None, na_color: 'str | None' = None, reverse: 'bool' = False, truncate: 'bool' = False) -> 'ColorFn'
 
 Create a color-mapping function for continuous numeric values.
 
@@ -5651,17 +5723,37 @@ domain
     The range of values to map onto the palette, given as `[min, max]`. Values outside of this
     range receive the missing-value color (unless `truncate=True`). If `None`, then the domain
     is taken from the range of the (non-missing) values supplied to the returned function each
-    time it is called.
+    time it is called (or, with `midpoint=`, a range made symmetric around the midpoint). This
+    can't be used together with `stops=`.
+midpoint
+    A value that receives the color at the center of the palette. If `domain=` is `None`, then
+    the domain is made symmetric around the midpoint, reaching as far as the value furthest
+    from it. If `domain=` is supplied, then each side of the midpoint is scaled separately to
+    its end of the domain (and the midpoint must lie within the domain). This works in the same
+    way as the `midpoint=` argument of [`data_color()`](`great_tables.GT.data_color`) and
+    can't be used together with `stops=`.
+stops
+    A list giving the value at which each palette color is reached, with one entry per color
+    in the palette (after any ColorBrewer or viridis palette name is expanded). Colors are
+    interpolated between neighboring stops. Each stop can be either a number (a data value) or
+    a percentage string from `"0%"` to `"100%"` (a position within the range of the values
+    supplied to the returned function, extended to include any numeric stops). For example,
+    `stops=["0%", 0, "100%"]` pins the lowest value, zero, and the highest value, whatever the
+    range of the values. Stops must be in non-decreasing order once resolved. A repeated stop
+    creates a sharp change between two colors, with a value exactly at that stop taking the
+    later color. The outermost stops act as the domain, so values beyond them receive the
+    missing-value color (unless `truncate=True`).
 na_color
     The color to use for missing values and values outside of the domain. If `None`, then the
     returned function gives `None` for those values, which lets `data_color()` apply its own
     `na_color=` color.
 reverse
-    Should the order of the palette colors be reversed?
+    Should the order of the palette colors be reversed? This doesn't affect `stops=`, which
+    apply to the colors in their reversed order.
 truncate
-    If `True`, then values outside of the domain are treated as the nearest end of the domain,
-    so they receive the first or last color of the palette. If `False` (the default), then they
-    receive the missing-value color.
+    If `True`, then values outside of the domain (or the outermost `stops=`) are treated as the
+    nearest end of it, so they receive the first or last color of the palette. If `False` (the
+    default), then they receive the missing-value color.
 
 Returns
 -------
@@ -5690,15 +5782,38 @@ GT(df).data_color(
 )
 ```
 
-Because `col_numeric()` returns an ordinary function, it can be composed with other logic. Here,
-the domain is made symmetric around zero based on the largest absolute value in the column:
+Rather than fixing the domain, we can give a `midpoint=`. The domain is then made symmetric
+around the midpoint, reaching as far as the value furthest from it:
 
 ```{python}
-def red_white_green(vals):
-    m = max(abs(x) for x in vals if not pd.isna(x))
-    return col_numeric(palette=["#D7191C", "white", "#1A9641"], domain=[-m, m])(vals)
+GT(df).data_color(
+    columns="change",
+    fn=col_numeric(palette=["#D7191C", "white", "#1A9641"], midpoint=0),
+)
+```
 
-GT(df).data_color(columns="change", fn=red_white_green)
+With `stops=`, every palette color can be pinned to a value. Stops can be data values or
+percentages of the way through the range of values. Here, the lowest value is fully red, zero
+is white, and the highest value is fully green, so each side uses its full range of colors:
+
+```{python}
+GT(df).data_color(
+    columns="change",
+    fn=col_numeric(palette=["#D7191C", "white", "#1A9641"], stops=["0%", 0, "100%"]),
+)
+```
+
+Repeating a stop makes a sharp change in color at that value. Here, values below zero are
+shades of orange and values from zero up are shades of purple:
+
+```{python}
+GT(df).data_color(
+    columns="change",
+    fn=col_numeric(
+        palette=["#E66101", "#FDB863", "#B2ABD2", "#5E3C99"],
+        stops=["0%", 0, 0, "100%"],
+    ),
+)
 ```
 
 With a narrower domain, `truncate=True` saturates the colors of values beyond its limits rather
@@ -15822,6 +15937,71 @@ that colors are comparable across columns, which is critical when columns measur
 In this example, both `integer` and `float` use the `[0, 10]` range, so a given shade of purple
 means the same thing regardless of which column it appears in.
 
+## Centering colors with `midpoint=`
+
+Some values have a natural center: changes are centered on zero, ratios on one, and scores on some
+target. For these, a diverging palette (two colors with a neutral one in between) works well, but
+only if the neutral color lands on that center. By default it doesn't: the middle color of the
+palette goes to the middle of the domain, wherever that happens to be. The `midpoint=` argument
+pins the center of the palette to a value of your choosing.
+
+Here's a table of changes, some negative and some positive. With `midpoint=0`, decreases become
+increasingly red and increases become increasingly green, the further they are from zero:
+
+```{python}
+changes_df = pl.DataFrame(
+    {
+        "region": ["North", "South", "East", "West", "Central"],
+        "change": [12.5, -8.1, 0.0, 3.2, -1.0],
+    }
+)
+
+red_white_green = ["#D7191C", "white", "#1A9641"]
+
+(
+    GT(changes_df)
+    .data_color(columns="change", palette=red_white_green, midpoint=0)
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+Notice that the largest decrease (`-8.1`) is a less intense red than the largest increase (`12.5`)
+is green. Without a `domain=`, the domain is made symmetric around the midpoint (here, it becomes
+`[-12.5, 12.5]`), so the strength of a color reflects how far a value is from the midpoint, the same
+on both sides. A change of `-12.5` would get the full red.
+
+If you supply a `domain=` as well, then each side of the midpoint is scaled separately, from the
+midpoint out to its end of the domain. This is how three-color scales work in spreadsheet software.
+It's useful when the two sides cover ranges of different sizes. Here, sales are shown as a fraction
+of a target, so the midpoint is `1`. The colors go from red to white over the wide range from 50% of
+the target up to the target, and from white to green over the narrower range from the target up to
+120% of it:
+
+```{python}
+sales_df = pl.DataFrame(
+    {
+        "rep": ["Ana", "Ben", "Cai", "Dee", "Eli"],
+        "pct_of_target": [0.62, 0.88, 1.0, 1.08, 1.17],
+    }
+)
+
+(
+    GT(sales_df)
+    .data_color(
+        columns="pct_of_target",
+        palette=red_white_green,
+        domain=[0.5, 1.2],
+        midpoint=1,
+    )
+    .fmt_percent(columns="pct_of_target", decimals=0)
+)
+```
+
+Both sides now use their full range of colors. `1.17` is only 0.17 above the target, but it's
+about as strongly green as `0.62` (more than twice as far below the target) is red. Keep in mind
+that this makes equal distances from the midpoint look different on each side, so the symmetric
+behavior is usually the more honest choice when the two sides measure the same kind of change.
+
 ## Choosing a contrast algorithm with `contrast_algo=`
 
 We noted earlier that `~~GT.data_color()` automatically picks a light or dark text color for each
@@ -15886,10 +16066,10 @@ pandas, they usually arrive as `NaN`, and `pd.isna()` is a reliable way to check
 from either library). The function needs to handle them, or a comparison like `x < 3` will fail.
 - **Returning `None` gives the `na_color=` color.** That's what happened to the missing value above.
 It's also a handy way to leave out any value you'd rather not color.
-- **Some arguments step aside.** The `palette=`, `domain=`, `reverse=`, and `truncate=` arguments
-are ignored when `fn=` is used, since the function takes over their job. The `na_color=`, `alpha=`,
-and `autocolor_text=` arguments still apply, so text is automatically recolored for contrast as
-usual.
+- **Some arguments step aside.** The `palette=`, `domain=`, `reverse=`, `truncate=`, and `midpoint=`
+arguments are ignored when `fn=` is used, since the function takes over their job. The
+`na_color=`, `alpha=`, and `autocolor_text=` arguments still apply, so text is automatically
+recolored for contrast as usual.
 - **Any column type works.** The function decides what the values mean, so you can color columns
 that the built-in mapping can't handle, such as booleans.
 
@@ -15912,17 +16092,10 @@ GT(tasks_df).data_color(
 )
 ```
 
-A common use of a custom function is to call out the sign of values, perhaps in a table of changes
-over time:
+A common use of a custom function is to call out the sign of values, perhaps in the table of changes
+from earlier:
 
 ```{python}
-changes_df = pl.DataFrame(
-    {
-        "region": ["North", "South", "East", "West", "Central"],
-        "change": [12.5, -8.1, 0.0, 3.2, -1.0],
-    }
-)
-
 def sign_colors(vals):
     return [
         None if x is None else "#1B9E77" if x > 0 else "#D95F02" if x < 0 else "#FFFFFF"
@@ -15953,14 +16126,12 @@ just as with `~~GT.data_color()`.
 
 ### Continuous gradients with `col_numeric()`
 
-A good use for `~~col_numeric()` is a diverging scale, where values become more intensely colored
-the further they are from a midpoint. With a three-color palette and a domain centered on zero,
-negative changes become increasingly red and positive changes increasingly green:
+The `~~col_numeric()` helper interpolates along a palette, much like `~~GT.data_color()` does with
+a numeric column, and it has the same `domain=`, `midpoint=`, and `truncate=` arguments. Here's a
+diverging scale with a domain centered on zero:
 
 ```{python}
 from great_tables import col_numeric
-
-red_white_green = ["#D7191C", "white", "#1A9641"]
 
 (
     GT(changes_df)
@@ -15985,8 +16156,53 @@ domain is narrowed to `[-5, 5]`, so both `12.5` and `-8.1` are fully saturated:
 ```
 
 If `domain=` isn't given, then the domain is taken from the range of values in each column. That's
-often useful, but for a diverging scale it would put the midpoint color at the middle of the data
-rather than at zero.
+often useful, but for a diverging scale it would put the middle color at the middle of the data
+rather than at zero. As with `~~GT.data_color()`, the fix is `midpoint=0`.
+
+### Pinning colors to values with `stops=`
+
+What `~~col_numeric()` adds is the `stops=` argument, which pins each color in the palette to a
+value. It takes one stop per color, and colors are interpolated between neighboring stops. A stop
+can be a data value (a number) or a position within the range of values in the column (a
+percentage string, from `"0%"` to `"100%"`). Mixing the two is where this gets useful. Here, the
+lowest value is fully red, zero is white, and the highest value is fully green:
+
+```{python}
+(
+    GT(changes_df)
+    .data_color(
+        columns="change",
+        fn=col_numeric(palette=red_white_green, stops=["0%", 0, "100%"]),
+    )
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+Because the percentages are worked out separately for each column, the same function can be used
+on columns with very different ranges, and zero will be white in all of them. (The range that the
+percentages refer to also stretches to include any numeric stops, so a column with no negative
+values is colored from white up to green, with no red at all.)
+
+Repeating a stop makes a sharp change in color at that value, rather than a gradual one. Here,
+decreases are shades of orange and increases are shades of purple, with no blending across zero:
+
+```{python}
+(
+    GT(changes_df)
+    .data_color(
+        columns="change",
+        fn=col_numeric(
+            palette=["#E66101", "#FDB863", "#B2ABD2", "#5E3C99"],
+            stops=["0%", 0, 0, "100%"],
+        ),
+    )
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+A value that sits exactly on a repeated stop takes the later color, so the `0.0` change is light
+purple. Stops beyond the range of the values work too: the outermost stops act as the domain, so
+values outside of them are treated as missing unless `truncate=True` is used.
 
 ### Bins with `col_bin()`
 
@@ -16045,23 +16261,27 @@ along the palette.
 ### Combining helpers with your own logic
 
 The helpers return ordinary functions, so they can be called from inside a function of your own.
-This is handy when part of the mapping depends on the data. For example, to center a diverging scale
-on zero while still fitting the data, we can compute a symmetric domain from the largest absolute
-value in the column and then hand off to `~~col_numeric()`:
+This is handy when you want to adjust some of the colors a helper gives. For example, to draw
+attention only to the larger changes, we can color the values with `~~col_numeric()` and then
+replace the colors of any small changes (less than 2 in either direction) with `None`, so that they
+get the plain `na_color=` color:
 
 ```{python}
-def centered_on_zero(vals):
-    m = max(abs(x) for x in vals if x is not None)
-    return col_numeric(palette=red_white_green, domain=[-m, m])(vals)
+color_change = col_numeric(palette=red_white_green, midpoint=0)
+
+def large_changes_only(vals):
+    colors = color_change(vals)
+    return [None if x is None or abs(x) < 2 else color for x, color in zip(vals, colors)]
 
 (
     GT(changes_df)
-    .data_color(columns="change", fn=centered_on_zero)
+    .data_color(columns="change", fn=large_changes_only, na_color="white")
     .fmt_number(columns="change", decimals=1, force_sign=True)
 )
 ```
 
-The largest change (`12.5`) now gets the full green, and a change of `-12.5` would get the full red.
+The `-1.0` and `0.0` changes are left white, while the others keep the colors they'd have had on the
+full scale.
 
 ## Bringing it all together
 
