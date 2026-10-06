@@ -108,6 +108,71 @@ that colors are comparable across columns, which is critical when columns measur
 In this example, both `integer` and `float` use the `[0, 10]` range, so a given shade of purple
 means the same thing regardless of which column it appears in.
 
+## Centering colors with `midpoint=`
+
+Some values have a natural center: changes are centered on zero, ratios on one, and scores on some
+target. For these, a diverging palette (two colors with a neutral one in between) works well, but
+only if the neutral color lands on that center. By default it doesn't: the middle color of the
+palette goes to the middle of the domain, wherever that happens to be. The `midpoint=` argument
+pins the center of the palette to a value of your choosing.
+
+Here's a table of changes, some negative and some positive. With `midpoint=0`, decreases become
+increasingly red and increases become increasingly green, the further they are from zero:
+
+```{python}
+changes_df = pl.DataFrame(
+    {
+        "region": ["North", "South", "East", "West", "Central"],
+        "change": [12.5, -8.1, 0.0, 3.2, -1.0],
+    }
+)
+
+red_white_green = ["#D7191C", "white", "#1A9641"]
+
+(
+    GT(changes_df)
+    .data_color(columns="change", palette=red_white_green, midpoint=0)
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+Notice that the largest decrease (`-8.1`) is a less intense red than the largest increase (`12.5`)
+is green. Without a `domain=`, the domain is made symmetric around the midpoint (here, it becomes
+`[-12.5, 12.5]`), so the strength of a color reflects how far a value is from the midpoint, the same
+on both sides. A change of `-12.5` would get the full red.
+
+If you supply a `domain=` as well, then each side of the midpoint is scaled separately, from the
+midpoint out to its end of the domain. This is how three-color scales work in spreadsheet software.
+It's useful when the two sides cover ranges of different sizes. Here, sales are shown as a fraction
+of a target, so the midpoint is `1`. The colors go from red to white over the wide range from 50% of
+the target up to the target, and from white to green over the narrower range from the target up to
+120% of it:
+
+```{python}
+sales_df = pl.DataFrame(
+    {
+        "rep": ["Ana", "Ben", "Cai", "Dee", "Eli"],
+        "pct_of_target": [0.62, 0.88, 1.0, 1.08, 1.17],
+    }
+)
+
+(
+    GT(sales_df)
+    .data_color(
+        columns="pct_of_target",
+        palette=red_white_green,
+        domain=[0.5, 1.2],
+        midpoint=1,
+    )
+    .fmt_percent(columns="pct_of_target", decimals=0)
+)
+```
+
+Both sides now use their full range of colors. `1.17` is only 0.17 above the target, but it's
+about as strongly green as `0.62` (more than twice as far below the target) is red. Keep in mind
+that this makes equal distances from the midpoint look different on each side, so the symmetric
+behavior is usually the more honest choice when the two sides measure the same kind of change.
+
 ## Choosing a contrast algorithm with `contrast_algo=`
 
 We noted earlier that `~~GT.data_color()` automatically picks a light or dark text color for each
@@ -172,10 +237,10 @@ pandas, they usually arrive as `NaN`, and `pd.isna()` is a reliable way to check
 from either library). The function needs to handle them, or a comparison like `x < 3` will fail.
 - **Returning `None` gives the `na_color=` color.** That's what happened to the missing value above.
 It's also a handy way to leave out any value you'd rather not color.
-- **Some arguments step aside.** The `palette=`, `domain=`, `reverse=`, and `truncate=` arguments
-are ignored when `fn=` is used, since the function takes over their job. The `na_color=`, `alpha=`,
-and `autocolor_text=` arguments still apply, so text is automatically recolored for contrast as
-usual.
+- **Some arguments step aside.** The `palette=`, `domain=`, `reverse=`, `truncate=`, and `midpoint=`
+arguments are ignored when `fn=` is used, since the function takes over their job. The
+`na_color=`, `alpha=`, and `autocolor_text=` arguments still apply, so text is automatically
+recolored for contrast as usual.
 - **Any column type works.** The function decides what the values mean, so you can color columns
 that the built-in mapping can't handle, such as booleans.
 
@@ -198,17 +263,10 @@ GT(tasks_df).data_color(
 )
 ```
 
-A common use of a custom function is to call out the sign of values, perhaps in a table of changes
-over time:
+A common use of a custom function is to call out the sign of values, perhaps in the table of changes
+from earlier:
 
 ```{python}
-changes_df = pl.DataFrame(
-    {
-        "region": ["North", "South", "East", "West", "Central"],
-        "change": [12.5, -8.1, 0.0, 3.2, -1.0],
-    }
-)
-
 def sign_colors(vals):
     return [
         None if x is None else "#1B9E77" if x > 0 else "#D95F02" if x < 0 else "#FFFFFF"
@@ -239,14 +297,12 @@ just as with `~~GT.data_color()`.
 
 ### Continuous gradients with `col_numeric()`
 
-A good use for `~~col_numeric()` is a diverging scale, where values become more intensely colored
-the further they are from a midpoint. With a three-color palette and a domain centered on zero,
-negative changes become increasingly red and positive changes increasingly green:
+The `~~col_numeric()` helper interpolates along a palette, much like `~~GT.data_color()` does with
+a numeric column, and it has the same `domain=`, `midpoint=`, and `truncate=` arguments. Here's a
+diverging scale with a domain centered on zero:
 
 ```{python}
 from great_tables import col_numeric
-
-red_white_green = ["#D7191C", "white", "#1A9641"]
 
 (
     GT(changes_df)
@@ -271,8 +327,53 @@ domain is narrowed to `[-5, 5]`, so both `12.5` and `-8.1` are fully saturated:
 ```
 
 If `domain=` isn't given, then the domain is taken from the range of values in each column. That's
-often useful, but for a diverging scale it would put the midpoint color at the middle of the data
-rather than at zero.
+often useful, but for a diverging scale it would put the middle color at the middle of the data
+rather than at zero. As with `~~GT.data_color()`, the fix is `midpoint=0`.
+
+### Pinning colors to values with `stops=`
+
+What `~~col_numeric()` adds is the `stops=` argument, which pins each color in the palette to a
+value. It takes one stop per color, and colors are interpolated between neighboring stops. A stop
+can be a data value (a number) or a position within the range of values in the column (a
+percentage string, from `"0%"` to `"100%"`). Mixing the two is where this gets useful. Here, the
+lowest value is fully red, zero is white, and the highest value is fully green:
+
+```{python}
+(
+    GT(changes_df)
+    .data_color(
+        columns="change",
+        fn=col_numeric(palette=red_white_green, stops=["0%", 0, "100%"]),
+    )
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+Because the percentages are worked out separately for each column, the same function can be used
+on columns with very different ranges, and zero will be white in all of them. (The range that the
+percentages refer to also stretches to include any numeric stops, so a column with no negative
+values is colored from white up to green, with no red at all.)
+
+Repeating a stop makes a sharp change in color at that value, rather than a gradual one. Here,
+decreases are shades of orange and increases are shades of purple, with no blending across zero:
+
+```{python}
+(
+    GT(changes_df)
+    .data_color(
+        columns="change",
+        fn=col_numeric(
+            palette=["#E66101", "#FDB863", "#B2ABD2", "#5E3C99"],
+            stops=["0%", 0, 0, "100%"],
+        ),
+    )
+    .fmt_number(columns="change", decimals=1, force_sign=True)
+)
+```
+
+A value that sits exactly on a repeated stop takes the later color, so the `0.0` change is light
+purple. Stops beyond the range of the values work too: the outermost stops act as the domain, so
+values outside of them are treated as missing unless `truncate=True` is used.
 
 ### Bins with `col_bin()`
 
@@ -331,23 +432,27 @@ along the palette.
 ### Combining helpers with your own logic
 
 The helpers return ordinary functions, so they can be called from inside a function of your own.
-This is handy when part of the mapping depends on the data. For example, to center a diverging scale
-on zero while still fitting the data, we can compute a symmetric domain from the largest absolute
-value in the column and then hand off to `~~col_numeric()`:
+This is handy when you want to adjust some of the colors a helper gives. For example, to draw
+attention only to the larger changes, we can color the values with `~~col_numeric()` and then
+replace the colors of any small changes (less than 2 in either direction) with `None`, so that they
+get the plain `na_color=` color:
 
 ```{python}
-def centered_on_zero(vals):
-    m = max(abs(x) for x in vals if x is not None)
-    return col_numeric(palette=red_white_green, domain=[-m, m])(vals)
+color_change = col_numeric(palette=red_white_green, midpoint=0)
+
+def large_changes_only(vals):
+    colors = color_change(vals)
+    return [None if x is None or abs(x) < 2 else color for x, color in zip(vals, colors)]
 
 (
     GT(changes_df)
-    .data_color(columns="change", fn=centered_on_zero)
+    .data_color(columns="change", fn=large_changes_only, na_color="white")
     .fmt_number(columns="change", decimals=1, force_sign=True)
 )
 ```
 
-The largest change (`12.5`) now gets the full green, and a change of `-12.5` would get the full red.
+The `-1.0` and `0.0` changes are left white, while the others keep the colors they'd have had on the
+full scale.
 
 ## Bringing it all together
 
