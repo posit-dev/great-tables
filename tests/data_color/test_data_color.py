@@ -388,6 +388,63 @@ def test_data_color_alpha_na_color_not_double_applied():
     assert na_style_color == "#00ff007f"
 
 
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame, pa.table])
+def test_data_color_midpoint_symmetric_domain(frame):
+    df = frame({"x": [-2.0, 0.0, 10.0, None]})
+    new_gt = GT(df).data_color(columns="x", palette=["red", "white", "green"], midpoint=0)
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#ffcccc", "#ffffff", "#008000", "#808080"]
+
+
+def test_data_color_midpoint_with_domain_is_piecewise():
+    df = pd.DataFrame({"x": [-2, 0, 10]})
+    new_gt = GT(df).data_color(
+        columns="x", palette=["red", "white", "green"], domain=[-2, 10], midpoint=0
+    )
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#ff0000", "#ffffff", "#008000"]
+
+
+def test_data_color_midpoint_infinite_values_inferred_domain():
+    df = pd.DataFrame({"x": [-np.inf, 1.0, np.inf]})
+    new_gt = GT(df).data_color(columns="x", palette=["red", "white", "green"], midpoint=0)
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#ff0000", "#008000", "#008000"]
+
+
+def test_data_color_midpoint_all_missing_column():
+    df = pd.DataFrame({"x": [None, None]})
+    new_gt = GT(df).data_color(columns="x", midpoint=0)
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#808080", "#808080"]
+
+
+def test_data_color_midpoint_ignored_with_fn():
+    df = pd.DataFrame({"x": ["a", "b"]})
+    new_gt = GT(df).data_color(columns="x", midpoint=100, fn=lambda vals: ["#123456"] * len(vals))
+
+    colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
+    assert colors == ["#123456"] * 2
+
+
+def test_data_color_midpoint_string_column_raises():
+    df = pd.DataFrame({"x": ["a", "b"]})
+
+    with pytest.raises(ValueError, match="can only be used with numeric columns"):
+        GT(df).data_color(columns="x", midpoint=0)
+
+
+def test_data_color_midpoint_outside_domain_raises():
+    df = pd.DataFrame({"x": [1, 2]})
+
+    with pytest.raises(ValueError, match="must lie within the range of `domain=`"):
+        GT(df).data_color(columns="x", domain=[0, 10], midpoint=50)
+
+
 def test_data_color_invalid_column_type_raises():
     """data_color raises ValueError for mixed-type (non-numeric, non-string) columns."""
     df = pd.DataFrame({"x": [1, "two", 3]})

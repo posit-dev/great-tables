@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from bisect import bisect_right
 from collections.abc import Callable
 from decimal import Decimal
-from math import isinf
+from math import isinf, isnan
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
@@ -54,6 +55,7 @@ def data_color(
     rows: RowSelectExpr = None,
     palette: str | list[str] | None = None,
     domain: list[str] | list[int] | list[float] | None = None,
+    midpoint: int | float | None = None,
     na_color: str | None = None,
     alpha: float | None = None,
     reverse: bool = False,
@@ -97,6 +99,15 @@ def data_color(
         The domain of values to use for the color scheme. This can be a list of floats, integers, or
         strings. If `None`, then the domain will be inferred from the data values (see the
         *How column values are mapped to colors* section for details).
+    midpoint
+        A value to center the color scale on, for numeric columns (e.g., `0` for values that
+        represent a change). The midpoint receives the color at the center of the palette, which
+        makes this most useful with a diverging palette like `["red", "white", "green"]` or
+        `"RdBu"`. If `domain=` is `None`, then the domain is made symmetric around the midpoint so
+        that values equally far from it on either side are equally strong in color. If `domain=`
+        is supplied, then each side of the midpoint is scaled separately to its end of the domain
+        (and the midpoint must lie within the domain). See the *Centering colors on a midpoint*
+        section for details.
     na_color
         The color to use for missing values. If `None`, then the default color (`"#808080"`) will be
         used.
@@ -125,11 +136,12 @@ def data_color(
         hexadecimal color value (e.g., `"#FF0000"`) or a color name (e.g., `"red"`). All values are
         passed to the function, including missing values, so the function must handle those
         itself. Any position where the function returns `None` receives the `na_color=` color. If
-        a function is supplied, then the `palette=`, `domain=`, `reverse=`, and `truncate=`
-        arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=` arguments
-        still apply to the returned colors. The [`col_numeric()`](`great_tables.col_numeric`),
-        [`col_bin()`](`great_tables.col_bin`), and [`col_factor()`](`great_tables.col_factor`)
-        helpers create ready-made color-mapping functions that can be supplied here.
+        a function is supplied, then the `palette=`, `domain=`, `reverse=`, `truncate=`, and
+        `midpoint=` arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=`
+        arguments still apply to the returned colors. The
+        [`col_numeric()`](`great_tables.col_numeric`), [`col_bin()`](`great_tables.col_bin`), and
+        [`col_factor()`](`great_tables.col_factor`) helpers create ready-made color-mapping
+        functions that can be supplied here.
 
     Returns
     -------
@@ -163,6 +175,25 @@ def data_color(
     that don't appear in the data, so colors stay consistent no matter which `rows=` are colored)
 
     Supplying `domain=` overrides any of the inferred domains described above.
+
+    Centering colors on a midpoint
+    ------------------------------
+    For numeric values that are naturally centered on some value (changes centered on `0`, ratios
+    centered on `1`, scores centered on a target), the `midpoint=` argument pins that value to the
+    center color of the palette. How the rest of the values map to colors depends on whether
+    `domain=` is supplied. As an example, suppose a column spans from `-2` to `10` and we use
+    `palette=["red", "white", "green"]` with `midpoint=0`:
+
+    - without `domain=`, the domain becomes symmetric around the midpoint (here, `[-10, 10]`), so
+    `10` is fully green while `-2` is only a pale red: the strength of a color reflects the distance
+    from the midpoint, the same on both sides
+    - with `domain=[-2, 10]`, each side of the midpoint is scaled separately, so `-2` is fully red
+    and `10` is fully green (this is how three-color scales work in spreadsheet software, where both
+    sides always use their full range of colors)
+
+    For finer control (such as pinning every palette color to a specific value, or to a percentage
+    of the way through the range of values), use `fn=col_numeric(stops=...)` (see
+    [`col_numeric()`](`great_tables.col_numeric`)).
 
     Color palette access from ColorBrewer and viridis
     -------------------------------------------------
@@ -228,15 +259,17 @@ def data_color(
     - columns of any type can be colored (e.g., booleans or dates), since the numeric-or-string
     requirement of the built-in mapping doesn't apply
 
-    When `fn=` is used, the `palette=`, `domain=`, `reverse=`, and `truncate=` arguments are ignored
-    because the function takes over their roles. The `na_color=`, `alpha=`, `autocolor_text=`, and
-    `contrast_algo=` arguments still apply to the colors that the function returns.
+    When `fn=` is used, the `palette=`, `domain=`, `reverse=`, `truncate=`, and `midpoint=` arguments
+    are ignored because the function takes over their roles. The `na_color=`, `alpha=`,
+    `autocolor_text=`, and `contrast_algo=` arguments still apply to the colors that the function
+    returns.
 
     Rather than writing a function from scratch, you can create one with these helpers (modeled on
     the color-mapping functions of the R **scales** package, which are commonly used with gt):
 
-    - [`col_numeric()`](`great_tables.col_numeric`): a continuous gradient across a numeric domain
-    (useful for diverging scales centered on a value like zero)
+    - [`col_numeric()`](`great_tables.col_numeric`): a continuous gradient across a numeric domain,
+    optionally with each palette color pinned to a specific value (or a percentage of the way
+    through the range of values) with `stops=`
     - [`col_bin()`](`great_tables.col_bin`): numeric values cut into bins, with one color per bin
     - [`col_factor()`](`great_tables.col_factor`): one color per category, optionally with a fixed
     set of levels so colors stay consistent across tables
@@ -338,10 +371,51 @@ def data_color(
     )
     ```
 
-    For a gradient, rather than fixed colors, we can build the function with one of the
-    color-mapping helpers. Here, [`col_numeric()`](`great_tables.col_numeric`) makes negative
-    changes increasingly red and positive changes increasingly green, the further they are from
-    zero. A domain centered on zero keeps zero values white:
+    For a gradient that's centered on zero, rather than fixed colors, we can use `midpoint=0` with a
+    diverging palette. Negative changes become increasingly red and positive changes increasingly
+    green, the further they are from zero. Because no `domain=` is given, the domain is made
+    symmetric around zero, so the largest decrease (`-8.1`) is a less intense red than the largest
+    increase (`12.5`) is green:
+
+    ```{python}
+    (
+        GT(df)
+        .data_color(columns="change", palette=["#D7191C", "white", "#1A9641"], midpoint=0)
+        .fmt_number(columns="change", decimals=1, force_sign=True)
+    )
+    ```
+
+    The midpoint doesn't have to be zero, and it doesn't have to sit in the middle of the domain.
+    Here, sales are shown as a fraction of a target, so the midpoint is `1`. Supplying a `domain=`
+    means that each side of the midpoint is scaled separately: the colors go from red to white over
+    the wide range from 50% of the target up to the target, and from white to green over the
+    narrower range from the target up to 120% of it:
+
+    ```{python}
+    sales_df = pd.DataFrame(
+        {
+            "rep": ["Ana", "Ben", "Cai", "Dee", "Eli"],
+            "pct_of_target": [0.62, 0.88, 1.0, 1.08, 1.17],
+        }
+    )
+
+    (
+        GT(sales_df)
+        .data_color(
+            columns="pct_of_target",
+            palette=["#D7191C", "white", "#1A9641"],
+            domain=[0.5, 1.2],
+            midpoint=1,
+        )
+        .fmt_percent(columns="pct_of_target", decimals=0)
+    )
+    ```
+
+    To pin more than the midpoint, we can build the function with
+    [`col_numeric()`](`great_tables.col_numeric`) and its `stops=` argument, which gives a value
+    for each palette color. A stop can be a data value or a percentage of the way through the range
+    of values in the column. Here, the lowest value is red, zero is white, and the highest value is
+    green, so both sides use their full range of colors:
 
     ```{python}
     from great_tables import col_numeric
@@ -350,7 +424,7 @@ def data_color(
         GT(df)
         .data_color(
             columns="change",
-            fn=col_numeric(palette=["#D7191C", "white", "#1A9641"], domain=[-15, 15]),
+            fn=col_numeric(palette=["#D7191C", "white", "#1A9641"], stops=["0%", 0, "100%"]),
         )
         .fmt_number(columns="change", decimals=1, force_sign=True)
     )
@@ -373,6 +447,9 @@ def data_color(
 
     # Set a flag to indicate whether or not the domain should be calculated automatically
     autocalc_domain = domain is None
+
+    if midpoint is not None and fn is None:
+        _validate_midpoint(midpoint, domain=domain)
 
     # Get the internal data table
     data_table = self._tbl_data
@@ -430,14 +507,24 @@ def data_color(
         if len(filtered_column_vals) and all(
             isinstance(x, (int, float)) for x in filtered_column_vals
         ):
-            # If `domain` is not provided, then infer it from the data values
-            if autocalc_domain:
-                domain = _get_domain_numeric(df=data_table, vals=column_vals)
+            if midpoint is not None:
+                # Pin the midpoint to the center of the palette (an inferred domain is made
+                # symmetric around the midpoint, a supplied one is scaled separately on each side)
+                present_vals = [None if is_na(data_table, x) else x for x in column_vals]
+                stops, positions = _midpoint_stops(midpoint, domain=domain, vals=present_vals)
+                scaled_vals = _rescale_stops(
+                    present_vals, stops=stops, positions=positions, truncate=truncate
+                )
 
-            # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_numeric(
-                df=data_table, vals=column_vals, domain=domain, truncate=truncate
-            )
+            else:
+                # If `domain` is not provided, then infer it from the data values
+                if autocalc_domain:
+                    domain = _get_domain_numeric(df=data_table, vals=column_vals)
+
+                # Rescale only the non-NA values in `column_vals` to the range [0, 1]
+                scaled_vals = _rescale_numeric(
+                    df=data_table, vals=column_vals, domain=domain, truncate=truncate
+                )
 
             # Infinite values are left out of an inferred domain, so place them at either end of it
             if autocalc_domain:
@@ -447,6 +534,13 @@ def data_color(
                 ]
 
         elif all(isinstance(x, str) for x in filtered_column_vals):
+            # (an all-missing column also lands here, and that's fine to color with `na_color=`)
+            if midpoint is not None and filtered_column_vals:
+                raise ValueError(
+                    f"`midpoint=` can only be used with numeric columns, but column '{col}' "
+                    "contains string values."
+                )
+
             # If `domain` is not provided, then infer it from the data values
             # (for ordered categorical columns, use the declared levels instead)
             if autocalc_domain:
@@ -1026,6 +1120,88 @@ def _rescale_numeric(
     min_val, max_val = (0, 1) if truncate else (None, None)
 
     return [None if x is None else min_val if x < 0 else max_val if x > 1 else x for x in scaled]
+
+
+def _validate_midpoint(midpoint: Any, domain: list[float] | None) -> None:
+    if (
+        isinstance(midpoint, bool)
+        or not isinstance(midpoint, (int, float))
+        or isinf(midpoint)
+        or isnan(midpoint)
+    ):
+        raise ValueError(f"`midpoint=` must be a finite number, not {midpoint!r}.")
+
+    if domain is not None and not domain[0] <= midpoint <= domain[1]:
+        raise ValueError(
+            f"`midpoint=` ({midpoint!r}) must lie within the range of `domain=` ({domain!r})."
+        )
+
+
+def _midpoint_stops(
+    midpoint: float, domain: list[float] | None, vals: list[float | None]
+) -> tuple[list[float], list[float]]:
+    """
+    Get the stops (data values) and palette positions for a scale centered on `midpoint=`.
+
+    The midpoint takes the center of the palette (position `0.5`) and the ends of the domain take
+    the ends of the palette. Without a `domain=`, the domain is made symmetric around the midpoint,
+    reaching as far as the furthest finite value in `vals=` (which may contain `None` values).
+    """
+
+    if domain is None:
+        finite = [x for x in vals if x is not None and not _is_infinite(x)]
+        extent = max((abs(x - midpoint) for x in finite), default=0)
+        domain = [midpoint - extent, midpoint + extent]
+
+    stops = [domain[0], midpoint, domain[1]]
+    positions = [0.0, 0.5, 1.0]
+
+    # Drop any ends of the domain that coincide with the midpoint, so that the midpoint itself
+    # always resolves to the center of the palette
+    keep = [i for i in range(3) if i == 1 or stops[i] != midpoint]
+
+    return [stops[i] for i in keep], [positions[i] for i in keep]
+
+
+def _rescale_stops(
+    vals: list[float | None], stops: list[float], positions: list[float], truncate: bool = False
+) -> list[float | None]:
+    """
+    Rescale numeric values to palette positions in the range [0, 1] with piecewise-linear stops.
+
+    Each value in `stops=` (a non-decreasing list of data values) is pinned to the palette position
+    at the same index in `positions=`, and values in between are linearly interpolated. A value
+    that exactly matches a repeated stop takes the position of the last of those stops. Values
+    outside of the outermost stops give `None` (unless `truncate=True`, which moves them to the
+    nearest outermost stop), as do `None` values in `vals=`.
+    """
+
+    lo, hi = stops[0], stops[-1]
+
+    scaled: list[float | None] = []
+
+    for x in vals:
+        if x is None:
+            scaled.append(None)
+            continue
+
+        if truncate:
+            x = min(max(x, lo), hi)
+
+        if x < lo or x > hi:
+            scaled.append(None)
+            continue
+
+        # The number of stops at or below `x` (at least 1, since `x >= lo`)
+        i = bisect_right(stops, x)
+
+        if stops[i - 1] == x:
+            scaled.append(positions[i - 1])
+        else:
+            frac = (x - stops[i - 1]) / (stops[i] - stops[i - 1])
+            scaled.append(positions[i - 1] + frac * (positions[i] - positions[i - 1]))
+
+    return scaled
 
 
 def _rescale_factor(

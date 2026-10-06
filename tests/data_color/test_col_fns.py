@@ -93,6 +93,122 @@ def test_col_numeric_truncate_zero_range_domain():
     assert fn([0, 5, 10]) == ["#FF0000"] * 3
 
 
+RWG = ["red", "white", "green"]
+
+
+def test_col_numeric_midpoint_symmetric_domain():
+    fn = col_numeric(palette=RWG, midpoint=0)
+
+    assert fn([-2, 0, 10, None]) == ["#FFCCCC", "#FFFFFF", "#008000", None]
+
+
+def test_col_numeric_midpoint_with_domain_is_piecewise():
+    fn = col_numeric(palette=RWG, midpoint=0, domain=[-2, 10])
+
+    assert fn([-2, -1, 0, 5, 10]) == ["#FF0000", "#FF8080", "#FFFFFF", "#80C080", "#008000"]
+
+
+@pytest.mark.parametrize("domain", [[0, 10], [-10, 0]])
+def test_col_numeric_midpoint_at_domain_end_keeps_center_color(domain):
+    fn = col_numeric(palette=RWG, midpoint=0, domain=domain)
+
+    assert fn([0]) == ["#FFFFFF"]
+
+
+def test_col_numeric_midpoint_all_values_at_midpoint():
+    assert col_numeric(palette=RWG, midpoint=5)([5, 5]) == ["#FFFFFF", "#FFFFFF"]
+
+
+def test_col_numeric_midpoint_truncate():
+    fn = col_numeric(palette=RWG, midpoint=0, domain=[-1, 5], truncate=True)
+
+    assert fn([-20, 20]) == ["#FF0000", "#008000"]
+
+
+@pytest.mark.parametrize("midpoint", [True, "0", float("inf"), float("nan")])
+def test_col_numeric_invalid_midpoint_raises(midpoint):
+    with pytest.raises(ValueError, match="must be a finite number"):
+        col_numeric(midpoint=midpoint)
+
+
+def test_col_numeric_midpoint_outside_domain_raises():
+    with pytest.raises(ValueError, match="must lie within the range of `domain=`"):
+        col_numeric(midpoint=20, domain=[0, 10])
+
+
+def test_col_numeric_stops_numeric():
+    fn = col_numeric(palette=RWG, stops=[-10, 0, 30])
+
+    assert fn([-10, -5, 0, 15, 30, 31]) == [
+        "#FF0000",
+        "#FF8080",
+        "#FFFFFF",
+        "#80C080",
+        "#008000",
+        None,
+    ]
+
+
+def test_col_numeric_stops_percent_and_numeric():
+    fn = col_numeric(palette=RWG, stops=["0%", 0, "100%"])
+
+    assert fn([-2, 0, 10]) == ["#FF0000", "#FFFFFF", "#008000"]
+
+
+def test_col_numeric_stops_percent_range_includes_numeric_stops():
+    # The range spans [0, 10] (the data plus the `0` stop), so `5` is halfway from white to green
+    fn = col_numeric(palette=RWG, stops=["0%", 0, "100%"])
+
+    assert fn([5, 10]) == ["#80C080", "#008000"]
+
+
+def test_col_numeric_stops_percent_only():
+    fn = col_numeric(palette=RWG, stops=["0%", "25%", "100%"])
+
+    assert fn([0, 25, 100]) == ["#FF0000", "#FFFFFF", "#008000"]
+
+
+def test_col_numeric_stops_repeated_stop_is_sharp_change():
+    fn = col_numeric(palette=["black", "white", "red", "lime"], stops=[-1, 0, 0, 1])
+
+    assert fn([-1, 0, 1]) == ["#000000", "#FF0000", "#00FF00"]
+
+
+def test_col_numeric_stops_truncate():
+    fn = col_numeric(palette=RWG, stops=[-10, 0, 10], truncate=True)
+
+    assert fn([-20, 20]) == ["#FF0000", "#008000"]
+
+
+def test_col_numeric_stops_all_missing():
+    assert col_numeric(palette=RWG, stops=["0%", 0, "100%"])([None, None]) == [None, None]
+
+
+@pytest.mark.parametrize(
+    "kwargs,match",
+    [
+        ({"stops": [0, 1]}, "one value per palette color"),
+        ({"stops": [0, "x", 1]}, "must be a percentage"),
+        ({"stops": [0, "150%", 1]}, "must be a percentage"),
+        ({"stops": [0, True, 1]}, "must be a finite number or a percentage"),
+        ({"stops": [2, 1, 3]}, "numbers in `stops=` must be in non-decreasing order"),
+        ({"stops": ["50%", "0%", 1]}, "percentages in `stops=` must be in non-decreasing order"),
+        ({"stops": [0, 1, 2], "domain": [0, 2]}, "can't be used together"),
+        ({"stops": [0, 1, 2], "midpoint": 1}, "can't be used together"),
+    ],
+)
+def test_col_numeric_invalid_stops_raises(kwargs, match):
+    with pytest.raises(ValueError, match=match):
+        col_numeric(palette=RWG, **kwargs)
+
+
+def test_col_numeric_stops_unordered_once_resolved_raises():
+    fn = col_numeric(palette=RWG, stops=[0, "50%", 10])
+
+    with pytest.raises(ValueError, match="once percentages are resolved"):
+        fn([8, 100])
+
+
 # col_bin ----------------------------------------------------------------------------------------
 
 
