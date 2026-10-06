@@ -790,8 +790,9 @@ def fmt_scientific_context(
         # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
 
         # Determine which values don't require the (x 10^n) for scientific formatting
-        # since their order would be zero
-        small_pos = _has_sci_order_zero(value=x)
+        # since their order would be zero (this uses the exponent of the rounded value
+        # so that, e.g., 9.9999 rounding to 1.00 x 10^1 still gets its exponent)
+        small_pos = n_part == "0"
 
         # Force the positive sign to be present if the `force_sign_n` option is taken
         if force_sign_n and not _str_detect(n_part, "-"):
@@ -6283,9 +6284,11 @@ def _get_number_profile(value: float, n_sigfig: int) -> tuple[str, int, bool]:
         power = -1 * math.floor(math.log10(value)) + n_sigfig - 1
         value_power = value * 10.0**power
 
-        if value < 1 and math.floor(math.log10(int(round(value_power)))) > math.floor(
-            math.log10(int(value_power))
-        ):
+        # If rounding carries over into an extra digit (e.g., 9.9999 to three significant
+        # digits gives 1000), shift the power down by one so that the result keeps `n_sigfig`
+        # digits (and its magnitude increases by a power of ten); comparing the rounded value
+        # against 10^n_sigfig avoids false carries from floating-point error in `value_power`
+        if round(value_power) >= 10**n_sigfig:
             power -= 1
 
         sig_digits = str(int(round(value * 10.0**power)))
@@ -6391,10 +6394,6 @@ def _has_positive_value(value: float) -> bool:
 
 def _has_zero_value(value: float) -> bool:
     return value == 0
-
-
-def _has_sci_order_zero(value: float) -> bool:
-    return (value >= 1 and value < 10) or (value <= -1 and value > -10) or value == 0
 
 
 def _context_exp_marks(context: str) -> list[str]:
@@ -8281,10 +8280,8 @@ def _process_number_stream(data_vals: str) -> list[float]:
         list[float]: A list of numeric values.
     """
 
-    number_stream = re.sub(r"[;,]", " ", data_vals)
-    number_stream = re.sub(r"\\[|\\]", " ", number_stream)
-    number_stream = re.sub(r"^\\s+|\\s+$", "", number_stream)
-    number_stream = [val for val in number_stream.split()]
+    # Values are separated by whitespace, commas, or semicolons, and may be wrapped in brackets
+    number_stream = re.sub(r"[;,\[\]]", " ", data_vals).split()
 
     result: list[float] = []
     for val in number_stream:
