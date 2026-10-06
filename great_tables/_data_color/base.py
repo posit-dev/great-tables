@@ -55,6 +55,7 @@ def data_color(
     rows: RowSelectExpr = None,
     palette: str | list[str] | None = None,
     domain: list[str] | list[int] | list[float] | None = None,
+    midpoint: int | float | None = None,
     na_color: str | None = None,
     alpha: float | None = None,
     reverse: bool = False,
@@ -62,7 +63,6 @@ def data_color(
     contrast_algo: ContrastAlgo = "apca",
     truncate: bool = False,
     fn: Callable[[list[Any]], list[str | None]] | None = None,
-    midpoint: int | float | None = None,
 ) -> GTSelf:
     """
     Perform data cell colorization.
@@ -99,6 +99,15 @@ def data_color(
         The domain of values to use for the color scheme. This can be a list of floats, integers, or
         strings. If `None`, then the domain will be inferred from the data values (see the
         *How column values are mapped to colors* section for details).
+    midpoint
+        A value to center the color scale on, for numeric columns (e.g., `0` for values that
+        represent a change). The midpoint receives the color at the center of the palette, which
+        makes this most useful with a diverging palette like `["red", "white", "green"]` or
+        `"RdBu"`. If `domain=` is `None`, then the domain is made symmetric around the midpoint so
+        that values equally far from it on either side are equally strong in color. If `domain=`
+        is supplied, then each side of the midpoint is scaled separately to its end of the domain
+        (and the midpoint must lie within the domain). See the *Centering colors on a midpoint*
+        section for details.
     na_color
         The color to use for missing values. If `None`, then the default color (`"#808080"`) will be
         used.
@@ -133,15 +142,6 @@ def data_color(
         [`col_numeric()`](`great_tables.col_numeric`), [`col_bin()`](`great_tables.col_bin`), and
         [`col_factor()`](`great_tables.col_factor`) helpers create ready-made color-mapping
         functions that can be supplied here.
-    midpoint
-        A value to center the color scale on, for numeric columns (e.g., `0` for values that
-        represent a change). The midpoint receives the color at the center of the palette, which
-        makes this most useful with a diverging palette like `["red", "white", "green"]` or
-        `"RdBu"`. If `domain=` is `None`, then the domain is made symmetric around the midpoint so
-        that values equally far from it on either side are equally strong in color. If `domain=`
-        is supplied, then each side of the midpoint is scaled separately to its end of the domain
-        (and the midpoint must lie within the domain). See the *Centering colors on a midpoint*
-        section for details.
 
     Returns
     -------
