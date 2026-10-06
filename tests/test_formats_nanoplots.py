@@ -77,6 +77,9 @@ def test_nanoplot_ref_line_area():
             [1, 2, 3, float("nan"), float("nan"), float("nan"), 7, 8, 9, 10, 11, 12],
         ),
         ("1 NA 3", [1, float("nan"), 3]),
+        ("[1, 2, 3]", [1, 2, 3]),
+        ("[1,2.5;-3]", [1, 2.5, -3]),
+        (" [ 1 NA 3 ] ", [1, float("nan"), 3]),
         ("na, 2; NA", [float("nan"), 2, float("nan")]),
     ],
 )
@@ -170,3 +173,12 @@ def test_fmt_nanoplot_na_in_number_stream_with_ref_keywords(plot_type: str):
 
     # The means of the non-missing values in each row are 3 and 6
     assert [float(label) for label in ref_line_labels] == [3, 6]
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+def test_fmt_nanoplot_bracketed_number_stream(plot_type: str):
+    def render(vals: list[str]) -> str:
+        gt = GT(pl.DataFrame({"v": vals}), id="t").fmt_nanoplot(columns="v", plot_type=plot_type)
+        return gt.as_raw_html()
+
+    assert render(["[1, 5, 3]", "[2; 4]"]) == render(["1 5 3", "2 4"])
