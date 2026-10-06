@@ -11,7 +11,13 @@ from bisect import bisect_left, bisect_right
 from math import isinf, isnan
 from typing import Any, Callable
 
-from .base import _html_color, _resolve_palette
+from .base import (
+    _html_color,
+    _midpoint_stops,
+    _rescale_stops,
+    _resolve_palette,
+    _validate_midpoint,
+)
 from .palettes import GradientPalette
 
 ColorFn = Callable[[list[Any]], "list[str | None]"]
@@ -20,6 +26,8 @@ ColorFn = Callable[[list[Any]], "list[str | None]"]
 def col_numeric(
     palette: str | list[str] | None = None,
     domain: list[int] | list[float] | None = None,
+    midpoint: int | float | None = None,
+    stops: list[int | float | str] | None = None,
     na_color: str | None = None,
     reverse: bool = False,
     truncate: bool = False,
@@ -43,17 +51,37 @@ def col_numeric(
         The range of values to map onto the palette, given as `[min, max]`. Values outside of this
         range receive the missing-value color (unless `truncate=True`). If `None`, then the domain
         is taken from the range of the (non-missing) values supplied to the returned function each
-        time it is called.
+        time it is called (or, with `midpoint=`, a range made symmetric around the midpoint). This
+        can't be used together with `stops=`.
+    midpoint
+        A value that receives the color at the center of the palette. If `domain=` is `None`, then
+        the domain is made symmetric around the midpoint, reaching as far as the value furthest
+        from it. If `domain=` is supplied, then each side of the midpoint is scaled separately to
+        its end of the domain (and the midpoint must lie within the domain). This works in the same
+        way as the `midpoint=` argument of [`data_color()`](`great_tables.GT.data_color`) and
+        can't be used together with `stops=`.
+    stops
+        A list giving the value at which each palette color is reached, with one entry per color
+        in the palette (after any ColorBrewer or viridis palette name is expanded). Colors are
+        interpolated between neighboring stops. Each stop can be either a number (a data value) or
+        a percentage string from `"0%"` to `"100%"` (a position within the range of the values
+        supplied to the returned function, extended to include any numeric stops). For example,
+        `stops=["0%", 0, "100%"]` pins the lowest value, zero, and the highest value, whatever the
+        range of the values. Stops must be in non-decreasing order once resolved. A repeated stop
+        creates a sharp change between two colors, with a value exactly at that stop taking the
+        later color. The outermost stops act as the domain, so values beyond them receive the
+        missing-value color (unless `truncate=True`).
     na_color
         The color to use for missing values and values outside of the domain. If `None`, then the
         returned function gives `None` for those values, which lets `data_color()` apply its own
         `na_color=` color.
     reverse
-        Should the order of the palette colors be reversed?
+        Should the order of the palette colors be reversed? This doesn't affect `stops=`, which
+        apply to the colors in their reversed order.
     truncate
-        If `True`, then values outside of the domain are treated as the nearest end of the domain,
-        so they receive the first or last color of the palette. If `False` (the default), then they
-        receive the missing-value color.
+        If `True`, then values outside of the domain (or the outermost `stops=`) are treated as the
+        nearest end of it, so they receive the first or last color of the palette. If `False` (the
+        default), then they receive the missing-value color.
 
     Returns
     -------
@@ -82,15 +110,38 @@ def col_numeric(
     )
     ```
 
-    Because `col_numeric()` returns an ordinary function, it can be composed with other logic. Here,
-    the domain is made symmetric around zero based on the largest absolute value in the column:
+    Rather than fixing the domain, we can give a `midpoint=`. The domain is then made symmetric
+    around the midpoint, reaching as far as the value furthest from it:
 
     ```{python}
-    def red_white_green(vals):
-        m = max(abs(x) for x in vals if not pd.isna(x))
-        return col_numeric(palette=["#D7191C", "white", "#1A9641"], domain=[-m, m])(vals)
+    GT(df).data_color(
+        columns="change",
+        fn=col_numeric(palette=["#D7191C", "white", "#1A9641"], midpoint=0),
+    )
+    ```
 
-    GT(df).data_color(columns="change", fn=red_white_green)
+    With `stops=`, every palette color can be pinned to a value. Stops can be data values or
+    percentages of the way through the range of values. Here, the lowest value is fully red, zero
+    is white, and the highest value is fully green, so each side uses its full range of colors:
+
+    ```{python}
+    GT(df).data_color(
+        columns="change",
+        fn=col_numeric(palette=["#D7191C", "white", "#1A9641"], stops=["0%", 0, "100%"]),
+    )
+    ```
+
+    Repeating a stop makes a sharp change in color at that value. Here, values below zero are
+    shades of orange and values from zero up are shades of purple:
+
+    ```{python}
+    GT(df).data_color(
+        columns="change",
+        fn=col_numeric(
+            palette=["#E66101", "#FDB863", "#B2ABD2", "#5E3C99"],
+            stops=["0%", 0, 0, "100%"],
+        ),
+    )
     ```
 
     With a narrower domain, `truncate=True` saturates the colors of values beyond its limits rather
@@ -111,11 +162,39 @@ def col_numeric(
     if domain is not None:
         _validate_numeric_domain(domain)
 
+    if stops is not None:
+        if domain is not None or midpoint is not None:
+            raise ValueError("`stops=` can't be used together with `domain=` or `midpoint=`.")
+
+        _validate_stops(stops, n_colors=len(colors))
+
+    if midpoint is not None:
+        _validate_midpoint(midpoint, domain=domain)
+
     def color_fn(vals: list[Any]) -> list[str | None]:
         vals = list(vals)
         _validate_numeric_vals(vals, fn_name="col_numeric")
 
         present = [x for x in vals if not _is_missing(x)]
+
+        if midpoint is not None or stops is not None:
+            if not present:
+                return [na_color] * len(vals)
+
+            present_vals = [None if _is_missing(x) else x for x in vals]
+
+            if midpoint is not None:
+                knots, positions = _midpoint_stops(midpoint, domain=domain, vals=present_vals)
+            else:
+                knots = _resolve_stops(stops, vals=present)
+                n = len(knots)
+                positions = [i / max(n - 1, 1) for i in range(n)]
+
+            scaled = _rescale_stops(
+                present_vals, stops=knots, positions=positions, truncate=truncate
+            )
+
+            return _scaled_to_colors(scaled, colors=colors, na_color=na_color)
 
         if domain is not None:
             domain_min, domain_max = domain
@@ -385,6 +464,85 @@ def _validate_numeric_domain(domain: list[int] | list[float]) -> None:
 
     if domain[0] > domain[1]:
         raise ValueError(f"The first value in `domain=` must not exceed the second: {domain!r}.")
+
+
+def _parse_percent_stop(stop: str) -> float | None:
+    """Return the percentage in a stop like `"25%"` (or `None` if it isn't a valid percentage)."""
+
+    text = stop.strip()
+
+    if not text.endswith("%"):
+        return None
+
+    try:
+        pct = float(text[:-1])
+    except ValueError:
+        return None
+
+    return pct if 0 <= pct <= 100 else None
+
+
+def _validate_stops(stops: list[int | float | str], n_colors: int) -> None:
+    if len(stops) != n_colors:
+        raise ValueError(
+            f"`stops=` must have one value per palette color ({n_colors}), but has {len(stops)}."
+        )
+
+    numbers: list[float] = []
+    percents: list[float] = []
+
+    for stop in stops:
+        if isinstance(stop, str):
+            pct = _parse_percent_stop(stop)
+
+            if pct is None:
+                raise ValueError(
+                    f"A string in `stops=` must be a percentage from '0%' to '100%', not {stop!r}."
+                )
+
+            percents.append(pct)
+
+        elif (
+            isinstance(stop, bool)
+            or not isinstance(stop, (int, float))
+            or isinf(stop)
+            or isnan(stop)
+        ):
+            raise ValueError(
+                f"Each value in `stops=` must be a finite number or a percentage string, not {stop!r}."
+            )
+
+        else:
+            numbers.append(stop)
+
+    for kind, seq in (("numbers", numbers), ("percentages", percents)):
+        if any(a > b for a, b in zip(seq, seq[1:])):
+            raise ValueError(f"The {kind} in `stops=` must be in non-decreasing order: {stops!r}.")
+
+
+def _resolve_stops(stops: list[int | float | str], vals: list[float]) -> list[float]:
+    """
+    Resolve `stops=` to data values.
+
+    Percentage stops are positions within the range spanning both the (non-missing) values in
+    `vals=` and the numeric stops.
+    """
+
+    numbers = [stop for stop in stops if not isinstance(stop, str)]
+    lo, hi = min(vals + numbers), max(vals + numbers)
+
+    resolved = [
+        lo + _parse_percent_stop(stop) / 100 * (hi - lo) if isinstance(stop, str) else stop  # type: ignore[operator]
+        for stop in stops
+    ]
+
+    if any(a > b for a, b in zip(resolved, resolved[1:])):
+        raise ValueError(
+            f"The values in `stops=` must be in non-decreasing order once percentages are resolved "
+            f"(against a range of [{lo!r}, {hi!r}]), but {stops!r} resolved to {resolved!r}."
+        )
+
+    return resolved
 
 
 def _validate_numeric_vals(vals: list[Any], fn_name: str) -> None:
