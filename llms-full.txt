@@ -5212,7 +5212,7 @@ sign
     The sign of the numbers to be considered in the replacement. By default, we only consider
     positive values (`"+"`). The other option (`"-"`) can be used to consider only negative
     values. Note that when `sign="-"` and the default `large_pattern=">={x}"` is used, the
-    `">="` is automatically changed to `"<="`.
+    pattern is automatically changed to `"<=-{x}"`.
 
 Returns
 -------
@@ -5239,8 +5239,8 @@ single_vals_df = pl.DataFrame(
 GT(single_vals_df).fmt_number(columns="numbers").sub_large_vals(threshold=1e10)
 ```
 
-Large negative values can also be targeted with `sign="-"`. Notice the `">="` in the default
-pattern is automatically changed to `"<="` when dealing with negative values.
+Large negative values can also be targeted with `sign="-"`. Notice the default pattern is
+automatically changed to `"<=-{x}"` when dealing with negative values.
 
 ```{python}
 from great_tables import GT
