@@ -23,6 +23,7 @@ from great_tables._formats import (
     _normalize_locale,
     _validate_currency,
     _validate_locale,
+    _value_to_scientific_notation,
     fmt,
 )
 from great_tables.data import exibble
@@ -1054,6 +1055,12 @@ def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
         (325, "325"),
         (-325, "-325"),
         (-1320, "-1,320"),
+        # Rounding carries over into the next power of ten
+        (9.9999, "10.0"),
+        (-9.9999, "-10.0"),
+        (99.96, "100"),
+        (999999, "1,000,000"),
+        (0.99999, "1.00"),
     ],
 )
 def test_format_number_n_sigfig_3(value, out: str):
@@ -1149,6 +1156,50 @@ def test_fmt_scientific_case(
     gt = GT(df).fmt_scientific(columns="x", **fmt_scientific_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "fmt_scientific_kwargs,x_out",
+    [
+        (
+            dict(decimals=2),
+            [
+                "1.00 × 10<sup style='font-size: 65%;'>1</sup>",
+                "−1.00 × 10<sup style='font-size: 65%;'>1</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>5</sup>",
+                "1.00",
+                "9.99",
+            ],
+        ),
+        (dict(exp_style="E"), ["1.00E01", "−1.00E01", "1.00E05", "1.00E00", "9.99E00"]),
+    ],
+)
+def test_fmt_scientific_rounding_carries_into_exponent(
+    fmt_scientific_kwargs: dict[str, Any], x_out: list[str]
+):
+    # Values that round up to the next power of ten should get a mantissa of 1 and
+    # a larger exponent, rather than a mantissa of 10
+    df = pd.DataFrame({"x": [9.9999, -9.9999, 99999.9, 0.99999, 9.994]})
+    gt = GT(df).fmt_scientific(columns="x", **fmt_scientific_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "value,n_sigfig,x_out",
+    [
+        (1e11, 1, "1E11"),
+        (1e14, 4, "1.000E14"),
+        (1e23, 1, "1E23"),
+        (1e23, 3, "1.00E23"),
+        (1e-11, 1, "1E-11"),
+        (1e-20, 4, "1.000E-20"),
+    ],
+)
+def test_value_to_scientific_notation_exact_powers_of_ten(value: float, n_sigfig: int, x_out: str):
+    # Floating-point error when scaling exact powers of ten should not be treated as a
+    # rounding carry (nor raise an error when `n_sigfig=1`)
+    assert _value_to_scientific_notation(value, n_sigfig=n_sigfig) == x_out
 
 
 # ------------------------------------------------------------------------------
