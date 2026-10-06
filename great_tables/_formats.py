@@ -6286,10 +6286,9 @@ def _get_number_profile(value: float, n_sigfig: int) -> tuple[str, int, bool]:
 
         # If rounding carries over into an extra digit (e.g., 9.9999 to three significant
         # digits gives 1000), shift the power down by one so that the result keeps `n_sigfig`
-        # digits (and its magnitude increases by a power of ten)
-        if math.floor(math.log10(int(round(value_power)))) > math.floor(
-            math.log10(int(value_power))
-        ):
+        # digits (and its magnitude increases by a power of ten); comparing the rounded value
+        # against 10^n_sigfig avoids false carries from floating-point error in `value_power`
+        if round(value_power) >= 10**n_sigfig:
             power -= 1
 
         sig_digits = str(int(round(value * 10.0**power)))
