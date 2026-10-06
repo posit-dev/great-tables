@@ -385,6 +385,32 @@ def data_color(
     )
     ```
 
+    The midpoint doesn't have to be zero, and it doesn't have to sit in the middle of the domain.
+    Here, sales are shown as a fraction of a target, so the midpoint is `1`. Supplying a `domain=`
+    means that each side of the midpoint is scaled separately: the colors go from red to white over
+    the wide range from 50% of the target up to the target, and from white to green over the
+    narrower range from the target up to 120% of it:
+
+    ```{python}
+    sales_df = pd.DataFrame(
+        {
+            "rep": ["Ana", "Ben", "Cai", "Dee", "Eli"],
+            "pct_of_target": [0.62, 0.88, 1.0, 1.08, 1.17],
+        }
+    )
+
+    (
+        GT(sales_df)
+        .data_color(
+            columns="pct_of_target",
+            palette=["#D7191C", "white", "#1A9641"],
+            domain=[0.5, 1.2],
+            midpoint=1,
+        )
+        .fmt_percent(columns="pct_of_target", decimals=0)
+    )
+    ```
+
     To pin more than the midpoint, we can build the function with
     [`col_numeric()`](`great_tables.col_numeric`) and its `stops=` argument, which gives a value
     for each palette color. A stop can be a data value or a percentage of the way through the range
