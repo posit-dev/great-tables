@@ -4,8 +4,9 @@ import math
 import random
 import warnings
 import zlib
+from collections.abc import Callable
 from dataclasses import dataclass, fields, replace
-from typing import Any, Callable
+from typing import Any
 
 from ._tbl_data import Agnostic, NpInteger, is_na
 from ._utils import _flatten_list, _match_arg
@@ -56,23 +57,6 @@ def _is_integerlike(val_list: list[Any]) -> bool:
     return all((isinstance(val, (int, NpInteger)) or _is_na(val)) for val in val_list)
 
 
-def _any_na_in_list(x: list[Any]) -> bool:
-    """
-    Determine whether a list of values contains any missing values.
-    """
-
-    return any(_is_na(val) for val in x)
-
-
-def _check_any_na_in_list(x: list[int | float]) -> None:
-    """
-    Check whether a list of values contains any missing values; if so, raise an error.
-    """
-
-    if _any_na_in_list(x):
-        raise ValueError("The list of values cannot contain missing values.")
-
-
 def _remove_na_from_list(x: list[int | float]) -> list[int | float]:
     """
     Remove missing values from a list of values.
@@ -99,7 +83,7 @@ def _normalize_option_list(option_list: Any | list[Any], num_y_vals: int) -> lis
     return option_list
 
 
-def calc_ref_value(val_or_calc: int | float | str, data) -> int | float | str:
+def calc_ref_value(val_or_calc: float | str, data) -> int | float | str:
     if _val_is_numeric(val_or_calc):
         return val_or_calc
     elif _val_is_str(val_or_calc) and val_or_calc in REFERENCE_LINE_KEYWORDS:
@@ -125,7 +109,7 @@ _COMPACT_FMT_LARGE: _CompactFmt = (False, None, 2, False)
 
 
 def _format_number_compactly(
-    val: int | float,
+    val: float,
     currency: str | None = None,
     as_integer: bool = False,
     fn: Callable[..., str] | None = None,
@@ -271,7 +255,7 @@ REFERENCE_LINE_KEYWORDS = list(_REFERENCE_LINE_FNS)
 
 
 def _get_extreme_value(
-    *args: int | float | list[int | float] | None,
+    *args: float | list[int | float] | None,
     stat: str = "max",
 ) -> int | float:
     """
@@ -291,15 +275,20 @@ def _get_extreme_value(
 def _generate_ref_line_from_keyword(vals: list[int | float], keyword: str) -> int | float:
     """
     Generate a value for a reference line from a valid keyword (one of `REFERENCE_LINE_KEYWORDS`)
-    using `vals`, which cannot contain missing values.
+    using the non-missing values in `vals`.
     """
 
     _match_arg(x=keyword, lst=REFERENCE_LINE_KEYWORDS)
 
-    _check_any_na_in_list(vals)
+    # This is a new list, so `vals` isn't changed by the functions that sort in place
+    non_missing_vals = _remove_na_from_list(vals)
 
-    # Copy `vals` since some of the functions sort the list in place
-    return _REFERENCE_LINE_FNS[keyword](list(vals))
+    if not non_missing_vals:
+        raise ValueError(
+            f"A reference line of `{keyword}` needs at least one value that isn't missing."
+        )
+
+    return _REFERENCE_LINE_FNS[keyword](non_missing_vals)
 
 
 def _normalize_vals(x: list[int] | list[float] | list[int | float]) -> list[float | None]:
@@ -328,7 +317,7 @@ def _jitter_vals(x: list[int | float], amount: float) -> list[int | float]:
 
 
 def _normalize_to_dict(
-    **kwargs: int | float | list[int | float] | None,
+    **kwargs: float | list[int | float] | None,
 ) -> dict[str, list[float | None]]:
     """
     Normalize a collection of numeric values to be between 0 and 1. Account for missing values.
@@ -393,7 +382,7 @@ def _normalize_to_dict(
     return normalized
 
 
-def _is_whole_number(x: int | float) -> bool:
+def _is_whole_number(x: float) -> bool:
     return float(x).is_integer()
 
 
@@ -423,7 +412,7 @@ def _get_n_intlike(nums: list[Any]) -> int:
     return len([n for n in nums if _is_intlike(n)])
 
 
-def _remove_exponent(n: "str | int | float") -> str:
+def _remove_exponent(n: str | float) -> str:
     """
     https://docs.python.org/3/library/decimal.html#decimal-faq
     """
@@ -519,7 +508,7 @@ class _NanoplotOptions:
 
         return replace(self, **{f.name: False for f in fields(self) if f.name.startswith("show_")})
 
-    def format(self, val: int | float, as_integer: bool, fn: Callable[..., str] | None) -> str:
+    def format(self, val: float, as_integer: bool, fn: Callable[..., str] | None) -> str:
         """Format a value for display with the `currency` option and the formatting function `fn`
         (e.g., `y_val_fmt_fn`)."""
 
@@ -673,7 +662,7 @@ def _prepare_vals(
 # ---------------------------------------------------------------------------------------------
 
 
-def _resolve_ref_line(ref_line: int | float | str, y_vals: list[int | float]) -> int | float | str:
+def _resolve_ref_line(ref_line: float | str, y_vals: list[int | float]) -> int | float | str:
     """Compute the value of a reference line given as a keyword (e.g., `"mean"`); other values are
     returned as is."""
 
@@ -725,7 +714,7 @@ class _YScale:
     def resolve(
         cls,
         y_vals: list[int | float],
-        ref_line: int | float | str | None,
+        ref_line: float | str | None,
         ref_area: list[int | float | str] | None,
         expand_y: list[int | float] | None,
         include_zero: bool,
@@ -825,7 +814,7 @@ class _NanoplotSpec:
         plot_type: str,
         data_line_type: str,
         missing_vals: str,
-        y_ref_line: int | float | str | None,
+        y_ref_line: float | str | None,
         y_ref_area: list[int | float | str] | None,
         expand_x: list[int | float] | None,
         expand_y: list[int | float] | None,
@@ -924,7 +913,7 @@ def _hidden_text_tag(x: float, y: float, label: str, **attrs: Any) -> str:
     )
 
 
-def _missing_marker_tag(x: float, radius: int | float, stroke_width: int, fill: str) -> str:
+def _missing_marker_tag(x: float, radius: float, stroke_width: int, fill: str) -> str:
     """A circle denoting a missing value, placed at the vertical middle of the data area."""
 
     return _svg_tag(
@@ -958,7 +947,7 @@ def _polyline_points(xs: tuple[float, ...], ys: tuple[float, ...]) -> str:
     return " ".join(f"{x},{y}" for x, y in zip(xs, ys))
 
 
-def _bar_style(val: int | float, i: int, opts: _NanoplotOptions) -> tuple[str, int, str]:
+def _bar_style(val: float, i: int, opts: _NanoplotOptions) -> tuple[str, int, str]:
     """The stroke color, stroke width, and fill color of the bar for the `i`-th value `val` (with
     `opts` expanded per point); negative values and zero get their own styles."""
 
@@ -1408,9 +1397,9 @@ def _render_layers(spec: _NanoplotSpec) -> list[str]:
 
 
 def _single_value_proportions(
-    y_val: int | float,
+    y_val: float,
     all_vals: list[int] | list[float] | list[int | float],
-    ref_line: int | float | None = None,
+    ref_line: float | None = None,
 ) -> tuple[float, float, float | None]:
     """Scale a single `y` value, the zero line and an optional reference line to the common
     scale shared by the single-value plots of all rows."""
@@ -1454,7 +1443,7 @@ def _single_value_ref_line_tags(
 
 
 def _single_value_label_tag(
-    y_val: int | float, label: str, zero_x: float, all_vals: list[int | float], zero_offset: int
+    y_val: float, label: str, zero_x: float, all_vals: list[int | float], zero_offset: int
 ) -> str:
     """The value label of a single-value plot, beside the zero line on the side of the bar or line.
 
@@ -1478,7 +1467,7 @@ def _single_value_label_tag(
 
 
 def _single_value_bar_tag(
-    y_val: int | float, val_x: float, zero_x: float, thickness: float, opts: _NanoplotOptions
+    y_val: float, val_x: float, zero_x: float, thickness: float, opts: _NanoplotOptions
 ) -> str:
     """A horizontal bar from the zero line to the value."""
 
@@ -1506,7 +1495,7 @@ def _single_value_bar_tag(
 
 
 def _single_value_line_tags(
-    y_val: int | float, val_x: float, zero_x: float, opts: _NanoplotOptions
+    y_val: float, val_x: float, zero_x: float, opts: _NanoplotOptions
 ) -> tuple[str, str]:
     """A horizontal line from the zero line to the value, and the data point at its end."""
 
@@ -1560,9 +1549,9 @@ def _single_value_guide_tag(label_tag: str, thickness: float, opts: _NanoplotOpt
 
 
 def _single_value_layers(
-    y_val: int | float,
+    y_val: float,
     all_vals: list[int | float],
-    y_ref_line: int | float | str | None,
+    y_ref_line: float | str | None,
     plot_type: str,
     opts: _NanoplotOptions,
 ) -> list[str]:
@@ -1631,8 +1620,8 @@ def _single_value_layers(
 
 
 def _generate_nanoplot(
-    y_vals: list[int] | list[float] | list[int | float] | int | float,
-    y_ref_line: int | float | str | None = None,
+    y_vals: list[int] | list[float] | list[int | float] | float,
+    y_ref_line: float | str | None = None,
     y_ref_area: list[int | float | str] | None = None,
     x_vals: list[int | float] | None = None,
     expand_x: list[int] | list[float] | list[int | float] | None = None,

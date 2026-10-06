@@ -116,10 +116,6 @@ def test_is_integerlike():
     assert not _is_integerlike([])
 
 
-# TODO: add tests for _any_na_in_list()
-
-# TODO: add tests for _check_any_na_in_list()
-
 # TODO: add tests for _remove_na_from_list()
 
 
@@ -2642,13 +2638,37 @@ def test_remove_exponent_non_integer_string():
     assert isinstance(result, str)
 
 
-def test_check_any_na_in_list_raises():
-    # Line 76: _check_any_na_in_list raises when list contains NA values
-    from great_tables._utils_nanoplots import _check_any_na_in_list
-    import math
+@pytest.mark.parametrize(
+    "keyword,dst",
+    [("mean", 3), ("median", 3), ("min", 1), ("max", 5), ("q1", 1), ("q3", 5)],
+)
+def test_generate_ref_line_from_keyword_ignores_missing_values(keyword: str, dst: float):
+    vals = [1, None, 3, float("nan"), 5]
 
-    with pytest.raises(ValueError, match="cannot contain missing values"):
-        _check_any_na_in_list([1.0, math.nan, 3.0])
+    assert _generate_ref_line_from_keyword(vals, keyword=keyword) == dst
+
+
+def test_generate_ref_line_from_keyword_all_missing_raises():
+    with pytest.raises(ValueError, match="at least one value that isn't missing"):
+        _generate_ref_line_from_keyword([None, float("nan")], keyword="mean")
+
+
+@pytest.mark.parametrize("missing_vals", ["gap", "marker"])
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+def test_nanoplot_ref_line_keyword_with_missing_values(missing_vals: str, plot_type: str):
+    with_missing = _generate_nanoplot(
+        y_vals=[1, None, 2, 6], y_ref_line="mean", missing_vals=missing_vals, plot_type=plot_type
+    )
+
+    # The mean of the non-missing values (1, 2, 6) is 3
+    assert '<g class="ref-line">' in with_missing
+    assert ">3</text></g>" in with_missing
+
+
+def test_nanoplot_ref_area_keywords_with_missing_values():
+    result = _generate_nanoplot(y_vals=[1, None, 2, 6], y_ref_area=["min", "max"])
+
+    assert '<path d="M' in result and 'fill="#A6E6F2"' in result
 
 
 def test_normalize_option_list_wrong_length_raises():
