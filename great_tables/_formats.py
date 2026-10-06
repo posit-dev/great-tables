@@ -8118,10 +8118,18 @@ def fmt_nanoplot(
         options = nanoplot_options()
 
     # For autoscale, the `y` scale of every nanoplot spans the `y` values of all targeted cells
+    # (missing cells and missing values are left out)
     if autoscale:
-        all_y_vals = [val for cell in target_vals for val in _get_cell_y_vals(cell)]
+        all_y_vals = [
+            val
+            for cell in target_vals
+            if not is_na(data_tbl, cell)
+            for val in _get_cell_y_vals(cell)
+            if not is_na(data_tbl, val)
+        ]
 
-        expand_y = [min(all_y_vals), max(all_y_vals)]
+        if all_y_vals:
+            expand_y = [min(all_y_vals), max(all_y_vals)]
 
     # Generate a function that turns the nanoplot data in a cell into an SVG nanoplot
     def fmt_nanoplot_fn(x: Any, context: str) -> str:
@@ -8280,6 +8288,11 @@ def _process_number_stream(data_vals: str) -> list[float]:
 
     result: list[float] = []
     for val in number_stream:
+        # An `NA` marks a missing value, just like `nan` (which `float()` already accepts)
+        if val.upper() == "NA":
+            result.append(float("nan"))
+            continue
+
         try:
             result.append(float(val))
         except ValueError:
