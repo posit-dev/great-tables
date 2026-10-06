@@ -790,8 +790,9 @@ def fmt_scientific_context(
         # ('x10n'); this is styled as 'x 10^n' instead of using a fixed symbol like 'E'
 
         # Determine which values don't require the (x 10^n) for scientific formatting
-        # since their order would be zero
-        small_pos = _has_sci_order_zero(value=x)
+        # since their order would be zero (this uses the exponent of the rounded value
+        # so that, e.g., 9.9999 rounding to 1.00 x 10^1 still gets its exponent)
+        small_pos = n_part == "0"
 
         # Force the positive sign to be present if the `force_sign_n` option is taken
         if force_sign_n and not _str_detect(n_part, "-"):
@@ -6283,7 +6284,10 @@ def _get_number_profile(value: float, n_sigfig: int) -> tuple[str, int, bool]:
         power = -1 * math.floor(math.log10(value)) + n_sigfig - 1
         value_power = value * 10.0**power
 
-        if value < 1 and math.floor(math.log10(int(round(value_power)))) > math.floor(
+        # If rounding carries over into an extra digit (e.g., 9.9999 to three significant
+        # digits gives 1000), shift the power down by one so that the result keeps `n_sigfig`
+        # digits (and its magnitude increases by a power of ten)
+        if math.floor(math.log10(int(round(value_power)))) > math.floor(
             math.log10(int(value_power))
         ):
             power -= 1
@@ -6391,10 +6395,6 @@ def _has_positive_value(value: float) -> bool:
 
 def _has_zero_value(value: float) -> bool:
     return value == 0
-
-
-def _has_sci_order_zero(value: float) -> bool:
-    return (value >= 1 and value < 10) or (value <= -1 and value > -10) or value == 0
 
 
 def _context_exp_marks(context: str) -> list[str]:
