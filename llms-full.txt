@@ -4409,6 +4409,11 @@ graphics.
 Multiple flags can be included per cell by separating country codes with commas (e.g.,
 `"GB,TT"`). The `sep=` argument allows for a common separator to be applied between flag icons.
 
+Any code that isn't recognized as a 2- or 3-letter country code is left as is (i.e., the text
+is retained in place of a flag icon). This means that a column with a mix of valid and invalid
+codes can still be formatted, and the cells without flags can be identified and styled
+separately (e.g., with `tab_style()`).
+
 Parameters
 ----------
 columns
