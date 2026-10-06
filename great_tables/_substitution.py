@@ -323,7 +323,7 @@ def sub_large_vals(
         The sign of the numbers to be considered in the replacement. By default, we only consider
         positive values (`"+"`). The other option (`"-"`) can be used to consider only negative
         values. Note that when `sign="-"` and the default `large_pattern=">={x}"` is used, the
-        `">="` is automatically changed to `"<="`.
+        pattern is automatically changed to `"<=-{x}"`.
 
     Returns
     -------
@@ -350,8 +350,8 @@ def sub_large_vals(
     GT(single_vals_df).fmt_number(columns="numbers").sub_large_vals(threshold=1e10)
     ```
 
-    Large negative values can also be targeted with `sign="-"`. Notice the `">="` in the default
-    pattern is automatically changed to `"<="` when dealing with negative values.
+    Large negative values can also be targeted with `sign="-"`. Notice the default pattern is
+    automatically changed to `"<=-{x}"` when dealing with negative values.
 
     ```{python}
     from great_tables import GT
@@ -548,9 +548,13 @@ class SubLargeVals:
     def _format_text(self) -> str:
         pattern = self.large_pattern
 
-        # When sign is "-", flip ">=" to "<=" in the pattern
+        # When sign is "-", flip ">=" to "<=" in the pattern; the default pattern also gets a
+        # minus sign so that it shows the negative threshold (e.g., "<=-1000")
         if self.sign == "-":
-            pattern = pattern.replace(">=", "<=")
+            if pattern == ">={x}":
+                pattern = "<=-{x}"
+            else:
+                pattern = pattern.replace(">=", "<=")
 
         text = pattern.replace("{x}", str(self.threshold))
         return _process_text(text)
