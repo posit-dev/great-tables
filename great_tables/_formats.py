@@ -8281,10 +8281,8 @@ def _process_number_stream(data_vals: str) -> list[float]:
         list[float]: A list of numeric values.
     """
 
-    number_stream = re.sub(r"[;,]", " ", data_vals)
-    number_stream = re.sub(r"\\[|\\]", " ", number_stream)
-    number_stream = re.sub(r"^\\s+|\\s+$", "", number_stream)
-    number_stream = [val for val in number_stream.split()]
+    # Values are separated by whitespace, commas, or semicolons, and may be wrapped in brackets
+    number_stream = re.sub(r"[;,\[\]]", " ", data_vals).split()
 
     result: list[float] = []
     for val in number_stream:
