@@ -1193,6 +1193,10 @@ def test_fmt_scientific_rounding_carries_into_exponent(
         ("fmt_engineering", dict(pattern="[{x}]"), ["[inf]", "[−inf]"]),
         ("fmt_bytes", dict(), ["inf", "−inf"]),
         ("fmt_roman", dict(), ["ex terminis", "ex terminis"]),
+        ("fmt_number", dict(compact=True), ["inf", "−inf"]),
+        ("fmt_number", dict(compact=True, accounting=True), ["inf", "(inf)"]),
+        ("fmt_integer", dict(compact=True, force_sign=True), ["+inf", "−inf"]),
+        ("fmt_currency", dict(compact=True), ["$inf", "−$inf"]),
     ],
 )
 def test_fmt_infinite_values(fmt_method: str, fmt_kwargs: dict[str, Any], x_out: list[str]):
