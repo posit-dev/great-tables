@@ -685,6 +685,40 @@ def test_create_columns_component_l_with_stub_and_spanner():
     assert "Numbers" in result
 
 
+def test_create_columns_component_l_with_stubhead():
+    gt_tbl = GT(exibble[["num", "char", "row"]].head(2), rowname_col="row").tab_stubhead(
+        label="Row & name"
+    )
+    result = create_columns_component_l(gt_tbl._build_data("latex"))
+
+    assert result == "\\toprule\nRow \\& name & num & char \\\\ \n\\midrule\\addlinespace[2.5pt]"
+
+
+def test_create_columns_component_l_with_stubhead_spanning_stub_columns():
+    gt_tbl = (
+        GT(exibble[["num", "row", "group"]].head(2), rowname_col="row", groupname_col="group")
+        .tab_stubhead(label="Stub")
+        .tab_options(row_group_as_column=True)
+    )
+    result = create_columns_component_l(gt_tbl._build_data("latex"))
+
+    assert (
+        result
+        == "\\toprule\n\\multicolumn{2}{l|}{Stub} & num \\\\ \n\\midrule\\addlinespace[2.5pt]"
+    )
+
+
+def test_create_columns_component_l_with_stubhead_and_spanner():
+    gt_tbl = (
+        GT(exibble[["num", "currency", "row"]].head(2), rowname_col="row")
+        .tab_stubhead(label="Stub")
+        .tab_spanner(label="Numbers", columns=["num", "currency"])
+    )
+    result = create_columns_component_l(gt_tbl._build_data("latex"))
+
+    assert result.endswith("Stub & num & currency \\\\ \n\\midrule\\addlinespace[2.5pt]")
+
+
 def test_render_as_latex_grand_summary_no_stub():
     import polars as pl
 
