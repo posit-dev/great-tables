@@ -536,8 +536,6 @@ def test_spanner_covering_all_columns_else_branch():
     assert "All" in str(result)
 
 
-
-
 def _get_body_html(gt: GT) -> str:
     built = gt._build_data("html")
     return create_body_component_h(built)
@@ -549,14 +547,15 @@ def _get_columns_html(gt: GT) -> str:
 
 
 def test_multi_col_stub_data_model_two_levels():
-    """rowname_col list sets extra_stub_cols and stub_col_order correctly."""
-    df = pd.DataFrame({"sector": ["Tech"], "ticker": ["AAPL"], "price": [150]})
+    """A rowname_col list sets the stub levels; the last column is the primary row identifier."""
+    df = pd.DataFrame({"ticker": ["AAPL"], "sector": ["Tech"], "price": [150]})
     gt = GT(df, rowname_col=["sector", "ticker"])
 
-    assert gt._stub._extra_stub_cols == ["sector"]
-    assert gt._boxhead._stub_col_order == ["sector", "ticker"]
-    stub_cols = [c.var for c in gt._boxhead._get_stub_columns()]
-    assert stub_cols == ["sector", "ticker"]
+    stub_cols = gt._boxhead._get_stub_columns()
+    assert [c.var for c in stub_cols] == ["sector", "ticker"]
+    assert [c.stub_level for c in stub_cols] == [0, 1]
+    assert gt._boxhead._get_stub_column().var == "ticker"
+    assert [row.rowname for row in gt._stub.rows] == ["AAPL"]
 
 
 def test_multi_col_stub_layout_length():
@@ -564,7 +563,9 @@ def test_multi_col_stub_layout_length():
     df = pd.DataFrame({"sector": ["Tech"], "ticker": ["AAPL"], "price": [150]})
     gt = GT(df, rowname_col=["sector", "ticker"])
     built = gt._build_data("html")
-    layout = built._stub._get_stub_layout(has_summary_rows=False, options=built._options)
+    layout = built._stub._get_stub_layout(
+        has_summary_rows=False, options=built._options, boxhead=built._boxhead
+    )
     assert len(layout) == 2
     assert all(e == "rowname" for e in layout)
 
@@ -597,11 +598,13 @@ def test_multi_col_stub_renders_all_columns_in_body():
 
 def test_multi_col_stub_rowspan_collapse():
     """Repeated outer-level values get rowspan > 1; inner values are not collapsed."""
-    df = pd.DataFrame({
-        "sector": ["Tech", "Tech", "Finance"],
-        "ticker": ["AAPL", "MSFT", "JPM"],
-        "price": [150, 280, 140],
-    })
+    df = pd.DataFrame(
+        {
+            "sector": ["Tech", "Tech", "Finance"],
+            "ticker": ["AAPL", "MSFT", "JPM"],
+            "price": [150, 280, 140],
+        }
+    )
     gt = GT(df, rowname_col=["sector", "ticker"])
     body = _get_body_html(gt)
 
@@ -620,11 +623,13 @@ def test_multi_col_stub_rowspan_collapse():
 
 def test_multi_col_stub_no_spurious_collapse_when_values_differ():
     """Non-repeating outer values each get their own cell (rowspan=1)."""
-    df = pd.DataFrame({
-        "sector": ["Tech", "Finance", "Healthcare"],
-        "ticker": ["AAPL", "JPM", "JNJ"],
-        "price": [150, 140, 90],
-    })
+    df = pd.DataFrame(
+        {
+            "sector": ["Tech", "Finance", "Healthcare"],
+            "ticker": ["AAPL", "JPM", "JNJ"],
+            "price": [150, 140, 90],
+        }
+    )
     gt = GT(df, rowname_col=["sector", "ticker"])
     body = _get_body_html(gt)
 
@@ -634,12 +639,14 @@ def test_multi_col_stub_no_spurious_collapse_when_values_differ():
 
 def test_multi_col_stub_group_boundary_resets_rowspan():
     """The same outer value in different groups is NOT collapsed across the boundary."""
-    df = pd.DataFrame({
-        "region": ["North", "North", "South", "South"],
-        "sector": ["Tech", "Finance", "Tech", "Finance"],
-        "ticker": ["AAPL", "JPM", "NVDA", "BAC"],
-        "price": [150, 140, 430, 33],
-    })
+    df = pd.DataFrame(
+        {
+            "region": ["North", "North", "South", "South"],
+            "sector": ["Tech", "Finance", "Tech", "Finance"],
+            "ticker": ["AAPL", "JPM", "NVDA", "BAC"],
+            "price": [150, 140, 430, 33],
+        }
+    )
     gt = GT(df, rowname_col=["sector", "ticker"], groupname_col="region")
     body = _get_body_html(gt)
 
@@ -653,12 +660,14 @@ def test_multi_col_stub_group_boundary_resets_rowspan():
 
 def test_multi_col_stub_rowspan_within_group():
     """When using row_group_as_column, rowspan collapsing still works within each group."""
-    df = pd.DataFrame({
-        "region": ["North", "North", "South"],
-        "sector": ["Tech", "Tech", "Tech"],
-        "ticker": ["AAPL", "MSFT", "NVDA"],
-        "price": [150, 280, 430],
-    })
+    df = pd.DataFrame(
+        {
+            "region": ["North", "North", "South"],
+            "sector": ["Tech", "Tech", "Tech"],
+            "ticker": ["AAPL", "MSFT", "NVDA"],
+            "price": [150, 280, 430],
+        }
+    )
     gt = GT(df, rowname_col=["sector", "ticker"], groupname_col="region")
     body = _get_body_html(gt)
 
@@ -673,18 +682,19 @@ def test_multi_col_stub_single_col_unchanged():
     df = pd.DataFrame({"ticker": ["AAPL", "MSFT"], "price": [150, 280]})
     gt = GT(df, rowname_col="ticker")
 
-    assert gt._stub._extra_stub_cols == []
-    assert gt._boxhead._stub_col_order == ["ticker"]
+    assert [c.var for c in gt._boxhead._get_stub_columns()] == ["ticker"]
     body = _get_body_html(gt)
     # No rowspan attributes for single-column stub
     assert 'rowspan="' not in body
 
 
-def test_multi_col_stub_list_with_one_element_raises():
-    """A list with fewer than 2 elements raises ValueError."""
+def test_multi_col_stub_list_with_one_element_same_as_string():
+    """A list with one column gives the same table as a string."""
     df = pd.DataFrame({"ticker": ["AAPL"], "price": [150]})
-    with pytest.raises(ValueError, match="at least 2"):
-        GT(df, rowname_col=["ticker"])
+    assert (
+        GT(df, rowname_col=["ticker"], id="t").as_raw_html()
+        == GT(df, rowname_col="ticker", id="t").as_raw_html()
+    )
 
 
 def test_multi_col_stub_overlap_with_groupname_col_raises():
@@ -694,18 +704,17 @@ def test_multi_col_stub_overlap_with_groupname_col_raises():
         GT(df, rowname_col=["sector", "ticker"], groupname_col="sector")
 
 
-
-
 def test_text_transform_stub_applies_to_all_stub_cols():
     """text_transform(loc.stub()) must transform every stub column, not just the first."""
-    from great_tables import loc, style
-    from great_tables._tab_create_modify import text_transform
+    from great_tables import loc
 
-    df = pd.DataFrame({
-        "sector": ["Tech", "Finance"],
-        "ticker": ["AAPL", "JPM"],
-        "price": [150, 140],
-    })
+    df = pd.DataFrame(
+        {
+            "sector": ["Tech", "Finance"],
+            "ticker": ["AAPL", "JPM"],
+            "price": [150, 140],
+        }
+    )
     gt = GT(df, rowname_col=["sector", "ticker"]).text_transform(
         locations=loc.stub(),
         fn=lambda x: x.upper(),
@@ -756,11 +765,13 @@ def test_cols_width_stub_sentinel_applies_to_all_stub_cols():
     """cols_width(stub) must set width on every stub column for multi-col stubs."""
     from great_tables import stub
 
-    df = pd.DataFrame({
-        "sector": ["Tech"],
-        "ticker": ["AAPL"],
-        "price": [150],
-    })
+    df = pd.DataFrame(
+        {
+            "sector": ["Tech"],
+            "ticker": ["AAPL"],
+            "price": [150],
+        }
+    )
     gt = GT(df, rowname_col=["sector", "ticker"]).cols_width({stub: "120px"})
 
     # Both stub columns should have the width recorded in the boxhead
@@ -771,12 +782,14 @@ def test_cols_width_stub_sentinel_applies_to_all_stub_cols():
 
 def test_list_stubhead_with_spanner_renders_separate_th_cells():
     """tab_stubhead(list) + tab_spanner: each stub column gets its own <th> in the spanner row."""
-    df = pd.DataFrame({
-        "sector": ["Tech", "Finance"],
-        "ticker": ["AAPL", "JPM"],
-        "price": [150.0, 140.0],
-        "mkt_cap": [2.94, 0.57],
-    })
+    df = pd.DataFrame(
+        {
+            "sector": ["Tech", "Finance"],
+            "ticker": ["AAPL", "JPM"],
+            "price": [150.0, 140.0],
+            "mkt_cap": [2.94, 0.57],
+        }
+    )
     gt = (
         GT(df, rowname_col=["sector", "ticker"])
         .tab_stubhead(label=["Sector", "Ticker"])
@@ -789,12 +802,14 @@ def test_list_stubhead_with_spanner_renders_separate_th_cells():
 
 def test_list_stubhead_with_nested_spanners_renders_placeholders():
     """tab_stubhead(list) + 2 spanner levels: blank placeholders emitted for higher rows."""
-    df = pd.DataFrame({
-        "sector": ["Tech", "Finance"],
-        "ticker": ["AAPL", "JPM"],
-        "price": [150.0, 140.0],
-        "mkt_cap": [2.94, 0.57],
-    })
+    df = pd.DataFrame(
+        {
+            "sector": ["Tech", "Finance"],
+            "ticker": ["AAPL", "JPM"],
+            "price": [150.0, 140.0],
+            "mkt_cap": [2.94, 0.57],
+        }
+    )
     gt = (
         GT(df, rowname_col=["sector", "ticker"])
         .tab_stubhead(label=["Sector", "Ticker"])
@@ -808,12 +823,14 @@ def test_list_stubhead_with_nested_spanners_renders_placeholders():
 
 def test_grand_summary_colspan_correct_for_multi_col_stub_with_group():
     """Grand summary row colspan must cover group col + all row stub cols."""
-    df = pd.DataFrame({
-        "region": ["North", "North"],
-        "sector": ["Tech", "Finance"],
-        "ticker": ["AAPL", "JPM"],
-        "price": [150.0, 140.0],
-    })
+    df = pd.DataFrame(
+        {
+            "region": ["North", "North"],
+            "sector": ["Tech", "Finance"],
+            "ticker": ["AAPL", "JPM"],
+            "price": [150.0, 140.0],
+        }
+    )
     gt = (
         GT(df, rowname_col=["sector", "ticker"], groupname_col="region")
         .tab_options(row_group_as_column=True)

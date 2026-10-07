@@ -53,7 +53,9 @@ def tab_stub(
     Parameters
     ----------
     rowname_col:
-        The column to use for row names. By default, no row names added.
+        The column to use for row names. By default, no row names added. A list of columns
+        creates a hierarchical stub: the last column holds the row names, and the columns before
+        it are outer levels (outermost first), with repeated values merged across adjacent rows.
     groupname_col:
         The column to use for group names. By default no group names added.
 
@@ -79,6 +81,13 @@ def tab_stub(
 
     ```{python}
     GT(exibble).tab_stub(rowname_col="row", groupname_col="group")
+    ```
+
+    Passing a list of columns to `rowname_col=` creates a hierarchical stub. Here, the rows are
+    labeled by `"group"` and then `"row"`, and the repeated group values are merged.
+
+    ```{python}
+    GT(exibble[["group", "row", "num", "char"]]).tab_stub(rowname_col=["group", "row"])
     ```
     """
     # old columns ----

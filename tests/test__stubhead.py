@@ -21,7 +21,6 @@ def test_tab_stubhead():
     assert result._stubhead.text == "<strong>Car</strong>"
 
 
-
 def _two_level_gt():
     df = pd.DataFrame(
         {
@@ -38,9 +37,18 @@ def test_tab_stubhead_list_stores_labels():
     assert result._stubhead == ["Sector", "Ticker"]
 
 
-def test_tab_stubhead_list_length_mismatch_raises():
+def test_tab_stubhead_list_length_mismatch_raises_on_render():
+    gt_tbl = _two_level_gt().tab_stubhead(label=["A", "B", "C"])
     with pytest.raises(ValueError, match="stub has 2 column"):
-        _two_level_gt().tab_stubhead(label=["OnlyOne"])
+        gt_tbl.as_raw_html()
+
+
+def test_tab_stubhead_list_with_one_label_spans_stub():
+    gt_tbl = _two_level_gt().with_id("t")
+    assert (
+        gt_tbl.tab_stubhead(label=["Stock"]).as_raw_html()
+        == gt_tbl.tab_stubhead(label="Stock").as_raw_html()
+    )
 
 
 def test_tab_stubhead_list_renders_separate_th_cells():
@@ -81,7 +89,8 @@ def test_tab_stubhead_list_wrong_length_three_level_raises():
             "price": [189.30],
         }
     )
+    gt_tbl = gt.GT(df, rowname_col=["region", "sector", "ticker"]).tab_stubhead(
+        label=["Region", "Sector"]
+    )
     with pytest.raises(ValueError, match="3 column"):
-        gt.GT(df, rowname_col=["region", "sector", "ticker"]).tab_stubhead(
-            label=["Region", "Sector"]
-        )
+        gt_tbl.as_raw_html()
