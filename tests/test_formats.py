@@ -1203,6 +1203,13 @@ def test_fmt_infinite_values(fmt_method: str, fmt_kwargs: dict[str, Any], x_out:
     assert x == x_out
 
 
+def test_fmt_infinite_values_latex():
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = GT(df).fmt_scientific(columns="x", pattern="{x} %")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert x == [r"inf \%", r"-inf \%"]
+
+
 @pytest.mark.parametrize(
     "value,n_sigfig,x_out",
     [
