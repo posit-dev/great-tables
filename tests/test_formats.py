@@ -3576,6 +3576,37 @@ def test_format_number_compactly_zero_returns_zero_string():
     assert result == "0"
 
 
+@pytest.mark.parametrize(
+    "value,kwargs,x_out",
+    [
+        # Rounding carries the scaled value up to 1000, so the next suffix is used
+        (999999, dict(decimals=2), "1.00M"),
+        (-999999, dict(decimals=2), "-1.00M"),
+        (999.996, dict(decimals=2), "1.00K"),
+        (999999999, dict(decimals=2), "1.00B"),
+        (999999, dict(decimals=0), "1M"),
+        (999999, dict(decimals=2, n_sigfig=3), "1.00M"),
+        # No carry: the suffix stays the same
+        (999499, dict(decimals=0), "999K"),
+        (999500, dict(decimals=2), "999.50K"),
+        (999400, dict(decimals=2, n_sigfig=3), "999K"),
+    ],
+)
+def test_format_number_compactly_rounding_carries_into_next_suffix(value, kwargs, x_out):
+    result = _format_number_compactly(
+        value=value,
+        n_sigfig=kwargs.get("n_sigfig"),
+        decimals=kwargs["decimals"],
+        drop_trailing_zeros=False,
+        drop_trailing_dec_mark=True,
+        use_seps=True,
+        sep_mark=",",
+        dec_mark=".",
+        force_sign=False,
+    )
+    assert result == x_out
+
+
 def test_has_zero_value():
     # _has_zero_value returns True for 0, False otherwise
     assert _has_zero_value(0) is True

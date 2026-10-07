@@ -6230,6 +6230,17 @@ def _format_number_compactly(
         num_power_idx = math.floor(math.log(abs(value), 1000))
         num_power_idx = max(0, min(5, num_power_idx))
 
+        # If rounding the scaled value carries it up to 1000 (e.g., 999,999 with two
+        # decimals would give `1,000.00K`), use the next suffix instead (`1.00M`)
+        if num_power_idx < 5:
+            scaled_value = abs(value) / 1000**num_power_idx
+            if n_sigfig is not None:
+                rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
+            else:
+                rounded_value = round(scaled_value, decimals)
+            if rounded_value >= 1000:
+                num_power_idx += 1
+
     # The `units_str` is obtained by indexing a list of suffixes with the `num_power_idx`
     units_str = ["", "K", "M", "B", "T", "Q"][num_power_idx]
 
