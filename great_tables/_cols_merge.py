@@ -335,28 +335,9 @@ def _apply_single_col_merge(
     target_column = col_merge.vars[0]
 
     for row_idx in col_merge.rows:
-        # For each column, get the display value and determine if it's truly missing.
-        # A value is only considered missing if BOTH the body AND original are NA.
-        # This means sub_missing() replacements (e.g., "--") are not treated as missing,
-        # matching R's gt behavior.
-        values: list[Any] = []
-
-        for col_name in col_merge.vars:
-            formatted_value = _get_cell(body.body, row_idx, col_name)
-            original_value = _get_cell(tbl_data, row_idx, col_name)
-
-            original_na = ColMergeInfo.replace_na(original_value, tbl_data=tbl_data)
-            formatted_na = ColMergeInfo.replace_na(formatted_value, tbl_data=body.body)
-
-            if formatted_na[0] is None and original_na[0] is None:
-                # Truly missing
-                values.append(None)
-            elif formatted_na[0] is None:
-                # Body is NA but original has a value (unformatted)
-                values.append(str(original_value))
-            else:
-                # Body has a value (possibly from sub_missing or formatting)
-                values.append(str(formatted_value))
+        values = [
+            _get_display_value(body, tbl_data, row_idx, col_name) for col_name in col_merge.vars
+        ]
 
         # Dispatch to the appropriate merge strategy
         if col_merge.type == "merge":
@@ -365,10 +346,8 @@ def _apply_single_col_merge(
             merged_value = _merge_uncert(values, col_merge.sep)
         elif col_merge.type == "merge_range":
             merged_value = _merge_range(values, col_merge.sep)
-        elif col_merge.type == "merge_n_pct":
+        else:  # "merge_n_pct"
             merged_value = _merge_n_pct(values, tbl_data, col_merge.vars, row_idx)
-        else:
-            merged_value = col_merge.merge(*values)
 
         result = _set_cell(body.body, row_idx, target_column, merged_value)
 
@@ -378,6 +357,24 @@ def _apply_single_col_merge(
             body.body = result
 
     return body
+
+
+def _get_display_value(body: Body, tbl_data: TblData, row_idx: int, col_name: str) -> str | None:
+    """Get the value of a cell to use in a merge, or None if the cell is truly missing.
+
+    The formatted (body) value is preferred, falling back to the original value. A cell
+    is only considered missing if BOTH are NA, so sub_missing() replacements (e.g., "--")
+    are not treated as missing, matching R's gt behavior.
+    """
+    formatted_value = _get_cell(body.body, row_idx, col_name)
+    if not is_na(body.body, formatted_value):
+        return str(formatted_value)
+
+    original_value = _get_cell(tbl_data, row_idx, col_name)
+    if not is_na(tbl_data, original_value):
+        return str(original_value)
+
+    return None
 
 
 def _merge_uncert(values: list[Any], sep: str) -> str:

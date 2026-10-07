@@ -3598,11 +3598,31 @@ def test_fmt_icon_na_value_returns_na():
     assert result[1] is None or str(result[1]) in ("None", "null", "")
 
 
-def test_fmt_flag_invalid_country_code_length_raises():
-    # ValueError when country code is not 2 or 3 characters
-    df = pl.DataFrame({"flag": ["U"]})
-    with pytest.raises(ValueError, match="2 or 3 characters long"):
-        GT(df).fmt_flag(columns="flag").as_raw_html()
+def test_fmt_flag_unrecognized_codes_kept_as_text():
+    df = pl.DataFrame({"flag": ["U", "ZZ", "ZZZ", "Europe", "US", "<b>"]})
+
+    vals = _get_column_of_values(
+        GT(df).fmt_flag(columns="flag"), column_name="flag", context="html"
+    )
+
+    assert vals[:4] == [
+        '<span style="white-space:nowrap;">U</span>',
+        '<span style="white-space:nowrap;">ZZ</span>',
+        '<span style="white-space:nowrap;">ZZZ</span>',
+        '<span style="white-space:nowrap;">Europe</span>',
+    ]
+    assert re.search("^<span style.*?<svg.*?>.*?</svg></span>$", vals[4])
+    assert vals[5] == '<span style="white-space:nowrap;">&lt;b&gt;</span>'
+
+
+def test_fmt_flag_mixed_recognized_and_unrecognized_in_cell():
+    df = pl.DataFrame({"flag": ["fr,xx,DE"]})
+
+    val = _get_column_of_values(
+        GT(df).fmt_flag(columns="flag"), column_name="flag", context="html"
+    )[0]
+
+    assert re.search("^<span style.*?<svg.*?>.*?</svg> xx <svg.*?>.*?</svg></span>$", val)
 
 
 def test_fmt_flag_height_none_defaults_to_1em():

@@ -238,8 +238,8 @@ class TestSubLargeVals:
     def test_negative_sign(self):
         """With sign='-', large negative values (<= -threshold) are substituted."""
         subber = SubLargeVals(threshold=1e12, large_pattern=">={x}", sign="-")
-        assert subber.to_html(-1e12) == "&lt;=1000000000000.0"
-        assert subber.to_html(-1e13) == "&lt;=1000000000000.0"
+        assert subber.to_html(-1e12) == "&lt;=-1000000000000.0"
+        assert subber.to_html(-1e13) == "&lt;=-1000000000000.0"
 
     def test_negative_sign_above_neg_threshold_skipped(self):
         """Values above -threshold are not substituted when sign='-'."""
@@ -276,9 +276,22 @@ class TestSubLargeVals:
         assert isinstance(subber.to_html(99), FormatterSkipElement)
 
     def test_sign_flips_pattern(self):
-        """When sign='-', '>=' in pattern is auto-flipped to '<='."""
+        """When sign='-', the default pattern becomes '<=-{x}'."""
         subber = SubLargeVals(threshold=100, large_pattern=">={x}", sign="-")
-        assert subber.to_html(-100) == "&lt;=100"
+        assert subber.to_html(-100) == "&lt;=-100"
+
+    def test_sign_flips_custom_pattern(self):
+        """When sign='-', '>=' in a custom pattern is still auto-flipped to '<='."""
+        subber = SubLargeVals(threshold=100, large_pattern="value >= {x}", sign="-")
+        assert subber.to_html(-100) == "value &lt;= 100"
+
+    def test_method_default_pattern_negative(self):
+        """Default pattern for negative sign shows the negative threshold."""
+        df = pl.DataFrame({"val": [-10.0, -1000.0, -1e6]})
+        gt = GT(df).sub_large_vals(columns="val", threshold=1000, sign="-")
+        result = gt._render_formats("html")
+        body = [x for x in to_list(result._body.body["val"])]
+        assert body == [None, "&lt;=-1000", "&lt;=-1000"]
 
     def test_method_integration(self):
         """End-to-end test using the GT method."""

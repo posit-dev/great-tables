@@ -27,6 +27,7 @@ from babel.dates import format_date, format_datetime, format_time
 from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
 from ._helpers import px
 from ._locale import (
+    FlagsDataDict,
     _get_currencies_data,
     _get_default_locales_data,
     _get_flags_data,
@@ -7665,6 +7666,11 @@ def fmt_flag(
     Multiple flags can be included per cell by separating country codes with commas (e.g.,
     `"GB,TT"`). The `sep=` argument allows for a common separator to be applied between flag icons.
 
+    Any code that isn't recognized as a 2- or 3-letter country code is left as is (i.e., the text
+    is retained in place of a flag icon). This means that a column with a mix of valid and invalid
+    codes can still be formatted, and the cells without flags can be identified and styled
+    separately (e.g., with `tab_style()`).
+
     Parameters
     ----------
     columns
@@ -7777,8 +7783,6 @@ class FmtFlag:
         if is_na(self.dispatch_on, val):
             return val
 
-        val = val.upper()
-
         if "," in val:
             flag_list = re.split(r",\s*", val)
         else:
@@ -7794,19 +7798,15 @@ class FmtFlag:
 
         out: list[str] = []
 
+        flags_data = _get_flags_data()
+
         for flag in flag_list:
-            # If the number of characters in the country code is not 2 or 3, then we raise an error
-            if len(flag) not in (2, 3):
-                raise ValueError("The country code provided must be either 2 or 3 characters long.")
+            flag_dict = self._lookup_flag(flags_data=flags_data, code=flag.upper())
 
-            # Since we allow 2- or 3- character country codes, create the name of the lookup
-            # column based on the length of the country code
-            lookup_column = "country_code_2" if len(flag) == 2 else "country_code_3"
-
-            # Get the correct dictionary entries based on the provided 'country_code_2' value
-            flag_dict = _filter_pd_df_to_row(
-                pd_df=_get_flags_data(), column=lookup_column, filter_expr=flag
-            )
+            # If the country code isn't recognized, keep the original text in place of a flag
+            if flag_dict is None:
+                out.append(_html_escape(flag))
+                continue
 
             # Get the SVG string and country name for the flag
             flag_svg = str(flag_dict["country_flag"])
@@ -7833,6 +7833,19 @@ class FmtFlag:
         warn("fmt_flag() is not currently implemented in LaTeX output.")
 
         return FormatterSkipElement()
+
+    @staticmethod
+    def _lookup_flag(flags_data: list[FlagsDataDict], code: str) -> FlagsDataDict | None:
+        # Since we allow 2- or 3- character country codes, create the name of the lookup
+        # column based on the length of the country code
+        if len(code) == 2:
+            lookup_column = "country_code_2"
+        elif len(code) == 3:
+            lookup_column = "country_code_3"
+        else:
+            return None
+
+        return next((entry for entry in flags_data if entry[lookup_column] == code), None)
 
     @staticmethod
     def _replace_flag_svg(flag_svg: str, height: str, use_title: bool, flag_title: str) -> str:
