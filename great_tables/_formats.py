@@ -760,6 +760,9 @@ def fmt_scientific_context(
     # Scale `x` value by a defined `scale_by` value
     x = x * scale_by
 
+    if math.isinf(x):
+        return _format_infinite_value(x, force_sign=force_sign_m, pattern=pattern, context=context)
+
     # Determine whether the value is positive
     is_positive = _has_positive_value(value=x)
 
@@ -1082,6 +1085,9 @@ def fmt_engineering_context(
     # Scale `x` value by a defined `scale_by` value
     x = x * scale_by
 
+    if math.isinf(x):
+        return _format_infinite_value(x, force_sign=force_sign_m, pattern=pattern, context=context)
+
     # Determine whether the value is positive
     is_positive = _has_positive_value(value=x)
 
@@ -1108,21 +1114,27 @@ def fmt_engineering_context(
         # Calculate the power of 1000 (engineering notation uses multiples of 3)
         power_3 = int(math.floor(math.log10(abs(x)) / 3) * 3)
 
-        # Calculate the mantissa by dividing by 10^power_3
-        mantissa = x / (10**power_3)
+        def format_mantissa(power_3: int) -> str:
+            # Calculate the mantissa by dividing by 10^power_3 and format it
+            return _value_to_decimal_notation(
+                value=x / (10**power_3),
+                decimals=decimals,
+                n_sigfig=n_sigfig,
+                drop_trailing_zeros=drop_trailing_zeros,
+                drop_trailing_dec_mark=drop_trailing_dec_mark,
+                use_seps=False,
+                sep_mark=",",
+                dec_mark=dec_mark,
+                force_sign=False,
+            )
 
-        # Format the mantissa
-        m_part = _value_to_decimal_notation(
-            value=mantissa,
-            decimals=decimals,
-            n_sigfig=n_sigfig,
-            drop_trailing_zeros=drop_trailing_zeros,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=False,
-            sep_mark=",",
-            dec_mark=dec_mark,
-            force_sign=False,
-        )
+        m_part = format_mantissa(power_3)
+
+        # If rounding carries the mantissa up to 1000 (e.g., 999,999.5 with two decimals
+        # would give `1000.00 x 10^3`), use the next power of 1000 instead (`1.00 x 10^6`)
+        if abs(float(m_part.replace(dec_mark, "."))) >= 1000:
+            power_3 += 3
+            m_part = format_mantissa(power_3)
 
         n_part = str(power_3)
 
@@ -1500,6 +1512,28 @@ _SI_PREFIXES_DECIMAL: list[tuple[int, str]] = [
 ]
 
 
+def _get_si_prefix(
+    abs_x: float, si_table: list[tuple[int, str]], prefix_mode: str
+) -> tuple[int, str]:
+    """Get the exponent and symbol of the SI prefix to use for an absolute value."""
+
+    if abs_x == 0:
+        # Zero gets no prefix
+        return 0, ""
+
+    if abs_x >= 1 and abs_x < 1000 and (prefix_mode != "decimal" or abs_x < 10):
+        # Values in [1, 1000) need no prefix in engineering mode
+        # In decimal mode, values in [1, 10) need no prefix
+        return 0, ""
+
+    # Find the best SI prefix: the largest exponent where mantissa >= 1
+    for exp, symbol in si_table:
+        if abs_x >= 10.0**exp:
+            return exp, symbol
+
+    return 0, ""
+
+
 def fmt_number_si_context(
     x: float | None,
     data: GTData,
@@ -1534,27 +1568,22 @@ def fmt_number_si_context(
 
     # Determine the appropriate SI prefix
     abs_x = abs(x)
-    si_symbol = ""
+    exp, si_symbol = _get_si_prefix(abs_x, si_table=si_table, prefix_mode=prefix_mode)
 
-    if abs_x == 0:
-        # Zero gets no prefix
-        pass
-    elif abs_x >= 1 and abs_x < 1000:
-        # Values in [1, 1000) need no prefix in engineering mode
-        # In decimal mode, values in [1, 10) need no prefix
-        if prefix_mode == "decimal" and abs_x >= 10:
-            for exp, symbol in si_table:
-                if exp > 0 and abs_x >= 10**exp:
-                    x = x / (10**exp)
-                    si_symbol = symbol
-                    break
-    else:
-        # Find the best SI prefix: the largest exponent where mantissa >= 1
-        for exp, symbol in si_table:
-            if abs_x >= 10.0**exp:
-                x = x / (10.0**exp)
-                si_symbol = symbol
-                break
+    # If rounding the scaled value carries it up to the next prefix (e.g., 999.96 with one
+    # decimal would give `1,000.0`), use the prefix of the rounded value instead (`1.0 k`)
+    if abs_x != 0:
+        scaled_value = abs_x / 10.0**exp
+        if n_sigfig is not None:
+            rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
+        else:
+            rounded_value = round(scaled_value, decimals)
+        exp, si_symbol = _get_si_prefix(
+            rounded_value * 10.0**exp, si_table=si_table, prefix_mode=prefix_mode
+        )
+
+    if si_symbol:
+        x = x / 10.0**exp
 
     # Format the value to decimal notation
     x_formatted = _value_to_decimal_notation(
@@ -2510,6 +2539,10 @@ def fmt_roman_context(
 
     # Get the absolute value of `x` so that negative values are handled
     x = abs(x)
+
+    if math.isinf(x):
+        # Like other values that are too large, infinity can't be a roman numeral
+        return "ex terminis"
 
     # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes)
     x = _round_rhu(x, 0)
@@ -4077,6 +4110,9 @@ def fmt_bytes_context(
     if is_na(data._tbl_data, x):
         return x
 
+    if math.isinf(x):
+        return _format_infinite_value(x, force_sign=force_sign, pattern=pattern, context=context)
+
     # Truncate all byte values by casting to an integer; this is done because bytes
     # are always whole numbers
     x = int(x)
@@ -4097,6 +4133,17 @@ def fmt_bytes_context(
         # power index is always at least 1
         num_power_idx = math.floor(math.log(abs(x), base)) + 1
         num_power_idx = max(1, min(len(byte_units), num_power_idx))
+
+        # If rounding the scaled value carries it up to `base` (e.g., 999,999 bytes
+        # would give `1,000 kB`), use the next unit instead (`1 MB`)
+        if num_power_idx < len(byte_units):
+            scaled_value = abs(x) / base ** (num_power_idx - 1)
+            if n_sigfig is not None:
+                rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
+            else:
+                rounded_value = round(scaled_value, decimals)
+            if rounded_value >= base:
+                num_power_idx += 1
 
     # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
     # value; this is the string that will be affixed to the formatted value
@@ -5999,6 +6046,28 @@ def fmt_units(
     return fmt(self, fns=fmt_units_fn, columns=columns, rows=rows)
 
 
+def _format_infinite_value(x: float, force_sign: bool, pattern: str, context: str) -> str:
+    """
+    Format an infinite value the way `fmt_number()` does.
+
+    Infinity has no mantissa, exponent or unit, so formatters that need one of these use this
+    instead.
+    """
+
+    x_formatted = _value_to_decimal_notation(value=x, force_sign=force_sign)
+    x_formatted = _replace_minus(x_formatted, minus_mark=_context_minus_mark(context=context))
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
+
+
 def _value_to_decimal_notation(
     value: float,
     decimals: int = 2,
@@ -6229,6 +6298,17 @@ def _format_number_compactly(
         # corresponds to the list of suffixes `["", "K", "M", "B", "T", "Q"]`
         num_power_idx = math.floor(math.log(abs(value), 1000))
         num_power_idx = max(0, min(5, num_power_idx))
+
+        # If rounding the scaled value carries it up to 1000 (e.g., 999,999 with two
+        # decimals would give `1,000.00K`), use the next suffix instead (`1.00M`)
+        if num_power_idx < 5:
+            scaled_value = abs(value) / 1000**num_power_idx
+            if n_sigfig is not None:
+                rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
+            else:
+                rounded_value = round(scaled_value, decimals)
+            if rounded_value >= 1000:
+                num_power_idx += 1
 
     # The `units_str` is obtained by indexing a list of suffixes with the `num_power_idx`
     units_str = ["", "K", "M", "B", "T", "Q"][num_power_idx]
