@@ -3,6 +3,7 @@ import polars as pl
 import pytest
 from great_tables import GT, exibble, html, loc, md, style
 from great_tables._utils_render_html import (
+    create_body_component_h,
     create_columns_component_h,
     create_source_notes_component_h,
 )
