@@ -1114,21 +1114,27 @@ def fmt_engineering_context(
         # Calculate the power of 1000 (engineering notation uses multiples of 3)
         power_3 = int(math.floor(math.log10(abs(x)) / 3) * 3)
 
-        # Calculate the mantissa by dividing by 10^power_3
-        mantissa = x / (10**power_3)
+        def format_mantissa(power_3: int) -> str:
+            # Calculate the mantissa by dividing by 10^power_3 and format it
+            return _value_to_decimal_notation(
+                value=x / (10**power_3),
+                decimals=decimals,
+                n_sigfig=n_sigfig,
+                drop_trailing_zeros=drop_trailing_zeros,
+                drop_trailing_dec_mark=drop_trailing_dec_mark,
+                use_seps=False,
+                sep_mark=",",
+                dec_mark=dec_mark,
+                force_sign=False,
+            )
 
-        # Format the mantissa
-        m_part = _value_to_decimal_notation(
-            value=mantissa,
-            decimals=decimals,
-            n_sigfig=n_sigfig,
-            drop_trailing_zeros=drop_trailing_zeros,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=False,
-            sep_mark=",",
-            dec_mark=dec_mark,
-            force_sign=False,
-        )
+        m_part = format_mantissa(power_3)
+
+        # If rounding carries the mantissa up to 1000 (e.g., 999,999.5 with two decimals
+        # would give `1000.00 x 10^3`), use the next power of 1000 instead (`1.00 x 10^6`)
+        if abs(float(m_part.replace(dec_mark, "."))) >= 1000:
+            power_3 += 3
+            m_part = format_mantissa(power_3)
 
         n_part = str(power_3)
 
@@ -4111,6 +4117,17 @@ def fmt_bytes_context(
         num_power_idx = math.floor(math.log(abs(x), base)) + 1
         num_power_idx = max(1, min(len(byte_units), num_power_idx))
 
+        # If rounding the scaled value carries it up to `base` (e.g., 999,999 bytes
+        # would give `1,000 kB`), use the next unit instead (`1 MB`)
+        if num_power_idx < len(byte_units):
+            scaled_value = abs(x) / base ** (num_power_idx - 1)
+            if n_sigfig is not None:
+                rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
+            else:
+                rounded_value = round(scaled_value, decimals)
+            if rounded_value >= base:
+                num_power_idx += 1
+
     # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
     # value; this is the string that will be affixed to the formatted value
     units_str = byte_units[num_power_idx - 1]
@@ -6264,6 +6281,17 @@ def _format_number_compactly(
         # corresponds to the list of suffixes `["", "K", "M", "B", "T", "Q"]`
         num_power_idx = math.floor(math.log(abs(value), 1000))
         num_power_idx = max(0, min(5, num_power_idx))
+
+        # If rounding the scaled value carries it up to 1000 (e.g., 999,999 with two
+        # decimals would give `1,000.00K`), use the next suffix instead (`1.00M`)
+        if num_power_idx < 5:
+            scaled_value = abs(value) / 1000**num_power_idx
+            if n_sigfig is not None:
+                rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
+            else:
+                rounded_value = round(scaled_value, decimals)
+            if rounded_value >= 1000:
+                num_power_idx += 1
 
     # The `units_str` is obtained by indexing a list of suffixes with the `num_power_idx`
     units_str = ["", "K", "M", "B", "T", "Q"][num_power_idx]

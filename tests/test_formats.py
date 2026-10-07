@@ -1342,6 +1342,23 @@ def test_value_to_scientific_notation_exact_powers_of_ten(value: float, n_sigfig
                 "350.00000 × 10<sup style='font-size: 65%;'>198</sup>",
             ],
         ),
+        # Rounding carries the mantissa up to 1000, so the next power of 1000 is used
+        (
+            dict(decimals=2),
+            [999999.5, -999999.5, 999.9999, 0.0009999999, 999499.0],
+            [
+                "1.00 × 10<sup style='font-size: 65%;'>6</sup>",
+                "−1.00 × 10<sup style='font-size: 65%;'>6</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>−3</sup>",
+                "999.50 × 10<sup style='font-size: 65%;'>3</sup>",
+            ],
+        ),
+        (
+            dict(n_sigfig=3, exp_style="e"),
+            [999999.5, 999.9999],
+            ["1.00e06", "1.00e03"],
+        ),
     ],
 )
 def test_fmt_engineering_case(
@@ -1745,6 +1762,26 @@ def test_fmt_bytes_default(src: float, dst: str):
     ],
 )
 def test_fmt_bytes_case(fmt_bytes_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "fmt_bytes_kwargs,x_in,x_out",
+    [
+        (dict(), [999949, 999999, -999999], ["999.9 kB", "1 MB", "−1 MB"]),
+        (dict(decimals=2), [999994, 999995], ["999.99 kB", "1 MB"]),
+        (dict(n_sigfig=3), [999499, 999500], ["999 kB", "1.00 MB"]),
+        (dict(standard="binary"), [1048524, 1048575], ["1,023.9 KiB", "1 MiB"]),
+    ],
+)
+def test_fmt_bytes_rounding_carries_into_next_unit(
+    fmt_bytes_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    # Values that round up to the base should use the next unit (`1 MB`), not
+    # `1,000 kB`
     df = pd.DataFrame({"x": x_in})
     gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -3599,6 +3636,37 @@ def test_format_number_compactly_zero_returns_zero_string():
         force_sign=False,
     )
     assert result == "0"
+
+
+@pytest.mark.parametrize(
+    "value,kwargs,x_out",
+    [
+        # Rounding carries the scaled value up to 1000, so the next suffix is used
+        (999999, dict(decimals=2), "1.00M"),
+        (-999999, dict(decimals=2), "-1.00M"),
+        (999.996, dict(decimals=2), "1.00K"),
+        (999999999, dict(decimals=2), "1.00B"),
+        (999999, dict(decimals=0), "1M"),
+        (999999, dict(decimals=2, n_sigfig=3), "1.00M"),
+        # No carry: the suffix stays the same
+        (999499, dict(decimals=0), "999K"),
+        (999500, dict(decimals=2), "999.50K"),
+        (999400, dict(decimals=2, n_sigfig=3), "999K"),
+    ],
+)
+def test_format_number_compactly_rounding_carries_into_next_suffix(value, kwargs, x_out):
+    result = _format_number_compactly(
+        value=value,
+        n_sigfig=kwargs.get("n_sigfig"),
+        decimals=kwargs["decimals"],
+        drop_trailing_zeros=False,
+        drop_trailing_dec_mark=True,
+        use_seps=True,
+        sep_mark=",",
+        dec_mark=".",
+        force_sign=False,
+    )
+    assert result == x_out
 
 
 def test_has_zero_value():

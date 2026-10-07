@@ -289,10 +289,19 @@ def create_columns_component_l(data: GTData) -> str:
     # Determine if there's a stub column (rowname or group_label)
     has_stub = len(stub_layout) > 0
 
-    # Create stub header cells (empty space for each stub column)
+    # Create stub header cells; a stubhead label is placed in a single cell spanning all of the
+    # stub columns, otherwise there is empty space for each stub column
     stub_headers = []
     if has_stub:
-        stub_headers = [" "] * len(stub_layout)
+        if data._stubhead is not None:
+            stub_label = _process_text(data._stubhead, context="latex")
+
+            if len(stub_layout) > 1:
+                stub_label = f"\\multicolumn{{{len(stub_layout)}}}{{l|}}{{{stub_label}}}"
+
+            stub_headers = [stub_label]
+        else:
+            stub_headers = [" "] * len(stub_layout)
 
     # Get the column headings
     headings_labels = data._boxhead._get_default_column_labels()
