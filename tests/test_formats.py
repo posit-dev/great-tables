@@ -1317,6 +1317,23 @@ def test_value_to_scientific_notation_exact_powers_of_ten(value: float, n_sigfig
                 "350.00000 × 10<sup style='font-size: 65%;'>198</sup>",
             ],
         ),
+        # Rounding carries the mantissa up to 1000, so the next power of 1000 is used
+        (
+            dict(decimals=2),
+            [999999.5, -999999.5, 999.9999, 0.0009999999, 999499.0],
+            [
+                "1.00 × 10<sup style='font-size: 65%;'>6</sup>",
+                "−1.00 × 10<sup style='font-size: 65%;'>6</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>−3</sup>",
+                "999.50 × 10<sup style='font-size: 65%;'>3</sup>",
+            ],
+        ),
+        (
+            dict(n_sigfig=3, exp_style="e"),
+            [999999.5, 999.9999],
+            ["1.00e06", "1.00e03"],
+        ),
     ],
 )
 def test_fmt_engineering_case(
