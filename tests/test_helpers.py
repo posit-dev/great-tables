@@ -8,7 +8,7 @@ from great_tables._helpers import (
     _get_font_stack,
     define_units,
     FONT_STACKS,
-    _intify_scaled_px,
+    _scaled_px,
     _generate_tokens_list,
     _units_to_subscript,
     _units_to_superscript,
@@ -403,10 +403,33 @@ def test_define_units_latex_raises():
 
 
 @pytest.mark.parametrize(
-    "value, scale, expected", [("0.5px", 0.5, 0), ["1px", 1, 1], ["2.1px", 2.1, 4]]
+    "value, scale, expected",
+    [
+        ("1px", 1, 1),
+        ("10px", 2.0, 20),
+        # a whole-number result comes back as an int, so it renders as "20px"
+        ("8px", 1.5, 12),
+        # a fractional result is kept, since CSS accepts sub-pixel lengths
+        ("0.5px", 0.5, 0.25),
+        ("5px", 1.5, 7.5),
+        ("5px", 0.5, 2.5),
+        ("2.1px", 2.1, 4.41),
+        # small scales stay visible instead of collapsing to 0px
+        ("4px", 0.1, 0.4),
+        # binary floating point is rounded away: 5 * 0.07 is 0.35000000000000003
+        ("5px", 0.07, 0.35),
+        ("5px", 2.9, 14.5),
+    ],
 )
-def test_intify_scaled_px(value: str, scale: float, expected: int):
-    assert _intify_scaled_px(value, scale) == expected
+def test_scaled_px(value: str, scale: float, expected: int | float):
+    assert _scaled_px(value, scale) == expected
+
+
+@pytest.mark.parametrize(
+    "value, scale, expected", [("8px", 1.5, "12px"), ("5px", 0.5, "2.5px"), ("4px", 0.1, "0.4px")]
+)
+def test_scaled_px_renders_without_a_trailing_zero(value: str, scale: float, expected: str):
+    assert px(_scaled_px(value, scale)) == expected
 
 
 def test_define_units_empty_string():
@@ -483,13 +506,6 @@ def test_unit_str_len():
 
     unit_str = UnitStr.from_str("{{kg m^-2}}")
     assert len(unit_str) >= 1
-
-
-def test_intify_scaled_px():
-    from great_tables._helpers import _intify_scaled_px
-
-    assert _intify_scaled_px("10px", 2.0) == 20
-    assert _intify_scaled_px("5px", 1.5) == 7
 
 
 def test_as_css_font_family_attr_value_only():

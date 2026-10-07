@@ -31,6 +31,7 @@ from ._tbl_data import (
 )
 from ._tbl_data_align import (
     ALIGNMENT_MAP,
+    PANDAS_ARROW_STRING_DTYPES,
     classify_dtype_for_alignment,
     is_number_like_column,
 )
@@ -408,10 +409,11 @@ class Boxhead(_Sequence[ColInfo]):
             classification = classify_dtype_for_alignment(data, col)
 
             # Special case: string columns with number-like content -> right-align
-            # This handles both "object" (pandas 2.x) and "str" (pandas 3.x) dtypes
+            # This handles "object" (pandas 2.x), "str" (pandas 3.x) and pyarrow-backed dtypes
             if classification == "string":
                 dtype = str(_get_column_dtype(data, col)).lower()
-                if dtype in ("object", "str") and is_number_like_column(data, col):
+                checks_number_like = dtype in {"object", "str", *PANDAS_ARROW_STRING_DTYPES}
+                if checks_number_like and is_number_like_column(data, col):
                     classification = "numeric"
 
             align.append(ALIGNMENT_MAP[classification])
@@ -1496,6 +1498,9 @@ class Options:
     # footnotes_border_lr_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
     # footnotes_border_lr_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
     footnotes_marks: OptionsInfo = OptionsInfo(False, "footnotes", "values", "numbers")
+    footnotes_spec_ref: OptionsInfo = OptionsInfo(False, "footnotes", "value", "^i")
+    footnotes_spec_ftr: OptionsInfo = OptionsInfo(False, "footnotes", "value", "^i")
+    footnotes_order: OptionsInfo = OptionsInfo(False, "footnotes", "value", "marks_last")
     # footnotes_multiline: OptionsInfo = OptionsInfo(False, "footnotes", "boolean", True)
     # footnotes_sep: OptionsInfo = OptionsInfo(False, "footnotes", "value", " ")
     source_notes_padding: OptionsInfo = OptionsInfo(True, "source_notes", "px", "4px")

@@ -5,6 +5,8 @@ __all__ = (
     "render_gt",
 )
 
+import warnings
+
 from .gt import GT
 from htmltools import Tag, div, HTML
 
@@ -29,8 +31,25 @@ if TYPE_CHECKING:
     from shiny.session._utils import RenderedDeps
 
 
-def output_gt(id: str, placeholder: bool = False) -> Tag:
-    """Output UI for a great_tables table."""
+def output_gt(id: str, placeholder: bool | None = None) -> Tag:
+    """Output UI for a great_tables table.
+
+    Parameters
+    ----------
+    id
+        An output id.
+    placeholder
+        Deprecated and has no effect. This argument was never implemented and will be removed in a
+        future release.
+    """
+    if placeholder is not None:
+        warnings.warn(
+            "The `placeholder` argument of `output_gt()` is deprecated, has no effect, and will be "
+            "removed in a future release. Please remove it from your call to `output_gt()`.",
+            FutureWarning,
+            stacklevel=2,
+        )
+
     return div({"class": "shiny-html-output"}, id=resolve_id(id))
 
 

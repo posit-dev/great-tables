@@ -656,8 +656,21 @@ def _generate_tokens_list(units_notation: str) -> list[str]:
     return tokens_list
 
 
-def _intify_scaled_px(v: str, scale: float) -> int:
-    return int(float(v.removesuffix("px")) * scale)
+# Sub-pixel lengths are valid CSS, so a scaled padding keeps its fractional part.
+# Rounding is only there to keep binary floating point out of the stylesheet:
+# 5px scaled by 0.07 is 0.35000000000000003 without it.
+_SCALED_PX_DIGITS = 4
+
+
+def _scaled_px(v: str, scale: float) -> int | float:
+    """Scale a pixel length, keeping a fractional result.
+
+    A result that lands on a whole number is returned as an `int` so that it renders
+    as `"2px"` rather than `"2.0px"`, matching what the R **gt** package emits.
+    """
+    scaled = round(float(v.removesuffix("px")) * scale, _SCALED_PX_DIGITS)
+
+    return int(scaled) if scaled.is_integer() else scaled
 
 
 @dataclass
@@ -1378,7 +1391,9 @@ def nanoplot_options(
         `vertical_guide_stroke_color=` option.
     vertical_guide_stroke_width
         The vertical guide's stroke width, by default, is relatively large at `12` (this is '12px').
-        This is modifiable by setting a different value with `vertical_guide_stroke_width=`.
+        This is modifiable by setting a different value with `vertical_guide_stroke_width=`. This
+        width applies to the hover highlight, so it has no effect when
+        `interactive_data_values=False`.
     show_data_points
         By default, all data points in a nanoplot are shown but this layer can be hidden by setting
         `show_data_points=` to `False`.
@@ -1410,7 +1425,9 @@ def nanoplot_options(
         presentation. However, for some types of plots (like horizontal bar plots), a persistent
         display of values alongside the plot marks may be desirable. By setting
         `interactive_data_values=False` we can opt for always displaying the data values alongside
-        the plot components.
+        the plot components. In this static view, the hover highlights are left out: vertical
+        guides are drawn as thin, faint lines (in the `vertical_guide_stroke_color=` color) and
+        any reference line keeps its regular color.
     y_val_fmt_fn
         If providing a function to `y_val_fmt_fn=`, customized formatting of the *y* values
         associated with the data points/bars is possible.
@@ -1459,7 +1476,7 @@ def nanoplot_options(
 
     data_line_type = data_line_type or "curved"
     data_line_stroke_color = data_line_stroke_color or "#4682B4"
-    data_line_stroke_width = data_line_stroke_width or 8
+    data_line_stroke_width = 8 if data_line_stroke_width is None else data_line_stroke_width
 
     data_area_fill_color = data_area_fill_color or "#FF0000"
 
@@ -1468,14 +1485,18 @@ def nanoplot_options(
     data_bar_fill_color = data_bar_fill_color or "#3FB5FF"
 
     data_bar_negative_stroke_color = data_bar_negative_stroke_color or "#CC3243"
-    data_bar_negative_stroke_width = data_bar_negative_stroke_width or 4
+    data_bar_negative_stroke_width = (
+        4 if data_bar_negative_stroke_width is None else data_bar_negative_stroke_width
+    )
     data_bar_negative_fill_color = data_bar_negative_fill_color or "#D75A68"
 
     reference_line_color = reference_line_color or "#75A8B0"
     reference_area_fill_color = reference_area_fill_color or "#A6E6F2"
 
     vertical_guide_stroke_color = vertical_guide_stroke_color or "#911EB4"
-    vertical_guide_stroke_width = vertical_guide_stroke_width or 12
+    vertical_guide_stroke_width = (
+        12 if vertical_guide_stroke_width is None else vertical_guide_stroke_width
+    )
 
     show_data_points = True if show_data_points is None else show_data_points
     show_data_line = True if show_data_line is None else show_data_line

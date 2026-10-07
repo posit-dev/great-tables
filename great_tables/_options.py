@@ -6,7 +6,7 @@ from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from . import _utils
-from ._helpers import FontStackName, GoogleFont, _intify_scaled_px, px
+from ._helpers import FontStackName, GoogleFont, _scaled_px, px
 
 if TYPE_CHECKING:
     from ._locations import LocColumnLabels, LocRowGroups, LocStub
@@ -152,6 +152,9 @@ def tab_options(
     # footnotes_border_lr_width: str | None = None,
     # footnotes_border_lr_color: str | None = None,
     footnotes_marks: str | list[str] | None = None,
+    footnotes_spec_ref: str | None = None,
+    footnotes_spec_ftr: str | None = None,
+    footnotes_order: str | None = None,
     # footnotes_multiline: bool | None = None,
     # footnotes_sep: str | None = None,
     source_notes_background_color: str | None = None,
@@ -653,6 +656,185 @@ def opt_footnote_marks(self: GTSelf, marks: str | list[str] = "numbers") -> GTSe
     return tab_options(self, footnotes_marks=marks)
 
 
+def opt_footnote_spec(
+    self: GTSelf,
+    spec_ref: str | None = None,
+    spec_ftr: str | None = None,
+) -> GTSelf:
+    """
+    Option to modify the formatting of footnote marks.
+
+    Control how footnote marks are styled in two independent contexts: inline references next to
+    cell content (`spec_ref`) and marks in the footer listing (`spec_ftr`). Each takes a compact
+    DSL string composed of formatting codes.
+
+    The spec DSL codes are:
+
+    - `"^"`: superscript
+    - `"b"`: bold
+    - `"i"`: italic
+    - `"()"` or `"(x)"`: parentheses around the mark
+    - `"[]"` or `"[x]"`: square brackets around the mark
+    - `"."`: trailing period
+    - `"x"`: optional placeholder for readability (ignored in parsing)
+
+    Parameters
+    ----------
+    spec_ref
+        A spec string controlling the formatting of inline reference marks (marks that appear
+        next to cell content). If `None`, the current setting is unchanged. The default value in
+        the options system is `"^i"` (superscript + italic).
+    spec_ftr
+        A spec string controlling the formatting of footer marks (marks that appear in the
+        footnote listing at the bottom of the table). If `None`, the current setting is unchanged.
+        The default value in the options system is `"^i"` (superscript + italic).
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's create a table with footnotes to demonstrate the spec DSL. We'll use superscript bold
+    marks for inline references and superscript italic marks in the footer (the default).
+
+    ```{python}
+    from great_tables import GT, loc
+    import pandas as pd
+
+    df = pd.DataFrame({"city": ["Paris", "London", "Tokyo"], "pop_m": [2.1, 8.8, 13.9]})
+
+    (
+        GT(df)
+        .tab_header(title="Major Cities")
+        .tab_footnote("2023 estimate", locations=loc.body(columns="pop_m", rows=[0, 1, 2]))
+        .tab_footnote("Metropolitan area", locations=loc.column_labels(columns="pop_m"))
+        .opt_footnote_spec(spec_ref="^b", spec_ftr="^i")
+    )
+    ```
+
+    Use parenthesized marks at baseline (no superscript) in both the inline references and the
+    footer listing.
+
+    ```{python}
+    (
+        GT(df)
+        .tab_header(title="Major Cities")
+        .tab_footnote("2023 estimate", locations=loc.body(columns="pop_m", rows=[0, 1, 2]))
+        .tab_footnote("Metropolitan area", locations=loc.column_labels(columns="pop_m"))
+        .opt_footnote_spec(spec_ref="(x)", spec_ftr="(x)")
+    )
+    ```
+
+    Use superscript bold marks inline with bracketed marks and a trailing period in the footer.
+
+    ```{python}
+    (
+        GT(df)
+        .tab_header(title="Major Cities")
+        .tab_footnote("2023 estimate", locations=loc.body(columns="pop_m", rows=[0, 1, 2]))
+        .tab_footnote("Metropolitan area", locations=loc.column_labels(columns="pop_m"))
+        .opt_footnote_spec(spec_ref="^b", spec_ftr="[x].")
+    )
+    ```
+    """
+    valid_chars = set("^bi()[].x")
+
+    if spec_ref is not None:
+        invalid = set(spec_ref) - valid_chars
+        if invalid:
+            raise ValueError(
+                f"Invalid characters in `spec_ref`: {', '.join(repr(c) for c in sorted(invalid))}. "
+                f"Valid characters are: ^, b, i, (, ), [, ], ., x"
+            )
+
+    if spec_ftr is not None:
+        invalid = set(spec_ftr) - valid_chars
+        if invalid:
+            raise ValueError(
+                f"Invalid characters in `spec_ftr`: {', '.join(repr(c) for c in sorted(invalid))}. "
+                f"Valid characters are: ^, b, i, (, ), [, ], ., x"
+            )
+
+    kwargs: dict[str, str] = {}
+    if spec_ref is not None:
+        kwargs["footnotes_spec_ref"] = spec_ref
+    if spec_ftr is not None:
+        kwargs["footnotes_spec_ftr"] = spec_ftr
+
+    return tab_options(self, **kwargs)
+
+
+def opt_footnote_order(
+    self: GTSelf,
+    order: str = "marks_last",
+) -> GTSelf:
+    """
+    Option to modify the ordering of footnotes.
+
+    Control the arrangement of marked footnotes (those attached to cells) relative to unmarked
+    footnotes (general notes added with `tab_footnote()` without `locations=`) in the footer.
+
+    Parameters
+    ----------
+    order
+        The ordering mode. One of:
+
+        - `"marks_last"`: unmarked footnotes first, then marked (the default)
+        - `"marks_first"`: marked footnotes first, then unmarked
+        - `"preserve_order"`: all footnotes in the order they were added
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Examples
+    --------
+    Let's create a table with both marked and unmarked footnotes to demonstrate the ordering modes.
+    With `"marks_first"`, the marked footnotes appear before the unmarked ones.
+
+    ```{python}
+    from great_tables import GT, loc
+    import pandas as pd
+
+    df = pd.DataFrame({"city": ["Paris", "London"], "pop_m": [2.1, 8.8]})
+
+    (
+        GT(df)
+        .tab_header(title="Major Cities")
+        .tab_footnote("2023 estimate", locations=loc.body(columns="pop_m", rows=[0, 1]))
+        .tab_footnote("Rounded to nearest 100k", locations=None)
+        .tab_footnote("Source: UN World Urbanization Prospects", locations=None)
+        .opt_footnote_order(order="marks_first")
+    )
+    ```
+
+    With `"preserve_order"`, all footnotes appear in the order they were added, and marks are
+    assigned by insertion order rather than visual reading order.
+
+    ```{python}
+    (
+        GT(df)
+        .tab_header(title="Major Cities")
+        .tab_footnote("2023 estimate", locations=loc.body(columns="pop_m", rows=[0, 1]))
+        .tab_footnote("Source: UN World Urbanization Prospects", locations=None)
+        .tab_footnote("City proper only", locations=loc.body(columns="city", rows=[0]))
+        .opt_footnote_order(order="preserve_order")
+    )
+    ```
+    """
+    order = _utils._match_arg(
+        x=order,
+        lst=["marks_last", "marks_first", "preserve_order"],
+    )
+
+    return tab_options(self, footnotes_order=order)
+
+
 def opt_row_striping(self: GTSelf, row_striping: bool = True) -> GTSelf:
     """
     Option to add or remove row striping.
@@ -848,8 +1030,7 @@ def opt_vertical_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
     # TODO: a current limitation is that the padding values must be in pixels and not percentages
-    # TODO: another limitation is that the returned values must be in integer pixel values
-    new_vertical_padding_vals = [px(_intify_scaled_px(v, scale)) for v in vertical_padding_vals]
+    new_vertical_padding_vals = [px(_scaled_px(v, scale)) for v in vertical_padding_vals]
 
     return tab_options(self, **dict(zip(vertical_padding_params, new_vertical_padding_vals)))
 
@@ -945,8 +1126,7 @@ def opt_horizontal_padding(self: GTSelf, scale: float = 1.0) -> GTSelf:
     # Multiply each of the padding values by the `scale` factor but strip off the units first
     # then reattach the units after the multiplication
     # TODO: a current limitation is that the padding values must be in pixels and not percentages
-    # TODO: another limitation is that the returned values must be in integer pixel values
-    new_horizontal_padding_vals = [px(_intify_scaled_px(v, scale)) for v in horizontal_padding_vals]
+    new_horizontal_padding_vals = [px(_scaled_px(v, scale)) for v in horizontal_padding_vals]
 
     return tab_options(self, **dict(zip(horizontal_padding_params, new_horizontal_padding_vals)))
 

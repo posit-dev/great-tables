@@ -14,26 +14,32 @@ from ._footnotes import tab_footnote
 from ._formats import (
     fmt,
     fmt_bytes,
+    fmt_chem,
     fmt_currency,
     fmt_date,
     fmt_datetime,
     fmt_duration,
+    fmt_email,
     fmt_engineering,
     fmt_flag,
+    fmt_fraction,
     fmt_icon,
     fmt_image,
+    fmt_index,
     fmt_integer,
     fmt_markdown,
     fmt_nanoplot,
     fmt_number,
     fmt_number_si,
     fmt_partsper,
+    fmt_passthrough,
     fmt_percent,
     fmt_roman,
     fmt_scientific,
     fmt_tf,
     fmt_time,
     fmt_units,
+    fmt_url,
 )
 from ._gt_data import GTData
 from ._heading import tab_header
@@ -58,6 +64,8 @@ from ._options import (
     opt_all_caps,
     opt_css,
     opt_footnote_marks,
+    opt_footnote_order,
+    opt_footnote_spec,
     opt_horizontal_padding,
     opt_interactive,
     opt_row_striping,
@@ -92,6 +100,7 @@ from ._stubhead import tab_stubhead
 from ._substitution import sub_large_vals, sub_missing, sub_small_vals, sub_values, sub_zero
 from ._tab_create_modify import (
     tab_style,
+    tab_style_body,
     text_case_match,
     text_case_when,
     text_replace,
@@ -374,6 +383,11 @@ class GT(
     fmt_number_si = fmt_number_si
     fmt_duration = fmt_duration
     fmt_roman = fmt_roman
+    fmt_fraction = fmt_fraction
+    fmt_chem = fmt_chem
+    fmt_email = fmt_email
+    fmt_index = fmt_index
+    fmt_url = fmt_url
     fmt_date = fmt_date
     fmt_time = fmt_time
     fmt_datetime = fmt_datetime
@@ -384,6 +398,7 @@ class GT(
     fmt_units = fmt_units
     fmt_nanoplot = fmt_nanoplot
     fmt_tf = fmt_tf
+    fmt_passthrough = fmt_passthrough
     data_color = data_color
 
     sub_missing = sub_missing
@@ -397,6 +412,8 @@ class GT(
     opt_all_caps = opt_all_caps
     opt_css = opt_css
     opt_footnote_marks = opt_footnote_marks
+    opt_footnote_spec = opt_footnote_spec
+    opt_footnote_order = opt_footnote_order
     opt_row_striping = opt_row_striping
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
@@ -428,6 +445,7 @@ class GT(
     tab_stubhead = tab_stubhead
     tab_stub_indent = tab_stub_indent
     tab_style = tab_style
+    tab_style_body = tab_style_body
     tab_options = tab_options
 
     rm_header = rm_header
@@ -482,20 +500,25 @@ class GT(
         new_body.render_formats(self._tbl_data, self._formats, context)
         new_body.render_formats(self._tbl_data, self._substitutions, context)
 
-        # Update group row labels with formatted values when a row_group column exists
-        new_stub = self._stub.update_group_row_labels(new_body, self._tbl_data, self._boxhead)
+        # Escape unformatted cells before extracting group labels so that
+        # group labels derived from body cells are already safe for the output context
+        result = self._replace(_body=new_body)
+        result = _migrate_unformatted_to_output(
+            data=result,
+            data_tbl=self._tbl_data,
+            formats=self._formats + self._substitutions,
+            context=context,
+        )
 
-        return self._replace(_body=new_body, _stub=new_stub)
+        # Update group row labels with formatted values when a row_group column exists
+        new_stub = self._stub.update_group_row_labels(result._body, self._tbl_data, self._boxhead)
+
+        return result._replace(_stub=new_stub)
 
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = self._render_formats(context)
-
-        if context == "latex":
-            built = _migrate_unformatted_to_output(
-                data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
-            )
 
         # Perform column merging
         built = perform_col_merge(built)

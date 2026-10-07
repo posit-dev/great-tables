@@ -10,6 +10,12 @@ colors, fonts, borders, and spacing for entire table parts in a single call. Thi
 structure of option names, demonstrates how to style different parts, and shows how to build a
 complete table theme.
 
+A useful way to think about the relationship between `~~GT.tab_options()` and `~~GT.tab_style()`:
+use `tab_options()` when you want to set broad defaults for entire table parts (e.g., "all column
+labels should have this background color"). Use `tab_style()` when you need to target specific
+cells, columns, or rows. The two work together naturally: `tab_options()` sets the base theme, and
+`tab_style()` applies targeted overrides on top of it.
+
 Great Tables exposes options to customize the appearance of tables via two methods:
 
 * `~~GT.tab_style()`: targeted styles (e.g. color a specific cell of data, or a specific group
@@ -41,12 +47,11 @@ gt_ex
 
 ## Table option parts
 
-As the graph above showed, tables are made of many parts---such as the heading, column labels, and
-stub. `~~GT.tab_options()` organizes options based on table part.
+As the graph above showed, tables are made of many parts. These include the heading, column labels,
+and the stub. `~~GT.tab_options()` organizes options based on table part.
 
 The code below illustrates the table parts `~~GT.tab_options()` can target, by setting the
 background color for various parts.
-
 
 ```{python}
 (
@@ -73,8 +78,8 @@ Notice two important pieces:
 ## Finding options: part, type, attribute
 
 Option names in `~~GT.tab_options()` follow a consistent naming convention. Understanding the
-pattern makes it easy to find the exact option you need without searching through documentation.
-The format is:
+pattern makes it easy to find the exact option you need without searching through documentation. The
+format is:
 
 ```python
 {part name}_{type}_{attribute}
@@ -139,9 +144,8 @@ gt_ex.tab_options(
 )
 ```
 
-In order to define the vertical lines between cells, set `vline` styles. For example, the code
-below makes both horizontal and vertical lines between cells solid.
-
+In order to define the vertical lines between cells, set `vline` styles. For example, the code below
+makes both horizontal and vertical lines between cells solid.
 
 ```{python}
 gt_ex.tab_options(
@@ -181,13 +185,19 @@ The orange background applies everywhere except the heading, which overrides it 
 layered approach means you can set sensible table-wide defaults and then customize individual parts
 as needed.
 
+If you find yourself applying the same `tab_options()` settings across multiple tables, consider
+wrapping them in a function. This ensures visual consistency and lets you update the theme in one
+place. The next page on [Premade Themes](./16-premade-themes.qmd) shows exactly how this works with
+the `opt_*()` convenience methods, which are essentially pre-built theme functions that are included
+in **Great Tables**.
+
 ## A basic theme
 
 Based on the sections above, we can design an overall theme for a table.
 
-This requires setting a decent number of options, but makes a big difference when presenting a
+This requires setting a decent number of options, but it makes a big difference when presenting a
 table! Below is a table with a simple, blue theme. (The code is hidden by default, but can be
-expanded to see all the options set).
+expanded to see all the options set.)
 
 ```{python}
 #| code-fold: true

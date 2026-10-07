@@ -3,6 +3,7 @@ from typing import Any
 
 import polars as pl
 import pytest
+from great_tables import GT
 from great_tables._formats import _generate_data_vals, _process_number_stream
 
 
@@ -75,6 +76,11 @@ def test_nanoplot_ref_line_area():
             "1 2 3 NaN NaN NaN 7 8 9 10 11 12",
             [1, 2, 3, float("nan"), float("nan"), float("nan"), 7, 8, 9, 10, 11, 12],
         ),
+        ("1 NA 3", [1, float("nan"), 3]),
+        ("[1, 2, 3]", [1, 2, 3]),
+        ("[1,2.5;-3]", [1, 2.5, -3]),
+        (" [ 1 NA 3 ] ", [1, float("nan"), 3]),
+        ("na, 2; NA", [float("nan"), 2, float("nan")]),
     ],
 )
 def test_process_number_stream(src: str, dst: list[float]):
@@ -112,3 +118,67 @@ def test_generate_data_vals_unsupported_type():
     # Unsupported type raises NotImplementedError
     with pytest.raises(NotImplementedError):
         _generate_data_vals(object())
+
+
+def _y_axis_bounds(html: str) -> list[tuple[float, float]]:
+    """The (max, min) values labeled on the y-axis guide of each nanoplot."""
+
+    import re
+
+    labels = re.findall(
+        r'class="y-axis-line">.*?<text[^>]*>([^<]*)</text><text[^>]*>([^<]*)</text>', html
+    )
+
+    return [(float(max_label), float(min_label)) for max_label, min_label in labels]
+
+
+def test_fmt_nanoplot_na_in_number_stream():
+    gt = GT(pl.DataFrame({"v": ["1 NA 3", "NA 5 NA"]})).fmt_nanoplot(columns="v")
+
+    # The second plot has a single value, so its scale is centered on it
+    assert _y_axis_bounds(gt.as_raw_html()) == [(3, 1), (6, 4)]
+
+
+@pytest.mark.parametrize(
+    "vals",
+    [
+        pytest.param(["NA 5 1", "2 3 40"], id="na_in_stream"),
+        pytest.param(["nan 5 1", "2 3 40"], id="nan_in_stream"),
+        pytest.param([[None, 5, 1], [2, 3, 40]], id="none_in_list"),
+        pytest.param(["5 1", "2 3 40", None], id="missing_cell"),
+    ],
+)
+def test_fmt_nanoplot_autoscale_ignores_missing_values(vals: list[Any]):
+    gt = GT(pl.DataFrame({"v": vals})).fmt_nanoplot(columns="v", autoscale=True)
+
+    # Every nanoplot shares the scale of all of the values, from 1 to 40
+    assert set(_y_axis_bounds(gt.as_raw_html())) == {(40, 1)}
+
+
+def test_fmt_nanoplot_autoscale_all_missing():
+    gt = GT(pl.DataFrame({"v": [[None, None], None]})).fmt_nanoplot(columns="v", autoscale=True)
+
+    assert "<svg" not in gt.as_raw_html()
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+def test_fmt_nanoplot_na_in_number_stream_with_ref_keywords(plot_type: str):
+    gt = GT(pl.DataFrame({"v": ["1 NA 2 6", "NA 4 8"]})).fmt_nanoplot(
+        columns="v", plot_type=plot_type, reference_line="mean", reference_area=["min", "max"]
+    )
+
+    import re
+
+    ref_line_labels = re.findall(r'<g class="ref-line">.*?>([^<>]*)</text></g>', gt.as_raw_html())
+
+    # The means of the non-missing values in each row are 3 and 6
+    assert [float(label) for label in ref_line_labels] == [3, 6]
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+def test_fmt_nanoplot_bracketed_number_stream(plot_type: str):
+    def render(vals: list[str]) -> str:
+        gt = GT(pl.DataFrame({"v": vals}), id="t").fmt_nanoplot(columns="v", plot_type=plot_type)
+        return gt.as_raw_html()
+
+    assert render(["[1, 5, 3]", "[2; 4]"]) == render(["1 5 3", "2 4"])

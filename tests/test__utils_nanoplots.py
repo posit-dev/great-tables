@@ -116,10 +116,6 @@ def test_is_integerlike():
     assert not _is_integerlike([])
 
 
-# TODO: add tests for _any_na_in_list()
-
-# TODO: add tests for _check_any_na_in_list()
-
 # TODO: add tests for _remove_na_from_list()
 
 
@@ -1995,9 +1991,73 @@ def test_generate_nanoplot_interactive_data_values_toggles_hover_css(interactive
 
     if interactive_data_values:
         assert ".vert-line:hover rect" in svg
+        assert ".vert-line:hover text" in svg
     else:
+        # Values are always shown, without the hover highlights of the guides or reference line
         assert ":hover" not in svg
-        assert ".vert-line rect" in svg
+        assert ".vert-line text" in svg
+        assert ".vert-line rect" not in svg
+        assert ".ref-line line" not in svg
+
+
+@pytest.mark.parametrize("interactive_data_values", [True, False])
+def test_generate_nanoplot_style_is_scoped(interactive_data_values):
+    import re
+
+    svg = _generate_nanoplot(
+        y_vals=[1.0, 2.0, 3.0],
+        y_ref_line="mean",
+        interactive_data_values=interactive_data_values,
+    )
+
+    # The `<svg>` element carries the class that every style rule is prefixed with
+    svg_class = re.search(r'<svg class="(gt-nanoplot-[0-9a-f]{8})"', svg).group(1)
+    style = re.search(r"<style>(.*?)</style>", svg).group(1)
+    selectors = [sel.strip() for sel in re.findall(r"([^{}]+)\{", style)]
+
+    assert selectors
+    assert all(sel.startswith(f".{svg_class} ") for sel in selectors)
+
+
+def test_generate_nanoplot_scope_class_depends_on_styling():
+    import re
+
+    def svg_class(y_vals: tuple[float, ...] = (1.0, 2.0, 3.0), **kwargs: Any) -> str:
+        svg = _generate_nanoplot(y_vals=list(y_vals), **kwargs)
+        return re.search(r'<svg class="(gt-nanoplot-[0-9a-f]{8})"', svg).group(1)
+
+    # Nanoplots styled the same way share a class (whatever their data)
+    assert svg_class() == svg_class(y_vals=(5.0, 1.0))
+    assert svg_class(interactive_data_values=False) == svg_class(interactive_data_values=False)
+
+    # Differently-styled nanoplots get different classes, so their rules can't leak
+    assert svg_class() != svg_class(interactive_data_values=False)
+    assert svg_class() != svg_class(vertical_guide_stroke_color="#FF0000")
+
+
+@pytest.mark.parametrize("interactive_data_values", [True, False])
+def test_generate_nanoplot_vertical_guides(interactive_data_values):
+    import re
+
+    svg = _generate_nanoplot(
+        y_vals=[1.0, 2.0, 3.0],
+        vertical_guide_stroke_color="#123456",
+        interactive_data_values=interactive_data_values,
+    )
+
+    guides = re.findall(r'<g class="vert-line">(<(rect|line)[^>]*>)', svg)
+    assert len(guides) == 3
+
+    if interactive_data_values:
+        # Wide, transparent hover targets that the style rules highlight
+        assert all(tag == "rect" and 'fill="transparent"' in el for el, tag in guides)
+    else:
+        # Thin, dim lines in the guide color
+        assert all(tag == "line" for _, tag in guides)
+        assert all(
+            'stroke="#123456"' in el and 'stroke-opacity="0.25"' in el and 'stroke-width="1"' in el
+            for el, _ in guides
+        )
 
 
 @pytest.mark.parametrize(
@@ -2079,6 +2139,174 @@ def test_noerror_list_of_strings() -> None:
     )
 
 
+def test_nanoplot_area_fill_color_per_column() -> None:
+    import re
+
+    df = pl.DataFrame({"y1": ["1 2 3", "2 3 4"], "y2": ["3 4 5", "4 5 6"]})
+    html = (
+        GT(df)
+        .fmt_nanoplot(columns="y1", options=nanoplot_options(data_area_fill_color="red"))
+        .fmt_nanoplot(columns="y2", options=nanoplot_options(data_area_fill_color="blue"))
+        .as_raw_html()
+    )
+
+    colors_by_id: dict[str, str] = {}
+    for pattern_id, color in re.findall(
+        r'<pattern id="([^"]+)".*?stroke="([^"]+)"', html, flags=re.DOTALL
+    ):
+        # a browser resolves every reference to an id with its first definition
+        assert colors_by_id.setdefault(pattern_id, color) == color
+
+    area_ids = re.findall(r'fill="url\(#([^)]+)\)"', html)
+    assert [colors_by_id[i] for i in area_ids] == ["red", "blue", "red", "blue"]
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+def test_fmt_nanoplot_rows_expression(plot_type: str) -> None:
+    df = pl.DataFrame({"name": ["a", "b", "c"], "vals": [1.0, 2.0, 50.0]})
+
+    by_position = GT(df, id="t").fmt_nanoplot(columns="vals", rows=[0, 1], plot_type=plot_type)
+    by_expression = GT(df, id="t").fmt_nanoplot(
+        columns="vals", rows=pl.col("name") != "c", plot_type=plot_type
+    )
+
+    assert by_expression.as_raw_html() == by_position.as_raw_html()
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+@pytest.mark.parametrize("rows", [1, -1])
+def test_fmt_nanoplot_rows_single_int(plot_type: str, rows: int) -> None:
+    df = pl.DataFrame({"vals": [1.0, 2.0, 50.0]})
+
+    by_int = GT(df, id="t").fmt_nanoplot(columns="vals", rows=rows, plot_type=plot_type)
+    by_list = GT(df, id="t").fmt_nanoplot(columns="vals", rows=[rows], plot_type=plot_type)
+
+    assert by_int.as_raw_html() == by_list.as_raw_html()
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+def test_fmt_nanoplot_rows_pandas_non_default_index(plot_type: str) -> None:
+    pd = pytest.importorskip("pandas")
+
+    vals = [1.0, 2.0, 50.0]
+    df_default = pd.DataFrame({"vals": vals})
+    df_custom = pd.DataFrame({"vals": vals}, index=[10, 20, 30])
+
+    # Rows are positional, so the index labels of the DataFrame should not matter
+    expected = GT(df_default, id="t").fmt_nanoplot(columns="vals", rows=[0, 1], plot_type=plot_type)
+    result = GT(df_custom, id="t").fmt_nanoplot(columns="vals", rows=[0, 1], plot_type=plot_type)
+
+    assert result.as_raw_html() == expected.as_raw_html()
+
+
+@pytest.mark.parametrize("plot_type", ["bar", "line"])
+@pytest.mark.parametrize(
+    "reference_line, label, x",
+    [(275, "275", 275 / 290 * 600), ("min", "85", 85 / 290 * 600), (None, None, None)],
+)
+def test_nanoplot_single_value_reference_line(
+    plot_type: str, reference_line: Any, label: Any, x: Any
+) -> None:
+    import re
+
+    df = pl.DataFrame({"size": [163, 290, 85]})
+    html = (
+        GT(df)
+        .fmt_nanoplot(columns="size", plot_type=plot_type, reference_line=reference_line)
+        .as_raw_html()
+    )
+
+    ref_lines = re.findall(
+        r'<g class="ref-line">.*?<line class="ref-line" x1="([^"]+)".*?<text[^>]*>([^<]*)</text>',
+        html,
+    )
+    if reference_line is None:
+        assert ref_lines == []
+    else:
+        # one line per row, at the same position on the scale shared by all rows
+        assert len(ref_lines) == 3
+        assert {ref_label for _, ref_label in ref_lines} == {label}
+        assert all(float(ref_x) == pytest.approx(x) for ref_x, _ in ref_lines)
+
+
+@pytest.mark.parametrize("plot_type", ["bar", "line"])
+@pytest.mark.parametrize("reference_line", ["mean", "median", "min", "max"])
+@pytest.mark.parametrize("missing", [None, float("nan")], ids=["None", "nan"])
+def test_nanoplot_single_value_reference_line_keyword_with_missing(
+    plot_type: str, reference_line: str, missing: Any
+) -> None:
+    import re
+
+    # Missing values are left out of the keyword calculation instead of raising an error
+    df = pl.DataFrame({"size": [10.0, missing, 30.0]}, strict=False)
+    html = (
+        GT(df)
+        .fmt_nanoplot(columns="size", plot_type=plot_type, reference_line=reference_line)
+        .as_raw_html()
+    )
+
+    labels = re.findall(r'<g class="ref-line">.*?<text[^>]*>([^<]*)</text>', html)
+    expected = {"mean": "20.0", "median": "20.0", "min": "10.0", "max": "30.0"}[reference_line]
+    assert labels == [expected, expected]
+
+
+@pytest.mark.parametrize(
+    "y_vals, reference_line, label",
+    [
+        # Single-value plots (the reference line is shared by all rows)
+        ([1, 2], 1.5, "1.50"),
+        ([1, 2], "mean", "1.50"),
+        ([1, 3], "mean", "2"),
+        # Multi-value plots
+        ([[1, 2], [1, 2]], 1.5, "1.50"),
+        ([[1, 2], [1, 2]], "mean", "1.50"),
+        ([[1, 3], [1, 3]], "mean", "2"),
+    ],
+)
+def test_nanoplot_reference_line_label_integer_data(
+    y_vals: list[Any], reference_line: Any, label: str
+) -> None:
+    import re
+
+    # A fractional reference value isn't rounded just because the data values are integers
+    df = pl.DataFrame({"size": y_vals})
+    html = (
+        GT(df).fmt_nanoplot(columns="size", plot_type="line", reference_line=reference_line)
+    ).as_raw_html()
+
+    labels = re.findall(r'<g class="ref-line">.*?<text[^>]*>([^<]*)</text>', html)
+    assert labels == [label, label]
+
+
+@pytest.mark.parametrize(
+    "reference_line, label_on_left",
+    [(275, True), (500, True), ("max", True), ("min", False), (-100, False)],
+)
+def test_nanoplot_single_value_reference_line_label_side(
+    reference_line: Any, label_on_left: bool
+) -> None:
+    import re
+
+    # The label goes on the left of a line in the right half of the plot so it isn't clipped
+    df = pl.DataFrame({"size": [163, 290, 85]})
+    html = (
+        GT(df).fmt_nanoplot(columns="size", plot_type="bar", reference_line=reference_line)
+    ).as_raw_html()
+
+    ref_lines = re.findall(
+        r'<g class="ref-line">.*?<line class="ref-line" x1="([^"]+)".*?<text ([^>]*)>', html
+    )
+    assert len(ref_lines) == 3
+    for line_x, text_attrs in ref_lines:
+        text_x = float(re.search(r'x="([^"]+)"', text_attrs).group(1))
+        if label_on_left:
+            assert 'text-anchor="end"' in text_attrs
+            assert text_x == pytest.approx(float(line_x) - 10)
+        else:
+            assert "text-anchor" not in text_attrs
+            assert text_x == pytest.approx(float(line_x) + 10)
+
+
 def test_nanoplot_options_interactive_data_values():
     # When interactive_data_values is not set, it should default to True
     opts_default = nanoplot_options()
@@ -2091,6 +2319,24 @@ def test_nanoplot_options_interactive_data_values():
     # When explicitly set to True, it should remain True
     opts_true = nanoplot_options(interactive_data_values=True)
     assert opts_true["interactive_data_values"] is True
+
+
+def test_nanoplot_options_zero_stroke_width():
+    # A width of zero is a value, not a missing option, and must survive
+    opts_zero = nanoplot_options(
+        data_line_stroke_width=0,
+        data_bar_negative_stroke_width=0,
+        vertical_guide_stroke_width=0,
+    )
+    assert opts_zero["data_line_stroke_width"] == 0
+    assert opts_zero["data_bar_negative_stroke_width"] == 0
+    assert opts_zero["vertical_guide_stroke_width"] == 0
+
+    # When not set, the documented defaults still apply
+    opts_default = nanoplot_options()
+    assert opts_default["data_line_stroke_width"] == 8
+    assert opts_default["data_bar_negative_stroke_width"] == 4
+    assert opts_default["vertical_guide_stroke_width"] == 12
 
 
 # -------------------------------------------------------
@@ -2214,7 +2460,6 @@ def test_format_number_compactly_fn_non_string_raises():
         _format_number_compactly(val=42.5, fn=lambda x: 42)  # type: ignore[return-value]
 
 
-@pytest.mark.xfail(reason="x_vals NaN removal path has a known bug")
 def test_nanoplot_x_vals_with_nan_removes_positions():
     import re
 
@@ -2227,6 +2472,18 @@ def test_nanoplot_x_vals_with_nan_removes_positions():
     circles = re.findall(r"<circle ", result)
 
     assert len(circles) == 4
+
+
+def test_nanoplot_x_vals_nan_drops_the_paired_y_val():
+    # A missing `x` value drops the whole position, so the plot has to match the
+    # one built from the surviving pairs, not merely have the right point count.
+    with_nan = _generate_nanoplot(
+        y_vals=[10.0, 20.0, 30.0],
+        x_vals=[1.0, float("nan"), 3.0],
+    )
+    without_nan = _generate_nanoplot(y_vals=[10.0, 30.0], x_vals=[1.0, 3.0])
+
+    assert with_nan == without_nan
 
 
 def test_nanoplot_boxplot_type():
@@ -2346,6 +2603,28 @@ def test_nanoplot_remove_missing_with_x_vals():
     assert "<svg" in result
 
 
+def test_nanoplot_curved_line_without_x_vals_is_curved():
+    curved = _generate_nanoplot(y_vals=Y_VALS, show_data_line=True, data_line_type="curved")
+    straight = _generate_nanoplot(y_vals=Y_VALS, show_data_line=True, data_line_type="straight")
+
+    assert "<path" in curved
+    assert "<polyline" in straight
+    assert curved != straight
+
+
+def test_nanoplot_curved_line_with_x_vals_warns_and_falls_back():
+    with pytest.warns(UserWarning, match="curved data line is not supported"):
+        curved = _generate_nanoplot(
+            y_vals=Y_VALS, x_vals=X_VALS, show_data_line=True, data_line_type="curved"
+        )
+
+    straight = _generate_nanoplot(
+        y_vals=Y_VALS, x_vals=X_VALS, show_data_line=True, data_line_type="straight"
+    )
+
+    assert curved == straight
+
+
 def test_nanoplot_ref_area_with_na_suppresses_area():
     # Line 746: y_ref_area with NA value sets show_reference_area=False
     result = _generate_nanoplot(y_vals=Y_VALS, y_ref_area=[float("nan"), 5.0])
@@ -2359,13 +2638,37 @@ def test_remove_exponent_non_integer_string():
     assert isinstance(result, str)
 
 
-def test_check_any_na_in_list_raises():
-    # Line 76: _check_any_na_in_list raises when list contains NA values
-    from great_tables._utils_nanoplots import _check_any_na_in_list
-    import math
+@pytest.mark.parametrize(
+    "keyword,dst",
+    [("mean", 3), ("median", 3), ("min", 1), ("max", 5), ("q1", 1), ("q3", 5)],
+)
+def test_generate_ref_line_from_keyword_ignores_missing_values(keyword: str, dst: float):
+    vals = [1, None, 3, float("nan"), 5]
 
-    with pytest.raises(ValueError, match="cannot contain missing values"):
-        _check_any_na_in_list([1.0, math.nan, 3.0])
+    assert _generate_ref_line_from_keyword(vals, keyword=keyword) == dst
+
+
+def test_generate_ref_line_from_keyword_all_missing_raises():
+    with pytest.raises(ValueError, match="at least one value that isn't missing"):
+        _generate_ref_line_from_keyword([None, float("nan")], keyword="mean")
+
+
+@pytest.mark.parametrize("missing_vals", ["gap", "marker"])
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+def test_nanoplot_ref_line_keyword_with_missing_values(missing_vals: str, plot_type: str):
+    with_missing = _generate_nanoplot(
+        y_vals=[1, None, 2, 6], y_ref_line="mean", missing_vals=missing_vals, plot_type=plot_type
+    )
+
+    # The mean of the non-missing values (1, 2, 6) is 3
+    assert '<g class="ref-line">' in with_missing
+    assert ">3</text></g>" in with_missing
+
+
+def test_nanoplot_ref_area_keywords_with_missing_values():
+    result = _generate_nanoplot(y_vals=[1, None, 2, 6], y_ref_area=["min", "max"])
+
+    assert '<path d="M' in result and 'fill="#A6E6F2"' in result
 
 
 def test_normalize_option_list_wrong_length_raises():
@@ -2389,3 +2692,98 @@ def test_normalize_to_dict_fewer_than_two_raises():
 
     with pytest.raises(ValueError, match="At least two values must be provided"):
         _normalize_to_dict(val=[1.0])
+
+
+def test_normalize_to_dict_leaves_out_none_values():
+    assert _normalize_to_dict(a=1, b=None, c=3) == {"a": [0.0], "c": [1.0]}
+
+
+def test_generate_ref_line_from_keyword_does_not_sort_input():
+    vals = [3, 1, 2]
+
+    _generate_ref_line_from_keyword(vals, keyword="median")
+
+    assert vals == [3, 1, 2]
+
+
+def test_nanoplot_bar_with_x_vals_raises():
+    with pytest.raises(NotImplementedError, match="Bar plots with `x` values"):
+        _generate_nanoplot(
+            y_vals=[1, 2, 3], x_vals=[1, 2, 3], plot_type="bar", data_line_type="straight"
+        )
+
+
+def test_nanoplot_missing_single_value_is_empty():
+    assert _generate_nanoplot(y_vals=float("nan"), all_single_y_vals=[1.0, float("nan")]) == ""
+
+
+@pytest.mark.parametrize(
+    "num_y_vals,data_x_width,x_d",
+    [(1, 50, 50), (20, 1000, 50), (21, 840, 40), (31, 930, 30), (41, 1025, 25), (51, 1020, 20)],
+)
+def test_canvas_spacing_shrinks_with_more_points(num_y_vals: int, data_x_width: int, x_d: int):
+    from great_tables._utils_nanoplots import _Canvas
+
+    assert _Canvas.create(num_y_vals, evenly_spaced=True) == _Canvas(data_x_width, x_d)
+
+
+def test_canvas_not_evenly_spaced_has_fixed_width():
+    from great_tables._utils_nanoplots import _Canvas
+
+    assert _Canvas.create(5, evenly_spaced=False) == _Canvas(data_x_width=600, x_d=None)
+
+
+def test_nanoplot_options_per_point_expands_single_values():
+    from great_tables._utils_nanoplots import _NanoplotOptions
+
+    opts = _NanoplotOptions(data_point_radius=3, data_bar_fill_color=["red", "blue"])
+
+    per_point = opts.per_point(2)
+
+    assert per_point.data_point_radius == [3, 3]
+    assert per_point.data_bar_fill_color == ["red", "blue"]
+
+
+def test_nanoplot_options_hide_layers():
+    from dataclasses import asdict
+    from great_tables._utils_nanoplots import _NanoplotOptions
+
+    hidden = _NanoplotOptions().hide_layers()
+
+    assert not any(val for key, val in asdict(hidden).items() if key.startswith("show_"))
+
+
+def test_nanoplot_options_rejects_unknown_option():
+    with pytest.raises(TypeError):
+        _generate_nanoplot(y_vals=[1, 2, 3], not_an_option=True)
+
+
+def test_curved_path_d():
+    from great_tables._utils_nanoplots import _curved_path_d
+
+    assert _curved_path_d((0, 10), (5, 15), x_d=10) == "M 0,5 C 5.0,5 5.0,15 10,15"
+
+
+def test_polyline_points():
+    from great_tables._utils_nanoplots import _polyline_points
+
+    assert _polyline_points((0, 10, 20), (5, 15, 25)) == "0,5 10,15 20,25"
+
+
+def test_nanoplot_spec_segments_split_at_missing_values():
+    from great_tables._utils_nanoplots import _NanoplotOptions, _NanoplotSpec
+
+    spec = _NanoplotSpec.from_inputs(
+        [1, None, 2, 3, None, None, 4],
+        None,
+        plot_type="line",
+        data_line_type="curved",
+        missing_vals="gap",
+        y_ref_line=None,
+        y_ref_area=None,
+        expand_x=None,
+        expand_y=None,
+        opts=_NanoplotOptions(),
+    )
+
+    assert spec.segments == [slice(0, 1), slice(2, 4), slice(6, 7)]

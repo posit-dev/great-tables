@@ -13,6 +13,12 @@ straight from the web:
 
 ![](/assets/tables_from_the_web.png)
 
+Display tables exist because raw DataFrames are working artifacts, not communication tools. When you
+share findings with colleagues, stakeholders, or readers, the formatting of your table directly
+affects how well your message lands. Good structure and styling reduce cognitive load, draw
+attention to what matters, and help your audience reach the right conclusions faster. A well-built
+table is an act of respect for your reader’s time.
+
 We can think of display tables as output only, where we’d not want to use them as input ever again.
 Other features include annotations, table element styling, and text transformations that serve to
 communicate the subject matter more clearly.
@@ -56,7 +62,12 @@ gt_tbl
 ```
 
 That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive
-a proper table with column labels and the data. Oftentimes however, you'll want a bit more: a
+a proper table with column labels and the data. Even this minimal output is an improvement over a raw
+DataFrame: you get proper HTML rendering, consistent spacing, and a clean visual structure that works
+in notebooks, reports, and web pages alike. But the real power of Great Tables comes from layering on
+the structural components described next.
+
+Oftentimes however, you'll want a bit more: a
 **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
 
 ::: {.callout-note}
@@ -68,7 +79,9 @@ open the HTML table in your default browser.
 ## **Polars** DataFrame support
 
 `GT` accepts both **Pandas** and **Polars** DataFrames. You can pass a **Polars** DataFrame to `GT`,
-or use its `DataFrame.style` property.
+or use its `DataFrame.style` property. Supporting both backends matters because teams often have
+mixed workflows, and you shouldn't have to rewrite your table code just because a project uses a
+different DataFrame library.
 
 ```{python}
 import polars as pl
@@ -171,12 +184,18 @@ This is the way the main parts of a table (and their subparts) fit together:
 The following list describes each major component of a **Great Tables** output, ordered from top to
 bottom:
 
-- the **Table Header** (optional; with a **title** and possibly a **subtitle**)
-- the **Stub** and the **Stub Head** (optional; contains *row labels*, optionally within
+- the **Table Header** (optional, with a **title** and possibly a **subtitle**)
+- the **Stub** and the **Stub Head** (optional, contains *row labels*, optionally within
 *row groups* having *row group labels*)
 - the **Column Labels** (contains *column labels*, optionally under *spanner labels*)
 - the **Table Body** (contains *columns* and *rows* of *cells*)
-- the **Table Footer** (optional; possibly with one or more **source notes**)
+- the **Table Footer** (optional, possibly with one or more **source notes**)
+
+Not every table needs every component. A simple table may only require column labels and a body, and
+that is perfectly fine. The components listed above are opt-in: you add whichever ones help your
+reader understand the data, and leave the rest out. A title might be essential for a published
+report but unnecessary in an exploratory notebook. Source notes matter when provenance is important
+but can be skipped for internal dashboards. Let the context guide your choices.
 
 Each of these parts is covered in detail throughout the rest of this User Guide. The pages that
 follow will show you how to add a header and footer, create a stub with row labels and groupings,

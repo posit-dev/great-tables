@@ -27,12 +27,16 @@ from ._helpers import (
     stub,
     system_fonts,
 )
+from ._data_color.col_fns import col_bin, col_factor, col_numeric
 from ._styles import FromColumn as from_column
 from .gt import GT
 
 __all__ = (
     "GT",
     "LETTERS",
+    "col_bin",
+    "col_factor",
+    "col_numeric",
     "define_units",
     "exibble",
     "from_column",

@@ -352,15 +352,14 @@ def create_columns_component_l(data: GTData) -> str:
                 span_accumulator = len(stub_layout)
 
             for j, level_i_spanner_j in enumerate(level_i_spanners):
+                # Get the number of columns the group covers
+                span = group_spans[j][0]
+
                 if level_i_spanner_j is None:
-                    # Get the number of columns to span nothing
-                    span = group_spans[j][0]
-                    spanner_labs.append("" * span)
+                    # An unspanned group still needs one cell per column it covers
+                    spanner_labs.extend([""] * span)
 
-                elif level_i_spanner_j is not None:
-                    # Get the number of columns to span the spanner
-                    span = group_spans[j][0]
-
+                else:
                     # TODO: Get alignment for spanner, for now it's center (`c`)
 
                     # Get multicolumn statement for spanner
@@ -368,19 +367,18 @@ def create_columns_component_l(data: GTData) -> str:
 
                     spanner_labs.append(multicolumn_stmt)
 
-                    # Get cmidrule statement for spanner, it uses 1-based indexing
-                    # and the span is the number of columns to span; we use the `span_accumulator`
-                    # across iterations to adjust the starting index (j) to adjust for previous
-                    # multicolumn spanning values
+                    # Get cmidrule statement for spanner, it uses 1-based indexing over the
+                    # columns of the table; `span_accumulator` holds how many columns the
+                    # preceding groups, and any stub columns, already cover
 
-                    begin = j + span_accumulator + 1
-                    end = j + span_accumulator + span
+                    begin = span_accumulator + 1
+                    end = span_accumulator + span
 
                     cmidrule = f"\\cmidrule(lr){{{begin}-{end}}}"
 
-                    span_accumulator += span - 1
-
                     spanner_lines.append(cmidrule)
+
+                span_accumulator += span
 
             spanner_labs_row = " & ".join(spanner_labs) + " \\\\ \n"
             spanner_lines_row = " ".join(spanner_lines) + "\n"
@@ -465,10 +463,12 @@ def create_body_component_l(data: GTData) -> str:
         if has_groups and group_info is not None:
             # Only create group row if this is first row of the group
             if group_info is not prev_group_info:
-                group_label = group_info.defaulted_label()
-
-                # Process the group label for LaTeX
-                group_label = _process_text(group_label, context="latex")
+                # When a groupname_col formatter ran, group_label is already
+                # safe for the output context; when it's the raw group_id, escape it.
+                if group_info.group_label is not None:
+                    group_label = group_info.group_label
+                else:
+                    group_label = _process_text(group_info.group_id, context="latex")
 
                 # When group is shown as a column, we don't add a separate row
                 # Instead, it will be added as a cell in each data row
@@ -492,9 +492,10 @@ def create_body_component_l(data: GTData) -> str:
                 # Use an empty cell for continuation rows in same group
                 body_cells.append("")
             else:
-                # Get the group label from the group info
-                group_label = group_info.defaulted_label()
-                group_label = _process_text(group_label, context="latex")
+                if group_info.group_label is not None:
+                    group_label = group_info.group_label
+                else:
+                    group_label = _process_text(group_info.group_id, context="latex")
 
                 body_cells.append(group_label)
 

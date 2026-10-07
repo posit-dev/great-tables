@@ -18,7 +18,6 @@ keywords = ["tables"]
 license.file = "LICENSE"
 authors = [
     { name = "Richard Iannone", email = "rich@posit.co" },
-    { name = "Michael Chow", email = "michael.chow@posit.co" }
 ]
 dynamic = ["version"]
 classifiers = [

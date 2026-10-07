@@ -214,6 +214,55 @@ class TestAutoAlignIntegration:
         aligns = [col.column_align for col in gt_tbl._boxhead._d]
         assert aligns == ["left"]  # mixed text -> left
 
+    @pytest.mark.parametrize(
+        "arrow_str",
+        [
+            pytest.param("string", id="string"),
+            pytest.param("large_string", id="large_string"),
+            pytest.param(
+                "string_view",
+                id="string_view",
+                marks=pytest.mark.skipif(
+                    not hasattr(pa, "string_view"), reason="requires pyarrow>=16"
+                ),
+            ),
+        ],
+    )
+    def test_pandas_pyarrow_string_auto_align(self, arrow_str):
+        df = pd.DataFrame(
+            {
+                "num": pd.array([1, 2], dtype=pd.ArrowDtype(pa.int64())),
+                "text": pd.array(["a", "b"], dtype=pd.ArrowDtype(getattr(pa, arrow_str)())),
+            }
+        )
+        gt_tbl = gt.GT(df)
+        aligns = [col.column_align for col in gt_tbl._boxhead._d]
+        assert aligns == ["right", "left"]
+
+    def test_pandas_pyarrow_string_matches_object(self):
+        df = pd.DataFrame(
+            {
+                "text": ["Row 1", "Row 2"],
+                "dates": ["2024-01-15", "2024-02-20"],
+                "numbers": ["20 23 6", "2.3 6.8"],
+            }
+        )
+        df_arrow = df.convert_dtypes(dtype_backend="pyarrow")
+        assert df_arrow["text"].dtype == pd.ArrowDtype(pa.string())
+
+        expected = [col.column_align for col in gt.GT(df)._boxhead._d]
+        result = [col.column_align for col in gt.GT(df_arrow)._boxhead._d]
+        assert expected == ["left", "right", "right"]
+        assert result == expected
+
+    def test_pandas_pyarrow_string_mixed_text_left_align(self):
+        df = pd.DataFrame(
+            {"mixed": pd.array(["hello", "123", None], dtype=pd.ArrowDtype(pa.string()))}
+        )
+        gt_tbl = gt.GT(df)
+        aligns = [col.column_align for col in gt_tbl._boxhead._d]
+        assert aligns == ["left"]
+
     def test_pyarrow_auto_align(self):
         table = pa.table({"num": [1, 2], "text": ["a", "b"]})
         gt_tbl = gt.GT(table)
