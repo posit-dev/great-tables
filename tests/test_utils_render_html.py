@@ -746,6 +746,36 @@ def test_text_transform_stub_applies_to_all_stub_cols():
     assert ">Finance<" not in body
 
 
+def test_text_transform_stub_no_stub_is_noop():
+    """text_transform(loc.stub()) on a table with no stub should not error."""
+    from great_tables import loc
+
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    gt = GT(df).text_transform(locations=loc.stub(), fn=str.upper)
+    assert gt.as_raw_html()  # should render without error
+
+
+def test_text_transform_stub_skips_na_values():
+    """text_transform(loc.stub()) must skip cells that are NA in both body and source data."""
+    import numpy as np
+    from great_tables import loc
+
+    df = pd.DataFrame({"name": ["Alice", np.nan, "Bob"], "value": [1, 2, 3]})
+    gt = GT(df, rowname_col="name").text_transform(locations=loc.stub(), fn=str.upper)
+    body = _get_body_html(gt)
+    assert "ALICE" in body
+    assert "BOB" in body
+
+
+def test_cols_width_stub_sentinel_no_stub_is_noop():
+    """cols_width({stub: ...}) on a table with no stub should not error."""
+    from great_tables import stub
+
+    df = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
+    gt = GT(df).cols_width({stub: "120px"})
+    assert gt.as_raw_html()  # should render without error
+
+
 def test_cols_width_stub_sentinel_applies_to_all_stub_cols():
     """cols_width(stub) must set width on every stub column for multi-col stubs."""
     from great_tables import stub
@@ -761,6 +791,43 @@ def test_cols_width_stub_sentinel_applies_to_all_stub_cols():
     stub_cols = gt._boxhead._get_stub_columns()
     assert len(stub_cols) == 2
     assert all(c.column_width == "120px" for c in stub_cols)
+
+
+def test_list_stubhead_with_spanner_renders_separate_th_cells():
+    """tab_stubhead(list) + tab_spanner: each stub column gets its own <th> in the spanner row."""
+    df = pd.DataFrame({
+        "sector": ["Tech", "Finance"],
+        "ticker": ["AAPL", "JPM"],
+        "price": [150.0, 140.0],
+        "mkt_cap": [2.94, 0.57],
+    })
+    gt = (
+        GT(df, rowname_col=["sector", "ticker"])
+        .tab_stubhead(label=["Sector", "Ticker"])
+        .tab_spanner(label="Financials", columns=["price", "mkt_cap"])
+    )
+    col_html = _get_columns_html(gt)
+    assert "Sector" in col_html
+    assert "Ticker" in col_html
+
+
+def test_list_stubhead_with_nested_spanners_renders_placeholders():
+    """tab_stubhead(list) + 2 spanner levels: blank placeholders emitted for higher rows."""
+    df = pd.DataFrame({
+        "sector": ["Tech", "Finance"],
+        "ticker": ["AAPL", "JPM"],
+        "price": [150.0, 140.0],
+        "mkt_cap": [2.94, 0.57],
+    })
+    gt = (
+        GT(df, rowname_col=["sector", "ticker"])
+        .tab_stubhead(label=["Sector", "Ticker"])
+        .tab_spanner(label="Inner", columns=["price", "mkt_cap"])
+        .tab_spanner(label="Outer", spanners=["Inner"])
+    )
+    col_html = _get_columns_html(gt)
+    assert "Sector" in col_html
+    assert "Ticker" in col_html
 
 
 def test_grand_summary_colspan_correct_for_multi_col_stub_with_group():
