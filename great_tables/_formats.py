@@ -760,6 +760,9 @@ def fmt_scientific_context(
     # Scale `x` value by a defined `scale_by` value
     x = x * scale_by
 
+    if math.isinf(x):
+        return _format_infinite_value(x, force_sign=force_sign_m, pattern=pattern, context=context)
+
     # Determine whether the value is positive
     is_positive = _has_positive_value(value=x)
 
@@ -1081,6 +1084,9 @@ def fmt_engineering_context(
 
     # Scale `x` value by a defined `scale_by` value
     x = x * scale_by
+
+    if math.isinf(x):
+        return _format_infinite_value(x, force_sign=force_sign_m, pattern=pattern, context=context)
 
     # Determine whether the value is positive
     is_positive = _has_positive_value(value=x)
@@ -2510,6 +2516,10 @@ def fmt_roman_context(
 
     # Get the absolute value of `x` so that negative values are handled
     x = abs(x)
+
+    if math.isinf(x):
+        # Like other values that are too large, infinity can't be a roman numeral
+        return "ex terminis"
 
     # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes)
     x = _round_rhu(x, 0)
@@ -4076,6 +4086,9 @@ def fmt_bytes_context(
 ) -> str:
     if is_na(data._tbl_data, x):
         return x
+
+    if math.isinf(x):
+        return _format_infinite_value(x, force_sign=force_sign, pattern=pattern, context=context)
 
     # Truncate all byte values by casting to an integer; this is done because bytes
     # are always whole numbers
@@ -5997,6 +6010,28 @@ def fmt_units(
         return x_formatted
 
     return fmt(self, fns=fmt_units_fn, columns=columns, rows=rows)
+
+
+def _format_infinite_value(x: float, force_sign: bool, pattern: str, context: str) -> str:
+    """
+    Format an infinite value the way `fmt_number()` does.
+
+    Infinity has no mantissa, exponent or unit, so formatters that need one of these use this
+    instead.
+    """
+
+    x_formatted = _value_to_decimal_notation(value=x, force_sign=force_sign)
+    x_formatted = _replace_minus(x_formatted, minus_mark=_context_minus_mark(context=context))
+
+    # Use a supplied pattern specification to decorate the formatted value
+    if pattern != "{x}":
+        # Escape LaTeX special characters from literals in the pattern
+        if context == "latex":
+            pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+        x_formatted = pattern.replace("{x}", x_formatted)
+
+    return x_formatted
 
 
 def _value_to_decimal_notation(
