@@ -4098,6 +4098,17 @@ def fmt_bytes_context(
         num_power_idx = math.floor(math.log(abs(x), base)) + 1
         num_power_idx = max(1, min(len(byte_units), num_power_idx))
 
+        # If rounding the scaled value carries it up to `base` (e.g., 999,999 bytes
+        # would give `1,000 kB`), use the next unit instead (`1 MB`)
+        if num_power_idx < len(byte_units):
+            scaled_value = abs(x) / base ** (num_power_idx - 1)
+            if n_sigfig is not None:
+                rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
+            else:
+                rounded_value = round(scaled_value, decimals)
+            if rounded_value >= base:
+                num_power_idx += 1
+
     # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
     # value; this is the string that will be affixed to the formatted value
     units_str = byte_units[num_power_idx - 1]

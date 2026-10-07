@@ -1726,6 +1726,26 @@ def test_fmt_bytes_case(fmt_bytes_kwargs: dict[str, Any], x_in: list[float], x_o
     assert x == x_out
 
 
+@pytest.mark.parametrize(
+    "fmt_bytes_kwargs,x_in,x_out",
+    [
+        (dict(), [999949, 999999, -999999], ["999.9 kB", "1 MB", "−1 MB"]),
+        (dict(decimals=2), [999994, 999995], ["999.99 kB", "1 MB"]),
+        (dict(n_sigfig=3), [999499, 999500], ["999 kB", "1.00 MB"]),
+        (dict(standard="binary"), [1048524, 1048575], ["1,023.9 KiB", "1 MiB"]),
+    ],
+)
+def test_fmt_bytes_rounding_carries_into_next_unit(
+    fmt_bytes_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    # Values that round up to the base should use the next unit (`1 MB`), not
+    # `1,000 kB`
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
 # ------------------------------------------------------------------------------
 # Test `fmt_roman()`
 # ------------------------------------------------------------------------------
