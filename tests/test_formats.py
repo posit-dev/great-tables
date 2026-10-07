@@ -1186,6 +1186,31 @@ def test_fmt_scientific_rounding_carries_into_exponent(
 
 
 @pytest.mark.parametrize(
+    "fmt_method,fmt_kwargs,x_out",
+    [
+        ("fmt_scientific", dict(), ["inf", "−inf"]),
+        ("fmt_scientific", dict(exp_style="E", force_sign_m=True), ["+inf", "−inf"]),
+        ("fmt_engineering", dict(pattern="[{x}]"), ["[inf]", "[−inf]"]),
+        ("fmt_bytes", dict(), ["inf", "−inf"]),
+        ("fmt_roman", dict(), ["ex terminis", "ex terminis"]),
+    ],
+)
+def test_fmt_infinite_values(fmt_method: str, fmt_kwargs: dict[str, Any], x_out: list[str]):
+    # Infinite values have no exponent, unit or roman numeral, and should not raise
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = getattr(GT(df), fmt_method)(columns="x", **fmt_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+def test_fmt_infinite_values_latex():
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = GT(df).fmt_scientific(columns="x", pattern="{x} %")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert x == [r"inf \%", r"-inf \%"]
+
+
+@pytest.mark.parametrize(
     "value,n_sigfig,x_out",
     [
         (1e11, 1, "1E11"),
