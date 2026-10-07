@@ -3189,6 +3189,7 @@ def test_fmt_number_si_latex_pattern():
         (dict(decimals=1), [0.99996], ["1.0"]),
         (dict(n_sigfig=3), [999.4, 999.6], ["999", "1.00 k"]),
         (dict(decimals=2, prefix_mode="decimal"), [9.9996, 99.996], ["1.00 da", "1.00 h"]),
+        (dict(decimals=1), [1e-40], ["0.0"]),
     ],
 )
 def test_fmt_number_si_rounding_carries_into_next_prefix(
