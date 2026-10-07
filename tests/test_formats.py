@@ -3240,6 +3240,31 @@ def test_fmt_number_si_latex_pattern():
     assert "Value" in x[0]
 
 
+@pytest.mark.parametrize(
+    "fmt_kwargs,x_in,x_out",
+    [
+        (
+            dict(decimals=1),
+            [999.94, 999.96, 999960, -999960],
+            ["999.9", "1.0 k", "1.0 M", "−1.0 M"],
+        ),
+        (dict(decimals=1), [0.99996], ["1.0"]),
+        (dict(n_sigfig=3), [999.4, 999.6], ["999", "1.00 k"]),
+        (dict(decimals=2, prefix_mode="decimal"), [9.9996, 99.996], ["1.00 da", "1.00 h"]),
+        (dict(decimals=1), [1e-40], ["0.0"]),
+    ],
+)
+def test_fmt_number_si_rounding_carries_into_next_prefix(
+    fmt_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    # Values that round up to the next prefix should use that prefix (`1.0 k`), not
+    # `1,000.0`
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_number_si(columns="x", **fmt_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
 def test_fmt_partsper_latex_pattern():
     df = pd.DataFrame({"x": [0.001]})
     gt = GT(df).fmt_partsper(columns="x", pattern="({x})")

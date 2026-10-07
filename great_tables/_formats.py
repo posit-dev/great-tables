@@ -1512,6 +1512,28 @@ _SI_PREFIXES_DECIMAL: list[tuple[int, str]] = [
 ]
 
 
+def _get_si_prefix(
+    abs_x: float, si_table: list[tuple[int, str]], prefix_mode: str
+) -> tuple[int, str]:
+    """Get the exponent and symbol of the SI prefix to use for an absolute value."""
+
+    if abs_x == 0:
+        # Zero gets no prefix
+        return 0, ""
+
+    if abs_x >= 1 and abs_x < 1000 and (prefix_mode != "decimal" or abs_x < 10):
+        # Values in [1, 1000) need no prefix in engineering mode
+        # In decimal mode, values in [1, 10) need no prefix
+        return 0, ""
+
+    # Find the best SI prefix: the largest exponent where mantissa >= 1
+    for exp, symbol in si_table:
+        if abs_x >= 10.0**exp:
+            return exp, symbol
+
+    return 0, ""
+
+
 def fmt_number_si_context(
     x: float | None,
     data: GTData,
@@ -1546,27 +1568,22 @@ def fmt_number_si_context(
 
     # Determine the appropriate SI prefix
     abs_x = abs(x)
-    si_symbol = ""
+    exp, si_symbol = _get_si_prefix(abs_x, si_table=si_table, prefix_mode=prefix_mode)
 
-    if abs_x == 0:
-        # Zero gets no prefix
-        pass
-    elif abs_x >= 1 and abs_x < 1000:
-        # Values in [1, 1000) need no prefix in engineering mode
-        # In decimal mode, values in [1, 10) need no prefix
-        if prefix_mode == "decimal" and abs_x >= 10:
-            for exp, symbol in si_table:
-                if exp > 0 and abs_x >= 10**exp:
-                    x = x / (10**exp)
-                    si_symbol = symbol
-                    break
-    else:
-        # Find the best SI prefix: the largest exponent where mantissa >= 1
-        for exp, symbol in si_table:
-            if abs_x >= 10.0**exp:
-                x = x / (10.0**exp)
-                si_symbol = symbol
-                break
+    # If rounding the scaled value carries it up to the next prefix (e.g., 999.96 with one
+    # decimal would give `1,000.0`), use the prefix of the rounded value instead (`1.0 k`)
+    if abs_x != 0:
+        scaled_value = abs_x / 10.0**exp
+        if n_sigfig is not None:
+            rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
+        else:
+            rounded_value = round(scaled_value, decimals)
+        exp, si_symbol = _get_si_prefix(
+            rounded_value * 10.0**exp, si_table=si_table, prefix_mode=prefix_mode
+        )
+
+    if si_symbol:
+        x = x / 10.0**exp
 
     # Format the value to decimal notation
     x_formatted = _value_to_decimal_notation(
