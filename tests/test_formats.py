@@ -16,6 +16,8 @@ from great_tables._formats import (
     _format_number_n_sigfig,
     _format_number_fixed_decimals,
     _format_number_compactly,
+    _get_currencies_data,
+    _get_currency_exponent,
     _get_currency_str,
     _get_locale_currency_code,
     _get_locale_dec_mark,
@@ -1536,6 +1538,25 @@ def test_fmt_currency_latex_symbols(currency: str, x_out: list[str]):
     gt = GT(df).fmt_currency(columns="x", currency=currency)
     x = _get_column_of_values(gt, column_name="x", context="latex")
     assert x == x_out
+
+
+@pytest.mark.parametrize("context", ["html", "latex"])
+def test_fmt_currency_all_currencies(context: str):
+    # Every supported currency code formats with the default arguments
+    codes = [entry["curr_code"] for entry in _get_currencies_data()]
+    gt = GT(pd.DataFrame({"x": [1234.5] * len(codes)}))
+    for i, code in enumerate(codes):
+        gt = gt.fmt_currency(columns="x", rows=[i], currency=code)
+    x = _get_column_of_values(gt, column_name="x", context=context)
+    assert all("1,23" in x_i for x_i in x)
+
+
+@pytest.mark.parametrize("currency", ["XAG", "XAU", "XDR", "XPD", "XPT", "XSU", "XUA"])
+def test_fmt_currency_no_minor_unit(currency: str):
+    # Codes without a minor unit (an `NA` exponent in the currency data) use no decimal places
+    assert _get_currency_exponent(currency) == 0
+    x = vals.fmt_currency([1234.5], currency=currency)
+    assert x[0].endswith("1,234") or x[0].endswith("1,235")
 
 
 # ------------------------------------------------------------------------------
