@@ -6289,6 +6289,10 @@ def _format_number_compactly(
     if value == 0:
         return "0"
 
+    # Infinity has no suffix, so it is formatted the same as without `compact=True`
+    if math.isinf(value):
+        return _value_to_decimal_notation(value=value, force_sign=force_sign)
+
     # Stop if `n_sigfig` does not have a valid value
     if n_sigfig is not None:
         _validate_n_sigfig(n_sigfig=n_sigfig)
