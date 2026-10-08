@@ -1191,8 +1191,13 @@ def test_fmt_scientific_rounding_carries_into_exponent(
         ("fmt_scientific", dict(), ["inf", "−inf"]),
         ("fmt_scientific", dict(exp_style="E", force_sign_m=True), ["+inf", "−inf"]),
         ("fmt_engineering", dict(pattern="[{x}]"), ["[inf]", "[−inf]"]),
+        ("fmt_engineering", dict(force_sign_m=True), ["+inf", "−inf"]),
         ("fmt_bytes", dict(), ["inf", "−inf"]),
+        ("fmt_bytes", dict(force_sign=True, pattern="[{x}]"), ["[+inf]", "[−inf]"]),
         ("fmt_roman", dict(), ["ex terminis", "ex terminis"]),
+        ("fmt_roman", dict(pattern="[{x}]"), ["[ex terminis]", "[ex terminis]"]),
+        ("fmt_fraction", dict(pattern="[{x}]"), ["[inf]", "[−inf]"]),
+        ("fmt_index", dict(pattern="[{x}]"), ["[inf]", "[−inf]"]),
         ("fmt_number", dict(compact=True), ["inf", "−inf"]),
         ("fmt_number", dict(compact=True, accounting=True), ["inf", "(inf)"]),
         ("fmt_integer", dict(compact=True, force_sign=True), ["+inf", "−inf"]),
@@ -1207,11 +1212,32 @@ def test_fmt_infinite_values(fmt_method: str, fmt_kwargs: dict[str, Any], x_out:
     assert x == x_out
 
 
-def test_fmt_infinite_values_latex():
+@pytest.mark.parametrize(
+    "fmt_method,fmt_kwargs,x_out",
+    [
+        ("fmt_scientific", dict(pattern="{x} %"), [r"inf \%", r"-inf \%"]),
+        ("fmt_engineering", dict(pattern="{x} %"), [r"inf \%", r"-inf \%"]),
+        ("fmt_engineering", dict(force_sign_m=True), ["+inf", "-inf"]),
+        ("fmt_bytes", dict(pattern="{x} %"), [r"inf \%", r"-inf \%"]),
+        ("fmt_bytes", dict(force_sign=True), ["+inf", "-inf"]),
+        ("fmt_roman", dict(pattern="{x} %"), [r"ex terminis \%", r"ex terminis \%"]),
+    ],
+)
+def test_fmt_infinite_values_latex(fmt_method: str, fmt_kwargs: dict[str, Any], x_out: list[str]):
     df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
-    gt = GT(df).fmt_scientific(columns="x", pattern="{x} %")
+    gt = getattr(GT(df), fmt_method)(columns="x", **fmt_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="latex")
-    assert x == [r"inf \%", r"-inf \%"]
+    assert x == x_out
+
+
+@pytest.mark.filterwarnings("ignore:invalid value encountered:RuntimeWarning")
+@pytest.mark.parametrize("fmt_method", ["fmt_number", "fmt_scientific", "fmt_engineering"])
+def test_fmt_infinite_values_scale_by_zero(fmt_method: str):
+    # `inf * 0` is NaN, which has no mantissa or exponent either, and should not raise
+    df = pd.DataFrame({"x": [float("inf")]})
+    gt = getattr(GT(df), fmt_method)(columns="x", scale_by=0)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["nan"]
 
 
 @pytest.mark.parametrize(
@@ -3756,6 +3782,25 @@ def test_format_number_compactly_zero_returns_zero_string():
 
 
 @pytest.mark.parametrize(
+    "value,x_out", [(float("inf"), "inf"), (float("-inf"), "-inf"), (float("nan"), "nan")]
+)
+def test_format_number_compactly_nonfinite(value: float, x_out: str):
+    # Non-finite values have no suffix and should not raise (e.g., in `math.log()`)
+    result = _format_number_compactly(
+        value=value,
+        decimals=2,
+        n_sigfig=None,
+        drop_trailing_zeros=False,
+        drop_trailing_dec_mark=False,
+        use_seps=True,
+        sep_mark=",",
+        dec_mark=".",
+        force_sign=False,
+    )
+    assert result == x_out
+
+
+@pytest.mark.parametrize(
     "value,kwargs,x_out",
     [
         # Rounding carries the scaled value up to 1000, so the next suffix is used
@@ -3946,7 +3991,8 @@ def test_fmt_fraction_inf():
     df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
     gt = GT(df).fmt_fraction(columns="x")
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == ["inf", "-inf"]
+    # The minus sign is the same as for finite negative fractions (and for other formatters)
+    assert x == ["inf", "−inf"]
 
 
 def test_fmt_fraction_polars():
@@ -4309,7 +4355,7 @@ def test_fmt_index_inf():
     x = _get_column_of_values(gt, column_name="x", context="html")
 
     assert x[0] == "inf"
-    assert x[1] == "-inf"
+    assert x[1] == "−inf"
 
 
 # ==============================================================================
