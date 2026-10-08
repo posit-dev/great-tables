@@ -3931,6 +3931,31 @@ def test_format_number_compactly_nonfinite(value: float, x_out: str):
 
 
 @pytest.mark.parametrize(
+    "fn,x_in,kwargs,x_out",
+    [
+        (
+            vals.fmt_number,
+            [999999, -999999, 999.996],
+            dict(decimals=2),
+            ["1.00M", "−1.00M", "1.00K"],
+        ),
+        (vals.fmt_number, [999499], dict(decimals=2), ["999.50K"]),
+        (vals.fmt_number, [999999], dict(n_sigfig=3), ["1.00M"]),
+        (vals.fmt_integer, [999999, 999499, 999500], dict(), ["1M", "999K", "1M"]),
+        (
+            vals.fmt_currency,
+            [999999, 999.996, -999999],
+            dict(currency="USD"),
+            ["$1.00M", "$1.00K", "−$1.00M"],
+        ),
+    ],
+)
+def test_fmt_compact_rounding_carries_into_next_suffix(fn, x_in, kwargs: dict, x_out: list[str]):
+    # The same carry as `_format_number_compactly()`, through the public formatters
+    assert fn(x_in, compact=True, **kwargs) == x_out
+
+
+@pytest.mark.parametrize(
     "value,kwargs,x_out",
     [
         # Rounding carries the scaled value up to 1000, so the next suffix is used
