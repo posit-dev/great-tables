@@ -108,6 +108,47 @@ _COMPACT_FMT_SETTINGS: list[tuple[float, _CompactFmt]] = [
 _COMPACT_FMT_LARGE: _CompactFmt = (False, None, 2, False)
 
 
+def _get_compact_fmt_settings(val: float, currency: str | None) -> tuple[float, _CompactFmt, bool]:
+    """
+    Get the value to format compactly, its settings, and whether it's at or above 1e15.
+
+    The settings are chosen from the value as it will be displayed: a value that rounds up to
+    the upper bound of its magnitude range (e.g., `999.6` with three significant figures shows
+    as `1,000`) is replaced by the bound and uses the settings of the next range, so it's
+    formatted exactly like the bound itself (`1.00K`).
+    """
+
+    from great_tables._formats import _get_currency_decimals, _rounds_up_to
+
+    i = next(
+        (i for i, (bound, _) in enumerate(_COMPACT_FMT_SETTINGS) if abs(val) < bound),
+        len(_COMPACT_FMT_SETTINGS),
+    )
+
+    while i < len(_COMPACT_FMT_SETTINGS):
+        bound, (use_subunits, decimals, n_sigfig, compact) = _COMPACT_FMT_SETTINGS[i]
+
+        # Compact values are rounded after scaling to their suffix (K, M, B, T)
+        scale = 1000 ** min(4, math.floor(math.log(abs(val), 1000))) if compact else 1
+        scale = max(1, scale)
+
+        # The currency path rounds to a number of decimals, the number path to `n_sigfig=`
+        if currency is not None:
+            rounding = dict(
+                decimals=_get_currency_decimals(currency, decimals, use_subunits), n_sigfig=None
+            )
+        else:
+            rounding = dict(decimals=0, n_sigfig=n_sigfig)
+
+        if not _rounds_up_to(val / scale, threshold=bound / scale, **rounding):
+            return val, _COMPACT_FMT_SETTINGS[i][1], False
+
+        val = math.copysign(bound, val)
+        i += 1
+
+    return val, _COMPACT_FMT_LARGE, True
+
+
 def _format_number_compactly(
     val: float,
     currency: str | None = None,
@@ -135,22 +176,27 @@ def _format_number_compactly(
     if val == 0:
         return "0"
 
-    use_subunits, decimals, n_sigfig, compact = next(
-        (settings for bound, settings in _COMPACT_FMT_SETTINGS if abs(val) < bound),
-        _COMPACT_FMT_LARGE,
+    val, (use_subunits, decimals, n_sigfig, compact), is_large = _get_compact_fmt_settings(
+        val, currency=currency
     )
 
     if currency is not None:
-        if abs(val) >= 1e15:
-            # TODO: this is meant to be `>` followed by the formatted currency value but only the
-            # `>` is kept (the tests currently expect that)
-            return ">"
+        if is_large:
+            # Values this large are shown as a bound (`>$1Q`, or `<−$1Q` for negative values)
+            val_formatted = fmt_currency(
+                math.copysign(1e15, val),
+                currency=currency,
+                use_subunits=False,
+                decimals=0,
+                compact=True,
+            )
+            return (">" if val > 0 else "<") + val_formatted[0]
 
         val_formatted = fmt_currency(
-            val, currency=currency, use_subunits=use_subunits, decimals=decimals
+            val, currency=currency, use_subunits=use_subunits, decimals=decimals, compact=compact
         )
 
-    elif abs(val) < 0.01 or abs(val) >= 1e15:
+    elif abs(val) < 0.01 or is_large:
         val_formatted = fmt_scientific(val, exp_style="E", n_sigfig=n_sigfig, decimals=1)
 
     elif as_integer and -100 < val < 100:
