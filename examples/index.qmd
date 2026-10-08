@@ -196,6 +196,55 @@ sza_pivot = (
 
 :::
 
+:::{.g-col-lg-6 .g-col-12}
+
+```{python}
+from great_tables import GT, html
+from great_tables.data import gtcars
+
+cols = ["hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h", "msrp"]
+row_labels = {
+    "hp": "HP",
+    "hp_rpm": "HP RPM",
+    "trq": "Torque",
+    "trq_rpm": "Torque RPM",
+    "mpg_c": "MPG city",
+    "mpg_h": "MPG hwy",
+    "msrp": "MSRP",
+}
+
+gtcars_corr = gtcars[cols].corr().reset_index(names="variable")
+gtcars_corr["variable"] = gtcars_corr["variable"].map(row_labels)
+
+(
+    GT(gtcars_corr, rowname_col="variable")
+    .tab_header(
+        title="Correlations Between gtcars Performance Specs",
+        subtitle="Pearson correlation across horsepower, torque, fuel economy, and price",
+    )
+    .fmt_number(columns=cols, decimals=2)
+    .data_color(
+        columns=cols,
+        palette=["#4b6ea9", "white", "#c0392b"],
+        domain=[-1, 1],
+        na_color="white",
+    )
+    .cols_label(
+        hp="HP",
+        hp_rpm=html("HP<br>RPM"),
+        trq="Torque",
+        trq_rpm=html("Torque<br>RPM"),
+        mpg_c=html("MPG<br>city"),
+        mpg_h=html("MPG<br>hwy"),
+        msrp="MSRP",
+    )
+    .tab_source_note(source_note="Source: great_tables.data.gtcars")
+)
+```
+
+:::
+
+
 
 :::{.g-col-lg-6 .g-col-12}
 
