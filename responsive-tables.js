@@ -16,6 +16,271 @@
   // Minimum width difference to consider a table "wide"
   var OVERFLOW_THRESHOLD = 20;
 
+  // Column sizing heuristics (lengths in em units of the table's font size).
+  // Columns whose single-line width is at most SHORT_COL_EM are "short"
+  // (names, types, values); wider ones are "prose". Prose columns give up
+  // width down to PROSE_COMFORT_EM before short columns start to wrap, and
+  // normally no further than PROSE_MIN_EM. Only to avoid scrolling do they
+  // go down to PROSE_TIGHT_EM; a table that scrolls anyway keeps prose at
+  // PROSE_MIN_EM so it stays readable. A short column first wraps only
+  // its outlier cells, down to the TYPICAL_CELL_PERCENTILE cell width. Cells
+  // count as outliers only if wider than OUTLIER_RATIO times that width, so
+  // a label just a little longer than the rest isn't wrapped to save a few
+  // pixels.
+  var SHORT_COL_EM = 14;
+  var PROSE_COMFORT_EM = 20;
+  var PROSE_MIN_EM = 12;
+  var PROSE_TIGHT_EM = 9;
+  var TYPICAL_CELL_PERCENTILE = 0.8;
+  var OUTLIER_RATIO = 1.25;
+
+  function sum(values) {
+    var total = 0;
+    for (var i = 0; i < values.length; i++) total += values[i];
+    return total;
+  }
+
+  // Table classes that Quarto/Pandoc/Bootstrap put on plain Markdown tables.
+  // Tables carrying any other class have their own styling and are left alone.
+  var PLAIN_TABLE_CLASS = /^(table|table-[\w-]+|caption-top|striped|hover|bordered|borderless|sm|small)$/;
+
+  /**
+   * Does the table carry author-specified column widths (e.g., from Quarto's
+   * `tbl-colwidths` attribute or hand-written HTML)?
+   */
+  function hasExplicitWidths(table) {
+    var cols = table.querySelectorAll(":scope > colgroup > col");
+    for (var i = 0; i < cols.length; i++) {
+      if (cols[i].style.width || cols[i].getAttribute("width")) return true;
+    }
+    var firstRow = table.rows[0];
+    if (firstRow) {
+      for (var j = 0; j < firstRow.cells.length; j++) {
+        var cell = firstRow.cells[j];
+        if (cell.style.width || cell.getAttribute("width")) return true;
+      }
+    }
+    return false;
+  }
+
+  function isPlainTable(table) {
+    for (var i = 0; i < table.classList.length; i++) {
+      if (!PLAIN_TABLE_CLASS.test(table.classList[i])) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Rows whose cells map one-to-one onto the table's columns (no spans).
+   * Returns an empty list if the table has fewer than two columns.
+   */
+  function simpleRows(table) {
+    var ncols = 0;
+    var i, j, span;
+    for (i = 0; i < table.rows.length; i++) {
+      span = 0;
+      for (j = 0; j < table.rows[i].cells.length; j++) {
+        span += table.rows[i].cells[j].colSpan || 1;
+      }
+      ncols = Math.max(ncols, span);
+    }
+    var rows = [];
+    if (ncols < 2) return rows;
+    for (i = 0; i < table.rows.length; i++) {
+      var cells = table.rows[i].cells;
+      if (cells.length !== ncols) continue;
+      var simple = true;
+      for (j = 0; j < cells.length; j++) {
+        if ((cells[j].colSpan || 1) !== 1 || (cells[j].rowSpan || 1) !== 1) { simple = false; break; }
+      }
+      if (simple) rows.push(table.rows[i]);
+    }
+    return rows;
+  }
+
+  /** Single-line width of a cell's content plus its padding and borders. */
+  function naturalCellWidth(cell, range) {
+    var style = window.getComputedStyle(cell);
+    var rect = cell.getBoundingClientRect();
+    var chrome = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + (rect.width - cell.clientWidth);
+    range.selectNodeContents(cell);
+    return range.getBoundingClientRect().width + chrome;
+  }
+
+  function percentile(values, p) {
+    var sorted = values.slice().sort(function (a, b) { return a - b; });
+    return sorted[Math.max(0, Math.ceil(p * sorted.length) - 1)];
+  }
+
+  /**
+   * Size the columns of a plain Markdown table so it fits its container.
+   *
+   * Sizing every column to its single-line (max-content) width lets one
+   * column of prose stretch the table far past the content area. Instead,
+   * measure each column's single-line, typical-cell, and narrowest
+   * (min-content) widths, then build a ladder of progressively narrower
+   * column-width sets:
+   *
+   *   0. every column on one line
+   *   1. prose columns wrapped down to PROSE_COMFORT_EM
+   *   2. short columns wrapping their outlier cells (typical-cell width)
+   *   3. prose columns wrapped down to PROSE_MIN_EM
+   *   4. short columns at their min-content width
+   *   5. prose columns down to PROSE_TIGHT_EM (only to avoid scrolling)
+   *
+   * The table takes the widest set that fits, interpolating between adjacent
+   * sets to fill the container exactly. If even the narrowest set doesn't fit
+   * the table scrolls horizontally, holding step 4 rather than step 5: once
+   * scrolling is unavoidable, wider prose columns read better. Lengths never
+   * drop below a column's min-content width, so fixed layout never clips
+   * content.
+   */
+  function autoSizeTable(table, outerWrapper, scrollContainer) {
+    var metrics = null;
+    var lastWidth = -1;
+    var colgroup = null;
+
+    function reset() {
+      if (colgroup && colgroup.parentNode) colgroup.parentNode.removeChild(colgroup);
+      colgroup = null;
+      table.style.tableLayout = "";
+      table.style.width = "";
+      outerWrapper.classList.remove("gd-table-fit", "gd-table-overflow");
+    }
+
+    function measure() {
+      var rows = simpleRows(table);
+      if (!rows.length || !table.offsetWidth) return null; // no simple row, or hidden
+      reset();
+      var cells = rows[0].cells;
+      var max = [];
+      var min = [];
+      var typical = [];
+      var range = document.createRange();
+      var i, r;
+      // Pad measurements slightly: fixed layout distributes borders and
+      // subpixels differently, and a fraction of a pixel short wraps a line
+      table.style.minWidth = "0";
+      table.style.width = "max-content";
+      for (i = 0; i < cells.length; i++) {
+        max.push(Math.ceil(cells[i].getBoundingClientRect().width) + 2);
+        var natural = [];
+        for (r = 0; r < rows.length; r++) natural.push(naturalCellWidth(rows[r].cells[i], range));
+        var typicalWidth = Math.ceil(percentile(natural, TYPICAL_CELL_PERCENTILE)) + 2;
+        typical.push(max[i] > typicalWidth * OUTLIER_RATIO ? typicalWidth : max[i]);
+      }
+      table.style.width = "min-content";
+      for (i = 0; i < cells.length; i++) min.push(Math.ceil(cells[i].getBoundingClientRect().width) + 2);
+      table.style.width = "";
+      table.style.minWidth = "";
+      return {
+        max: max,
+        min: min,
+        typical: typical,
+        fontSize: parseFloat(window.getComputedStyle(table).fontSize) || 16,
+      };
+    }
+
+    function setColumnWidths(widths, unit) {
+      if (!colgroup) {
+        colgroup = document.createElement("colgroup");
+        colgroup.className = "gd-auto-colgroup";
+        for (var i = 0; i < widths.length; i++) colgroup.appendChild(document.createElement("col"));
+        table.insertBefore(colgroup, table.firstChild);
+      }
+      for (var j = 0; j < widths.length; j++) {
+        colgroup.children[j].style.width = widths[j].toFixed(3) + unit;
+      }
+    }
+
+    function layout(force) {
+      if (table.closest(".scale-to-fit, .gd-table-nowrap")) {
+        reset();
+        return;
+      }
+      var available = scrollContainer.clientWidth;
+      if (!available) return;
+      var fontSize = parseFloat(window.getComputedStyle(table).fontSize) || 16;
+      if (force || !metrics || metrics.fontSize !== fontSize) {
+        metrics = measure();
+        lastWidth = -1;
+      }
+      if (!metrics) return;
+      if (available === lastWidth) return;
+      lastWidth = available;
+
+      var em = metrics.fontSize;
+      var max = metrics.max;
+      var min = metrics.min;
+      // Width of each column at each step of the ladder (see above)
+      var ladder = [[], [], [], [], [], []];
+      var i;
+      for (i = 0; i < max.length; i++) {
+        var isShort = max[i] <= SHORT_COL_EM * em;
+        var proseComfort = Math.min(max[i], Math.max(min[i], PROSE_COMFORT_EM * em));
+        var proseMin = Math.min(max[i], Math.max(min[i], PROSE_MIN_EM * em));
+        var shortTypical = Math.max(min[i], Math.min(max[i], metrics.typical[i]));
+        ladder[0].push(max[i]);
+        ladder[1].push(isShort ? max[i] : proseComfort);
+        ladder[2].push(isShort ? shortTypical : proseComfort);
+        ladder[3].push(isShort ? shortTypical : proseMin);
+        ladder[4].push(isShort ? min[i] : proseMin);
+        ladder[5].push(isShort ? min[i] : Math.min(proseMin, Math.max(min[i], PROSE_TIGHT_EM * em)));
+      }
+
+      // Everything fits on one line per row: natural browser layout
+      if (sum(max) <= available) {
+        reset();
+        return;
+      }
+
+      // Find the widest step that fits, then interpolate toward the step
+      // above it so the columns total exactly `available`
+      var step = 1;
+      while (step < ladder.length && sum(ladder[step]) > available) step++;
+      if (step === ladder.length) {
+        // Nothing left to give: scroll, with prose at its readable minimum
+        var narrowest = ladder[4];
+        setColumnWidths(narrowest, "px");
+        table.style.tableLayout = "fixed";
+        table.style.width = sum(narrowest) + "px";
+        outerWrapper.classList.add("gd-table-overflow");
+        outerWrapper.classList.remove("gd-table-fit");
+        return;
+      }
+      var lo = ladder[step];
+      var hi = ladder[step - 1];
+      var ratio = sum(hi) > sum(lo) ? (available - sum(lo)) / (sum(hi) - sum(lo)) : 1;
+      var widths = [];
+      for (i = 0; i < lo.length; i++) widths.push(lo[i] + (hi[i] - lo[i]) * ratio);
+
+      // Percentages (of a 100%-wide table) absorb subpixel rounding
+      for (i = 0; i < widths.length; i++) widths[i] = (widths[i] / available) * 100;
+      setColumnWidths(widths, "%");
+      table.style.tableLayout = "fixed";
+      table.style.width = "100%";
+      outerWrapper.classList.add("gd-table-fit");
+      outerWrapper.classList.remove("gd-table-overflow");
+    }
+
+    layout(true);
+
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(function () { layout(false); }).observe(scrollContainer);
+    }
+
+    // Web fonts and images change the measured widths once they load
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { layout(true); });
+    }
+    var imgs = table.querySelectorAll("img");
+    for (var k = 0; k < imgs.length; k++) {
+      if (!imgs[k].complete) {
+        imgs[k].addEventListener("load", function () { layout(true); });
+      }
+    }
+  }
+
   /**
    * Wrap a table in a responsive scroll container
    */
@@ -96,6 +361,22 @@
     indicatorRight.addEventListener("click", function () {
       scrollContainer.scrollBy({ left: 150, behavior: "smooth" });
     });
+
+    // Choose a column sizing strategy:
+    // - `.gd-table-nowrap` (on the table or an ancestor) opts out: one line
+    //   per cell, horizontal scroll for wide tables (the legacy behavior)
+    // - author-specified widths (e.g., `tbl-colwidths`): fill the content
+    //   width and honor the given proportions
+    // - plain Markdown tables: heuristic sizing (see autoSizeTable)
+    // - anything else (custom-styled tables, data frames): untouched
+    if (table.classList.contains("gd-table-nowrap") || table.closest(".gd-table-nowrap")) {
+      outerWrapper.classList.add("gd-table-nowrap");
+    } else if (hasExplicitWidths(table)) {
+      outerWrapper.classList.add("gd-table-explicit");
+    } else if (isPlainTable(table)) {
+      outerWrapper.classList.add("gd-table-auto");
+      autoSizeTable(table, outerWrapper, scrollContainer);
+    }
 
     // Initial indicator update
     setTimeout(updateScrollIndicators, 100);
