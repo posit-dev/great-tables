@@ -762,8 +762,9 @@ def fmt_scientific_context(
     # Scale `x` value by a defined `scale_by` value
     x = x * scale_by
 
-    if math.isinf(x):
-        return _format_infinite_value(x, force_sign=force_sign_m, pattern=pattern, context=context)
+    # Infinite values (and NaN, e.g., from `inf * 0` with `scale_by=0`) have no mantissa or exponent
+    if not math.isfinite(x):
+        return _format_nonfinite_value(x, force_sign=force_sign_m, pattern=pattern, context=context)
 
     # Determine whether the value is positive
     is_positive = _has_positive_value(value=x)
@@ -1087,8 +1088,9 @@ def fmt_engineering_context(
     # Scale `x` value by a defined `scale_by` value
     x = x * scale_by
 
-    if math.isinf(x):
-        return _format_infinite_value(x, force_sign=force_sign_m, pattern=pattern, context=context)
+    # Infinite values (and NaN, e.g., from `inf * 0` with `scale_by=0`) have no mantissa or exponent
+    if not math.isfinite(x):
+        return _format_nonfinite_value(x, force_sign=force_sign_m, pattern=pattern, context=context)
 
     # Determine whether the value is positive
     is_positive = _has_positive_value(value=x)
@@ -2546,21 +2548,20 @@ def fmt_roman_context(
     # Get the absolute value of `x` so that negative values are handled
     x = abs(x)
 
-    if math.isinf(x):
-        # Like other values that are too large, infinity can't be a roman numeral
-        return "ex terminis"
-
-    # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes)
-    x = _round_rhu(x, 0)
+    # Round x to 0 digits with the R-H-U method of rounding (for reproducibility purposes);
+    # infinity is left as is since, like other values that are too large, it can't be a
+    # roman numeral
+    if not math.isinf(x):
+        x = _round_rhu(x, 0)
 
     # Determine if `x` is in the range of 1 to 3899 and if it is zero
     x_is_in_range = x > 0 and x < 3900
     x_is_zero = x == 0
 
     if not x_is_in_range and not x_is_zero:
-        # We cannot format a 'large' integer to roman numerals, so we return a string
-        # that indicates this
-        return "ex terminis"
+        # We cannot format a 'large' integer to roman numerals, so we use a string that
+        # indicates this (it is still decorated by `pattern=` below)
+        x_formatted = "ex terminis"
     elif x_is_zero:
         # Zero is a special case and is handled separately with the character 'N'
         # which stands for 'nulla' (i.e., 'nothing')
@@ -2829,7 +2830,7 @@ def fmt_fraction_context(
         return x
 
     if not math.isfinite(x):
-        return str(x)
+        return _format_nonfinite_value(x, force_sign=False, pattern=pattern, context=context)
 
     is_negative = x < 0
     x_abs = abs(x)
@@ -3439,8 +3440,8 @@ def fmt_index_context(
     if is_na(data._tbl_data, x):
         return x
 
-    if math.isinf(x):
-        return str(x)
+    if not math.isfinite(x):
+        return _format_nonfinite_value(x, force_sign=False, pattern=pattern, context=context)
 
     x_int = int(abs(_round_rhu(x, 0)))
 
@@ -4116,8 +4117,8 @@ def fmt_bytes_context(
     if is_na(data._tbl_data, x):
         return x
 
-    if math.isinf(x):
-        return _format_infinite_value(x, force_sign=force_sign, pattern=pattern, context=context)
+    if not math.isfinite(x):
+        return _format_nonfinite_value(x, force_sign=force_sign, pattern=pattern, context=context)
 
     # Truncate all byte values by casting to an integer; this is done because bytes
     # are always whole numbers
@@ -4740,9 +4741,9 @@ def fmt_duration_context(
     else:
         return str(x)
 
-    # An infinite duration can't be split into time parts
-    if math.isinf(x_seconds):
-        return _format_infinite_value(
+    # An infinite (or NaN) duration can't be split into time parts
+    if not math.isfinite(x_seconds):
+        return _format_nonfinite_value(
             x_seconds, force_sign=force_sign, pattern=pattern, context=context
         )
 
@@ -6071,12 +6072,12 @@ def fmt_units(
     return fmt(self, fns=fmt_units_fn, columns=columns, rows=rows)
 
 
-def _format_infinite_value(x: float, force_sign: bool, pattern: str, context: str) -> str:
+def _format_nonfinite_value(x: float, force_sign: bool, pattern: str, context: str) -> str:
     """
-    Format an infinite value the way `fmt_number()` does.
+    Format an infinite or NaN value the way `fmt_number()` does.
 
-    Infinity has no mantissa, exponent or unit, so formatters that need one of these use this
-    instead.
+    Non-finite values have no mantissa, exponent, unit or fraction, so formatters that need one of
+    these use this instead.
     """
 
     x_formatted = _value_to_decimal_notation(value=x, force_sign=force_sign)
@@ -6311,8 +6312,8 @@ def _format_number_compactly(
     if value == 0:
         return "0"
 
-    # Infinity has no suffix, so it is formatted the same as without `compact=True`
-    if math.isinf(value):
+    # Infinity (and NaN) has no suffix, so it is formatted the same as without `compact=True`
+    if not math.isfinite(value):
         return _value_to_decimal_notation(value=value, force_sign=force_sign)
 
     # Stop if `n_sigfig` does not have a valid value
