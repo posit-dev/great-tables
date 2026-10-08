@@ -5188,6 +5188,9 @@ def fmt_time(
 
     Format input values to time values using one of 5 preset time styles. Input can be in the form
     of `time` values, or strings in the ISO 8601 forms of `HH:MM:SS` or `YYYY-MM-DD HH:MM:SS`.
+    For `datetime` values (and datetime strings), the time part is formatted. Dates without a time
+    (e.g., `"2024-01-05"`) raise an error; use [`fmt_date()`](`great_tables.GT.fmt_date`) for
+    those.
 
     Parameters
     ----------
@@ -5289,6 +5292,10 @@ def fmt_time_context(
     if isinstance(x, str):
         # Convert the ISO time string to a time object
         x = _iso_str_to_time(x)
+
+    elif isinstance(x, datetime):
+        # Use the time part of a datetime (as for datetime strings)
+        x = x.time()
 
     else:
         # Stop if `x` is not a valid time object
@@ -7213,7 +7220,8 @@ def _iso_str_to_time(x: str) -> time:
     Converts a string in ISO format to a time object.
 
     The string can be a time (`HH:MM:SS`) or a datetime (`YYYY-MM-DD HH:MM:SS`), in which case
-    its time part is used.
+    its time part is used. A date without a time (`YYYY-MM-DD`) is rejected rather than read as
+    midnight.
 
     Args:
         x (str): The string to be converted.
@@ -7223,8 +7231,24 @@ def _iso_str_to_time(x: str) -> time:
     """
     try:
         return time.fromisoformat(x)
+    except ValueError as e:
+        time_error = e
+
+    # A date in a time column is more likely a mistake than midnight
+    try:
+        date.fromisoformat(x)
     except ValueError:
+        pass
+    else:
+        raise ValueError(
+            f"Invalid time string: '{x}' is a date without a time. Use `fmt_date()` to format dates."
+        )
+
+    try:
         return datetime.fromisoformat(x).time()
+    except ValueError:
+        # The string is neither a time nor a datetime, so report the error for a time string
+        raise time_error from None
 
 
 def _iso_str_to_datetime(x: str) -> datetime:
