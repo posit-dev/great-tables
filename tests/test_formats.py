@@ -1,12 +1,12 @@
 import re
-from datetime import date
+from datetime import date, timedelta
 from typing import Any, Union
 
 import pandas as pd
 import polars as pl
 import pytest
 import sys
-from great_tables import GT, _locale
+from great_tables import GT, _locale, vals
 from great_tables._data_color.base import _html_color
 from great_tables._formats import (
     FmtImage,
@@ -1586,20 +1586,29 @@ def test_fmt_date_iso_pads_the_year():
     ]
 
 
-@pytest.mark.parametrize(
-    "locale,x_out",
-    [
-        (None, ["2021-W01", "2025-W01", "2024-W10"]),
-        ("en-GB", ["2020-W53", "2025-W01", "2024-W10"]),
-    ],
-)
-def test_fmt_date_year_week_uses_week_year(locale: str | None, x_out: list[str]):
-    # Near the start or end of a year a week can belong to the neighboring year, so the year shown
-    # must be the one that the week belongs to
-    df = pd.DataFrame({"x": ["2020-12-31", "2024-12-30", "2024-03-05"]})
+@pytest.mark.parametrize("locale", [None, "en-GB", "de", "ar"])
+def test_fmt_date_year_week_is_iso_week(locale: str | None):
+    # `year_week` is the ISO 8601 week date in every locale: near the start or end of a year a week
+    # can belong to the neighboring year, and the year shown is the one the week belongs to
+    df = pd.DataFrame(
+        {"x": ["2020-12-31", "2021-01-03", "2024-12-30", "2024-03-05", "2000-02-29", "0999-06-01"]}
+    )
     gt = GT(df, locale=locale).fmt_date(columns="x", date_style="year_week")
     x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == x_out
+    assert x == ["2020-W53", "2020-W53", "2025-W01", "2024-W10", "2000-W09", "0999-W22"]
+
+
+def test_fmt_date_year_week_matches_isocalendar():
+    days = [date(1990, 1, 1) + timedelta(days=n) for n in range(0, 365 * 50, 2)]
+    x = vals.fmt_date([day.isoformat() for day in days], date_style="year_week")
+    assert x == [f"{d.isocalendar()[0]:04d}-W{d.isocalendar()[1]:02d}" for d in days]
+
+
+def test_fmt_datetime_year_week_is_iso_week():
+    df = pd.DataFrame({"x": ["2024-12-30 13:45:00", "2021-01-03 08:00:00"]})
+    gt = GT(df).fmt_datetime(columns="x", date_style="year_week", time_style="iso", sep=" at ")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["2025-W01 at 13:45:00", "2020-W53 at 08:00:00"]
 
 
 # ------------------------------------------------------------------------------
