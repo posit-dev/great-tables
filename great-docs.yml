@@ -48,11 +48,6 @@ authors:
     email: rich@posit.co
     github: rich-iannone
     orcid: 0000-0003-3925-190X
-  - name: Michael Chow
-    role: Author
-    affiliation: Posit, PBC
-    email: michael.chow@posit.co
-    github: machow
 
 # Funding / Copyright Holder
 funding:
@@ -108,6 +103,7 @@ reference:
         - GT.rm_footnotes
         - GT.rm_source_notes
         - GT.tab_style
+        - GT.tab_style_body
         - GT.tab_options
 
     - title: Formatting column data
@@ -117,7 +113,8 @@ reference:
         exactly once to each data cell (last call wins). Need to do custom formatting? Use the
         [`fmt()`](`great_tables.GT.fmt`) method and define your own formatter. The `sub_*()` methods
         allow you to perform substitution operations and `data_color()` provides a lot of power for
-        colorizing body cells based on their data values.
+        colorizing body cells based on their data values. The `col_numeric()`, `col_bin()`, and
+        `col_factor()` helpers create color-mapping functions for use with its `fn=` argument.
       contents:
         - GT.fmt_number
         - GT.fmt_integer
@@ -128,6 +125,11 @@ reference:
         - GT.fmt_partsper
         - GT.fmt_currency
         - GT.fmt_roman
+        - GT.fmt_fraction
+        - GT.fmt_chem
+        - GT.fmt_index
+        - GT.fmt_url
+        - GT.fmt_email
         - GT.fmt_bytes
         - GT.fmt_date
         - GT.fmt_time
@@ -140,6 +142,7 @@ reference:
         - GT.fmt_flag
         - GT.fmt_icon
         - GT.fmt_nanoplot
+        - GT.fmt_passthrough
         - GT.fmt
         - GT.sub_missing
         - GT.sub_zero
@@ -147,6 +150,9 @@ reference:
         - GT.sub_large_vals
         - GT.sub_values
         - GT.data_color
+        - col_numeric
+        - col_bin
+        - col_factor
 
     - title: Text transformation
       desc: >
@@ -216,6 +222,7 @@ reference:
         - loc.body
         - loc.footer
         - loc.source_notes
+        - loc.footnotes
         - style.fill
         - style.text
         - style.borders
@@ -244,6 +251,7 @@ reference:
       contents:
         - GT.opt_stylize
         - GT.opt_footnote_marks
+        - GT.opt_footnote_spec
         - GT.opt_row_striping
         - GT.opt_align_table_header
         - GT.opt_vertical_padding
@@ -287,6 +295,11 @@ reference:
         - vals.fmt_partsper
         - vals.fmt_currency
         - vals.fmt_roman
+        - vals.fmt_fraction
+        - vals.fmt_chem
+        - vals.fmt_index
+        - vals.fmt_url
+        - vals.fmt_email
         - vals.fmt_bytes
         - vals.fmt_duration
         - vals.fmt_date
@@ -297,10 +310,12 @@ reference:
 
     - title: Built-in Datasets
       desc: >
-        The Great Tables package is equipped with sixteen datasets that come in all shapes and
-        sizes. Many examples throughout the help docs use these datasets to quickly demonstrate
-        the features of the package.
+        The Great Tables package is equipped with 16 datasets that come in all shapes and sizes.
+        Many examples throughout the help docs use these datasets to quickly demonstrate the
+        features of the package. The `load_dataset()` function provides a convenient way to load any
+        dataset as either a Pandas or Polars DataFrame.
       contents:
+        - load_dataset
         - data.countrypops
         - data.sza
         - data.gtcars

@@ -1179,6 +1179,310 @@ def val_fmt_roman(
 
 
 @expressive
+def val_fmt_fraction(
+    x: X,
+    accuracy: str | int = "low",
+    simplify: bool = True,
+    layout: str = "inline",
+    use_seps: bool = True,
+    pattern: str = "{x}",
+    sep_mark: str = ",",
+    locale: str | None = None,
+) -> list[str]:
+    """
+    Format values as mixed fractions.
+
+    With numeric values we can perform mixed-fraction-based formatting. The `accuracy` parameter
+    controls the type of fractions generated: use a keyword (`"low"`, `"med"`, `"high"`) to get
+    denominators of up to 1, 2, or 3 digits, or supply a positive integer to fix the denominator
+    (e.g., `2` for halves, `4` for quarters).
+
+    Parameters
+    ----------
+    x
+        A list of values to be formatted.
+    accuracy
+        The accuracy of the fraction. Use `"low"` for denominators up to 1 digit (e.g., halves,
+        thirds, quarters, etc.), `"med"` for up to 2-digit denominators, `"high"` for up to 3-digit
+        denominators, or a positive integer for a fixed denominator. The default is `"low"`.
+    simplify
+        When `accuracy` is an integer, should the fraction be simplified via GCD reduction? For
+        example, with `accuracy=4` and a value of `0.5`, `simplify=True` yields `"1/2"` while
+        `simplify=False` yields `"2/4"`. The default is `True`.
+    layout
+        `"inline"` for baseline fractions with a standard slash (e.g., `3/4`), `"diagonal"` for
+        raised/lowered numerals with a fraction slash character (HTML only). The default is
+        `"inline"`.
+    use_seps
+        Whether to use digit grouping separators in the whole-number part. The default is `True`.
+    pattern
+        A formatting pattern that allows for decoration of the formatted value. The formatted value
+        is represented by the `{x}` and all other characters are interpreted as string literals.
+    sep_mark
+        The mark to use as a thousands separator. The default is `","`.
+    locale
+        An optional locale ID that can be used for applying a locale-specific thousands separator.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_fraction([1.5, 0.25, 3.75])
+    ```
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=x)
+
+    gt_obj_fmt = gt_obj.fmt_fraction(
+        columns="x",
+        accuracy=accuracy,
+        simplify=simplify,
+        layout=layout,
+        use_seps=use_seps,
+        pattern=pattern,
+        sep_mark=sep_mark,
+        locale=locale,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
+def val_fmt_chem(
+    x: X,
+) -> list[str]:
+    """
+    Format chemical formulas.
+
+    With string values in a list, we can transform chemical formula notation into properly typeset
+    HTML with subscripted numbers, superscripted charges, reaction arrows, and more. The input text
+    should conform to the chemistry notation described in `fmt_chem()`.
+
+    Parameters
+    ----------
+    x
+        A list of string values to be formatted as chemical formulas.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_chem(["C6H12O6", "H2O", "CH4 + 2 O2 -> CO2 + 2 H2O"])
+    ```
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=x)
+
+    gt_obj_fmt = gt_obj.fmt_chem(columns="x")
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
+def val_fmt_index(
+    x: X,
+    case: str = "upper",
+    index_algo: str = "repeat",
+    pattern: str = "{x}",
+    locale: str | None = None,
+) -> list[str]:
+    """
+    Format values as index characters.
+
+    With numeric values in a list, we can transform those to index values based on letters. The
+    value `1` maps to `"A"`, `2` to `"B"`, and so on through the alphabet. When values exceed 26,
+    the `index_algo` parameter controls how additional characters are generated.
+
+    Parameters
+    ----------
+    x
+        A list of numeric values to be formatted as index characters.
+    case
+        The case of the resulting characters. `"upper"` (default) or `"lower"`.
+    index_algo
+        The algorithm for values exceeding the character set size. `"repeat"` (default) repeats
+        characters whereas `"excel"` uses Excel-style column naming.
+    pattern
+        A formatting pattern; `{x}` is the formatted value placeholder.
+    locale
+        An optional locale ID. Currently reserved for future use.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+
+    Examples
+    --------
+    ```{python}
+    from great_tables import vals
+
+    vals.fmt_index([1, 2, 3, 26, 27])
+    ```
+    """
+
+    gt_obj: GTData = _make_one_col_table(vals=x)
+
+    gt_obj_fmt = gt_obj.fmt_index(
+        columns="x",
+        case=case,
+        index_algo=index_algo,
+        pattern=pattern,
+        locale=locale,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
+def val_fmt_url(
+    x: X,
+    label: str | Callable[[str], str] | None = None,
+    as_button: bool = False,
+    color: str = "auto",
+    show_underline: str | bool = "auto",
+    button_fill: str = "auto",
+    button_width: str | None = None,
+    button_outline: str | None = None,
+    target: str | None = "_blank",
+) -> list[str]:
+    """
+    Format values as URL links.
+
+    The `val_fmt_url()` function lets you format string values as clickable URL links. This is the
+    standalone version of `GT.fmt_url()`.
+
+    Parameters
+    ----------
+    x
+        A list of URL strings (or a single URL string) to be formatted.
+    label
+        An optional label for the link. Can be a string or a callable.
+    as_button
+        Should the link be styled as a button? By default this is `False`.
+    color
+        The color of the link text. The default `"auto"` uses dark cyan for links and white
+        for buttons.
+    show_underline
+        Should the link be underlined? The default `"auto"` enables underlines for links
+        and disables them for buttons.
+    button_fill
+        The background color for button-style links.
+    button_width
+        The width of the button as a CSS width string.
+    button_outline
+        The CSS outline for the button.
+    target
+        The `target` attribute for the anchor element.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+    """
+
+    gt_obj = _make_one_col_table(x)
+
+    gt_obj_fmt = gt_obj.fmt_url(
+        columns="x",
+        label=label,
+        as_button=as_button,
+        color=color,
+        show_underline=show_underline,
+        button_fill=button_fill,
+        button_width=button_width,
+        button_outline=button_outline,
+        target=target,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
+def val_fmt_email(
+    x: X,
+    display_name: str | Callable[[str], str] | None = None,
+    as_button: bool = False,
+    color: str = "auto",
+    show_underline: str | bool = "auto",
+    button_fill: str = "auto",
+    button_width: str | None = None,
+    button_outline: str | None = None,
+    target: str | None = "_blank",
+) -> list[str]:
+    """
+    Format values as email links.
+
+    The `val_fmt_email()` function lets you format string values as clickable `mailto:` links. This
+    is the standalone version of `GT.fmt_email()`.
+
+    Parameters
+    ----------
+    x
+        A list of email address strings (or a single string) to be formatted.
+    display_name
+        An optional display name for the link. Can be a string or a callable.
+    as_button
+        Should the link be styled as a button? By default this is `False`.
+    color
+        The color of the link text.
+    show_underline
+        Should the link be underlined?
+    button_fill
+        The background color for button-style links.
+    button_width
+        The width of the button as a CSS width string.
+    button_outline
+        The CSS outline for the button.
+    target
+        The `target` attribute for the anchor element.
+
+    Returns
+    -------
+    list[str]
+        A list of formatted values is returned.
+    """
+
+    gt_obj = _make_one_col_table(x)
+
+    gt_obj_fmt = gt_obj.fmt_email(
+        columns="x",
+        display_name=display_name,
+        as_button=as_button,
+        color=color,
+        show_underline=show_underline,
+        button_fill=button_fill,
+        button_width=button_width,
+        button_outline=button_outline,
+        target=target,
+    )
+
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+
+    return vals_fmt
+
+
+@expressive
 def val_fmt_bytes(
     x: X,
     standard: str = "decimal",

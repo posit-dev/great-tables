@@ -502,3 +502,67 @@ class TestIhtmlWarnings:
         html = gt.as_raw_html()
         # The column width should influence the rendered output in some way
         assert "120" in html
+
+
+# ---------------------------------------------------------------------------
+# Numeric column sorting
+# ---------------------------------------------------------------------------
+
+
+class TestNumericSorting:
+    """Numeric columns should use numeric sort order, not lexicographic."""
+
+    def test_numeric_columns_have_type_numeric(self):
+        df = pl.DataFrame({"symbol": ["A", "B", "C"], "price": [227.5, 431.2, 118.9]})
+        html = GT(df).opt_interactive().as_raw_html()
+        props = _extract_props(html)
+        col_map = {c["id"]: c for c in props["columns"]}
+        assert col_map["price"]["type"] == "numeric"
+        assert "type" not in col_map["symbol"]
+
+    def test_numeric_data_contains_numbers(self):
+        df = pl.DataFrame({"name": ["X", "Y"], "value": [51230, 302100]})
+        html = GT(df).opt_interactive().as_raw_html()
+        props = _extract_props(html)
+        assert props["data"]["value"] == [51230.0, 302100.0]
+        assert props["data"]["name"] == ["X", "Y"]
+
+    def test_numeric_columns_have_cell_display_values(self):
+        df = pl.DataFrame({"a": ["x"], "b": [42]})
+        html = GT(df).opt_interactive().as_raw_html()
+        props = _extract_props(html)
+        col_map = {c["id"]: c for c in props["columns"]}
+        assert "cell" in col_map["b"]
+        assert col_map["b"]["html"] is True
+        assert "cell" not in col_map["a"]
+
+    def test_formatted_numeric_uses_display_in_cell(self):
+        df = pl.DataFrame({"val": [1234.5]})
+        html = GT(df).fmt_number("val", decimals=2).opt_interactive().as_raw_html()
+        props = _extract_props(html)
+        col_map = {c["id"]: c for c in props["columns"]}
+        assert col_map["val"]["cell"] == ["1,234.50"]
+        assert props["data"]["val"] == [1234.5]
+
+    def test_null_numeric_values(self):
+        df = pl.DataFrame({"x": [1.0, None, 3.0]})
+        html = GT(df).opt_interactive().as_raw_html()
+        props = _extract_props(html)
+        assert props["data"]["x"] == [1.0, None, 3.0]
+
+    def test_integer_column_detected_as_numeric(self):
+        df = pl.DataFrame({"n": [10, 20, 30]})
+        html = GT(df).opt_interactive().as_raw_html()
+        props = _extract_props(html)
+        col_map = {c["id"]: c for c in props["columns"]}
+        assert col_map["n"]["type"] == "numeric"
+
+    def test_pandas_numeric_columns(self):
+        import pandas as pd
+
+        df = pd.DataFrame({"label": ["a", "b"], "amount": [100, 200]})
+        html = GT(df).opt_interactive().as_raw_html()
+        props = _extract_props(html)
+        col_map = {c["id"]: c for c in props["columns"]}
+        assert col_map["amount"]["type"] == "numeric"
+        assert "type" not in col_map["label"]

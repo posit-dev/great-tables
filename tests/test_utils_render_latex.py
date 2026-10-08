@@ -1,4 +1,5 @@
 import pytest
+import re
 from unittest import mock
 import pandas as pd
 import os
@@ -213,7 +214,7 @@ def test_create_columns_component_l_one_spanner():
 
     assert (
         create_columns_component_l(data=gt_tbl)
-        == "\\toprule\n\\multicolumn{2}{c}{Spanner} &  \\\\ \n\\cmidrule(lr){1-2}\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
+        == "\\toprule\n\\multicolumn{2}{c}{Spanner} &  &  &  &  &  &  &  \\\\ \n\\cmidrule(lr){1-2}\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
     )
 
 
@@ -244,8 +245,47 @@ def test_create_columns_component_l_many_spanners():
 
     assert (
         create_columns_component_l(data=gt_tbl)
-        == "\\toprule\n & \\multicolumn{2}{c}{Spanner Above 1} &  & \\multicolumn{2}{c}{Spanner Above 2} &  \\\\ \n\\cmidrule(lr){2-3} \\cmidrule(lr){5-6}\n\\multicolumn{2}{c}{Spanner 1} &  & \\multicolumn{2}{c}{Spanner 2} &  & \\multicolumn{2}{c}{Spanner 3} &  \\\\ \n\\cmidrule(lr){1-2} \\cmidrule(lr){4-5} \\cmidrule(lr){7-8}\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
+        == "\\toprule\n & \\multicolumn{2}{c}{Spanner Above 1} &  & \\multicolumn{2}{c}{Spanner Above 2} &  &  &  \\\\ \n\\cmidrule(lr){2-3} \\cmidrule(lr){5-6}\n\\multicolumn{2}{c}{Spanner 1} &  & \\multicolumn{2}{c}{Spanner 2} &  & \\multicolumn{2}{c}{Spanner 3} &  \\\\ \n\\cmidrule(lr){1-2} \\cmidrule(lr){4-5} \\cmidrule(lr){7-8}\nnum & char & fctr & date & time & datetime & currency & row & group \\\\ \n\\midrule\\addlinespace[2.5pt]"
     )
+
+
+def _latex_row_width(row: str) -> int:
+    """Count the columns a latex row covers, counting each multicolumn by its span."""
+    width = 0
+    for cell in row.split("&"):
+        match = re.search(r"multicolumn\{(\d+)\}", cell)
+        width += int(match.group(1)) if match else 1
+    return width
+
+
+@pytest.mark.parametrize(
+    "gt_tbl",
+    [
+        GT(exibble).tab_spanner(label="Spanner", columns=["num", "char"]),
+        GT(exibble).tab_spanner(label="Spanner", columns=["fctr", "date"]),
+        GT(exibble)
+        .tab_spanner(label="Spanner 1", columns=["num", "char"])
+        .tab_spanner(label="Spanner 2", columns=["date", "time"])
+        .tab_spanner(label="Spanner Above", columns=["char", "fctr"]),
+        GT(exibble)
+        .tab_stub(rowname_col="row")
+        .tab_spanner(label="Spanner", columns=["fctr", "date"]),
+    ],
+)
+def test_create_columns_component_l_rows_span_every_column(gt_tbl: GT):
+    rows = [
+        row for row in create_columns_component_l(data=gt_tbl).splitlines() if row.endswith("\\\\ ")
+    ]
+
+    # Every spanner row has to cover the same number of columns as the headings row
+    assert len({_latex_row_width(row) for row in rows}) == 1
+
+
+def test_create_columns_component_l_cmidrule_follows_the_spanned_columns():
+    gt_tbl = GT(exibble).tab_spanner(label="Spanner", columns=["fctr", "date"])
+
+    # fctr and date are the third and fourth columns of exibble
+    assert "\\cmidrule(lr){3-4}" in create_columns_component_l(data=gt_tbl)
 
 
 def test_create_body_component_l_simple(gt_tbl: GT):
@@ -643,6 +683,40 @@ def test_create_columns_component_l_with_stub_and_spanner():
     result = create_columns_component_l(built)
 
     assert "Numbers" in result
+
+
+def test_create_columns_component_l_with_stubhead():
+    gt_tbl = GT(exibble[["num", "char", "row"]].head(2), rowname_col="row").tab_stubhead(
+        label="Row & name"
+    )
+    result = create_columns_component_l(gt_tbl._build_data("latex"))
+
+    assert result == "\\toprule\nRow \\& name & num & char \\\\ \n\\midrule\\addlinespace[2.5pt]"
+
+
+def test_create_columns_component_l_with_stubhead_spanning_stub_columns():
+    gt_tbl = (
+        GT(exibble[["num", "row", "group"]].head(2), rowname_col="row", groupname_col="group")
+        .tab_stubhead(label="Stub")
+        .tab_options(row_group_as_column=True)
+    )
+    result = create_columns_component_l(gt_tbl._build_data("latex"))
+
+    assert (
+        result
+        == "\\toprule\n\\multicolumn{2}{l|}{Stub} & num \\\\ \n\\midrule\\addlinespace[2.5pt]"
+    )
+
+
+def test_create_columns_component_l_with_stubhead_and_spanner():
+    gt_tbl = (
+        GT(exibble[["num", "currency", "row"]].head(2), rowname_col="row")
+        .tab_stubhead(label="Stub")
+        .tab_spanner(label="Numbers", columns=["num", "currency"])
+    )
+    result = create_columns_component_l(gt_tbl._build_data("latex"))
+
+    assert result.endswith("Stub & num & currency \\\\ \n\\midrule\\addlinespace[2.5pt]")
 
 
 def test_render_as_latex_grand_summary_no_stub():

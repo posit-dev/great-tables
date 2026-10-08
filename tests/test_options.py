@@ -6,7 +6,6 @@ import pytest
 from great_tables import GT, exibble, loc, md, google_font
 from great_tables._scss import compile_scss
 from great_tables._gt_data import default_fonts_list
-from great_tables._helpers import _intify_scaled_px
 from great_tables._utils_render_html import create_body_component_h
 
 
@@ -506,13 +505,16 @@ def test_opt_align_table_header(gt_tbl: GT, align: list[str]):
     assert tbl._options.heading_align.value == align
 
 
-@pytest.mark.parametrize("scale, expected", [(0.7, "3px"), (1.0, "5px"), (2.1, "10px")])
-def test_opt_vertical_padding(gt_tbl: GT, scale: float, expected: int):
+@pytest.mark.parametrize(
+    "scale, expected", [(0.7, "3.5px"), (1.0, "5px"), (2.1, "10.5px"), (0.1, "0.5px")]
+)
+def test_opt_vertical_padding(gt_tbl: GT, scale: float, expected: str):
     """
     css_length_val_small = "5px"
-    => int(0.7 * 5) = 3
-    => int(1.0 * 5) = 5
-    => int(2.1 * 5) = 10
+    => 0.7 * 5 = 3.5
+    => 1.0 * 5 = 5, a whole number, so no trailing ".0"
+    => 2.1 * 5 = 10.5
+    => 0.1 * 5 = 0.5, kept rather than collapsing to 0px
     """
     tbl = gt_tbl.opt_vertical_padding(scale=scale)
 
@@ -531,13 +533,16 @@ def test_opt_vertical_padding_raises(gt_tbl: GT, scale: float):
     assert "`scale` must be a value between `0` and `3`." in exc_info.value.args[0]
 
 
-@pytest.mark.parametrize("scale, expected", [(0.1, "0px"), (1.0, "5px"), (2.2, "11px")])
-def test_opt_horizontal_padding(gt_tbl: GT, scale: float, expected: int):
+@pytest.mark.parametrize(
+    "scale, expected", [(0.1, "0.5px"), (1.0, "5px"), (2.2, "11px"), (0.7, "3.5px")]
+)
+def test_opt_horizontal_padding(gt_tbl: GT, scale: float, expected: str):
     """
     css_length_val_small = "5px"
-    => int(0.1 * 5) = 0
-    => int(1.0 * 5) = 5
-    => int(2.2 * 5) = 11
+    => 0.1 * 5 = 0.5, kept rather than collapsing to 0px
+    => 1.0 * 5 = 5, a whole number, so no trailing ".0"
+    => 2.2 * 5 = 11, also whole
+    => 0.7 * 5 = 3.5
     """
     tbl = gt_tbl.opt_horizontal_padding(scale=scale)
 

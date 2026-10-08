@@ -3,11 +3,11 @@ from __future__ import annotations
 import importlib
 import itertools
 import re
-from collections.abc import Generator, Set
+from collections.abc import Generator, Iterable, Iterator, Set
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Iterable, Iterator
+from typing import TYPE_CHECKING, Any
 
-from ._tbl_data import _get_cell, _set_cell, get_column_names, n_rows
+from ._tbl_data import _get_cell, _set_cell, get_column_names, is_na, n_rows
 from ._text import BaseText, _process_text
 
 if TYPE_CHECKING:
@@ -49,40 +49,28 @@ def _match_arg(x: str, lst: list[str]) -> str:
     if len(lst) != len(set(lst)):
         raise ValueError("The `lst` object must contain unique elements.")
 
-    matched = [el for el in lst if x in el]
+    # Options may be abbreviated by a prefix, as with match.arg() in R
+    matched = [el for el in lst if el.startswith(x)]
 
     # Raise error if there is no match
     if not matched:
         raise ValueError(f"The supplied value (`{x}`) is not an allowed option.")
 
-    return matched.pop()
+    # An exact match wins over a prefix shared with longer options
+    if x in matched:
+        return x
 
+    if len(matched) > 1:
+        raise ValueError(
+            f"The supplied value (`{x}`) is ambiguous; it matches {', '.join(matched)}."
+        )
 
-def _assert_str_scalar(x: Any) -> None:
-    if not isinstance(x, str):
-        raise AssertionError(f"The supplied value (`{x}`) is not a string.")
-
-
-def _assert_str_list(x: Any) -> None:
-    if not isinstance(x, list):
-        raise AssertionError(f"The supplied value (`{x}`) is not a list.")
-    if not all(map(lambda x: isinstance(x, str), x)):
-        raise AssertionError("Not all elements of the supplied list are strings.")
-
-
-def _assert_str_in_set(x: str, set: list[str]) -> None:
-    if x not in set:
-        raise AssertionError(f"The string `{x}` is not part of the defined `set`.")
+    return matched[0]
 
 
 def _assert_list_is_subset(x: list[Any], set_list: list[Any]) -> None:
     if not set(x).issubset(set(set_list)):
         raise AssertionError("The columns provided are not present in the table.")
-
-
-def _str_scalar_to_list(x: str) -> list[str]:
-    _assert_str_scalar(x)
-    return [x]
 
 
 class OrderedSet(Set[Any]):
@@ -237,11 +225,6 @@ def _migrate_unformatted_to_output(
     Escape unformatted cells so they are safe for a specific output context.
     """
 
-    # TODO: This function will eventually be applied to all context types but for now
-    # it's just used for LaTeX output
-    if context != "latex":
-        return data
-
     all_formatted_cells: list[list[tuple[str, int]]] = []
 
     for fmt in formats:
@@ -261,14 +244,14 @@ def _migrate_unformatted_to_output(
     # Get the difference between the visible cells and the formatted cells
     all_unformatted_cells = list(set(all_visible_cells) - set(deduplicate_formatted_cells))
 
-    # TODO: this currently will only be used for LaTeX (HTML escaping will be performed
-    # in the future)
-
     for col, row in all_unformatted_cells:
-        # Get the cell value and cast as string
         cell_value = _get_cell(data_tbl, row, col)
-        cell_value_str = str(cell_value)
 
+        # Leave null/NaN cells for replace_null_frame to handle
+        if cell_value is None or is_na(data_tbl, cell_value):
+            continue
+
+        cell_value_str = str(cell_value)
         result = _process_text(cell_value_str, context=context)
 
         _set_cell(data._body.body, row, col, result)
@@ -283,4 +266,6 @@ def _get_visible_cells(data: TblData) -> list[tuple[str, int]]:
 
 
 def is_valid_http_schema(url: str) -> bool:
-    return url.startswith(("http://", "https://"))
+    # URI schemes are case-insensitive (RFC 3986, Section 3.1), so `HTTPS://x.com/a.png`
+    # names the same remote resource as `https://x.com/a.png`
+    return url.lower().startswith(("http://", "https://"))

@@ -14,26 +14,32 @@ from ._footnotes import tab_footnote
 from ._formats import (
     fmt,
     fmt_bytes,
+    fmt_chem,
     fmt_currency,
     fmt_date,
     fmt_datetime,
     fmt_duration,
+    fmt_email,
     fmt_engineering,
     fmt_flag,
+    fmt_fraction,
     fmt_icon,
     fmt_image,
+    fmt_index,
     fmt_integer,
     fmt_markdown,
     fmt_nanoplot,
     fmt_number,
     fmt_number_si,
     fmt_partsper,
+    fmt_passthrough,
     fmt_percent,
     fmt_roman,
     fmt_scientific,
     fmt_tf,
     fmt_time,
     fmt_units,
+    fmt_url,
 )
 from ._gt_data import GTData
 from ._heading import tab_header
@@ -44,6 +50,7 @@ from ._locations import (
     LocRowGroups,
     LocStub,
     resolve,
+    resolve_stub_cells,
 )
 from ._modify_rows import (
     grand_summary_rows,
@@ -58,6 +65,8 @@ from ._options import (
     opt_all_caps,
     opt_css,
     opt_footnote_marks,
+    opt_footnote_order,
+    opt_footnote_spec,
     opt_horizontal_padding,
     opt_interactive,
     opt_row_striping,
@@ -92,6 +101,7 @@ from ._stubhead import tab_stubhead
 from ._substitution import sub_large_vals, sub_missing, sub_small_vals, sub_values, sub_zero
 from ._tab_create_modify import (
     tab_style,
+    tab_style_body,
     text_case_match,
     text_case_when,
     text_replace,
@@ -149,7 +159,7 @@ def _apply_text_transforms(data: GT, body: Body) -> Body:
 def _apply_text_transforms_stub(data: GT, stub: Stub, body: Body) -> tuple[Stub, Body]:
     """Apply text transforms targeting loc.stub() and loc.row_groups()."""
 
-    from ._gt_data import ColInfoTypeEnum, GroupRows, Stub
+    from ._gt_data import GroupRows, Stub
     from ._tbl_data import is_na
 
     if not data._transforms:
@@ -160,15 +170,18 @@ def _apply_text_transforms_stub(data: GT, stub: Stub, body: Body) -> tuple[Stub,
         fn = transform.fn
 
         if isinstance(loc, LocStub):
-            # Find the stub column name
-            stub_col = next(
-                (col.var for col in data._boxhead if col.type == ColInfoTypeEnum.stub), None
-            )
-            if stub_col is None:
+            # Apply the transform to every stub column (all levels of a multi-col stub), or to the
+            # columns given in `loc.stub(columns=)`
+            stub_cols = [col.var for col in data._boxhead._get_stub_columns()]
+            if not stub_cols:
                 continue
 
-            resolved_rows: set[int] = resolve(loc, data)
-            for row_idx in resolved_rows:
+            cells = [
+                (row_idx, stub_col)
+                for row_idx, col in resolve_stub_cells(loc, data)
+                for stub_col in (stub_cols if col is None else [col])
+            ]
+            for row_idx, stub_col in cells:
                 cell_value = _get_cell(body.body, row_idx, stub_col)
                 if is_na(body.body, cell_value):
                     cell_value = _get_cell(data._tbl_data, row_idx, stub_col)
@@ -248,7 +261,9 @@ class GT(
         A DataFrame object.
     rowname_col
         The column name in the input `data=` table to use as row labels to be placed in the table
-        stub.
+        stub. A list of column names creates a hierarchical stub, where the last column holds the
+        row labels and the columns before it are outer levels (outermost first); repeated values in
+        the outer levels are merged across adjacent rows.
     groupname_col
         The column name in the input `data=` table to use as group labels for generation of row
         groups.
@@ -347,7 +362,7 @@ class GT(
     def __init__(
         self,
         data: Any,
-        rowname_col: str | None = None,
+        rowname_col: str | list[str] | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
         id: str | None = None,
@@ -375,6 +390,11 @@ class GT(
     fmt_number_si = fmt_number_si
     fmt_duration = fmt_duration
     fmt_roman = fmt_roman
+    fmt_fraction = fmt_fraction
+    fmt_chem = fmt_chem
+    fmt_email = fmt_email
+    fmt_index = fmt_index
+    fmt_url = fmt_url
     fmt_date = fmt_date
     fmt_time = fmt_time
     fmt_datetime = fmt_datetime
@@ -385,6 +405,7 @@ class GT(
     fmt_units = fmt_units
     fmt_nanoplot = fmt_nanoplot
     fmt_tf = fmt_tf
+    fmt_passthrough = fmt_passthrough
     data_color = data_color
 
     sub_missing = sub_missing
@@ -398,6 +419,8 @@ class GT(
     opt_all_caps = opt_all_caps
     opt_css = opt_css
     opt_footnote_marks = opt_footnote_marks
+    opt_footnote_spec = opt_footnote_spec
+    opt_footnote_order = opt_footnote_order
     opt_row_striping = opt_row_striping
     opt_vertical_padding = opt_vertical_padding
     opt_horizontal_padding = opt_horizontal_padding
@@ -429,6 +452,7 @@ class GT(
     tab_stubhead = tab_stubhead
     tab_stub_indent = tab_stub_indent
     tab_style = tab_style
+    tab_style_body = tab_style_body
     tab_options = tab_options
 
     rm_header = rm_header
@@ -483,20 +507,25 @@ class GT(
         new_body.render_formats(self._tbl_data, self._formats, context)
         new_body.render_formats(self._tbl_data, self._substitutions, context)
 
-        # Update group row labels with formatted values when a row_group column exists
-        new_stub = self._stub.update_group_row_labels(new_body, self._tbl_data, self._boxhead)
+        # Escape unformatted cells before extracting group labels so that
+        # group labels derived from body cells are already safe for the output context
+        result = self._replace(_body=new_body)
+        result = _migrate_unformatted_to_output(
+            data=result,
+            data_tbl=self._tbl_data,
+            formats=self._formats + self._substitutions,
+            context=context,
+        )
 
-        return self._replace(_body=new_body, _stub=new_stub)
+        # Update group row labels with formatted values when a row_group column exists
+        new_stub = self._stub.update_group_row_labels(result._body, self._tbl_data, self._boxhead)
+
+        return result._replace(_stub=new_stub)
 
     def _build_data(self, context: str) -> Self:
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
         built = self._render_formats(context)
-
-        if context == "latex":
-            built = _migrate_unformatted_to_output(
-                data=built, data_tbl=self._tbl_data, formats=self._formats, context=context
-            )
 
         # Perform column merging
         built = perform_col_merge(built)

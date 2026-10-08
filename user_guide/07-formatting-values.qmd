@@ -11,6 +11,12 @@ appropriate symbols. The `fmt_*()` family of methods in **Great Tables** handles
 letting you transform cell values into well-formatted text while preserving the underlying data for
 things like sorting and colorization.
 
+Unformatted numbers are hard to scan. When every number has a different number of decimal places, or
+when large numbers lack digit separators, readers slow down as they try to parse each value.
+Consistent formatting reduces cognitive load and makes comparisons across rows immediate. The same
+principle applies to dates and currencies: a reader should never have to guess whether "03/04" means
+March 4th or April 3rd.
+
 ## Formatting Cells in the Table Body
 
 The values within the table body, specifically those within the body cells, can be formatted with a
@@ -20,9 +26,8 @@ formatting to the cell values. First, we'll generate the basic GT object and tak
 table without any cell formatting applied.
 
 ```{python}
-from great_tables import GT
+from great_tables import GT, vals
 from great_tables.data import exibble
-from great_tables import vals
 
 gt_ex = GT(exibble[["num", "date", "time", "currency"]].head(5))
 
@@ -38,6 +43,10 @@ gt_ex = gt_ex.fmt_number(columns="num", decimals=2).fmt_currency(columns="curren
 
 gt_ex
 ```
+
+Formatting methods can be called in any order and on overlapping column selections. The last
+formatter to touch a given cell wins, which gives you flexibility to set a broad default across an
+entire column and then override specific rows or subsets afterward.
 
 Dates and times can be formatted as well. As long as they are in ISO 8601 form, the
 `~~GT.fmt_date()` and `~~GT.fmt_time()` methods can be used to format such values. These methods
@@ -74,6 +83,11 @@ gt_ex
 
 Now the first two rows display in USD and the last three in GBP, demonstrating how the same column
 can present different currencies by targeting specific rows.
+
+Per-row formatting like this is particularly useful for international datasets where different rows
+may need different currency symbols, date formats, or number conventions. Rather than splitting the
+data into separate tables by locale, you can handle everything in a single table with targeted
+formatting calls.
 
 ## Arguments Common to Several Formatting Methods/Functions
 
@@ -129,9 +143,71 @@ fmt_time_2 = vals.fmt_time(["23:03", "00:55", "08:23"], time_style="h_p")
 print(fmt_date_1, fmt_date_2, fmt_time_1, fmt_time_2, sep="\n")
 ```
 
-Sometimes it's easier and more convenient to experiment with formatting using the formatting
-functions in the `vals` module. There are many options to explore with each type of formatting and
-so visiting the [API Reference](/reference/) is certainly worthwhile.
+The `vals` functions are especially handy during development, when you want to quickly test how a
+formatting option looks without building a full table. Sometimes it's easier and more convenient to
+experiment with formatting using the formatting functions in the `vals` module. There are many
+options to explore with each type of formatting and so visiting the [API Reference](/reference/) is
+certainly worthwhile.
+
+## HTML Escaping of Cell Values
+
+When rendering to HTML, **Great Tables** automatically escapes special characters (`<`, `>`, `&`,
+`"`, `'`) in body cells that have *not* been processed by a `fmt_*()` method. This prevents
+cross-site scripting (XSS) when displaying untrusted data (e.g., user-submitted text, CSV uploads)
+in web applications, dashboards, or reports.
+
+Cells that *have* been formatted (e.g., with `fmt_number()`, `fmt_markdown()`, `fmt_image()`, etc.)
+are treated as trusted HTML and are not escaped. This allows formatters to produce rich HTML content
+like images, links, and styled text.
+
+To include raw HTML or Markdown in cells that would otherwise be escaped, use a formatting method
+with the `html()` or `md()` helpers:
+
+```{python}
+from great_tables import html, md
+import pandas as pd
+
+df = pd.DataFrame({
+    "plain": ["x & y", "a < b"],
+    "rich_html": ["<b>bold</b>", "<em>italic</em>"],
+    "rich_md": ["**bold**", "*italic*"],
+})
+
+(
+    GT(df)
+    .fmt(columns="rich_html", fns=lambda x: html(x).to_html())
+    .fmt(columns="rich_md", fns=lambda x: md(x).to_html())
+)
+```
+
+In the table above, the `plain` column values are automatically escaped (e.g., `&` becomes `&amp;`),
+while the `rich_html` and `rich_md` column values are rendered as HTML because they were processed
+through `fmt()` with the `html()` and `md()` helpers respectively.
+
+For finer control, `fmt_passthrough()` marks cells as formatted without transforming their values.
+By default it escapes special characters (just like unformatted cells), but you can set
+`escape=False` to pass values through as raw HTML. It also accepts a `pattern=` argument for
+decorating values:
+
+```{python}
+df = pd.DataFrame({
+    "safe_text": ["x & y", "a < b"],
+    "raw_html": ["<b>bold</b>", "<em>italic</em>"],
+    "decorated": ["ABC", "DEF"],
+})
+
+(
+    GT(df)
+    .fmt_passthrough(columns="safe_text")
+    .fmt_passthrough(columns="raw_html", escape=False)
+    .fmt_passthrough(columns="decorated", pattern="[{x}]")
+)
+```
+
+The same escaping applies to group labels and summary row labels. Column headers, titles, footnotes,
+and source notes were already escaped in prior versions.
+
+## Conclusion
 
 Formatting is one of the most impactful things you can do to improve a table's readability. With the
 `fmt_*()` methods on a `GT` object and the corresponding functions in the `vals` module, you have a

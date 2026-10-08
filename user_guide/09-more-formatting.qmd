@@ -11,6 +11,12 @@ toolkit. This page covers additional formatters that handle percentages, byte si
 scientific units, icons, flags, images, boolean values, Markdown, and more. Each formatter
 transforms raw cell data into presentation-ready content.
 
+When choosing a formatter, start with the semantic meaning of your data. If a column represents a
+file size, reach for `fmt_bytes()` rather than `fmt_number()` with manual suffix logic. If a column
+holds time durations, use `fmt_duration()` instead of formatting seconds by hand. Semantic
+formatters produce more consistent output and handle edge cases (like unit boundaries and scaling)
+automatically, so you get correct results without writing extra logic.
+
 ## Percentage Formatting
 
 The `~~GT.fmt_percent()` method formats numeric values as percentages. By default, it assumes the
@@ -66,6 +72,12 @@ or `"binary"` for powers of 1024 (KiB, MiB, GiB).
 
 With the binary standard, the same byte values display in KiB, MiB, and GiB units. Choose whichever
 standard matches the conventions of your domain.
+
+As a rule of thumb, use decimal units (kB, MB, GB) for storage marketed to consumers (disk drives,
+cloud storage quotas, and network transfer speeds all use powers of 1000). Use binary units (KiB,
+MiB, GiB) for memory and technical contexts where powers of 1024 are precise, such as RAM capacity,
+cache sizes, and buffer allocations. Picking the right standard avoids confusing your readers with
+numbers that don't match what they see elsewhere.
 
 ## Duration Formatting
 
@@ -130,6 +142,12 @@ eng_df = pl.DataFrame({
 
 Each value is expressed with a mantissa between 1 and 999 and an exponent that is a multiple of 3.
 This makes it straightforward to mentally convert to SI prefixes (e.g., `4.7 x 10^3` = 4.7 kilo).
+
+Engineering notation is preferred over scientific notation when your audience thinks in terms of SI
+prefixes. Because the exponent is always a multiple of 3, values map directly to familiar units:
+kilohms, microfarads, gigahertz, milliwatts, and so on. Readers can interpret the numbers without
+mental conversion. If your data spans a wide range of magnitudes in a technical domain, engineering
+notation is almost always the better choice.
 
 ## Parts-Per Formatting
 
@@ -363,6 +381,12 @@ grades_df = pl.DataFrame({
 
 The `~~GT.fmt()` method is the escape hatch for any formatting logic that the specialized `fmt_*()`
 methods do not cover. Your function can return plain text or HTML strings for rich formatting.
+
+`fmt()` is what makes **Great Tables**' formatting system fully extensible. Any transformation you
+can express in Python (lookups, conditional logic, external API calls) can become a cell formatter.
+If you find yourself writing the same custom formatter repeatedly, consider wrapping it in a
+reusable function and sharing it across tables. This is exactly the pattern described in the
+[Extending Great Tables](./23-extensions.qmd) page.
 
 The formatting methods in **Great Tables** cover a wide spectrum of data types and presentation
 needs. From scientific notation to country flags, from boolean indicators to custom functions, you

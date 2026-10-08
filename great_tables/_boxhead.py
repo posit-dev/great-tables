@@ -218,7 +218,10 @@ def cols_label_with(
 
     if isinstance(columns, str):
         columns = [columns]
-        _assert_list_is_subset(columns, set_list=column_names)
+    if isinstance(columns, list):
+        _assert_list_is_subset(
+            [col for col in columns if isinstance(col, str)], set_list=column_names
+        )
     elif columns is None:
         columns = column_names
 
@@ -286,7 +289,10 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
     # Upgrade `columns` to a list if `columns` is a string and not None
     if isinstance(columns, str):
         columns = [columns]
-        _assert_list_is_subset(columns, set_list=column_names)
+    if isinstance(columns, list):
+        _assert_list_is_subset(
+            [col for col in columns if isinstance(col, str)], set_list=column_names
+        )
     elif columns is None:
         columns = column_names
 

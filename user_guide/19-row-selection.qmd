@@ -10,6 +10,12 @@ rows. The `rows=` argument appears in formatting methods, location specifiers, a
 allowing you to apply operations to a precise subset of your data. This page covers each of the
 available selection mechanisms.
 
+Row selection matters because many table operations (formatting, styling, footnotes) need to target
+specific rows. Without it, you would need to pre-filter your DataFrame or apply formatting to an
+entire column and then somehow undo it for the rows that don't apply. Row selection keeps the logic
+in the table layer, close to where it's used, so your data preparation stays clean and your
+formatting intent is expressed declaratively alongside the styling calls.
+
 ## Selection Options
 
 Location and formatter functions (e.g. `loc.body()` and `~~GT.fmt_number()`) can be applied to
@@ -83,6 +89,11 @@ gt_polars.tab_style(
 
 The row with the maximum currency value is highlighted with a yellow background. Using expressions
 for row selection keeps the logic declarative and close to the styling call.
+
+Expression-based row selection is especially powerful for conditional formatting, where the styling
+rule depends on the data itself. For example, you can highlight rows where a metric exceeds a
+threshold, format only the rows that contain the maximum or minimum value, or apply different styles
+based on category membership (all without any imperative filtering logic).
 
 ## Using a function
 

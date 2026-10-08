@@ -10,6 +10,11 @@ adjacent to the data they summarize. **Great Tables** supports two types: group-
 appear next to each row group, and grand summaries that aggregate across the entire table. Both
 types let you define multiple aggregation functions at once and control where the summary appears.
 
+Embedding aggregations directly in the table keeps the reader's eye on the data. When a total or
+average lives in a separate paragraph or a footnote, the reader has to scan back and forth between
+the table and the surrounding text to compare a group's summary to its individual rows. Summary rows
+eliminate that friction by placing the computed values right next to the data they describe.
+
 ## Setting Up the Example Data
 
 For these examples, we will use a sales dataset with row groups representing different product
@@ -95,6 +100,11 @@ by setting `side="top"`.
 The summary row now sits above the data rows in each group rather than below them, making the totals
 immediately visible.
 
+Top placement works well when the summary is the main takeaway and the detail rows serve as
+supporting evidence. Readers see the headline number first and can drill into the breakdown below it.
+Bottom placement (the default) follows the more conventional reading order where you examine the data
+first and arrive at the summary as a natural conclusion.
+
 ### Targeting Specific Groups
 
 If you only want summaries for certain groups, use the `groups=` argument with a list of group
@@ -151,6 +161,11 @@ aggregation at both levels.
 
 Each group now has a `"Subtotal"` row, and the table finishes with a `"Grand Total"` and
 `"Overall Average"` row that span across all groups.
+
+This combination of group and grand summaries is common in financial and sales reporting, where
+readers expect both subtotals per category and an overall total. The visual hierarchy (group
+summaries, then a grand summary at the bottom) mirrors how people naturally reason about grouped
+data: understand the parts first, then see how they add up to the whole.
 
 ## Working with Pandas DataFrames
 

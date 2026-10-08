@@ -1,11 +1,12 @@
 import re
+from datetime import date, timedelta
 from typing import Any, Union
 
 import pandas as pd
 import polars as pl
 import pytest
 import sys
-from great_tables import GT, _locale
+from great_tables import GT, _locale, vals
 from great_tables._data_color.base import _html_color
 from great_tables._formats import (
     FmtImage,
@@ -22,18 +23,12 @@ from great_tables._formats import (
     _normalize_locale,
     _validate_currency,
     _validate_locale,
+    _value_to_scientific_notation,
     fmt,
 )
-from great_tables._utils_render_html import create_body_component_h
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
-
-
-def assert_rendered_body(snapshot, gt):
-    built = gt._build_data("html")
-    body = create_body_component_h(built)
-
-    assert snapshot == body
+from tests.utils import assert_rendered_body
 
 
 def assert_repr_html(snapshot, gt):
@@ -1060,6 +1055,12 @@ def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
         (325, "325"),
         (-325, "-325"),
         (-1320, "-1,320"),
+        # Rounding carries over into the next power of ten
+        (9.9999, "10.0"),
+        (-9.9999, "-10.0"),
+        (99.96, "100"),
+        (999999, "1,000,000"),
+        (0.99999, "1.00"),
     ],
 )
 def test_format_number_n_sigfig_3(value, out: str):
@@ -1155,6 +1156,99 @@ def test_fmt_scientific_case(
     gt = GT(df).fmt_scientific(columns="x", **fmt_scientific_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "fmt_scientific_kwargs,x_out",
+    [
+        (
+            dict(decimals=2),
+            [
+                "1.00 × 10<sup style='font-size: 65%;'>1</sup>",
+                "−1.00 × 10<sup style='font-size: 65%;'>1</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>5</sup>",
+                "1.00",
+                "9.99",
+            ],
+        ),
+        (dict(exp_style="E"), ["1.00E01", "−1.00E01", "1.00E05", "1.00E00", "9.99E00"]),
+    ],
+)
+def test_fmt_scientific_rounding_carries_into_exponent(
+    fmt_scientific_kwargs: dict[str, Any], x_out: list[str]
+):
+    # Values that round up to the next power of ten should get a mantissa of 1 and
+    # a larger exponent, rather than a mantissa of 10
+    df = pd.DataFrame({"x": [9.9999, -9.9999, 99999.9, 0.99999, 9.994]})
+    gt = GT(df).fmt_scientific(columns="x", **fmt_scientific_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "fmt_method,fmt_kwargs,x_out",
+    [
+        ("fmt_scientific", dict(), ["inf", "−inf"]),
+        ("fmt_scientific", dict(exp_style="E", force_sign_m=True), ["+inf", "−inf"]),
+        ("fmt_engineering", dict(pattern="[{x}]"), ["[inf]", "[−inf]"]),
+        ("fmt_bytes", dict(), ["inf", "−inf"]),
+        ("fmt_roman", dict(), ["ex terminis", "ex terminis"]),
+        ("fmt_number", dict(compact=True), ["inf", "−inf"]),
+        ("fmt_number", dict(compact=True, accounting=True), ["inf", "(inf)"]),
+        ("fmt_integer", dict(compact=True, force_sign=True), ["+inf", "−inf"]),
+        ("fmt_currency", dict(compact=True), ["$inf", "−$inf"]),
+    ],
+)
+def test_fmt_infinite_values(fmt_method: str, fmt_kwargs: dict[str, Any], x_out: list[str]):
+    # Infinite values have no exponent, unit or roman numeral, and should not raise
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = getattr(GT(df), fmt_method)(columns="x", **fmt_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+def test_fmt_infinite_values_latex():
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = GT(df).fmt_scientific(columns="x", pattern="{x} %")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert x == [r"inf \%", r"-inf \%"]
+
+
+@pytest.mark.parametrize(
+    "fmt_method,fmt_kwargs,x_out",
+    [
+        ("fmt_number", dict(n_sigfig=3), ["inf", "−inf"]),
+        ("fmt_number_si", dict(unit="g"), ["inf g", "−inf g"]),
+        ("fmt_number_si", dict(unit="g", n_sigfig=3, prefix_mode="decimal"), ["inf g", "−inf g"]),
+        ("fmt_duration", dict(input_units="seconds"), ["inf", "−inf"]),
+        ("fmt_duration", dict(input_units="days", force_sign=True), ["+inf", "−inf"]),
+    ],
+)
+def test_fmt_infinite_values_no_digits_or_parts(
+    fmt_method: str, fmt_kwargs: dict[str, Any], x_out: list[str]
+):
+    # Infinite values have no significant digits, SI prefix or time parts, and should not raise
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = getattr(GT(df), fmt_method)(columns="x", **fmt_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "value,n_sigfig,x_out",
+    [
+        (1e11, 1, "1E11"),
+        (1e14, 4, "1.000E14"),
+        (1e23, 1, "1E23"),
+        (1e23, 3, "1.00E23"),
+        (1e-11, 1, "1E-11"),
+        (1e-20, 4, "1.000E-20"),
+    ],
+)
+def test_value_to_scientific_notation_exact_powers_of_ten(value: float, n_sigfig: int, x_out: str):
+    # Floating-point error when scaling exact powers of ten should not be treated as a
+    # rounding carry (nor raise an error when `n_sigfig=1`)
+    assert _value_to_scientific_notation(value, n_sigfig=n_sigfig) == x_out
 
 
 # ------------------------------------------------------------------------------
@@ -1272,6 +1366,23 @@ def test_fmt_scientific_case(
                 "350.00000 × 10<sup style='font-size: 65%;'>198</sup>",
             ],
         ),
+        # Rounding carries the mantissa up to 1000, so the next power of 1000 is used
+        (
+            dict(decimals=2),
+            [999999.5, -999999.5, 999.9999, 0.0009999999, 999499.0],
+            [
+                "1.00 × 10<sup style='font-size: 65%;'>6</sup>",
+                "−1.00 × 10<sup style='font-size: 65%;'>6</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "1.00 × 10<sup style='font-size: 65%;'>−3</sup>",
+                "999.50 × 10<sup style='font-size: 65%;'>3</sup>",
+            ],
+        ),
+        (
+            dict(n_sigfig=3, exp_style="e"),
+            [999999.5, 999.9999],
+            ["1.00e06", "1.00e03"],
+        ),
     ],
 )
 def test_fmt_engineering_case(
@@ -1340,6 +1451,7 @@ FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(placement="right", incl_space=True), ["1,234,567.00 $", "−5,432.37 $"]),
     (dict(incl_space=True), ["$ 1,234,567.00", "−$ 5,432.37"]),
     (dict(compact=True), ["$1.23M", "−$5.43K"]),
+    (dict(currency="LSL"), ["M1,234,567.00", "−M5,432.37"]),
 ]
 
 
@@ -1364,6 +1476,25 @@ def test_fmt_currency_force_sign():
         "+$12,354.30",
         "+$9,939,293,923.23",
     ]
+
+
+@pytest.mark.parametrize(
+    "currency,x_out",
+    [
+        ("USD", ["\\$1,234.50", "-\\$2.00"]),
+        ("EUR", ["€1,234.50", "-€2.00"]),
+        ("JPY", ["¥1,234", "-¥2"]),
+        ("BRL", ["R\\$1,234.50", "-R\\$2.00"]),
+        ("CHF", ["SFr.1,234.50", "-SFr.2.00"]),
+    ],
+)
+def test_fmt_currency_latex_symbols(currency: str, x_out: list[str]):
+    # Currency symbols stored as HTML entities are written as characters in LaTeX, and LaTeX
+    # special characters in them are escaped
+    df = pd.DataFrame({"x": [1234.5, -2]})
+    gt = GT(df).fmt_currency(columns="x", currency=currency)
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert x == x_out
 
 
 # ------------------------------------------------------------------------------
@@ -1403,6 +1534,14 @@ def test_fmt_time_h_p():
     assert x == ["10 AM", "1 PM", "11 PM"]
 
 
+def test_fmt_time_datetime_strings():
+    # The documented `YYYY-MM-DD HH:MM:SS` form uses the time part of the datetime
+    df = pd.DataFrame({"x": ["2024-01-05 10:59:59", "2024-01-05T13:23:59", "23:15"]})
+    gt = GT(df).fmt_time(columns="x", time_style="iso")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10:59:59", "13:23:59", "23:15:00"]
+
+
 # ------------------------------------------------------------------------------
 # Test `fmt_date()`
 # ------------------------------------------------------------------------------
@@ -1430,6 +1569,46 @@ def test_fmt_date():
         "Wed, May 20, 2020",
         "Wed, May 20, 2020",
     ]
+
+
+def test_fmt_date_iso_pads_the_year():
+    df = pd.DataFrame({"x": ["0001-01-05", "0999-01-05", "1999-01-05"]})
+
+    gt = GT(df).fmt_date(columns="x", date_style="iso")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["0001-01-05", "0999-01-05", "1999-01-05"]
+
+    # The iso style has to produce something date.fromisoformat() accepts
+    assert [date.fromisoformat(value) for value in x] == [
+        date(1, 1, 5),
+        date(999, 1, 5),
+        date(1999, 1, 5),
+    ]
+
+
+@pytest.mark.parametrize("locale", [None, "en-GB", "de", "ar"])
+def test_fmt_date_year_week_is_iso_week(locale: str | None):
+    # `year_week` is the ISO 8601 week date in every locale: near the start or end of a year a week
+    # can belong to the neighboring year, and the year shown is the one the week belongs to
+    df = pd.DataFrame(
+        {"x": ["2020-12-31", "2021-01-03", "2024-12-30", "2024-03-05", "2000-02-29", "0999-06-01"]}
+    )
+    gt = GT(df, locale=locale).fmt_date(columns="x", date_style="year_week")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["2020-W53", "2020-W53", "2025-W01", "2024-W10", "2000-W09", "0999-W22"]
+
+
+def test_fmt_date_year_week_matches_isocalendar():
+    days = [date(1990, 1, 1) + timedelta(days=n) for n in range(0, 365 * 50, 2)]
+    x = vals.fmt_date([day.isoformat() for day in days], date_style="year_week")
+    assert x == [f"{d.isocalendar()[0]:04d}-W{d.isocalendar()[1]:02d}" for d in days]
+
+
+def test_fmt_datetime_year_week_is_iso_week():
+    df = pd.DataFrame({"x": ["2024-12-30 13:45:00", "2021-01-03 08:00:00"]})
+    gt = GT(df).fmt_datetime(columns="x", date_style="year_week", time_style="iso", sep=" at ")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["2025-W01 at 13:45:00", "2020-W53 at 08:00:00"]
 
 
 # ------------------------------------------------------------------------------
@@ -1562,6 +1741,22 @@ def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
     assert x == x_out
 
 
+@pytest.mark.parametrize(
+    "x_in,dtype,x_out",
+    [
+        ([True, False], "bool", ["yes", "no"]),
+        ([True, False, None], "boolean", ["yes", "no", "NA"]),
+    ],
+)
+@pytest.mark.parametrize("context", ["html", "latex"])
+def test_fmt_tf_pandas_bool_dtypes(x_in: list[Any], dtype: str, x_out: list[str], context: str):
+    # Cells of pandas boolean columns are NumPy booleans rather than `bool` values
+    df = pd.DataFrame({"x": pd.array(x_in, dtype=dtype)})
+    gt = GT(df).fmt_tf(columns="x", tf_style="yes-no", na_val="NA")
+    x = _get_column_of_values(gt, column_name="x", context=context)
+    assert x == x_out
+
+
 def test_fmt_tf_column_invalid_type():
     df = pl.DataFrame({"x": [0, 1, 2]})
     gt = GT(df).fmt_tf(columns="x")
@@ -1659,6 +1854,26 @@ def test_fmt_bytes_default(src: float, dst: str):
     ],
 )
 def test_fmt_bytes_case(fmt_bytes_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "fmt_bytes_kwargs,x_in,x_out",
+    [
+        (dict(), [999949, 999999, -999999], ["999.9 kB", "1 MB", "−1 MB"]),
+        (dict(decimals=2), [999994, 999995], ["999.99 kB", "1 MB"]),
+        (dict(n_sigfig=3), [999499, 999500], ["999 kB", "1.00 MB"]),
+        (dict(standard="binary"), [1048524, 1048575], ["1,023.9 KiB", "1 MiB"]),
+    ],
+)
+def test_fmt_bytes_rounding_carries_into_next_unit(
+    fmt_bytes_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    # Values that round up to the base should use the next unit (`1 MB`), not
+    # `1,000 kB`
     df = pd.DataFrame({"x": x_in})
     gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -2284,7 +2499,8 @@ def test_fmt_nanoplot_single_vals_only_line():
     )
 
     # All other test cases for the horizontal line nanoplot will produce the same output
-    # as this previous one (none will error as the non-relevant options are no ops)
+    # as this previous one (none will error as the non-relevant options are no ops), except
+    # that a reference line is drawn when one is given
 
     for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
         gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
@@ -2293,6 +2509,10 @@ def test_fmt_nanoplot_single_vals_only_line():
             **params,
         )
         res_other = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+        if "reference_line" in params:
+            assert '<g class="ref-line">' in res_other
+            res_other = re.sub(r'<g class="ref-line">.*?</g>', "", res_other)
 
         assert res == res_other
 
@@ -2336,7 +2556,8 @@ def test_fmt_nanoplot_single_vals_only_bar():
     )
 
     # All other test cases for the horizontal bar nanoplot will produce the same output
-    # as this previous one (none will error as the non-relevant options are no ops)
+    # as this previous one (none will error as the non-relevant options are no ops), except
+    # that a reference line is drawn when one is given
     for _, params in enumerate(FMT_NANOPLOT_CASES[1:], start=1):
         gt = GT(df_fmt_nanoplot_single).fmt_nanoplot(
             columns="vals",
@@ -2344,6 +2565,10 @@ def test_fmt_nanoplot_single_vals_only_bar():
             **params,
         )
         res_other = _get_column_of_values(gt, column_name="vals", context="html")[0]
+
+        if "reference_line" in params:
+            assert '<g class="ref-line">' in res_other
+            res_other = re.sub(r'<g class="ref-line">.*?</g>', "", res_other)
 
         assert res == res_other
 
@@ -3107,6 +3332,31 @@ def test_fmt_number_si_latex_pattern():
     assert "Value" in x[0]
 
 
+@pytest.mark.parametrize(
+    "fmt_kwargs,x_in,x_out",
+    [
+        (
+            dict(decimals=1),
+            [999.94, 999.96, 999960, -999960],
+            ["999.9", "1.0 k", "1.0 M", "−1.0 M"],
+        ),
+        (dict(decimals=1), [0.99996], ["1.0"]),
+        (dict(n_sigfig=3), [999.4, 999.6], ["999", "1.00 k"]),
+        (dict(decimals=2, prefix_mode="decimal"), [9.9996, 99.996], ["1.00 da", "1.00 h"]),
+        (dict(decimals=1), [1e-40], ["0.0"]),
+    ],
+)
+def test_fmt_number_si_rounding_carries_into_next_prefix(
+    fmt_kwargs: dict[str, Any], x_in: list[float], x_out: list[str]
+):
+    # Values that round up to the next prefix should use that prefix (`1.0 k`), not
+    # `1,000.0`
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_number_si(columns="x", **fmt_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
 def test_fmt_partsper_latex_pattern():
     df = pd.DataFrame({"x": [0.001]})
     gt = GT(df).fmt_partsper(columns="x", pattern="({x})")
@@ -3505,6 +3755,37 @@ def test_format_number_compactly_zero_returns_zero_string():
     assert result == "0"
 
 
+@pytest.mark.parametrize(
+    "value,kwargs,x_out",
+    [
+        # Rounding carries the scaled value up to 1000, so the next suffix is used
+        (999999, dict(decimals=2), "1.00M"),
+        (-999999, dict(decimals=2), "-1.00M"),
+        (999.996, dict(decimals=2), "1.00K"),
+        (999999999, dict(decimals=2), "1.00B"),
+        (999999, dict(decimals=0), "1M"),
+        (999999, dict(decimals=2, n_sigfig=3), "1.00M"),
+        # No carry: the suffix stays the same
+        (999499, dict(decimals=0), "999K"),
+        (999500, dict(decimals=2), "999.50K"),
+        (999400, dict(decimals=2, n_sigfig=3), "999K"),
+    ],
+)
+def test_format_number_compactly_rounding_carries_into_next_suffix(value, kwargs, x_out):
+    result = _format_number_compactly(
+        value=value,
+        n_sigfig=kwargs.get("n_sigfig"),
+        decimals=kwargs["decimals"],
+        drop_trailing_zeros=False,
+        drop_trailing_dec_mark=True,
+        use_seps=True,
+        sep_mark=",",
+        dec_mark=".",
+        force_sign=False,
+    )
+    assert result == x_out
+
+
 def test_has_zero_value():
     # _has_zero_value returns True for 0, False otherwise
     assert _has_zero_value(0) is True
@@ -3527,11 +3808,31 @@ def test_fmt_icon_na_value_returns_na():
     assert result[1] is None or str(result[1]) in ("None", "null", "")
 
 
-def test_fmt_flag_invalid_country_code_length_raises():
-    # ValueError when country code is not 2 or 3 characters
-    df = pl.DataFrame({"flag": ["U"]})
-    with pytest.raises(ValueError, match="2 or 3 characters long"):
-        GT(df).fmt_flag(columns="flag").as_raw_html()
+def test_fmt_flag_unrecognized_codes_kept_as_text():
+    df = pl.DataFrame({"flag": ["U", "ZZ", "ZZZ", "Europe", "US", "<b>"]})
+
+    vals = _get_column_of_values(
+        GT(df).fmt_flag(columns="flag"), column_name="flag", context="html"
+    )
+
+    assert vals[:4] == [
+        '<span style="white-space:nowrap;">U</span>',
+        '<span style="white-space:nowrap;">ZZ</span>',
+        '<span style="white-space:nowrap;">ZZZ</span>',
+        '<span style="white-space:nowrap;">Europe</span>',
+    ]
+    assert re.search("^<span style.*?<svg.*?>.*?</svg></span>$", vals[4])
+    assert vals[5] == '<span style="white-space:nowrap;">&lt;b&gt;</span>'
+
+
+def test_fmt_flag_mixed_recognized_and_unrecognized_in_cell():
+    df = pl.DataFrame({"flag": ["fr,xx,DE"]})
+
+    val = _get_column_of_values(
+        GT(df).fmt_flag(columns="flag"), column_name="flag", context="html"
+    )[0]
+
+    assert re.search("^<span style.*?<svg.*?>.*?</svg> xx <svg.*?>.*?</svg></span>$", val)
 
 
 def test_fmt_flag_height_none_defaults_to_1em():
@@ -3539,3 +3840,702 @@ def test_fmt_flag_height_none_defaults_to_1em():
     gt = GT(df).fmt_flag(columns="country", height=None)
     html = gt.as_raw_html()
     assert 'height="1em"' in html or "1em" in html
+
+
+def test_normalize_locale_is_case_insensitive():
+    assert _normalize_locale("af-za") == "af"
+    assert _normalize_locale("AF-ZA") == "af"
+    assert _normalize_locale("de-ch") == "de-CH"
+
+
+def test_validate_locale_is_case_insensitive():
+    _validate_locale("pt-br")
+    _validate_locale("EN-US")
+
+
+# ------------------------------------------------------------------------------
+# Test `fmt_fraction()`
+# ------------------------------------------------------------------------------
+
+df_fmt_fraction = pd.DataFrame({"x": [0.5, 1.25, 3.75, 0.333, 0.0, 5.0, -1.5, -0.25, 0.999, 0.001]})
+
+
+def test_fmt_fraction_low():
+    gt = GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy="low")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] == "1/2"
+    assert x[1] == "1 1/4"
+    assert x[2] == "3 3/4"
+    assert x[3] == "1/3"
+    assert x[4] == "0"
+    assert x[5] == "5"
+    assert x[6] == "−1 1/2"
+    assert x[7] == "−1/4"
+    assert x[8] == "1"  # 0.999 rounds up
+    assert x[9] == "0"  # 0.001 rounds to 0 at low accuracy
+
+
+def test_fmt_fraction_med():
+    gt = GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy="med")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] == "1/2"
+    assert x[3] == "1/3"
+
+
+def test_fmt_fraction_high():
+    gt = GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy="high")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x[0] == "1/2"
+    assert x[3] == "332/997"
+    assert x[9] == "1/999"
+
+
+def test_fmt_fraction_fixed_denominator():
+    df = pd.DataFrame({"x": [0.5, 0.125, 0.375, 0.875]})
+    gt = GT(df).fmt_fraction(columns="x", accuracy=8)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1/2", "1/8", "3/8", "7/8"]
+
+
+def test_fmt_fraction_fixed_no_simplify():
+    df = pd.DataFrame({"x": [0.5, 0.25]})
+    gt = GT(df).fmt_fraction(columns="x", accuracy=4, simplify=False)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["2/4", "1/4"]
+
+
+def test_fmt_fraction_diagonal_html():
+    df = pd.DataFrame({"x": [1.5]})
+    gt = GT(df).fmt_fraction(columns="x", layout="diagonal")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert " " in x[0]  # narrow no-break space between whole and fraction
+    assert "&#x2044;" in x[0]  # fraction slash
+    assert "vertical-align:0.45em" in x[0]  # raised numerator
+
+
+def test_fmt_fraction_sep_marks():
+    df = pd.DataFrame({"x": [1000000.5]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1,000,000 1/2"]
+
+
+def test_fmt_fraction_no_seps():
+    df = pd.DataFrame({"x": [1000000.5]})
+    gt = GT(df).fmt_fraction(columns="x", use_seps=False)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1000000 1/2"]
+
+
+def test_fmt_fraction_pattern():
+    df = pd.DataFrame({"x": [0.5]})
+    gt = GT(df).fmt_fraction(columns="x", pattern="~{x}~")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["~1/2~"]
+
+
+def test_fmt_fraction_na():
+    df = pd.DataFrame({"x": [float("nan")]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    # pandas NA values pass through the is_na check and are not formatted
+    assert len(x) == 1
+
+
+def test_fmt_fraction_inf():
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["inf", "-inf"]
+
+
+def test_fmt_fraction_polars():
+    df = pl.DataFrame({"x": [0.5, 1.25, 3.75]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1/2", "1 1/4", "3 3/4"]
+
+
+def test_fmt_fraction_invalid_accuracy_str():
+    with pytest.raises(ValueError, match="accuracy must be"):
+        GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy="ultra")
+
+
+def test_fmt_fraction_invalid_accuracy_int():
+    with pytest.raises(ValueError, match="accuracy must be a positive integer"):
+        GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy=0)
+
+
+def test_fmt_fraction_invalid_layout():
+    with pytest.raises(ValueError, match="layout must be"):
+        GT(df_fmt_fraction).fmt_fraction(columns="x", layout="stacked")
+
+
+def test_fmt_fraction_negative_pure_fraction():
+    df = pd.DataFrame({"x": [-0.75]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x == ["−3/4"]
+
+
+def test_fmt_fraction_round_up_negative():
+    df = pd.DataFrame({"x": [-0.999]})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x == ["−1"]
+
+
+def test_fmt_fraction_rows_subset():
+    df = pd.DataFrame({"x": [0.5, 1.25, 3.75]})
+    gt = GT(df).fmt_fraction(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "1/2"
+    assert x[1] == "1.25"  # unformatted
+    assert x[2] == "3 3/4"
+
+
+# --- fmt_chem tests ---
+
+df_fmt_chem = pd.DataFrame({"x": ["CH4", "C6H12O6", "H2O", "(NH4)2S"]})
+
+
+def test_fmt_chem_simple_formula():
+    gt = GT(df_fmt_chem).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<sub" in x[0] and "4" in x[0]  # CH4 -> CH<sub>4</sub>
+    assert x[0].startswith("CH")
+    assert "12" in x[1] and "<sub" in x[1]  # C6H12O6
+    assert x[2].startswith("H")  # H2O
+
+
+def test_fmt_chem_parenthesized_group():
+    df = pd.DataFrame({"x": ["(NH4)2S", "Ca3(PO4)2"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "(NH" in x[0]
+    assert ")2" not in x[0]  # the 2 after ) should be subscripted
+    assert "<sub" in x[0]
+
+
+def test_fmt_chem_charges():
+    df = pd.DataFrame({"x": ["H+", "OH-", "CrO4^2-", "Fe^n+", "[AgCl2]-"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<sup" in x[0] and "+" in x[0]  # H+
+    assert "<sup" in x[1] and "&minus;" in x[1]  # OH-
+    assert "2&minus;" in x[2]  # CrO4^2-
+    assert "<em>n</em>" in x[3]  # Fe^n+
+    assert "<sup" in x[4] and "&minus;" in x[4]  # [AgCl2]-
+
+
+def test_fmt_chem_stoichiometric():
+    df = pd.DataFrame({"x": ["2 H2O", "0.5 H2O", "1/2 H2O"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0].startswith("2")
+    assert "&#8201;" in x[0]  # thin space
+    assert "0.5" in x[1]
+    assert "1/2" in x[2]
+
+
+def test_fmt_chem_reaction_arrows():
+    df = pd.DataFrame({"x": ["A -> B", "A <- B", "A <-> B", "A <=> B", "A <=>> B", "A <<=> B"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "&#8594;" in x[0]  # ->
+    assert "&#8592;" in x[1]  # <-
+    assert "&#8596;" in x[2]  # <->
+    assert "&#8652;" in x[3]  # <=>
+    assert "&#8640;" in x[4]  # <=>>
+    assert "&#8637;" in x[5]  # <<=>
+
+
+def test_fmt_chem_bonds():
+    df = pd.DataFrame({"x": ["C6H5-CHO", "CH3CH=CH2"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "-" in x[0] and "<sub" in x[0]
+    assert "=" in x[1] and "<sub" in x[1]
+
+
+def test_fmt_chem_addition_compound():
+    df = pd.DataFrame({"x": ["KCr(SO4)2 . 12 H2O", "CuSO4 * 5 H2O"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "&middot;" in x[0]
+    assert "&middot;" in x[1]
+
+
+def test_fmt_chem_isotope():
+    df = pd.DataFrame({"x": ["^{227}_{90}Th", "^227_90Th", "^{13}C"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "227" in x[0] and "90" in x[0] and "Th" in x[0]
+    assert "227" in x[1] and "90" in x[1] and "Th" in x[1]
+    assert "13" in x[2] and "C" in x[2]
+
+
+def test_fmt_chem_italic_subscript():
+    df = pd.DataFrame({"x": ["NO_x", "x Na(NH4)HPO4"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<em>x</em>" in x[0] and "<sub" in x[0]
+    assert "<em>x</em>" in x[1]
+
+
+def test_fmt_chem_greek_letters():
+    df = pd.DataFrame({"x": [":delta: ^13C"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "&delta;" in x[0]
+
+
+def test_fmt_chem_full_reaction():
+    df = pd.DataFrame({"x": ["CH4 + 2 O2 -> CO2 + 2 H2O"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "&#8594;" in x[0]
+    assert " + " in x[0]
+    assert "<sub" in x[0]
+
+
+def test_fmt_chem_na():
+    df = pd.DataFrame({"x": [float("nan")]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert len(x) == 1
+
+
+def test_fmt_chem_polars():
+    df = pl.DataFrame({"x": ["H2O", "CO2"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<sub" in x[0]
+    assert "<sub" in x[1]
+
+
+def test_fmt_chem_rows_subset():
+    df = pd.DataFrame({"x": ["CH4", "H2O", "CO2"]})
+    gt = GT(df).fmt_chem(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "<sub" in x[0]
+    assert x[1] == "H2O"  # unformatted
+    assert "<sub" in x[2]
+
+
+def test_fmt_chem_brace_charge():
+    df = pd.DataFrame({"x": ["Y^{99+}"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "99+" in x[0]
+    assert "<sup" in x[0]
+
+
+def test_fmt_chem_nuclide():
+    df = pd.DataFrame({"x": ["^{0}_{-1}n^{-}"]})
+    gt = GT(df).fmt_chem(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "0" in x[0]
+    assert "n" in x[0]
+
+
+# ==============================================================================
+# fmt_index tests
+# ==============================================================================
+
+
+def test_fmt_index_repeat_basic():
+    df = pd.DataFrame({"x": [1, 2, 3, 26, 27, 28]})
+    gt = GT(df).fmt_index(columns="x", index_algo="repeat")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "B"
+    assert x[2] == "C"
+    assert x[3] == "Z"
+    assert x[4] == "AA"
+    assert x[5] == "BB"
+
+
+def test_fmt_index_excel_basic():
+    df = pd.DataFrame({"x": [1, 2, 26, 27, 28, 52]})
+    gt = GT(df).fmt_index(columns="x", index_algo="excel")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "B"
+    assert x[2] == "Z"
+    assert x[3] == "AA"
+    assert x[4] == "AB"
+    assert x[5] == "AZ"
+
+
+def test_fmt_index_lowercase():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    gt = GT(df).fmt_index(columns="x", case="lower")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "a"
+    assert x[1] == "b"
+    assert x[2] == "c"
+
+
+def test_fmt_index_pattern():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    gt = GT(df).fmt_index(columns="x", pattern="{x}.")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A."
+    assert x[1] == "B."
+    assert x[2] == "C."
+
+
+def test_fmt_index_pattern_latex_escaped():
+    df = pd.DataFrame({"x": [1, 2]})
+    gt = GT(df).fmt_index(columns="x", pattern="#{x}%")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+
+    assert x == ["\\#A\\%", "\\#B\\%"]
+
+
+def test_fmt_index_zero():
+    df = pd.DataFrame({"x": [0, 1, 2]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == ""
+    assert x[1] == "A"
+    assert x[2] == "B"
+
+
+def test_fmt_index_zero_with_pattern():
+    df = pd.DataFrame({"x": [0, 1]})
+    gt = GT(df).fmt_index(columns="x", pattern="{x}.")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == ""
+    assert x[1] == "A."
+
+
+def test_fmt_index_negative():
+    df = pd.DataFrame({"x": [-1, -2, -3]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == ""  # _round_rhu(-1, 0) -> 0.0 -> empty
+    assert x[1] == "A"
+    assert x[2] == "B"
+
+
+def test_fmt_index_na():
+    df = pd.DataFrame({"x": [float("nan"), 1.0]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[1] == "A"
+
+
+def test_fmt_index_float_rounds():
+    df = pd.DataFrame({"x": [1.4, 2.6, 3.5]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "C"
+    assert x[2] == "D"
+
+
+def test_fmt_index_repeat_large():
+    df = pd.DataFrame({"x": [53, 78]})
+    gt = GT(df).fmt_index(columns="x", index_algo="repeat")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "AAA"
+    assert x[1] == "ZZZ"
+
+
+def test_fmt_index_excel_large():
+    df = pd.DataFrame({"x": [53, 702, 703]})
+    gt = GT(df).fmt_index(columns="x", index_algo="excel")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "BA"
+    assert x[1] == "ZZ"
+    assert x[2] == "AAA"
+
+
+def test_fmt_index_polars():
+    df = pl.DataFrame({"x": [1, 2, 3]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "B"
+    assert x[2] == "C"
+
+
+def test_fmt_index_rows_subset():
+    df = pd.DataFrame({"x": [1, 2, 3]})
+    gt = GT(df).fmt_index(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "A"
+    assert x[1] == "2"  # unformatted
+    assert x[2] == "C"
+
+
+def test_fmt_index_inf():
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x[0] == "inf"
+    assert x[1] == "-inf"
+
+
+# ==============================================================================
+# fmt_url tests
+# ==============================================================================
+
+
+def test_fmt_url_basic():
+    df = pd.DataFrame({"x": ["https://example.com", "https://google.com"]})
+    gt = GT(df).fmt_url(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="https://example.com"' in x[0]
+    assert 'href="https://google.com"' in x[1]
+    assert "#008B8B" in x[0]
+    assert "underline" in x[0]
+    assert "example.com" in x[0]
+
+
+def test_fmt_url_label_string():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", label="Click")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert ">Click</a>" in x[0]
+    assert 'href="https://example.com"' in x[0]
+
+
+def test_fmt_url_label_callable():
+    df = pd.DataFrame({"x": ["https://www.example.com"]})
+    gt = GT(df).fmt_url(columns="x", label=lambda u: u.replace("https://www.", ""))
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert ">example.com</a>" in x[0]
+
+
+def test_fmt_url_no_underline():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", show_underline=False)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "text-decoration:none" in x[0]
+
+
+def test_fmt_url_custom_color():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", color="#FF0000")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "#FF0000" in x[0]
+
+
+def test_fmt_url_as_button():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "background-color:#4682B4" in x[0]
+    assert "#FFFFFF" in x[0]
+    assert "text-decoration:none" in x[0]
+    assert "padding" in x[0]
+
+
+def test_fmt_url_button_light_fill_outline():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True, button_fill="#FFFFFF")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "2px solid #DFDFDF" in x[0]
+
+
+def test_fmt_url_button_dark_fill_no_outline():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True, button_fill="steelblue")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "outline-style:none" in x[0]
+
+
+def test_fmt_url_button_width():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True, button_width="200px")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "width:200px" in x[0]
+    assert "text-align:center" in x[0]
+
+
+def test_fmt_url_markdown_link():
+    df = pd.DataFrame({"x": ["[My Site](https://example.com)"]})
+    gt = GT(df).fmt_url(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="https://example.com"' in x[0]
+    assert ">My Site</a>" in x[0]
+
+
+def test_fmt_url_target_none():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", target=None)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "target=" not in x[0]
+
+
+def test_fmt_url_na():
+    df = pd.DataFrame({"x": [float("nan")]})
+    gt = GT(df).fmt_url(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert len(x) == 1
+
+
+def test_fmt_url_polars():
+    df = pl.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="https://example.com"' in x[0]
+
+
+def test_fmt_url_rows_subset():
+    df = pd.DataFrame({"x": ["https://a.com", "https://b.com", "https://c.com"]})
+    gt = GT(df).fmt_url(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "href=" in x[0]
+    assert x[1] == "https://b.com"  # unformatted
+    assert "href=" in x[2]
+
+
+def test_fmt_url_button_auto_text_color():
+    df = pd.DataFrame({"x": ["https://example.com"]})
+    gt = GT(df).fmt_url(columns="x", as_button=True, button_fill="#000000")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "color:#FFFFFF" in x[0]
+
+
+# ==============================================================================
+# fmt_email tests
+# ==============================================================================
+
+
+def test_fmt_email_basic():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="mailto:user@example.com"' in x[0]
+    assert "#008B8B" in x[0]
+    assert "underline" in x[0]
+    assert ">user@example.com</a>" in x[0]
+
+
+def test_fmt_email_display_name_string():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x", display_name="Contact Us")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert ">Contact Us</a>" in x[0]
+    assert 'href="mailto:user@example.com"' in x[0]
+
+
+def test_fmt_email_display_name_callable():
+    df = pd.DataFrame({"x": ["john.doe@example.com"]})
+    gt = GT(df).fmt_email(columns="x", display_name=lambda e: e.split("@")[0])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert ">john.doe</a>" in x[0]
+
+
+def test_fmt_email_noopener():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'rel="noopener noreferrer"' in x[0]
+
+
+def test_fmt_email_no_noopener_without_blank():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x", target=None)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "noopener" not in x[0]
+
+
+def test_fmt_email_as_button():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x", as_button=True, button_fill="#228B22")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "background-color:#228B22" in x[0]
+    assert "padding" in x[0]
+
+
+def test_fmt_email_custom_color():
+    df = pd.DataFrame({"x": ["user@example.com"]})
+    gt = GT(df).fmt_email(columns="x", color="gray25")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="mailto:user@example.com"' in x[0]
+
+
+def test_fmt_email_na():
+    df = pd.DataFrame({"x": [float("nan")]})
+    gt = GT(df).fmt_email(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert len(x) == 1
+
+
+def test_fmt_email_polars():
+    df = pl.DataFrame({"x": ["test@test.com"]})
+    gt = GT(df).fmt_email(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert 'href="mailto:test@test.com"' in x[0]
+
+
+def test_fmt_email_rows_subset():
+    df = pd.DataFrame({"x": ["a@a.com", "b@b.com", "c@c.com"]})
+    gt = GT(df).fmt_email(columns="x", rows=[0, 2])
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert "mailto:" in x[0]
+    assert x[1] == "b@b.com"  # unformatted
+    assert "mailto:" in x[2]

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from itertools import chain
 from typing import TYPE_CHECKING, Any, cast
 
-from htmltools import HTML, TagList, css, tags
+from htmltools import HTML, Tag, TagList, css, tags
 
 from . import _locations as loc
 from ._gt_data import (
@@ -18,7 +19,7 @@ from ._gt_data import (
     SummaryRowInfo,
 )
 from ._spanners import spanners_print_matrix
-from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
+from ._tbl_data import TblData, _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text, _process_text_id
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
@@ -114,7 +115,7 @@ def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
 
 def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # flatten all StyleInfo.styles lists
-    style_entries = list(chain.from_iterable((x.styles for x in styles)))
+    style_entries = list(chain.from_iterable(x.styles for x in styles))
     rendered_styles = [el._to_html_style() for el in style_entries]
 
     # TODO dedupe rendered styles in sequence
@@ -203,6 +204,97 @@ def create_heading_component_h(data: GTData) -> str:
     return heading
 
 
+def _resolve_stubhead_label(
+    stubhead: str | BaseText | list[str | BaseText], stub_layout: list[str]
+) -> str | BaseText | list[str | BaseText]:
+    """Return the stubhead label, or a list with one label per stub column.
+
+    A list with a single label is treated as a label that spans the whole stub. Otherwise a list
+    must have one label for each stub column (not counting a row group column).
+    """
+
+    if not isinstance(stubhead, list):
+        return stubhead
+
+    if len(stubhead) == 1:
+        return stubhead[0]
+
+    n_stub_cols = stub_layout.count("rowname")
+
+    if len(stubhead) != n_stub_cols:
+        raise ValueError(
+            f"`tab_stubhead()` was given {len(stubhead)} labels but the stub has {n_stub_cols} "
+            "column(s). Provide one label per stub column, or a single label for the whole stub."
+        )
+
+    return stubhead
+
+
+def _create_stubhead_cells(
+    stub_label: str | BaseText | list[str | BaseText],
+    stub_layout: list[str],
+    rowspan: int,
+    table_id: str | None,
+    footnotes_stubhead: list[FootnoteInfo],
+    styles_stubhead: list[StyleInfo],
+    data: GTData,
+) -> list[Tag]:
+    """Create the `<th>` cell(s) of the stubhead.
+
+    A single label spans all of the stub columns. A list of labels gives one cell per stub column
+    (with an empty cell above any row group column), and any stubhead footnote mark is placed on
+    the first label only.
+    """
+
+    class_ = "gt_col_heading gt_columns_bottom_border gt_left"
+    style = _flatten_styles(styles_stubhead)
+
+    if not isinstance(stub_label, list):
+        return [
+            tags.th(
+                HTML(_apply_footnotes_to_text(footnotes_stubhead, data, _process_text(stub_label))),
+                class_=class_,
+                rowspan=rowspan,
+                colspan=len(stub_layout),
+                style=style,
+                scope="colgroup" if len(stub_layout) > 1 else "col",
+                id=_create_element_id(table_id, stub_label),
+            )
+        ]
+
+    cells = []
+
+    if "group_label" in stub_layout:
+        cells.append(tags.th(class_=class_, rowspan=rowspan, colspan=1, style=style, scope="col"))
+
+    used_ids: set[str] = set()
+
+    for k, label in enumerate(stub_label):
+        label_text = _process_text(label)
+        if k == 0:
+            label_text = _apply_footnotes_to_text(footnotes_stubhead, data, label_text)
+
+        # Keep the element IDs unique when labels repeat
+        element_id = _create_element_id(table_id, label)
+        if element_id in used_ids:
+            element_id = f"{element_id}-{k + 1}"
+        used_ids.add(element_id)
+
+        cells.append(
+            tags.th(
+                HTML(label_text),
+                class_=class_,
+                rowspan=rowspan,
+                colspan=1,
+                style=style,
+                scope="col",
+                id=element_id,
+            )
+        )
+
+    return cells
+
+
 def create_columns_component_h(data: GTData) -> str:
     """
     Returns the HTML text fragment for the column/spanner labels.
@@ -225,7 +317,7 @@ def create_columns_component_h(data: GTData) -> str:
     # Get vector representation of stub layout
     has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
     stub_layout = data._stub._get_stub_layout(
-        has_summary_rows=has_summary_rows, options=data._options
+        has_summary_rows=has_summary_rows, options=data._options, boxhead=data._boxhead
     )
 
     # Determine the finalized number of spanner rows
@@ -255,7 +347,7 @@ def create_columns_component_h(data: GTData) -> str:
 
     # If columns are present in the stub, then replace with a set stubhead label or nothing
     if stub_layout and stubh is not None:
-        stub_label = stubh
+        stub_label = _resolve_stubhead_label(stubh, stub_layout=stub_layout)
         stub_var = "::stub"
     else:
         stub_label = ""
@@ -276,21 +368,17 @@ def create_columns_component_h(data: GTData) -> str:
     # If there are no spanners, then we have to create the cells for the stubhead label
     # (if present) and for the column headings
     if spanner_row_count == 0:
-        # Create the cell for the stubhead label
+        # Create the cell(s) for the stubhead label
         if stub_layout:
-            table_col_headings.append(
-                tags.th(
-                    HTML(
-                        _apply_footnotes_to_text(
-                            footnotes_stubhead, data, _process_text(stub_label)
-                        )
-                    ),
-                    class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
-                    rowspan="1",
-                    colspan=len(stub_layout),
-                    style=_flatten_styles(styles_stubhead),
-                    scope="colgroup" if len(stub_layout) > 1 else "col",
-                    id=_create_element_id(table_id, stub_label),
+            table_col_headings.extend(
+                _create_stubhead_cells(
+                    stub_label=stub_label,
+                    stub_layout=stub_layout,
+                    rowspan=1,
+                    table_id=table_id,
+                    footnotes_stubhead=footnotes_stubhead,
+                    styles_stubhead=styles_stubhead,
+                    data=data,
                 )
             )
 
@@ -357,23 +445,21 @@ def create_columns_component_h(data: GTData) -> str:
         # all column labels that DO have spanners above them.
         spanned_column_labels = []
 
-        # Create the cell for the stubhead label
+        # Create the cell(s) for the stubhead label
         if stub_layout:
-            level_1_spanners.append(
-                tags.th(
-                    HTML(
-                        _apply_footnotes_to_text(
-                            footnotes_stubhead, data, _process_text(stub_label)
-                        )
-                    ),
-                    class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
+            level_1_spanners.extend(
+                _create_stubhead_cells(
+                    stub_label=stub_label,
+                    stub_layout=stub_layout,
                     rowspan=2,
-                    colspan=len(stub_layout),
-                    style=_flatten_styles(styles_stubhead),
-                    scope="colgroup" if len(stub_layout) > 1 else "col",
-                    id=_create_element_id(table_id, stub_label),
+                    table_id=table_id,
+                    footnotes_stubhead=footnotes_stubhead,
+                    styles_stubhead=styles_stubhead,
+                    data=data,
                 )
-            )  # NOTE: Run-length encoding treats missing values as distinct from each other; in other
+            )
+
+        # NOTE: Run-length encoding treats missing values as distinct from each other; in other
         # words, each missing value starts a new run of length 1
 
         spanner_ids_level_1 = spanner_ids[level_1_index]
@@ -614,6 +700,55 @@ def create_columns_component_h(data: GTData) -> str:
     return table_col_headings
 
 
+def _calculate_hierarchical_stub_rowspans(
+    stub_col_names: list[str],
+    ordered_index: list[tuple[int, Any]],
+    tbl_data: TblData,
+) -> list[list[int]]:
+    """Compute the rowspan of each cell in a hierarchical (multi-column) stub.
+
+    Cells of an outer stub column are merged across adjacent rows (in display order) when the rows
+    are in the same group and have the same values in that column and every column to its left.
+    The values compared are the formatted ones shown in the table. The last (primary) column is
+    never merged, since each row keeps its own label.
+
+    Returns one list per stub column, holding one value per row in `ordered_index`: the rowspan
+    for a cell that starts a run (`1` for an unmerged cell), or `0` for a cell covered by a
+    rowspan above it (and so not rendered).
+    """
+
+    n_rows = len(ordered_index)
+
+    # Each row's key for each level: the values of that column and all columns to its left
+    row_values = [
+        [str(_get_cell(tbl_data, row_index, col)) for col in stub_col_names]
+        for row_index, _ in ordered_index
+    ]
+
+    all_rowspans: list[list[int]] = []
+
+    for k in range(len(stub_col_names)):
+        spans = [1] * n_rows
+
+        if k < len(stub_col_names) - 1:
+            run_start = 0
+            for j in range(1, n_rows + 1):
+                continues_run = (
+                    j < n_rows
+                    and ordered_index[j][1] is ordered_index[run_start][1]
+                    and row_values[j][: k + 1] == row_values[run_start][: k + 1]
+                )
+                if not continues_run:
+                    spans[run_start] = j - run_start
+                    for covered in range(run_start + 1, j):
+                        spans[covered] = 0
+                    run_start = j
+
+        all_rowspans.append(spans)
+
+    return all_rowspans
+
+
 def create_body_component_h(data: GTData) -> str:
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
@@ -641,18 +776,21 @@ def create_body_component_h(data: GTData) -> str:
 
     has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
     stub_layout = data._stub._get_stub_layout(
-        has_summary_rows=has_summary_rows, options=data._options
+        has_summary_rows=has_summary_rows, options=data._options, boxhead=data._boxhead
     )
 
     has_row_stub_column = "rowname" in stub_layout
     has_group_stub_column = "group_label" in stub_layout
     has_groups = data._stub.group_ids is not None and len(data._stub.group_ids) > 0
 
+    # All stub columns in hierarchy order (outer → primary); may be >1 for multi-col stubs
+    stub_col_vars = data._boxhead._get_stub_columns()
+
     # If there is a stub, then prepend that to the `column_vars` list
     if has_row_stub_column:
-        # There is already a column assigned to the rownames
-        if row_stub_var:
-            column_vars = [row_stub_var] + column_vars
+        # There are one or more stub columns assigned to rownames
+        if stub_col_vars:
+            column_vars = stub_col_vars + column_vars
         # Else we have summary rows but no stub yet
         else:
             # TODO: this naming is not ideal
@@ -693,6 +831,22 @@ def create_body_component_h(data: GTData) -> str:
 
     ordered_index: list[tuple[int, GroupRowInfo]] = data._stub.group_indices_map()
 
+    # Pre-compute the rowspans of a hierarchical stub (columns ordered outermost to primary)
+    stub_col_names = [c.var for c in stub_col_vars]
+    if len(stub_col_names) > 1:
+        stub_rowspans_by_col = _calculate_hierarchical_stub_rowspans(
+            stub_col_names, ordered_index, tbl_data
+        )
+    else:
+        stub_rowspans_by_col = []
+
+    # The data rows covered by each stub cell (several, for a cell merged across rows), so that a
+    # style or footnote targeting any of those rows in that stub column is applied to the cell
+    stub_rows_by_col = [
+        [[ordered_index[j + t][0] for t in range(span)] for j, span in enumerate(spans)]
+        for spans in stub_rowspans_by_col
+    ]
+
     for j, (i, group_info) in enumerate(ordered_index):
         # For table striping we want to add a striping CSS class to the even-numbered
         # rows in the rendered table; to target these rows, determine if `i` in the current
@@ -706,7 +860,12 @@ def create_body_component_h(data: GTData) -> str:
         if has_groups:
             # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
-                group_label = group_info.defaulted_label()
+                # When a groupname_col formatter ran, group_label is already
+                # safe HTML; when it's the raw group_id, escape it.
+                if group_info.group_label is not None:
+                    group_label = group_info.group_label
+                else:
+                    group_label = _process_text(group_info.group_id)
 
                 _styles = [
                     style
@@ -793,6 +952,18 @@ def create_body_component_h(data: GTData) -> str:
                     if leading_cell:
                         leading_cell = None
 
+        # For multi-column stubs, extract the pre-computed rowspans (and covered rows) for row j
+        row_stub_rowspans = (
+            [stub_rowspans_by_col[k][j] for k in range(len(stub_col_names))]
+            if stub_rowspans_by_col
+            else None
+        )
+        row_stub_rows = (
+            [stub_rows_by_col[k][j] for k in range(len(stub_col_names))]
+            if stub_rows_by_col
+            else None
+        )
+
         # Create data row
         row_html = _create_row_component_h(
             column_vars=column_vars,
@@ -808,6 +979,8 @@ def create_body_component_h(data: GTData) -> str:
             tbl_data=tbl_data,
             data=data,
             row_class="gt_row_group_first" if leading_cell else None,
+            stub_col_rowspans=row_stub_rowspans,
+            stub_col_rows=row_stub_rows,
         )
         body_rows.append(row_html)
 
@@ -888,6 +1061,8 @@ def _create_row_component_h(
     data: GTData | None = None,  # For footnote handling
     summary_group_id: str | None = None,  # For group summary rows (distinguishes from grand)
     row_class: str | None = None,  # CSS class for the <tr> element
+    stub_col_rowspans: list[int] | None = None,  # Rowspan values for stub cols (multi-col stub)
+    stub_col_rows: list[list[int]] | None = None,  # Data rows covered by each stub cell
 ) -> str:
     """Create a single table row (either data row or summary row)"""
 
@@ -911,7 +1086,7 @@ def _create_row_component_h(
         classes_str = " ".join(classes)
 
         # Apply footnotes to the summary stub label
-        stub_label = summary_row.id
+        stub_label = _process_text(summary_row.id)
         if data is not None:
             if is_group_summary:
                 footnotes_i = [
@@ -929,15 +1104,21 @@ def _create_row_component_h(
                 ]
             stub_label = _apply_footnotes_to_text(footnotes_i, data, stub_label)
 
+        # Count row stub columns (may be >1 for multi-col stubs)
+        n_row_stub_cols = sum(1 for c in column_vars if c.is_stub)
+
         if is_group_summary:
-            # Group summary rows are covered by the group label cell's rowspan,
-            # so we only need a single stub cell for the summary label
-            body_cells.append(f"""    <th{cell_styles} class="{classes_str}">{stub_label}</th>""")
-        elif has_row_stub_column:
-            # Grand summary rows are outside any group and need colspan=2
-            # to span across both the group stub column and the row stub column
+            # Group summary rows are covered by the group label cell's rowspan.
+            # Span across all row stub columns with a single label cell.
+            colspan_attr = f' colspan="{n_row_stub_cols}"' if n_row_stub_cols > 1 else ""
             body_cells.append(
-                f"""    <th{cell_styles} class="{classes_str}" colspan="2">{stub_label}</th>"""
+                f"""    <th{cell_styles}{colspan_attr} class="{classes_str}">{stub_label}</th>"""
+            )
+        elif has_row_stub_column:
+            # Grand summary rows must span the group stub column AND all row stub columns.
+            grand_colspan = 1 + n_row_stub_cols
+            body_cells.append(
+                f"""    <th{cell_styles} class="{classes_str}" colspan="{grand_colspan}">{stub_label}</th>"""
             )
         else:
             # Grand summary rows with only group stub column (no row stub)
@@ -950,11 +1131,31 @@ def _create_row_component_h(
         # Normal case: process all column_vars
         column_vars_to_process = column_vars
 
+    stub_cell_idx = 0  # tracks which stub column we're on (for rowspan lookup)
+
+    # A summary row has a single label cell spanning all of the stub columns
+    n_stub_cells = sum(1 for c in column_vars_to_process if c.is_stub)
+    summary_label_colspan = (
+        f' colspan="{n_stub_cells}"' if is_summary_row and n_stub_cells > 1 else ""
+    )
+
     for colinfo in column_vars_to_process:
+        if is_summary_row and colinfo.is_stub and stub_cell_idx > 0:
+            # The summary label cell already spans this stub column
+            continue
+
+        # The data rows covered by a stub cell; styles and footnotes that target this stub column
+        # (via `loc.stub(columns=)`) in any of these rows are applied to the cell
+        covered_rows = (
+            stub_col_rows[stub_cell_idx]
+            if colinfo.is_stub and stub_col_rows is not None and not is_summary_row
+            else [row_index]
+        )
+
         # Get cell content
         if is_summary_row:
             if colinfo == row_stub_var or colinfo.is_stub:
-                cell_content = summary_row.id
+                cell_content = _process_text(summary_row.id)
             else:
                 cell_content = summary_row.values.get(colinfo.var)
         elif colinfo.type == ColInfoTypeEnum.summary_placeholder:
@@ -974,11 +1175,17 @@ def _create_row_component_h(
         # Apply footnotes to cell content if data is provided
         if data is not None and not is_summary_row:
             if colinfo.is_stub:
-                # For stub cells, footnotes are stored with colname=None
+                # Stub footnotes without a column (colname=None) are marked on the primary stub
+                # column; those from `loc.stub(columns=)` are marked on the targeted column
+                is_primary = row_stub_var is None or colinfo == row_stub_var
                 footnotes_i = [
                     x
                     for x in data._footnotes
-                    if isinstance(x.locname, loc.LocStub) and x.rownum == row_index
+                    if isinstance(x.locname, loc.LocStub)
+                    and (
+                        (x.colname is None and is_primary and x.rownum == row_index)
+                        or (x.colname == colinfo.var and x.rownum in covered_rows)
+                    )
                 ]
                 cell_str = _apply_footnotes_to_text(footnotes_i, data, cell_str)
             else:
@@ -1034,8 +1241,19 @@ def _create_row_component_h(
             x for x in styles_cells if x.rownum == row_index and x.colname == colinfo.var
         ]
         _rowname_styles = (
-            [x for x in styles_labels if x.rownum == row_index] if colinfo.is_stub else []
+            [
+                x
+                for x in styles_labels
+                if (x.colname is None and x.rownum == row_index)
+                or (x.colname == colinfo.var and x.rownum in covered_rows)
+            ]
+            if colinfo.is_stub
+            else []
         )
+        if len(covered_rows) > 1:
+            # A merged cell is covered by several rows that one `tab_style()` call may all target;
+            # its style is applied once
+            _rowname_styles = list({id(x.styles): x for x in _rowname_styles}.values())
 
         # Build classes and element
         if colinfo.is_stub:
@@ -1053,8 +1271,15 @@ def _create_row_component_h(
             if apply_body_striping:
                 classes.append("gt_striped")
 
-        # Apply stub indent CSS class for regular (non-summary) data rows
-        if colinfo.is_stub and not is_summary_row and data is not None and row_index is not None:
+        # Apply stub indent CSS class for regular (non-summary) data rows; in a hierarchical stub
+        # only the primary column is indented
+        if (
+            colinfo.is_stub
+            and (row_stub_var is None or colinfo == row_stub_var)
+            and not is_summary_row
+            and data is not None
+            and row_index is not None
+        ):
             indent_level = data._stub.rows[row_index].indent
             if 1 <= indent_level <= 5:
                 classes.append(f"gt_indent_{indent_level}")
@@ -1062,8 +1287,22 @@ def _create_row_component_h(
         classes_str = " ".join(classes)
         cell_styles = _flatten_styles(_body_styles + _rowname_styles, wrap=True)
 
+        # Cells of a hierarchical stub may span rows (or be covered by a span from above)
+        span_attr = ""
+        if colinfo.is_stub:
+            if is_summary_row:
+                span_attr = summary_label_colspan
+            elif stub_col_rowspans is not None:
+                rowspan_val = stub_col_rowspans[stub_cell_idx]
+                if rowspan_val == 0:
+                    stub_cell_idx += 1
+                    continue
+                if rowspan_val > 1:
+                    span_attr = f' rowspan="{rowspan_val}"'
+            stub_cell_idx += 1
+
         body_cells.append(
-            f"""    <{el_name}{cell_styles} class="{classes_str}">{cell_str}</{el_name}>"""
+            f"""    <{el_name}{cell_styles}{span_attr} class="{classes_str}">{cell_str}</{el_name}>"""
         )
 
     tr_open = f'  <tr class="{row_class}">' if row_class else "  <tr>"
@@ -1192,12 +1431,17 @@ def create_footer_component_h(data: GTData) -> str:
         footnotes_with_marks = _process_footnotes_for_display(data, footnotes)
 
         if footnotes_with_marks:
+            styles_footer = [x for x in data._styles if _is_loc(x.locname, loc.LocFooter)]
+            styles_footnotes = [x for x in data._styles if _is_loc(x.locname, loc.LocFootnotes)]
+            _fn_styles = _flatten_styles(styles_footer + styles_footnotes, wrap=True)
+
             # Each footnote gets its own row
             for footnote_data in footnotes_with_marks:
                 mark = footnote_data.get("mark", "")
                 text = footnote_data.get("text", "")
 
-                footnote_mark_html = _create_footnote_mark_html(mark=mark)
+                ftr_spec = _parse_footnote_spec(cast(str, data._options.footnotes_spec_ftr.value))
+                footnote_mark_html = _create_footnote_mark_html(mark=mark, spec=ftr_spec)
 
                 # Wrap footnote text in `gt_from_md` span if it contains HTML markup
                 if "<" in text and ">" in text:
@@ -1207,7 +1451,7 @@ def create_footer_component_h(data: GTData) -> str:
 
                 footnote_html = f"{footnote_mark_html} {footnote_text}"
                 footer_rows.append(
-                    f'<tr class="gt_footnotes"><td class="gt_footnote" colspan="{n_cols_total}">{footnote_html}</td></tr>'
+                    f'<tr class="gt_footnotes"><td class="gt_footnote" colspan="{n_cols_total}"{_fn_styles}>{footnote_html}</td></tr>'
                 )
 
     # If no footer content, return empty string
@@ -1215,6 +1459,20 @@ def create_footer_component_h(data: GTData) -> str:
         return ""
 
     return f"<tfoot>{''.join(footer_rows)}</tfoot>"
+
+
+def _get_stub_footnote_colnum(data: GTData, footnote: FootnoteInfo) -> float:
+    """Column order of a stub footnote: between the row group column (-2) and the data columns.
+
+    A footnote on an outer level of a hierarchical stub sorts before one on the primary column.
+    """
+
+    stub_columns = [col.var for col in data._boxhead._get_stub_columns()]
+    if footnote.colname not in stub_columns:
+        return -1
+
+    n_levels_right = len(stub_columns) - 1 - stub_columns.index(footnote.colname)
+    return -1 - n_levels_right / len(stub_columns)
 
 
 def _should_display_footnote(data: GTData, footnote: FootnoteInfo) -> bool:
@@ -1258,7 +1516,8 @@ def _process_footnotes_for_display(
         elif isinstance(
             fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)
         ):
-            colnum = -1  # Stub appears before data columns but after row group column
+            # Stub appears before data columns but after row group column
+            colnum = _get_stub_footnote_colnum(data, fn_info)
         else:
             colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
         rownum = (
@@ -1286,22 +1545,9 @@ def _process_footnotes_for_display(
                 footnote_data[footnote_text] = mark_string
                 footnote_order.append(footnote_text)
 
-    # Add footnotes without marks at the beginning (also filter for visibility)
-    markless_footnotes = [f for f in visible_footnotes if f.locname is None]  # type: ignore
-    result: list[dict[str, str]] = []
-
-    # Add markless footnotes first
-    for footnote in markless_footnotes:
-        if footnote.footnotes:
-            footnote_text = footnote.footnotes[0]
-            result.append({"mark": "", "text": footnote_text})
-
-    # Add footnotes with marks and maintain visual order (order they appear in table);
-    # the `footnote_order` list already contains footnotes in visual order based on how
-    # `_get_footnote_mark_string()` assigns marks
+    # Build the marked footnotes list (sorted by visual order)
     mark_type = _get_footnote_marks_option(data)
     if isinstance(mark_type, str) and mark_type == "numbers":
-        # For numbers, sort by numeric mark value to handle any edge cases
         sorted_texts = sorted(
             footnote_order,
             key=lambda text: (
@@ -1309,14 +1555,45 @@ def _process_footnotes_for_display(
             ),
         )
     else:
-        # For letters/symbols, maintain visual order (don't sort alphabetically)
         sorted_texts = footnote_order
 
-    for text in sorted_texts:
-        mark_string = footnote_data[text]
-        result.append({"mark": mark_string, "text": text})
+    marked_items: list[dict[str, str]] = [
+        {"mark": footnote_data[text], "text": text} for text in sorted_texts
+    ]
 
-    return result
+    # Build the markless footnotes list (also filter for visibility)
+    markless_footnotes = [f for f in visible_footnotes if f.locname is None]  # type: ignore
+    markless_items: list[dict[str, str]] = []
+    for footnote in markless_footnotes:
+        if footnote.footnotes:
+            markless_items.append({"mark": "", "text": footnote.footnotes[0]})
+
+    # Arrange marked vs markless based on the footnotes_order option
+    order_option = cast(str, data._options.footnotes_order.value)
+
+    if order_option == "marks_first":
+        return marked_items + markless_items
+    elif order_option == "preserve_order":
+        # Maintain insertion order from data._footnotes
+        seen_texts: set[str] = set()
+        result: list[dict[str, str]] = []
+        for fn_info in data._footnotes:
+            if not fn_info.footnotes:
+                continue
+            if not _should_display_footnote(data, fn_info):
+                continue
+            footnote_text = fn_info.footnotes[0]
+            if footnote_text in seen_texts:
+                continue
+            seen_texts.add(footnote_text)
+            if fn_info.locname is None:
+                result.append({"mark": "", "text": footnote_text})
+            elif footnote_text in footnote_data:
+                result.append({"mark": footnote_data[footnote_text], "text": footnote_text})
+        return result
+    else:
+        # "marks_last" (default): markless first, then marked
+        return markless_items + marked_items
 
 
 def _get_footnote_mark_symbols() -> dict[str, list[str]]:
@@ -1367,14 +1644,72 @@ def _get_footnote_marks_option(data: GTData) -> str | list[str]:
     return "numbers"
 
 
-def _create_footnote_mark_html(mark: str) -> str:
-    # Handle markless footnotes (footnotes added with `locations=None`)
-    # These appear in the footer without marks in the table body
+@dataclass(frozen=True)
+class FootnoteMarkSpec:
+    superscript: bool = False
+    bold: bool = False
+    italic: bool = False
+    enclosure: str | None = None  # "()", "[]", or None
+    period: bool = False
+
+
+def _parse_footnote_spec(spec: str) -> FootnoteMarkSpec:
+    superscript = "^" in spec
+    bold = "b" in spec
+    italic = "i" in spec
+    period = "." in spec
+
+    enclosure: str | None = None
+    if "(" in spec or ")" in spec:
+        enclosure = "()"
+    elif "[" in spec or "]" in spec:
+        enclosure = "[]"
+
+    return FootnoteMarkSpec(
+        superscript=superscript,
+        bold=bold,
+        italic=italic,
+        enclosure=enclosure,
+        period=period,
+    )
+
+
+def _apply_footnote_spec_to_mark(mark: str, spec: FootnoteMarkSpec) -> str:
+    if spec.enclosure == "()":
+        mark = f"({mark})"
+    elif spec.enclosure == "[]":
+        mark = f"[{mark}]"
+
+    if spec.period:
+        mark = f"{mark}."
+
+    return mark
+
+
+def _build_footnote_mark_style(spec: FootnoteMarkSpec) -> str:
+    parts = ["white-space:nowrap"]
+    parts.append(f"font-style:{'italic' if spec.italic else 'normal'}")
+    parts.append(f"font-weight:{'bold' if spec.bold else 'normal'}")
+    if spec.superscript:
+        parts.append("line-height:0")
+    else:
+        # Override the .gt_footnote_marks class defaults (vertical-align:0.4em; font-size:75%)
+        parts.append("vertical-align:baseline")
+        parts.append("font-size:100%")
+    return ";".join(parts) + ";"
+
+
+def _create_footnote_mark_html(mark: str, spec: FootnoteMarkSpec | None = None) -> str:
     if not mark:
         return ""
 
-    # Use consistent span structure for both references and footer
-    return f'<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">{mark}</span>'
+    if spec is None:
+        spec = FootnoteMarkSpec(superscript=True, italic=True)
+
+    mark = _apply_footnote_spec_to_mark(mark, spec)
+    style = _build_footnote_mark_style(spec)
+
+    return f'<span class="gt_footnote_marks" style="{style}">{mark}</span>'
 
 
 def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
@@ -1382,55 +1717,60 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         mark_type = _get_footnote_marks_option(data)
         return _generate_footnote_mark(1, mark_type)
 
-    # Create a list of all footnote positions with their text, following R gt approach
-    footnote_positions: list[tuple[tuple[int | float, int, int], str]] = []
+    order_option = cast(str, data._options.footnotes_order.value)
 
-    for fn_info in data._footnotes:
-        if not fn_info.footnotes or fn_info.locname is None:
-            continue
+    # Build unique footnote texts in the appropriate order
+    if order_option == "preserve_order":
+        # Insertion order: walk data._footnotes as-is
+        unique_footnotes: list[str] = []
+        for fn_info in data._footnotes:
+            if not fn_info.footnotes or fn_info.locname is None:
+                continue
+            if not _should_display_footnote(data, fn_info):
+                continue
+            footnote_text = _process_text(fn_info.footnotes[0])
+            if footnote_text not in unique_footnotes:
+                unique_footnotes.append(footnote_text)
+    else:
+        # Visual reading order (default): sort by (locnum, rownum, colnum)
+        footnote_positions: list[tuple[tuple[int | float, int, int], str]] = []
 
-        # Skip footnotes for hidden columns
-        if not _should_display_footnote(data, fn_info):
-            continue
+        for fn_info in data._footnotes:
+            if not fn_info.footnotes or fn_info.locname is None:
+                continue
 
-        footnote_text = _process_text(fn_info.footnotes[0])
+            if not _should_display_footnote(data, fn_info):
+                continue
 
-        # Assign locnum (location number) based on the location hierarchy where
-        # lower numbers appear first in reading order (summary side-aware)
-        locnum = _get_summary_locnum(data, fn_info)
+            footnote_text = _process_text(fn_info.footnotes[0])
 
-        # Get colnum (column number) and assign row groups/stub lower values than data columns
-        if isinstance(fn_info.locname, loc.LocRowGroups):
-            colnum = -2  # Row group column is leftmost
-        elif isinstance(
-            fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)
-        ):
-            colnum = -1  # Stub appears before data columns but after row group column
-        elif isinstance(fn_info.locname, loc.LocSpannerLabels):
-            # For spanners, use the leftmost column index to ensure left-to-right ordering
-            colnum = _get_spanner_leftmost_column_index(data, fn_info.grpname)
-        else:
-            colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
+            locnum = _get_summary_locnum(data, fn_info)
 
-        # Get rownum; for headers use 0, for body use actual row number
-        if isinstance(fn_info.locname, loc.LocColumnLabels):
-            rownum = 0  # Headers are row 0
-        else:
-            rownum = fn_info.rownum if fn_info.rownum is not None else 0
+            if isinstance(fn_info.locname, loc.LocRowGroups):
+                colnum = -2
+            elif isinstance(
+                fn_info.locname, (loc.LocStub, loc.LocSummaryStub, loc.LocGrandSummaryStub)
+            ):
+                colnum = _get_stub_footnote_colnum(data, fn_info)
+            elif isinstance(fn_info.locname, loc.LocSpannerLabels):
+                colnum = _get_spanner_leftmost_column_index(data, fn_info.grpname)
+            else:
+                colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
 
-        # Sort key: (locnum, rownum, colnum); this should match reading order
-        # of top-to-bottom, left-to-right
-        sort_key = (locnum, rownum, colnum)
-        footnote_positions.append((sort_key, footnote_text))
+            if isinstance(fn_info.locname, loc.LocColumnLabels):
+                rownum = 0
+            else:
+                rownum = fn_info.rownum if fn_info.rownum is not None else 0
 
-    # Sort by (locnum, rownum, colnum): headers before body
-    footnote_positions.sort(key=lambda x: x[0])
+            sort_key = (locnum, rownum, colnum)
+            footnote_positions.append((sort_key, footnote_text))
 
-    # Get unique footnote texts in sorted order
-    unique_footnotes: list[str] = []
-    for _, text in footnote_positions:
-        if text not in unique_footnotes:
-            unique_footnotes.append(text)
+        footnote_positions.sort(key=lambda x: x[0])
+
+        unique_footnotes = []
+        for _, text in footnote_positions:
+            if text not in unique_footnotes:
+                unique_footnotes.append(text)
 
     # Find the mark index for this footnote's text
     if footnote_info.footnotes:
@@ -1504,12 +1844,13 @@ def _apply_footnotes_to_text(footnotes: list[FootnoteInfo], data: GTData, text: 
 
     # Create a single footnote mark span with comma-separated marks
     if mark_strings:
-        # Join mark strings with commas (no spaces)
-        marks_text = ",".join(mark_strings)
-        marks_html = (
-            '<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;'
-            f'font-weight:normal;line-height:0;">{marks_text}</span>'
-        )
+        ref_spec = _parse_footnote_spec(cast(str, data._options.footnotes_spec_ref.value))
+
+        # Apply enclosure and period to each individual mark, then join
+        decorated_marks = [_apply_footnote_spec_to_mark(m, ref_spec) for m in mark_strings]
+        marks_text = ",".join(decorated_marks)
+        style = _build_footnote_mark_style(ref_spec)
+        marks_html = f'<span class="gt_footnote_marks" style="{style}">{marks_text}</span>'
 
         # Determine placement based on the first footnote's placement setting
         # (all footnotes for the same location should have the same placement)

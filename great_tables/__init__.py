@@ -6,8 +6,13 @@ __version__ = _v("great_tables")
 del _v
 
 # Main gt imports ----
+from typing import TYPE_CHECKING
 
 from . import loc, style, vals
+
+if TYPE_CHECKING:
+    from .data import exibble as exibble
+    from .data import load_dataset as load_dataset
 from ._helpers import (
     LETTERS,
     define_units,
@@ -22,28 +27,33 @@ from ._helpers import (
     stub,
     system_fonts,
 )
+from ._data_color.col_fns import col_bin, col_factor, col_numeric
 from ._styles import FromColumn as from_column
 from .gt import GT
 
 __all__ = (
     "GT",
-    "exibble",
-    "letters",
     "LETTERS",
-    "px",
-    "pct",
-    "stub",
-    "md",
-    "html",
-    "google_font",
-    "system_fonts",
+    "col_bin",
+    "col_factor",
+    "col_numeric",
     "define_units",
-    "nanoplot_options",
-    "random_id",
+    "exibble",
     "from_column",
-    "vals",
+    "google_font",
+    "html",
+    "letters",
+    "load_dataset",
     "loc",
+    "md",
+    "nanoplot_options",
+    "pct",
+    "px",
+    "random_id",
+    "stub",
     "style",
+    "system_fonts",
+    "vals",
 )
 
 
@@ -54,6 +64,11 @@ def __getattr__(k: str):
         from great_tables.data import exibble
 
         return exibble
+
+    if k == "load_dataset":
+        from great_tables.data import load_dataset
+
+        return load_dataset
 
     # allow the data submodule to be accessed directly, as if it were a top-level import
     if k == "data":

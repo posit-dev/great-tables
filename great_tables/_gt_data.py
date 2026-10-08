@@ -31,6 +31,7 @@ from ._tbl_data import (
 )
 from ._tbl_data_align import (
     ALIGNMENT_MAP,
+    PANDAS_ARROW_STRING_DTYPES,
     classify_dtype_for_alignment,
     is_number_like_column,
 )
@@ -57,8 +58,42 @@ class FramelessData:
 # GT Data ----
 
 
+def _normalize_rowname_col(
+    rowname_col: str | list[str] | None, column_names: list[str]
+) -> list[str]:
+    """Return `rowname_col` as a list of stub column names (outermost first), validating it.
+
+    A string gives a single-column stub; a list gives a hierarchical stub in which the last column
+    is the primary row identifier and the others are outer levels.
+    """
+
+    if rowname_col is None:
+        return []
+
+    if isinstance(rowname_col, str):
+        rowname_cols = [rowname_col]
+    elif isinstance(rowname_col, (list, tuple)):
+        rowname_cols = list(rowname_col)
+        if not rowname_cols:
+            raise ValueError("`rowname_col=` must contain at least one column name.")
+        if not all(isinstance(col, str) for col in rowname_cols):
+            raise TypeError("`rowname_col=` must be a column name or a list of column names.")
+    else:
+        raise TypeError("`rowname_col=` must be a column name or a list of column names.")
+
+    duplicated = sorted({col for col in rowname_cols if rowname_cols.count(col) > 1})
+    if duplicated:
+        raise ValueError(f"`rowname_col=` contains duplicated column names: {duplicated}.")
+
+    missing = [col for col in rowname_cols if col not in column_names]
+    if missing:
+        raise ValueError(f"`rowname_col=` refers to columns not in the table: {missing}.")
+
+    return rowname_cols
+
+
 def _prep_gt(
-    data, rowname_col: str | None, groupname_col: str | None, auto_align: bool
+    data, rowname_col: str | list[str] | None, groupname_col: str | None, auto_align: bool
 ) -> tuple[Stub, Boxhead]:
     # this function is similar to Stub._set_cols, except it differs in two ways.
     #   * it supports auto-alignment (an expensive operation)
@@ -110,7 +145,7 @@ class GTData:
     def from_data(
         cls,
         data: TblData,
-        rowname_col: str | None = None,
+        rowname_col: str | list[str] | None = None,
         groupname_col: str | None = None,
         auto_align: bool = True,
         id: str | None = None,
@@ -248,6 +283,9 @@ class ColInfo:
     column_label: str | BaseText | None = None
     column_align: ColumnAlignment | None = None
     column_width: str | None = None
+    # Position of the column within the stub (0 = outermost level); only set for columns given in
+    # `rowname_col`, and kept when the column is hidden so that it can be restored as a stub column
+    stub_level: int | None = None
 
     # The components of the boxhead are:
     # `var` (obtained from column names)
@@ -296,7 +334,7 @@ class Boxhead(_Sequence[ColInfo]):
         cls,
         data: TblData | list[ColInfo],
         auto_align: bool = True,
-        rowname_col: str | None = None,
+        rowname_col: str | list[str] | None = None,
         groupname_col: str | None = None,
     ) -> Self:
         obj = super().__new__(cls)
@@ -319,7 +357,7 @@ class Boxhead(_Sequence[ColInfo]):
         self,
         data: TblData | list[ColInfo],
         auto_align: bool = True,
-        rowname_col: str | None = None,
+        rowname_col: str | list[str] | None = None,
         groupname_col: str | None = None,
     ):
         pass
@@ -327,13 +365,14 @@ class Boxhead(_Sequence[ColInfo]):
     def __getnewargs__(self):
         return (self._d,)
 
-    def set_stub_cols(self, rowname_col: str | None, groupname_col: str | None) -> Self:
+    def set_stub_cols(self, rowname_col: str | list[str] | None, groupname_col: str | None) -> Self:
         # Note that None unsets a column
-        # TODO: validate that rowname_col is in the boxhead
-        if rowname_col is not None and rowname_col == groupname_col:
+        rowname_cols = _normalize_rowname_col(rowname_col, [col.var for col in self])
+
+        if groupname_col is not None and groupname_col in rowname_cols:
             raise ValueError(
                 "rowname_col and groupname_col may not be set to the same column. "
-                f"Received column name: `{rowname_col}`."
+                f"Received column name: `{groupname_col}`."
             )
 
         new_cols = []
@@ -341,15 +380,17 @@ class Boxhead(_Sequence[ColInfo]):
         for col in self:
             # either set the col to be the new stub or row_group ----
             # note that this assumes col.var is always a string, so never equals None
-            if col.var == rowname_col:
-                new_col = replace(col, type=ColInfoTypeEnum.stub)
+            if col.var in rowname_cols:
+                new_col = replace(
+                    col, type=ColInfoTypeEnum.stub, stub_level=rowname_cols.index(col.var)
+                )
             elif col.var == groupname_col:
-                new_col = replace(col, type=ColInfoTypeEnum.row_group)
+                new_col = replace(col, type=ColInfoTypeEnum.row_group, stub_level=None)
             # otherwise, unset the existing stub or row_group ----
             elif col.type in stub_or_row_group:
-                new_col = replace(col, type=ColInfoTypeEnum.default)
+                new_col = replace(col, type=ColInfoTypeEnum.default, stub_level=None)
             else:
-                new_col = replace(col)
+                new_col = replace(col, stub_level=None)
 
             new_cols.append(new_col)
 
@@ -366,7 +407,19 @@ class Boxhead(_Sequence[ColInfo]):
         return self._set_cols_info_type(colnames=colnames, colinfo_type=ColInfoTypeEnum.hidden)
 
     def set_cols_unhidden(self, colnames: list[str]) -> Self:
-        return self._set_cols_info_type(colnames=colnames, colinfo_type=ColInfoTypeEnum.default)
+        # Columns that belong to the stub go back to being stub columns
+        res: list[ColInfo] = [
+            replace(
+                col,
+                type=(
+                    ColInfoTypeEnum.stub if col.stub_level is not None else ColInfoTypeEnum.default
+                ),
+            )
+            if col.var in colnames
+            else col
+            for col in self._d
+        ]
+        return self.__class__(res)
 
     def align_from_data(self, data: TblData) -> Self:
         """Updates align attribute in entries based on data types."""
@@ -386,10 +439,11 @@ class Boxhead(_Sequence[ColInfo]):
             classification = classify_dtype_for_alignment(data, col)
 
             # Special case: string columns with number-like content -> right-align
-            # This handles both "object" (pandas 2.x) and "str" (pandas 3.x) dtypes
+            # This handles "object" (pandas 2.x), "str" (pandas 3.x) and pyarrow-backed dtypes
             if classification == "string":
                 dtype = str(_get_column_dtype(data, col)).lower()
-                if dtype in ("object", "str") and is_number_like_column(data, col):
+                checks_number_like = dtype in {"object", "str", *PANDAS_ARROW_STRING_DTYPES}
+                if checks_number_like and is_number_like_column(data, col):
                     classification = "numeric"
 
             align.append(ALIGNMENT_MAP[classification])
@@ -419,8 +473,7 @@ class Boxhead(_Sequence[ColInfo]):
             [row_group_info] if row_group_info and options.row_group_as_column.value else []
         )
 
-        stub_info = self._get_stub_column()
-        stub_column = [stub_info] if stub_info else []
+        stub_column = self._get_stub_columns()
 
         default_columns = self._get_default_columns()
 
@@ -462,8 +515,14 @@ class Boxhead(_Sequence[ColInfo]):
         return default_columns
 
     def _get_stub_column(self) -> ColInfo | None:
-        stub_column = [x for x in self._d if x.type == ColInfoTypeEnum.stub]
-        return None if not stub_column else stub_column[0]
+        """Return the primary stub column (the row identifier), if any."""
+        stub_columns = self._get_stub_columns()
+        return stub_columns[-1] if stub_columns else None
+
+    def _get_stub_columns(self) -> list[ColInfo]:
+        """Return the visible stub columns, outermost level first and the primary column last."""
+        stub_columns = [x for x in self._d if x.type == ColInfoTypeEnum.stub]
+        return sorted(stub_columns, key=lambda x: x.stub_level or 0)
 
     def _get_row_group_column(self) -> ColInfo | None:
         column = [x for x in self._d if x.type == ColInfoTypeEnum.row_group]
@@ -508,7 +567,9 @@ class Boxhead(_Sequence[ColInfo]):
     ) -> int:
         n_data_cols = self._get_number_of_visible_data_columns()
 
-        stub_layout = stub._get_stub_layout(has_summary_rows=has_summary_rows, options=options)
+        stub_layout = stub._get_stub_layout(
+            has_summary_rows=has_summary_rows, options=options, boxhead=self
+        )
         # Once the stub is defined in the package, we need to account
         # for the width of the stub at build time to fully obtain the number
         # of visible columns in the built table
@@ -577,19 +638,23 @@ class Stub:
 
     @classmethod
     def from_data(
-        cls, data, rowname_col: str | None = None, groupname_col: str | None = None
+        cls, data, rowname_col: str | list[str] | None = None, groupname_col: str | None = None
     ) -> Self:
         # Obtain a list of row indices from the data and initialize
         # the `_stub` from that
         row_indices = list(range(n_rows(data)))
+
+        # With a hierarchical stub, the last column is the primary row identifier
+        rowname_cols = _normalize_rowname_col(rowname_col, get_column_names(data))
+        primary_rowname_col = rowname_cols[-1] if rowname_cols else None
 
         if groupname_col is not None:
             group_id = to_list(data[groupname_col])
         else:
             group_id = [None] * n_rows(data)
 
-        if rowname_col is not None:
-            row_names = to_list(data[rowname_col])
+        if primary_rowname_col is not None:
+            row_names = to_list(data[primary_rowname_col])
         else:
             row_names = [None] * n_rows(data)
 
@@ -606,7 +671,11 @@ class Stub:
         return cls(row_info, group_rows)
 
     def _set_cols(
-        self, data: TblData, boxhead: Boxhead, rowname_col: str | None, groupname_col: str | None
+        self,
+        data: TblData,
+        boxhead: Boxhead,
+        rowname_col: str | list[str] | None,
+        groupname_col: str | None,
     ) -> tuple[Stub, Boxhead]:
         """Return a new Stub and Boxhead, with updated rowname and groupname columns.
 
@@ -723,9 +792,14 @@ class Stub:
 
         return row_group_as_column
 
-    def _get_stub_layout(self, has_summary_rows: bool, options: Options) -> list[str]:
+    def _get_stub_layout(
+        self, has_summary_rows: bool, options: Options, boxhead: Boxhead
+    ) -> list[str]:
+        # The stub columns, outermost first; a hierarchical stub has more than one
+        stub_columns = boxhead._get_stub_columns()
+
         # Determine which stub components are potentially present as columns
-        stub_rownames_is_column = "row_id" in self._get_stub_components()
+        stub_rownames_is_column = "row_id" in self._get_stub_components() or bool(stub_columns)
         stub_groupnames_is_column = self._stub_group_names_has_column(options=options)
 
         # Get the potential total number of columns in the table stub
@@ -749,6 +823,9 @@ class Stub:
                 )
                 if condition
             ]
+            # A hierarchical stub has one "rowname" entry per stub column
+            if len(stub_columns) > 1:
+                stub_layout.extend(["rowname"] * (len(stub_columns) - 1))
 
         return stub_layout
 
@@ -909,7 +986,7 @@ class Heading:
 
 
 # Stubhead ----
-Stubhead: TypeAlias = "str | None"
+Stubhead: TypeAlias = "str | BaseText | list[str | BaseText] | None"
 
 
 # Sourcenotes ----
@@ -1443,6 +1520,9 @@ class Options:
     # footnotes_border_lr_width: OptionsInfo = OptionsInfo(True, "footnotes", "px", "2px")
     # footnotes_border_lr_color: OptionsInfo = OptionsInfo(True, "footnotes", "value", "#D3D3D3")
     footnotes_marks: OptionsInfo = OptionsInfo(False, "footnotes", "values", "numbers")
+    footnotes_spec_ref: OptionsInfo = OptionsInfo(False, "footnotes", "value", "^i")
+    footnotes_spec_ftr: OptionsInfo = OptionsInfo(False, "footnotes", "value", "^i")
+    footnotes_order: OptionsInfo = OptionsInfo(False, "footnotes", "value", "marks_last")
     # footnotes_multiline: OptionsInfo = OptionsInfo(False, "footnotes", "boolean", True)
     # footnotes_sep: OptionsInfo = OptionsInfo(False, "footnotes", "value", " ")
     source_notes_padding: OptionsInfo = OptionsInfo(True, "source_notes", "px", "4px")
