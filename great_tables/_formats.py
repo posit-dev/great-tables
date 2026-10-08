@@ -6293,11 +6293,6 @@ def _format_number_fixed_decimals(
     # Combine the integer and decimal parts
     result = formatted_integer + formatted_decimal
 
-    # Drop any trailing zeros if option is taken (this purposefully doesn't apply to numbers
-    # formatted to a specific number of significant digits)
-    if drop_trailing_zeros:
-        result = result.rstrip("0")
-
     return result
 
 
