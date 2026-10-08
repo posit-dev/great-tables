@@ -1215,6 +1215,26 @@ def test_fmt_infinite_values_latex():
 
 
 @pytest.mark.parametrize(
+    "fmt_method,fmt_kwargs,x_out",
+    [
+        ("fmt_number", dict(n_sigfig=3), ["inf", "−inf"]),
+        ("fmt_number_si", dict(unit="g"), ["inf g", "−inf g"]),
+        ("fmt_number_si", dict(unit="g", n_sigfig=3, prefix_mode="decimal"), ["inf g", "−inf g"]),
+        ("fmt_duration", dict(input_units="seconds"), ["inf", "−inf"]),
+        ("fmt_duration", dict(input_units="days", force_sign=True), ["+inf", "−inf"]),
+    ],
+)
+def test_fmt_infinite_values_no_digits_or_parts(
+    fmt_method: str, fmt_kwargs: dict[str, Any], x_out: list[str]
+):
+    # Infinite values have no significant digits, SI prefix or time parts, and should not raise
+    df = pd.DataFrame({"x": [float("inf"), float("-inf")]})
+    gt = getattr(GT(df), fmt_method)(columns="x", **fmt_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize(
     "value,n_sigfig,x_out",
     [
         (1e11, 1, "1E11"),
