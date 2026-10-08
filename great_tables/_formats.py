@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import math
 import re
 from collections.abc import Callable
@@ -1518,8 +1519,8 @@ def _get_si_prefix(
 ) -> tuple[int, str]:
     """Get the exponent and symbol of the SI prefix to use for an absolute value."""
 
-    if abs_x == 0:
-        # Zero gets no prefix
+    if abs_x == 0 or math.isinf(abs_x):
+        # Zero and infinity get no prefix
         return 0, ""
 
     if abs_x >= 1 and abs_x < 1000 and (prefix_mode != "decimal" or abs_x < 10):
@@ -2400,6 +2401,10 @@ def fmt_currency_context(
 
     if currency_symbol == "$":
         currency_symbol = _context_dollar_mark(context=context)
+    elif context == "latex":
+        # Symbols are stored for HTML (e.g., `&#8364;` for EUR), so write them as characters and
+        # escape any LaTeX special characters (e.g., the `$` in `R$` for BRL)
+        currency_symbol = _latex_escape(html.unescape(currency_symbol))
 
     # Choose the appropriate formatting function based on the `compact=` option
     if compact:
@@ -4735,6 +4740,12 @@ def fmt_duration_context(
     else:
         return str(x)
 
+    # An infinite duration can't be split into time parts
+    if math.isinf(x_seconds):
+        return _format_infinite_value(
+            x_seconds, force_sign=force_sign, pattern=pattern, context=context
+        )
+
     # Determine sign
     is_negative = x_seconds < 0
     x_seconds_abs = abs(x_seconds)
@@ -6092,7 +6103,8 @@ def _value_to_decimal_notation(
 
     is_positive = value > 0
 
-    if n_sigfig:
+    # Infinity has no significant digits, so it always takes the conventional pathway
+    if n_sigfig and not math.isinf(value):
         # If there is a value provided to `n_sigfig` then number formatting proceeds through the
         # significant digits pathway, which ignores `decimals` and any removal of trailing zero values
         # in the decimal portion of the value
