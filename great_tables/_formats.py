@@ -6265,6 +6265,12 @@ def _format_number_fixed_decimals(
     integer_part = number_parts[0].lstrip("-")
     decimal_part = number_parts[1] if len(number_parts) > 1 else ""
 
+    # Drop any trailing zeros if option is taken; only the decimal part is stripped so that
+    # zeros in the integer part (e.g., `100` with `decimals=0`) are kept (this purposefully
+    # doesn't apply to numbers formatted to a specific number of significant digits)
+    if drop_trailing_zeros:
+        decimal_part = decimal_part.rstrip("0")
+
     # Initialize formatted representations of integer and decimal parts
     formatted_integer = ""
     formatted_decimal = dec_mark + decimal_part if decimal_part else ""
