@@ -2177,8 +2177,8 @@ def fmt_currency(
     code. We have fine control over the conversion from numeric values to currency values, where we
     could take advantage of the following options:
 
-    - the currency: providing a currency code or common currency name will procure the correct
-    currency symbol and number of currency subunits
+    - the currency: providing a currency code will procure the correct currency symbol and number of
+    currency subunits
     - currency symbol placement: the currency symbol can be placed before or after the values
     - decimals/subunits: choice of the number of decimal places, and a choice of the decimal symbol,
     and an option on whether to include or exclude the currency subunits (the decimal portion)
@@ -2201,7 +2201,10 @@ def fmt_currency(
         DataFrames) a Polars expression such as `pl.col("x") > 0`.
     currency
         The currency to use for the numeric value. This input can be supplied as a 3-letter currency
-        code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
+        code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency). In LaTeX output,
+        currency symbols are written as Unicode characters. Some of them (e.g., `"₹"` for `"INR"`,
+        `"₪"` for `"ILS"`, `"₽"` for `"RUB"`, or `"₺"` for `"TRY"`) aren't available in pdfLaTeX, so
+        tables using these currencies need to be compiled with XeLaTeX or LuaLaTeX.
     use_subunits
         An option for whether the subunits portion of a currency value should be displayed. For
         example, with an input value of `273.81`, the default formatting will produce `"$273.81"`.
@@ -6883,18 +6886,16 @@ def _get_currency_exponent(currency: str) -> int:
     # get the curr_code column from currencies df as a list
     matches = [entry["exponent"] for entry in currencies if entry["curr_code"] == currency]
 
-    if matches:
-        exponent = matches[0]
+    if not matches:
+        # An unknown code uses the most common exponent (`fmt_currency()` validates the code
+        # first, so this only applies to internal callers)
+        return 2
 
-        # TODO: why does this happen here if we control currency data?
-        exponent = int(exponent)
+    # The data is read as strings; some codes (e.g., `XAU` for gold) have no minor unit, which
+    # is recorded as `NA` and means no decimal places (as in R gt)
+    exponent = matches[0]
 
-    else:
-        # TODO: in what situation are we given a currency code with no match?
-        # why return this? E.g. what if someone misspelled a currency code?
-        exponent = 2
-
-    return exponent
+    return 0 if exponent == "NA" else int(exponent)
 
 
 def _validate_n_sigfig(n_sigfig: int) -> None:
