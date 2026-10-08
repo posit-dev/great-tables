@@ -1677,6 +1677,22 @@ def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
     assert x == x_out
 
 
+@pytest.mark.parametrize(
+    "x_in,dtype,x_out",
+    [
+        ([True, False], "bool", ["yes", "no"]),
+        ([True, False, None], "boolean", ["yes", "no", "NA"]),
+    ],
+)
+@pytest.mark.parametrize("context", ["html", "latex"])
+def test_fmt_tf_pandas_bool_dtypes(x_in: list[Any], dtype: str, x_out: list[str], context: str):
+    # Cells of pandas boolean columns are NumPy booleans rather than `bool` values
+    df = pd.DataFrame({"x": pd.array(x_in, dtype=dtype)})
+    gt = GT(df).fmt_tf(columns="x", tf_style="yes-no", na_val="NA")
+    x = _get_column_of_values(gt, column_name="x", context=context)
+    assert x == x_out
+
+
 def test_fmt_tf_column_invalid_type():
     df = pl.DataFrame({"x": [0, 1, 2]})
     gt = GT(df).fmt_tf(columns="x")

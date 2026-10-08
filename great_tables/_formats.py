@@ -37,6 +37,7 @@ from ._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
+    NpBool,
     PlExpr,
     SelectExpr,
     _get_column_dtype,
@@ -5644,6 +5645,9 @@ def fmt_tf_context(
 ) -> str | FormatterSkipElement:
     if is_na(data._tbl_data, x):
         x = None
+    elif isinstance(x, NpBool):
+        # pandas gives NumPy booleans, which aren't instances of `bool`
+        x = bool(x)
     elif not isinstance(x, bool):
         raise ValueError(f"Expected boolean value or NA, but got {type(x)}.")
 
