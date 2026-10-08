@@ -781,11 +781,11 @@ def fmt_scientific_context(
 
     m_part, n_part = sci_parts
 
-    # Remove trailing zeros and decimal marks from the `m_part`
-    if drop_trailing_zeros:
+    # Remove trailing zeros (from the decimal part only) and decimal marks from the `m_part`
+    if drop_trailing_zeros and dec_mark and dec_mark in m_part:
         m_part = m_part.rstrip("0")
-    if drop_trailing_dec_mark:
-        m_part = m_part.rstrip(".")
+    if drop_trailing_dec_mark and dec_mark:
+        m_part = m_part.rstrip(dec_mark)
 
     # Force the positive sign to be present if the `force_sign_m` option is taken
     if is_positive and force_sign_m:
@@ -6265,6 +6265,12 @@ def _format_number_fixed_decimals(
     integer_part = number_parts[0].lstrip("-")
     decimal_part = number_parts[1] if len(number_parts) > 1 else ""
 
+    # Drop any trailing zeros if option is taken; only the decimal part is stripped so that
+    # zeros in the integer part (e.g., `100` with `decimals=0`) are kept (this purposefully
+    # doesn't apply to numbers formatted to a specific number of significant digits)
+    if drop_trailing_zeros:
+        decimal_part = decimal_part.rstrip("0")
+
     # Initialize formatted representations of integer and decimal parts
     formatted_integer = ""
     formatted_decimal = dec_mark + decimal_part if decimal_part else ""
@@ -6286,11 +6292,6 @@ def _format_number_fixed_decimals(
 
     # Combine the integer and decimal parts
     result = formatted_integer + formatted_decimal
-
-    # Drop any trailing zeros if option is taken (this purposefully doesn't apply to numbers
-    # formatted to a specific number of significant digits)
-    if drop_trailing_zeros:
-        result = result.rstrip("0")
 
     return result
 
