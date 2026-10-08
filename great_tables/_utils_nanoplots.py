@@ -176,22 +176,27 @@ def _format_number_compactly(
     if val == 0:
         return "0"
 
-    use_subunits, decimals, n_sigfig, compact = next(
-        (settings for bound, settings in _COMPACT_FMT_SETTINGS if abs(val) < bound),
-        _COMPACT_FMT_LARGE,
+    val, (use_subunits, decimals, n_sigfig, compact), is_large = _get_compact_fmt_settings(
+        val, currency=currency
     )
 
     if currency is not None:
-        if abs(val) >= 1e15:
-            # TODO: this is meant to be `>` followed by the formatted currency value but only the
-            # `>` is kept (the tests currently expect that)
-            return ">"
+        if is_large:
+            # Values this large are shown as a bound (`>$1Q`, or `<−$1Q` for negative values)
+            val_formatted = fmt_currency(
+                math.copysign(1e15, val),
+                currency=currency,
+                use_subunits=False,
+                decimals=0,
+                compact=True,
+            )
+            return (">" if val > 0 else "<") + val_formatted[0]
 
         val_formatted = fmt_currency(
-            val, currency=currency, use_subunits=use_subunits, decimals=decimals
+            val, currency=currency, use_subunits=use_subunits, decimals=decimals, compact=compact
         )
 
-    elif abs(val) < 0.01 or abs(val) >= 1e15:
+    elif abs(val) < 0.01 or is_large:
         val_formatted = fmt_scientific(val, exp_style="E", n_sigfig=n_sigfig, decimals=1)
 
     elif as_integer and -100 < val < 100:
