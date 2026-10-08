@@ -905,7 +905,8 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
         A dictionary where the keys are column names and the values are the widths. Widths can be
         specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`). Use the
         [`stub`](`great_tables.stub`) sentinel as a key to set the width of the stub column without
-        risk of collision with a data column named `"stub"`.
+        risk of collision with a data column named `"stub"`, or `stub(n)` to set one level of a
+        hierarchical stub (counting from the right).
 
     **kwargs
         Keyword arguments to specify column widths. Each keyword corresponds to a column name, with
@@ -1003,7 +1004,9 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
     previous example).
 
     When a table has a stub (row labels), use the [`stub`](`great_tables.stub`) sentinel to set its
-    width. This avoids any ambiguity with a data column that happens to be named `"stub"`.
+    width. This avoids any ambiguity with a data column that happens to be named `"stub"`. With a
+    hierarchical stub, `stub` sets the width of every stub column, and `stub(n)` sets the width of a
+    single level, counting from the right (`stub(1)` is the column holding the row labels).
 
     ```{python}
     from great_tables import GT, stub
@@ -1023,6 +1026,15 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
         )
     )
     ```
+
+    Here's a hierarchical stub with a different width for each level.
+
+    ```{python}
+    (
+        GT(gtcars[["mfr", "model", "year", "hp"]].head(6), rowname_col=["mfr", "model"])
+        .cols_width(cases={stub(2): "120px", stub(1): "200px", "year": "60px", "hp": "60px"})
+    )
+    ```
     """
     cases = cases if cases is not None else {}
     new_cases = cases | kwargs
@@ -1033,19 +1045,30 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
 
     curr_boxhead = self._boxhead
 
-    # Resolve a stub sentinel key to the actual stub column variable name
+    # Resolve stub sentinel keys to the actual stub column variable names: `stub` sets every stub
+    # column, `stub(n)` sets one level (counting from the right), and widths given for named columns
+    # take precedence over both
     from ._helpers import _StubSentinel
 
     stub_keys = [k for k in new_cases if isinstance(k, _StubSentinel)]
     if stub_keys:
-        stub_col = curr_boxhead._get_stub_column()
-        if stub_col is not None:
-            stub_width = new_cases.pop(stub_keys[0])
-            new_cases = {stub_col.var: stub_width} | new_cases
-        else:
-            # No stub column present — drop the sentinel key silently
-            for k in stub_keys:
-                new_cases.pop(k)
+        stub_cols = [col.var for col in curr_boxhead._get_stub_columns()]
+        stub_widths: dict[str, str] = {}
+
+        for key in sorted(stub_keys, key=lambda k: k._level is not None):
+            width = new_cases.pop(key)
+            if key._level is None:
+                # No stub column present: the plain `stub` key is dropped silently
+                stub_widths |= {col: width for col in stub_cols}
+            elif key._level > len(stub_cols):
+                raise ValueError(
+                    f"`{key!r}` refers to stub level {key._level} (counting from the right), but "
+                    f"the stub has {len(stub_cols)} column(s)."
+                )
+            else:
+                stub_widths[stub_cols[-key._level]] = width
+
+        new_cases = stub_widths | new_cases
 
     # Get the full list of column names for the data
     column_names = curr_boxhead._get_columns()
