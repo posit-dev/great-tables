@@ -781,11 +781,11 @@ def fmt_scientific_context(
 
     m_part, n_part = sci_parts
 
-    # Remove trailing zeros and decimal marks from the `m_part`
-    if drop_trailing_zeros:
+    # Remove trailing zeros (from the decimal part only) and decimal marks from the `m_part`
+    if drop_trailing_zeros and dec_mark and dec_mark in m_part:
         m_part = m_part.rstrip("0")
-    if drop_trailing_dec_mark:
-        m_part = m_part.rstrip(".")
+    if drop_trailing_dec_mark and dec_mark:
+        m_part = m_part.rstrip(dec_mark)
 
     # Force the positive sign to be present if the `force_sign_m` option is taken
     if is_positive and force_sign_m:
