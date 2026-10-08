@@ -386,12 +386,7 @@ def fmt_number_context(
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -577,12 +572,7 @@ def fmt_integer_context(
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -846,12 +836,7 @@ def fmt_scientific_context(
         x_formatted = m_part + exp_str + n_part
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -1180,12 +1165,7 @@ def fmt_engineering_context(
         x_formatted = m_part + exp_str + n_part
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -1618,12 +1598,7 @@ def fmt_number_si_context(
         x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -1866,12 +1841,7 @@ def fmt_percent_context(
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -2174,12 +2144,7 @@ def fmt_partsper_context(
         x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -2459,12 +2424,7 @@ def fmt_currency_context(
             x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -2580,12 +2540,7 @@ def fmt_roman_context(
         x_formatted = x_formatted.lower()
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -2893,10 +2848,7 @@ def fmt_fraction_context(
         minus_mark = _context_minus_mark(context=context)
         x_formatted = minus_mark + x_formatted
 
-    if pattern != "{x}":
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -3458,12 +3410,8 @@ def fmt_index_context(
     if case == "lower":
         x_formatted = x_formatted.lower()
 
-    if x_formatted and pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    if x_formatted:
+        x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -4187,12 +4135,7 @@ def fmt_bytes_context(
         x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -4818,10 +4761,7 @@ def fmt_duration_context(
         x_formatted = "+" + x_formatted
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -5165,12 +5105,7 @@ def fmt_date_context(
     x_formatted = format_date(x, format=_resolve_iso_week(date_format_str, x), locale=locale)
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -5304,12 +5239,7 @@ def fmt_time_context(
     x_formatted = format_time(x, format=time_format_str, locale=locale)
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -5504,12 +5434,7 @@ def fmt_datetime_context(
         )
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -5716,16 +5641,7 @@ def fmt_tf_context(
         x_styled = x_formatted
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_out = pattern.replace("{x}", x_styled)
-    else:
-        x_out = x_styled
-
-    return x_out
+    return _apply_value_pattern(x_styled, pattern=pattern, context=context)
 
 
 TF_FORMATS: dict[str, list[str]] = {
@@ -6063,12 +5979,28 @@ def fmt_units(
         x_formatted = define_units(x).to_html()
 
         # Use a supplied pattern specification to decorate the formatted value
-        if pattern != "{x}":
-            x_formatted = pattern.replace("{x}", x_formatted)
+        x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context="html")
 
         return x_formatted
 
     return fmt(self, fns=fmt_units_fn, columns=columns, rows=rows)
+
+
+def _apply_value_pattern(x_formatted: str, pattern: str, context: str) -> str:
+    """
+    Decorate a formatted value with a `pattern=` specification (e.g., `"({x})"`).
+
+    In LaTeX, special characters in the pattern's literals are escaped (the `{x}` placeholder is
+    left as is).
+    """
+
+    if pattern == "{x}":
+        return x_formatted
+
+    if context == "latex":
+        pattern = escape_pattern_str_latex(pattern_str=pattern)
+
+    return pattern.replace("{x}", x_formatted)
 
 
 def _format_nonfinite_value(x: float, force_sign: bool, pattern: str, context: str) -> str:
@@ -6083,12 +6015,7 @@ def _format_nonfinite_value(x: float, force_sign: bool, pattern: str, context: s
     x_formatted = _replace_minus(x_formatted, minus_mark=_context_minus_mark(context=context))
 
     # Use a supplied pattern specification to decorate the formatted value
-    if pattern != "{x}":
-        # Escape LaTeX special characters from literals in the pattern
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 
@@ -8598,10 +8525,7 @@ def fmt_passthrough_context(
         elif context == "latex":
             x_formatted = _latex_escape(x_formatted)
 
-    if pattern != "{x}":
-        if context == "latex":
-            pattern = escape_pattern_str_latex(pattern_str=pattern)
-        x_formatted = pattern.replace("{x}", x_formatted)
+    x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
     return x_formatted
 

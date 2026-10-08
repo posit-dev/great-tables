@@ -10,6 +10,7 @@ from great_tables import GT, _locale, vals
 from great_tables._data_color.base import _html_color
 from great_tables._formats import (
     FmtImage,
+    _apply_value_pattern,
     _check_colors,
     _expand_exponential_to_full_string,
     _format_number_n_sigfig,
@@ -3220,6 +3221,57 @@ def test_validate_n_sigfig_less_than_one_raises():
 
     with pytest.raises(ValueError, match="greater than or equal"):
         _validate_n_sigfig(0)
+
+
+@pytest.mark.parametrize(
+    "pattern,context,x_out",
+    [
+        ("{x}", "html", "1 & 2%"),
+        ("{x}", "latex", "1 & 2%"),
+        ("({x})", "html", "(1 & 2%)"),
+        ("{x} & 5%", "html", "1 & 2% & 5%"),
+        # In LaTeX only the pattern's literals are escaped, not the formatted value
+        ("{x} & 5%", "latex", r"1 & 2% \& 5\%"),
+        ("{x}/{x}", "latex", "1 & 2%/1 & 2%"),
+    ],
+)
+def test_apply_value_pattern(pattern: str, context: str, x_out: str):
+    assert _apply_value_pattern("1 & 2%", pattern=pattern, context=context) == x_out
+
+
+@pytest.mark.parametrize(
+    "fmt_method,x_in,fmt_kwargs",
+    [
+        ("fmt_number", 1.5, {}),
+        ("fmt_integer", 2, {}),
+        ("fmt_scientific", 12345.0, {}),
+        ("fmt_engineering", 12345.0, {}),
+        ("fmt_number_si", 1234.0, {}),
+        ("fmt_percent", 0.5, {}),
+        ("fmt_partsper", 0.001, {}),
+        ("fmt_currency", 1.5, {}),
+        ("fmt_roman", 4, {}),
+        ("fmt_fraction", 1.5, {}),
+        ("fmt_index", 3, {}),
+        ("fmt_bytes", 2000, {}),
+        ("fmt_tf", True, {}),
+        ("fmt_date", date(2024, 1, 5), {}),
+        ("fmt_duration", 3700, dict(input_units="seconds")),
+        ("fmt_passthrough", "a", {}),
+        ("fmt_number", float("inf"), {}),
+        ("fmt_scientific", float("-inf"), {}),
+    ],
+)
+@pytest.mark.parametrize("context,suffix", [("html", " & 5%"), ("latex", r" \& 5\%")])
+def test_fmt_pattern_all_formatters(
+    fmt_method: str, x_in: Any, fmt_kwargs: dict[str, Any], context: str, suffix: str
+):
+    # Every formatter decorates its output with `pattern=`, escaping the literals in LaTeX
+    df = pd.DataFrame({"x": [x_in]})
+    gt = getattr(GT(df), fmt_method)(columns="x", pattern="{x} & 5%", **fmt_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context=context)
+    assert x[0].endswith(suffix)
+    assert not x[0].startswith(suffix.strip())
 
 
 def test_fmt_scientific_drop_trailing_zeros():
