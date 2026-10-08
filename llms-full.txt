@@ -9,7 +9,7 @@ All tables created in Great Tables begin by using `GT()`. With this class, we su
 
 
 
-GT(data: 'Any', rowname_col: 'str | None' = None, groupname_col: 'str | None' = None, auto_align: 'bool' = True, id: 'str | None' = None, locale: 'str | None' = None)
+GT(data: 'Any', rowname_col: 'str | list[str] | None' = None, groupname_col: 'str | None' = None, auto_align: 'bool' = True, id: 'str | None' = None, locale: 'str | None' = None)
 
 Create a **Great Tables** object.
 
@@ -31,7 +31,9 @@ data
     A DataFrame object.
 rowname_col
     The column name in the input `data=` table to use as row labels to be placed in the table
-    stub.
+    stub. A list of column names creates a hierarchical stub, where the last column holds the
+    row labels and the columns before it are outer levels (outermost first); repeated values in
+    the outer levels are merged across adjacent rows.
 groupname_col
     The column name in the input `data=` table to use as group labels for generation of row
     groups.
@@ -438,14 +440,16 @@ lil_towny = (
 GT(lil_towny).tab_spanner_delim(delim="_")
 ```
 
-tab_stub(self: 'GTSelf', rowname_col: 'str | None' = None, groupname_col: 'str | None' = None) -> 'GTSelf'
+tab_stub(self: 'GTSelf', rowname_col: 'str | list[str] | None' = None, groupname_col: 'str | None' = None) -> 'GTSelf'
 
 Add a table stub, to emphasize row and group information.
 
 Parameters
 ----------
 rowname_col:
-    The column to use for row names. By default, no row names added.
+    The column to use for row names. By default, no row names added. A list of columns
+    creates a hierarchical stub: the last column holds the row names, and the columns before
+    it are outer levels (outermost first), with repeated values merged across adjacent rows.
 groupname_col:
     The column to use for group names. By default no group names added.
 
@@ -473,7 +477,14 @@ on their own line.
 GT(exibble).tab_stub(rowname_col="row", groupname_col="group")
 ```
 
-tab_stubhead(self: 'GTSelf', label: 'str | Text') -> 'GTSelf'
+Passing a list of columns to `rowname_col=` creates a hierarchical stub. Here, the rows are
+labeled by `"group"` and then `"row"`, and the repeated group values are merged.
+
+```{python}
+GT(exibble[["group", "row", "num", "char"]]).tab_stub(rowname_col=["group", "row"])
+```
+
+tab_stubhead(self: 'GTSelf', label: 'str | Text | list[str | Text]') -> 'GTSelf'
 
 Add label text to the stubhead.
 
@@ -489,7 +500,9 @@ Parameters
 label
     The text to be used as the stubhead label. We can optionally use the
     [`md()`](`great_tables.md`) and [`html()`](`great_tables.html`) helper functions to style
-    the text as Markdown or to retain HTML elements in the text.
+    the text as Markdown or to retain HTML elements in the text. With a hierarchical stub
+    (where `rowname_col=` is a list of columns), a single label spans all of the stub columns;
+    alternatively, a list of labels can be provided, one per stub column (outermost first).
 
 Returns
 -------
@@ -6287,7 +6300,8 @@ cases
     A dictionary where the keys are column names and the values are the widths. Widths can be
     specified in pixels (e.g., `"50px"`) or as percentages (e.g., `"20%"`). Use the
     [`stub`](`great_tables.stub`) sentinel as a key to set the width of the stub column without
-    risk of collision with a data column named `"stub"`.
+    risk of collision with a data column named `"stub"`, or `stub(n)` to set one level of a
+    hierarchical stub (counting from the right).
 
 **kwargs
     Keyword arguments to specify column widths. Each keyword corresponds to a column name, with
@@ -6385,7 +6399,9 @@ column widths based on the content (and you wouldn't get the overflowing behavio
 previous example).
 
 When a table has a stub (row labels), use the [`stub`](`great_tables.stub`) sentinel to set its
-width. This avoids any ambiguity with a data column that happens to be named `"stub"`.
+width. This avoids any ambiguity with a data column that happens to be named `"stub"`. With a
+hierarchical stub, `stub` sets the width of every stub column, and `stub(n)` sets the width of a
+single level, counting from the right (`stub(1)` is the column holding the row labels).
 
 ```{python}
 from great_tables import GT, stub
@@ -6403,6 +6419,15 @@ gtcars_mini = gtcars[["model", "year", "hp", "msrp"]].head(6)
             "msrp": "120px",
         }
     )
+)
+```
+
+Here's a hierarchical stub with a different width for each level.
+
+```{python}
+(
+    GT(gtcars[["mfr", "model", "year", "hp"]].head(6), rowname_col=["mfr", "model"])
+    .cols_width(cases={stub(2): "120px", stub(1): "200px", "year": "60px", "hp": "60px"})
 )
 ```
 
@@ -8053,7 +8078,7 @@ from great_tables.data import gtcars
 )
 ```
 
-LocStub(rows: 'RowSelectExpr' = None) -> None
+LocStub(rows: 'RowSelectExpr' = None, columns: 'str | list[str] | None' = None) -> None
 
 Target the table stub.
 
@@ -8067,6 +8092,12 @@ Parameters
 rows
     The rows to target within the stub. Can either be a single row name or a series of row names
     provided in a list. If no rows are specified, all rows are targeted.
+columns
+    For a hierarchical stub (where `rowname_col=` is a list of columns), the stub column(s) to
+    target, as a column name or a list of names. By default, all of the stub columns are
+    targeted. When `columns=` is given, row names in `rows=` are matched against the values in
+    those columns (rather than against the row labels), and a cell that is merged across
+    several rows is targeted if any of its rows are.
 
 Returns
 -------
@@ -8096,6 +8127,21 @@ from great_tables.data import gtcars
             style.fill(color="lightgray")
         ],
         locations=loc.stub()
+    )
+    .fmt_integer(columns=["hp", "trq"])
+    .fmt_currency(columns="msrp", decimals=0)
+)
+```
+
+With a hierarchical stub, `columns=` targets a single level. Here, the manufacturer cells for
+the Ferrari rows are highlighted, leaving the model names as they are.
+
+```{python}
+(
+    GT(gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(6), rowname_col=["mfr", "model"])
+    .tab_style(
+        style=style.fill(color="lightgray"),
+        locations=loc.stub(rows="Ferrari", columns="mfr")
     )
     .fmt_integer(columns=["hp", "trq"])
     .fmt_currency(columns="msrp", decimals=0)
