@@ -2587,8 +2587,8 @@ With numeric values in a **gt** table, we can perform currency-based formatting 
 code. We have fine control over the conversion from numeric values to currency values, where we
 could take advantage of the following options:
 
-- the currency: providing a currency code or common currency name will procure the correct
-currency symbol and number of currency subunits
+- the currency: providing a currency code will procure the correct currency symbol and number of
+currency subunits
 - currency symbol placement: the currency symbol can be placed before or after the values
 - decimals/subunits: choice of the number of decimal places, and a choice of the decimal symbol,
 and an option on whether to include or exclude the currency subunits (the decimal portion)
@@ -2611,7 +2611,10 @@ rows
     DataFrames) a Polars expression such as `pl.col("x") > 0`.
 currency
     The currency to use for the numeric value. This input can be supplied as a 3-letter currency
-    code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency).
+    code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency). In LaTeX output,
+    currency symbols are written as Unicode characters. Some of them (e.g., `"₹"` for `"INR"`,
+    `"₪"` for `"ILS"`, `"₽"` for `"RUB"`, or `"₺"` for `"TRY"`) aren't available in pdfLaTeX, so
+    tables using these currencies need to be compiled with XeLaTeX or LuaLaTeX.
 use_subunits
     An option for whether the subunits portion of a currency value should be displayed. For
     example, with an input value of `273.81`, the default formatting will produce `"$273.81"`.
