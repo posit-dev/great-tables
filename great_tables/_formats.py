@@ -1098,49 +1098,31 @@ def fmt_engineering_context(
     minus_mark = _context_minus_mark(context=context)
 
     # For engineering notation, we need to calculate the exponent that is a multiple of 3
-    # and adjust the mantissa accordingly
-    if x == 0:
-        # Special case for zero
-        m_part = _value_to_decimal_notation(
-            value=0,
-            decimals=decimals,
-            n_sigfig=n_sigfig,
-            drop_trailing_zeros=drop_trailing_zeros,
-            drop_trailing_dec_mark=drop_trailing_dec_mark,
-            use_seps=False,
-            sep_mark=",",
-            dec_mark=dec_mark,
-            force_sign=False,
-        )
-        n_part = "0"
-        power_3 = 0
-    else:
-        # Calculate the power of 1000 (engineering notation uses multiples of 3)
-        power_3 = int(math.floor(math.log10(abs(x)) / 3) * 3)
+    # (zero, which has no logarithm, gets an exponent of 0) and adjust the mantissa accordingly
+    power_3 = 0 if x == 0 else int(math.floor(math.log10(abs(x)) / 3) * 3)
 
-        def format_mantissa(power_3: int) -> str:
-            # Calculate the mantissa by dividing by 10^power_3 and format it
-            return _value_to_decimal_notation(
-                value=x / (10**power_3),
-                decimals=decimals,
-                n_sigfig=n_sigfig,
-                drop_trailing_zeros=drop_trailing_zeros,
-                drop_trailing_dec_mark=drop_trailing_dec_mark,
-                use_seps=False,
-                sep_mark=",",
-                dec_mark=dec_mark,
-                force_sign=False,
-            )
+    # Calculate the mantissa by dividing by 10^power_3
+    m_value = x / 10**power_3
 
-        m_part = format_mantissa(power_3)
+    # If rounding carries the mantissa up to 1000 (e.g., 999,999.5 with two decimals
+    # would give `1000.00 x 10^3`), use the next power of 1000 instead (`1.00 x 10^6`); the
+    # mantissa is then exactly 1
+    if _rounds_up_to(m_value, threshold=1000, decimals=decimals, n_sigfig=n_sigfig):
+        power_3 += 3
+        m_value = math.copysign(1.0, x)
 
-        # If rounding carries the mantissa up to 1000 (e.g., 999,999.5 with two decimals
-        # would give `1000.00 x 10^3`), use the next power of 1000 instead (`1.00 x 10^6`)
-        if abs(float(m_part.replace(dec_mark, "."))) >= 1000:
-            power_3 += 3
-            m_part = format_mantissa(power_3)
-
-        n_part = str(power_3)
+    m_part = _value_to_decimal_notation(
+        value=m_value,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        drop_trailing_zeros=drop_trailing_zeros,
+        drop_trailing_dec_mark=drop_trailing_dec_mark,
+        use_seps=False,
+        sep_mark=",",
+        dec_mark=dec_mark,
+        force_sign=False,
+    )
+    n_part = str(power_3)
 
     # Force the positive sign to be present if the `force_sign_m` option is taken
     if is_positive and force_sign_m:
@@ -1538,6 +1520,23 @@ def _get_si_prefix(
     return 0, ""
 
 
+def _get_next_si_prefix(exp: int, si_table: list[tuple[int, str]]) -> tuple[int, str] | None:
+    """
+    Get the exponent and symbol of the next larger SI prefix.
+
+    Having no prefix counts as a step (`(0, "")`); `None` is returned above the largest prefix.
+    """
+
+    # The table is ordered from largest to smallest exponent, and has no entry for exponent 0
+    larger = [(e, symbol) for e, symbol in si_table if e > exp]
+
+    if exp < 0 and (not larger or larger[-1][0] > 0):
+        # Below the smallest positive prefix, the next step up is having no prefix at all
+        return 0, ""
+
+    return larger[-1] if larger else None
+
+
 def fmt_number_si_context(
     x: float | None,
     data: GTData,
@@ -1571,27 +1570,31 @@ def fmt_number_si_context(
         si_table = _SI_PREFIXES_ENGINEERING
 
     # Determine the appropriate SI prefix
-    abs_x = abs(x)
-    exp, si_symbol = _get_si_prefix(abs_x, si_table=si_table, prefix_mode=prefix_mode)
+    exp, si_symbol = _get_si_prefix(abs(x), si_table=si_table, prefix_mode=prefix_mode)
+
+    # Scale the value to the prefix (this is the value itself when there is no prefix)
+    scaled_value = x / 10.0**exp if si_symbol else x
 
     # If rounding the scaled value carries it up to the next prefix (e.g., 999.96 with one
-    # decimal would give `1,000.0`), use the prefix of the rounded value instead (`1.0 k`)
-    if abs_x != 0:
-        scaled_value = abs_x / 10.0**exp
-        if n_sigfig is not None:
-            rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
-        else:
-            rounded_value = round(scaled_value, decimals)
-        exp, si_symbol = _get_si_prefix(
-            rounded_value * 10.0**exp, si_table=si_table, prefix_mode=prefix_mode
+    # decimal would give `1,000.0`), use the next prefix instead (`1.0 k`); the value is then
+    # exactly 1 of the next prefix
+    next_prefix = _get_next_si_prefix(exp, si_table=si_table)
+    if (
+        math.isfinite(x)
+        and next_prefix is not None
+        and _rounds_up_to(
+            scaled_value,
+            threshold=10.0 ** (next_prefix[0] - exp),
+            decimals=decimals,
+            n_sigfig=n_sigfig,
         )
-
-    if si_symbol:
-        x = x / 10.0**exp
+    ):
+        exp, si_symbol = next_prefix
+        scaled_value = math.copysign(1.0, x)
 
     # Format the value to decimal notation
     x_formatted = _value_to_decimal_notation(
-        value=x,
+        value=scaled_value,
         decimals=decimals,
         n_sigfig=n_sigfig,
         drop_trailing_zeros=drop_trailing_zeros,
@@ -4143,14 +4146,10 @@ def fmt_bytes_context(
 
         # If rounding the scaled value carries it up to `base` (e.g., 999,999 bytes
         # would give `1,000 kB`), use the next unit instead (`1 MB`)
-        if num_power_idx < len(byte_units):
-            scaled_value = abs(x) / base ** (num_power_idx - 1)
-            if n_sigfig is not None:
-                rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
-            else:
-                rounded_value = round(scaled_value, decimals)
-            if rounded_value >= base:
-                num_power_idx += 1
+        if num_power_idx < len(byte_units) and _rounds_up_to(
+            x / base ** (num_power_idx - 1), threshold=base, decimals=decimals, n_sigfig=n_sigfig
+        ):
+            num_power_idx += 1
 
     # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
     # value; this is the string that will be affixed to the formatted value
@@ -6297,6 +6296,30 @@ def _format_number_fixed_decimals(
     return result
 
 
+def _rounds_up_to(
+    scaled_value: float, threshold: float, decimals: int, n_sigfig: int | None
+) -> bool:
+    """
+    Check whether formatting a scaled value carries it up to the next unit.
+
+    Formatters that divide a value by a unit (a suffix, prefix, byte unit or power of 1000) pick
+    the unit before formatting, so rounding can carry the scaled value up to `threshold` (e.g.,
+    999,999 with two decimals would give `1,000.00K`). The check formats `scaled_value` exactly
+    as the final output is formatted (with plain separators, so any `dec_mark=` or `sep_mark=`
+    is irrelevant) and compares the formatted magnitude, so it can't disagree with the output.
+    """
+
+    formatted = _value_to_decimal_notation(
+        value=abs(scaled_value),
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+        use_seps=False,
+        dec_mark=".",
+    )
+
+    return float(formatted) >= threshold
+
+
 def _format_number_compactly(
     value: float,
     decimals: int,
@@ -6320,39 +6343,31 @@ def _format_number_compactly(
     if n_sigfig is not None:
         _validate_n_sigfig(n_sigfig=n_sigfig)
 
-    # Determine the power index for the value
-    if value == 0:
-        # If the value is zero, then the power index is 1; otherwise, we'd get
-        # an error when trying to calculate the log of zero
-        num_power_idx = 1
-    else:
-        # Determine the power index for the value and put it in the range of 0 to 5 which
-        # corresponds to the list of suffixes `["", "K", "M", "B", "T", "Q"]`
-        num_power_idx = math.floor(math.log(abs(value), 1000))
-        num_power_idx = max(0, min(5, num_power_idx))
+    # Determine the power index for the value and put it in the range of 0 to 5 which
+    # corresponds to the list of suffixes `["", "K", "M", "B", "T", "Q"]`
+    num_power_idx = math.floor(math.log(abs(value), 1000))
+    num_power_idx = max(0, min(5, num_power_idx))
 
-        # If rounding the scaled value carries it up to 1000 (e.g., 999,999 with two
-        # decimals would give `1,000.00K`), use the next suffix instead (`1.00M`)
-        if num_power_idx < 5:
-            scaled_value = abs(value) / 1000**num_power_idx
-            if n_sigfig is not None:
-                rounded_value = float(f"{scaled_value:.{n_sigfig}g}")
-            else:
-                rounded_value = round(scaled_value, decimals)
-            if rounded_value >= 1000:
-                num_power_idx += 1
+    # Scale `x` value by a defined `base` value, this is done by dividing by the `base`
+    # value (`1000`) raised to the power index
+    scaled_value = value / 1000**num_power_idx
+
+    # If rounding the scaled value carries it up to 1000 (e.g., 999,999 with two
+    # decimals would give `1,000.00K`), use the next suffix instead (`1.00M`); the value is
+    # then exactly 1 of the next suffix
+    if num_power_idx < 5 and _rounds_up_to(
+        scaled_value, threshold=1000, decimals=decimals, n_sigfig=n_sigfig
+    ):
+        num_power_idx += 1
+        scaled_value = math.copysign(1.0, value)
 
     # The `units_str` is obtained by indexing a list of suffixes with the `num_power_idx`
     units_str = ["", "K", "M", "B", "T", "Q"][num_power_idx]
 
-    # Scale `x` value by a defined `base` value, this is done by dividing by the `base`
-    # value (`1000`) raised to the power index
-    value = value / 1000**num_power_idx
-
     # Format the value to decimal notation; this is done before the `byte_units` text
     # is affixed to the value
     x_formatted = _value_to_decimal_notation(
-        value=value,
+        value=scaled_value,
         decimals=decimals,
         n_sigfig=n_sigfig,
         drop_trailing_zeros=drop_trailing_zeros,
