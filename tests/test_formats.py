@@ -1,5 +1,5 @@
 import re
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any, Union
 
 import pandas as pd
@@ -1580,6 +1580,36 @@ def test_fmt_time_datetime_strings():
     gt = GT(df).fmt_time(columns="x", time_style="iso")
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["10:59:59", "13:23:59", "23:15:00"]
+
+
+def test_fmt_time_datetime_values():
+    # `datetime` values use their time part, as datetime strings do (and missing values pass)
+    df_pd = pd.DataFrame({"x": pd.to_datetime(["2024-01-05 10:59:59", None])})
+    gt = GT(df_pd).fmt_time(columns="x", time_style="iso")
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["10:59:59", "<NA>"]
+
+    df_pl = pl.DataFrame({"x": [datetime(2024, 1, 5, 13, 23, 59)]})
+    gt = GT(df_pl).fmt_time(columns="x", time_style="h_m_p")
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["1:23 PM"]
+
+
+def test_fmt_time_date_string_raises():
+    # A date without a time is rejected rather than shown as midnight
+    with pytest.raises(ValueError, match="is a date without a time"):
+        vals.fmt_time(["2024-01-05"])
+
+
+@pytest.mark.parametrize(
+    "x_in,match",
+    [
+        # The error for an invalid time string is kept, not replaced by the datetime parser's
+        ("25:00", "hour must be in 0..23"),
+        ("garbage", "Invalid isoformat string: 'garbage'"),
+    ],
+)
+def test_fmt_time_invalid_string_error(x_in: str, match: str):
+    with pytest.raises(ValueError, match=match):
+        vals.fmt_time([x_in])
 
 
 # ------------------------------------------------------------------------------
