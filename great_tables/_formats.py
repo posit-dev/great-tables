@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import math
 import re
 from collections.abc import Callable
@@ -2400,6 +2401,10 @@ def fmt_currency_context(
 
     if currency_symbol == "$":
         currency_symbol = _context_dollar_mark(context=context)
+    elif context == "latex":
+        # Symbols are stored for HTML (e.g., `&#8364;` for EUR), so write them as characters and
+        # escape any LaTeX special characters (e.g., the `$` in `R$` for BRL)
+        currency_symbol = _latex_escape(html.unescape(currency_symbol))
 
     # Choose the appropriate formatting function based on the `compact=` option
     if compact:

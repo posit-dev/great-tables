@@ -1478,6 +1478,25 @@ def test_fmt_currency_force_sign():
     ]
 
 
+@pytest.mark.parametrize(
+    "currency,x_out",
+    [
+        ("USD", ["\\$1,234.50", "-\\$2.00"]),
+        ("EUR", ["€1,234.50", "-€2.00"]),
+        ("JPY", ["¥1,234", "-¥2"]),
+        ("BRL", ["R\\$1,234.50", "-R\\$2.00"]),
+        ("CHF", ["SFr.1,234.50", "-SFr.2.00"]),
+    ],
+)
+def test_fmt_currency_latex_symbols(currency: str, x_out: list[str]):
+    # Currency symbols stored as HTML entities are written as characters in LaTeX, and LaTeX
+    # special characters in them are escaped
+    df = pd.DataFrame({"x": [1234.5, -2]})
+    gt = GT(df).fmt_currency(columns="x", currency=currency)
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert x == x_out
+
+
 # ------------------------------------------------------------------------------
 # Test `fmt_time()`
 # ------------------------------------------------------------------------------
