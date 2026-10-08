@@ -3605,6 +3605,10 @@ listing of all date styles and their output values (corresponding to an input da
 | 16 | `"year_week"`         | `"2000-W09"`            |
 | 17 | `"year_quarter"`      | `"2000-Q1"`             |
 
+The `"year_week"` style gives the ISO 8601 week date in every locale: weeks start on Monday,
+week 1 is the week containing the first Thursday of the year, and the year shown is the one the
+week belongs to (so `2024-12-30` is `"2025-W01"`).
+
 Returns
 -------
 GT
@@ -3777,6 +3781,10 @@ provides a listing of all date styles and their output values (corresponding to 
 | 15 | `"y.mn.day"`          | `"00/02/29"`            |
 | 16 | `"year_week"`         | `"2000-W09"`            |
 | 17 | `"year_quarter"`      | `"2000-Q1"`             |
+
+The `"year_week"` style gives the ISO 8601 week date in every locale: weeks start on Monday,
+week 1 is the week containing the first Thursday of the year, and the year shown is the one the
+week belongs to (so `2024-12-30` is `"2025-W01"`).
 
 The time styles can also handle localization to any supported locale. The following table
 provides a listing of all time styles and their output values (corresponding to an input time of
