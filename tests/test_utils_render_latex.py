@@ -4,7 +4,7 @@ from unittest import mock
 import pandas as pd
 import os
 
-from great_tables import GT, exibble, loc
+from great_tables import GT, exibble, loc, md
 from great_tables.data import gtcars
 
 from great_tables._utils_render_latex import (
@@ -716,7 +716,50 @@ def test_create_columns_component_l_with_stubhead_and_spanner():
     )
     result = create_columns_component_l(gt_tbl._build_data("latex"))
 
-    assert result.endswith("Stub & num & currency \\\\ \n\\midrule\\addlinespace[2.5pt]")
+    # The spanner row has a blank stub cell, so its `\\cmidrule` starts after the stub column
+    assert result == (
+        "\\toprule\n"
+        "  & \\multicolumn{2}{c}{Numbers} \\\\ \n"
+        "\\cmidrule(lr){2-3}\n"
+        "Stub & num & currency \\\\ \n"
+        "\\midrule\\addlinespace[2.5pt]"
+    )
+
+
+def test_create_columns_component_l_with_md_stubhead():
+    gt_tbl = GT(exibble[["num", "row"]].head(2), rowname_col="row").tab_stubhead(
+        label=md("**Bold** _x_")
+    )
+    result = create_columns_component_l(gt_tbl._build_data("latex"))
+
+    assert (
+        result == "\\toprule\n\\textbf{Bold} \\emph{x} & num \\\\ \n\\midrule\\addlinespace[2.5pt]"
+    )
+
+
+def test_create_columns_component_l_with_empty_stubhead():
+    # An empty label gives one blank cell per stub column, as with no stubhead at all
+    gt_tbl = (
+        GT(exibble[["num", "row", "group"]].head(2), rowname_col="row", groupname_col="group")
+        .tab_stubhead(label="")
+        .tab_options(row_group_as_column=True)
+    )
+    result = create_columns_component_l(gt_tbl._build_data("latex"))
+
+    assert result == "\\toprule\n  &   & num \\\\ \n\\midrule\\addlinespace[2.5pt]"
+
+
+@pytest.mark.filterwarnings("ignore:Styles are not yet supported:UserWarning")
+def test_render_as_latex_stubhead_footnote_raises():
+    # Footnotes aren't supported in LaTeX output, including on the stubhead
+    gt_tbl = (
+        GT(exibble[["num", "row"]].head(2), rowname_col="row")
+        .tab_stubhead(label="Stub")
+        .tab_footnote("A footnote", locations=loc.stubhead())
+    )
+
+    with pytest.raises(NotImplementedError, match="Footnotes are not yet supported"):
+        _render_as_latex(data=gt_tbl._build_data(context="latex"))
 
 
 def test_render_as_latex_grand_summary_no_stub():

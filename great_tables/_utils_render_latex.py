@@ -114,7 +114,24 @@ def latex_heading_row(content: list[str]) -> str:
     return "".join([" & ".join(content) + " \\\\ \n", "\\midrule\\addlinespace[2.5pt]"])
 
 
-def create_table_start_l(data: GTData, use_longtable: bool) -> str:
+def _get_stub_layout_l(data: GTData) -> list[str]:
+    """
+    Get the stub layout (e.g., `["group_label", "rowname"]`) for LaTeX output.
+
+    The table start, columns and body components must agree on the number of stub columns, so
+    `_render_as_latex()` computes this once and passes it to each of them.
+    """
+
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
+
+    return data._stub._get_stub_layout(
+        has_summary_rows=has_summary_rows, options=data._options, boxhead=data._boxhead
+    )
+
+
+def create_table_start_l(
+    data: GTData, use_longtable: bool, stub_layout: list[str] | None = None
+) -> str:
     """
     Create the table start component for LaTeX output.
 
@@ -125,6 +142,8 @@ def create_table_start_l(data: GTData, use_longtable: bool) -> str:
     ----------
     data : GTData
         The GTData object that contains all the information about the table.
+    stub_layout : list[str] | None
+        The stub layout from `_get_stub_layout_l()`; it's computed from `data` if not given.
 
     Returns
     -------
@@ -148,10 +167,8 @@ def create_table_start_l(data: GTData, use_longtable: bool) -> str:
     col_defs = [align[0] for align in data._boxhead._get_default_alignments()]
 
     # Check if stub is present and determine layout
-    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
-    stub_layout = data._stub._get_stub_layout(
-        has_summary_rows=has_summary_rows, options=data._options, boxhead=data._boxhead
-    )
+    if stub_layout is None:
+        stub_layout = _get_stub_layout_l(data)
 
     # Determine if there's a stub column (rowname or group_label)
     has_stub = len(stub_layout) > 0
@@ -263,7 +280,7 @@ def create_heading_component_l(data: GTData, use_longtable: bool) -> str:
     return header_component
 
 
-def create_columns_component_l(data: GTData) -> str:
+def create_columns_component_l(data: GTData, stub_layout: list[str] | None = None) -> str:
     """
     Create the columns component for LaTeX output.
 
@@ -274,6 +291,8 @@ def create_columns_component_l(data: GTData) -> str:
     ----------
     data : GTData
         The GTData object that contains all the information about the table.
+    stub_layout : list[str] | None
+        The stub layout from `_get_stub_layout_l()`; it's computed from `data` if not given.
 
     Returns
     -------
@@ -285,10 +304,8 @@ def create_columns_component_l(data: GTData) -> str:
     spanner_row_count = _get_spanners_matrix_height(data=data, omit_columns_row=True)
 
     # Check if stub is present and determine layout
-    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
-    stub_layout = data._stub._get_stub_layout(
-        has_summary_rows=has_summary_rows, options=data._options, boxhead=data._boxhead
-    )
+    if stub_layout is None:
+        stub_layout = _get_stub_layout_l(data)
 
     # Determine if there's a stub column (rowname or group_label)
     has_stub = len(stub_layout) > 0
@@ -298,9 +315,10 @@ def create_columns_component_l(data: GTData) -> str:
     # row group column), and otherwise there is empty space for each stub column
     stub_headers = []
     if has_stub:
+        # An empty label (e.g., `tab_stubhead("")`) is treated as no label
         stubhead = (
             _resolve_stubhead_label(data._stubhead, stub_layout=stub_layout)
-            if data._stubhead is not None
+            if data._stubhead
             else None
         )
 
@@ -421,7 +439,7 @@ def create_columns_component_l(data: GTData) -> str:
     return columns_component
 
 
-def create_body_component_l(data: GTData) -> str:
+def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) -> str:
     """
     Create the body component for LaTeX output.
 
@@ -432,6 +450,8 @@ def create_body_component_l(data: GTData) -> str:
     ----------
     data : GTData
         The GTData object that contains all the information about the table.
+    stub_layout : list[str] | None
+        The stub layout from `_get_stub_layout_l()`; it's computed from `data` if not given.
 
     Returns
     -------
@@ -446,10 +466,8 @@ def create_body_component_l(data: GTData) -> str:
     column_vars = data._boxhead._get_default_columns()
 
     # Check if stub is present and determine layout
-    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
-    stub_layout = data._stub._get_stub_layout(
-        has_summary_rows=has_summary_rows, options=data._options, boxhead=data._boxhead
-    )
+    if stub_layout is None:
+        stub_layout = _get_stub_layout_l(data)
 
     # Determine what stub components are present
     has_row_stub_column = "rowname" in stub_layout
@@ -766,17 +784,22 @@ def _render_as_latex(data: GTData, use_longtable: bool = False, tbl_pos: str | N
             "Consider removing all `.tab_footnote()` calls before using `.as_latex()`."
         )
 
+    # Get the stub layout once, so that every component uses the same number of stub columns
+    stub_layout = _get_stub_layout_l(data)
+
     # Create a LaTeX fragment for the start of the table
-    table_start = create_table_start_l(data=data, use_longtable=use_longtable)
+    table_start = create_table_start_l(
+        data=data, use_longtable=use_longtable, stub_layout=stub_layout
+    )
 
     # Create the heading component
     heading_component = create_heading_component_l(data=data, use_longtable=use_longtable)
 
     # Create the columns component
-    columns_component = create_columns_component_l(data=data)
+    columns_component = create_columns_component_l(data=data, stub_layout=stub_layout)
 
     # Create the body component
-    body_component = create_body_component_l(data=data)
+    body_component = create_body_component_l(data=data, stub_layout=stub_layout)
 
     # Create the footnotes component
     footer_component = create_footer_component_l(data=data)
