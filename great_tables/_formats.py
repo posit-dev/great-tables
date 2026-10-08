@@ -7146,13 +7146,19 @@ def _iso_str_to_time(x: str) -> time:
     """
     Converts a string in ISO format to a time object.
 
+    The string can be a time (`HH:MM:SS`) or a datetime (`YYYY-MM-DD HH:MM:SS`), in which case
+    its time part is used.
+
     Args:
         x (str): The string to be converted.
 
     Returns:
         time: The converted time object.
     """
-    return time.fromisoformat(x)
+    try:
+        return time.fromisoformat(x)
+    except ValueError:
+        return datetime.fromisoformat(x).time()
 
 
 def _iso_str_to_datetime(x: str) -> datetime:

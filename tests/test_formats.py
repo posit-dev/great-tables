@@ -1510,6 +1510,14 @@ def test_fmt_time_h_p():
     assert x == ["10 AM", "1 PM", "11 PM"]
 
 
+def test_fmt_time_datetime_strings():
+    # The documented `YYYY-MM-DD HH:MM:SS` form uses the time part of the datetime
+    df = pd.DataFrame({"x": ["2024-01-05 10:59:59", "2024-01-05T13:23:59", "23:15"]})
+    gt = GT(df).fmt_time(columns="x", time_style="iso")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["10:59:59", "13:23:59", "23:15:00"]
+
+
 # ------------------------------------------------------------------------------
 # Test `fmt_date()`
 # ------------------------------------------------------------------------------
