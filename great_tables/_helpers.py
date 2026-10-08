@@ -153,33 +153,51 @@ FONT_STACKS = {
 
 
 class _StubSentinel:
-    """Sentinel that refers to the stub column in column-selection helpers.
+    """Sentinel that refers to the stub column(s) in column-selection helpers.
 
     Use the module-level `stub` instance (importable from `great_tables`) rather than instantiating
     this class directly. The sentinel is hashable and can therefore be used as a dictionary key,
-    (e.g., `cols_width(cases={stub: "250px"})`).
+    (e.g., `cols_width(cases={stub: "250px"})`). Calling it, as in `stub(1)`, gives a sentinel for a
+    single level of a hierarchical stub, counted from the right.
     """
 
     _instance: "_StubSentinel | None" = None
+    _level: int | None = None
 
-    def __new__(cls) -> "_StubSentinel":
+    def __new__(cls, level: int | None = None) -> "_StubSentinel":
+        if level is not None:
+            obj = super().__new__(cls)
+            obj._level = level
+            return obj
+
         # Singleton so that `stub is stub` holds everywhere.
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
+    def __call__(self, n: int | None = None) -> "_StubSentinel":
+        if self._level is not None:
+            raise TypeError(f"`{self!r}` refers to a single stub column and can't be called.")
+        if n is None:
+            return self
+        if isinstance(n, bool) or not isinstance(n, int) or n < 1:
+            raise ValueError(f"`stub(n)` needs a positive integer for `n`, but got {n!r}.")
+        return _StubSentinel(n)
+
     def __repr__(self) -> str:
-        return "stub"
+        return "stub" if self._level is None else f"stub({self._level})"
 
     def __hash__(self) -> int:
-        return hash("__great_tables_stub__")
+        if self._level is None:
+            return hash("__great_tables_stub__")
+        return hash(("__great_tables_stub__", self._level))
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, _StubSentinel)
+        return isinstance(other, _StubSentinel) and other._level == self._level
 
 
 stub = _StubSentinel()
-"""Sentinel for selecting the stub column in `~great_tables.GT.cols_width`.
+"""Sentinel for selecting the stub column(s) in `~great_tables.GT.cols_width`.
 
 Pass this as a dictionary key to set the width of the stub column without risking a collision with a
 data column named `"stub"`:
@@ -188,6 +206,14 @@ data column named `"stub"`:
 from great_tables import GT, stub, px
 
 GT(df, rowname_col="row").cols_width(cases={stub: "200px", "value": "100px"})
+```
+
+With a hierarchical stub (where `rowname_col=` is a list of columns), `stub` gives every stub column
+the width. Call it with a number to target a single level, counting from the right: `stub(1)` is the
+last (row label) column, `stub(2)` the one to its left, and so on.
+
+```python
+GT(df, rowname_col=["group", "row"]).cols_width(cases={stub(1): "70px", stub(2): "200px"})
 ```
 """
 

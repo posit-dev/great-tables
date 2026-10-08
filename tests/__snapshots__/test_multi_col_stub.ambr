@@ -1,0 +1,124 @@
+# serializer version: 1
+# name: test_multi_col_stub_body_snap
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="5">G1</th>
+    </tr>
+    <tr>
+      <th rowspan="3" class="gt_row gt_left gt_stub">A</th>
+      <th rowspan="2" class="gt_row gt_left gt_stub">x</th>
+      <th class="gt_row gt_left gt_stub">p</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">q</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">y</th>
+      <th class="gt_row gt_left gt_stub">r</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr>
+      <th colspan="3" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="5">G2</th>
+    </tr>
+    <tr>
+      <th rowspan="2" class="gt_row gt_left gt_stub">B</th>
+      <th rowspan="2" class="gt_row gt_left gt_stub">y</th>
+      <th class="gt_row gt_left gt_stub">s</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">t</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">C</th>
+      <th class="gt_row gt_left gt_stub">z</th>
+      <th class="gt_row gt_left gt_stub">u</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th colspan="3" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
+      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_multi_col_stub_list_stubhead_columns_snap
+  '''
+  <tr class="gt_col_headings gt_spanner_row">
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col"></th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="Outer">Outer</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="&lt;strong&gt;Inner&lt;/strong&gt;"><strong>Inner</strong></th>
+    <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="Values">
+      <span class="gt_column_spanner">Values</span>
+    </th>
+  </tr>
+  <tr class="gt_col_headings">
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="n1">n1</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="n2">n2</th>
+  </tr>
+  '''
+# ---
+# name: test_multi_col_stub_row_group_as_column_body_snap
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first">
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">G1</th>
+      <th rowspan="3" class="gt_row gt_left gt_stub">A</th>
+      <th class="gt_row gt_left gt_stub">x</th>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">10</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">x</th>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">20</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">y</th>
+      <td class="gt_row gt_right">3</td>
+      <td class="gt_row gt_right">30</td>
+    </tr>
+    <tr class="gt_row_group_first">
+    <th class="gt_row gt_left gt_stub_row_group"
+      rowspan="3">G2</th>
+      <th rowspan="2" class="gt_row gt_left gt_stub">B</th>
+      <th class="gt_row gt_left gt_stub">y</th>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">40</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">y</th>
+      <td class="gt_row gt_right">5</td>
+      <td class="gt_row gt_right">50</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub">C</th>
+      <th class="gt_row gt_left gt_stub">z</th>
+      <td class="gt_row gt_right">6</td>
+      <td class="gt_row gt_right">60</td>
+    </tr>
+    <tr>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="3">Total</th>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
+      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
+    </tr>
+  </tbody>
+  '''
+# ---
