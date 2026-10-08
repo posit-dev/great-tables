@@ -7036,7 +7036,7 @@ def _get_date_formats_dict() -> dict[str, str]:
         "day": "dd",
         "year.mn.day": "y/MM/dd",
         "y.mn.day": "yy/MM/dd",
-        "year_week": "y-'W'ww",
+        "year_week": "Y-'W'ww",
         "year_quarter": "y-'Q'Q",
     }
 
