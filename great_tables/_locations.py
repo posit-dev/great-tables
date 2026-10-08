@@ -18,7 +18,14 @@ from ._gt_data import (
     StyleInfo,
 )
 from ._styles import CellStyle
-from ._tbl_data import PlDataFrame, PlExpr, eval_select, eval_transform, get_column_names
+from ._tbl_data import (
+    PlDataFrame,
+    PlExpr,
+    eval_select,
+    eval_transform,
+    get_column_names,
+    to_list,
+)
 from ._text import _process_text
 
 if TYPE_CHECKING:
@@ -421,6 +428,12 @@ class LocStub(Loc):
     rows
         The rows to target within the stub. Can either be a single row name or a series of row names
         provided in a list. If no rows are specified, all rows are targeted.
+    columns
+        For a hierarchical stub (where `rowname_col=` is a list of columns), the stub column(s) to
+        target, as a column name or a list of names. By default, all of the stub columns are
+        targeted. When `columns=` is given, row names in `rows=` are matched against the values in
+        those columns (rather than against the row labels), and a cell that is merged across
+        several rows is targeted if any of its rows are.
 
     Returns
     -------
@@ -455,9 +468,25 @@ class LocStub(Loc):
         .fmt_currency(columns="msrp", decimals=0)
     )
     ```
+
+    With a hierarchical stub, `columns=` targets a single level. Here, the manufacturer cells for
+    the Ferrari rows are highlighted, leaving the model names as they are.
+
+    ```{python}
+    (
+        GT(gtcars[["mfr", "model", "hp", "trq", "msrp"]].head(6), rowname_col=["mfr", "model"])
+        .tab_style(
+            style=style.fill(color="lightgray"),
+            locations=loc.stub(rows="Ferrari", columns="mfr")
+        )
+        .fmt_integer(columns=["hp", "trq"])
+        .fmt_currency(columns="msrp", decimals=0)
+    )
+    ```
     """
 
     rows: RowSelectExpr = None
+    columns: str | list[str] | None = None
 
 
 @dataclass
@@ -1043,8 +1072,12 @@ def resolve_cols_i(
         group_var = data._boxhead.vars_from_type(ColInfoTypeEnum.row_group)
 
         # TODO: special handling of "stub()"
+        # "stub()" selects all of the stub columns (outermost level first)
         if isinstance(expr, list) and any(isinstance(x, str) and x == "stub()" for x in expr):
-            return [(stub_var[0], 1)] if stub_var else []
+            column_names = get_column_names(data._tbl_data)
+            return [
+                (col.var, column_names.index(col.var)) for col in data._boxhead._get_stub_columns()
+            ]
 
         # If expr is None, we want to select everything or nothing depending on
         # the value of `null_means`
@@ -1302,6 +1335,45 @@ def _(loc: LocStub, data: GTData) -> set[int]:
     return cell_pos
 
 
+def resolve_stub_cells(loc: LocStub, data: GTData) -> list[tuple[int, str | None]]:
+    """Return the (row position, stub column) pairs targeted by `loc.stub()`.
+
+    The column is `None` when `columns=` isn't used, meaning the row's whole stub. Otherwise there
+    is a pair for each targeted stub column, with row names matched against that column's values.
+    """
+
+    if loc.columns is None:
+        return [(row, None) for row in sorted(resolve(loc, data))]
+
+    columns = [loc.columns] if isinstance(loc.columns, str) else list(loc.columns)
+    stub_columns = [col.var for col in data._boxhead._get_stub_columns()]
+
+    not_in_stub = [col for col in columns if col not in stub_columns]
+    if not_in_stub:
+        raise ValueError(
+            f"`loc.stub(columns=)` must refer to stub columns ({stub_columns}), but got "
+            f"{not_in_stub}."
+        )
+
+    cells: list[tuple[int, str | None]] = []
+    for col in stub_columns:
+        if col not in columns:
+            continue
+
+        if isinstance(loc.rows, str) or (
+            isinstance(loc.rows, list) and all(isinstance(x, str) for x in loc.rows)
+        ):
+            # Row names are matched against the values in this stub column
+            column_values = to_list(data._tbl_data[col])
+            rows = resolve_rows_i(data=column_values, expr=loc.rows)
+        else:
+            rows = resolve_rows_i(data=data, expr=loc.rows)
+
+        cells.extend((row_pos, col) for _, row_pos in rows)
+
+    return cells
+
+
 @resolve.register
 def _(loc: LocGrandSummary, data: GTData) -> list[CellPos]:
     if (loc.columns is not None or loc.rows is not None) and loc.mask is not None:
@@ -1536,15 +1608,22 @@ def _(
     for entry in styles:
         entry._raise_if_requires_data(loc)
     # TODO resolve
-    cells = resolve(loc, data)
+    # Each cell is a row position and, for `loc.stub(columns=)`, the targeted stub column
+    if isinstance(loc, LocStub):
+        cells = resolve_stub_cells(loc, data)
+    else:
+        cells = [(row_pos, None) for row_pos in resolve(loc, data)]
 
-    new_styles = [StyleInfo(locname=loc, rownum=rownum, styles=styles) for rownum in cells]
+    new_styles = [
+        StyleInfo(locname=loc, rownum=rownum, colname=colname, styles=styles)
+        for rownum, colname in cells
+    ]
 
     # Handle footnotes
     updated_footnotes = []
-    for row_pos in cells:
+    for row_pos, colname in cells:
         for footnote_info in new_footnotes:
-            updated_footnote = replace(footnote_info, locname=loc, rownum=row_pos)
+            updated_footnote = replace(footnote_info, locname=loc, rownum=row_pos, colname=colname)
             updated_footnotes.append(updated_footnote)
 
     return data._replace(
