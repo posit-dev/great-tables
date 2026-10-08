@@ -19,8 +19,12 @@ from great_tables._formats import (
     _get_locale_currency_code,
     _get_locale_dec_mark,
     _get_locale_sep_mark,
+    _get_next_si_prefix,
     _has_zero_value,
     _normalize_locale,
+    _rounds_up_to,
+    _SI_PREFIXES_DECIMAL,
+    _SI_PREFIXES_ENGINEERING,
     _validate_currency,
     _validate_locale,
     _value_to_scientific_notation,
@@ -1409,6 +1413,16 @@ def test_value_to_scientific_notation_exact_powers_of_ten(value: float, n_sigfig
             [999999.5, 999.9999],
             ["1.00e06", "1.00e03"],
         ),
+        # The carry doesn't depend on `dec_mark=` (an empty one used to raise an error)
+        (dict(decimals=2, dec_mark=",", exp_style="E"), [999999.5], ["1,00E06"]),
+        (
+            dict(decimals=2, dec_mark=""),
+            [999999.5],
+            ["100 × 10<sup style='font-size: 65%;'>6</sup>"],
+        ),
+        # At a halfway value the carried mantissa is exactly 1, not a rounded-down `0.9`
+        (dict(n_sigfig=1, exp_style="E"), [9.5e-19], ["1E−18"]),
+        (dict(exp_style="E"), [0.0], ["0.00E00"]),
     ],
 )
 def test_fmt_engineering_case(
@@ -3441,6 +3455,12 @@ def test_fmt_number_si_latex_pattern():
         (dict(n_sigfig=3), [999.4, 999.6], ["999", "1.00 k"]),
         (dict(decimals=2, prefix_mode="decimal"), [9.9996, 99.996], ["1.00 da", "1.00 h"]),
         (dict(decimals=1), [1e-40], ["0.0"]),
+        # Carries from the zepto prefix (where rebuilding the value used to fall short of 1e-18)
+        (dict(decimals=2), [9.99995e-19, 9.9996e-19], ["1.00 a", "999.96 z"]),
+        # Halfway values with `n_sigfig=` carry to exactly 1 of the next prefix
+        (dict(n_sigfig=1), [9.5e-19], ["1 a"]),
+        (dict(n_sigfig=4), [0.99995], ["1.000"]),
+        (dict(n_sigfig=2, prefix_mode="decimal"), [9.95, 0.995], ["1.0 da", "1.0"]),
     ],
 )
 def test_fmt_number_si_rounding_carries_into_next_prefix(
@@ -3452,6 +3472,45 @@ def test_fmt_number_si_rounding_carries_into_next_prefix(
     gt = GT(df).fmt_number_si(columns="x", **fmt_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "exp,si_table,next_prefix",
+    [
+        (0, _SI_PREFIXES_ENGINEERING, (3, "k")),
+        (3, _SI_PREFIXES_ENGINEERING, (6, "M")),
+        (-3, _SI_PREFIXES_ENGINEERING, (0, "")),
+        (-21, _SI_PREFIXES_ENGINEERING, (-18, "a")),
+        (30, _SI_PREFIXES_ENGINEERING, None),
+        (0, _SI_PREFIXES_DECIMAL, (1, "da")),
+        (-1, _SI_PREFIXES_DECIMAL, (0, "")),
+        (-3, _SI_PREFIXES_DECIMAL, (-2, "c")),
+        (2, _SI_PREFIXES_DECIMAL, (3, "k")),
+        (30, _SI_PREFIXES_DECIMAL, None),
+    ],
+)
+def test_get_next_si_prefix(exp: int, si_table: list, next_prefix: tuple[int, str] | None):
+    assert _get_next_si_prefix(exp, si_table=si_table) == next_prefix
+
+
+@pytest.mark.parametrize(
+    "scaled_value,threshold,decimals,n_sigfig,x_out",
+    [
+        (999.995, 1000, 2, None, True),
+        (999.994, 1000, 2, None, False),
+        (-999.995, 1000, 2, None, True),
+        (999.5, 1000, 0, 3, True),
+        (999.4, 1000, 2, 3, False),
+        (1023.5, 1024, 0, None, True),
+        (9.96, 10, 1, None, True),
+        (0.0, 1000, 2, None, False),
+    ],
+)
+def test_rounds_up_to(
+    scaled_value: float, threshold: float, decimals: int, n_sigfig: int | None, x_out: bool
+):
+    result = _rounds_up_to(scaled_value, threshold=threshold, decimals=decimals, n_sigfig=n_sigfig)
+    assert result is x_out
 
 
 def test_fmt_partsper_latex_pattern():
