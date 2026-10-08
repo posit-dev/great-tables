@@ -108,6 +108,47 @@ _COMPACT_FMT_SETTINGS: list[tuple[float, _CompactFmt]] = [
 _COMPACT_FMT_LARGE: _CompactFmt = (False, None, 2, False)
 
 
+def _get_compact_fmt_settings(val: float, currency: str | None) -> tuple[float, _CompactFmt, bool]:
+    """
+    Get the value to format compactly, its settings, and whether it's at or above 1e15.
+
+    The settings are chosen from the value as it will be displayed: a value that rounds up to
+    the upper bound of its magnitude range (e.g., `999.6` with three significant figures shows
+    as `1,000`) is replaced by the bound and uses the settings of the next range, so it's
+    formatted exactly like the bound itself (`1.00K`).
+    """
+
+    from great_tables._formats import _get_currency_decimals, _rounds_up_to
+
+    i = next(
+        (i for i, (bound, _) in enumerate(_COMPACT_FMT_SETTINGS) if abs(val) < bound),
+        len(_COMPACT_FMT_SETTINGS),
+    )
+
+    while i < len(_COMPACT_FMT_SETTINGS):
+        bound, (use_subunits, decimals, n_sigfig, compact) = _COMPACT_FMT_SETTINGS[i]
+
+        # Compact values are rounded after scaling to their suffix (K, M, B, T)
+        scale = 1000 ** min(4, math.floor(math.log(abs(val), 1000))) if compact else 1
+        scale = max(1, scale)
+
+        # The currency path rounds to a number of decimals, the number path to `n_sigfig=`
+        if currency is not None:
+            rounding = dict(
+                decimals=_get_currency_decimals(currency, decimals, use_subunits), n_sigfig=None
+            )
+        else:
+            rounding = dict(decimals=0, n_sigfig=n_sigfig)
+
+        if not _rounds_up_to(val / scale, threshold=bound / scale, **rounding):
+            return val, _COMPACT_FMT_SETTINGS[i][1], False
+
+        val = math.copysign(bound, val)
+        i += 1
+
+    return val, _COMPACT_FMT_LARGE, True
+
+
 def _format_number_compactly(
     val: float,
     currency: str | None = None,
