@@ -5083,6 +5083,10 @@ def fmt_date(
     | 16 | `"year_week"`         | `"2000-W09"`            |
     | 17 | `"year_quarter"`      | `"2000-Q1"`             |
 
+    The `"year_week"` style gives the ISO 8601 week date in every locale: weeks start on Monday,
+    week 1 is the week containing the first Thursday of the year, and the year shown is the one the
+    week belongs to (so `2024-12-30` is `"2025-W01"`).
+
     Returns
     -------
     GT
@@ -5158,7 +5162,7 @@ def fmt_date_context(
         locale = _str_replace(locale, "-", "_")
 
     # Format the date object to a string using Babel's `format_date()` function
-    x_formatted = format_date(x, format=date_format_str, locale=locale)
+    x_formatted = format_date(x, format=_resolve_iso_week(date_format_str, x), locale=locale)
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -5388,6 +5392,10 @@ def fmt_datetime(
     | 16 | `"year_week"`         | `"2000-W09"`            |
     | 17 | `"year_quarter"`      | `"2000-Q1"`             |
 
+    The `"year_week"` style gives the ISO 8601 week date in every locale: weeks start on Monday,
+    week 1 is the week containing the first Thursday of the year, and the year shown is the one the
+    week belongs to (so `2024-12-30` is `"2025-W01"`).
+
     The time styles can also handle localization to any supported locale. The following table
     provides a listing of all time styles and their output values (corresponding to an input time of
     `2000-02-29 14:35:00`).
@@ -5491,7 +5499,9 @@ def fmt_datetime_context(
             locale = _str_replace(locale, "-", "_")
 
         # Format the datetime object to a string using Babel's `format_datetime()` function
-        x_formatted = format_datetime(x, format=datetime_format_str, locale=locale)
+        x_formatted = format_datetime(
+            x, format=_resolve_iso_week(datetime_format_str, x), locale=locale
+        )
 
     # Use a supplied pattern specification to decorate the formatted value
     if pattern != "{x}":
@@ -7039,6 +7049,30 @@ def _validate_case(case: str) -> None:
         raise ValueError(f"The `case` argument must be either 'upper' or 'lower' (not '{case}').")
 
 
+# The `year_week` date style: an ISO 8601 week date (e.g., `2000-W09`), written with the CLDR fields
+# for the week-based year and the week of that year
+_ISO_WEEK_PATTERN = "Y-'W'ww"
+
+
+def _resolve_iso_week(format_str: str, x: date) -> str:
+    """Replace the ISO week-date fields in a format string with their values for `x`.
+
+    Babel numbers weeks by the locale's rules (e.g., in `en_US` weeks start on Sunday), so the
+    `year_week` style is filled in with the ISO 8601 week-based year and week (weeks start on Monday
+    and week 1 is the week containing the first Thursday of the year) before formatting, giving the
+    same week in every locale.
+    """
+
+    if _ISO_WEEK_PATTERN not in format_str:
+        return format_str
+
+    iso_year, iso_week, _ = x.isocalendar()
+
+    # Only the letter `W` needs quoting (digits and `-` are literals in a CLDR pattern); leaving the
+    # value unquoted at both ends keeps it from merging with an adjacent quoted literal into `''`
+    return format_str.replace(_ISO_WEEK_PATTERN, f"{iso_year:04d}-'W'{iso_week:02d}")
+
+
 def _get_date_formats_dict() -> dict[str, str]:
     date_formats = {
         "iso": "yyyy-MM-dd",
@@ -7056,7 +7090,7 @@ def _get_date_formats_dict() -> dict[str, str]:
         "day": "dd",
         "year.mn.day": "y/MM/dd",
         "y.mn.day": "yy/MM/dd",
-        "year_week": "y-'W'ww",
+        "year_week": _ISO_WEEK_PATTERN,
         "year_quarter": "y-'Q'Q",
     }
 
