@@ -3215,6 +3215,77 @@ def test_fmt_scientific_drop_trailing_zeros():
     assert "1" in x[0]
 
 
+# `drop_trailing_zeros=` must only strip zeros from the decimal part, never from the integer part
+# (with `decimals=0` there is no decimal part at all)
+@pytest.mark.parametrize(
+    "fn,x_in,kwargs,x_out",
+    [
+        (
+            vals.fmt_number,
+            [0, 10, 100, 2000, -100],
+            dict(decimals=0, drop_trailing_zeros=True),
+            ["0", "10", "100", "2,000", "−100"],
+        ),
+        (
+            vals.fmt_number,
+            [0, 100, 100.5, 100.25],
+            dict(decimals=2, drop_trailing_zeros=True),
+            ["0", "100", "100.5", "100.25"],
+        ),
+        (
+            vals.fmt_number,
+            [100, 100.5],
+            dict(decimals=2, drop_trailing_zeros=True, drop_trailing_dec_mark=False),
+            ["100.", "100.5"],
+        ),
+        (
+            vals.fmt_number,
+            [100, 100.5],
+            dict(decimals=2, drop_trailing_zeros=True, dec_mark=",", sep_mark="."),
+            ["100", "100,5"],
+        ),
+        (
+            vals.fmt_percent,
+            [1, 0.105],
+            dict(decimals=0, drop_trailing_zeros=True),
+            ["100%", "10%"],
+        ),
+        (
+            vals.fmt_engineering,
+            [0, 10, 100],
+            dict(decimals=0, drop_trailing_zeros=True),
+            ["0", "10", "100"],
+        ),
+        (
+            vals.fmt_scientific,
+            [0, 1.5],
+            dict(decimals=0, drop_trailing_zeros=True),
+            ["0", "2"],
+        ),
+        (
+            vals.fmt_scientific,
+            [0, 1.0, 1.5],
+            dict(decimals=2, drop_trailing_zeros=True, dec_mark=","),
+            ["0", "1", "1,5"],
+        ),
+        (
+            vals.fmt_number_si,
+            [0, 10, 100],
+            dict(decimals=0, drop_trailing_zeros=True),
+            ["0", "10", "100"],
+        ),
+        (
+            vals.fmt_bytes,
+            [0, 100, 10000, 300000],
+            dict(decimals=0),
+            ["0 B", "100 B", "10 kB", "300 kB"],
+        ),
+    ],
+)
+def test_drop_trailing_zeros_keeps_integer_zeros(fn, x_in, kwargs: dict, x_out: list[str]):
+    assert fn(x_in, **kwargs) == x_out
+
+
 def test_fmt_scientific_force_sign_m_positive():
     df = pd.DataFrame({"x": [12345.0]})
     gt = GT(df).fmt_scientific(columns="x", decimals=2, force_sign_m=True)
