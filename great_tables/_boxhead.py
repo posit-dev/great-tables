@@ -296,7 +296,7 @@ def cols_align(self: GTSelf, align: str = "left", columns: SelectExpr = None) ->
     elif columns is None:
         columns = column_names
 
-    sel_cols = resolve_cols_c(data=self, expr=columns)
+    sel_cols = resolve_cols_c(data=self, expr=columns, excl_stub=False)
 
     # Set the alignment for each column
     return self._replace(_boxhead=self._boxhead._set_column_aligns(sel_cols, align=align))

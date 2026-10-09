@@ -156,7 +156,8 @@ def fmt(
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]
 
-    col_res = resolve_cols_c(self, columns)
+    # Formatters can target the stub and the row group column (which formats the group labels)
+    col_res = resolve_cols_c(self, columns, excl_stub=False, excl_group=False)
 
     formatter = FormatInfo(fns, col_res, row_pos)
 
