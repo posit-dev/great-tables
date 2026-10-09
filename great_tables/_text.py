@@ -53,9 +53,9 @@ class Html(Text):
         return self.text
 
     def to_latex(self) -> str:
-        # html() is an HTML-only construct; for LaTeX, strip tags and escape
+        # html() is an HTML-only construct; for LaTeX, strip tags, decode entities and escape
         stripped = re.sub(r"<[^>]+>", "", self.text)
-        return _latex_escape(stripped)
+        return _latex_escape(html.unescape(stripped))
 
 
 def _md_html(x: str) -> str:

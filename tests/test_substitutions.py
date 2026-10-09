@@ -6,7 +6,7 @@ import polars as pl
 import pyarrow as pa
 import polars.testing
 import pytest
-from great_tables import GT
+from great_tables import GT, md
 from great_tables._gt_data import FormatterSkipElement
 from great_tables._substitution import SubMissing, SubZero, SubSmallVals, SubLargeVals, SubValues
 from great_tables._tbl_data import DataFrameLike, to_list
@@ -68,6 +68,31 @@ def test_sub_zero_el_skip():
 def test_sub_zero_meth(df):
     new_gt = GT(df).sub_zero("col1", zero_text="no")._render_formats("html")
     assert_series_equals(new_gt._body.body["col1"], [None, None, "no"])
+
+
+def test_sub_missing_latex(df):
+    new_gt = GT(df).sub_missing("col1")._render_formats("latex")
+    assert to_list(new_gt._body.body["col1"])[:2] == ["\u2014", "\u2014"]
+
+    new_gt = GT(df).sub_missing("col1", missing_text="n/a & 50%")._render_formats("latex")
+    assert to_list(new_gt._body.body["col1"])[:2] == ["n/a \\& 50\\%", "n/a \\& 50\\%"]
+
+
+def test_sub_zero_latex(df):
+    new_gt = GT(df).sub_zero("col1", zero_text=md("**nil**"))._render_formats("latex")
+    assert_series_equals(new_gt._body.body["col1"], [None, None, "\\textbf{nil}"])
+
+
+def test_sub_vals_latex():
+    df = pl.DataFrame({"val": [0.001, 1e12, 5.0]})
+    gt = (
+        GT(df)
+        .sub_small_vals(columns="val")
+        .sub_large_vals(columns="val", large_pattern=">= {x} & up")
+        .sub_values(columns="val", values=[5.0], replacement="n_5")
+    )
+    body = to_list(gt._render_formats("latex")._body.body["val"])
+    assert body == ["<0.01", ">= 1000000000000.0 \\& up", "n\\_5"]
 
 
 # =============================================================================
