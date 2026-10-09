@@ -12873,22 +12873,27 @@ The example below requires the Pandas library to be installed. But Pandas is not
 use Great Tables. You can also use a Polars DataFrame.
 :::
 
-Let’s use a subset of the `islands` dataset available within `great_tables.data`:
+Let’s use a subset of the `countrypops` dataset available within `great_tables.data`, keeping the
+ten most populous countries in 2022:
 
 ```{python}
 from great_tables import GT, md, html
-from great_tables.data import islands
+from great_tables.data import countrypops
 
-islands_mini = islands.head(10)
+countries_mini = (
+    countrypops[countrypops["year"] == 2022]
+    .sort_values("population", ascending=False)
+    .head(10)[["country_name", "population"]]
+)
 ```
 
-The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a great
-start. Speaking of which, the main entry point into the **Great Tables** API is the `GT` class.
+The `countries_mini` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a
+great start. Speaking of which, the main entry point into the **Great Tables** API is the `GT` class.
 Let's use that to make a presentable table:
 
 ```{python}
-# Create a display table showing ten of the world's largest islands
-gt_tbl = GT(islands_mini)
+# Create a display table showing the ten most populous countries
+gt_tbl = GT(countries_mini)
 
 # Show the output table
 gt_tbl
@@ -12919,7 +12924,7 @@ different DataFrame library.
 ```{python}
 import polars as pl
 
-df_polars = pl.from_pandas(islands_mini)
+df_polars = pl.from_pandas(countries_mini)
 
 # Approach 1: call GT ----
 GT(df_polars)
@@ -12944,23 +12949,28 @@ ones below.
 #| code-summary: Show the Code
 
 from great_tables import GT, md, html
-from great_tables.data import islands
+from great_tables.data import countrypops
 
-islands_mini = islands.head(10)
+countries_mini = (
+    countrypops[countrypops["year"] == 2022]
+    .sort_values("population", ascending=False)
+    .head(10)[["country_name", "population"]]
+)
 
 (
-    GT(islands_mini, rowname_col = "name")
+    GT(countries_mini, rowname_col="country_name")
     .tab_header(
-        title="Large Landmasses of the World",
-        subtitle="The top ten largest are presented"
+        title="The World's Most Populous Countries",
+        subtitle="The top ten in 2022 are presented"
+    )
+    .fmt_integer(columns="population")
+    .tab_source_note(
+        source_note="Total population counts all residents regardless of legal status or citizenship."
     )
     .tab_source_note(
-        source_note="Source: The World Almanac and Book of Facts, 1975, page 406."
+        source_note=md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
     )
-    .tab_source_note(
-        source_note=md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
-    )
-    .tab_stubhead(label="landmass")
+    .tab_stubhead(label="country")
 )
 ```
 
@@ -12969,28 +12979,30 @@ islands_mini = islands.head(10)
 # | code-summary: Show the Code
 
 from great_tables import GT, html
-from great_tables.data import airquality
+from great_tables.data import gibraltar
 
-airquality_m = airquality.head(10).assign(Year=1973)
+gibraltar_m = gibraltar.head(10)[["date", "time", "temp", "humidity", "wind_speed", "pressure"]]
 
-gt_airquality = (
-    GT(airquality_m)
+gt_gibraltar = (
+    GT(gibraltar_m)
     .tab_header(
-        title="New York Air Quality Measurements",
-        subtitle="Daily measurements in New York City (May 1-10, 1973)",
+        title="Weather at Gibraltar Airport",
+        subtitle="Observations from the early hours of May 1, 2023",
     )
-    .tab_spanner(label="Time", columns=["Year", "Month", "Day"])
-    .tab_spanner(label="Measurement", columns=["Ozone", "Solar_R", "Wind", "Temp"])
-    .cols_move_to_start(columns=["Year", "Month", "Day"])
+    .tab_spanner(label="Observed", columns=["date", "time"])
+    .tab_spanner(label="Measurement", columns=["temp", "humidity", "wind_speed", "pressure"])
+    .fmt_percent(columns="humidity", decimals=0)
     .cols_label(
-        Ozone=html("Ozone,<br>ppbV"),
-        Solar_R=html("Solar R.,<br>cal/m<sup>2</sup>"),
-        Wind=html("Wind,<br>mph"),
-        Temp=html("Temp,<br>&deg;F"),
+        date="Date",
+        time="Time",
+        temp=html("Temp,<br>&deg;C"),
+        humidity="Humidity",
+        wind_speed=html("Wind,<br>m/s"),
+        pressure=html("Pressure,<br>hPa"),
     )
 )
 
-gt_airquality
+gt_gibraltar
 ```
 
 These examples show just a glimpse of what's possible with **Great Tables**. The rest of this User
@@ -13178,17 +13190,22 @@ looks with a *title* and a *subtitle*:
 
 ```{python}
 from great_tables import GT, md, html
-from great_tables.data import islands
+from great_tables.data import countrypops
 
-islands_mini = islands.head(10)
+# Get the ten most populous countries in 2022
+countries_mini = (
+    countrypops[countrypops["year"] == 2022]
+    .sort_values("population", ascending=False)
+    .head(10)[["country_name", "population"]]
+)
 
-# Make a display table with the `islands_tbl` table and
+# Make a display table with the `countries_mini` table and
 # put a heading just above the column labels
 (
-    GT(islands_mini)
+    GT(countries_mini)
     .tab_header(
-        title = "Large Landmasses of the World",
-        subtitle = "The top ten largest are presented"
+        title = "The World's Most Populous Countries",
+        subtitle = "The top ten in 2022 are presented"
     )
 )
 ```
@@ -13203,13 +13220,13 @@ allows us to insert a subtitle, which is an optional part of the **Header**. We 
 an example with the table data truncated for brevity:
 
 ```{python}
-# Make a display table with the `islands_tbl` table and
+# Make a display table with the `countries_mini` table and
 # put a heading just above the column labels
 gt_tbl = (
-    GT(islands.head(2))
+    GT(countries_mini.head(2))
     .tab_header(
-        title = md("Large Landmasses of the *World* &#x1F310;"),
-        subtitle = md("The top **ten** largest are presented")
+        title = md("The *World's* Most Populous Countries &#x1F310;"),
+        subtitle = md("The top **ten** in 2022 are presented")
     )
 )
 
@@ -13226,14 +13243,14 @@ method. It works in the same way as `~~GT.tab_header()` (it also allows for Mark
 it can be called multiple times. Each invocation results in the addition of a source note.
 
 ```{python}
-# Display the `islands_tbl` data with a heading and two source notes
+# Display the `countries_mini` data with a heading and two source notes
 (
     gt_tbl
     .tab_source_note(
-        source_note = "Source: The World Almanac and Book of Facts, 1975, page 406."
+        source_note = "Total population counts all residents regardless of legal status or citizenship."
     )
     .tab_source_note(
-        source_note = md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
+        source_note = md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
     )
 )
 ```
@@ -13263,27 +13280,27 @@ useful (the display tables presented earlier looked just fine without one).
 An easy way to generate a **Stub** part is by specifying a stub column in the `GT()` class with the
 `rowname_col=` argument. This will signal to **Great Tables** that the named column should be used
 as the stub, using the contents of that column to make *row labels*. Let's add a stub with our
-`islands` dataset by using `rowname_col=` in the call to `GT`:
+`countries_mini` table by using `rowname_col=` in the call to `GT`:
 
 ```{python}
-GT(islands_mini).tab_stub(rowname_col="name")
+GT(countries_mini).tab_stub(rowname_col="country_name")
 ```
 
-Notice that the landmass names are now placed to the left? That's the **Stub**. Notably, there is a
+Notice that the country names are now placed to the left? That's the **Stub**. Notably, there is a
 prominent border to the right of it but there's no label above the **Stub**. We can change this and
 apply what's known as a *stubhead label* through use of the `~~GT.tab_stubhead()` method:
 
 ```{python}
 (
-    GT(islands_mini)
-    .tab_stub(rowname_col="name")
-    .tab_stubhead(label="landmass")
+    GT(countries_mini)
+    .tab_stub(rowname_col="country_name")
+    .tab_stubhead(label="country")
 )
 ```
 
 A very important thing to note here is that the table now has one column. Before, when there was no
-**Stub**, two columns were present (with the **Column Labels** of `"name"` and `"size"`) but now
-column number `1` (the only column remaining) is `size`.
+**Stub**, two columns were present (with the **Column Labels** of `"country_name"` and
+`"population"`) but now column number `1` (the only column remaining) is `population`.
 
 ## Row Groups
 
@@ -13294,21 +13311,26 @@ groups do that work up front.
 Let's incorporate row groups into the display table. This divides rows into groups, creating
 *row groups*, and results in a display of a *row group labels* right above each group. This can be
 easily done with a table containing row labels and the key is to use the `groupname_col=` argument
-of the `GT` class. Here we will create three row groups (with row group labels `"continent"`,
-`"country"`, and `"subregion"`) to have a grouping of rows.
+of the `GT` class. Here we will create four row groups (with row group labels `"Asia"`,
+`"Americas"`, `"Africa"`, and `"Europe"`) to have a grouping of rows.
 
 ```{python}
-island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] * 2 + ["continent"] * 6)
+regions = {
+    "India": "Asia", "China": "Asia", "Indonesia": "Asia", "Pakistan": "Asia",
+    "Bangladesh": "Asia", "United States": "Americas", "Brazil": "Americas",
+    "Mexico": "Americas", "Nigeria": "Africa", "Russian Federation": "Europe",
+}
+
+country_groups = countries_mini.assign(region = countries_mini["country_name"].map(regions))
 
 (
-    GT(island_groups)
-    .tab_stub(rowname_col="name", groupname_col="group")
-    .tab_stubhead(label="landmass")
+    GT(country_groups)
+    .tab_stub(rowname_col="country_name", groupname_col="region")
+    .tab_stubhead(label="country")
 )
 ```
 
-The table now groups its rows by continent, country, and subregion, with labels appearing above each
-group. Row groups make it much easier for readers to scan and compare related entries.
+The table now groups its rows by region, with labels appearing above each group. Row groups make it much easier for readers to scan and compare related entries.
 
 ## GT Convenience Arguments
 
@@ -13316,7 +13338,7 @@ Rather than using the `~~GT.tab_stub()` method, the `GT(rowname_col=..., groupna
 arguments provide a quick way to specify row names and groups.
 
 ```{python}
-GT(island_groups, rowname_col="name", groupname_col="group")
+GT(country_groups, rowname_col="country_name", groupname_col="region")
 ```
 
 The stub provides a clear organizational framework for your data by separating identifiers from
@@ -13339,34 +13361,32 @@ each of these capabilities.
 ## Working with Column Data
 
 The table's **Column Labels** part contains, at a minimum, columns and their *column labels*. The
-last example had a single column: `size`. Just as in the **Stub**, we can create groupings called
+last example had a single column: `population`. Just as in the **Stub**, we can create groupings called
 *spanner labels* that encompass one or more columns.
 
 To better demonstrate how **Column Labels** work and are displayed, let's use an input data table
-with more columns. In this case, that input table will be `airquality`. It has the following
-columns:
+with more columns. In this case, that input table will be made from `gibraltar`, which has weather
+observations from the Gibraltar Airport Station. We'll keep these of its columns:
 
-- `Ozone`: mean ground-level ozone in parts per billion by volume (ppbV), measured between 13:00 and
-15:00
-- `Solar_R`: solar radiation in Langley units (cal/m<sup>2</sup>), measured between 08:00 and noon
-- `Wind`: mean wind speed in miles per hour (mph)
-- `Temp`: maximum daily air temperature in degrees Fahrenheit (&deg;F)
-- `Month`, `Day`: the numeric month and day of month for the record
+- `temp`: the air temperature in degrees Celsius (&deg;C)
+- `humidity`: the relative humidity, as a value between `0` and `1`
+- `wind_speed`: the wind speed in meters per second (m s<sup>&minus;1</sup>)
+- `pressure`: the atmospheric pressure in hectopascals (hPa)
+- `date`, `time`: the date and time of the observation
 
-We know that all measurements took place in 1973, so a `year` column will be added to the dataset
-before it is passed to the `GT` class.
+The date and time columns are placed last here, so that we can move them later on.
 
 ```{python}
 from great_tables import GT, html
-from great_tables.data import airquality
+from great_tables.data import gibraltar
 
-airquality_mini = airquality.head(10).assign(Year = 1973)
+gibraltar_mini = gibraltar.head(10)[["temp", "humidity", "wind_speed", "pressure", "date", "time"]]
 
-airquality_mini
+gibraltar_mini
 ```
 
-This ten-row subset of the New York air quality dataset has both measurement and time columns,
-making it a good candidate for organizing with column spanners.
+This ten-row subset of the Gibraltar weather dataset has both measurement and time columns, making it
+a good candidate for organizing with column spanners.
 
 ## Adding Column Spanners
 
@@ -13380,23 +13400,23 @@ Let's organize the time information under a `Time` *spanner label*, and put the 
 a `Measurement` *spanner label*. We can do this with the `~~GT.tab_spanner()` method.
 
 ```{python}
-gt_airquality = (
-    GT(airquality_mini)
+gt_gibraltar = (
+    GT(gibraltar_mini)
     .tab_header(
-        title="New York Air Quality Measurements",
-        subtitle="Daily measurements in New York City (May 1-10, 1973)"
+        title="Weather at Gibraltar Airport",
+        subtitle="Observations from the early hours of May 1, 2023"
     )
     .tab_spanner(
         label="Time",
-        columns=["Year", "Month", "Day"]
+        columns=["date", "time"]
     )
     .tab_spanner(
         label="Measurement",
-        columns=["Ozone", "Solar_R", "Wind", "Temp"]
+        columns=["temp", "humidity", "wind_speed", "pressure"]
     )
 )
 
-gt_airquality
+gt_gibraltar
 ```
 
 ## Moving and Relabeling Columns
@@ -13410,13 +13430,15 @@ Let's do both of these things in the next example:
 
 ```{python}
 (
-    gt_airquality
-    .cols_move_to_start(columns=["Year", "Month", "Day"])
+    gt_gibraltar
+    .cols_move_to_start(columns=["date", "time"])
     .cols_label(
-        Ozone=html("Ozone,<br>ppbV"),
-        Solar_R=html("Solar R.,<br>cal/m<sup>2</sup>"),
-        Wind=html("Wind,<br>mph"),
-        Temp=html("Temp,<br>&deg;F")
+        date="Date",
+        time="Time",
+        temp=html("Temp,<br>&deg;C"),
+        humidity="Humidity",
+        wind_speed=html("Wind,<br>m s<sup>&minus;1</sup>"),
+        pressure=html("Pressure,<br>hPa")
     )
 )
 ```
@@ -13434,8 +13456,8 @@ there's even a method to hide columns: `~~GT.cols_hide()`.
 Multiple columns can be renamed in a single use of `~~GT.cols_label()`. Further to this, the helper
 functions `md()` and `html()` can be used to create column labels with additional styling. In the
 above example, we provided column labels as HTML so that we can insert linebreaks with `<br>`,
-insert a superscripted `2` (with `<sup>2</sup>`), and insert a degree symbol as an HTML entity
-(`&deg;`).
+insert a superscripted `−1` (with `<sup>&minus;1</sup>`), and insert a degree symbol as an HTML
+entity (`&deg;`).
 
 ## Targeting Columns for `columns=`
 
@@ -13446,8 +13468,8 @@ For example, you can use a lambda function:
 
 ```{python}
 (
-    GT(airquality_mini)
-    .cols_move_to_start(columns=lambda colname: colname.endswith("R"))
+    GT(gibraltar_mini)
+    .cols_move_to_start(columns=lambda colname: colname.startswith("wind"))
 )
 ```
 
@@ -13661,21 +13683,21 @@ the targeted location and appending the text to the footer.
 
 ```{python}
 from great_tables import GT, md, loc
-from great_tables.data import airquality
+from great_tables.data import gibraltar
 
-air_mini = airquality.head(5)
+weather_mini = gibraltar.head(5)[["date", "time", "temp", "humidity", "wind_speed", "pressure"]]
 
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Measured in parts per billion (ppbV).",
-        locations=loc.column_labels(columns="Ozone")
+        footnote="Air temperature in degrees Celsius.",
+        locations=loc.column_labels(columns="temp")
     )
 )
 ```
 
-The footnote mark (a superscript number) appears next to the `"Ozone"` column label, and the
+The footnote mark (a superscript number) appears next to the `"temp"` column label, and the
 corresponding text appears at the bottom of the table.
 
 ## Targeting Different Locations
@@ -13689,11 +13711,11 @@ Attaching a footnote to a column label is useful for clarifying units or methodo
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Solar radiation in Langleys (cal/cm²), measured 08:00–noon.",
-        locations=loc.column_labels(columns="Solar_R")
+        footnote="Relative humidity, as a value between 0 and 1.",
+        locations=loc.column_labels(columns="humidity")
     )
 )
 ```
@@ -13704,11 +13726,11 @@ You can annotate specific data cells by targeting them with `loc.body()`.
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Highest temperature in this sample.",
-        locations=loc.body(columns="Temp", rows=[0])
+        footnote="Lowest temperature in this sample.",
+        locations=loc.body(columns="temp", rows=[2])
     )
 )
 ```
@@ -13719,10 +13741,10 @@ Footnotes on the table header can provide methodological notes or data source co
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Data collected at a monitoring station in midtown Manhattan.",
+        footnote="Data collected at the airport's weather station, 5 m above mean sea level.",
         locations=loc.title()
     )
 )
@@ -13736,19 +13758,19 @@ footnote with its own sequenced mark. The marks are numbered in the order they a
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Mean ozone concentration, 13:00–15:00.",
-        locations=loc.column_labels(columns="Ozone")
+        footnote="Air temperature in degrees Celsius.",
+        locations=loc.column_labels(columns="temp")
     )
     .tab_footnote(
-        footnote="Maximum daily temperature in degrees Fahrenheit.",
-        locations=loc.column_labels(columns="Temp")
+        footnote="Atmospheric pressure in hectopascals.",
+        locations=loc.column_labels(columns="pressure")
     )
     .tab_footnote(
-        footnote="Measurement device was recalibrated on this day.",
-        locations=loc.body(columns="Ozone", rows=[2])
+        footnote="Highest wind speed in this sample.",
+        locations=loc.body(columns="wind_speed", rows=[1])
     )
 )
 ```
@@ -13768,9 +13790,9 @@ the `locations=` argument (or set it to `None`).
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
-    .tab_footnote(footnote="All measurements taken in New York City, 1973.")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
+    .tab_footnote(footnote="All observations are from Gibraltar Airport, May 2023.")
 )
 ```
 
@@ -13786,11 +13808,11 @@ The options are `"auto"` (the default), `"left"`, and `"right"`.
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Measured at ground level.",
-        locations=loc.column_labels(columns="Ozone"),
+        footnote="Wind speed in meters per second.",
+        locations=loc.column_labels(columns="wind_speed"),
         placement="left"
     )
 )
@@ -13805,10 +13827,10 @@ emphasis, links, or other inline formatting in your footnotes.
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote=md("Source: *Interactive Data Analysis* (McNeil, 1977)."),
+        footnote=md("Observations from the *Gibraltar Airport Station* (GIB)."),
         locations=loc.title()
     )
 )
@@ -15235,18 +15257,18 @@ eye there.
 of the displayed table. The following set of examples shows how to set styles on the body of table,
 where the data cells are located.
 
-For the examples on this page, we'll use the included airquality dataset to set up `GT` objects for
-both **Pandas** and **Polars** DataFrames.
+For the examples on this page, we'll use the included `gibraltar` weather dataset to set up `GT`
+objects for both **Pandas** and **Polars** DataFrames.
 
 ```{python}
 import polars as pl
 from great_tables import GT, from_column, style, loc
-from great_tables.data import airquality
+from great_tables.data import gibraltar
 
-air_head = airquality.head()
+weather_head = gibraltar.head()[["date", "time", "temp", "humidity", "wind_speed", "pressure"]]
 
-gt_air = GT(air_head)
-gt_pl_air = GT(pl.from_pandas(air_head))
+gt_weather = GT(weather_head)
+gt_pl_weather = GT(pl.from_pandas(weather_head))
 ```
 
 
@@ -15263,9 +15285,9 @@ in the table body. For example, the table-making code below applies a yellow bac
 specific cells.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.fill(color="yellow"),
-    locations=loc.body(columns="Temp", rows=[1, 2])
+    locations=loc.body(columns="temp", rows=[1, 2])
 )
 ```
 
@@ -15285,7 +15307,7 @@ Let's use `style.borders()` to place borders around targeted cells. In this next
 has a red dashed border above two rows.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.borders(sides="top", color="red", style="dashed", weight="3px"),
     locations=loc.body(rows=[1, 2])
 )
@@ -15297,17 +15319,17 @@ side (`"top"`, `"bottom"`, `"left"`, `"right"`), color, style, and weight of the
 ### Customizing Text
 
 We can style text with by using the `style.text()` function. This gives us many customization
-possibilities for any text we target. For example, the `Solar_R` column below has green, bolded text
+possibilities for any text we target. For example, the `humidity` column below has green, bolded text
 in a custom font.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.text(color="green", font="Times New Roman", weight="bold"),
-    locations=loc.body(columns="Solar_R")
+    locations=loc.body(columns="humidity")
 )
 ```
 
-The `Solar_R` column text appears in green, bold, and in the Times New Roman font. The
+The `humidity` column text appears in green, bold, and in the Times New Roman font. The
 `style.text()` function supports additional options like `size=`, `style=` (italic), and `decorate=`
 (underline, line-through).
 
@@ -15340,7 +15362,7 @@ method, then, we'll demonstrate how to use **Polars** expressions to do everythi
 ### Combining Styling with `cols_hide()`
 
 One common approach is to specify a style from a column, and then hide that column in the final
-output. For example, we can add a background column to our `airquality` data:
+output. For example, we can add a background column to our `gibraltar` data:
 
 ```{python}
 color_map = {
@@ -15348,15 +15370,15 @@ color_map = {
     False: "lightblue"
 }
 
-with_color = air_head.assign(
-    background=(air_head["Temp"] > 70).replace(color_map)
+with_color = weather_head.assign(
+    background=(weather_head["temp"] > 18.5).replace(color_map)
 )
 
 with_color
 ```
 
 Notice that the dataset now has a `background` column set to either `"lightyellow"` or
-`"lightblue"`, depending on whether `Temp` is above `70`.
+`"lightblue"`, depending on whether `temp` is above `18.5`.
 
 We can then use this `background` column to set the fill color of certain body cells, and then hide
 the `background` column since we don't need that in our finalized display table:
@@ -15366,7 +15388,7 @@ the `background` column since we don't need that in our finalized display table:
     GT(with_color)
     .tab_style(
         style=style.fill(color=from_column(column="background")),
-        locations=loc.body(columns="Temp")
+        locations=loc.body(columns="temp")
     )
     .cols_hide(columns="background")
 )
@@ -15381,19 +15403,19 @@ column.
 ### Using **Polars** expressions
 
 Styles can also be specified using **Polars** expressions. For example, the code below uses the
-`Temp` column to set color to `"lightyellow"` or `"lightblue"`.
+`temp` column to set color to `"lightyellow"` or `"lightblue"`.
 
 ```{python}
-# A Polars expression defines color based on `Temp`
+# A Polars expression defines color based on `temp`
 temp_color = (
-    pl.when(pl.col("Temp") > 70)
+    pl.when(pl.col("temp") > 18.5)
     .then(pl.lit("lightyellow"))
     .otherwise(pl.lit("lightblue"))
 )
 
-gt_pl_air.tab_style(
+gt_pl_weather.tab_style(
     style=style.fill(color=temp_color),
-    locations=loc.body("Temp")
+    locations=loc.body("temp")
 )
 ```
 
@@ -15415,14 +15437,14 @@ This is shown below on a pandas DataFrame.
 
 ```{python}
 def map_color(df):
-    return (df["Temp"] > 70).map(
+    return (df["temp"] > 18.5).map(
         {True: "lightyellow", False: "lightblue"}
     )
 
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.fill(
         color=map_color),
-    locations=loc.body("Temp")
+    locations=loc.body("temp")
 )
 ```
 
@@ -15440,11 +15462,11 @@ columns and rows:
 ```{python}
 import polars.selectors as cs
 
-gt_pl_air.tab_style(
+gt_pl_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
         columns=cs.starts_with("Te"),
-        rows=pl.col("Temp") > 70
+        rows=pl.col("temp") > 18.5
     )
 )
 ```
@@ -15457,11 +15479,11 @@ For tools like **pandas**, you can use a function (or lambda) to select rows. Th
 take a DataFrame, and output a boolean Series.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
         columns=lambda col_name: col_name.startswith("Te"),
-        rows=lambda D: D["Temp"] > 70,
+        rows=lambda D: D["temp"] > 18.5,
     )
 )
 ```
@@ -15475,20 +15497,20 @@ We can use a list within `style=` to apply multiple styles at once. For example,
 fill and border styles on the same set of body cells.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=[style.fill(color="yellow"), style.borders(sides="all")],
-    locations=loc.body(columns="Temp", rows=[1, 2]),
+    locations=loc.body(columns="temp", rows=[1, 2]),
 )
 ```
 
 Note that you can also pass a list to `locations=`!
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=[
-        loc.body(columns="Temp", rows=[1, 2]),
-        loc.body(columns="Ozone", rows=[0])
+        loc.body(columns="temp", rows=[1, 2]),
+        loc.body(columns="wind_speed", rows=[0])
     ]
 )
 ```
@@ -15499,11 +15521,11 @@ combination of columns and rows.
 ```{python}
 import polars.selectors as cs
 
-gt_pl_air.tab_style(
+gt_pl_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
-        columns=cs.exclude(["Month", "Day"]),
-        rows=pl.col("Temp") == pl.col("Temp").max()
+        columns=cs.exclude(["date", "time"]),
+        rows=pl.col("temp") == pl.col("temp").max()
     )
 )
 ```
@@ -15513,14 +15535,14 @@ basis.
 ```{python}
 import polars.selectors as cs
 
-gt_pl_air.tab_style(
+gt_pl_weather.tab_style(
     style=style.fill(color="yellow"),
-    locations=loc.body(mask=cs.all().eq(cs.all().max())),
+    locations=loc.body(mask=cs.numeric().eq(cs.numeric().max())),
 )
 ```
 
 The `mask=` argument applies row/column logic jointly, highlighting only the cells where a column's
-value equals its own maximum. This is a powerful way to perform per-column conditional formatting in
+value equals its own maximum (here, among the numeric columns). This is a powerful way to perform per-column conditional formatting in
 a single statement.
 
 ## Value-driven styling with `tab_style_body()`
