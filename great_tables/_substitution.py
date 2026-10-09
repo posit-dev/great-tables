@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Literal
 
 from ._formats import fmt
-from ._gt_data import FormatterSkipElement
+from ._gt_data import FormatFns, FormatterSkipElement
 from ._helpers import html
 from ._tbl_data import DataFrameLike, SelectExpr, is_na
 from ._text import Text, _process_text
@@ -94,7 +94,7 @@ def sub_missing(
     """
 
     subber = SubMissing(self._tbl_data, missing_text)
-    return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
+    return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)
 
 
 def sub_zero(
@@ -155,33 +155,48 @@ def sub_zero(
     """
 
     subber = SubZero(zero_text)
-    return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
+    return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)
+
+
+class Substitution:
+    """Base class for substitutions, with the replacement text rendered for each output context."""
+
+    def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
+        raise NotImplementedError
+
+    def to_html(self, x: Any) -> str | FormatterSkipElement:
+        return self.substitute(x, context="html")
+
+    def to_latex(self, x: Any) -> str | FormatterSkipElement:
+        return self.substitute(x, context="latex")
+
+    def format_fns(self) -> FormatFns:
+        return FormatFns(html=self.to_html, latex=self.to_latex, default=self.to_html)
 
 
 @dataclass
-class SubMissing:
+class SubMissing(Substitution):
     dispatch_frame: DataFrameLike
     missing_text: str | Text | None
 
     def __post_init__(self):
-        # TODO: we should use an alternative to html(), once we support formats like latex
         if self.missing_text is None:
             self.missing_text = html("&mdash;")
 
-    def to_html(self, x: Any) -> str | FormatterSkipElement:
+    def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
         if is_na(self.dispatch_frame, x):
-            return _process_text(self.missing_text)
+            return _process_text(self.missing_text, context=context)
 
         return FormatterSkipElement()
 
 
 @dataclass
-class SubZero:
+class SubZero(Substitution):
     zero_text: str | Text
 
-    def to_html(self, x: Any) -> str | FormatterSkipElement:
+    def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
         if x == 0:
-            return _process_text(self.zero_text)
+            return _process_text(self.zero_text, context=context)
 
         return FormatterSkipElement()
 
@@ -285,7 +300,7 @@ def sub_small_vals(
             small_pattern = ">-{x}"
 
     subber = SubSmallVals(threshold=threshold, small_pattern=small_pattern, sign=sign)
-    return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
+    return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)
 
 
 def sub_large_vals(
@@ -378,7 +393,7 @@ def sub_large_vals(
     threshold = abs(threshold)
 
     subber = SubLargeVals(threshold=threshold, large_pattern=large_pattern, sign=sign)
-    return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
+    return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)
 
 
 def sub_values(
@@ -481,16 +496,16 @@ def sub_values(
         raise TypeError("A function must be provided to the `fn` argument.")
 
     subber = SubValues(values=values, pattern=pattern, fn=fn, replacement=replacement)
-    return fmt(self, fns=subber.to_html, columns=columns, rows=rows, is_substitution=True)
+    return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)
 
 
 @dataclass
-class SubSmallVals:
+class SubSmallVals(Substitution):
     threshold: float
     small_pattern: str
     sign: str
 
-    def to_html(self, x: Any) -> str | FormatterSkipElement:
+    def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
         # Only operate on numeric values
         if not isinstance(x, (int, float)):
             return FormatterSkipElement()
@@ -506,26 +521,26 @@ class SubSmallVals:
         if self.sign == "+":
             # Value must be positive and less than threshold
             if x > 0 and x < self.threshold:
-                return self._format_text()
+                return self._format_text(context)
         else:
             # Value must be negative and greater than -threshold (closer to zero)
             if x < 0 and x > -self.threshold:
-                return self._format_text()
+                return self._format_text(context)
 
         return FormatterSkipElement()
 
-    def _format_text(self) -> str:
+    def _format_text(self, context: str) -> str:
         text = self.small_pattern.replace("{x}", str(self.threshold))
-        return _process_text(text)
+        return _process_text(text, context=context)
 
 
 @dataclass
-class SubLargeVals:
+class SubLargeVals(Substitution):
     threshold: float
     large_pattern: str
     sign: str
 
-    def to_html(self, x: Any) -> str | FormatterSkipElement:
+    def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
         # Only operate on numeric values
         if not isinstance(x, (int, float)):
             return FormatterSkipElement()
@@ -537,15 +552,15 @@ class SubLargeVals:
         if self.sign == "+":
             # Value must be >= threshold
             if x >= self.threshold:
-                return self._format_text()
+                return self._format_text(context)
         else:
             # Value must be <= -threshold
             if x <= -self.threshold:
-                return self._format_text()
+                return self._format_text(context)
 
         return FormatterSkipElement()
 
-    def _format_text(self) -> str:
+    def _format_text(self, context: str) -> str:
         pattern = self.large_pattern
 
         # When sign is "-", flip ">=" to "<=" in the pattern; the default pattern also gets a
@@ -557,19 +572,19 @@ class SubLargeVals:
                 pattern = pattern.replace(">=", "<=")
 
         text = pattern.replace("{x}", str(self.threshold))
-        return _process_text(text)
+        return _process_text(text, context=context)
 
 
 @dataclass
-class SubValues:
+class SubValues(Substitution):
     values: list[Any] | Any | None
     pattern: str | None
     fn: Callable[..., bool] | None
     replacement: str | int | float
 
-    def to_html(self, x: Any) -> str | FormatterSkipElement:
+    def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
         if self._is_match(x):
-            return _process_text(str(self.replacement))
+            return _process_text(str(self.replacement), context=context)
 
         return FormatterSkipElement()
 

@@ -115,3 +115,9 @@ def test_html_to_latex_escapes_special_chars():
     assert Html("<em>100%</em>").to_latex() == "100\\%"
     assert Html("<b>$10</b>").to_latex() == "\\$10"
     assert Html("a & <b>b</b> & c").to_latex() == "a \\& b \\& c"
+
+
+def test_html_to_latex_decodes_entities():
+    assert Html("&mdash;").to_latex() == "\u2014"
+    assert Html("a &amp; b").to_latex() == "a \\& b"
+    assert Html("&lt;b&gt;").to_latex() == "<b>"
