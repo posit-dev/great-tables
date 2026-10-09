@@ -4134,7 +4134,7 @@ def fmt_bytes_context(
 
     # Implement minus sign replacement for `x_formatted`
     if is_negative:
-        minus_mark = _context_minus_mark(context="html")
+        minus_mark = _context_minus_mark(context=context)
         x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
