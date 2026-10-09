@@ -92,7 +92,48 @@ def test_sub_vals_latex():
         .sub_values(columns="val", values=[5.0], replacement="n_5")
     )
     body = to_list(gt._render_formats("latex")._body.body["val"])
-    assert body == ["<0.01", ">= 1000000000000.0 \\& up", "n\\_5"]
+    # `<` and `>` are written as macros (they print as `¡` and `¿` under pdflatex's default fonts)
+    assert body == ["\\textless{}0.01", "\\textgreater{}= 1e+12 \\& up", "n\\_5"]
+
+
+@pytest.mark.parametrize(
+    "method,kwargs,x_in,x_html,x_latex",
+    [
+        # The default large pattern uses a `≥` / `≤` mark, as in R gt
+        ("sub_large_vals", dict(), 2e12, "\u22651e+12", "$\\geq$1e+12"),
+        ("sub_large_vals", dict(sign="-"), -2e12, "\u2264\u22121e+12", "$\\leq$-1e+12"),
+        ("sub_large_vals", dict(threshold=1000), 5000.0, "\u22651000", "$\\geq$1000"),
+        ("sub_large_vals", dict(threshold=123456789), 2e9, "\u2265123456789", "$\\geq$123456789"),
+        # Custom patterns are kept (with the threshold formatted compactly)
+        ("sub_large_vals", dict(large_pattern="over {x}"), 2e12, "over 1e+12", "over 1e+12"),
+        ("sub_small_vals", dict(), 0.001, "&lt;0.01", "\\textless{}0.01"),
+        ("sub_small_vals", dict(threshold=1e-4), 1e-5, "&lt;1e-04", "\\textless{}1e-04"),
+    ],
+)
+def test_sub_vals_threshold_text(method: str, kwargs: dict, x_in: float, x_html: str, x_latex: str):
+    gt = getattr(GT(pl.DataFrame({"val": [x_in]})), method)(columns="val", **kwargs)
+    assert to_list(gt._render_formats("html")._body.body["val"]) == [x_html]
+    assert to_list(gt._render_formats("latex")._body.body["val"]) == [x_latex]
+
+
+@pytest.mark.parametrize(
+    "threshold,x_out",
+    [
+        (1e12, "1e+12"),
+        (1e5, "1e+05"),
+        (1000, "1000"),
+        (0.01, "0.01"),
+        (1e-4, "1e-04"),
+        (123456789, "123456789"),
+        (12000000, "1.2e+07"),
+        (2.5e-7, "2.5e-07"),
+    ],
+)
+def test_format_threshold(threshold: float, x_out: str):
+    # Exponent notation only where it's shorter, as R prints numbers
+    from great_tables._substitution import _format_threshold
+
+    assert _format_threshold(threshold) == x_out
 
 
 # =============================================================================
@@ -246,8 +287,8 @@ class TestSubLargeVals:
     def test_basic_positive_default_threshold(self):
         """Values >= 1e12 are substituted."""
         subber = SubLargeVals(threshold=1e12, large_pattern=">={x}", sign="+")
-        assert subber.to_html(1e12) == "&gt;=1000000000000.0"
-        assert subber.to_html(1e13) == "&gt;=1000000000000.0"
+        assert subber.to_html(1e12) == "≥1e+12"
+        assert subber.to_html(1e13) == "≥1e+12"
 
     def test_below_threshold_skipped(self):
         """Values below threshold are not substituted."""
@@ -263,8 +304,8 @@ class TestSubLargeVals:
     def test_negative_sign(self):
         """With sign='-', large negative values (<= -threshold) are substituted."""
         subber = SubLargeVals(threshold=1e12, large_pattern=">={x}", sign="-")
-        assert subber.to_html(-1e12) == "&lt;=-1000000000000.0"
-        assert subber.to_html(-1e13) == "&lt;=-1000000000000.0"
+        assert subber.to_html(-1e12) == "≤−1e+12"
+        assert subber.to_html(-1e13) == "≤−1e+12"
 
     def test_negative_sign_above_neg_threshold_skipped(self):
         """Values above -threshold are not substituted when sign='-'."""
@@ -296,14 +337,14 @@ class TestSubLargeVals:
     def test_custom_threshold(self):
         """Custom threshold value works."""
         subber = SubLargeVals(threshold=100, large_pattern=">={x}", sign="+")
-        assert subber.to_html(100) == "&gt;=100"
-        assert subber.to_html(200) == "&gt;=100"
+        assert subber.to_html(100) == "≥100"
+        assert subber.to_html(200) == "≥100"
         assert isinstance(subber.to_html(99), FormatterSkipElement)
 
     def test_sign_flips_pattern(self):
-        """When sign='-', the default pattern becomes '<=-{x}'."""
+        """When sign='-', the default pattern is shown as '≤−{x}'."""
         subber = SubLargeVals(threshold=100, large_pattern=">={x}", sign="-")
-        assert subber.to_html(-100) == "&lt;=-100"
+        assert subber.to_html(-100) == "≤−100"
 
     def test_sign_flips_custom_pattern(self):
         """When sign='-', '>=' in a custom pattern is still auto-flipped to '<='."""
@@ -316,7 +357,7 @@ class TestSubLargeVals:
         gt = GT(df).sub_large_vals(columns="val", threshold=1000, sign="-")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["val"])]
-        assert body == [None, "&lt;=-1000", "&lt;=-1000"]
+        assert body == [None, "≤−1000", "≤−1000"]
 
     def test_method_integration(self):
         """End-to-end test using the GT method."""
@@ -325,7 +366,7 @@ class TestSubLargeVals:
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["val"])]
         # Only 1e12 and 1e14 are >= 1e12
-        assert body == [None, None, None, "&gt;=1000000000000.0", "&gt;=1000000000000.0"]
+        assert body == [None, None, None, "≥1e+12", "≥1e+12"]
 
     def test_method_sign_validation(self):
         """Invalid sign raises ValueError."""
