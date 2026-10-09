@@ -235,9 +235,9 @@ def test_grand_summary_rows_with_rowname_and_groupname():
     )
     html = res.as_raw_html()
 
-    assert 'rowspan="2">x</th>' in html
+    assert 'rowspan="2" scope="rowgroup">x</th>' in html
     assert (
-        '<th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2">Average</th>'
+        '<th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2" scope="row">Average</th>'
         in html
     )
 
