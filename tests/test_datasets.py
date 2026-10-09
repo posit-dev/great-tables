@@ -92,3 +92,24 @@ def test_pl_namespace_private_attr_raises():
     """Accessing a private attribute (starts with _) raises AttributeError."""
     with pytest.raises(AttributeError):
         data.pl._private_attr
+
+
+def test_all_lists_official_datasets_and_load_dataset():
+    from typing import get_args
+
+    from great_tables.data import _DatasetNames
+
+    # `__all__` is a literal list (for static tools), so check it against `load_dataset()`'s names
+    assert data.__all__ == [*get_args(_DatasetNames), "load_dataset"]
+    assert all(hasattr(data, name) for name in data.__all__)
+
+
+def test_star_import_keeps_pandas_and_polars_aliases():
+    # `from great_tables.data import *` mustn't replace `pd` / `pl` with the backend namespaces
+    namespace = {"pd": pd, "pl": pl}
+    exec("from great_tables.data import *", namespace)
+
+    assert namespace["pd"] is pd
+    assert namespace["pl"] is pl
+    assert set(data.__all__) <= set(namespace)
+    assert "islands" not in namespace and "airquality" not in namespace

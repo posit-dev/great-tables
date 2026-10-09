@@ -4,6 +4,30 @@ from typing import Any, Literal, get_args
 
 from importlib_resources import files
 
+# Star imports (`from great_tables.data import *`) give the official datasets and `load_dataset()`
+# only; in particular they don't bring in the `pd` and `pl` backend namespaces, which would replace
+# the conventional `pandas`/`polars` aliases. `islands` and `airquality` are left out as they aren't
+# official datasets (they aren't in R's gt and are planned for removal)
+__all__ = [
+    "countrypops",
+    "sza",
+    "gtcars",
+    "sp500",
+    "pizzaplace",
+    "exibble",
+    "towny",
+    "peeps",
+    "films",
+    "metro",
+    "gibraltar",
+    "constants",
+    "illness",
+    "reactions",
+    "photolysis",
+    "nuclides",
+    "load_dataset",
+]
+
 
 def _read_csv_pandas(fname: Any, dtype: dict[str, str] | None = None) -> Any:
     """Read a CSV file as a pandas DataFrame."""
