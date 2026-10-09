@@ -113,3 +113,40 @@ def test_star_import_keeps_pandas_and_polars_aliases():
     assert namespace["pl"] is pl
     assert set(data.__all__) <= set(namespace)
     assert "islands" not in namespace and "airquality" not in namespace
+
+
+@pytest.mark.parametrize("name,shape", [("islands", (48, 2)), ("airquality", (153, 6))])
+def test_deprecated_datasets_warn(name: str, shape: tuple[int, int]):
+    # `islands` and `airquality` aren't gt datasets, so they're deprecated (but still load)
+    with pytest.warns(FutureWarning, match=f"The `{name}` dataset is deprecated"):
+        assert getattr(data, name).shape == shape
+
+    with pytest.warns(FutureWarning, match=f"The `{name}` dataset is deprecated"):
+        assert getattr(data.pd, name).shape == shape
+
+    with pytest.warns(FutureWarning, match=f"The `{name}` dataset is deprecated"):
+        assert getattr(data.pl, name).shape == shape
+
+
+def test_deprecated_dataset_from_import_warns_once():
+    import warnings
+
+    with warnings.catch_warnings(record=True) as record:
+        warnings.simplefilter("always")
+        exec("from great_tables.data import islands", {})
+
+    assert [str(w.message)[:31] for w in record] == ["The `islands` dataset is deprec"]
+
+
+def test_official_datasets_and_star_import_dont_warn():
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        exec("from great_tables.data import *", {})
+        _ = data.exibble, data.pl.gtcars
+
+
+def test_unknown_attribute_raises():
+    with pytest.raises(AttributeError, match="has no attribute 'nope'"):
+        data.nope

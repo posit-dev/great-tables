@@ -20,18 +20,18 @@ eye there.
 of the displayed table. The following set of examples shows how to set styles on the body of table,
 where the data cells are located.
 
-For the examples on this page, we'll use the included airquality dataset to set up `GT` objects for
-both **Pandas** and **Polars** DataFrames.
+For the examples on this page, we'll use the included `gibraltar` weather dataset to set up `GT`
+objects for both **Pandas** and **Polars** DataFrames.
 
 ```{python}
 import polars as pl
 from great_tables import GT, from_column, style, loc
-from great_tables.data import airquality
+from great_tables.data import gibraltar
 
-air_head = airquality.head()
+weather_head = gibraltar.head()[["date", "time", "temp", "humidity", "wind_speed", "pressure"]]
 
-gt_air = GT(air_head)
-gt_pl_air = GT(pl.from_pandas(air_head))
+gt_weather = GT(weather_head)
+gt_pl_weather = GT(pl.from_pandas(weather_head))
 ```
 
 
@@ -48,9 +48,9 @@ in the table body. For example, the table-making code below applies a yellow bac
 specific cells.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.fill(color="yellow"),
-    locations=loc.body(columns="Temp", rows=[1, 2])
+    locations=loc.body(columns="temp", rows=[1, 2])
 )
 ```
 
@@ -70,7 +70,7 @@ Let's use `style.borders()` to place borders around targeted cells. In this next
 has a red dashed border above two rows.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.borders(sides="top", color="red", style="dashed", weight="3px"),
     locations=loc.body(rows=[1, 2])
 )
@@ -82,17 +82,17 @@ side (`"top"`, `"bottom"`, `"left"`, `"right"`), color, style, and weight of the
 ### Customizing Text
 
 We can style text with by using the `style.text()` function. This gives us many customization
-possibilities for any text we target. For example, the `Solar_R` column below has green, bolded text
+possibilities for any text we target. For example, the `humidity` column below has green, bolded text
 in a custom font.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.text(color="green", font="Times New Roman", weight="bold"),
-    locations=loc.body(columns="Solar_R")
+    locations=loc.body(columns="humidity")
 )
 ```
 
-The `Solar_R` column text appears in green, bold, and in the Times New Roman font. The
+The `humidity` column text appears in green, bold, and in the Times New Roman font. The
 `style.text()` function supports additional options like `size=`, `style=` (italic), and `decorate=`
 (underline, line-through).
 
@@ -125,7 +125,7 @@ method, then, we'll demonstrate how to use **Polars** expressions to do everythi
 ### Combining Styling with `cols_hide()`
 
 One common approach is to specify a style from a column, and then hide that column in the final
-output. For example, we can add a background column to our `airquality` data:
+output. For example, we can add a background column to our `gibraltar` data:
 
 ```{python}
 color_map = {
@@ -133,15 +133,15 @@ color_map = {
     False: "lightblue"
 }
 
-with_color = air_head.assign(
-    background=(air_head["Temp"] > 70).replace(color_map)
+with_color = weather_head.assign(
+    background=(weather_head["temp"] > 18.5).replace(color_map)
 )
 
 with_color
 ```
 
 Notice that the dataset now has a `background` column set to either `"lightyellow"` or
-`"lightblue"`, depending on whether `Temp` is above `70`.
+`"lightblue"`, depending on whether `temp` is above `18.5`.
 
 We can then use this `background` column to set the fill color of certain body cells, and then hide
 the `background` column since we don't need that in our finalized display table:
@@ -151,7 +151,7 @@ the `background` column since we don't need that in our finalized display table:
     GT(with_color)
     .tab_style(
         style=style.fill(color=from_column(column="background")),
-        locations=loc.body(columns="Temp")
+        locations=loc.body(columns="temp")
     )
     .cols_hide(columns="background")
 )
@@ -166,19 +166,19 @@ column.
 ### Using **Polars** expressions
 
 Styles can also be specified using **Polars** expressions. For example, the code below uses the
-`Temp` column to set color to `"lightyellow"` or `"lightblue"`.
+`temp` column to set color to `"lightyellow"` or `"lightblue"`.
 
 ```{python}
-# A Polars expression defines color based on `Temp`
+# A Polars expression defines color based on `temp`
 temp_color = (
-    pl.when(pl.col("Temp") > 70)
+    pl.when(pl.col("temp") > 18.5)
     .then(pl.lit("lightyellow"))
     .otherwise(pl.lit("lightblue"))
 )
 
-gt_pl_air.tab_style(
+gt_pl_weather.tab_style(
     style=style.fill(color=temp_color),
-    locations=loc.body("Temp")
+    locations=loc.body("temp")
 )
 ```
 
@@ -200,14 +200,14 @@ This is shown below on a pandas DataFrame.
 
 ```{python}
 def map_color(df):
-    return (df["Temp"] > 70).map(
+    return (df["temp"] > 18.5).map(
         {True: "lightyellow", False: "lightblue"}
     )
 
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.fill(
         color=map_color),
-    locations=loc.body("Temp")
+    locations=loc.body("temp")
 )
 ```
 
@@ -225,11 +225,11 @@ columns and rows:
 ```{python}
 import polars.selectors as cs
 
-gt_pl_air.tab_style(
+gt_pl_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
         columns=cs.starts_with("Te"),
-        rows=pl.col("Temp") > 70
+        rows=pl.col("temp") > 18.5
     )
 )
 ```
@@ -242,11 +242,11 @@ For tools like **pandas**, you can use a function (or lambda) to select rows. Th
 take a DataFrame, and output a boolean Series.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
         columns=lambda col_name: col_name.startswith("Te"),
-        rows=lambda D: D["Temp"] > 70,
+        rows=lambda D: D["temp"] > 18.5,
     )
 )
 ```
@@ -260,20 +260,20 @@ We can use a list within `style=` to apply multiple styles at once. For example,
 fill and border styles on the same set of body cells.
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=[style.fill(color="yellow"), style.borders(sides="all")],
-    locations=loc.body(columns="Temp", rows=[1, 2]),
+    locations=loc.body(columns="temp", rows=[1, 2]),
 )
 ```
 
 Note that you can also pass a list to `locations=`!
 
 ```{python}
-gt_air.tab_style(
+gt_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=[
-        loc.body(columns="Temp", rows=[1, 2]),
-        loc.body(columns="Ozone", rows=[0])
+        loc.body(columns="temp", rows=[1, 2]),
+        loc.body(columns="wind_speed", rows=[0])
     ]
 )
 ```
@@ -284,11 +284,11 @@ combination of columns and rows.
 ```{python}
 import polars.selectors as cs
 
-gt_pl_air.tab_style(
+gt_pl_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
-        columns=cs.exclude(["Month", "Day"]),
-        rows=pl.col("Temp") == pl.col("Temp").max()
+        columns=cs.exclude(["date", "time"]),
+        rows=pl.col("temp") == pl.col("temp").max()
     )
 )
 ```
@@ -298,14 +298,14 @@ basis.
 ```{python}
 import polars.selectors as cs
 
-gt_pl_air.tab_style(
+gt_pl_weather.tab_style(
     style=style.fill(color="yellow"),
-    locations=loc.body(mask=cs.all().eq(cs.all().max())),
+    locations=loc.body(mask=cs.numeric().eq(cs.numeric().max())),
 )
 ```
 
 The `mask=` argument applies row/column logic jointly, highlighting only the cells where a column's
-value equals its own maximum. This is a powerful way to perform per-column conditional formatting in
+value equals its own maximum (here, among the numeric columns). This is a powerful way to perform per-column conditional formatting in
 a single statement.
 
 ## Value-driven styling with `tab_style_body()`

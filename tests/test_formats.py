@@ -258,8 +258,8 @@ def test_format_row_selection(expr):
             True,
             True,
             [
-                "+% 0.00",
-                "+% 0.00",
+                "% 0.00",
+                "% 0.00",
                 "+% 0.05",
                 "+% 0.46",
                 "+% 4.56",
@@ -275,8 +275,8 @@ def test_format_row_selection(expr):
             False,
             True,
             [
-                "+%0.00",
-                "+%0.00",
+                "%0.00",
+                "%0.00",
                 "+%0.05",
                 "+%0.46",
                 "+%4.56",
@@ -292,8 +292,8 @@ def test_format_row_selection(expr):
             True,
             True,
             [
-                "+0.00 %",
-                "+0.00 %",
+                "0.00 %",
+                "0.00 %",
                 "+0.05 %",
                 "+0.46 %",
                 "+4.56 %",
@@ -309,8 +309,8 @@ def test_format_row_selection(expr):
             False,
             True,
             [
-                "+0.00%",
-                "+0.00%",
+                "0.00%",
+                "0.00%",
                 "+0.05%",
                 "+0.46%",
                 "+4.56%",
@@ -1511,9 +1511,10 @@ def test_fmt_currency_force_sign():
 
     gt = GT(df).fmt_currency(columns="x", force_sign=True)
     x = _get_column_of_values(gt, column_name="x", context="html")
+    # `-0.0001` rounds to zero, so it's shown as zero without a sign
     assert x == [
         "−$234.65",
-        "−$0.00",
+        "$0.00",
         "$0.00",
         "+$2,352.23",
         "+$12,354.30",
@@ -3407,6 +3408,34 @@ def test_fmt_scientific_drop_trailing_zeros():
     ],
 )
 def test_drop_trailing_zeros_keeps_integer_zeros(fn, x_in, kwargs: dict, x_out: list[str]):
+    assert fn(x_in, **kwargs) == x_out
+
+
+# A value that rounds to zero is shown as zero: no minus sign, accounting parentheses or forced
+# plus sign (the sign is decided from the rounded value, not the input)
+@pytest.mark.parametrize(
+    "fn,x_in,kwargs,x_out",
+    [
+        (vals.fmt_integer, [-0.4, 0.4, -0.6, -0.0], dict(), ["0", "0", "−1", "0"]),
+        (vals.fmt_number, [-0.001, -0.006, -0.0], dict(decimals=2), ["0.00", "−0.01", "0.00"]),
+        (vals.fmt_number, [-0.001, -0.006], dict(decimals=2, accounting=True), ["0.00", "(0.01)"]),
+        (vals.fmt_number, [0.001, -0.001], dict(decimals=2, force_sign=True), ["0.00", "0.00"]),
+        (vals.fmt_number, [-0.001], dict(decimals=2, compact=True), ["0.00"]),
+        # With significant figures, a nonzero value never rounds to zero
+        (vals.fmt_number, [-0.001], dict(n_sigfig=2), ["−0.0010"]),
+        (vals.fmt_currency, [-0.001], dict(currency="USD"), ["$0.00"]),
+        (vals.fmt_currency, [-0.001], dict(currency="USD", accounting=True), ["$0.00"]),
+        (vals.fmt_currency, [0.001], dict(currency="USD", force_sign=True), ["$0.00"]),
+        (vals.fmt_percent, [-0.00001], dict(decimals=1), ["0.0%"]),
+        (vals.fmt_percent, [-0.00001], dict(decimals=1, accounting=True), ["0.0%"]),
+        (vals.fmt_partsper, [-1e-7], dict(), ["0.00‰"]),
+        (vals.fmt_number_si, [-1e-40], dict(unit="g"), ["0.00 g"]),
+        # Non-finite values keep their sign
+        (vals.fmt_number, [float("-inf")], dict(), ["−inf"]),
+        (vals.fmt_number, [float("inf")], dict(force_sign=True), ["+inf"]),
+    ],
+)
+def test_value_rounding_to_zero_has_no_sign(fn, x_in, kwargs: dict, x_out: list[str]):
     assert fn(x_in, **kwargs) == x_out
 
 

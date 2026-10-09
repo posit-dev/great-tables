@@ -104,8 +104,8 @@ above it with indicator text.
 gt_tbl.sub_large_vals(columns="revenue", threshold=1e10)
 ```
 
-The value `1e13` in the `revenue` column is now shown as `">=10000000000.0"` rather than displaying
-the full number. You can customize the pattern with the `large_pattern=` argument.
+The value `1e13` in the `revenue` column is now shown as `"≥1e+10"` rather than displaying the full
+number. You can customize the pattern with the `large_pattern=` argument.
 
 ```{python}
 gt_tbl.sub_large_vals(columns="revenue", threshold=1e10, large_pattern="OVER {x}")
