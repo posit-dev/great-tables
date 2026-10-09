@@ -1972,6 +1972,13 @@ def test_fmt_bytes_rounding_carries_into_next_unit(
     assert x == x_out
 
 
+@pytest.mark.parametrize("context, x_out", [("html", ["−1.5 kB"]), ("latex", ["-1.5 kB"])])
+def test_fmt_bytes_minus_mark_follows_context(context: str, x_out: list[str]):
+    gt = GT(pd.DataFrame({"x": [-1500]})).fmt_bytes(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context=context)
+    assert x == x_out
+
+
 # ------------------------------------------------------------------------------
 # Test `fmt_roman()`
 # ------------------------------------------------------------------------------
