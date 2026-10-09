@@ -228,7 +228,13 @@ class Body:
     def __init__(self, body: TblData):
         self.body = body
 
-    def render_formats(self, data_tbl: TblData, formats: list[FormatInfo], context: Any):
+    def render_formats(
+        self, data_tbl: TblData, formats: list[FormatInfo], context: Any
+    ) -> set[tuple[str, int]]:
+        """Apply the formatters to the body and return the cells that were formatted."""
+
+        formatted_cells: set[tuple[str, int]] = set()
+
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
             if eval_func is None:  # pragma: no cover
@@ -237,6 +243,8 @@ class Body:
                 result = eval_func(_get_cell(data_tbl, row, col))
                 if isinstance(result, FormatterSkipElement):
                     continue
+
+                formatted_cells.add((col, row))
 
                 # TODO: I think that this is very inefficient with polars, so
                 # we could either accumulate results and set them per column, or
@@ -247,7 +255,7 @@ class Body:
                     # TODO: Consolidate the behaviour of _set_cell
                     self.body = new_body
 
-        return self
+        return formatted_cells
 
     def copy(self) -> Self:
         return self.__class__(copy_data(self.body))
