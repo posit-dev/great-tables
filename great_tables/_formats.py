@@ -377,6 +377,10 @@ def fmt_number_context(
             force_sign=force_sign,
         )
 
+    # A value that rounds to zero is shown as zero, so it gets no minus sign or accounting style
+    if _rounds_to_zero(x_formatted):
+        is_negative = False
+
     # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
         if accounting:
@@ -562,6 +566,10 @@ def fmt_integer_context(
             dec_mark="not used",
             force_sign=force_sign,
         )
+
+    # A value that rounds to zero is shown as zero, so it gets no minus sign or accounting style
+    if _rounds_to_zero(x_formatted):
+        is_negative = False
 
     # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
@@ -1586,6 +1594,10 @@ def fmt_number_si_context(
         force_sign=force_sign,
     )
 
+    # A value that rounds to zero is shown as zero, so it gets no minus sign
+    if _rounds_to_zero(x_formatted):
+        is_negative = False
+
     # Build the suffix string (space + prefix + unit)
     space_character = " " if incl_space else ""
     suffix = si_symbol + (unit if unit is not None else "")
@@ -1820,6 +1832,10 @@ def fmt_percent_context(
         if placement == "right"
         else f"{percent_mark}{space_character}{{x}}"
     )
+
+    # A value that rounds to zero is shown as zero, so it gets no sign
+    if _rounds_to_zero(x_formatted):
+        is_negative = is_positive = False
 
     if is_negative and placement == "left":
         x_formatted = x_formatted.replace("-", "")
@@ -2111,6 +2127,10 @@ def fmt_partsper_context(
         dec_mark=dec_mark,
         force_sign=force_sign,
     )
+
+    # A value that rounds to zero is shown as zero, so it gets no sign
+    if _rounds_to_zero(x_formatted):
+        is_negative = is_positive = False
 
     # Get the context-specific symbol (escape for LaTeX if needed)
     if context == "latex":
@@ -2406,6 +2426,10 @@ def fmt_currency_context(
         if placement == "right"
         else f"{currency_symbol}{space_character}{{x}}"
     )
+
+    # A value that rounds to zero is shown as zero, so it gets no sign
+    if _rounds_to_zero(x_formatted):
+        is_negative = is_positive = False
 
     if is_negative and placement == "left":
         x_formatted = x_formatted.replace("-", "")
@@ -6086,6 +6110,12 @@ def _value_to_decimal_notation(
     if drop_trailing_dec_mark is False and dec_mark not in result:
         result = result + dec_mark
 
+    # A value that rounds to zero (e.g., `-0.001` with two decimals) is shown as zero, without a
+    # sign; the sign is decided from the rounded value rather than the input
+    if _rounds_to_zero(result):
+        result = result.lstrip("-")
+        is_positive = False
+
     # Force the positive sign to be present if the `force_sign` option is taken
     if is_positive and force_sign:
         result = "+" + result
@@ -6452,6 +6482,15 @@ def _listify(
 
 def _has_negative_value(value: float) -> bool:
     return value < 0
+
+
+def _rounds_to_zero(x_formatted: str) -> bool:
+    """Whether a formatted number shows as zero (all of its digits are `0`), e.g., `-0.00`.
+
+    Non-finite values (`inf`, `nan`) have no digits, so they aren't zero.
+    """
+    digits = [char for char in x_formatted if char.isdigit()]
+    return bool(digits) and all(char == "0" for char in digits)
 
 
 def _has_positive_value(value: float) -> bool:
