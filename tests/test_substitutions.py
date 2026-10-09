@@ -47,13 +47,13 @@ def test_sub_missing_el_skip(df_empty: DataFrameLike):
 
 def test_sub_missing_meth(df):
     new_gt = GT(df).sub_missing("col1", missing_text="--")._render_formats("html")
-    assert_series_equals(new_gt._body.body["col1"], ["--", "--", None])
+    assert_series_equals(new_gt._body.body["col1"], ["--", "--", "0.0"])
 
 
 def test_sub_missing_meth_implicit_columns(df):
     # Drive by: https://github.com/posit-dev/great-tables/issues/667
     new_gt = GT(df).sub_missing(missing_text="--")._render_formats("html")
-    assert_series_equals(new_gt._body.body["col1"], ["--", "--", None])
+    assert_series_equals(new_gt._body.body["col1"], ["--", "--", "0.0"])
 
 
 @pytest.mark.parametrize("el", [0, 0.0])
@@ -223,7 +223,7 @@ class TestSubSmallVals:
         gt = GT(df).sub_small_vals(columns="val")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["val"])]
-        assert body == ["&lt;0.01", None, None, None, None]
+        assert body == ["&lt;0.01", "0.01", "0.1", "1.0", "0.0"]
 
     def test_method_sign_validation(self):
         """Invalid sign raises ValueError."""
@@ -264,7 +264,7 @@ class TestSubSmallVals:
         gt = GT(df).sub_small_vals(columns="lett")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["lett"])]
-        assert body == [None, None, None]
+        assert body == ["A", "B", "C"]
 
     def test_negative_threshold_same_as_positive(self):
         """Negative threshold is treated as abs(threshold)."""
@@ -357,7 +357,7 @@ class TestSubLargeVals:
         gt = GT(df).sub_large_vals(columns="val", threshold=1000, sign="-")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["val"])]
-        assert body == [None, "≤−1000", "≤−1000"]
+        assert body == ["-10.0", "≤−1000", "≤−1000"]
 
     def test_method_integration(self):
         """End-to-end test using the GT method."""
@@ -366,7 +366,7 @@ class TestSubLargeVals:
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["val"])]
         # Only 1e12 and 1e14 are >= 1e12
-        assert body == [None, None, None, "≥1e+12", "≥1e+12"]
+        assert body == ["0.0", "100.0", "10000000000.0", "≥1e+12", "≥1e+12"]
 
     def test_method_sign_validation(self):
         """Invalid sign raises ValueError."""
@@ -391,7 +391,7 @@ class TestSubLargeVals:
         gt = GT(df).sub_large_vals(columns="lett")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["lett"])]
-        assert body == [None, None, None]
+        assert body == ["A", "B", "C"]
 
     def test_negative_threshold_same_as_positive(self):
         """Negative threshold is treated as abs(threshold)."""
@@ -505,7 +505,7 @@ class TestSubValues:
         gt = GT(df).sub_values(columns="col", values=[2, 4], replacement="even")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == [None, "even", None, "even", None]
+        assert body == ["1", "even", "3", "even", "5"]
 
     def test_method_pattern_integration(self):
         """End-to-end test using the GT method with pattern."""
@@ -513,7 +513,7 @@ class TestSubValues:
         gt = GT(df).sub_values(columns="col", pattern="^ap", replacement="fruit")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == ["fruit", None, "fruit", None]
+        assert body == ["fruit", "banana", "fruit", "cherry"]
 
     def test_method_fn_integration(self):
         """End-to-end test using the GT method with fn."""
@@ -521,7 +521,7 @@ class TestSubValues:
         gt = GT(df).sub_values(columns="col", fn=lambda x: x > 25, replacement="big")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == [None, None, "big", "big", "big"]
+        assert body == ["10", "20", "big", "big", "big"]
 
     def test_method_requires_matching_arg(self):
         """Must supply one of values, pattern, or fn."""
@@ -551,7 +551,7 @@ class TestSubValues:
         )
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == ["zero", "seventy-four", None]
+        assert body == ["zero", "seventy-four", "500"]
 
     def test_last_call_wins_for_same_value(self):
         """When the same value is targeted by multiple sub_values, the last one wins."""
@@ -563,7 +563,7 @@ class TestSubValues:
         )
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == ["second", None]
+        assert body == ["second", "100"]
 
     def test_fn_operates_across_columns(self):
         """fn matching works across numeric and character columns."""
@@ -575,8 +575,8 @@ class TestSubValues:
         num_body = [x for x in to_list(result._body.body["num"])]
         lett_body = [x for x in to_list(result._body.body["lett"])]
         # Only the negative number is replaced; letters are unaffected
-        assert num_body == ["neg", None, None, None]
-        assert lett_body == [None, None, None, None]
+        assert num_body == ["neg", "0", "5", "50"]
+        assert lett_body == ["A", "B", "C", "D"]
 
     def test_pattern_does_not_match_numeric_columns(self):
         """Pattern matching only targets string columns, not numeric."""
@@ -587,10 +587,10 @@ class TestSubValues:
         lett_body = [x for x in to_list(result._body.body["lett"])]
 
         # Pattern should not match numeric column
-        assert num_body == [None, None, None]
+        assert num_body == ["0", "1", "500"]
 
         # Pattern should match string column containing "0"
-        assert lett_body == ["matched", None, None]
+        assert lett_body == ["matched", "B1", "C2"]
 
     def test_html_escaping_in_replacement(self):
         """Replacement text is HTML-escaped by default."""
@@ -599,7 +599,7 @@ class TestSubValues:
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
 
-        assert body == ["&lt;b&gt;bold&lt;/b&gt;", None]
+        assert body == ["&lt;b&gt;bold&lt;/b&gt;", "B"]
 
 
 def test_sub_missing_none_text_uses_mdash():

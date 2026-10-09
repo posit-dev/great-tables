@@ -144,7 +144,7 @@
     <tr>
       <td class="gt_row gt_right">444.4</td>
       <td class="gt_row gt_left">durian</td>
-      <td style="background-color: #0000FF;" class="gt_row gt_right">65100</td>
+      <td style="background-color: #0000FF;" class="gt_row gt_right">65100.0</td>
     </tr>
   </tbody>
   '''
@@ -253,7 +253,7 @@
     <tr>
       <td class="gt_row gt_right">444.4</td>
       <td class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #0000FF;" class="gt_row gt_right">65100</td>
+      <td style="color: #FFFFFF; background-color: #0000FF;" class="gt_row gt_right">65100.0</td>
     </tr>
   </tbody>
   '''
@@ -331,7 +331,7 @@
     <tr>
       <td class="gt_row gt_right">444.4</td>
       <td class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #0000FF;" class="gt_row gt_right">65100</td>
+      <td style="color: #FFFFFF; background-color: #0000FF;" class="gt_row gt_right">65100.0</td>
     </tr>
   </tbody>
   '''
@@ -503,7 +503,7 @@
     <tr>
       <td class="gt_row gt_right">444.4</td>
       <td class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #673498;" class="gt_row gt_right">65100</td>
+      <td style="color: #FFFFFF; background-color: #673498;" class="gt_row gt_right">65100.0</td>
     </tr>
   </tbody>
   '''
@@ -581,7 +581,7 @@
     <tr>
       <td style="color: #FFFFFF; background-color: #008000;" class="gt_row gt_right">444.4</td>
       <td class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #008000;" class="gt_row gt_right">65100</td>
+      <td style="color: #FFFFFF; background-color: #008000;" class="gt_row gt_right">65100.0</td>
     </tr>
   </tbody>
   '''
@@ -740,7 +740,7 @@
     <tr>
       <td style="color: #FFFFFF; background-color: #9e9e9e;" class="gt_row gt_right">444.4</td>
       <td style="color: #FFFFFF; background-color: #9e9e9e;" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #9e9e9e;" class="gt_row gt_right">65100</td>
+      <td style="color: #FFFFFF; background-color: #9e9e9e;" class="gt_row gt_right">65100.0</td>
     </tr>
   </tbody>
   '''
@@ -818,7 +818,7 @@
     <tr>
       <td class="gt_row gt_right">444.4</td>
       <td class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" class="gt_row gt_right">65100</td>
+      <td style="color: #FFFFFF; background-color: #FF0000;" class="gt_row gt_right">65100.0</td>
     </tr>
   </tbody>
   '''

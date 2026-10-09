@@ -505,8 +505,8 @@ class GT(
         new_body = self._body.copy()
 
         # TODO: this body method performs a mutation. Should we make a copy of body?
-        new_body.render_formats(self._tbl_data, self._formats, context)
-        new_body.render_formats(self._tbl_data, self._substitutions, context)
+        formatted_cells = new_body.render_formats(self._tbl_data, self._formats, context)
+        formatted_cells |= new_body.render_formats(self._tbl_data, self._substitutions, context)
 
         # Escape unformatted cells before extracting group labels so that
         # group labels derived from body cells are already safe for the output context
@@ -514,7 +514,7 @@ class GT(
         result = _migrate_unformatted_to_output(
             data=result,
             data_tbl=self._tbl_data,
-            formats=self._formats + self._substitutions,
+            formatted_cells=formatted_cells,
             context=context,
         )
 
