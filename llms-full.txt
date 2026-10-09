@@ -8105,7 +8105,9 @@ Parameters
 ----------
 rows
     The rows to target within the stub. Can either be a single row name or a series of row names
-    provided in a list. If no rows are specified, all rows are targeted.
+    provided in a list. If no rows are specified, all rows are targeted. With a hierarchical
+    stub and no `columns=`, row names are matched against the values in every stub column, so
+    the name of an outer level targets all of the rows under it.
 columns
     For a hierarchical stub (where `rowname_col=` is a list of columns), the stub column(s) to
     target, as a column name or a list of names. By default, all of the stub columns are
@@ -8284,7 +8286,10 @@ Parameters
 ----------
 columns
     The columns to target. Can either be a single column name or a series of column names
-    provided in a list.
+    provided in a list. The stub and row group columns aren't part of the body: naming one
+    raises an error (use [`loc.stub()`](`great_tables.loc.stub`) or
+    [`loc.row_groups()`](`great_tables.loc.row_groups`) instead), and column selectors skip
+    them.
 rows
     The rows to target. Can either be a single row name or a series of row names provided in a
     list.
