@@ -114,33 +114,33 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Total</th>
+      <th scope="row" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Total</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> 10</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">100</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> 1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
@@ -179,52 +179,52 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 30</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Beta</th>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      rowspan="3" scope="rowgroup">Beta</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2"></th>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      rowspan="2" scope="rowgroup"></th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2">Grand Total</th>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2" scope="row">Grand Total</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
@@ -262,53 +262,53 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2">Grand Total</th>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row">Grand Total</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Beta</th>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      rowspan="3" scope="rowgroup">Beta</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2"></th>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      rowspan="2" scope="rowgroup"></th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
@@ -347,52 +347,52 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 30</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Beta</th>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
+      rowspan="3" scope="rowgroup">Beta</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2"></th>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      rowspan="2" scope="rowgroup"></th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2">Grand Total</th>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2" scope="row">Grand Total</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
@@ -430,53 +430,53 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2">Grand Total</th>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row">Grand Total</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 30</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Beta</th>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
+      rowspan="3" scope="rowgroup">Beta</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2"></th>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      rowspan="2" scope="rowgroup"></th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
@@ -514,56 +514,56 @@
   </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 30</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">Beta</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">Beta</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_empty_group_heading">
-      <th class="gt_group_heading" colspan="3"></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup"></th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
@@ -601,56 +601,56 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
+      <th scope="row" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">Beta</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">Beta</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_empty_group_heading">
-      <th class="gt_group_heading" colspan="3"></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup"></th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
@@ -688,56 +688,56 @@
   </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 30</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">Beta</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">Beta</th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr class="gt_empty_group_heading">
-      <th class="gt_group_heading" colspan="3"></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup"></th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
@@ -775,56 +775,56 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
+      <th scope="row" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 30</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">Beta</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">Beta</th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr class="gt_empty_group_heading">
-      <th class="gt_group_heading" colspan="3"></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup"></th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
@@ -862,53 +862,53 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2">Grand Total</th>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row">Grand Total</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">---</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">---</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Beta</th>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      rowspan="3" scope="rowgroup">Beta</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">---</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2"></th>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      rowspan="2" scope="rowgroup"></th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
@@ -946,53 +946,53 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2">Grand Total</th>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row">Grand Total</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <th class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
       <td class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">a2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
       <td class="gt_row gt_right">20</td>
       <td class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">Beta</th>
-      <th class="gt_row gt_left gt_stub">b1</th>
+      rowspan="3" scope="rowgroup">Beta</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
       <td class="gt_row gt_right">30</td>
       <td class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
       <td class="gt_row gt_right">40</td>
       <td class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2"></th>
-      <th class="gt_row gt_left gt_stub">c1</th>
+      rowspan="2" scope="rowgroup"></th>
+      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
       <td class="gt_row gt_right">50</td>
       <td class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
       <td class="gt_row gt_right">60</td>
       <td class="gt_row gt_right">600</td>
     </tr>
@@ -1033,7 +1033,7 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub">Row1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">Row1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
       <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
       <td class="gt_row gt_right">20</td>
     </tr>
@@ -1049,11 +1049,11 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub">A<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></th>
+      <th scope="row" class="gt_row gt_left gt_stub">A<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></th>
       <td class="gt_row gt_left">Y</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">B</th>
+      <th scope="row" class="gt_row gt_left gt_stub">B</th>
       <td class="gt_row gt_left">Z<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   </tbody>
