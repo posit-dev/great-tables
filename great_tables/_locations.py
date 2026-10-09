@@ -1099,7 +1099,9 @@ def resolve_cols_i(
     As in R gt, the stub and row group columns are excluded from the selection unless
     `excl_stub=False` / `excl_group=False` (e.g., formatters and `cols_align()` can target the
     stub). Within `expr`, `stub` selects every stub column and `stub(n)` a single stub level
-    (counting from the right); these are subject to the same exclusion.
+    (counting from the right); these are subject to the same exclusion. With `expr=None` (all
+    columns), the stub and row group columns are always excluded: they're only included when
+    selected explicitly.
     """
 
     if not isinstance(data, GTData):
@@ -1114,12 +1116,17 @@ def resolve_cols_i(
     column_names = get_column_names(data._tbl_data)
 
     # If expr is None, we want to select everything or nothing depending on
-    # the value of `null_means`
+    # the value of `null_means`; "everything" never includes the stub or row group columns (e.g.,
+    # `fmt_integer()` with no `columns=` formats the body columns only)
     if expr is None:
         if null_means == "nothing":
             return []
 
-        return [(col, ii) for ii, col in enumerate(column_names) if col not in cols_excl]
+        return [
+            (col, ii)
+            for ii, col in enumerate(column_names)
+            if col not in stub_var and col not in group_var
+        ]
 
     # Stub selectors (`stub`, `stub(n)`) are resolved to the stub column names; the rest of the
     # expression is evaluated as usual
