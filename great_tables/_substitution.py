@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Callable, Literal
 
 from ._formats import fmt
@@ -234,8 +235,9 @@ def sub_small_vals(
         The threshold value with which values should be considered small enough for replacement.
     small_pattern
         The pattern text to be used in place of the suitably small values in the rendered table.
-        The `{x}` placeholder within the pattern will be replaced with the threshold value. If not
-        provided, the default is `"<{x}"` for positive values and `">-{x}"` for negative values.
+        The `{x}` placeholder within the pattern will be replaced with the threshold value
+        (written compactly, e.g., `0.01` or `1e-04`). If not provided, the default is `"<{x}"` for
+        positive values and `">-{x}"` for negative values.
     sign
         The sign of the numbers to be considered in the replacement. By default, we only consider
         positive values (`"+"`). The other option (`"-"`) can be used to consider only negative
@@ -333,12 +335,15 @@ def sub_large_vals(
         The threshold value with which values should be considered large enough for replacement.
     large_pattern
         The pattern text to be used in place of the suitably large values in the rendered table.
-        The `{x}` placeholder within the pattern will be replaced with the threshold value.
+        The `{x}` placeholder within the pattern will be replaced with the threshold value
+        (written compactly, e.g., `1e+12` or `1000`). The default pattern, `">={x}"`, is shown with
+        a `≥` mark (e.g., `≥1e+12`).
     sign
         The sign of the numbers to be considered in the replacement. By default, we only consider
         positive values (`"+"`). The other option (`"-"`) can be used to consider only negative
         values. Note that when `sign="-"` and the default `large_pattern=">={x}"` is used, the
-        pattern is automatically changed to `"<=-{x}"`.
+        output is shown with a `≤` mark and the negative threshold (e.g., `≤−1e+12`); in a custom
+        pattern, `">="` is changed to `"<="`.
 
     Returns
     -------
@@ -530,7 +535,7 @@ class SubSmallVals(Substitution):
         return FormatterSkipElement()
 
     def _format_text(self, context: str) -> str:
-        text = self.small_pattern.replace("{x}", str(self.threshold))
+        text = self.small_pattern.replace("{x}", _format_threshold(self.threshold))
         return _process_text(text, context=context)
 
 
@@ -562,17 +567,46 @@ class SubLargeVals(Substitution):
 
     def _format_text(self, context: str) -> str:
         pattern = self.large_pattern
+        threshold = _format_threshold(self.threshold)
 
-        # When sign is "-", flip ">=" to "<=" in the pattern; the default pattern also gets a
-        # minus sign so that it shows the negative threshold (e.g., "<=-1000")
+        # The default pattern is shown with a `≥` mark (or `≤` and a minus sign for `sign="-"`, e.g.
+        # `≤−1e+12`), as in R gt; the mark is added after the text is processed so that its LaTeX
+        # form (`$\geq$`) isn't escaped
+        if pattern == ">={x}":
+            if self.sign == "-":
+                minus_mark = "-" if context == "latex" else "\u2212"
+                return _context_inequality_mark("<=", context) + minus_mark + threshold
+            return _context_inequality_mark(">=", context) + threshold
+
+        # When sign is "-", flip ">=" to "<=" in a custom pattern
         if self.sign == "-":
-            if pattern == ">={x}":
-                pattern = "<=-{x}"
-            else:
-                pattern = pattern.replace(">=", "<=")
+            pattern = pattern.replace(">=", "<=")
 
-        text = pattern.replace("{x}", str(self.threshold))
+        text = pattern.replace("{x}", threshold)
         return _process_text(text, context=context)
+
+
+def _format_threshold(threshold: int | float) -> str:
+    """Write a `sub_small_vals()` / `sub_large_vals()` threshold compactly (e.g., `1e+12`).
+
+    As in R's default printing of numbers, exponent notation is used when it's shorter than fixed
+    notation (`1e+12` rather than `1000000000000`), and fixed notation otherwise (`0.01`, `1000`,
+    `123456789`). All of the threshold's significant digits are kept.
+    """
+    value = Decimal(repr(float(threshold))).normalize()
+    n_digits = len(value.as_tuple().digits)
+
+    fixed = format(value, "f")
+    scientific = f"{float(threshold):.{n_digits - 1}e}"
+
+    return scientific if len(scientific) < len(fixed) else fixed
+
+
+def _context_inequality_mark(mark: str, context: str) -> str:
+    """Get the `≥` / `≤` mark for `">="` / `"<="` in the output context."""
+    if context == "latex":
+        return "$\\geq$" if mark == ">=" else "$\\leq$"
+    return "\u2265" if mark == ">=" else "\u2264"
 
 
 @dataclass
