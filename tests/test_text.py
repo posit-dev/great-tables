@@ -120,4 +120,4 @@ def test_html_to_latex_escapes_special_chars():
 def test_html_to_latex_decodes_entities():
     assert Html("&mdash;").to_latex() == "\u2014"
     assert Html("a &amp; b").to_latex() == "a \\& b"
-    assert Html("&lt;b&gt;").to_latex() == "<b>"
+    assert Html("&lt;b&gt;").to_latex() == "\\textless{}b\\textgreater{}"
