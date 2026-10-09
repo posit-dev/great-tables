@@ -5159,8 +5159,9 @@ threshold
     The threshold value with which values should be considered small enough for replacement.
 small_pattern
     The pattern text to be used in place of the suitably small values in the rendered table.
-    The `{x}` placeholder within the pattern will be replaced with the threshold value. If not
-    provided, the default is `"<{x}"` for positive values and `">-{x}"` for negative values.
+    The `{x}` placeholder within the pattern will be replaced with the threshold value
+    (written compactly, e.g., `0.01` or `1e-04`). If not provided, the default is `"<{x}"` for
+    positive values and `">-{x}"` for negative values.
 sign
     The sign of the numbers to be considered in the replacement. By default, we only consider
     positive values (`"+"`). The other option (`"-"`) can be used to consider only negative
@@ -5235,12 +5236,15 @@ threshold
     The threshold value with which values should be considered large enough for replacement.
 large_pattern
     The pattern text to be used in place of the suitably large values in the rendered table.
-    The `{x}` placeholder within the pattern will be replaced with the threshold value.
+    The `{x}` placeholder within the pattern will be replaced with the threshold value
+    (written compactly, e.g., `1e+12` or `1000`). The default pattern, `">={x}"`, is shown with
+    a `≥` mark (e.g., `≥1e+12`).
 sign
     The sign of the numbers to be considered in the replacement. By default, we only consider
     positive values (`"+"`). The other option (`"-"`) can be used to consider only negative
     values. Note that when `sign="-"` and the default `large_pattern=">={x}"` is used, the
-    pattern is automatically changed to `"<=-{x}"`.
+    output is shown with a `≤` mark and the negative threshold (e.g., `≤−1e+12`); in a custom
+    pattern, `">="` is changed to `"<="`.
 
 Returns
 -------
@@ -14880,8 +14884,8 @@ above it with indicator text.
 gt_tbl.sub_large_vals(columns="revenue", threshold=1e10)
 ```
 
-The value `1e13` in the `revenue` column is now shown as `">=10000000000.0"` rather than displaying
-the full number. You can customize the pattern with the `large_pattern=` argument.
+The value `1e13` in the `revenue` column is now shown as `"≥1e+10"` rather than displaying the full
+number. You can customize the pattern with the `large_pattern=` argument.
 
 ```{python}
 gt_tbl.sub_large_vals(columns="revenue", threshold=1e10, large_pattern="OVER {x}")
