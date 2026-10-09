@@ -535,7 +535,31 @@ def test_tab_style_body_match_in_stub_column():
     from great_tables import style
 
     gt = _stub_gt().tab_style_body(
-        style=style.fill("red"), values=["y"], targets="row", extents=["body", "stub"]
+        style=style.fill("red"),
+        columns=["b", "n1"],
+        values=["y"],
+        targets="row",
+        extents=["body", "stub"],
     )
     cells = sorted((type(x.locname).__name__, x.colname, x.rownum) for x in gt._styles)
-    assert cells == [("LocBody", "n1", 1), ("LocBody", "n2", 1), ("LocStub", None, 1)]
+    assert cells == [("LocBody", "n1", 1), ("LocStub", None, 1)]
+
+
+def test_default_columns_exclude_stub_and_group():
+    # With no `columns=`, methods that can target the stub still only select the body columns
+    # (e.g., `fmt_integer()` mustn't try to format a string stub or group column)
+    from great_tables.gt import _get_column_of_values
+
+    gt = _stub_gt().fmt_integer()
+    assert _get_column_of_values(gt, column_name="n1", context="html") == ["2", "2", "4"]
+    assert _get_column_of_values(gt, column_name="a", context="html") == ["A", "A", "B"]
+
+    built = _stub_gt()._build_data("html")
+    expected = [("n1", 3), ("n2", 4)]
+    assert resolve_cols_i(built, None, excl_stub=False, excl_group=False) == expected
+
+
+def test_data_color_default_columns_exclude_stub():
+    # As in R gt, `data_color()` with no `columns=` colors the body cells only
+    gt = _stub_gt().data_color()
+    assert sorted({x.colname for x in gt._styles}) == ["n1", "n2"]
