@@ -197,7 +197,12 @@ class _StubSentinel:
 
 
 stub = _StubSentinel()
-"""Sentinel for selecting the stub column(s) in `~great_tables.GT.cols_width`.
+"""Sentinel for selecting the stub column(s).
+
+Use it in `~great_tables.GT.cols_width`, or in the `columns=` of methods that can target the stub
+(e.g., the `fmt_*()` methods, `~great_tables.GT.cols_align`, `~great_tables.GT.cols_hide`), as in
+`fmt_number(columns=stub(2))`. Methods that don't apply to the stub (e.g., spanners) skip it, just
+as they skip a stub column given by name.
 
 Pass this as a dictionary key to set the width of the stub column without risking a collision with a
 data column named `"stub"`:
