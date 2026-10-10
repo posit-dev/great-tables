@@ -680,11 +680,28 @@ def _generate_tokens_list(units_notation: str) -> list[str]:
 
     # Replace any instances of `/<text>` with `<text>^-1`
     tokens_list = [
-        re.sub(r"^/", "", x) + "^-1" if re.match(r"^/", x) and len(x) > 1 else x
-        for x in tokens_list
+        _invert_slashed_unit(x) if re.match(r"^/", x) and len(x) > 1 else x for x in tokens_list
     ]
 
     return tokens_list
+
+
+def _invert_slashed_unit(token: str) -> str:
+    # `/<unit>` is `<unit>^-1`, so an exponent already on the unit is negated rather than
+    # followed by a second one (`/m^3` is `m^-3`, not `m^3^-1`)
+    unit = token[1:]
+
+    if "^" not in unit:
+        return unit + "^-1"
+
+    base, exponent = unit.rsplit("^", 1)
+
+    # Keep the closing bracket of an overstruck subscript and exponent (e.g., `/h[_0^3]`)
+    closing = "]" if exponent.endswith("]") and "[" in base else ""
+    exponent = exponent.removesuffix(closing)
+    exponent = exponent[1:] if exponent.startswith("-") else "-" + exponent
+
+    return f"{base}^{exponent}{closing}"
 
 
 # Sub-pixel lengths are valid CSS, so a scaled padding keeps its fractional part.
