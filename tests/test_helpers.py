@@ -158,6 +158,30 @@ def assert_generate_tokens_list(units: str, x_out: str):
 
 
 @pytest.mark.parametrize(
+    "units, x_out",
+    [
+        ("/s", ["s^-1"]),
+        ("kg /m^3", ["kg", "m^-3"]),
+        ("m /s^2", ["m", "s^-2"]),
+        ("mol /m^-2", ["mol", "m^2"]),
+        ("/t_0^2", ["t_0^-2"]),
+        ("/h[_0^3]", ["h[_0^-3]"]),
+        ("t_0 / t_n", ["t_0", "/", "t_n"]),
+    ],
+)
+def test_generate_tokens_list_slashed_unit(units: str, x_out: list[str]):
+    assert _generate_tokens_list(units_notation=units) == x_out
+
+
+def test_define_units_slashed_unit_with_exponent():
+    x = define_units(units_notation="kg /m^3").to_html()
+    assert x == define_units(units_notation="kg m^-3").to_html()
+    assert x == (
+        'kg m<span style="white-space:nowrap;"><sup style="line-height:0;">&minus;3</sup></span>'
+    )
+
+
+@pytest.mark.parametrize(
     "content, x_out",
     [
         ("2"),
