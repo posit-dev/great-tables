@@ -823,7 +823,7 @@ def fmt_scientific_context(
         # Define the exponent string based on the `exp_style` that's not the default
         # value of 'x10n'
 
-        exp_str = _context_exp_str(exp_style=exp_style)
+        exp_str = _context_exp_str(exp_style=exp_style, context=context)
 
         n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
 
@@ -1152,7 +1152,7 @@ def fmt_engineering_context(
         # Define the exponent string based on the `exp_style` that's not the default
         # value of 'x10n'
 
-        exp_str = _context_exp_str(exp_style=exp_style)
+        exp_str = _context_exp_str(exp_style=exp_style, context=context)
 
         n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
 
@@ -6512,10 +6512,13 @@ def _context_exp_marks(context: str) -> list[str]:
     return marks
 
 
-def _context_exp_str(exp_style: str) -> str:
+def _context_exp_str(exp_style: str, context: str) -> str:
     if exp_style == "low-ten":
         # For the 'low-ten' style, use a specialized `exp_str` string value
-        exp_str = "<sub style='font-size: 65%;'>10</sub>"
+        if context == "latex":
+            exp_str = "\\textsubscript{10}"
+        else:
+            exp_str = "<sub style='font-size: 65%;'>10</sub>"
 
     elif _str_detect(exp_style, "^[a-zA-Z]{1}1?$"):
         # If there is a single letter (or a letter and a '1') then

@@ -1474,6 +1474,20 @@ def test_fmt_engineering_latex_output():
     assert "123.00" in x[1]
 
 
+@pytest.mark.parametrize(
+    "fmt_fn,x_out",
+    [
+        ("fmt_scientific", ["1.23\\textsubscript{10}08", "-1.23\\textsubscript{10}-04"]),
+        ("fmt_engineering", ["123.46\\textsubscript{10}06", "-123.00\\textsubscript{10}-06"]),
+    ],
+)
+def test_fmt_exp_style_low_ten_latex(fmt_fn: str, x_out: list[str]):
+    df = pd.DataFrame({"x": [123456789, -0.000123]})
+    gt = getattr(GT(df), fmt_fn)(columns="x", exp_style="low-ten")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert x == x_out
+
+
 # ------------------------------------------------------------------------------
 # Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
@@ -3841,7 +3855,7 @@ def test_context_exp_str_else_branch():
     from great_tables._formats import _context_exp_str
 
     # A completely unrecognized exp_style hits the else branch → returns "E"
-    result = _context_exp_str("ZZZZ")
+    result = _context_exp_str("ZZZZ", context="html")
     assert result == "E"
 
 
