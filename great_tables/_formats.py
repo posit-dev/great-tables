@@ -4923,13 +4923,10 @@ def _format_duration_iso(time_parts: list[tuple[str, int]]) -> str:
 
     result = "P"
     result += "".join(date_parts)
-    if date_parts:
-        # T separator always follows date parts (matching R gt behavior)
-        result += "T"
     if time_parts_iso:
-        if not date_parts:
-            # Time-only: no T separator when there are no date parts
-            pass
+        # The T designator must precede any time parts (`PT1M` is one minute while `P1M` would
+        # be one month) and is left out when there are no time parts
+        result += "T"
         result += "".join(time_parts_iso)
 
     return result
