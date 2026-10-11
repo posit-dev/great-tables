@@ -225,6 +225,16 @@ class TestSubSmallVals:
         body = [x for x in to_list(result._body.body["val"])]
         assert body == ["&lt;0.01", "0.01", "0.1", "1.0", "0.0"]
 
+    @pytest.mark.parametrize("dtype", ["int64", "float32"])
+    def test_method_pandas_numpy_dtypes(self, dtype: str):
+        """Values in Pandas columns (NumPy scalars) are substituted."""
+        df = pd.DataFrame({"val": [5, 50, -5, 0]}, dtype=dtype)
+        gt = GT(df).sub_small_vals(columns="val", threshold=10)
+        result = gt._render_formats("html")
+        body = to_list(result._body.body["val"])
+        assert body[0] == "&lt;10"
+        assert body[1:] == [str(x) for x in df["val"][1:]]
+
     def test_method_sign_validation(self):
         """Invalid sign raises ValueError."""
         df = pl.DataFrame({"val": [1.0]})
@@ -367,6 +377,16 @@ class TestSubLargeVals:
         body = [x for x in to_list(result._body.body["val"])]
         # Only 1e12 and 1e14 are >= 1e12
         assert body == ["0.0", "100.0", "10000000000.0", "≥1e+12", "≥1e+12"]
+
+    @pytest.mark.parametrize("dtype", ["int64", "float32"])
+    def test_method_pandas_numpy_dtypes(self, dtype: str):
+        """Values in Pandas columns (NumPy scalars) are substituted."""
+        df = pd.DataFrame({"val": [5, 500, -500, 0]}, dtype=dtype)
+        gt = GT(df).sub_large_vals(columns="val", threshold=100)
+        result = gt._render_formats("html")
+        body = to_list(result._body.body["val"])
+        assert body[1] == "≥100"
+        assert [body[0], *body[2:]] == [str(df["val"][i]) for i in (0, 2, 3)]
 
     def test_method_sign_validation(self):
         """Invalid sign raises ValueError."""

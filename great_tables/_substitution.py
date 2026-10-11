@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numbers
 import re
 from dataclasses import dataclass
 from decimal import Decimal
@@ -511,8 +512,8 @@ class SubSmallVals(Substitution):
     sign: str
 
     def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
-        # Only operate on numeric values
-        if not isinstance(x, (int, float)):
+        # Only operate on numeric values (including NumPy scalars, e.g., from a Pandas column)
+        if not isinstance(x, numbers.Real):
             return FormatterSkipElement()
 
         # Skip NA/NaN values
@@ -546,8 +547,8 @@ class SubLargeVals(Substitution):
     sign: str
 
     def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
-        # Only operate on numeric values
-        if not isinstance(x, (int, float)):
+        # Only operate on numeric values (including NumPy scalars, e.g., from a Pandas column)
+        if not isinstance(x, numbers.Real):
             return FormatterSkipElement()
 
         # Skip NA/NaN values
