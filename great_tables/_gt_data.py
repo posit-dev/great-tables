@@ -1115,7 +1115,10 @@ class TextTransformInfo:
     """Stores a text transformation function and the location to apply it."""
 
     loc: Loc
-    fn: Callable[[str], str]
+    # takes and returns a single cell value, or with `per_column=True`, the list of values of a
+    # whole column (used by `cols_align_decimal()`)
+    fn: Callable[[str], str] | Callable[[list[str]], list[str]]
+    per_column: bool = False
 
 
 # Column Merge ----

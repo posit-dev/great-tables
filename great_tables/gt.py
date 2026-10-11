@@ -6,7 +6,13 @@ from typing_extensions import Self
 
 # Main gt imports ----
 from ._body import body_reassemble
-from ._boxhead import cols_align, cols_label, cols_label_rotate, cols_label_with
+from ._boxhead import (
+    cols_align,
+    cols_align_decimal,
+    cols_label,
+    cols_label_rotate,
+    cols_label_with,
+)
 from ._cols_merge import perform_col_merge
 from ._data_color import data_color
 from ._export import as_latex, as_raw_html, gtsave, save, show, write_raw_html
@@ -121,6 +127,7 @@ from ._utils_render_html import (
 if TYPE_CHECKING:
     from ._gt_data import Body, Boxhead, Stub
     from ._helpers import BaseText
+    from ._locations import CellPos
 
 __all__ = ["GT"]
 
@@ -141,6 +148,7 @@ def _apply_text_transforms(data: GT, body: Body) -> Body:
 
         if isinstance(loc, LocBody):
             positions = resolve(loc, data)
+            cells = []
             for pos in positions:
                 cell_value = _get_cell(body.body, pos.row, pos.colname)
                 # If the cell is NA (unformatted), fall back to the raw data value
@@ -148,7 +156,21 @@ def _apply_text_transforms(data: GT, body: Body) -> Body:
                     cell_value = _get_cell(data._tbl_data, pos.row, pos.colname)
                     if is_na(data._tbl_data, cell_value):
                         continue
-                new_value = fn(str(cell_value))
+                cells.append((pos, str(cell_value)))
+
+            if transform.per_column:
+                by_column: dict[str, list[tuple[CellPos, str]]] = {}
+                for pos, value in cells:
+                    by_column.setdefault(pos.colname, []).append((pos, value))
+                cells = [
+                    (pos, new_value)
+                    for col_cells in by_column.values()
+                    for (pos, _), new_value in zip(col_cells, fn([value for _, value in col_cells]))
+                ]
+            else:
+                cells = [(pos, fn(value)) for pos, value in cells]
+
+            for pos, new_value in cells:
                 result = _set_cell(body.body, pos.row, pos.colname, new_value)
                 if result is not None:
                     body.body = result
@@ -430,6 +452,7 @@ class GT(
     opt_interactive = opt_interactive
 
     cols_align = cols_align
+    cols_align_decimal = cols_align_decimal
     cols_width = cols_width
     cols_label = cols_label
     cols_label_with = cols_label_with
