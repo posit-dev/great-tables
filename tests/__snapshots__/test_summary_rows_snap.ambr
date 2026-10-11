@@ -405,19 +405,19 @@
   '''
   \multicolumn{3}{l}{A} \\[2.5pt] 
   \midrule\addlinespace[2.5pt]
+  Group Min & 1 & 10 \\
+  \midrule\addlinespace[2.5pt]
   r1 & 1 & 10 \\
   r2 & 2 & 20 \\
   r3 & 3 & 30 \\
   \midrule\addlinespace[2.5pt]
-  Group Min & 1 & 10 \\
-  \midrule\addlinespace[2.5pt]
   \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  Group Min & 4 & 40 \\
   \midrule\addlinespace[2.5pt]
   r4 & 4 & 40 \\
   r5 & 5 & 50 \\
   r6 & 6 & 60 \\
-  \midrule\addlinespace[2.5pt]
-  Group Min & 4 & 40 \\
   \midrule\addlinespace[2.5pt]
   Grand Max & 6 & 60 \\
   '''
@@ -1769,20 +1769,22 @@
   '''
   \multicolumn{3}{l}{A} \\[2.5pt] 
   \midrule\addlinespace[2.5pt]
+  Min & 1 & 10 \\
+  \midrule\addlinespace[2.5pt]
   r1 & 1 & 10 \\
   r2 & 2 & 20 \\
   r3 & 3 & 30 \\
   \midrule\addlinespace[2.5pt]
-  Min & 1 & 10 \\
   Max & 3 & 30 \\
   \midrule\addlinespace[2.5pt]
   \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  Min & 4 & 40 \\
   \midrule\addlinespace[2.5pt]
   r4 & 4 & 40 \\
   r5 & 5 & 50 \\
   r6 & 6 & 60 \\
   \midrule\addlinespace[2.5pt]
-  Min & 4 & 40 \\
   Max & 6 & 60 \\
   '''
 # ---
@@ -1790,19 +1792,19 @@
   '''
   \multicolumn{3}{l}{A} \\[2.5pt] 
   \midrule\addlinespace[2.5pt]
+  Sum & 6 & 60 \\
+  \midrule\addlinespace[2.5pt]
   r1 & 1 & 10 \\
   r2 & 2 & 20 \\
   r3 & 3 & 30 \\
   \midrule\addlinespace[2.5pt]
-  Sum & 6 & 60 \\
-  \midrule\addlinespace[2.5pt]
   \multicolumn{3}{l}{B} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  Sum & 15 & 150 \\
   \midrule\addlinespace[2.5pt]
   r4 & 4 & 40 \\
   r5 & 5 & 50 \\
   r6 & 6 & 60 \\
-  \midrule\addlinespace[2.5pt]
-  Sum & 15 & 150 \\
   '''
 # ---
 # name: TestSummaryRowsLatexSnap.test_summary_three_groups

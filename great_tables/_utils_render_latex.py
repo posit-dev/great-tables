@@ -533,6 +533,22 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
                         first_group_added = True
                     body_rows.append(group_row)
 
+                # Group summary rows with `side="top"` go before the first row of the group
+                if data._summary_rows:
+                    top_group_summary = data._summary_rows.get_summary_rows(
+                        group_id=group_info.group_id, side="top"
+                    )
+
+                    if top_group_summary:
+                        for summary_row in top_group_summary:
+                            summary_str = _create_summary_row_l(
+                                summary_row=summary_row,
+                                column_vars=column_vars,
+                                n_stub_cols=len(stub_layout),
+                            )
+                            body_rows.append(summary_str)
+                        body_rows.append("\\midrule\\addlinespace[2.5pt]")
+
         # Create data row cells
         body_cells: list[str] = []
 
@@ -576,7 +592,7 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
 
         prev_group_info = group_info
 
-        # After the last row in a group, append group summary rows
+        # After the last row in a group, append group summary rows with `side="bottom"`
         if has_groups and group_info is not None and data._summary_rows:
             is_last_in_group = (
                 j == len(ordered_index) - 1 or ordered_index[j + 1][1] is not group_info
@@ -584,7 +600,9 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
 
             if is_last_in_group:
                 group_id = group_info.group_id
-                group_summary = data._summary_rows.get_summary_rows(group_id=group_id)
+                group_summary = data._summary_rows.get_summary_rows(
+                    group_id=group_id, side="bottom"
+                )
 
                 if group_summary:
                     body_rows.append("\\midrule\\addlinespace[2.5pt]")
