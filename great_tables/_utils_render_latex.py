@@ -622,12 +622,14 @@ def _create_summary_row_l(
     """Create a single LaTeX summary row."""
     cells: list[str] = []
 
+    summary_label = _process_text(summary_row.label, context="latex")
+
     # The summary label goes in the stub position, spanning all of the stub columns (a row group
     # column and any number of row name columns); with no stub it takes the first column position
     if n_stub_cols > 1:
-        cells.append(f"\\multicolumn{{{n_stub_cols}}}{{l}}{{{summary_row.label}}}")
+        cells.append(f"\\multicolumn{{{n_stub_cols}}}{{l}}{{{summary_label}}}")
     else:
-        cells.append(summary_row.label)
+        cells.append(summary_label)
 
     # Add data cells
     for colinfo in column_vars:
