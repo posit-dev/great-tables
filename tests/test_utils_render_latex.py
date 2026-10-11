@@ -784,3 +784,16 @@ def test_create_summary_row_l_both_stubs():
     result = _render_as_latex(built)
 
     assert "Total" in result
+
+
+@pytest.mark.parametrize(
+    "stub_args", [{}, {"rowname_col": "row"}, {"rowname_col": "row", "groupname_col": "group"}]
+)
+def test_render_as_latex_summary_row_label_escaped(stub_args: dict):
+    gt_tbl = GT(exibble[["num", "row", "group"]].head(2), **stub_args).grand_summary_rows(
+        fns={"Total & 50%": lambda df: df.sum(numeric_only=True)}
+    )
+    result = _render_as_latex(gt_tbl._build_data(context="latex"))
+
+    assert "Total \\& 50\\%" in result
+    assert "Total & 50%" not in result
