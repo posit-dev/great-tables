@@ -89,6 +89,7 @@
 
 
 - [GT.cols_align](https://posit-dev.github.io/great-tables/reference/GT.cols_align.html)
+- [GT.cols_align_decimal](https://posit-dev.github.io/great-tables/reference/GT.cols_align_decimal.html)
 - [GT.cols_width](https://posit-dev.github.io/great-tables/reference/GT.cols_width.html)
 - [GT.cols_label](https://posit-dev.github.io/great-tables/reference/GT.cols_label.html)
 - [GT.cols_label_with](https://posit-dev.github.io/great-tables/reference/GT.cols_label_with.html)

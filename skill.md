@@ -106,6 +106,7 @@ The `cols_*()` methods allow for modifications that act on entire columns. This 
 
 
 - `GT.cols_align`
+- `GT.cols_align_decimal`
 - `GT.cols_width`
 - `GT.cols_label`
 - `GT.cols_label_with`

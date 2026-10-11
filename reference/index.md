@@ -212,6 +212,9 @@ The `cols_*()` methods allow for modifications that act on entire columns. This 
 [GT.cols_align()](GT.cols_align.md#great_tables.GT.cols_align)  
 Set the alignment of one or more columns.
 
+[GT.cols_align_decimal()](GT.cols_align_decimal.md#great_tables.GT.cols_align_decimal)  
+Align all numeric values in a column along the decimal mark.
+
 [GT.cols_width()](GT.cols_width.md#great_tables.GT.cols_width)  
 Set the widths of columns.
 
