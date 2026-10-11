@@ -300,6 +300,11 @@ def test_align_to_char_matches_r_gt(values: list[str], expected: list[str]):
     assert _align_to_char(values) == expected
 
 
+def test_align_to_char_without_alignable_values():
+    values = ["NA", "\u2014", "n/a"]
+    assert _align_to_char(values) == values
+
+
 def _body_cells(html: str, align: str = "right") -> list[str]:
     return re.findall(rf'<td class="gt_row gt_{align}">(.*?)</td>', html)
 
@@ -322,6 +327,14 @@ def test_cols_align_decimal_skips_non_numeric_columns():
 
     assert [col.column_align for col in gt._boxhead] == ["left", "right"]
     assert _body_cells(gt.as_raw_html(), align="left") == ["a.b", "c"]
+
+
+def test_cols_align_decimal_no_numeric_columns():
+    gt = GT(pl.DataFrame({"char": ["a.b", "c"]}))
+    res = gt.cols_align_decimal()
+
+    assert [col.column_align for col in res._boxhead] == ["left"]
+    assert res._transforms == gt._transforms
 
 
 def test_cols_align_decimal_locale():
