@@ -1,8 +1,34 @@
 from __future__ import annotations
 
+import sys
+import warnings
 from typing import Any, Literal, get_args
 
 from importlib_resources import files
+
+# Star imports (`from great_tables.data import *`) give the official datasets and `load_dataset()`
+# only; in particular they don't bring in the `pd` and `pl` backend namespaces, which would replace
+# the conventional `pandas`/`polars` aliases. `islands` and `airquality` are left out as they aren't
+# official datasets (they aren't in R's gt and are planned for removal)
+__all__ = [
+    "countrypops",
+    "sza",
+    "gtcars",
+    "sp500",
+    "pizzaplace",
+    "exibble",
+    "towny",
+    "peeps",
+    "films",
+    "metro",
+    "gibraltar",
+    "constants",
+    "illness",
+    "reactions",
+    "photolysis",
+    "nuclides",
+    "load_dataset",
+]
 
 
 def _read_csv_pandas(fname: Any, dtype: dict[str, str] | None = None) -> Any:
@@ -1330,8 +1356,33 @@ $ mass_excess_uncert         <f64> 1.3e-05, 1.5e-05, 8e-05
 
 """
 
-islands = _read_csv(_islands_fname)  # type: ignore
-airquality = _read_csv(_airquality_fname)  # type: ignore
+# `islands` and `airquality` are deprecated: they aren't among R gt's datasets, so they'll be removed
+# in a future release. They're loaded (with a warning) on first access, via `__getattr__()` below
+_DEPRECATED_DATASETS = {"islands": _islands_fname, "airquality": _airquality_fname}
+_deprecated_cache: dict[str, Any] = {}
+
+
+def _warn_deprecated_dataset(name: str, stacklevel: int) -> None:
+    warnings.warn(
+        f"The `{name}` dataset is deprecated and will be removed in a future release, as it isn't "
+        "one of the gt datasets. Use one of the other datasets in `great_tables.data` (e.g., "
+        "`countrypops`, `towny`, or `exibble`) instead.",
+        FutureWarning,
+        stacklevel=stacklevel + 1,
+    )
+
+
+def __getattr__(name: str) -> Any:
+    if name in _DEPRECATED_DATASETS:
+        # `from great_tables.data import islands` looks the name up twice (first through
+        # `hasattr()` in the import machinery), so only warn on the lookup that does the import
+        if sys._getframe(1).f_code.co_name != "_handle_fromlist":
+            _warn_deprecated_dataset(name, stacklevel=2)
+        if name not in _deprecated_cache:
+            _deprecated_cache[name] = _read_csv(_DEPRECATED_DATASETS[name])
+        return _deprecated_cache[name]
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 _x_locales_fname = DATA_MOD / "x_locales.csv"
@@ -1434,6 +1485,8 @@ class _BackendNamespace:
     def __getattr__(self, name: str) -> Any:
         if name.startswith("_"):
             raise AttributeError(name)
+        if name in _DEPRECATED_DATASETS:
+            _warn_deprecated_dataset(name, stacklevel=2)
         if name in self._cache:
             return self._cache[name]
         if name not in _DATASETS:

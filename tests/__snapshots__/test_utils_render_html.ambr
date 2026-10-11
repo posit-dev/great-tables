@@ -39,14 +39,14 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2">A</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup">A</th>
     </tr>
     <tr>
       <td class="gt_row gt_right">0</td>
       <td class="gt_row gt_right">22</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2">B</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup">B</th>
     </tr>
     <tr>
       <td class="gt_row gt_right">1</td>
@@ -80,10 +80,10 @@
   </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="4" style="GROUP_LABEL">grp_a</th>
+      <th class="gt_group_heading" colspan="4" scope="colgroup" style="GROUP_LABEL">grp_a</th>
     </tr>
     <tr>
-      <th style="STUB ROW_LABEL" class="gt_row gt_left gt_stub">row_1</th>
+      <th style="STUB ROW_LABEL" scope="row" class="gt_row gt_left gt_stub">row_1</th>
       <td style="BODY" class="gt_row gt_right">0.1111</td>
       <td style="BODY" class="gt_row gt_left">apricot</td>
       <td style="BODY" class="gt_row gt_left">one</td>
@@ -158,25 +158,25 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2">A</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">0</th>
+      <th scope="row" class="gt_row gt_left gt_stub">0</th>
       <td class="gt_row gt_right">00</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">2</th>
       <td class="gt_row gt_right">22</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2">B</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">1</th>
       <td class="gt_row gt_right">11</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">3</th>
       <td class="gt_row gt_right">33</td>
     </tr>
   </tbody>
@@ -196,18 +196,18 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2">A</th>
-      <th class="gt_row gt_left gt_stub">0</th>
+      rowspan="2" scope="rowgroup">A</th>
+      <th scope="row" class="gt_row gt_left gt_stub">0</th>
       <td class="gt_row gt_right">22</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">1</th>
       <td class="gt_row gt_right">33</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="1">B</th>
-      <th class="gt_row gt_left gt_stub">2</th>
+      rowspan="1" scope="rowgroup">B</th>
+      <th scope="row" class="gt_row gt_left gt_stub">2</th>
       <td class="gt_row gt_right">44</td>
     </tr>
   </tbody>
@@ -218,7 +218,7 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2">A</th>
+      rowspan="2" scope="rowgroup">A</th>
       <td class="gt_row gt_right">0</td>
       <td class="gt_row gt_right">22</td>
     </tr>
@@ -228,7 +228,7 @@
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="1">B</th>
+      rowspan="1" scope="rowgroup">B</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">44</td>
     </tr>

@@ -11,7 +11,7 @@ from ._tbl_data import _get_cell, _set_cell, get_column_names, is_na, n_rows
 from ._text import BaseText, _process_text
 
 if TYPE_CHECKING:
-    from ._gt_data import FormatInfo, GTData
+    from ._gt_data import GTData
     from ._tbl_data import TblData
 
 
@@ -219,30 +219,20 @@ def _flatten_list(x: Any) -> list[Any]:
 # yet since that would result in a circular import. This will be fixed in the future (when HTML
 # escaping is implemented).
 def _migrate_unformatted_to_output(
-    data: GTData, data_tbl: TblData, formats: list[FormatInfo], context: str
+    data: GTData, data_tbl: TblData, formatted_cells: set[tuple[str, int]], context: str
 ) -> GTData:
     """
     Escape unformatted cells so they are safe for a specific output context.
+
+    A cell only counts as formatted if a formatter produced a value for it, so cells that every
+    formatter skipped (e.g., non-missing cells targeted by `sub_missing()`) are escaped too.
     """
-
-    all_formatted_cells: list[list[tuple[str, int]]] = []
-
-    for fmt in formats:
-        eval_func = getattr(fmt.func, context, fmt.func.default)
-        if eval_func is None:  # pragma: no cover
-            raise Exception("Internal Error")
-
-        # Accumulate all formatted cells in the table
-        all_formatted_cells.append(fmt.cells.resolve())
-
-    # Deduplicate the list of formatted cells
-    deduplicate_formatted_cells = list(set(_flatten_list(all_formatted_cells)))
 
     # Get all visible cells in the table
     all_visible_cells = _get_visible_cells(data=data_tbl)
 
     # Get the difference between the visible cells and the formatted cells
-    all_unformatted_cells = list(set(all_visible_cells) - set(deduplicate_formatted_cells))
+    all_unformatted_cells = list(set(all_visible_cells) - formatted_cells)
 
     for col, row in all_unformatted_cells:
         cell_value = _get_cell(data_tbl, row, col)
@@ -254,7 +244,10 @@ def _migrate_unformatted_to_output(
         cell_value_str = str(cell_value)
         result = _process_text(cell_value_str, context=context)
 
-        _set_cell(data._body.body, row, col, result)
+        new_body = _set_cell(data._body.body, row, col, result)
+        if new_body is not None:
+            # Some backends (e.g., PyArrow) return a new table rather than updating in place
+            data._body.body = new_body
 
     return data
 

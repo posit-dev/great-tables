@@ -25,21 +25,21 @@ the targeted location and appending the text to the footer.
 
 ```{python}
 from great_tables import GT, md, loc
-from great_tables.data import airquality
+from great_tables.data import gibraltar
 
-air_mini = airquality.head(5)
+weather_mini = gibraltar.head(5)[["date", "time", "temp", "humidity", "wind_speed", "pressure"]]
 
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Measured in parts per billion (ppbV).",
-        locations=loc.column_labels(columns="Ozone")
+        footnote="Air temperature in degrees Celsius.",
+        locations=loc.column_labels(columns="temp")
     )
 )
 ```
 
-The footnote mark (a superscript number) appears next to the `"Ozone"` column label, and the
+The footnote mark (a superscript number) appears next to the `"temp"` column label, and the
 corresponding text appears at the bottom of the table.
 
 ## Targeting Different Locations
@@ -53,11 +53,11 @@ Attaching a footnote to a column label is useful for clarifying units or methodo
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Solar radiation in Langleys (cal/cm²), measured 08:00–noon.",
-        locations=loc.column_labels(columns="Solar_R")
+        footnote="Relative humidity, as a value between 0 and 1.",
+        locations=loc.column_labels(columns="humidity")
     )
 )
 ```
@@ -68,11 +68,11 @@ You can annotate specific data cells by targeting them with `loc.body()`.
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Highest temperature in this sample.",
-        locations=loc.body(columns="Temp", rows=[0])
+        footnote="Lowest temperature in this sample.",
+        locations=loc.body(columns="temp", rows=[2])
     )
 )
 ```
@@ -83,10 +83,10 @@ Footnotes on the table header can provide methodological notes or data source co
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Data collected at a monitoring station in midtown Manhattan.",
+        footnote="Data collected at the airport's weather station, 5 m above mean sea level.",
         locations=loc.title()
     )
 )
@@ -100,19 +100,19 @@ footnote with its own sequenced mark. The marks are numbered in the order they a
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Mean ozone concentration, 13:00–15:00.",
-        locations=loc.column_labels(columns="Ozone")
+        footnote="Air temperature in degrees Celsius.",
+        locations=loc.column_labels(columns="temp")
     )
     .tab_footnote(
-        footnote="Maximum daily temperature in degrees Fahrenheit.",
-        locations=loc.column_labels(columns="Temp")
+        footnote="Atmospheric pressure in hectopascals.",
+        locations=loc.column_labels(columns="pressure")
     )
     .tab_footnote(
-        footnote="Measurement device was recalibrated on this day.",
-        locations=loc.body(columns="Ozone", rows=[2])
+        footnote="Highest wind speed in this sample.",
+        locations=loc.body(columns="wind_speed", rows=[1])
     )
 )
 ```
@@ -132,9 +132,9 @@ the `locations=` argument (or set it to `None`).
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
-    .tab_footnote(footnote="All measurements taken in New York City, 1973.")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
+    .tab_footnote(footnote="All observations are from Gibraltar Airport, May 2023.")
 )
 ```
 
@@ -150,11 +150,11 @@ The options are `"auto"` (the default), `"left"`, and `"right"`.
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote="Measured at ground level.",
-        locations=loc.column_labels(columns="Ozone"),
+        footnote="Wind speed in meters per second.",
+        locations=loc.column_labels(columns="wind_speed"),
         placement="left"
     )
 )
@@ -169,10 +169,10 @@ emphasis, links, or other inline formatting in your footnotes.
 
 ```{python}
 (
-    GT(air_mini)
-    .tab_header(title="New York Air Quality", subtitle="Daily measurements, May 1973")
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
     .tab_footnote(
-        footnote=md("Source: *Interactive Data Analysis* (McNeil, 1977)."),
+        footnote=md("Observations from the *Gibraltar Airport Station* (GIB)."),
         locations=loc.title()
     )
 )

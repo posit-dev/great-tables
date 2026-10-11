@@ -53,9 +53,9 @@ class Html(Text):
         return self.text
 
     def to_latex(self) -> str:
-        # html() is an HTML-only construct; for LaTeX, strip tags and escape
+        # html() is an HTML-only construct; for LaTeX, strip tags, decode entities and escape
         stripped = re.sub(r"<[^>]+>", "", self.text)
-        return _latex_escape(stripped)
+        return _latex_escape(html.unescape(stripped))
 
 
 def _md_html(x: str) -> str:
@@ -103,16 +103,20 @@ def _html_escape(x: str) -> str:
 
 
 # A backslash, a tilde and a circumflex have no prefixed form in LaTeX: a doubled backslash is a
-# line break, and a prefixed tilde or circumflex is an accent that takes the next character.
+# line break, and a prefixed tilde or circumflex is an accent that takes the next character. `<` and
+# `>` print as `¡` and `¿` under pdflatex's default (OT1) font encoding, so they're written as
+# macros too.
 _LATEX_MACRO_CHARS = {
     "\\": "\\textbackslash{}",
     "~": "\\textasciitilde{}",
     "^": "\\textasciicircum{}",
+    "<": "\\textless{}",
+    ">": "\\textgreater{}",
 }
 
 
 def _latex_escape(text: str) -> str:
-    latex_escape_regex = "[\\\\&%$#_{}~^]"
+    latex_escape_regex = "[\\\\&%$#_{}~^<>]"
     text = re.sub(
         latex_escape_regex,
         lambda match: _LATEX_MACRO_CHARS.get(match.group(), "\\" + match.group()),

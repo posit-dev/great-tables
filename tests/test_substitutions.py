@@ -6,7 +6,7 @@ import polars as pl
 import pyarrow as pa
 import polars.testing
 import pytest
-from great_tables import GT
+from great_tables import GT, md
 from great_tables._gt_data import FormatterSkipElement
 from great_tables._substitution import SubMissing, SubZero, SubSmallVals, SubLargeVals, SubValues
 from great_tables._tbl_data import DataFrameLike, to_list
@@ -47,13 +47,13 @@ def test_sub_missing_el_skip(df_empty: DataFrameLike):
 
 def test_sub_missing_meth(df):
     new_gt = GT(df).sub_missing("col1", missing_text="--")._render_formats("html")
-    assert_series_equals(new_gt._body.body["col1"], ["--", "--", None])
+    assert_series_equals(new_gt._body.body["col1"], ["--", "--", "0.0"])
 
 
 def test_sub_missing_meth_implicit_columns(df):
     # Drive by: https://github.com/posit-dev/great-tables/issues/667
     new_gt = GT(df).sub_missing(missing_text="--")._render_formats("html")
-    assert_series_equals(new_gt._body.body["col1"], ["--", "--", None])
+    assert_series_equals(new_gt._body.body["col1"], ["--", "--", "0.0"])
 
 
 @pytest.mark.parametrize("el", [0, 0.0])
@@ -68,6 +68,72 @@ def test_sub_zero_el_skip():
 def test_sub_zero_meth(df):
     new_gt = GT(df).sub_zero("col1", zero_text="no")._render_formats("html")
     assert_series_equals(new_gt._body.body["col1"], [None, None, "no"])
+
+
+def test_sub_missing_latex(df):
+    new_gt = GT(df).sub_missing("col1")._render_formats("latex")
+    assert to_list(new_gt._body.body["col1"])[:2] == ["\u2014", "\u2014"]
+
+    new_gt = GT(df).sub_missing("col1", missing_text="n/a & 50%")._render_formats("latex")
+    assert to_list(new_gt._body.body["col1"])[:2] == ["n/a \\& 50\\%", "n/a \\& 50\\%"]
+
+
+def test_sub_zero_latex(df):
+    new_gt = GT(df).sub_zero("col1", zero_text=md("**nil**"))._render_formats("latex")
+    assert_series_equals(new_gt._body.body["col1"], [None, None, "\\textbf{nil}"])
+
+
+def test_sub_vals_latex():
+    df = pl.DataFrame({"val": [0.001, 1e12, 5.0]})
+    gt = (
+        GT(df)
+        .sub_small_vals(columns="val")
+        .sub_large_vals(columns="val", large_pattern=">= {x} & up")
+        .sub_values(columns="val", values=[5.0], replacement="n_5")
+    )
+    body = to_list(gt._render_formats("latex")._body.body["val"])
+    # `<` and `>` are written as macros (they print as `¡` and `¿` under pdflatex's default fonts)
+    assert body == ["\\textless{}0.01", "\\textgreater{}= 1e+12 \\& up", "n\\_5"]
+
+
+@pytest.mark.parametrize(
+    "method,kwargs,x_in,x_html,x_latex",
+    [
+        # The default large pattern uses a `≥` / `≤` mark, as in R gt
+        ("sub_large_vals", dict(), 2e12, "\u22651e+12", "$\\geq$1e+12"),
+        ("sub_large_vals", dict(sign="-"), -2e12, "\u2264\u22121e+12", "$\\leq$-1e+12"),
+        ("sub_large_vals", dict(threshold=1000), 5000.0, "\u22651000", "$\\geq$1000"),
+        ("sub_large_vals", dict(threshold=123456789), 2e9, "\u2265123456789", "$\\geq$123456789"),
+        # Custom patterns are kept (with the threshold formatted compactly)
+        ("sub_large_vals", dict(large_pattern="over {x}"), 2e12, "over 1e+12", "over 1e+12"),
+        ("sub_small_vals", dict(), 0.001, "&lt;0.01", "\\textless{}0.01"),
+        ("sub_small_vals", dict(threshold=1e-4), 1e-5, "&lt;1e-04", "\\textless{}1e-04"),
+    ],
+)
+def test_sub_vals_threshold_text(method: str, kwargs: dict, x_in: float, x_html: str, x_latex: str):
+    gt = getattr(GT(pl.DataFrame({"val": [x_in]})), method)(columns="val", **kwargs)
+    assert to_list(gt._render_formats("html")._body.body["val"]) == [x_html]
+    assert to_list(gt._render_formats("latex")._body.body["val"]) == [x_latex]
+
+
+@pytest.mark.parametrize(
+    "threshold,x_out",
+    [
+        (1e12, "1e+12"),
+        (1e5, "1e+05"),
+        (1000, "1000"),
+        (0.01, "0.01"),
+        (1e-4, "1e-04"),
+        (123456789, "123456789"),
+        (12000000, "1.2e+07"),
+        (2.5e-7, "2.5e-07"),
+    ],
+)
+def test_format_threshold(threshold: float, x_out: str):
+    # Exponent notation only where it's shorter, as R prints numbers
+    from great_tables._substitution import _format_threshold
+
+    assert _format_threshold(threshold) == x_out
 
 
 # =============================================================================
@@ -157,7 +223,7 @@ class TestSubSmallVals:
         gt = GT(df).sub_small_vals(columns="val")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["val"])]
-        assert body == ["&lt;0.01", None, None, None, None]
+        assert body == ["&lt;0.01", "0.01", "0.1", "1.0", "0.0"]
 
     def test_method_sign_validation(self):
         """Invalid sign raises ValueError."""
@@ -198,7 +264,7 @@ class TestSubSmallVals:
         gt = GT(df).sub_small_vals(columns="lett")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["lett"])]
-        assert body == [None, None, None]
+        assert body == ["A", "B", "C"]
 
     def test_negative_threshold_same_as_positive(self):
         """Negative threshold is treated as abs(threshold)."""
@@ -221,8 +287,8 @@ class TestSubLargeVals:
     def test_basic_positive_default_threshold(self):
         """Values >= 1e12 are substituted."""
         subber = SubLargeVals(threshold=1e12, large_pattern=">={x}", sign="+")
-        assert subber.to_html(1e12) == "&gt;=1000000000000.0"
-        assert subber.to_html(1e13) == "&gt;=1000000000000.0"
+        assert subber.to_html(1e12) == "≥1e+12"
+        assert subber.to_html(1e13) == "≥1e+12"
 
     def test_below_threshold_skipped(self):
         """Values below threshold are not substituted."""
@@ -238,8 +304,8 @@ class TestSubLargeVals:
     def test_negative_sign(self):
         """With sign='-', large negative values (<= -threshold) are substituted."""
         subber = SubLargeVals(threshold=1e12, large_pattern=">={x}", sign="-")
-        assert subber.to_html(-1e12) == "&lt;=-1000000000000.0"
-        assert subber.to_html(-1e13) == "&lt;=-1000000000000.0"
+        assert subber.to_html(-1e12) == "≤−1e+12"
+        assert subber.to_html(-1e13) == "≤−1e+12"
 
     def test_negative_sign_above_neg_threshold_skipped(self):
         """Values above -threshold are not substituted when sign='-'."""
@@ -271,14 +337,14 @@ class TestSubLargeVals:
     def test_custom_threshold(self):
         """Custom threshold value works."""
         subber = SubLargeVals(threshold=100, large_pattern=">={x}", sign="+")
-        assert subber.to_html(100) == "&gt;=100"
-        assert subber.to_html(200) == "&gt;=100"
+        assert subber.to_html(100) == "≥100"
+        assert subber.to_html(200) == "≥100"
         assert isinstance(subber.to_html(99), FormatterSkipElement)
 
     def test_sign_flips_pattern(self):
-        """When sign='-', the default pattern becomes '<=-{x}'."""
+        """When sign='-', the default pattern is shown as '≤−{x}'."""
         subber = SubLargeVals(threshold=100, large_pattern=">={x}", sign="-")
-        assert subber.to_html(-100) == "&lt;=-100"
+        assert subber.to_html(-100) == "≤−100"
 
     def test_sign_flips_custom_pattern(self):
         """When sign='-', '>=' in a custom pattern is still auto-flipped to '<='."""
@@ -291,7 +357,7 @@ class TestSubLargeVals:
         gt = GT(df).sub_large_vals(columns="val", threshold=1000, sign="-")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["val"])]
-        assert body == [None, "&lt;=-1000", "&lt;=-1000"]
+        assert body == ["-10.0", "≤−1000", "≤−1000"]
 
     def test_method_integration(self):
         """End-to-end test using the GT method."""
@@ -300,7 +366,7 @@ class TestSubLargeVals:
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["val"])]
         # Only 1e12 and 1e14 are >= 1e12
-        assert body == [None, None, None, "&gt;=1000000000000.0", "&gt;=1000000000000.0"]
+        assert body == ["0.0", "100.0", "10000000000.0", "≥1e+12", "≥1e+12"]
 
     def test_method_sign_validation(self):
         """Invalid sign raises ValueError."""
@@ -325,7 +391,7 @@ class TestSubLargeVals:
         gt = GT(df).sub_large_vals(columns="lett")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["lett"])]
-        assert body == [None, None, None]
+        assert body == ["A", "B", "C"]
 
     def test_negative_threshold_same_as_positive(self):
         """Negative threshold is treated as abs(threshold)."""
@@ -439,7 +505,7 @@ class TestSubValues:
         gt = GT(df).sub_values(columns="col", values=[2, 4], replacement="even")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == [None, "even", None, "even", None]
+        assert body == ["1", "even", "3", "even", "5"]
 
     def test_method_pattern_integration(self):
         """End-to-end test using the GT method with pattern."""
@@ -447,7 +513,7 @@ class TestSubValues:
         gt = GT(df).sub_values(columns="col", pattern="^ap", replacement="fruit")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == ["fruit", None, "fruit", None]
+        assert body == ["fruit", "banana", "fruit", "cherry"]
 
     def test_method_fn_integration(self):
         """End-to-end test using the GT method with fn."""
@@ -455,7 +521,7 @@ class TestSubValues:
         gt = GT(df).sub_values(columns="col", fn=lambda x: x > 25, replacement="big")
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == [None, None, "big", "big", "big"]
+        assert body == ["10", "20", "big", "big", "big"]
 
     def test_method_requires_matching_arg(self):
         """Must supply one of values, pattern, or fn."""
@@ -485,7 +551,7 @@ class TestSubValues:
         )
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == ["zero", "seventy-four", None]
+        assert body == ["zero", "seventy-four", "500"]
 
     def test_last_call_wins_for_same_value(self):
         """When the same value is targeted by multiple sub_values, the last one wins."""
@@ -497,7 +563,7 @@ class TestSubValues:
         )
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
-        assert body == ["second", None]
+        assert body == ["second", "100"]
 
     def test_fn_operates_across_columns(self):
         """fn matching works across numeric and character columns."""
@@ -509,8 +575,8 @@ class TestSubValues:
         num_body = [x for x in to_list(result._body.body["num"])]
         lett_body = [x for x in to_list(result._body.body["lett"])]
         # Only the negative number is replaced; letters are unaffected
-        assert num_body == ["neg", None, None, None]
-        assert lett_body == [None, None, None, None]
+        assert num_body == ["neg", "0", "5", "50"]
+        assert lett_body == ["A", "B", "C", "D"]
 
     def test_pattern_does_not_match_numeric_columns(self):
         """Pattern matching only targets string columns, not numeric."""
@@ -521,10 +587,10 @@ class TestSubValues:
         lett_body = [x for x in to_list(result._body.body["lett"])]
 
         # Pattern should not match numeric column
-        assert num_body == [None, None, None]
+        assert num_body == ["0", "1", "500"]
 
         # Pattern should match string column containing "0"
-        assert lett_body == ["matched", None, None]
+        assert lett_body == ["matched", "B1", "C2"]
 
     def test_html_escaping_in_replacement(self):
         """Replacement text is HTML-escaped by default."""
@@ -533,7 +599,7 @@ class TestSubValues:
         result = gt._render_formats("html")
         body = [x for x in to_list(result._body.body["col"])]
 
-        assert body == ["&lt;b&gt;bold&lt;/b&gt;", None]
+        assert body == ["&lt;b&gt;bold&lt;/b&gt;", "B"]
 
 
 def test_sub_missing_none_text_uses_mdash():

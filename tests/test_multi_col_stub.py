@@ -107,7 +107,7 @@ def test_multi_col_stub_grid_is_consistent(frame, stub, groups, stubhead, spanne
         lambda gt: gt.cols_hide("a"),
         lambda gt: gt.cols_hide("b"),
         lambda gt: gt.cols_hide("a").cols_unhide("a"),
-        lambda gt: gt.cols_move_to_start("b"),
+        lambda gt: gt.cols_move_to_start("n2"),
         lambda gt: gt.cols_label(a="Outer").cols_width(cases={"a": "50px"}),
     ],
 )
@@ -211,7 +211,9 @@ def test_multi_col_stub_summary_label_spans_stub():
     body = gt.as_raw_html().split("<tbody")[1]
 
     assert body.count(">Total</th>") == 1
-    assert re.search(r'<th colspan="2" class="[^"]*gt_grand_summary_row[^"]*">Total</th>', body)
+    assert re.search(
+        r'<th colspan="2" scope="row" class="[^"]*gt_grand_summary_row[^"]*">Total</th>', body
+    )
 
 
 def test_multi_col_stub_merges_displayed_values():
@@ -226,7 +228,8 @@ def test_multi_col_stub_merges_displayed_values():
     )
     body = gt.as_raw_html().split("<tbody")[1]
     stub_cells = re.findall(
-        r'<th(?: rowspan="(\d+)")? class="gt_row gt_left gt_stub">(.*?)</th>', body
+        r'<th(?: rowspan="(\d+)")? scope="row(?:group)?" class="gt_row gt_left gt_stub">(.*?)</th>',
+        body,
     )
 
     assert stub_cells == [
@@ -274,7 +277,12 @@ def test_multi_col_stub_stubhead_footnote_once_and_unique_ids():
 def test_multi_col_stub_stub_selector_selects_all_levels():
     built = GT(pl.DataFrame(DATA), rowname_col=["b", "a"])._build_data("html")
 
-    assert resolve_cols_i(built, ["stub()"]) == [("b", 1), ("a", 0)]
+    assert resolve_cols_i(built, ["stub()"], excl_stub=False) == [("b", 1), ("a", 0)]
+    assert resolve_cols_i(built, [stub], excl_stub=False) == [("b", 1), ("a", 0)]
+    assert resolve_cols_i(built, [stub(1), "n1"], excl_stub=False) == [("a", 0), ("n1", 4)]
+
+    # Stub selectors are excluded like the stub column names, unless `excl_stub=False`
+    assert resolve_cols_i(built, [stub]) == []
 
 
 def test_multi_col_stub_body_snap(snapshot):

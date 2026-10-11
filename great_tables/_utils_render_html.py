@@ -903,7 +903,7 @@ def create_body_component_h(data: GTData) -> str:
                     )
 
                     leading_cell = f"""  <th{group_styles} class="gt_row gt_left gt_stub_row_group"
-    rowspan="{rowspan_value}">{group_label}</th>"""
+    rowspan="{rowspan_value}" scope="rowgroup">{group_label}</th>"""
 
                 # Append a table row for the group heading
                 else:
@@ -914,9 +914,10 @@ def create_body_component_h(data: GTData) -> str:
                     group_class = (
                         "gt_empty_group_heading" if group_label == "" else "gt_group_heading_row"
                     )
+                    group_scope = "colgroup" if colspan_value > 1 else "col"
 
                     group_row = f"""  <tr class="{group_class}">
-    <th class="gt_group_heading" colspan="{colspan_value}"{group_styles}>{group_label}</th>
+    <th class="gt_group_heading" colspan="{colspan_value}" scope="{group_scope}"{group_styles}>{group_label}</th>
   </tr>"""
 
                     body_rows.append(group_row)
@@ -1112,17 +1113,19 @@ def _create_row_component_h(
             # Span across all row stub columns with a single label cell.
             colspan_attr = f' colspan="{n_row_stub_cols}"' if n_row_stub_cols > 1 else ""
             body_cells.append(
-                f"""    <th{cell_styles}{colspan_attr} class="{classes_str}">{stub_label}</th>"""
+                f"""    <th{cell_styles}{colspan_attr} scope="row" class="{classes_str}">{stub_label}</th>"""
             )
         elif has_row_stub_column:
             # Grand summary rows must span the group stub column AND all row stub columns.
             grand_colspan = 1 + n_row_stub_cols
             body_cells.append(
-                f"""    <th{cell_styles} class="{classes_str}" colspan="{grand_colspan}">{stub_label}</th>"""
+                f"""    <th{cell_styles} class="{classes_str}" colspan="{grand_colspan}" scope="row">{stub_label}</th>"""
             )
         else:
             # Grand summary rows with only group stub column (no row stub)
-            body_cells.append(f"""    <th{cell_styles} class="{classes_str}">{stub_label}</th>""")
+            body_cells.append(
+                f"""    <th{cell_styles} scope="row" class="{classes_str}">{stub_label}</th>"""
+            )
 
         # Skip stub columns in column_vars since we've already handled the stub
         column_vars_to_process = [column for column in column_vars if not column.is_stub]
@@ -1289,6 +1292,7 @@ def _create_row_component_h(
 
         # Cells of a hierarchical stub may span rows (or be covered by a span from above)
         span_attr = ""
+        scope_attr = ""
         if colinfo.is_stub:
             if is_summary_row:
                 span_attr = summary_label_colspan
@@ -1301,8 +1305,11 @@ def _create_row_component_h(
                     span_attr = f' rowspan="{rowspan_val}"'
             stub_cell_idx += 1
 
+            # A stub cell is the header of its row, or of the group of rows it spans (as in R gt)
+            scope_attr = ' scope="rowgroup"' if span_attr.startswith(" rowspan") else ' scope="row"'
+
         body_cells.append(
-            f"""    <{el_name}{cell_styles}{span_attr} class="{classes_str}">{cell_str}</{el_name}>"""
+            f"""    <{el_name}{cell_styles}{span_attr}{scope_attr} class="{classes_str}">{cell_str}</{el_name}>"""
         )
 
     tr_open = f'  <tr class="{row_class}">' if row_class else "  <tr>"

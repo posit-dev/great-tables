@@ -3,33 +3,33 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2">a</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup">a</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">1</th>
       <td class="gt_row gt_left">val</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">3</th>
       <td class="gt_row gt_left gt_striped">val</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">5</th>
       <td class="gt_row gt_left">val</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2">b</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup">b</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">2</th>
       <td class="gt_row gt_left gt_striped">val</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">4</th>
       <td class="gt_row gt_left">val</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">6</th>
       <td class="gt_row gt_left gt_striped">val</td>
     </tr>
   </tbody>
@@ -1995,22 +1995,22 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2">grp_a</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup">grp_a</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">row_1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">row_1</th>
       <td class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">row_2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">row_2</th>
       <td class="gt_row gt_left gt_striped">banana</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">row_3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">row_3</th>
       <td class="gt_row gt_left">coconut</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">row_4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">row_4</th>
       <td class="gt_row gt_left gt_striped">durian</td>
     </tr>
   </tbody>
@@ -2020,22 +2020,22 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2">grp_a</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup">grp_a</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">row_1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">row_1</th>
       <td class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_striped">row_2</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_striped">row_2</th>
       <td class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">row_3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">row_3</th>
       <td class="gt_row gt_left">coconut</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_striped">row_4</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_striped">row_4</th>
       <td class="gt_row gt_left">durian</td>
     </tr>
   </tbody>

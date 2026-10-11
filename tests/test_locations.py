@@ -2,7 +2,7 @@ import pandas as pd
 import polars as pl
 import polars.selectors as cs
 import pytest
-from great_tables import GT
+from great_tables import GT, stub
 from great_tables._gt_data import Spanners
 from great_tables._locations import (
     CellPos,
@@ -390,10 +390,10 @@ def test_resolve_cols_i_stub_expr():
     # Resolve_cols_i with "stub()" in expr list returns stub column
     gt = GT(pd.DataFrame({"x": [1, 2], "y": [3, 4]}), rowname_col="x")
     built = gt._build_data("html")
-    result = resolve_cols_i(built, ["stub()"])
 
-    # When stub_var exists, returns [(stub_var[0], 1)]
-    assert isinstance(result, list)
+    # The stub column is excluded by default, like a stub column given by name
+    assert resolve_cols_i(built, ["stub()"]) == []
+    assert resolve_cols_i(built, ["stub()"], excl_stub=False) == [("x", 0)]
 
 
 def test_resolve_cols_i_null_means_nothing():
@@ -403,3 +403,163 @@ def test_resolve_cols_i_null_means_nothing():
     result = resolve_cols_i(built, None, null_means="nothing")
 
     assert result == []
+
+
+# Stub and row group columns in column selections ----------------------------------------------
+
+
+def _stub_gt():
+    from great_tables import GT
+
+    df = pl.DataFrame(
+        {
+            "a": ["A", "A", "B"],
+            "b": ["x", "y", "z"],
+            "g": ["G", "G", "H"],
+            "n1": [1.5, 2.5, 3.5],
+            "n2": [4, 5, 6],
+        }
+    )
+    return GT(df, rowname_col=["a", "b"], groupname_col="g")
+
+
+@pytest.mark.parametrize("columns", ["b", ["a", "n1"], stub, stub(2)])
+def test_loc_body_stub_columns_raise(columns):
+    from great_tables import loc, style
+
+    with pytest.raises(ValueError, match="can't target stub columns.*loc.stub"):
+        _stub_gt().tab_style(style.fill("red"), loc.body(columns=columns))
+
+
+def test_loc_body_stub_column_footnote_raises():
+    # A footnote on a stub cell via `loc.body()` used to be listed with no mark in the table
+    from great_tables import loc
+
+    with pytest.raises(ValueError, match="can't target stub columns"):
+        _stub_gt().tab_footnote("note", loc.body(columns="b", rows=[0]))
+
+
+def test_loc_body_group_column_raises():
+    from great_tables import loc, style
+
+    with pytest.raises(ValueError, match="can't target the row group column.*loc.row_groups"):
+        _stub_gt().tab_style(style.fill("red"), loc.body(columns="g"))
+
+
+def test_loc_body_selector_skips_stub_and_group_columns():
+    from great_tables import loc, style
+
+    gt = _stub_gt().tab_style(style.fill("red"), loc.body(columns=cs.all()))
+    assert sorted({x.colname for x in gt._styles}) == ["n1", "n2"]
+
+
+@pytest.mark.parametrize(
+    "columns,x_out",
+    [
+        (stub, [("a", 0), ("b", 1)]),
+        (stub(1), [("b", 1)]),
+        (stub(2), [("a", 0)]),
+        ([stub(1), "n2"], [("b", 1), ("n2", 4)]),
+        (["stub()"], [("a", 0), ("b", 1)]),
+    ],
+)
+def test_resolve_cols_i_stub_selectors(columns, x_out):
+    built = _stub_gt()._build_data("html")
+    assert resolve_cols_i(built, columns, excl_stub=False) == x_out
+
+    # Like stub column names, stub selectors are excluded unless `excl_stub=False`
+    assert [x for x in resolve_cols_i(built, columns) if x[0] in ("a", "b")] == []
+
+
+def test_resolve_cols_i_stub_selector_level_too_large():
+    built = _stub_gt()._build_data("html")
+    with pytest.raises(ValueError, match="stub level 3"):
+        resolve_cols_i(built, stub(3), excl_stub=False)
+
+
+def test_resolve_cols_i_excludes_stub_and_group_by_default():
+    built = _stub_gt()._build_data("html")
+
+    assert resolve_cols_i(built, ["a", "g", "n1"]) == [("n1", 3)]
+    assert resolve_cols_i(built, ["a", "g", "n1"], excl_stub=False) == [("a", 0), ("n1", 3)]
+    assert resolve_cols_i(built, ["a", "g", "n1"], excl_group=False) == [("g", 2), ("n1", 3)]
+
+
+def test_fmt_can_target_stub_columns():
+    from great_tables.gt import _get_column_of_values
+
+    gt = _stub_gt().fmt(lambda x: x.upper(), columns=stub(1)).fmt(lambda x: f"<{x}>", columns="a")
+    assert _get_column_of_values(gt, column_name="b", context="html") == ["X", "Y", "Z"]
+    assert _get_column_of_values(gt, column_name="a", context="html") == ["<A>", "<A>", "<B>"]
+
+
+def test_tab_spanner_excludes_stub_columns():
+    gt = _stub_gt().tab_spanner("S", columns=["a", "n1"])
+    assert [x.vars for x in gt._spanners] == [["n1"]]
+
+
+@pytest.mark.parametrize(
+    "method,kwargs,arg",
+    [
+        ("cols_move_to_start", dict(columns="a"), "columns"),
+        ("cols_move_to_end", dict(columns=["n1", "b"]), "columns"),
+        ("cols_move", dict(columns="n2", after="b"), "after"),
+        ("cols_move", dict(columns="g", after="n1"), "columns"),
+    ],
+)
+def test_cols_move_stub_or_group_columns_raise(method: str, kwargs: dict, arg: str):
+    with pytest.raises(ValueError, match=f"`{arg}=` can't include stub or row group columns"):
+        getattr(_stub_gt(), method)(**kwargs)
+
+
+def test_cols_hide_and_unhide_stub_column():
+    gt = _stub_gt().cols_hide("a")
+    assert [x.var for x in gt._boxhead if not x.visible] == ["a"]
+
+    gt = gt.cols_unhide("a")
+    assert [x.var for x in gt._boxhead if not x.visible] == []
+
+
+@pytest.mark.parametrize("rows,x_out", [("A", [0, 1]), ("y", [1]), (["B", "x"], [0, 2])])
+def test_loc_stub_row_names_match_any_stub_column(rows, x_out: list[int]):
+    # Without `columns=`, row names are matched against every stub column (as in R gt)
+    from great_tables import loc, style
+
+    gt = _stub_gt().tab_style(style.fill("red"), loc.stub(rows=rows))
+    assert sorted({x.rownum for x in gt._styles}) == x_out
+
+
+def test_tab_style_body_match_in_stub_column():
+    # A match in a stub column styles the stub (with `extents="stub"`), never a body cell for
+    # the stub column
+    from great_tables import style
+
+    gt = _stub_gt().tab_style_body(
+        style=style.fill("red"),
+        columns=["b", "n1"],
+        values=["y"],
+        targets="row",
+        extents=["body", "stub"],
+    )
+    cells = sorted((type(x.locname).__name__, x.colname, x.rownum) for x in gt._styles)
+    assert cells == [("LocBody", "n1", 1), ("LocStub", None, 1)]
+
+
+def test_default_columns_exclude_stub_and_group():
+    # With no `columns=`, methods that can target the stub still only select the body columns
+    # (e.g., `fmt_integer()` mustn't try to format a string stub or group column)
+    from great_tables.gt import _get_column_of_values
+
+    gt = _stub_gt().fmt_integer()
+    assert _get_column_of_values(gt, column_name="n1", context="html") == ["2", "2", "4"]
+    assert _get_column_of_values(gt, column_name="a", context="html") == ["A", "A", "B"]
+
+    built = _stub_gt()._build_data("html")
+    expected = [("n1", 3), ("n2", 4)]
+    assert resolve_cols_i(built, None, excl_stub=False, excl_group=False) == expected
+
+
+def test_data_color_default_columns_exclude_stub():
+    # As in R gt, `data_color()` with no `columns=` colors the body cells only
+    gt = _stub_gt().data_color()
+    assert sorted({x.colname for x in gt._styles}) == ["n1", "n2"]

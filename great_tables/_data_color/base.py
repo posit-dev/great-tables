@@ -12,7 +12,6 @@ from great_tables._tbl_data import (
     DataFrameLike,
     SelectExpr,
     _get_column_levels,
-    get_column_names,
     get_rows,
     is_na,
     to_list,
@@ -454,14 +453,9 @@ def data_color(
     # Get the internal data table
     data_table = self._tbl_data
 
-    # If `columns` is a single value, convert it to a list; if it is None then
-    # get a list of all columns in the table body
-    columns_resolved: list[str]
-
-    if columns is None:
-        columns_resolved = get_column_names(data_table)
-    else:
-        columns_resolved = resolve_cols_c(data=self, expr=columns)
+    # Get the targeted columns; with no `columns=`, these are all of the columns in the table body
+    # (the stub and row group columns are excluded, as in R gt)
+    columns_resolved = resolve_cols_c(data=self, expr=columns)
 
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]

@@ -22,17 +22,22 @@ looks with a *title* and a *subtitle*:
 
 ```{python}
 from great_tables import GT, md, html
-from great_tables.data import islands
+from great_tables.data import countrypops
 
-islands_mini = islands.head(10)
+# Get the ten most populous countries in 2022
+countries_mini = (
+    countrypops[countrypops["year"] == 2022]
+    .sort_values("population", ascending=False)
+    .head(10)[["country_name", "population"]]
+)
 
-# Make a display table with the `islands_tbl` table and
+# Make a display table with the `countries_mini` table and
 # put a heading just above the column labels
 (
-    GT(islands_mini)
+    GT(countries_mini)
     .tab_header(
-        title = "Large Landmasses of the World",
-        subtitle = "The top ten largest are presented"
+        title = "The World's Most Populous Countries",
+        subtitle = "The top ten in 2022 are presented"
     )
 )
 ```
@@ -47,13 +52,13 @@ allows us to insert a subtitle, which is an optional part of the **Header**. We 
 an example with the table data truncated for brevity:
 
 ```{python}
-# Make a display table with the `islands_tbl` table and
+# Make a display table with the `countries_mini` table and
 # put a heading just above the column labels
 gt_tbl = (
-    GT(islands.head(2))
+    GT(countries_mini.head(2))
     .tab_header(
-        title = md("Large Landmasses of the *World* &#x1F310;"),
-        subtitle = md("The top **ten** largest are presented")
+        title = md("The *World's* Most Populous Countries &#x1F310;"),
+        subtitle = md("The top **ten** in 2022 are presented")
     )
 )
 
@@ -70,14 +75,14 @@ method. It works in the same way as `~~GT.tab_header()` (it also allows for Mark
 it can be called multiple times. Each invocation results in the addition of a source note.
 
 ```{python}
-# Display the `islands_tbl` data with a heading and two source notes
+# Display the `countries_mini` data with a heading and two source notes
 (
     gt_tbl
     .tab_source_note(
-        source_note = "Source: The World Almanac and Book of Facts, 1975, page 406."
+        source_note = "Total population counts all residents regardless of legal status or citizenship."
     )
     .tab_source_note(
-        source_note = md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
+        source_note = md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
     )
 )
 ```
@@ -107,27 +112,27 @@ useful (the display tables presented earlier looked just fine without one).
 An easy way to generate a **Stub** part is by specifying a stub column in the `GT()` class with the
 `rowname_col=` argument. This will signal to **Great Tables** that the named column should be used
 as the stub, using the contents of that column to make *row labels*. Let's add a stub with our
-`islands` dataset by using `rowname_col=` in the call to `GT`:
+`countries_mini` table by using `rowname_col=` in the call to `GT`:
 
 ```{python}
-GT(islands_mini).tab_stub(rowname_col="name")
+GT(countries_mini).tab_stub(rowname_col="country_name")
 ```
 
-Notice that the landmass names are now placed to the left? That's the **Stub**. Notably, there is a
+Notice that the country names are now placed to the left? That's the **Stub**. Notably, there is a
 prominent border to the right of it but there's no label above the **Stub**. We can change this and
 apply what's known as a *stubhead label* through use of the `~~GT.tab_stubhead()` method:
 
 ```{python}
 (
-    GT(islands_mini)
-    .tab_stub(rowname_col="name")
-    .tab_stubhead(label="landmass")
+    GT(countries_mini)
+    .tab_stub(rowname_col="country_name")
+    .tab_stubhead(label="country")
 )
 ```
 
 A very important thing to note here is that the table now has one column. Before, when there was no
-**Stub**, two columns were present (with the **Column Labels** of `"name"` and `"size"`) but now
-column number `1` (the only column remaining) is `size`.
+**Stub**, two columns were present (with the **Column Labels** of `"country_name"` and
+`"population"`) but now column number `1` (the only column remaining) is `population`.
 
 ## Row Groups
 
@@ -138,21 +143,26 @@ groups do that work up front.
 Let's incorporate row groups into the display table. This divides rows into groups, creating
 *row groups*, and results in a display of a *row group labels* right above each group. This can be
 easily done with a table containing row labels and the key is to use the `groupname_col=` argument
-of the `GT` class. Here we will create three row groups (with row group labels `"continent"`,
-`"country"`, and `"subregion"`) to have a grouping of rows.
+of the `GT` class. Here we will create four row groups (with row group labels `"Asia"`,
+`"Americas"`, `"Africa"`, and `"Europe"`) to have a grouping of rows.
 
 ```{python}
-island_groups = islands.head(10).assign(group = ["subregion"] * 2 + ["country"] * 2 + ["continent"] * 6)
+regions = {
+    "India": "Asia", "China": "Asia", "Indonesia": "Asia", "Pakistan": "Asia",
+    "Bangladesh": "Asia", "United States": "Americas", "Brazil": "Americas",
+    "Mexico": "Americas", "Nigeria": "Africa", "Russian Federation": "Europe",
+}
+
+country_groups = countries_mini.assign(region = countries_mini["country_name"].map(regions))
 
 (
-    GT(island_groups)
-    .tab_stub(rowname_col="name", groupname_col="group")
-    .tab_stubhead(label="landmass")
+    GT(country_groups)
+    .tab_stub(rowname_col="country_name", groupname_col="region")
+    .tab_stubhead(label="country")
 )
 ```
 
-The table now groups its rows by continent, country, and subregion, with labels appearing above each
-group. Row groups make it much easier for readers to scan and compare related entries.
+The table now groups its rows by region, with labels appearing above each group. Row groups make it much easier for readers to scan and compare related entries.
 
 ## GT Convenience Arguments
 
@@ -160,7 +170,7 @@ Rather than using the `~~GT.tab_stub()` method, the `GT(rowname_col=..., groupna
 arguments provide a quick way to specify row names and groups.
 
 ```{python}
-GT(island_groups, rowname_col="name", groupname_col="group")
+GT(country_groups, rowname_col="country_name", groupname_col="region")
 ```
 
 The stub provides a clear organizational framework for your data by separating identifiers from

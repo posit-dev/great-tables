@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Literal
 from typing_extensions import TypeAlias, TypedDict
 
 from ._boxhead import cols_label
-from ._gt_data import ColMergeInfo, SpannerInfo, Spanners
+from ._gt_data import ColInfoTypeEnum, ColMergeInfo, SpannerInfo, Spanners
 from ._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
 from ._tbl_data import SelectExpr
 from ._text import BaseText, Text
@@ -481,6 +481,30 @@ def _validate_sel_cols(columns: SelectExpr, sel_cols: list[str], col_vars: list[
         raise ValueError("All `columns` must exist and be visible in the input `data` table.")
 
 
+def _check_movable(data: GTSelf, columns: SelectExpr, arg: str = "columns") -> None:
+    """Raise if stub or row group columns are named in a `cols_move*()` method.
+
+    Their position is set by `rowname_col=` / `groupname_col=` in `GT()`, so (as in R gt) they
+    can't be selected for moving or as the `after=` column.
+    """
+
+    named = [columns] if isinstance(columns, str) else columns
+    if not isinstance(named, list):
+        return
+
+    stub_or_group = [
+        *data._boxhead.vars_from_type(ColInfoTypeEnum.stub),
+        *data._boxhead.vars_from_type(ColInfoTypeEnum.row_group),
+    ]
+    named_stub = [x for x in named if isinstance(x, str) and x in stub_or_group]
+
+    if named_stub:
+        raise ValueError(
+            f"`{arg}=` can't include stub or row group columns ({', '.join(map(repr, named_stub))}); "
+            "their position is set by `rowname_col=` and `groupname_col=` in `GT()`."
+        )
+
+
 def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     """Move one or more columns.
 
@@ -538,6 +562,9 @@ def cols_move(self: GTSelf, columns: SelectExpr, after: str) -> GTSelf:
     # If `columns` is a string, convert it to a list
     if isinstance(columns, str):
         columns = [columns]
+
+    _check_movable(self, columns)
+    _check_movable(self, after, arg="after")
 
     sel_cols = resolve_cols_c(data=self, expr=columns)
 
@@ -624,6 +651,8 @@ def cols_move_to_start(self: GTSelf, columns: SelectExpr) -> GTSelf:
     if isinstance(columns, str):
         columns = [columns]
 
+    _check_movable(self, columns)
+
     sel_cols = resolve_cols_c(data=self, expr=columns)
 
     col_vars = [col.var for col in self._boxhead]
@@ -689,6 +718,8 @@ def cols_move_to_end(self: GTSelf, columns: SelectExpr) -> GTSelf:
     # If `columns` is a string, convert it to a list
     if isinstance(columns, str):
         columns = [columns]
+
+    _check_movable(self, columns)
 
     sel_cols = resolve_cols_c(data=self, expr=columns)
 
@@ -758,7 +789,7 @@ def cols_hide(self: GTSelf, columns: SelectExpr) -> GTSelf:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(data=self, expr=columns)
+    sel_cols = resolve_cols_c(data=self, expr=columns, excl_stub=False)
 
     col_vars = [col.var for col in self._boxhead]
 
@@ -812,7 +843,8 @@ def cols_unhide(self: GTSelf, columns: SelectExpr) -> GTSelf:
     if isinstance(columns, str):
         columns = [columns]
 
-    sel_cols = resolve_cols_c(data=self, expr=columns)
+    # Stub columns can be hidden with `cols_hide()`, so they can be unhidden too
+    sel_cols = resolve_cols_c(data=self, expr=columns, excl_stub=False)
 
     col_vars = [col.var for col in self._boxhead]
 
@@ -1225,7 +1257,7 @@ def cols_merge(
     ```
     """
     # Get the columns supplied in `columns` as a list of column names
-    columns_resolved = resolve_cols_c(data=self, expr=columns)
+    columns_resolved = resolve_cols_c(data=self, expr=columns, excl_stub=False)
 
     if len(columns_resolved) < 2:
         raise ValueError("At least two columns must be specified for merging.")
@@ -1380,14 +1412,14 @@ def cols_merge_uncert(
     ```
     """
     # Resolve the col_val column
-    col_val_resolved = resolve_cols_c(data=self, expr=col_val)
+    col_val_resolved = resolve_cols_c(data=self, expr=col_val, excl_stub=False)
     if len(col_val_resolved) != 1:
         raise ValueError(
             f"Column `col_val` must resolve to exactly one column, got {len(col_val_resolved)}."
         )
 
     # Resolve the col_uncert column(s)
-    col_uncert_resolved = resolve_cols_c(data=self, expr=col_uncert)
+    col_uncert_resolved = resolve_cols_c(data=self, expr=col_uncert, excl_stub=False)
     if len(col_uncert_resolved) < 1 or len(col_uncert_resolved) > 2:
         raise ValueError(
             f"Column `col_uncert` must resolve to one or two columns, "
@@ -1527,14 +1559,14 @@ def cols_merge_range(
     ```
     """
     # Resolve the col_begin column
-    col_begin_resolved = resolve_cols_c(data=self, expr=col_begin)
+    col_begin_resolved = resolve_cols_c(data=self, expr=col_begin, excl_stub=False)
     if len(col_begin_resolved) != 1:
         raise ValueError(
             f"Column `col_begin` must resolve to exactly one column, got {len(col_begin_resolved)}."
         )
 
     # Resolve the col_end column
-    col_end_resolved = resolve_cols_c(data=self, expr=col_end)
+    col_end_resolved = resolve_cols_c(data=self, expr=col_end, excl_stub=False)
     if len(col_end_resolved) != 1:
         raise ValueError(
             f"Column `col_end` must resolve to exactly one column, got {len(col_end_resolved)}."
@@ -1676,14 +1708,14 @@ def cols_merge_n_pct(
     ```
     """
     # Resolve the col_n column
-    col_n_resolved = resolve_cols_c(data=self, expr=col_n)
+    col_n_resolved = resolve_cols_c(data=self, expr=col_n, excl_stub=False)
     if len(col_n_resolved) != 1:
         raise ValueError(
             f"Column `col_n` must resolve to exactly one column, got {len(col_n_resolved)}."
         )
 
     # Resolve the col_pct column
-    col_pct_resolved = resolve_cols_c(data=self, expr=col_pct)
+    col_pct_resolved = resolve_cols_c(data=self, expr=col_pct, excl_stub=False)
     if len(col_pct_resolved) != 1:
         raise ValueError(
             f"Column `col_pct` must resolve to exactly one column, got {len(col_pct_resolved)}."

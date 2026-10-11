@@ -156,7 +156,8 @@ def fmt(
     row_res = resolve_rows_i(self, rows)
     row_pos = [name_pos[1] for name_pos in row_res]
 
-    col_res = resolve_cols_c(self, columns)
+    # Formatters can target the stub and the row group column (which formats the group labels)
+    col_res = resolve_cols_c(self, columns, excl_stub=False, excl_group=False)
 
     formatter = FormatInfo(fns, col_res, row_pos)
 
@@ -376,6 +377,10 @@ def fmt_number_context(
             force_sign=force_sign,
         )
 
+    # A value that rounds to zero is shown as zero, so it gets no minus sign or accounting style
+    if _rounds_to_zero(x_formatted):
+        is_negative = False
+
     # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
         if accounting:
@@ -561,6 +566,10 @@ def fmt_integer_context(
             dec_mark="not used",
             force_sign=force_sign,
         )
+
+    # A value that rounds to zero is shown as zero, so it gets no minus sign or accounting style
+    if _rounds_to_zero(x_formatted):
+        is_negative = False
 
     # Implement minus sign replacement for `x_formatted` or use accounting style
     if is_negative:
@@ -814,7 +823,7 @@ def fmt_scientific_context(
         # Define the exponent string based on the `exp_style` that's not the default
         # value of 'x10n'
 
-        exp_str = _context_exp_str(exp_style=exp_style)
+        exp_str = _context_exp_str(exp_style=exp_style, context=context)
 
         n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
 
@@ -1143,7 +1152,7 @@ def fmt_engineering_context(
         # Define the exponent string based on the `exp_style` that's not the default
         # value of 'x10n'
 
-        exp_str = _context_exp_str(exp_style=exp_style)
+        exp_str = _context_exp_str(exp_style=exp_style, context=context)
 
         n_min_width = 1 if _str_detect(exp_style, r"^[a-zA-Z]1$") else 2
 
@@ -1585,6 +1594,10 @@ def fmt_number_si_context(
         force_sign=force_sign,
     )
 
+    # A value that rounds to zero is shown as zero, so it gets no minus sign
+    if _rounds_to_zero(x_formatted):
+        is_negative = False
+
     # Build the suffix string (space + prefix + unit)
     space_character = " " if incl_space else ""
     suffix = si_symbol + (unit if unit is not None else "")
@@ -1819,6 +1832,10 @@ def fmt_percent_context(
         if placement == "right"
         else f"{percent_mark}{space_character}{{x}}"
     )
+
+    # A value that rounds to zero is shown as zero, so it gets no sign
+    if _rounds_to_zero(x_formatted):
+        is_negative = is_positive = False
 
     if is_negative and placement == "left":
         x_formatted = x_formatted.replace("-", "")
@@ -2110,6 +2127,10 @@ def fmt_partsper_context(
         dec_mark=dec_mark,
         force_sign=force_sign,
     )
+
+    # A value that rounds to zero is shown as zero, so it gets no sign
+    if _rounds_to_zero(x_formatted):
+        is_negative = is_positive = False
 
     # Get the context-specific symbol (escape for LaTeX if needed)
     if context == "latex":
@@ -2405,6 +2426,10 @@ def fmt_currency_context(
         if placement == "right"
         else f"{currency_symbol}{space_character}{{x}}"
     )
+
+    # A value that rounds to zero is shown as zero, so it gets no sign
+    if _rounds_to_zero(x_formatted):
+        is_negative = is_positive = False
 
     if is_negative and placement == "left":
         x_formatted = x_formatted.replace("-", "")
@@ -4134,7 +4159,7 @@ def fmt_bytes_context(
 
     # Implement minus sign replacement for `x_formatted`
     if is_negative:
-        minus_mark = _context_minus_mark(context="html")
+        minus_mark = _context_minus_mark(context=context)
         x_formatted = _replace_minus(x_formatted, minus_mark=minus_mark)
 
     # Use a supplied pattern specification to decorate the formatted value
@@ -6085,6 +6110,12 @@ def _value_to_decimal_notation(
     if drop_trailing_dec_mark is False and dec_mark not in result:
         result = result + dec_mark
 
+    # A value that rounds to zero (e.g., `-0.001` with two decimals) is shown as zero, without a
+    # sign; the sign is decided from the rounded value rather than the input
+    if _rounds_to_zero(result):
+        result = result.lstrip("-")
+        is_positive = False
+
     # Force the positive sign to be present if the `force_sign` option is taken
     if is_positive and force_sign:
         result = "+" + result
@@ -6453,6 +6484,15 @@ def _has_negative_value(value: float) -> bool:
     return value < 0
 
 
+def _rounds_to_zero(x_formatted: str) -> bool:
+    """Whether a formatted number shows as zero (all of its digits are `0`), e.g., `-0.00`.
+
+    Non-finite values (`inf`, `nan`) have no digits, so they aren't zero.
+    """
+    digits = [char for char in x_formatted if char.isdigit()]
+    return bool(digits) and all(char == "0" for char in digits)
+
+
 def _has_positive_value(value: float) -> bool:
     return value > 0
 
@@ -6472,10 +6512,13 @@ def _context_exp_marks(context: str) -> list[str]:
     return marks
 
 
-def _context_exp_str(exp_style: str) -> str:
+def _context_exp_str(exp_style: str, context: str) -> str:
     if exp_style == "low-ten":
         # For the 'low-ten' style, use a specialized `exp_str` string value
-        exp_str = "<sub style='font-size: 65%;'>10</sub>"
+        if context == "latex":
+            exp_str = "\\textsubscript{10}"
+        else:
+            exp_str = "<sub style='font-size: 65%;'>10</sub>"
 
     elif _str_detect(exp_style, "^[a-zA-Z]{1}1?$"):
         # If there is a single letter (or a letter and a '1') then

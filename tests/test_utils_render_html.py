@@ -844,3 +844,66 @@ def test_grand_summary_colspan_correct_for_multi_col_stub_with_group():
     assert 'colspan="3"' in body
     # The old hardcoded colspan="2" must NOT appear in the grand summary row
     assert 'colspan="2"' not in body
+
+
+def _header_cells(html_str: str) -> list[tuple[str, str]]:
+    """Get the (class, scope) of each stub and group heading `<th>` in the table body."""
+    import re
+
+    body = html_str.split('class="gt_table_body"')[1]
+    cells = re.findall(r"<th\b([^>]*)>", body)
+    out = []
+    for attrs in cells:
+        classes = re.search(r'class="([^"]*)"', attrs).group(1).split()
+        kind = next(
+            k
+            for k in ("gt_summary_row", "gt_stub_row_group", "gt_group_heading", "gt_stub")
+            if k in classes
+        )
+        scope = re.search(r'scope="([^"]*)"', attrs)
+        out.append((kind, scope.group(1) if scope else ""))
+    return out
+
+
+def test_stub_cells_scope_hierarchical_stub():
+    # Stub cells are row headers; a merged outer cell is the header of the rows it spans
+    df = pl.DataFrame(
+        {"a": ["A", "A", "B"], "b": ["x", "y", "z"], "g": ["G", "G", "H"], "n": [1, 2, 3]}
+    )
+    html_str = GT(df, rowname_col=["a", "b"], groupname_col="g").as_raw_html()
+
+    assert _header_cells(html_str) == [
+        ("gt_group_heading", "colgroup"),
+        ("gt_stub", "rowgroup"),
+        ("gt_stub", "row"),
+        ("gt_stub", "row"),
+        ("gt_group_heading", "colgroup"),
+        ("gt_stub", "row"),
+        ("gt_stub", "row"),
+    ]
+
+
+def test_stub_cells_scope_row_group_as_column_and_summary():
+    df = pl.DataFrame({"b": ["x", "y", "z"], "g": ["G", "G", "H"], "n": [1, 2, 3]})
+    html_str = (
+        GT(df, rowname_col="b", groupname_col="g")
+        .summary_rows(fns={"Sum": pl.col("n").sum()})
+        .tab_options(row_group_as_column=True)
+        .as_raw_html()
+    )
+
+    assert _header_cells(html_str) == [
+        ("gt_stub_row_group", "rowgroup"),
+        ("gt_stub", "row"),
+        ("gt_stub", "row"),
+        ("gt_summary_row", "row"),
+        ("gt_stub_row_group", "rowgroup"),
+        ("gt_stub", "row"),
+        ("gt_summary_row", "row"),
+    ]
+
+
+def test_group_heading_scope_single_column():
+    # A group heading over a single column is a column header (as in R gt)
+    html_str = GT(pl.DataFrame({"g": ["G"], "n": [1]}), groupname_col="g").as_raw_html()
+    assert _header_cells(html_str) == [("gt_group_heading", "col")]

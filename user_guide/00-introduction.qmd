@@ -40,22 +40,27 @@ The example below requires the Pandas library to be installed. But Pandas is not
 use Great Tables. You can also use a Polars DataFrame.
 :::
 
-Let’s use a subset of the `islands` dataset available within `great_tables.data`:
+Let’s use a subset of the `countrypops` dataset available within `great_tables.data`, keeping the
+ten most populous countries in 2022:
 
 ```{python}
 from great_tables import GT, md, html
-from great_tables.data import islands
+from great_tables.data import countrypops
 
-islands_mini = islands.head(10)
+countries_mini = (
+    countrypops[countrypops["year"] == 2022]
+    .sort_values("population", ascending=False)
+    .head(10)[["country_name", "population"]]
+)
 ```
 
-The `islands` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a great
-start. Speaking of which, the main entry point into the **Great Tables** API is the `GT` class.
+The `countries_mini` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a
+great start. Speaking of which, the main entry point into the **Great Tables** API is the `GT` class.
 Let's use that to make a presentable table:
 
 ```{python}
-# Create a display table showing ten of the world's largest islands
-gt_tbl = GT(islands_mini)
+# Create a display table showing the ten most populous countries
+gt_tbl = GT(countries_mini)
 
 # Show the output table
 gt_tbl
@@ -86,7 +91,7 @@ different DataFrame library.
 ```{python}
 import polars as pl
 
-df_polars = pl.from_pandas(islands_mini)
+df_polars = pl.from_pandas(countries_mini)
 
 # Approach 1: call GT ----
 GT(df_polars)
@@ -111,23 +116,28 @@ ones below.
 #| code-summary: Show the Code
 
 from great_tables import GT, md, html
-from great_tables.data import islands
+from great_tables.data import countrypops
 
-islands_mini = islands.head(10)
+countries_mini = (
+    countrypops[countrypops["year"] == 2022]
+    .sort_values("population", ascending=False)
+    .head(10)[["country_name", "population"]]
+)
 
 (
-    GT(islands_mini, rowname_col = "name")
+    GT(countries_mini, rowname_col="country_name")
     .tab_header(
-        title="Large Landmasses of the World",
-        subtitle="The top ten largest are presented"
+        title="The World's Most Populous Countries",
+        subtitle="The top ten in 2022 are presented"
+    )
+    .fmt_integer(columns="population")
+    .tab_source_note(
+        source_note="Total population counts all residents regardless of legal status or citizenship."
     )
     .tab_source_note(
-        source_note="Source: The World Almanac and Book of Facts, 1975, page 406."
+        source_note=md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
     )
-    .tab_source_note(
-        source_note=md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
-    )
-    .tab_stubhead(label="landmass")
+    .tab_stubhead(label="country")
 )
 ```
 
@@ -136,28 +146,30 @@ islands_mini = islands.head(10)
 # | code-summary: Show the Code
 
 from great_tables import GT, html
-from great_tables.data import airquality
+from great_tables.data import gibraltar
 
-airquality_m = airquality.head(10).assign(Year=1973)
+gibraltar_m = gibraltar.head(10)[["date", "time", "temp", "humidity", "wind_speed", "pressure"]]
 
-gt_airquality = (
-    GT(airquality_m)
+gt_gibraltar = (
+    GT(gibraltar_m)
     .tab_header(
-        title="New York Air Quality Measurements",
-        subtitle="Daily measurements in New York City (May 1-10, 1973)",
+        title="Weather at Gibraltar Airport",
+        subtitle="Observations from the early hours of May 1, 2023",
     )
-    .tab_spanner(label="Time", columns=["Year", "Month", "Day"])
-    .tab_spanner(label="Measurement", columns=["Ozone", "Solar_R", "Wind", "Temp"])
-    .cols_move_to_start(columns=["Year", "Month", "Day"])
+    .tab_spanner(label="Observed", columns=["date", "time"])
+    .tab_spanner(label="Measurement", columns=["temp", "humidity", "wind_speed", "pressure"])
+    .fmt_percent(columns="humidity", decimals=0)
     .cols_label(
-        Ozone=html("Ozone,<br>ppbV"),
-        Solar_R=html("Solar R.,<br>cal/m<sup>2</sup>"),
-        Wind=html("Wind,<br>mph"),
-        Temp=html("Temp,<br>&deg;F"),
+        date="Date",
+        time="Time",
+        temp=html("Temp,<br>&deg;C"),
+        humidity="Humidity",
+        wind_speed=html("Wind,<br>m/s"),
+        pressure=html("Pressure,<br>hPa"),
     )
 )
 
-gt_airquality
+gt_gibraltar
 ```
 
 These examples show just a glimpse of what's possible with **Great Tables**. The rest of this User

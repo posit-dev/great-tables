@@ -222,6 +222,40 @@ class TestHtmlEscaping:
         assert "<b>mean</b>" not in html
         assert "&lt;b&gt;mean&lt;/b&gt;" in html
 
+    @pytest.mark.parametrize(
+        "method", ["sub_missing", "sub_zero", "sub_small_vals", "sub_large_vals"]
+    )
+    def test_cells_skipped_by_substitution_are_escaped(self, method: str):
+        import pandas as pd
+
+        df = pd.DataFrame({"x": ["<b>not bold</b>", "x & y"], "y": [None, 0.0]})
+        html = getattr(GT(df), method)().as_raw_html()
+
+        assert "<b>not bold</b>" not in html
+        assert "&lt;b&gt;not bold&lt;/b&gt;" in html
+        assert "x &amp; y" in html
+
+    def test_pyarrow_body_cells_are_escaped(self):
+        import pyarrow as pa
+
+        tbl = pa.table({"x": ["<b>not bold</b>", "x & y"]})
+        html = GT(tbl).as_raw_html()
+
+        assert "<b>not bold</b>" not in html
+        assert "&lt;b&gt;not bold&lt;/b&gt;" in html
+        assert "x &amp; y" in html
+
+
+@pytest.mark.parametrize("method", ["sub_missing", "sub_zero", "sub_small_vals"])
+def test_latex_cells_skipped_by_substitution_are_escaped(method: str):
+    import pandas as pd
+
+    df = pd.DataFrame({"x": ["a & b", "50%"], "y": [None, 0.0]})
+    latex = getattr(GT(df), method)().as_latex()
+
+    assert "a \\& b" in latex
+    assert "50\\%" in latex
+
 
 class TestFmtPassthrough:
     """Tests for fmt_passthrough()."""

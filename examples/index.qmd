@@ -18,26 +18,31 @@ toc: false
 ```{python}
 import polars as pl
 from great_tables import GT, md, html
-from great_tables.data import islands
+from great_tables.data import countrypops
 
-islands_mini = (
-    pl.from_pandas(islands).sort("size", descending=True)
+countries_mini = (
+    pl.from_pandas(countrypops)
+    .filter(pl.col("year") == 2022)
+    .sort("population", descending=True)
+    .select("country_name", "population")
     .head(10)
 )
 
 (
-    GT(islands_mini)
+    GT(countries_mini)
     .tab_header(
-        title="Large Landmasses of the World",
-        subtitle="The top ten largest are presented"
+        title="The World's Most Populous Countries",
+        subtitle="The top ten in 2022 are presented"
     )
-    .tab_stub(rowname_col="name")
-    .tab_source_note(source_note="Source: The World Almanac and Book of Facts, 1975, page 406.")
+    .tab_stub(rowname_col="country_name")
     .tab_source_note(
-        source_note=md("Reference: McNeil, D. R. (1977) *Interactive Data Analysis*. Wiley.")
+        source_note="Total population counts all residents regardless of legal status or citizenship."
     )
-    .tab_stubhead(label="landmass")
-    .fmt_integer(columns="size")
+    .tab_source_note(
+        source_note=md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
+    )
+    .tab_stubhead(label="country")
+    .fmt_integer(columns="population")
 )
 ```
 
@@ -47,30 +52,33 @@ islands_mini = (
 
 ```{python}
 from great_tables import GT, html
-from great_tables.data import airquality
+from great_tables.data import gibraltar
 
-airquality_mini = airquality.head(10).assign(Year = 1973)
+gibraltar_mini = gibraltar.head(10)[["temp", "humidity", "wind_speed", "pressure", "date", "time"]]
 
 (
-    GT(airquality_mini)
+    GT(gibraltar_mini)
     .tab_header(
-        title="New York Air Quality Measurements",
-        subtitle="Daily measurements in New York City (May 1-10, 1973)"
+        title="Weather at Gibraltar Airport",
+        subtitle="Observations from the early hours of May 1, 2023"
     )
     .tab_spanner(
-        label="Time",
-        columns=["Year", "Month", "Day"]
+        label="Observed",
+        columns=["date", "time"]
     )
     .tab_spanner(
         label="Measurement",
-        columns=["Ozone", "Solar_R", "Wind", "Temp"]
+        columns=["temp", "humidity", "wind_speed", "pressure"]
     )
-    .cols_move_to_start(columns=["Year", "Month", "Day"])
+    .cols_move_to_start(columns=["date", "time"])
+    .fmt_percent(columns="humidity", decimals=0)
     .cols_label(
-        Ozone = html("Ozone,<br>ppbV"),
-        Solar_R = html("Solar R.,<br>cal/m<sup>2</sup>"),
-        Wind = html("Wind,<br>mph"),
-        Temp = html("Temp,<br>&deg;F")
+        date = "Date",
+        time = "Time",
+        temp = html("Temp,<br>&deg;C"),
+        humidity = "Humidity",
+        wind_speed = html("Wind,<br>m s<sup>&minus;1</sup>"),
+        pressure = html("Pressure,<br>hPa")
     )
 )
 ```

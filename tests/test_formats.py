@@ -258,8 +258,8 @@ def test_format_row_selection(expr):
             True,
             True,
             [
-                "+% 0.00",
-                "+% 0.00",
+                "% 0.00",
+                "% 0.00",
                 "+% 0.05",
                 "+% 0.46",
                 "+% 4.56",
@@ -275,8 +275,8 @@ def test_format_row_selection(expr):
             False,
             True,
             [
-                "+%0.00",
-                "+%0.00",
+                "%0.00",
+                "%0.00",
                 "+%0.05",
                 "+%0.46",
                 "+%4.56",
@@ -292,8 +292,8 @@ def test_format_row_selection(expr):
             True,
             True,
             [
-                "+0.00 %",
-                "+0.00 %",
+                "0.00 %",
+                "0.00 %",
                 "+0.05 %",
                 "+0.46 %",
                 "+4.56 %",
@@ -309,8 +309,8 @@ def test_format_row_selection(expr):
             False,
             True,
             [
-                "+0.00%",
-                "+0.00%",
+                "0.00%",
+                "0.00%",
                 "+0.05%",
                 "+0.46%",
                 "+4.56%",
@@ -1474,6 +1474,20 @@ def test_fmt_engineering_latex_output():
     assert "123.00" in x[1]
 
 
+@pytest.mark.parametrize(
+    "fmt_fn,x_out",
+    [
+        ("fmt_scientific", ["1.23\\textsubscript{10}08", "-1.23\\textsubscript{10}-04"]),
+        ("fmt_engineering", ["123.46\\textsubscript{10}06", "-123.00\\textsubscript{10}-06"]),
+    ],
+)
+def test_fmt_exp_style_low_ten_latex(fmt_fn: str, x_out: list[str]):
+    df = pd.DataFrame({"x": [123456789, -0.000123]})
+    gt = getattr(GT(df), fmt_fn)(columns="x", exp_style="low-ten")
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert x == x_out
+
+
 # ------------------------------------------------------------------------------
 # Tests of `fmt_currency()`
 # ------------------------------------------------------------------------------
@@ -1511,9 +1525,10 @@ def test_fmt_currency_force_sign():
 
     gt = GT(df).fmt_currency(columns="x", force_sign=True)
     x = _get_column_of_values(gt, column_name="x", context="html")
+    # `-0.0001` rounds to zero, so it's shown as zero without a sign
     assert x == [
         "−$234.65",
-        "−$0.00",
+        "$0.00",
         "$0.00",
         "+$2,352.23",
         "+$12,354.30",
@@ -1969,6 +1984,13 @@ def test_fmt_bytes_rounding_carries_into_next_unit(
     df = pd.DataFrame({"x": x_in})
     gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
     x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+@pytest.mark.parametrize("context, x_out", [("html", ["−1.5 kB"]), ("latex", ["-1.5 kB"])])
+def test_fmt_bytes_minus_mark_follows_context(context: str, x_out: list[str]):
+    gt = GT(pd.DataFrame({"x": [-1500]})).fmt_bytes(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context=context)
     assert x == x_out
 
 
@@ -3403,6 +3425,34 @@ def test_drop_trailing_zeros_keeps_integer_zeros(fn, x_in, kwargs: dict, x_out: 
     assert fn(x_in, **kwargs) == x_out
 
 
+# A value that rounds to zero is shown as zero: no minus sign, accounting parentheses or forced
+# plus sign (the sign is decided from the rounded value, not the input)
+@pytest.mark.parametrize(
+    "fn,x_in,kwargs,x_out",
+    [
+        (vals.fmt_integer, [-0.4, 0.4, -0.6, -0.0], dict(), ["0", "0", "−1", "0"]),
+        (vals.fmt_number, [-0.001, -0.006, -0.0], dict(decimals=2), ["0.00", "−0.01", "0.00"]),
+        (vals.fmt_number, [-0.001, -0.006], dict(decimals=2, accounting=True), ["0.00", "(0.01)"]),
+        (vals.fmt_number, [0.001, -0.001], dict(decimals=2, force_sign=True), ["0.00", "0.00"]),
+        (vals.fmt_number, [-0.001], dict(decimals=2, compact=True), ["0.00"]),
+        # With significant figures, a nonzero value never rounds to zero
+        (vals.fmt_number, [-0.001], dict(n_sigfig=2), ["−0.0010"]),
+        (vals.fmt_currency, [-0.001], dict(currency="USD"), ["$0.00"]),
+        (vals.fmt_currency, [-0.001], dict(currency="USD", accounting=True), ["$0.00"]),
+        (vals.fmt_currency, [0.001], dict(currency="USD", force_sign=True), ["$0.00"]),
+        (vals.fmt_percent, [-0.00001], dict(decimals=1), ["0.0%"]),
+        (vals.fmt_percent, [-0.00001], dict(decimals=1, accounting=True), ["0.0%"]),
+        (vals.fmt_partsper, [-1e-7], dict(), ["0.00‰"]),
+        (vals.fmt_number_si, [-1e-40], dict(unit="g"), ["0.00 g"]),
+        # Non-finite values keep their sign
+        (vals.fmt_number, [float("-inf")], dict(), ["−inf"]),
+        (vals.fmt_number, [float("inf")], dict(force_sign=True), ["+inf"]),
+    ],
+)
+def test_value_rounding_to_zero_has_no_sign(fn, x_in, kwargs: dict, x_out: list[str]):
+    assert fn(x_in, **kwargs) == x_out
+
+
 def test_fmt_scientific_force_sign_m_positive():
     df = pd.DataFrame({"x": [12345.0]})
     gt = GT(df).fmt_scientific(columns="x", decimals=2, force_sign_m=True)
@@ -3805,7 +3855,7 @@ def test_context_exp_str_else_branch():
     from great_tables._formats import _context_exp_str
 
     # A completely unrecognized exp_style hits the else branch → returns "E"
-    result = _context_exp_str("ZZZZ")
+    result = _context_exp_str("ZZZZ", context="html")
     assert result == "E"
 
 

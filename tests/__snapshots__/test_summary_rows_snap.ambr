@@ -3,53 +3,53 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Sum</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Sum</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
     </tr>
@@ -61,50 +61,50 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="4">A</th>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      rowspan="4" scope="rowgroup">A</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Group Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Group Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="4">B</th>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      rowspan="4" scope="rowgroup">B</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Group Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Group Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2">Grand Sum</th>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2" scope="row">Grand Sum</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
     </tr>
@@ -115,53 +115,53 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Min</th>
+      <th scope="row" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Min</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">1</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">10</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Max</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Max</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Max</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Max</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
@@ -172,53 +172,53 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Group Min</th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Group Min</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">1</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Group Min</th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Group Min</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">4</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Max</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Max</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">6</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">60</td>
     </tr>
@@ -229,78 +229,78 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">1</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Max</th>
       <td class="gt_row gt_right gt_summary_row">3</td>
       <td class="gt_row gt_right gt_summary_row">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">2.0</td>
       <td class="gt_row gt_right gt_summary_row">20.0</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Min</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">4</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Max</th>
       <td class="gt_row gt_right gt_summary_row">6</td>
       <td class="gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">5.0</td>
       <td class="gt_row gt_right gt_summary_row">50.0</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Overall Min</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Overall Min</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">1</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row">Overall Max</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_grand_summary_row">Overall Max</th>
       <td class="gt_row gt_right gt_grand_summary_row">6</td>
       <td class="gt_row gt_right gt_grand_summary_row">60</td>
     </tr>
@@ -311,53 +311,53 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">2.00</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">20.00</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">5.00</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">50.00</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Mean</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Mean</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">3.50</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">35.00</td>
     </tr>
@@ -604,27 +604,27 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">6</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_grand_summary_row">Mean</th>
       <td class="gt_row gt_right gt_grand_summary_row">2.0</td>
       <td class="gt_row gt_right gt_grand_summary_row">20.0</td>
     </tr>
@@ -635,48 +635,48 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Min</th>
+      <th scope="row" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Min</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">1</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">10</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Max</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Max</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">6</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">60</td>
     </tr>
@@ -687,43 +687,43 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
+      <th scope="row" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">21</td>
       <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">210</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
@@ -735,40 +735,40 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">A</th>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      rowspan="3" scope="rowgroup">A</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3">B</th>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      rowspan="3" scope="rowgroup">B</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2">Sum</th>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2" scope="row">Sum</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
     </tr>
@@ -779,43 +779,43 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
     </tr>
@@ -826,22 +826,22 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub">a</th>
+      <th scope="row" class="gt_row gt_left gt_stub">a</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">b</th>
+      <th scope="row" class="gt_row gt_left gt_stub">b</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">c</th>
+      <th scope="row" class="gt_row gt_left gt_stub">c</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">6</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">60</td>
     </tr>
@@ -937,7 +937,7 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="4">A</th>
+      rowspan="4" scope="rowgroup">A</th>
       <td class="gt_row gt_left">r1</td>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
@@ -953,14 +953,14 @@
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_left gt_summary_row">---</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="4">B</th>
+      rowspan="4" scope="rowgroup">B</th>
       <td class="gt_row gt_left">r4</td>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
@@ -976,7 +976,7 @@
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_left gt_summary_row">---</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
@@ -989,55 +989,55 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="5">A</th>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Min</th>
+      rowspan="5" scope="rowgroup">A</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Min</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">1</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Max</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Max</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="5">B</th>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Min</th>
+      rowspan="5" scope="rowgroup">B</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Min</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">4</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Max</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Max</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
@@ -1049,45 +1049,45 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="4">A</th>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
+      rowspan="4" scope="rowgroup">A</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">6</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="4">B</th>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
+      rowspan="4" scope="rowgroup">B</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">15</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">150</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
@@ -1099,55 +1099,55 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="5">A</th>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      rowspan="5" scope="rowgroup">A</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">2.0</td>
       <td class="gt_row gt_right gt_summary_row">20.0</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="5">B</th>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      rowspan="5" scope="rowgroup">B</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">5.0</td>
       <td class="gt_row gt_right gt_summary_row">50.0</td>
     </tr>
@@ -1158,55 +1158,55 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="4">A</th>
+      <th class="gt_group_heading" colspan="4" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
       <td class="gt_row gt_left">r1</td>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
       <td class="gt_row gt_left">r2</td>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
       <td class="gt_row gt_left">r3</td>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_left gt_summary_row">---</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="4">B</th>
+      <th class="gt_group_heading" colspan="4" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
       <td class="gt_row gt_left">r4</td>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
       <td class="gt_row gt_left">r5</td>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">&nbsp;</th>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
       <td class="gt_row gt_left">r6</td>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_left gt_summary_row">---</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
@@ -1218,58 +1218,58 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">2.0</td>
       <td class="gt_row gt_right gt_summary_row">20.0</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">5.0</td>
       <td class="gt_row gt_right gt_summary_row">50.0</td>
     </tr>
@@ -1280,46 +1280,46 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">C</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">C</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">5</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">50</td>
     </tr>
@@ -1330,58 +1330,58 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Min</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">1</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Max</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Min</th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Min</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">4</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Max</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
@@ -1392,48 +1392,48 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">6</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">15</td>
       <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">150</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
@@ -1444,66 +1444,66 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">1.5</td>
       <td class="gt_row gt_right gt_summary_row">15.0</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">7</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">3.5</td>
       <td class="gt_row gt_right gt_summary_row">35.0</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">C</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">C</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">5</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">5.0</td>
       <td class="gt_row gt_right gt_summary_row">50.0</td>
     </tr>
@@ -1514,66 +1514,66 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">1.5</td>
       <td class="gt_row gt_right gt_summary_row">15.0</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">7</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">3.5</td>
       <td class="gt_row gt_right gt_summary_row">35.0</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">C</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">C</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">5</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">5.0</td>
       <td class="gt_row gt_right gt_summary_row">50.0</td>
     </tr>
@@ -1584,48 +1584,48 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">2.00</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">20.00</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">5.00</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">50.00</td>
     </tr>
@@ -1636,38 +1636,38 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_left">foo</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_left">bar</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">3</td>
       <td class="gt_first_summary_row gt_row gt_left gt_summary_row">--</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_left">baz</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_left">qux</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">7</td>
       <td class="gt_first_summary_row gt_row gt_left gt_summary_row">--</td>
     </tr>
@@ -1854,58 +1854,58 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">2.0</td>
       <td class="gt_row gt_right gt_summary_row">20.0</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row">Mean</th>
       <td class="gt_row gt_right gt_summary_row">5.0</td>
       <td class="gt_row gt_right gt_summary_row">50.0</td>
     </tr>
@@ -1916,53 +1916,53 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
+      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Group Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
     </tr>
     <tr>
-      <th class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Sum</th>
+      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Sum</th>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">21</td>
       <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">210</td>
     </tr>
@@ -1974,45 +1974,45 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="4">A</th>
-      <th class="gt_row gt_left gt_stub">r1</th>
+      rowspan="4" scope="rowgroup">A</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
       <td class="gt_row gt_right">1</td>
       <td class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r2</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
       <td class="gt_row gt_right">2</td>
       <td class="gt_row gt_right">20</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r3</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
       <td class="gt_row gt_right">3</td>
       <td class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">6</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">60</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="4">B</th>
-      <th class="gt_row gt_left gt_stub">r4</th>
+      rowspan="4" scope="rowgroup">B</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
       <td class="gt_row gt_right">4</td>
       <td class="gt_row gt_right">40</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r5</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r5</th>
       <td class="gt_row gt_right">5</td>
       <td class="gt_row gt_right">50</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub">r6</th>
+      <th scope="row" class="gt_row gt_left gt_stub">r6</th>
       <td class="gt_row gt_right">6</td>
       <td class="gt_row gt_right">60</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">15</td>
       <td class="gt_first_summary_row gt_row gt_right gt_summary_row">150</td>
     </tr>
