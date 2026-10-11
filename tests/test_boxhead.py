@@ -1,6 +1,10 @@
+import re
+
 import pandas as pd
+import polars as pl
 import pytest
 from great_tables import GT
+from great_tables._boxhead import _align_to_char
 from great_tables.gt import _get_column_labels
 from great_tables._helpers import UnitStr
 from tests.utils import assert_rendered_columns
@@ -160,3 +164,197 @@ def test_cols_label_with_list_with_invalid_col_raises():
     df = pd.DataFrame({"x": [1], "y": [2]})
     with pytest.raises(AssertionError):
         GT(df).cols_label_with(columns=["x", "nope"], fn=str.upper)
+
+
+@pytest.mark.parametrize(
+    "values, expected",
+    [
+        # inputs and outputs from the snapshot tests of cols_align_decimal() in the R gt package
+        (
+            [
+                "1.2",
+                "\u221233.52",
+                "9,023.2",
+                "\u2212283.527",
+                "NA",
+                "0.401",
+                "\u2212123.1",
+                "NA",
+                "41",
+            ],
+            [
+                "\u2007\u2007\u2007\u20071.2\u2007\u2007",
+                "\u2007\u2007\u221233.52\u2007",
+                "9,023.2\u2007\u2007",
+                "\u2007\u2212283.527",
+                "NA",
+                "\u2007\u2007\u2007\u20070.401",
+                "\u2007\u2212123.1\u2007\u2007",
+                "NA",
+                "\u2007\u2007\u200741 \u2007\u2007\u2007",
+            ],
+        ),
+        (
+            [
+                "1.2",
+                "\u221233.52",
+                "9,023.2",
+                "\u2212283.527",
+                "NA",
+                "0.401",
+                "\u2212123.1",
+                "NA",
+                "41.",
+            ],
+            [
+                "\u2007\u2007\u2007\u20071.2\u2007\u2007",
+                "\u2007\u2007\u221233.52\u2007",
+                "9,023.2\u2007\u2007",
+                "\u2007\u2212283.527",
+                "NA",
+                "\u2007\u2007\u2007\u20070.401",
+                "\u2007\u2212123.1\u2007\u2007",
+                "NA",
+                "\u2007\u2007\u200741.\u2007\u2007\u2007",
+            ],
+        ),
+        (
+            [
+                "1.2%",
+                "\u221233.52%",
+                "9,023.2%",
+                "\u2212283.527%",
+                "NA",
+                "0.401%",
+                "\u2212123.1%",
+                "NA",
+                "41%",
+            ],
+            [
+                "\u2007\u2007\u2007\u20071.2%\u2007\u2007",
+                "\u2007\u2007\u221233.52%\u2007",
+                "9,023.2%\u2007\u2007",
+                "\u2007\u2212283.527%",
+                "NA",
+                "\u2007\u2007\u2007\u20070.401%",
+                "\u2007\u2212123.1%\u2007\u2007",
+                "NA",
+                "\u2007\u200741 %\u2007\u2007\u2007",
+            ],
+        ),
+        (
+            [
+                "1.2 ppm",
+                "\u221233.52 ppm",
+                "9,023.2 ppm",
+                "\u2212283.527 ppm",
+                "NA",
+                "0.401 ppm",
+                "\u2212123.1 ppm",
+                "NA",
+                "41 ppm",
+            ],
+            [
+                "\u2007\u2007\u2007\u2007\u20071.2 ppm\u2007\u2007",
+                "\u2007\u2007\u2007\u221233.52 ppm\u2007",
+                "\u20079,023.2 ppm\u2007\u2007",
+                "\u2007\u2007\u2212283.527 ppm",
+                "NA",
+                "\u2007\u2007\u2007\u2007\u20070.401 ppm",
+                "\u2007\u2007\u2212123.1 ppm\u2007\u2007",
+                "NA",
+                "41  ppm\u2007\u2007\u2007",
+            ],
+        ),
+        (
+            ["1.2", "(33.52)", "9,023.2", "(283.527)", "NA", "0.401", "(123.1)", "NA", "41."],
+            [
+                "\u2007\u2007\u2007\u20071.2\u2007\u2007\u2007",
+                "\u2007\u2007(33.52)\u2007\xa0",
+                "9,023.2\u2007\u2007\u2007",
+                "\u2007(283.527)\xa0",
+                "NA",
+                "\u2007\u2007\u2007\u20070.401\u2007",
+                "\u2007(123.1)\u2007\u2007\xa0",
+                "NA",
+                "\u2007\u2007\u200741.\u2007\u2007\u2007\u2007",
+            ],
+        ),
+        (
+            ["$1", "($34)", "$9,023", "($284)", "NA", "$0", "($123)", "NA", "$41"],
+            [
+                "\u2007\u2007\u2007\u2007$1\xa0",
+                "\u2007($34)",
+                "$9,023\xa0",
+                "($284)",
+                "NA",
+                "\u2007\u2007\u2007\u2007$0\xa0",
+                "($123)",
+                "NA",
+                "\u2007\u2007\u2007$41\xa0",
+            ],
+        ),
+    ],
+)
+def test_align_to_char_matches_r_gt(values: list[str], expected: list[str]):
+    assert _align_to_char(values) == expected
+
+
+def test_align_to_char_without_alignable_values():
+    values = ["NA", "\u2014", "n/a"]
+    assert _align_to_char(values) == values
+
+
+def _body_cells(html: str, align: str = "right") -> list[str]:
+    return re.findall(rf'<td class="gt_row gt_{align}">(.*?)</td>', html)
+
+
+def test_cols_align_decimal():
+    df = pl.DataFrame({"num": [1.5, 22.25, 3.0]})
+    html = (
+        GT(df)
+        .fmt_number(columns="num", decimals=2, drop_trailing_zeros=True)
+        .cols_align_decimal()
+        .as_raw_html()
+    )
+
+    assert _body_cells(html) == ["\u20071.5\u2007", "22.25", "\u20073 \u2007\u2007"]
+
+
+def test_cols_align_decimal_skips_non_numeric_columns():
+    df = pl.DataFrame({"char": ["a.b", "c"], "num": [1.5, 22.25]})
+    gt = GT(df).cols_align_decimal()
+
+    assert [col.column_align for col in gt._boxhead] == ["left", "right"]
+    assert _body_cells(gt.as_raw_html(), align="left") == ["a.b", "c"]
+
+
+def test_cols_align_decimal_no_numeric_columns():
+    gt = GT(pl.DataFrame({"char": ["a.b", "c"]}))
+    res = gt.cols_align_decimal()
+
+    assert [col.column_align for col in res._boxhead] == ["left"]
+    assert res._transforms == gt._transforms
+
+
+def test_cols_align_decimal_locale():
+    df = pl.DataFrame({"num": [1.5, 22.25, 3.0]})
+    html = (
+        GT(df, locale="de")
+        .fmt_number(columns="num", decimals=2, drop_trailing_zeros=True)
+        .cols_align_decimal()
+        .as_raw_html()
+    )
+
+    assert _body_cells(html) == ["\u20071,5\u2007", "22,25", "\u20073 \u2007\u2007"]
+
+
+def test_cols_align_decimal_missing_values():
+    df = pl.DataFrame({"num": [1.5, None, 22.25]})
+    formatted = GT(df).fmt_number(columns="num", decimals=2, drop_trailing_zeros=True)
+
+    aligned = _body_cells(formatted.cols_align_decimal().as_raw_html())
+    unaligned = _body_cells(formatted.as_raw_html())
+
+    assert aligned[1] == unaligned[1]
+    assert [aligned[0], aligned[2]] == ["\u20071.5\u2007", "22.25"]
