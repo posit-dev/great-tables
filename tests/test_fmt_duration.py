@@ -121,11 +121,11 @@ class TestFmtDurationISO:
 
     def test_basic(self):
         result = vals.fmt_duration([3661], input_units="seconds", duration_style="iso")
-        assert result == ["P1H1M1S"]
+        assert result == ["PT1H1M1S"]
 
     def test_days_only(self):
         result = vals.fmt_duration([86400], input_units="seconds", duration_style="iso")
-        assert result == ["P1DT"]
+        assert result == ["P1D"]
 
     def test_days_and_time(self):
         result = vals.fmt_duration([90061], input_units="seconds", duration_style="iso")
@@ -133,11 +133,16 @@ class TestFmtDurationISO:
 
     def test_hours_only(self):
         result = vals.fmt_duration([7200], input_units="seconds", duration_style="iso")
-        assert result == ["P2H"]
+        assert result == ["PT2H"]
+
+    def test_minutes_only(self):
+        # Without the T designator this would read as one month (`P1M`)
+        result = vals.fmt_duration([60], input_units="seconds", duration_style="iso")
+        assert result == ["PT1M"]
 
     def test_zero(self):
         result = vals.fmt_duration([0], input_units="seconds", duration_style="iso")
-        assert result == ["P0S"]
+        assert result == ["PT0S"]
 
 
 class TestFmtDurationTrimZeroUnits:
@@ -429,7 +434,7 @@ class TestFmtDurationEdgeCases:
         result = vals.fmt_duration(
             [604800], input_units="seconds", duration_style="iso", output_units=["weeks"]
         )
-        assert result == ["P7DT"]
+        assert result == ["P7D"]
 
     def test_colon_sep_invalid_output_units_falls_back(self):
         # Invalid colon-sep combo falls back to default days/hours/minutes/seconds
@@ -459,7 +464,7 @@ class TestFmtDurationEdgeCases:
 
     def test_negative_iso(self):
         result = vals.fmt_duration([-3661], input_units="seconds", duration_style="iso")
-        assert "P1H1M1S" in result[0]
+        assert "PT1H1M1S" in result[0]
 
     def test_force_sign_zero(self):
         # Zero should not get a sign
@@ -477,14 +482,14 @@ class TestFmtDurationEdgeCases:
         assert _get_cell(built._body.body, 1, "b") == "2m"
 
     def test_iso_zero(self):
-        # ISO zero should be P0S (time-only, no T when no date parts)
+        # ISO zero should be PT0S (the T designator precedes the seconds part)
         result = vals.fmt_duration([0], input_units="seconds", duration_style="iso")
-        assert result == ["P0S"]
+        assert result == ["PT0S"]
 
     def test_iso_only_date_parts(self):
-        # 2 weeks = 14 days in ISO; T always follows date parts (matching R gt behavior)
+        # 2 weeks = 14 days in ISO; no T designator without time parts
         result = vals.fmt_duration([14], input_units="days", duration_style="iso")
-        assert result == ["P14DT"]
+        assert result == ["P14D"]
 
 
 class TestFmtDurationLocale:
@@ -560,7 +565,7 @@ class TestFmtDurationLocale:
     def test_locale_iso_unaffected(self):
         # ISO style should not change with locale
         result = vals.fmt_duration([3661], input_units="seconds", duration_style="iso", locale="fr")
-        assert result == ["P1H1M1S"]
+        assert result == ["PT1H1M1S"]
 
     def test_locale_colon_sep_unaffected(self):
         # Colon-sep style should not change with locale
