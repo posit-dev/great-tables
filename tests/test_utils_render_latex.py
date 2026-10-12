@@ -797,3 +797,24 @@ def test_render_as_latex_summary_row_label_escaped(stub_args: dict):
 
     assert "Total \\& 50\\%" in result
     assert "Total & 50%" not in result
+
+
+def test_create_body_component_l_group_summary_rows_side():
+    gt_tbl = (
+        GT(exibble[["num", "row", "group"]].head(2), rowname_col="row", groupname_col="group")
+        .summary_rows(fns={"Min": lambda df: df.min(numeric_only=True)}, side="top")
+        .summary_rows(fns={"Max": lambda df: df.max(numeric_only=True)}, side="bottom")
+    )
+    result = create_body_component_l(gt_tbl._build_data(context="latex"))
+
+    # The `side="top"` summary row comes before the group's rows, the `side="bottom"` one after
+    assert result.splitlines() == [
+        "\\multicolumn{2}{l}{grp\\_a} \\\\[2.5pt] ",
+        "\\midrule\\addlinespace[2.5pt]",
+        "Min & 0.1111 \\\\",
+        "\\midrule\\addlinespace[2.5pt]",
+        "row\\_1 & 0.1111 \\\\",
+        "row\\_2 & 2.222 \\\\",
+        "\\midrule\\addlinespace[2.5pt]",
+        "Max & 2.222 \\\\",
+    ]
