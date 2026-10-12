@@ -574,6 +574,13 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
                         body_cells.append("")
                     else:
                         body_cells.append(str(_get_cell(tbl_data, i, stub_col.var)))
+
+                # Indent the row label as set by `tab_stub_indent()`; in a hierarchical stub only
+                # the primary (last) column is indented
+                indent_level = data._stub.rows[i].indent
+                if indent_level > 0:
+                    indent_pt = convert_to_pt(data._options.stub_indent_length.value) * indent_level
+                    body_cells[-1] = f"\\hspace*{{{indent_pt:g}pt}} {body_cells[-1]}"
             else:
                 # Placeholder stub for summary rows (no actual rowname column)
                 body_cells.append("")

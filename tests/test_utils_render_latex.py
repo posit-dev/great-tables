@@ -818,3 +818,32 @@ def test_create_body_component_l_group_summary_rows_side():
         "\\midrule\\addlinespace[2.5pt]",
         "Max & 2.222 \\\\",
     ]
+
+
+def test_create_body_component_l_stub_indent():
+    gt_tbl = GT(exibble[["num", "row"]].head(3), rowname_col="row").tab_stub_indent(
+        rows=[1, 2], indent=2
+    )
+    result = create_body_component_l(gt_tbl._build_data(context="latex"))
+
+    # Each indentation level is `stub_indent_length` wide (5px by default, or 3.75pt)
+    assert result.splitlines() == [
+        "row\\_1 & 0.1111 \\\\",
+        "\\hspace*{7.5pt} row\\_2 & 2.222 \\\\",
+        "\\hspace*{7.5pt} row\\_3 & 33.33 \\\\",
+    ]
+
+
+def test_create_body_component_l_stub_indent_hierarchical_stub():
+    gt_tbl = (
+        GT(exibble[["num", "group", "row"]].head(2), rowname_col=["group", "row"])
+        .tab_stub_indent(rows=[1], indent=1)
+        .tab_options(stub_indent_length="8px")
+    )
+    result = create_body_component_l(gt_tbl._build_data(context="latex"))
+
+    # Only the primary (last) stub column is indented
+    assert result.splitlines() == [
+        "grp\\_a & row\\_1 & 0.1111 \\\\",
+        " & \\hspace*{6pt} row\\_2 & 2.222 \\\\",
+    ]
