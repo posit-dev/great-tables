@@ -622,6 +622,22 @@ def test_render_as_latex_stub_and_groups_as_column():
     assert "grp\\_a" in latex_str
 
 
+def test_create_body_component_l_groups_as_column_midrule():
+    gt_tbl = GT(exibble[["num", "group"]].iloc[2:6], groupname_col="group").tab_options(
+        row_group_as_column=True
+    )
+    result = create_body_component_l(gt_tbl._build_data(context="latex"))
+
+    # Row groups are separated by a midrule, as when the group labels are shown as heading rows
+    assert result.splitlines() == [
+        "grp\\_a & 33.33 \\\\",
+        " & 444.4 \\\\",
+        "\\midrule\\addlinespace[2.5pt]",
+        "grp\\_b & 5550.0 \\\\",
+        " & None \\\\",
+    ]
+
+
 def test_render_as_latex_footnotes_raises():
     gt_tbl = GT(exibble).tab_footnote("A footnote", locations=loc.body(columns="num", rows=[0]))
 
