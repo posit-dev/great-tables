@@ -600,7 +600,9 @@ def _(df: PdDataFrame):
     if len(numeric):
         # -0.0 is a floating point detail, not something a table should show
         df = df.copy()
-        df[numeric] = df[numeric].mask(df[numeric] == 0, 0)
+        # nullable dtypes give pd.NA for missing values here, which mask() would treat
+        # as True and turn into 0
+        df[numeric] = df[numeric].mask((df[numeric] == 0).fillna(False), 0)
 
     # pandas leaves pd.NA here, which renders as "<NA>"; None is what the other
     # backends produce and what Python spells a missing value. The object dtype is
