@@ -521,16 +521,16 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
                 else:
                     group_label = _process_text(group_info.group_id, context="latex")
 
+                # Add a midrule before each group (except for the first group, which already has
+                # one from the column headers)
+                if first_group_added:
+                    body_rows.append("\\midrule\\addlinespace[2.5pt]")
+                first_group_added = True
+
                 # When group is shown as a column, we don't add a separate row
                 # Instead, it will be added as a cell in each data row
                 if not has_group_stub_column:
-                    # Add midrule before group heading (except for first group, which already has
-                    # one from column headers) then the group heading, then midrule after
-                    if first_group_added:
-                        group_row = f"\\midrule\\addlinespace[2.5pt]\n\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n\\midrule\\addlinespace[2.5pt]"
-                    else:
-                        group_row = f"\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n\\midrule\\addlinespace[2.5pt]"
-                        first_group_added = True
+                    group_row = f"\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n\\midrule\\addlinespace[2.5pt]"
                     body_rows.append(group_row)
 
                 # Group summary rows with `side="top"` go before the first row of the group
