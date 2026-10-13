@@ -5373,7 +5373,7 @@ tbl = pl.DataFrame(
 )
 ```
 
-data_color(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, palette: 'str | list[str] | None' = None, domain: 'list[str] | list[int] | list[float] | None' = None, midpoint: 'int | float | None' = None, na_color: 'str | None' = None, alpha: 'float | None' = None, reverse: 'bool' = False, autocolor_text: 'bool' = True, contrast_algo: 'ContrastAlgo' = 'apca', truncate: 'bool' = False, fn: 'Callable[[list[Any]], list[str | None]] | None' = None) -> 'GTSelf'
+data_color(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, palette: 'str | list[str] | None' = None, domain: 'list[str] | list[int] | list[float] | None' = None, midpoint: 'int | float | None' = None, na_color: 'str | None' = None, alpha: 'float | None' = None, reverse: 'bool' = False, autocolor_text: 'bool' = True, contrast_algo: 'ContrastAlgo' = 'apca', truncate: 'bool' = False, fn: 'Callable[[list[Any]], list[str | None]] | None' = None, direction: "Literal['column', 'row']" = 'column') -> 'GTSelf'
 
 Perform data cell colorization.
 
@@ -5442,16 +5442,21 @@ truncate
     color.
 fn
     A color-mapping function. The function should take a list of data values (from a single
-    column) as input and return a list of colors of the same length. Each color may be a
-    hexadecimal color value (e.g., `"#FF0000"`) or a color name (e.g., `"red"`). All values are
-    passed to the function, including missing values, so the function must handle those
-    itself. Any position where the function returns `None` receives the `na_color=` color. If
+    column, or from a single row with `direction="row"`) as input and return a list of colors
+    of the same length. Each color may be a hexadecimal color value (e.g., `"#FF0000"`) or a
+    color name (e.g., `"red"`). All values are passed to the function, including missing
+    values, so the function must handle those itself. Any position where the function returns `None` receives the `na_color=` color. If
     a function is supplied, then the `palette=`, `domain=`, `reverse=`, `truncate=`, and
     `midpoint=` arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=`
     arguments still apply to the returned colors. The
     [`col_numeric()`](`great_tables.col_numeric`), [`col_bin()`](`great_tables.col_bin`), and
     [`col_factor()`](`great_tables.col_factor`) helpers create ready-made color-mapping
     functions that can be supplied here.
+direction
+    Should the color computations be performed column-wise or row-wise? By default this is
+    `"column"` and the colors are computed down each targeted column. With `"row"`, the colors
+    are computed across each targeted row instead, using the values of that row in the
+    targeted columns (so each row has its own domain when the domain is inferred).
 
 Returns
 -------
@@ -5485,6 +5490,10 @@ column, except for ordered categorical columns (an ordered Pandas `Categorical` 
 that don't appear in the data, so colors stay consistent no matter which `rows=` are colored)
 
 Supplying `domain=` overrides any of the inferred domains described above.
+
+With `direction="row"`, all of this applies to the values of each targeted row (across the
+targeted columns) instead of to each column. An inferred categorical domain then lists the
+categories in the order they first appear in the row.
 
 Centering colors on a midpoint
 ------------------------------
@@ -5558,7 +5567,8 @@ supply your own color-mapping function to `fn=`. This gives complete control ove
 become colors. Here's how such a function is used:
 
 - it's called once per targeted column, receiving a list of that column's values (only for the
-rows selected by `rows=`, in table order)
+rows selected by `rows=`, in table order); with `direction="row"`, it's called once per
+targeted row instead, receiving that row's values in the targeted columns
 - it must return a list of colors of the same length, where each color is a hexadecimal value
 (`"#RRGGBB"`, `"#RRGGBBAA"`, or the short `"#RGB"` form) or a CSS/X11 color name
 - missing values are included in the list, so the function must handle them: with pandas they
@@ -5719,6 +5729,25 @@ sales_df = pd.DataFrame(
     )
     .fmt_percent(columns="pct_of_target", decimals=0)
 )
+```
+
+Colors are computed down each column by default. With `direction="row"`, they're computed
+across each row instead, which is useful when the values within a row are comparable but the
+rows are on different scales. Here, each region's quarterly sales are colored relative to that
+region's own lowest and highest quarter:
+
+```{python}
+quarterly_df = pd.DataFrame(
+    {
+        "region": ["North", "South", "East"],
+        "q1": [120, 45, 300],
+        "q2": [135, 52, 280],
+        "q3": [128, 61, 310],
+        "q4": [150, 58, 295],
+    }
+)
+
+GT(quarterly_df, rowname_col="region").data_color(palette="Blues", direction="row")
 ```
 
 To pin more than the midpoint, we can build the function with
