@@ -1,3 +1,4 @@
+import math
 import re
 from datetime import date, datetime, timedelta
 from typing import Any, Union
@@ -25,6 +26,7 @@ from great_tables._formats import (
     _get_next_si_prefix,
     _has_zero_value,
     _normalize_locale,
+    _round_rhu,
     _rounds_up_to,
     _SI_PREFIXES_DECIMAL,
     _SI_PREFIXES_ENGINEERING,
@@ -4591,13 +4593,33 @@ def test_fmt_index_zero_with_pattern():
 
 
 def test_fmt_index_negative():
-    df = pd.DataFrame({"x": [-1, -2, -3]})
+    # Negative values are indexed by their absolute value, as in R gt
+    df = pd.DataFrame({"x": [-1, -2, -3, -50, -1.5, -0.999, -0.4]})
     gt = GT(df).fmt_index(columns="x")
     x = _get_column_of_values(gt, column_name="x", context="html")
 
-    assert x[0] == ""  # _round_rhu(-1, 0) -> 0.0 -> empty
-    assert x[1] == "A"
-    assert x[2] == "B"
+    assert x == ["A", "B", "C", "XX", "B", "A", ""]
+
+
+@pytest.mark.parametrize(
+    "x,digits,expected",
+    [
+        (2.5, 0, 3.0),
+        (-2.5, 0, -3.0),
+        (-50, 0, -50.0),
+        (-1.5, 0, -2.0),
+        (-0.999, 0, -1.0),
+        (-0.4, 0, 0.0),
+        (1.005, 2, 1.01),
+        (-1.005, 2, -1.01),
+    ],
+)
+def test_round_rhu(x: float, digits: int, expected: float):
+    # Halves are rounded away from zero, like `round_gt()` in R gt
+    result = _round_rhu(x, digits)
+
+    assert result == expected
+    assert math.copysign(1, result) == math.copysign(1, expected)
 
 
 def test_fmt_index_na():

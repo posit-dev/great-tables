@@ -6968,6 +6968,9 @@ def _round_rhu(x: float, digits: int = 0) -> float:
     """
     Rounds a number using the 'Round-Half-Up' (R-H-U) algorithm.
 
+    As in `round_gt()` from the R gt package, the absolute value is rounded and the sign is
+    then restored, so halves are rounded away from zero (e.g., `-2.5` becomes `-3`).
+
     Args:
         x (float): The number to round.
         digits (int): The number of digits to round to.
@@ -6976,8 +6979,8 @@ def _round_rhu(x: float, digits: int = 0) -> float:
         float: The rounded number.
     """
 
-    # Multiply the number by 10^digits to move the decimal point to the right
-    z = x * 10**digits
+    # Multiply the absolute value by 10^digits to move the decimal point to the right
+    z = abs(x) * 10**digits
 
     # Add 0.5 + 2.220446049250313e-16 to the number to ensure that the number is rounded up
     z += 0.5 + math.sqrt(2.220446049250313e-16)
@@ -6988,7 +6991,8 @@ def _round_rhu(x: float, digits: int = 0) -> float:
     # Divide the number by 10^digits to move the decimal point back to the original position
     z /= 10**digits
 
-    return z
+    # Restore the sign of the original number (a value that rounds to zero stays at 0.0)
+    return -z if x < 0 and z != 0 else z
 
 
 def _as_roman(x: int) -> str:
