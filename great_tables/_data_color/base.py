@@ -62,6 +62,7 @@ def data_color(
     contrast_algo: ContrastAlgo = "apca",
     truncate: bool = False,
     fn: Callable[[list[Any]], list[str | None]] | None = None,
+    direction: Literal["column", "row"] = "column",
 ) -> GTSelf:
     """
     Perform data cell colorization.
@@ -131,16 +132,21 @@ def data_color(
         color.
     fn
         A color-mapping function. The function should take a list of data values (from a single
-        column) as input and return a list of colors of the same length. Each color may be a
-        hexadecimal color value (e.g., `"#FF0000"`) or a color name (e.g., `"red"`). All values are
-        passed to the function, including missing values, so the function must handle those
-        itself. Any position where the function returns `None` receives the `na_color=` color. If
+        column, or from a single row with `direction="row"`) as input and return a list of colors
+        of the same length. Each color may be a hexadecimal color value (e.g., `"#FF0000"`) or a
+        color name (e.g., `"red"`). All values are passed to the function, including missing
+        values, so the function must handle those itself. Any position where the function returns `None` receives the `na_color=` color. If
         a function is supplied, then the `palette=`, `domain=`, `reverse=`, `truncate=`, and
         `midpoint=` arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=`
         arguments still apply to the returned colors. The
         [`col_numeric()`](`great_tables.col_numeric`), [`col_bin()`](`great_tables.col_bin`), and
         [`col_factor()`](`great_tables.col_factor`) helpers create ready-made color-mapping
         functions that can be supplied here.
+    direction
+        Should the color computations be performed column-wise or row-wise? By default this is
+        `"column"` and the colors are computed down each targeted column. With `"row"`, the colors
+        are computed across each targeted row instead, using the values of that row in the
+        targeted columns (so each row has its own domain when the domain is inferred).
 
     Returns
     -------
@@ -174,6 +180,10 @@ def data_color(
     that don't appear in the data, so colors stay consistent no matter which `rows=` are colored)
 
     Supplying `domain=` overrides any of the inferred domains described above.
+
+    With `direction="row"`, all of this applies to the values of each targeted row (across the
+    targeted columns) instead of to each column. An inferred categorical domain then lists the
+    categories in the order they first appear in the row.
 
     Centering colors on a midpoint
     ------------------------------
@@ -247,7 +257,8 @@ def data_color(
     become colors. Here's how such a function is used:
 
     - it's called once per targeted column, receiving a list of that column's values (only for the
-    rows selected by `rows=`, in table order)
+    rows selected by `rows=`, in table order); with `direction="row"`, it's called once per
+    targeted row instead, receiving that row's values in the targeted columns
     - it must return a list of colors of the same length, where each color is a hexadecimal value
     (`"#RRGGBB"`, `"#RRGGBBAA"`, or the short `"#RGB"` form) or a CSS/X11 color name
     - missing values are included in the list, so the function must handle them: with pandas they
@@ -410,6 +421,25 @@ def data_color(
     )
     ```
 
+    Colors are computed down each column by default. With `direction="row"`, they're computed
+    across each row instead, which is useful when the values within a row are comparable but the
+    rows are on different scales. Here, each region's quarterly sales are colored relative to that
+    region's own lowest and highest quarter:
+
+    ```{python}
+    quarterly_df = pd.DataFrame(
+        {
+            "region": ["North", "South", "East"],
+            "q1": [120, 45, 300],
+            "q2": [135, 52, 280],
+            "q3": [128, 61, 310],
+            "q4": [150, 58, 295],
+        }
+    )
+
+    GT(quarterly_df, rowname_col="region").data_color(palette="Blues", direction="row")
+    ```
+
     To pin more than the midpoint, we can build the function with
     [`col_numeric()`](`great_tables.col_numeric`) and its `stops=` argument, which gives a value
     for each palette color. A stop can be a data value or a percentage of the way through the range
@@ -430,10 +460,10 @@ def data_color(
     ```
     """
 
-    # TODO: there is a circular import in palettes (which imports functions from this module)
-    from great_tables._data_color.palettes import GradientPalette
-
     _validate_contrast_algo(contrast_algo)
+
+    if direction not in ("column", "row"):
+        raise ValueError(f'`direction=` must be either "column" or "row", not {direction!r}.')
 
     # If no color is provided to `na_color`, use a light gray color as a default
     if na_color is None:
@@ -443,9 +473,6 @@ def data_color(
 
     # Resolve the palette to a list of hexadecimal color values
     palette = _resolve_palette(palette=palette, reverse=reverse, alpha=alpha)
-
-    # Set a flag to indicate whether or not the domain should be calculated automatically
-    autocalc_domain = domain is None
 
     if midpoint is not None and fn is None:
         _validate_midpoint(midpoint, domain=domain)
@@ -462,128 +489,176 @@ def data_color(
 
     gt_obj = self
 
-    # For each column targeted, get the data values as a new list object
-    for col in columns_resolved:
-        # This line handles both pandas and polars dataframes
-        column_vals = to_list(get_rows(data_table[col], indexes=row_pos))
+    def map_colors(vals: list[Any], column: str | None = None, row: int | None = None) -> list[str]:
+        return _map_data_colors(
+            vals,
+            column=column,
+            row=row,
+            data_table=data_table,
+            palette=palette,
+            domain=domain,
+            midpoint=midpoint,
+            na_color=na_color,
+            alpha=alpha,
+            truncate=truncate,
+            fn=fn,
+        )
 
-        # If a color-mapping function is provided, it determines the colors directly (bypassing
-        # the palette, domain, and rescaling logic below)
-        if fn is not None:
-            color_vals = _apply_color_fn(
-                fn=fn,
-                col=col,
-                vals=column_vals,
-                na_color=na_color,
-                alpha=alpha,
-            )
+    if direction == "column":
+        # For each column targeted, get the data values as a new list object and color them
+        for col in columns_resolved:
+            # This line handles both pandas and polars dataframes
+            column_vals = to_list(get_rows(data_table[col], indexes=row_pos))
+
+            color_vals = map_colors(column_vals, column=col)
 
             gt_obj = _apply_data_color_styles(
                 gt_obj,
-                col=col,
-                row_pos=row_pos,
+                cells=[(col, i) for i in row_pos],
                 color_vals=color_vals,
                 autocolor_text=autocolor_text,
                 contrast_algo=contrast_algo,
             )
 
-            continue
+    else:
+        # For each row targeted, color the values across the targeted columns
+        columns_vals = [
+            to_list(get_rows(data_table[col], indexes=row_pos)) for col in columns_resolved
+        ]
 
-        # Convert any `Decimal` values to floats so that they can be scaled like other numbers
-        column_vals = [float(x) if isinstance(x, Decimal) else x for x in column_vals]
+        for k, i in enumerate(row_pos):
+            row_vals = [column_vals[k] for column_vals in columns_vals]
 
-        # Filter out NA values from `column_vals`
-        filtered_column_vals = [x for x in column_vals if not is_na(data_table, x)]
+            color_vals = map_colors(row_vals, row=i)
 
-        # The methodology for domain calculation and rescaling depends on column values being:
-        # (1) numeric (integers or floats), then the method should be 'numeric'
-        # (2) strings, then the method should be 'factor'
-        if len(filtered_column_vals) and all(
-            isinstance(x, (int, float)) for x in filtered_column_vals
-        ):
-            if midpoint is not None:
-                # Pin the midpoint to the center of the palette (an inferred domain is made
-                # symmetric around the midpoint, a supplied one is scaled separately on each side)
-                present_vals = [None if is_na(data_table, x) else x for x in column_vals]
-                stops, positions = _midpoint_stops(midpoint, domain=domain, vals=present_vals)
-                scaled_vals = _rescale_stops(
-                    present_vals, stops=stops, positions=positions, truncate=truncate
-                )
+            gt_obj = _apply_data_color_styles(
+                gt_obj,
+                cells=[(col, i) for col in columns_resolved],
+                color_vals=color_vals,
+                autocolor_text=autocolor_text,
+                contrast_algo=contrast_algo,
+            )
 
-            else:
-                # If `domain` is not provided, then infer it from the data values
-                if autocalc_domain:
-                    domain = _get_domain_numeric(df=data_table, vals=column_vals)
+    return gt_obj
 
-                # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-                scaled_vals = _rescale_numeric(
-                    df=data_table, vals=column_vals, domain=domain, truncate=truncate
-                )
 
-            # Infinite values are left out of an inferred domain, so place them at either end of it
-            if autocalc_domain:
-                scaled_vals = [
-                    (1.0 if x > 0 else 0.0) if _is_infinite(x) else scaled
-                    for x, scaled in zip(column_vals, scaled_vals)
-                ]
+def _map_data_colors(
+    vals: list[Any],
+    data_table: DataFrameLike,
+    palette: list[str],
+    domain: list[str] | list[int] | list[float] | None,
+    midpoint: int | float | None,
+    na_color: str,
+    alpha: float | None,
+    truncate: bool,
+    fn: Callable[[list[Any]], list[str | None]] | None,
+    column: str | None = None,
+    row: int | None = None,
+) -> list[str]:
+    """
+    Map the values of a column (given by `column=`) or of a row (given by `row=`) to colors.
+    """
 
-        elif all(isinstance(x, str) for x in filtered_column_vals):
-            # (an all-missing column also lands here, and that's fine to color with `na_color=`)
-            if midpoint is not None and filtered_column_vals:
-                raise ValueError(
-                    f"`midpoint=` can only be used with numeric columns, but column '{col}' "
-                    "contains string values."
-                )
+    # TODO: there is a circular import in palettes (which imports functions from this module)
+    from great_tables._data_color.palettes import GradientPalette
 
-            # If `domain` is not provided, then infer it from the data values
-            # (for ordered categorical columns, use the declared levels instead)
-            if autocalc_domain:
-                domain = _get_column_levels(data_table, col) or _get_domain_factor(
-                    df=data_table, vals=column_vals
-                )
+    # Name the values in error messages
+    label = f"column '{column}'" if column is not None else f"row {row}"
 
-            # Rescale only the non-NA values in `column_vals` to the range [0, 1]
-            scaled_vals = _rescale_factor(
-                df=data_table, vals=column_vals, domain=domain, palette=palette
+    # If a color-mapping function is provided, it determines the colors directly (bypassing
+    # the palette, domain, and rescaling logic below)
+    if fn is not None:
+        return _apply_color_fn(fn=fn, label=label, vals=vals, na_color=na_color, alpha=alpha)
+
+    # Set a flag to indicate whether or not the domain should be calculated automatically
+    autocalc_domain = domain is None
+
+    # Convert any `Decimal` values to floats so that they can be scaled like other numbers
+    vals = [float(x) if isinstance(x, Decimal) else x for x in vals]
+
+    # Filter out NA values from `vals`
+    filtered_vals = [x for x in vals if not is_na(data_table, x)]
+
+    # The methodology for domain calculation and rescaling depends on the values being:
+    # (1) numeric (integers or floats), then the method should be 'numeric'
+    # (2) strings, then the method should be 'factor'
+    if len(filtered_vals) and all(isinstance(x, (int, float)) for x in filtered_vals):
+        if midpoint is not None:
+            # Pin the midpoint to the center of the palette (an inferred domain is made
+            # symmetric around the midpoint, a supplied one is scaled separately on each side)
+            present_vals = [None if is_na(data_table, x) else x for x in vals]
+            stops, positions = _midpoint_stops(midpoint, domain=domain, vals=present_vals)
+            scaled_vals = _rescale_stops(
+                present_vals, stops=stops, positions=positions, truncate=truncate
             )
 
         else:
-            raise ValueError(
-                f"Invalid column type provided ({col}). Please ensure that all columns are either numeric or strings."
+            # If `domain` is not provided, then infer it from the data values
+            if autocalc_domain:
+                domain = _get_domain_numeric(df=data_table, vals=vals)
+
+            # Rescale only the non-NA values in `vals` to the range [0, 1]
+            scaled_vals = _rescale_numeric(
+                df=data_table, vals=vals, domain=domain, truncate=truncate
             )
 
-        # Replace NA values in `scaled_vals` with `None`
-        scaled_vals = [None if is_na(data_table, x) else x for x in scaled_vals]
+        # Infinite values are left out of an inferred domain, so place them at either end of it
+        if autocalc_domain:
+            scaled_vals = [
+                (1.0 if x > 0 else 0.0) if _is_infinite(x) else scaled
+                for x, scaled in zip(vals, scaled_vals)
+            ]
 
-        # Create a color scale function from the palette
-        color_scale_fn = GradientPalette(colors=palette)
+    elif all(isinstance(x, str) for x in filtered_vals):
+        # (all-missing values also land here, and that's fine to color with `na_color=`)
+        if midpoint is not None and filtered_vals:
+            raise ValueError(
+                f"`midpoint=` can only be used with numeric columns, but {label} contains string "
+                "values."
+            )
 
-        # Call the color scale function on the scaled values to get a list of colors
-        color_vals = color_scale_fn(scaled_vals)
+        # If `domain` is not provided, then infer it from the data values
+        # (for ordered categorical columns, use the declared levels instead)
+        if autocalc_domain:
+            levels = _get_column_levels(data_table, column) if column is not None else None
+            domain = levels or _get_domain_factor(df=data_table, vals=vals)
 
-        # `GradientPalette` interpolates using RGB tuples, which have no alpha channel, so the
-        # `alpha=` value baked into `palette` above is lost here; reapply it to the interpolated
-        # colors (skipping `None` entries, which stand in for NA values)
-        if alpha is not None:
-            not_na_idx = [i for i, x in enumerate(color_vals) if x is not None]
-            not_na_colors = [x for x in color_vals if x is not None]
-            not_na_vals = _html_color(colors=not_na_colors, alpha=alpha)
-            for i, val in zip(not_na_idx, not_na_vals):
-                color_vals[i] = val
+        # Rescale only the non-NA values in `vals` to the range [0, 1]
+        scaled_vals = _rescale_factor(df=data_table, vals=vals, domain=domain, palette=palette)
 
-        # Replace 'None' values in `color_vals` with the `na_color=` color
-        color_vals = [na_color if x is None else x for x in color_vals]
-
-        gt_obj = _apply_data_color_styles(
-            gt_obj,
-            col=col,
-            row_pos=row_pos,
-            color_vals=color_vals,
-            autocolor_text=autocolor_text,
-            contrast_algo=contrast_algo,
+    elif column is not None:
+        raise ValueError(
+            f"Invalid column type provided ({column}). Please ensure that all columns are either "
+            "numeric or strings."
         )
 
-    return gt_obj
+    else:
+        raise ValueError(
+            f'Invalid values in {label}. With `direction="row"`, please ensure that the targeted '
+            "columns are either all numeric or all strings."
+        )
+
+    # Replace NA values in `scaled_vals` with `None`
+    scaled_vals = [None if is_na(data_table, x) else x for x in scaled_vals]
+
+    # Create a color scale function from the palette
+    color_scale_fn = GradientPalette(colors=palette)
+
+    # Call the color scale function on the scaled values to get a list of colors
+    color_vals = color_scale_fn(scaled_vals)
+
+    # `GradientPalette` interpolates using RGB tuples, which have no alpha channel, so the
+    # `alpha=` value baked into `palette` above is lost here; reapply it to the interpolated
+    # colors (skipping `None` entries, which stand in for NA values)
+    if alpha is not None:
+        not_na_idx = [i for i, x in enumerate(color_vals) if x is not None]
+        not_na_colors = [x for x in color_vals if x is not None]
+        not_na_vals = _html_color(colors=not_na_colors, alpha=alpha)
+        for i, val in zip(not_na_idx, not_na_vals):
+            color_vals[i] = val
+
+    # Replace 'None' values in `color_vals` with the `na_color=` color
+    return [na_color if x is None else x for x in color_vals]
 
 
 def _resolve_palette(
@@ -617,15 +692,14 @@ def _resolve_palette(
 
 def _apply_data_color_styles(
     gt_obj: GTSelf,
-    col: str,
-    row_pos: list[int],
+    cells: list[tuple[str, int]],
     color_vals: list[str],
     autocolor_text: bool,
     contrast_algo: ContrastAlgo,
 ) -> GTSelf:
-    # For every color value in `color_vals`, apply a fill to the corresponding cell
-    # by using `tab_style()`
-    for i, color_val in zip(row_pos, color_vals):
+    # For every color value in `color_vals`, apply a fill to the corresponding cell (given as a
+    # column name and a row index) by using `tab_style()`
+    for (col, i), color_val in zip(cells, color_vals):
         if autocolor_text:
             fgnd_color = _ideal_fgnd_color(bgnd_color=color_val, algo=contrast_algo)
 
@@ -645,13 +719,13 @@ def _apply_data_color_styles(
 
 def _apply_color_fn(
     fn: Callable[[list[Any]], list[str | None]],
-    col: str,
+    label: str,
     vals: list[Any],
     na_color: str,
     alpha: float | None,
 ) -> list[str]:
     """
-    Map column values to colors with a user-supplied color-mapping function.
+    Map column (or row) values to colors with a user-supplied color-mapping function.
 
     All values in `vals=` (including missing values) are passed to `fn=`, as in gt. Any positions
     where `fn=` returns `None` receive the `na_color=` color. All other colors are normalized to
@@ -662,8 +736,8 @@ def _apply_color_fn(
 
     if len(fn_colors) != len(vals):
         raise ValueError(
-            f"The function supplied to `fn=` returned {len(fn_colors)} colors for column "
-            f"'{col}' but {len(vals)} were expected. The function must return a list of "
+            f"The function supplied to `fn=` returned {len(fn_colors)} colors for {label} "
+            f"but {len(vals)} were expected. The function must return a list of "
             "colors with the same length as its input."
         )
 
@@ -671,7 +745,7 @@ def _apply_color_fn(
         if color is not None and not isinstance(color, str):
             raise TypeError(
                 "The function supplied to `fn=` must return colors as strings (or `None`), "
-                f"but returned a value of type {type(color).__name__} for column '{col}'."
+                f"but returned a value of type {type(color).__name__} for {label}."
             )
 
     color_vals = [na_color] * len(vals)

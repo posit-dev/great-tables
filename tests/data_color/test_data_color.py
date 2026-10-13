@@ -701,3 +701,104 @@ def test_data_color_infinite_values_explicit_domain(truncate: bool, expected: st
     )
 
     assert get_fill_colors(new_gt) == ["#800080", expected]
+
+
+def get_fill_colors_by_cell(gt: GT) -> dict[tuple[str, int], str]:
+    return {(s.colname, s.rownum): get_first_style(s, style.fill).color.lower() for s in gt._styles}
+
+
+@pytest.mark.parametrize("frame", params_frames)
+def test_data_color_direction_row(frame):
+    """With `direction="row"`, each row is colored across the targeted columns on its own domain."""
+    df = frame({"a": [1.0, 10.0, 5.0], "b": [2.0, 20.0, None], "c": [3.0, 30.0, 6.0]})
+    new_gt = GT(df).data_color(palette=["red", "blue"], direction="row")
+
+    assert get_fill_colors_by_cell(new_gt) == {
+        ("a", 0): "#ff0000",
+        ("b", 0): "#800080",
+        ("c", 0): "#0000ff",
+        ("a", 1): "#ff0000",
+        ("b", 1): "#800080",
+        ("c", 1): "#0000ff",
+        ("a", 2): "#ff0000",
+        ("b", 2): "#808080",
+        ("c", 2): "#0000ff",
+    }
+
+
+def test_data_color_direction_column_is_default():
+    df = pd.DataFrame({"a": [1, 10], "b": [20, 2]})
+
+    assert get_fill_colors(GT(df).data_color(palette=["red", "blue"])) == get_fill_colors(
+        GT(df).data_color(palette=["red", "blue"], direction="column")
+    )
+    assert get_fill_colors_by_cell(GT(df).data_color(palette=["red", "blue"], direction="row")) == {
+        ("a", 0): "#ff0000",
+        ("b", 0): "#0000ff",
+        ("a", 1): "#0000ff",
+        ("b", 1): "#ff0000",
+    }
+
+
+def test_data_color_direction_row_columns_and_rows():
+    """Only the targeted rows are colored, using the values of the targeted columns."""
+    df = pd.DataFrame({"a": [1, 4, 7], "b": [2, 5, 8], "c": [3, 6, 100]})
+    new_gt = GT(df).data_color(
+        columns=["a", "b"], rows=[0, 2], palette=["red", "blue"], direction="row"
+    )
+
+    assert get_fill_colors_by_cell(new_gt) == {
+        ("a", 0): "#ff0000",
+        ("b", 0): "#0000ff",
+        ("a", 2): "#ff0000",
+        ("b", 2): "#0000ff",
+    }
+
+
+def test_data_color_direction_row_strings():
+    """String values in a row are treated as categories, in the order they appear in the row."""
+    df = pd.DataFrame({"a": ["x", "z"], "b": ["y", "x"], "c": ["x", "y"]})
+    new_gt = GT(df).data_color(palette=["red", "blue"], direction="row")
+
+    assert get_fill_colors_by_cell(new_gt) == {
+        ("a", 0): "#ff0000",
+        ("b", 0): "#0000ff",
+        ("c", 0): "#ff0000",
+        ("a", 1): "#ff0000",
+        ("b", 1): "#800080",
+        ("c", 1): "#0000ff",
+    }
+
+
+def test_data_color_direction_row_fn():
+    """With `fn=`, the function receives the values of each row."""
+    df = pd.DataFrame({"a": [1, 3], "b": [2, 4]})
+    seen = []
+
+    def fn(vals):
+        seen.append(vals)
+        return ["red" if x == max(vals) else "blue" for x in vals]
+
+    new_gt = GT(df).data_color(fn=fn, direction="row")
+
+    assert seen == [[1, 2], [3, 4]]
+    assert get_fill_colors_by_cell(new_gt) == {
+        ("a", 0): "#0000ff",
+        ("b", 0): "#ff0000",
+        ("a", 1): "#0000ff",
+        ("b", 1): "#ff0000",
+    }
+
+
+def test_data_color_direction_row_mixed_types_raises():
+    df = pd.DataFrame({"a": [1, 2], "b": ["x", "y"]})
+
+    with pytest.raises(ValueError, match="Invalid values in row 0"):
+        GT(df).data_color(direction="row")
+
+
+def test_data_color_direction_invalid_raises():
+    df = pd.DataFrame({"a": [1, 2]})
+
+    with pytest.raises(ValueError, match='`direction=` must be either "column" or "row"'):
+        GT(df).data_color(direction="rows")  # type: ignore[arg-type]
