@@ -4945,6 +4945,15 @@ def test_fmt_email_rows_subset():
     assert "mailto:" in x[2]
 
 
+def test_fmt_email_latex():
+    df = pd.DataFrame({"x": ["first_last@example.com"]})
+    gt = GT(df).fmt_email(columns="x", display_name=lambda e: e.split("@")[0])
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+
+    assert x == ["\\href{mailto:first_last@example.com}{first\\_last}"]
+
+
+# ==============================================================================
 # min_sep_threshold tests (the expected values are those of the gt tests)
 # ==============================================================================
 
@@ -5115,13 +5124,3 @@ def test_fmt_number_min_sep_threshold_invalid(min_sep_threshold: Any):
 
     with pytest.raises(ValueError, match="must be an integer of 1 or more"):
         GT(df).fmt_number(columns="x", min_sep_threshold=min_sep_threshold)
-=======
-def test_fmt_email_latex():
-    df = pd.DataFrame({"x": ["first_last@example.com"]})
-    gt = GT(df).fmt_email(columns="x", display_name=lambda e: e.split("@")[0])
-    x = _get_column_of_values(gt, column_name="x", context="latex")
-
-    assert x == ["\\href{mailto:first_last@example.com}{first\\_last}"]
-
-
-# =======================================================================
