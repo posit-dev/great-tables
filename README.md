@@ -13,6 +13,7 @@ _Absolutely Delightful Table-making in Python_
 [![Codecov branch](https://img.shields.io/codecov/c/github/posit-dev/great-tables/main.svg)](https://codecov.io/gh/posit-dev/great-tables)
 [![Repo Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Documentation](https://img.shields.io/badge/docs-project_website-blue.svg)](https://posit-dev.github.io/great-tables/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/posit-dev/great-tables)
 
 [![Contributors](https://img.shields.io/github/contributors/posit-dev/great-tables)](https://github.com/posit-dev/great-tables/graphs/contributors)
 [![Discord](https://img.shields.io/discord/1086103944280952992?color=%237289da&label=Discord)](https://discord.com/invite/Ux7nrcXHVV)
