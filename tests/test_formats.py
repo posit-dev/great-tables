@@ -4825,6 +4825,20 @@ def test_fmt_url_button_auto_text_color():
     assert "color:#FFFFFF" in x[0]
 
 
+def test_fmt_url_latex():
+    df = pd.DataFrame(
+        {"x": ["https://example.com/a_b%20c?q=1&r=2#top", "[My Site](https://example.com)"]}
+    )
+    gt = GT(df).fmt_url(columns="x", as_button=True)
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+
+    assert x == [
+        "\\href{https://example.com/a_b\\%20c?q=1\\&r=2\\#top}"
+        "{https://example.com/a\\_b\\%20c?q=1\\&r=2\\#top}",
+        "\\href{https://example.com}{My Site}",
+    ]
+
+
 # ==============================================================================
 # fmt_email tests
 # ==============================================================================
@@ -4915,3 +4929,11 @@ def test_fmt_email_rows_subset():
     assert "mailto:" in x[0]
     assert x[1] == "b@b.com"  # unformatted
     assert "mailto:" in x[2]
+
+
+def test_fmt_email_latex():
+    df = pd.DataFrame({"x": ["first_last@example.com"]})
+    gt = GT(df).fmt_email(columns="x", display_name=lambda e: e.split("@")[0])
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+
+    assert x == ["\\href{mailto:first_last@example.com}{first\\_last}"]
