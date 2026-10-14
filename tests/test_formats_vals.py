@@ -187,3 +187,32 @@ def test_val_fmt_number_si():
     result = vals.fmt_number_si(1500)
 
     assert "k" in result[0] or "1" in result[0]
+
+
+@pytest.mark.parametrize(
+    "min_sep_threshold,expected",
+    [
+        (1, ["999", "1,000", "9,999", "10,000", "99,999", "100,000"]),
+        (2, ["999", "1000", "9999", "10,000", "99,999", "100,000"]),
+        (3, ["999", "1000", "9999", "10000", "99999", "100,000"]),
+    ],
+)
+def test_val_fmt_number_min_sep_threshold(min_sep_threshold, expected):
+    x = [999, 1000, 9999, 10000, 99999, 100000]
+
+    assert vals.fmt_number(x, decimals=0, min_sep_threshold=min_sep_threshold) == expected
+
+
+def test_val_fmt_min_sep_threshold():
+    assert vals.fmt_integer([999, 1000, 10000], min_sep_threshold=2) == ["999", "1000", "10,000"]
+    assert vals.fmt_percent([9.99, 100.00], decimals=0, min_sep_threshold=2) == ["999%", "10,000%"]
+    assert vals.fmt_currency([1000, 10000], currency="USD", min_sep_threshold=2) == [
+        "$1000.00",
+        "$10,000.00",
+    ]
+    assert vals.fmt_bytes([100, 950], decimals=0, min_sep_threshold=2) == ["100 B", "950 B"]
+
+
+def test_val_fmt_min_sep_threshold_from_locale():
+    assert vals.fmt_number([1836, 10000], decimals=0, locale="et") == ["1836", "10 000"]
+    assert vals.fmt_integer([1836, 10000], locale="pl") == ["1836", "10 000"]
