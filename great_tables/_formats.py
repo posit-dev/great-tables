@@ -809,8 +809,9 @@ def fmt_scientific_context(
 
     m_part, n_part = sci_parts
 
-    # Remove trailing zeros (from the decimal part only) and decimal marks from the `m_part`
-    if drop_trailing_zeros and dec_mark and dec_mark in m_part:
+    # Remove trailing zeros (from the decimal part only) and decimal marks from the `m_part`; the
+    # zeros are significant digits when formatting to `n_sigfig`, so they're kept then (as in gt)
+    if drop_trailing_zeros and not n_sigfig and dec_mark and dec_mark in m_part:
         m_part = m_part.rstrip("0")
     if drop_trailing_dec_mark and dec_mark:
         m_part = m_part.rstrip(dec_mark)

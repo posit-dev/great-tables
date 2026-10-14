@@ -3363,6 +3363,20 @@ def test_fmt_scientific_drop_trailing_zeros():
     assert "1" in x[0]
 
 
+def test_fmt_scientific_n_sigfig_keeps_trailing_zeros():
+    # With `n_sigfig=`, trailing zeros are significant digits and `drop_trailing_zeros=` is
+    # ignored (as documented, and as in gt)
+    df = pd.DataFrame({"x": [937.29, 643.0, 2.232, 0.0, -23.24]})
+    x_out = ["9.37290E02", "6.43000E02", "2.23200E00", "0.00000E00", "\u22122.32400E01"]
+
+    for drop_trailing_zeros in [True, False]:
+        gt = GT(df).fmt_scientific(
+            columns="x", n_sigfig=6, drop_trailing_zeros=drop_trailing_zeros, exp_style="E"
+        )
+
+        assert _get_column_of_values(gt, column_name="x", context="html") == x_out
+
+
 # `drop_trailing_zeros=` must only strip zeros from the decimal part, never from the integer part
 # (with `decimals=0` there is no decimal part at all)
 @pytest.mark.parametrize(
