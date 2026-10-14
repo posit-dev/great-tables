@@ -4780,6 +4780,10 @@ def fmt_duration_context(
             locale=locale,
         )
 
+    # Escape the `<` of values below the smallest output unit (e.g., `<1s`) for LaTeX
+    if context == "latex":
+        x_formatted = _latex_escape(x_formatted)
+
     # Apply sign
     if is_negative:
         minus_mark = _context_minus_mark(context=context)
