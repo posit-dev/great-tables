@@ -25,8 +25,20 @@ LENGTH_TRANSLATIONS_TO_PX = {
     "pt": 4 / 3,
     "in": 96.0,
     "cm": 37.7952755906,
+    "mm": 3.77952755906,
     "emu": 1 / 9525,
     "em": 16.0,
+}
+
+# The same lengths in points (1pt = 4/3px), given exactly so that they convert without rounding
+LENGTH_TRANSLATIONS_TO_PT = {
+    "px": 0.75,
+    "pt": 1.0,
+    "in": 72.0,
+    "cm": 72 / 2.54,
+    "mm": 72 / 25.4,
+    "emu": 1 / 12700,
+    "em": 12.0,
 }
 
 
@@ -105,9 +117,40 @@ def convert_to_px(length: str) -> float:
 
 
 def convert_to_pt(x: str) -> float:
-    px_value = convert_to_px(x)
+    # Convert directly (not through whole pixels, as `convert_to_px()` does) so that, e.g., a
+    # length in points is kept as is
+    units = get_units_from_length_string(length=x)
+    value = float(re.sub(r"[a-zA-Z\s]", "", x))
 
-    return px_value * 3 / 4
+    if units not in LENGTH_TRANSLATIONS_TO_PT:
+        raise ValueError(f"Invalid units: {units}")
+
+    return value * LENGTH_TRANSLATIONS_TO_PT[units]
+
+
+def _latex_indent_step(css_length: str) -> tuple[float, str]:
+    """Get one step of stub indentation (`stub_indent_length`, a CSS length) as a LaTeX length.
+
+    Returns the value and units: font-relative lengths (`em`, `rem`) are kept as LaTeX `em`, and
+    absolute lengths are converted to points. A length with no fixed size (e.g., `%`) can't be
+    used, so the default (`5px`) is used instead, with a warning.
+    """
+
+    length = css_length.strip().lower()
+    units = get_units_from_length_string(length) if is_css_length_string(length) else None
+
+    if units in ("em", "rem"):
+        return float(re.sub(r"[a-z\s]", "", length)), "em"
+
+    if units not in LENGTH_TRANSLATIONS_TO_PX:
+        warnings.warn(
+            f"The `stub_indent_length` value {css_length!r} can't be used in LaTeX output, so "
+            "the default (`5px`) is used instead.",
+            stacklevel=2,
+        )
+        length = "5px"
+
+    return convert_to_pt(length), "pt"
 
 
 def latex_heading_row(content: list[str]) -> str:
@@ -494,6 +537,9 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
     prev_group_info = None
     first_group_added = False
 
+    # One step of stub indentation, as a LaTeX length (worked out on first use)
+    indent_step: tuple[float, str] | None = None
+
     # Calculate total number of columns for multicolumn spanning in group headers
     n_cols = len(column_vars) + len(stub_layout)
 
@@ -579,8 +625,12 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
                 # the primary (last) column is indented
                 indent_level = data._stub.rows[i].indent
                 if indent_level > 0:
-                    indent_pt = convert_to_pt(data._options.stub_indent_length.value) * indent_level
-                    body_cells[-1] = f"\\hspace*{{{indent_pt:g}pt}} {body_cells[-1]}"
+                    if indent_step is None:
+                        indent_step = _latex_indent_step(data._options.stub_indent_length.value)
+                    indent = f"{indent_step[0] * indent_level:g}{indent_step[1]}"
+
+                    # No space after the `\hspace*{}`, which would add an interword space
+                    body_cells[-1] = f"\\hspace*{{{indent}}}{body_cells[-1]}"
             else:
                 # Placeholder stub for summary rows (no actual rowname column)
                 body_cells.append("")
