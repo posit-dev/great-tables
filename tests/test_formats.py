@@ -2016,6 +2016,13 @@ def test_fmt_roman_lower():
     assert x == ["mccxxxiv", "n", "n", "i", "i", "xcix", "ex terminis"]
 
 
+def test_fmt_roman_float32():
+    df = pd.DataFrame({"x": pd.Series([1.5, 4.0, -9.0], dtype="float32")})
+    gt = GT(df).fmt_roman(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["II", "IV", "IX"]
+
+
 def test_fmt_roman_bad_case_raises():
     with pytest.raises(ValueError) as exc_info:
         gt = GT(df_fmt_roman).fmt_roman(columns="x", case="case")
@@ -4326,6 +4333,23 @@ def test_fmt_fraction_polars():
     assert x == ["1/2", "1 1/4", "3 3/4"]
 
 
+@pytest.mark.parametrize(
+    "values,dtype,x_out",
+    [
+        ([-3, 0, 2], "int64", ["−3", "0", "2"]),
+        ([1, 250], "uint8", ["1", "250"]),
+        ([1.5, -0.25], "float32", ["1 1/2", "−1/4"]),
+        ([1, -2], "Int64", ["1", "−2"]),
+    ],
+)
+def test_fmt_fraction_pandas_numpy_dtypes(values: list, dtype: str, x_out: list):
+    # Values from these columns are NumPy scalars rather than Python numbers
+    df = pd.DataFrame({"x": pd.Series(values, dtype=dtype)})
+    gt = GT(df).fmt_fraction(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
 def test_fmt_fraction_invalid_accuracy_str():
     with pytest.raises(ValueError, match="accuracy must be"):
         GT(df_fmt_fraction).fmt_fraction(columns="x", accuracy="ultra")
@@ -4671,6 +4695,14 @@ def test_fmt_index_excel_large():
     assert x[0] == "BA"
     assert x[1] == "ZZ"
     assert x[2] == "AAA"
+
+
+def test_fmt_index_float32():
+    df = pd.DataFrame({"x": pd.Series([1.0, 2.6, 27.0], dtype="float32")})
+    gt = GT(df).fmt_index(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    assert x == ["A", "C", "AA"]
 
 
 def test_fmt_index_polars():
