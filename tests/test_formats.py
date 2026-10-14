@@ -3853,6 +3853,20 @@ def test_fmt_duration_timedelta_input():
     assert x[0] is not None
 
 
+@pytest.mark.parametrize(
+    "duration_style,x_out",
+    [
+        ("narrow", ["\\textless{}1s", "1m 30s"]),
+        ("wide", ["\\textless{}1 second", "1 minute 30 seconds"]),
+    ],
+)
+def test_fmt_duration_latex_less_than(duration_style: str, x_out: list[str]):
+    df = pd.DataFrame({"x": [0.5, 90.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", duration_style=duration_style)
+    x = _get_column_of_values(gt, column_name="x", context="latex")
+    assert x == x_out
+
+
 def test_context_exp_str_else_branch():
     from great_tables._formats import _context_exp_str
 
