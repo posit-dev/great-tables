@@ -1009,3 +1009,48 @@ def test_hidden_column_labels_have_no_header_ids():
     _, headers = _header_attrs(gt.as_raw_html())
 
     assert headers[0] == ["G-1", "stub-1"]
+
+
+# The table's accessible name (title) and description (subtitle) ------------------------------
+
+
+def _table_aria(html_str: str) -> dict[str, str]:
+    import re
+
+    table_tag = re.search(r"<table\b[^>]*>", html_str).group(0)
+    return dict(re.findall(r'(aria-labelledby|aria-describedby)="([^"]*)"', table_tag))
+
+
+def _heading_ids(html_str: str) -> dict[str, str]:
+    import re
+
+    return {
+        kind: id_
+        for kind, id_ in re.findall(r'<td\b[^>]*gt_(title|subtitle)\b[^>]*\bid="([^"]*)"', html_str)
+    }
+
+
+def test_table_named_by_title_and_described_by_subtitle():
+    html_str = GT(pl.DataFrame({"x": [1]})).tab_header("Title", "Subtitle").as_raw_html()
+
+    assert _heading_ids(html_str) == {"title": "title", "subtitle": "subtitle"}
+    assert _table_aria(html_str) == {"aria-labelledby": "title", "aria-describedby": "subtitle"}
+
+
+def test_table_title_id_avoids_column_ids():
+    # A column named `title` keeps its id; the title cell's id gets a suffix
+    gt = GT(pl.DataFrame({"title": [1]}), id="t 1").tab_header(md("**Title**"))
+    html_str = gt.as_raw_html()
+
+    assert _heading_ids(html_str) == {"title": "t-1-title-2"}
+    assert _table_aria(html_str) == {"aria-labelledby": "t-1-title-2"}
+    assert 'id="t-1-title"' in html_str
+
+
+def test_table_without_title_has_no_name():
+    assert _table_aria(GT(pl.DataFrame({"x": [1]})).as_raw_html()) == {}
+
+
+def test_table_named_by_title_with_column_labels_hidden():
+    gt = GT(pl.DataFrame({"x": [1]})).tab_header("Title").tab_options(column_labels_hidden=True)
+    assert _table_aria(gt.as_raw_html()) == {"aria-labelledby": "title"}

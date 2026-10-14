@@ -3,11 +3,11 @@
   '''
   <div id="test_auto_placement" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_auto_placement-title" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="8" class="gt_heading gt_title gt_font_normal">Auto Placement Test</td>
+      <td colspan="8" class="gt_heading gt_title gt_font_normal" id="test_auto_placement-title">Auto Placement Test</td>
     </tr>
   <tr class="gt_col_headings">
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_auto_placement-integers">integers</th>
@@ -43,11 +43,11 @@
   '''
   <div id="test_left_placement" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_left_placement-title" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_title gt_font_normal">Left Placement Test</td>
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" id="test_left_placement-title">Left Placement Test</td>
     </tr>
   <tr class="gt_col_headings">
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_left_placement-integers">integers</th>
@@ -73,11 +73,11 @@
   '''
   <div id="test_right_placement" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_right_placement-title" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_title gt_font_normal">Right Placement Test</td>
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" id="test_right_placement-title">Right Placement Test</td>
     </tr>
   <tr class="gt_col_headings">
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_right_placement-integers">integers</th>
@@ -156,14 +156,14 @@
   '''
   <div id="test_kitchen_sink_sum_bottom_grand_bottom" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_sum_bottom_grand_bottom-title" aria-describedby="test_kitchen_sink_sum_bottom_grand_bottom-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_sum_bottom_grand_bottom-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_sum_bottom_grand_bottom-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="2" scope="colgroup" id="test_kitchen_sink_sum_bottom_grand_bottom-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -240,14 +240,14 @@
   '''
   <div id="test_kitchen_sink_sum_bottom_grand_top" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_sum_bottom_grand_top-title" aria-describedby="test_kitchen_sink_sum_bottom_grand_top-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_sum_bottom_grand_top-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_sum_bottom_grand_top-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="2" scope="colgroup" id="test_kitchen_sink_sum_bottom_grand_top-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -324,14 +324,14 @@
   '''
   <div id="test_kitchen_sink_sum_top_grand_bottom" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_sum_top_grand_bottom-title" aria-describedby="test_kitchen_sink_sum_top_grand_bottom-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_sum_top_grand_bottom-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_sum_top_grand_bottom-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="2" scope="colgroup" id="test_kitchen_sink_sum_top_grand_bottom-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -408,14 +408,14 @@
   '''
   <div id="test_kitchen_sink_sum_top_grand_top" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_sum_top_grand_top-title" aria-describedby="test_kitchen_sink_sum_top_grand_top-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_sum_top_grand_top-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_sum_top_grand_top-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="2" scope="colgroup" id="test_kitchen_sink_sum_top_grand_top-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -492,14 +492,14 @@
   '''
   <div id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-title" aria-describedby="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -579,14 +579,14 @@
   '''
   <div id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-title" aria-describedby="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -666,14 +666,14 @@
   '''
   <div id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-title" aria-describedby="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -753,14 +753,14 @@
   '''
   <div id="test_kitchen_sink_no_rgcol_sum_top_grand_top" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_no_rgcol_sum_top_grand_top-title" aria-describedby="test_kitchen_sink_no_rgcol_sum_top_grand_top-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -840,14 +840,14 @@
   '''
   <div id="test_kitchen_sink_polars" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_polars-title" aria-describedby="test_kitchen_sink_polars-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_polars-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_polars-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="2" scope="colgroup" id="test_kitchen_sink_polars-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -924,14 +924,14 @@
   '''
   <div id="test_kitchen_sink_footnotes" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_kitchen_sink_footnotes-title" aria-describedby="test_kitchen_sink_footnotes-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_title gt_font_normal">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" id="test_kitchen_sink_footnotes-title">Kitchen Sink Table<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_kitchen_sink_footnotes-subtitle">Footnote ordering diagnostic<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="2" scope="colgroup" id="test_kitchen_sink_footnotes-ID">ID<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>
@@ -1008,14 +1008,14 @@
   '''
   <div id="test_complete_footnote_ordering" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
   
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_complete_footnote_ordering-title" aria-describedby="test_complete_footnote_ordering-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_title gt_font_normal">Title<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" id="test_complete_footnote_ordering-title">Title<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Subtitle<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_complete_footnote_ordering-subtitle">Subtitle<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   <tr class="gt_col_headings gt_spanner_row">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="test_complete_footnote_ordering-Stubhead">Stubhead<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></th>

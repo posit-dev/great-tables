@@ -177,10 +177,11 @@ class _IdRegistry:
 class _HeaderIds:
     """The ids of a table's header cells, and the `headers` of its body cells (HTML output).
 
-    The stubhead, column label and spanner ids are made first (in that order, so that they're the
-    same in the column labels and the body); group heading, stub and summary label ids are made
-    as the body is rendered, where `group` and `stub` hold the ids of the headers of the current
-    row (a stub cell merged across rows heads all of them).
+    The stubhead, column label, spanner, title and subtitle ids are made first (in that order, so
+    that they're the same in the heading, the column labels and the body); group heading, stub and
+    summary label ids are made as the body is rendered, where `group` and `stub` hold the ids of
+    the headers of the current row (a stub cell merged across rows heads all of them). The title
+    and subtitle ids name and describe the table (`aria-labelledby` / `aria-describedby`).
     """
 
     registry: _IdRegistry
@@ -188,6 +189,8 @@ class _HeaderIds:
     columns: dict[str, str]
     spanners: dict[str, str]
     column_spanners: dict[str, list[str]]
+    title: str | None = None
+    subtitle: str | None = None
     group: str | None = None
     stub: dict[int, str] = field(default_factory=dict)
 
@@ -198,7 +201,7 @@ class _HeaderIds:
 
 
 def _get_header_ids(data: GTData) -> _HeaderIds:
-    """Make the ids of the stubhead, column label and spanner cells."""
+    """Make the ids of the stubhead, column label, spanner, title and subtitle cells."""
 
     registry = _IdRegistry(data._options.table_id.value)
 
@@ -209,7 +212,8 @@ def _get_header_ids(data: GTData) -> _HeaderIds:
 
     # Without column labels there are no header cells for the columns to refer to
     if data._options.column_labels_hidden.value:
-        return _HeaderIds(registry, stubhead=[], columns={}, spanners={}, column_spanners={})
+        header_ids = _HeaderIds(registry, stubhead=[], columns={}, spanners={}, column_spanners={})
+        return _add_heading_ids(header_ids, data)
 
     stubhead: list[str] = []
     if stub_layout and data._stubhead:
@@ -242,7 +246,33 @@ def _get_header_ids(data: GTData) -> _HeaderIds:
                     spanners[spanner_id] = registry.make(label_row[var], fallback="spanner")
                 column_spanners.setdefault(var, []).append(spanners[spanner_id])
 
-    return _HeaderIds(registry, stubhead, columns, spanners, column_spanners)
+    header_ids = _HeaderIds(registry, stubhead, columns, spanners, column_spanners)
+    return _add_heading_ids(header_ids, data)
+
+
+def _add_heading_ids(header_ids: _HeaderIds, data: GTData) -> _HeaderIds:
+    """Make the ids of the title and subtitle cells (after the column ids, which they can't change)."""
+
+    if heading_has_title(data._heading.title):
+        header_ids.title = header_ids.registry.make("title", fallback="title")
+        if heading_has_subtitle(data._heading.subtitle):
+            header_ids.subtitle = header_ids.registry.make("subtitle", fallback="subtitle")
+
+    return header_ids
+
+
+def _get_table_aria_attrs(data: GTData) -> str:
+    """Get the `aria-*` attributes of `<table>` that name it after its title (and subtitle)."""
+
+    header_ids = _get_header_ids(data)
+
+    attrs = ""
+    if header_ids.title:
+        attrs += f' aria-labelledby="{html_lib.escape(header_ids.title)}"'
+    if header_ids.subtitle:
+        attrs += f' aria-describedby="{html_lib.escape(header_ids.subtitle)}"'
+
+    return attrs
 
 
 def create_heading_component_h(data: GTData) -> str:
@@ -290,18 +320,24 @@ def create_heading_component_h(data: GTData) -> str:
         options=data._options,
     )
 
+    # The title (and subtitle) cells have ids so that `<table>` can refer to them as its name (and
+    # description)
+    header_ids = _get_header_ids(data)
+    title_id = f' id="{html_lib.escape(header_ids.title)}"' if header_ids.title else ""
+    subtitle_id = f' id="{html_lib.escape(header_ids.subtitle)}"' if header_ids.subtitle else ""
+
     if has_subtitle:
         heading = f"""
   <tr class="gt_heading">
-    <td colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal"{title_style}>{title}</td>
+    <td colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal"{title_id}{title_style}>{title}</td>
   </tr>
   <tr class="gt_heading">
-    <td colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"{subtitle_style}>{subtitle}</td>
+    <td colspan="{n_cols_total}" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"{subtitle_id}{subtitle_style}>{subtitle}</td>
   </tr>"""
     else:
         heading = f"""
   <tr class="gt_heading">
-    <td colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal"{title_style}>{title}</td>
+    <td colspan="{n_cols_total}" class="gt_heading gt_title gt_font_normal"{title_id}{title_style}>{title}</td>
   </tr>"""
 
     return heading
