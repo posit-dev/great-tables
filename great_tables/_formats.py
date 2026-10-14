@@ -2875,8 +2875,10 @@ def fmt_fraction_context(
     is_negative = x < 0
     x_abs = abs(x)
 
-    big_x = int(math.trunc(x_abs))
-    small_x = x_abs - big_x
+    # `int()` and `float()` are used so that NumPy scalars (e.g., from a pandas `int64` column) are
+    # handled too: NumPy integers don't support `math.trunc()` and can overflow when scaled below
+    big_x = int(x_abs)
+    small_x = float(x_abs - big_x)
 
     # Round fractional part to 3 decimal places (Round-Half-Up for consistency with gt R)
     small_x = _round_rhu(small_x * 1000, 0) / 1000
@@ -7097,8 +7099,10 @@ def _round_rhu(x: float, digits: int = 0) -> float:
         float: The rounded number.
     """
 
-    # Multiply the absolute value by 10^digits to move the decimal point to the right
-    z = abs(x) * 10**digits
+    # Multiply the absolute value by 10^digits to move the decimal point to the right (`x` is
+    # converted to a float first since NumPy scalars, like `float32` values, don't support
+    # `math.trunc()`)
+    z = abs(float(x)) * 10**digits
 
     # Add 0.5 + 2.220446049250313e-16 to the number to ensure that the number is rounded up
     z += 0.5 + math.sqrt(2.220446049250313e-16)
