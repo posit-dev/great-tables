@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+import html as html_lib
+import re
+from dataclasses import dataclass, field
 from itertools import chain
 from typing import TYPE_CHECKING, Any, cast
 
@@ -20,7 +22,7 @@ from ._gt_data import (
 )
 from ._spanners import spanners_print_matrix
 from ._tbl_data import TblData, _get_cell, cast_frame_to_string, replace_null_frame
-from ._text import BaseText, _process_text, _process_text_id
+from ._text import BaseText, _process_text
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
 if TYPE_CHECKING:
@@ -134,12 +136,113 @@ def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     return None
 
 
-def _create_element_id(table_id: str | None, element_id: str | BaseText | None) -> str:
-    # Given a table ID, element IDs are prepended by it to ensure the resulting HTML
-    # has unique IDs.
-    new_table_id = table_id or ""
-    processed_id = _process_text_id(element_id)
-    return f"{new_table_id}-{processed_id}" if new_table_id and processed_id else processed_id
+def _sanitize_id(text: str) -> str:
+    """Turn label text (which may be HTML) into a valid id: no markup, spaces or punctuation."""
+    text = html_lib.unescape(re.sub(r"<[^>]+>", "", text))
+    return re.sub(r"[^\w.:-]+", "-", text).strip("-")
+
+
+class _IdRegistry:
+    """Make element ids that are valid and unique within a table.
+
+    Ids are prefixed by the table id when one is set (`GT(id=)`), so that they're also unique
+    across tables on a page. A repeated id gets a numeric suffix (`num`, `num-2`).
+    """
+
+    def __init__(self, table_id: str | None) -> None:
+        prefix = _sanitize_id(table_id) if table_id else ""
+        self.prefix = f"{prefix}-" if prefix else ""
+        self.used: set[str] = {table_id} if table_id else set()
+
+    def make(self, base: Any, fallback: str) -> str:
+        # Labels may be text or `md()`/`html()` objects; group ids may be any value (e.g., numbers)
+        text = (
+            _process_text(base)
+            if isinstance(base, (str, BaseText))
+            else ""
+            if base is None
+            else str(base)
+        )
+        name = _sanitize_id(text) or fallback
+        candidate = f"{self.prefix}{name}"
+        n = 2
+        while candidate in self.used:
+            candidate = f"{self.prefix}{name}-{n}"
+            n += 1
+        self.used.add(candidate)
+        return candidate
+
+
+@dataclass
+class _HeaderIds:
+    """The ids of a table's header cells, and the `headers` of its body cells (HTML output).
+
+    The stubhead, column label and spanner ids are made first (in that order, so that they're the
+    same in the column labels and the body); group heading, stub and summary label ids are made
+    as the body is rendered, where `group` and `stub` hold the ids of the headers of the current
+    row (a stub cell merged across rows heads all of them).
+    """
+
+    registry: _IdRegistry
+    stubhead: list[str]
+    columns: dict[str, str]
+    spanners: dict[str, str]
+    column_spanners: dict[str, list[str]]
+    group: str | None = None
+    stub: dict[int, str] = field(default_factory=dict)
+
+    def cell_headers(self, var: str, row_headers: list[str]) -> str:
+        """The `headers` attribute of a body cell in column `var`, given its row's headers."""
+        ids = [*row_headers, *self.column_spanners.get(var, []), self.columns.get(var)]
+        return " ".join(x for x in ids if x)
+
+
+def _get_header_ids(data: GTData) -> _HeaderIds:
+    """Make the ids of the stubhead, column label and spanner cells."""
+
+    registry = _IdRegistry(data._options.table_id.value)
+
+    has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
+    stub_layout = data._stub._get_stub_layout(
+        has_summary_rows=has_summary_rows, options=data._options, boxhead=data._boxhead
+    )
+
+    # Without column labels there are no header cells for the columns to refer to
+    if data._options.column_labels_hidden.value:
+        return _HeaderIds(registry, stubhead=[], columns={}, spanners={}, column_spanners={})
+
+    stubhead: list[str] = []
+    if stub_layout and data._stubhead:
+        stub_label = _resolve_stubhead_label(data._stubhead, stub_layout=stub_layout)
+        labels = stub_label if isinstance(stub_label, list) else [stub_label]
+        stubhead = [registry.make(label, fallback="stubhead") for label in labels]
+
+    columns = {
+        info.var: registry.make(info.var, fallback="column")
+        for info in data._boxhead._get_default_columns()
+    }
+
+    spanners: dict[str, str] = {}
+    column_spanners: dict[str, list[str]] = {var: [] for var in columns}
+
+    if _get_spanners_matrix_height(data=data, omit_columns_row=True) > 0:
+        spanner_labels, _ = spanners_print_matrix(
+            spanners=data._spanners, boxhead=data._boxhead, include_hidden=False, ids=False
+        )
+        spanner_id_matrix, _ = spanners_print_matrix(
+            spanners=data._spanners, boxhead=data._boxhead, include_hidden=False, ids=True
+        )
+
+        # Rows are ordered from the top spanner level down, with the column labels last
+        for label_row, id_row in zip(spanner_labels[:-1], spanner_id_matrix[:-1]):
+            for var, spanner_id in id_row.items():
+                if not spanner_id or not label_row.get(var):
+                    continue
+                if spanner_id not in spanners:
+                    spanners[spanner_id] = registry.make(label_row[var], fallback="spanner")
+                column_spanners.setdefault(var, []).append(spanners[spanner_id])
+
+    return _HeaderIds(registry, stubhead, columns, spanners, column_spanners)
 
 
 def create_heading_component_h(data: GTData) -> str:
@@ -234,7 +337,7 @@ def _create_stubhead_cells(
     stub_label: str | BaseText | list[str | BaseText],
     stub_layout: list[str],
     rowspan: int,
-    table_id: str | None,
+    stubhead_ids: list[str],
     footnotes_stubhead: list[FootnoteInfo],
     styles_stubhead: list[StyleInfo],
     data: GTData,
@@ -258,7 +361,7 @@ def _create_stubhead_cells(
                 colspan=len(stub_layout),
                 style=style,
                 scope="colgroup" if len(stub_layout) > 1 else "col",
-                id=_create_element_id(table_id, stub_label),
+                id=stubhead_ids[0] if stubhead_ids else None,
             )
         ]
 
@@ -267,18 +370,12 @@ def _create_stubhead_cells(
     if "group_label" in stub_layout:
         cells.append(tags.th(class_=class_, rowspan=rowspan, colspan=1, style=style, scope="col"))
 
-    used_ids: set[str] = set()
-
     for k, label in enumerate(stub_label):
         label_text = _process_text(label)
         if k == 0:
             label_text = _apply_footnotes_to_text(footnotes_stubhead, data, label_text)
 
-        # Keep the element IDs unique when labels repeat
-        element_id = _create_element_id(table_id, label)
-        if element_id in used_ids:
-            element_id = f"{element_id}-{k + 1}"
-        used_ids.add(element_id)
+        element_id = stubhead_ids[k] if k < len(stubhead_ids) else None
 
         cells.append(
             tags.th(
@@ -359,8 +456,8 @@ def create_columns_component_h(data: GTData) -> str:
     # Initialize the column headings list
     table_col_headings = []
 
-    # Extract the table ID to ensure subsequent IDs are unique
-    table_id = data._options.table_id.value
+    # Get the (unique) ids of the header cells, which the body cells refer to in `headers`
+    header_ids = _get_header_ids(data)
 
     # Filter footnotes for stubhead - similar to styles filtering
     footnotes_stubhead = [x for x in data._footnotes if isinstance(x.locname, loc.LocStubhead)]
@@ -375,7 +472,7 @@ def create_columns_component_h(data: GTData) -> str:
                     stub_label=stub_label,
                     stub_layout=stub_layout,
                     rowspan=1,
-                    table_id=table_id,
+                    stubhead_ids=header_ids.stubhead,
                     footnotes_stubhead=footnotes_stubhead,
                     styles_stubhead=styles_stubhead,
                     data=data,
@@ -407,7 +504,7 @@ def create_columns_component_h(data: GTData) -> str:
                     colspan=1,
                     style=_flatten_styles(styles_column_labels + styles_i),
                     scope="col",
-                    id=_create_element_id(table_id, info.var),
+                    id=header_ids.columns.get(info.var),
                 )
             )
 
@@ -452,7 +549,7 @@ def create_columns_component_h(data: GTData) -> str:
                     stub_label=stub_label,
                     stub_layout=stub_layout,
                     rowspan=2,
-                    table_id=table_id,
+                    stubhead_ids=header_ids.stubhead,
                     footnotes_stubhead=footnotes_stubhead,
                     styles_stubhead=styles_stubhead,
                     data=data,
@@ -503,7 +600,7 @@ def create_columns_component_h(data: GTData) -> str:
                         colspan=1,
                         style=_flatten_styles(styles_column_labels + styles_i),
                         scope="col",
-                        id=_create_element_id(table_id, h_info.var),
+                        id=header_ids.columns.get(h_info.var),
                     )
                 )
 
@@ -545,7 +642,7 @@ def create_columns_component_h(data: GTData) -> str:
                             colspan=colspans[ii],
                             style=_flatten_styles(styles_column_labels + styles_i),
                             scope="colgroup" if colspans[ii] > 1 else "col",
-                            id=_create_element_id(table_id, spanner_ids_level_1_index[ii]),
+                            id=header_ids.spanners.get(spanner_id_level_1_index[ii]),
                         )
                     )
 
@@ -560,12 +657,8 @@ def create_columns_component_h(data: GTData) -> str:
         if remaining_headings:
             spanned_column_labels = []
 
-            remaining_heading_ids = (
-                entry.var for entry in boxhead if entry.var in remaining_headings
-            )
-
-            for remaining_heading, remaining_headings_label, element_id in zip(
-                remaining_headings, remaining_headings_labels, remaining_heading_ids
+            for remaining_heading, remaining_headings_label in zip(
+                remaining_headings, remaining_headings_labels
             ):
                 # Filter by column label / id, join with overall column labels style
                 # TODO check this filter logic
@@ -597,7 +690,7 @@ def create_columns_component_h(data: GTData) -> str:
                         colspan=1,
                         style=_flatten_styles(styles_column_labels + styles_i),
                         scope="col",
-                        id=_create_element_id(table_id, element_id),
+                        id=header_ids.columns.get(remaining_heading),
                     )
                 )
 
@@ -664,6 +757,7 @@ def create_columns_component_h(data: GTData) -> str:
                             colspan=colspan,
                             style=_flatten_styles(styles_column_labels + styles_i),
                             scope="colgroup" if colspan > 1 else "col",
+                            id=header_ids.spanners.get(span_id) if span_label else None,
                         )
                     )
 
@@ -799,6 +893,9 @@ def create_body_component_h(data: GTData) -> str:
             )
             column_vars = [summary_row_stub_var] + column_vars
 
+    # The ids of the header cells, which each body cell lists in its `headers` attribute
+    header_ids = _get_header_ids(data)
+
     # Is the stub to be striped?
     table_stub_striped = data._options.row_striping_include_stub.value
 
@@ -811,6 +908,7 @@ def create_body_component_h(data: GTData) -> str:
     top_g_summary_rows = data._summary_rows_grand.get_summary_rows(side="top")
     for i, summary_row in enumerate(top_g_summary_rows):
         row_html = _create_row_component_h(
+            header_ids=header_ids,
             column_vars=column_vars,
             row_stub_var=row_stub_var,  # Should probably include group stub?
             has_row_stub_column=has_row_stub_column,  # Should probably include group stub?
@@ -860,6 +958,10 @@ def create_body_component_h(data: GTData) -> str:
         if has_groups:
             # Only create if this is the first row of data within the group
             if group_info is not prev_group_info:
+                # The group's label cell heads all of its rows
+                header_ids.group = header_ids.registry.make(group_info.group_id, fallback="group")
+                group_id_attr = f' id="{html_lib.escape(header_ids.group)}"'
+
                 # When a groupname_col formatter ran, group_label is already
                 # safe HTML; when it's the raw group_id, escape it.
                 if group_info.group_label is not None:
@@ -903,7 +1005,7 @@ def create_body_component_h(data: GTData) -> str:
                     )
 
                     leading_cell = f"""  <th{group_styles} class="gt_row gt_left gt_stub_row_group"
-    rowspan="{rowspan_value}" scope="rowgroup">{group_label}</th>"""
+    rowspan="{rowspan_value}" scope="rowgroup"{group_id_attr}>{group_label}</th>"""
 
                 # Append a table row for the group heading
                 else:
@@ -917,7 +1019,7 @@ def create_body_component_h(data: GTData) -> str:
                     group_scope = "colgroup" if colspan_value > 1 else "col"
 
                     group_row = f"""  <tr class="{group_class}">
-    <th class="gt_group_heading" colspan="{colspan_value}" scope="{group_scope}"{group_styles}>{group_label}</th>
+    <th class="gt_group_heading" colspan="{colspan_value}" scope="{group_scope}"{group_id_attr}{group_styles}>{group_label}</th>
   </tr>"""
 
                     body_rows.append(group_row)
@@ -929,6 +1031,7 @@ def create_body_component_h(data: GTData) -> str:
                         # when row_group_as_column is true
                         summary_leading = leading_cell if si == 0 else None
                         row_html = _create_row_component_h(
+                            header_ids=header_ids,
                             column_vars=column_vars,
                             row_stub_var=row_stub_var,
                             has_row_stub_column=has_row_stub_column,
@@ -967,6 +1070,7 @@ def create_body_component_h(data: GTData) -> str:
 
         # Create data row
         row_html = _create_row_component_h(
+            header_ids=header_ids,
             column_vars=column_vars,
             row_stub_var=row_stub_var,
             has_row_stub_column=has_row_stub_column,
@@ -1003,6 +1107,7 @@ def create_body_component_h(data: GTData) -> str:
                 )
                 for si, summary_row in enumerate(bottom_summary_rows):
                     row_html = _create_row_component_h(
+                        header_ids=header_ids,
                         column_vars=column_vars,
                         row_stub_var=row_stub_var,
                         has_row_stub_column=has_row_stub_column,
@@ -1023,6 +1128,7 @@ def create_body_component_h(data: GTData) -> str:
     bottom_g_summary_rows = data._summary_rows_grand.get_summary_rows(side="bottom")
     for i, summary_row in enumerate(bottom_g_summary_rows):
         row_html = _create_row_component_h(
+            header_ids=header_ids,
             column_vars=column_vars,
             row_stub_var=row_stub_var,
             has_row_stub_column=has_row_stub_column,
@@ -1064,6 +1170,7 @@ def _create_row_component_h(
     row_class: str | None = None,  # CSS class for the <tr> element
     stub_col_rowspans: list[int] | None = None,  # Rowspan values for stub cols (multi-col stub)
     stub_col_rows: list[list[int]] | None = None,  # Data rows covered by each stub cell
+    header_ids: _HeaderIds | None = None,  # Ids of the header cells, for `headers` attributes
 ) -> str:
     """Create a single table row (either data row or summary row)"""
 
@@ -1074,6 +1181,16 @@ def _create_row_component_h(
 
     if leading_cell:
         body_cells.append(leading_cell)
+
+    # A summary row's label cell heads the row; a data row is headed by its stub cells (made below,
+    # as they're rendered) and, in either case, by its row group's label cell
+    summary_label_id = None
+    if header_ids is not None and is_summary_row:
+        summary_base = f"summary-{summary_group_id}" if is_group_summary else "grand-summary"
+        summary_label_id = header_ids.registry.make(
+            f"{summary_base}-{summary_row.id}", fallback="summary"
+        )
+    summary_id_attr = f' id="{html_lib.escape(summary_label_id)}"' if summary_label_id else ""
 
     # Handle special cases for summary rows with group stub columns
     if is_summary_row and has_group_stub_column:
@@ -1113,18 +1230,18 @@ def _create_row_component_h(
             # Span across all row stub columns with a single label cell.
             colspan_attr = f' colspan="{n_row_stub_cols}"' if n_row_stub_cols > 1 else ""
             body_cells.append(
-                f"""    <th{cell_styles}{colspan_attr} scope="row" class="{classes_str}">{stub_label}</th>"""
+                f"""    <th{cell_styles}{colspan_attr} scope="row"{summary_id_attr} class="{classes_str}">{stub_label}</th>"""
             )
         elif has_row_stub_column:
             # Grand summary rows must span the group stub column AND all row stub columns.
             grand_colspan = 1 + n_row_stub_cols
             body_cells.append(
-                f"""    <th{cell_styles} class="{classes_str}" colspan="{grand_colspan}" scope="row">{stub_label}</th>"""
+                f"""    <th{cell_styles} class="{classes_str}" colspan="{grand_colspan}" scope="row"{summary_id_attr}>{stub_label}</th>"""
             )
         else:
             # Grand summary rows with only group stub column (no row stub)
             body_cells.append(
-                f"""    <th{cell_styles} scope="row" class="{classes_str}">{stub_label}</th>"""
+                f"""    <th{cell_styles} scope="row"{summary_id_attr} class="{classes_str}">{stub_label}</th>"""
             )
 
         # Skip stub columns in column_vars since we've already handled the stub
@@ -1308,8 +1425,34 @@ def _create_row_component_h(
             # A stub cell is the header of its row, or of the group of rows it spans (as in R gt)
             scope_attr = ' scope="rowgroup"' if span_attr.startswith(" rowspan") else ' scope="row"'
 
+        # Header cells get an id, and body cells list the ids of their headers
+        id_attr = ""
+        if header_ids is not None:
+            if is_summary_row and colinfo.is_stub:
+                cell_id = summary_label_id
+            elif colinfo.is_stub and colinfo.type != ColInfoTypeEnum.summary_placeholder:
+                level = stub_cell_idx - 1
+                multi = stub_col_rowspans is not None
+                cell_id = header_ids.registry.make(
+                    f"stub-{row_index + 1}" + (f"-{level + 1}" if multi else ""), fallback="stub"
+                )
+                header_ids.stub[level] = cell_id
+            else:
+                cell_id = None
+
+            if cell_id:
+                id_attr = f' id="{html_lib.escape(cell_id)}"'
+            elif not colinfo.is_stub:
+                if is_summary_row:
+                    row_headers = [header_ids.group if is_group_summary else None, summary_label_id]
+                else:
+                    row_headers = [header_ids.group, *header_ids.stub.values()]
+                cell_headers = header_ids.cell_headers(colinfo.var, row_headers)
+                if cell_headers:
+                    id_attr = f' headers="{html_lib.escape(cell_headers)}"'
+
         body_cells.append(
-            f"""    <{el_name}{cell_styles}{span_attr}{scope_attr} class="{classes_str}">{cell_str}</{el_name}>"""
+            f"""    <{el_name}{cell_styles}{span_attr}{scope_attr}{id_attr} class="{classes_str}">{cell_str}</{el_name}>"""
         )
 
     tr_open = f'  <tr class="{row_class}">' if row_class else "  <tr>"
