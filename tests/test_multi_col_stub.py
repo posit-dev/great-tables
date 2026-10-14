@@ -212,7 +212,8 @@ def test_multi_col_stub_summary_label_spans_stub():
 
     assert body.count(">Total</th>") == 1
     assert re.search(
-        r'<th colspan="2" scope="row" class="[^"]*gt_grand_summary_row[^"]*">Total</th>', body
+        r'<th colspan="2" scope="row" id="grand-summary-Total" class="[^"]*gt_grand_summary_row[^"]*">Total</th>',
+        body,
     )
 
 
@@ -228,7 +229,7 @@ def test_multi_col_stub_merges_displayed_values():
     )
     body = gt.as_raw_html().split("<tbody")[1]
     stub_cells = re.findall(
-        r'<th(?: rowspan="(\d+)")? scope="row(?:group)?" class="gt_row gt_left gt_stub">(.*?)</th>',
+        r'<th(?: rowspan="(\d+)")? scope="row(?:group)?" id="[^"]*" class="gt_row gt_left gt_stub">(.*?)</th>',
         body,
     )
 

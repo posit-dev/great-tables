@@ -306,7 +306,7 @@ def test_align_to_char_without_alignable_values():
 
 
 def _body_cells(html: str, align: str = "right") -> list[str]:
-    return re.findall(rf'<td class="gt_row gt_{align}">(.*?)</td>', html)
+    return re.findall(rf'<td(?: headers="[^"]*")? class="gt_row gt_{align}">(.*?)</td>', html)
 
 
 def test_cols_align_decimal():

@@ -907,3 +907,105 @@ def test_group_heading_scope_single_column():
     # A group heading over a single column is a column header (as in R gt)
     html_str = GT(pl.DataFrame({"g": ["G"], "n": [1]}), groupname_col="g").as_raw_html()
     assert _header_cells(html_str) == [("gt_group_heading", "col")]
+
+
+# Header ids and `headers` attributes ---------------------------------------------------------
+
+
+def _header_attrs(html_str: str) -> tuple[list[str], list[list[str]]]:
+    """Get the ids in the table, and the `headers` (split) of each body data cell."""
+    import re
+
+    table = html_str.split("<table", 1)[1]
+    body = table.split('class="gt_table_body"', 1)[1]
+    ids = re.findall(r'\bid="([^"]*)"', table)
+    headers = [m.split() for m in re.findall(r'<td\b[^>]*\bheaders="([^"]*)"', body)]
+    return ids, headers
+
+
+_HEADER_DF = pl.DataFrame(
+    {
+        "a": ["A", "A", "B", "B"],
+        "b": ["x", "y", "z", "w"],
+        "g": ["G 1", "G 1", "H", "H"],
+        "num": [1.0, 2.0, 3.0, 4.0],
+        "n2": [5, 6, 7, 8],
+    }
+)
+
+
+@pytest.mark.parametrize(
+    "make_gt",
+    [
+        lambda df: GT(df.select("num", "n2")),
+        lambda df: GT(df, rowname_col=["a", "b"], groupname_col="g"),
+        lambda df: GT(df, rowname_col="b", groupname_col="g").tab_options(row_group_as_column=True),
+        lambda df: GT(df.select("g", "num"), groupname_col="g"),
+        lambda df: (
+            GT(df, rowname_col="b")
+            .tab_spanner("Inner", ["num", "n2"])
+            .tab_spanner("Outer", ["num", "n2"], level=2)
+        ),
+        lambda df: (
+            GT(df, rowname_col=["a", "b"], groupname_col="g")
+            .summary_rows(fns={"Sum": pl.col("num").sum()}, side="top")
+            .grand_summary_rows(fns={"Total": pl.col("num").sum()})
+            .tab_options(row_group_as_column=True)
+        ),
+        lambda df: GT(df, rowname_col="b", groupname_col="g", id="my table"),
+    ],
+)
+def test_body_cell_headers_refer_to_unique_ids(make_gt):
+    # Every data cell lists its headers, and each of those is the id of a cell in the table
+    ids, headers = _header_attrs(make_gt(_HEADER_DF).as_raw_html())
+
+    assert len(ids) == len(set(ids))
+    assert headers and all(cell_headers for cell_headers in headers)
+    assert all(h in ids for cell_headers in headers for h in cell_headers)
+
+
+def test_body_cell_headers_list_group_stub_spanners_and_column():
+    gt = GT(_HEADER_DF, rowname_col=["a", "b"], groupname_col="g").tab_spanner("S", ["num", "n2"])
+    _, headers = _header_attrs(gt.as_raw_html())
+
+    # The second row's outer stub cell is merged with the first row's, which heads both rows
+    assert headers[0] == ["G-1", "stub-1-1", "stub-1-2", "S", "num"]
+    assert headers[2] == ["G-1", "stub-1-1", "stub-2-2", "S", "num"]
+
+
+def test_summary_cell_headers_refer_to_summary_label():
+    gt = GT(_HEADER_DF, rowname_col="b", groupname_col="g").summary_rows(
+        fns={"Sum": pl.col("num").sum()}
+    )
+    _, headers = _header_attrs(gt.as_raw_html())
+
+    assert ["G-1", "summary-G-1-Sum", "num"] in headers
+
+
+def test_header_ids_are_sanitized_and_deduplicated():
+    gt = (
+        GT(_HEADER_DF.select("num", "n2"), id="t 1")
+        .tab_spanner(md("**num**"), ["num", "n2"])
+        .tab_spanner("A & B", ["num"], level=2)
+    )
+    ids, _ = _header_attrs(gt.as_raw_html())
+
+    # Ids have no spaces or markup, are prefixed by the (sanitized) table id, and a spanner
+    # labelled like a column gets a suffix
+    assert set(ids) == {"t-1-num", "t-1-n2", "t-1-num-2", "t-1-A-B"}
+
+
+def test_numeric_group_ids():
+    df = pl.DataFrame({"g": [0, 0, 1], "n": [1, 2, 3]})
+    ids, headers = _header_attrs(GT(df, groupname_col="g").as_raw_html())
+
+    assert {"0", "1"} <= set(ids)
+    assert headers[0] == ["0", "n"]
+
+
+def test_hidden_column_labels_have_no_header_ids():
+    # Without column labels, body cells are headed by their row headers only
+    gt = GT(_HEADER_DF, rowname_col="b", groupname_col="g").tab_options(column_labels_hidden=True)
+    _, headers = _header_attrs(gt.as_raw_html())
+
+    assert headers[0] == ["G-1", "stub-1"]

@@ -3,16 +3,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td style="background-color: red;" class="gt_row gt_right">0.1111</td>
-      <td class="gt_row gt_left">apricot</td>
+      <td style="background-color: red;" headers="num" class="gt_row gt_right">0.1111</td>
+      <td headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td style="background-color: red;" class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td style="background-color: red;" headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td style="background-color: red;" class="gt_row gt_right">33.33</td>
-      <td class="gt_row gt_left">coconut</td>
+      <td style="background-color: red;" headers="num" class="gt_row gt_right">33.33</td>
+      <td headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -21,16 +21,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td style="background-color: red; border-left: 1px solid #000000;" class="gt_row gt_right">0.1111</td>
-      <td class="gt_row gt_left">apricot</td>
+      <td style="background-color: red; border-left: 1px solid #000000;" headers="num" class="gt_row gt_right">0.1111</td>
+      <td headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -39,18 +39,18 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2" scope="colgroup">A</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="A">A</th>
     </tr>
     <tr>
-      <td class="gt_row gt_right">0</td>
-      <td class="gt_row gt_right">22</td>
+      <td headers="A x" class="gt_row gt_right">0</td>
+      <td headers="A y" class="gt_row gt_right">22</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2" scope="colgroup">B</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="B">B</th>
     </tr>
     <tr>
-      <td class="gt_row gt_right">1</td>
-      <td class="gt_row gt_right">33</td>
+      <td headers="B x" class="gt_row gt_right">1</td>
+      <td headers="B y" class="gt_row gt_right">33</td>
     </tr>
   </tbody>
   '''
@@ -80,13 +80,13 @@
   </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="4" scope="colgroup" style="GROUP_LABEL">grp_a</th>
+      <th class="gt_group_heading" colspan="4" scope="colgroup" id="grp_a" style="GROUP_LABEL">grp_a</th>
     </tr>
     <tr>
-      <th style="STUB ROW_LABEL" scope="row" class="gt_row gt_left gt_stub">row_1</th>
-      <td style="BODY" class="gt_row gt_right">0.1111</td>
-      <td style="BODY" class="gt_row gt_left">apricot</td>
-      <td style="BODY" class="gt_row gt_left">one</td>
+      <th style="STUB ROW_LABEL" scope="row" id="stub-1" class="gt_row gt_left gt_stub">row_1</th>
+      <td style="BODY" headers="grp_a stub-1 num" class="gt_row gt_right">0.1111</td>
+      <td style="BODY" headers="grp_a stub-1 spanner char" class="gt_row gt_left">apricot</td>
+      <td style="BODY" headers="grp_a stub-1 spanner fctr" class="gt_row gt_left">one</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4" style="FOOTER SOURCE_NOTES"><span class="gt_from_md">yo</span></td></tr></tfoot>
@@ -102,7 +102,7 @@
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">
       <span>&nbsp</span>
     </th>
-    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup">
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="E">
       <span class="gt_column_spanner">E</span>
     </th>
     <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4" scope="colgroup">
@@ -116,7 +116,7 @@
     <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup">
       <span>&nbsp;</span>
     </th>
-    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup">
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="D">
       <span class="gt_column_spanner">D</span>
     </th>
     <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup">
@@ -127,10 +127,10 @@
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col">
       <span>&nbsp</span>
     </th>
-    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup">
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="C">
       <span class="gt_column_spanner">C</span>
     </th>
-    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col" id="B">
       <span class="gt_column_spanner">B</span>
     </th>
     <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4" scope="colgroup">
@@ -158,26 +158,26 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2" scope="colgroup">A</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="A">A</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">0</th>
-      <td class="gt_row gt_right">00</td>
+      <th scope="row" id="stub-1" class="gt_row gt_left gt_stub">0</th>
+      <td headers="A stub-1 x" class="gt_row gt_right">00</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">2</th>
-      <td class="gt_row gt_right">22</td>
+      <th scope="row" id="stub-3" class="gt_row gt_left gt_stub">2</th>
+      <td headers="A stub-3 x" class="gt_row gt_right">22</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2" scope="colgroup">B</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="B">B</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">1</th>
-      <td class="gt_row gt_right">11</td>
+      <th scope="row" id="stub-2" class="gt_row gt_left gt_stub">1</th>
+      <td headers="B stub-2 x" class="gt_row gt_right">11</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">3</th>
-      <td class="gt_row gt_right">33</td>
+      <th scope="row" id="stub-4" class="gt_row gt_left gt_stub">3</th>
+      <td headers="B stub-4 x" class="gt_row gt_right">33</td>
     </tr>
   </tbody>
   '''
@@ -186,7 +186,7 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_center">[1, 2]</td>
+      <td headers="x" class="gt_row gt_center">[1, 2]</td>
     </tr>
   </tbody>
   '''
@@ -196,19 +196,19 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2" scope="rowgroup">A</th>
-      <th scope="row" class="gt_row gt_left gt_stub">0</th>
-      <td class="gt_row gt_right">22</td>
+      rowspan="2" scope="rowgroup" id="A">A</th>
+      <th scope="row" id="stub-1" class="gt_row gt_left gt_stub">0</th>
+      <td headers="A stub-1 y" class="gt_row gt_right">22</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">1</th>
-      <td class="gt_row gt_right">33</td>
+      <th scope="row" id="stub-2" class="gt_row gt_left gt_stub">1</th>
+      <td headers="A stub-2 y" class="gt_row gt_right">33</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="1" scope="rowgroup">B</th>
-      <th scope="row" class="gt_row gt_left gt_stub">2</th>
-      <td class="gt_row gt_right">44</td>
+      rowspan="1" scope="rowgroup" id="B">B</th>
+      <th scope="row" id="stub-3" class="gt_row gt_left gt_stub">2</th>
+      <td headers="B stub-3 y" class="gt_row gt_right">44</td>
     </tr>
   </tbody>
   '''
@@ -218,19 +218,19 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2" scope="rowgroup">A</th>
-      <td class="gt_row gt_right">0</td>
-      <td class="gt_row gt_right">22</td>
+      rowspan="2" scope="rowgroup" id="A">A</th>
+      <td headers="A x" class="gt_row gt_right">0</td>
+      <td headers="A y" class="gt_row gt_right">22</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">1</td>
-      <td class="gt_row gt_right">33</td>
+      <td headers="A x" class="gt_row gt_right">1</td>
+      <td headers="A y" class="gt_row gt_right">33</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="1" scope="rowgroup">B</th>
-      <td class="gt_row gt_right">2</td>
-      <td class="gt_row gt_right">44</td>
+      rowspan="1" scope="rowgroup" id="B">B</th>
+      <td headers="B x" class="gt_row gt_right">2</td>
+      <td headers="B y" class="gt_row gt_right">44</td>
     </tr>
   </tbody>
   '''
@@ -265,16 +265,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td style="color: red;" class="gt_row gt_right">0.1111</td>
-      <td style="color: red;" class="gt_row gt_left">apricot</td>
+      <td style="color: red;" headers="num" class="gt_row gt_right">0.1111</td>
+      <td style="color: red;" headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td style="color: red;" class="gt_row gt_right">2.222</td>
-      <td style="color: red;" class="gt_row gt_left">banana</td>
+      <td style="color: red;" headers="num" class="gt_row gt_right">2.222</td>
+      <td style="color: red;" headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td style="color: red;" class="gt_row gt_right">33.33</td>
-      <td style="color: red;" class="gt_row gt_left">coconut</td>
+      <td style="color: red;" headers="num" class="gt_row gt_right">33.33</td>
+      <td style="color: red;" headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -283,16 +283,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">0.1111</td>
-      <td style="color: red;" class="gt_row gt_left">apricot</td>
+      <td headers="num" class="gt_row gt_right">0.1111</td>
+      <td style="color: red;" headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td style="color: red;" class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td style="color: red;" headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td style="color: red;" class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td style="color: red;" headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -301,16 +301,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">0.1111</td>
-      <td style="color: red;" class="gt_row gt_left">apricot</td>
+      <td headers="num" class="gt_row gt_right">0.1111</td>
+      <td style="color: red;" headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td style="color: red;" class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td style="color: red;" headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -319,16 +319,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">0.1111</td>
-      <td class="gt_row gt_left">apricot</td>
+      <td headers="num" class="gt_row gt_right">0.1111</td>
+      <td headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -337,16 +337,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">0.1111</td>
-      <td class="gt_row gt_left">apricot</td>
+      <td headers="num" class="gt_row gt_right">0.1111</td>
+      <td headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -355,16 +355,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">0.1111</td>
-      <td class="gt_row gt_left">apricot</td>
+      <td headers="num" class="gt_row gt_right">0.1111</td>
+      <td headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -373,16 +373,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">0.1111</td>
-      <td style="border-left: 1px solid #000000;" class="gt_row gt_left">apricot</td>
+      <td headers="num" class="gt_row gt_right">0.1111</td>
+      <td style="border-left: 1px solid #000000;" headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td style="border-left: 1px solid #000000;" class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td style="border-left: 1px solid #000000;" headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -391,16 +391,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">0.1111</td>
-      <td style="border-left: 1px solid #000000;" class="gt_row gt_left">apricot</td>
+      <td headers="num" class="gt_row gt_right">0.1111</td>
+      <td style="border-left: 1px solid #000000;" headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td style="border-left: 1px solid #000000;" class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td style="border-left: 1px solid #000000;" headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -409,16 +409,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">0.1111</td>
-      <td style="border-left: 1px solid #000000;border-right: 1px solid #000000;" class="gt_row gt_left">apricot</td>
+      <td headers="num" class="gt_row gt_right">0.1111</td>
+      <td style="border-left: 1px solid #000000;border-right: 1px solid #000000;" headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td style="border-left: 1px solid #000000;border-right: 1px solid #000000;" class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td style="border-left: 1px solid #000000;border-right: 1px solid #000000;" headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
@@ -427,16 +427,16 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">0.1111</td>
-      <td style="border-top: 1px solid #000000;border-bottom: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000;" class="gt_row gt_left">apricot</td>
+      <td headers="num" class="gt_row gt_right">0.1111</td>
+      <td style="border-top: 1px solid #000000;border-bottom: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000;" headers="char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2.222</td>
-      <td class="gt_row gt_left">banana</td>
+      <td headers="num" class="gt_row gt_right">2.222</td>
+      <td headers="char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">33.33</td>
-      <td style="border-top: 1px solid #000000;border-bottom: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000;" class="gt_row gt_left">coconut</td>
+      <td headers="num" class="gt_row gt_right">33.33</td>
+      <td style="border-top: 1px solid #000000;border-bottom: 1px solid #000000;border-left: 1px solid #000000;border-right: 1px solid #000000;" headers="char" class="gt_row gt_left">coconut</td>
     </tr>
   </tbody>
   '''
