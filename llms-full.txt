@@ -1617,7 +1617,7 @@ Columns of data can be formatted with the `fmt_*()` methods. We can specify the 
 
 
 
-fmt_number(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_number(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None) -> 'GTSelf'
 
 Format numeric values.
 
@@ -1696,9 +1696,17 @@ force_sign
     Should the positive sign be shown for positive values (effectively showing a sign for all
     values except zero)? If so, use `True` for this option. The default is `False`, where only
     negative numbers will display a minus sign.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+    `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+    locales like `"es"` and `"pl"`).
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------
@@ -1733,7 +1741,7 @@ from great_tables import GT, exibble
 )
 ```
 
-fmt_integer(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, use_seps: 'bool' = True, scale_by: 'float' = 1, accounting: 'bool' = False, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_integer(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, use_seps: 'bool' = True, scale_by: 'float' = 1, accounting: 'bool' = False, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as integers.
 
@@ -1788,9 +1796,17 @@ force_sign
     Should the positive sign be shown for positive values (effectively showing a sign for all
     values except zero)? If so, use `True` for this option. The default is `False`, where only
     negative numbers will display a minus sign.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+    `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+    locales like `"es"` and `"pl"`).
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------
@@ -2314,7 +2330,7 @@ freqs_df = pl.DataFrame({"frequency": [2.4e9, 5.0e9, 900e6]})
 )
 ```
 
-fmt_percent(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_values: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'right', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_percent(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_values: 'bool' = True, use_seps: 'bool' = True, min_sep_threshold: 'int' = 1, accounting: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'right', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as a percentage.
 
@@ -2367,6 +2383,13 @@ use_seps
     The `use_seps` option allows for the use of digit group separators. The type of digit group
     separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
     setting is `True` by default.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+    `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+    locales like `"es"` and `"pl"`).
 accounting
     Whether to use accounting style, which wraps negative numbers in parentheses instead of
     using a minus sign.
@@ -2395,6 +2418,7 @@ incl_space
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------
@@ -2579,7 +2603,7 @@ concentrations = pl.DataFrame({"gas": ["CO", "NO2", "O3"], "conc": [1.5, 35.0, 1
 GT(concentrations).fmt_partsper(columns="conc", to_units="ppb", scale_values=False, symbol="ppbV")
 ```
 
-fmt_currency(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, currency: 'str | None' = None, use_subunits: 'bool' = True, decimals: 'int | None' = None, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'left', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_currency(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, currency: 'str | None' = None, use_subunits: 'bool' = True, decimals: 'int | None' = None, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, min_sep_threshold: 'int' = 1, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'left', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as currencies.
 
@@ -2634,6 +2658,13 @@ use_seps
     The `use_seps` option allows for the use of digit group separators. The type of digit group
     separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
     setting is `True` by default.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+    `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+    locales like `"es"` and `"pl"`).
 accounting
     Whether to use accounting style, which wraps negative numbers in parentheses instead of
     using a minus sign.
@@ -2670,6 +2701,7 @@ incl_space
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------
@@ -3452,7 +3484,7 @@ Button-styled email links are also supported.
 )
 ```
 
-fmt_bytes(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, standard: 'str' = 'decimal', decimals: 'int' = 1, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = True, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'bool' = True, locale: 'str | None' = None) -> 'GTSelf'
+fmt_bytes(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, standard: 'str' = 'decimal', decimals: 'int' = 1, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = True, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, min_sep_threshold: 'int' = 1, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'bool' = True, locale: 'str | None' = None) -> 'GTSelf'
 
 Format values as bytes.
 
@@ -3504,6 +3536,13 @@ use_seps
     The `use_seps` option allows for the use of digit group separators. The type of digit group
     separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
     setting is `True` by default.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+    `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+    locales like `"es"` and `"pl"`).
 pattern
     A formatting pattern that allows for decoration of the formatted value. The formatted value
     is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -3526,6 +3565,7 @@ incl_space
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------
@@ -10582,7 +10622,7 @@ If you have single values (or lists of them) in need of formatting, we have a se
 
 
 
-val_fmt_number(x: 'X', decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'list[str]'
+val_fmt_number(x: 'X', decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None) -> 'list[str]'
 
 Format numeric values.
 
@@ -10655,9 +10695,16 @@ force_sign
     Should the positive sign be shown for positive values (effectively showing a sign for all
     values except zero)? If so, use `True` for this option. The default is `False`, where only
     negative numbers will display a minus sign.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a `locale=` value is provided, the locale's own minimum grouping
+    digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------
@@ -10672,7 +10719,7 @@ from great_tables import vals
 vals.fmt_number([0.325, 777000], decimals=2)
 ```
 
-val_fmt_integer(x: 'X', use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'list[str]'
+val_fmt_integer(x: 'X', use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None) -> 'list[str]'
 
 Format values as integers.
 
@@ -10721,9 +10768,16 @@ force_sign
     Should the positive sign be shown for positive values (effectively showing a sign for all
     values except zero)? If so, use `True` for this option. The default is `False`, where only
     negative numbers will display a minus sign.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a `locale=` value is provided, the locale's own minimum grouping
+    digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------
@@ -11021,7 +11075,7 @@ We can control the space between the number and unit with `incl_space`.
 vals.fmt_number_si([2.4e9, 5.0e9, 900e6], unit="Hz", incl_space=False, decimals=1)
 ```
 
-val_fmt_percent(x: 'X', decimals: 'int' = 2, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_values: 'bool' = True, accounting: 'bool' = False, use_seps: 'bool' = True, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'right', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'list[str]'
+val_fmt_percent(x: 'X', decimals: 'int' = 2, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, scale_values: 'bool' = True, accounting: 'bool' = False, use_seps: 'bool' = True, min_sep_threshold: 'int' = 1, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'right', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'list[str]'
 
 Format values as a percentage.
 
@@ -11071,6 +11125,12 @@ use_seps
     The `use_seps` option allows for the use of digit group separators. The type of digit group
     separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
     setting is `True` by default.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a `locale=` value is provided, the locale's own minimum grouping
+    digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
 pattern
     A formatting pattern that allows for decoration of the formatted value. The formatted value
     is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -11096,6 +11156,7 @@ incl_space
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------
@@ -11202,7 +11263,7 @@ from great_tables import vals
 vals.fmt_partsper([0.0000015, 0.00035], to_units="ppm")
 ```
 
-val_fmt_currency(x: 'X', currency: 'str | None' = None, use_subunits: 'bool' = True, decimals: 'int | None' = None, drop_trailing_dec_mark: 'bool' = True, accounting: 'bool' = False, use_seps: 'bool' = True, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'left', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'list[str]'
+val_fmt_currency(x: 'X', currency: 'str | None' = None, use_subunits: 'bool' = True, decimals: 'int | None' = None, drop_trailing_dec_mark: 'bool' = True, accounting: 'bool' = False, use_seps: 'bool' = True, min_sep_threshold: 'int' = 1, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, placement: 'str' = 'left', incl_space: 'bool' = False, locale: 'str | None' = None) -> 'list[str]'
 
 Format values as currencies.
 
@@ -11251,6 +11312,12 @@ use_seps
     The `use_seps` option allows for the use of digit group separators. The type of digit group
     separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
     setting is `True` by default.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a `locale=` value is provided, the locale's own minimum grouping
+    digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
 scale_by
     All numeric values will be multiplied by the `scale_by` value before undergoing formatting.
     Since the `default` value is `1`, no values will be changed unless a different multiplier
@@ -11284,6 +11351,7 @@ incl_space
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------
@@ -11506,7 +11574,7 @@ Returns
 list[str]
     A list of formatted values is returned.
 
-val_fmt_bytes(x: 'X', standard: 'str' = 'decimal', decimals: 'int' = 1, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = True, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'bool' = True, locale: 'str | None' = None) -> 'list[str]'
+val_fmt_bytes(x: 'X', standard: 'str' = 'decimal', decimals: 'int' = 1, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = True, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, min_sep_threshold: 'int' = 1, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, incl_space: 'bool' = True, locale: 'str | None' = None) -> 'list[str]'
 
 Format values as bytes.
 
@@ -11552,6 +11620,12 @@ use_seps
     The `use_seps` option allows for the use of digit group separators. The type of digit group
     separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
     setting is `True` by default.
+min_sep_threshold
+    The minimum number of digits in the integer part of a number for digit grouping
+    separators to be used. The default of `1` uses separators from 4-digit numbers onward
+    (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+    numbers (`100,000`). When a `locale=` value is provided, the locale's own minimum grouping
+    digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
 pattern
     A formatting pattern that allows for decoration of the formatted value. The formatted value
     is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -11574,6 +11648,7 @@ incl_space
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
 Returns
 -------

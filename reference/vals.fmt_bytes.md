@@ -15,6 +15,7 @@ vals.fmt_bytes(
     drop_trailing_zeros=True,
     drop_trailing_dec_mark=True,
     use_seps=True,
+    min_sep_threshold=1,
     pattern="{x}",
     sep_mark=",",
     dec_mark=".",
@@ -53,6 +54,9 @@ A boolean value that determines whether decimal marks should always appear even 
 
 `use_seps: bool = ``True`  
 The `use_seps` option allows for the use of digit group separators. The type of digit group separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This setting is `True` by default.
+
+`min_sep_threshold: int = ``1`  
+The minimum number of digits in the integer part of a number for digit grouping separators to be used. The default of `1` uses separators from 4-digit numbers onward (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit numbers (`100,000`). When a `locale=` value is provided, the locale's own minimum grouping digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
 
 `pattern: str = ``"{x}"`  
 A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the `{x}` (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.

@@ -15,6 +15,7 @@ vals.fmt_currency(
     drop_trailing_dec_mark=True,
     accounting=False,
     use_seps=True,
+    min_sep_threshold=1,
     scale_by=1,
     compact=False,
     pattern="{x}",
@@ -62,6 +63,9 @@ An option to use accounting style for values. Normally, negative values will be 
 
 `use_seps: bool = ``True`  
 The `use_seps` option allows for the use of digit group separators. The type of digit group separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This setting is `True` by default.
+
+`min_sep_threshold: int = ``1`  
+The minimum number of digits in the integer part of a number for digit grouping separators to be used. The default of `1` uses separators from 4-digit numbers onward (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit numbers (`100,000`). When a `locale=` value is provided, the locale's own minimum grouping digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
 
 `scale_by: float = ``1`  
 All numeric values will be multiplied by the `scale_by` value before undergoing formatting. Since the `default` value is `1`, no values will be changed unless a different multiplier value is supplied.

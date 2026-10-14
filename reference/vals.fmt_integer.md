@@ -16,6 +16,7 @@ vals.fmt_integer(
     pattern="{x}",
     sep_mark=",",
     force_sign=False,
+    min_sep_threshold=1,
     locale=None,
 )
 ```
@@ -58,6 +59,9 @@ The string to use as a separator between groups of digits. For example, using `s
 
 `force_sign: bool = ``False`  
 Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use `True` for this option. The default is `False`, where only negative numbers will display a minus sign.
+
+`min_sep_threshold: int = ``1`  
+The minimum number of digits in the integer part of a number for digit grouping separators to be used. The default of `1` uses separators from 4-digit numbers onward (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit numbers (`100,000`). When a `locale=` value is provided, the locale's own minimum grouping digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
 
 `locale: str | None = None`  
 An optional locale identifier that can be used for formatting values according the locale's rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
