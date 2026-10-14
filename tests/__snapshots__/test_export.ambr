@@ -64,14 +64,14 @@
    #test_table .gt_asterisk { font-size: 100%; vertical-align: 0; }
    
   </style>
-  <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <table class="gt_table" aria-labelledby="test_table-title" aria-describedby="test_table-subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
   
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></td>
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" id="test_table-title">Data listing from <strong>exibble</strong></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</td>
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="test_table-subtitle"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</td>
     </tr>
   <tr class="gt_col_headings">
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col"></th>
