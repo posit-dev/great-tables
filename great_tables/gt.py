@@ -117,6 +117,7 @@ from ._tab_stub_indent import tab_stub_indent
 from ._tbl_data import _get_cell, _set_cell, n_rows
 from ._utils import _migrate_unformatted_to_output
 from ._utils_render_html import (
+    _get_table_aria_attrs,
     _get_table_defs,
     create_body_component_h,
     create_columns_component_h,
@@ -611,10 +612,13 @@ class GT(
         else:
             table_colgroups = f"\n{table_defs['table_colgroups']}\n"
 
+        # A table with a title is named after it (and described by its subtitle, if present)
+        table_aria = _get_table_aria_attrs(data=self)
+
         if table_defs["table_style"] is None:
-            table_tag_open = f'<table class="gt_table" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
+            table_tag_open = f'<table class="gt_table"{table_aria} data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
         else:
-            table_tag_open = f'<table style="{table_defs["table_style"]}" class="gt_table" data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
+            table_tag_open = f'<table style="{table_defs["table_style"]}" class="gt_table"{table_aria} data-quarto-disable-processing="{quarto_disable_processing}" data-quarto-bootstrap="{quarto_use_bootstrap}">'
 
         html_table = f"""{table_tag_open}{table_colgroups}
 <thead>
