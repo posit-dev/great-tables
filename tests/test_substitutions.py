@@ -57,17 +57,31 @@ def test_sub_missing_meth_implicit_columns(df):
 
 
 @pytest.mark.parametrize("el", [0, 0.0])
-def test_sub_zero_el(el):
-    assert SubZero("--").to_html(el) == "--"
+def test_sub_zero_el(df_empty: DataFrameLike, el):
+    assert SubZero(df_empty, "--").to_html(el) == "--"
 
 
-def test_sub_zero_el_skip():
-    assert isinstance(SubZero("--").to_html(1), FormatterSkipElement)
+def test_sub_zero_el_skip(df_empty: DataFrameLike):
+    assert isinstance(SubZero(df_empty, "--").to_html(1), FormatterSkipElement)
 
 
 def test_sub_zero_meth(df):
     new_gt = GT(df).sub_zero("col1", zero_text="no")._render_formats("html")
     assert_series_equals(new_gt._body.body["col1"], [None, None, "no"])
+
+
+@pytest.mark.parametrize(
+    "values,dtype,expected",
+    [
+        ([0, None, 1], "Int64", ["no", None, "1"]),
+        ([0.0, None, 1.5], "Float64", ["no", None, "1.5"]),
+    ],
+)
+def test_sub_zero_meth_pandas_nullable(values: list, dtype: str, expected: list):
+    # `pd.NA == 0` gives `pd.NA` rather than a boolean, so missing values have to be skipped
+    df = pd.DataFrame({"col1": pd.Series(values, dtype=dtype)})
+    new_gt = GT(df).sub_zero("col1", zero_text="no")._render_formats("html")
+    assert_series_equals(new_gt._body.body["col1"], expected)
 
 
 def test_sub_missing_latex(df):

@@ -156,7 +156,7 @@ def sub_zero(
     ```
     """
 
-    subber = SubZero(zero_text)
+    subber = SubZero(self._tbl_data, zero_text)
     return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)
 
 
@@ -194,9 +194,14 @@ class SubMissing(Substitution):
 
 @dataclass
 class SubZero(Substitution):
+    dispatch_frame: DataFrameLike
     zero_text: str | Text
 
     def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
+        # Skip missing values first; comparing `pd.NA` with zero doesn't give a boolean
+        if is_na(self.dispatch_frame, x):
+            return FormatterSkipElement()
+
         if x == 0:
             return _process_text(self.zero_text, context=context)
 
