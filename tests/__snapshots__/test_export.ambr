@@ -74,7 +74,7 @@
       <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</td>
     </tr>
   <tr class="gt_col_headings">
-    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col"></th>
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_table-num">num</th>
     <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="test_table-char">char</th>
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_table-currency">currency</th>
@@ -82,58 +82,58 @@
   </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="4" scope="colgroup">grp_a</th>
+      <th class="gt_group_heading" colspan="4" scope="colgroup" id="test_table-grp_a">grp_a</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_1</th>
-      <td class="gt_row gt_right">0.11</td>
-      <td class="gt_row gt_left">apricot</td>
-      <td class="gt_row gt_right">$49.95</td>
+      <th scope="row" id="test_table-stub-1" class="gt_row gt_left gt_stub">row_1</th>
+      <td headers="test_table-grp_a test_table-stub-1 test_table-num" class="gt_row gt_right">0.11</td>
+      <td headers="test_table-grp_a test_table-stub-1 test_table-char" class="gt_row gt_left">apricot</td>
+      <td headers="test_table-grp_a test_table-stub-1 test_table-currency" class="gt_row gt_right">$49.95</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_2</th>
-      <td class="gt_row gt_right">2.22</td>
-      <td class="gt_row gt_left">banana</td>
-      <td class="gt_row gt_right">$17.95</td>
+      <th scope="row" id="test_table-stub-2" class="gt_row gt_left gt_stub">row_2</th>
+      <td headers="test_table-grp_a test_table-stub-2 test_table-num" class="gt_row gt_right">2.22</td>
+      <td headers="test_table-grp_a test_table-stub-2 test_table-char" class="gt_row gt_left">banana</td>
+      <td headers="test_table-grp_a test_table-stub-2 test_table-currency" class="gt_row gt_right">$17.95</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_3</th>
-      <td class="gt_row gt_right">33.33</td>
-      <td class="gt_row gt_left">coconut</td>
-      <td class="gt_row gt_right">$1.39</td>
+      <th scope="row" id="test_table-stub-3" class="gt_row gt_left gt_stub">row_3</th>
+      <td headers="test_table-grp_a test_table-stub-3 test_table-num" class="gt_row gt_right">33.33</td>
+      <td headers="test_table-grp_a test_table-stub-3 test_table-char" class="gt_row gt_left">coconut</td>
+      <td headers="test_table-grp_a test_table-stub-3 test_table-currency" class="gt_row gt_right">$1.39</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_4</th>
-      <td class="gt_row gt_right">444.40</td>
-      <td class="gt_row gt_left">durian</td>
-      <td class="gt_row gt_right">$65,100.00</td>
+      <th scope="row" id="test_table-stub-4" class="gt_row gt_left gt_stub">row_4</th>
+      <td headers="test_table-grp_a test_table-stub-4 test_table-num" class="gt_row gt_right">444.40</td>
+      <td headers="test_table-grp_a test_table-stub-4 test_table-char" class="gt_row gt_left">durian</td>
+      <td headers="test_table-grp_a test_table-stub-4 test_table-currency" class="gt_row gt_right">$65,100.00</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="4" scope="colgroup">grp_b</th>
+      <th class="gt_group_heading" colspan="4" scope="colgroup" id="test_table-grp_b">grp_b</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_5</th>
-      <td class="gt_row gt_right">5,550.00</td>
-      <td class="gt_row gt_left">None</td>
-      <td class="gt_row gt_right">$1,325.81</td>
+      <th scope="row" id="test_table-stub-5" class="gt_row gt_left gt_stub">row_5</th>
+      <td headers="test_table-grp_b test_table-stub-5 test_table-num" class="gt_row gt_right">5,550.00</td>
+      <td headers="test_table-grp_b test_table-stub-5 test_table-char" class="gt_row gt_left">None</td>
+      <td headers="test_table-grp_b test_table-stub-5 test_table-currency" class="gt_row gt_right">$1,325.81</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_6</th>
-      <td class="gt_row gt_right">None</td>
-      <td class="gt_row gt_left">fig</td>
-      <td class="gt_row gt_right">$13.26</td>
+      <th scope="row" id="test_table-stub-6" class="gt_row gt_left gt_stub">row_6</th>
+      <td headers="test_table-grp_b test_table-stub-6 test_table-num" class="gt_row gt_right">None</td>
+      <td headers="test_table-grp_b test_table-stub-6 test_table-char" class="gt_row gt_left">fig</td>
+      <td headers="test_table-grp_b test_table-stub-6 test_table-currency" class="gt_row gt_right">$13.26</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_7</th>
-      <td class="gt_row gt_right">777,000.00</td>
-      <td class="gt_row gt_left">grapefruit</td>
-      <td class="gt_row gt_right">None</td>
+      <th scope="row" id="test_table-stub-7" class="gt_row gt_left gt_stub">row_7</th>
+      <td headers="test_table-grp_b test_table-stub-7 test_table-num" class="gt_row gt_right">777,000.00</td>
+      <td headers="test_table-grp_b test_table-stub-7 test_table-char" class="gt_row gt_left">grapefruit</td>
+      <td headers="test_table-grp_b test_table-stub-7 test_table-currency" class="gt_row gt_right">None</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_8</th>
-      <td class="gt_row gt_right">8,880,000.00</td>
-      <td class="gt_row gt_left">honeydew</td>
-      <td class="gt_row gt_right">$0.44</td>
+      <th scope="row" id="test_table-stub-8" class="gt_row gt_left gt_stub">row_8</th>
+      <td headers="test_table-grp_b test_table-stub-8 test_table-num" class="gt_row gt_right">8,880,000.00</td>
+      <td headers="test_table-grp_b test_table-stub-8 test_table-char" class="gt_row gt_left">honeydew</td>
+      <td headers="test_table-grp_b test_table-stub-8 test_table-currency" class="gt_row gt_right">$0.44</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">This is only a subset of the dataset.</span></td></tr></tfoot>
@@ -157,12 +157,12 @@
   </thead>
   <tbody class="gt_table_body" style="border-style: none;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;">
     <tr style="border-style: none;background-color: transparent;">
-      <td class="gt_row gt_right" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">0.11</td>
-      <td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">apricot</td>
+      <td class="gt_row gt_right" headers="test_table_small-num" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">0.11</td>
+      <td class="gt_row gt_left" headers="test_table_small-char" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">apricot</td>
     </tr>
     <tr style="border-style: none;background-color: transparent;">
-      <td class="gt_row gt_right" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">2.22</td>
-      <td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">banana</td>
+      <td class="gt_row gt_right" headers="test_table_small-num" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">2.22</td>
+      <td class="gt_row gt_left" headers="test_table_small-char" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">banana</td>
     </tr>
   </tbody>
   
@@ -190,12 +190,12 @@
   </thead>
   <tbody class="gt_table_body" style="border-style: none;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;">
     <tr style="border-style: none;background-color: transparent;">
-      <td class="gt_row gt_right" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">0.11</td>
-      <td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">apricot</td>
+      <td class="gt_row gt_right" headers="test_table_small-num" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">0.11</td>
+      <td class="gt_row gt_left" headers="test_table_small-char" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">apricot</td>
     </tr>
     <tr style="border-style: none;background-color: transparent;">
-      <td class="gt_row gt_right" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">2.22</td>
-      <td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">banana</td>
+      <td class="gt_row gt_right" headers="test_table_small-num" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;">2.22</td>
+      <td class="gt_row gt_left" headers="test_table_small-char" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 5px;padding-right: 5px;margin: 10px;border-top-style: solid;border-top-width: 1px;border-top-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;">banana</td>
     </tr>
   </tbody>
   

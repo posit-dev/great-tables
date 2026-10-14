@@ -22,14 +22,14 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> 42</td>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> 123.45</td>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> $1,234.56</td>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> 85.5%</td>
-      <td class="gt_row gt_left">Hello<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span></td>
-      <td class="gt_row gt_left">ABC123<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span></td>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> (1,000)</td>
-      <td class="gt_row gt_left">1.23e-4<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></td>
+      <td headers="test_auto_placement-integers" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> 42</td>
+      <td headers="test_auto_placement-floats" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> 123.45</td>
+      <td headers="test_auto_placement-currency" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> $1,234.56</td>
+      <td headers="test_auto_placement-percentages" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> 85.5%</td>
+      <td headers="test_auto_placement-text" class="gt_row gt_left">Hello<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span></td>
+      <td headers="test_auto_placement-mixed" class="gt_row gt_left">ABC123<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span></td>
+      <td headers="test_auto_placement-formatted_num" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> (1,000)</td>
+      <td headers="test_auto_placement-scientific" class="gt_row gt_left">1.23e-4<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_footnotes"><td class="gt_footnote" colspan="8"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Integer footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="8"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Float footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="8"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Currency footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="8"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Percentage footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="8"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Text footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="8"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Mixed footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="8"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Formatted number footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="8"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Scientific footnote</td></tr></tfoot>
@@ -57,9 +57,9 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> 42</td>
-      <td class="gt_row gt_left"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Hello</td>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> $1,234.56</td>
+      <td headers="test_left_placement-integers" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> 42</td>
+      <td headers="test_left_placement-text" class="gt_row gt_left"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Hello</td>
+      <td headers="test_left_placement-currency" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> $1,234.56</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Integer footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Text footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Currency footnote</td></tr></tfoot>
@@ -87,9 +87,9 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">42<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
-      <td class="gt_row gt_left">Hello<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
-      <td class="gt_row gt_right">$1,234.56<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></td>
+      <td headers="test_right_placement-integers" class="gt_row gt_right">42<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></td>
+      <td headers="test_right_placement-text" class="gt_row gt_left">Hello<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <td headers="test_right_placement-currency" class="gt_row gt_right">$1,234.56<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span></td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Integer footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Text footnote</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Currency footnote</td></tr></tfoot>
@@ -107,42 +107,42 @@
   <thead>
   
   <tr class="gt_col_headings">
-    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col"></th>
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_grand_summary_top_footnotes-x">x</th>
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test_grand_summary_top_footnotes-y">y</th>
   </tr>
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th scope="row" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Total</th>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> 10</td>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">100</td>
+      <th scope="row" id="test_grand_summary_top_footnotes-grand-summary-Total" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Total</th>
+      <td headers="test_grand_summary_top_footnotes-grand-summary-Total test_grand_summary_top_footnotes-x" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> 10</td>
+      <td headers="test_grand_summary_top_footnotes-grand-summary-Total test_grand_summary_top_footnotes-y" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">100</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">A</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_grand_summary_top_footnotes-A">A</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">r1</th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> 1</td>
-      <td class="gt_row gt_right">10</td>
+      <th scope="row" id="test_grand_summary_top_footnotes-stub-1" class="gt_row gt_left gt_stub">r1</th>
+      <td headers="test_grand_summary_top_footnotes-A test_grand_summary_top_footnotes-stub-1 test_grand_summary_top_footnotes-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> 1</td>
+      <td headers="test_grand_summary_top_footnotes-A test_grand_summary_top_footnotes-stub-1 test_grand_summary_top_footnotes-y" class="gt_row gt_right">10</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">r2</th>
-      <td class="gt_row gt_right">2</td>
-      <td class="gt_row gt_right">20</td>
+      <th scope="row" id="test_grand_summary_top_footnotes-stub-2" class="gt_row gt_left gt_stub">r2</th>
+      <td headers="test_grand_summary_top_footnotes-A test_grand_summary_top_footnotes-stub-2 test_grand_summary_top_footnotes-x" class="gt_row gt_right">2</td>
+      <td headers="test_grand_summary_top_footnotes-A test_grand_summary_top_footnotes-stub-2 test_grand_summary_top_footnotes-y" class="gt_row gt_right">20</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">B</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_grand_summary_top_footnotes-B">B</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">r3</th>
-      <td class="gt_row gt_right">3</td>
-      <td class="gt_row gt_right">30</td>
+      <th scope="row" id="test_grand_summary_top_footnotes-stub-3" class="gt_row gt_left gt_stub">r3</th>
+      <td headers="test_grand_summary_top_footnotes-B test_grand_summary_top_footnotes-stub-3 test_grand_summary_top_footnotes-x" class="gt_row gt_right">3</td>
+      <td headers="test_grand_summary_top_footnotes-B test_grand_summary_top_footnotes-stub-3 test_grand_summary_top_footnotes-y" class="gt_row gt_right">30</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">r4</th>
-      <td class="gt_row gt_right">4</td>
-      <td class="gt_row gt_right">40</td>
+      <th scope="row" id="test_grand_summary_top_footnotes-stub-4" class="gt_row gt_left gt_stub">r4</th>
+      <td headers="test_grand_summary_top_footnotes-B test_grand_summary_top_footnotes-stub-4 test_grand_summary_top_footnotes-x" class="gt_row gt_right">4</td>
+      <td headers="test_grand_summary_top_footnotes-B test_grand_summary_top_footnotes-stub-4 test_grand_summary_top_footnotes-y" class="gt_row gt_right">40</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Grand summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Body note</td></tr></tfoot>
@@ -179,54 +179,54 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_sum_bottom_grand_bottom-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_bottom-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Alpha test_kitchen_sink_sum_bottom_grand_bottom-stub-1 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Alpha test_kitchen_sink_sum_bottom_grand_bottom-stub-1 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_bottom-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Alpha test_kitchen_sink_sum_bottom_grand_bottom-stub-2 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Alpha test_kitchen_sink_sum_bottom_grand_bottom-stub-2 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-y" class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 30</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_bottom-summary-Alpha-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Alpha test_kitchen_sink_sum_bottom_grand_bottom-summary-Alpha-Sum test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-x" class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 30</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Alpha test_kitchen_sink_sum_bottom_grand_bottom-summary-Alpha-Sum test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Beta</th>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_sum_bottom_grand_bottom-Beta">Beta</th>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_bottom-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Beta test_kitchen_sink_sum_bottom_grand_bottom-stub-3 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Beta test_kitchen_sink_sum_bottom_grand_bottom-stub-3 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_bottom-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Beta test_kitchen_sink_sum_bottom_grand_bottom-stub-4 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Beta test_kitchen_sink_sum_bottom_grand_bottom-stub-4 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-y" class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_bottom-summary-Beta-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Beta test_kitchen_sink_sum_bottom_grand_bottom-summary-Beta-Sum test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-x" class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-Beta test_kitchen_sink_sum_bottom_grand_bottom-summary-Beta-Sum test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2" scope="rowgroup"></th>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      rowspan="2" scope="rowgroup" id="test_kitchen_sink_sum_bottom_grand_bottom-group"></th>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_bottom-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-group test_kitchen_sink_sum_bottom_grand_bottom-stub-5 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-group test_kitchen_sink_sum_bottom_grand_bottom-stub-5 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_bottom-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-group test_kitchen_sink_sum_bottom_grand_bottom-stub-6 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-group test_kitchen_sink_sum_bottom_grand_bottom-stub-6 test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-y" class="gt_row gt_right">600</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2" scope="row">Grand Total</th>
-      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
-      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2" scope="row" id="test_kitchen_sink_sum_bottom_grand_bottom-grand-summary-Grand-Total">Grand Total</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-grand-summary-Grand-Total test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-x" class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_bottom-grand-summary-Grand-Total test_kitchen_sink_sum_bottom_grand_bottom-Metrics test_kitchen_sink_sum_bottom_grand_bottom-y" class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Body cell note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Grand summary note</td></tr></tfoot>
@@ -262,55 +262,55 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row">Grand Total</th>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row" id="test_kitchen_sink_sum_bottom_grand_top-grand-summary-Grand-Total">Grand Total</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-grand-summary-Grand-Total test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-x" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-grand-summary-Grand-Total test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-y" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_sum_bottom_grand_top-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_top-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Alpha test_kitchen_sink_sum_bottom_grand_top-stub-1 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Alpha test_kitchen_sink_sum_bottom_grand_top-stub-1 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_top-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Alpha test_kitchen_sink_sum_bottom_grand_top-stub-2 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Alpha test_kitchen_sink_sum_bottom_grand_top-stub-2 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-y" class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_top-summary-Alpha-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Alpha test_kitchen_sink_sum_bottom_grand_top-summary-Alpha-Sum test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-x" class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Alpha test_kitchen_sink_sum_bottom_grand_top-summary-Alpha-Sum test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Beta</th>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_sum_bottom_grand_top-Beta">Beta</th>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_top-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Beta test_kitchen_sink_sum_bottom_grand_top-stub-3 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Beta test_kitchen_sink_sum_bottom_grand_top-stub-3 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_top-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Beta test_kitchen_sink_sum_bottom_grand_top-stub-4 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Beta test_kitchen_sink_sum_bottom_grand_top-stub-4 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-y" class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_top-summary-Beta-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Beta test_kitchen_sink_sum_bottom_grand_top-summary-Beta-Sum test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-x" class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-Beta test_kitchen_sink_sum_bottom_grand_top-summary-Beta-Sum test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2" scope="rowgroup"></th>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      rowspan="2" scope="rowgroup" id="test_kitchen_sink_sum_bottom_grand_top-group"></th>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_top-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-group test_kitchen_sink_sum_bottom_grand_top-stub-5 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-group test_kitchen_sink_sum_bottom_grand_top-stub-5 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_sum_bottom_grand_top-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-group test_kitchen_sink_sum_bottom_grand_top-stub-6 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_sum_bottom_grand_top-group test_kitchen_sink_sum_bottom_grand_top-stub-6 test_kitchen_sink_sum_bottom_grand_top-Metrics test_kitchen_sink_sum_bottom_grand_top-y" class="gt_row gt_right">600</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Grand summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Body cell note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Summary note</td></tr></tfoot>
@@ -347,54 +347,54 @@
   <tbody class="gt_table_body">
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 30</td>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_sum_top_grand_bottom-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_bottom-summary-Alpha-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Alpha test_kitchen_sink_sum_top_grand_bottom-summary-Alpha-Sum test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-x" class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 30</td>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Alpha test_kitchen_sink_sum_top_grand_bottom-summary-Alpha-Sum test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-y" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_bottom-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Alpha test_kitchen_sink_sum_top_grand_bottom-stub-1 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 10</td>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Alpha test_kitchen_sink_sum_top_grand_bottom-stub-1 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_bottom-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Alpha test_kitchen_sink_sum_top_grand_bottom-stub-2 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Alpha test_kitchen_sink_sum_top_grand_bottom-stub-2 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-y" class="gt_row gt_right">200</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Beta</th>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_sum_top_grand_bottom-Beta">Beta</th>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_bottom-summary-Beta-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Beta test_kitchen_sink_sum_top_grand_bottom-summary-Beta-Sum test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-x" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Beta test_kitchen_sink_sum_top_grand_bottom-summary-Beta-Sum test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-y" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_bottom-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Beta test_kitchen_sink_sum_top_grand_bottom-stub-3 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Beta test_kitchen_sink_sum_top_grand_bottom-stub-3 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_bottom-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Beta test_kitchen_sink_sum_top_grand_bottom-stub-4 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-Beta test_kitchen_sink_sum_top_grand_bottom-stub-4 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-y" class="gt_row gt_right">400</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2" scope="rowgroup"></th>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      rowspan="2" scope="rowgroup" id="test_kitchen_sink_sum_top_grand_bottom-group"></th>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_bottom-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-group test_kitchen_sink_sum_top_grand_bottom-stub-5 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-group test_kitchen_sink_sum_top_grand_bottom-stub-5 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_bottom-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-group test_kitchen_sink_sum_top_grand_bottom-stub-6 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-group test_kitchen_sink_sum_top_grand_bottom-stub-6 test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-y" class="gt_row gt_right">600</td>
     </tr>
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2" scope="row">Grand Total</th>
-      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
-      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row_bottom" colspan="2" scope="row" id="test_kitchen_sink_sum_top_grand_bottom-grand-summary-Grand-Total">Grand Total</th>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-grand-summary-Grand-Total test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-x" class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
+      <td headers="test_kitchen_sink_sum_top_grand_bottom-grand-summary-Grand-Total test_kitchen_sink_sum_top_grand_bottom-Metrics test_kitchen_sink_sum_top_grand_bottom-y" class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Body cell note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Grand summary note</td></tr></tfoot>
@@ -430,55 +430,55 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row">Grand Total</th>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row" id="test_kitchen_sink_sum_top_grand_top-grand-summary-Grand-Total">Grand Total</th>
+      <td headers="test_kitchen_sink_sum_top_grand_top-grand-summary-Grand-Total test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-x" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
+      <td headers="test_kitchen_sink_sum_top_grand_top-grand-summary-Grand-Total test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-y" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 30</td>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_sum_top_grand_top-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_top-summary-Alpha-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Alpha test_kitchen_sink_sum_top_grand_top-summary-Alpha-Sum test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-x" class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 30</td>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Alpha test_kitchen_sink_sum_top_grand_top-summary-Alpha-Sum test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-y" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_top-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Alpha test_kitchen_sink_sum_top_grand_top-stub-1 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 10</td>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Alpha test_kitchen_sink_sum_top_grand_top-stub-1 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_top-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Alpha test_kitchen_sink_sum_top_grand_top-stub-2 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Alpha test_kitchen_sink_sum_top_grand_top-stub-2 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-y" class="gt_row gt_right">200</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Beta</th>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_sum_top_grand_top-Beta">Beta</th>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_top-summary-Beta-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_last_summary_row_top">Sum</th>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Beta test_kitchen_sink_sum_top_grand_top-summary-Beta-Sum test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-x" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Beta test_kitchen_sink_sum_top_grand_top-summary-Beta-Sum test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-y" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_top-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Beta test_kitchen_sink_sum_top_grand_top-stub-3 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Beta test_kitchen_sink_sum_top_grand_top-stub-3 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_top-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Beta test_kitchen_sink_sum_top_grand_top-stub-4 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_sum_top_grand_top-Beta test_kitchen_sink_sum_top_grand_top-stub-4 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-y" class="gt_row gt_right">400</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2" scope="rowgroup"></th>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      rowspan="2" scope="rowgroup" id="test_kitchen_sink_sum_top_grand_top-group"></th>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_top-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_sum_top_grand_top-group test_kitchen_sink_sum_top_grand_top-stub-5 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_sum_top_grand_top-group test_kitchen_sink_sum_top_grand_top-stub-5 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_sum_top_grand_top-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_sum_top_grand_top-group test_kitchen_sink_sum_top_grand_top-stub-6 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_sum_top_grand_top-group test_kitchen_sink_sum_top_grand_top-stub-6 test_kitchen_sink_sum_top_grand_top-Metrics test_kitchen_sink_sum_top_grand_top-y" class="gt_row gt_right">600</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Grand summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Body cell note</td></tr></tfoot>
@@ -514,58 +514,58 @@
   </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-1 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-1 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-2 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-2 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-y" class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 30</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-summary-Alpha-Sum" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-summary-Alpha-Sum test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-x" class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 30</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-summary-Alpha-Sum test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">Beta</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Beta">Beta</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-3 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-3 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-4 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-4 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-y" class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-summary-Beta-Sum" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-summary-Beta-Sum test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-x" class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-summary-Beta-Sum test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_empty_group_heading">
-      <th class="gt_group_heading" colspan="3" scope="colgroup"></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-group"></th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-group test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-5 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-group test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-5 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-group test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-6 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-group test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-stub-6 test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-y" class="gt_row gt_right">600</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
-      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
-      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-grand-summary-Grand-Total" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-grand-summary-Grand-Total test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-x" class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-grand-summary-Grand-Total test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_bottom-y" class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="3"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Body cell note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Grand summary note</td></tr></tfoot>
@@ -601,58 +601,58 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th scope="row" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-grand-summary-Grand-Total" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-grand-summary-Grand-Total test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-x" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-grand-summary-Grand-Total test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-y" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-1 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-1 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-2 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-2 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-y" class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-summary-Alpha-Sum" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_top-summary-Alpha-Sum test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-x" class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_bottom_grand_top-summary-Alpha-Sum test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">Beta</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Beta">Beta</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-3 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-3 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-4 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-4 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-y" class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-summary-Beta-Sum" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_top-summary-Beta-Sum test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-x" class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Beta test_kitchen_sink_no_rgcol_sum_bottom_grand_top-summary-Beta-Sum test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_empty_group_heading">
-      <th class="gt_group_heading" colspan="3" scope="colgroup"></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-group"></th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-group test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-5 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-group test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-5 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-group test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-6 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_bottom_grand_top-group test_kitchen_sink_no_rgcol_sum_bottom_grand_top-stub-6 test_kitchen_sink_no_rgcol_sum_bottom_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_bottom_grand_top-y" class="gt_row gt_right">600</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="3"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Grand summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Body cell note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Summary note</td></tr></tfoot>
@@ -688,58 +688,58 @@
   </thead>
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span></th>
     </tr>
     <tr>
-      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 30</td>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-summary-Alpha-Sum" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_bottom-summary-Alpha-Sum test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-x" class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 30</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_bottom-summary-Alpha-Sum test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-y" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span></th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-1 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> 10</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-1 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-2 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-2 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-y" class="gt_row gt_right">200</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">Beta</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Beta">Beta</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-summary-Beta-Sum" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_top_grand_bottom-summary-Beta-Sum test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-x" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_top_grand_bottom-summary-Beta-Sum test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-y" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-3 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-3 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-4 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Beta test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-4 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-y" class="gt_row gt_right">400</td>
     </tr>
     <tr class="gt_empty_group_heading">
-      <th class="gt_group_heading" colspan="3" scope="colgroup"></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-group"></th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-group test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-5 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-group test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-5 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-group test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-6 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-group test_kitchen_sink_no_rgcol_sum_top_grand_bottom-stub-6 test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-y" class="gt_row gt_right">600</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
-      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
-      <td class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-grand-summary-Grand-Total" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-grand-summary-Grand-Total test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-x" class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 210</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_bottom-grand-summary-Grand-Total test_kitchen_sink_no_rgcol_sum_top_grand_bottom-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_bottom-y" class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="3"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Body cell note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Grand summary note</td></tr></tfoot>
@@ -775,58 +775,58 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th scope="row" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-grand-summary-Grand-Total" class="gt_last_grand_summary_row_top gt_row gt_left gt_stub gt_grand_summary_row">Grand Total</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-grand-summary-Grand-Total test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-x" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-grand-summary-Grand-Total test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-y" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
     </tr>
     <tr>
-      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 30</td>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-summary-Alpha-Sum" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_top-summary-Alpha-Sum test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-x" class="gt_last_summary_row_top gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 30</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_top-summary-Alpha-Sum test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-y" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-1 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 10</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-1 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-2 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Alpha test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-2 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-y" class="gt_row gt_right">200</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="3" scope="colgroup">Beta</th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-Beta">Beta</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-summary-Beta-Sum" class="gt_last_summary_row_top gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Beta test_kitchen_sink_no_rgcol_sum_top_grand_top-summary-Beta-Sum test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-x" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Beta test_kitchen_sink_no_rgcol_sum_top_grand_top-summary-Beta-Sum test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-y" class="gt_last_summary_row_top gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Beta test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-3 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Beta test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-3 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Beta test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-4 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-Beta test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-4 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-y" class="gt_row gt_right">400</td>
     </tr>
     <tr class="gt_empty_group_heading">
-      <th class="gt_group_heading" colspan="3" scope="colgroup"></th>
+      <th class="gt_group_heading" colspan="3" scope="colgroup" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-group"></th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-group test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-5 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-group test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-5 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-group test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-6 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_no_rgcol_sum_top_grand_top-group test_kitchen_sink_no_rgcol_sum_top_grand_top-stub-6 test_kitchen_sink_no_rgcol_sum_top_grand_top-Metrics test_kitchen_sink_no_rgcol_sum_top_grand_top-y" class="gt_row gt_right">600</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="3"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Grand summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Body cell note</td></tr></tfoot>
@@ -862,55 +862,55 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row">Grand Total</th>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">---</td>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row" id="test_kitchen_sink_polars-grand-summary-Grand-Total">Grand Total</th>
+      <td headers="test_kitchen_sink_polars-grand-summary-Grand-Total test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-x" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
+      <td headers="test_kitchen_sink_polars-grand-summary-Grand-Total test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-y" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">---</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_polars-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" id="test_kitchen_sink_polars-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      <td headers="test_kitchen_sink_polars-Alpha test_kitchen_sink_polars-stub-1 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
+      <td headers="test_kitchen_sink_polars-Alpha test_kitchen_sink_polars-stub-1 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_polars-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_polars-Alpha test_kitchen_sink_polars-stub-2 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_polars-Alpha test_kitchen_sink_polars-stub-2 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-y" class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">---</td>
+      <th scope="row" id="test_kitchen_sink_polars-summary-Alpha-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <td headers="test_kitchen_sink_polars-Alpha test_kitchen_sink_polars-summary-Alpha-Sum test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-x" class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
+      <td headers="test_kitchen_sink_polars-Alpha test_kitchen_sink_polars-summary-Alpha-Sum test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">---</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Beta</th>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_polars-Beta">Beta</th>
+      <th scope="row" id="test_kitchen_sink_polars-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_polars-Beta test_kitchen_sink_polars-stub-3 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_polars-Beta test_kitchen_sink_polars-stub-3 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_polars-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_polars-Beta test_kitchen_sink_polars-stub-4 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_polars-Beta test_kitchen_sink_polars-stub-4 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-y" class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">---</td>
+      <th scope="row" id="test_kitchen_sink_polars-summary-Beta-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <td headers="test_kitchen_sink_polars-Beta test_kitchen_sink_polars-summary-Beta-Sum test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-x" class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_polars-Beta test_kitchen_sink_polars-summary-Beta-Sum test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">---</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2" scope="rowgroup"></th>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      rowspan="2" scope="rowgroup" id="test_kitchen_sink_polars-group"></th>
+      <th scope="row" id="test_kitchen_sink_polars-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_polars-group test_kitchen_sink_polars-stub-5 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_polars-group test_kitchen_sink_polars-stub-5 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_polars-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_polars-group test_kitchen_sink_polars-stub-6 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_polars-group test_kitchen_sink_polars-stub-6 test_kitchen_sink_polars-Metrics test_kitchen_sink_polars-y" class="gt_row gt_right">600</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Grand summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Body cell note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Summary note</td></tr></tfoot>
@@ -946,55 +946,55 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row">Grand Total</th>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
-      <td class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
+      <th class="gt_row gt_left gt_stub gt_grand_summary_row gt_last_grand_summary_row_top" colspan="2" scope="row" id="test_kitchen_sink_footnotes-grand-summary-Grand-Total">Grand Total</th>
+      <td headers="test_kitchen_sink_footnotes-grand-summary-Grand-Total test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-x" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> 210</td>
+      <td headers="test_kitchen_sink_footnotes-grand-summary-Grand-Total test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-y" class="gt_last_grand_summary_row_top gt_row gt_right gt_grand_summary_row">2100</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <th scope="row" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
-      <td class="gt_row gt_right">100</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_footnotes-Alpha">Alpha<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <th scope="row" id="test_kitchen_sink_footnotes-stub-1" class="gt_row gt_left gt_stub">a1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span></th>
+      <td headers="test_kitchen_sink_footnotes-Alpha test_kitchen_sink_footnotes-stub-1 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-x" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> 10</td>
+      <td headers="test_kitchen_sink_footnotes-Alpha test_kitchen_sink_footnotes-stub-1 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-y" class="gt_row gt_right">100</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">a2</th>
-      <td class="gt_row gt_right">20</td>
-      <td class="gt_row gt_right">200</td>
+      <th scope="row" id="test_kitchen_sink_footnotes-stub-2" class="gt_row gt_left gt_stub">a2</th>
+      <td headers="test_kitchen_sink_footnotes-Alpha test_kitchen_sink_footnotes-stub-2 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-x" class="gt_row gt_right">20</td>
+      <td headers="test_kitchen_sink_footnotes-Alpha test_kitchen_sink_footnotes-stub-2 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-y" class="gt_row gt_right">200</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
+      <th scope="row" id="test_kitchen_sink_footnotes-summary-Alpha-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span></th>
+      <td headers="test_kitchen_sink_footnotes-Alpha test_kitchen_sink_footnotes-summary-Alpha-Sum test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-x" class="gt_first_summary_row gt_row gt_right gt_summary_row"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> 30</td>
+      <td headers="test_kitchen_sink_footnotes-Alpha test_kitchen_sink_footnotes-summary-Alpha-Sum test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">300</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="3" scope="rowgroup">Beta</th>
-      <th scope="row" class="gt_row gt_left gt_stub">b1</th>
-      <td class="gt_row gt_right">30</td>
-      <td class="gt_row gt_right">300</td>
+      rowspan="3" scope="rowgroup" id="test_kitchen_sink_footnotes-Beta">Beta</th>
+      <th scope="row" id="test_kitchen_sink_footnotes-stub-3" class="gt_row gt_left gt_stub">b1</th>
+      <td headers="test_kitchen_sink_footnotes-Beta test_kitchen_sink_footnotes-stub-3 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-x" class="gt_row gt_right">30</td>
+      <td headers="test_kitchen_sink_footnotes-Beta test_kitchen_sink_footnotes-stub-3 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-y" class="gt_row gt_right">300</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">b2</th>
-      <td class="gt_row gt_right">40</td>
-      <td class="gt_row gt_right">400</td>
+      <th scope="row" id="test_kitchen_sink_footnotes-stub-4" class="gt_row gt_left gt_stub">b2</th>
+      <td headers="test_kitchen_sink_footnotes-Beta test_kitchen_sink_footnotes-stub-4 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-x" class="gt_row gt_right">40</td>
+      <td headers="test_kitchen_sink_footnotes-Beta test_kitchen_sink_footnotes-stub-4 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-y" class="gt_row gt_right">400</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
-      <td class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
+      <th scope="row" id="test_kitchen_sink_footnotes-summary-Beta-Sum" class="gt_row gt_left gt_stub gt_summary_row gt_first_summary_row">Sum</th>
+      <td headers="test_kitchen_sink_footnotes-Beta test_kitchen_sink_footnotes-summary-Beta-Sum test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-x" class="gt_first_summary_row gt_row gt_right gt_summary_row">70</td>
+      <td headers="test_kitchen_sink_footnotes-Beta test_kitchen_sink_footnotes-summary-Beta-Sum test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-y" class="gt_first_summary_row gt_row gt_right gt_summary_row">700</td>
     </tr>
     <tr class="gt_row_group_first">
     <th class="gt_row gt_left gt_stub_row_group"
-      rowspan="2" scope="rowgroup"></th>
-      <th scope="row" class="gt_row gt_left gt_stub">c1</th>
-      <td class="gt_row gt_right">50</td>
-      <td class="gt_row gt_right">500</td>
+      rowspan="2" scope="rowgroup" id="test_kitchen_sink_footnotes-group"></th>
+      <th scope="row" id="test_kitchen_sink_footnotes-stub-5" class="gt_row gt_left gt_stub">c1</th>
+      <td headers="test_kitchen_sink_footnotes-group test_kitchen_sink_footnotes-stub-5 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-x" class="gt_row gt_right">50</td>
+      <td headers="test_kitchen_sink_footnotes-group test_kitchen_sink_footnotes-stub-5 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-y" class="gt_row gt_right">500</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">c2</th>
-      <td class="gt_row gt_right">60</td>
-      <td class="gt_row gt_right">600</td>
+      <th scope="row" id="test_kitchen_sink_footnotes-stub-6" class="gt_row gt_left gt_stub">c2</th>
+      <td headers="test_kitchen_sink_footnotes-group test_kitchen_sink_footnotes-stub-6 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-x" class="gt_row gt_right">60</td>
+      <td headers="test_kitchen_sink_footnotes-group test_kitchen_sink_footnotes-stub-6 test_kitchen_sink_footnotes-Metrics test_kitchen_sink_footnotes-y" class="gt_row gt_right">600</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="4"><span class="gt_from_md">Source: synthetic data</span></td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Column x label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Column y label note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Grand summary note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Row group note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">10</span> Body cell note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">11</span> Summary stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">12</span> Summary note</td></tr></tfoot>
@@ -1033,9 +1033,9 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">Row1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
-      <td class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
-      <td class="gt_row gt_right">20</td>
+      <th scope="row" id="test_complete_footnote_ordering-stub-1" class="gt_row gt_left gt_stub">Row1<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span></th>
+      <td headers="test_complete_footnote_ordering-stub-1 test_complete_footnote_ordering-Spanner-A test_complete_footnote_ordering-col1" class="gt_row gt_right"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> 10</td>
+      <td headers="test_complete_footnote_ordering-stub-1 test_complete_footnote_ordering-Spanner-B test_complete_footnote_ordering-col2" class="gt_row gt_right">20</td>
     </tr>
   </tbody>
   <tfoot><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span> Title note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span> Subtitle note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">3</span> Stubhead note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">4</span> Spanner A note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">5</span> Spanner B note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">6</span> Col1 note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">7</span> Col2 note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">8</span> Stub note</td></tr><tr class="gt_footnotes"><td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">9</span> Body note</td></tr></tfoot>
@@ -1049,12 +1049,12 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">A<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></th>
-      <td class="gt_row gt_left">Y</td>
+      <th scope="row" id="test_stub_body_footnotes-stub-1" class="gt_row gt_left gt_stub">A<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">1</span></th>
+      <td headers="test_stub_body_footnotes-stub-1 test_stub_body_footnotes-value" class="gt_row gt_left">Y</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">B</th>
-      <td class="gt_row gt_left">Z<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
+      <th scope="row" id="test_stub_body_footnotes-stub-2" class="gt_row gt_left gt_stub">B</th>
+      <td headers="test_stub_body_footnotes-stub-2 test_stub_body_footnotes-value" class="gt_row gt_left">Z<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;">2</span></td>
     </tr>
   </tbody>
   '''

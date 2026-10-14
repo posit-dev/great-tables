@@ -8,7 +8,7 @@
     <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
       <span>&nbsp;</span>
     </th>
-    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" style="background-color: #1133FF;" scope="colgroup">
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" style="background-color: #1133FF;" scope="colgroup" id="C">
       <span class="gt_column_spanner">C</span>
     </th>
     <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
@@ -22,12 +22,12 @@
     <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
       <span>&nbsp;</span>
     </th>
-    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" style="background-color: #1133FF;" scope="colgroup">
+    <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" style="background-color: #1133FF;" scope="colgroup" id="B">
       <span class="gt_column_spanner">B</span>
     </th>
   </tr>
   <tr class="gt_col_headings gt_spanner_row">
-    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id=""></th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col"></th>
     <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" style="background-color: #33BB88;" scope="colgroup" id="A">
       <span class="gt_column_spanner">A</span>
     </th>
