@@ -2,6 +2,7 @@ import pytest
 import re
 from unittest import mock
 import pandas as pd
+import polars as pl
 import os
 
 from great_tables import GT, exibble, loc, md
@@ -845,8 +846,8 @@ def test_create_body_component_l_stub_indent():
     # Each indentation level is `stub_indent_length` wide (5px by default, or 3.75pt)
     assert result.splitlines() == [
         "row\\_1 & 0.1111 \\\\",
-        "\\hspace*{7.5pt} row\\_2 & 2.222 \\\\",
-        "\\hspace*{7.5pt} row\\_3 & 33.33 \\\\",
+        "\\hspace*{7.5pt}row\\_2 & 2.222 \\\\",
+        "\\hspace*{7.5pt}row\\_3 & 33.33 \\\\",
     ]
 
 
@@ -861,5 +862,55 @@ def test_create_body_component_l_stub_indent_hierarchical_stub():
     # Only the primary (last) stub column is indented
     assert result.splitlines() == [
         "grp\\_a & row\\_1 & 0.1111 \\\\",
-        " & \\hspace*{6pt} row\\_2 & 2.222 \\\\",
+        " & \\hspace*{6pt}row\\_2 & 2.222 \\\\",
     ]
+
+
+@pytest.mark.parametrize(
+    "stub_indent_length,x_out",
+    [
+        # Absolute lengths are converted to points (exactly, not through whole pixels)
+        ("8pt", ["\\hspace*{8pt}b", "\\hspace*{16pt}c"]),
+        ("12px", ["\\hspace*{9pt}b", "\\hspace*{18pt}c"]),
+        ("0.1in", ["\\hspace*{7.2pt}b", "\\hspace*{14.4pt}c"]),
+        ("3mm", ["\\hspace*{8.50394pt}b", "\\hspace*{17.0079pt}c"]),
+        ("7", ["\\hspace*{5.25pt}b", "\\hspace*{10.5pt}c"]),
+        # Font-relative lengths are kept relative to the font size
+        ("1.5em", ["\\hspace*{1.5em}b", "\\hspace*{3em}c"]),
+        ("2rem", ["\\hspace*{2em}b", "\\hspace*{4em}c"]),
+    ],
+)
+def test_stub_indent_length_units(stub_indent_length: str, x_out: list[str]):
+    df = pl.DataFrame({"r": ["a", "b", "c"], "x": [1, 2, 3]})
+    gt = (
+        GT(df, rowname_col="r")
+        .tab_stub_indent(rows=[1], indent=1)
+        .tab_stub_indent(rows=[2], indent=2)
+        .tab_options(stub_indent_length=stub_indent_length)
+    )
+    assert re.findall(r"\\hspace\*\{[^}]*\}\w+", gt.as_latex()) == x_out
+
+
+def test_stub_indent_length_without_fixed_size_warns_once():
+    # A percentage has no fixed size, so the default indent is used (with one warning per table)
+    df = pl.DataFrame({"r": ["a", "b", "c"], "x": [1, 2, 3]})
+    gt = (
+        GT(df, rowname_col="r")
+        .tab_stub_indent(rows=[1, 2], indent=1)
+        .tab_options(stub_indent_length="10%")
+    )
+
+    with pytest.warns(UserWarning, match="can't be used in LaTeX output") as record:
+        latex = gt.as_latex()
+
+    assert len([w for w in record if "stub_indent_length" in str(w.message)]) == 1
+    assert re.findall(r"\\hspace\*\{[^}]*\}\w+", latex) == [
+        "\\hspace*{3.75pt}b",
+        "\\hspace*{3.75pt}c",
+    ]
+
+
+def test_convert_to_pt_is_exact():
+    assert convert_to_pt("8pt") == 8.0
+    assert convert_to_pt("12.5pt") == 12.5
+    assert convert_to_pt("1in") == 72.0
