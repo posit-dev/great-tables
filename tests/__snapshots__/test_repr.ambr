@@ -74,12 +74,12 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">1</td>
-      <td class="gt_row gt_right">4</td>
+      <td headers="test-x" class="gt_row gt_right">1</td>
+      <td headers="test-y" class="gt_row gt_right">4</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2</td>
-      <td class="gt_row gt_right">5</td>
+      <td headers="test-x" class="gt_row gt_right">2</td>
+      <td headers="test-y" class="gt_row gt_right">5</td>
     </tr>
   </tbody>
   
@@ -164,12 +164,12 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">1</td>
-      <td class="gt_row gt_right">4</td>
+      <td headers="test-x" class="gt_row gt_right">1</td>
+      <td headers="test-y" class="gt_row gt_right">4</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2</td>
-      <td class="gt_row gt_right">5</td>
+      <td headers="test-x" class="gt_row gt_right">2</td>
+      <td headers="test-y" class="gt_row gt_right">5</td>
     </tr>
   </tbody>
   
@@ -260,12 +260,12 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">1</td>
-      <td class="gt_row gt_right">4</td>
+      <td headers="test-x" class="gt_row gt_right">1</td>
+      <td headers="test-y" class="gt_row gt_right">4</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2</td>
-      <td class="gt_row gt_right">5</td>
+      <td headers="test-x" class="gt_row gt_right">2</td>
+      <td headers="test-y" class="gt_row gt_right">5</td>
     </tr>
   </tbody>
   
@@ -353,12 +353,12 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">1</td>
-      <td class="gt_row gt_right">4</td>
+      <td headers="test-x" class="gt_row gt_right">1</td>
+      <td headers="test-y" class="gt_row gt_right">4</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2</td>
-      <td class="gt_row gt_right">5</td>
+      <td headers="test-x" class="gt_row gt_right">2</td>
+      <td headers="test-y" class="gt_row gt_right">5</td>
     </tr>
   </tbody>
   
@@ -443,12 +443,12 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <td class="gt_row gt_right">1</td>
-      <td class="gt_row gt_right">4</td>
+      <td headers="test-x" class="gt_row gt_right">1</td>
+      <td headers="test-y" class="gt_row gt_right">4</td>
     </tr>
     <tr>
-      <td class="gt_row gt_right">2</td>
-      <td class="gt_row gt_right">5</td>
+      <td headers="test-x" class="gt_row gt_right">2</td>
+      <td headers="test-y" class="gt_row gt_right">5</td>
     </tr>
   </tbody>
   

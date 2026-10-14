@@ -3,34 +3,34 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2" scope="colgroup">a</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="a">a</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">1</th>
-      <td class="gt_row gt_left">val</td>
+      <th scope="row" id="stub-1" class="gt_row gt_left gt_stub">1</th>
+      <td headers="a stub-1 c" class="gt_row gt_left">val</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">3</th>
-      <td class="gt_row gt_left gt_striped">val</td>
+      <th scope="row" id="stub-3" class="gt_row gt_left gt_stub">3</th>
+      <td headers="a stub-3 c" class="gt_row gt_left gt_striped">val</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">5</th>
-      <td class="gt_row gt_left">val</td>
+      <th scope="row" id="stub-5" class="gt_row gt_left gt_stub">5</th>
+      <td headers="a stub-5 c" class="gt_row gt_left">val</td>
     </tr>
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2" scope="colgroup">b</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="b">b</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">2</th>
-      <td class="gt_row gt_left gt_striped">val</td>
+      <th scope="row" id="stub-2" class="gt_row gt_left gt_stub">2</th>
+      <td headers="b stub-2 c" class="gt_row gt_left gt_striped">val</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">4</th>
-      <td class="gt_row gt_left">val</td>
+      <th scope="row" id="stub-4" class="gt_row gt_left gt_stub">4</th>
+      <td headers="b stub-4 c" class="gt_row gt_left">val</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">6</th>
-      <td class="gt_row gt_left gt_striped">val</td>
+      <th scope="row" id="stub-6" class="gt_row gt_left gt_stub">6</th>
+      <td headers="b stub-6 c" class="gt_row gt_left gt_striped">val</td>
     </tr>
   </tbody>
   '''
@@ -1995,23 +1995,23 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2" scope="colgroup">grp_a</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="grp_a">grp_a</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_1</th>
-      <td class="gt_row gt_left">apricot</td>
+      <th scope="row" id="stub-1" class="gt_row gt_left gt_stub">row_1</th>
+      <td headers="grp_a stub-1 char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_2</th>
-      <td class="gt_row gt_left gt_striped">banana</td>
+      <th scope="row" id="stub-2" class="gt_row gt_left gt_stub">row_2</th>
+      <td headers="grp_a stub-2 char" class="gt_row gt_left gt_striped">banana</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_3</th>
-      <td class="gt_row gt_left">coconut</td>
+      <th scope="row" id="stub-3" class="gt_row gt_left gt_stub">row_3</th>
+      <td headers="grp_a stub-3 char" class="gt_row gt_left">coconut</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_4</th>
-      <td class="gt_row gt_left gt_striped">durian</td>
+      <th scope="row" id="stub-4" class="gt_row gt_left gt_stub">row_4</th>
+      <td headers="grp_a stub-4 char" class="gt_row gt_left gt_striped">durian</td>
     </tr>
   </tbody>
   '''
@@ -2020,23 +2020,23 @@
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
-      <th class="gt_group_heading" colspan="2" scope="colgroup">grp_a</th>
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="grp_a">grp_a</th>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_1</th>
-      <td class="gt_row gt_left">apricot</td>
+      <th scope="row" id="stub-1" class="gt_row gt_left gt_stub">row_1</th>
+      <td headers="grp_a stub-1 char" class="gt_row gt_left">apricot</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_striped">row_2</th>
-      <td class="gt_row gt_left">banana</td>
+      <th scope="row" id="stub-2" class="gt_row gt_left gt_stub gt_striped">row_2</th>
+      <td headers="grp_a stub-2 char" class="gt_row gt_left">banana</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub">row_3</th>
-      <td class="gt_row gt_left">coconut</td>
+      <th scope="row" id="stub-3" class="gt_row gt_left gt_stub">row_3</th>
+      <td headers="grp_a stub-3 char" class="gt_row gt_left">coconut</td>
     </tr>
     <tr>
-      <th scope="row" class="gt_row gt_left gt_stub gt_striped">row_4</th>
-      <td class="gt_row gt_left">durian</td>
+      <th scope="row" id="stub-4" class="gt_row gt_left gt_stub gt_striped">row_4</th>
+      <td headers="grp_a stub-4 char" class="gt_row gt_left">durian</td>
     </tr>
   </tbody>
   '''
