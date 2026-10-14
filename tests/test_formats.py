@@ -4951,3 +4951,176 @@ def test_fmt_email_latex():
     x = _get_column_of_values(gt, column_name="x", context="latex")
 
     assert x == ["\\href{mailto:first_last@example.com}{first\\_last}"]
+
+
+# ==============================================================================
+# min_sep_threshold tests (the expected values are those of the gt tests)
+# ==============================================================================
+
+MIN_SEP_VALUES = [100, 500, 999, 999.49, 999.50, 999.99, 1000, 5000, 10000, 50000, 100000]
+
+
+@pytest.mark.parametrize(
+    "min_sep_threshold,expected",
+    [
+        (
+            1,
+            [
+                "100",
+                "500",
+                "999",
+                "999",
+                "1,000",
+                "1,000",
+                "1,000",
+                "5,000",
+                "10,000",
+                "50,000",
+                "100,000",
+            ],
+        ),
+        (
+            2,
+            [
+                "100",
+                "500",
+                "999",
+                "999",
+                "1000",
+                "1000",
+                "1000",
+                "5000",
+                "10,000",
+                "50,000",
+                "100,000",
+            ],
+        ),
+        (
+            3,
+            [
+                "100",
+                "500",
+                "999",
+                "999",
+                "1000",
+                "1000",
+                "1000",
+                "5000",
+                "10000",
+                "50000",
+                "100,000",
+            ],
+        ),
+    ],
+)
+def test_fmt_number_min_sep_threshold(min_sep_threshold: int, expected: list[str]):
+    df = pd.DataFrame({"x": MIN_SEP_VALUES})
+    gt = GT(df).fmt_number(columns="x", decimals=0, min_sep_threshold=min_sep_threshold)
+
+    assert _get_column_of_values(gt, column_name="x", context="html") == expected
+
+
+def test_fmt_number_min_sep_threshold_negative_values():
+    df = pd.DataFrame({"x": [-x for x in MIN_SEP_VALUES]})
+    gt = GT(df).fmt_number(columns="x", decimals=0, min_sep_threshold=2)
+
+    expected = [
+        "100",
+        "500",
+        "999",
+        "999",
+        "1000",
+        "1000",
+        "1000",
+        "5000",
+        "10,000",
+        "50,000",
+        "100,000",
+    ]
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["−" + x for x in expected]
+
+
+def test_fmt_number_min_sep_threshold_n_sigfig():
+    df = pd.DataFrame({"x": [1234.5678, 12345.678]})
+    gt = GT(df).fmt_number(columns="x", n_sigfig=6, min_sep_threshold=2)
+
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["1234.57", "12,345.7"]
+
+
+@pytest.mark.parametrize(
+    "locale,expected",
+    [
+        ("en", ["1,836", "2,763", "10,000"]),
+        ("et", ["1836", "2763", "10 000"]),
+        ("es", ["1836", "2763", "10.000"]),
+    ],
+)
+def test_fmt_number_min_sep_threshold_from_locale(locale: str, expected: list[str]):
+    # The locale's minimum grouping digits value takes precedence over `min_sep_threshold=`
+    df = pd.DataFrame({"x": [1836, 2763, 10000]})
+    gt = GT(df).fmt_number(columns="x", decimals=0, min_sep_threshold=1, locale=locale)
+
+    assert _get_column_of_values(gt, column_name="x", context="html") == expected
+
+
+def test_fmt_number_min_sep_threshold_from_gt_locale():
+    df = pd.DataFrame({"x": [1836, 10000]})
+    gt = GT(df, locale="et").fmt_number(columns="x", decimals=0)
+
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["1836", "10 000"]
+
+
+def test_fmt_percent_min_sep_threshold_from_locale():
+    df = pd.DataFrame({"x": [-23.24]})
+    gt = GT(df).fmt_percent(columns="x", decimals=2, locale="et")
+
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["−2324,00%"]
+
+
+@pytest.mark.parametrize(
+    "fmt,kwargs,values,expected",
+    [
+        ("fmt_integer", {}, [999, 1000, 9999, 10000], ["999", "1000", "9999", "10,000"]),
+        (
+            "fmt_percent",
+            {"decimals": 0},
+            [9.99, 10.00, 99.99, 100.00],
+            ["999%", "1000%", "9999%", "10,000%"],
+        ),
+        (
+            "fmt_currency",
+            {"currency": "USD"},
+            [999, 1000, 9999, 10000],
+            ["$999.00", "$1000.00", "$9999.00", "$10,000.00"],
+        ),
+        (
+            "fmt_bytes",
+            {"standard": "binary", "decimals": 1},
+            [1500, 1500 * 1024, 15000 * 1024],
+            ["1.5 KiB", "1.5 MiB", "14.6 MiB"],
+        ),
+    ],
+)
+def test_fmt_min_sep_threshold(fmt: str, kwargs: dict[str, Any], values: list, expected: list[str]):
+    df = pd.DataFrame({"x": values})
+    gt = getattr(GT(df), fmt)(columns="x", min_sep_threshold=2, **kwargs)
+
+    assert _get_column_of_values(gt, column_name="x", context="html") == expected
+
+
+def test_fmt_bytes_min_sep_threshold_large_values():
+    df = pd.DataFrame({"x": [1234 * 1024**8, 12345 * 1024**8]})
+    gt = GT(df).fmt_bytes(columns="x", standard="binary", decimals=0, min_sep_threshold=2)
+
+    assert _get_column_of_values(gt, column_name="x", context="html") == [
+        "1234 YiB",
+        "12,345 YiB",
+    ]
+
+
+@pytest.mark.parametrize("min_sep_threshold", [0, -1, 1.5, True, "2"])
+def test_fmt_number_min_sep_threshold_invalid(min_sep_threshold: Any):
+    df = pd.DataFrame({"x": [1000]})
+
+    with pytest.raises(ValueError, match="must be an integer of 1 or more"):
+        GT(df).fmt_number(columns="x", min_sep_threshold=min_sep_threshold)

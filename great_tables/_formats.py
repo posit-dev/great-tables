@@ -183,6 +183,7 @@ def fmt_number(
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
+    min_sep_threshold: int = 1,
     locale: str | None = None,
 ) -> GTSelf:
     """
@@ -263,9 +264,17 @@ def fmt_number(
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign.
+    min_sep_threshold
+        The minimum number of digits in the integer part of a number for digit grouping
+        separators to be used. The default of `1` uses separators from 4-digit numbers onward
+        (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+        numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+        `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+        locales like `"es"` and `"pl"`).
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
     Returns
     -------
@@ -304,6 +313,7 @@ def fmt_number(
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    min_sep_threshold = _get_locale_min_sep_threshold(default=min_sep_threshold, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     pf_format = partial(
@@ -318,6 +328,7 @@ def fmt_number(
         scale_by=scale_by,
         compact=compact,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         dec_mark=dec_mark,
         force_sign=force_sign,
         pattern=pattern,
@@ -338,6 +349,7 @@ def fmt_number_context(
     scale_by: float,
     compact: bool,
     sep_mark: str,
+    min_sep_threshold: int,
     dec_mark: str,
     force_sign: bool,
     pattern: str,
@@ -361,6 +373,7 @@ def fmt_number_context(
             drop_trailing_dec_mark=drop_trailing_dec_mark,
             use_seps=use_seps,
             sep_mark=sep_mark,
+            min_sep_threshold=min_sep_threshold,
             dec_mark=dec_mark,
             force_sign=force_sign,
         )
@@ -373,6 +386,7 @@ def fmt_number_context(
             drop_trailing_dec_mark=drop_trailing_dec_mark,
             use_seps=use_seps,
             sep_mark=sep_mark,
+            min_sep_threshold=min_sep_threshold,
             dec_mark=dec_mark,
             force_sign=force_sign,
         )
@@ -407,6 +421,7 @@ def fmt_integer(
     pattern: str = "{x}",
     sep_mark: str = ",",
     force_sign: bool = False,
+    min_sep_threshold: int = 1,
     locale: str | None = None,
 ) -> GTSelf:
     """
@@ -463,9 +478,17 @@ def fmt_integer(
         Should the positive sign be shown for positive values (effectively showing a sign for all
         values except zero)? If so, use `True` for this option. The default is `False`, where only
         negative numbers will display a minus sign.
+    min_sep_threshold
+        The minimum number of digits in the integer part of a number for digit grouping
+        separators to be used. The default of `1` uses separators from 4-digit numbers onward
+        (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+        numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+        `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+        locales like `"es"` and `"pl"`).
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
     Returns
     -------
@@ -504,6 +527,7 @@ def fmt_integer(
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    min_sep_threshold = _get_locale_min_sep_threshold(default=min_sep_threshold, locale=locale)
 
     pf_format = partial(
         fmt_integer_context,
@@ -513,6 +537,7 @@ def fmt_integer(
         accounting=accounting,
         compact=compact,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         force_sign=force_sign,
         pattern=pattern,
     )
@@ -528,6 +553,7 @@ def fmt_integer_context(
     accounting: bool,
     compact: bool,
     sep_mark: str,
+    min_sep_threshold: int,
     force_sign: bool,
     pattern: str,
     context: str,
@@ -550,6 +576,7 @@ def fmt_integer_context(
             drop_trailing_dec_mark=True,
             use_seps=use_seps,
             sep_mark=sep_mark,
+            min_sep_threshold=min_sep_threshold,
             dec_mark="not used",
             force_sign=force_sign,
         )
@@ -563,6 +590,7 @@ def fmt_integer_context(
             drop_trailing_dec_mark=True,
             use_seps=use_seps,
             sep_mark=sep_mark,
+            min_sep_threshold=min_sep_threshold,
             dec_mark="not used",
             force_sign=force_sign,
         )
@@ -1625,6 +1653,7 @@ def fmt_percent(
     drop_trailing_dec_mark: bool = True,
     scale_values: bool = True,
     use_seps: bool = True,
+    min_sep_threshold: int = 1,
     accounting: bool = False,
     pattern: str = "{x}",
     sep_mark: str = ",",
@@ -1686,6 +1715,13 @@ def fmt_percent(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    min_sep_threshold
+        The minimum number of digits in the integer part of a number for digit grouping
+        separators to be used. The default of `1` uses separators from 4-digit numbers onward
+        (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+        numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+        `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+        locales like `"es"` and `"pl"`).
     accounting
         Whether to use accounting style, which wraps negative numbers in parentheses instead of
         using a minus sign.
@@ -1714,6 +1750,7 @@ def fmt_percent(
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
     Returns
     -------
@@ -1756,6 +1793,7 @@ def fmt_percent(
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    min_sep_threshold = _get_locale_min_sep_threshold(default=min_sep_threshold, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     if scale_values:
@@ -1773,6 +1811,7 @@ def fmt_percent(
         accounting=accounting,
         scale_by=scale_by,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         dec_mark=dec_mark,
         force_sign=force_sign,
         placement=placement,
@@ -1793,6 +1832,7 @@ def fmt_percent_context(
     accounting: bool,
     scale_by: float,
     sep_mark: str,
+    min_sep_threshold: int,
     dec_mark: str,
     force_sign: bool,
     placement: str,
@@ -1818,6 +1858,7 @@ def fmt_percent_context(
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         dec_mark=dec_mark,
         force_sign=force_sign,
     )
@@ -2179,6 +2220,7 @@ def fmt_currency(
     decimals: int | None = None,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    min_sep_threshold: int = 1,
     accounting: bool = False,
     scale_by: float = 1,
     compact: bool = False,
@@ -2244,6 +2286,13 @@ def fmt_currency(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    min_sep_threshold
+        The minimum number of digits in the integer part of a number for digit grouping
+        separators to be used. The default of `1` uses separators from 4-digit numbers onward
+        (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+        numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+        `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+        locales like `"es"` and `"pl"`).
     accounting
         Whether to use accounting style, which wraps negative numbers in parentheses instead of
         using a minus sign.
@@ -2280,6 +2329,7 @@ def fmt_currency(
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
     Returns
     -------
@@ -2323,6 +2373,7 @@ def fmt_currency(
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    min_sep_threshold = _get_locale_min_sep_threshold(default=min_sep_threshold, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     # Resolve the currency either from direct input in `currency` or through a locale
@@ -2352,6 +2403,7 @@ def fmt_currency(
         scale_by=scale_by,
         compact=compact,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         dec_mark=dec_mark,
         force_sign=force_sign,
         placement=placement,
@@ -2373,6 +2425,7 @@ def fmt_currency_context(
     scale_by: float,
     compact: bool,
     sep_mark: str,
+    min_sep_threshold: int,
     dec_mark: str,
     force_sign: bool,
     placement: str,
@@ -2415,6 +2468,7 @@ def fmt_currency_context(
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         dec_mark=dec_mark,
         force_sign=force_sign,
     )
@@ -3941,6 +3995,7 @@ def fmt_bytes(
     drop_trailing_zeros: bool = True,
     drop_trailing_dec_mark: bool = True,
     use_seps: bool = True,
+    min_sep_threshold: int = 1,
     pattern: str = "{x}",
     sep_mark: str = ",",
     dec_mark: str = ".",
@@ -3999,6 +4054,13 @@ def fmt_bytes(
         The `use_seps` option allows for the use of digit group separators. The type of digit group
         separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This
         setting is `True` by default.
+    min_sep_threshold
+        The minimum number of digits in the integer part of a number for digit grouping
+        separators to be used. The default of `1` uses separators from 4-digit numbers onward
+        (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit
+        numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in
+        `GT()`), the locale's own minimum grouping digits value is used instead (it's `2` for
+        locales like `"es"` and `"pl"`).
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -4021,6 +4083,7 @@ def fmt_bytes(
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+
 
     Returns
     -------
@@ -4060,6 +4123,7 @@ def fmt_bytes(
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    min_sep_threshold = _get_locale_min_sep_threshold(default=min_sep_threshold, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     # Stop if `n_sigfig` does not have a valid value
@@ -4087,6 +4151,7 @@ def fmt_bytes(
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         dec_mark=dec_mark,
         force_sign=force_sign,
         incl_space=incl_space,
@@ -4107,6 +4172,7 @@ def fmt_bytes_context(
     drop_trailing_dec_mark: bool,
     use_seps: bool,
     sep_mark: str,
+    min_sep_threshold: int,
     dec_mark: str,
     force_sign: bool,
     incl_space: bool,
@@ -4166,6 +4232,7 @@ def fmt_bytes_context(
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         dec_mark=dec_mark,
         force_sign=force_sign,
     )
@@ -6086,6 +6153,7 @@ def _value_to_decimal_notation(
     sep_mark: str = ",",
     dec_mark: str = ".",
     force_sign: bool = False,
+    min_sep_threshold: int = 1,
 ) -> str:
     """
     Decimal notation.
@@ -6108,6 +6176,7 @@ def _value_to_decimal_notation(
             sep_mark=sep_mark,
             dec_mark=dec_mark,
             preserve_integer=False,
+            min_sep_threshold=min_sep_threshold,
         )
 
     else:
@@ -6121,6 +6190,7 @@ def _value_to_decimal_notation(
             use_seps=use_seps,
             sep_mark=sep_mark,
             dec_mark=dec_mark,
+            min_sep_threshold=min_sep_threshold,
         )
 
     # Drop the trailing decimal mark if it is present
@@ -6182,6 +6252,7 @@ def _format_number_n_sigfig(
     sep_mark: str = ",",
     dec_mark: str = ".",
     preserve_integer: bool = False,
+    min_sep_threshold: int = 1,
 ) -> str:
     sig_digits, power, is_negative = _get_number_profile(value, n_sigfig)
 
@@ -6202,8 +6273,9 @@ def _format_number_n_sigfig(
     if preserve_integer and "." not in formatted_value:
         formatted_value = f"{value:0.0f}"
 
-    # Insert grouping separators within the integer part
-    if use_seps:
+    # Insert grouping separators within the integer part, but only when it has enough digits
+    # for the `min_sep_threshold` (the default of `1` starts grouping at four digits)
+    if use_seps and len(integer_part) >= min_sep_threshold + 3:
         count = 0
         for digit in reversed(integer_part):
             if count and count % 3 == 0:
@@ -6230,6 +6302,7 @@ def _format_number_fixed_decimals(
     use_seps: bool = True,
     sep_mark: str = ",",
     dec_mark: str = ".",
+    min_sep_threshold: int = 1,
 ) -> str:
     # If `number` is a string, cast it into a float
     if isinstance(value, str):
@@ -6264,8 +6337,9 @@ def _format_number_fixed_decimals(
     formatted_integer = ""
     formatted_decimal = dec_mark + decimal_part if decimal_part else ""
 
-    # Insert grouping separators within the integer part
-    if use_seps:
+    # Insert grouping separators within the integer part, but only when it has enough digits
+    # for the `min_sep_threshold` (the default of `1` starts grouping at four digits)
+    if use_seps and len(integer_part) >= min_sep_threshold + 3:
         count = 0
         for digit in reversed(integer_part):
             if count and count % 3 == 0:
@@ -6319,6 +6393,7 @@ def _format_number_compactly(
     sep_mark: str,
     dec_mark: str,
     force_sign: bool,
+    min_sep_threshold: int = 1,
 ) -> str:
     # If the value is exactly zero, then we can return `0` immediately
     if value == 0:
@@ -6363,6 +6438,7 @@ def _format_number_compactly(
         drop_trailing_dec_mark=drop_trailing_dec_mark,
         use_seps=use_seps,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         dec_mark=dec_mark,
         force_sign=force_sign,
     )
@@ -6667,6 +6743,24 @@ def _get_locale_dec_mark(default: str, locale: str | None = None) -> str:
         raise TypeError(f"Variable type mismatch. Expected str, got {type(dec_mark)}.")
 
     return dec_mark
+
+
+def _get_locale_min_sep_threshold(default: int, locale: str | None = None) -> int:
+    # Stop if `min_sep_threshold` isn't a whole number of at least 1
+    if isinstance(default, bool) or not isinstance(default, int) or default < 1:
+        raise ValueError(
+            f"The `min_sep_threshold=` value must be an integer of 1 or more, not {default!r}."
+        )
+
+    # If `locale` is None then return the default `min_sep_threshold`
+    if locale is None:
+        return default
+
+    # As in gt, a locale's own minimum grouping digits value takes precedence (e.g., it is `2` for
+    # the "es" and "pl" locales, so that four-digit numbers are written without a separator)
+    pd_df_row = _filter_pd_df_to_row(pd_df=_get_locales_data(), column="locale", filter_expr=locale)
+
+    return int(pd_df_row["minimum_grouping_digits"])
 
 
 def _get_locales_list() -> list[str]:
