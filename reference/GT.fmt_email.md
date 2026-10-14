@@ -104,65 +104,65 @@ peeps_aus = (
 
 
 <style>
-#mrutlijxkj table {
+#dvoscphpbj table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#mrutlijxkj thead, tbody, tfoot, tr, td, th { border-style: none; }
+#dvoscphpbj thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#mrutlijxkj p { margin: 0; padding: 0; }
- #mrutlijxkj .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #mrutlijxkj .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #mrutlijxkj .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #mrutlijxkj .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #mrutlijxkj .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #mrutlijxkj .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #mrutlijxkj .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #mrutlijxkj .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #mrutlijxkj .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #mrutlijxkj .gt_column_spanner_outer:first-child { padding-left: 0; }
- #mrutlijxkj .gt_column_spanner_outer:last-child { padding-right: 0; }
- #mrutlijxkj .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #mrutlijxkj .gt_spanner_row { border-bottom-style: hidden; }
- #mrutlijxkj .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #mrutlijxkj .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #mrutlijxkj .gt_from_md> :first-child { margin-top: 0; }
- #mrutlijxkj .gt_from_md> :last-child { margin-bottom: 0; }
- #mrutlijxkj .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #mrutlijxkj .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #mrutlijxkj .gt_indent_1 { text-indent: 5px; }
- #mrutlijxkj .gt_indent_2 { text-indent: calc(5px * 2); }
- #mrutlijxkj .gt_indent_3 { text-indent: calc(5px * 3); }
- #mrutlijxkj .gt_indent_4 { text-indent: calc(5px * 4); }
- #mrutlijxkj .gt_indent_5 { text-indent: calc(5px * 5); }
- #mrutlijxkj .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #mrutlijxkj .gt_row_group_first td { border-top-width: 2px; }
- #mrutlijxkj .gt_row_group_first th { border-top-width: 2px; }
- #mrutlijxkj .gt_striped { color: #333333; background-color: #F4F4F4; }
- #mrutlijxkj .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #mrutlijxkj .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #mrutlijxkj .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #mrutlijxkj .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #mrutlijxkj .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #mrutlijxkj .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #mrutlijxkj .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #mrutlijxkj .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #mrutlijxkj .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #mrutlijxkj .gt_left { text-align: left; }
- #mrutlijxkj .gt_center { text-align: center; }
- #mrutlijxkj .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #mrutlijxkj .gt_font_normal { font-weight: normal; }
- #mrutlijxkj .gt_font_bold { font-weight: bold; }
- #mrutlijxkj .gt_font_italic { font-style: italic; }
- #mrutlijxkj .gt_super { font-size: 65%; }
- #mrutlijxkj .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #mrutlijxkj .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #mrutlijxkj .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #mrutlijxkj .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #mrutlijxkj .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #mrutlijxkj .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#dvoscphpbj p { margin: 0; padding: 0; }
+ #dvoscphpbj .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #dvoscphpbj .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #dvoscphpbj .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #dvoscphpbj .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #dvoscphpbj .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #dvoscphpbj .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #dvoscphpbj .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #dvoscphpbj .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #dvoscphpbj .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #dvoscphpbj .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #dvoscphpbj .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #dvoscphpbj .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #dvoscphpbj .gt_spanner_row { border-bottom-style: hidden; }
+ #dvoscphpbj .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #dvoscphpbj .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #dvoscphpbj .gt_from_md> :first-child { margin-top: 0; }
+ #dvoscphpbj .gt_from_md> :last-child { margin-bottom: 0; }
+ #dvoscphpbj .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #dvoscphpbj .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #dvoscphpbj .gt_indent_1 { text-indent: 5px; }
+ #dvoscphpbj .gt_indent_2 { text-indent: calc(5px * 2); }
+ #dvoscphpbj .gt_indent_3 { text-indent: calc(5px * 3); }
+ #dvoscphpbj .gt_indent_4 { text-indent: calc(5px * 4); }
+ #dvoscphpbj .gt_indent_5 { text-indent: calc(5px * 5); }
+ #dvoscphpbj .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #dvoscphpbj .gt_row_group_first td { border-top-width: 2px; }
+ #dvoscphpbj .gt_row_group_first th { border-top-width: 2px; }
+ #dvoscphpbj .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #dvoscphpbj .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #dvoscphpbj .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #dvoscphpbj .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #dvoscphpbj .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #dvoscphpbj .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #dvoscphpbj .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #dvoscphpbj .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #dvoscphpbj .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #dvoscphpbj .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #dvoscphpbj .gt_left { text-align: left; }
+ #dvoscphpbj .gt_center { text-align: center; }
+ #dvoscphpbj .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #dvoscphpbj .gt_font_normal { font-weight: normal; }
+ #dvoscphpbj .gt_font_bold { font-weight: bold; }
+ #dvoscphpbj .gt_font_italic { font-style: italic; }
+ #dvoscphpbj .gt_super { font-size: 65%; }
+ #dvoscphpbj .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #dvoscphpbj .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #dvoscphpbj .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #dvoscphpbj .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #dvoscphpbj .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #dvoscphpbj .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 
@@ -184,104 +184,104 @@ peeps_aus = (
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Christison</th>
-<td class="gt_row gt_left">Milla</td>
-<td class="gt_row gt_left">34 McGregor Street</td>
-<td class="gt_row gt_left">Kinalung</td>
-<td class="gt_row gt_left">NSW</td>
-<td class="gt_row gt_left">2880</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[milla_c@example.com](mailto:milla_c@example.com)</span></td>
+<th id="stub-1" class="gt_row gt_left gt_stub" scope="row">Christison</th>
+<td class="gt_row gt_left" headers="stub-1 name_given">Milla</td>
+<td class="gt_row gt_left" headers="stub-1 address">34 McGregor Street</td>
+<td class="gt_row gt_left" headers="stub-1 city">Kinalung</td>
+<td class="gt_row gt_left" headers="stub-1 state_prov">NSW</td>
+<td class="gt_row gt_left" headers="stub-1 postcode">2880</td>
+<td class="gt_row gt_left" headers="stub-1 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-1 email_addr"><span style="white-space:pre;">[milla_c@example.com](mailto:milla_c@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Stead</th>
-<td class="gt_row gt_left">Alannah</td>
-<td class="gt_row gt_left">44 Mt Berryman Road</td>
-<td class="gt_row gt_left">Ropeley</td>
-<td class="gt_row gt_left">QLD</td>
-<td class="gt_row gt_left">4343</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[alannahstead@example.com](mailto:alannahstead@example.com)</span></td>
+<th id="stub-2" class="gt_row gt_left gt_stub" scope="row">Stead</th>
+<td class="gt_row gt_left" headers="stub-2 name_given">Alannah</td>
+<td class="gt_row gt_left" headers="stub-2 address">44 Mt Berryman Road</td>
+<td class="gt_row gt_left" headers="stub-2 city">Ropeley</td>
+<td class="gt_row gt_left" headers="stub-2 state_prov">QLD</td>
+<td class="gt_row gt_left" headers="stub-2 postcode">4343</td>
+<td class="gt_row gt_left" headers="stub-2 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-2 email_addr"><span style="white-space:pre;">[alannahstead@example.com](mailto:alannahstead@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Fitzhardinge</th>
-<td class="gt_row gt_left">Lucas</td>
-<td class="gt_row gt_left">88 Dossiter Street</td>
-<td class="gt_row gt_left">Waterloo</td>
-<td class="gt_row gt_left">TAS</td>
-<td class="gt_row gt_left">7109</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[lucas_fitz@example.com](mailto:lucas_fitz@example.com)</span></td>
+<th id="stub-3" class="gt_row gt_left gt_stub" scope="row">Fitzhardinge</th>
+<td class="gt_row gt_left" headers="stub-3 name_given">Lucas</td>
+<td class="gt_row gt_left" headers="stub-3 address">88 Dossiter Street</td>
+<td class="gt_row gt_left" headers="stub-3 city">Waterloo</td>
+<td class="gt_row gt_left" headers="stub-3 state_prov">TAS</td>
+<td class="gt_row gt_left" headers="stub-3 postcode">7109</td>
+<td class="gt_row gt_left" headers="stub-3 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-3 email_addr"><span style="white-space:pre;">[lucas_fitz@example.com](mailto:lucas_fitz@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Goldhar</th>
-<td class="gt_row gt_left">Lucinda</td>
-<td class="gt_row gt_left">24 Settlement Road</td>
-<td class="gt_row gt_left">Dargo</td>
-<td class="gt_row gt_left">VIC</td>
-<td class="gt_row gt_left">3862</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[lucinda_g@example.com](mailto:lucinda_g@example.com)</span></td>
+<th id="stub-4" class="gt_row gt_left gt_stub" scope="row">Goldhar</th>
+<td class="gt_row gt_left" headers="stub-4 name_given">Lucinda</td>
+<td class="gt_row gt_left" headers="stub-4 address">24 Settlement Road</td>
+<td class="gt_row gt_left" headers="stub-4 city">Dargo</td>
+<td class="gt_row gt_left" headers="stub-4 state_prov">VIC</td>
+<td class="gt_row gt_left" headers="stub-4 postcode">3862</td>
+<td class="gt_row gt_left" headers="stub-4 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-4 email_addr"><span style="white-space:pre;">[lucinda_g@example.com](mailto:lucinda_g@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Dearth</th>
-<td class="gt_row gt_left">Alexis</td>
-<td class="gt_row gt_left">60 Sunnyside Road</td>
-<td class="gt_row gt_left">Taylorville</td>
-<td class="gt_row gt_left">SA</td>
-<td class="gt_row gt_left">5330</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[alexisdearth@example.com](mailto:alexisdearth@example.com)</span></td>
+<th id="stub-5" class="gt_row gt_left gt_stub" scope="row">Dearth</th>
+<td class="gt_row gt_left" headers="stub-5 name_given">Alexis</td>
+<td class="gt_row gt_left" headers="stub-5 address">60 Sunnyside Road</td>
+<td class="gt_row gt_left" headers="stub-5 city">Taylorville</td>
+<td class="gt_row gt_left" headers="stub-5 state_prov">SA</td>
+<td class="gt_row gt_left" headers="stub-5 postcode">5330</td>
+<td class="gt_row gt_left" headers="stub-5 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-5 email_addr"><span style="white-space:pre;">[alexisdearth@example.com](mailto:alexisdearth@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Hansen</th>
-<td class="gt_row gt_left">Christopher</td>
-<td class="gt_row gt_left">99 Weemala Avenue</td>
-<td class="gt_row gt_left">Gooloogong</td>
-<td class="gt_row gt_left">NSW</td>
-<td class="gt_row gt_left">2805</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[chrishansen85@example.com](mailto:chrishansen85@example.com)</span></td>
+<th id="stub-6" class="gt_row gt_left gt_stub" scope="row">Hansen</th>
+<td class="gt_row gt_left" headers="stub-6 name_given">Christopher</td>
+<td class="gt_row gt_left" headers="stub-6 address">99 Weemala Avenue</td>
+<td class="gt_row gt_left" headers="stub-6 city">Gooloogong</td>
+<td class="gt_row gt_left" headers="stub-6 state_prov">NSW</td>
+<td class="gt_row gt_left" headers="stub-6 postcode">2805</td>
+<td class="gt_row gt_left" headers="stub-6 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-6 email_addr"><span style="white-space:pre;">[chrishansen85@example.com](mailto:chrishansen85@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Kaczmarek</th>
-<td class="gt_row gt_left">Scott</td>
-<td class="gt_row gt_left">94 Peninsula Drive</td>
-<td class="gt_row gt_left">Illawong</td>
-<td class="gt_row gt_left">NSW</td>
-<td class="gt_row gt_left">2234</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[scott_kaczmarek@example.com](mailto:scott_kaczmarek@example.com)</span></td>
+<th id="stub-7" class="gt_row gt_left gt_stub" scope="row">Kaczmarek</th>
+<td class="gt_row gt_left" headers="stub-7 name_given">Scott</td>
+<td class="gt_row gt_left" headers="stub-7 address">94 Peninsula Drive</td>
+<td class="gt_row gt_left" headers="stub-7 city">Illawong</td>
+<td class="gt_row gt_left" headers="stub-7 state_prov">NSW</td>
+<td class="gt_row gt_left" headers="stub-7 postcode">2234</td>
+<td class="gt_row gt_left" headers="stub-7 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-7 email_addr"><span style="white-space:pre;">[scott_kaczmarek@example.com](mailto:scott_kaczmarek@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Pugliesi</th>
-<td class="gt_row gt_left">Brandon</td>
-<td class="gt_row gt_left">83 McDowall Street</td>
-<td class="gt_row gt_left">Balmoral Ridge</td>
-<td class="gt_row gt_left">QLD</td>
-<td class="gt_row gt_left">4552</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[brandon_pugliesi@example.com](mailto:brandon_pugliesi@example.com)</span></td>
+<th id="stub-8" class="gt_row gt_left gt_stub" scope="row">Pugliesi</th>
+<td class="gt_row gt_left" headers="stub-8 name_given">Brandon</td>
+<td class="gt_row gt_left" headers="stub-8 address">83 McDowall Street</td>
+<td class="gt_row gt_left" headers="stub-8 city">Balmoral Ridge</td>
+<td class="gt_row gt_left" headers="stub-8 state_prov">QLD</td>
+<td class="gt_row gt_left" headers="stub-8 postcode">4552</td>
+<td class="gt_row gt_left" headers="stub-8 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-8 email_addr"><span style="white-space:pre;">[brandon_pugliesi@example.com](mailto:brandon_pugliesi@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Bremer</th>
-<td class="gt_row gt_left">Rachel</td>
-<td class="gt_row gt_left">80 Argyle Street</td>
-<td class="gt_row gt_left">Stratford</td>
-<td class="gt_row gt_left">NSW</td>
-<td class="gt_row gt_left">2422</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[rachel_bremer@example.com](mailto:rachel_bremer@example.com)</span></td>
+<th id="stub-9" class="gt_row gt_left gt_stub" scope="row">Bremer</th>
+<td class="gt_row gt_left" headers="stub-9 name_given">Rachel</td>
+<td class="gt_row gt_left" headers="stub-9 address">80 Argyle Street</td>
+<td class="gt_row gt_left" headers="stub-9 city">Stratford</td>
+<td class="gt_row gt_left" headers="stub-9 state_prov">NSW</td>
+<td class="gt_row gt_left" headers="stub-9 postcode">2422</td>
+<td class="gt_row gt_left" headers="stub-9 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-9 email_addr"><span style="white-space:pre;">[rachel_bremer@example.com](mailto:rachel_bremer@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Kerferd</th>
-<td class="gt_row gt_left">Kaitlyn</td>
-<td class="gt_row gt_left">15 Souttar Terrace</td>
-<td class="gt_row gt_left">Kingsley</td>
-<td class="gt_row gt_left">WA</td>
-<td class="gt_row gt_left">6026</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[kaitlyn_kerferd@example.com](mailto:kaitlyn_kerferd@example.com)</span></td>
+<th id="stub-10" class="gt_row gt_left gt_stub" scope="row">Kerferd</th>
+<td class="gt_row gt_left" headers="stub-10 name_given">Kaitlyn</td>
+<td class="gt_row gt_left" headers="stub-10 address">15 Souttar Terrace</td>
+<td class="gt_row gt_left" headers="stub-10 city">Kingsley</td>
+<td class="gt_row gt_left" headers="stub-10 state_prov">WA</td>
+<td class="gt_row gt_left" headers="stub-10 postcode">6026</td>
+<td class="gt_row gt_left" headers="stub-10 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-10 email_addr"><span style="white-space:pre;">[kaitlyn_kerferd@example.com](mailto:kaitlyn_kerferd@example.com)</span></td>
 </tr>
 </tbody>
 </table>
@@ -313,65 +313,65 @@ We can use `display_name=` with a callable to show just the local part of the em
 
 
 <style>
-#clrftwuxqf table {
+#snlreuxakn table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#clrftwuxqf thead, tbody, tfoot, tr, td, th { border-style: none; }
+#snlreuxakn thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#clrftwuxqf p { margin: 0; padding: 0; }
- #clrftwuxqf .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #clrftwuxqf .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #clrftwuxqf .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #clrftwuxqf .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #clrftwuxqf .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #clrftwuxqf .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #clrftwuxqf .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #clrftwuxqf .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #clrftwuxqf .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #clrftwuxqf .gt_column_spanner_outer:first-child { padding-left: 0; }
- #clrftwuxqf .gt_column_spanner_outer:last-child { padding-right: 0; }
- #clrftwuxqf .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #clrftwuxqf .gt_spanner_row { border-bottom-style: hidden; }
- #clrftwuxqf .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #clrftwuxqf .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #clrftwuxqf .gt_from_md> :first-child { margin-top: 0; }
- #clrftwuxqf .gt_from_md> :last-child { margin-bottom: 0; }
- #clrftwuxqf .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #clrftwuxqf .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #clrftwuxqf .gt_indent_1 { text-indent: 5px; }
- #clrftwuxqf .gt_indent_2 { text-indent: calc(5px * 2); }
- #clrftwuxqf .gt_indent_3 { text-indent: calc(5px * 3); }
- #clrftwuxqf .gt_indent_4 { text-indent: calc(5px * 4); }
- #clrftwuxqf .gt_indent_5 { text-indent: calc(5px * 5); }
- #clrftwuxqf .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #clrftwuxqf .gt_row_group_first td { border-top-width: 2px; }
- #clrftwuxqf .gt_row_group_first th { border-top-width: 2px; }
- #clrftwuxqf .gt_striped { color: #333333; background-color: #F4F4F4; }
- #clrftwuxqf .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #clrftwuxqf .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #clrftwuxqf .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #clrftwuxqf .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #clrftwuxqf .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #clrftwuxqf .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #clrftwuxqf .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #clrftwuxqf .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #clrftwuxqf .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #clrftwuxqf .gt_left { text-align: left; }
- #clrftwuxqf .gt_center { text-align: center; }
- #clrftwuxqf .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #clrftwuxqf .gt_font_normal { font-weight: normal; }
- #clrftwuxqf .gt_font_bold { font-weight: bold; }
- #clrftwuxqf .gt_font_italic { font-style: italic; }
- #clrftwuxqf .gt_super { font-size: 65%; }
- #clrftwuxqf .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #clrftwuxqf .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #clrftwuxqf .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #clrftwuxqf .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #clrftwuxqf .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #clrftwuxqf .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#snlreuxakn p { margin: 0; padding: 0; }
+ #snlreuxakn .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #snlreuxakn .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #snlreuxakn .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #snlreuxakn .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #snlreuxakn .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #snlreuxakn .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #snlreuxakn .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #snlreuxakn .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #snlreuxakn .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #snlreuxakn .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #snlreuxakn .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #snlreuxakn .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #snlreuxakn .gt_spanner_row { border-bottom-style: hidden; }
+ #snlreuxakn .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #snlreuxakn .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #snlreuxakn .gt_from_md> :first-child { margin-top: 0; }
+ #snlreuxakn .gt_from_md> :last-child { margin-bottom: 0; }
+ #snlreuxakn .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #snlreuxakn .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #snlreuxakn .gt_indent_1 { text-indent: 5px; }
+ #snlreuxakn .gt_indent_2 { text-indent: calc(5px * 2); }
+ #snlreuxakn .gt_indent_3 { text-indent: calc(5px * 3); }
+ #snlreuxakn .gt_indent_4 { text-indent: calc(5px * 4); }
+ #snlreuxakn .gt_indent_5 { text-indent: calc(5px * 5); }
+ #snlreuxakn .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #snlreuxakn .gt_row_group_first td { border-top-width: 2px; }
+ #snlreuxakn .gt_row_group_first th { border-top-width: 2px; }
+ #snlreuxakn .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #snlreuxakn .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #snlreuxakn .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #snlreuxakn .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #snlreuxakn .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #snlreuxakn .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #snlreuxakn .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #snlreuxakn .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #snlreuxakn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #snlreuxakn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #snlreuxakn .gt_left { text-align: left; }
+ #snlreuxakn .gt_center { text-align: center; }
+ #snlreuxakn .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #snlreuxakn .gt_font_normal { font-weight: normal; }
+ #snlreuxakn .gt_font_bold { font-weight: bold; }
+ #snlreuxakn .gt_font_italic { font-style: italic; }
+ #snlreuxakn .gt_super { font-size: 65%; }
+ #snlreuxakn .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #snlreuxakn .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #snlreuxakn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #snlreuxakn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #snlreuxakn .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #snlreuxakn .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 
@@ -393,104 +393,104 @@ We can use `display_name=` with a callable to show just the local part of the em
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Christison</th>
-<td class="gt_row gt_left">Milla</td>
-<td class="gt_row gt_left">34 McGregor Street</td>
-<td class="gt_row gt_left">Kinalung</td>
-<td class="gt_row gt_left">NSW</td>
-<td class="gt_row gt_left">2880</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[milla_c](mailto:milla_c@example.com)</span></td>
+<th id="stub-1" class="gt_row gt_left gt_stub" scope="row">Christison</th>
+<td class="gt_row gt_left" headers="stub-1 name_given">Milla</td>
+<td class="gt_row gt_left" headers="stub-1 address">34 McGregor Street</td>
+<td class="gt_row gt_left" headers="stub-1 city">Kinalung</td>
+<td class="gt_row gt_left" headers="stub-1 state_prov">NSW</td>
+<td class="gt_row gt_left" headers="stub-1 postcode">2880</td>
+<td class="gt_row gt_left" headers="stub-1 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-1 email_addr"><span style="white-space:pre;">[milla_c](mailto:milla_c@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Stead</th>
-<td class="gt_row gt_left">Alannah</td>
-<td class="gt_row gt_left">44 Mt Berryman Road</td>
-<td class="gt_row gt_left">Ropeley</td>
-<td class="gt_row gt_left">QLD</td>
-<td class="gt_row gt_left">4343</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[alannahstead](mailto:alannahstead@example.com)</span></td>
+<th id="stub-2" class="gt_row gt_left gt_stub" scope="row">Stead</th>
+<td class="gt_row gt_left" headers="stub-2 name_given">Alannah</td>
+<td class="gt_row gt_left" headers="stub-2 address">44 Mt Berryman Road</td>
+<td class="gt_row gt_left" headers="stub-2 city">Ropeley</td>
+<td class="gt_row gt_left" headers="stub-2 state_prov">QLD</td>
+<td class="gt_row gt_left" headers="stub-2 postcode">4343</td>
+<td class="gt_row gt_left" headers="stub-2 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-2 email_addr"><span style="white-space:pre;">[alannahstead](mailto:alannahstead@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Fitzhardinge</th>
-<td class="gt_row gt_left">Lucas</td>
-<td class="gt_row gt_left">88 Dossiter Street</td>
-<td class="gt_row gt_left">Waterloo</td>
-<td class="gt_row gt_left">TAS</td>
-<td class="gt_row gt_left">7109</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[lucas_fitz](mailto:lucas_fitz@example.com)</span></td>
+<th id="stub-3" class="gt_row gt_left gt_stub" scope="row">Fitzhardinge</th>
+<td class="gt_row gt_left" headers="stub-3 name_given">Lucas</td>
+<td class="gt_row gt_left" headers="stub-3 address">88 Dossiter Street</td>
+<td class="gt_row gt_left" headers="stub-3 city">Waterloo</td>
+<td class="gt_row gt_left" headers="stub-3 state_prov">TAS</td>
+<td class="gt_row gt_left" headers="stub-3 postcode">7109</td>
+<td class="gt_row gt_left" headers="stub-3 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-3 email_addr"><span style="white-space:pre;">[lucas_fitz](mailto:lucas_fitz@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Goldhar</th>
-<td class="gt_row gt_left">Lucinda</td>
-<td class="gt_row gt_left">24 Settlement Road</td>
-<td class="gt_row gt_left">Dargo</td>
-<td class="gt_row gt_left">VIC</td>
-<td class="gt_row gt_left">3862</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[lucinda_g](mailto:lucinda_g@example.com)</span></td>
+<th id="stub-4" class="gt_row gt_left gt_stub" scope="row">Goldhar</th>
+<td class="gt_row gt_left" headers="stub-4 name_given">Lucinda</td>
+<td class="gt_row gt_left" headers="stub-4 address">24 Settlement Road</td>
+<td class="gt_row gt_left" headers="stub-4 city">Dargo</td>
+<td class="gt_row gt_left" headers="stub-4 state_prov">VIC</td>
+<td class="gt_row gt_left" headers="stub-4 postcode">3862</td>
+<td class="gt_row gt_left" headers="stub-4 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-4 email_addr"><span style="white-space:pre;">[lucinda_g](mailto:lucinda_g@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Dearth</th>
-<td class="gt_row gt_left">Alexis</td>
-<td class="gt_row gt_left">60 Sunnyside Road</td>
-<td class="gt_row gt_left">Taylorville</td>
-<td class="gt_row gt_left">SA</td>
-<td class="gt_row gt_left">5330</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[alexisdearth](mailto:alexisdearth@example.com)</span></td>
+<th id="stub-5" class="gt_row gt_left gt_stub" scope="row">Dearth</th>
+<td class="gt_row gt_left" headers="stub-5 name_given">Alexis</td>
+<td class="gt_row gt_left" headers="stub-5 address">60 Sunnyside Road</td>
+<td class="gt_row gt_left" headers="stub-5 city">Taylorville</td>
+<td class="gt_row gt_left" headers="stub-5 state_prov">SA</td>
+<td class="gt_row gt_left" headers="stub-5 postcode">5330</td>
+<td class="gt_row gt_left" headers="stub-5 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-5 email_addr"><span style="white-space:pre;">[alexisdearth](mailto:alexisdearth@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Hansen</th>
-<td class="gt_row gt_left">Christopher</td>
-<td class="gt_row gt_left">99 Weemala Avenue</td>
-<td class="gt_row gt_left">Gooloogong</td>
-<td class="gt_row gt_left">NSW</td>
-<td class="gt_row gt_left">2805</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[chrishansen85](mailto:chrishansen85@example.com)</span></td>
+<th id="stub-6" class="gt_row gt_left gt_stub" scope="row">Hansen</th>
+<td class="gt_row gt_left" headers="stub-6 name_given">Christopher</td>
+<td class="gt_row gt_left" headers="stub-6 address">99 Weemala Avenue</td>
+<td class="gt_row gt_left" headers="stub-6 city">Gooloogong</td>
+<td class="gt_row gt_left" headers="stub-6 state_prov">NSW</td>
+<td class="gt_row gt_left" headers="stub-6 postcode">2805</td>
+<td class="gt_row gt_left" headers="stub-6 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-6 email_addr"><span style="white-space:pre;">[chrishansen85](mailto:chrishansen85@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Kaczmarek</th>
-<td class="gt_row gt_left">Scott</td>
-<td class="gt_row gt_left">94 Peninsula Drive</td>
-<td class="gt_row gt_left">Illawong</td>
-<td class="gt_row gt_left">NSW</td>
-<td class="gt_row gt_left">2234</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[scott_kaczmarek](mailto:scott_kaczmarek@example.com)</span></td>
+<th id="stub-7" class="gt_row gt_left gt_stub" scope="row">Kaczmarek</th>
+<td class="gt_row gt_left" headers="stub-7 name_given">Scott</td>
+<td class="gt_row gt_left" headers="stub-7 address">94 Peninsula Drive</td>
+<td class="gt_row gt_left" headers="stub-7 city">Illawong</td>
+<td class="gt_row gt_left" headers="stub-7 state_prov">NSW</td>
+<td class="gt_row gt_left" headers="stub-7 postcode">2234</td>
+<td class="gt_row gt_left" headers="stub-7 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-7 email_addr"><span style="white-space:pre;">[scott_kaczmarek](mailto:scott_kaczmarek@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Pugliesi</th>
-<td class="gt_row gt_left">Brandon</td>
-<td class="gt_row gt_left">83 McDowall Street</td>
-<td class="gt_row gt_left">Balmoral Ridge</td>
-<td class="gt_row gt_left">QLD</td>
-<td class="gt_row gt_left">4552</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[brandon_pugliesi](mailto:brandon_pugliesi@example.com)</span></td>
+<th id="stub-8" class="gt_row gt_left gt_stub" scope="row">Pugliesi</th>
+<td class="gt_row gt_left" headers="stub-8 name_given">Brandon</td>
+<td class="gt_row gt_left" headers="stub-8 address">83 McDowall Street</td>
+<td class="gt_row gt_left" headers="stub-8 city">Balmoral Ridge</td>
+<td class="gt_row gt_left" headers="stub-8 state_prov">QLD</td>
+<td class="gt_row gt_left" headers="stub-8 postcode">4552</td>
+<td class="gt_row gt_left" headers="stub-8 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-8 email_addr"><span style="white-space:pre;">[brandon_pugliesi](mailto:brandon_pugliesi@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Bremer</th>
-<td class="gt_row gt_left">Rachel</td>
-<td class="gt_row gt_left">80 Argyle Street</td>
-<td class="gt_row gt_left">Stratford</td>
-<td class="gt_row gt_left">NSW</td>
-<td class="gt_row gt_left">2422</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[rachel_bremer](mailto:rachel_bremer@example.com)</span></td>
+<th id="stub-9" class="gt_row gt_left gt_stub" scope="row">Bremer</th>
+<td class="gt_row gt_left" headers="stub-9 name_given">Rachel</td>
+<td class="gt_row gt_left" headers="stub-9 address">80 Argyle Street</td>
+<td class="gt_row gt_left" headers="stub-9 city">Stratford</td>
+<td class="gt_row gt_left" headers="stub-9 state_prov">NSW</td>
+<td class="gt_row gt_left" headers="stub-9 postcode">2422</td>
+<td class="gt_row gt_left" headers="stub-9 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-9 email_addr"><span style="white-space:pre;">[rachel_bremer](mailto:rachel_bremer@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Kerferd</th>
-<td class="gt_row gt_left">Kaitlyn</td>
-<td class="gt_row gt_left">15 Souttar Terrace</td>
-<td class="gt_row gt_left">Kingsley</td>
-<td class="gt_row gt_left">WA</td>
-<td class="gt_row gt_left">6026</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[kaitlyn_kerferd](mailto:kaitlyn_kerferd@example.com)</span></td>
+<th id="stub-10" class="gt_row gt_left gt_stub" scope="row">Kerferd</th>
+<td class="gt_row gt_left" headers="stub-10 name_given">Kaitlyn</td>
+<td class="gt_row gt_left" headers="stub-10 address">15 Souttar Terrace</td>
+<td class="gt_row gt_left" headers="stub-10 city">Kingsley</td>
+<td class="gt_row gt_left" headers="stub-10 state_prov">WA</td>
+<td class="gt_row gt_left" headers="stub-10 postcode">6026</td>
+<td class="gt_row gt_left" headers="stub-10 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-10 email_addr"><span style="white-space:pre;">[kaitlyn_kerferd](mailto:kaitlyn_kerferd@example.com)</span></td>
 </tr>
 </tbody>
 </table>
@@ -523,65 +523,65 @@ Button-styled email links are also supported.
 
 
 <style>
-#bfqnwndmut table {
+#abzjkljuvi table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#bfqnwndmut thead, tbody, tfoot, tr, td, th { border-style: none; }
+#abzjkljuvi thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#bfqnwndmut p { margin: 0; padding: 0; }
- #bfqnwndmut .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #bfqnwndmut .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #bfqnwndmut .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #bfqnwndmut .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #bfqnwndmut .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #bfqnwndmut .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #bfqnwndmut .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #bfqnwndmut .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #bfqnwndmut .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #bfqnwndmut .gt_column_spanner_outer:first-child { padding-left: 0; }
- #bfqnwndmut .gt_column_spanner_outer:last-child { padding-right: 0; }
- #bfqnwndmut .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #bfqnwndmut .gt_spanner_row { border-bottom-style: hidden; }
- #bfqnwndmut .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #bfqnwndmut .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #bfqnwndmut .gt_from_md> :first-child { margin-top: 0; }
- #bfqnwndmut .gt_from_md> :last-child { margin-bottom: 0; }
- #bfqnwndmut .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #bfqnwndmut .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #bfqnwndmut .gt_indent_1 { text-indent: 5px; }
- #bfqnwndmut .gt_indent_2 { text-indent: calc(5px * 2); }
- #bfqnwndmut .gt_indent_3 { text-indent: calc(5px * 3); }
- #bfqnwndmut .gt_indent_4 { text-indent: calc(5px * 4); }
- #bfqnwndmut .gt_indent_5 { text-indent: calc(5px * 5); }
- #bfqnwndmut .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #bfqnwndmut .gt_row_group_first td { border-top-width: 2px; }
- #bfqnwndmut .gt_row_group_first th { border-top-width: 2px; }
- #bfqnwndmut .gt_striped { color: #333333; background-color: #F4F4F4; }
- #bfqnwndmut .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #bfqnwndmut .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #bfqnwndmut .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #bfqnwndmut .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #bfqnwndmut .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #bfqnwndmut .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #bfqnwndmut .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #bfqnwndmut .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #bfqnwndmut .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #bfqnwndmut .gt_left { text-align: left; }
- #bfqnwndmut .gt_center { text-align: center; }
- #bfqnwndmut .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #bfqnwndmut .gt_font_normal { font-weight: normal; }
- #bfqnwndmut .gt_font_bold { font-weight: bold; }
- #bfqnwndmut .gt_font_italic { font-style: italic; }
- #bfqnwndmut .gt_super { font-size: 65%; }
- #bfqnwndmut .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #bfqnwndmut .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #bfqnwndmut .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #bfqnwndmut .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #bfqnwndmut .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #bfqnwndmut .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#abzjkljuvi p { margin: 0; padding: 0; }
+ #abzjkljuvi .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #abzjkljuvi .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #abzjkljuvi .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #abzjkljuvi .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #abzjkljuvi .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #abzjkljuvi .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #abzjkljuvi .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #abzjkljuvi .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #abzjkljuvi .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #abzjkljuvi .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #abzjkljuvi .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #abzjkljuvi .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #abzjkljuvi .gt_spanner_row { border-bottom-style: hidden; }
+ #abzjkljuvi .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #abzjkljuvi .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #abzjkljuvi .gt_from_md> :first-child { margin-top: 0; }
+ #abzjkljuvi .gt_from_md> :last-child { margin-bottom: 0; }
+ #abzjkljuvi .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #abzjkljuvi .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #abzjkljuvi .gt_indent_1 { text-indent: 5px; }
+ #abzjkljuvi .gt_indent_2 { text-indent: calc(5px * 2); }
+ #abzjkljuvi .gt_indent_3 { text-indent: calc(5px * 3); }
+ #abzjkljuvi .gt_indent_4 { text-indent: calc(5px * 4); }
+ #abzjkljuvi .gt_indent_5 { text-indent: calc(5px * 5); }
+ #abzjkljuvi .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #abzjkljuvi .gt_row_group_first td { border-top-width: 2px; }
+ #abzjkljuvi .gt_row_group_first th { border-top-width: 2px; }
+ #abzjkljuvi .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #abzjkljuvi .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #abzjkljuvi .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #abzjkljuvi .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #abzjkljuvi .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #abzjkljuvi .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #abzjkljuvi .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #abzjkljuvi .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #abzjkljuvi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #abzjkljuvi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #abzjkljuvi .gt_left { text-align: left; }
+ #abzjkljuvi .gt_center { text-align: center; }
+ #abzjkljuvi .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #abzjkljuvi .gt_font_normal { font-weight: normal; }
+ #abzjkljuvi .gt_font_bold { font-weight: bold; }
+ #abzjkljuvi .gt_font_italic { font-style: italic; }
+ #abzjkljuvi .gt_super { font-size: 65%; }
+ #abzjkljuvi .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #abzjkljuvi .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #abzjkljuvi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #abzjkljuvi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #abzjkljuvi .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #abzjkljuvi .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 
@@ -603,54 +603,54 @@ Button-styled email links are also supported.
 </thead>
 <tbody class="gt_table_body">
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Christison</th>
-<td class="gt_row gt_left">Milla</td>
-<td class="gt_row gt_left">34 McGregor Street</td>
-<td class="gt_row gt_left">Kinalung</td>
-<td class="gt_row gt_left">NSW</td>
-<td class="gt_row gt_left">2880</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[Send Email](mailto:milla_c@example.com)</span></td>
+<th id="stub-1" class="gt_row gt_left gt_stub" scope="row">Christison</th>
+<td class="gt_row gt_left" headers="stub-1 name_given">Milla</td>
+<td class="gt_row gt_left" headers="stub-1 address">34 McGregor Street</td>
+<td class="gt_row gt_left" headers="stub-1 city">Kinalung</td>
+<td class="gt_row gt_left" headers="stub-1 state_prov">NSW</td>
+<td class="gt_row gt_left" headers="stub-1 postcode">2880</td>
+<td class="gt_row gt_left" headers="stub-1 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-1 email_addr"><span style="white-space:pre;">[Send Email](mailto:milla_c@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Stead</th>
-<td class="gt_row gt_left">Alannah</td>
-<td class="gt_row gt_left">44 Mt Berryman Road</td>
-<td class="gt_row gt_left">Ropeley</td>
-<td class="gt_row gt_left">QLD</td>
-<td class="gt_row gt_left">4343</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[Send Email](mailto:alannahstead@example.com)</span></td>
+<th id="stub-2" class="gt_row gt_left gt_stub" scope="row">Stead</th>
+<td class="gt_row gt_left" headers="stub-2 name_given">Alannah</td>
+<td class="gt_row gt_left" headers="stub-2 address">44 Mt Berryman Road</td>
+<td class="gt_row gt_left" headers="stub-2 city">Ropeley</td>
+<td class="gt_row gt_left" headers="stub-2 state_prov">QLD</td>
+<td class="gt_row gt_left" headers="stub-2 postcode">4343</td>
+<td class="gt_row gt_left" headers="stub-2 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-2 email_addr"><span style="white-space:pre;">[Send Email](mailto:alannahstead@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Fitzhardinge</th>
-<td class="gt_row gt_left">Lucas</td>
-<td class="gt_row gt_left">88 Dossiter Street</td>
-<td class="gt_row gt_left">Waterloo</td>
-<td class="gt_row gt_left">TAS</td>
-<td class="gt_row gt_left">7109</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[Send Email](mailto:lucas_fitz@example.com)</span></td>
+<th id="stub-3" class="gt_row gt_left gt_stub" scope="row">Fitzhardinge</th>
+<td class="gt_row gt_left" headers="stub-3 name_given">Lucas</td>
+<td class="gt_row gt_left" headers="stub-3 address">88 Dossiter Street</td>
+<td class="gt_row gt_left" headers="stub-3 city">Waterloo</td>
+<td class="gt_row gt_left" headers="stub-3 state_prov">TAS</td>
+<td class="gt_row gt_left" headers="stub-3 postcode">7109</td>
+<td class="gt_row gt_left" headers="stub-3 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-3 email_addr"><span style="white-space:pre;">[Send Email](mailto:lucas_fitz@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Goldhar</th>
-<td class="gt_row gt_left">Lucinda</td>
-<td class="gt_row gt_left">24 Settlement Road</td>
-<td class="gt_row gt_left">Dargo</td>
-<td class="gt_row gt_left">VIC</td>
-<td class="gt_row gt_left">3862</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[Send Email](mailto:lucinda_g@example.com)</span></td>
+<th id="stub-4" class="gt_row gt_left gt_stub" scope="row">Goldhar</th>
+<td class="gt_row gt_left" headers="stub-4 name_given">Lucinda</td>
+<td class="gt_row gt_left" headers="stub-4 address">24 Settlement Road</td>
+<td class="gt_row gt_left" headers="stub-4 city">Dargo</td>
+<td class="gt_row gt_left" headers="stub-4 state_prov">VIC</td>
+<td class="gt_row gt_left" headers="stub-4 postcode">3862</td>
+<td class="gt_row gt_left" headers="stub-4 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-4 email_addr"><span style="white-space:pre;">[Send Email](mailto:lucinda_g@example.com)</span></td>
 </tr>
 <tr>
-<th class="gt_row gt_left gt_stub" scope="row">Dearth</th>
-<td class="gt_row gt_left">Alexis</td>
-<td class="gt_row gt_left">60 Sunnyside Road</td>
-<td class="gt_row gt_left">Taylorville</td>
-<td class="gt_row gt_left">SA</td>
-<td class="gt_row gt_left">5330</td>
-<td class="gt_row gt_left">AUS</td>
-<td class="gt_row gt_left"><span style="white-space:pre;">[Send Email](mailto:alexisdearth@example.com)</span></td>
+<th id="stub-5" class="gt_row gt_left gt_stub" scope="row">Dearth</th>
+<td class="gt_row gt_left" headers="stub-5 name_given">Alexis</td>
+<td class="gt_row gt_left" headers="stub-5 address">60 Sunnyside Road</td>
+<td class="gt_row gt_left" headers="stub-5 city">Taylorville</td>
+<td class="gt_row gt_left" headers="stub-5 state_prov">SA</td>
+<td class="gt_row gt_left" headers="stub-5 postcode">5330</td>
+<td class="gt_row gt_left" headers="stub-5 country">AUS</td>
+<td class="gt_row gt_left" headers="stub-5 email_addr"><span style="white-space:pre;">[Send Email](mailto:alexisdearth@example.com)</span></td>
 </tr>
 </tbody>
 </table>

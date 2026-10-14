@@ -176,7 +176,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo" data-tippy-content="<code>v1.0.0</code><br>Released 2026-09-25">
     <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo light-content">
     <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo dark-content">
     </a>
@@ -203,11 +203,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2899" data-forks="138"></div>
     </span>
   </li>  
 </ul>
@@ -1386,7 +1390,7 @@ The GT object is returned. This is the same object that the method is called on 
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Let’s use the <a href="../reference/data.exibble.html#great_tables.data.exibble" class="gdls-link gdls-code">exibble</a> dataset to create a simple, two-column table (keeping only the <code>num</code> and <code>currency</code> columns). Through use of the <a href="../reference/GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> method, we can insert CSS rulesets as a string. We need to ensure that the table ID is set explicitly (we’ve done so here with the ID value of <code>"one"</code>, setting it up with <code>GT(id=)</code>).</p>
-<div id="cd1b29a2" class="cell" data-execution_count="1">
+<div id="cfb0dd51" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1494,36 +1498,36 @@ The GT object is returned. This is the same object that the method is called on 
 </thead>
 <tbody class="gt_table_body">
   <tr>
-    <td class="gt_row gt_right">1.11 × 10<sup style="font-size: 65%;">−1</sup></td>
-    <td class="gt_row gt_right">HK$49.95</td>
+    <td headers="one-num" class="gt_row gt_right">1.11 × 10<sup style="font-size: 65%;">−1</sup></td>
+    <td headers="one-currency" class="gt_row gt_right">HK$49.95</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">2.22</td>
-    <td class="gt_row gt_right">HK$17.95</td>
+    <td headers="one-num" class="gt_row gt_right">2.22</td>
+    <td headers="one-currency" class="gt_row gt_right">HK$17.95</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">3.33 × 10<sup style="font-size: 65%;">1</sup></td>
-    <td class="gt_row gt_right">HK$1.39</td>
+    <td headers="one-num" class="gt_row gt_right">3.33 × 10<sup style="font-size: 65%;">1</sup></td>
+    <td headers="one-currency" class="gt_row gt_right">HK$1.39</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">4.44 × 10<sup style="font-size: 65%;">2</sup></td>
-    <td class="gt_row gt_right">HK$65,100.00</td>
+    <td headers="one-num" class="gt_row gt_right">4.44 × 10<sup style="font-size: 65%;">2</sup></td>
+    <td headers="one-currency" class="gt_row gt_right">HK$65,100.00</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">5.55 × 10<sup style="font-size: 65%;">3</sup></td>
-    <td class="gt_row gt_right">HK$1,325.81</td>
+    <td headers="one-num" class="gt_row gt_right">5.55 × 10<sup style="font-size: 65%;">3</sup></td>
+    <td headers="one-currency" class="gt_row gt_right">HK$1,325.81</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">None</td>
-    <td class="gt_row gt_right">HK$13.26</td>
+    <td headers="one-num" class="gt_row gt_right">None</td>
+    <td headers="one-currency" class="gt_row gt_right">HK$13.26</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">7.77 × 10<sup style="font-size: 65%;">5</sup></td>
-    <td class="gt_row gt_right">None</td>
+    <td headers="one-num" class="gt_row gt_right">7.77 × 10<sup style="font-size: 65%;">5</sup></td>
+    <td headers="one-currency" class="gt_row gt_right">None</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">8.88 × 10<sup style="font-size: 65%;">6</sup></td>
-    <td class="gt_row gt_right">HK$0.44</td>
+    <td headers="one-num" class="gt_row gt_right">8.88 × 10<sup style="font-size: 65%;">6</sup></td>
+    <td headers="one-currency" class="gt_row gt_right">HK$0.44</td>
   </tr>
 </tbody>
 

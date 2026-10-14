@@ -176,7 +176,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo" data-tippy-content="<code>v1.0.0</code><br>Released 2026-09-25">
     <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo light-content">
     <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo dark-content">
     </a>
@@ -203,11 +203,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2899" data-forks="138"></div>
     </span>
   </li>  
 </ul>
@@ -1406,7 +1410,7 @@ The GT object is returned. This is the same object that the method is called on 
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Let’s create a table using a small portion of the <a href="../reference/data.gtcars.html#great_tables.data.gtcars" class="gdls-link gdls-code">gtcars</a> dataset. Over several columns (<code>hp</code>, <code>hp_rpm</code>, <code>trq</code>, <code>trq_rpm</code>, <code>mpg_c</code>, <code>mpg_h</code>) we’ll use <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">tab_spanner()</a> to add a spanner with the label <code>"performance"</code>. This effectively groups together several columns related to car performance under a unifying label.</p>
-<div id="b1e66b3f" class="cell" data-execution_count="1">
+<div id="2fceb427" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, md</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> gtcars</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1421,67 +1425,67 @@ The GT object is returned. This is the same object that the method is called on 
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="aivrcameqj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="kwbsgpeyen" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#aivrcameqj table {
+#kwbsgpeyen table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#aivrcameqj thead, tbody, tfoot, tr, td, th { border-style: none; }
+#kwbsgpeyen thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#aivrcameqj p { margin: 0; padding: 0; }
- #aivrcameqj .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #aivrcameqj .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #aivrcameqj .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #aivrcameqj .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #aivrcameqj .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #aivrcameqj .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #aivrcameqj .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #aivrcameqj .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #aivrcameqj .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #aivrcameqj .gt_column_spanner_outer:first-child { padding-left: 0; }
- #aivrcameqj .gt_column_spanner_outer:last-child { padding-right: 0; }
- #aivrcameqj .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #aivrcameqj .gt_spanner_row { border-bottom-style: hidden; }
- #aivrcameqj .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #aivrcameqj .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #aivrcameqj .gt_from_md> :first-child { margin-top: 0; }
- #aivrcameqj .gt_from_md> :last-child { margin-bottom: 0; }
- #aivrcameqj .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #aivrcameqj .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #aivrcameqj .gt_indent_1 { text-indent: 5px; }
- #aivrcameqj .gt_indent_2 { text-indent: calc(5px * 2); }
- #aivrcameqj .gt_indent_3 { text-indent: calc(5px * 3); }
- #aivrcameqj .gt_indent_4 { text-indent: calc(5px * 4); }
- #aivrcameqj .gt_indent_5 { text-indent: calc(5px * 5); }
- #aivrcameqj .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #aivrcameqj .gt_row_group_first td { border-top-width: 2px; }
- #aivrcameqj .gt_row_group_first th { border-top-width: 2px; }
- #aivrcameqj .gt_striped { color: #333333; background-color: #F4F4F4; }
- #aivrcameqj .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #aivrcameqj .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #aivrcameqj .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #aivrcameqj .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #aivrcameqj .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #aivrcameqj .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #aivrcameqj .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #aivrcameqj .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #aivrcameqj .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #aivrcameqj .gt_left { text-align: left; }
- #aivrcameqj .gt_center { text-align: center; }
- #aivrcameqj .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #aivrcameqj .gt_font_normal { font-weight: normal; }
- #aivrcameqj .gt_font_bold { font-weight: bold; }
- #aivrcameqj .gt_font_italic { font-style: italic; }
- #aivrcameqj .gt_super { font-size: 65%; }
- #aivrcameqj .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #aivrcameqj .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #aivrcameqj .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #aivrcameqj .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #aivrcameqj .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #aivrcameqj .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#kwbsgpeyen p { margin: 0; padding: 0; }
+ #kwbsgpeyen .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #kwbsgpeyen .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #kwbsgpeyen .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #kwbsgpeyen .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #kwbsgpeyen .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #kwbsgpeyen .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #kwbsgpeyen .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #kwbsgpeyen .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #kwbsgpeyen .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #kwbsgpeyen .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #kwbsgpeyen .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #kwbsgpeyen .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #kwbsgpeyen .gt_spanner_row { border-bottom-style: hidden; }
+ #kwbsgpeyen .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #kwbsgpeyen .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #kwbsgpeyen .gt_from_md> :first-child { margin-top: 0; }
+ #kwbsgpeyen .gt_from_md> :last-child { margin-bottom: 0; }
+ #kwbsgpeyen .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #kwbsgpeyen .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #kwbsgpeyen .gt_indent_1 { text-indent: 5px; }
+ #kwbsgpeyen .gt_indent_2 { text-indent: calc(5px * 2); }
+ #kwbsgpeyen .gt_indent_3 { text-indent: calc(5px * 3); }
+ #kwbsgpeyen .gt_indent_4 { text-indent: calc(5px * 4); }
+ #kwbsgpeyen .gt_indent_5 { text-indent: calc(5px * 5); }
+ #kwbsgpeyen .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #kwbsgpeyen .gt_row_group_first td { border-top-width: 2px; }
+ #kwbsgpeyen .gt_row_group_first th { border-top-width: 2px; }
+ #kwbsgpeyen .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #kwbsgpeyen .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #kwbsgpeyen .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #kwbsgpeyen .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #kwbsgpeyen .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #kwbsgpeyen .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #kwbsgpeyen .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #kwbsgpeyen .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #kwbsgpeyen .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #kwbsgpeyen .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #kwbsgpeyen .gt_left { text-align: left; }
+ #kwbsgpeyen .gt_center { text-align: center; }
+ #kwbsgpeyen .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #kwbsgpeyen .gt_font_normal { font-weight: normal; }
+ #kwbsgpeyen .gt_font_bold { font-weight: bold; }
+ #kwbsgpeyen .gt_font_italic { font-style: italic; }
+ #kwbsgpeyen .gt_super { font-size: 65%; }
+ #kwbsgpeyen .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #kwbsgpeyen .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #kwbsgpeyen .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #kwbsgpeyen .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #kwbsgpeyen .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #kwbsgpeyen .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1504,94 +1508,94 @@ The GT object is returned. This is the same object that the method is called on 
 </thead>
 <tbody class="gt_table_body">
   <tr>
-    <td class="gt_row gt_left">GT</td>
-    <td class="gt_row gt_right">647.0</td>
-    <td class="gt_row gt_right">6250.0</td>
-    <td class="gt_row gt_right">550.0</td>
-    <td class="gt_row gt_right">5900.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">18.0</td>
+    <td headers="model" class="gt_row gt_left">GT</td>
+    <td headers="performance hp" class="gt_row gt_right">647.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">6250.0</td>
+    <td headers="performance trq" class="gt_row gt_right">550.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">5900.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">18.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Speciale</td>
-    <td class="gt_row gt_right">597.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Speciale</td>
+    <td headers="performance hp" class="gt_row gt_right">597.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq" class="gt_row gt_right">398.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Spider</td>
-    <td class="gt_row gt_right">562.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Spider</td>
+    <td headers="performance hp" class="gt_row gt_right">562.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq" class="gt_row gt_right">398.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Italia</td>
-    <td class="gt_row gt_right">562.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Italia</td>
+    <td headers="performance hp" class="gt_row gt_right">562.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq" class="gt_row gt_right">398.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">488 GTB</td>
-    <td class="gt_row gt_right">661.0</td>
-    <td class="gt_row gt_right">8000.0</td>
-    <td class="gt_row gt_right">561.0</td>
-    <td class="gt_row gt_right">3000.0</td>
-    <td class="gt_row gt_right">15.0</td>
-    <td class="gt_row gt_right">22.0</td>
+    <td headers="model" class="gt_row gt_left">488 GTB</td>
+    <td headers="performance hp" class="gt_row gt_right">661.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">8000.0</td>
+    <td headers="performance trq" class="gt_row gt_right">561.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">3000.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">15.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">22.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">California</td>
-    <td class="gt_row gt_right">553.0</td>
-    <td class="gt_row gt_right">7500.0</td>
-    <td class="gt_row gt_right">557.0</td>
-    <td class="gt_row gt_right">4750.0</td>
-    <td class="gt_row gt_right">16.0</td>
-    <td class="gt_row gt_right">23.0</td>
+    <td headers="model" class="gt_row gt_left">California</td>
+    <td headers="performance hp" class="gt_row gt_right">553.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">7500.0</td>
+    <td headers="performance trq" class="gt_row gt_right">557.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">4750.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">16.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">23.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">GTC4Lusso</td>
-    <td class="gt_row gt_right">680.0</td>
-    <td class="gt_row gt_right">8250.0</td>
-    <td class="gt_row gt_right">514.0</td>
-    <td class="gt_row gt_right">5750.0</td>
-    <td class="gt_row gt_right">12.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">GTC4Lusso</td>
+    <td headers="performance hp" class="gt_row gt_right">680.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">8250.0</td>
+    <td headers="performance trq" class="gt_row gt_right">514.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">5750.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">12.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">FF</td>
-    <td class="gt_row gt_right">652.0</td>
-    <td class="gt_row gt_right">8000.0</td>
-    <td class="gt_row gt_right">504.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">FF</td>
+    <td headers="performance hp" class="gt_row gt_right">652.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">8000.0</td>
+    <td headers="performance trq" class="gt_row gt_right">504.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">F12Berlinetta</td>
-    <td class="gt_row gt_right">731.0</td>
-    <td class="gt_row gt_right">8250.0</td>
-    <td class="gt_row gt_right">509.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">F12Berlinetta</td>
+    <td headers="performance hp" class="gt_row gt_right">731.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">8250.0</td>
+    <td headers="performance trq" class="gt_row gt_right">509.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">LaFerrari</td>
-    <td class="gt_row gt_right">949.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">664.0</td>
-    <td class="gt_row gt_right">6750.0</td>
-    <td class="gt_row gt_right">12.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">LaFerrari</td>
+    <td headers="performance hp" class="gt_row gt_right">949.0</td>
+    <td headers="performance hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq" class="gt_row gt_right">664.0</td>
+    <td headers="performance trq_rpm" class="gt_row gt_right">6750.0</td>
+    <td headers="performance mpg_c" class="gt_row gt_right">12.0</td>
+    <td headers="performance mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
 </tbody>
 
@@ -1601,7 +1605,7 @@ The GT object is returned. This is the same object that the method is called on 
 </div>
 </div>
 <p>One cool feature of <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">tab_spanner()</a> is its support for multiple levels, allowing you to group columns in various ways. For example, you can create three bottom spanners and a top spanner:</p>
-<div id="c6d02c46" class="cell" data-execution_count="2">
+<div id="f1359792" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    GT(gtcars_mini)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(</span>
@@ -1622,67 +1626,67 @@ The GT object is returned. This is the same object that the method is called on 
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-<div id="pgppydgcyn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="vbqijtfvmk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#pgppydgcyn table {
+#vbqijtfvmk table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#pgppydgcyn thead, tbody, tfoot, tr, td, th { border-style: none; }
+#vbqijtfvmk thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#pgppydgcyn p { margin: 0; padding: 0; }
- #pgppydgcyn .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #pgppydgcyn .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #pgppydgcyn .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #pgppydgcyn .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #pgppydgcyn .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pgppydgcyn .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pgppydgcyn .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pgppydgcyn .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #pgppydgcyn .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #pgppydgcyn .gt_column_spanner_outer:first-child { padding-left: 0; }
- #pgppydgcyn .gt_column_spanner_outer:last-child { padding-right: 0; }
- #pgppydgcyn .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #pgppydgcyn .gt_spanner_row { border-bottom-style: hidden; }
- #pgppydgcyn .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #pgppydgcyn .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #pgppydgcyn .gt_from_md> :first-child { margin-top: 0; }
- #pgppydgcyn .gt_from_md> :last-child { margin-bottom: 0; }
- #pgppydgcyn .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #pgppydgcyn .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #pgppydgcyn .gt_indent_1 { text-indent: 5px; }
- #pgppydgcyn .gt_indent_2 { text-indent: calc(5px * 2); }
- #pgppydgcyn .gt_indent_3 { text-indent: calc(5px * 3); }
- #pgppydgcyn .gt_indent_4 { text-indent: calc(5px * 4); }
- #pgppydgcyn .gt_indent_5 { text-indent: calc(5px * 5); }
- #pgppydgcyn .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #pgppydgcyn .gt_row_group_first td { border-top-width: 2px; }
- #pgppydgcyn .gt_row_group_first th { border-top-width: 2px; }
- #pgppydgcyn .gt_striped { color: #333333; background-color: #F4F4F4; }
- #pgppydgcyn .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pgppydgcyn .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #pgppydgcyn .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #pgppydgcyn .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pgppydgcyn .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #pgppydgcyn .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #pgppydgcyn .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #pgppydgcyn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pgppydgcyn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #pgppydgcyn .gt_left { text-align: left; }
- #pgppydgcyn .gt_center { text-align: center; }
- #pgppydgcyn .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #pgppydgcyn .gt_font_normal { font-weight: normal; }
- #pgppydgcyn .gt_font_bold { font-weight: bold; }
- #pgppydgcyn .gt_font_italic { font-style: italic; }
- #pgppydgcyn .gt_super { font-size: 65%; }
- #pgppydgcyn .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pgppydgcyn .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #pgppydgcyn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pgppydgcyn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #pgppydgcyn .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #pgppydgcyn .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#vbqijtfvmk p { margin: 0; padding: 0; }
+ #vbqijtfvmk .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #vbqijtfvmk .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #vbqijtfvmk .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #vbqijtfvmk .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #vbqijtfvmk .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #vbqijtfvmk .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #vbqijtfvmk .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #vbqijtfvmk .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #vbqijtfvmk .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #vbqijtfvmk .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #vbqijtfvmk .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #vbqijtfvmk .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #vbqijtfvmk .gt_spanner_row { border-bottom-style: hidden; }
+ #vbqijtfvmk .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #vbqijtfvmk .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #vbqijtfvmk .gt_from_md> :first-child { margin-top: 0; }
+ #vbqijtfvmk .gt_from_md> :last-child { margin-bottom: 0; }
+ #vbqijtfvmk .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #vbqijtfvmk .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #vbqijtfvmk .gt_indent_1 { text-indent: 5px; }
+ #vbqijtfvmk .gt_indent_2 { text-indent: calc(5px * 2); }
+ #vbqijtfvmk .gt_indent_3 { text-indent: calc(5px * 3); }
+ #vbqijtfvmk .gt_indent_4 { text-indent: calc(5px * 4); }
+ #vbqijtfvmk .gt_indent_5 { text-indent: calc(5px * 5); }
+ #vbqijtfvmk .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #vbqijtfvmk .gt_row_group_first td { border-top-width: 2px; }
+ #vbqijtfvmk .gt_row_group_first th { border-top-width: 2px; }
+ #vbqijtfvmk .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #vbqijtfvmk .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #vbqijtfvmk .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #vbqijtfvmk .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #vbqijtfvmk .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #vbqijtfvmk .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #vbqijtfvmk .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #vbqijtfvmk .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #vbqijtfvmk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #vbqijtfvmk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #vbqijtfvmk .gt_left { text-align: left; }
+ #vbqijtfvmk .gt_center { text-align: center; }
+ #vbqijtfvmk .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #vbqijtfvmk .gt_font_normal { font-weight: normal; }
+ #vbqijtfvmk .gt_font_bold { font-weight: bold; }
+ #vbqijtfvmk .gt_font_italic { font-style: italic; }
+ #vbqijtfvmk .gt_super { font-size: 65%; }
+ #vbqijtfvmk .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #vbqijtfvmk .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #vbqijtfvmk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #vbqijtfvmk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #vbqijtfvmk .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #vbqijtfvmk .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1692,16 +1696,16 @@ The GT object is returned. This is the same object that the method is called on 
   <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
     <span>&nbsp;</span>
   </th>
-  <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="6" scope="colgroup">
+  <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="6" scope="colgroup" id="performance">
     <span class="gt_column_spanner">performance</span>
   </th>
 </tr>
 <tr class="gt_col_headings gt_spanner_row">
   <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="model">model</th>
-  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="hp">
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="hp-2">
     <span class="gt_column_spanner">hp</span>
   </th>
-  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="trq">
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="trq-2">
     <span class="gt_column_spanner">trq</span>
   </th>
   <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="mpg">
@@ -1719,94 +1723,94 @@ The GT object is returned. This is the same object that the method is called on 
 </thead>
 <tbody class="gt_table_body">
   <tr>
-    <td class="gt_row gt_left">GT</td>
-    <td class="gt_row gt_right">647.0</td>
-    <td class="gt_row gt_right">6250.0</td>
-    <td class="gt_row gt_right">550.0</td>
-    <td class="gt_row gt_right">5900.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">18.0</td>
+    <td headers="model" class="gt_row gt_left">GT</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">647.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">6250.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">550.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">5900.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">18.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Speciale</td>
-    <td class="gt_row gt_right">597.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Speciale</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">597.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">398.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Spider</td>
-    <td class="gt_row gt_right">562.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Spider</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">562.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">398.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Italia</td>
-    <td class="gt_row gt_right">562.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Italia</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">562.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">398.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">488 GTB</td>
-    <td class="gt_row gt_right">661.0</td>
-    <td class="gt_row gt_right">8000.0</td>
-    <td class="gt_row gt_right">561.0</td>
-    <td class="gt_row gt_right">3000.0</td>
-    <td class="gt_row gt_right">15.0</td>
-    <td class="gt_row gt_right">22.0</td>
+    <td headers="model" class="gt_row gt_left">488 GTB</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">661.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">8000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">561.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">3000.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">15.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">22.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">California</td>
-    <td class="gt_row gt_right">553.0</td>
-    <td class="gt_row gt_right">7500.0</td>
-    <td class="gt_row gt_right">557.0</td>
-    <td class="gt_row gt_right">4750.0</td>
-    <td class="gt_row gt_right">16.0</td>
-    <td class="gt_row gt_right">23.0</td>
+    <td headers="model" class="gt_row gt_left">California</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">553.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">7500.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">557.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">4750.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">16.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">23.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">GTC4Lusso</td>
-    <td class="gt_row gt_right">680.0</td>
-    <td class="gt_row gt_right">8250.0</td>
-    <td class="gt_row gt_right">514.0</td>
-    <td class="gt_row gt_right">5750.0</td>
-    <td class="gt_row gt_right">12.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">GTC4Lusso</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">680.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">8250.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">514.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">5750.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">12.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">FF</td>
-    <td class="gt_row gt_right">652.0</td>
-    <td class="gt_row gt_right">8000.0</td>
-    <td class="gt_row gt_right">504.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">FF</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">652.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">8000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">504.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">F12Berlinetta</td>
-    <td class="gt_row gt_right">731.0</td>
-    <td class="gt_row gt_right">8250.0</td>
-    <td class="gt_row gt_right">509.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">F12Berlinetta</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">731.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">8250.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">509.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">LaFerrari</td>
-    <td class="gt_row gt_right">949.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">664.0</td>
-    <td class="gt_row gt_right">6750.0</td>
-    <td class="gt_row gt_right">12.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">LaFerrari</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">949.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">664.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6750.0</td>
+    <td headers="performance mpg mpg_c" class="gt_row gt_right">12.0</td>
+    <td headers="performance mpg mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
 </tbody>
 
@@ -1816,7 +1820,7 @@ The GT object is returned. This is the same object that the method is called on 
 </div>
 </div>
 <p>Did you notice that the spanners stacked automatically? What if you want granular control to specify a spanner in a specific hierarchy? <strong>Great Tables</strong> has you covered. By using the <code>level=</code> parameter, you can easily adjust the hierarchy of spanners. For example, by specifying <code>level=0</code> for the last call of <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">tab_spanner()</a>, you can place that spanner at the bottom level (level <code>0</code>) instead of the top level (level <code>2</code>).</p>
-<div id="cb65cafc" class="cell" data-execution_count="3">
+<div id="f7ad5882" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    GT(gtcars_mini)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(</span>
@@ -1834,67 +1838,67 @@ The GT object is returned. This is the same object that the method is called on 
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<div id="glubgmrdaz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="kufekyajbk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#glubgmrdaz table {
+#kufekyajbk table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#glubgmrdaz thead, tbody, tfoot, tr, td, th { border-style: none; }
+#kufekyajbk thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#glubgmrdaz p { margin: 0; padding: 0; }
- #glubgmrdaz .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #glubgmrdaz .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #glubgmrdaz .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #glubgmrdaz .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #glubgmrdaz .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #glubgmrdaz .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #glubgmrdaz .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #glubgmrdaz .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #glubgmrdaz .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #glubgmrdaz .gt_column_spanner_outer:first-child { padding-left: 0; }
- #glubgmrdaz .gt_column_spanner_outer:last-child { padding-right: 0; }
- #glubgmrdaz .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #glubgmrdaz .gt_spanner_row { border-bottom-style: hidden; }
- #glubgmrdaz .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #glubgmrdaz .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #glubgmrdaz .gt_from_md> :first-child { margin-top: 0; }
- #glubgmrdaz .gt_from_md> :last-child { margin-bottom: 0; }
- #glubgmrdaz .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #glubgmrdaz .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #glubgmrdaz .gt_indent_1 { text-indent: 5px; }
- #glubgmrdaz .gt_indent_2 { text-indent: calc(5px * 2); }
- #glubgmrdaz .gt_indent_3 { text-indent: calc(5px * 3); }
- #glubgmrdaz .gt_indent_4 { text-indent: calc(5px * 4); }
- #glubgmrdaz .gt_indent_5 { text-indent: calc(5px * 5); }
- #glubgmrdaz .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #glubgmrdaz .gt_row_group_first td { border-top-width: 2px; }
- #glubgmrdaz .gt_row_group_first th { border-top-width: 2px; }
- #glubgmrdaz .gt_striped { color: #333333; background-color: #F4F4F4; }
- #glubgmrdaz .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #glubgmrdaz .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #glubgmrdaz .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #glubgmrdaz .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #glubgmrdaz .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #glubgmrdaz .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #glubgmrdaz .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #glubgmrdaz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #glubgmrdaz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #glubgmrdaz .gt_left { text-align: left; }
- #glubgmrdaz .gt_center { text-align: center; }
- #glubgmrdaz .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #glubgmrdaz .gt_font_normal { font-weight: normal; }
- #glubgmrdaz .gt_font_bold { font-weight: bold; }
- #glubgmrdaz .gt_font_italic { font-style: italic; }
- #glubgmrdaz .gt_super { font-size: 65%; }
- #glubgmrdaz .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #glubgmrdaz .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #glubgmrdaz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #glubgmrdaz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #glubgmrdaz .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #glubgmrdaz .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#kufekyajbk p { margin: 0; padding: 0; }
+ #kufekyajbk .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #kufekyajbk .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #kufekyajbk .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #kufekyajbk .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #kufekyajbk .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #kufekyajbk .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #kufekyajbk .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #kufekyajbk .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #kufekyajbk .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #kufekyajbk .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #kufekyajbk .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #kufekyajbk .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #kufekyajbk .gt_spanner_row { border-bottom-style: hidden; }
+ #kufekyajbk .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #kufekyajbk .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #kufekyajbk .gt_from_md> :first-child { margin-top: 0; }
+ #kufekyajbk .gt_from_md> :last-child { margin-bottom: 0; }
+ #kufekyajbk .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #kufekyajbk .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #kufekyajbk .gt_indent_1 { text-indent: 5px; }
+ #kufekyajbk .gt_indent_2 { text-indent: calc(5px * 2); }
+ #kufekyajbk .gt_indent_3 { text-indent: calc(5px * 3); }
+ #kufekyajbk .gt_indent_4 { text-indent: calc(5px * 4); }
+ #kufekyajbk .gt_indent_5 { text-indent: calc(5px * 5); }
+ #kufekyajbk .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #kufekyajbk .gt_row_group_first td { border-top-width: 2px; }
+ #kufekyajbk .gt_row_group_first th { border-top-width: 2px; }
+ #kufekyajbk .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #kufekyajbk .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #kufekyajbk .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #kufekyajbk .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #kufekyajbk .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #kufekyajbk .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #kufekyajbk .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #kufekyajbk .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #kufekyajbk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #kufekyajbk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #kufekyajbk .gt_left { text-align: left; }
+ #kufekyajbk .gt_center { text-align: center; }
+ #kufekyajbk .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #kufekyajbk .gt_font_normal { font-weight: normal; }
+ #kufekyajbk .gt_font_bold { font-weight: bold; }
+ #kufekyajbk .gt_font_italic { font-style: italic; }
+ #kufekyajbk .gt_super { font-size: 65%; }
+ #kufekyajbk .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #kufekyajbk .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #kufekyajbk .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #kufekyajbk .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #kufekyajbk .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #kufekyajbk .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1904,7 +1908,7 @@ The GT object is returned. This is the same object that the method is called on 
   <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="1" scope="col">
     <span>&nbsp;</span>
   </th>
-  <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4" scope="colgroup">
+  <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="4" scope="colgroup" id="performance">
     <span class="gt_column_spanner">performance</span>
   </th>
   <th class="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup">
@@ -1913,10 +1917,10 @@ The GT object is returned. This is the same object that the method is called on 
 </tr>
 <tr class="gt_col_headings gt_spanner_row">
   <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="model">model</th>
-  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="hp">
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="hp-2">
     <span class="gt_column_spanner">hp</span>
   </th>
-  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="trq">
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="trq-2">
     <span class="gt_column_spanner">trq</span>
   </th>
   <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="2" colspan="1" scope="col" id="mpg_c">mpg_c</th>
@@ -1931,94 +1935,94 @@ The GT object is returned. This is the same object that the method is called on 
 </thead>
 <tbody class="gt_table_body">
   <tr>
-    <td class="gt_row gt_left">GT</td>
-    <td class="gt_row gt_right">647.0</td>
-    <td class="gt_row gt_right">6250.0</td>
-    <td class="gt_row gt_right">550.0</td>
-    <td class="gt_row gt_right">5900.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">18.0</td>
+    <td headers="model" class="gt_row gt_left">GT</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">647.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">6250.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">550.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">5900.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">18.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Speciale</td>
-    <td class="gt_row gt_right">597.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Speciale</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">597.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">398.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Spider</td>
-    <td class="gt_row gt_right">562.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Spider</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">562.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">398.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Italia</td>
-    <td class="gt_row gt_right">562.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Italia</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">562.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">398.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">488 GTB</td>
-    <td class="gt_row gt_right">661.0</td>
-    <td class="gt_row gt_right">8000.0</td>
-    <td class="gt_row gt_right">561.0</td>
-    <td class="gt_row gt_right">3000.0</td>
-    <td class="gt_row gt_right">15.0</td>
-    <td class="gt_row gt_right">22.0</td>
+    <td headers="model" class="gt_row gt_left">488 GTB</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">661.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">8000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">561.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">3000.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">15.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">22.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">California</td>
-    <td class="gt_row gt_right">553.0</td>
-    <td class="gt_row gt_right">7500.0</td>
-    <td class="gt_row gt_right">557.0</td>
-    <td class="gt_row gt_right">4750.0</td>
-    <td class="gt_row gt_right">16.0</td>
-    <td class="gt_row gt_right">23.0</td>
+    <td headers="model" class="gt_row gt_left">California</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">553.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">7500.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">557.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">4750.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">16.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">23.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">GTC4Lusso</td>
-    <td class="gt_row gt_right">680.0</td>
-    <td class="gt_row gt_right">8250.0</td>
-    <td class="gt_row gt_right">514.0</td>
-    <td class="gt_row gt_right">5750.0</td>
-    <td class="gt_row gt_right">12.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">GTC4Lusso</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">680.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">8250.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">514.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">5750.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">12.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">FF</td>
-    <td class="gt_row gt_right">652.0</td>
-    <td class="gt_row gt_right">8000.0</td>
-    <td class="gt_row gt_right">504.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">FF</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">652.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">8000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">504.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">F12Berlinetta</td>
-    <td class="gt_row gt_right">731.0</td>
-    <td class="gt_row gt_right">8250.0</td>
-    <td class="gt_row gt_right">509.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">F12Berlinetta</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">731.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">8250.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">509.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">LaFerrari</td>
-    <td class="gt_row gt_right">949.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">664.0</td>
-    <td class="gt_row gt_right">6750.0</td>
-    <td class="gt_row gt_right">12.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">LaFerrari</td>
+    <td headers="performance hp-2 hp" class="gt_row gt_right">949.0</td>
+    <td headers="performance hp-2 hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="performance trq-2 trq" class="gt_row gt_right">664.0</td>
+    <td headers="performance trq-2 trq_rpm" class="gt_row gt_right">6750.0</td>
+    <td headers="mpg_c" class="gt_row gt_right">12.0</td>
+    <td headers="mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
 </tbody>
 
@@ -2028,7 +2032,7 @@ The GT object is returned. This is the same object that the method is called on 
 </div>
 </div>
 <p>We can also use Markdown formatting for the spanner label. In this example, we’ll use <code>gt.md("*Performance*")</code> to make the label italicized.</p>
-<div id="39324068" class="cell" data-execution_count="4">
+<div id="e3301fe4" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    GT(gtcars_mini)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .tab_spanner(</span>
@@ -2037,67 +2041,67 @@ The GT object is returned. This is the same object that the method is called on 
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<div id="pdhdiscqnt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="aujrusoxtl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#pdhdiscqnt table {
+#aujrusoxtl table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#pdhdiscqnt thead, tbody, tfoot, tr, td, th { border-style: none; }
+#aujrusoxtl thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#pdhdiscqnt p { margin: 0; padding: 0; }
- #pdhdiscqnt .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #pdhdiscqnt .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #pdhdiscqnt .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #pdhdiscqnt .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #pdhdiscqnt .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pdhdiscqnt .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pdhdiscqnt .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pdhdiscqnt .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #pdhdiscqnt .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #pdhdiscqnt .gt_column_spanner_outer:first-child { padding-left: 0; }
- #pdhdiscqnt .gt_column_spanner_outer:last-child { padding-right: 0; }
- #pdhdiscqnt .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #pdhdiscqnt .gt_spanner_row { border-bottom-style: hidden; }
- #pdhdiscqnt .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #pdhdiscqnt .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #pdhdiscqnt .gt_from_md> :first-child { margin-top: 0; }
- #pdhdiscqnt .gt_from_md> :last-child { margin-bottom: 0; }
- #pdhdiscqnt .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #pdhdiscqnt .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #pdhdiscqnt .gt_indent_1 { text-indent: 5px; }
- #pdhdiscqnt .gt_indent_2 { text-indent: calc(5px * 2); }
- #pdhdiscqnt .gt_indent_3 { text-indent: calc(5px * 3); }
- #pdhdiscqnt .gt_indent_4 { text-indent: calc(5px * 4); }
- #pdhdiscqnt .gt_indent_5 { text-indent: calc(5px * 5); }
- #pdhdiscqnt .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #pdhdiscqnt .gt_row_group_first td { border-top-width: 2px; }
- #pdhdiscqnt .gt_row_group_first th { border-top-width: 2px; }
- #pdhdiscqnt .gt_striped { color: #333333; background-color: #F4F4F4; }
- #pdhdiscqnt .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pdhdiscqnt .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #pdhdiscqnt .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #pdhdiscqnt .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pdhdiscqnt .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #pdhdiscqnt .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #pdhdiscqnt .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #pdhdiscqnt .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pdhdiscqnt .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #pdhdiscqnt .gt_left { text-align: left; }
- #pdhdiscqnt .gt_center { text-align: center; }
- #pdhdiscqnt .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #pdhdiscqnt .gt_font_normal { font-weight: normal; }
- #pdhdiscqnt .gt_font_bold { font-weight: bold; }
- #pdhdiscqnt .gt_font_italic { font-style: italic; }
- #pdhdiscqnt .gt_super { font-size: 65%; }
- #pdhdiscqnt .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pdhdiscqnt .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #pdhdiscqnt .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pdhdiscqnt .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #pdhdiscqnt .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #pdhdiscqnt .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#aujrusoxtl p { margin: 0; padding: 0; }
+ #aujrusoxtl .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #aujrusoxtl .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #aujrusoxtl .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #aujrusoxtl .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #aujrusoxtl .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #aujrusoxtl .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #aujrusoxtl .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #aujrusoxtl .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #aujrusoxtl .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #aujrusoxtl .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #aujrusoxtl .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #aujrusoxtl .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #aujrusoxtl .gt_spanner_row { border-bottom-style: hidden; }
+ #aujrusoxtl .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #aujrusoxtl .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #aujrusoxtl .gt_from_md> :first-child { margin-top: 0; }
+ #aujrusoxtl .gt_from_md> :last-child { margin-bottom: 0; }
+ #aujrusoxtl .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #aujrusoxtl .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #aujrusoxtl .gt_indent_1 { text-indent: 5px; }
+ #aujrusoxtl .gt_indent_2 { text-indent: calc(5px * 2); }
+ #aujrusoxtl .gt_indent_3 { text-indent: calc(5px * 3); }
+ #aujrusoxtl .gt_indent_4 { text-indent: calc(5px * 4); }
+ #aujrusoxtl .gt_indent_5 { text-indent: calc(5px * 5); }
+ #aujrusoxtl .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #aujrusoxtl .gt_row_group_first td { border-top-width: 2px; }
+ #aujrusoxtl .gt_row_group_first th { border-top-width: 2px; }
+ #aujrusoxtl .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #aujrusoxtl .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #aujrusoxtl .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #aujrusoxtl .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #aujrusoxtl .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #aujrusoxtl .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #aujrusoxtl .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #aujrusoxtl .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #aujrusoxtl .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #aujrusoxtl .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #aujrusoxtl .gt_left { text-align: left; }
+ #aujrusoxtl .gt_center { text-align: center; }
+ #aujrusoxtl .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #aujrusoxtl .gt_font_normal { font-weight: normal; }
+ #aujrusoxtl .gt_font_bold { font-weight: bold; }
+ #aujrusoxtl .gt_font_italic { font-style: italic; }
+ #aujrusoxtl .gt_super { font-size: 65%; }
+ #aujrusoxtl .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #aujrusoxtl .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #aujrusoxtl .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #aujrusoxtl .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #aujrusoxtl .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #aujrusoxtl .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -2105,7 +2109,7 @@ The GT object is returned. This is the same object that the method is called on 
 
 <tr class="gt_col_headings gt_spanner_row">
   <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="model">model</th>
-  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="6" scope="colgroup" id="<em>Performance</em>">
+  <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="6" scope="colgroup" id="Performance">
     <span class="gt_column_spanner"><em>Performance</em></span>
   </th>
 </tr>
@@ -2120,94 +2124,94 @@ The GT object is returned. This is the same object that the method is called on 
 </thead>
 <tbody class="gt_table_body">
   <tr>
-    <td class="gt_row gt_left">GT</td>
-    <td class="gt_row gt_right">647.0</td>
-    <td class="gt_row gt_right">6250.0</td>
-    <td class="gt_row gt_right">550.0</td>
-    <td class="gt_row gt_right">5900.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">18.0</td>
+    <td headers="model" class="gt_row gt_left">GT</td>
+    <td headers="Performance hp" class="gt_row gt_right">647.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">6250.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">550.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">5900.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">18.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Speciale</td>
-    <td class="gt_row gt_right">597.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Speciale</td>
+    <td headers="Performance hp" class="gt_row gt_right">597.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">398.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Spider</td>
-    <td class="gt_row gt_right">562.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Spider</td>
+    <td headers="Performance hp" class="gt_row gt_right">562.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">398.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">458 Italia</td>
-    <td class="gt_row gt_right">562.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">398.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">13.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">458 Italia</td>
+    <td headers="Performance hp" class="gt_row gt_right">562.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">398.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">13.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">488 GTB</td>
-    <td class="gt_row gt_right">661.0</td>
-    <td class="gt_row gt_right">8000.0</td>
-    <td class="gt_row gt_right">561.0</td>
-    <td class="gt_row gt_right">3000.0</td>
-    <td class="gt_row gt_right">15.0</td>
-    <td class="gt_row gt_right">22.0</td>
+    <td headers="model" class="gt_row gt_left">488 GTB</td>
+    <td headers="Performance hp" class="gt_row gt_right">661.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">8000.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">561.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">3000.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">15.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">22.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">California</td>
-    <td class="gt_row gt_right">553.0</td>
-    <td class="gt_row gt_right">7500.0</td>
-    <td class="gt_row gt_right">557.0</td>
-    <td class="gt_row gt_right">4750.0</td>
-    <td class="gt_row gt_right">16.0</td>
-    <td class="gt_row gt_right">23.0</td>
+    <td headers="model" class="gt_row gt_left">California</td>
+    <td headers="Performance hp" class="gt_row gt_right">553.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">7500.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">557.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">4750.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">16.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">23.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">GTC4Lusso</td>
-    <td class="gt_row gt_right">680.0</td>
-    <td class="gt_row gt_right">8250.0</td>
-    <td class="gt_row gt_right">514.0</td>
-    <td class="gt_row gt_right">5750.0</td>
-    <td class="gt_row gt_right">12.0</td>
-    <td class="gt_row gt_right">17.0</td>
+    <td headers="model" class="gt_row gt_left">GTC4Lusso</td>
+    <td headers="Performance hp" class="gt_row gt_right">680.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">8250.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">514.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">5750.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">12.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">17.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">FF</td>
-    <td class="gt_row gt_right">652.0</td>
-    <td class="gt_row gt_right">8000.0</td>
-    <td class="gt_row gt_right">504.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">FF</td>
+    <td headers="Performance hp" class="gt_row gt_right">652.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">8000.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">504.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">F12Berlinetta</td>
-    <td class="gt_row gt_right">731.0</td>
-    <td class="gt_row gt_right">8250.0</td>
-    <td class="gt_row gt_right">509.0</td>
-    <td class="gt_row gt_right">6000.0</td>
-    <td class="gt_row gt_right">11.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">F12Berlinetta</td>
+    <td headers="Performance hp" class="gt_row gt_right">731.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">8250.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">509.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">6000.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">11.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
   <tr>
-    <td class="gt_row gt_left">LaFerrari</td>
-    <td class="gt_row gt_right">949.0</td>
-    <td class="gt_row gt_right">9000.0</td>
-    <td class="gt_row gt_right">664.0</td>
-    <td class="gt_row gt_right">6750.0</td>
-    <td class="gt_row gt_right">12.0</td>
-    <td class="gt_row gt_right">16.0</td>
+    <td headers="model" class="gt_row gt_left">LaFerrari</td>
+    <td headers="Performance hp" class="gt_row gt_right">949.0</td>
+    <td headers="Performance hp_rpm" class="gt_row gt_right">9000.0</td>
+    <td headers="Performance trq" class="gt_row gt_right">664.0</td>
+    <td headers="Performance trq_rpm" class="gt_row gt_right">6750.0</td>
+    <td headers="Performance mpg_c" class="gt_row gt_right">12.0</td>
+    <td headers="Performance mpg_h" class="gt_row gt_right">16.0</td>
   </tr>
 </tbody>
 
