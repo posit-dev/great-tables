@@ -46,6 +46,7 @@ from ._tbl_data import (
     is_series,
     to_list,
 )
+from ._styles import FromColumn
 from ._text import _html_escape, _latex_escape, _md_html, _md_latex, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace, is_valid_http_schema
 from ._utils_nanoplots import _generate_nanoplot
@@ -7443,6 +7444,7 @@ def fmt_image(
     path: str | Path | None = None,
     file_pattern: str = "{}",
     encode: bool = True,
+    alt: str | FromColumn | None = None,
 ) -> GTSelf:
     """Format image paths to generate images in cells.
 
@@ -7483,6 +7485,13 @@ def fmt_image(
     encode
         The option to always use Base64 encoding for image paths that are determined to be local. By
         default, this is `True`.
+    alt
+        Alternative text for the images, which screen readers announce in place of an image. This
+        can be a string, in which `{x}` is replaced by the image's reference in the cell (e.g.,
+        `"Logo of {x}"`), or [`from_column()`](`great_tables.from_column`) to take each row's text
+        from a column. By default, images get an empty `alt=""`, which marks them as decorative so
+        that screen readers skip them; provide alternative text whenever an image conveys
+        information that isn't also in the table as text.
 
     Returns
     -------
@@ -7536,13 +7545,38 @@ def fmt_image(
     if height is None and width is None:
         height = "2em"
 
-    formatter = FmtImage(self._tbl_data, height, width, sep, path, file_pattern, encode)
-    return fmt(
-        self,
-        fns=FormatFns(html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html),
-        columns=columns,
-        rows=rows,
-    )
+    def format_images(gt: GTSelf, alt_text: str | None, rows: RowSelectExpr) -> GTSelf:
+        formatter = FmtImage(
+            gt._tbl_data, height, width, sep, path, file_pattern, encode, alt=alt_text
+        )
+        return fmt(
+            gt,
+            fns=FormatFns(
+                html=formatter.to_html, latex=formatter.to_latex, default=formatter.to_html
+            ),
+            columns=columns,
+            rows=rows,
+        )
+
+    if not isinstance(alt, FromColumn):
+        return format_images(self, alt, rows)
+
+    # With `from_column()`, each row's alternative text comes from a column: the rows are
+    # grouped by their text, and each group is formatted with it
+    alt_values = to_list(self._tbl_data[alt.column])
+    rows_by_alt: dict[str, list[int]] = {}
+    for _, row in resolve_rows_i(self, rows):
+        value = alt_values[row]
+        if is_na(self._tbl_data, value):
+            text = ""
+        else:
+            text = str(alt.fn(value) if alt.fn is not None else value)
+        rows_by_alt.setdefault(text, []).append(row)
+
+    res = self
+    for text, alt_rows in rows_by_alt.items():
+        res = format_images(res, text, alt_rows)
+    return res
 
 
 @dataclass
@@ -7554,6 +7588,9 @@ class FmtImage:
     path: str | Path | None = None
     file_pattern: str = "{}"
     encode: bool = True
+    # Alternative text, with `{x}` replaced by each image's reference in the cell (an empty `alt`
+    # marks the image as decorative)
+    alt: str | None = None
 
     SPAN_TEMPLATE: ClassVar = '<span style="white-space:nowrap;">{}</span>'
 
@@ -7586,7 +7623,7 @@ class FmtImage:
         full_files = self._apply_pattern(self.file_pattern, files)
 
         out: list[str] = []
-        for file in full_files:
+        for file_ref, file in zip(files, full_files):
             # Case 1: from url via `dispatch_on`
             if self.path is None and is_valid_http_schema(file):
                 uri = file.rstrip().removesuffix("/")
@@ -7604,7 +7641,8 @@ class FmtImage:
                     uri = filename
 
             # TODO: do we have a way to create tags, that is good at escaping, etc..?
-            out.append(self._build_img_tag(uri, height, self.width))
+            alt_text = "" if self.alt is None else self.alt.replace("{x}", file_ref)
+            out.append(self._build_img_tag(uri, height, self.width, alt=alt_text))
 
         img_tags = self.sep.join(out)
         span = self.SPAN_TEMPLATE.format(img_tags)
@@ -7648,7 +7686,9 @@ class FmtImage:
         return f"image/{suffix}"
 
     @staticmethod
-    def _build_img_tag(uri: str, height: str | None = None, width: str | None = None) -> str:
+    def _build_img_tag(
+        uri: str, height: str | None = None, width: str | None = None, alt: str = ""
+    ) -> str:
         style_string = "".join(
             [
                 f"height: {height};" if height is not None else "",
@@ -7657,7 +7697,7 @@ class FmtImage:
             ]
         )
 
-        return f'<img src="{uri}" style="{style_string}">'
+        return f'<img src="{uri}" alt="{html.escape(alt)}" style="{style_string}">'
 
 
 def fmt_icon(
@@ -7906,9 +7946,10 @@ class FmtIcon:
                 height=height,
                 stroke=self.stroke_color,
                 stroke_width=stroke_width,
-                stroke_opacity=str(self.stroke_alpha),
+                # (`str(None)` would give the invalid CSS `stroke-opacity:None`)
+                stroke_opacity=None if self.stroke_alpha is None else str(self.stroke_alpha),
                 fill=fill_color,
-                fill_opacity=str(self.fill_alpha),
+                fill_opacity=None if self.fill_alpha is None else str(self.fill_alpha),
                 margin_left=self.margin_left,
                 margin_right=self.margin_right,
             )
@@ -8135,9 +8176,16 @@ class FmtFlag:
 
     @staticmethod
     def _replace_flag_svg(flag_svg: str, height: str, use_title: bool, flag_title: str) -> str:
+        # With a title, the flag is an image named after the country; otherwise it's decorative
+        # and hidden from assistive technology
+        if use_title:
+            a11y_attrs = f'role="img" aria-label="{html.escape(flag_title)}" '
+        else:
+            a11y_attrs = 'aria-hidden="true" role="img" '
+
         replacement = (
             '<svg xmlns="http://www.w3.org/2000/svg" '
-            'aria-hidden="true" role="img" '
+            f"{a11y_attrs}"
             'width="512" height="512" '
             'viewBox="0 0 512 512" '
             'style="vertical-align:-0.125em;'
@@ -8148,7 +8196,7 @@ class FmtFlag:
         )
 
         if use_title:
-            replacement += f"<title>{flag_title}</title>"
+            replacement += f"<title>{html.escape(flag_title)}</title>"
 
         return re.sub(r"<svg.*?>", replacement, flag_svg)
 
@@ -8166,6 +8214,7 @@ def fmt_nanoplot(
     expand_x: list[int] | list[float] | list[int | float] | None = None,
     expand_y: list[int] | list[float] | list[int | float] | None = None,
     options: dict[str, Any] | None = None,
+    alt: str | FromColumn | None = None,
 ) -> GTSelf:
     """Format data for nanoplot visualizations.
 
@@ -8228,6 +8277,12 @@ def fmt_nanoplot(
     options
         By using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function here,
         you can alter the layout and styling of the nanoplots in the new column.
+    alt
+        Alternative text for the nanoplots, which screen readers announce in place of the plot. By
+        default, each nanoplot is described by a summary of its values (e.g., `"Line plot of 8
+        values from 12.0 to 47.0, ending at 30.0"`). A string replaces that summary, with any `{x}`
+        replaced by it (e.g., `"Weekly sales: {x}"`), and
+        [`from_column()`](`great_tables.from_column`) takes each row's text from a column.
 
     Returns
     -------
@@ -8429,8 +8484,12 @@ def fmt_nanoplot(
         if all_y_vals:
             expand_y = [min(all_y_vals), max(all_y_vals)]
 
-    # Generate a function that turns the nanoplot data in a cell into an SVG nanoplot
-    def fmt_nanoplot_fn(x: Any, context: str) -> str:
+    # Generate a function that turns the nanoplot data in a cell into an SVG nanoplot (with the
+    # given alternative text)
+    def make_fmt_nanoplot_fn(alt_text: str | None) -> Callable[[Any, str], str]:
+        return lambda x, context: fmt_nanoplot_fn(x, context, alt_text)
+
+    def fmt_nanoplot_fn(x: Any, context: str, alt_text: str | None = None) -> str:
         if context == "latex":
             raise NotImplementedError("fmt_nanoplot() is not supported in LaTeX.")
 
@@ -8462,10 +8521,31 @@ def fmt_nanoplot(
             all_single_y_vals=all_single_y_vals,
             plot_type=plot_type,
             svg_height=plot_height,
+            alt=alt_text,
             **options,
         )
 
-    return fmt_by_context(self, pf_format=fmt_nanoplot_fn, columns=columns, rows=rows)
+    if not isinstance(alt, FromColumn):
+        return fmt_by_context(self, pf_format=make_fmt_nanoplot_fn(alt), columns=columns, rows=rows)
+
+    # With `from_column()`, each row's alternative text comes from a column: the rows are grouped
+    # by their text, and each group is formatted with it (sharing the scale computed above)
+    alt_values = to_list(data_tbl[alt.column])
+    rows_by_alt: dict[str, list[int]] = {}
+    for _, row in resolve_rows_i(self, rows):
+        value = alt_values[row]
+        if is_na(data_tbl, value):
+            text = ""
+        else:
+            text = str(alt.fn(value) if alt.fn is not None else value)
+        rows_by_alt.setdefault(text, []).append(row)
+
+    res = self
+    for text, alt_rows in rows_by_alt.items():
+        res = fmt_by_context(
+            res, pf_format=make_fmt_nanoplot_fn(text or None), columns=columns, rows=alt_rows
+        )
+    return res
 
 
 def _get_cell_y_vals(cell: Any) -> list[int | float]:
