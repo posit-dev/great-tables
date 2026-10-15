@@ -5170,3 +5170,32 @@ def test_fmt_number_min_sep_threshold_invalid(min_sep_threshold: Any):
 
     with pytest.raises(ValueError, match="must be an integer of 1 or more"):
         GT(df).fmt_number(columns="x", min_sep_threshold=min_sep_threshold)
+
+
+@pytest.mark.parametrize(
+    "x_in,duration_style,kwargs,x_out",
+    [
+        # The ISO style uses an ASCII hyphen (ISO 8601 parsers reject the typographic minus) and
+        # leaves out zero-valued units
+        ([-3661], "iso", dict(), ["-PT1H1M1S"]),
+        ([604861, 86400, 90061], "iso", dict(), ["P7DT1M1S", "P1D", "P1DT1H1M1S"]),
+        ([0], "iso", dict(), ["PT0S"]),
+        # A duration shown as zero gets no sign in the colon and ISO styles
+        ([-0.5, 0.4], "iso", dict(force_sign=True), ["PT0S", "PT0S"]),
+        ([-0.5, 0.4], "colon-sep", dict(force_sign=True), ["00:00:00", "00:00:00"]),
+        ([-3661, 5], "colon-sep", dict(force_sign=True), ["−01:01:01", "+00:00:05"]),
+        # The narrow and wide styles show such a duration as less than a second, keeping the sign
+        ([-0.5], "narrow", dict(), ["−<1s"]),
+    ],
+)
+def test_fmt_duration_iso_and_zero_signs(x_in, duration_style: str, kwargs: dict, x_out: list[str]):
+    assert (
+        vals.fmt_duration(x_in, input_units="seconds", duration_style=duration_style, **kwargs)
+        == x_out
+    )
+
+
+def test_fmt_duration_iso_minus_in_latex():
+    df = pl.DataFrame({"x": [-3661.0]})
+    gt = GT(df).fmt_duration(columns="x", input_units="seconds", duration_style="iso")
+    assert _get_column_of_values(gt, column_name="x", context="latex") == ["-PT1H1M1S"]
