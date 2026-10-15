@@ -1,6 +1,7 @@
 """Palette classes for translating data to color values.
 
-Note that this code is largely a pure python port of the mizani gradient_n_pal code.
+Note that this code is largely a pure python port of the mizani gradient_n_pal code, interpolating
+in CIELAB as R's `scales::colour_ramp()` (used by R gt's `data_color()`) does.
 """
 
 from __future__ import annotations
@@ -16,6 +17,63 @@ from .base import RGBColor, _hex_to_rgb, _html_color
 
 def rgb_to_hex(rgb: RGBColor) -> str:
     return f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
+
+
+# CIELAB conversions -------------------------------------------------------------------------------
+#
+# These follow the conversions of the `farver` R package (used by `scales::colour_ramp()`), so that
+# interpolated colors match R gt's exactly: sRGB companding, the sRGB/XYZ matrices, and a D65 white
+# reference.
+
+LabColor = tuple[float, float, float]
+
+_D65_WHITE = (95.047, 100.0, 108.883)
+
+
+def _rgb_to_lab(rgb: RGBColor) -> LabColor:
+    def linearize(channel: int) -> float:
+        c = channel / 255
+        return (((c + 0.055) / 1.055) ** 2.4 if c > 0.04045 else c / 12.92) * 100
+
+    r, g, b = (linearize(channel) for channel in rgb)
+    x = r * 0.4124564 + g * 0.3575761 + b * 0.1804375
+    y = r * 0.2126729 + g * 0.7151522 + b * 0.0721750
+    z = r * 0.0193339 + g * 0.1191920 + b * 0.9503041
+
+    def f(t: float) -> float:
+        return t ** (1 / 3) if t > 0.008856 else 7.787 * t + 16 / 116
+
+    fx, fy, fz = f(x / _D65_WHITE[0]), f(y / _D65_WHITE[1]), f(z / _D65_WHITE[2])
+
+    return 116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)
+
+
+def _lab_to_rgb(lab: LabColor) -> RGBColor:
+    lightness, a, b = lab
+    fy = (lightness + 16) / 116
+    fx = a / 500 + fy
+    fz = fy - b / 200
+
+    def f_inv(t: float) -> float:
+        t3 = t**3
+        return t3 if t3 > 0.008856 else (t - 16 / 116) / 7.787
+
+    x = f_inv(fx) * _D65_WHITE[0] / 100
+    y = f_inv(fy) * _D65_WHITE[1] / 100
+    z = f_inv(fz) * _D65_WHITE[2] / 100
+
+    linear = (
+        x * 3.2404542 + y * -1.5371385 + z * -0.4985314,
+        x * -0.9692660 + y * 1.8760108 + z * 0.0415560,
+        x * 0.0556434 + y * -0.2040259 + z * 1.0572252,
+    )
+
+    def compand(c: float) -> int:
+        c = 1.055 * c ** (1 / 2.4) - 0.055 if c > 0.0031308 else 12.92 * c
+        return min(255, max(0, round(c * 255)))
+
+    r, g, b = (compand(c) for c in linear)
+    return r, g, b
 
 
 # data ---------------------------------------------------------------------------------------------
@@ -35,7 +93,7 @@ class GradientCoefficients(TypedDict):
     """
 
     starting: float
-    intercept: int
+    intercept: float
     scalar: float
 
 
@@ -77,7 +135,10 @@ class CoeffSequenceBisector(CoeffSequence):
 
 
 class GradientPalette:
-    """A palette that interpolates between colors using a linear gradient on RBG channels.
+    """A palette that interpolates between colors using a linear gradient in CIELAB.
+
+    Interpolating in CIELAB (rather than on RGB channels) gives perceptually even gradients and the
+    same colors as R gt (via `scales::colour_ramp()`).
 
     Parameters
     ----------
@@ -121,9 +182,11 @@ class GradientPalette:
         self.colors = rgb_colors
         self.values = values
         self.cls_coeff_sequence = cls_coeff_sequence
-        self._r_coeffs = self._create_coefficients(values, [x[0] for x in rgb_colors])
-        self._g_coeffs = self._create_coefficients(values, [x[1] for x in rgb_colors])
-        self._b_coeffs = self._create_coefficients(values, [x[2] for x in rgb_colors])
+
+        lab_colors = [_rgb_to_lab(color) for color in rgb_colors]
+        self._l_coeffs = self._create_coefficients(values, [x[0] for x in lab_colors])
+        self._a_coeffs = self._create_coefficients(values, [x[1] for x in lab_colors])
+        self._b_coeffs = self._create_coefficients(values, [x[2] for x in lab_colors])
 
     def __call__(self, data: list[float]) -> "list[str | None]":
         """Return data transformed to hex color values."""
@@ -147,10 +210,12 @@ class GradientPalette:
             if x < 0 or x > 1:
                 raise ValueError(f"Element {ii} is outside the range [0, 1]. Value: {x}.")
 
-            r = self._interpolate(x, self._r_coeffs)
-            g = self._interpolate(x, self._g_coeffs)
-            b = self._interpolate(x, self._b_coeffs)
-            out.append((round(r), round(g), round(b)))
+            lab = (
+                self._interpolate(x, self._l_coeffs),
+                self._interpolate(x, self._a_coeffs),
+                self._interpolate(x, self._b_coeffs),
+            )
+            out.append(_lab_to_rgb(lab))
 
         return out
 
@@ -160,7 +225,7 @@ class GradientPalette:
         increment = 1 / (n_steps - 1)
         return [x * increment for x in range(n_steps)]
 
-    def _create_coefficients(self, cutoffs: list[float], channel: list[int]) -> CoeffSequence:
+    def _create_coefficients(self, cutoffs: list[float], channel: list[float]) -> CoeffSequence:
         """Return coefficients for interpolating between cutoffs on a color channel."""
 
         coeffs: list[GradientCoefficients] = []

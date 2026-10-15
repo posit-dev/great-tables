@@ -94,7 +94,8 @@ def data_color(
         The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
         "#0000FF"]`). A ColorBrewer palette could also be used, just supply the name (reference
         available in the *Color palette access from ColorBrewer* section). If `None`, then a default
-        palette will be used.
+        palette will be used. Colors for values between those of the palette are interpolated in
+        the CIELAB color space, giving the same colors as R's gt.
     domain
         The domain of values to use for the color scheme. This can be a list of floats, integers, or
         strings. If `None`, then the domain will be inferred from the data values (see the
@@ -647,7 +648,7 @@ def _map_data_colors(
     # Call the color scale function on the scaled values to get a list of colors
     color_vals = color_scale_fn(scaled_vals)
 
-    # `GradientPalette` interpolates using RGB tuples, which have no alpha channel, so the
+    # `GradientPalette` interpolates colors without an alpha channel, so the
     # `alpha=` value baked into `palette` above is lost here; reapply it to the interpolated
     # colors (skipping `None` entries, which stand in for NA values)
     if alpha is not None:

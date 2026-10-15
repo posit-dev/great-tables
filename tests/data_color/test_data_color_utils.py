@@ -457,12 +457,13 @@ def test_get_domain_factor(
 def test_gradient_n_pal() -> None:
     palette = GradientPalette(["red", "blue"])
 
+    # Interpolated in CIELAB, as R's `scales::colour_ramp()` does (values checked against R)
     res = palette([0, 0.25, 0.5, 0.75, 1])
-    assert res == ["#ff0000", "#bf0040", "#800080", "#4000bf", "#0000ff"]
+    assert res == ["#ff0000", "#e80050", "#ca0088", "#9a00c3", "#0000ff"]
 
 
 @pytest.mark.parametrize(
-    ("src", "dst"), [(0.001, "#ff0000"), (0.004, "#fe0001"), (0.999, "#0000ff"), (0.996, "#0100fe")]
+    ("src", "dst"), [(0.001, "#ff0001"), (0.004, "#ff0002"), (0.999, "#0500ff"), (0.996, "#1100fe")]
 )
 def test_gradient_n_pal_rounds(src: float, dst: str) -> None:
     palette = GradientPalette(["red", "blue"])
@@ -491,7 +492,7 @@ def test_gradient_n_pal_symmetric() -> None:
     palette = GradientPalette(["red", "blue", "red"], values=[0, 0.5, 1])
 
     res = palette([0.2, 0.5, 0.8])
-    assert res == ["#990066", "#0000ff", "#990066"]
+    assert res == ["#d70072", "#0000ff", "#d70072"]
 
 
 def test_gradient_n_pal_manual_values() -> None:
@@ -499,7 +500,7 @@ def test_gradient_n_pal_manual_values() -> None:
     palette = GradientPalette(["red", "blue", "green1"], values=[0, 0.8, 1])
 
     res = palette([0, 0.8, 0.9, 1])
-    assert res == ["#ff0000", "#0000ff", "#008080", "#00ff00"]
+    assert res == ["#ff0000", "#0000ff", "#7d93a6", "#00ff00"]
 
 
 @pytest.mark.parametrize(
@@ -589,3 +590,19 @@ def test_coeff_sequence_lookup_no_match_raises():
     seq = CoeffSequence(coeffs)
     with pytest.raises(ValueError, match="No coefficients found"):
         seq.lookup(0.1)
+
+
+@pytest.mark.parametrize(
+    ("colors", "x", "expected"),
+    [
+        (["white", "blue"], 0.5, "#b38bff"),
+        (["#440154", "#21908C", "#FDE725"], 0.25, "#475070"),
+        (["#440154", "#21908C", "#FDE725"], 0.75, "#a6bb68"),
+        (["black", "white"], 0.25, "#3b3b3b"),
+        (["#FF0000", "#FFFFFF", "#008000"], 0.25, "#ff9e81"),
+    ],
+)
+def test_gradient_n_pal_matches_r_gt(colors: list[str], x: float, expected: str) -> None:
+    # Colors are interpolated in CIELAB; the expected values come from R's
+    # `scales::colour_ramp()`, which R gt's `data_color()` uses
+    assert GradientPalette(colors)([x]) == [expected]
