@@ -1438,6 +1438,7 @@ def fmt_number_si(
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=True, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
+    min_sep_threshold = _get_locale_min_sep_threshold(default=1, locale=locale)
 
     # Stop if `n_sigfig` does not have a valid value
     if n_sigfig is not None:
@@ -1455,6 +1456,7 @@ def fmt_number_si(
         prefix_mode=prefix_mode,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
+        min_sep_threshold=min_sep_threshold,
         force_sign=force_sign,
         incl_space=incl_space,
         pattern=pattern,
@@ -1568,6 +1570,7 @@ def fmt_number_si_context(
     prefix_mode: str,
     sep_mark: str,
     dec_mark: str,
+    min_sep_threshold: int,
     force_sign: bool,
     incl_space: bool,
     pattern: str,
@@ -1622,6 +1625,7 @@ def fmt_number_si_context(
         sep_mark=sep_mark,
         dec_mark=dec_mark,
         force_sign=force_sign,
+        min_sep_threshold=min_sep_threshold,
     )
 
     # A value that rounds to zero is shown as zero, so it gets no minus sign
@@ -2095,6 +2099,7 @@ def fmt_partsper(
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
+    min_sep_threshold = _get_locale_min_sep_threshold(default=1, locale=locale)
 
     # Determine the scale factor
     if scale_values:
@@ -2124,6 +2129,7 @@ def fmt_partsper(
         scale_by=scale_by,
         sep_mark=sep_mark,
         dec_mark=dec_mark,
+        min_sep_threshold=min_sep_threshold,
         force_sign=force_sign,
         symbol=resolved_symbol,
         incl_space=resolved_incl_space,
@@ -2143,6 +2149,7 @@ def fmt_partsper_context(
     scale_by: float,
     sep_mark: str,
     dec_mark: str,
+    min_sep_threshold: int,
     force_sign: bool,
     symbol: str,
     incl_space: bool,
@@ -2169,6 +2176,7 @@ def fmt_partsper_context(
         sep_mark=sep_mark,
         dec_mark=dec_mark,
         force_sign=force_sign,
+        min_sep_threshold=min_sep_threshold,
     )
 
     # A value that rounds to zero is shown as zero, so it gets no sign
@@ -2812,6 +2820,7 @@ def fmt_fraction(
 
     locale = _resolve_locale(self, locale=locale)
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    min_sep_threshold = _get_locale_min_sep_threshold(default=1, locale=locale)
 
     pf_format = partial(
         fmt_fraction_context,
@@ -2821,6 +2830,7 @@ def fmt_fraction(
         layout=layout,
         use_seps=use_seps,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         pattern=pattern,
     )
 
@@ -2833,9 +2843,12 @@ def _gcd(a: int, b: int) -> int:
     return a
 
 
-def _format_whole_number(value: int, use_seps: bool, sep_mark: str) -> str:
+def _format_whole_number(
+    value: int, use_seps: bool, sep_mark: str, min_sep_threshold: int = 1
+) -> str:
     s = str(value)
-    if not use_seps or not sep_mark:
+    # Grouping starts at `min_sep_threshold + 3` digits (four with the default of `1`)
+    if not use_seps or not sep_mark or len(s) < min_sep_threshold + 3:
         return s
     result = ""
     count = 0
@@ -2863,6 +2876,7 @@ def fmt_fraction_context(
     layout: str,
     use_seps: bool,
     sep_mark: str,
+    min_sep_threshold: int,
     pattern: str,
     context: str,
 ) -> str:
@@ -2910,7 +2924,9 @@ def fmt_fraction_context(
         fraction_str = ""
 
     # Format the whole-number part
-    big_x_str = _format_whole_number(big_x, use_seps, sep_mark) if big_x != 0 else ""
+    big_x_str = (
+        _format_whole_number(big_x, use_seps, sep_mark, min_sep_threshold) if big_x != 0 else ""
+    )
 
     # Build the diagonal fraction HTML if needed
     if fraction_str and layout == "diagonal" and context == "html" and "/" in fraction_str:
@@ -4652,6 +4668,7 @@ def fmt_duration(
 
     # Use locale-based marks if a locale ID is provided
     sep_mark = _get_locale_sep_mark(default=sep_mark, use_seps=use_seps, locale=locale)
+    min_sep_threshold = _get_locale_min_sep_threshold(default=1, locale=locale)
 
     # Validate input_units
     if input_units is not None and input_units not in _DURATION_INPUT_UNITS:
@@ -4758,6 +4775,7 @@ def fmt_duration(
         colon_sep_output_units=colon_sep_output_units,
         colon_sep_trim_leading=colon_sep_trim_leading,
         sep_mark=sep_mark,
+        min_sep_threshold=min_sep_threshold,
         force_sign=force_sign,
         pattern=pattern,
         locale=locale,
@@ -4777,6 +4795,7 @@ def fmt_duration_context(
     colon_sep_output_units: list[str] | None,
     colon_sep_trim_leading: bool,
     sep_mark: str,
+    min_sep_threshold: int,
     force_sign: bool,
     pattern: str,
     locale: str | None,
@@ -4848,6 +4867,7 @@ def fmt_duration_context(
             colon_sep_output_units=colon_sep_output_units,
             colon_sep_trim_leading=colon_sep_trim_leading,
             sep_mark=sep_mark,
+            min_sep_threshold=min_sep_threshold,
         )
     elif duration_style == "iso":
         x_formatted = _format_duration_iso(time_parts=time_parts)
@@ -4855,6 +4875,7 @@ def fmt_duration_context(
         x_formatted = _format_duration_narrow(
             time_parts=time_parts,
             sep_mark=sep_mark,
+            min_sep_threshold=min_sep_threshold,
             has_sub_unit_remainder=has_sub_unit_remainder,
             locale=locale,
         )
@@ -4862,6 +4883,7 @@ def fmt_duration_context(
         x_formatted = _format_duration_wide(
             time_parts=time_parts,
             sep_mark=sep_mark,
+            min_sep_threshold=min_sep_threshold,
             has_sub_unit_remainder=has_sub_unit_remainder,
             locale=locale,
         )
@@ -4869,6 +4891,7 @@ def fmt_duration_context(
         x_formatted = _format_duration_narrow(
             time_parts=time_parts,
             sep_mark=sep_mark,
+            min_sep_threshold=min_sep_threshold,
             has_sub_unit_remainder=has_sub_unit_remainder,
             locale=locale,
         )
@@ -4936,9 +4959,10 @@ def _trim_duration_parts(
     return result
 
 
-def _format_number_for_duration(value: int, sep_mark: str) -> str:
+def _format_number_for_duration(value: int, sep_mark: str, min_sep_threshold: int = 1) -> str:
     """Format an integer with optional separator marks."""
-    if sep_mark and value >= 1000:
+    # Grouping starts at `min_sep_threshold + 3` digits (four with the default of `1`)
+    if sep_mark and value >= 10 ** (min_sep_threshold + 2):
         # Apply thousands separator
         s = str(value)
         groups = []
@@ -4952,6 +4976,7 @@ def _format_number_for_duration(value: int, sep_mark: str) -> str:
 def _format_duration_narrow(
     time_parts: list[tuple[str, int]],
     sep_mark: str,
+    min_sep_threshold: int,
     has_sub_unit_remainder: bool,
     locale: str | None = None,
 ) -> str:
@@ -4960,7 +4985,7 @@ def _format_duration_narrow(
 
     parts = []
     for unit, value in time_parts:
-        formatted_value = _format_number_for_duration(value, sep_mark)
+        formatted_value = _format_number_for_duration(value, sep_mark, min_sep_threshold)
         if locale_patterns and unit in locale_patterns:
             parts.append(_apply_duration_pattern(locale_patterns[unit], value, formatted_value))
         else:
@@ -4984,6 +5009,7 @@ def _format_duration_narrow(
 def _format_duration_wide(
     time_parts: list[tuple[str, int]],
     sep_mark: str,
+    min_sep_threshold: int,
     has_sub_unit_remainder: bool,
     locale: str | None = None,
 ) -> str:
@@ -4992,7 +5018,7 @@ def _format_duration_wide(
 
     parts = []
     for unit, value in time_parts:
-        formatted_value = _format_number_for_duration(value, sep_mark)
+        formatted_value = _format_number_for_duration(value, sep_mark, min_sep_threshold)
         if locale_patterns and unit in locale_patterns:
             parts.append(_apply_duration_pattern(locale_patterns[unit], value, formatted_value))
         else:
@@ -5043,6 +5069,7 @@ def _format_duration_colon_sep(
     colon_sep_output_units: list[str] | None,
     colon_sep_trim_leading: bool,
     sep_mark: str,
+    min_sep_threshold: int = 1,
 ) -> str:
     """Format duration in colon-separated style (e.g., '1/08:24:00')."""
 
@@ -5083,7 +5110,7 @@ def _format_duration_colon_sep(
 
     for unit, value in filtered_parts:
         if unit == "days":
-            day_part = _format_number_for_duration(value, sep_mark) + "/"
+            day_part = _format_number_for_duration(value, sep_mark, min_sep_threshold) + "/"
         else:
             # Zero-pad hours, minutes, seconds to 2 digits
             hms_parts.append(f"{value:02d}")
