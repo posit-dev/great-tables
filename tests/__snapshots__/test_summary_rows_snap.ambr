@@ -391,13 +391,13 @@
    & r2 & 2 & 20 \\
    & r3 & 3 & 30 \\
   \midrule\addlinespace[2.5pt]
-  \multicolumn{2}{l}{Group Sum} & 6 & 60 \\
+   & Group Sum & 6 & 60 \\
   \midrule\addlinespace[2.5pt]
   B & r4 & 4 & 40 \\
    & r5 & 5 & 50 \\
    & r6 & 6 & 60 \\
   \midrule\addlinespace[2.5pt]
-  \multicolumn{2}{l}{Group Sum} & 15 & 150 \\
+   & Group Sum & 15 & 150 \\
   \midrule\addlinespace[2.5pt]
   \multicolumn{2}{l}{Grand Sum} & 21 & 210 \\
   '''
@@ -551,13 +551,13 @@
    & r2 & 2 & 20 \\
    & r3 & 3 & 30 \\
   \midrule\addlinespace[2.5pt]
-  \multicolumn{2}{l}{Group Sum} & 6 & 60 \\
+   & Group Sum & 6 & 60 \\
   \midrule\addlinespace[2.5pt]
   B & r4 & 4 & 40 \\
    & r5 & 5 & 50 \\
    & r6 & 6 & 60 \\
   \midrule\addlinespace[2.5pt]
-  \multicolumn{2}{l}{Group Sum} & 15 & 150 \\
+   & Group Sum & 15 & 150 \\
   \midrule\addlinespace[2.5pt]
   \multicolumn{2}{l}{Grand Sum} & 21 & 210 \\
   \bottomrule
@@ -1698,15 +1698,15 @@
    & r2 & 2 & 20 \\
    & r3 & 3 & 30 \\
   \midrule\addlinespace[2.5pt]
-  \multicolumn{2}{l}{Sum} & 6 & 60 \\
-  \multicolumn{2}{l}{Mean} & 2.0 & 20.0 \\
+   & Sum & 6 & 60 \\
+   & Mean & 2.0 & 20.0 \\
   \midrule\addlinespace[2.5pt]
   B & r4 & 4 & 40 \\
    & r5 & 5 & 50 \\
    & r6 & 6 & 60 \\
   \midrule\addlinespace[2.5pt]
-  \multicolumn{2}{l}{Sum} & 15 & 150 \\
-  \multicolumn{2}{l}{Mean} & 5.0 & 50.0 \\
+   & Sum & 15 & 150 \\
+   & Mean & 5.0 & 50.0 \\
   '''
 # ---
 # name: TestSummaryRowsLatexSnap.test_groups_only_no_stub

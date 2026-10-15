@@ -298,6 +298,20 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
     str
         A LaTeX fragment that contains the table.
 
+    LaTeX packages
+    --------------
+    The LaTeX fragment uses commands from these packages, which need to be loaded in the
+    document's preamble:
+
+    - `booktabs` (always)
+    - `longtable`, with `use_longtable=True`
+    - `hyperref`, if the table has links from `fmt_url()` or `fmt_email()`
+    - `anyfontsize` (optional), so that a `table_font_size=` set with `tab_options()` is used at
+      exactly that size rather than the nearest available one
+
+    For example, `\\usepackage{booktabs}` and `\\usepackage{longtable}`. Some currency symbols (e.g.,
+    `"₹"` for `"INR"`) need XeLaTeX or LuaLaTeX rather than pdfLaTeX (see `fmt_currency()`).
+
     Limitations
     -----------
     The `as_latex()` method is still experimental and has some limitations. The following

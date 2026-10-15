@@ -379,6 +379,7 @@ def cols_align_decimal(
 
     res = cols_align(self, align="right", columns=numeric_cols)
 
+    # A `per_column` transform also receives the output context (the padding differs in LaTeX)
     transform = TextTransformInfo(
         loc=LocBody(columns=numeric_cols),
         fn=partial(_align_to_char, align_at=dec_mark),
@@ -391,9 +392,17 @@ FIGURE_SPACE = "\u2007"
 NO_BREAK_SPACE = "\u00a0"
 
 
-def _align_to_char(values: list[str], align_at: str = ".") -> list[str]:
+def _align_to_char(values: list[str], align_at: str = ".", context: str = "html") -> list[str]:
     """Pad the formatted values of a column with figure spaces so that they line up on
-    `align_at`. This follows `align_to_char()` in the R gt package."""
+    `align_at`. This follows `align_to_char()` in the R gt package.
+
+    In LaTeX, the padding is written with `\\hphantom{}` (Unicode spaces such as the figure space
+    aren't available in pdfLaTeX), and the values' escape sequences (e.g., `\\%`) are measured as
+    the single character they print.
+    """
+
+    if context == "latex":
+        return _align_to_char_latex(values, align_at=align_at)
 
     def _can_align(value: str) -> bool:
         return value != "NA" and (align_at in value or re.search(r"[0-9]", value) is not None)
@@ -451,6 +460,53 @@ def _align_to_char(values: list[str], align_at: str = ".") -> list[str]:
     for i, x in zip(idx, aligned):
         out[i] = x
     return out
+
+
+# A placeholder for the space that takes the place of a missing decimal mark in LaTeX, so that it
+# can be written as a phantom decimal mark (a space isn't as wide)
+_MISSING_MARK = "\ue0ff"
+
+
+def _align_to_char_latex(values: list[str], align_at: str) -> list[str]:
+    """`_align_to_char()` for LaTeX output (see there)."""
+
+    from ._text import _latex_escape
+
+    # Each escape sequence (e.g., `\%`, `\textless{}`) prints a single character, so it's
+    # replaced by a single placeholder character while the values are aligned
+    sequences: list[str] = []
+
+    def encode(value: str) -> str:
+        def placeholder(match: re.Match[str]) -> str:
+            if match.group(0) not in sequences:
+                sequences.append(match.group(0))
+            return chr(0xE000 + sequences.index(match.group(0)))
+
+        return re.sub(r"\\(?:[a-zA-Z]+(?:\{\})?|.)", placeholder, value)
+
+    def decode(value: str) -> str:
+        for k, sequence in enumerate(sequences):
+            value = value.replace(chr(0xE000 + k), sequence)
+        return value
+
+    encoded = [encode(value) for value in values]
+    aligned = _align_to_char(encoded, align_at=align_at)
+
+    # Mark the spaces that replaced a missing decimal mark (the only spaces added by alignment)
+    aligned = [
+        x if x == e else x.replace(" ", _MISSING_MARK) if " " not in e else x
+        for x, e in zip(aligned, encoded)
+    ]
+
+    phantom_mark = f"\\hphantom{{{_latex_escape(align_at)}}}"
+    return [
+        decode(
+            x.replace(FIGURE_SPACE, "\\hphantom{0}")
+            .replace(NO_BREAK_SPACE, "~")
+            .replace(_MISSING_MARK, phantom_mark)
+        )
+        for x in aligned
+    ]
 
 
 def cols_label_rotate(

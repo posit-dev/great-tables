@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from contextvars import ContextVar
 from functools import partial, wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Concatenate, TypeAlias, overload
@@ -30,6 +31,18 @@ X: TypeAlias = "Any | list[Any] | SeriesLike | PlExpr"
 # decorator for dispatching Polars expressions ----
 
 P = ParamSpec("P")
+
+
+# The output context that the `vals.fmt_*()` functions format for. It's "html" except while Great
+# Tables formats summary row values for LaTeX output (see `_summary_value_latex()`)
+_VALS_CONTEXT: ContextVar[str] = ContextVar("great_tables_vals_context", default="html")
+
+
+def _is_vals_formatter(fn: Any) -> bool:
+    """Whether `fn` is one of the `vals.fmt_*()` functions (possibly wrapped in a `partial`)."""
+    while isinstance(fn, partial):
+        fn = fn.func
+    return getattr(fn, "__module__", None) == __name__
 
 
 def expressive(
@@ -230,7 +243,7 @@ def val_fmt_number(
         min_sep_threshold=min_sep_threshold,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -342,7 +355,7 @@ def val_fmt_integer(
         sep_mark=sep_mark,
         min_sep_threshold=min_sep_threshold,
         force_sign=force_sign,
-        context="html",
+        context=_VALS_CONTEXT.get(),
     )
 
     return [pf(val) for val in x]
@@ -474,7 +487,7 @@ def val_fmt_scientific(
         locale=locale,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -602,7 +615,7 @@ def val_fmt_engineering(
         locale=locale,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -743,7 +756,7 @@ def val_fmt_number_si(
         locale=locale,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -882,7 +895,7 @@ def val_fmt_percent(
         min_sep_threshold=min_sep_threshold,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1015,7 +1028,7 @@ def val_fmt_partsper(
         locale=locale,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1165,7 +1178,7 @@ def val_fmt_currency(
         min_sep_threshold=min_sep_threshold,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1215,7 +1228,7 @@ def val_fmt_roman(
         pattern=pattern,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1292,7 +1305,7 @@ def val_fmt_fraction(
         locale=locale,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1331,7 +1344,7 @@ def val_fmt_chem(
 
     gt_obj_fmt = gt_obj.fmt_chem(columns="x")
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1389,7 +1402,7 @@ def val_fmt_index(
         locale=locale,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1455,7 +1468,7 @@ def val_fmt_url(
         target=target,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1519,7 +1532,7 @@ def val_fmt_email(
         target=target,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1649,7 +1662,7 @@ def val_fmt_bytes(
         min_sep_threshold=min_sep_threshold,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1737,7 +1750,7 @@ def val_fmt_duration(
         locale=locale,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1824,7 +1837,7 @@ def val_fmt_date(
         locale=locale,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1899,7 +1912,7 @@ def val_fmt_time(
         locale=locale,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -1953,7 +1966,7 @@ def val_fmt_markdown(
         columns="x",
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt
 
@@ -2019,6 +2032,6 @@ def val_fmt_image(
         encode=encode,
     )
 
-    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context="html")
+    vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
 
     return vals_fmt

@@ -1116,7 +1116,8 @@ class TextTransformInfo:
 
     loc: Loc
     # takes and returns a single cell value, or with `per_column=True`, the list of values of a
-    # whole column (used by `cols_align_decimal()`)
+    # whole column and the output context (`fn(values, context=...)`; used by
+    # `cols_align_decimal()`)
     fn: Callable[[str], str] | Callable[[list[str]], list[str]]
     per_column: bool = False
 
@@ -1140,6 +1141,8 @@ class SummaryRowInfo:
     # the implications on existing SummaryRowInfo objects
     values: dict[str, Any]  # TODO: consider datatype, series?
     side: Literal["top", "bottom"]  # TODO: consider enum
+    # The values formatted for LaTeX output (`values` are formatted for HTML), if available
+    values_latex: dict[str, str] | None = None
 
 
 # TODO: refactor into a collection/dataclass wrapping the list part
@@ -1235,11 +1238,19 @@ class SummaryRows(Mapping[str, list[SummaryRowInfo]]):
                 for key, new_value in summary_row.values.items():
                     merged_values[key] = new_value
 
+                merged_values_latex = None
+                if existing_row.values_latex is not None or summary_row.values_latex is not None:
+                    merged_values_latex = {
+                        **(existing_row.values_latex or {}),
+                        **(summary_row.values_latex or {}),
+                    }
+
                 # Create merged row with new row's properties but merged values
                 merged_row = SummaryRowInfo(
                     id=summary_row.id,
                     label=summary_row.label,
                     values=merged_values,
+                    values_latex=merged_values_latex,
                     # Setting this to existing row instead of summary_row means original
                     # side is fixed by whatever side is first assigned to this row
                     side=existing_row.side,

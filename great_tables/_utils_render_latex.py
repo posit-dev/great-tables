@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from ._spanners import spanners_print_matrix
 from ._tbl_data import _get_cell, cast_frame_to_string, replace_null_frame
-from ._text import _process_text
+from ._text import _latex_escape, _process_text
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 from ._utils_render_html import (
     _calculate_hierarchical_stub_rowspans,
@@ -537,6 +537,9 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
     prev_group_info = None
     first_group_added = False
 
+    # The group whose label was already shown in a top summary row (with the group as a column)
+    group_label_shown = None
+
     # One step of stub indentation, as a LaTeX length (worked out on first use)
     indent_step: tuple[float, str] | None = None
 
@@ -586,11 +589,19 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
                     )
 
                     if top_group_summary:
-                        for summary_row in top_group_summary:
+                        for k, summary_row in enumerate(top_group_summary):
+                            # With the group as a column, the group label starts in the first
+                            # (top summary) row of the group, as in HTML
+                            group_cell = None
+                            if has_group_stub_column:
+                                group_cell = group_label if k == 0 else ""
+                                group_label_shown = group_info
+
                             summary_str = _create_summary_row_l(
                                 summary_row=summary_row,
                                 column_vars=column_vars,
                                 n_stub_cols=len(stub_layout),
+                                group_cell=group_cell,
                             )
                             body_rows.append(summary_str)
                         body_rows.append("\\midrule\\addlinespace[2.5pt]")
@@ -600,8 +611,8 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
 
         # Add stub cells first (group_label column, then rowname column)
         if has_group_stub_column and group_info is not None:
-            # Only show group label in first row of group
-            if group_info is prev_group_info:
+            # Only show group label in first row of group (unless a top summary row showed it)
+            if group_info is prev_group_info or group_info is group_label_shown:
                 # Use an empty cell for continuation rows in same group
                 body_cells.append("")
             else:
@@ -668,6 +679,9 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
                             summary_row=summary_row,
                             column_vars=column_vars,
                             n_stub_cols=len(stub_layout),
+                            # With the group as a column, the group cell is empty (the group
+                            # label is in the group's first row), as in HTML
+                            group_cell="" if has_group_stub_column else None,
                         )
                         body_rows.append(summary_str)
 
@@ -693,23 +707,36 @@ def _create_summary_row_l(
     summary_row: "SummaryRowInfo",
     column_vars: list,
     n_stub_cols: int,
+    group_cell: str | None = None,
 ) -> str:
-    """Create a single LaTeX summary row."""
+    """Create a single LaTeX summary row.
+
+    With `group_cell` (a group summary row when the row group is shown as a column), the row
+    starts with that cell in the group column (the group label, or empty), as in HTML.
+    """
     cells: list[str] = []
 
     summary_label = _process_text(summary_row.label, context="latex")
 
-    # The summary label goes in the stub position, spanning all of the stub columns (a row group
-    # column and any number of row name columns); with no stub it takes the first column position
+    # (only when there's also a row name stub column for the label; otherwise the label takes the
+    # group column, which is the only stub column)
+    if group_cell is not None and n_stub_cols > 1:
+        cells.append(group_cell)
+        n_stub_cols -= 1
+
+    # The summary label goes in the stub position, spanning all of the (remaining) stub columns (a
+    # row group column and any number of row name columns); with no stub it takes the first column
     if n_stub_cols > 1:
         cells.append(f"\\multicolumn{{{n_stub_cols}}}{{l}}{{{summary_label}}}")
     else:
         cells.append(summary_label)
 
-    # Add data cells
+    # Add data cells, formatted for LaTeX (`values` are formatted for HTML)
     for colinfo in column_vars:
-        value = summary_row.values.get(colinfo.var, "")
-        cells.append(str(value))
+        if summary_row.values_latex is not None:
+            cells.append(summary_row.values_latex.get(colinfo.var, ""))
+        else:
+            cells.append(_latex_escape(str(summary_row.values.get(colinfo.var, ""))))
 
     return " & ".join(cells) + " \\\\"
 
