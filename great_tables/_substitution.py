@@ -510,6 +510,23 @@ def sub_values(
     return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)
 
 
+def _as_number(x: Any) -> float | None:
+    """Get a cell value as a number for `sub_small_vals()` / `sub_large_vals()`, or `None`.
+
+    Real numbers (including NumPy scalars, e.g., from a pandas column) and `Decimal` values (e.g.,
+    from a polars `Decimal` column) are numbers. Booleans aren't, whether Python `bool` (polars,
+    PyArrow) or NumPy `bool_` (pandas), as in R gt where logical values aren't numeric.
+    """
+
+    if isinstance(x, bool) or getattr(getattr(x, "dtype", None), "kind", None) == "b":
+        return None
+    if isinstance(x, Decimal):
+        return float(x)
+    if isinstance(x, numbers.Real):
+        return x
+    return None
+
+
 @dataclass
 class SubSmallVals(Substitution):
     threshold: float
@@ -517,8 +534,9 @@ class SubSmallVals(Substitution):
     sign: str
 
     def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
-        # Only operate on numeric values (including NumPy scalars, e.g., from a Pandas column)
-        if not isinstance(x, numbers.Real):
+        # Only operate on numeric values (see `_as_number()`)
+        x = _as_number(x)
+        if x is None:
             return FormatterSkipElement()
 
         # Skip NA/NaN values
@@ -552,8 +570,9 @@ class SubLargeVals(Substitution):
     sign: str
 
     def substitute(self, x: Any, context: str) -> str | FormatterSkipElement:
-        # Only operate on numeric values (including NumPy scalars, e.g., from a Pandas column)
-        if not isinstance(x, numbers.Real):
+        # Only operate on numeric values (see `_as_number()`)
+        x = _as_number(x)
+        if x is None:
             return FormatterSkipElement()
 
         # Skip NA/NaN values
