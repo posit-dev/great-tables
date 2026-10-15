@@ -685,3 +685,49 @@ def test_convert_missing_non_empty_el_returns_el():
     result = _convert_missing("html", "hello")
 
     assert result == "hello"
+
+
+@pytest.mark.filterwarnings("ignore:PyArrow Table support is currently experimental")
+@pytest.mark.parametrize(
+    "frame",
+    [
+        lambda: pl.DataFrame({"x": [True, False]}),
+        lambda: pd.DataFrame({"x": [True, False]}),
+        lambda: pa.table({"x": [True, False]}),
+    ],
+)
+def test_sub_small_large_vals_skip_booleans(frame):
+    # Booleans aren't numbers here (as in R gt), whatever the backend's boolean type
+    from great_tables.gt import _get_column_of_values
+
+    gt = (
+        GT(frame())
+        .sub_small_vals(columns="x", threshold=2)
+        .sub_large_vals(columns="x", threshold=1)
+    )
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["True", "False"]
+
+
+@pytest.mark.parametrize(
+    "frame",
+    [
+        lambda vals: pl.DataFrame({"x": vals}),
+        lambda vals: pd.DataFrame({"x": vals}),
+    ],
+)
+def test_sub_small_large_vals_decimal_values(frame):
+    from decimal import Decimal
+
+    from great_tables.gt import _get_column_of_values
+
+    df = frame([Decimal("0.001"), Decimal("5"), Decimal("2000"), Decimal("-0.001")])
+    gt = (
+        GT(df)
+        .sub_small_vals(columns="x")
+        .sub_large_vals(columns="x", threshold=1000)
+        .sub_small_vals(columns="x", sign="-")
+    )
+    x = _get_column_of_values(gt, column_name="x", context="html")
+
+    # (the unsubstituted `5` is shown as polars or pandas displays a `Decimal`)
+    assert [x[0], x[2], x[3]] == ["&lt;0.01", "≥1000", "&gt;-0.01"]
