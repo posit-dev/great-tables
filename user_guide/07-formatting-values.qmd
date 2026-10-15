@@ -156,9 +156,9 @@ When rendering to HTML, **Great Tables** automatically escapes special character
 cross-site scripting (XSS) when displaying untrusted data (e.g., user-submitted text, CSV uploads)
 in web applications, dashboards, or reports.
 
-Cells that *have* been formatted (e.g., with `fmt_number()`, `fmt_markdown()`, `fmt_image()`, etc.)
-are treated as trusted HTML and are not escaped. This allows formatters to produce rich HTML content
-like images, links, and styled text.
+Cells that *have* been formatted (e.g., with `~~GT.fmt_number()`, `~~GT.fmt_markdown()`,
+`~~GT.fmt_image()`, etc.) are treated as trusted HTML and are not escaped. This allows formatters to
+produce rich HTML content like images, links, and styled text.
 
 To include raw HTML or Markdown in cells that would otherwise be escaped, use a formatting method
 with the `html()` or `md()` helpers:

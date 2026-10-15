@@ -342,7 +342,7 @@ def cols_align_decimal(
     Examples
     --------
     Let's put some numbers with different numbers of decimal places in a table, format them with
-    `fmt_number()` and align them on the decimal mark.
+    [`fmt_number()`](`great_tables.GT.fmt_number`) and align them on the decimal mark.
 
     ```{python}
     import polars as pl

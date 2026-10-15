@@ -125,9 +125,9 @@ def tab_stub(
 def with_locale(self: GTSelf, locale: str | None = None) -> GTSelf:
     """Set a column to be the default locale.
 
-    Setting a default locale affects formatters like `fmt_number()`, and `fmt_date()`,
-    by having them default to locale-specific features (e.g. representing one thousand
-    as 1.000,00)
+    Setting a default locale affects formatters like [`fmt_number()`](`great_tables.GT.fmt_number`),
+    and [`fmt_date()`](`great_tables.GT.fmt_date`), by having them default to locale-specific
+    features (e.g. representing one thousand as 1.000,00)
 
     Parameters
     ----------
@@ -143,9 +143,10 @@ def with_locale(self: GTSelf, locale: str | None = None) -> GTSelf:
 
     Examples
     --------
-    Let's create a table and set its `locale=` to `"ja"` for Japan. Then, we call `fmt_currency()`
-    to format the `"currency"` column. Since we didn't specify a `locale=` for `fmt_currency()`,
-    it will adopt the globally set `"ja"` locale.
+    Let's create a table and set its `locale=` to `"ja"` for Japan. Then, we call
+    [`fmt_currency()`](`great_tables.GT.fmt_currency`) to format the `"currency"` column. Since we
+    didn't specify a `locale=` for [`fmt_currency()`](`great_tables.GT.fmt_currency`), it will adopt
+    the globally set `"ja"` locale.
 
     ```{python}
     from great_tables import GT, exibble

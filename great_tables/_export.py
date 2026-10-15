@@ -141,9 +141,11 @@ def as_raw_html(
     the output format--like `inline_css=`, `make_page=`, and `all_important=`.
 
     Body cells that have not been processed by a `fmt_*()` method are automatically HTML-escaped to
-    prevent cross-site scripting (XSS). Cells that have been formatted (e.g., with `fmt_number()`,
-    `fmt_markdown()`, etc.) are trusted as safe HTML. To include raw HTML in unformatted cells, use
-    the `html()` helper (e.g., `html("<b>bold</b>")`) via a `fmt_*()` method or `text_transform()`.
+    prevent cross-site scripting (XSS). Cells that have been formatted (e.g., with
+    [`fmt_number()`](`great_tables.GT.fmt_number`),
+    [`fmt_markdown()`](`great_tables.GT.fmt_markdown`), etc.) are trusted as safe HTML. To include
+    raw HTML in unformatted cells, use the `html()` helper (e.g., `html("<b>bold</b>")`) via a
+    `fmt_*()` method or `text_transform()`.
 
     Parameters
     ----------
@@ -305,12 +307,14 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
 
     - `booktabs` (always)
     - `longtable`, with `use_longtable=True`
-    - `hyperref`, if the table has links from `fmt_url()` or `fmt_email()`
+    - `hyperref`, if the table has links from [`fmt_url()`](`great_tables.GT.fmt_url`) or
+      [`fmt_email()`](`great_tables.GT.fmt_email`)
     - `anyfontsize` (optional), so that a `table_font_size=` set with `tab_options()` is used at
       exactly that size rather than the nearest available one
 
     For example, `\\usepackage{booktabs}` and `\\usepackage{longtable}`. Some currency symbols
-    (e.g., `"₹"` for `"INR"`) need XeLaTeX or LuaLaTeX rather than pdfLaTeX (see `fmt_currency()`).
+    (e.g., `"₹"` for `"INR"`) need XeLaTeX or LuaLaTeX rather than pdfLaTeX (see
+    [`fmt_currency()`](`great_tables.GT.fmt_currency`)).
 
     Limitations
     -----------
@@ -320,8 +324,8 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
 
     - footnotes (via the `tab_footnote()` method), which raise an error
     - the `fmt_nanoplot()` method, which raises an error
-    - the `fmt_image()`, `fmt_flag()`, and `fmt_icon()` methods, which issue a warning and leave
-      the cell values unformatted
+    - the [`fmt_image()`](`great_tables.GT.fmt_image`), `fmt_flag()`, and `fmt_icon()` methods,
+      which issue a warning and leave the cell values unformatted
     - styles, whether set with the `tab_style()` or `data_color()` methods (a warning is issued
       and the table is rendered without them)
     - most options in the `tab_options()` method, particularly those that are specific to styling

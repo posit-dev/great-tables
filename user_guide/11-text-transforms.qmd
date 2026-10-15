@@ -13,8 +13,8 @@ data values.
 
 To clarify the distinction: `fmt_*()` methods work on raw data values *before* they become text.
 Text transforms work on the *already-rendered text* after formatting. This means you can use
-`fmt_number()` to get consistent decimal places, and then use `text_transform()` to wrap the result
-in custom HTML or append a unit label. The two layers complement each other, where formatting
+`~~GT.fmt_number()` to get consistent decimal places, and then use `text_transform()` to wrap the
+result in custom HTML or append a unit label. The two layers complement each other, where formatting
 handles the numeric conversion, and text transforms handle the final presentation touches.
 
 ## Setting Up the Example Data
