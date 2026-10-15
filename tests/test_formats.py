@@ -4003,6 +4003,30 @@ def test_fmt_units_custom_pattern():
     assert result[0].startswith("(") or "(" in result[0]
 
 
+def test_fmt_units_latex():
+    df = pl.DataFrame({"units": ["kg m^-3"]})
+    gt = GT(df).fmt_units(columns="units", pattern="{x} & more")
+    result = _get_column_of_values(gt, column_name="units", context="latex")
+
+    assert result == ["kg m\\textsuperscript{\\ensuremath{-}3} \\& more"]
+
+
+def test_fmt_units_as_latex_has_no_html():
+    df = pl.DataFrame({"units": ["kg m^-3"]})
+    latex = (
+        GT(df)
+        .fmt_units(columns="units")
+        .cols_label(units="Density ({{kg m^-3}})")
+        .tab_spanner(label="Rate ({{s^-1}})", columns="units")
+        .as_latex()
+    )
+
+    assert "<span" not in latex
+    assert "Density (kg m\\textsuperscript{\\ensuremath{-}3})" in latex
+    assert "Rate (s\\textsuperscript{\\ensuremath{-}1})" in latex
+    assert "\nkg m\\textsuperscript{\\ensuremath{-}3} \\\\" in latex
+
+
 def test_fmt_date_invalid_date_object_raises():
     # ValueError when cell value is not a string or date object
     with pytest.raises(ValueError, match="Invalid date object"):

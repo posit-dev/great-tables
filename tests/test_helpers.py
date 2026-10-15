@@ -167,6 +167,11 @@ def assert_generate_tokens_list(units: str, x_out: str):
         ("/t_0^2", ["t_0^-2"]),
         ("/h[_0^3]", ["h[_0^-3]"]),
         ("t_0 / t_n", ["t_0", "/", "t_n"]),
+        # inverting a `-1` exponent leaves a first power, which has no exponent
+        ("/s^-1", ["s"]),
+        ("kg /m^-1", ["kg", "m"]),
+        ("/t_0^-1", ["t_0"]),
+        ("/h[_0^-1]", ["h_0"]),
     ],
 )
 def test_generate_tokens_list_slashed_unit(units: str, x_out: list[str]):
@@ -419,11 +424,41 @@ def test_unit_str_unmatched_brackets():
     assert res[2] == ""
 
 
-def test_define_units_latex_raises():
-    with pytest.raises(NotImplementedError) as exc_info:
-        UnitStr.from_str("a b").to_latex()
+def test_define_units_inverted_first_power_html():
+    assert define_units(units_notation="/s^-1").to_html() == "s"
 
-    assert "LaTeX conversion of units is not yet supported." in exc_info.value.args[0]
+
+@pytest.mark.parametrize(
+    "units, x_out",
+    [
+        ("kg m^-3", "kg m\\textsuperscript{\\ensuremath{-}3}"),
+        ("kg /m^3", "kg m\\textsuperscript{\\ensuremath{-}3}"),
+        ("m / s", "m/s"),
+        ("t_0", "t\\textsubscript{0}"),
+        ("t_0^2", "t\\textsubscript{0}\\textsuperscript{2}"),
+        # overstriking is HTML-only, so the subscript and exponent are written in sequence
+        ("h[_0^3]", "h\\textsubscript{0}\\textsuperscript{3}"),
+        ("%C6H12O6%", "C\\textsubscript{6}H\\textsubscript{12}O\\textsubscript{6}"),
+        ("x10^6 degC", "\\ensuremath{\\times}10\\textsuperscript{6} \\textdegree{}C"),
+        ("-3 ohm", "\\ensuremath{-}3 \\ensuremath{\\Omega}"),
+        (
+            "um :alpha: :Omega: :Alpha:",
+            "\\ensuremath{\\mu}m \\ensuremath{\\alpha} \\ensuremath{\\Omega} A",
+        ),
+        (":permil: :angstrom: :space:", "\\textperthousand{} \\AA{} ~"),
+        ("*m*^2 **N**", "\\emph{m}\\textsuperscript{2} \\textbf{N}"),
+        ("% & # $", "\\% \\& \\# \\$"),
+        ("( m s^-1 )", "(m s\\textsuperscript{\\ensuremath{-}1})"),
+    ],
+)
+def test_define_units_to_latex(units: str, x_out: str):
+    assert define_units(units_notation=units).to_latex() == x_out
+
+
+def test_units_symbols_latex_covers_html_symbols():
+    from great_tables._helpers import UNITS_SYMBOLS_HTML, UNITS_SYMBOLS_LATEX
+
+    assert UNITS_SYMBOLS_LATEX.keys() == UNITS_SYMBOLS_HTML.keys()
 
 
 @pytest.mark.parametrize(
@@ -509,12 +544,11 @@ def test_normalize_listable_nanoplot_options_wrong_list_element_raises():
         _normalize_listable_nanoplot_options(["a", "b"], int)
 
 
-def test_unit_str_to_latex_raises():
-    from great_tables._helpers import UnitStr
+def test_unit_str_to_latex():
+    # The text around the units is escaped as in any other label
+    unit_str = UnitStr.from_str("Density & mass ({{kg m^-2}})")
 
-    unit_str = UnitStr.from_str("{{kg m^-2}}")
-    with pytest.raises(NotImplementedError, match="LaTeX"):
-        unit_str.to_latex()
+    assert unit_str.to_latex() == ("Density \\& mass (kg m\\textsuperscript{\\ensuremath{-}2})")
 
 
 def test_unit_str_repr():
