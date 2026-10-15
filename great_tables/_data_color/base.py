@@ -133,13 +133,13 @@ def data_color(
         color.
     fn
         A color-mapping function. The function should take a list of data values (from a single
-        column, or from a single row with `direction="row"`) as input and return a list of colors
-        of the same length. Each color may be a hexadecimal color value (e.g., `"#FF0000"`) or a
-        color name (e.g., `"red"`). All values are passed to the function, including missing
-        values, so the function must handle those itself. Any position where the function returns `None` receives the `na_color=` color. If
-        a function is supplied, then the `palette=`, `domain=`, `reverse=`, `truncate=`, and
-        `midpoint=` arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=`
-        arguments still apply to the returned colors. The
+        column, or from a single row with `direction="row"`) as input and return a list of colors of
+        the same length. Each color may be a hexadecimal color value (e.g., `"#FF0000"`) or a color
+        name (e.g., `"red"`). All values are passed to the function, including missing values, so
+        the function must handle those itself. Any position where the function returns `None`
+        receives the `na_color=` color. If a function is supplied, then the `palette=`, `domain=`,
+        `reverse=`, `truncate=`, and `midpoint=` arguments are ignored. The `alpha=`,
+        `autocolor_text=`, and `contrast_algo=` arguments still apply to the returned colors. The
         [`col_numeric()`](`great_tables.col_numeric`), [`col_bin()`](`great_tables.col_bin`), and
         [`col_factor()`](`great_tables.col_factor`) helpers create ready-made color-mapping
         functions that can be supplied here.
@@ -270,8 +270,8 @@ def data_color(
     - columns of any type can be colored (e.g., booleans or dates), since the numeric-or-string
     requirement of the built-in mapping doesn't apply
 
-    When `fn=` is used, the `palette=`, `domain=`, `reverse=`, `truncate=`, and `midpoint=` arguments
-    are ignored because the function takes over their roles. The `na_color=`, `alpha=`,
+    When `fn=` is used, the `palette=`, `domain=`, `reverse=`, `truncate=`, and `midpoint=`
+    arguments are ignored because the function takes over their roles. The `na_color=`, `alpha=`,
     `autocolor_text=`, and `contrast_algo=` arguments still apply to the colors that the function
     returns.
 

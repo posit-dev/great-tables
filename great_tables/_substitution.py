@@ -110,7 +110,8 @@ def sub_zero(
 
     Wherever there is numerical data that are zero in value, replacement text may be better for
     explanatory purposes. The `sub_zero()` function allows for this replacement through its
-    `zero_text=` argument.
+    `zero_text=` argument. Only numeric values are replaced, so `False` in a boolean column is left
+    as is.
 
     Parameters
     ----------
@@ -202,7 +203,11 @@ class SubZero(Substitution):
         if is_na(self.dispatch_frame, x):
             return FormatterSkipElement()
 
-        if x == 0:
+        # Only numeric values are zero; `False == 0` is true in Python, but a boolean isn't
+        # replaced (see `_as_number()`)
+        x = _as_number(x)
+
+        if x is not None and x == 0:
             return _process_text(self.zero_text, context=context)
 
         return FormatterSkipElement()
@@ -511,7 +516,8 @@ def sub_values(
 
 
 def _as_number(x: Any) -> float | None:
-    """Get a cell value as a number for `sub_small_vals()` / `sub_large_vals()`, or `None`.
+    """Get a cell value as a number for `sub_zero()`, `sub_small_vals()` and `sub_large_vals()`,
+    or `None`.
 
     Real numbers (including NumPy scalars, e.g., from a pandas column) and `Decimal` values (e.g.,
     from a polars `Decimal` column) are numbers. Booleans aren't, whether Python `bool` (polars,

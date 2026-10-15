@@ -5154,6 +5154,48 @@ def test_fmt_percent_min_sep_threshold_from_locale():
 @pytest.mark.parametrize(
     "fmt,kwargs,values,expected",
     [
+        ("fmt_partsper", {}, [1.8364, 18.364], ["1836,40‰", "18.364,00‰"]),
+        ("fmt_fraction", {}, [1836.25, 18364.25], ["1836 1/4", "18.364 1/4"]),
+        ("fmt_number_si", {"decimals": 1}, [1.8364e33, 1.8364e34], ["1836,4 Q", "18.364,0 Q"]),
+        (
+            "fmt_duration",
+            {"input_units": "days", "output_units": "days"},
+            [1836, 18364],
+            ["1836d", "18.364d"],
+        ),
+        (
+            "fmt_duration",
+            {"input_units": "days", "duration_style": "colon-sep"},
+            [1836.5, 18364.5],
+            ["1836/12:00:00", "18.364/12:00:00"],
+        ),
+    ],
+)
+def test_fmt_other_formatters_min_sep_threshold_from_locale(
+    fmt: str, kwargs: dict[str, Any], values: list[float], expected: list[str]
+):
+    # As with `fmt_number()`, a minimum grouping digits value of 2 ("es") leaves four-digit
+    # numbers ungrouped
+    df = pd.DataFrame({"x": values})
+    gt = getattr(GT(df), fmt)(columns="x", locale="es", **kwargs)
+
+    assert _get_column_of_values(gt, column_name="x", context="html") == expected
+
+
+def test_format_whole_number_and_duration_number_min_sep_threshold():
+    from great_tables._formats import _format_number_for_duration, _format_whole_number
+
+    assert _format_whole_number(1836, True, ",") == "1,836"
+    assert _format_whole_number(1836, True, ",", min_sep_threshold=2) == "1836"
+    assert _format_whole_number(18364, True, ",", min_sep_threshold=2) == "18,364"
+    assert _format_number_for_duration(1836, ",") == "1,836"
+    assert _format_number_for_duration(1836, ",", min_sep_threshold=2) == "1836"
+    assert _format_number_for_duration(18364, ",", min_sep_threshold=2) == "18,364"
+
+
+@pytest.mark.parametrize(
+    "fmt,kwargs,values,expected",
+    [
         ("fmt_integer", {}, [999, 1000, 9999, 10000], ["999", "1000", "9999", "10,000"]),
         (
             "fmt_percent",
