@@ -134,7 +134,7 @@ positioned_latex = gt_tbl.as_latex(tbl_pos="!h")
 
 :::{.callout-note}
 LaTeX output is still experimental. Not all table features (such as certain styling options) are
-fully supported in the LaTeX renderer.
+fully supported in the LaTeX renderer; the *Limitations* section of `~~GT.as_latex()` lists them.
 :::
 
 The LaTeX fragment relies on a few LaTeX packages, so load them in your document's preamble:
