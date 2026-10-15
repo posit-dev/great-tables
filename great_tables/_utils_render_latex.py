@@ -153,8 +153,25 @@ def _latex_indent_step(css_length: str) -> tuple[float, str]:
     return convert_to_pt(length), "pt"
 
 
+def _protect_leading_bracket(text: str) -> str:
+    """Keep text that starts with `[` from being read as an optional argument.
+
+    A row starts after `\\\\` (or `\\toprule`), which takes an optional argument in brackets and
+    looks for it past spaces and a line break, so a row starting with `[1]` fails to compile. An
+    empty group in front of the bracket ends that search without adding anything to the output.
+    """
+
+    return "{}" + text if text.lstrip().startswith("[") else text
+
+
+def _latex_row(cells: list[str]) -> str:
+    """Join the cells of a row (without the line ending), protecting a leading `[`."""
+
+    return _protect_leading_bracket(" & ".join(cells))
+
+
 def latex_heading_row(content: list[str]) -> str:
-    return "".join([" & ".join(content) + " \\\\ \n", "\\midrule\\addlinespace[2.5pt]"])
+    return "".join([_latex_row(content) + " \\\\ \n", "\\midrule\\addlinespace[2.5pt]"])
 
 
 def _get_stub_layout_l(data: GTData) -> list[str]:
@@ -465,7 +482,7 @@ def create_columns_component_l(data: GTData, stub_layout: list[str] | None = Non
 
                 span_accumulator += span
 
-            spanner_labs_row = " & ".join(spanner_labs) + " \\\\ \n"
+            spanner_labs_row = _latex_row(spanner_labs) + " \\\\ \n"
             spanner_lines_row = " ".join(spanner_lines) + "\n"
 
             col_spanners_i = spanner_labs_row + spanner_lines_row
@@ -654,7 +671,7 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
             body_cells.append(cell_str)
 
         # Join cells with ampersand and terminate with a double backslash
-        body_row_str = " & ".join(body_cells) + " \\\\"
+        body_row_str = _latex_row(body_cells) + " \\\\"
 
         body_rows.append(body_row_str)
 
@@ -738,7 +755,7 @@ def _create_summary_row_l(
         else:
             cells.append(_latex_escape(str(summary_row.values.get(colinfo.var, ""))))
 
-    return " & ".join(cells) + " \\\\"
+    return _latex_row(cells) + " \\\\"
 
 
 def create_footer_component_l(data: GTData) -> str:
@@ -766,7 +783,9 @@ def create_footer_component_l(data: GTData) -> str:
         return ""
 
     # Ensure that the source notes are processed for LaTeX
-    source_notes = [_process_text(x, context="latex") for x in source_notes]
+    source_notes = [
+        _protect_leading_bracket(_process_text(x, context="latex")) for x in source_notes
+    ]
 
     # Create a formatted source notes string
     source_notes = "\\\\\n".join(source_notes) + "\\\\"
