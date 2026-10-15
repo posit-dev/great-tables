@@ -367,7 +367,7 @@ def test_data_color_alpha_gradient_palette():
     new_gt = GT(df).data_color(columns="x", palette=["#FF0000", "#0000FF"], alpha=0.5)
 
     colors = [get_first_style(s, style.fill).color.lower() for s in new_gt._styles]
-    assert colors == ["#ff00007f", "#8000807f", "#0000ff7f"]
+    assert colors == ["#ff00007f", "#ca00887f", "#0000ff7f"]
 
 
 def test_data_color_alpha_factor_palette():
@@ -394,7 +394,7 @@ def test_data_color_midpoint_symmetric_domain(frame):
     new_gt = GT(df).data_color(columns="x", palette=["red", "white", "green"], midpoint=0)
 
     colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
-    assert colors == ["#ffcccc", "#ffffff", "#008000", "#808080"]
+    assert colors == ["#ffd9cb", "#ffffff", "#008000", "#808080"]
 
 
 def test_data_color_midpoint_with_domain_is_piecewise():
@@ -605,7 +605,7 @@ def test_data_color_ordered_categorical_uses_levels(x: Any):
     frame = pd.DataFrame if isinstance(x, pd.Categorical) else pl.DataFrame
     new_gt = GT(frame({"x": x})).data_color(columns="x", palette=["red", "blue"])
 
-    assert get_fill_colors(new_gt) == ["#0000ff", "#ff0000", "#800080"]
+    assert get_fill_colors(new_gt) == ["#0000ff", "#ff0000", "#ca0088"]
 
 
 def test_data_color_unordered_categorical_uses_appearance_order():
@@ -613,7 +613,7 @@ def test_data_color_unordered_categorical_uses_appearance_order():
     x = pd.Categorical(["high", "low", "mid"], categories=["low", "mid", "high"])
     new_gt = GT(pd.DataFrame({"x": x})).data_color(columns="x", palette=["red", "blue"])
 
-    assert get_fill_colors(new_gt) == ["#ff0000", "#800080", "#0000ff"]
+    assert get_fill_colors(new_gt) == ["#ff0000", "#ca0088", "#0000ff"]
 
 
 def test_data_color_enum_unused_levels_and_rows():
@@ -636,7 +636,7 @@ def test_data_color_enum_explicit_domain_takes_precedence():
     )
     new_gt = GT(df).data_color(columns="x", palette=["red", "blue"], domain=["mid", "high", "low"])
 
-    assert get_fill_colors(new_gt) == ["#800080", "#0000ff", "#ff0000"]
+    assert get_fill_colors(new_gt) == ["#ca0088", "#0000ff", "#ff0000"]
 
 
 @pytest.mark.parametrize("frame", params_frames)
@@ -645,7 +645,7 @@ def test_data_color_decimal_values(frame):
     df = frame({"x": [Decimal("0"), Decimal("5"), None, Decimal("10")]})
     new_gt = GT(df).data_color(columns="x", palette=["red", "blue"])
 
-    assert get_fill_colors(new_gt) == ["#ff0000", "#800080", "#808080", "#0000ff"]
+    assert get_fill_colors(new_gt) == ["#ff0000", "#ca0088", "#808080", "#0000ff"]
 
 
 def test_data_color_decimal_values_with_domain():
@@ -653,7 +653,7 @@ def test_data_color_decimal_values_with_domain():
     df = pd.DataFrame({"x": [Decimal("0"), Decimal("5")]})
     new_gt = GT(df).data_color(columns="x", palette=["red", "blue"], domain=[0, 10])
 
-    assert get_fill_colors(new_gt) == ["#ff0000", "#800080"]
+    assert get_fill_colors(new_gt) == ["#ff0000", "#ca0088"]
 
 
 def test_data_color_fn_receives_decimal_values():
@@ -675,7 +675,7 @@ def test_data_color_infinite_values_inferred_domain(frame):
     df = frame({"x": [-np.inf, 1.0, 2.0, 3.0, np.inf]})
     new_gt = GT(df).data_color(columns="x", palette=["red", "blue"])
 
-    assert get_fill_colors(new_gt) == ["#ff0000", "#ff0000", "#800080", "#0000ff", "#0000ff"]
+    assert get_fill_colors(new_gt) == ["#ff0000", "#ff0000", "#ca0088", "#0000ff", "#0000ff"]
 
 
 @pytest.mark.parametrize(
@@ -700,7 +700,7 @@ def test_data_color_infinite_values_explicit_domain(truncate: bool, expected: st
         columns="x", palette=["red", "blue"], domain=[0, 2], truncate=truncate
     )
 
-    assert get_fill_colors(new_gt) == ["#800080", expected]
+    assert get_fill_colors(new_gt) == ["#ca0088", expected]
 
 
 def get_fill_colors_by_cell(gt: GT) -> dict[tuple[str, int], str]:
@@ -715,10 +715,10 @@ def test_data_color_direction_row(frame):
 
     assert get_fill_colors_by_cell(new_gt) == {
         ("a", 0): "#ff0000",
-        ("b", 0): "#800080",
+        ("b", 0): "#ca0088",
         ("c", 0): "#0000ff",
         ("a", 1): "#ff0000",
-        ("b", 1): "#800080",
+        ("b", 1): "#ca0088",
         ("c", 1): "#0000ff",
         ("a", 2): "#ff0000",
         ("b", 2): "#808080",
@@ -765,7 +765,7 @@ def test_data_color_direction_row_strings():
         ("b", 0): "#0000ff",
         ("c", 0): "#ff0000",
         ("a", 1): "#ff0000",
-        ("b", 1): "#800080",
+        ("b", 1): "#ca0088",
         ("c", 1): "#0000ff",
     }
 
