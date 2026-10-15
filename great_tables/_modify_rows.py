@@ -443,7 +443,7 @@ def summary_rows(
 
         # Calculate summary for each function
         for label, fn in fns.items():
-            row_values_dict = _calculate_summary_row_from_subset(
+            row_values_dict, row_values_latex = _calculate_summary_row_from_subset(
                 group_df, fn, fmt, self._boxhead._get_columns(), missing_text
             )
 
@@ -452,6 +452,7 @@ def summary_rows(
                 label=label,
                 values=row_values_dict,
                 side=side,
+                values_latex=row_values_latex,
             )
 
             new_summary = new_summary.add_summary_row(
@@ -467,27 +468,61 @@ def _calculate_summary_row_from_subset(
     fmt: FormatFn | None,
     original_columns: list[str],
     missing_text: str,
-) -> dict[str, Any]:
-    """Calculate a summary row from a subset of data (for group summaries)."""
-    summary_row = {}
+) -> tuple[dict[str, Any], dict[str, str]]:
+    """Calculate a summary row from a subset of data (for group summaries).
+
+    Returns the values formatted for HTML and for LaTeX output.
+    """
 
     # Use eval_aggregate to apply the function/expression to the group subset
     result_df = eval_aggregate(group_df, fn)
 
-    # Extract results for each column
-    for col in original_columns:
+    return _format_summary_values(result_df, fmt, original_columns, missing_text)
+
+
+def _format_summary_values(
+    result_df: Any, fmt: FormatFn | None, columns: list[str], missing_text: str
+) -> tuple[dict[str, Any], dict[str, str]]:
+    """Format the aggregated values of a summary row for HTML and for LaTeX output."""
+
+    from ._text import _latex_escape
+
+    summary_row: dict[str, Any] = {}
+    summary_row_latex: dict[str, str] = {}
+
+    for col in columns:
         if col in result_df:
             res = result_df[col]
-
-            if fmt is not None:
-                formatted = fmt([res])
-                res = formatted[0]
-
-            summary_row[col] = res
+            summary_row[col] = fmt([res])[0] if fmt is not None else res
+            summary_row_latex[col] = _summary_value_latex(res, fmt)
         else:
             summary_row[col] = missing_text
+            summary_row_latex[col] = _latex_escape(missing_text)
 
-    return summary_row
+    return summary_row, summary_row_latex
+
+
+def _summary_value_latex(res: Any, fmt: FormatFn | None) -> str:
+    """Format a summary value for LaTeX output.
+
+    A `vals.fmt_*()` formatter is run for LaTeX (so that, e.g., `%` is escaped and a minus sign is
+    `-`); the output of any other formatter, or an unformatted value, is escaped as plain text.
+    """
+
+    from ._formats_vals import _VALS_CONTEXT, _is_vals_formatter
+    from ._text import _latex_escape
+
+    if fmt is None:
+        return _latex_escape(str(res))
+
+    if _is_vals_formatter(fmt):
+        token = _VALS_CONTEXT.set("latex")
+        try:
+            return str(fmt([res])[0])
+        finally:
+            _VALS_CONTEXT.reset(token)
+
+    return _latex_escape(str(fmt([res])[0]))
 
 
 def grand_summary_rows(
@@ -618,13 +653,14 @@ def grand_summary_rows(
 
     new_summary = self._summary_rows_grand
     for label, fn in fns.items():
-        row_values_dict = _calculate_summary_row(self, fn, fmt, missing_text)
+        row_values_dict, row_values_latex = _calculate_summary_row(self, fn, fmt, missing_text)
 
         summary_row_info = SummaryRowInfo(
             id=label,
             label=label,
             values=row_values_dict,
             side=side,
+            values_latex=row_values_latex,
         )
 
         new_summary = new_summary.add_summary_row(summary_row_info)
@@ -638,28 +674,17 @@ def _calculate_summary_row(
     fmt: FormatFn | None,
     # summary_col_names: list[str],
     missing_text: str,
-) -> dict[str, Any]:
-    """Calculate a summary row using eval_transform."""
+) -> tuple[dict[str, Any], dict[str, str]]:
+    """Calculate a summary row using eval_transform.
+
+    Returns the values formatted for HTML and for LaTeX output.
+    """
     original_columns = data._boxhead._get_columns()
-    summary_row = {}
 
     # Use eval_aggregate to apply the function/expression to the data
     result_df = eval_aggregate(data._tbl_data, fn)
 
-    # Extract results for each column
-    for col in original_columns:
-        if col in result_df:
-            res = result_df[col]
-
-            if fmt is not None:
-                formatted = fmt([res])
-                res = formatted[0]
-
-            summary_row[col] = res
-        else:
-            summary_row[col] = missing_text
-
-    return summary_row
+    return _format_summary_values(result_df, fmt, original_columns, missing_text)
 
 
 # TODO: delegate to group by agg instead (group_by for summary row case)
