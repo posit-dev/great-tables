@@ -10467,6 +10467,20 @@ Returns
 str
     A LaTeX fragment that contains the table.
 
+LaTeX packages
+--------------
+The LaTeX fragment uses commands from these packages, which need to be loaded in the
+document's preamble:
+
+- `booktabs` (always)
+- `longtable`, with `use_longtable=True`
+- `hyperref`, if the table has links from `fmt_url()` or `fmt_email()`
+- `anyfontsize` (optional), so that a `table_font_size=` set with `tab_options()` is used at
+  exactly that size rather than the nearest available one
+
+For example, `\usepackage{booktabs}` and `\usepackage{longtable}`. Some currency symbols (e.g.,
+`"₹"` for `"INR"`) need XeLaTeX or LuaLaTeX rather than pdfLaTeX (see `fmt_currency()`).
+
 Limitations
 -----------
 The `as_latex()` method is still experimental and has some limitations. The following
@@ -18064,6 +18078,18 @@ positioned_latex = gt_tbl.as_latex(tbl_pos="!h")
 LaTeX output is still experimental. Not all table features (such as certain styling options) are
 fully supported in the LaTeX renderer.
 :::
+
+The LaTeX fragment relies on a few LaTeX packages, so load them in your document's preamble:
+`booktabs` is always needed, `longtable` is needed with `use_longtable=True`, and `hyperref` is
+needed for links from `~~GT.fmt_url()` or `~~GT.fmt_email()`. Adding `anyfontsize` lets a font size
+set with `~~GT.tab_options()` be used exactly:
+
+```latex
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{anyfontsize}
+```
 
 LaTeX output is the bridge between Great Tables and the world of academic publishing and
 typesetting. If you are writing papers in LaTeX or producing PDF reports via Quarto, this method
