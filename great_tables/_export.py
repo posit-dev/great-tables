@@ -322,7 +322,6 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
     - the `fmt_nanoplot()` method, which raises an error
     - the `fmt_image()`, `fmt_flag()`, and `fmt_icon()` methods, which issue a warning and leave
       the cell values unformatted
-    - the `fmt_chem()` method, whose output is HTML
     - styles, whether set with the `tab_style()` or `data_color()` methods (a warning is issued
       and the table is rendered without them)
     - most options in the `tab_options()` method, particularly those that are specific to styling
