@@ -37,3 +37,14 @@ def test_get_web_driver_raise():
     with pytest.raises(ValueError) as exc_info:
         _get_web_driver(fake_web_driver)
         assert exc_info.value.args[0] == f"Unsupported web driver: {fake_web_driver}"
+
+
+def test_chrome_web_driver_arguments():
+    driver = object.__new__(_ChromeWebDriver)
+    driver.debug_port = None
+    driver.wd_options = driver.cls_wd_options()
+    driver.add_arguments()
+
+    assert "--headless=new" in driver.wd_options.arguments
+    assert "--no-sandbox" in driver.wd_options.arguments
+    assert "--disable-dev-shm-usage" in driver.wd_options.arguments
