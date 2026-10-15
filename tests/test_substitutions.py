@@ -1,3 +1,4 @@
+from decimal import Decimal
 from math import nan
 
 import numpy as np
@@ -63,6 +64,17 @@ def test_sub_zero_el(df_empty: DataFrameLike, el):
 
 def test_sub_zero_el_skip(df_empty: DataFrameLike):
     assert isinstance(SubZero(df_empty, "--").to_html(1), FormatterSkipElement)
+
+
+@pytest.mark.parametrize("el", [False, np.bool_(False), "0"])
+def test_sub_zero_el_skip_non_numeric(df_empty: DataFrameLike, el):
+    # `False == 0` is true in Python, but only numeric values are replaced (as in R gt)
+    assert isinstance(SubZero(df_empty, "--").to_html(el), FormatterSkipElement)
+
+
+@pytest.mark.parametrize("el", [np.int64(0), np.float32(0), Decimal("0"), Decimal("0.00")])
+def test_sub_zero_el_numeric_scalars(df_empty: DataFrameLike, el):
+    assert SubZero(df_empty, "--").to_html(el) == "--"
 
 
 def test_sub_zero_meth(df):
@@ -706,6 +718,31 @@ def test_sub_small_large_vals_skip_booleans(frame):
         .sub_large_vals(columns="x", threshold=1)
     )
     assert _get_column_of_values(gt, column_name="x", context="html") == ["True", "False"]
+
+
+@pytest.mark.filterwarnings("ignore:PyArrow Table support is currently experimental")
+@pytest.mark.parametrize(
+    "frame",
+    [
+        lambda: pl.DataFrame({"b": [True, False, None], "n": [1, 0, None]}),
+        lambda: pd.DataFrame({"b": [True, False, False], "n": [1, 0, 2]}),
+        lambda: pd.DataFrame(
+            {
+                "b": pd.Series([True, False, None], dtype="boolean"),
+                "n": pd.Series([1, 0, None], dtype="Int64"),
+            }
+        ),
+        lambda: pa.table({"b": [True, False, None], "n": [1, 0, None]}),
+    ],
+)
+def test_sub_zero_skips_booleans(frame):
+    # With no `columns=`, `sub_zero()` targets every column; only the numeric zero is replaced
+    from great_tables.gt import _get_column_of_values
+
+    gt = GT(frame()).sub_zero()
+
+    assert _get_column_of_values(gt, column_name="b", context="html")[:2] == ["True", "False"]
+    assert _get_column_of_values(gt, column_name="n", context="html")[:2] == ["1", "nil"]
 
 
 @pytest.mark.parametrize(
