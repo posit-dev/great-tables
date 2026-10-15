@@ -2812,3 +2812,23 @@ def test_nanoplot_spec_segments_split_at_missing_values():
     )
 
     assert spec.segments == [slice(0, 1), slice(2, 4), slice(6, 7)]
+
+
+@pytest.mark.parametrize(
+    "y_vals,plot_type,x_out",
+    [
+        ([12, 30, 47, 20, 30], "line", "Line plot of 5 values from 12.0 to 47.0, ending at 30.0"),
+        (
+            [1, None, 3],
+            "bar",
+            "Bar plot of 2 values from 1.00 to 3.00, ending at 3.00, with 1 missing",
+        ),
+        ([5], "line", "Line plot of 1 value: 5.00"),
+        ([None], "line", "Line plot with no values"),
+        (4.1, "bar", "Bar of 4.10"),
+    ],
+)
+def test_nanoplot_summary(y_vals, plot_type: str, x_out: str):
+    from great_tables._utils_nanoplots import _nanoplot_summary
+
+    assert _nanoplot_summary(y_vals, plot_type) == x_out

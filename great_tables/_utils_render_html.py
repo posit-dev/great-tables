@@ -136,6 +136,24 @@ def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     return None
 
 
+def _make_svg_ids_unique(html_str: str, prefix: str) -> str:
+    """Prefix the ids defined in each SVG of `html_str`, and the references to them."""
+
+    prefix = _sanitize_id(prefix)
+
+    def rewrite_svg(match: re.Match[str]) -> str:
+        svg = match.group(0)
+        for svg_id in set(re.findall(r'\bid="([^"]+)"', svg)):
+            new_id = f"{prefix}-{svg_id}"
+            escaped = re.escape(svg_id)
+            svg = re.sub(rf'\bid="{escaped}"', f'id="{new_id}"', svg)
+            svg = re.sub(rf"url\(#{escaped}\)", f"url(#{new_id})", svg)
+            svg = re.sub(rf'(href=)"#{escaped}"', rf'\1"#{new_id}"', svg)
+        return svg
+
+    return re.sub(r"<svg\b.*?</svg>", rewrite_svg, html_str, flags=re.S)
+
+
 def _sanitize_id(text: str) -> str:
     """Turn label text (which may be HTML) into a valid id: no markup, spaces or punctuation."""
     text = html_lib.unescape(re.sub(r"<[^>]+>", "", text))
@@ -1442,6 +1460,13 @@ def _create_row_component_h(
 
         classes_str = " ".join(classes)
         cell_styles = _flatten_styles(_body_styles + _rowname_styles, wrap=True)
+
+        # Ids inside an SVG in the cell (e.g., a flag's clip path or a nanoplot's fill pattern) are
+        # made unique to the cell, so that cells with the same SVG don't repeat an id and a
+        # reference can't resolve to another cell's definition
+        if "<svg" in cell_str and " id=" in cell_str:
+            prefix = header_ids.registry.prefix if header_ids is not None else ""
+            cell_str = _make_svg_ids_unique(cell_str, prefix=f"{prefix}{colinfo.var}-{row_index}")
 
         # Cells of a hierarchical stub may span rows (or be covered by a span from above)
         span_attr = ""

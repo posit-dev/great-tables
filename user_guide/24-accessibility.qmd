@@ -104,16 +104,36 @@ from great_tables import style, loc
 
 ## Images, icons, flags and nanoplots
 
-Some cell contents are graphics, and these don't yet carry text alternatives:
+Some cell contents are graphics, which screen readers can't see, so they need a text alternative:
 
-- images from `~~GT.fmt_image()` have no alternative text (`alt`)
-- nanoplots from `~~GT.fmt_nanoplot()` have no accessible name or description
-- icons from `~~GT.fmt_icon()` and flags from `~~GT.fmt_flag()` are hidden from assistive
-  technology, so they're treated as decoration
+- images from `~~GT.fmt_image()` are decorative (an empty `alt=""`) unless you give them
+  alternative text with `alt=`, as a string (with `{x}` for each image's reference in the cell) or
+  from a column with `~~from_column()`
+- nanoplots from `~~GT.fmt_nanoplot()` are described by a summary of their values (e.g., "Line
+  plot of 8 values from 12.0 to 47.0, ending at 30.0"); use `alt=` to replace or extend it (`{x}`
+  is the summary)
+- flags from `~~GT.fmt_flag()` are named after their country (with the default `use_title=True`)
+- icons from `~~GT.fmt_icon()` are treated as decoration and hidden from assistive technology
 
-Until they do, make sure the information they show is also in the table as text. Keep the country
-name beside a flag, a label beside an icon, and the values (or a summary like the latest value)
-beside a nanoplot.
+Give images alternative text whenever they carry information, and keep a label beside any icon
+that means something, since the icon itself isn't announced.
+
+```{python}
+from great_tables import from_column
+
+flags_df = pl.DataFrame(
+    {
+        "flag": ["CA", "GB", "JP"],
+        "trend": ["3,5,4,8,9", "6,5,5,4,3", "2,3,3,4,6"],
+    }
+)
+
+(
+    GT(flags_df)
+    .fmt_flag(columns="flag")
+    .fmt_nanoplot(columns="trend", alt="Trend: {x}")
+)
+```
 
 ## Other kinds of output
 
@@ -130,4 +150,4 @@ image's alternative text or in the text around it.
 - Use clear column labels and spanners, since they're read aloud with every cell
 - Don't rely on color alone, and keep `autocolor_text=True` with `~~GT.data_color()`
 - Give tables an id (`GT(id=)`) when a page has more than one
-- Pair images, icons, flags and nanoplots with text that carries the same information
+- Give informative images alternative text (`fmt_image(alt=)`), and pair icons with a text label
