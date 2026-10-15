@@ -5147,8 +5147,7 @@ Substitute zero values in the table body.
 
 Wherever there is numerical data that are zero in value, replacement text may be better for
 explanatory purposes. The `sub_zero()` function allows for this replacement through its
-`zero_text=` argument. Only numeric values are replaced, so `False` in a boolean column is left
-as is.
+`zero_text=` argument.
 
 Parameters
 ----------
