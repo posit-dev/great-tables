@@ -6,7 +6,7 @@ from typing import Callable, TYPE_CHECKING, Literal
 
 from ._locations import LocBody, LocColumnLabels, resolve_cols_c
 from ._styles import CellStyleCss
-from ._tbl_data import SelectExpr
+from ._tbl_data import SelectExpr, _is_numeric_dtype
 from ._text import BaseText
 from ._utils import _assert_list_is_subset
 
@@ -359,7 +359,6 @@ def cols_align_decimal(
     """
     from ._formats import _get_locale_dec_mark, _resolve_locale
     from ._gt_data import TextTransformInfo
-    from ._ihtml import _is_numeric_dtype
 
     locale = _resolve_locale(self, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)

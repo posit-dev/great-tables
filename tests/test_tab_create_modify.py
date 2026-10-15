@@ -681,8 +681,9 @@ def test_text_case_when_first_match_wins():
 def test_text_case_match_with_default_no_match():
     # `return default` when no match is found but default is set
     df = pd.DataFrame({"x": ["cat", "dog"]})
+    # A fixed id, since a random one can contain "cat" or "dog"
     html = (
-        GT(df)
+        GT(df, id="test")
         .text_case_match(
             ("bird", "BIRD"),
             default="OTHER",

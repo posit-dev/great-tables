@@ -7,7 +7,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ._locations import LocBody, LocColumnLabels
-from ._tbl_data import _get_cell, _get_column_dtype, cast_frame_to_string, replace_null_frame
+from ._tbl_data import (
+    _get_cell,
+    _is_numeric_dtype,
+    cast_frame_to_string,
+    replace_null_frame,
+)
 from ._text import _process_text
 from ._utils import heading_has_subtitle, heading_has_title
 
@@ -256,19 +261,6 @@ def _escape_nonascii(s: str) -> str:
     regardless of their declared charset.
     """
     return s.encode("ascii", "xmlcharrefreplace").decode("ascii")
-
-
-def _is_numeric_dtype(data, column: str) -> bool:
-    """Check whether a column in the original data has a numeric dtype."""
-    try:
-        dtype = _get_column_dtype(data, column)
-    except Exception:
-        return False
-    dtype_str = str(dtype).lower()
-    for token in ("int", "float", "decimal", "double", "numeric", "number"):
-        if token in dtype_str:
-            return True
-    return False
 
 
 def _col_label(col: ColInfo) -> str:
