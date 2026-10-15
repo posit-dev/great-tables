@@ -1607,8 +1607,7 @@ def opt_stylize(
     that each use a range of five color tints. Each of the color tints have been fine-tuned to
     maximize the contrast between text and its background. There are 36 combinations of `style` and
     `color` to choose from. For examples of each style, see the
-    [*Premade Themes*](../get-started/table-theme-premade.qmd) section of the **Get Started**
-    guide.
+    [*Premade Themes*](../user-guide/premade-themes.qmd) page of the **User Guide**.
 
     Parameters
     ----------
