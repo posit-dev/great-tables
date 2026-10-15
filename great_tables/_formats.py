@@ -4716,7 +4716,9 @@ def fmt_duration(
     if duration_style == "iso":
         resolved_output_units = ["days", "hours", "minutes", "seconds"]
         max_output_units = None
-        trim_zero_units = ["leading", "trailing"]
+        # Zero-valued units are left out everywhere, giving the minimal form (`P7DT1M1S` rather
+        # than R gt's `P7DT0H1M1S`); a zero duration keeps its smallest unit (`PT0S`)
+        trim_zero_units = ["leading", "trailing", "internal"]
 
     # Resolve trim_zero_units to a list of keywords
     if isinstance(trim_zero_units, bool):
@@ -4874,9 +4876,17 @@ def fmt_duration_context(
     if context == "latex":
         x_formatted = _latex_escape(x_formatted)
 
-    # Apply sign
+    # A duration shown as zero in the colon and ISO styles (e.g., `00:00:00` for `-0.4` seconds)
+    # gets no sign, as with numbers that round to zero; the narrow and wide styles show such a
+    # duration as `<1s`, which keeps its sign
+    if duration_style in ("colon-sep", "iso") and all(value == 0 for _, value in time_parts):
+        is_negative = False
+        x_seconds_abs = 0
+
+    # Apply sign; the ISO style is machine-readable, so it always uses an ASCII hyphen (ISO 8601
+    # parsers don't accept a typographic minus)
     if is_negative:
-        minus_mark = _context_minus_mark(context=context)
+        minus_mark = "-" if duration_style == "iso" else _context_minus_mark(context=context)
         x_formatted = minus_mark + x_formatted
 
     if force_sign and not is_negative and x_seconds_abs > 0:
