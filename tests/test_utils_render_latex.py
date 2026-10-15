@@ -983,3 +983,52 @@ def test_summary_rows_group_as_column_latex(side: str, x_out: list[str]):
     rows = [line for line in gt.as_latex().splitlines() if line.endswith("\\\\") and "&" in line]
 
     assert rows == x_out
+
+
+@pytest.mark.parametrize(
+    "text, x_out",
+    [
+        ("[1] note", "{}[1] note"),
+        (" [1]", "{} [1]"),
+        ("note [1]", "note [1]"),
+        ("", ""),
+    ],
+)
+def test_protect_leading_bracket(text: str, x_out: str):
+    from great_tables._utils_render_latex import _protect_leading_bracket
+
+    assert _protect_leading_bracket(text) == x_out
+
+
+@pytest.mark.parametrize("use_longtable", [False, True])
+def test_rows_starting_with_bracket_are_protected(use_longtable: bool):
+    # `\\` and `\toprule` take an optional `[...]` argument (looked for past the line break), so
+    # every kind of row that can start with `[` gets an empty group first
+    df = pl.DataFrame(
+        {
+            "g": ["[G1]", "[G1]", "[G2]"],
+            "r": ["[r1]", "[r2]", "[r3]"],
+            "a": ["[1] x", "[2] y", "[3] z"],
+        }
+    )
+    gt = (
+        GT(df, rowname_col="r", groupname_col="g")
+        .tab_stubhead("[stub]")
+        .tab_spanner("[S]", columns="a")
+        .summary_rows(fns={"[Total]": pl.len()})
+        .grand_summary_rows(fns={"[All]": pl.len()})
+        .tab_source_note("[1] first")
+        .tab_source_note("[2] second")
+    )
+    lines = gt.as_latex(use_longtable=use_longtable).splitlines()
+
+    assert not [line for line in lines if line.lstrip().startswith("[")]
+    for row_start in [
+        "{}[stub]",
+        "{}[r1]",
+        "{}[r3]",
+        "{}[Total]",
+        "{}[All]",
+        "{}[2] second",
+    ]:
+        assert any(line.lstrip().startswith(row_start) for line in lines), row_start
