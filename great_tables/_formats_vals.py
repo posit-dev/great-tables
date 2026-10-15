@@ -1319,7 +1319,8 @@ def val_fmt_chem(
 
     With string values in a list, we can transform chemical formula notation into properly typeset
     HTML with subscripted numbers, superscripted charges, reaction arrows, and more. The input text
-    should conform to the chemistry notation described in `fmt_chem()`.
+    should conform to the chemistry notation described in
+    [`fmt_chem()`](`great_tables.GT.fmt_chem`).
 
     Parameters
     ----------
@@ -1924,7 +1925,8 @@ def val_fmt_markdown(
     """
     Format Markdown text.
 
-    Any Markdown-formatted text can be transformed to HTML when using the `fmt_markdown()` function.
+    Any Markdown-formatted text can be transformed to HTML when using the
+    [`fmt_markdown()`](`great_tables.vals.fmt_markdown`) function.
 
     Parameters
     ----------
@@ -1983,15 +1985,16 @@ def val_fmt_image(
 ) -> list[str]:
     """Format image paths to generate images in cells.
 
-    To more easily insert graphics into body cells, we can use the `fmt_image()` method. This allows
-    for one or more images to be placed in the targeted cells. The cells need to contain some
-    reference to an image file, either: (1) complete http/https or local paths to the files; (2) the
-    file names, where a common path can be provided via `path=`; or (3) a fragment of the file name,
-    where the `file_pattern=` argument helps to compose the entire file name and `path=` provides
-    the path information. This should be expressly used on columns that contain *only* references to
-    image files (i.e., no image references as part of a larger block of text). Multiple images can
-    be included per cell by separating image references by commas. The `sep=` argument allows for a
-    common separator to be applied between images.
+    To more easily insert graphics into body cells, we can use the
+    [`fmt_image()`](`great_tables.GT.fmt_image`) method. This allows for one or more images to be
+    placed in the targeted cells. The cells need to contain some reference to an image file, either:
+    (1) complete http/https or local paths to the files; (2) the file names, where a common path can
+    be provided via `path=`; or (3) a fragment of the file name, where the `file_pattern=` argument
+    helps to compose the entire file name and `path=` provides the path information. This should be
+    expressly used on columns that contain *only* references to image files (i.e., no image
+    references as part of a larger block of text). Multiple images can be included per cell by
+    separating image references by commas. The `sep=` argument allows for a common separator to be
+    applied between images.
 
     Parameters
     ----------

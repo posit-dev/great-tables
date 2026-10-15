@@ -5,17 +5,17 @@ html-table-processing: none
 guide-section: Formatting Data
 ---
 
-The [Formatting Values](./07-formatting-values.qmd) page introduced the basics of `fmt_number()`,
-`fmt_currency()`, `fmt_date()`, and `fmt_time()`. But **Great Tables** has a much larger formatting
-toolkit. This page covers additional formatters that handle percentages, byte sizes, durations,
-scientific units, icons, flags, images, boolean values, Markdown, and more. Each formatter
-transforms raw cell data into presentation-ready content.
+The [Formatting Values](./07-formatting-values.qmd) page introduced the basics of
+`~~GT.fmt_number()`, `~~GT.fmt_currency()`, `~~GT.fmt_date()`, and `~~GT.fmt_time()`. But **Great
+Tables** has a much larger formatting toolkit. This page covers additional formatters that handle
+percentages, byte sizes, durations, scientific units, icons, flags, images, boolean values,
+Markdown, and more. Each formatter transforms raw cell data into presentation-ready content.
 
 When choosing a formatter, start with the semantic meaning of your data. If a column represents a
-file size, reach for `fmt_bytes()` rather than `fmt_number()` with manual suffix logic. If a column
-holds time durations, use `fmt_duration()` instead of formatting seconds by hand. Semantic
-formatters produce more consistent output and handle edge cases (like unit boundaries and scaling)
-automatically, so you get correct results without writing extra logic.
+file size, reach for `~~GT.fmt_bytes()` rather than `~~GT.fmt_number()` with manual suffix logic. If
+a column holds time durations, use `~~GT.fmt_duration()` instead of formatting seconds by hand.
+Semantic formatters produce more consistent output and handle edge cases (like unit boundaries and
+scaling) automatically, so you get correct results without writing extra logic.
 
 ## Percentage Formatting
 

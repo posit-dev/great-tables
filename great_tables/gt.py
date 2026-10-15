@@ -362,12 +362,13 @@ class GT(
 
     However which way you generate the initial table object, you can modify it with a huge variety
     of methods to further customize the presentation. Formatting body cells is commonly done with
-    the family of formatting methods (e.g., `fmt_number()`, `fmt_date()`, etc.). The package
-    supports formatting with internationalization ('i18n' features) and so locale-aware methods
-    all come with a `locale=` argument. To avoid having to use that argument repeatedly, the `GT()`
-    class has its own `locale=` argument. Setting a locale in that will make it available globally.
-    Here's an example of how that works in practice when setting `locale = "fr"` in `GT()` prior to
-    using formatting methods:
+    the family of formatting methods (e.g., [`fmt_number()`](`great_tables.GT.fmt_number`),
+    [`fmt_date()`](`great_tables.GT.fmt_date`), etc.). The package supports formatting with
+    internationalization ('i18n' features) and so locale-aware methods all come with a `locale=`
+    argument. To avoid having to use that argument repeatedly, the `GT()` class has its own
+    `locale=` argument. Setting a locale in that will make it available globally. Here's an example
+    of how that works in practice when setting `locale = "fr"` in `GT()` prior to using formatting
+    methods:
 
     ```{python}
     from great_tables import GT, exibble
@@ -380,9 +381,11 @@ class GT(
     )
     ```
 
-    In this example, the `fmt_currency()`, `fmt_scientific()`, and `fmt_date()` methods understand
-    that the locale for this table is `"fr"` (French), so the appropriate formatting for that locale
-    is apparent in the `currency`, `num`, and `date` columns.
+    In this example, the [`fmt_currency()`](`great_tables.GT.fmt_currency`),
+    [`fmt_scientific()`](`great_tables.GT.fmt_scientific`), and
+    [`fmt_date()`](`great_tables.GT.fmt_date`) methods understand that the locale for this table is
+    `"fr"` (French), so the appropriate formatting for that locale is apparent in the `currency`,
+    `num`, and `date` columns.
     """
 
     def __init__(

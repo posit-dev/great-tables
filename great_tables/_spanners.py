@@ -1631,7 +1631,7 @@ def cols_merge_n_pct(
         The column that contains values for the percentage component. While column selection
         expressions can be used, it's recommended that a single column name be used to ensure that
         exactly one column is provided here. This column should be formatted such that percentages
-        are displayed (e.g., with `fmt_percent()`).
+        are displayed (e.g., with [`fmt_percent()`](`great_tables.GT.fmt_percent`)).
     rows
         In conjunction with `col_n`, we can specify which rows should participate in the merging
         process. The default is all rows. Alternatively, we can supply a row index, a list of row
@@ -1664,8 +1664,9 @@ def cols_merge_n_pct(
 
     It is the responsibility of the user to ensure that values are correct in both the `col_n` and
     `col_pct` columns (this function neither generates nor recalculates values in either).
-    Formatting of each column can be done independently in separate `fmt_number()` and
-    `fmt_percent()` calls.
+    Formatting of each column can be done independently in separate
+    [`fmt_number()`](`great_tables.GT.fmt_number`) and
+    [`fmt_percent()`](`great_tables.GT.fmt_percent`) calls.
 
     Examples
     --------

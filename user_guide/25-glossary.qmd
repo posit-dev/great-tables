@@ -33,7 +33,7 @@ Column selector
   should act on. Accepts a column name (string), a list of names, an integer index, a Polars
   selector expression (e.g., `cs.numeric()`), or a callable that takes a column name and
   returns a boolean. Column selectors are used throughout the API in methods like
-  `fmt_number()`, `cols_align()`, `tab_style()`, and many others.
+  `~~GT.fmt_number()`, `cols_align()`, `tab_style()`, and many others.
 
 Data color
 : A technique for colorizing **cell** backgrounds based on data values, providing a visual
@@ -62,9 +62,9 @@ Footnote mark
 Formatter
 : A method that transforms how raw data values are displayed in **cells** without altering the
   underlying data. All built-in formatters follow the `fmt_*()` naming convention (e.g.,
-  `fmt_number()`, `fmt_currency()`, `fmt_date()`). A general-purpose `fmt()` method accepts a
-  custom formatting function. The `vals` module provides standalone equivalents for use outside
-  a `GT` object, such as in **summary rows** definitions.
+  `~~GT.fmt_number()`, `~~GT.fmt_currency()`, `~~GT.fmt_date()`). A general-purpose `fmt()` method
+  accepts a custom formatting function. The `vals` module provides standalone equivalents for use
+  outside a `GT` object, such as in **summary rows** definitions.
 
 Grand summary rows
 : Aggregation rows that summarize the entire table's data, regardless of **row groups**.
@@ -128,7 +128,7 @@ Row selector
 : An expression passed to a `rows=` parameter to identify which rows an operation should act
   on. Accepts an integer index, a list of indices, a list of row names (when a **stub** is
   present), a Polars expression, or a callable. Row selectors are used in methods like
-  `fmt_number()`, `tab_style()`, `cols_merge()`, and others.
+  `~~GT.fmt_number()`, `tab_style()`, `cols_merge()`, and others.
 
 Source note
 : Citation or attribution text displayed in the **footer**, below any **footnotes**. Added
