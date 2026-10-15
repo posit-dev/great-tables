@@ -4387,7 +4387,7 @@ constants_mini = (
 )
 ```
 
-fmt_image(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, height: 'str | int | None' = None, width: 'str | int | None' = None, sep: 'str' = ' ', path: 'str | Path | None' = None, file_pattern: 'str' = '{}', encode: 'bool' = True) -> 'GTSelf'
+fmt_image(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, height: 'str | int | None' = None, width: 'str | int | None' = None, sep: 'str' = ' ', path: 'str | Path | None' = None, file_pattern: 'str' = '{}', encode: 'bool' = True, alt: 'str | FromColumn | None' = None) -> 'GTSelf'
 
 Format image paths to generate images in cells.
 
@@ -4428,6 +4428,13 @@ file_pattern
 encode
     The option to always use Base64 encoding for image paths that are determined to be local. By
     default, this is `True`.
+alt
+    Alternative text for the images, which screen readers announce in place of an image. This
+    can be a string, in which `{x}` is replaced by the image's reference in the cell (e.g.,
+    `"Logo of {x}"`), or [`from_column()`](`great_tables.from_column`) to take each row's text
+    from a column. By default, images get an empty `alt=""`, which marks them as decorative so
+    that screen readers skip them; provide alternative text whenever an image conveys
+    information that isn't also in the table as text.
 
 Returns
 -------
@@ -4736,7 +4743,7 @@ sp500_mini = (
 )
 ```
 
-fmt_nanoplot(self: 'GTSelf', columns: 'str | None' = None, rows: 'RowSelectExpr' = None, plot_type: 'PlotType' = 'line', plot_height: 'str' = '2em', missing_vals: 'MissingVals' = 'gap', autoscale: 'bool' = False, reference_line: 'str | float | None' = None, reference_area: 'list[Any] | None' = None, expand_x: 'list[int] | list[float] | list[int | float] | None' = None, expand_y: 'list[int] | list[float] | list[int | float] | None' = None, options: 'dict[str, Any] | None' = None) -> 'GTSelf'
+fmt_nanoplot(self: 'GTSelf', columns: 'str | None' = None, rows: 'RowSelectExpr' = None, plot_type: 'PlotType' = 'line', plot_height: 'str' = '2em', missing_vals: 'MissingVals' = 'gap', autoscale: 'bool' = False, reference_line: 'str | float | None' = None, reference_area: 'list[Any] | None' = None, expand_x: 'list[int] | list[float] | list[int | float] | None' = None, expand_y: 'list[int] | list[float] | list[int | float] | None' = None, options: 'dict[str, Any] | None' = None, alt: 'str | FromColumn | None' = None) -> 'GTSelf'
 
 Format data for nanoplot visualizations.
 
@@ -4799,6 +4806,12 @@ expand_y
 options
     By using the [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function here,
     you can alter the layout and styling of the nanoplots in the new column.
+alt
+    Alternative text for the nanoplots, which screen readers announce in place of the plot. By
+    default, each nanoplot is described by a summary of its values (e.g., `"Line plot of 8
+    values from 12.0 to 47.0, ending at 30.0"`). A string replaces that summary, with any `{x}`
+    replaced by it (e.g., `"Weekly sales: {x}"`), and
+    [`from_column()`](`great_tables.from_column`) takes each row's text from a column.
 
 Returns
 -------
@@ -18503,16 +18516,36 @@ from great_tables import style, loc
 
 ## Images, icons, flags and nanoplots
 
-Some cell contents are graphics, and these don't yet carry text alternatives:
+Some cell contents are graphics, which screen readers can't see, so they need a text alternative:
 
-- images from `~~GT.fmt_image()` have no alternative text (`alt`)
-- nanoplots from `~~GT.fmt_nanoplot()` have no accessible name or description
-- icons from `~~GT.fmt_icon()` and flags from `~~GT.fmt_flag()` are hidden from assistive
-  technology, so they're treated as decoration
+- images from `~~GT.fmt_image()` are decorative (an empty `alt=""`) unless you give them
+  alternative text with `alt=`, as a string (with `{x}` for each image's reference in the cell) or
+  from a column with `~~from_column()`
+- nanoplots from `~~GT.fmt_nanoplot()` are described by a summary of their values (e.g., "Line
+  plot of 8 values from 12.0 to 47.0, ending at 30.0"); use `alt=` to replace or extend it (`{x}`
+  is the summary)
+- flags from `~~GT.fmt_flag()` are named after their country (with the default `use_title=True`)
+- icons from `~~GT.fmt_icon()` are treated as decoration and hidden from assistive technology
 
-Until they do, make sure the information they show is also in the table as text. Keep the country
-name beside a flag, a label beside an icon, and the values (or a summary like the latest value)
-beside a nanoplot.
+Give images alternative text whenever they carry information, and keep a label beside any icon
+that means something, since the icon itself isn't announced.
+
+```{python}
+from great_tables import from_column
+
+flags_df = pl.DataFrame(
+    {
+        "flag": ["CA", "GB", "JP"],
+        "trend": ["3,5,4,8,9", "6,5,5,4,3", "2,3,3,4,6"],
+    }
+)
+
+(
+    GT(flags_df)
+    .fmt_flag(columns="flag")
+    .fmt_nanoplot(columns="trend", alt="Trend: {x}")
+)
+```
 
 ## Other kinds of output
 
@@ -18529,7 +18562,7 @@ image's alternative text or in the text around it.
 - Use clear column labels and spanners, since they're read aloud with every cell
 - Don't rely on color alone, and keep `autocolor_text=True` with `~~GT.data_color()`
 - Give tables an id (`GT(id=)`) when a page has more than one
-- Pair images, icons, flags and nanoplots with text that carries the same information
+- Give informative images alternative text (`fmt_image(alt=)`), and pair icons with a text label
 
 
 
