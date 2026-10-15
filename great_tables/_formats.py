@@ -6106,6 +6106,7 @@ def fmt_units(
     def fmt_units_fn(
         x: str,
         pattern: str = pattern,
+        context: str = "html",
     ):
         # If the `x` value is a missing value, then return the same value
         if is_na(self._tbl_data, x):
@@ -6113,14 +6114,15 @@ def fmt_units(
 
         from great_tables._helpers import define_units
 
-        x_formatted = define_units(x).to_html()
+        units = define_units(x)
+        x_formatted = units.to_latex() if context == "latex" else units.to_html()
 
         # Use a supplied pattern specification to decorate the formatted value
-        x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context="html")
+        x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
 
         return x_formatted
 
-    return fmt(self, fns=fmt_units_fn, columns=columns, rows=rows)
+    return fmt_by_context(self, pf_format=fmt_units_fn, columns=columns, rows=rows)
 
 
 def _apply_value_pattern(x_formatted: str, pattern: str, context: str) -> str:
