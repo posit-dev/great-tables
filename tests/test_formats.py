@@ -4494,6 +4494,47 @@ def test_fmt_chem_reaction_arrows():
     assert "&#8637;" in x[5]  # <<=>
 
 
+def test_fmt_chem_longest_arrow_first():
+    # `<-->` contains `<-` and `->`, so it must be matched as a whole
+    assert vals.fmt_chem("A <--> B") == ["A &#8596; B"]
+
+
+@pytest.mark.parametrize(
+    "src,dst",
+    [
+        ("C6H12O6", "C\\textsubscript{6}H\\textsubscript{12}O\\textsubscript{6}"),
+        ("(NH4)2SO4", "(NH\\textsubscript{4})\\textsubscript{2}SO\\textsubscript{4}"),
+        (
+            "2H2 + O2 -> 2H2O",
+            "2\\,H\\textsubscript{2} + O\\textsubscript{2} \\ensuremath{\\rightarrow} 2\\,H\\textsubscript{2}O",
+        ),
+        ("A <--> B", "A \\ensuremath{\\leftrightarrow} B"),
+        ("N2 <=> 2N", "N\\textsubscript{2} \\ensuremath{\\rightleftharpoons} 2\\,N"),
+        ("CuSO4 . 5H2O", "CuSO\\textsubscript{4} \\ensuremath{\\cdot} 5\\,H\\textsubscript{2}O"),
+        ("SO4^2-", "SO\\textsubscript{4}\\textsuperscript{2\\ensuremath{-}}"),
+        ("M^{n+}", "M\\textsuperscript{\\emph{n}+}"),
+        ("Cl-", "Cl\\textsuperscript{\\ensuremath{-}}"),
+        ("^{14}_6C", "\\ensuremath{{}^{14}_{6}}C"),
+        ("^14C", "\\ensuremath{{}^{14}}C"),
+        (":alpha:Fe", "\\ensuremath{\\alpha}Fe"),
+        ("x H2O", "\\emph{x}\\,H\\textsubscript{2}O"),
+        ("C_n", "C\\textsubscript{\\emph{n}}"),
+        ("H2O & 10%", "H\\textsubscript{2}O\\&10\\%"),
+    ],
+)
+def test_fmt_chem_latex(src: str, dst: str):
+    gt = GT(pl.DataFrame({"x": [src]})).fmt_chem(columns="x")
+
+    assert _get_column_of_values(gt, column_name="x", context="latex") == [dst]
+
+
+def test_fmt_chem_as_latex_has_no_html():
+    latex = GT(pl.DataFrame({"x": ["H2O", "SO4^2-"]})).fmt_chem(columns="x").as_latex()
+
+    assert "<span" not in latex and "&#" not in latex
+    assert "H\\textsubscript{2}O \\\\" in latex
+
+
 def test_fmt_chem_bonds():
     df = pd.DataFrame({"x": ["C6H5-CHO", "CH3CH=CH2"]})
     gt = GT(df).fmt_chem(columns="x")
