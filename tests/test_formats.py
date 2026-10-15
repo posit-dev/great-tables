@@ -2114,7 +2114,9 @@ def test_html_color_with_alpha(color: str, x_out: str, alpha: float):
 def test_fmt_image_single():
     formatter = FmtImage(sep=" ", file_pattern="{}.svg", encode=False)
     res = formatter.to_html("/a")
-    dst = formatter.SPAN_TEMPLATE.format('<img src="/a.svg" style="vertical-align: middle;">')
+    dst = formatter.SPAN_TEMPLATE.format(
+        '<img src="/a.svg" alt="" style="vertical-align: middle;">'
+    )
 
     assert strip_windows_drive(res) == dst
 
@@ -2131,9 +2133,9 @@ def test_fmt_image_multiple():
     formatter = FmtImage(sep="---", file_pattern="{}.svg", encode=False)
     res = formatter.to_html("/a,/b")
     dst = formatter.SPAN_TEMPLATE.format(
-        '<img src="/a.svg" style="vertical-align: middle;">'
+        '<img src="/a.svg" alt="" style="vertical-align: middle;">'
         "---"
-        '<img src="/b.svg" style="vertical-align: middle;">'
+        '<img src="/b.svg" alt="" style="vertical-align: middle;">'
     )
 
     assert strip_windows_drive(res) == dst
@@ -2152,7 +2154,9 @@ def test_fmt_image_encode(tmpdir):
 
     b64_content = b64encode(content.encode()).decode()
     img_src = f"data:image/svg+xml;base64,{b64_content}"
-    dst = formatter.SPAN_TEMPLATE.format(f'<img src="{img_src}" style="vertical-align: middle;">')
+    dst = formatter.SPAN_TEMPLATE.format(
+        f'<img src="{img_src}" alt="" style="vertical-align: middle;">'
+    )
 
     assert strip_windows_drive(res) == dst
 
@@ -2160,7 +2164,7 @@ def test_fmt_image_encode(tmpdir):
 def test_fmt_image_width_height_str():
     formatter = FmtImage(encode=False, width="20px", height="30px")
     res = formatter.to_html("/a")
-    dst_img = '<img src="/a" style="height: 30px;width: 20px;vertical-align: middle;">'
+    dst_img = '<img src="/a" alt="" style="height: 30px;width: 20px;vertical-align: middle;">'
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
     assert strip_windows_drive(res) == dst
@@ -2169,7 +2173,7 @@ def test_fmt_image_width_height_str():
 def test_fmt_image_height_int():
     formatter = FmtImage(encode=False, height=30)
     res = formatter.to_html("/a")
-    dst_img = '<img src="/a" style="height: 30px;vertical-align: middle;">'
+    dst_img = '<img src="/a" alt="" style="height: 30px;vertical-align: middle;">'
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
 
     assert strip_windows_drive(res) == dst
@@ -2195,7 +2199,7 @@ def test_fmt_image_path():
 def test_fmt_image_path_http(url: str):
     formatter = FmtImage(encode=False, height=30, path=url)
     res = formatter.to_html("c")
-    dst_img = '<img src="{}/c" style="height: 30px;vertical-align: middle;">'.format(
+    dst_img = '<img src="{}/c" alt="" style="height: 30px;vertical-align: middle;">'.format(
         url.removesuffix("/")
     )
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
@@ -2294,7 +2298,7 @@ def test_fmt_icon_fill_color_dict_none():
     assert bool(re.search('style="fill:blue;', column_vals[1]))
     assert bool(
         re.search(
-            'style="fill-opacity:None;stroke-width:1px;stroke-opacity:None;height:1em;width:1.12em;position:relative;vertical-align:-0.125em;overflow:visible;">',
+            'style="stroke-width:1px;height:1em;width:1.12em;position:relative;vertical-align:-0.125em;overflow:visible;">',
             column_vals[2],
         )
     )
@@ -2421,7 +2425,7 @@ def test_fmt_flag_height():
 def test_fmt_image_http(url: str):
     formatter = FmtImage(encode=False, height=30)
     res = formatter.to_html(url)
-    dst_img = '<img src="{}" style="height: 30px;vertical-align: middle;">'.format(
+    dst_img = '<img src="{}" alt="" style="height: 30px;vertical-align: middle;">'.format(
         url.removesuffix("/")
     )
     dst = formatter.SPAN_TEMPLATE.format(dst_img)
@@ -5199,3 +5203,82 @@ def test_fmt_duration_iso_minus_in_latex():
     df = pl.DataFrame({"x": [-3661.0]})
     gt = GT(df).fmt_duration(columns="x", input_units="seconds", duration_style="iso")
     assert _get_column_of_values(gt, column_name="x", context="latex") == ["-PT1H1M1S"]
+
+
+# Accessible markup of cell graphics ----------------------------------------------------------
+
+
+def test_fmt_image_alt_text():
+    from great_tables import from_column
+
+    df = pl.DataFrame(
+        {"img": ["https://e.x/a.png", "https://e.x/b.png, https://e.x/c.png"], "d": ["A & B", None]}
+    )
+
+    def alts(gt: GT) -> list[str]:
+        return re.findall(r'alt="([^"]*)"', gt.as_raw_html())
+
+    # Decorative (empty) by default, a pattern with `{x}` for each image, or text from a column
+    assert alts(GT(df).fmt_image("img")) == ["", "", ""]
+    assert alts(GT(df).fmt_image("img", alt="Image {x}")) == [
+        "Image https://e.x/a.png",
+        "Image https://e.x/b.png",
+        "Image https://e.x/c.png",
+    ]
+    assert alts(GT(df).fmt_image("img", alt=from_column("d", fn=str.upper))) == [
+        "A &amp; B",
+        "",
+        "",
+    ]
+
+
+def test_fmt_flag_title_is_accessible_name():
+    df = pl.DataFrame({"c": ["BA"]})
+
+    titled = GT(df).fmt_flag("c").as_raw_html()
+    assert 'role="img" aria-label="Bosnia and Herzegovina"' in titled
+    assert "aria-hidden" not in titled.split("<tbody", 1)[1]
+
+    untitled = GT(df).fmt_flag("c", use_title=False).as_raw_html()
+    assert 'aria-hidden="true"' in untitled and "aria-label" not in untitled
+
+
+def test_fmt_icon_has_no_invalid_opacity():
+    html_str = GT(pl.DataFrame({"i": ["star"]})).fmt_icon("i").as_raw_html()
+    assert "opacity:None" not in html_str
+
+
+def test_svg_ids_in_cells_are_unique():
+    # Flags and nanoplots define SVG elements with ids; each cell gets its own, and every
+    # reference resolves to the definition in the same cell
+    df = pl.DataFrame({"c": ["GB", "US", "GB"], "n": ["1,2,3", "3,2,1", "1,2,3"]})
+    html_str = GT(df, id="t").fmt_flag("c").fmt_nanoplot("n").as_raw_html()
+    table = html_str.split("<table", 1)[1]
+
+    ids = re.findall(r'\bid="([^"]*)"', table)
+    refs = [a or b for a, b in re.findall(r'url\(#([^)]+)\)|href="#([^"]+)"', table)]
+
+    assert len(ids) == len(set(ids))
+    assert refs and all(ref in ids for ref in refs)
+    assert "t-c-0-a" in ids and "t-c-2-a" in ids
+
+
+def test_fmt_nanoplot_accessible_name():
+    from great_tables import from_column
+
+    df = pl.DataFrame({"n": ["12,30,47,20,30", "1,2,3"], "d": ["Sales", None]})
+
+    def labels(gt: GT) -> list[str]:
+        return re.findall(r'aria-label="([^"]*)"', gt.as_raw_html())
+
+    assert labels(GT(df).fmt_nanoplot("n"))[0] == (
+        "Line plot of 5 values from 12.0 to 47.0, ending at 30.0"
+    )
+    assert labels(GT(df).fmt_nanoplot("n", alt="Weekly: {x}"))[1] == (
+        "Weekly: Line plot of 3 values from 1.00 to 3.00, ending at 3.00"
+    )
+    # A row without text in the column keeps the summary
+    assert labels(GT(df).fmt_nanoplot("n", alt=from_column("d"))) == [
+        "Sales",
+        "Line plot of 3 values from 1.00 to 3.00, ending at 3.00",
+    ]
