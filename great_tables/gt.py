@@ -136,7 +136,7 @@ __all__ = ["GT"]
 # =============================================================================
 # Helper for text transforms
 # =============================================================================
-def _apply_text_transforms(data: GT, body: Body) -> Body:
+def _apply_text_transforms(data: GT, body: Body, context: str = "html") -> Body:
     """Apply all registered text transforms to the body cells."""
     from ._tbl_data import is_na
 
@@ -166,7 +166,9 @@ def _apply_text_transforms(data: GT, body: Body) -> Body:
                 cells = [
                     (pos, new_value)
                     for col_cells in by_column.values()
-                    for (pos, _), new_value in zip(col_cells, fn([value for _, value in col_cells]))
+                    for (pos, _), new_value in zip(
+                        col_cells, fn([value for _, value in col_cells], context=context)
+                    )
                 ]
             else:
                 cells = [(pos, fn(value)) for pos, value in cells]
@@ -564,7 +566,7 @@ class GT(
         # self = self.reorder_styles()
 
         # Transformations of individual cells at supported locations
-        final_body = _apply_text_transforms(built, final_body)
+        final_body = _apply_text_transforms(built, final_body, context=context)
         final_stub, final_body = _apply_text_transforms_stub(built, final_stub, final_body)
         final_boxhead = _apply_text_transforms_boxhead(built)
 

@@ -137,6 +137,18 @@ LaTeX output is still experimental. Not all table features (such as certain styl
 fully supported in the LaTeX renderer.
 :::
 
+The LaTeX fragment relies on a few LaTeX packages, so load them in your document's preamble:
+`booktabs` is always needed, `longtable` is needed with `use_longtable=True`, and `hyperref` is
+needed for links from `~~GT.fmt_url()` or `~~GT.fmt_email()`. Adding `anyfontsize` lets a font size
+set with `~~GT.tab_options()` be used exactly:
+
+```latex
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{anyfontsize}
+```
+
 LaTeX output is the bridge between Great Tables and the world of academic publishing and
 typesetting. If you are writing papers in LaTeX or producing PDF reports via Quarto, this method
 lets you bring your Python-built tables into that workflow without manual conversion. You get the

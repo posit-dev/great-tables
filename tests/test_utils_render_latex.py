@@ -914,3 +914,72 @@ def test_convert_to_pt_is_exact():
     assert convert_to_pt("8pt") == 8.0
     assert convert_to_pt("12.5pt") == 12.5
     assert convert_to_pt("1in") == 72.0
+
+
+def test_cols_align_decimal_latex_uses_phantoms():
+    # Unicode spaces (U+2007, U+00A0) aren't available in pdfLaTeX, so the padding uses
+    # `\hphantom{}`; escape sequences such as `\%` are measured as one character
+    df = pl.DataFrame({"num": [1.5, 22.25, 3.0], "pct": [0.015, 0.2, 1.0]})
+    gt = (
+        GT(df)
+        .fmt_number(columns="num", decimals=3, drop_trailing_zeros=True)
+        .fmt_percent(columns="pct", decimals=1, drop_trailing_zeros=True)
+        .cols_align_decimal()
+    )
+    latex = gt.as_latex()
+
+    assert " " not in latex and " " not in latex
+    assert "\\hphantom{0}1.5\\hphantom{0} &" in latex
+    assert "\\hphantom{0}3\\hphantom{.}\\hphantom{0}\\hphantom{0} &" in latex
+    assert "\\hphantom{0}\\hphantom{0}1.5\\%" in latex
+
+
+def test_summary_row_values_latex():
+    from functools import partial
+
+    from great_tables import vals
+
+    df = pl.DataFrame({"g": ["a", "a"], "r": ["x", "y"], "p": [0.25, -0.75], "c": [1.5, -2.0]})
+    gt = (
+        GT(df, rowname_col="r", groupname_col="g")
+        .summary_rows(fns={"Mean": pl.col("p").mean()}, fmt=vals.fmt_percent)
+        .grand_summary_rows(
+            fns={"Total": pl.col("c").sum()}, fmt=partial(vals.fmt_currency, currency="USD")
+        )
+        .grand_summary_rows(
+            fns={"Max": pl.col("c").max()}, fmt=lambda xs: [f"{x} & up" for x in xs]
+        )
+        .grand_summary_rows(fns={"Min": pl.col("p").min()})
+    )
+    latex = gt.as_latex()
+
+    # `vals` formatters are run for LaTeX (escaped `%` and `$`, an ASCII minus sign); other
+    # formatters and unformatted values are escaped as plain text
+    assert "Mean & -25.00\\% & --- \\\\" in latex
+    assert "Total & --- & -\\$0.50 \\\\" in latex
+    assert "Max & --- & 1.5 \\& up \\\\" in latex
+    assert "Min & -0.75 & --- \\\\" in latex
+
+    # HTML output is unchanged
+    assert "−25.00%" in gt.as_raw_html()
+
+
+@pytest.mark.parametrize(
+    "side,x_out",
+    [
+        ("top", ["A & Top & 3 \\\\", " & x & 1 \\\\", " & y & 2 \\\\"]),
+        ("bottom", ["A & x & 1 \\\\", " & y & 2 \\\\", " & Bottom & 3 \\\\"]),
+    ],
+)
+def test_summary_rows_group_as_column_latex(side: str, x_out: list[str]):
+    # With the group as a column, the group label is in the group's first row (a top summary row,
+    # if any), and group summary labels span only the row name column, as in HTML
+    df = pl.DataFrame({"g": ["A", "A"], "r": ["x", "y"], "n": [1, 2]})
+    gt = (
+        GT(df, rowname_col="r", groupname_col="g")
+        .summary_rows(fns={side.title(): pl.col("n").sum()}, side=side)
+        .tab_options(row_group_as_column=True)
+    )
+    rows = [line for line in gt.as_latex().splitlines() if line.endswith("\\\\") and "&" in line]
+
+    assert rows == x_out
