@@ -292,6 +292,19 @@ def _(data: PyArrowTable, column: str) -> Any:
     return data.column(column).type
 
 
+def _is_numeric_dtype(data: DataFrameLike, column: str) -> bool:
+    """Check whether a column in the original data has a numeric dtype."""
+    try:
+        dtype = _get_column_dtype(data, column)
+    except Exception:
+        return False
+    dtype_str = str(dtype).lower()
+    for token in ("int", "float", "decimal", "double", "numeric", "number"):
+        if token in dtype_str:
+            return True
+    return False
+
+
 # _get_column_levels ----
 
 
