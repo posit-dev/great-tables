@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import math
 import random
 import warnings
@@ -1087,9 +1088,12 @@ def _nanoplot_svg_style(
 
 
 def _construct_nanoplot_svg(
-    viewbox: str, svg_height: str, opts: _NanoplotOptions, layers: list[str]
+    viewbox: str, svg_height: str, opts: _NanoplotOptions, layers: list[str], label: str = ""
 ) -> str:
-    """Wrap the SVG elements of a nanoplot's `layers` (from bottom to top) in an `<svg>` element."""
+    """Wrap the SVG elements of a nanoplot's `layers` (from bottom to top) in an `<svg>` element.
+
+    The `label` is the image's accessible name (`aria-label`), announced by screen readers.
+    """
 
     svg_class, svg_style = _nanoplot_svg_style(
         interactive_data_values=opts.interactive_data_values,
@@ -1099,7 +1103,8 @@ def _construct_nanoplot_svg(
     svg_defs = _nanoplot_svg_defs(opts.data_area_fill_color)
 
     return (
-        f'<div><svg class="{svg_class}" role="img" viewBox="{viewbox}" '
+        f'<div><svg class="{svg_class}" role="img" aria-label="{html.escape(label)}" '
+        f'viewBox="{viewbox}" '
         f'style="height: {svg_height}; margin-left: auto; margin-right: auto; font-size: inherit; '
         f'overflow: visible; vertical-align: middle; position:relative;">'
         f"{svg_defs}{svg_style}{''.join(layers)}</svg></div>"
@@ -1665,6 +1670,35 @@ def _single_value_layers(
 # ---------------------------------------------------------------------------------------------
 
 
+def _nanoplot_summary(y_vals: list[int | float | None] | int | float, plot_type: str) -> str:
+    """Describe a nanoplot's values in words, for its accessible name.
+
+    E.g., `"Line plot of 8 values from 12 to 47, ending at 30"`, or `"Bar of 4.1"` for a single
+    value. Numbers are written as in the plot's own labels.
+    """
+
+    kind = "Line" if plot_type == "line" else "Bar"
+
+    if isinstance(y_vals, (int, float)):
+        return f"{kind} of {_format_number_compactly(y_vals)}"
+
+    present = [y for y in y_vals if y is not None and not (isinstance(y, float) and math.isnan(y))]
+    n_missing = len(y_vals) - len(present)
+    missing = f", with {n_missing} missing" if n_missing else ""
+
+    if not present:
+        return f"{kind} plot with no values"
+
+    if len(present) == 1:
+        return f"{kind} plot of 1 value: {_format_number_compactly(present[0])}{missing}"
+
+    low, high, last = (
+        _format_number_compactly(v) for v in (min(present), max(present), present[-1])
+    )
+
+    return f"{kind} plot of {len(present)} values from {low} to {high}, ending at {last}{missing}"
+
+
 def _generate_nanoplot(
     y_vals: list[int] | list[float] | list[int | float] | float,
     y_ref_line: float | str | None = None,
@@ -1677,6 +1711,7 @@ def _generate_nanoplot(
     plot_type: str = "line",
     data_line_type: str = "curved",
     svg_height: str = "2em",
+    alt: str | None = None,
     **options: Any,
 ) -> str:
     """
@@ -1686,6 +1721,9 @@ def _generate_nanoplot(
     value gives a horizontal bar or line on the scale shared with all rows' values in
     `all_single_y_vals`. The `options` are the styling and layer options of `_NanoplotOptions`
     (as returned by `nanoplot_options()`). An empty string is returned if there is nothing to plot.
+
+    The plot's accessible name is a summary of its values (see `_nanoplot_summary()`), or `alt` with
+    any `{x}` replaced by that summary.
     """
 
     _match_arg(x=missing_vals, lst=["marker", "gap", "zero", "remove"])
@@ -1709,13 +1747,16 @@ def _generate_nanoplot(
 
     y_vals, x_vals = vals
 
+    summary = _nanoplot_summary(y_vals, plot_type)
+    label = summary if alt is None else alt.replace("{x}", summary)
+
     if isinstance(y_vals, (int, float)) and plot_type in ("line", "bar"):
         layers = _single_value_layers(y_vals, all_single_y_vals, y_ref_line, plot_type, opts)
 
         # The viewbox leaves out the safe zones so that bars and lines span the whole width
         viewbox = f"0 0 {_FIXED_DATA_X_WIDTH} {_BOTTOM_Y}"
 
-        return _construct_nanoplot_svg(viewbox, svg_height, opts, layers)
+        return _construct_nanoplot_svg(viewbox, svg_height, opts, layers, label=label)
 
     spec = _NanoplotSpec.from_inputs(
         y_vals,
@@ -1730,4 +1771,6 @@ def _generate_nanoplot(
         opts=opts,
     )
 
-    return _construct_nanoplot_svg(spec.canvas.viewbox, svg_height, opts, _render_layers(spec))
+    return _construct_nanoplot_svg(
+        spec.canvas.viewbox, svg_height, opts, _render_layers(spec), label=label
+    )
