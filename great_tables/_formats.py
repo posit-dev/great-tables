@@ -3136,39 +3136,113 @@ def fmt_chem(
     ```
     """
 
-    def fmt_chem_fn(x: str):
+    def fmt_chem_fn(x: str, context: str = "html"):
         if is_na(self._tbl_data, x):
             return x
 
-        return _chem_to_html(x)
+        return _chem_to_latex(x) if context == "latex" else _chem_to_html(x)
 
-    return fmt(self, fns=fmt_chem_fn, columns=columns, rows=rows)
+    return fmt_by_context(self, pf_format=fmt_chem_fn, columns=columns, rows=rows)
 
 
+# Reaction arrows, longest first so that `<-->` isn't read as `<-` and `->`; the HTML and LaTeX
+# forms are the same characters (LaTeX's are math symbols from its base fonts)
 _REACTION_ARROWS = [
-    ("<-->", "&#8596;"),
-    ("<=>>", "&#8640;"),
-    ("<<=>", "&#8637;"),
-    ("<=>", "&#8652;"),
-    ("<->", "&#8596;"),
-    ("->", "&#8594;"),
-    ("<-", "&#8592;"),
+    ("<-->", "&#8596;", "\\ensuremath{\\leftrightarrow}"),
+    ("<=>>", "&#8640;", "\\ensuremath{\\rightharpoonup}"),
+    ("<<=>", "&#8637;", "\\ensuremath{\\leftharpoondown}"),
+    ("<=>", "&#8652;", "\\ensuremath{\\rightleftharpoons}"),
+    ("<->", "&#8596;", "\\ensuremath{\\leftrightarrow}"),
+    ("->", "&#8594;", "\\ensuremath{\\rightarrow}"),
+    ("<-", "&#8592;", "\\ensuremath{\\leftarrow}"),
 ]
 
-_SUB = '<sub style="line-height:0;">'
-_SUP = '<span style="white-space:nowrap;"><sup style="line-height:0;">'
-_THIN_SP = "&#8201;"
+
+@dataclass(frozen=True)
+class _ChemMarkup:
+    """The output-specific pieces of a formatted chemical formula (see `_chem_to_html()`)."""
+
+    arrows: dict[str, str]
+    thin_space: str
+    middot: str
+    minus: str
+    escape: Callable[[str], str]
+    em: Callable[[str], str]
+    sub: Callable[[str], str]
+    sup: Callable[[str], str]
+    # The mass number (superscript) and atomic number (subscript, may be "") of a nuclide
+    nuclide: Callable[[str, str], str]
+    # A `:name:` symbol (e.g., `:alpha:`)
+    symbol: Callable[[str], str]
+
+
+def _chem_html_nuclide(mass: str, atomic: str) -> str:
+    from great_tables._helpers import _units_html_sub_super
+
+    return _units_html_sub_super(content_sub=atomic or "&nbsp;", content_sup=mass)
+
+
+def _chem_html_symbol(sym: str) -> str:
+    from great_tables._helpers import _units_symbol_replacements
+
+    return _units_symbol_replacements(sym)
+
+
+def _chem_latex_symbol(sym: str) -> str:
+    from great_tables._helpers import UNITS_SYMBOLS_LATEX
+
+    return UNITS_SYMBOLS_LATEX.get(sym, _latex_escape(sym))
+
+
+_CHEM_HTML = _ChemMarkup(
+    arrows={text: html_arrow for text, html_arrow, _ in _REACTION_ARROWS},
+    thin_space="&#8201;",
+    middot="&middot;",
+    minus="&minus;",
+    escape=lambda text: text,
+    em=lambda text: f"<em>{text}</em>",
+    sub=lambda text: (
+        f'<span style="white-space:nowrap;"><sub style="line-height:0;">{text}</sub></span>'
+    ),
+    sup=lambda text: (
+        f'<span style="white-space:nowrap;"><sup style="line-height:0;">{text}</sup></span>'
+    ),
+    nuclide=_chem_html_nuclide,
+    symbol=_chem_html_symbol,
+)
+
+# In LaTeX, a nuclide's mass and atomic numbers are stacked as math pre-scripts (`{}^{14}_{6}`)
+_CHEM_LATEX = _ChemMarkup(
+    arrows={text: latex_arrow for text, _, latex_arrow in _REACTION_ARROWS},
+    thin_space="\\,",
+    middot="\\ensuremath{\\cdot}",
+    minus="\\ensuremath{-}",
+    escape=_latex_escape,
+    em=lambda text: f"\\emph{{{text}}}",
+    sub=lambda text: f"\\textsubscript{{{text}}}",
+    sup=lambda text: f"\\textsuperscript{{{text}}}",
+    nuclide=lambda mass, atomic: (
+        f"\\ensuremath{{{{}}^{{{mass}}}_{{{atomic}}}}}"
+        if atomic
+        else f"\\ensuremath{{{{}}^{{{mass}}}}}"
+    ),
+    symbol=_chem_latex_symbol,
+)
 
 
 def _chem_to_html(formula: str) -> str:
-    from great_tables._helpers import (
-        _md_html,
-        _units_html_sub_super,
-        _units_symbol_replacements,
-    )
+    return _chem_render(formula, _CHEM_HTML)
 
-    for arrow_text, arrow_char in _REACTION_ARROWS:
-        formula = formula.replace(arrow_text, f" \x00ARROW{arrow_char}\x00 ")
+
+def _chem_to_latex(formula: str) -> str:
+    return _chem_render(formula, _CHEM_LATEX)
+
+
+def _chem_render(formula: str, markup: _ChemMarkup) -> str:
+    # Arrows are swapped for placeholders holding their index (their text would be matched by a
+    # later, shorter arrow)
+    for i, (arrow_text, _, _) in enumerate(_REACTION_ARROWS):
+        formula = formula.replace(arrow_text, f" \x00ARROW{i}\x00 ")
 
     tokens = formula.split()
     parts: list[str] = []
@@ -3179,7 +3253,7 @@ def _chem_to_html(formula: str) -> str:
             if pending_coeff is not None:
                 parts.append(pending_coeff)
                 pending_coeff = None
-            arrow = token[6:-1]
+            arrow = markup.arrows[_REACTION_ARROWS[int(token[6:-1])][0]]
             parts.append(f" {arrow} ")
             continue
 
@@ -3194,14 +3268,12 @@ def _chem_to_html(formula: str) -> str:
             if pending_coeff is not None:
                 parts.append(pending_coeff)
                 pending_coeff = None
-            parts.append(" &middot; ")
+            parts.append(f" {markup.middot} ")
             continue
 
         if pending_coeff is not None:
-            part = _chem_token_to_html(
-                token, _md_html, _units_html_sub_super, _units_symbol_replacements
-            )
-            parts.append(pending_coeff + _THIN_SP + part)
+            part = _chem_token(token, markup)
+            parts.append(pending_coeff + markup.thin_space + part)
             pending_coeff = None
             continue
 
@@ -3210,17 +3282,15 @@ def _chem_to_html(formula: str) -> str:
             continue
 
         if token in ("x", "n"):
-            pending_coeff = f"<em>{token}</em>"
+            pending_coeff = markup.em(token)
             continue
 
         star_m = re.match(r"^\*([a-zA-Z])\*$", token)
         if star_m:
-            pending_coeff = f"<em>{star_m.group(1)}</em>"
+            pending_coeff = markup.em(star_m.group(1))
             continue
 
-        part = _chem_token_to_html(
-            token, _md_html, _units_html_sub_super, _units_symbol_replacements
-        )
+        part = _chem_token(token, markup)
         parts.append(part)
 
     if pending_coeff is not None:
@@ -3229,12 +3299,7 @@ def _chem_to_html(formula: str) -> str:
     return "".join(parts)
 
 
-def _chem_token_to_html(
-    token: str,
-    md_html: Callable[[str], str],
-    html_sub_super: Callable[[str, str], str],
-    symbol_replacements: Callable[[str], str],
-) -> str:
+def _chem_token(token: str, markup: _ChemMarkup) -> str:
     isotope_m = re.match(
         r"^\^(?:\{([0-9+-]+)\}|([0-9+-]+))(?:_(?:\{([0-9+-]+)\}|([0-9+-]+)))?(.+)$",
         token,
@@ -3243,52 +3308,49 @@ def _chem_token_to_html(
         mass = isotope_m.group(1) or isotope_m.group(2)
         atomic = isotope_m.group(3) or isotope_m.group(4) or ""
         rest = isotope_m.group(5)
-        if not atomic:
-            atomic = "&nbsp;"
-        prefix = html_sub_super(content_sub=atomic, content_sup=mass)
-        return prefix + _chem_token_to_html(rest, md_html, html_sub_super, symbol_replacements)
+        return markup.nuclide(mass, atomic) + _chem_token(rest, markup)
 
     colon_m = re.match(r"^(:[a-zA-Z]+:)(.*)$", token)
     if colon_m:
-        sym = symbol_replacements(colon_m.group(1))
+        sym = markup.symbol(colon_m.group(1))
         rest = colon_m.group(2)
         if rest:
-            return sym + _chem_token_to_html(rest, md_html, html_sub_super, symbol_replacements)
+            return sym + _chem_token(rest, markup)
         return sym
 
     stoich_m = re.match(r"^([0-9]+(?:\.[0-9]+)?|[0-9]+/[0-9]+|\([0-9]+/[0-9]+\))([A-Z].*)$", token)
     if stoich_m:
         coeff = stoich_m.group(1)
         rest = stoich_m.group(2)
-        return coeff + _THIN_SP + _chem_simple_formula_html(rest)
+        return coeff + markup.thin_space + _chem_simple_formula(rest, markup)
 
     bond_m = re.match(r"^([^-=]+)([-=])([^-=]+)$", token)
     if bond_m and re.search(r"[A-Z]", bond_m.group(1)) and re.search(r"[A-Z]", bond_m.group(3)):
-        left = _chem_simple_formula_html(bond_m.group(1))
+        left = _chem_simple_formula(bond_m.group(1), markup)
         bond = bond_m.group(2)
-        right = _chem_simple_formula_html(bond_m.group(3))
+        right = _chem_simple_formula(bond_m.group(3), markup)
         return f"{left}{bond}{right}"
 
     italic_m = re.match(r"^\*([a-zA-Z])\*(.*)$", token)
     if italic_m:
         letter = italic_m.group(1)
         rest = italic_m.group(2)
-        result = f"<em>{letter}</em>"
+        result = markup.em(letter)
         if rest:
             if rest.startswith("-") or rest.startswith("="):
                 result += rest[0]
                 rest = rest[1:]
             if rest:
-                result += _chem_simple_formula_html(rest)
+                result += _chem_simple_formula(rest, markup)
         return result
 
     if token == "x" or token == "n":
-        return f"<em>{token}</em>"
+        return markup.em(token)
 
-    return _chem_simple_formula_html(token)
+    return _chem_simple_formula(token, markup)
 
 
-def _chem_simple_formula_html(token: str) -> str:
+def _chem_simple_formula(token: str, markup: _ChemMarkup) -> str:
     charge_m = re.match(r"^(.*?)(?:\^(?:\{([^}]+)\}|([0-9]*[+-]|n[+-]?)))$", token)
     charge = None
     if charge_m:
@@ -3303,34 +3365,26 @@ def _chem_simple_formula_html(token: str) -> str:
 
     italic_sub_m = re.match(r"^(.+)_([a-z])$", token)
     if italic_sub_m:
-        base = _chem_subscript_numbers(italic_sub_m.group(1))
-        sub_letter = italic_sub_m.group(2)
-        result = (
-            base
-            + '<span style="white-space:nowrap;"><sub style="line-height:0;">'
-            + f"<em>{sub_letter}</em></sub></span>"
-        )
+        base = _chem_subscript_numbers(italic_sub_m.group(1), markup)
+        result = base + markup.sub(markup.em(italic_sub_m.group(2)))
     else:
-        result = _chem_subscript_numbers(token)
+        result = _chem_subscript_numbers(token, markup)
 
     if charge is not None:
-        charge_html = charge.replace("-", "&minus;")
+        charge_text = markup.escape(charge).replace("-", markup.minus)
         if re.match(r"^[a-z]", charge):
-            charge_html = f"<em>{charge_html[0]}</em>{charge_html[1:]}"
-        result += f"{_SUP}{charge_html}</sup></span>"
+            charge_text = markup.em(charge_text[0]) + charge_text[1:]
+        result += markup.sup(charge_text)
 
     return result
 
 
-def _chem_subscript_numbers(text: str) -> str:
-    result = re.sub(
+def _chem_subscript_numbers(text: str, markup: _ChemMarkup) -> str:
+    # Text is escaped first; LaTeX's escapes end in `}` or a symbol, so no digit follows a letter
+    return re.sub(
         r"(?<=[A-Za-z)\]])(\d+)",
-        lambda m: f"{_SUB}{m.group(1)}</sub></span>",
-        text,
-    )
-    return result.replace(
-        _SUB,
-        '<span style="white-space:nowrap;"><sub style="line-height:0;">',
+        lambda m: markup.sub(m.group(1)),
+        markup.escape(text),
     )
 
 
