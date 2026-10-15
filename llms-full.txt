@@ -5450,7 +5450,8 @@ palette
     The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#00FF00",
     "#0000FF"]`). A ColorBrewer palette could also be used, just supply the name (reference
     available in the *Color palette access from ColorBrewer* section). If `None`, then a default
-    palette will be used.
+    palette will be used. Colors for values between those of the palette are interpolated in
+    the CIELAB color space, giving the same colors as R's gt.
 domain
     The domain of values to use for the color scheme. This can be a list of floats, integers, or
     strings. If `None`, then the domain will be inferred from the data values (see the
