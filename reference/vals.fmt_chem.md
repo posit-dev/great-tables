@@ -11,7 +11,7 @@ vals.fmt_chem(x)
 ```
 
 
-With string values in a list, we can transform chemical formula notation into properly typeset HTML with subscripted numbers, superscripted charges, reaction arrows, and more. The input text should conform to the chemistry notation described in `fmt_chem()`.
+With string values in a list, we can transform chemical formula notation into properly typeset HTML with subscripted numbers, superscripted charges, reaction arrows, and more. The input text should conform to the chemistry notation described in <a href="../reference/GT.fmt_chem.html#great_tables.GT.fmt_chem" class="gdls-link"><code>fmt_chem()</code></a>.
 
 
 ## Parameters

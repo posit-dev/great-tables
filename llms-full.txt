@@ -107,12 +107,13 @@ alignment within the table stub.
 
 However which way you generate the initial table object, you can modify it with a huge variety
 of methods to further customize the presentation. Formatting body cells is commonly done with
-the family of formatting methods (e.g., `fmt_number()`, `fmt_date()`, etc.). The package
-supports formatting with internationalization ('i18n' features) and so locale-aware methods
-all come with a `locale=` argument. To avoid having to use that argument repeatedly, the `GT()`
-class has its own `locale=` argument. Setting a locale in that will make it available globally.
-Here's an example of how that works in practice when setting `locale = "fr"` in `GT()` prior to
-using formatting methods:
+the family of formatting methods (e.g., [`fmt_number()`](`great_tables.GT.fmt_number`),
+[`fmt_date()`](`great_tables.GT.fmt_date`), etc.). The package supports formatting with
+internationalization ('i18n' features) and so locale-aware methods all come with a `locale=`
+argument. To avoid having to use that argument repeatedly, the `GT()` class has its own
+`locale=` argument. Setting a locale in that will make it available globally. Here's an example
+of how that works in practice when setting `locale = "fr"` in `GT()` prior to using formatting
+methods:
 
 ```{python}
 from great_tables import GT, exibble
@@ -125,9 +126,11 @@ from great_tables import GT, exibble
 )
 ```
 
-In this example, the `fmt_currency()`, `fmt_scientific()`, and `fmt_date()` methods understand
-that the locale for this table is `"fr"` (French), so the appropriate formatting for that locale
-is apparent in the `currency`, `num`, and `date` columns.
+In this example, the [`fmt_currency()`](`great_tables.GT.fmt_currency`),
+[`fmt_scientific()`](`great_tables.GT.fmt_scientific`), and
+[`fmt_date()`](`great_tables.GT.fmt_date`) methods understand that the locale for this table is
+`"fr"` (French), so the appropriate formatting for that locale is apparent in the `currency`,
+`num`, and `date` columns.
 
 
 ## Major structural table parts
@@ -1056,13 +1059,13 @@ exibble_sm = exibble[["num", "fctr", "row", "group"]]
 
 Let's use `exibble` once again to create a simple, two-column output table (keeping only the
 `num` and `currency` columns). With the `tab_style()` method (called thrice), we'll add style to
-the values already formatted by `fmt_number()` and `fmt_currency()`. In the `style` argument of
-the first two `tab_style()` call, we can define multiple types of styling with the
-`style.fill()` and `style.text()` classes (enclosing these in a list). The cells to be targeted
-for styling require the use of `loc.body()`, which is used here with different columns being
-targeted. For the final `tab_style()` call, we demonstrate the use of `style.borders()` class
-as the `style` argument, which is employed in conjunction with `loc.body()` to locate the row to
-be styled.
+the values already formatted by [`fmt_number()`](`great_tables.GT.fmt_number`) and
+[`fmt_currency()`](`great_tables.GT.fmt_currency`). In the `style` argument of the first two
+`tab_style()` call, we can define multiple types of styling with the `style.fill()` and
+`style.text()` classes (enclosing these in a list). The cells to be targeted for styling require
+the use of `loc.body()`, which is used here with different columns being targeted. For the final
+`tab_style()` call, we demonstrate the use of `style.borders()` class as the `style` argument,
+which is employed in conjunction with `loc.body()` to locate the row to be styled.
 
 ```{python}
 from great_tables import GT, style, loc, exibble
@@ -1728,9 +1731,10 @@ all other methods that have a `locale` argument).
 
 Examples
 --------
-Let's use the `exibble` dataset to create a table. With the `fmt_number()` method, we'll format
-the `num` column to have three decimal places (with `decimals=3`) and omit the use of digit
-separators (with `use_seps=False`).
+Let's use the `exibble` dataset to create a table. With the
+[`fmt_number()`](`great_tables.GT.fmt_number`) method, we'll format the `num` column to have
+three decimal places (with `decimals=3`) and omit the use of digit separators (with
+`use_seps=False`).
 
 ```{python}
 from great_tables import GT, exibble
@@ -1827,9 +1831,9 @@ all other methods that have a `locale` argument).
 
 Examples
 --------
-For this example, we'll use the `exibble` dataset as the input table. With the `fmt_integer()`
-method, we'll format the `num` column as integer values having no digit separators (with the
-`use_seps=False` option).
+For this example, we'll use the `exibble` dataset as the input table. With the
+[`fmt_integer()`](`great_tables.GT.fmt_integer`) method, we'll format the `num` column as
+integer values having no digit separators (with the `use_seps=False` option).
 
 ```{python}
 from great_tables import GT, exibble
@@ -1941,8 +1945,8 @@ all other methods that have a `locale` argument).
 Examples
 --------
 For this example, we'll use the `exibble` dataset as the input table. With the
-`fmt_scientific()` method, we'll format the `num` column to contain values in scientific
-formatting.
+[`fmt_scientific()`](`great_tables.GT.fmt_scientific`) method, we'll format the `num` column to
+contain values in scientific formatting.
 
 ```{python}
 from great_tables import GT, exibble
@@ -2074,7 +2078,8 @@ GT(numbers_df).fmt_engineering()
 Notice that in each case, the exponent is a multiple of `3`.
 
 Let's define a DataFrame that contains two columns of values (one small and one large). After
-creating a simple table with `GT()`, we'll call `fmt_engineering()` on both columns.
+creating a simple table with `GT()`, we'll call
+[`fmt_engineering()`](`great_tables.GT.fmt_engineering`) on both columns.
 
 ```{python}
 small_large_df = pl.DataFrame({
@@ -2301,8 +2306,8 @@ substances_df = pl.DataFrame(
 )
 ```
 
-You can combine `fmt_number_si()` with `fmt_units()` and `cols_merge()` to format measurements
-with SI prefixes on units that need special typesetting.
+You can combine [`fmt_number_si()`](`great_tables.GT.fmt_number_si`) with `fmt_units()` and
+`cols_merge()` to format measurements with SI prefixes on units that need special typesetting.
 
 ```{python}
 measurements_df = pl.DataFrame(
@@ -2440,9 +2445,9 @@ all other methods that have a `locale` argument).
 
 Examples
 --------
-Let’s use the `towny` dataset as the input table. With the `fmt_percent()` method, we'll format
-the `pop_change_2016_2021_pct` column to to display values as percentages (to two decimal
-places).
+Let’s use the `towny` dataset as the input table. With the
+[`fmt_percent()`](`great_tables.GT.fmt_percent`) method, we'll format the
+`pop_change_2016_2021_pct` column to to display values as percentages (to two decimal places).
 
 ```{python}
 from great_tables import GT
@@ -2608,9 +2613,9 @@ fmt_currency(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr'
 Format values as currencies.
 
 With numeric values in a **gt** table, we can perform currency-based formatting with the
-`fmt_currency()` method. This supports both automatic formatting with a three-letter currency
-code. We have fine control over the conversion from numeric values to currency values, where we
-could take advantage of the following options:
+[`fmt_currency()`](`great_tables.GT.fmt_currency`) method. This supports both automatic
+formatting with a three-letter currency code. We have fine control over the conversion from
+numeric values to currency values, where we could take advantage of the following options:
 
 - the currency: providing a currency code will procure the correct currency symbol and number of
 currency subunits
@@ -2724,8 +2729,9 @@ all other methods that have a `locale` argument).
 
 Examples
 --------
-Let's use the `exibble` dataset to create a table. With the `fmt_currency()` method, we'll
-format the `currency` column to display monetary values.
+Let's use the `exibble` dataset to create a table. With the
+[`fmt_currency()`](`great_tables.GT.fmt_currency`) method, we'll format the `currency` column to
+display monetary values.
 
 ```{python}
 from great_tables import GT, exibble
@@ -2775,7 +2781,7 @@ Examples
 --------
 Let's first create a DataFrame containing small numeric values and then introduce that to
 [`GT()`](`great_tables.GT`). We'll then format the `roman` column to appear as Roman numerals
-with the `fmt_roman()` method.
+with the [`fmt_roman()`](`great_tables.GT.fmt_roman`) method.
 
 ```{python}
 import pandas as pd
@@ -2954,12 +2960,12 @@ fmt_chem(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = N
 
 Format chemical formulas.
 
-With `fmt_chem()` you can format chemical formulas and reactions in the table body. Often the
-input text will be in a common form representing single compounds (like `"C2H4O"` for
-acetaldehyde) but chemical reactions can also be used (e.g., `"2 CH3OH -> CH3OCH3 + H2O"`).
-So long as the text within the targeted cells conforms to the specialized chemistry notation,
-the appropriate conversions will occur. Details on chemistry notation can be found in the
-section entitled *How to use chemistry notation*.
+With [`fmt_chem()`](`great_tables.GT.fmt_chem`) you can format chemical formulas and reactions
+in the table body. Often the input text will be in a common form representing single compounds
+(like `"C2H4O"` for acetaldehyde) but chemical reactions can also be used (e.g., `"2 CH3OH ->
+CH3OCH3 + H2O"`). So long as the text within the targeted cells conforms to the specialized
+chemistry notation, the appropriate conversions will occur. Details on chemistry notation can be
+found in the section entitled *How to use chemistry notation*.
 
 Parameters
 ----------
@@ -3013,9 +3019,10 @@ amount of syntax needed. Here are examples of the supported features:
 Examples
 --------
 Let's use the `reactions` dataset and create a table of gas-phase reaction rate constants for
-selected terminal alkenes. The `cmpd_formula` column contains chemical formulas and `fmt_chem()`
-will render them with properly subscripted numerals. Notice that the column labels for O₃ and
-NO₃ use the `{{%...%}}` chemistry notation within `cols_label()`.
+selected terminal alkenes. The `cmpd_formula` column contains chemical formulas and
+[`fmt_chem()`](`great_tables.GT.fmt_chem`) will render them with properly subscripted numerals.
+Notice that the column labels for O₃ and NO₃ use the `{{%...%}}` chemistry notation within
+`cols_label()`.
 
 ```{python}
 import polars as pl
@@ -3054,8 +3061,9 @@ reactions_mini = (
 ```
 
 The `photolysis` dataset contains photolysis pathways where both the `cmpd_formula` and
-`products` columns hold chemistry notation. We can format both columns with `fmt_chem()` and use
-`cols_merge()` to combine the compound name with its formatted formula.
+`products` columns hold chemistry notation. We can format both columns with
+[`fmt_chem()`](`great_tables.GT.fmt_chem`) and use `cols_merge()` to combine the compound name
+with its formatted formula.
 
 ```{python}
 photolysis_mini = (
@@ -3084,8 +3092,8 @@ photolysis_mini = (
 ```
 
 The `nuclides` dataset contains isotope data with nuclide notation (e.g., `"^{12}_{6}C"`) that
-`fmt_chem()` renders with properly overstruck mass and atomic numbers. Here we show isotopes of
-hydrogen and carbon.
+[`fmt_chem()`](`great_tables.GT.fmt_chem`) renders with properly overstruck mass and atomic
+numbers. Here we show isotopes of hydrogen and carbon.
 
 ```{python}
 from great_tables import md
@@ -3232,9 +3240,10 @@ fmt_url(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = No
 
 Format values as URL links.
 
-With `fmt_url()`, input URL strings in the table body are transformed into HTML anchor elements
-(`<a>` tags). The URLs can be displayed as-is, with a static label, or with a label generated by
-a function. The links can also be styled as buttons with customizable colors and dimensions.
+With [`fmt_url()`](`great_tables.GT.fmt_url`), input URL strings in the table body are
+transformed into HTML anchor elements (`<a>` tags). The URLs can be displayed as-is, with a
+static label, or with a label generated by a function. The links can also be styled as buttons
+with customizable colors and dimensions.
 
 In LaTeX output, the links are written with the `href` command (so the **hyperref** package
 needs to be loaded) and the styling options only apply to HTML output.
@@ -3354,9 +3363,9 @@ fmt_email(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = 
 
 Format values as email links.
 
-The `fmt_email()` method transforms email addresses in the table body into clickable `mailto:`
-links. Like `fmt_url()`, the links can be styled as buttons or as plain underlined text, with
-customizable colors.
+The [`fmt_email()`](`great_tables.GT.fmt_email`) method transforms email addresses in the table
+body into clickable `mailto:` links. Like [`fmt_url()`](`great_tables.GT.fmt_url`), the links
+can be styled as buttons or as plain underlined text, with customizable colors.
 
 In LaTeX output, the links are written with the `href` command (so the **hyperref** package
 needs to be loaded) and the styling options only apply to HTML output.
@@ -3489,13 +3498,13 @@ fmt_bytes(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = 
 Format values as bytes.
 
 With numeric values in a table, we can transform those to values of bytes with human readable
-units. The `fmt_bytes()` method allows for the formatting of byte sizes to either of two common
-representations: (1) with decimal units (powers of 1000, examples being `"kB"` and `"MB"`), and
-(2) with binary units (powers of 1024, examples being `"KiB"` and `"MiB"`). It is assumed the
-input numeric values represent the number of bytes and automatic truncation of values will
-occur. The numeric values will be scaled to be in the range of 1 to <1000 and then decorated
-with the correct unit symbol according to the standard chosen. For more control over the
-formatting of byte sizes, we can use the following options:
+units. The [`fmt_bytes()`](`great_tables.GT.fmt_bytes`) method allows for the formatting of byte
+sizes to either of two common representations: (1) with decimal units (powers of 1000, examples
+being `"kB"` and `"MB"`), and (2) with binary units (powers of 1024, examples being `"KiB"` and
+`"MiB"`). It is assumed the input numeric values represent the number of bytes and automatic
+truncation of values will occur. The numeric values will be scaled to be in the range of 1 to
+<1000 and then decorated with the correct unit symbol according to the standard chosen. For more
+control over the formatting of byte sizes, we can use the following options:
 
 - decimals: choice of the number of decimal places, option to drop trailing zeros, and a choice
 of the decimal symbol
@@ -3588,8 +3597,8 @@ all other methods that have a `locale` argument).
 Examples
 --------
 Let's use a single column from the `exibble` dataset and create a new table. We'll format the
-`num` column to display as byte sizes in the decimal standard through use of the `fmt_bytes()`
-method.
+`num` column to display as byte sizes in the decimal standard through use of the
+[`fmt_bytes()`](`great_tables.GT.fmt_bytes`) method.
 
 ```{python}
 from great_tables import GT, exibble
@@ -3676,8 +3685,8 @@ all other methods that have a `locale` argument).
 Examples
 --------
 Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
-and `time` columns). With the `fmt_date()` method, we'll format the `date` column to display
-dates formatted with the `"month_day_year"` date style.
+and `time` columns). With the [`fmt_date()`](`great_tables.GT.fmt_date`) method, we'll format
+the `date` column to display dates formatted with the `"month_day_year"` date style.
 
 ```{python}
 from great_tables import GT, exibble
@@ -3753,8 +3762,8 @@ all other methods that have a `locale` argument).
 Examples
 --------
 Let's use the `exibble` dataset to create a simple, two-column table (keeping only the `date`
-and `time` columns). With the `fmt_time()` method, we'll format the `time` column to display
-times formatted with the `"h_m_s_p"` time style.
+and `time` columns). With the [`fmt_time()`](`great_tables.GT.fmt_time`) method, we'll format
+the `time` column to display times formatted with the `"h_m_s_p"` time style.
 
 ```{python}
 from great_tables import GT, exibble
@@ -3980,8 +3989,9 @@ Any other specialized combinations will result in the default set being used, wh
 
 Compatibility of formatting function with data values
 -----------------------------------------------------
-`fmt_duration()` is compatible with body cells that are of `int`, `float`, or
-`datetime.timedelta` types. Any other types of body cells are ignored during formatting.
+[`fmt_duration()`](`great_tables.GT.fmt_duration`) is compatible with body cells that are of
+`int`, `float`, or `datetime.timedelta` types. Any other types of body cells are ignored during
+formatting.
 
 Examples
 --------
@@ -4042,8 +4052,8 @@ The output is zero-padded in the familiar `HH:MM:SS` format. By specifying `outp
 control exactly which components appear in the colon-separated output.
 
 When working with `timedelta` columns (common in Pandas when computing differences between
-timestamps), `fmt_duration()` automatically detects the units—no `input_units` argument is
-needed.
+timestamps), [`fmt_duration()`](`great_tables.GT.fmt_duration`) automatically detects the
+units—no `input_units` argument is needed.
 
 ```{python}
 from datetime import datetime
@@ -4212,7 +4222,7 @@ fmt_markdown(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr'
 Format Markdown text.
 
 Any Markdown-formatted text in the incoming cells will be transformed during render when using
-the `fmt_markdown()` method.
+the [`fmt_markdown()`](`great_tables.GT.fmt_markdown`) method.
 
 Parameters
 ----------
@@ -4235,7 +4245,7 @@ Examples:
 -------
 Let’s first create a DataFrame containing some text that is Markdown-formatted and then introduce
 that to [`GT()`](`great_tables.GT`). We’ll then transform the `md` column with the
-`fmt_markdown()` method.
+[`fmt_markdown()`](`great_tables.GT.fmt_markdown`) method.
 
 ```{python}
 import pandas as pd
@@ -4391,15 +4401,16 @@ fmt_image(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = 
 
 Format image paths to generate images in cells.
 
-To more easily insert graphics into body cells, we can use the `fmt_image()` method. This allows
-for one or more images to be placed in the targeted cells. The cells need to contain some
-reference to an image file, either: (1) local paths to the files; (2) complete http/https to the
-files; (3) the file names, where a common path can be provided via `path=`; or (4) a fragment of
-the file name, where the `file_pattern=` argument helps to compose the entire file name and
-`path=` provides the path information. This should be expressly used on columns that contain
-*only* references to image files (i.e., no image references as part of a larger block of text).
-Multiple images can be included per cell by separating image references by commas. The `sep=`
-argument allows for a common separator to be applied between images.
+To more easily insert graphics into body cells, we can use the
+[`fmt_image()`](`great_tables.GT.fmt_image`) method. This allows for one or more images to be
+placed in the targeted cells. The cells need to contain some reference to an image file, either:
+(1) local paths to the files; (2) complete http/https to the files; (3) the file names, where a
+common path can be provided via `path=`; or (4) a fragment of the file name, where the
+`file_pattern=` argument helps to compose the entire file name and `path=` provides the path
+information. This should be expressly used on columns that contain *only* references to image
+files (i.e., no image references as part of a larger block of text). Multiple images can be
+included per cell by separating image references by commas. The `sep=` argument allows for a
+common separator to be applied between images.
 
 Parameters
 ----------
@@ -4449,10 +4460,11 @@ columns and rows from that table. The `lines` column has comma-separated listing
 corresponding to lines served at each station. We have a directory of SVG graphics for all of
 these lines in the package (the path for the image directory can be accessed via
 `files("great_tables") / "data/metro_images"`, using the `importlib_resources` package). The
-filenames roughly corresponds to the data in the `lines` column. The `fmt_image()` method can
-be used with these inputs since the `path=` and `file_pattern=` arguments allow us to compose
-complete and valid file locations. What you get from this are sequences of images in the table
-cells, taken from the referenced graphics files on disk.
+filenames roughly corresponds to the data in the `lines` column. The
+[`fmt_image()`](`great_tables.GT.fmt_image`) method can be used with these inputs since the
+`path=` and `file_pattern=` arguments allow us to compose complete and valid file locations.
+What you get from this are sequences of images in the table cells, taken from the referenced
+graphics files on disk.
 
 ```{python}
 from great_tables import GT
@@ -4478,14 +4490,14 @@ fmt_flag(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = N
 
 Generate flag icons for countries from their country codes.
 
-While it is fairly straightforward to insert images into body cells (using `fmt_image()` is one
-way to it), there is often the need to incorporate specialized types of graphics within a table.
-One such group of graphics involves iconography representing different countries, and the
-`fmt_flag()` method helps with inserting a flag icon (or multiple) in body cells. To make this
-work seamlessly, the input cells need to contain some reference to a country, and this can be in
-the form of a 2- or 3-letter ISO 3166-1 country code (e.g., Egypt has the `"EG"` country code).
-This method will parse the targeted body cells for those codes and insert the appropriate flag
-graphics.
+While it is fairly straightforward to insert images into body cells (using
+[`fmt_image()`](`great_tables.GT.fmt_image`) is one way to it), there is often the need to
+incorporate specialized types of graphics within a table. One such group of graphics involves
+iconography representing different countries, and the `fmt_flag()` method helps with inserting a
+flag icon (or multiple) in body cells. To make this work seamlessly, the input cells need to
+contain some reference to a country, and this can be in the form of a 2- or 3-letter ISO 3166-1
+country code (e.g., Egypt has the `"EG"` country code). This method will parse the targeted body
+cells for those codes and insert the appropriate flag graphics.
 
 Multiple flags can be included per cell by separating country codes with commas (e.g.,
 `"GB,TT"`). The `sep=` argument allows for a common separator to be applied between flag icons.
@@ -6427,7 +6439,7 @@ GT
 Examples
 --------
 Let's put some numbers with different numbers of decimal places in a table, format them with
-`fmt_number()` and align them on the decimal mark.
+[`fmt_number()`](`great_tables.GT.fmt_number`) and align them on the decimal mark.
 
 ```{python}
 import polars as pl
@@ -7484,7 +7496,7 @@ col_pct
     The column that contains values for the percentage component. While column selection
     expressions can be used, it's recommended that a single column name be used to ensure that
     exactly one column is provided here. This column should be formatted such that percentages
-    are displayed (e.g., with `fmt_percent()`).
+    are displayed (e.g., with [`fmt_percent()`](`great_tables.GT.fmt_percent`)).
 rows
     In conjunction with `col_n`, we can specify which rows should participate in the merging
     process. The default is all rows. Alternatively, we can supply a row index, a list of row
@@ -7517,8 +7529,9 @@ This function employs specialized semantics for missing value and zero-value han
 
 It is the responsibility of the user to ensure that values are correct in both the `col_n` and
 `col_pct` columns (this function neither generates nor recalculates values in either).
-Formatting of each column can be done independently in separate `fmt_number()` and
-`fmt_percent()` calls.
+Formatting of each column can be done independently in separate
+[`fmt_number()`](`great_tables.GT.fmt_number`) and
+[`fmt_percent()`](`great_tables.GT.fmt_percent`) calls.
 
 Examples
 --------
@@ -8800,9 +8813,9 @@ with_locale(self: 'GTSelf', locale: 'str | None' = None) -> 'GTSelf'
 
 Set a column to be the default locale.
 
-Setting a default locale affects formatters like `fmt_number()`, and `fmt_date()`,
-by having them default to locale-specific features (e.g. representing one thousand
-as 1.000,00)
+Setting a default locale affects formatters like [`fmt_number()`](`great_tables.GT.fmt_number`),
+and [`fmt_date()`](`great_tables.GT.fmt_date`), by having them default to locale-specific
+features (e.g. representing one thousand as 1.000,00)
 
 Parameters
 ----------
@@ -8818,9 +8831,10 @@ GT
 
 Examples
 --------
-Let's create a table and set its `locale=` to `"ja"` for Japan. Then, we call `fmt_currency()`
-to format the `"currency"` column. Since we didn't specify a `locale=` for `fmt_currency()`,
-it will adopt the globally set `"ja"` locale.
+Let's create a table and set its `locale=` to `"ja"` for Japan. Then, we call
+[`fmt_currency()`](`great_tables.GT.fmt_currency`) to format the `"currency"` column. Since we
+didn't specify a `locale=` for [`fmt_currency()`](`great_tables.GT.fmt_currency`), it will adopt
+the globally set `"ja"` locale.
 
 ```{python}
 from great_tables import GT, exibble
@@ -10341,9 +10355,11 @@ CSS styles in a `<style>` block. However, the method provides several parameters
 the output format--like `inline_css=`, `make_page=`, and `all_important=`.
 
 Body cells that have not been processed by a `fmt_*()` method are automatically HTML-escaped to
-prevent cross-site scripting (XSS). Cells that have been formatted (e.g., with `fmt_number()`,
-`fmt_markdown()`, etc.) are trusted as safe HTML. To include raw HTML in unformatted cells, use
-the `html()` helper (e.g., `html("<b>bold</b>")`) via a `fmt_*()` method or `text_transform()`.
+prevent cross-site scripting (XSS). Cells that have been formatted (e.g., with
+[`fmt_number()`](`great_tables.GT.fmt_number`),
+[`fmt_markdown()`](`great_tables.GT.fmt_markdown`), etc.) are trusted as safe HTML. To include
+raw HTML in unformatted cells, use the `html()` helper (e.g., `html("<b>bold</b>")`) via a
+`fmt_*()` method or `text_transform()`.
 
 Parameters
 ----------
@@ -10488,12 +10504,14 @@ document's preamble:
 
 - `booktabs` (always)
 - `longtable`, with `use_longtable=True`
-- `hyperref`, if the table has links from `fmt_url()` or `fmt_email()`
+- `hyperref`, if the table has links from [`fmt_url()`](`great_tables.GT.fmt_url`) or
+  [`fmt_email()`](`great_tables.GT.fmt_email`)
 - `anyfontsize` (optional), so that a `table_font_size=` set with `tab_options()` is used at
   exactly that size rather than the nearest available one
 
 For example, `\usepackage{booktabs}` and `\usepackage{longtable}`. Some currency symbols
-(e.g., `"₹"` for `"INR"`) need XeLaTeX or LuaLaTeX rather than pdfLaTeX (see `fmt_currency()`).
+(e.g., `"₹"` for `"INR"`) need XeLaTeX or LuaLaTeX rather than pdfLaTeX (see
+[`fmt_currency()`](`great_tables.GT.fmt_currency`)).
 
 Limitations
 -----------
@@ -10503,8 +10521,8 @@ output tables:
 
 - footnotes (via the `tab_footnote()` method), which raise an error
 - the `fmt_nanoplot()` method, which raises an error
-- the `fmt_image()`, `fmt_flag()`, and `fmt_icon()` methods, which issue a warning and leave
-  the cell values unformatted
+- the [`fmt_image()`](`great_tables.GT.fmt_image`), `fmt_flag()`, and `fmt_icon()` methods,
+  which issue a warning and leave the cell values unformatted
 - styles, whether set with the `tab_style()` or `data_color()` methods (a warning is issued
   and the table is rendered without them)
 - most options in the `tab_options()` method, particularly those that are specific to styling
@@ -11483,7 +11501,8 @@ Format chemical formulas.
 
 With string values in a list, we can transform chemical formula notation into properly typeset
 HTML with subscripted numbers, superscripted charges, reaction arrows, and more. The input text
-should conform to the chemistry notation described in `fmt_chem()`.
+should conform to the chemistry notation described in
+[`fmt_chem()`](`great_tables.GT.fmt_chem`).
 
 Parameters
 ----------
@@ -11925,7 +11944,8 @@ val_fmt_markdown(x: 'X') -> 'list[str]'
 
 Format Markdown text.
 
-Any Markdown-formatted text can be transformed to HTML when using the `fmt_markdown()` function.
+Any Markdown-formatted text can be transformed to HTML when using the
+[`fmt_markdown()`](`great_tables.vals.fmt_markdown`) function.
 
 Parameters
 ----------
@@ -11964,15 +11984,16 @@ val_fmt_image(x: 'X', height: 'str | int | None' = None, width: 'str | int | Non
 
 Format image paths to generate images in cells.
 
-To more easily insert graphics into body cells, we can use the `fmt_image()` method. This allows
-for one or more images to be placed in the targeted cells. The cells need to contain some
-reference to an image file, either: (1) complete http/https or local paths to the files; (2) the
-file names, where a common path can be provided via `path=`; or (3) a fragment of the file name,
-where the `file_pattern=` argument helps to compose the entire file name and `path=` provides
-the path information. This should be expressly used on columns that contain *only* references to
-image files (i.e., no image references as part of a larger block of text). Multiple images can
-be included per cell by separating image references by commas. The `sep=` argument allows for a
-common separator to be applied between images.
+To more easily insert graphics into body cells, we can use the
+[`fmt_image()`](`great_tables.GT.fmt_image`) method. This allows for one or more images to be
+placed in the targeted cells. The cells need to contain some reference to an image file, either:
+(1) complete http/https or local paths to the files; (2) the file names, where a common path can
+be provided via `path=`; or (3) a fragment of the file name, where the `file_pattern=` argument
+helps to compose the entire file name and `path=` provides the path information. This should be
+expressly used on columns that contain *only* references to image files (i.e., no image
+references as part of a larger block of text). Multiple images can be included per cell by
+separating image references by commas. The `sep=` argument allows for a common separator to be
+applied between images.
 
 Parameters
 ----------
@@ -14408,9 +14429,9 @@ When rendering to HTML, **Great Tables** automatically escapes special character
 cross-site scripting (XSS) when displaying untrusted data (e.g., user-submitted text, CSV uploads)
 in web applications, dashboards, or reports.
 
-Cells that *have* been formatted (e.g., with `fmt_number()`, `fmt_markdown()`, `fmt_image()`, etc.)
-are treated as trusted HTML and are not escaped. This allows formatters to produce rich HTML content
-like images, links, and styled text.
+Cells that *have* been formatted (e.g., with `~~GT.fmt_number()`, `~~GT.fmt_markdown()`,
+`~~GT.fmt_image()`, etc.) are treated as trusted HTML and are not escaped. This allows formatters to
+produce rich HTML content like images, links, and styled text.
 
 To include raw HTML or Markdown in cells that would otherwise be escaped, use a formatting method
 with the `html()` or `md()` helpers:
@@ -14585,17 +14606,17 @@ that was created elsewhere to suit your needs.
 
 ### More Formatting Options
 
-The [Formatting Values](./07-formatting-values.qmd) page introduced the basics of `fmt_number()`,
-`fmt_currency()`, `fmt_date()`, and `fmt_time()`. But **Great Tables** has a much larger formatting
-toolkit. This page covers additional formatters that handle percentages, byte sizes, durations,
-scientific units, icons, flags, images, boolean values, Markdown, and more. Each formatter
-transforms raw cell data into presentation-ready content.
+The [Formatting Values](./07-formatting-values.qmd) page introduced the basics of
+`~~GT.fmt_number()`, `~~GT.fmt_currency()`, `~~GT.fmt_date()`, and `~~GT.fmt_time()`. But **Great
+Tables** has a much larger formatting toolkit. This page covers additional formatters that handle
+percentages, byte sizes, durations, scientific units, icons, flags, images, boolean values,
+Markdown, and more. Each formatter transforms raw cell data into presentation-ready content.
 
 When choosing a formatter, start with the semantic meaning of your data. If a column represents a
-file size, reach for `fmt_bytes()` rather than `fmt_number()` with manual suffix logic. If a column
-holds time durations, use `fmt_duration()` instead of formatting seconds by hand. Semantic
-formatters produce more consistent output and handle edge cases (like unit boundaries and scaling)
-automatically, so you get correct results without writing extra logic.
+file size, reach for `~~GT.fmt_bytes()` rather than `~~GT.fmt_number()` with manual suffix logic. If
+a column holds time durations, use `~~GT.fmt_duration()` instead of formatting seconds by hand.
+Semantic formatters produce more consistent output and handle edge cases (like unit boundaries and
+scaling) automatically, so you get correct results without writing extra logic.
 
 ## Percentage Formatting
 
@@ -15169,8 +15190,8 @@ data values.
 
 To clarify the distinction: `fmt_*()` methods work on raw data values *before* they become text.
 Text transforms work on the *already-rendered text* after formatting. This means you can use
-`fmt_number()` to get consistent decimal places, and then use `text_transform()` to wrap the result
-in custom HTML or append a unit label. The two layers complement each other, where formatting
+`~~GT.fmt_number()` to get consistent decimal places, and then use `text_transform()` to wrap the
+result in custom HTML or append a unit label. The two layers complement each other, where formatting
 handles the numeric conversion, and text transforms handle the final presentation touches.
 
 ## Setting Up the Example Data
@@ -18603,7 +18624,7 @@ Column selector
   should act on. Accepts a column name (string), a list of names, an integer index, a Polars
   selector expression (e.g., `cs.numeric()`), or a callable that takes a column name and
   returns a boolean. Column selectors are used throughout the API in methods like
-  `fmt_number()`, `cols_align()`, `tab_style()`, and many others.
+  `~~GT.fmt_number()`, `cols_align()`, `tab_style()`, and many others.
 
 Data color
 : A technique for colorizing **cell** backgrounds based on data values, providing a visual
@@ -18632,9 +18653,9 @@ Footnote mark
 Formatter
 : A method that transforms how raw data values are displayed in **cells** without altering the
   underlying data. All built-in formatters follow the `fmt_*()` naming convention (e.g.,
-  `fmt_number()`, `fmt_currency()`, `fmt_date()`). A general-purpose `fmt()` method accepts a
-  custom formatting function. The `vals` module provides standalone equivalents for use outside
-  a `GT` object, such as in **summary rows** definitions.
+  `~~GT.fmt_number()`, `~~GT.fmt_currency()`, `~~GT.fmt_date()`). A general-purpose `fmt()` method
+  accepts a custom formatting function. The `vals` module provides standalone equivalents for use
+  outside a `GT` object, such as in **summary rows** definitions.
 
 Grand summary rows
 : Aggregation rows that summarize the entire table's data, regardless of **row groups**.
@@ -18698,7 +18719,7 @@ Row selector
 : An expression passed to a `rows=` parameter to identify which rows an operation should act
   on. Accepts an integer index, a list of indices, a list of row names (when a **stub** is
   present), a Polars expression, or a callable. Row selectors are used in methods like
-  `fmt_number()`, `tab_style()`, `cols_merge()`, and others.
+  `~~GT.fmt_number()`, `tab_style()`, `cols_merge()`, and others.
 
 Source note
 : Citation or attribution text displayed in the **footer**, below any **footnotes**. Added
