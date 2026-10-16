@@ -674,6 +674,12 @@ class SubValues(Substitution):
 
         if self.values is not None:
             match_values = self.values if isinstance(self.values, list) else [self.values]
-            return x in match_values
+            for value in match_values:
+                try:
+                    if bool(x == value):
+                        return True
+                except (TypeError, ValueError):
+                    continue
+            return False
 
         return False
