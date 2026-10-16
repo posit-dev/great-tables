@@ -3,6 +3,112 @@
 This changelog is generated automatically from [GitHub Releases](https://github.com/posit-dev/great-tables/releases).
 
 
+# v1.1.0
+
+*2026-10-15* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v1.1.0)
+
+Great Tables `v1.1.0` is quite a hefty release, and it's centered on richer color scaling, accessibility, and much more reliable LaTeX output. Tables can now have a stub made of several columns, and the new [cols_align_decimal()](./reference/GT.cols_align_decimal.html#great_tables.GT.cols_align_decimal) method lines up numbers on their decimal mark. [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) gains custom color functions, a `midpoint=` for diverging scales, row-wise coloring, and perceptually based text contrast (APCA). HTML tables now carry semantic markup for screen readers by default. This release also fixes more than 60 bugs, with most of the fixes in the number formatters (rounding, infinite and missing values) and in LaTeX rendering.
+
+
+### New Features
+
+- **Multi-column stubs** -- `rowname_col=` now accepts a list of columns, so the stub can show several levels of row labels. Use the new `stub(n)` selector in any `columns=` argument to target one stub level (e.g., `cols_width(cases={stub(1): "70px", stub(2): "200px"})`). ([\#861](https://github.com/posit-dev/great-tables/issues/861), [\#933](https://github.com/posit-dev/great-tables/issues/933))
+- **[cols_align_decimal()](./reference/GT.cols_align_decimal.html#great_tables.GT.cols_align_decimal)** -- Aligns the numeric values in a column on their decimal mark, with optional `dec_mark=` and `locale=` settings. ([\#944](https://github.com/posit-dev/great-tables/issues/944))
+- **Custom color functions in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color)** -- The new `fn=` argument takes a function that maps a list of values to a list of colors, giving you full control over the color mapping. ([\#898](https://github.com/posit-dev/great-tables/issues/898))
+- **Diverging scales with `midpoint=`** -- `data_color(midpoint=0)` centers the palette on a value. The domain is made symmetric around it unless you supply one. ([\#911](https://github.com/posit-dev/great-tables/issues/911))
+- **Row-wise coloring** -- `data_color(direction="row")` computes colors across each row instead of down each column. ([\#950](https://github.com/posit-dev/great-tables/issues/950))
+- **APCA text contrast** -- The new `contrast_algo=` argument in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) chooses between `"apca"` (the new default) and `"wcag"` for automatic text coloring. ([\#897](https://github.com/posit-dev/great-tables/issues/897))
+- **Accessible HTML tables** -- Header cells now have unique ids, and body cells link to them through `headers`. Stub and row group header cells get `scope` attributes. Tables are named and described by their title and subtitle (`aria-labelledby`/`aria-describedby`). ([\#936](https://github.com/posit-dev/great-tables/issues/936), [\#957](https://github.com/posit-dev/great-tables/issues/957), [\#959](https://github.com/posit-dev/great-tables/issues/959))
+- **`min_sep_threshold=` in number formatters** -- Sets the minimum number of digits before digit grouping applies, and follows each locale's own minimum grouping digits by default, as in gt. ([\#956](https://github.com/posit-dev/great-tables/issues/956))
+
+
+### Enhancements
+
+- Images, nanoplots, flags, and icons now get accessible markup (alternative text and roles). ([\#968](https://github.com/posit-dev/great-tables/issues/968))
+- Nanoplot CSS is now scoped to each plot, and the static view (`interactive_data_values=False`) is less cluttered. ([\#903](https://github.com/posit-dev/great-tables/issues/903))
+- ISO durations from `fmt_duration()` are now machine-readable, and durations shown as zero no longer carry a sign. ([\#966](https://github.com/posit-dev/great-tables/issues/966))
+- Units notation and `fmt_chem()` now render in LaTeX output. ([\#969](https://github.com/posit-dev/great-tables/issues/969), [\#973](https://github.com/posit-dev/great-tables/issues/973))
+- The `rows=` argument of the `fmt_*()`, `sub_*()`, and `cols_merge*()` methods is now typed as `RowSelectExpr`, which improves editor and type-checker support. ([\#896](https://github.com/posit-dev/great-tables/issues/896))
+
+
+### Behavior Changes
+
+- [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) now picks text colors with APCA by default instead of the WCAG contrast ratio, so some cells may get different text colors. Use `contrast_algo="wcag"` to keep the old behavior. ([\#897](https://github.com/posit-dev/great-tables/issues/897))
+- [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) palettes are now interpolated in CIELAB, which gives smoother, more perceptually even gradients. Colors between palette stops will differ slightly from earlier versions. ([\#964](https://github.com/posit-dev/great-tables/issues/964))
+- [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) now uses the declared level order of ordered Pandas `Categorical` and Polars `Enum` columns as the inferred domain. ([\#902](https://github.com/posit-dev/great-tables/issues/902))
+- Stub and row group columns are now excluded from column selections, as originally intended. When `columns=` is omitted, methods target body columns only, so [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) no longer colors stub cells. [loc.body()](./reference/loc.body.html#great_tables.loc.body) and `cols_move*()` raise a clear error when given a stub or group column. ([\#933](https://github.com/posit-dev/great-tables/issues/933))
+
+
+### Deprecations
+
+- The `placeholder=` parameter of `output_gt()` is deprecated. ([\#909](https://github.com/posit-dev/great-tables/issues/909))
+- The `islands` and `airquality` datasets are deprecated and now emit a `FutureWarning`. They will be removed in a future release. ([\#939](https://github.com/posit-dev/great-tables/issues/939))
+
+
+### Bug Fixes
+
+- When rounding carries over, it now moves into the next exponent, suffix, unit, or prefix. This applies to `fmt_scientific()` and `n_sigfig=` ([\#906](https://github.com/posit-dev/great-tables/issues/906)), `fmt_engineering()` ([\#915](https://github.com/posit-dev/great-tables/issues/915)), compact numbers ([\#914](https://github.com/posit-dev/great-tables/issues/914)), `fmt_bytes()` ([\#916](https://github.com/posit-dev/great-tables/issues/916)), and `fmt_number_si()` ([\#918](https://github.com/posit-dev/great-tables/issues/918)).
+- `drop_trailing_zeros=` no longer strips zeros from the integer part of a number. ([\#925](https://github.com/posit-dev/great-tables/issues/925))
+- `fmt_scientific()` keeps trailing zeros with `n_sigfig=`, as documented. ([\#963](https://github.com/posit-dev/great-tables/issues/963))
+- Negative values are now rounded away from zero, as in R gt. ([\#953](https://github.com/posit-dev/great-tables/issues/953))
+- Values that round to zero are now shown without a sign. ([\#940](https://github.com/posit-dev/great-tables/issues/940))
+- `fmt_currency()` now handles currency codes that have no minor unit. ([\#931](https://github.com/posit-dev/great-tables/issues/931))
+- Number streams wrapped in brackets (e.g., `"[1, 2, 3]"`) now parse correctly. ([\#908](https://github.com/posit-dev/great-tables/issues/908))
+- `fmt_partsper()`, `fmt_fraction()`, `fmt_number_si()`, and `fmt_duration()` now follow locales that don't group four-digit numbers. ([\#970](https://github.com/posit-dev/great-tables/issues/970))
+- NaN and infinite values are now handled consistently across the formatters. This includes `fmt_scientific()`, `fmt_engineering()`, `fmt_bytes()`, `fmt_roman()`, `fmt_duration()`, `fmt_number_si()`, `n_sigfig=`, and `compact=True`. ([\#917](https://github.com/posit-dev/great-tables/issues/917), [\#920](https://github.com/posit-dev/great-tables/issues/920), [\#922](https://github.com/posit-dev/great-tables/issues/922), [\#926](https://github.com/posit-dev/great-tables/issues/926))
+- Missing values in nullable Pandas columns no longer render as `0`. ([\#949](https://github.com/posit-dev/great-tables/issues/949))
+- `fmt_fraction()`, `fmt_roman()`, and `fmt_index()` now format NumPy integer and `float32` values. ([\#958](https://github.com/posit-dev/great-tables/issues/958))
+- [fmt_tf()](./reference/GT.fmt_tf.html#great_tables.GT.fmt_tf) now accepts NumPy booleans from Pandas columns. ([\#921](https://github.com/posit-dev/great-tables/issues/921))
+- Pandas columns of PyArrow-backed strings are now auto-aligned. ([\#900](https://github.com/posit-dev/great-tables/issues/900))
+- `sub_large_vals(sign="-")` now shows the negative threshold. ([\#913](https://github.com/posit-dev/great-tables/issues/913))
+- [sub_small_vals()](./reference/GT.sub_small_vals.html#great_tables.GT.sub_small_vals) and [sub_large_vals()](./reference/GT.sub_large_vals.html#great_tables.GT.sub_large_vals) now substitute NumPy scalars and treat booleans and `Decimal` values consistently. ([\#946](https://github.com/posit-dev/great-tables/issues/946), [\#967](https://github.com/posit-dev/great-tables/issues/967))
+- [sub_zero()](./reference/GT.sub_zero.html#great_tables.GT.sub_zero) now skips missing values in nullable Pandas columns and leaves boolean values alone. ([\#962](https://github.com/posit-dev/great-tables/issues/962), [\#971](https://github.com/posit-dev/great-tables/issues/971))
+- A `sub_*()` call no longer turns off HTML/LaTeX escaping for the cells it skips. PyArrow tables are now escaped too. ([\#938](https://github.com/posit-dev/great-tables/issues/938))
+- `fmt_time()` now accepts datetime values and the documented `YYYY-MM-DD HH:MM:SS` strings, and rejects date-only strings. ([\#919](https://github.com/posit-dev/great-tables/issues/919), [\#930](https://github.com/posit-dev/great-tables/issues/930))
+- The `year_week` date style now uses the week-based year. ([\#924](https://github.com/posit-dev/great-tables/issues/924))
+- In ISO durations, the `T` designator now comes before the time parts. ([\#947](https://github.com/posit-dev/great-tables/issues/947))
+- In units notation, a slashed unit now has its exponent negated, and inverted first powers are dropped. ([\#942](https://github.com/posit-dev/great-tables/issues/942), [\#969](https://github.com/posit-dev/great-tables/issues/969))
+- [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) now applies `alpha=` to gradient palette colors. ([\#892](https://github.com/posit-dev/great-tables/issues/892))
+- [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color) now handles Pandas `string` columns with `pd.NA`, scales `Decimal` values as numbers, and gives infinite values the colors at either end of the palette. ([\#902](https://github.com/posit-dev/great-tables/issues/902))
+- Nanoplots now keep a stroke width of zero, use a separate area pattern for each fill color, and draw reference lines in single-value plots. ([\#893](https://github.com/posit-dev/great-tables/issues/893), [\#894](https://github.com/posit-dev/great-tables/issues/894), [\#901](https://github.com/posit-dev/great-tables/issues/901))
+- Missing values in nanoplots are now handled correctly. ([\#905](https://github.com/posit-dev/great-tables/issues/905))
+- Nanoplot number formatting at range boundaries and for compact currency values is now correct. ([\#928](https://github.com/posit-dev/great-tables/issues/928))
+- [fmt_flag()](./reference/GT.fmt_flag.html#great_tables.GT.fmt_flag) now handles invalid country codes. ([\#912](https://github.com/posit-dev/great-tables/issues/912))
+- In LaTeX output, special characters are now escaped in the `fmt_index()` pattern, `<`/`>` characters, summary row labels, and the `<` of sub-unit durations. ([\#895](https://github.com/posit-dev/great-tables/issues/895), [\#941](https://github.com/posit-dev/great-tables/issues/941), [\#945](https://github.com/posit-dev/great-tables/issues/945), [\#954](https://github.com/posit-dev/great-tables/issues/954))
+- LaTeX: the stubhead label now renders in the column headings, including when it's empty. ([\#907](https://github.com/posit-dev/great-tables/issues/907), [\#932](https://github.com/posit-dev/great-tables/issues/932))
+- LaTeX: `sub_*()` replacement text now renders, and substitution thresholds are shown compactly. ([\#934](https://github.com/posit-dev/great-tables/issues/934), [\#941](https://github.com/posit-dev/great-tables/issues/941))
+- LaTeX: `fmt_currency()` symbols are now written as LaTeX-safe characters. ([\#923](https://github.com/posit-dev/great-tables/issues/923))
+- LaTeX: `fmt_bytes()` now uses the LaTeX minus sign. ([\#935](https://github.com/posit-dev/great-tables/issues/935))
+- LaTeX: `exp_style="low-ten"` now uses a LaTeX subscript. ([\#943](https://github.com/posit-dev/great-tables/issues/943))
+- LaTeX: `fmt_url()` and `fmt_email()` links are now written with `\href`. ([\#955](https://github.com/posit-dev/great-tables/issues/955))
+- LaTeX: group summary rows with `side="top"` are now placed at the top of the group. ([\#948](https://github.com/posit-dev/great-tables/issues/948))
+- LaTeX: row groups are now separated by a midrule when `row_group_as_column=True`. ([\#951](https://github.com/posit-dev/great-tables/issues/951))
+- LaTeX: [tab_stub_indent()](./reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent) now indents row labels, including for `rem`/`%` lengths and with correct point rounding. ([\#952](https://github.com/posit-dev/great-tables/issues/952), [\#961](https://github.com/posit-dev/great-tables/issues/961))
+- LaTeX: decimal alignment, summary row values, and grouped summary rows now render correctly. ([\#965](https://github.com/posit-dev/great-tables/issues/965))
+- LaTeX tables where a row starts with `[` no longer break. ([\#974](https://github.com/posit-dev/great-tables/issues/974))
+- `great_tables.data` now defines `__all__`, so star imports no longer overwrite `pd`/`pl`. ([\#937](https://github.com/posit-dev/great-tables/issues/937))
+
+
+### Documentation
+
+- Added an Accessibility page to the User Guide. ([\#960](https://github.com/posit-dev/great-tables/issues/960))
+- Added a correlation matrix example to the gallery. ([\#857](https://github.com/posit-dev/great-tables/issues/857))
+- The [as_latex()](./reference/GT.as_latex.html#great_tables.GT.as_latex) Limitations list has been updated to match current LaTeX output. ([\#972](https://github.com/posit-dev/great-tables/issues/972))
+- References to formatters that exist in both [GT](./reference/GT.html#great_tables.GT) and `vals` are now fully qualified. ([\#975](https://github.com/posit-dev/great-tables/issues/975))
+- Fixed the Premade Themes link in the [opt_stylize()](./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize) docs. ([\#976](https://github.com/posit-dev/great-tables/issues/976))
+
+
+### Maintenance
+
+- The nanoplots code was refactored, with many new snapshot tests and a comparison script. Bar plots with `x` values now raise `NotImplementedError` instead of erroring. ([\#904](https://github.com/posit-dev/great-tables/issues/904))
+- Internal cleanups: consolidated test helpers, shared rounding-carry and `pattern=` helpers, a shared dtype helper, and a refactor of column merge display values. ([\#899](https://github.com/posit-dev/great-tables/issues/899), [\#910](https://github.com/posit-dev/great-tables/issues/910), [\#927](https://github.com/posit-dev/great-tables/issues/927), [\#929](https://github.com/posit-dev/great-tables/issues/929), [\#970](https://github.com/posit-dev/great-tables/issues/970))
+
+
+### Contributors
+
+Thank you to everyone who contributed to this release, especially [<span class="citation" data-cites="LuisFigueroaG">@LuisFigueroaG</span>](https://github.com/LuisFigueroaG), [<span class="citation" data-cites="raashish1601">@raashish1601</span>](https://github.com/raashish1601), [<span class="citation" data-cites="manan28025">@manan28025</span>](https://github.com/manan28025), [<span class="citation" data-cites="Rodrigo-Palma">@Rodrigo-Palma</span>](https://github.com/Rodrigo-Palma), [<span class="citation" data-cites="taekop">@taekop</span>](https://github.com/taekop), [<span class="citation" data-cites="blaahhrrgg">@blaahhrrgg</span>](https://github.com/blaahhrrgg), and [<span class="citation" data-cites="naseem173">@naseem173</span>](https://github.com/naseem173).
+
+
 # v1.0.0
 
 *2026-09-25* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v1.0.0)

@@ -19,6 +19,31 @@
         html.setAttribute('data-bs-theme', 'light');
     }
 
+    // Wide layout: apply the stored (or site default) width before first paint.
+    // The layout only widens while .gd-wide-capable is present, i.e. at or
+    // above the configured viewport width; wide-layout.js handles the toggle.
+    var wideMeta = document.querySelector('meta[name="gd-wide-layout"]');
+    if (wideMeta) {
+        var storedWidth = null;
+        try { storedWidth = localStorage.getItem('great-docs-width'); } catch (e) { /* unavailable */ }
+        var width = storedWidth === 'wide' || storedWidth === 'normal'
+            ? storedWidth
+            : (wideMeta.getAttribute('data-default') === 'wide' ? 'wide' : 'normal');
+        html.setAttribute('data-gd-width', width);
+        // Suppress the width animation until wide-layout.js has loaded
+        html.classList.add('gd-wide-instant');
+
+        var minViewport = parseInt(wideMeta.getAttribute('data-min-viewport'), 10) || 1600;
+        var wideMql = window.matchMedia('(min-width: ' + minViewport + 'px)');
+        var syncWideCapable = function() {
+            html.classList.toggle('gd-wide-capable', wideMql.matches);
+        };
+        syncWideCapable();
+        if (wideMql.addEventListener) {
+            wideMql.addEventListener('change', syncWideCapable);
+        }
+    }
+
     // Detect page type from URL for page-specific styling
     var path = window.location.pathname;
     var pageName = path.endsWith('/') || path.endsWith('/index.html') || path === '/' ? 'index' : null;

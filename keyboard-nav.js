@@ -799,6 +799,20 @@
         }
     }
 
+    /**
+     * The wide layout toggle exists and is shown (wide enough viewport)
+     */
+    function hasWideToggle() {
+        return !!document.querySelector('.gd-wide-toggle') &&
+            document.documentElement.classList.contains('gd-wide-capable');
+    }
+
+    function toggleWideLayout() {
+        if (hasWideToggle()) {
+            document.querySelector('.gd-wide-toggle').click();
+        }
+    }
+
     // ── Help Overlay ─────────────────────────────────────────────────────
 
     var SHORTCUT_GROUPS = [
@@ -820,6 +834,7 @@
             shortcuts: [
                 { keys: ['d'], descKey: 'kb_toggle_dark', descFallback: 'Toggle dark mode' },
                 { keys: ['c'], descKey: 'kb_copy_page', descFallback: 'Copy page as Markdown' },
+                { keys: ['w'], descKey: 'kb_toggle_wide', descFallback: 'Toggle wide layout', visible: hasWideToggle },
             ]
         },
         {
@@ -1030,6 +1045,13 @@
             case 'c':
                 e.preventDefault();
                 copyPage();
+                break;
+
+            case 'w':
+                if (hasWideToggle()) {
+                    e.preventDefault();
+                    toggleWideLayout();
+                }
                 break;
 
             case 'Escape':
