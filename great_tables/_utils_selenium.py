@@ -41,6 +41,8 @@ class _ChromeWebDriver(_BaseWebDriver):  # pragma: no cover
 
     def add_arguments(self):
         self.wd_options.add_argument("--headless=new")
+        self.wd_options.add_argument("--no-sandbox")
+        self.wd_options.add_argument("--disable-dev-shm-usage")
         if self.debug_port is not None:
             self.wd_options.add_argument(f"--remote-debugging-port={self.debug_port}")
 
