@@ -1077,6 +1077,23 @@ def test_format_number_n_sigfig_3(value, out: str):
 
 
 @pytest.mark.parametrize(
+    "value,n_sigfig,out",
+    [
+        # Each value is stored slightly above the halfway point (e.g., 32.85 is
+        # 32.850000000000001...), so it rounds up, as it does with `decimals=`
+        (32.85, 3, "32.9"),
+        (-79.65, 3, "-79.7"),
+        (3.45, 2, "3.5"),
+        # Very small values must not overflow when scaled up to their significant digits
+        (1e-310, 2, "0." + "0" * 309 + "10"),
+        (5e-324, 1, "0." + "0" * 323 + "5"),
+    ],
+)
+def test_format_number_n_sigfig_rounds_stored_value(value: float, n_sigfig: int, out: str):
+    assert _format_number_n_sigfig(value, n_sigfig) == out
+
+
+@pytest.mark.parametrize(
     "str_number,x_out",
     [
         ("1e-5", "0.00001"),
@@ -1284,6 +1301,36 @@ def test_value_to_scientific_notation_exact_powers_of_ten(value: float, n_sigfig
     # Floating-point error when scaling exact powers of ten should not be treated as a
     # rounding carry (nor raise an error when `n_sigfig=1`)
     assert _value_to_scientific_notation(value, n_sigfig=n_sigfig) == x_out
+
+
+@pytest.mark.parametrize(
+    "value,n_sigfig,x_out",
+    [
+        # The mantissa is rounded from the stored value, as `format(value, ".2e")` does
+        (32.85, 3, "3.29E1"),
+        (9.315e-08, 3, "9.31E-8"),
+        (5.125e-25, 3, "5.13E-25"),
+        # Values near the bottom of the float range (subnormals included) don't overflow
+        (1e-308, 3, "1.00E-308"),
+        (1.5e-310, 2, "1.5E-310"),
+        (-5e-324, 1, "-5E-324"),
+    ],
+)
+def test_value_to_scientific_notation_rounds_stored_value(value: float, n_sigfig: int, x_out: str):
+    assert _value_to_scientific_notation(value, n_sigfig=n_sigfig) == x_out
+
+
+def test_fmt_number_n_sigfig_matches_decimals():
+    # With three significant digits these values have one decimal place, so `n_sigfig=3` and
+    # `decimals=1` should round them the same way
+    df = pd.DataFrame({"x": [32.85, 75.35, -79.65, 39.15]})
+    x_sigfig = _get_column_of_values(
+        GT(df).fmt_number(columns="x", n_sigfig=3), column_name="x", context="html"
+    )
+    x_decimals = _get_column_of_values(
+        GT(df).fmt_number(columns="x", decimals=1), column_name="x", context="html"
+    )
+    assert x_sigfig == x_decimals == ["32.9", "75.3", "−79.7", "39.1"]
 
 
 # ------------------------------------------------------------------------------
@@ -3637,10 +3684,10 @@ def test_fmt_number_si_latex_pattern():
         (dict(decimals=1), [1e-40], ["0.0"]),
         # Carries from the zepto prefix (where rebuilding the value used to fall short of 1e-18)
         (dict(decimals=2), [9.99995e-19, 9.9996e-19], ["1.00 a", "999.96 z"]),
-        # Halfway values with `n_sigfig=` carry to exactly 1 of the next prefix
+        # Values that round up with `n_sigfig=` carry to exactly 1 of the next prefix
         (dict(n_sigfig=1), [9.5e-19], ["1 a"]),
-        (dict(n_sigfig=4), [0.99995], ["1.000"]),
-        (dict(n_sigfig=2, prefix_mode="decimal"), [9.95, 0.995], ["1.0 da", "1.0"]),
+        (dict(n_sigfig=4), [0.99996], ["1.000"]),
+        (dict(n_sigfig=2, prefix_mode="decimal"), [9.96, 0.996], ["1.0 da", "1.0"]),
     ],
 )
 def test_fmt_number_si_rounding_carries_into_next_prefix(

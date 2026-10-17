@@ -6578,17 +6578,14 @@ def _get_number_profile(value: float, n_sigfig: int) -> tuple[str, int, bool]:
         sig_digits = "0" * n_sigfig
         power = -(1 - n_sigfig)
     else:
-        power = -1 * math.floor(math.log10(value)) + n_sigfig - 1
-        value_power = value * 10.0**power
-
-        # If rounding carries over into an extra digit (e.g., 9.9999 to three significant
-        # digits gives 1000), shift the power down by one so that the result keeps `n_sigfig`
-        # digits (and its magnitude increases by a power of ten); comparing the rounded value
-        # against 10^n_sigfig avoids false carries from floating-point error in `value_power`
-        if round(value_power) >= 10**n_sigfig:
-            power -= 1
-
-        sig_digits = str(int(round(value * 10.0**power)))
+        # Scientific notation with `n_sigfig - 1` decimals rounds the stored value itself, as
+        # `decimals=` formatting does; scaling the value by a power of ten first rounds it twice
+        # (32.85 is stored as 32.850000000000001, but 32.85 * 10 is exactly 328.5, which
+        # `round()` takes to 328) and overflows for very small values. A rounding carry (e.g.,
+        # 9.9999 to three significant digits) is reflected in the exponent ("1.00e+01")
+        mantissa, exponent = f"{value:.{n_sigfig - 1}e}".split("e")
+        sig_digits = mantissa.replace(".", "")
+        power = n_sigfig - 1 - int(exponent)
 
     return sig_digits, -power, is_negative
 
