@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="Format values with SI (metric) prefixes.">
 
 <title>vals.fmt_number_si() | Great Tables</title>
+<meta property="og:type" content="website">
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -128,10 +130,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <style>:root{--gd-nav-prefix-api:"API";--gd-nav-prefix-cli:"CLI";--gd-nav-prefix-mcp:"MCP";}</style>
 <meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table&quot;]">
 <link rel="canonical" href="https://posit-dev.github.io/great-tables/reference/vals.fmt_number_si.html">
+<meta property="og:url" content="https://posit-dev.github.io/great-tables/reference/vals.fmt_number_si.html">
 
 
+<meta property="og:title" content="vals.fmt_number_si() | Great Tables">
+<meta property="og:description" content="Format values with SI (metric) prefixes.">
+<meta property="og:site_name" content="Great Tables">
+<meta name="twitter:title" content="vals.fmt_number_si() | Great Tables">
+<meta name="twitter:description" content="Format values with SI (metric) prefixes.">
+<meta name="twitter:card" content="summary">
   <link rel="alternate" type="text/markdown" href="vals.fmt_number_si.md">
-  <meta name="description" content="Format values with SI (metric) prefixes.">
   <script type="application/ld+json">
 [
   {
@@ -159,14 +167,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 ]
 </script>
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="vals.fmt_number_si() | Great Tables">
-  <meta property="og:description" content="Format values with SI (metric) prefixes.">
-  <meta property="og:url" content="https://posit-dev.github.io/great-tables/reference/vals.fmt_number_si.html">
-  <meta property="og:site_name" content="Great Tables">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="vals.fmt_number_si() | Great Tables">
-  <meta name="twitter:description" content="Format values with SI (metric) prefixes.">
 </head>
 
 <body class="gd-ref-sidebar nav-sidebar floating nav-fixed doc-api-page doc-py-api-page quarto-light">
@@ -211,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2900" data-forks="139"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2902" data-forks="141"></div>
     </span>
   </li>  
 </ul>
@@ -1444,7 +1444,7 @@ A list of formatted values is returned.
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Let’s format a vector of numeric values with SI prefixes.</p>
-<div id="a019b025" class="cell" data-execution_count="1">
+<div id="632567ad" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> vals</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>vals.fmt_number_si([<span class="fl">1.5e9</span>, <span class="fl">2.7e6</span>, <span class="dv">4200</span>, <span class="fl">0.3</span>, <span class="fl">0.00012</span>, <span class="fl">2.4e-8</span>])</span></code></pre></div>
@@ -1453,21 +1453,21 @@ A list of formatted values is returned.
 </div>
 </div>
 <p>We can add a unit designation to show what the values represent (e.g., watts).</p>
-<div id="c5126f22" class="cell" data-execution_count="2">
+<div id="ffc3cf66" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_number_si([<span class="fl">1.5e9</span>, <span class="fl">2.7e6</span>, <span class="dv">4200</span>], unit<span class="op">=</span><span class="st">"W"</span>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
 <pre><code>['1.50 GW', '2.70 MW', '4.20 kW']</code></pre>
 </div>
 </div>
 <p>The <code>scale_by</code> option is useful for unit conversions. For instance, to convert metric tons to grams before formatting:</p>
-<div id="0075c1b0" class="cell" data-execution_count="3">
+<div id="c15f0a86" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_number_si([<span class="dv">455</span>, <span class="dv">331</span>, <span class="dv">235</span>, <span class="dv">30</span>], unit<span class="op">=</span><span class="st">"g"</span>, scale_by<span class="op">=</span><span class="dv">1_000_000</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>['455 Mg', '331 Mg', '235 Mg', '30 Mg']</code></pre>
 </div>
 </div>
 <p>We can control the space between the number and unit with <code>incl_space</code>.</p>
-<div id="5835e790" class="cell" data-execution_count="4">
+<div id="aa85976a" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>vals.fmt_number_si([<span class="fl">2.4e9</span>, <span class="fl">5.0e9</span>, <span class="fl">900e6</span>], unit<span class="op">=</span><span class="st">"Hz"</span>, incl_space<span class="op">=</span><span class="va">False</span>, decimals<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>['2.4GHz', '5.0GHz', '900.0MHz']</code></pre>

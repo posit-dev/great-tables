@@ -8,8 +8,10 @@
 
 <meta name="author" content="Michael Chow">
 <meta name="dcterms.date" content="2025-04-16">
+<meta name="description" content="Roughly a year ago, the DataFrame library Polars made its v1.0.0 release. One neat feature included in the release was a DataFrame.style…">
 
 <title>Great Tables: Becoming the Polars .style Property | Great Tables</title>
+<meta property="og:type" content="website">
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -133,18 +135,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <style>:root{--gd-nav-prefix-api:"API";--gd-nav-prefix-cli:"CLI";--gd-nav-prefix-mcp:"MCP";}</style>
 <meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table&quot;]">
 <link rel="canonical" href="https://posit-dev.github.io/great-tables/blog/polars-dot-style/">
+<meta property="og:url" content="https://posit-dev.github.io/great-tables/blog/polars-dot-style/">
 
 
+<meta property="og:title" content="Great Tables: Becoming the Polars .style Property | Great Tables">
+<meta property="og:description" content="Roughly a year ago, the DataFrame library Polars made its v1.0.0 release. One neat feature included in the release was a DataFrame.style…">
+<meta property="og:image" content="https://posit-dev.github.io/great-tables/blog/polars-dot-style/discord-feedback.jpg">
+<meta property="og:site_name" content="Great Tables">
+<meta name="twitter:title" content="Great Tables: Becoming the Polars .style Property | Great Tables">
+<meta name="twitter:description" content="Roughly a year ago, the DataFrame library Polars made its v1.0.0 release. One neat feature included in the release was a DataFrame.style…">
+<meta name="twitter:image" content="https://posit-dev.github.io/great-tables/blog/polars-dot-style/discord-feedback.jpg">
+<meta name="twitter:card" content="summary_large_image">
   <link rel="alternate" type="text/markdown" href="index.md">
-  <meta name="description" content="Easily generate information-rich, publication-quality tables from Python.">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Great Tables: Becoming the Polars .style Property | Great Tables">
-  <meta property="og:description" content="Easily generate information-rich, publication-quality tables from Python.">
-  <meta property="og:url" content="https://posit-dev.github.io/great-tables/blog/polars-dot-style/">
-  <meta property="og:site_name" content="Great Tables">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Great Tables: Becoming the Polars .style Property | Great Tables">
-  <meta name="twitter:description" content="Easily generate information-rich, publication-quality tables from Python.">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -189,7 +191,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2900" data-forks="139"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2902" data-forks="141"></div>
     </span>
   </li>  
 </ul>
@@ -318,7 +320,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>One important task was <strong>sorting out how we use Polars selectors</strong>, to ensure they didn’t break down the road.</p>
 <p>For example, Great Tables allows Polars selectors to set styles on specific columns data. However, one challenge we ran into was figuring out what Polars considers an expression versus a selector. Essentially, selectors choose columns, but expressions represent operations on the data itself.</p>
 <p>The code below shows cases where the <code>.exclude()</code> results in expressions or selectors.</p>
-<div id="23c758b2" class="cell" data-execution_count="1">
+<div id="9c4bed9e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -371,7 +373,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>Notice that before, the <code>GT(id=...)</code> argument could set the html id for a table. However, <code>DataFrame.style</code> is a property that can’t take arguments, so we needed methods like <a href="../../reference/GT.with_id.html#great_tables.GT.with_id" class="gdls-link gdls-code">with_id()</a> to set these kinds of options.</p>
 <p>Here’s a full code example, in case you want to see it in action.</p>
-<div id="b8d0b541" class="cell" data-execution_count="2">
+<div id="4f002796" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> exibble</span>
@@ -382,67 +384,67 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># create GT object via .style property ----</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>pl.DataFrame(exibble).style</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-<div id="jlcejtuiyr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="rlhlhablar" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#jlcejtuiyr table {
+#rlhlhablar table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#jlcejtuiyr thead, tbody, tfoot, tr, td, th { border-style: none; }
+#rlhlhablar thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#jlcejtuiyr p { margin: 0; padding: 0; }
- #jlcejtuiyr .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #jlcejtuiyr .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #jlcejtuiyr .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #jlcejtuiyr .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #jlcejtuiyr .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #jlcejtuiyr .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #jlcejtuiyr .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #jlcejtuiyr .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #jlcejtuiyr .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #jlcejtuiyr .gt_column_spanner_outer:first-child { padding-left: 0; }
- #jlcejtuiyr .gt_column_spanner_outer:last-child { padding-right: 0; }
- #jlcejtuiyr .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #jlcejtuiyr .gt_spanner_row { border-bottom-style: hidden; }
- #jlcejtuiyr .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #jlcejtuiyr .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #jlcejtuiyr .gt_from_md> :first-child { margin-top: 0; }
- #jlcejtuiyr .gt_from_md> :last-child { margin-bottom: 0; }
- #jlcejtuiyr .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #jlcejtuiyr .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #jlcejtuiyr .gt_indent_1 { text-indent: 5px; }
- #jlcejtuiyr .gt_indent_2 { text-indent: calc(5px * 2); }
- #jlcejtuiyr .gt_indent_3 { text-indent: calc(5px * 3); }
- #jlcejtuiyr .gt_indent_4 { text-indent: calc(5px * 4); }
- #jlcejtuiyr .gt_indent_5 { text-indent: calc(5px * 5); }
- #jlcejtuiyr .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #jlcejtuiyr .gt_row_group_first td { border-top-width: 2px; }
- #jlcejtuiyr .gt_row_group_first th { border-top-width: 2px; }
- #jlcejtuiyr .gt_striped { color: #333333; background-color: #F4F4F4; }
- #jlcejtuiyr .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #jlcejtuiyr .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #jlcejtuiyr .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #jlcejtuiyr .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #jlcejtuiyr .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #jlcejtuiyr .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #jlcejtuiyr .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #jlcejtuiyr .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #jlcejtuiyr .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #jlcejtuiyr .gt_left { text-align: left; }
- #jlcejtuiyr .gt_center { text-align: center; }
- #jlcejtuiyr .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #jlcejtuiyr .gt_font_normal { font-weight: normal; }
- #jlcejtuiyr .gt_font_bold { font-weight: bold; }
- #jlcejtuiyr .gt_font_italic { font-style: italic; }
- #jlcejtuiyr .gt_super { font-size: 65%; }
- #jlcejtuiyr .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #jlcejtuiyr .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #jlcejtuiyr .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #jlcejtuiyr .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #jlcejtuiyr .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #jlcejtuiyr .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#rlhlhablar p { margin: 0; padding: 0; }
+ #rlhlhablar .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #rlhlhablar .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #rlhlhablar .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #rlhlhablar .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #rlhlhablar .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #rlhlhablar .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #rlhlhablar .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #rlhlhablar .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #rlhlhablar .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #rlhlhablar .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #rlhlhablar .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #rlhlhablar .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #rlhlhablar .gt_spanner_row { border-bottom-style: hidden; }
+ #rlhlhablar .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #rlhlhablar .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #rlhlhablar .gt_from_md> :first-child { margin-top: 0; }
+ #rlhlhablar .gt_from_md> :last-child { margin-bottom: 0; }
+ #rlhlhablar .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #rlhlhablar .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #rlhlhablar .gt_indent_1 { text-indent: 5px; }
+ #rlhlhablar .gt_indent_2 { text-indent: calc(5px * 2); }
+ #rlhlhablar .gt_indent_3 { text-indent: calc(5px * 3); }
+ #rlhlhablar .gt_indent_4 { text-indent: calc(5px * 4); }
+ #rlhlhablar .gt_indent_5 { text-indent: calc(5px * 5); }
+ #rlhlhablar .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #rlhlhablar .gt_row_group_first td { border-top-width: 2px; }
+ #rlhlhablar .gt_row_group_first th { border-top-width: 2px; }
+ #rlhlhablar .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #rlhlhablar .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #rlhlhablar .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #rlhlhablar .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #rlhlhablar .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #rlhlhablar .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #rlhlhablar .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #rlhlhablar .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #rlhlhablar .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #rlhlhablar .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #rlhlhablar .gt_left { text-align: left; }
+ #rlhlhablar .gt_center { text-align: center; }
+ #rlhlhablar .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #rlhlhablar .gt_font_normal { font-weight: normal; }
+ #rlhlhablar .gt_font_bold { font-weight: bold; }
+ #rlhlhablar .gt_font_italic { font-style: italic; }
+ #rlhlhablar .gt_super { font-size: 65%; }
+ #rlhlhablar .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #rlhlhablar .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #rlhlhablar .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #rlhlhablar .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #rlhlhablar .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #rlhlhablar .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -462,92 +464,92 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody class="gt_table_body">
   <tr>
-    <td class="gt_row gt_right">0.1111</td>
-    <td class="gt_row gt_left">apricot</td>
-    <td class="gt_row gt_left">one</td>
-    <td class="gt_row gt_left">2015-01-15</td>
-    <td class="gt_row gt_left">13:35</td>
-    <td class="gt_row gt_left">2018-01-01 02:22</td>
-    <td class="gt_row gt_right">49.95</td>
-    <td class="gt_row gt_left">row_1</td>
-    <td class="gt_row gt_left">grp_a</td>
+    <td headers="num" class="gt_row gt_right">0.1111</td>
+    <td headers="char" class="gt_row gt_left">apricot</td>
+    <td headers="fctr" class="gt_row gt_left">one</td>
+    <td headers="date" class="gt_row gt_left">2015-01-15</td>
+    <td headers="time" class="gt_row gt_left">13:35</td>
+    <td headers="datetime" class="gt_row gt_left">2018-01-01 02:22</td>
+    <td headers="currency" class="gt_row gt_right">49.95</td>
+    <td headers="row" class="gt_row gt_left">row_1</td>
+    <td headers="group" class="gt_row gt_left">grp_a</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">2.222</td>
-    <td class="gt_row gt_left">banana</td>
-    <td class="gt_row gt_left">two</td>
-    <td class="gt_row gt_left">2015-02-15</td>
-    <td class="gt_row gt_left">14:40</td>
-    <td class="gt_row gt_left">2018-02-02 14:33</td>
-    <td class="gt_row gt_right">17.95</td>
-    <td class="gt_row gt_left">row_2</td>
-    <td class="gt_row gt_left">grp_a</td>
+    <td headers="num" class="gt_row gt_right">2.222</td>
+    <td headers="char" class="gt_row gt_left">banana</td>
+    <td headers="fctr" class="gt_row gt_left">two</td>
+    <td headers="date" class="gt_row gt_left">2015-02-15</td>
+    <td headers="time" class="gt_row gt_left">14:40</td>
+    <td headers="datetime" class="gt_row gt_left">2018-02-02 14:33</td>
+    <td headers="currency" class="gt_row gt_right">17.95</td>
+    <td headers="row" class="gt_row gt_left">row_2</td>
+    <td headers="group" class="gt_row gt_left">grp_a</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">33.33</td>
-    <td class="gt_row gt_left">coconut</td>
-    <td class="gt_row gt_left">three</td>
-    <td class="gt_row gt_left">2015-03-15</td>
-    <td class="gt_row gt_left">15:45</td>
-    <td class="gt_row gt_left">2018-03-03 03:44</td>
-    <td class="gt_row gt_right">1.39</td>
-    <td class="gt_row gt_left">row_3</td>
-    <td class="gt_row gt_left">grp_a</td>
+    <td headers="num" class="gt_row gt_right">33.33</td>
+    <td headers="char" class="gt_row gt_left">coconut</td>
+    <td headers="fctr" class="gt_row gt_left">three</td>
+    <td headers="date" class="gt_row gt_left">2015-03-15</td>
+    <td headers="time" class="gt_row gt_left">15:45</td>
+    <td headers="datetime" class="gt_row gt_left">2018-03-03 03:44</td>
+    <td headers="currency" class="gt_row gt_right">1.39</td>
+    <td headers="row" class="gt_row gt_left">row_3</td>
+    <td headers="group" class="gt_row gt_left">grp_a</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">444.4</td>
-    <td class="gt_row gt_left">durian</td>
-    <td class="gt_row gt_left">four</td>
-    <td class="gt_row gt_left">2015-04-15</td>
-    <td class="gt_row gt_left">16:50</td>
-    <td class="gt_row gt_left">2018-04-04 15:55</td>
-    <td class="gt_row gt_right">65100.0</td>
-    <td class="gt_row gt_left">row_4</td>
-    <td class="gt_row gt_left">grp_a</td>
+    <td headers="num" class="gt_row gt_right">444.4</td>
+    <td headers="char" class="gt_row gt_left">durian</td>
+    <td headers="fctr" class="gt_row gt_left">four</td>
+    <td headers="date" class="gt_row gt_left">2015-04-15</td>
+    <td headers="time" class="gt_row gt_left">16:50</td>
+    <td headers="datetime" class="gt_row gt_left">2018-04-04 15:55</td>
+    <td headers="currency" class="gt_row gt_right">65100.0</td>
+    <td headers="row" class="gt_row gt_left">row_4</td>
+    <td headers="group" class="gt_row gt_left">grp_a</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">5550.0</td>
-    <td class="gt_row gt_left">None</td>
-    <td class="gt_row gt_left">five</td>
-    <td class="gt_row gt_left">2015-05-15</td>
-    <td class="gt_row gt_left">17:55</td>
-    <td class="gt_row gt_left">2018-05-05 04:00</td>
-    <td class="gt_row gt_right">1325.81</td>
-    <td class="gt_row gt_left">row_5</td>
-    <td class="gt_row gt_left">grp_b</td>
+    <td headers="num" class="gt_row gt_right">5550.0</td>
+    <td headers="char" class="gt_row gt_left">None</td>
+    <td headers="fctr" class="gt_row gt_left">five</td>
+    <td headers="date" class="gt_row gt_left">2015-05-15</td>
+    <td headers="time" class="gt_row gt_left">17:55</td>
+    <td headers="datetime" class="gt_row gt_left">2018-05-05 04:00</td>
+    <td headers="currency" class="gt_row gt_right">1325.81</td>
+    <td headers="row" class="gt_row gt_left">row_5</td>
+    <td headers="group" class="gt_row gt_left">grp_b</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">None</td>
-    <td class="gt_row gt_left">fig</td>
-    <td class="gt_row gt_left">six</td>
-    <td class="gt_row gt_left">2015-06-15</td>
-    <td class="gt_row gt_left">None</td>
-    <td class="gt_row gt_left">2018-06-06 16:11</td>
-    <td class="gt_row gt_right">13.255</td>
-    <td class="gt_row gt_left">row_6</td>
-    <td class="gt_row gt_left">grp_b</td>
+    <td headers="num" class="gt_row gt_right">None</td>
+    <td headers="char" class="gt_row gt_left">fig</td>
+    <td headers="fctr" class="gt_row gt_left">six</td>
+    <td headers="date" class="gt_row gt_left">2015-06-15</td>
+    <td headers="time" class="gt_row gt_left">None</td>
+    <td headers="datetime" class="gt_row gt_left">2018-06-06 16:11</td>
+    <td headers="currency" class="gt_row gt_right">13.255</td>
+    <td headers="row" class="gt_row gt_left">row_6</td>
+    <td headers="group" class="gt_row gt_left">grp_b</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">777000.0</td>
-    <td class="gt_row gt_left">grapefruit</td>
-    <td class="gt_row gt_left">seven</td>
-    <td class="gt_row gt_left">None</td>
-    <td class="gt_row gt_left">19:10</td>
-    <td class="gt_row gt_left">2018-07-07 05:22</td>
-    <td class="gt_row gt_right">None</td>
-    <td class="gt_row gt_left">row_7</td>
-    <td class="gt_row gt_left">grp_b</td>
+    <td headers="num" class="gt_row gt_right">777000.0</td>
+    <td headers="char" class="gt_row gt_left">grapefruit</td>
+    <td headers="fctr" class="gt_row gt_left">seven</td>
+    <td headers="date" class="gt_row gt_left">None</td>
+    <td headers="time" class="gt_row gt_left">19:10</td>
+    <td headers="datetime" class="gt_row gt_left">2018-07-07 05:22</td>
+    <td headers="currency" class="gt_row gt_right">None</td>
+    <td headers="row" class="gt_row gt_left">row_7</td>
+    <td headers="group" class="gt_row gt_left">grp_b</td>
   </tr>
   <tr>
-    <td class="gt_row gt_right">8880000.0</td>
-    <td class="gt_row gt_left">honeydew</td>
-    <td class="gt_row gt_left">eight</td>
-    <td class="gt_row gt_left">2015-08-15</td>
-    <td class="gt_row gt_left">20:20</td>
-    <td class="gt_row gt_left">None</td>
-    <td class="gt_row gt_right">0.44</td>
-    <td class="gt_row gt_left">row_8</td>
-    <td class="gt_row gt_left">grp_b</td>
+    <td headers="num" class="gt_row gt_right">8880000.0</td>
+    <td headers="char" class="gt_row gt_left">honeydew</td>
+    <td headers="fctr" class="gt_row gt_left">eight</td>
+    <td headers="date" class="gt_row gt_left">2015-08-15</td>
+    <td headers="time" class="gt_row gt_left">20:20</td>
+    <td headers="datetime" class="gt_row gt_left">None</td>
+    <td headers="currency" class="gt_row gt_right">0.44</td>
+    <td headers="row" class="gt_row gt_left">row_8</td>
+    <td headers="group" class="gt_row gt_left">grp_b</td>
   </tr>
 </tbody>
 
