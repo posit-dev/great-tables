@@ -5383,7 +5383,9 @@ rows
     indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 values
     The specific value or values that should be replaced with a `replacement` value. If
-    `pattern` is also supplied then `values` will be ignored.
+    `pattern` is also supplied then `values` will be ignored. Missing values (e.g., `None`,
+    `NaN`, `pd.NA`) are never replaced, even when listed in `values`; use
+    [`sub_missing()`](`great_tables.GT.sub_missing`) to replace them.
 pattern
     A regex pattern that can target solely those values in character-based columns. If `values`
     is also supplied, `pattern` will take precedence.
