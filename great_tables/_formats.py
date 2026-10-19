@@ -1126,10 +1126,11 @@ def fmt_engineering_context(
 
     # For engineering notation, we need to calculate the exponent that is a multiple of 3
     # (zero, which has no logarithm, gets an exponent of 0) and adjust the mantissa accordingly
-    power_3 = 0 if x == 0 else int(math.floor(math.log10(abs(x)) / 3) * 3)
+    power_3 = 0 if x == 0 else _decimal_exponent(x) // 3 * 3
 
-    # Calculate the mantissa by dividing by 10^power_3
-    m_value = x / 10**power_3
+    # Calculate the mantissa by shifting the decimal point (exactly, so that it's rounded once,
+    # from the stored value, as in `fmt_scientific()`)
+    m_value = _shift_decimal_point(x, -power_3)
 
     # If rounding carries the mantissa up to 1000 (e.g., 999,999.5 with two decimals
     # would give `1000.00 x 10^3`), use the next power of 1000 instead (`1.00 x 10^6`); the
@@ -1527,8 +1528,8 @@ def _get_si_prefix(
 ) -> tuple[int, str]:
     """Get the exponent and symbol of the SI prefix to use for an absolute value."""
 
-    if abs_x == 0 or math.isinf(abs_x):
-        # Zero and infinity get no prefix
+    if abs_x == 0 or not math.isfinite(abs_x):
+        # Zero, infinity and NaN get no prefix
         return 0, ""
 
     if abs_x >= 1 and abs_x < 1000 and (prefix_mode != "decimal" or abs_x < 10):
@@ -1536,9 +1537,11 @@ def _get_si_prefix(
         # In decimal mode, values in [1, 10) need no prefix
         return 0, ""
 
-    # Find the best SI prefix: the largest exponent where mantissa >= 1
+    # Find the best SI prefix: the largest exponent where mantissa >= 1 (the exponent is compared
+    # exactly, while a float `10.0**exp` isn't exactly a power of ten)
+    x_exp = _decimal_exponent(abs_x)
     for exp, symbol in si_table:
-        if abs_x >= 10.0**exp:
+        if exp <= x_exp:
             return exp, symbol
 
     return 0, ""
@@ -1595,10 +1598,10 @@ def fmt_number_si_context(
         si_table = _SI_PREFIXES_ENGINEERING
 
     # Determine the appropriate SI prefix
-    exp, si_symbol = _get_si_prefix(abs(x), si_table=si_table, prefix_mode=prefix_mode)
+    exp, si_symbol = _get_si_prefix(_exact_abs(x), si_table=si_table, prefix_mode=prefix_mode)
 
-    # Scale the value to the prefix (this is the value itself when there is no prefix)
-    scaled_value = x / 10.0**exp if si_symbol else x
+    # Scale the value to the prefix exactly (this is the value itself when there is no prefix)
+    scaled_value = _shift_decimal_point(x, -exp) if si_symbol else x
 
     # If rounding the scaled value carries it up to the next prefix (e.g., 999.96 with one
     # decimal would give `1,000.0`), use the next prefix instead (`1.0 k`); the value is then
@@ -6422,6 +6425,11 @@ def _format_number_fixed_decimals(
     # 1234567890123456768), so integers are formatted as a `Decimal` to keep all of their digits
     if isinstance(value, numbers.Integral):
         value_str = format(Decimal(int(value)), fmt_spec)
+    elif isinstance(value, Decimal):
+        # A `Decimal` is rounded with the rounding mode of the active `decimal` context, which a
+        # user may have changed, so round half to even here, as float formatting does
+        with localcontext(Context(rounding=ROUND_HALF_EVEN)):
+            value_str = format(value, fmt_spec)
     else:
         value_str = format(value, fmt_spec)
 
@@ -6483,7 +6491,7 @@ def _rounds_up_to(
     """
 
     formatted = _value_to_decimal_notation(
-        value=abs(scaled_value),
+        value=_exact_abs(scaled_value),
         decimals=decimals,
         n_sigfig=n_sigfig,
         use_seps=False,
@@ -6519,12 +6527,12 @@ def _format_number_compactly(
 
     # Determine the power index for the value and put it in the range of 0 to 5 which
     # corresponds to the list of suffixes `["", "K", "M", "B", "T", "Q"]`
-    num_power_idx = math.floor(math.log(abs(value), 1000))
+    num_power_idx = _decimal_exponent(value) // 3
     num_power_idx = max(0, min(5, num_power_idx))
 
-    # Scale `x` value by a defined `base` value, this is done by dividing by the `base`
-    # value (`1000`) raised to the power index
-    scaled_value = value / 1000**num_power_idx
+    # Scale `x` value by the `base` value (`1000`) raised to the power index, by shifting the
+    # decimal point exactly (so that the value is rounded once, from the stored value)
+    scaled_value = _shift_decimal_point(value, -3 * num_power_idx)
 
     # If rounding the scaled value carries it up to 1000 (e.g., 999,999 with two
     # decimals would give `1,000.00K`), use the next suffix instead (`1.00M`); the value is
@@ -6576,11 +6584,15 @@ def _get_number_profile(value: float, n_sigfig: int) -> tuple[str, int, bool]:
     exponent to get the decimal mark to the proper location, and (3) a boolean
     value that's True if the value is less than zero (i.e., negative).
     """
-    # Integers are kept exact as a `Decimal` (a float can't hold all the digits of an integer above
-    # 2^53, e.g., 1234567890123456789 would become 1234567890123456768)
-    value = Decimal(int(value)) if isinstance(value, numbers.Integral) else float(value)
+    # Integers and `Decimal` values are kept exact as a `Decimal` (a float can't hold all the digits
+    # of an integer above 2^53, e.g., 1234567890123456789 would become 1234567890123456768, nor
+    # those of a mantissa shifted by `_shift_decimal_point()`)
+    if isinstance(value, (numbers.Integral, Decimal)):
+        value = _exact_decimal(value)
+    else:
+        value = float(value)
     is_negative = value < 0
-    value = abs(value)
+    value = _exact_abs(value)
 
     if value == 0:
         sig_digits = "0" * n_sigfig
@@ -6713,6 +6725,45 @@ def _scale_value(value: float, scale_by: float) -> float:
     elif isinstance(scale_by, Decimal) and not isinstance(value, (int, Decimal)):
         scale_by = float(scale_by)
     return value * scale_by
+
+
+def _exact_decimal(value: float | Decimal) -> Decimal:
+    """Get a number's exact value as a `Decimal` (a float's stored value, an integer's digits)."""
+    if isinstance(value, Decimal):
+        return value
+    if isinstance(value, numbers.Integral):
+        return Decimal(int(value))
+    return Decimal(float(value))
+
+
+def _exact_abs(value: float | Decimal) -> float | Decimal:
+    """Get a number's absolute value (`abs()` rounds a `Decimal` to the context's precision)."""
+    return value.copy_abs() if isinstance(value, Decimal) else abs(value)
+
+
+def _decimal_exponent(value: float | Decimal) -> int:
+    """Get the exponent of a finite, nonzero number's leading digit (`floor(log10(abs(value)))`).
+
+    The exponent is read from the exact value, so it's right where `math.log10()` rounds across
+    an integer (e.g., `math.log10(999.9999999999999)` gives `3.0`).
+    """
+    return _exact_decimal(value).adjusted()
+
+
+def _shift_decimal_point(value: float | Decimal, places: int) -> float | Decimal:
+    """Multiply a finite number by `10**places` exactly, giving a `Decimal`.
+
+    Dividing by a power of ten (`x / 10**3`) rounds the result to a float, so formatting it rounds
+    the value a second time (6.7405e-05 is stored as 6.74049999...e-05, but `6.7405e-05 / 1e-06`
+    gives 67.405, which then rounds to 67.41) and loses the last digits of integers above 2^53;
+    `10**-324` is even `0.0`. The digits are moved by changing the exponent, which (unlike
+    `Decimal.scaleb()`) doesn't round to the `decimal` context's precision. The value is
+    returned as is for `places=0`.
+    """
+    if places == 0:
+        return value
+    sign, digits, exponent = _exact_decimal(value).as_tuple()
+    return Decimal((sign, digits, exponent + places))
 
 
 def _has_negative_value(value: float) -> bool:
