@@ -1058,6 +1058,24 @@ def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
     assert x == x_out
 
 
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
+def test_large_integers_keep_all_digits(frame):
+    # Integers above 2^53 can't be stored exactly as floats
+    df = frame({"x": [1234567890123456789, -9007199254740993]})
+
+    gt = GT(df).fmt_integer(columns="x")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1,234,567,890,123,456,789", "−9,007,199,254,740,993"]
+
+    gt = GT(df).fmt_number(columns="x", decimals=2)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1,234,567,890,123,456,789.00", "−9,007,199,254,740,993.00"]
+
+    gt = GT(df).fmt_currency(columns="x", decimals=0)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["$1,234,567,890,123,456,789", "−$9,007,199,254,740,993"]
+
+
 @pytest.mark.parametrize(
     "value, out",
     [
