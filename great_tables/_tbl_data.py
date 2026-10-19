@@ -825,7 +825,10 @@ def is_na(df: DataFrameLike, x: Any) -> bool:
 def _(df: PdDataFrame, x: Any) -> bool:
     import pandas as pd
 
-    return pd.isna(x)
+    # `pd.isna()` checks each element of an array-like cell (e.g., a NumPy array in an object
+    # column) and returns an array; such a cell holds a value, so it isn't missing
+    result = pd.isna(x)
+    return result if isinstance(result, bool) else False
 
 
 @is_na.register(Agnostic)

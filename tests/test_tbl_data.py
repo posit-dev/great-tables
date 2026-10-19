@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 import pandas as pd
 import polars as pl
 import polars.testing
@@ -336,6 +337,35 @@ def test_cast_frame_to_string_polars_list_col():
     assert new_df["x"].dtype.is_(pl.String)
     assert new_df["y"].dtype.is_(pl.String)
     assert new_df["z"].dtype.is_(pl.String)
+
+
+@pytest.mark.parametrize(
+    "x,expected",
+    [
+        (None, True),
+        (math.nan, True),
+        (pd.NA, True),
+        (pd.NaT, True),
+        (1, False),
+        ("a", False),
+        (np.array([1, 2]), False),
+        (np.array([math.nan]), False),
+        ([1, 2], False),
+    ],
+)
+def test_is_na_pandas(x, expected):
+    # A cell holding an array (or a list) isn't missing, even if its elements are
+    assert is_na(pd.DataFrame(), x) is expected
+
+
+def test_pandas_array_cells_render():
+    df = pd.DataFrame({"x": [np.array([1, 2]), np.array([3])], "y": [[1, 2], [3]]})
+
+    html = GT(df).as_raw_html()
+    assert ">[1 2]</td>" in html
+    assert ">[1, 2]</td>" in html
+
+    assert "[1 2] & [1, 2]" in GT(df).as_latex()
 
 
 def test_frame_rendering(df: DataFrameLike, snapshot):

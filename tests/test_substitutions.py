@@ -461,33 +461,79 @@ class TestSubValues:
 
     def test_match_by_numeric_value(self):
         """Numeric values can be matched."""
-        subber = SubValues(values=[74, 500], pattern=None, fn=None, replacement="—")
+        subber = SubValues(pl.DataFrame(), values=[74, 500], pattern=None, fn=None, replacement="—")
         assert subber.to_html(74) == "—"
         assert subber.to_html(500) == "—"
         assert isinstance(subber.to_html(100), FormatterSkipElement)
 
     def test_match_by_string_value(self):
         """String values can be matched."""
-        subber = SubValues(values=["B"], pattern=None, fn=None, replacement="Bee")
+        subber = SubValues(pl.DataFrame(), values=["B"], pattern=None, fn=None, replacement="Bee")
         assert subber.to_html("B") == "Bee"
         assert isinstance(subber.to_html("A"), FormatterSkipElement)
 
     def test_match_single_value(self):
         """A single value (non-list) can be matched."""
-        subber = SubValues(values=42, pattern=None, fn=None, replacement="answer")
+        subber = SubValues(pl.DataFrame(), values=42, pattern=None, fn=None, replacement="answer")
         assert subber.to_html(42) == "answer"
         assert isinstance(subber.to_html(43), FormatterSkipElement)
 
     def test_none_values_skipped(self):
         """None values are not matched."""
-        subber = SubValues(values=[None], pattern=None, fn=None, replacement="x")
+        subber = SubValues(pl.DataFrame(), values=[None], pattern=None, fn=None, replacement="x")
         assert isinstance(subber.to_html(None), FormatterSkipElement)
+
+    @pytest.mark.parametrize(
+        "x",
+        [
+            pytest.param(np.nan, id="nan"),
+            pytest.param(pd.NA, id="pd.NA"),
+            pytest.param(pd.NaT, id="NaT"),
+        ],
+    )
+    def test_missing_values_never_matched(self, x):
+        """Missing values aren't matched, even when listed in `values` (as in R gt)."""
+        subber = SubValues(pd.DataFrame(), values=[x], pattern=None, fn=None, replacement="x")
+        assert isinstance(subber.to_html(x), FormatterSkipElement)
+
+    def test_fn_is_called_on_missing_values(self):
+        """`fn` decides for missing values itself (as in R gt), so it can target them."""
+        subber = SubValues(pd.DataFrame(), values=None, pattern=None, fn=pd.isna, replacement="x")
+        assert subber.to_html(np.nan) == "x"
+        assert subber.to_html(pd.NA) == "x"
+
+    def test_array_cell_doesnt_match_single_value(self):
+        """A cell holding an array is compared element-wise, so it doesn't match a value."""
+        subber = SubValues(pd.DataFrame(), values=[1], pattern=None, fn=None, replacement="one")
+        assert isinstance(subber.to_html(np.array([1])), FormatterSkipElement)
+        assert isinstance(subber.to_html(np.array([1, 2])), FormatterSkipElement)
+        assert subber.to_html(np.int64(1)) == "one"
+
+    @pytest.mark.parametrize(
+        "values,dtype",
+        [
+            pytest.param([1, None, 2], "Int64", id="Int64"),
+            pytest.param([1.5, None, 2.5], "Float64", id="Float64"),
+            pytest.param(["a", None, "b"], "string", id="string"),
+            pytest.param([True, None, False], "boolean", id="boolean"),
+        ],
+    )
+    @pytest.mark.parametrize("context", ["html", "latex"])
+    def test_method_skips_pandas_missing_values(self, values, dtype, context):
+        """pandas nullable columns with missing values work; the missing value is left as is."""
+        df = pd.DataFrame({"x": pd.Series(values, dtype=dtype)})
+        gt = GT(df).sub_values(columns="x", values=[values[0]], replacement="first")
+        body = to_list(gt._render_formats(context)._body.body["x"])
+
+        assert body[0] == "first"
+        assert body[1] is pd.NA
+        assert body[2] == str(values[2])
 
     # --- Pattern matching ---
 
     def test_match_by_regex_pattern(self):
         """Regex pattern can match string values."""
-        subber = SubValues(values=None, pattern="A|C|E", fn=None, replacement="Ace")
+        subber = SubValues(pl.DataFrame(), values=None, pattern="A|C|E", fn=None, replacement="Ace")
         assert subber.to_html("A") == "Ace"
         assert subber.to_html("C") == "Ace"
         assert subber.to_html("E") == "Ace"
@@ -495,12 +541,14 @@ class TestSubValues:
 
     def test_pattern_only_matches_strings(self):
         """Pattern matching only works on string columns."""
-        subber = SubValues(values=None, pattern="123", fn=None, replacement="x")
+        subber = SubValues(pl.DataFrame(), values=None, pattern="123", fn=None, replacement="x")
         assert isinstance(subber.to_html(123), FormatterSkipElement)
 
     def test_pattern_takes_precedence_over_values(self):
         """If both pattern and values are supplied, pattern takes precedence."""
-        subber = SubValues(values=["X"], pattern="A", fn=None, replacement="matched")
+        subber = SubValues(
+            pl.DataFrame(), values=["X"], pattern="A", fn=None, replacement="matched"
+        )
         # Pattern is checked, not values
         assert subber.to_html("A") == "matched"
         assert isinstance(subber.to_html("X"), FormatterSkipElement)
@@ -510,6 +558,7 @@ class TestSubValues:
     def test_match_by_function(self):
         """Custom function can target values."""
         subber = SubValues(
+            pl.DataFrame(),
             values=None,
             pattern=None,
             fn=lambda x: isinstance(x, (int, float)) and x >= 0 and x < 50,
@@ -522,13 +571,16 @@ class TestSubValues:
 
     def test_fn_takes_precedence_over_pattern(self):
         """If fn and pattern are both supplied, fn takes precedence."""
-        subber = SubValues(values=None, pattern="A", fn=lambda x: x == "B", replacement="matched")
+        subber = SubValues(
+            pl.DataFrame(), values=None, pattern="A", fn=lambda x: x == "B", replacement="matched"
+        )
         assert subber.to_html("B") == "matched"
         assert isinstance(subber.to_html("A"), FormatterSkipElement)
 
     def test_fn_exception_returns_skip(self):
         """If fn raises TypeError/ValueError, the value is skipped."""
         subber = SubValues(
+            pl.DataFrame(),
             values=None,
             pattern=None,
             fn=lambda x: x > 5,  # will raise TypeError for strings
@@ -540,7 +592,7 @@ class TestSubValues:
 
     def test_numeric_replacement(self):
         """Numeric replacement value is converted to string."""
-        subber = SubValues(values=[1], pattern=None, fn=None, replacement=150)
+        subber = SubValues(pl.DataFrame(), values=[1], pattern=None, fn=None, replacement=150)
         assert subber.to_html(1) == "150"
 
     # --- Method integration ---
@@ -675,7 +727,7 @@ def test_sub_values_is_match_no_criteria():
     """SubValues._is_match returns False when fn, pattern, and values are all None."""
     from great_tables._substitution import SubValues
 
-    sub = SubValues(values=None, pattern=None, fn=None, replacement="x")
+    sub = SubValues(pl.DataFrame(), values=None, pattern=None, fn=None, replacement="x")
 
     assert sub._is_match("anything") is False
     assert sub._is_match(42) is False
