@@ -6715,6 +6715,45 @@ def _scale_value(value: float, scale_by: float) -> float:
     return value * scale_by
 
 
+def _exact_decimal(value: float | Decimal) -> Decimal:
+    """Get a number's exact value as a `Decimal` (a float's stored value, an integer's digits)."""
+    if isinstance(value, Decimal):
+        return value
+    if isinstance(value, numbers.Integral):
+        return Decimal(int(value))
+    return Decimal(float(value))
+
+
+def _exact_abs(value: float | Decimal) -> float | Decimal:
+    """Get a number's absolute value (`abs()` rounds a `Decimal` to the context's precision)."""
+    return value.copy_abs() if isinstance(value, Decimal) else abs(value)
+
+
+def _decimal_exponent(value: float | Decimal) -> int:
+    """Get the exponent of a finite, nonzero number's leading digit (`floor(log10(abs(value)))`).
+
+    The exponent is read from the exact value, so it's right where `math.log10()` rounds across
+    an integer (e.g., `math.log10(999.9999999999999)` gives `3.0`).
+    """
+    return _exact_decimal(value).adjusted()
+
+
+def _shift_decimal_point(value: float | Decimal, places: int) -> float | Decimal:
+    """Multiply a finite number by `10**places` exactly, giving a `Decimal`.
+
+    Dividing by a power of ten (`x / 10**3`) rounds the result to a float, so formatting it rounds
+    the value a second time (6.7405e-05 is stored as 6.74049999...e-05, but `6.7405e-05 / 1e-06`
+    gives 67.405, which then rounds to 67.41) and loses the last digits of integers above 2^53;
+    `10**-324` is even `0.0`. The digits are moved by changing the exponent, which (unlike
+    `Decimal.scaleb()`) doesn't round to the `decimal` context's precision. The value is
+    returned as is for `places=0`.
+    """
+    if places == 0:
+        return value
+    sign, digits, exponent = _exact_decimal(value).as_tuple()
+    return Decimal((sign, digits, exponent + places))
+
+
 def _has_negative_value(value: float) -> bool:
     return value < 0
 
