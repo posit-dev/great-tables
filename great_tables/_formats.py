@@ -6684,6 +6684,20 @@ def _listify(
         return cast(Any, x)
 
 
+def _scale_value(value: float, scale_by: float) -> float:
+    """Multiply `value` by `scale_by`, exactly when both are integers.
+
+    NumPy integers (e.g., the cells of a pandas `int64` column) are turned into Python integers
+    first: NumPy integer arithmetic overflows and wraps around (`1234567890123456789 * 1000` gives
+    `-1363962815083169272`), while Python integers have no size limit.
+    """
+    if isinstance(value, numbers.Integral):
+        value = int(value)
+    if isinstance(scale_by, numbers.Integral):
+        scale_by = int(scale_by)
+    return value * scale_by
+
+
 def _has_negative_value(value: float) -> bool:
     return value < 0
 
