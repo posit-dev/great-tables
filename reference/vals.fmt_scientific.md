@@ -95,5 +95,5 @@ vals.fmt_scientific([123456, 0.425639], decimals=2)
 ```
 
 
-    ["1.23 × 10<sup style='font-size: 65%;'>5</sup>",
-     "4.26 × 10<sup style='font-size: 65%;'>−1</sup>"]
+    ["1.23 × 10<sup style='font-size: 65%;'>5</sup>",
+     "4.26 × 10<sup style='font-size: 65%;'>−1</sup>"]

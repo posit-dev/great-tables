@@ -93,5 +93,5 @@ vals.fmt_engineering([123456789, 0.000000425639], decimals=2)
 ```
 
 
-    ["123.46 × 10<sup style='font-size: 65%;'>6</sup>",
-     "425.64 × 10<sup style='font-size: 65%;'>−9</sup>"]
+    ["123.46 × 10<sup style='font-size: 65%;'>6</sup>",
+     "425.64 × 10<sup style='font-size: 65%;'>−9</sup>"]
