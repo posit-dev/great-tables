@@ -1,3 +1,6 @@
+import os
+import sys
+
 import pytest
 
 from great_tables._utils_selenium import (
@@ -39,12 +42,39 @@ def test_get_web_driver_raise():
         assert exc_info.value.args[0] == f"Unsupported web driver: {fake_web_driver}"
 
 
-def test_chrome_web_driver_arguments():
-    driver = object.__new__(_ChromeWebDriver)
-    driver.debug_port = None
+def _get_driver_arguments(Driver, debug_port):
+    # Set up the options without starting a browser
+    driver = object.__new__(Driver)
+    driver.debug_port = debug_port
     driver.wd_options = driver.cls_wd_options()
     driver.add_arguments()
+    return driver.wd_options.arguments
 
-    assert "--headless=new" in driver.wd_options.arguments
-    assert "--no-sandbox" in driver.wd_options.arguments
-    assert "--disable-dev-shm-usage" in driver.wd_options.arguments
+
+@pytest.mark.parametrize("Driver", [_ChromeWebDriver, _EdgeWebDriver])
+@pytest.mark.parametrize(
+    "platform,euid,no_sandbox",
+    [
+        ("linux", 0, True),
+        ("linux", 1000, False),
+        ("darwin", 0, False),
+        ("win32", None, False),
+    ],
+)
+@pytest.mark.parametrize("debug_port", [None, 9222])
+def test_chromium_web_driver_arguments(monkeypatch, Driver, platform, euid, no_sandbox, debug_port):
+    monkeypatch.setattr(sys, "platform", platform)
+    if euid is None:
+        # Windows has no `os.geteuid()`
+        monkeypatch.delattr(os, "geteuid", raising=False)
+    else:
+        monkeypatch.setattr(os, "geteuid", lambda: euid, raising=False)
+
+    expected = ["--headless=new"]
+    if no_sandbox:
+        expected.append("--no-sandbox")
+    expected.append("--disable-dev-shm-usage")
+    if debug_port is not None:
+        expected.append(f"--remote-debugging-port={debug_port}")
+
+    assert _get_driver_arguments(Driver, debug_port) == expected
