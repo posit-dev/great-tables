@@ -1,6 +1,7 @@
 import math
 import re
 from datetime import date, datetime, timedelta
+from decimal import Decimal
 from typing import Any, Union
 
 import numpy as np
@@ -1133,6 +1134,28 @@ def test_fmt_percent_and_partsper_decimal_column():
 
     gt = GT(df).fmt_partsper(columns="x", decimals=0)
     assert _get_column_of_values(gt, column_name="x", context="html") == ["125‰", "1,500‰"]
+
+
+@pytest.mark.parametrize(
+    "scale_by", [2.5, np.float64(2.5), Decimal("2.5")], ids=["float", "np.float64", "Decimal"]
+)
+def test_decimal_column_float_scale_by(scale_by):
+    # `Decimal * float` raises, so a float factor is turned into a `Decimal` (2.5 stays exact)
+    df = pl.DataFrame({"x": [Decimal("0.125"), Decimal("1.5")]}, schema={"x": pl.Decimal(10, 3)})
+
+    gt = GT(df).fmt_number(columns="x", decimals=4, scale_by=scale_by)
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["0.3125", "3.7500"]
+
+    gt = GT(df).fmt_currency(columns="x", scale_by=scale_by)
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["$0.31", "$3.75"]
+
+
+def test_float_column_decimal_scale_by():
+    # A `Decimal` factor for floats is turned into a float, so non-finite values stay floats
+    df = pl.DataFrame({"x": [0.125, 1.5, float("inf")]})
+
+    gt = GT(df).fmt_number(columns="x", decimals=4, scale_by=Decimal("2.5"))
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["0.3125", "3.7500", "inf"]
 
 
 @pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
