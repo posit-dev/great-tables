@@ -439,7 +439,9 @@ def sub_values(
         indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
     values
         The specific value or values that should be replaced with a `replacement` value. If
-        `pattern` is also supplied then `values` will be ignored.
+        `pattern` is also supplied then `values` will be ignored. Missing values (e.g., `None`,
+        `NaN`, `pd.NA`) are never replaced, even when listed in `values`; use
+        [`sub_missing()`](`great_tables.GT.sub_missing`) to replace them.
     pattern
         A regex pattern that can target solely those values in character-based columns. If `values`
         is also supplied, `pattern` will take precedence.
@@ -511,7 +513,9 @@ def sub_values(
     if fn is not None and not callable(fn):
         raise TypeError("A function must be provided to the `fn` argument.")
 
-    subber = SubValues(values=values, pattern=pattern, fn=fn, replacement=replacement)
+    subber = SubValues(
+        self._tbl_data, values=values, pattern=pattern, fn=fn, replacement=replacement
+    )
     return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)
 
 
@@ -642,6 +646,7 @@ def _context_inequality_mark(mark: str, context: str) -> str:
 
 @dataclass
 class SubValues(Substitution):
+    dispatch_frame: DataFrameLike
     values: list[Any] | Any | None
     pattern: str | None
     fn: Callable[..., bool] | None
@@ -666,6 +671,11 @@ class SubValues(Substitution):
             except (TypeError, ValueError):
                 return False
 
+        # Missing values (`NaN`, `pd.NA`, `NaT`) are never matched by `pattern` or `values`, even
+        # when listed in `values`, as in R gt; `sub_missing()` replaces them
+        if is_na(self.dispatch_frame, x):
+            return False
+
         if self.pattern is not None:
             # Pattern matching only works on string values
             if not isinstance(x, str):
@@ -676,7 +686,10 @@ class SubValues(Substitution):
             match_values = self.values if isinstance(self.values, list) else [self.values]
             for value in match_values:
                 try:
-                    if bool(x == value):
+                    is_equal = x == value
+                    # An array-like cell is compared element-wise (`np.array([1]) == 1` gives
+                    # `array([True])`), so it doesn't match a single value
+                    if getattr(is_equal, "shape", ()) == () and bool(is_equal):
                         return True
                 except (TypeError, ValueError):
                     continue
