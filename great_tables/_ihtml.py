@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import html as html_lib
 import json
 import math
+import re
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -130,46 +132,59 @@ def render_as_ihtml(data: GT) -> str:
         if col.column_width and col.column_width.endswith("px"):
             col_widths[col.var] = int(col.column_width.rstrip("px"))
             continue
-        header_chars = len(_col_label(col))
-        max_data_chars = max(
-            (len(row.get(col.var, "")) for row in rows_data),
+        header_px = _html_width_px(_col_label(col), font_size_px, char_width_px)
+        max_data_px = max(
+            (
+                _html_width_px(row.get(col.var, ""), font_size_px, char_width_px)
+                for row in rows_data
+            ),
             default=0,
         )
-        max_chars = max(header_chars, max_data_chars)
+        max_px = max(header_px, max_data_px)
         sort_icon_px = 24  # reactable sort arrow occupies header space
-        col_widths[col.var] = int(max_chars * char_width_px + cell_pad_px + sort_icon_px)
+        col_widths[col.var] = int(max_px + cell_pad_px + sort_icon_px)
 
     # ------------------------------------------------------------------
     # Build reactable column definitions.
     # ------------------------------------------------------------------
+    # Cells and column labels are HTML (as in the static table), so every column is rendered with
+    # `html: True`. The column data, which reactable searches, sorts and filters on, holds the
+    # original numbers for numeric columns and each cell's visible text otherwise; the formatted
+    # HTML is given separately as `cell` (reactable shows `cell[row.index]`, which follows sorting)
     reactable_cols: list[dict] = []
+    columnar_data: dict[str, list] = {}
     for col in visible_cols:
+        cells_html = [row.get(col.var, "") for row in rows_data]
+        label_html = _col_label(col)
+        # reactable uses `name` in the sort and filter aria-labels, so it's the label's text; the
+        # label's HTML, when it differs, is given as `header`
+        label_text = _html_to_text(_BR_RE.sub(" ", label_html))
         col_def: dict = {
             "id": col.var,
-            "name": _col_label(col),
+            "name": label_text,
             "minWidth": col_widths[col.var],
             "align": col.column_align or "left",
             "headerAlign": col.column_align or "left",
+            "html": True,
         }
+        if label_text != label_html:
+            col_def["header"] = label_html
         if col.var in numeric_cols:
             col_def["type"] = "numeric"
-            col_def["cell"] = [row.get(col.var, "") for row in rows_data]
-            col_def["html"] = True
+            col_def["cell"] = cells_html
+            columnar_data[col.var] = orig_numeric_vals[col.var]
+        else:
+            cells_text = [_html_to_text(cell) for cell in cells_html]
+            # A cell without markup or entities is shown as is, so `cell` is only needed when
+            # some cell's HTML differs from its text
+            if cells_text != cells_html:
+                col_def["cell"] = cells_html
+            columnar_data[col.var] = cells_text
         if col.var in body_style_fns:
             col_def["style"] = body_style_fns[col.var]
         if col.var in col_label_styles:
             col_def["headerStyle"] = _css_str_to_react_style(col_label_styles[col.var])
         reactable_cols.append(col_def)
-
-    # ------------------------------------------------------------------
-    # Build columnar data (reactable expects {colId: [values]}).
-    # ------------------------------------------------------------------
-    columnar_data: dict[str, list] = {}
-    for col in visible_cols:
-        if col.var in numeric_cols:
-            columnar_data[col.var] = orig_numeric_vals[col.var]
-        else:
-            columnar_data[col.var] = [row.get(col.var, "") for row in rows_data]
 
     # ------------------------------------------------------------------
     # Map GT options to reactable props.
@@ -264,10 +279,66 @@ def _escape_nonascii(s: str) -> str:
 
 
 def _col_label(col: ColInfo) -> str:
+    """Get a column label as HTML (a plain string is escaped; `md()`/`html()` are processed)."""
     label = col.column_label
     if label is None:
-        return col.var
-    return str(label)
+        label = col.var
+    return _process_text(label, context="html")
+
+
+_BR_RE = re.compile(r"<br\s*/?>", re.IGNORECASE)
+_SVG_RE = re.compile(r"<svg\b.*?</svg>", re.IGNORECASE | re.DOTALL)
+_IMG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+_TAG_RE = re.compile(r"<[^>]+>")
+
+
+def _html_to_text(html_str: str) -> str:
+    """Get the visible text of a cell's HTML: no markup (or inline SVG), entities unescaped."""
+    return html_lib.unescape(_TAG_RE.sub("", _SVG_RE.sub("", html_str)))
+
+
+def _html_width_px(html_str: str, font_size_px: float, char_width_px: float) -> float:
+    """Estimate the width of a cell's (or label's) HTML when rendered, in px.
+
+    Each line (lines are split at `<br>`) is as wide as its visible text, plus each image or
+    inline SVG in it; markup and entities (e.g., `&nbsp;`) aren't counted as characters.
+    """
+    width_px = 0.0
+    for line in _BR_RE.split(html_str):
+        graphics = _SVG_RE.findall(line) + _IMG_RE.findall(line)
+        graphics_px = sum(_graphic_width_px(tag, font_size_px) for tag in graphics)
+        width_px = max(width_px, len(_html_to_text(line)) * char_width_px + graphics_px)
+    return width_px
+
+
+def _css_length_px(tag: str, prop: str, font_size_px: float) -> float | None:
+    """Get the `width` or `height` of a tag (from its style or attribute) in px, if px or em."""
+    match = re.search(
+        rf"(?<![\w-]){prop}\s*[:=]\s*[\"']?([\d.]+)\s*(px|em)?(?![\w%])", tag, re.IGNORECASE
+    )
+    if match is None:
+        return None
+    value = float(match.group(1))
+    return value * font_size_px if match.group(2) == "em" else value
+
+
+def _graphic_width_px(tag: str, font_size_px: float) -> float:
+    """Estimate the width of an `<img>` or inline `<svg>`, in px.
+
+    The width is the tag's own `width`, if set; otherwise its `height` (2em if not set, the
+    `fmt_image()` default) times the `viewBox` aspect ratio, or square if that isn't known.
+    """
+    opening_tag = tag[: tag.find(">") + 1]
+    width = _css_length_px(opening_tag, "width", font_size_px)
+    if width is not None:
+        return width
+    height = _css_length_px(opening_tag, "height", font_size_px) or 2 * font_size_px
+    view_box = re.search(
+        r'viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)', opening_tag
+    )
+    if view_box is not None and float(view_box.group(2)) > 0:
+        return height * float(view_box.group(1)) / float(view_box.group(2))
+    return height
 
 
 def _parse_px(value: str | None, default: float = 16.0) -> float:

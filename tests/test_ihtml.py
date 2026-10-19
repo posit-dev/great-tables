@@ -8,7 +8,7 @@ import re
 import pytest
 import polars as pl
 
-from great_tables import GT, style, loc
+from great_tables import GT, html, md, style, loc
 from great_tables.data import exibble
 
 
@@ -376,6 +376,111 @@ class TestColumnWidths:
         props = _extract_props(gt_mini.opt_interactive().as_raw_html())
         for col_def in props["columns"]:
             assert isinstance(col_def["minWidth"], int)
+
+    def test_markup_and_entities_not_counted(self):
+        # `1.50 × 10³` is written with `&nbsp;` and a `<sup>`, but is 10 characters wide, like
+        # `1.50 x 103` written as plain text
+        df = pl.DataFrame({"sci": [1500.0], "plain": ["1.50 x 103"]})
+        props = _extract_props(GT(df).fmt_scientific("sci").opt_interactive().as_raw_html())
+        min_widths = {c["id"]: c["minWidth"] for c in props["columns"]}
+
+        assert min_widths["sci"] == min_widths["plain"] == int(10 * 14 * 0.6 + 20 + 24)
+
+    def test_label_lines_measured_separately(self):
+        df = pl.DataFrame({"x": ["a"]})
+        gt = GT(df).cols_label(x=html("Speed<br>(km/h)"))
+        props = _extract_props(gt.opt_interactive().as_raw_html())
+
+        # The widest line is `(km/h)` (6 characters)
+        assert props["columns"][0]["minWidth"] == int(6 * 14 * 0.6 + 20 + 24)
+
+    def test_nanoplot_width_from_view_box(self):
+        df = pl.DataFrame({"np": ["1 2 3 4 5"]})
+        props = _extract_props(GT(df).fmt_nanoplot("np").opt_interactive().as_raw_html())
+
+        # The nanoplot SVG is 2em high (at 14px) with a 350 x 130 `viewBox`, so ~75px wide; its
+        # markup (thousands of characters, including `<text>` elements) isn't counted
+        assert props["columns"][0]["minWidth"] == int(2 * 14 * 350 / 130 + 20 + 24)
+
+
+class TestHtmlWidthPx:
+    @pytest.mark.parametrize(
+        "html_str,width_px",
+        [
+            ("abc", 3 * 8.4),
+            ("a&nbsp;&amp;&nbsp;b", 5 * 8.4),
+            ("<strong>bold</strong> text", 9 * 8.4),
+            ("ab<br>abcd<br/>a", 4 * 8.4),
+            # Images and inline SVGs: their own width, else height times the aspect ratio
+            ('<img src="x.png" style="height: 20px;width: 50px;">', 50),
+            ('<img src="x.png" style="height: 3em;vertical-align: middle;">', 3 * 14),
+            ('<img src="x.png">', 2 * 14),
+            ('<svg viewBox="0 0 200 100" style="height: 1em;"><text>long label</text></svg>', 28),
+            ('ab <span><svg width="10" height="20"></svg></span>', 3 * 8.4 + 10),
+        ],
+    )
+    def test_width(self, html_str: str, width_px: float):
+        from great_tables._ihtml import _html_width_px
+
+        assert _html_width_px(html_str, font_size_px=14, char_width_px=8.4) == pytest.approx(
+            width_px
+        )
+
+
+class TestCellHtml:
+    @pytest.fixture()
+    def props(self) -> dict:
+        df = pl.DataFrame(
+            {"md": ["**bold** & more", "plain"], "text": ["a & <b>", "c"], "k": ["x", "y"]}
+        )
+        return _extract_props(GT(df).fmt_markdown("md").opt_interactive().as_raw_html())
+
+    def test_every_column_is_html(self, props: dict):
+        assert all(c["html"] is True for c in props["columns"])
+
+    def test_cells_shown_as_formatted_html(self, props: dict):
+        cols = {c["id"]: c for c in props["columns"]}
+
+        assert cols["md"]["cell"] == ["<strong>bold</strong> &amp; more", "plain"]
+        # Unformatted text is escaped, as in the static table
+        assert cols["text"]["cell"] == ["a &amp; &lt;b&gt;", "c"]
+        # A column without markup or entities doesn't need `cell`
+        assert "cell" not in cols["k"]
+
+    def test_data_holds_visible_text(self, props: dict):
+        # Searching, sorting and filtering use the text that is shown
+        assert props["data"] == {
+            "md": ["bold & more", "plain"],
+            "text": ["a & <b>", "c"],
+            "k": ["x", "y"],
+        }
+
+
+class TestColumnLabelHtml:
+    def test_labels_are_html(self):
+        df = pl.DataFrame({"a": [1.0], "b": ["x"], "c": ["y"], "d": ["z"]})
+        gt = GT(df).cols_label(a=html("Speed<br>(km/h)"), b=md("**Bold** & co"), c="A <b> B")
+        props = _extract_props(gt.opt_interactive().as_raw_html())
+
+        assert [c.get("header") for c in props["columns"]] == [
+            "Speed<br>(km/h)",
+            "<strong>Bold</strong> &amp; co",
+            "A &lt;b&gt; B",
+            None,
+        ]
+
+    def test_names_are_label_text(self):
+        # reactable puts `name` in the sort and filter aria-labels ("Sort {name}")
+        df = pl.DataFrame({"a": [1.0], "b": ["x"], "c": ["y"], "d": ["z"]})
+        gt = GT(df).cols_label(a=html("Speed<br>(km/h)"), b=md("**Bold** & co"), c="A <b> B")
+        props = _extract_props(gt.opt_interactive().as_raw_html())
+
+        assert [c["name"] for c in props["columns"]] == [
+            "Speed (km/h)",
+            "Bold & co",
+            "A <b> B",
+            "d",
+        ]
 
 
 # ---------------------------------------------------------------------------
