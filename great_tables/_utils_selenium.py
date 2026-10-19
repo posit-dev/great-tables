@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import sys
 from types import TracebackType
 from typing import Literal
 from typing_extensions import TypeAlias
@@ -35,16 +37,27 @@ class _BaseWebDriver:  # pragma: no cover
         self.driver.quit()
 
 
-class _ChromeWebDriver(_BaseWebDriver):  # pragma: no cover
-    cls_driver = webdriver.Chrome
-    cls_wd_options = webdriver.ChromeOptions
+def _running_as_root_on_linux() -> bool:
+    return sys.platform.startswith("linux") and os.geteuid() == 0
 
+
+class _ChromiumWebDriver(_BaseWebDriver):  # pragma: no cover
     def add_arguments(self):
         self.wd_options.add_argument("--headless=new")
-        self.wd_options.add_argument("--no-sandbox")
+        # Chromium refuses to start as root (e.g., in Google Colab or a Docker container) unless
+        # its sandbox is turned off; elsewhere the sandbox stays on, since the page can load
+        # remote content (web fonts, images)
+        if _running_as_root_on_linux():
+            self.wd_options.add_argument("--no-sandbox")
+        # Containers often have a small /dev/shm, which can crash the browser
         self.wd_options.add_argument("--disable-dev-shm-usage")
         if self.debug_port is not None:
             self.wd_options.add_argument(f"--remote-debugging-port={self.debug_port}")
+
+
+class _ChromeWebDriver(_ChromiumWebDriver):  # pragma: no cover
+    cls_driver = webdriver.Chrome
+    cls_wd_options = webdriver.ChromeOptions
 
 
 class _SafariWebDriver(_BaseWebDriver):  # pragma: no cover
@@ -62,12 +75,9 @@ class _FirefoxWebDriver(_BaseWebDriver):  # pragma: no cover
             self.wd_options.add_argument(f"--start-debugger-server {self.debug_port}")
 
 
-class _EdgeWebDriver(_BaseWebDriver):  # pragma: no cover
+class _EdgeWebDriver(_ChromiumWebDriver):  # pragma: no cover
     cls_driver = webdriver.Edge
     cls_wd_options = webdriver.EdgeOptions
-
-    def add_arguments(self):
-        self.wd_options.add_argument("--headless")
 
 
 def no_op_callable(web_driver: webdriver.Remote):  # pragma: no cover
