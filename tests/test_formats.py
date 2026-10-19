@@ -3,6 +3,7 @@ import re
 from datetime import date, datetime, timedelta
 from typing import Any, Union
 
+import numpy as np
 import pandas as pd
 import polars as pl
 import pytest
@@ -1051,6 +1052,11 @@ def test_fmt_number_pattern(pattern: str, x_out: str):
         (0.000033, "0.00"),
         (0.00000000446453, "0.00"),
         (-325, "-325.00"),
+        # Integers above 2^53 (which a float can't hold exactly) keep all of their digits
+        (2**53 + 1, "9,007,199,254,740,993.00"),
+        (-(2**53 + 1), "-9,007,199,254,740,993.00"),
+        (np.int64(1234567890123456789), "1,234,567,890,123,456,789.00"),
+        (np.uint64(2**64 - 1), "18,446,744,073,709,551,615.00"),
     ],
 )
 def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
@@ -1074,6 +1080,87 @@ def test_large_integers_keep_all_digits(frame):
     gt = GT(df).fmt_currency(columns="x", decimals=0)
     x = _get_column_of_values(gt, column_name="x", context="html")
     assert x == ["$1,234,567,890,123,456,789", "−$9,007,199,254,740,993"]
+
+
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
+@pytest.mark.parametrize("scale_by", [1000, np.int64(1000)])
+def test_large_integers_scale_by_doesnt_overflow(frame, scale_by):
+    # A pandas `int64` cell is a NumPy integer, which would overflow and wrap around when scaled
+    df = frame({"x": [1234567890123456789, -9007199254740993]})
+
+    gt = GT(df).fmt_integer(columns="x", scale_by=scale_by)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1,234,567,890,123,456,789,000", "−9,007,199,254,740,993,000"]
+
+    gt = GT(df).fmt_number(columns="x", decimals=1, scale_by=scale_by)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1,234,567,890,123,456,789,000.0", "−9,007,199,254,740,993,000.0"]
+
+    gt = GT(df).fmt_currency(columns="x", decimals=0, scale_by=scale_by)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["$1,234,567,890,123,456,789,000", "−$9,007,199,254,740,993,000"]
+
+
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
+def test_large_integers_percent_and_partsper_keep_all_digits(frame):
+    df = frame({"x": [12345678901234567]})
+
+    gt = GT(df).fmt_percent(columns="x", decimals=0)
+    assert _get_column_of_values(gt, column_name="x", context="html") == [
+        "1,234,567,890,123,456,700%"
+    ]
+
+    gt = GT(df).fmt_percent(columns="x", decimals=0, scale_values=False)
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["12,345,678,901,234,567%"]
+
+    gt = GT(df).fmt_partsper(columns="x", to_units="ppm", decimals=0)
+    assert _get_column_of_values(gt, column_name="x", context="html") == [
+        "12,345,678,901,234,567,000,000 ppm"
+    ]
+
+    gt = GT(df).fmt_partsper(columns="x", decimals=0, scale_values=False)
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["12,345,678,901,234,567‰"]
+
+
+def test_fmt_percent_and_partsper_decimal_column():
+    from decimal import Decimal
+
+    # The scale factors are integers, so `Decimal` values can be scaled (`Decimal * float` raises)
+    df = pl.DataFrame({"x": [Decimal("0.125"), Decimal("1.5")]}, schema={"x": pl.Decimal(10, 3)})
+
+    gt = GT(df).fmt_percent(columns="x", decimals=1)
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["12.5%", "150.0%"]
+
+    gt = GT(df).fmt_partsper(columns="x", decimals=0)
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["125‰", "1,500‰"]
+
+
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
+def test_large_integers_n_sigfig_keep_all_digits(frame):
+    df = frame({"x": [1234567890123456789, -9007199254740993]})
+
+    gt = GT(df).fmt_number(columns="x", n_sigfig=19)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1,234,567,890,123,456,789", "−9,007,199,254,740,993.000"]
+
+    # Rounding to fewer digits rounds the integer itself, not its float approximation
+    gt = GT(df).fmt_number(columns="x", n_sigfig=18)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1,234,567,890,123,456,790", "−9,007,199,254,740,993.00"]
+
+    gt = GT(df).fmt_scientific(columns="x", n_sigfig=19, exp_style="E")
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1.234567890123456789E18", "−9.007199254740993000E15"]
+
+
+def test_integer_n_sigfig_ignores_decimal_context_rounding():
+    import decimal
+
+    # Integers are rounded half to even (as floats are), whatever the active `decimal` context
+    with decimal.localcontext() as ctx:
+        ctx.rounding = decimal.ROUND_DOWN
+        assert vals.fmt_number([125, 135, 129], n_sigfig=2) == ["120", "140", "130"]
+        assert vals.fmt_scientific([125, 129], n_sigfig=2, exp_style="E") == ["1.2E02", "1.3E02"]
 
 
 @pytest.mark.parametrize(
