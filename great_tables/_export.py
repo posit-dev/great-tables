@@ -430,6 +430,11 @@ def save(  # pragma: no cover
 
         Specified browser must be installed. Note that if a webdriver instance is passed, options
         that require setting up a webdriver, like debug_port, will not be used.
+
+        Chrome and Edge run with their sandbox turned off only when Python runs as root on Linux
+        (e.g., in Google Colab or a Docker container), where these browsers won't start otherwise.
+        To use other browser options, pass a configured webdriver instance (e.g.,
+        `webdriver.Chrome(options=...)`).
     window_size
         The size of the browser window to use when laying out the table. This shouldn't be necessary
         to capture a table, but may affect the tables appearance.
