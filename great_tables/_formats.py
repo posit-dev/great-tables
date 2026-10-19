@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 import math
+import numbers
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -6416,8 +6417,13 @@ def _format_number_fixed_decimals(
 
     fmt_spec = f".{decimals}f"
 
-    # Get the formatted `x` value
-    value_str = format(value, fmt_spec)
+    # Get the formatted `x` value; the `f` format converts an integer to a float, which changes
+    # the digits of integers above 2^53 (e.g., 1234567890123456789 would give
+    # 1234567890123456768), so integers are formatted as a `Decimal` to keep all of their digits
+    if isinstance(value, numbers.Integral):
+        value_str = format(Decimal(int(value)), fmt_spec)
+    else:
+        value_str = format(value, fmt_spec)
 
     # Very small or very large numbers can be represented in exponential
     # notation but we don't want that; we need the string value to be fully
