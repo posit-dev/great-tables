@@ -7,7 +7,7 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime, time
-from decimal import Decimal
+from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
 from functools import partial
 from pathlib import Path
 from typing import (
@@ -362,7 +362,7 @@ def fmt_number_context(
         return x
 
     # Scale `x` value by a defined `scale_by` value
-    x = x * scale_by
+    x = _scale_value(x, scale_by=scale_by)
 
     # Determine whether the value is positive
     is_negative = _has_negative_value(value=x)
@@ -565,7 +565,7 @@ def fmt_integer_context(
         return x
 
     # Scale `x` value by a defined `scale_by` value
-    x = x * scale_by
+    x = _scale_value(x, scale_by=scale_by)
 
     # Determine whether the value is positive
     is_negative = _has_negative_value(value=x)
@@ -790,7 +790,7 @@ def fmt_scientific_context(
         return x
 
     # Scale `x` value by a defined `scale_by` value
-    x = x * scale_by
+    x = _scale_value(x, scale_by=scale_by)
 
     # Infinite values (and NaN, e.g., from `inf * 0` with `scale_by=0`) have no mantissa or exponent
     if not math.isfinite(x):
@@ -1113,7 +1113,7 @@ def fmt_engineering_context(
         return x
 
     # Scale `x` value by a defined `scale_by` value
-    x = x * scale_by
+    x = _scale_value(x, scale_by=scale_by)
 
     # Infinite values (and NaN, e.g., from `inf * 0` with `scale_by=0`) have no mantissa or exponent
     if not math.isfinite(x):
@@ -1583,7 +1583,7 @@ def fmt_number_si_context(
         return x
 
     # Scale `x` value by a defined `scale_by` value
-    x = x * scale_by
+    x = _scale_value(x, scale_by=scale_by)
 
     # Determine whether the value is negative
     is_negative = _has_negative_value(value=x)
@@ -1806,9 +1806,9 @@ def fmt_percent(
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
     if scale_values:
-        scale_by = 100.0
+        scale_by = 100
     else:
-        scale_by = 1.0
+        scale_by = 1
 
     pf_format = partial(
         fmt_percent_context,
@@ -1853,7 +1853,7 @@ def fmt_percent_context(
         return x
 
     # Scale `x` value by a defined `scale_by` value
-    x = x * scale_by
+    x = _scale_value(x, scale_by=scale_by)
 
     # Determine properties of the value
     is_negative = _has_negative_value(value=x)
@@ -2106,9 +2106,9 @@ def fmt_partsper(
 
     # Determine the scale factor
     if scale_values:
-        scale_by = float(_PARTSPER_UNITS[to_units]["factor"])
+        scale_by = _PARTSPER_UNITS[to_units]["factor"]
     else:
-        scale_by = 1.0
+        scale_by = 1
 
     # Determine the symbol to use
     if symbol == "auto":
@@ -2163,7 +2163,7 @@ def fmt_partsper_context(
         return x
 
     # Scale `x` value by the defined scale factor
-    x = x * scale_by
+    x = _scale_value(x, scale_by=scale_by)
 
     # Determine properties of the value
     is_negative = _has_negative_value(value=x)
@@ -2451,7 +2451,7 @@ def fmt_currency_context(
         return x
 
     # Scale `x` value by a defined `scale_by` value
-    x = x * scale_by
+    x = _scale_value(x, scale_by=scale_by)
 
     # Determine properties of the value
     is_negative = _has_negative_value(value=x)
@@ -6576,7 +6576,9 @@ def _get_number_profile(value: float, n_sigfig: int) -> tuple[str, int, bool]:
     exponent to get the decimal mark to the proper location, and (3) a boolean
     value that's True if the value is less than zero (i.e., negative).
     """
-    value = float(value)
+    # Integers are kept exact as a `Decimal` (a float can't hold all the digits of an integer above
+    # 2^53, e.g., 1234567890123456789 would become 1234567890123456768)
+    value = Decimal(int(value)) if isinstance(value, numbers.Integral) else float(value)
     is_negative = value < 0
     value = abs(value)
 
@@ -6589,7 +6591,15 @@ def _get_number_profile(value: float, n_sigfig: int) -> tuple[str, int, bool]:
         # (32.85 is stored as 32.850000000000001, but 32.85 * 10 is exactly 328.5, which
         # `round()` takes to 328) and overflows for very small values. A rounding carry (e.g.,
         # 9.9999 to three significant digits) is reflected in the exponent ("1.00e+01")
-        mantissa, exponent = f"{value:.{n_sigfig - 1}e}".split("e")
+        fmt_spec = f".{n_sigfig - 1}e"
+        if isinstance(value, Decimal):
+            # A `Decimal` is rounded with the rounding mode of the active `decimal` context, which
+            # a user may have changed, so round half to even here, as float formatting does
+            with localcontext(Context(rounding=ROUND_HALF_EVEN)):
+                value_str = format(value, fmt_spec)
+        else:
+            value_str = format(value, fmt_spec)
+        mantissa, exponent = value_str.split("e")
         sig_digits = mantissa.replace(".", "")
         power = n_sigfig - 1 - int(exponent)
 
@@ -6601,7 +6611,6 @@ def _get_sci_parts(value: float, n_sigfig: int) -> tuple[bool, str, int, int]:
     Returns the properties for constructing a number in scientific notation.
     """
 
-    value = float(value)
     sig_digits, power, is_negative = _get_number_profile(value, n_sigfig)
 
     dot_power = -(n_sigfig - 1)
