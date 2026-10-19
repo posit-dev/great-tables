@@ -5391,8 +5391,10 @@ pattern
     is also supplied, `pattern` will take precedence.
 fn
     A supplied function that operates on each cell value `x` and should return a boolean
-    indicating whether that value should be replaced. If either of `values` or `pattern` is also
-    supplied, `fn` will take precedence.
+    indicating whether that value should be replaced. It's called on missing values too (e.g.,
+    `None`, `NaN`, `pd.NA`), so it can target them (e.g., `fn=lambda x: x is None`); a value for
+    which `fn` raises a `TypeError` or `ValueError` isn't replaced. If either of `values` or
+    `pattern` is also supplied, `fn` will take precedence.
 replacement
     The replacement value for any cell values matched by either `values`, `pattern`, or `fn`.
     Must be a string or numeric value.
