@@ -501,6 +501,28 @@ class TestSubValues:
         subber = SubValues(pd.DataFrame(), values=None, pattern=None, fn=pd.isna, replacement="x")
         assert subber.to_html(np.nan) == "x"
         assert subber.to_html(pd.NA) == "x"
+        assert subber.to_html(None) == "x"
+
+    def test_fn_is_called_on_none(self):
+        subber = SubValues(
+            pl.DataFrame(), values=None, pattern=None, fn=lambda x: x is None, replacement="x"
+        )
+        assert subber.to_html(None) == "x"
+        assert isinstance(subber.to_html(1), FormatterSkipElement)
+
+    @pytest.mark.filterwarnings("ignore:PyArrow Table support is currently experimental")
+    @pytest.mark.parametrize("frame", [pl.DataFrame, pa.table])
+    def test_method_fn_targets_nulls(self, frame):
+        from great_tables.gt import _get_column_of_values
+
+        df = frame({"col": [1.0, None]})
+
+        gt = GT(df).sub_values(columns="col", fn=lambda x: x is None, replacement="missing")
+        assert _get_column_of_values(gt, column_name="col", context="html") == ["1.0", "missing"]
+
+        # An `fn` that raises on a null (`None > 0`) doesn't replace it
+        gt = GT(df).sub_values(columns="col", fn=lambda x: x > 0, replacement="positive")
+        assert _get_column_of_values(gt, column_name="col", context="html") == ["positive", "None"]
 
     def test_array_cell_doesnt_match_single_value(self):
         """A cell holding an array is compared element-wise, so it doesn't match a value."""
