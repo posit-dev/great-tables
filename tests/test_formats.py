@@ -28,8 +28,10 @@ from great_tables._formats import (
     _get_next_si_prefix,
     _has_zero_value,
     _normalize_locale,
+    _decimal_exponent,
     _round_rhu,
     _rounds_up_to,
+    _shift_decimal_point,
     _SI_PREFIXES_DECIMAL,
     _SI_PREFIXES_ENGINEERING,
     _validate_currency,
@@ -1158,6 +1160,113 @@ def test_float_column_decimal_scale_by():
     assert _get_column_of_values(gt, column_name="x", context="html") == ["0.3125", "3.7500", "inf"]
 
 
+@pytest.mark.parametrize(
+    "x,x_out",
+    [
+        # 6.7405e-05 is stored as 6.74049999...e-05 and 9.395e-12 as 9.39500000...3e-12
+        (6.7405e-05, "67.40E−06"),
+        (-6.7405e-05, "−67.40E−06"),
+        (9.395e-12, "9.40E−12"),
+        # An exact tie rounds half to even, as in `fmt_scientific()`
+        (4565.0, "4.56E03"),
+        (12345, "12.34E03"),
+        # Subnormal values, where `10**-324` underflows to `0.0`
+        (2.5e-320, "25.00E−321"),
+        (5e-324, "4.94E−324"),
+    ],
+)
+def test_fmt_engineering_rounds_once_from_stored_value(x: float, x_out: str):
+    # The mantissa is rounded once, from the stored value, as in `fmt_scientific()` (#981)
+    assert vals.fmt_engineering(x, exp_style="E") == [x_out]
+
+
+def test_fmt_engineering_agrees_with_fmt_scientific():
+    # Where the exponent is a multiple of 3, the two notations give the same digits
+    for x in [9.395e-12, 4565.0, 1.2345e6, 8.585e-6, 6.2265e9]:
+        assert vals.fmt_engineering(x, n_sigfig=3, exp_style="E") == vals.fmt_scientific(
+            x, n_sigfig=3, exp_style="E"
+        )
+
+
+@pytest.mark.parametrize(
+    "fn,x,x_out",
+    [
+        (vals.fmt_number_si, 6.7405e-05, "67.40 µ"),
+        (vals.fmt_number_si, 8.585e-06, "8.58 µ"),
+        (vals.fmt_number_si, 12345, "12.34 k"),
+        (lambda x: vals.fmt_number(x, compact=True), 67405.0, "67.40K"),
+        (lambda x: vals.fmt_number(x, compact=True), 12345, "12.34K"),
+        (lambda x: vals.fmt_number(x, compact=True), -339255.0, "−339.26K"),
+    ],
+)
+def test_si_and_compact_round_once_from_stored_value(fn, x: float, x_out: str):
+    assert fn(x) == [x_out]
+
+
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
+def test_large_integers_engineering_si_compact_keep_all_digits(frame):
+    df = frame({"x": [1234567890123456789]})
+
+    gt = GT(df).fmt_engineering(columns="x", n_sigfig=19, exp_style="E")
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["1.234567890123456789E18"]
+
+    gt = GT(df).fmt_number(columns="x", compact=True, decimals=15)
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["1,234.567890123456789Q"]
+
+    gt = GT(df).fmt_number_si(columns="x", n_sigfig=19)
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["1.234567890123456789 E"]
+
+
+def test_decimal_column_engineering_and_si():
+    df = pl.DataFrame({"x": [Decimal("0.125"), Decimal("1500")]}, schema={"x": pl.Decimal(10, 3)})
+
+    gt = GT(df).fmt_engineering(columns="x", exp_style="E")
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["125.00E−03", "1.50E03"]
+
+    gt = GT(df).fmt_number_si(columns="x")
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["125.00 m", "1.50 k"]
+
+
+def test_scaled_values_ignore_decimal_context():
+    from decimal import ROUND_HALF_UP, Context, localcontext
+
+    # A changed `decimal` context (low precision, rounding half up) doesn't change the output
+    with localcontext(Context(prec=3, rounding=ROUND_HALF_UP)):
+        assert vals.fmt_engineering([4565.0, 5e-324], exp_style="E") == ["4.56E03", "4.94E−324"]
+        assert vals.fmt_number_si(1234567890123456789, n_sigfig=19) == ["1.234567890123456789 E"]
+        assert vals.fmt_number(67405.0, compact=True) == ["67.40K"]
+
+
+def test_shift_decimal_point_is_exact():
+    from decimal import Context
+
+    exact = Decimal(6.7405e-05).scaleb(6, Context(prec=100))
+    assert _shift_decimal_point(6.7405e-05, 6) == exact
+    assert str(exact).startswith("67.4049999")
+    assert _shift_decimal_point(1234567890123456789, -18) == Decimal("1.234567890123456789")
+    assert _shift_decimal_point(Decimal("0.125"), 3) == 125
+    # The value is returned as is when it isn't shifted
+    assert _shift_decimal_point(1.5, 0) == 1.5 and isinstance(_shift_decimal_point(1.5, 0), float)
+
+
+@pytest.mark.parametrize(
+    "x,exponent",
+    [
+        (1000.0, 3),
+        (999.9999999999999, 2),
+        # 1e-06 is stored as 9.99999...e-07 (`fmt_engineering()` still gives `1.00E−06`, as the
+        # rounded mantissa carries)
+        (1e-6, -7),
+        (5e-324, -324),
+        (-0.125, -1),
+        (10**400, 400),
+        (Decimal("0.125"), -1),
+    ],
+)
+def test_decimal_exponent(x, exponent: int):
+    assert _decimal_exponent(x) == exponent
+
+
 @pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
 def test_large_integers_n_sigfig_keep_all_digits(frame):
     df = frame({"x": [1234567890123456789, -9007199254740993]})
@@ -1604,8 +1713,10 @@ def test_fmt_number_n_sigfig_matches_decimals():
             [999999.5],
             ["100&nbsp;×&nbsp;10<sup style='font-size: 65%;'>6</sup>"],
         ),
-        # At a halfway value the carried mantissa is exactly 1, not a rounded-down `0.9`
-        (dict(n_sigfig=1, exp_style="E"), [9.5e-19], ["1E−18"]),
+        # The carried mantissa is exactly 1, not a rounded-down `0.9`
+        (dict(n_sigfig=1, exp_style="E"), [9.6e-19], ["1E−18"]),
+        # 9.5e-19 is stored as 9.4999...e-19, so it rounds down, as in `fmt_scientific()` (#981)
+        (dict(n_sigfig=1, exp_style="E"), [9.5e-19], ["900E−21"]),
         (dict(exp_style="E"), [0.0], ["0.00E00"]),
     ],
 )
@@ -3817,7 +3928,7 @@ def test_fmt_number_si_latex_pattern():
         # Carries from the zepto prefix (where rebuilding the value used to fall short of 1e-18)
         (dict(decimals=2), [9.99995e-19, 9.9996e-19], ["1.00 a", "999.96 z"]),
         # Values that round up with `n_sigfig=` carry to exactly 1 of the next prefix
-        (dict(n_sigfig=1), [9.5e-19], ["1 a"]),
+        (dict(n_sigfig=1), [9.6e-19], ["1 a"]),
         (dict(n_sigfig=4), [0.99996], ["1.000"]),
         (dict(n_sigfig=2, prefix_mode="decimal"), [9.96, 0.996], ["1.0 da", "1.0"]),
     ],
