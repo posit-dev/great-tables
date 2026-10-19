@@ -6699,11 +6699,19 @@ def _scale_value(value: float, scale_by: float) -> float:
     NumPy integers (e.g., the cells of a pandas `int64` column) are turned into Python integers
     first: NumPy integer arithmetic overflows and wraps around (`1234567890123456789 * 1000` gives
     `-1363962815083169272`), while Python integers have no size limit.
+
+    A `Decimal` can't be multiplied by a float, so a float `scale_by` for a `Decimal` value (e.g., a
+    cell of a polars `Decimal` column) is turned into the `Decimal` of its shortest repr (`2.5` stays
+    exactly `2.5`), and a `Decimal` `scale_by` for a float value is turned into a float.
     """
     if isinstance(value, numbers.Integral):
         value = int(value)
     if isinstance(scale_by, numbers.Integral):
         scale_by = int(scale_by)
+    if isinstance(value, Decimal) and not isinstance(scale_by, (int, Decimal)):
+        scale_by = Decimal(repr(float(scale_by)))
+    elif isinstance(scale_by, Decimal) and not isinstance(value, (int, Decimal)):
+        scale_by = float(scale_by)
     return value * scale_by
 
 

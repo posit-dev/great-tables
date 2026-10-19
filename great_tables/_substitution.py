@@ -447,8 +447,10 @@ def sub_values(
         is also supplied, `pattern` will take precedence.
     fn
         A supplied function that operates on each cell value `x` and should return a boolean
-        indicating whether that value should be replaced. If either of `values` or `pattern` is also
-        supplied, `fn` will take precedence.
+        indicating whether that value should be replaced. It's called on missing values too (e.g.,
+        `None`, `NaN`, `pd.NA`), so it can target them (e.g., `fn=lambda x: x is None`); a value for
+        which `fn` raises a `TypeError` or `ValueError` isn't replaced. If either of `values` or
+        `pattern` is also supplied, `fn` will take precedence.
     replacement
         The replacement value for any cell values matched by either `values`, `pattern`, or `fn`.
         Must be a string or numeric value.
@@ -659,11 +661,8 @@ class SubValues(Substitution):
         return FormatterSkipElement()
 
     def _is_match(self, x: Any) -> bool:
-        # Skip NA/None values
-        if x is None:
-            return False
-
-        # Priority: fn > pattern > values
+        # Priority: fn > pattern > values. `fn` is called on every value, missing values (`None`,
+        # `NaN`, `pd.NA`, `NaT`) included, as in R gt, so it can target them
         if self.fn is not None:
             try:
                 result = self.fn(x)
@@ -671,8 +670,8 @@ class SubValues(Substitution):
             except (TypeError, ValueError):
                 return False
 
-        # Missing values (`NaN`, `pd.NA`, `NaT`) are never matched by `pattern` or `values`, even
-        # when listed in `values`, as in R gt; `sub_missing()` replaces them
+        # Missing values (`None`, `NaN`, `pd.NA`, `NaT`) are never matched by `pattern` or `values`,
+        # even when listed in `values`, as in R gt; `sub_missing()` replaces them
         if is_na(self.dispatch_frame, x):
             return False
 
