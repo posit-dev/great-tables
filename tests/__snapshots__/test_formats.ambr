@@ -72,7 +72,7 @@
   </thead>
   <tbody class="gt_table_body">
     <tr>
-      <td headers="num" class="gt_row gt_right">1.11 × 10<sup style='font-size: 65%;'>−1</sup></td>
+      <td headers="num" class="gt_row gt_right">1.11&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−1</sup></td>
       <td headers="char" class="gt_row gt_left">apricot</td>
       <td headers="fctr" class="gt_row gt_left">one</td>
       <td headers="date" class="gt_row gt_right">15 January 2015</td>
@@ -94,7 +94,7 @@
       <td headers="group" class="gt_row gt_left">grp_a</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">3.33 × 10<sup style='font-size: 65%;'>1</sup></td>
+      <td headers="num" class="gt_row gt_right">3.33&nbsp;×&nbsp;10<sup style='font-size: 65%;'>1</sup></td>
       <td headers="char" class="gt_row gt_left">coconut</td>
       <td headers="fctr" class="gt_row gt_left">three</td>
       <td headers="date" class="gt_row gt_right">15 March 2015</td>
@@ -105,7 +105,7 @@
       <td headers="group" class="gt_row gt_left">grp_a</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">4.44 × 10<sup style='font-size: 65%;'>2</sup></td>
+      <td headers="num" class="gt_row gt_right">4.44&nbsp;×&nbsp;10<sup style='font-size: 65%;'>2</sup></td>
       <td headers="char" class="gt_row gt_left">durian</td>
       <td headers="fctr" class="gt_row gt_left">four</td>
       <td headers="date" class="gt_row gt_right">15 April 2015</td>
@@ -116,7 +116,7 @@
       <td headers="group" class="gt_row gt_left">grp_a</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">5.55 × 10<sup style='font-size: 65%;'>3</sup></td>
+      <td headers="num" class="gt_row gt_right">5.55&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup></td>
       <td headers="char" class="gt_row gt_left">None</td>
       <td headers="fctr" class="gt_row gt_left">five</td>
       <td headers="date" class="gt_row gt_right">15 May 2015</td>
@@ -138,7 +138,7 @@
       <td headers="group" class="gt_row gt_left">grp_b</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">7.77 × 10<sup style='font-size: 65%;'>5</sup></td>
+      <td headers="num" class="gt_row gt_right">7.77&nbsp;×&nbsp;10<sup style='font-size: 65%;'>5</sup></td>
       <td headers="char" class="gt_row gt_left">grapefruit</td>
       <td headers="fctr" class="gt_row gt_left">seven</td>
       <td headers="date" class="gt_row gt_right">None</td>
@@ -149,7 +149,7 @@
       <td headers="group" class="gt_row gt_left">grp_b</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">8.88 × 10<sup style='font-size: 65%;'>6</sup></td>
+      <td headers="num" class="gt_row gt_right">8.88&nbsp;×&nbsp;10<sup style='font-size: 65%;'>6</sup></td>
       <td headers="char" class="gt_row gt_left">honeydew</td>
       <td headers="fctr" class="gt_row gt_left">eight</td>
       <td headers="date" class="gt_row gt_right">15 August 2015</td>
@@ -168,7 +168,7 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td headers="num" class="gt_row gt_right">1.11 × 10<sup style='font-size: 65%;'>−1</sup></td>
+      <td headers="num" class="gt_row gt_right">1.11&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−1</sup></td>
       <td headers="char" class="gt_row gt_left">apricot</td>
       <td headers="fctr" class="gt_row gt_left">one</td>
       <td headers="date" class="gt_row gt_right">15 January 2015</td>
@@ -190,7 +190,7 @@
       <td headers="group" class="gt_row gt_left">grp_a</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">3.33 × 10<sup style='font-size: 65%;'>1</sup></td>
+      <td headers="num" class="gt_row gt_right">3.33&nbsp;×&nbsp;10<sup style='font-size: 65%;'>1</sup></td>
       <td headers="char" class="gt_row gt_left">coconut</td>
       <td headers="fctr" class="gt_row gt_left">three</td>
       <td headers="date" class="gt_row gt_right">15 March 2015</td>
@@ -201,7 +201,7 @@
       <td headers="group" class="gt_row gt_left">grp_a</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">4.44 × 10<sup style='font-size: 65%;'>2</sup></td>
+      <td headers="num" class="gt_row gt_right">4.44&nbsp;×&nbsp;10<sup style='font-size: 65%;'>2</sup></td>
       <td headers="char" class="gt_row gt_left">durian</td>
       <td headers="fctr" class="gt_row gt_left">four</td>
       <td headers="date" class="gt_row gt_right">15 April 2015</td>
@@ -212,7 +212,7 @@
       <td headers="group" class="gt_row gt_left">grp_a</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">5.55 × 10<sup style='font-size: 65%;'>3</sup></td>
+      <td headers="num" class="gt_row gt_right">5.55&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup></td>
       <td headers="char" class="gt_row gt_left">None</td>
       <td headers="fctr" class="gt_row gt_left">five</td>
       <td headers="date" class="gt_row gt_right">15 May 2015</td>
@@ -234,7 +234,7 @@
       <td headers="group" class="gt_row gt_left">grp_b</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">7.77 × 10<sup style='font-size: 65%;'>5</sup></td>
+      <td headers="num" class="gt_row gt_right">7.77&nbsp;×&nbsp;10<sup style='font-size: 65%;'>5</sup></td>
       <td headers="char" class="gt_row gt_left">grapefruit</td>
       <td headers="fctr" class="gt_row gt_left">seven</td>
       <td headers="date" class="gt_row gt_right">None</td>
@@ -245,7 +245,7 @@
       <td headers="group" class="gt_row gt_left">grp_b</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">8.88 × 10<sup style='font-size: 65%;'>6</sup></td>
+      <td headers="num" class="gt_row gt_right">8.88&nbsp;×&nbsp;10<sup style='font-size: 65%;'>6</sup></td>
       <td headers="char" class="gt_row gt_left">honeydew</td>
       <td headers="fctr" class="gt_row gt_left">eight</td>
       <td headers="date" class="gt_row gt_right">15 August 2015</td>

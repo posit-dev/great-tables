@@ -1172,7 +1172,11 @@ def test_format_number_with_sep_dec_marks():
 @pytest.mark.parametrize(
     "fmt_scientific_kwargs,x_in,x_out",
     [
-        (dict(decimals=2), [123456789], ["1.23 × 10<sup style='font-size: 65%;'>8</sup>"]),
+        (
+            dict(decimals=2),
+            [123456789],
+            ["1.23&nbsp;×&nbsp;10<sup style='font-size: 65%;'>8</sup>"],
+        ),
         (dict(exp_style="low-ten"), [123456789], ["1.23<sub style='font-size: 65%;'>10</sub>08"]),
         (dict(exp_style="E"), [123456789, 123123123123], ["1.23E08", "1.23E11"]),
         (dict(exp_style="E1"), [123456789, 123123123123], ["1.23E8", "1.23E11"]),
@@ -1208,9 +1212,9 @@ def test_fmt_scientific_case(
         (
             dict(decimals=2),
             [
-                "1.00 × 10<sup style='font-size: 65%;'>1</sup>",
-                "−1.00 × 10<sup style='font-size: 65%;'>1</sup>",
-                "1.00 × 10<sup style='font-size: 65%;'>5</sup>",
+                "1.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>1</sup>",
+                "−1.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>1</sup>",
+                "1.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>5</sup>",
                 "1.00",
                 "9.99",
             ],
@@ -1371,12 +1375,12 @@ def test_fmt_number_n_sigfig_matches_decimals():
                 0.0000123456,  # Very small (10^-6)
             ],
             [
-                "829.30 × 10<sup style='font-size: 65%;'>18</sup>",
-                "2.32 × 10<sup style='font-size: 65%;'>6</sup>",
-                "1.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "829.30&nbsp;×&nbsp;10<sup style='font-size: 65%;'>18</sup>",
+                "2.32&nbsp;×&nbsp;10<sup style='font-size: 65%;'>6</sup>",
+                "1.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>",
                 "10.00",
-                "123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
-                "12.35 × 10<sup style='font-size: 65%;'>−6</sup>",
+                "123.45&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−3</sup>",
+                "12.35&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−6</sup>",
             ],
         ),
         # Negative values
@@ -1384,9 +1388,9 @@ def test_fmt_number_n_sigfig_matches_decimals():
             dict(decimals=2),
             [-50000.01, -10.00001, -0.12345],
             [
-                "−50.00 × 10<sup style='font-size: 65%;'>3</sup>",
+                "−50.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>",
                 "−10.00",
-                "−123.45 × 10<sup style='font-size: 65%;'>−3</sup>",
+                "−123.45&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−3</sup>",
             ],
         ),
         # exp_style="E" format
@@ -1414,9 +1418,9 @@ def test_fmt_number_n_sigfig_matches_decimals():
             dict(decimals=2, force_sign_m=True),
             [-3453, 0, 82794],
             [
-                "−3.45 × 10<sup style='font-size: 65%;'>3</sup>",
+                "−3.45&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>",
                 "0.00",
-                "+82.79 × 10<sup style='font-size: 65%;'>3</sup>",
+                "+82.79&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>",
             ],
         ),
         # force_sign_n: positive/negative exponents
@@ -1424,8 +1428,8 @@ def test_fmt_number_n_sigfig_matches_decimals():
             dict(decimals=2, force_sign_n=True),
             [-0.000234, 82794],
             [
-                "−234.00 × 10<sup style='font-size: 65%;'>−6</sup>",
-                "82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
+                "−234.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−6</sup>",
+                "82.79&nbsp;×&nbsp;10<sup style='font-size: 65%;'>+3</sup>",
             ],
         ),
         # force_sign_m and force_sign_n combined
@@ -1433,9 +1437,9 @@ def test_fmt_number_n_sigfig_matches_decimals():
             dict(decimals=2, force_sign_m=True, force_sign_n=True),
             [-3453, 0, 82794],
             [
-                "−3.45 × 10<sup style='font-size: 65%;'>+3</sup>",
+                "−3.45&nbsp;×&nbsp;10<sup style='font-size: 65%;'>+3</sup>",
                 "0.00",
-                "+82.79 × 10<sup style='font-size: 65%;'>+3</sup>",
+                "+82.79&nbsp;×&nbsp;10<sup style='font-size: 65%;'>+3</sup>",
             ],
         ),
         # pattern
@@ -1443,8 +1447,8 @@ def test_fmt_number_n_sigfig_matches_decimals():
             dict(decimals=2, pattern="a {x} b"),
             [1234.5, 0.000123],
             [
-                "a 1.23 × 10<sup style='font-size: 65%;'>3</sup> b",
-                "a 123.00 × 10<sup style='font-size: 65%;'>−6</sup> b",
+                "a 1.23&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup> b",
+                "a 123.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−6</sup> b",
             ],
         ),
         # scale_by
@@ -1452,7 +1456,7 @@ def test_fmt_number_n_sigfig_matches_decimals():
             dict(decimals=2, scale_by=1 / 1000),
             [492032183020.5, 50000.01],
             [
-                "492.03 × 10<sup style='font-size: 65%;'>6</sup>",
+                "492.03&nbsp;×&nbsp;10<sup style='font-size: 65%;'>6</sup>",
                 "50.00",
             ],
         ),
@@ -1461,9 +1465,9 @@ def test_fmt_number_n_sigfig_matches_decimals():
             dict(decimals=5),
             [-1.5e200, 2.5, 3.5e200],
             [
-                "−150.00000 × 10<sup style='font-size: 65%;'>198</sup>",
+                "−150.00000&nbsp;×&nbsp;10<sup style='font-size: 65%;'>198</sup>",
                 "2.50000",
-                "350.00000 × 10<sup style='font-size: 65%;'>198</sup>",
+                "350.00000&nbsp;×&nbsp;10<sup style='font-size: 65%;'>198</sup>",
             ],
         ),
         # Rounding carries the mantissa up to 1000, so the next power of 1000 is used
@@ -1471,11 +1475,11 @@ def test_fmt_number_n_sigfig_matches_decimals():
             dict(decimals=2),
             [999999.5, -999999.5, 999.9999, 0.0009999999, 999499.0],
             [
-                "1.00 × 10<sup style='font-size: 65%;'>6</sup>",
-                "−1.00 × 10<sup style='font-size: 65%;'>6</sup>",
-                "1.00 × 10<sup style='font-size: 65%;'>3</sup>",
-                "1.00 × 10<sup style='font-size: 65%;'>−3</sup>",
-                "999.50 × 10<sup style='font-size: 65%;'>3</sup>",
+                "1.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>6</sup>",
+                "−1.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>6</sup>",
+                "1.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>",
+                "1.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−3</sup>",
+                "999.50&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>",
             ],
         ),
         (
@@ -1488,7 +1492,7 @@ def test_fmt_number_n_sigfig_matches_decimals():
         (
             dict(decimals=2, dec_mark=""),
             [999999.5],
-            ["100 × 10<sup style='font-size: 65%;'>6</sup>"],
+            ["100&nbsp;×&nbsp;10<sup style='font-size: 65%;'>6</sup>"],
         ),
         # At a halfway value the carried mantissa is exactly 1, not a rounded-down `0.9`
         (dict(n_sigfig=1, exp_style="E"), [9.5e-19], ["1E−18"]),

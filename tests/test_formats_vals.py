@@ -34,15 +34,15 @@ def test_val_fmt_image_multiple(img_paths: Path):
 
 def test_val_fmt_engineering_single():
     result = vals.fmt_engineering(1234.5, decimals=2)
-    assert result == ["1.23 × 10<sup style='font-size: 65%;'>3</sup>"]
+    assert result == ["1.23&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>"]
 
 
 def test_val_fmt_engineering_multiple():
     result = vals.fmt_engineering([1234.5, 0.000123, 1e6], decimals=2)
     assert result == [
-        "1.23 × 10<sup style='font-size: 65%;'>3</sup>",
-        "123.00 × 10<sup style='font-size: 65%;'>−6</sup>",
-        "1.00 × 10<sup style='font-size: 65%;'>6</sup>",
+        "1.23&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>",
+        "123.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−6</sup>",
+        "1.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>6</sup>",
     ]
 
 

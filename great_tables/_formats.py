@@ -6707,7 +6707,8 @@ def _has_zero_value(value: float) -> bool:
 
 def _context_exp_marks(context: str) -> list[str]:
     if context == "html":
-        marks = [" \u00d7 10<sup style='font-size: 65%;'>", "</sup>"]
+        # Non-breaking spaces keep the mantissa and the power of ten on the same line (as in gt)
+        marks = ["&nbsp;\u00d7&nbsp;10<sup style='font-size: 65%;'>", "</sup>"]
     elif context == "latex":
         marks = [" $\\times$ 10\\textsuperscript{", "}"]
     else:
