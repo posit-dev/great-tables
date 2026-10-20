@@ -228,7 +228,7 @@ If you have single values (or lists of them) in need of formatting, we have a se
 - `vals.fmt_duration`
 - `vals.fmt_date`
 - `vals.fmt_time`
-- `vals.fmt_duration`
+- `vals.fmt_datetime`
 - `vals.fmt_markdown`
 - `vals.fmt_image`
 

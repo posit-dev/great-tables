@@ -501,8 +501,8 @@ Format values as dates.
 [vals.fmt_time()](vals.fmt_time.md#great_tables.vals.fmt_time)  
 Format values as times.
 
-[vals.fmt_duration()](vals.fmt_duration.md#great_tables.vals.fmt_duration)  
-Format values as time duration strings.
+[vals.fmt_datetime()](vals.fmt_datetime.md#great_tables.vals.fmt_datetime)  
+Format values as datetimes.
 
 [vals.fmt_markdown()](vals.fmt_markdown.md#great_tables.vals.fmt_markdown)  
 Format Markdown text.

@@ -555,7 +555,7 @@ We didn't want to skimp on formatting methods for table cells with this early re
 - `fmt_roman()`: format values as Roman numerals
 - `fmt_date()`: format values as dates
 - `fmt_time()`: format values as times
-- [fmt_datetime()](../reference/GT.fmt_datetime.md#great_tables.GT.fmt_datetime): format values as datetimes
+- `fmt_datetime()`: format values as datetimes
 - `fmt_markdown()`: format Markdown text
 - [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt): set a column format with a formatting function
 

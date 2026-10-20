@@ -84,7 +84,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-e075a6adad56b92100e5fb84d28eba79.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd54e2ce69989177fd5404fd01f31db8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -188,7 +188,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2905" data-forks="141"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2906" data-forks="141"></div>
     </span>
   </li>  
 </ul>
@@ -1150,8 +1150,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/vals.fmt_duration.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">vals.fmt_duration</span></a>
+  <a href="../reference/vals.fmt_datetime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_datetime</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1290,6 +1290,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#parameters" id="toc-parameters" class="nav-link active" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#formatting-with-the-date_style-and-time_style-arguments" id="toc-formatting-with-the-date_style-and-time_style-arguments" class="nav-link" data-scroll-target="#formatting-with-the-date_style-and-time_style-arguments">Formatting With The <code>date_style=</code> And <code>time_style=</code> Arguments</a></li>
+  <li><a href="#formatting-with-a-pattern-in-format_str" id="toc-formatting-with-a-pattern-in-format_str" class="nav-link" data-scroll-target="#formatting-with-a-pattern-in-format_str">Formatting With A Pattern In <code>format_str=</code></a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   </ul>
@@ -1322,7 +1323,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5476-L5623" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5613-L5877" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-Kind.FUNCTION">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sig-class">GT</span><span class="op">.</span><span class="sig-name">fmt_datetime</span>(</span>
@@ -1337,7 +1338,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div class="doc-text">
-<p>Format input values to datetime values using one of 17 preset date styles and one of 5 preset time styles. Input can be in the form of <code>datetime</code> values, or strings in the ISO 8601 forms of <code>YYYY-MM-DD HH:MM:SS</code> or <code>YYYY-MM-DD</code>.</p>
+<p>Format input values to datetime values using one of 41 preset date styles and one of 25 preset time styles, or with a format string. Input can be in the form of <code>datetime</code> values, or strings in the ISO 8601 forms of <code>YYYY-MM-DD HH:MM:SS</code> or <code>YYYY-MM-DD</code>.</p>
 </div>
 <section id="parameters" class="level2 doc-parameters">
 <h2 class="doc-parameters anchored" data-anchor-id="parameters">Parameters</h2>
@@ -1357,15 +1358,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">time_style</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">TimeStyle</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"iso"</span></span></code></dt>
 <dd>
-<p>The time style to use. By default this is the short name <code>"iso"</code> which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total.</p>
+<p>The time style to use. By default this is the short name <code>"iso"</code> which corresponds to how times are formatted within ISO 8601 datetime values. There are 25 time styles in total.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">format_str</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | None</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>
-<p>A string that specifies the format of the datetime string. This is a <code>strftime()</code> format string that can be used to format date or datetime input. If <code>format=</code> is provided, the <code>date_style=</code> and <code>time_style=</code> arguments are ignored.</p>
+<p>A format string to use instead of the preset styles. This can be a CLDR datetime pattern (e.g., <code>"EEEE, d MMMM y"</code>), which is localized using <code>locale=</code> (or the table locale), or a <code>strftime()</code> format string (any string containing <code>%</code>, e.g., <code>"%d.%m.%Y"</code>), which isn’t localized. If <code>format_str=</code> is provided, the <code>date_style=</code>, <code>time_style=</code>, and <code>sep=</code> arguments are ignored.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">sep</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">" "</span></span></code></dt>
 <dd>
-<p>A string that separates the date and time components of the datetime string. The default is a space character (<code>" "</code>). This is ignored if <code>format=</code> is provided.</p>
+<p>A string that separates the date and time components of the datetime string. The default is a space character (<code>" "</code>). This is ignored if <code>format_str=</code> is provided.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">pattern</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"{x}"</span></span></code></dt>
 <dd>
@@ -1373,20 +1374,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">locale</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | None</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>
-An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France). Only relevant if <code>date_style=</code> or <code>time_style=</code> are provided.
+An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France). This can’t be used with a <code>strftime()</code> format string in <code>format_str=</code>, since that isn’t localized (with one, a table locale set in <a href="../reference/GT.html#great_tables.GT" class="gdls-link"><code>GT()</code></a> is ignored).
 </dd>
 </dl>
 </div>
 </section>
 <section id="formatting-with-the-date_style-and-time_style-arguments" class="level2 doc-formatting-with-the-datestyle-and-timestyle-arguments">
 <h2 class="doc-formatting-with-the-datestyle-and-timestyle-arguments anchored" data-anchor-id="formatting-with-the-date_style-and-time_style-arguments">Formatting With The <code>date_style=</code> And <code>time_style=</code> Arguments</h2>
-<p>If not supplying a formatting string to <code>format_str=</code> we need to supply a preset date style to the <code>date_style=</code> argument and a preset time style to the <code>time_style=</code> argument. The date styles are numerous and can handle localization to any supported locale. The following table provides a listing of all date styles and their output values (corresponding to an input date of <code>2000-02-29 14:35:00</code>).</p>
+<p>If not supplying a formatting string to <code>format_str=</code> we need to supply a preset date style to the <code>date_style=</code> argument and a preset time style to the <code>time_style=</code> argument. The date and time parts are formatted separately and joined by <code>sep=</code>. The styles are numerous and can handle localization to any supported locale. Those termed flexible adapt their output to any <code>locale=</code> provided: the order of the fields, the punctuation, and even which fields are abbreviated follow the locale’s conventions. That feature makes the flexible formats a better option for locales other than <code>"en"</code> (the default locale).</p>
+<p>The following table provides a listing of all date styles and their output values (corresponding to an input of <code>2000-02-29 14:35:00</code>).</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
 <th></th>
 <th>Date Style</th>
 <th>Output</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
@@ -1394,91 +1397,252 @@ An optional locale identifier that can be used for formatting values according t
 <td>1</td>
 <td><code>"iso"</code></td>
 <td><code>"2000-02-29"</code></td>
+<td>ISO 8601</td>
 </tr>
 <tr class="even">
 <td>2</td>
 <td><code>"wday_month_day_year"</code></td>
 <td><code>"Tuesday, February 29, 2000"</code></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td>3</td>
 <td><code>"wd_m_day_year"</code></td>
 <td><code>"Tue, Feb 29, 2000"</code></td>
+<td></td>
 </tr>
 <tr class="even">
 <td>4</td>
 <td><code>"wday_day_month_year"</code></td>
 <td><code>"Tuesday 29 February 2000"</code></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td>5</td>
 <td><code>"month_day_year"</code></td>
 <td><code>"February 29, 2000"</code></td>
+<td></td>
 </tr>
 <tr class="even">
 <td>6</td>
 <td><code>"m_day_year"</code></td>
 <td><code>"Feb 29, 2000"</code></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td>7</td>
 <td><code>"day_m_year"</code></td>
 <td><code>"29 Feb 2000"</code></td>
+<td></td>
 </tr>
 <tr class="even">
 <td>8</td>
 <td><code>"day_month_year"</code></td>
 <td><code>"29 February 2000"</code></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td>9</td>
 <td><code>"day_month"</code></td>
 <td><code>"29 February"</code></td>
+<td></td>
 </tr>
 <tr class="even">
 <td>10</td>
 <td><code>"day_m"</code></td>
 <td><code>"29 Feb"</code></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td>11</td>
 <td><code>"year"</code></td>
 <td><code>"2000"</code></td>
+<td></td>
 </tr>
 <tr class="even">
 <td>12</td>
 <td><code>"month"</code></td>
 <td><code>"February"</code></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td>13</td>
 <td><code>"day"</code></td>
 <td><code>"29"</code></td>
+<td></td>
 </tr>
 <tr class="even">
 <td>14</td>
 <td><code>"year.mn.day"</code></td>
 <td><code>"2000/02/29"</code></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td>15</td>
 <td><code>"y.mn.day"</code></td>
 <td><code>"00/02/29"</code></td>
+<td></td>
 </tr>
 <tr class="even">
 <td>16</td>
 <td><code>"year_week"</code></td>
 <td><code>"2000-W09"</code></td>
+<td>ISO 8601</td>
 </tr>
 <tr class="odd">
 <td>17</td>
 <td><code>"year_quarter"</code></td>
 <td><code>"2000-Q1"</code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>18</td>
+<td><code>"yMd"</code></td>
+<td><code>"2/29/2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td><code>"yMEd"</code></td>
+<td><code>"Tue, 2/29/2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td><code>"yMMM"</code></td>
+<td><code>"Feb 2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>21</td>
+<td><code>"yMMMM"</code></td>
+<td><code>"February 2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>22</td>
+<td><code>"yMMMd"</code></td>
+<td><code>"Feb 29, 2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>23</td>
+<td><code>"yMMMEd"</code></td>
+<td><code>"Tue, Feb 29, 2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>24</td>
+<td><code>"GyMd"</code></td>
+<td><code>"2/29/2000 AD"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>25</td>
+<td><code>"GyMMMd"</code></td>
+<td><code>"Feb 29, 2000 AD"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>26</td>
+<td><code>"GyMMMEd"</code></td>
+<td><code>"Tue, Feb 29, 2000 AD"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>27</td>
+<td><code>"yM"</code></td>
+<td><code>"2/2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>28</td>
+<td><code>"Md"</code></td>
+<td><code>"2/29"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>29</td>
+<td><code>"MEd"</code></td>
+<td><code>"Tue, 2/29"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>30</td>
+<td><code>"MMMd"</code></td>
+<td><code>"Feb 29"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>31</td>
+<td><code>"MMMEd"</code></td>
+<td><code>"Tue, Feb 29"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>32</td>
+<td><code>"MMMMd"</code></td>
+<td><code>"February 29"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>33</td>
+<td><code>"GyMMM"</code></td>
+<td><code>"Feb 2000 AD"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>34</td>
+<td><code>"yQQQ"</code></td>
+<td><code>"Q1 2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>35</td>
+<td><code>"yQQQQ"</code></td>
+<td><code>"1st quarter 2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>36</td>
+<td><code>"Gy"</code></td>
+<td><code>"2000 AD"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>37</td>
+<td><code>"y"</code></td>
+<td><code>"2000"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>38</td>
+<td><code>"M"</code></td>
+<td><code>"2"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>39</td>
+<td><code>"MMM"</code></td>
+<td><code>"Feb"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="even">
+<td>40</td>
+<td><code>"d"</code></td>
+<td><code>"29"</code></td>
+<td>flexible</td>
+</tr>
+<tr class="odd">
+<td>41</td>
+<td><code>"Ed"</code></td>
+<td><code>"29 Tue"</code></td>
+<td>flexible</td>
 </tr>
 </tbody>
 </table>
 <p>The <code>"year_week"</code> style gives the ISO 8601 week date in every locale: weeks start on Monday, week 1 is the week containing the first Thursday of the year, and the year shown is the one the week belongs to (so <code>2024-12-30</code> is <code>"2025-W01"</code>).</p>
-<p>The time styles can also handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of <code>2000-02-29 14:35:00</code>).</p>
+<p>The following table provides a listing of all time styles and their output values (corresponding to an input of <code>2000-02-29 14:35:00</code>). It is noted which of these represent 12- or 24-hour time.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -1519,8 +1683,206 @@ An optional locale identifier that can be used for formatting values according t
 <td><code>"2 PM"</code></td>
 <td>12h</td>
 </tr>
+<tr class="even">
+<td>6</td>
+<td><code>"Hms"</code></td>
+<td><code>"14:35:00"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><code>"Hm"</code></td>
+<td><code>"14:35"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><code>"H"</code></td>
+<td><code>"14"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><code>"EHm"</code></td>
+<td><code>"Tue 14:35"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td><code>"EHms"</code></td>
+<td><code>"Tue 14:35:00"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td><code>"Hmsv"</code></td>
+<td><code>"14:35:00 UTC"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td><code>"Hmv"</code></td>
+<td><code>"14:35 UTC"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td><code>"hms"</code></td>
+<td><code>"2:35:00 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td><code>"hm"</code></td>
+<td><code>"2:35 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td><code>"h"</code></td>
+<td><code>"2 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td><code>"Ehm"</code></td>
+<td><code>"Tue 2:35 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td><code>"Ehms"</code></td>
+<td><code>"Tue 2:35:00 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>18</td>
+<td><code>"EBhms"</code></td>
+<td><code>"Tue 2:35:00 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td><code>"Bhms"</code></td>
+<td><code>"2:35:00 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td><code>"EBhm"</code></td>
+<td><code>"Tue 2:35 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>21</td>
+<td><code>"Bhm"</code></td>
+<td><code>"2:35 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>22</td>
+<td><code>"Bh"</code></td>
+<td><code>"2 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>23</td>
+<td><code>"hmsv"</code></td>
+<td><code>"2:35:00 PM UTC"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>24</td>
+<td><code>"hmv"</code></td>
+<td><code>"2:35 PM UTC"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>25</td>
+<td><code>"ms"</code></td>
+<td><code>"35:00"</code></td>
+<td>flexible</td>
+</tr>
 </tbody>
 </table>
+<p>The styles with the time zone (<code>v</code>) give its generic name for an aware value (e.g., <code>"ET"</code> for <code>America/New_York</code>), falling back to a name like <code>"UTC"</code> or an offset like <code>"-0500"</code> for a zone without one. A naive value is taken to be in UTC.</p>
+</section>
+<section id="formatting-with-a-pattern-in-format_str" class="level2 doc-formatting-with-a-pattern-in-formatstr">
+<h2 class="doc-formatting-with-a-pattern-in-formatstr anchored" data-anchor-id="formatting-with-a-pattern-in-format_str">Formatting With A Pattern In <code>format_str=</code></h2>
+<p>For full control over the output, a CLDR datetime pattern can be given to <code>format_str=</code>. In a pattern, runs of letters are fields that are replaced with parts of the datetime, and the length of a run sets the form of that field. Literal text that has letters must be put in single quotes (e.g., <code>"h 'o''clock' a"</code>, where <code>''</code> is a single quote). Some of the fields are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Letters</th>
+<th>Output for <code>2000-02-29 14:35:07</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>year</td>
+<td><code>y</code>, <code>yy</code></td>
+<td><code>"2000"</code>, <code>"00"</code></td>
+</tr>
+<tr class="even">
+<td>quarter</td>
+<td><code>Q</code>, <code>QQQ</code>, <code>QQQQ</code></td>
+<td><code>"1"</code>, <code>"Q1"</code>, <code>"1st quarter"</code></td>
+</tr>
+<tr class="odd">
+<td>month</td>
+<td><code>M</code>, <code>MM</code>, <code>MMM</code>, <code>MMMM</code></td>
+<td><code>"2"</code>, <code>"02"</code>, <code>"Feb"</code>, <code>"February"</code></td>
+</tr>
+<tr class="even">
+<td>day of the month</td>
+<td><code>d</code>, <code>dd</code></td>
+<td><code>"29"</code>, <code>"29"</code></td>
+</tr>
+<tr class="odd">
+<td>day of the week</td>
+<td><code>E</code>, <code>EEEE</code></td>
+<td><code>"Tue"</code>, <code>"Tuesday"</code></td>
+</tr>
+<tr class="even">
+<td>hour (1-12)</td>
+<td><code>h</code>, <code>hh</code></td>
+<td><code>"2"</code>, <code>"02"</code></td>
+</tr>
+<tr class="odd">
+<td>hour (0-23)</td>
+<td><code>H</code>, <code>HH</code></td>
+<td><code>"14"</code>, <code>"14"</code></td>
+</tr>
+<tr class="even">
+<td>AM or PM</td>
+<td><code>a</code></td>
+<td><code>"PM"</code></td>
+</tr>
+<tr class="odd">
+<td>period of the day</td>
+<td><code>B</code></td>
+<td><code>"in the afternoon"</code></td>
+</tr>
+<tr class="even">
+<td>minute</td>
+<td><code>mm</code></td>
+<td><code>"35"</code></td>
+</tr>
+<tr class="odd">
+<td>second</td>
+<td><code>ss</code></td>
+<td><code>"07"</code></td>
+</tr>
+<tr class="even">
+<td>time zone</td>
+<td><code>z</code>, <code>zzzz</code>, <code>xxx</code></td>
+<td><code>"UTC"</code>, <code>"Coordinated Universal Time"</code>, <code>"+00:00"</code></td>
+</tr>
+</tbody>
+</table>
+<p>The full list of fields is in the <a href="https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table">CLDR date field symbol table</a>. The generic time zone fields (<code>v</code> and <code>vvvv</code>, e.g., <code>"ET"</code> and <code>"Eastern Time"</code> for <code>America/New_York</code>) fall back to the <code>z</code> and <code>zzzz</code> forms for a zone without a generic name, as with the time styles. The output of a pattern is localized (e.g., <code>"EEEE, d MMMM y"</code> gives <code>"Dienstag, 29 Februar 2000"</code> with <code>locale="de"</code>), though the pattern itself fixes the order of the fields and the punctuation.</p>
+<p>A <code>strftime()</code> format string can be used instead (any value with <code>%</code> is treated as one). Its output isn’t localized, so it can’t be used together with <code>locale=</code>.</p>
 </section>
 <section id="returns" class="level2 doc-returns">
 <h2 class="doc-returns anchored" data-anchor-id="returns">Returns</h2>
@@ -1535,8 +1897,8 @@ The GT object is returned. This is the same object that the method is called on 
 </section>
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
-<p>Let’s use the <a href="../reference/data.exibble.html#great_tables.data.exibble" class="gdls-link gdls-code">exibble</a> dataset to create a simple, two-column table (keeping only the <code>date</code> and <code>time</code> columns). With the <a href="../reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime" class="gdls-link gdls-code">fmt_datetime()</a> method, we’ll format the <code>date</code> column to display dates formatted with the <code>"month_day_year"</code> date style and the <code>time</code> column to display times formatted with the <code>"h_m_s_p"</code> time style.</p>
-<div id="2248997d" class="cell" data-execution_count="1">
+<p>Let’s use the <a href="../reference/data.exibble.html#great_tables.data.exibble" class="gdls-link gdls-code">exibble</a> dataset to create a simple, two-column table (keeping only the <code>date</code> and <code>time</code> columns). With the <code>fmt_datetime()</code> method, we’ll format the <code>date</code> column to display dates formatted with the <code>"month_day_year"</code> date style and the <code>time</code> column to display times formatted with the <code>"h_m_s_p"</code> time style.</p>
+<div id="1c8c5819" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>exibble_mini <span class="op">=</span> exibble[[<span class="st">"date"</span>, <span class="st">"time"</span>]]</span>
@@ -1550,67 +1912,67 @@ The GT object is returned. This is the same object that the method is called on 
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="dwylpmokig" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="iozrinaljs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#dwylpmokig table {
+#iozrinaljs table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#dwylpmokig thead, tbody, tfoot, tr, td, th { border-style: none; }
+#iozrinaljs thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#dwylpmokig p { margin: 0; padding: 0; }
- #dwylpmokig .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #dwylpmokig .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #dwylpmokig .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #dwylpmokig .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #dwylpmokig .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dwylpmokig .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dwylpmokig .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dwylpmokig .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #dwylpmokig .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #dwylpmokig .gt_column_spanner_outer:first-child { padding-left: 0; }
- #dwylpmokig .gt_column_spanner_outer:last-child { padding-right: 0; }
- #dwylpmokig .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #dwylpmokig .gt_spanner_row { border-bottom-style: hidden; }
- #dwylpmokig .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #dwylpmokig .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #dwylpmokig .gt_from_md> :first-child { margin-top: 0; }
- #dwylpmokig .gt_from_md> :last-child { margin-bottom: 0; }
- #dwylpmokig .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #dwylpmokig .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #dwylpmokig .gt_indent_1 { text-indent: 5px; }
- #dwylpmokig .gt_indent_2 { text-indent: calc(5px * 2); }
- #dwylpmokig .gt_indent_3 { text-indent: calc(5px * 3); }
- #dwylpmokig .gt_indent_4 { text-indent: calc(5px * 4); }
- #dwylpmokig .gt_indent_5 { text-indent: calc(5px * 5); }
- #dwylpmokig .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #dwylpmokig .gt_row_group_first td { border-top-width: 2px; }
- #dwylpmokig .gt_row_group_first th { border-top-width: 2px; }
- #dwylpmokig .gt_striped { color: #333333; background-color: #F4F4F4; }
- #dwylpmokig .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dwylpmokig .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #dwylpmokig .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #dwylpmokig .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dwylpmokig .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #dwylpmokig .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #dwylpmokig .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #dwylpmokig .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dwylpmokig .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #dwylpmokig .gt_left { text-align: left; }
- #dwylpmokig .gt_center { text-align: center; }
- #dwylpmokig .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #dwylpmokig .gt_font_normal { font-weight: normal; }
- #dwylpmokig .gt_font_bold { font-weight: bold; }
- #dwylpmokig .gt_font_italic { font-style: italic; }
- #dwylpmokig .gt_super { font-size: 65%; }
- #dwylpmokig .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dwylpmokig .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #dwylpmokig .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dwylpmokig .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #dwylpmokig .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #dwylpmokig .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#iozrinaljs p { margin: 0; padding: 0; }
+ #iozrinaljs .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #iozrinaljs .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #iozrinaljs .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #iozrinaljs .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #iozrinaljs .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #iozrinaljs .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #iozrinaljs .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #iozrinaljs .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #iozrinaljs .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #iozrinaljs .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #iozrinaljs .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #iozrinaljs .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #iozrinaljs .gt_spanner_row { border-bottom-style: hidden; }
+ #iozrinaljs .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #iozrinaljs .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #iozrinaljs .gt_from_md> :first-child { margin-top: 0; }
+ #iozrinaljs .gt_from_md> :last-child { margin-bottom: 0; }
+ #iozrinaljs .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #iozrinaljs .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #iozrinaljs .gt_indent_1 { text-indent: 5px; }
+ #iozrinaljs .gt_indent_2 { text-indent: calc(5px * 2); }
+ #iozrinaljs .gt_indent_3 { text-indent: calc(5px * 3); }
+ #iozrinaljs .gt_indent_4 { text-indent: calc(5px * 4); }
+ #iozrinaljs .gt_indent_5 { text-indent: calc(5px * 5); }
+ #iozrinaljs .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #iozrinaljs .gt_row_group_first td { border-top-width: 2px; }
+ #iozrinaljs .gt_row_group_first th { border-top-width: 2px; }
+ #iozrinaljs .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #iozrinaljs .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #iozrinaljs .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #iozrinaljs .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #iozrinaljs .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #iozrinaljs .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #iozrinaljs .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #iozrinaljs .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #iozrinaljs .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #iozrinaljs .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #iozrinaljs .gt_left { text-align: left; }
+ #iozrinaljs .gt_center { text-align: center; }
+ #iozrinaljs .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #iozrinaljs .gt_font_normal { font-weight: normal; }
+ #iozrinaljs .gt_font_bold { font-weight: bold; }
+ #iozrinaljs .gt_font_italic { font-style: italic; }
+ #iozrinaljs .gt_super { font-size: 65%; }
+ #iozrinaljs .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #iozrinaljs .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #iozrinaljs .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #iozrinaljs .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #iozrinaljs .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #iozrinaljs .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1652,6 +2014,124 @@ The GT object is returned. This is the same object that the method is called on 
   </tr>
   <tr>
     <td headers="date" class="gt_row gt_right">August 15, 2015 12:00:00 AM</td>
+    <td headers="time" class="gt_row gt_right">20:20</td>
+  </tr>
+</tbody>
+
+</table>
+
+</div>
+</div>
+</div>
+<p>With a CLDR pattern in <code>format_str=</code>, we choose the fields and their order ourselves. The names of the weekdays and months are still localized, here for a table in French.</p>
+<div id="ff69ff3a" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    GT(exibble_mini, locale<span class="op">=</span><span class="st">"fr"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    .fmt_datetime(columns<span class="op">=</span><span class="st">"date"</span>, format_str<span class="op">=</span><span class="st">"EEEE d MMMM y"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div id="bsnblcvlyz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>
+#bsnblcvlyz table {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
+#bsnblcvlyz thead, tbody, tfoot, tr, td, th { border-style: none; }
+ tr { background-color: transparent; }
+#bsnblcvlyz p { margin: 0; padding: 0; }
+ #bsnblcvlyz .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #bsnblcvlyz .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #bsnblcvlyz .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #bsnblcvlyz .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #bsnblcvlyz .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #bsnblcvlyz .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #bsnblcvlyz .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #bsnblcvlyz .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
+ #bsnblcvlyz .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #bsnblcvlyz .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #bsnblcvlyz .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #bsnblcvlyz .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #bsnblcvlyz .gt_spanner_row { border-bottom-style: hidden; }
+ #bsnblcvlyz .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #bsnblcvlyz .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #bsnblcvlyz .gt_from_md> :first-child { margin-top: 0; }
+ #bsnblcvlyz .gt_from_md> :last-child { margin-bottom: 0; }
+ #bsnblcvlyz .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #bsnblcvlyz .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
+ #bsnblcvlyz .gt_indent_1 { text-indent: 5px; }
+ #bsnblcvlyz .gt_indent_2 { text-indent: calc(5px * 2); }
+ #bsnblcvlyz .gt_indent_3 { text-indent: calc(5px * 3); }
+ #bsnblcvlyz .gt_indent_4 { text-indent: calc(5px * 4); }
+ #bsnblcvlyz .gt_indent_5 { text-indent: calc(5px * 5); }
+ #bsnblcvlyz .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+ #bsnblcvlyz .gt_row_group_first td { border-top-width: 2px; }
+ #bsnblcvlyz .gt_row_group_first th { border-top-width: 2px; }
+ #bsnblcvlyz .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #bsnblcvlyz .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #bsnblcvlyz .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #bsnblcvlyz .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #bsnblcvlyz .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #bsnblcvlyz .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #bsnblcvlyz .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #bsnblcvlyz .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #bsnblcvlyz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #bsnblcvlyz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #bsnblcvlyz .gt_left { text-align: left; }
+ #bsnblcvlyz .gt_center { text-align: center; }
+ #bsnblcvlyz .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #bsnblcvlyz .gt_font_normal { font-weight: normal; }
+ #bsnblcvlyz .gt_font_bold { font-weight: bold; }
+ #bsnblcvlyz .gt_font_italic { font-style: italic; }
+ #bsnblcvlyz .gt_super { font-size: 65%; }
+ #bsnblcvlyz .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #bsnblcvlyz .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #bsnblcvlyz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #bsnblcvlyz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
+ #bsnblcvlyz .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #bsnblcvlyz .gt_asterisk { font-size: 100%; vertical-align: 0; }
+ 
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+
+<tr class="gt_col_headings">
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="date">date</th>
+  <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="time">time</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+  <tr>
+    <td headers="date" class="gt_row gt_right">jeudi 15 janvier 2015</td>
+    <td headers="time" class="gt_row gt_right">13:35</td>
+  </tr>
+  <tr>
+    <td headers="date" class="gt_row gt_right">dimanche 15 février 2015</td>
+    <td headers="time" class="gt_row gt_right">14:40</td>
+  </tr>
+  <tr>
+    <td headers="date" class="gt_row gt_right">dimanche 15 mars 2015</td>
+    <td headers="time" class="gt_row gt_right">15:45</td>
+  </tr>
+  <tr>
+    <td headers="date" class="gt_row gt_right">mercredi 15 avril 2015</td>
+    <td headers="time" class="gt_row gt_right">16:50</td>
+  </tr>
+  <tr>
+    <td headers="date" class="gt_row gt_right">vendredi 15 mai 2015</td>
+    <td headers="time" class="gt_row gt_right">17:55</td>
+  </tr>
+  <tr>
+    <td headers="date" class="gt_row gt_right">lundi 15 juin 2015</td>
+    <td headers="time" class="gt_row gt_right">None</td>
+  </tr>
+  <tr>
+    <td headers="date" class="gt_row gt_right">None</td>
+    <td headers="time" class="gt_row gt_right">19:10</td>
+  </tr>
+  <tr>
+    <td headers="date" class="gt_row gt_right">samedi 15 août 2015</td>
     <td headers="time" class="gt_row gt_right">20:20</td>
   </tr>
 </tbody>

@@ -84,7 +84,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-e075a6adad56b92100e5fb84d28eba79.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd54e2ce69989177fd5404fd01f31db8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -185,7 +185,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <span class="nav-link">
-<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2905" data-forks="141"></div>
+<div id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2906" data-forks="141"></div>
     </span>
   </li>  
 </ul>
@@ -1147,8 +1147,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/vals.fmt_duration.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">vals.fmt_duration</span></a>
+  <a href="../reference/vals.fmt_datetime.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">vals.fmt_datetime</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -1319,7 +1319,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats_vals.py#L1846-L1918" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats_vals.py#L1872-L1972" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-Kind.FUNCTION">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sig-class">vals</span><span class="op">.</span><span class="sig-name">fmt_time</span>(</span>
@@ -1330,7 +1330,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div class="doc-text">
-<p>Format input values to time values using one of 5 preset time styles. Input can be in the form of <code>time</code> values, or strings in the ISO 8601 forms of <code>HH:MM:SS</code> or <code>YYYY-MM-DD HH:MM:SS</code>.</p>
+<p>Format input values to time values using one of 25 preset time styles. Input can be in the form of <code>time</code> values, or strings in the ISO 8601 forms of <code>HH:MM:SS</code> or <code>YYYY-MM-DD HH:MM:SS</code>.</p>
 </div>
 <section id="parameters" class="level2 doc-parameters">
 <h2 class="doc-parameters anchored" data-anchor-id="parameters">Parameters</h2>
@@ -1342,7 +1342,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">time_style</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">TimeStyle</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"iso"</span></span></code></dt>
 <dd>
-<p>The time style to use. By default this is the short name <code>"iso"</code> which corresponds to how times are formatted within ISO 8601 datetime values. There are 5 time styles in total and their short names can be viewed using <code>info_time_style()</code>.</p>
+<p>The time style to use. By default this is the short name <code>"iso"</code> which corresponds to how times are formatted within ISO 8601 datetime values. There are 25 time styles in total.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">pattern</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"{x}"</span></span></code></dt>
 <dd>
@@ -1357,7 +1357,7 @@ An optional locale identifier that can be used for formatting values according t
 </section>
 <section id="formatting-with-the-time_style-argument" class="level2 doc-formatting-with-the-timestyle-argument">
 <h2 class="doc-formatting-with-the-timestyle-argument anchored" data-anchor-id="formatting-with-the-time_style-argument">Formatting With The <code>time_style</code> Argument</h2>
-<p>We need to supply a preset time style to the <code>time_style</code> argument. The time styles are numerous and can handle localization to any supported locale. The following table provides a listing of all time styles and their output values (corresponding to an input time of <code>14:35:00</code>).</p>
+<p>We need to supply a preset time style to the <code>time_style</code> argument. The time styles are numerous and can handle localization to any supported locale. Those termed flexible adapt their output to any <code>locale=</code> provided. The following table provides a listing of all time styles and their output values (corresponding to an input of <code>2000-02-29 14:35:00</code>).</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -1398,9 +1398,130 @@ An optional locale identifier that can be used for formatting values according t
 <td><code>"2 PM"</code></td>
 <td>12h</td>
 </tr>
+<tr class="even">
+<td>6</td>
+<td><code>"Hms"</code></td>
+<td><code>"14:35:00"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><code>"Hm"</code></td>
+<td><code>"14:35"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><code>"H"</code></td>
+<td><code>"14"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><code>"EHm"</code></td>
+<td><code>"Tue 14:35"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td><code>"EHms"</code></td>
+<td><code>"Tue 14:35:00"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td><code>"Hmsv"</code></td>
+<td><code>"14:35:00 UTC"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td><code>"Hmv"</code></td>
+<td><code>"14:35 UTC"</code></td>
+<td>flexible, 24h</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td><code>"hms"</code></td>
+<td><code>"2:35:00 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td><code>"hm"</code></td>
+<td><code>"2:35 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td><code>"h"</code></td>
+<td><code>"2 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td><code>"Ehm"</code></td>
+<td><code>"Tue 2:35 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td><code>"Ehms"</code></td>
+<td><code>"Tue 2:35:00 PM"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>18</td>
+<td><code>"EBhms"</code></td>
+<td><code>"Tue 2:35:00 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td><code>"Bhms"</code></td>
+<td><code>"2:35:00 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td><code>"EBhm"</code></td>
+<td><code>"Tue 2:35 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>21</td>
+<td><code>"Bhm"</code></td>
+<td><code>"2:35 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>22</td>
+<td><code>"Bh"</code></td>
+<td><code>"2 in the afternoon"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>23</td>
+<td><code>"hmsv"</code></td>
+<td><code>"2:35:00 PM UTC"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="even">
+<td>24</td>
+<td><code>"hmv"</code></td>
+<td><code>"2:35 PM UTC"</code></td>
+<td>flexible, 12h</td>
+</tr>
+<tr class="odd">
+<td>25</td>
+<td><code>"ms"</code></td>
+<td><code>"35:00"</code></td>
+<td>flexible</td>
+</tr>
 </tbody>
 </table>
-<p>We can use the <code>info_time_style()</code> function within the console to view a similar table of time styles with example output.</p>
+<p>The names of the flexible time styles are CLDR skeletons, where each letter stands for a field: <code>H</code> is the hour (0-23), <code>h</code> the hour (1-12) with AM or PM, <code>B</code> the hour with a period of the day (e.g., “in the afternoon”), <code>m</code> the minute, <code>s</code> the second, <code>E</code> the day of the week, and <code>v</code> the time zone.</p>
+<p>The styles with the day of the week (<code>E</code>) need <code>datetime</code> values (or datetime strings); a <code>time</code> value without a date raises an error with them. The styles with the time zone (<code>v</code>) give its generic name for an aware value (e.g., <code>"ET"</code> for <code>America/New_York</code>), falling back to a name like <code>"UTC"</code> or an offset like <code>"-0500"</code> for a zone without one. A naive value is taken to be in UTC.</p>
 </section>
 <section id="returns" class="level2 doc-returns">
 <h2 class="doc-returns anchored" data-anchor-id="returns">Returns</h2>
@@ -1415,7 +1536,7 @@ A list of formatted values is returned.
 </section>
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
-<div id="cccef699" class="cell" data-execution_count="1">
+<div id="6fed7c59" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> vals</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>vals.fmt_time([<span class="st">"05:32:17"</span>, <span class="st">"13:01:02"</span>], time_style<span class="op">=</span><span class="st">"h_m_s_p"</span>)</span></code></pre></div>

@@ -686,7 +686,7 @@ gtcars_mini = (
 This example demonstrates how both the [.fmt_tf()](../../reference/GT.fmt_tf.md#great_tables.GT.fmt_tf) and [.cols_label_rotate()](../../reference/GT.cols_label_rotate.md#great_tables.GT.cols_label_rotate) methods can work well together. The boolean columns use checkmarks (✓/✗) with custom `colors=`, while the rotated labels save horizontal space in this dense feature matrix. The combination allows you to put more information into a compact and still readable format.
 
 
-## Enhanced datetime formatting with [fmt_datetime()](../../reference/GT.fmt_datetime.md#great_tables.GT.fmt_datetime)
+## Enhanced datetime formatting with `fmt_datetime()`
 
 The [.fmt_datetime()](../../reference/GT.fmt_datetime.md#great_tables.GT.fmt_datetime) method now supports custom format strings through the new `format_str=` parameter, giving you complete control over how datetime values appear in your tables.
 

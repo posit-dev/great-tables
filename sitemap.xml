@@ -1021,6 +1021,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_datetime.html</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_duration.html</loc>
     <lastmod>2026-10-20</lastmod>
     <changefreq>monthly</changefreq>

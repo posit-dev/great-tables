@@ -372,7 +372,7 @@ This release introduces [tab_spanner_delim()](./reference/GT.tab_spanner_delim.h
 - **[tab_spanner_delim()](./reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim) method** -- Automatically create column spanners by splitting column names on a delimiter. ([\#647](https://github.com/posit-dev/great-tables/issues/647))
 - **[cols_label_rotate()](./reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate) method** -- Rotate column label text 90 degrees for compact headers. ([\#696](https://github.com/posit-dev/great-tables/issues/696), [<span class="citation" data-cites="juleswg23">@juleswg23</span>](https://github.com/juleswg23))
 - **[fmt_tf()](./reference/GT.fmt_tf.html#great_tables.GT.fmt_tf) method** -- Format boolean values with customizable true/false representations. ([\#665](https://github.com/posit-dev/great-tables/issues/665), [\#704](https://github.com/posit-dev/great-tables/issues/704))
-- **Custom datetime format strings** -- [fmt_datetime()](./reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime) now accepts a `format_str=` parameter for arbitrary datetime formatting. ([\#645](https://github.com/posit-dev/great-tables/issues/645))
+- **Custom datetime format strings** -- `fmt_datetime()` now accepts a `format_str=` parameter for arbitrary datetime formatting. ([\#645](https://github.com/posit-dev/great-tables/issues/645))
 - **Pickle support** -- GT tables can now be serialized with `pickle`. ([\#641](https://github.com/posit-dev/great-tables/issues/641), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - **Compact currency formatting** -- `fmt_currency()` gained a `compact=` parameter (e.g., `$13.4M`). ([\#664](https://github.com/posit-dev/great-tables/issues/664))
 - **`truncate=` option in [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color)** -- Truncate values to the domain bounds instead of erroring on out-of-range data. ([\#673](https://github.com/posit-dev/great-tables/issues/673), [<span class="citation" data-cites="mahdibaghbanzadeh">@mahdibaghbanzadeh</span>](https://github.com/mahdibaghbanzadeh))
@@ -899,7 +899,7 @@ Great Tables `v0.5.1` is a maintenance release focused on bug fixes, code qualit
 ### Internal
 
 - Cleaned up implementation of [fmt_nanoplot()](./reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot) and [data_color()](./reference/GT.data_color.html#great_tables.GT.data_color). ([\#294](https://github.com/posit-dev/great-tables/issues/294), [\#295](https://github.com/posit-dev/great-tables/issues/295), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
-- Refactored `fmt_time()`, `fmt_date()`, and [fmt_datetime()](./reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime). ([\#290](https://github.com/posit-dev/great-tables/issues/290), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
+- Refactored `fmt_time()`, `fmt_date()`, and `fmt_datetime()`. ([\#290](https://github.com/posit-dev/great-tables/issues/290), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Refactored `letters` and `Letters` functions in helpers. ([\#289](https://github.com/posit-dev/great-tables/issues/289), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Updated type hints and organized imports. ([\#315](https://github.com/posit-dev/great-tables/issues/315), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
 - Codebase cleanup and minor improvements. ([\#292](https://github.com/posit-dev/great-tables/issues/292), [\#305](https://github.com/posit-dev/great-tables/issues/305), [<span class="citation" data-cites="jrycw">@jrycw</span>](https://github.com/jrycw))
@@ -1093,12 +1093,12 @@ This release introduces the [data_color()](./reference/GT.data_color.html#great_
 
 *2024-01-05* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.1.5)
 
-This release adds [fmt_datetime()](./reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime) for date-time formatting and generalizes row selection across all methods that accept a `rows=` argument.
+This release adds `fmt_datetime()` for date-time formatting and generalizes row selection across all methods that accept a `rows=` argument.
 
 
 ### New Features
 
-- **[fmt_datetime()](./reference/GT.fmt_datetime.html#great_tables.GT.fmt_datetime) method** -- Format datetime values in the table body with flexible date-time patterns. ([\#101](https://github.com/posit-dev/great-tables/issues/101))
+- **`fmt_datetime()` method** -- Format datetime values in the table body with flexible date-time patterns. ([\#101](https://github.com/posit-dev/great-tables/issues/101))
 - **Generalized row selectors** -- All `rows=` arguments now accept a function that operates on a DataFrame, making row selection in Pandas much easier. ([\#107](https://github.com/posit-dev/great-tables/issues/107))
 
 
