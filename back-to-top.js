@@ -16,6 +16,18 @@
     // How far (in pixels) the user must scroll before the button appears
     var SCROLL_THRESHOLD = 300;
 
+    // i18n helper — read translations from <meta name="gd-i18n">
+    var _i18nCache = null;
+    function _gdT(key, fallback) {
+        if (!_i18nCache) {
+            try {
+                var meta = document.querySelector('meta[name="gd-i18n"]');
+                _i18nCache = meta ? JSON.parse(meta.getAttribute('content')) : {};
+            } catch (e) { _i18nCache = {}; }
+        }
+        return _i18nCache[key] || fallback;
+    }
+
     /**
      * Check if the user prefers reduced motion
      */
@@ -27,10 +39,13 @@
      * Create the back-to-top button element
      */
     function createButton() {
+        var label = _gdT('back_to_top', 'Back to top');
         var btn = document.createElement('button');
         btn.className = 'gd-back-to-top';
-        btn.setAttribute('aria-label', 'Back to top');
-        btn.setAttribute('title', 'Back to top');
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('data-tippy-content', label);
+        // Fly the tooltip out sideways, clear of the stacked wide-layout button
+        btn.setAttribute('data-tippy-placement', 'left');
         btn.setAttribute('type', 'button');
 
         // Chevron-up SVG icon (Lucide-style, 24×24)

@@ -62,6 +62,8 @@
         var btn = document.createElement('button');
         btn.className = 'gd-wide-toggle';
         btn.setAttribute('type', 'button');
+        // Fly the tooltip out sideways, clear of the stacked back-to-top button
+        btn.setAttribute('data-tippy-placement', 'left');
 
         var svgOpen =
             '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" ' +
@@ -89,7 +91,15 @@
             : _gdT('wide_layout_widen', 'Widen content');
         btn.setAttribute('aria-pressed', wide ? 'true' : 'false');
         btn.setAttribute('aria-label', label);
-        btn.setAttribute('title', label);
+
+        // Use data-tippy-content rather than title: tooltips.js only converts
+        // a title once, so a title set on a later toggle would surface as a
+        // native browser tooltip while Tippy kept showing the old label
+        btn.setAttribute('data-tippy-content', label);
+        btn.removeAttribute('title');
+        if (btn._tippy) {
+            btn._tippy.setContent(label);
+        }
     }
 
     /**
