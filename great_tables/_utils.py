@@ -7,7 +7,7 @@ from collections.abc import Generator, Iterable, Iterator, Set
 from types import ModuleType
 from typing import TYPE_CHECKING, Any
 
-from ._tbl_data import _get_cell, _set_cell, get_column_names, is_na, n_rows
+from ._tbl_data import _get_cell, _set_cells, get_column_names, is_na, n_rows
 from ._text import BaseText, _process_text
 
 if TYPE_CHECKING:
@@ -234,6 +234,9 @@ def _migrate_unformatted_to_output(
     # Get the difference between the visible cells and the formatted cells
     all_unformatted_cells = list(set(all_visible_cells) - formatted_cells)
 
+    # The escaped values of each column, which are set one column at a time
+    new_values: dict[str, dict[int, str]] = {}
+
     for col, row in all_unformatted_cells:
         cell_value = _get_cell(data_tbl, row, col)
 
@@ -242,12 +245,10 @@ def _migrate_unformatted_to_output(
             continue
 
         cell_value_str = str(cell_value)
-        result = _process_text(cell_value_str, context=context)
+        new_values.setdefault(col, {})[row] = _process_text(cell_value_str, context=context)
 
-        new_body = _set_cell(data._body.body, row, col, result)
-        if new_body is not None:
-            # Some backends (e.g., PyArrow) return a new table rather than updating in place
-            data._body.body = new_body
+    for col, values in new_values.items():
+        data._body.body = _set_cells(data._body.body, col, values)
 
     return data
 

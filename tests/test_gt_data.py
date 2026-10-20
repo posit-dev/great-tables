@@ -57,3 +57,22 @@ def test_gt_data_replace_invalid_key_raises():
 
     with pytest.raises(ValueError, match="Replacements not in data"):
         data._replace(_nonexistent_field=23)
+
+
+def test_body_render_formats_later_format_wins():
+    import polars as pl
+    from great_tables._tbl_data import to_list
+
+    df = pl.DataFrame({"x": [1.0, None, 3.0], "y": ["a", "b", "c"]})
+    gt = (
+        GT(df)
+        .fmt_number("x", decimals=1)
+        .fmt_number("x", decimals=3, rows=[2])
+        .sub_missing("x", missing_text="--")
+        .fmt(lambda s: s.upper(), columns="y", rows=[0, 1])
+    )
+    body = gt._render_formats("html")._body.body
+
+    # `sub_missing()` skips the cells that aren't missing, which keep their formatted values
+    assert to_list(body["x"]) == ["1.0", "--", "3.000"]
+    assert to_list(body["y"]) == ["A", "B", "c"]

@@ -281,6 +281,78 @@ def _(data: PyArrowTable, row: int, column: str, value: Any) -> PyArrowTable:
     return data
 
 
+# _set_cells ----
+
+
+@singledispatch
+def _set_cells(data: DataFrameLike, column: str, values: dict[int, Any]) -> DataFrameLike:
+    """
+    Set the cells of one column (a dict of row index to value) and return the table, which is
+    modified in place for pandas and polars, and a new table for PyArrow.
+    """
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+def _set_cells_one_by_one(data: DataFrameLike, column: str, values: dict[int, Any]):
+    for row, value in values.items():
+        result = _set_cell(data, row, column, value)
+        if result is not None:
+            data = result
+
+    return data
+
+
+def _are_strings(values: dict[int, Any]) -> bool:
+    # Formatters give strings (or None), which are set in one go; other values are set one at a
+    # time, as each backend converts them differently (polars casts them to strings, pandas raises)
+    return all(value is None or isinstance(value, str) for value in values.values())
+
+
+@_set_cells.register(PdDataFrame)
+def _(data, column: str, values: dict[int, Any]):
+    col_indx = data.columns.get_loc(column)
+
+    if (
+        not values
+        or not isinstance(col_indx, int)
+        or data.dtypes.iloc[col_indx] != "string"
+        or not _are_strings(values)
+    ):
+        return _set_cells_one_by_one(data, column, values)
+
+    data.iloc[list(values), col_indx] = list(values.values())
+    return data
+
+
+@_set_cells.register(PlDataFrame)
+def _(data, column: str, values: dict[int, Any]):
+    import polars as pl
+
+    col_indx = data.columns.index(column)
+
+    if not values or data.dtypes[col_indx] != pl.String or not _are_strings(values):
+        return _set_cells_one_by_one(data, column, values)
+
+    series = data.to_series(col_indx).clone()
+    series.scatter(list(values), pl.Series(list(values.values()), dtype=pl.String))
+    data.replace_column(col_indx, series)
+    return data
+
+
+@_set_cells.register(PyArrowTable)
+def _(data: PyArrowTable, column: str, values: dict[int, Any]) -> PyArrowTable:
+    import pyarrow as pa
+
+    if not values:
+        return data
+
+    colindex = data.column_names.index(column)
+    pylist = data.column(column).to_pylist()
+    for row, value in values.items():
+        pylist[row] = value
+    return data.set_column(colindex, column, pa.array(pylist))
+
+
 # _get_column_dtype ----
 
 

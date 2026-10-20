@@ -20,7 +20,7 @@ from ._tbl_data import (
     TblData,
     _get_cell,
     _get_column_dtype,
-    _set_cell,
+    _set_cells,
     copy_data,
     create_empty_frame,
     get_column_names,
@@ -235,6 +235,10 @@ class Body:
 
         formatted_cells: set[tuple[str, int]] = set()
 
+        # The formatted values of each column (a later formatter replaces an earlier one's value),
+        # which are set one column at a time since setting single cells is slow
+        new_values: dict[str, dict[int, Any]] = {}
+
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
             if eval_func is None:  # pragma: no cover
@@ -245,15 +249,10 @@ class Body:
                     continue
 
                 formatted_cells.add((col, row))
+                new_values.setdefault(col, {})[row] = result
 
-                # TODO: I think that this is very inefficient with polars, so
-                # we could either accumulate results and set them per column, or
-                # could always use a pandas DataFrame inside Body?
-                new_body = _set_cell(self.body, row, col, result)
-                if new_body is not None:
-                    # Some backends do not support inplace operations, but return a new dataframe
-                    # TODO: Consolidate the behaviour of _set_cell
-                    self.body = new_body
+        for col, values in new_values.items():
+            self.body = _set_cells(self.body, col, values)
 
         return formatted_cells
 

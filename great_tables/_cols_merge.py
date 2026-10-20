@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from ._tbl_data import Agnostic, _get_cell, _set_cell, is_na
+from ._tbl_data import Agnostic, _get_cell, _set_cells, is_na
 
 if TYPE_CHECKING:
     from ._gt_data import Body, GTData
@@ -334,6 +334,9 @@ def _apply_single_col_merge(
 
     target_column = col_merge.vars[0]
 
+    # The merged values, set in one go once every row is merged (each row only reads its own cells)
+    merged_values: dict[int, str] = {}
+
     for row_idx in col_merge.rows:
         values = [
             _get_display_value(body, tbl_data, row_idx, col_name) for col_name in col_merge.vars
@@ -349,12 +352,9 @@ def _apply_single_col_merge(
         else:  # "merge_n_pct"
             merged_value = _merge_n_pct(values, tbl_data, col_merge.vars, row_idx)
 
-        result = _set_cell(body.body, row_idx, target_column, merged_value)
+        merged_values[row_idx] = merged_value
 
-        # For Pandas and Polars, _set_cell() modifies in place and returns None but
-        # for PyArrow, _set_cell() returns a new table
-        if result is not None:  # pragma: no cover
-            body.body = result
+    body.body = _set_cells(body.body, target_column, merged_values)
 
     return body
 
