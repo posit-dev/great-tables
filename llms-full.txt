@@ -4032,8 +4032,10 @@ single quotes (e.g., `"h 'o''clock' a"`, where `''` is a single quote). Some of 
 The full list of fields is in the [CLDR date field symbol
 table](https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table). The generic
 time zone fields (`v` and `vvvv`, e.g., `"ET"` and `"Eastern Time"` for `America/New_York`)
-fall back to the `z` and `zzzz` forms for a zone without a generic name, as with the time
-styles. The output of a pattern is localized (e.g., `"EEEE, d MMMM y"` gives
+and the location ones (`V` and `VVVV`) fall back to the `z` and `zzzz` forms for a zone
+without a generic name, as with the time styles. The short GMT offset `O` gives forms like
+`"GMT-5"`, `"GMT+5:30"` and `"GMT"`, and `g` is the modified Julian day (days since
+1858-11-17). The output of a pattern is localized (e.g., `"EEEE, d MMMM y"` gives
 `"Dienstag, 29 Februar 2000"` with `locale="de"`), though the pattern itself fixes the order of
 the fields and the punctuation.
 
