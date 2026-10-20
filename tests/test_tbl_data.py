@@ -612,7 +612,9 @@ def test_to_frame_list_keeps_values_pandas(vals, dtype):
     df = to_frame(vals, name="x")
 
     assert isinstance(df, pd.DataFrame)
-    assert str(df["x"].dtype) == dtype
+    # pandas 3 stores datetimes in microseconds, and pandas 2 (the last for Python 3.10) in
+    # nanoseconds
+    assert str(df["x"].dtype).replace("[ns", "[us") == dtype
 
     if dtype == "object":
         assert df["x"].tolist() == vals
