@@ -4277,26 +4277,24 @@ def fmt_bytes_context(
     # Determine properties of the value
     is_negative = _has_negative_value(value=x)
 
-    # Determine the power index for the value
-    if x == 0:
-        # If the value is zero, then the power index is 1; otherwise, we'd get
-        # an error when trying to calculate the log of zero
-        num_power_idx = 1
-    else:
-        # Otherwise, we can calculate the power index by taking the log of the value
-        # and dividing by the log of the base; we add 1 to the result to account for
-        # the fact that the power index is 1-based (i.e., the first element in the
-        # `byte_units` list is at index 0) --- the final statement ensures that the
-        # power index is always at least 1
-        num_power_idx = math.floor(math.log(abs(x), base)) + 1
-        num_power_idx = max(1, min(len(byte_units), num_power_idx))
+    # Determine the power index for the value: the exponent of the largest power of `base` that
+    # is at most the absolute value, plus 1 (the power index is 1-based, i.e., the first element
+    # in the `byte_units` list is at index 0), and 1 for zero; the integers are compared exactly,
+    # while `math.log()` can round up just below a power of the base (e.g.,
+    # `math.log(10**15 - 1, 1000)` gives `5.0`)
+    num_power_idx = 1
+    while num_power_idx < len(byte_units) and abs(x) >= base**num_power_idx:
+        num_power_idx += 1
 
-        # If rounding the scaled value carries it up to `base` (e.g., 999,999 bytes
-        # would give `1,000 kB`), use the next unit instead (`1 MB`)
-        if num_power_idx < len(byte_units) and _rounds_up_to(
-            x / base ** (num_power_idx - 1), threshold=base, decimals=decimals, n_sigfig=n_sigfig
-        ):
-            num_power_idx += 1
+    # If rounding the scaled value carries it up to `base` (e.g., 999,999 bytes
+    # would give `1,000 kB`), use the next unit instead (`1 MB`)
+    if num_power_idx < len(byte_units) and _rounds_up_to(
+        _divide_by_power(x, base=base, power=num_power_idx - 1),
+        threshold=base,
+        decimals=decimals,
+        n_sigfig=n_sigfig,
+    ):
+        num_power_idx += 1
 
     # The `units_str` is obtained by indexing the `byte_units` list with the `num_power_idx`
     # value; this is the string that will be affixed to the formatted value
@@ -4304,8 +4302,9 @@ def fmt_bytes_context(
 
     # Scale `x` value by a defined `base` value, this is done by dividing by the
     # `base` value raised to the power index minus 1 (we subtract 1 because the
-    # power index is 1-based)
-    x = x / base ** (num_power_idx - 1)
+    # power index is 1-based); the division is exact, so the value is rounded only once,
+    # when it's formatted
+    x = _divide_by_power(x, base=base, power=num_power_idx - 1)
 
     # Format the value to decimal notation; this is done before the `byte_units` text
     # is affixed to the value
@@ -6765,6 +6764,22 @@ def _shift_decimal_point(value: float | Decimal, places: int) -> float | Decimal
         return value
     sign, digits, exponent = _exact_decimal(value).as_tuple()
     return Decimal((sign, digits, exponent + places))
+
+
+def _divide_by_power(value: int, base: int, power: int) -> float | Decimal:
+    """Divide an integer by `base**power` exactly, giving a `Decimal` (`base` is 1000 or 1024).
+
+    Dividing by a power of the base as a float rounds the result (`1150 / 1000` is stored as
+    1.149999...), so formatting it rounds the value a second time (`1.1` instead of `1.2`) and
+    loses the last digits of integers above 2^53. The quotient has a finite number of decimal
+    places: dividing by `1000**power` shifts the decimal point by `3 * power` places, and dividing
+    by `1024**power` (`2**n`, with `n = 10 * power`) is the same as multiplying by `5**n` and
+    shifting the decimal point by `n` places. The value is returned as is for `power=0`.
+    """
+    if base == 1000:
+        return _shift_decimal_point(value, -3 * power)
+    n = 10 * power
+    return _shift_decimal_point(value * 5**n, -n)
 
 
 def _has_negative_value(value: float) -> bool:

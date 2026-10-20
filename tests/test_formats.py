@@ -29,6 +29,7 @@ from great_tables._formats import (
     _has_zero_value,
     _normalize_locale,
     _decimal_exponent,
+    _divide_by_power,
     _round_rhu,
     _rounds_up_to,
     _shift_decimal_point,
@@ -2284,6 +2285,69 @@ def test_fmt_bytes_minus_mark_follows_context(context: str, x_out: list[str]):
     gt = GT(pd.DataFrame({"x": [-1500]})).fmt_bytes(columns="x")
     x = _get_column_of_values(gt, column_name="x", context=context)
     assert x == x_out
+
+
+@pytest.mark.parametrize(
+    "fmt_bytes_kwargs,x_in,x_out",
+    [
+        # 1,150 bytes is exactly 1.15 kB, but `1150 / 1000` is stored as 1.1499999..., which gave
+        # `1.1 kB`; an exact tie rounds half to even, as in `fmt_number_si()`
+        (dict(), [1150, 1850, 5550], ["1.2 kB", "1.8 kB", "5.6 kB"]),
+        (dict(decimals=2), [1145, 2675], ["1.14 kB", "2.68 kB"]),
+        # Just below a power of the base, the smaller unit is used (`math.log(10**15 - 1, 1000)`
+        # gives `5.0`, which picked `PB`)
+        (dict(decimals=15), [10**15 - 1], ["999.999999999999 TB"]),
+    ],
+)
+def test_fmt_bytes_rounds_once_from_byte_count(
+    fmt_bytes_kwargs: dict[str, Any], x_in: list[int], x_out: list[str]
+):
+    df = pd.DataFrame({"x": x_in})
+    gt = GT(df).fmt_bytes(columns="x", **fmt_bytes_kwargs)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == x_out
+
+
+def test_fmt_bytes_agrees_with_fmt_number_si():
+    # Both divide by powers of 1000, so the decimal standard gives the same digits
+    for x in [1150, 1850, 5550, 1145, 2675, 67405]:
+        for decimals in [1, 2]:
+            assert vals.fmt_bytes(
+                x, decimals=decimals, drop_trailing_zeros=False
+            ) == vals.fmt_number_si(x, decimals=decimals, unit="B")
+
+
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
+def test_fmt_bytes_large_integers_keep_all_digits(frame):
+    # Integers above 2^53 can't be stored exactly as floats
+    df = frame({"x": [1234567890123456789, -9007199254740993]})
+
+    gt = GT(df).fmt_bytes(columns="x", decimals=18)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1.234567890123456789 EB", "−9.007199254740993 PB"]
+
+    gt = GT(df).fmt_bytes(columns="x", standard="binary", decimals=18)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1.070816950842157907 EiB", "−8.000000000000000888 PiB"]
+
+    gt = GT(df).fmt_bytes(columns="x", n_sigfig=19)
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["1.234567890123456789 EB", "−9.007199254740993000 PB"]
+
+
+def test_divide_by_power_is_exact():
+    from fractions import Fraction
+
+    for x in [1150, -1150, 2**53 + 1, 1234567890123456789, 902487216348759693489128343269]:
+        for base in [1000, 1024]:
+            for power in [0, 1, 5, 8]:
+                assert Fraction(_divide_by_power(x, base=base, power=power)) == Fraction(
+                    x, base**power
+                )
+
+    # The value is returned as is when it isn't divided
+    assert _divide_by_power(999, base=1024, power=0) == 999
+    assert isinstance(_divide_by_power(999, base=1024, power=0), int)
 
 
 # ------------------------------------------------------------------------------
