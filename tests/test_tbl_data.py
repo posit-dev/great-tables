@@ -18,6 +18,7 @@ from great_tables._tbl_data import (
     _get_cell,
     _get_column_dtype,
     _set_cell,
+    _set_cells,
     _validate_selector_list,
     cast_frame_to_string,
     copy_frame,
@@ -115,6 +116,44 @@ def test_set_cell(df: DataFrameLike):
         # Some implementations do in-place modifications
         new_df = df
     assert_frame_equal(new_df, expected)
+
+
+def _set_cells_with_set_cell(df: DataFrameLike, column: str, values: dict) -> DataFrameLike:
+    for row, value in values.items():
+        new_df = _set_cell(df, row, column, value)
+        if new_df is not None:
+            df = new_df
+    return df
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        {1: "x"},
+        {2: "z", 0: "x", 1: "y"},
+        {0: None, 2: "z"},
+        {},
+    ],
+)
+def test_set_cells(df: DataFrameLike, values: dict):
+    expected = _set_cells_with_set_cell(create_empty_frame(df), "col2", values)
+
+    assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
+
+
+@pytest.mark.parametrize("value", [5, 1.5, True, math.nan])
+def test_set_cells_non_strings_as_set_cell(df: DataFrameLike, value):
+    # Values that aren't strings are set as `_set_cell()` sets them, which differs by backend
+    # (polars casts them to strings, pandas raises for most and PyArrow infers a new dtype)
+    values = {0: "x", 2: value}
+
+    try:
+        expected = _set_cells_with_set_cell(create_empty_frame(df), "col2", values)
+    except Exception as e:
+        with pytest.raises(type(e)):
+            _set_cells(create_empty_frame(df), "col2", values)
+    else:
+        assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
 
 
 def test_reorder(df: DataFrameLike):
