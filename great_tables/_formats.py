@@ -6,7 +6,7 @@ import numbers
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
 from functools import lru_cache, partial
 from pathlib import Path
@@ -5591,7 +5591,9 @@ def fmt_time_context(
 
     if isinstance(x, datetime):
         # Babel's `format_time()` would drop the date, which a style showing the weekday needs
-        x_formatted = format_datetime(x, format=time_pattern.for_value(x), locale=babel_locale)
+        x_formatted = format_datetime(
+            x, format=time_pattern.for_value(x, locale), locale=babel_locale
+        )
 
     elif time_pattern.has_date_fields:
         # Babel would take the date as today
@@ -5602,7 +5604,7 @@ def fmt_time_context(
 
     else:
         # Format the time object to a string using Babel's `format_time()` function
-        x_formatted = format_time(x, format=time_pattern.for_value(x), locale=babel_locale)
+        x_formatted = format_time(x, format=time_pattern.for_value(x, locale), locale=babel_locale)
 
     # Use a supplied pattern specification to decorate the formatted value
     x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
@@ -5785,8 +5787,10 @@ def fmt_datetime(
     The full list of fields is in the [CLDR date field symbol
     table](https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table). The generic
     time zone fields (`v` and `vvvv`, e.g., `"ET"` and `"Eastern Time"` for `America/New_York`)
-    fall back to the `z` and `zzzz` forms for a zone without a generic name, as with the time
-    styles. The output of a pattern is localized (e.g., `"EEEE, d MMMM y"` gives
+    and the location ones (`V` and `VVVV`) fall back to the `z` and `zzzz` forms for a zone
+    without a generic name, as with the time styles. The short GMT offset `O` gives forms like
+    `"GMT-5"`, `"GMT+5:30"` and `"GMT"`, and `g` is the modified Julian day (days since
+    1858-11-17). The output of a pattern is localized (e.g., `"EEEE, d MMMM y"` gives
     `"Dienstag, 29 Februar 2000"` with `locale="de"`), though the pattern itself fixes the order of
     the fields and the punctuation.
 
@@ -5907,13 +5911,15 @@ def fmt_datetime_context(
         x_formatted = x.strftime(strftime_str)
 
     elif format_pattern is not None:
-        x_formatted = format_datetime(x, format=format_pattern.for_value(x), locale=babel_locale)
+        x_formatted = format_datetime(
+            x, format=format_pattern.for_value(x, locale), locale=babel_locale
+        )
 
     else:
         # Format the date and the time separately and join them with `sep` (which, as literal
         # text, can't safely be put into one CLDR pattern with them)
         date_str = format_date(x, format=_resolve_iso_week(date_format_str, x), locale=babel_locale)
-        time_str = format_datetime(x, format=time_pattern.for_value(x), locale=babel_locale)
+        time_str = format_datetime(x, format=time_pattern.for_value(x, locale), locale=babel_locale)
 
         x_formatted = f"{date_str}{sep}{time_str}"
 
@@ -7848,6 +7854,139 @@ def _validate_cldr_pattern(pattern: str) -> None:
         raise ValueError(f"The `format_str=` pattern {pattern!r} isn't valid: {e}") from None
 
 
+def _split_cldr_pattern(pattern: str) -> list[tuple[str, bool]]:
+    """
+    Split a CLDR pattern into its unquoted text and its literal text, as `(text, is_literal)`
+    pairs, where the literal text has its quotes removed (e.g., `"h 'o''clock' a"` gives
+    `[("h ", False), ("o'clock", True), (" a", False)]`).
+    """
+
+    parts = []
+    i = 0
+
+    while i < len(pattern):
+        if pattern[i] != "'":
+            end = pattern.find("'", i)
+            end = len(pattern) if end == -1 else end
+            parts.append((pattern[i:end], False))
+            i = end
+
+        elif pattern.startswith("''", i):
+            # A quote outside quoted text
+            parts.append(("'", True))
+            i += 2
+
+        else:
+            # Quoted text, where `''` is a quote; it ends at the next lone quote
+            text = []
+            i += 1
+            while i < len(pattern):
+                if pattern.startswith("''", i):
+                    text.append("'")
+                    i += 2
+                elif pattern[i] == "'":
+                    i += 1
+                    break
+                else:
+                    text.append(pattern[i])
+                    i += 1
+            parts.append(("".join(text), True))
+
+    return parts
+
+
+def _join_cldr_pattern(parts: list[tuple[str, bool]]) -> str:
+    """Join the parts from `_split_cldr_pattern()` into a CLDR pattern, quoting the literal text."""
+
+    pattern = []
+    literal = []
+
+    # Adjacent literal parts are quoted together (`'a''b'` would be the text `a'b`); Babel reads
+    # each `''` as a quote before it looks for the quoted text, so text made only of quotes can't
+    # be quoted (`''''` would be two quotes) and is written as one `''` per quote
+    def append_literal():
+        literal_text = "".join(literal)
+        literal.clear()
+
+        if literal_text.strip("'"):
+            pattern.append("'" + literal_text.replace("'", "''") + "'")
+        else:
+            pattern.append(literal_text.replace("'", "''"))
+
+    for text, is_literal in parts:
+        if is_literal:
+            literal.append(text)
+        elif text:
+            append_literal()
+            pattern.append(text)
+
+    append_literal()
+
+    return "".join(pattern)
+
+
+# The fields that Babel can't format: the short localized GMT format (`O`) and the modified Julian
+# day (`g`); `OOOO` is left to Babel
+_CLDR_FIELDS_FILLED_IN = re.compile(r"(?<!O)O(?!O)|g+")
+
+# The day that the modified Julian day counts from
+_MJD_EPOCH_ORDINAL = date(1858, 11, 17).toordinal()
+
+
+def _fill_in_cldr_fields(pattern: str, x: datetime | time, locale: str | None) -> str:
+    """Replace the fields of a CLDR pattern that Babel can't format with their values for `x`."""
+
+    parts = []
+
+    for text, is_literal in _split_cldr_pattern(pattern):
+        if is_literal:
+            parts.append((text, True))
+            continue
+
+        end = 0
+        for field in _CLDR_FIELDS_FILLED_IN.finditer(text):
+            parts.append((text[end : field.start()], False))
+            parts.append((_format_cldr_field(field.group(), x, locale), True))
+            end = field.end()
+        parts.append((text[end:], False))
+
+    return _join_cldr_pattern(parts)
+
+
+def _format_cldr_field(field: str, x: datetime | time, locale: str | None) -> str:
+    """Format the `O` (e.g., `"GMT-5"`) or the `g` (e.g., `"51603"`) field of a CLDR pattern."""
+
+    if field == "O":
+        # The short localized GMT format: the hours without a leading zero, and the minutes (and
+        # seconds) only when they aren't zero; a naive value is in UTC, as elsewhere in Babel
+        offset = x.utcoffset() or timedelta(0)
+        gmt_format = _get_babel_locale(locale).zone_formats["gmt"]
+
+        if not offset:
+            # CLDR's `gmtZeroFormat` (e.g., `"GMT"`, `"UTC"` in `fr`), which Babel doesn't have; it
+            # is the GMT format without an offset (some keep a direction mark, e.g., in `he`)
+            return (gmt_format % "").strip(" \u200e\u200f")
+
+        sign = "-" if offset < timedelta(0) else "+"
+        minutes, seconds = divmod(int(abs(offset).total_seconds()), 60)
+        hours, minutes = divmod(minutes, 60)
+
+        offset_str = f"{sign}{hours}"
+        if minutes or seconds:
+            offset_str += f":{minutes:02d}"
+        if seconds:
+            offset_str += f":{seconds:02d}"
+
+        return gmt_format % offset_str
+
+    # The modified Julian day of the date (days since 1858-11-17), zero-padded to the field's length
+    # (a time without a date is rejected before formatting, as for the other date fields)
+    days = x.toordinal() - _MJD_EPOCH_ORDINAL
+    sign = "-" if days < 0 else ""
+
+    return f"{sign}{abs(days):0{len(field)}d}"
+
+
 def _has_generic_zone_name(x: datetime | time) -> bool:
     """
     Check whether the time zone of a value has a generic name (e.g., "ET" for `America/New_York`).
@@ -7861,39 +8000,64 @@ def _has_generic_zone_name(x: datetime | time) -> bool:
     return get_global("zone_territories").get(zone, "ZZ") != "ZZ"
 
 
+# The generic zone names (`v`, `vvvv`) and the generic location format (`V`, `VVVV`; Babel gives
+# names like "ET" and "United States (New York) Time"); `VV` (the zone ID) and `VVV` (the city) work
+_GENERIC_ZONE_FIELDS = re.compile(r"(?<!V)(?:VVVV|V)(?!V)|v+")
+
+
 @dataclass(frozen=True)
 class _DatetimePattern:
     """A CLDR pattern for formatting times or datetimes, prepared once per formatting call."""
 
     pattern: str
-    # The pattern with its generic zone names (`v`, e.g., "ET") written as specific ones (`z`,
-    # e.g., "EST"), for the values whose zone has no generic name; `None` if there are none
+    # The pattern with its generic zone names (`v` and `V`, e.g., "ET") written as specific ones
+    # (`z`, e.g., "EST"), for the values whose zone has no generic name; `None` if there are none
     zone_fallback: str | None
     # Whether the pattern shows part of the date (e.g., the weekday), which a time doesn't have
     has_date_fields: bool
+    # Whether the pattern has fields that Babel can't format (`O` and `g`), which are filled in
+    has_filled_in_fields: bool
 
     @classmethod
     def from_pattern(cls, pattern: str) -> _DatetimePattern:
-        unquoted = _unquoted_cldr_text(pattern)
+        parts = _split_cldr_pattern(pattern)
+        # The fields are found in each unquoted part (`O'x'O` has two `O` fields, not an `OO`)
+        unquoted_parts = [text for text, is_literal in parts if not is_literal]
 
         zone_fallback = None
-        if "v" in unquoted:
-            zone_fallback = "".join(
-                part if part[0] == "'" else part.replace("v", "z")
-                for part in _CLDR_PATTERN_PARTS.findall(pattern)
+        if any(_GENERIC_ZONE_FIELDS.search(text) for text in unquoted_parts):
+            zone_fallback = _join_cldr_pattern(
+                [
+                    (
+                        text
+                        if is_literal
+                        else _GENERIC_ZONE_FIELDS.sub(lambda m: "z" * len(m.group()), text),
+                        is_literal,
+                    )
+                    for text, is_literal in parts
+                ]
             )
 
         return cls(
             pattern=pattern,
             zone_fallback=zone_fallback,
-            has_date_fields=not _CLDR_DATE_FIELDS.isdisjoint(unquoted),
+            has_date_fields=not _CLDR_DATE_FIELDS.isdisjoint("".join(unquoted_parts)),
+            has_filled_in_fields=any(
+                _CLDR_FIELDS_FILLED_IN.search(text) for text in unquoted_parts
+            ),
         )
 
-    def for_value(self, x: datetime | time) -> str:
-        if self.zone_fallback is None or _has_generic_zone_name(x):
-            return self.pattern
+    def for_value(self, x: datetime | time, locale: str | None) -> str:
+        """Get the pattern that Babel formats `x` with."""
 
-        return self.zone_fallback
+        pattern = self.pattern
+        if self.zone_fallback is not None and not _has_generic_zone_name(x):
+            pattern = self.zone_fallback
+
+        if self.has_filled_in_fields:
+            pattern = _fill_in_cldr_fields(pattern, x, locale)
+
+        return pattern
 
 
 def _validate_date_style(date_style: str) -> None:
