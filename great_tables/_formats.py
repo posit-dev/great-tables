@@ -4833,6 +4833,9 @@ def fmt_duration(
         # Override resolved_output_units for the decomposition step
         resolved_output_units = ["days", "hours", "minutes", "seconds"]
 
+        # Every colon-sep field is always shown, so dropping time parts would only zero them out
+        max_output_units = None
+
         # Handle trim_zero_units for colon-sep
         if (
             isinstance(trim_zero_units, list)

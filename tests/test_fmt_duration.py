@@ -115,6 +115,16 @@ class TestFmtDurationColonSep:
         )
         assert result == ["1/01:01"]
 
+    @pytest.mark.parametrize("max_output_units", [1, 2, 3])
+    def test_max_output_units_ignored(self, max_output_units: int):
+        result = vals.fmt_duration(
+            [116640, 172808],
+            input_units="seconds",
+            duration_style="colon-sep",
+            max_output_units=max_output_units,
+        )
+        assert result == ["1/08:24:00", "2/00:00:08"]
+
 
 class TestFmtDurationISO:
     """Tests for fmt_duration with ISO 8601 style."""
