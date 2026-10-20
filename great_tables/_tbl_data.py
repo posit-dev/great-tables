@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import numbers
 import re
 import warnings
 from collections.abc import Callable
+from datetime import datetime, time
+from decimal import Decimal
 from functools import singledispatch
 from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
@@ -913,6 +916,57 @@ def _(df: PyArrowTable) -> PyArrowTable:
 # to_frame ----
 
 
+def _is_same_value(given: Any, stored: Any) -> bool:
+    """Whether `stored`, read back from a column, is the value `given` that was put into it."""
+
+    if given is None and stored is not None:
+        # pandas stores a missing value as NaN, NaT or NA
+        return type(stored).__name__ == "NAType" or bool(stored != stored)
+
+    if given is None or stored is None:
+        return given is stored
+
+    # A number may be stored as another number type (e.g., an int in a float column) if its value
+    # is unchanged, but not as a bool or the other way around (`True` is shown as text by
+    # formatters like `fmt_markdown()`)
+    number_types = (numbers.Real, Decimal)
+
+    if isinstance(given, number_types) and isinstance(stored, number_types):
+        if isinstance(given, bool) != isinstance(stored, bool):
+            return False
+
+        # NaN isn't equal to itself
+        if given != given:
+            return stored != stored
+
+        return given == stored
+
+    # Any other value may only be stored as a subclass or a base class of its type (e.g., a pandas
+    # `Timestamp` for a `datetime`)
+    if not (isinstance(stored, type(given)) or isinstance(given, type(stored))):
+        return False
+
+    try:
+        if not bool(given == stored):
+            return False
+
+        # Aware datetimes are equal when they're the same instant, so their UTC offsets are
+        # compared too (e.g., a datetime at -05:00 that was converted to UTC)
+        if isinstance(given, (datetime, time)):
+            return given.utcoffset() == stored.utcoffset()
+
+        return True
+    except (TypeError, ValueError):
+        # e.g., NumPy arrays, which compare element-wise
+        return False
+
+
+def _is_same_values(given: list[Any], stored: list[Any]) -> bool:
+    """Whether a column kept every value of the list it was made from."""
+
+    return len(given) == len(stored) and all(map(_is_same_value, given, stored))
+
+
 @singledispatch
 def to_frame(ser: list[Any] | SeriesLike, name: str | None = None) -> DataFrameLike:
     if not isinstance(ser, list):
@@ -921,18 +975,34 @@ def to_frame(ser: list[Any] | SeriesLike, name: str | None = None) -> DataFrameL
     if not name:
         raise ValueError("name must be specified, when converting a list to a DataFrame.")
 
-    # Try available DataFrame libraries: prefer polars, then pandas
+    # Try available DataFrame libraries: prefer polars, then pandas. The column type they infer can
+    # change values (e.g., polars converts fixed UTC offsets to UTC, and makes integers too big for
+    # any integer type null), so when it does, the values are kept as they are in an object column
     try:
         import polars as pl
 
-        return pl.DataFrame({name: ser}, strict=False)
+        try:
+            df = pl.DataFrame({name: ser}, strict=False)
+        except (pl.exceptions.PolarsError, TypeError, ValueError, OverflowError):
+            # e.g., datetimes in different time zones
+            df = None
+
+        if df is None or not _is_same_values(ser, df[name].to_list()):
+            df = pl.DataFrame({name: pl.Series(ser, dtype=pl.Object)})
+
+        return df
     except ImportError:  # pragma: no cover
         pass
 
     try:
         import pandas as pd
 
-        return pd.DataFrame({name: ser})
+        df = pd.DataFrame({name: ser})
+
+        if not _is_same_values(ser, df[name].tolist()):
+            df = pd.DataFrame({name: pd.Series(ser, dtype=object)})
+
+        return df
     except ImportError:  # pragma: no cover
         pass
 
