@@ -115,6 +115,16 @@ class TestFmtDurationColonSep:
         )
         assert result == ["1/01:01"]
 
+    @pytest.mark.parametrize("max_output_units", [1, 2, 3])
+    def test_max_output_units_ignored(self, max_output_units: int):
+        result = vals.fmt_duration(
+            [116640, 172808],
+            input_units="seconds",
+            duration_style="colon-sep",
+            max_output_units=max_output_units,
+        )
+        assert result == ["1/08:24:00", "2/00:00:08"]
+
 
 class TestFmtDurationISO:
     """Tests for fmt_duration with ISO 8601 style."""
@@ -304,9 +314,17 @@ class TestFmtDurationValidation:
         with pytest.raises(ValueError, match="trim_zero_units"):
             vals.fmt_duration([100], input_units="seconds", trim_zero_units=["invalid"])
 
-    def test_invalid_max_output_units(self):
+    # The colon-sep and ISO styles ignore `max_output_units=` but should still validate it
+    @pytest.mark.parametrize("duration_style", ["narrow", "wide", "colon-sep", "iso"])
+    @pytest.mark.parametrize("max_output_units", [0, -1, "x"])
+    def test_invalid_max_output_units(self, duration_style: str, max_output_units: object):
         with pytest.raises(ValueError, match="max_output_units"):
-            vals.fmt_duration([100], input_units="seconds", max_output_units=0)
+            vals.fmt_duration(
+                [100],
+                input_units="seconds",
+                duration_style=duration_style,
+                max_output_units=max_output_units,
+            )
 
     def test_missing_input_units_for_numeric(self):
         with pytest.raises(ValueError, match="input_units"):
