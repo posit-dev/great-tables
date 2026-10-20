@@ -1,4 +1,8 @@
+import builtins
 import math
+from datetime import date, datetime, time, timedelta, timezone
+from decimal import Decimal
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -515,6 +519,103 @@ def test_to_frame_list_without_name_raises():
     # ValueError when converting list to frame without specifying name
     with pytest.raises(ValueError, match="name must be specified"):
         to_frame([1, 2, 3], name=None)
+
+
+_UTC_M5 = timezone(timedelta(hours=-5))
+_NEW_YORK = ZoneInfo("America/New_York")
+_TOKYO = ZoneInfo("Asia/Tokyo")
+
+
+@pytest.mark.parametrize(
+    "vals, dtype",
+    [
+        ([1, 2], pl.Int64),
+        ([1, 2.5], pl.Float64),
+        ([1.0, float("nan")], pl.Float64),
+        ([1.5, None], pl.Float64),
+        ([2**64], pl.Int128),
+        (["a", None], pl.String),
+        ([date(2000, 2, 29)], pl.Date),
+        ([datetime(2000, 2, 29, 23, 30)], pl.Datetime("us")),
+        ([datetime(2000, 2, 29, 23, 30, tzinfo=timezone.utc)], pl.Datetime("us", "UTC")),
+        ([datetime(2000, 2, 29, 23, 30, tzinfo=_NEW_YORK)], pl.Datetime("us", "America/New_York")),
+        ([time(14, 35)], pl.Time),
+    ],
+)
+def test_to_frame_list_keeps_inferred_dtype(vals, dtype):
+    df = to_frame(vals, name="x")
+
+    assert df.schema["x"] == dtype
+
+
+@pytest.mark.parametrize(
+    "vals",
+    [
+        # too big for any integer type (polars makes them null)
+        pytest.param([10**40], id="big-int"),
+        pytest.param([1, 10**40], id="int-and-big-int"),
+        # a fixed UTC offset (polars converts it to UTC)
+        pytest.param([datetime(2000, 2, 29, 23, 30, tzinfo=_UTC_M5)], id="fixed-offset"),
+        # datetimes in different time zones, or naive and aware ones (polars raises)
+        pytest.param(
+            [datetime(2000, 2, 29, 23, 30, tzinfo=_NEW_YORK), datetime(2000, 2, 29, tzinfo=_TOKYO)],
+            id="two-zones",
+        ),
+        pytest.param(
+            [datetime(2000, 2, 29), datetime(2000, 2, 29, tzinfo=timezone.utc)],
+            id="naive-and-aware",
+        ),
+        # an aware time (polars drops the zone)
+        pytest.param([time(14, 35, tzinfo=_UTC_M5)], id="aware-time"),
+        # numbers that are changed by the type they're given
+        pytest.param([True, 2], id="bool-and-int"),
+        pytest.param([np.int64(3), np.float64(1.5)], id="numpy-int-and-float"),
+        pytest.param([0.25, Decimal("0.1")], id="float-and-decimal"),
+        pytest.param([1.5, "a"], id="float-and-str"),
+    ],
+)
+def test_to_frame_list_keeps_values_polars(vals):
+    df = to_frame(vals, name="x")
+
+    assert isinstance(df, pl.DataFrame)
+    assert df.schema["x"] == pl.Object
+    assert df["x"].to_list() == vals
+
+
+@pytest.fixture
+def no_polars_import(monkeypatch: pytest.MonkeyPatch):
+    # polars stays loaded for the data backends; only `import polars` in `to_frame()` fails
+    real_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "polars":
+            raise ImportError(name)
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+
+
+@pytest.mark.parametrize(
+    "vals, dtype",
+    [
+        ([1, 2], "int64"),
+        ([1.5, None], "float64"),
+        ([datetime(2000, 2, 29), None], "datetime64[us]"),
+        ([datetime(2000, 2, 29, 23, 30, tzinfo=_UTC_M5)], "datetime64[us, UTC-05:00]"),
+        ([10**40], "object"),
+        ([True, 2], "object"),
+        ([datetime(2000, 2, 29), datetime(2000, 2, 29, tzinfo=timezone.utc)], "object"),
+    ],
+)
+@pytest.mark.usefixtures("no_polars_import")
+def test_to_frame_list_keeps_values_pandas(vals, dtype):
+    df = to_frame(vals, name="x")
+
+    assert isinstance(df, pd.DataFrame)
+    assert str(df["x"].dtype) == dtype
+
+    if dtype == "object":
+        assert df["x"].tolist() == vals
 
 
 @pytest.mark.parametrize("DF", params_frames)
