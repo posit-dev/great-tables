@@ -4809,6 +4809,12 @@ def fmt_duration(
                 f"got '{unit}'."
             )
 
+    # Validate max_output_units before the colon-sep and ISO styles set it aside
+    if max_output_units is not None and (
+        not isinstance(max_output_units, int) or max_output_units < 1
+    ):
+        raise ValueError("`max_output_units` must be an integer >= 1 or None.")
+
     # Sort output_units from largest to smallest
     unit_order = list(_DURATION_OUTPUT_UNITS)
     resolved_output_units = sorted(resolved_output_units, key=lambda u: unit_order.index(u))
@@ -4870,12 +4876,6 @@ def fmt_duration(
             "`trim_zero_units` must be a bool or a list of keywords "
             "('leading', 'trailing', 'internal')."
         )
-
-    # Validate max_output_units
-    if max_output_units is not None and (
-        not isinstance(max_output_units, int) or max_output_units < 1
-    ):
-        raise ValueError("`max_output_units` must be an integer >= 1 or None.")
 
     pf_format = partial(
         fmt_duration_context,
