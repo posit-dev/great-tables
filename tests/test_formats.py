@@ -10,6 +10,7 @@ import pandas as pd
 import polars as pl
 import pytest
 import sys
+from babel.dates import format_datetime
 from great_tables import GT, _locale, vals
 from great_tables._data_color.base import _html_color
 from great_tables._formats import (
@@ -28,12 +29,14 @@ from great_tables._formats import (
     _get_locale_sep_mark,
     _get_next_si_prefix,
     _has_zero_value,
+    _join_cldr_pattern,
     _normalize_locale,
     _decimal_exponent,
     _divide_by_power,
     _round_rhu,
     _rounds_up_to,
     _shift_decimal_point,
+    _split_cldr_pattern,
     _SI_PREFIXES_DECIMAL,
     _SI_PREFIXES_ENGINEERING,
     _validate_currency,
@@ -2326,6 +2329,110 @@ def test_fmt_datetime_format_str_cldr_zone():
     ]
     # Quoted text isn't a field, so its `v` isn't changed
     assert vals.fmt_datetime(x[:1], format_str="HH:mm 'via' v") == ["14:35 via UTC"]
+
+
+@pytest.mark.parametrize(
+    "tzinfo,locale,expected",
+    [
+        (None, None, "GMT"),
+        (timezone.utc, None, "GMT"),
+        (timezone(timedelta(hours=-5)), None, "GMT-5"),
+        (timezone(timedelta(hours=5, minutes=30)), None, "GMT+5:30"),
+        (ZoneInfo("America/New_York"), None, "GMT-5"),
+        (ZoneInfo("Asia/Kathmandu"), None, "GMT+5:45"),
+        (ZoneInfo("America/New_York"), "fr", "UTC-5"),
+        (None, "fr", "UTC"),
+    ],
+)
+def test_fmt_datetime_format_str_short_gmt(tzinfo, locale: str | None, expected: str):
+    # Babel 2.18 gives "None" for `O` (it only formats `OOOO`)
+    x = datetime(2000, 2, 29, 14, 35, tzinfo=tzinfo)
+
+    assert vals.fmt_datetime([x], format_str="HH:mm O", locale=locale) == [f"14:35 {expected}"]
+
+
+def test_fmt_datetime_format_str_short_gmt_seconds():
+    # New York's local mean time before 1883 was 4:56:02 behind GMT
+    x = datetime(1850, 1, 1, tzinfo=ZoneInfo("America/New_York"))
+
+    assert vals.fmt_datetime([x], format_str="O") == ["GMT-4:56:02"]
+
+
+@pytest.mark.parametrize(
+    "x,format_str,expected",
+    [
+        (datetime(2000, 2, 29, 14, 35), "g", "51603"),
+        (datetime(2000, 2, 29, 14, 35), "ggggggg", "0051603"),
+        (datetime(1858, 11, 17), "g", "0"),
+        (datetime(1858, 11, 16), "ggg", "-001"),
+        # The day is the value's own date, in its zone (2000-01-01 23:59 in Tokyo is 14:59 UTC)
+        (datetime(2000, 1, 1, 23, 59, tzinfo=ZoneInfo("Asia/Tokyo")), "g", "51544"),
+    ],
+)
+def test_fmt_datetime_format_str_modified_julian_day(x: datetime, format_str: str, expected: str):
+    # Babel 2.18 passes `g` as a valid field but raises a `KeyError` when formatting it
+    assert vals.fmt_datetime([x], format_str=format_str) == [expected]
+
+
+@pytest.mark.parametrize(
+    "tzinfo,expected",
+    [
+        # Babel gives "Unknown Region (UTC) Time" for `V` and `VVVV` here
+        (None, "UTC | Etc/UTC | UTC | Coordinated Universal Time"),
+        (timezone(timedelta(hours=-5)), "-0500 | UTC-05:00 | UTC-05:00 | GMT-05:00"),
+        (
+            ZoneInfo("America/New_York"),
+            "ET | America/New_York | New York | United States (New York) Time",
+        ),
+    ],
+)
+def test_fmt_datetime_format_str_zone_location(tzinfo, expected: str):
+    x = datetime(2000, 2, 29, 14, 35, tzinfo=tzinfo)
+
+    assert vals.fmt_datetime([x], format_str="V | VV | VVV | VVVV") == [expected]
+
+
+@pytest.mark.parametrize(
+    "format_str,expected",
+    [
+        # Quoted text isn't a field
+        ("'O' O 'g' g", "O GMT g 51603"),
+        # The values are quoted without joining the quotes around them into a `''`
+        ("'it''s' O''", "it's GMT'"),
+        ("''O''", "'GMT'"),
+        ("'at 'O' on 'g", "at GMT on 51603"),
+        # Fields on either side of quoted text are separate fields
+        ("O'x'O", "GMTxGMT"),
+        ("V'-'V", "UTC-UTC"),
+        # `OOOO` is still formatted by Babel
+        ("OOOO", "GMT+00:00"),
+    ],
+)
+def test_fmt_datetime_format_str_filled_in_fields_quoting(format_str: str, expected: str):
+    assert vals.fmt_datetime([datetime(2000, 2, 29, 14, 35)], format_str=format_str) == [expected]
+
+
+@pytest.mark.parametrize(
+    "pattern,parts",
+    [
+        ("HH:mm", [("HH:mm", False)]),
+        ("h 'o''clock' a", [("h ", False), ("o'clock", True), (" a", False)]),
+        ("''h''", [("'", True), ("h", False), ("'", True)]),
+        ("'a'''", [("a'", True)]),
+        ("''''", [("'", True), ("'", True)]),
+    ],
+)
+def test_split_and_join_cldr_pattern(pattern: str, parts: list[tuple[str, bool]]):
+    assert _split_cldr_pattern(pattern) == parts
+
+    # Joining gives a pattern with the same parts (adjacent literal parts are quoted together)
+    joined = _join_cldr_pattern(parts)
+    assert "".join(text for text, _ in _split_cldr_pattern(joined)) == "".join(
+        text for text, _ in parts
+    )
+    assert format_datetime(datetime(2000, 2, 29, 14, 35), joined, locale="en") == format_datetime(
+        datetime(2000, 2, 29, 14, 35), pattern, locale="en"
+    )
 
 
 @pytest.mark.parametrize(
