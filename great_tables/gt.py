@@ -114,7 +114,7 @@ from ._tab_create_modify import (
     text_transform,
 )
 from ._tab_stub_indent import tab_stub_indent
-from ._tbl_data import _get_cell, _set_cell, n_rows
+from ._tbl_data import _get_cell, _set_cell, _set_cells, n_rows
 from ._utils import _migrate_unformatted_to_output
 from ._utils_render_html import (
     _get_table_aria_attrs,
@@ -173,10 +173,13 @@ def _apply_text_transforms(data: GT, body: Body, context: str = "html") -> Body:
             else:
                 cells = [(pos, fn(value)) for pos, value in cells]
 
+            # The transformed values of each column, set one column at a time
+            new_values: dict[str, dict[int, str]] = {}
             for pos, new_value in cells:
-                result = _set_cell(body.body, pos.row, pos.colname, new_value)
-                if result is not None:
-                    body.body = result
+                new_values.setdefault(pos.colname, {})[pos.row] = new_value
+
+            for col, values in new_values.items():
+                body.body = _set_cells(body.body, col, values)
 
     return body
 
