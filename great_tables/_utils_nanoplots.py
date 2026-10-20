@@ -266,11 +266,17 @@ def _gt_last(x: list[int | float]) -> int | float:
 
 def _gt_quantile(x: list[int | float], q: float) -> int | float:
     """
-    Calculate the quantile of a list of values.
+    Calculate the quantile of a list of values, interpolating linearly between the two closest
+    values (the default method of R's `quantile()` and of NumPy's `quantile()`).
     """
-    x.sort()
-    n = len(x)
-    return x[int(n * q)]
+    x = sorted(x)
+    h = (len(x) - 1) * q
+    lo = math.floor(h)
+
+    if h == lo:
+        return x[lo]
+
+    return x[lo] + (h - lo) * (x[lo + 1] - x[lo])
 
 
 def _gt_q1(x: list[int | float]) -> float:
@@ -867,10 +873,6 @@ class _NanoplotSpec:
         expand_y: list[int | float] | None,
         opts: _NanoplotOptions,
     ) -> _NanoplotSpec:
-        # TODO: box plots are not drawn yet, so all of their layers are turned off
-        if plot_type == "boxplot":
-            opts = opts.hide_layers()
-
         y_vals_integerlike = _is_integerlike(val_list=y_vals)
         expand_y = _expand_invariant_y(y_vals, expand_y)
 
@@ -880,16 +882,14 @@ class _NanoplotSpec:
             show_reference_area=_is_complete_ref_area(y_ref_area) and opts.show_reference_area,
         )
 
-        canvas = _Canvas.create(
-            len(y_vals), evenly_spaced=x_vals is None and plot_type != "boxplot"
-        )
+        canvas = _Canvas.create(len(y_vals), evenly_spaced=x_vals is None)
 
         scale = _YScale.resolve(
             y_vals,
             ref_line=y_ref_line if opts.show_reference_line else None,
             ref_area=y_ref_area if opts.show_reference_area else None,
             expand_y=expand_y,
-            include_zero=plot_type in ("bar", "boxplot"),
+            include_zero=plot_type == "bar",
         )
 
         x_proportions = _x_proportions(x_vals, expand_x, len(y_vals), plot_type)
@@ -1038,14 +1038,15 @@ def _nanoplot_svg_defs(data_area_fill_color: str) -> str:
 
 
 def _nanoplot_svg_style(
-    interactive_data_values: bool, vertical_guide_stroke_color: str
+    interactive_data_values: bool, vertical_guide_stroke_color: str, boxplot: bool = False
 ) -> tuple[str, str]:
     """Generate the `<style>` tag for a nanoplot, along with the class that scopes it.
 
     Styles inside an inline SVG apply to the whole page, so every rule is prefixed with a class
     that is set on the nanoplot's `<svg>` element. The class is derived from the rules themselves,
     so nanoplots with the same styling share a class while differently-styled nanoplots (e.g., in
-    another table on the same page) can't affect each other."""
+    another table on the same page) can't affect each other. The rule for the labels of box plots
+    is only added for them (`boxplot=True`)."""
 
     text_shown = "stroke: white; fill: #212427;"
 
@@ -1080,6 +1081,11 @@ def _nanoplot_svg_style(
             ".y-axis-line text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; }",
         ]
 
+    if boxplot:
+        # The statistics of a box plot are shown together, when the box is hovered over (or always)
+        hover = ":hover" if interactive_data_values else ""
+        rules.append(f".boxplot-line{hover} text {{ {text_shown} }}")
+
     scope_class = f"gt-nanoplot-{zlib.crc32(''.join(rules).encode()):08x}"
 
     svg_style = "<style> " + " ".join(f".{scope_class} {rule}" for rule in rules) + " </style>"
@@ -1088,7 +1094,12 @@ def _nanoplot_svg_style(
 
 
 def _construct_nanoplot_svg(
-    viewbox: str, svg_height: str, opts: _NanoplotOptions, layers: list[str], label: str = ""
+    viewbox: str,
+    svg_height: str,
+    opts: _NanoplotOptions,
+    layers: list[str],
+    label: str = "",
+    boxplot: bool = False,
 ) -> str:
     """Wrap the SVG elements of a nanoplot's `layers` (from bottom to top) in an `<svg>` element.
 
@@ -1098,6 +1109,7 @@ def _construct_nanoplot_svg(
     svg_class, svg_style = _nanoplot_svg_style(
         interactive_data_values=opts.interactive_data_values,
         vertical_guide_stroke_color=opts.vertical_guide_stroke_color,
+        boxplot=boxplot,
     )
 
     svg_defs = _nanoplot_svg_defs(opts.data_area_fill_color)
@@ -1666,6 +1678,265 @@ def _single_value_layers(
 
 
 # ---------------------------------------------------------------------------------------------
+# Box plots (a horizontal box and whiskers per row, on a scale shared by all rows)
+# ---------------------------------------------------------------------------------------------
+
+# Rows with at least this many values only show their outliers as points (not every value)
+_BOXPLOT_MAX_POINTS = 20
+
+# The approximate width of a character of a label (the labels use a 30px monospace font), used to
+# keep labels within the plot
+_LABEL_CHAR_WIDTH = 18
+
+# Spreads the vertical offsets of jittered points evenly, without randomness (so that the same
+# data always gives the same plot)
+_GOLDEN_RATIO_CONJUGATE = (math.sqrt(5) - 1) / 2
+
+
+@dataclass(frozen=True)
+class _BoxplotStats:
+    """The statistics drawn by a box plot.
+
+    The box spans the first to the third quartile, and the whiskers extend to the most extreme
+    values within 1.5 times the interquartile range of the box (Tukey's rule); the values beyond
+    them are outliers. Quartiles are interpolated linearly (as in R's and NumPy's `quantile()`)."""
+
+    q1: int | float
+    median: int | float
+    q3: int | float
+    whisker_low: int | float
+    whisker_high: int | float
+    outliers: list[int | float]
+
+    @classmethod
+    def from_vals(cls, vals: list[int | float]) -> _BoxplotStats:
+        q1, median, q3 = (_gt_quantile(vals, q) for q in (0.25, 0.5, 0.75))
+
+        fence = 1.5 * (q3 - q1)
+        inside = [val for val in vals if q1 - fence <= val <= q3 + fence]
+
+        return cls(
+            q1=q1,
+            median=median,
+            q3=q3,
+            whisker_low=min(inside),
+            whisker_high=max(inside),
+            outliers=[val for val in vals if not q1 - fence <= val <= q3 + fence],
+        )
+
+
+def _first_option(option: Any | list[Any]) -> Any:
+    """The first value of an option that can be given per data point (box plots use one value)."""
+    return option[0] if isinstance(option, list) else option
+
+
+def _boxplot_x_scale(*args: float | list[int | float] | None) -> Callable[[float], float]:
+    """A function mapping values to `x` positions, on a scale spanning all values in `args`
+    (`None` and missing values are ignored); a single value is placed in the middle."""
+
+    lo = _get_extreme_value(*args, stat="min")
+    hi = _get_extreme_value(*args, stat="max")
+
+    if lo == hi:
+        return lambda val: _FIXED_DATA_X_WIDTH / 2
+
+    return lambda val: (val - lo) / (hi - lo) * _FIXED_DATA_X_WIDTH
+
+
+def _jitter_offsets(n: int, amount: float) -> list[float]:
+    """Vertical offsets (between `-amount` and `amount`) that spread `n` points apart."""
+
+    if n == 1:
+        return [0]
+
+    return [amount * (2 * ((i * _GOLDEN_RATIO_CONJUGATE) % 1) - 1) for i in range(1, n + 1)]
+
+
+def _boxplot_label_tag(x: float, y: float, label: str, anchor: str) -> str:
+    """A label of a box plot, moved horizontally (if needed) so that its text stays within the
+    plot; `anchor` is the `text-anchor` (`"start"`, `"middle"`, or `"end"`)."""
+
+    width = len(label) * _LABEL_CHAR_WIDTH
+    lo, hi = {"start": (0, width), "middle": (width / 2, width / 2), "end": (width, 0)}[anchor]
+
+    x = max(lo, min(x, _FIXED_DATA_X_WIDTH - hi))
+
+    return _hidden_text_tag(x, y, label, text_anchor=anchor)
+
+
+def _boxplot_points_tags(
+    vals: list[int | float],
+    stats: _BoxplotStats,
+    x_of: Callable[[float], float],
+    box_thickness: float,
+    opts: _NanoplotOptions,
+) -> str:
+    """The data points of a box plot: every value (jittered vertically and fainter as there are
+    more of them), or only the outliers once there are `_BOXPLOT_MAX_POINTS` values or more."""
+
+    if not opts.show_data_points:
+        return ""
+
+    mid_y = _BOTTOM_Y / 2
+
+    if len(vals) >= _BOXPLOT_MAX_POINTS:
+        points = stats.outliers
+        offsets = [0] * len(points)
+        style = {
+            "r": 4,
+            "stroke": _first_option(opts.data_bar_stroke_color),
+            "stroke-width": 2,
+            "fill": "white",
+        }
+    else:
+        points = vals
+        offsets = _jitter_offsets(len(points), amount=box_thickness / 5)
+        style = {
+            "r": 6 if len(points) < 10 else 4,
+            "stroke": "#000000",
+            "stroke-opacity": round(1 - len(points) / 25, 2),
+            "stroke-width": 2,
+            "fill": "transparent",
+        }
+
+    return "".join(
+        _svg_tag("circle", {"cx": x_of(val), "cy": mid_y + offset} | style)
+        for val, offset in zip(points, offsets)
+    )
+
+
+def _boxplot_layers(
+    y_vals: list[int | float],
+    all_y_vals: list[int | float] | None,
+    y_ref_line: float | str | None,
+    y_ref_area: list[int | float | str] | None,
+    expand_y: list[int | float] | None,
+    opts: _NanoplotOptions,
+) -> list[str]:
+    """The layers of a box plot (from bottom to top).
+
+    The scale is shared by all rows (it spans `all_y_vals`, the values of every row) and extended by
+    `expand_y` and by any reference line or area. Missing values are left out of the statistics,
+    and keywords for the reference line or area (e.g., `"mean"`) are computed from the row's values.
+    """
+
+    vals = _remove_na_from_list(y_vals)
+    stats = _BoxplotStats.from_vals(vals)
+
+    ref_value = None
+    if opts.show_reference_line and not _is_na(y_ref_line):
+        ref_value = calc_ref_value(y_ref_line, vals)
+
+    ref_area = None
+    if opts.show_reference_area and _is_complete_ref_area(y_ref_area):
+        ref_area = sorted(calc_ref_value(val, vals) for val in y_ref_area[:2])
+
+    x_of = _boxplot_x_scale(vals, all_y_vals, expand_y, ref_value, ref_area)
+
+    all_intlike = len(vals) == _get_n_intlike(vals)
+
+    def label(val: float, fn: Callable[..., str] | None) -> str:
+        return opts.format(val, as_integer=all_intlike and _is_whole_number(val), fn=fn)
+
+    mid_y = _BOTTOM_Y / 2
+    box_thickness = _first_option(opts.data_point_radius) * 6
+    box_top, box_bottom = mid_y - box_thickness / 2, mid_y + box_thickness / 2
+
+    # Reference lines and areas span the box and the space above and below it
+    ref_y1, ref_y2 = mid_y - box_thickness, mid_y + box_thickness
+
+    stroke = {
+        "stroke": _first_option(opts.data_bar_stroke_color),
+        "stroke-width": _first_option(opts.data_bar_stroke_width),
+    }
+
+    low_x, high_x = x_of(stats.whisker_low), x_of(stats.whisker_high)
+    q1_x, median_x, q3_x = x_of(stats.q1), x_of(stats.median), x_of(stats.q3)
+
+    def vertical_line(x: float, half_height: float) -> str:
+        return _svg_tag(
+            "line",
+            {"x1": x, "y1": mid_y - half_height, "x2": x, "y2": mid_y + half_height} | stroke,
+        )
+
+    whiskers = _svg_tag("line", {"x1": low_x, "y1": mid_y, "x2": high_x, "y2": mid_y} | stroke)
+
+    box = _svg_tag(
+        "rect",
+        {"x": q1_x, "y": box_top, "width": q3_x - q1_x, "height": box_thickness}
+        | stroke
+        | {"fill": "white"},
+    )
+
+    caps = vertical_line(low_x, box_thickness / 4) + vertical_line(high_x, box_thickness / 4)
+    median = vertical_line(median_x, box_thickness / 2)
+
+    points = _boxplot_points_tags(vals, stats, x_of, box_thickness, opts)
+
+    if stats.whisker_low == stats.whisker_high:
+        # The statistics are all the same value, so it's labeled once
+        label_tags = _boxplot_label_tag(
+            median_x, _SAFE_Y_D + 15, label(stats.median, opts.y_val_fmt_fn), "middle"
+        )
+    else:
+        label_tags = "".join(
+            _boxplot_label_tag(x, y, label(val, opts.y_val_fmt_fn), anchor)
+            for x, y, val, anchor in (
+                (low_x - 10, mid_y + 10, stats.whisker_low, "end"),
+                (q1_x - 6, _BOTTOM_Y - 10, stats.q1, "end"),
+                (median_x, _SAFE_Y_D + 12.5, stats.median, "middle"),
+                (q3_x + 6, _BOTTOM_Y - 10, stats.q3, "start"),
+                (high_x + 10, mid_y + 10, stats.whisker_high, "start"),
+            )
+        )
+
+    hover_target = _svg_tag(
+        "rect",
+        {
+            "x": 0,
+            "y": box_top,
+            "width": _FIXED_DATA_X_WIDTH,
+            "height": box_thickness,
+            "stroke": "transparent",
+            "stroke-width": opts.vertical_guide_stroke_width,
+            "fill": "transparent",
+        },
+    )
+
+    guide = f'<g class="boxplot-line">{hover_target}{label_tags}</g>'
+
+    ref_area_tag = ""
+    if ref_area is not None:
+        area_l_x, area_u_x = x_of(ref_area[0]), x_of(ref_area[1])
+        ref_area_tag = _svg_tag(
+            "rect",
+            {
+                "x": area_l_x,
+                "y": ref_y1,
+                "width": area_u_x - area_l_x,
+                "height": ref_y2 - ref_y1,
+                "stroke": "transparent",
+                "fill": opts.reference_area_fill_color,
+                "fill-opacity": "0.8",
+            },
+        )
+
+    ref_line_tag = ""
+    if ref_value is not None:
+        ref_x = x_of(ref_value)
+        ref_line_tag = _single_value_ref_line_tags(
+            ref_x,
+            ref_y1,
+            ref_y2,
+            stroke=opts.reference_line_color,
+            label=label(ref_value, opts.y_ref_line_fmt_fn),
+            label_on_left=ref_x > _FIXED_DATA_X_WIDTH / 2,
+        )
+
+    return [ref_area_tag, whiskers, box, caps, median, points, guide, ref_line_tag]
+
+
+# ---------------------------------------------------------------------------------------------
 # Nanoplot generation
 # ---------------------------------------------------------------------------------------------
 
@@ -1674,8 +1945,12 @@ def _nanoplot_summary(y_vals: list[int | float | None] | int | float, plot_type:
     """Describe a nanoplot's values in words, for its accessible name.
 
     E.g., `"Line plot of 8 values from 12 to 47, ending at 30"`, or `"Bar of 4.1"` for a single
-    value. Numbers are written as in the plot's own labels.
+    value; a box plot is described by its statistics. Numbers are written as in the plot's own
+    labels.
     """
+
+    if plot_type == "boxplot":
+        return _boxplot_summary(y_vals)
 
     kind = "Line" if plot_type == "line" else "Bar"
 
@@ -1699,6 +1974,32 @@ def _nanoplot_summary(y_vals: list[int | float | None] | int | float, plot_type:
     return f"{kind} plot of {len(present)} values from {low} to {high}, ending at {last}{missing}"
 
 
+def _boxplot_summary(y_vals: list[int | float | None]) -> str:
+    """Describe a box plot by its statistics, e.g., `"Box plot of 10 values: median 5.50, quartiles
+    3.25 and 7.75, whiskers from 1.00 to 9.00, 1 outlier"`."""
+
+    present = _remove_na_from_list(y_vals)
+    n_missing = len(y_vals) - len(present)
+    missing = f", with {n_missing} missing" if n_missing else ""
+
+    if len(present) == 1:
+        return f"Box plot of 1 value: {_format_number_compactly(present[0])}{missing}"
+
+    stats = _BoxplotStats.from_vals(present)
+    q1, median, q3, low, high = (
+        _format_number_compactly(val)
+        for val in (stats.q1, stats.median, stats.q3, stats.whisker_low, stats.whisker_high)
+    )
+
+    n_outliers = len(stats.outliers)
+    outliers = f", {n_outliers} outlier{'' if n_outliers == 1 else 's'}" if n_outliers else ""
+
+    return (
+        f"Box plot of {len(present)} values: median {median}, quartiles {q1} and {q3}, "
+        f"whiskers from {low} to {high}{outliers}{missing}"
+    )
+
+
 def _generate_nanoplot(
     y_vals: list[int] | list[float] | list[int | float] | float,
     y_ref_line: float | str | None = None,
@@ -1708,6 +2009,7 @@ def _generate_nanoplot(
     expand_y: list[int] | list[float] | list[int | float] | None = None,
     missing_vals: str = "marker",
     all_single_y_vals: list[int] | list[float] | list[int | float] | None = None,
+    all_y_vals: list[int] | list[float] | list[int | float] | None = None,
     plot_type: str = "line",
     data_line_type: str = "curved",
     svg_height: str = "2em",
@@ -1719,8 +2021,10 @@ def _generate_nanoplot(
 
     A list of `y_vals` gives a plot of one or more data points, while a single (scalar) `y_vals`
     value gives a horizontal bar or line on the scale shared with all rows' values in
-    `all_single_y_vals`. The `options` are the styling and layer options of `_NanoplotOptions`
-    (as returned by `nanoplot_options()`). An empty string is returned if there is nothing to plot.
+    `all_single_y_vals`. A box plot (`plot_type="boxplot"`) summarizes the `y_vals` (a scalar is a
+    single value) on the scale shared with all rows' values in `all_y_vals`, and ignores any
+    `x_vals`. The `options` are the styling and layer options of `_NanoplotOptions` (as returned by
+    `nanoplot_options()`). An empty string is returned if there is nothing to plot.
 
     The plot's accessible name is a summary of its values (see `_nanoplot_summary()`), or `alt` with
     any `{x}` replaced by that summary.
@@ -1728,8 +2032,15 @@ def _generate_nanoplot(
 
     _match_arg(x=missing_vals, lst=["marker", "gap", "zero", "remove"])
     _match_arg(x=data_line_type, lst=["curved", "straight"])
+    _match_arg(x=plot_type, lst=["line", "bar", "boxplot"])
 
     opts = _NanoplotOptions(**options)
+
+    if plot_type == "boxplot":
+        if not isinstance(y_vals, list):
+            y_vals = [y_vals]
+
+        x_vals = None
 
     # A curved data line is interpolated from evenly spaced x positions, so it cannot
     # be drawn once `x_vals` set the positions; fall back to a straight line and say so
@@ -1750,7 +2061,14 @@ def _generate_nanoplot(
     summary = _nanoplot_summary(y_vals, plot_type)
     label = summary if alt is None else alt.replace("{x}", summary)
 
-    if isinstance(y_vals, (int, float)) and plot_type in ("line", "bar"):
+    if plot_type == "boxplot":
+        layers = _boxplot_layers(y_vals, all_y_vals, y_ref_line, y_ref_area, expand_y, opts)
+
+        viewbox = f"0 0 {_FIXED_DATA_X_WIDTH} {_BOTTOM_Y}"
+
+        return _construct_nanoplot_svg(viewbox, svg_height, opts, layers, label=label, boxplot=True)
+
+    if isinstance(y_vals, (int, float)):
         layers = _single_value_layers(y_vals, all_single_y_vals, y_ref_line, plot_type, opts)
 
         # The viewbox leaves out the safe zones so that bars and lines span the whole width

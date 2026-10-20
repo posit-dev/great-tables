@@ -279,6 +279,30 @@ Y_INT = [1, 5, 3, 8, 2, 9, 4]
             ),
             id="line_fmt_fns",
         ),
+        pytest.param(dict(y_vals=Y_MIXED, plot_type="boxplot"), id="boxplot"),
+        pytest.param(
+            dict(y_vals=[1, None, 5, 3, 8, 40], plot_type="boxplot", all_y_vals=[-10, 50]),
+            id="boxplot_outlier_shared_scale",
+        ),
+        pytest.param(
+            dict(
+                y_vals=[(i * 37) % 23 - 8 for i in range(24)] + [60],
+                plot_type="boxplot",
+                interactive_data_values=False,
+            ),
+            id="boxplot_25_points_static",
+        ),
+        pytest.param(
+            dict(
+                y_vals=Y_INT,
+                plot_type="boxplot",
+                y_ref_line="mean",
+                y_ref_area=["q1", "q3"],
+                y_ref_line_fmt_fn=lambda v: f"r{v}",
+            ),
+            id="boxplot_ref_line_and_area",
+        ),
+        pytest.param(dict(y_vals=[4, 4, 4], plot_type="boxplot"), id="boxplot_invariant"),
     ],
 )
 def test_snap_multi_value(snapshot, kwargs: dict[str, Any]):

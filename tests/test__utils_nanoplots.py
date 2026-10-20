@@ -465,39 +465,46 @@ def test_gt_last(num: list[Union[int, float]], dst: float):
     [
         ([1], 0, 1.0),
         ([1], 0.5, 1.0),
-        # ([1], 1.0, 1.0), # TODO: causes 'IndexError: list index out of range'
+        ([1], 1.0, 1.0),
         ([1, 1], 0, 1.0),
         ([1, 1], 0.33, 1.0),
         ([1, 1], 0.66, 1.0),
-        # ([1, 1], 1.0, 1.0), # TODO: causes 'IndexError: list index out of range'
+        ([1, 1], 1.0, 1.0),
         ([3, 2, 1], 0, 1.0),
-        ([3, 2, 1], 0.2, 1.0),
-        ([3, 2, 1], 0.4, 2.0),
-        ([3, 2, 1], 0.6, 2.0),
-        ([3, 2, 1], 0.8, 3.0),
-        # ([3, 2, 1], 1.0, 3.0), # TODO: causes 'IndexError: list index out of range'
+        ([3, 2, 1], 0.2, 1.4),
+        ([3, 2, 1], 0.4, 1.8),
+        ([3, 2, 1], 0.6, 2.2),
+        ([3, 2, 1], 0.8, 2.6),
+        ([3, 2, 1], 1.0, 3.0),
         ([1, 3, 3, 5], 0, 1.0),
-        ([1, 3, 3, 5], 0.2, 1.0),
+        ([1, 3, 3, 5], 0.2, 2.2),
         ([1, 3, 3, 5], 0.4, 3.0),
         ([1, 3, 3, 5], 0.6, 3.0),
-        ([1, 3, 3, 5], 0.8, 5.0),
-        # ([1, 3, 3, 5], 1.0, 5.0), # TODO: causes 'IndexError: list index out of range'
+        ([1, 3, 3, 5], 0.8, 3.8),
+        ([1, 3, 3, 5], 1.0, 5.0),
         ([1, 3, 3, 3, 5], 0, 1.0),
-        ([1, 3, 3, 3, 5], 0.1, 1.0),
-        ([1, 3, 3, 3, 5], 0.2, 3.0),
+        ([1, 3, 3, 3, 5], 0.1, 1.8),
+        ([1, 3, 3, 3, 5], 0.2, 2.6),
         ([1, 3, 3, 3, 5], 0.3, 3.0),
         ([1, 3, 3, 3, 5], 0.4, 3.0),
         ([1, 3, 3, 3, 5], 0.5, 3.0),
         ([1, 3, 3, 3, 5], 0.6, 3.0),
         ([1, 3, 3, 3, 5], 0.7, 3.0),
-        ([1, 3, 3, 3, 5], 0.8, 5.0),
-        ([1, 3, 3, 3, 5], 0.9, 5.0),
-        # ([1, 3, 3, 3, 5], 1.0, 5.0), # TODO: causes 'IndexError: list index out of range'
+        ([1, 3, 3, 3, 5], 0.8, 3.4),
+        ([1, 3, 3, 3, 5], 0.9, 4.2),
+        ([1, 3, 3, 3, 5], 1.0, 5.0),
     ],
 )
 def test_gt_quantile(num: list[Union[int, float]], q: float, dst: float):
+    # Expected values are those of R's `quantile()` (type 7) and NumPy's `quantile()`
     res = _gt_quantile(num, q=q)
-    assert res == dst
+    assert res == pytest.approx(dst)
+
+
+def test_gt_quantile_does_not_sort_input():
+    num = [3, 2, 1]
+    _gt_quantile(num, q=0.25)
+    assert num == [3, 2, 1]
 
 
 @pytest.mark.parametrize(
@@ -505,19 +512,19 @@ def test_gt_quantile(num: list[Union[int, float]], q: float, dst: float):
     [
         ([1], 1.0),
         ([1, 1], 1.0),
-        ([3, 2, 1], 1.0),
-        ([1, 2, 3, 4], 2.0),
+        ([3, 2, 1], 1.5),
+        ([1, 2, 3, 4], 1.75),
         ([1, 2, 2, 3, 4], 2.0),
         ([1, 2, 2, 3, 3, 3, 4, 4], 2.0),
-        ([0.01, 0.5, 0.25, 1, 2, 2, 3, 3, 3, 4, 4], 0.5),
-        ([-5, 0.1, 5], -5.0),
+        ([0.01, 0.5, 0.25, 1, 2, 2, 3, 3, 3, 4, 4], 0.75),
+        ([-5, 0.1, 5], -2.45),
         ([1, 1, 1, 0.5, 1.2], 1.0),
         ([0, 2.1e15, 2342, 5.3e8, 0, -2343], 0.0),
     ],
 )
 def test_gt_q_1(num: list[Union[int, float]], dst: float):
     res = _gt_q1(num)
-    assert res == dst
+    assert res == pytest.approx(dst)
 
 
 @pytest.mark.parametrize(
@@ -525,19 +532,19 @@ def test_gt_q_1(num: list[Union[int, float]], dst: float):
     [
         ([1], 1.0),
         ([1, 1], 1.0),
-        ([3, 2, 1], 3.0),
-        ([1, 2, 3, 4], 4.0),
+        ([3, 2, 1], 2.5),
+        ([1, 2, 3, 4], 3.25),
         ([1, 2, 2, 3, 4], 3.0),
-        ([1, 2, 2, 3, 3, 3, 4, 4], 4.0),
+        ([1, 2, 2, 3, 3, 3, 4, 4], 3.25),
         ([0.01, 0.5, 0.25, 1, 2, 2, 3, 3, 3, 4, 4], 3.0),
-        ([-5, 0.1, 5], 5.0),
+        ([-5, 0.1, 5], 2.55),
         ([1, 1, 1, 0.5, 1.2], 1.0),
-        ([0, 2.1e15, 2342, 5.3e8, 0, -2343], 5.3e8),
+        ([0, 2.1e15, 2342, 5.3e8, 0, -2343], 397500585.5),
     ],
 )
 def test_gt_q_3(num: list[Union[int, float]], dst: float):
     res = _gt_q3(num)
-    assert res == dst
+    assert res == pytest.approx(dst)
 
 
 @pytest.mark.parametrize(
@@ -597,8 +604,8 @@ def test_get_extreme_value(lst: list[Any], stat: str, dst: list[Any]):
         ([1, 5.6], "median", 3.3),
         ([1, 5.6], "min", 1),
         ([1, 5.6], "max", 5.6),
-        ([1, 5.6], "q1", 1),
-        ([1, 5.6], "q3", 5.6),
+        ([1, 5.6], "q1", 2.15),
+        ([1, 5.6], "q3", 4.45),
         # ([1, 5.6], "first", 1), # TODO: error results due to restrictive keyword check
         # ([1, 5.6], "last", 5.6), # TODO: error results due to restrictive keyword check
         (
@@ -609,8 +616,8 @@ def test_get_extreme_value(lst: list[Any], stat: str, dst: list[Any]):
         ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "median", 2.2),
         ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "min", -13.2),
         ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "max", 25.3),
-        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "q1", -3.1),
-        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "q3", 6.23),
+        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "q1", -1.55),
+        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "q3", 5.08),
         # TODO: errors below due to restrictive keyword check
         # ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "first", -13.2),
         # ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "last", -3.2),
@@ -620,7 +627,7 @@ def test_generate_ref_line_from_keyword(
     num: list[Union[int, float]], keyword: str, dst: Union[int, float]
 ):
     res = _generate_ref_line_from_keyword(num, keyword=keyword)
-    assert res == dst
+    assert res == pytest.approx(dst)
 
 
 def _is_nanoplot_output(nanoplot_str: str):
@@ -1999,7 +2006,6 @@ def test_nanoplot_x_y_vals_diff_length():
         _generate_nanoplot(y_vals=[5.3, 6.3, 7.2], x_vals=[1, 2.5])
 
 
-@pytest.mark.xfail
 def test_nanoplot_unknown_plot_type():
     with pytest.raises(ValueError):
         _generate_nanoplot(y_vals=[1, 2, 3], plot_type="unknown")
@@ -2518,6 +2524,252 @@ def test_nanoplot_boxplot_type():
     assert "<svg" in result
 
 
+def _tags(svg: str, tag: str) -> list[dict[str, str]]:
+    """The attributes of each `tag` element in an SVG string."""
+    import re
+
+    return [dict(re.findall(r'([\w-]+)="([^"]*)"', t)) for t in re.findall(f"<{tag} [^>]*>", svg)]
+
+
+def _texts(svg: str) -> list[str]:
+    import re
+
+    return re.findall(r"<text [^>]*>([^<]*)</text>", svg)
+
+
+@pytest.mark.parametrize(
+    "vals,q1,median,q3,low,high,outliers",
+    [
+        # Values checked against R's `quantile()` and `boxplot.stats()`
+        ([1, 2, 3, 4, 100], 2, 3, 4, 1, 4, [100]),
+        (list(range(1, 11)), 3.25, 5.5, 7.75, 1, 10, []),
+        ([-50, 1, 2, 3, 4, 50], 1.25, 2.5, 3.75, 1, 4, [-50, 50]),
+        ([7], 7, 7, 7, 7, 7, []),
+        ([2, 2, 2, 9], 2, 2, 3.75, 2, 2, [9]),
+    ],
+)
+def test_boxplot_stats(vals, q1, median, q3, low, high, outliers):
+    from great_tables._utils_nanoplots import _BoxplotStats
+
+    stats = _BoxplotStats.from_vals(vals)
+
+    assert (stats.q1, stats.median, stats.q3) == pytest.approx((q1, median, q3))
+    assert (stats.whisker_low, stats.whisker_high) == (low, high)
+    assert stats.outliers == outliers
+
+
+def test_boxplot_layers():
+    res = _generate_nanoplot(y_vals=[1, 2, 3, 4, 100], plot_type="boxplot")
+
+    assert 'viewBox="0 0 600 130"' in res
+
+    # The whisker line spans the non-outliers (1 to 4) on a scale from 1 to 100
+    whisker, cap_low, cap_high, median = _tags(res, "line")
+    x_of = lambda val: (val - 1) / 99 * 600
+    assert (float(whisker["x1"]), float(whisker["x2"])) == pytest.approx((x_of(1), x_of(4)))
+    assert float(cap_low["x1"]) == pytest.approx(x_of(1))
+    assert float(cap_high["x1"]) == pytest.approx(x_of(4))
+    assert float(median["x1"]) == pytest.approx(x_of(3))
+
+    box = _tags(res, "rect")[0]
+    assert float(box["x"]) == pytest.approx(x_of(2))
+    assert float(box["width"]) == pytest.approx(x_of(4) - x_of(2))
+    assert box["stroke"] == "#3290CC"
+    assert box["height"] == "60"
+
+    # Few values, so all of them are shown (including the outlier, at the right edge)
+    circles = _tags(res, "circle")
+    assert [float(c["cx"]) for c in circles] == pytest.approx([x_of(v) for v in [1, 2, 3, 4, 100]])
+
+    # The labels are whole numbers, as the data are integers
+    assert _texts(res) == ["1", "2", "3", "4", "4"]
+
+    assert '<g class="boxplot-line">' in res
+
+
+def test_boxplot_is_deterministic():
+    vals = [3.2, 1.5, 8.4, 2.2, 6.1, 4.4, 7.3, 5.5]
+
+    assert _generate_nanoplot(y_vals=vals, plot_type="boxplot") == _generate_nanoplot(
+        y_vals=vals, plot_type="boxplot"
+    )
+
+    # Jittered points are spread apart vertically, within the box
+    cys = [float(c["cy"]) for c in _tags(_generate_nanoplot(vals, plot_type="boxplot"), "circle")]
+    assert len(set(cys)) == len(vals)
+    assert all(35 <= cy <= 95 for cy in cys)
+
+
+def test_boxplot_leaves_out_missing_values():
+    res = _generate_nanoplot(y_vals=[1, None, 3, float("nan"), 5], plot_type="boxplot")
+    res_complete = _generate_nanoplot(y_vals=[1, 3, 5], plot_type="boxplot")
+
+    assert all(float(c["cx"]) in (0, 300, 600) for c in _tags(res, "circle"))
+    assert len(_tags(res, "circle")) == 3
+    assert _texts(res) == _texts(res_complete)
+    assert "Box plot of 3 values: median 3.00, quartiles 2.00 and 4.00" in res
+    assert "with 2 missing" in res
+
+
+def test_boxplot_float_labels():
+    res = _generate_nanoplot(y_vals=[1.5, 2.25, 3.5, 4.75], plot_type="boxplot")
+
+    assert _texts(res) == ["1.50", "2.06", "2.88", "3.81", "4.75"]
+
+
+def test_boxplot_labels_shown_on_hover_or_always():
+    hover_rule = ".boxplot-line:hover text { stroke: white; fill: #212427; }"
+    static_rule = ".boxplot-line text { stroke: white; fill: #212427; }"
+
+    res = _generate_nanoplot(y_vals=[1, 2, 3], plot_type="boxplot")
+    assert hover_rule in res
+    assert static_rule not in res
+
+    res_static = _generate_nanoplot(
+        y_vals=[1, 2, 3],
+        plot_type="boxplot",
+        interactive_data_values=False,
+    )
+    assert static_rule in res_static
+
+
+def test_boxplot_styles_not_added_to_other_nanoplots():
+    for plot_type in ["line", "bar"]:
+        assert "boxplot" not in _generate_nanoplot(y_vals=[1, 2, 3], plot_type=plot_type)
+
+
+def test_boxplot_labels_kept_within_plot():
+    res = _generate_nanoplot(y_vals=[10, 20, 30, 40, 1000], plot_type="boxplot")
+    texts = _tags(res, "text")
+    labels = _texts(res)
+
+    for text, label in zip(texts, labels):
+        x, width = float(text["x"]), len(label) * 18
+        left = {"start": x, "middle": x - width / 2, "end": x - width}[text["text-anchor"]]
+        assert 0 <= left and left + width <= 600
+
+    # The labels at the left edge are moved to the right of their usual position
+    assert float(texts[0]["x"]) == 36
+
+
+@pytest.mark.parametrize("vals", [[5], [2, 2, 2]])
+def test_boxplot_of_one_value(vals: list[int]):
+    res = _generate_nanoplot(y_vals=vals, plot_type="boxplot")
+
+    # A single label in the middle of the plot (as all statistics are the same)
+    assert _texts(res) == [str(vals[0])]
+    assert _tags(res, "text")[0]["x"] == "300.0"
+    assert float(_tags(res, "line")[0]["x1"]) == 300
+
+
+def test_boxplot_of_scalar():
+    res = _generate_nanoplot(y_vals=5, plot_type="boxplot")
+
+    assert "Box plot of 1 value: 5.00" in res
+    assert _texts(res) == ["5"]
+
+
+def test_boxplot_ignores_x_vals():
+    vals = [1, 2, 3, 4]
+
+    assert _generate_nanoplot(
+        y_vals=vals, x_vals=[10, 20, 30, 40], plot_type="boxplot"
+    ) == _generate_nanoplot(y_vals=vals, plot_type="boxplot")
+
+
+def test_boxplot_without_data_points():
+    res = _generate_nanoplot(
+        y_vals=[1, 2, 3, 4, 100],
+        plot_type="boxplot",
+        show_data_points=False,
+    )
+
+    assert _tags(res, "circle") == []
+
+
+def test_boxplot_shows_only_outliers_with_many_values():
+    res = _generate_nanoplot(y_vals=list(range(20)) + [100], plot_type="boxplot")
+    circles = _tags(res, "circle")
+
+    assert len(circles) == 1
+    assert circles[0]["cx"] == "600.0"
+    assert circles[0]["stroke"] == "#3290CC"
+
+
+def test_boxplot_options():
+    res = _generate_nanoplot(
+        y_vals=[1, 2, 3, 4],
+        plot_type="boxplot",
+        data_bar_stroke_color="red",
+        data_bar_stroke_width=2,
+        data_point_radius=5,
+        y_val_fmt_fn=lambda x: f"~{x}",
+    )
+    box = _tags(res, "rect")[0]
+
+    assert (box["stroke"], box["stroke-width"], box["height"]) == ("red", "2", "30")
+    assert all(line["stroke"] == "red" for line in _tags(res, "line"))
+    assert _texts(res)[0] == "~1"
+
+
+def test_boxplot_reference_line_and_area():
+    res = _generate_nanoplot(
+        y_vals=[1, 2, 3, 4, 10],
+        y_ref_line="mean",
+        y_ref_area=[5, 2],
+        plot_type="boxplot",
+    )
+    x_of = lambda val: (val - 1) / 9 * 600
+
+    area = _tags(res, "rect")[0]
+    assert area["fill-opacity"] == "0.8"
+    assert float(area["x"]) == pytest.approx(x_of(2))
+    assert float(area["width"]) == pytest.approx(x_of(5) - x_of(2))
+
+    # The reference line (at the mean, 4) is vertical and labeled
+    assert '<g class="ref-line">' in res
+    ref_line = _tags(res, "line")[-1]
+    assert ref_line["x1"] == ref_line["x2"]
+    assert float(ref_line["x1"]) == pytest.approx(x_of(4))
+    assert "4" in _texts(res)[-1]
+
+
+def test_boxplot_scale_includes_reference_line_and_expand_y():
+    def whisker_xs(**kwargs) -> tuple[float, float]:
+        whisker = _tags(_generate_nanoplot(y_vals=[1, 2, 3], plot_type="boxplot", **kwargs), "line")
+        return float(whisker[0]["x1"]), float(whisker[0]["x2"])
+
+    assert whisker_xs() == (0, 600)
+    assert whisker_xs(y_ref_line=10) == pytest.approx((0, 2 / 9 * 600))
+    assert whisker_xs(expand_y=[-1, 5]) == pytest.approx((2 / 6 * 600, 4 / 6 * 600))
+
+
+def test_fmt_nanoplot_boxplot_shared_scale():
+    from great_tables.gt import _get_column_of_values
+
+    df = pl.DataFrame({"vals": ["1 2 3", "11 12 13", None]})
+    gt = GT(df).fmt_nanoplot(columns="vals", plot_type="boxplot")
+    res = _get_column_of_values(gt, column_name="vals", context="html")
+
+    # Both rows are on a scale from 1 to 13
+    xs = [(float(_tags(r, "line")[0]["x1"]), float(_tags(r, "line")[0]["x2"])) for r in res[:2]]
+    assert xs == pytest.approx([(0, 100), (500, 600)])
+    assert "<svg" not in res[2]
+
+
+def test_fmt_nanoplot_boxplot_missing_vals():
+    from great_tables.gt import _get_column_of_values
+
+    df = pl.DataFrame({"vals": [[1.0, None, 3.0, 5.0]]})
+
+    def labels(missing_vals: str) -> list[str]:
+        gt = GT(df).fmt_nanoplot(columns="vals", plot_type="boxplot", missing_vals=missing_vals)
+        return _texts(_get_column_of_values(gt, column_name="vals", context="html")[0])
+
+    assert labels("gap") == labels("remove") == ["1", "2", "3", "4", "5"]
+    assert labels("zero") == ["0", "0.75", "2", "3.50", "5"]
+
+
 def test_nanoplot_horizontal_bar_zero_value():
     result = _generate_nanoplot(
         y_vals=0,
@@ -2665,7 +2917,7 @@ def test_remove_exponent_non_integer_string():
 
 @pytest.mark.parametrize(
     "keyword,dst",
-    [("mean", 3), ("median", 3), ("min", 1), ("max", 5), ("q1", 1), ("q3", 5)],
+    [("mean", 3), ("median", 3), ("min", 1), ("max", 5), ("q1", 2), ("q3", 4)],
 )
 def test_generate_ref_line_from_keyword_ignores_missing_values(keyword: str, dst: float):
     vals = [1, None, 3, float("nan"), 5]
@@ -2826,6 +3078,25 @@ def test_nanoplot_spec_segments_split_at_missing_values():
         ([5], "line", "Line plot of 1 value: 5.00"),
         ([None], "line", "Line plot with no values"),
         (4.1, "bar", "Bar of 4.10"),
+        (
+            list(range(1, 10)) + [100],
+            "boxplot",
+            "Box plot of 10 values: median 5.50, quartiles 3.25 and 7.75, "
+            "whiskers from 1.00 to 9.00, 1 outlier",
+        ),
+        (
+            [-50, 1, 2, 3, None, 50],
+            "boxplot",
+            "Box plot of 5 values: median 2.00, quartiles 1.00 and 3.00, "
+            "whiskers from 1.00 to 3.00, 2 outliers, with 1 missing",
+        ),
+        (
+            [1, 2, 3],
+            "boxplot",
+            "Box plot of 3 values: median 2.00, quartiles 1.50 and 2.50, "
+            "whiskers from 1.00 to 3.00",
+        ),
+        ([5, None], "boxplot", "Box plot of 1 value: 5.00, with 1 missing"),
     ],
 )
 def test_nanoplot_summary(y_vals, plot_type: str, x_out: str):

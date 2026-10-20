@@ -15,7 +15,7 @@ data visualizations that adapt nicely to the amount of data you feed into them. 
 nanoplots include the following:
 
 - interactivity: you can hover over data and other elements to show values
-- choice of line and bar charting
+- choice of line, bar, and box plot charting
 - you can annotate plots with a reference line and/or area
 - plenty of easy-to-use options for composing your plots
 
@@ -243,6 +243,65 @@ GT(single_vals_df).fmt_nanoplot(columns="numbers")
 You get to customize the line and the data point marker with the latter display of single values,
 and that's a plus. Nonetheless, it is more common to see horizontal bar plots in tables and the
 extra customization of negative values makes that form of presentation more advantageous.
+
+## Box plots using `plot_type="boxplot"`
+
+When the distribution of values matters more than their order, a box plot is the better choice.
+With `plot_type="boxplot"`, each row's values become a horizontal box running from the first to the
+third quartile, with a line at the median. The whiskers extend to the most extreme values that are
+within 1.5 times the box's width, and any values further out are outliers. Rows with fewer than 20
+values also show every value as a faint point. Hovering over (or touching) a box shows the five
+statistics.
+
+```{python}
+GT(random_numbers_df).fmt_nanoplot(columns="numbers", plot_type="boxplot")
+```
+
+Unlike the other nanoplots, box plots always share a scale across rows, so the boxes can be
+compared directly. The scale is horizontal, so a reference line or area is drawn vertically. Here's
+an example with the `pizzaplace` dataset, where the times of a year's worth of pizza orders are
+grouped by weekday. The order times are seconds after midnight, so we provide a formatter to
+`nanoplot_options()` that shows them as clock times. A reference area marks the lunch hours.
+
+```{python}
+from great_tables.data import pizzaplace
+
+
+def clock(seconds):
+    seconds = round(seconds)
+    return f"{seconds // 3600:02}:{seconds % 3600 // 60:02}"
+
+
+order_times = (
+    pl.from_pandas(pizzaplace)
+    .with_columns(
+        day=pl.col("date").str.to_date().dt.strftime("%A"),
+        day_num=pl.col("date").str.to_date().dt.weekday(),
+        seconds=pl.col("time").str.to_time().cast(pl.Int64) // 1_000_000_000,
+    )
+    .group_by("day", "day_num")
+    .agg(pizzas=pl.len(), seconds=pl.col("seconds"))
+    .sort("day_num")
+    .drop("day_num")
+)
+
+(
+    GT(order_times, rowname_col="day")
+    .fmt_nanoplot(
+        columns="seconds",
+        plot_type="boxplot",
+        reference_area=[12 * 3600, 14 * 3600],
+        options=nanoplot_options(y_val_fmt_fn=clock),
+    )
+    .fmt_integer(columns="pizzas")
+    .cols_label(pizzas="Pizzas", seconds="Time of order")
+)
+```
+
+The box plots show that weekend orders come in later in the day than weekday orders. In
+`nanoplot_options()`, the box and whiskers take their color and width from
+`data_bar_stroke_color=` and `data_bar_stroke_width=`, the box's thickness grows with
+`data_point_radius=`, and `show_data_points=False` hides the points.
 
 ## Line plots with paired *x* and *y* values
 

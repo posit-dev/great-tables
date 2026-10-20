@@ -85,6 +85,7 @@ TimeStyle: TypeAlias = Literal[
 PlotType: TypeAlias = Literal[
     "line",
     "bar",
+    "boxplot",
 ]
 MissingVals: TypeAlias = Literal[
     "marker",
@@ -8397,8 +8398,8 @@ def fmt_nanoplot(
     """Format data for nanoplot visualizations.
 
     The `fmt_nanoplot()` method is used to format data for nanoplot visualizations. This method
-    allows for the creation of a variety of different plot types, including line, bar, and scatter
-    plots.
+    allows for the creation of a variety of different plot types, including line, bar, box, and
+    scatter plots.
 
     :::{.callout-warning}
     `fmt_nanoplot()` is still experimental.
@@ -8415,9 +8416,11 @@ def fmt_nanoplot(
         formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars
         DataFrames) a Polars expression such as `pl.col("x") > 0`.
     plot_type
-        Nanoplots can either take the form of a line plot (using `"line"`) or a bar plot (with
-        `"bar"`). A line plot, by default, contains layers for a data line, data points, and a data
-        area. With a bar plot, the always visible layer is that of the data bars.
+        Nanoplots can either take the form of a line plot (using `"line"`), a bar plot (with
+        `"bar"`), or a box plot (with `"boxplot"`). A line plot, by default, contains layers for a
+        data line, data points, and a data area. With a bar plot, the always visible layer is that
+        of the data bars. A box plot summarizes the distribution of each row's values (see the Box
+        plots section below); like bar plots, box plots don't use *x* values.
     plot_height
         The height of the nanoplots. The default here is a sensible value of `"2em"`.
     missing_vals
@@ -8426,17 +8429,19 @@ def fmt_nanoplot(
         where data lines will have discontinuities and bar plots will have missing bars; (2)
         `"marker"` will behave like `"gap"` but show prominent visual marks at the missing data
         locations; (3) `"zero"` will replace missing values with zero values; and (4) `"remove"`
-        will remove any incoming missing values.
+        will remove any incoming missing values. Box plots leave missing values out, unless
+        `"zero"` is used.
     autoscale
         Using `autoscale=True` will ensure that the bounds of all nanoplots produced are based on
         the limits of data combined from all input rows. This will result in a shared scale across
         all of the nanoplots (for *y*- and *x*-axis data), which is useful in those cases where the
-        nanoplot data should be compared across rows.
+        nanoplot data should be compared across rows. Box plots always share a scale.
     reference_line
         A reference line requires a single input to define the line. It could be a numeric value,
         applied to all nanoplots generated. Or, the input can be one of the following for generating
         the line from the underlying data: (1) `"mean"`, (2) `"median"`, (3) `"min"`, (4) `"max"`,
-        (5) `"q1"`, (6) `"q3"`, (7) `"first"`, or (8) `"last"`.
+        (5) `"q1"`, (6) `"q3"`, (7) `"first"`, or (8) `"last"`. The quartiles (`"q1"` and `"q3"`)
+        are interpolated between data values, as with the default method of R's `quantile()`.
     reference_area
         A reference area requires a list of two values for defining bottom and top boundaries (in
         the *y* direction) for a rectangular area. The types of values supplied are the same as
@@ -8480,6 +8485,22 @@ def fmt_nanoplot(
     [`nanoplot_options()`](`great_tables.nanoplot_options`) helper function. With that, layers of
     the nanoplots can be selectively removed and the aesthetics of the remaining plot components can
     be modified.
+
+    Box plots
+    ---------
+    With `plot_type="boxplot"`, each row's values are summarized as a horizontal box-and-whisker
+    diagram. The box spans the first to the third quartile (with a line at the median), and the
+    whiskers extend to the most extreme values within 1.5 times the interquartile range of the box;
+    any values beyond the whiskers are outliers. Rows with fewer than 20 values show every value as
+    a faint point, and rows with more show only their outliers. All of the box plots share a scale,
+    so they can be compared across rows, and hovering over a box shows its statistics.
+
+    A reference line or area is drawn vertically, with keywords (e.g., `"mean"`) computed from each
+    row's values, and `expand_y=` extends the (horizontal) scale. In
+    [`nanoplot_options()`](`great_tables.nanoplot_options`), `data_bar_stroke_color=` and
+    `data_bar_stroke_width=` style the box and whiskers, `data_point_radius=` sets the box's
+    thickness (six times the radius), `show_data_points=False` hides the points, and
+    `y_val_fmt_fn=` formats the statistics.
 
     Examples
     --------
@@ -8609,6 +8630,27 @@ def fmt_nanoplot(
         .fmt_nanoplot(columns="lines", plot_type="line")
     )
     ```
+
+    Box plots are a good way to compare distributions across rows. Here, we collect the horsepower
+    ratings of the cars in the `gtcars` dataset by body style and show each group as a box plot (all
+    of them on the same scale). Hover over any box to see its quartiles and whiskers.
+
+    ```{python}
+    from great_tables.data import gtcars
+
+    hp_by_body_style = (
+        pl.from_pandas(gtcars)
+        .group_by("bdy_style")
+        .agg(n=pl.len(), hp=pl.col("hp"))
+        .sort("bdy_style")
+    )
+
+    (
+        GT(hp_by_body_style, rowname_col="bdy_style")
+        .fmt_nanoplot(columns="hp", plot_type="boxplot")
+        .cols_label(n="Cars", hp="Horsepower")
+    )
+    ```
     """
 
     # guards ----
@@ -8619,9 +8661,9 @@ def fmt_nanoplot(
             f"\n\nReceived: {columns}"
         )
 
-    if plot_type not in ("line", "bar"):
+    if plot_type not in ("line", "bar", "boxplot"):
         raise NotImplementedError(
-            "Currently, fmt_nanoplot() only support line or bar as plot_type"
+            "Currently, fmt_nanoplot() only supports line, bar, or boxplot as plot_type"
             f"\n\n Received: {plot_type}"
         )
 
@@ -8662,6 +8704,18 @@ def fmt_nanoplot(
         if all_y_vals:
             expand_y = [min(all_y_vals), max(all_y_vals)]
 
+    # Box plots always share a scale, spanning the values of all targeted cells (with missing
+    # values left out, or counted as zero with `missing_vals="zero"`)
+    boxplot_vals = None
+    if plot_type == "boxplot":
+        boxplot_vals = [
+            0 if is_na(data_tbl, val) else val
+            for cell in target_vals
+            if not is_na(data_tbl, cell)
+            for val in _get_cell_y_vals(cell)
+            if missing_vals == "zero" or not is_na(data_tbl, val)
+        ]
+
     # Generate a function that turns the nanoplot data in a cell into an SVG nanoplot (with the
     # given alternative text)
     def make_fmt_nanoplot_fn(alt_text: str | None) -> Callable[[Any, str], str]:
@@ -8697,6 +8751,7 @@ def fmt_nanoplot(
             expand_y=expand_y,
             missing_vals=missing_vals,
             all_single_y_vals=all_single_y_vals,
+            all_y_vals=boxplot_vals,
             plot_type=plot_type,
             svg_height=plot_height,
             alt=alt_text,
