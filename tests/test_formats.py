@@ -1,8 +1,9 @@
 import math
 import re
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Union
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -2070,8 +2071,8 @@ def test_fmt_datetime_format_str():
 
 @pytest.mark.parametrize("locale", ["en", "de", "fr-CA"])
 def test_fmt_datetime_format_str_with_table_locale(locale: str):
-    # The table locale is only used with `date_style=`/`time_style=`, so it shouldn't stop
-    # `format_str=` from being used
+    # A `strftime()` format string isn't localized, so the table locale shouldn't stop it from
+    # being used
     df = pd.DataFrame({"x": ["2013-05-15 23:15", "2020-05-20"]})
 
     gt = GT(df, locale=locale).fmt_datetime(columns="x", format_str="%d.%m.%Y %H:%M")
@@ -2096,6 +2097,277 @@ def test_fmt_datetime_bad_date_style_raises():
         )
 
     assert "date_style must be one of:" in exc_info.value.args[0]
+
+
+@pytest.mark.parametrize("sep", ["", "'", " o'clock ", "''", " T "])
+@pytest.mark.parametrize("date_style", ["iso", "year_week"])
+def test_fmt_datetime_sep_is_literal(sep: str, date_style: str):
+    # `sep=` was put into one CLDR pattern with the date and time, so a quote in it (or an empty
+    # one, which made `''`) broke the output (e.g., `" o'clock "` gave `" o3lo314 "`)
+    gt = GT(pl.DataFrame({"x": [datetime(2000, 2, 29, 14, 35)]})).fmt_datetime(
+        columns="x", date_style=date_style, sep=sep
+    )
+    date_str = "2000-02-29" if date_style == "iso" else "2000-W09"
+    assert _get_column_of_values(gt, column_name="x", context="html") == [
+        f"{date_str}{sep}14:35:00"
+    ]
+
+
+# ------------------------------------------------------------------------------
+# Test the flexible date and time styles
+# ------------------------------------------------------------------------------
+
+# Outputs for 2000-02-29 14:35:00; these agree with R gt (via bigD) except where CLDR has changed
+# since bigD's data (e.g., `de` "Di.," for "Di,") and where bigD has bugs (`en` `"GyMd"` gives
+# `"2/29/2000 A"`, and the `ja` 12-hour styles give `午後1:35` since bigD's `K` hour is off by one)
+FLEX_DATE_STYLE_CASES = {
+    "en": {
+        "yMd": "2/29/2000",
+        "yMEd": "Tue, 2/29/2000",
+        "yMMMd": "Feb 29, 2000",
+        "GyMd": "2/29/2000 AD",
+        "yQQQQ": "1st quarter 2000",
+        "Ed": "29 Tue",
+    },
+    "de": {
+        "yMd": "29.2.2000",
+        "yMEd": "Di., 29.2.2000",
+        "yMMMd": "29. Feb. 2000",
+        "GyMd": "29.02.2000 n. Chr.",
+        "yQQQQ": "1. Quartal 2000",
+        "Ed": "Di., 29.",
+    },
+    "ja": {
+        "yMd": "2000/2/29",
+        "yMEd": "2000/2/29(火)",
+        "yMMMd": "2000年2月29日",
+        "GyMd": "西暦2000/2/29",
+        "yQQQQ": "2000年第1四半期",
+        "Ed": "29日(火)",
+    },
+}
+
+FLEX_TIME_STYLE_CASES = {
+    "en": {
+        "Hm": "14:35",
+        "H": "14",
+        "EHm": "Tue 14:35",
+        "hm": "2:35 PM",
+        "Bhm": "2:35 in the afternoon",
+    },
+    "de": {
+        "Hm": "14:35",
+        "H": "14 Uhr",
+        "EHm": "Di., 14:35",
+        "hm": "2:35 PM",
+        "Bhm": "2:35 nachm.",
+    },
+    "ja": {"Hm": "14:35", "H": "14時", "EHm": "14:35 (火)", "hm": "午後2:35", "Bhm": "昼2:35"},
+}
+
+
+@pytest.mark.parametrize("locale", ["en", "de", "ja"])
+def test_fmt_date_flexible_styles_follow_locale(locale: str):
+    for date_style, expected in FLEX_DATE_STYLE_CASES[locale].items():
+        assert vals.fmt_date(["2000-02-29"], date_style=date_style, locale=locale) == [expected]
+
+
+@pytest.mark.parametrize("locale", ["en", "de", "ja"])
+def test_fmt_time_flexible_styles_follow_locale(locale: str):
+    for time_style, expected in FLEX_TIME_STYLE_CASES[locale].items():
+        x = vals.fmt_time(["2000-02-29 14:35:00"], time_style=time_style, locale=locale)
+        assert x == [expected]
+
+
+def test_fmt_datetime_flexible_styles_with_table_locale():
+    df = pl.DataFrame({"x": [datetime(2000, 2, 29, 14, 35)]})
+    gt = GT(df, locale="de").fmt_datetime(columns="x", date_style="yMMMEd", time_style="Hm")
+    assert _get_column_of_values(gt, column_name="x", context="html") == [
+        "Di., 29. Feb. 2000 14:35"
+    ]
+
+
+def _docstring_style_table(docstring: str, header: str) -> dict[str, str]:
+    # The rows of a docstring table of styles, as `| 1 | `"style"` | `"output"` | notes |`
+    table = docstring[docstring.index(header) :].split("\n\n")[0]
+    rows = re.findall(r'^\s*\|\s*\d+\s*\|\s*`"(.+?)"`\s*\|\s*`"(.+?)"`', table, re.MULTILINE)
+    return dict(rows)
+
+
+@pytest.mark.parametrize("method", [GT.fmt_date, GT.fmt_datetime, vals.fmt_date])
+def test_date_style_docstring_tables_match_output(method):
+    table = _docstring_style_table(method.__doc__, "| Date Style ")
+    assert len(table) == 41
+    for date_style, expected in table.items():
+        assert vals.fmt_date(["2000-02-29"], date_style=date_style) == [expected], date_style
+
+
+@pytest.mark.parametrize("method", [GT.fmt_time, GT.fmt_datetime, vals.fmt_time])
+def test_time_style_docstring_tables_match_output(method):
+    table = _docstring_style_table(method.__doc__, "| Time Style ")
+    assert len(table) == 25
+    for time_style, expected in table.items():
+        x = vals.fmt_time(["2000-02-29 14:35:00"], time_style=time_style)
+        assert x == [expected], time_style
+
+
+@pytest.mark.parametrize("time_style", ["EHm", "EHms", "Ehm", "Ehms", "EBhms", "EBhm"])
+def test_fmt_time_weekday_style_needs_a_date(time_style: str):
+    # Datetimes (and datetime strings) show their own weekday: 2024-01-05 is a Friday
+    df = pl.DataFrame({"x": [datetime(2024, 1, 5, 14, 35)]})
+    x = _get_column_of_values(
+        GT(df).fmt_time(columns="x", time_style=time_style), column_name="x", context="html"
+    )
+    assert x[0].startswith("Fri ")
+    assert vals.fmt_time(["2024-01-05 14:35"], time_style=time_style)[0].startswith("Fri ")
+
+    # A time has no date (Babel would take today's), so it raises
+    with pytest.raises(ValueError, match="has no date"):
+        vals.fmt_time(["14:35"], time_style=time_style)
+
+    df_time = pl.DataFrame({"x": [time(14, 35)]})
+    with pytest.raises(ValueError, match="has no date"):
+        _get_column_of_values(
+            GT(df_time).fmt_time(columns="x", time_style=time_style),
+            column_name="x",
+            context="html",
+        )
+
+
+@pytest.mark.parametrize(
+    "tzinfo,expected",
+    [
+        # A naive value is taken to be in UTC
+        (None, "2:35 PM UTC"),
+        (timezone.utc, "2:35 PM UTC"),
+        (ZoneInfo("UTC"), "2:35 PM UTC"),
+        (ZoneInfo("Etc/UTC"), "2:35 PM UTC"),
+        (timezone(timedelta(hours=-5)), "2:35 PM -0500"),
+        # Zones with a generic name use it (and the value is shown in its own zone)
+        (ZoneInfo("America/New_York"), "2:35 PM ET"),
+        (ZoneInfo("US/Eastern"), "2:35 PM ET"),
+        (ZoneInfo("Asia/Kolkata"), "2:35 PM India Time"),
+    ],
+)
+def test_fmt_time_zone_styles(tzinfo, expected: str):
+    # Babel names a zone without a generic name as "Unknown Region (UTC) Time"; the specific name
+    # (or the offset) is used for those instead (an object column keeps the `tzinfo` as given)
+    df = pd.DataFrame(
+        {"x": pd.Series([datetime(2000, 2, 29, 14, 35, tzinfo=tzinfo)], dtype=object)}
+    )
+    gt = GT(df).fmt_time(columns="x", time_style="hmv")
+    assert _get_column_of_values(gt, column_name="x", context="html") == [expected]
+
+    gt = GT(df).fmt_datetime(columns="x", time_style="hmv", sep=", ")
+    assert _get_column_of_values(gt, column_name="x", context="html") == [f"2000-02-29, {expected}"]
+
+
+def test_fmt_time_zone_style_on_time_values():
+    df = pl.DataFrame({"x": [time(14, 35)]})
+    gt = GT(df).fmt_time(columns="x", time_style="Hmsv")
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["14:35:00 UTC"]
+
+
+@pytest.mark.parametrize(
+    "method,kwargs,match",
+    [
+        (vals.fmt_date, dict(date_style="yMMMMd"), "date_style must be one of:.*, Ed$"),
+        (vals.fmt_time, dict(time_style="hmz"), "time_style must be one of:.*, ms$"),
+        (vals.fmt_datetime, dict(time_style="HHmm"), "time_style must be one of:"),
+    ],
+)
+def test_flexible_style_invalid_raises(method, kwargs: dict[str, Any], match: str):
+    with pytest.raises(ValueError, match=match):
+        method(["2000-02-29 14:35"], **kwargs)
+
+
+# ------------------------------------------------------------------------------
+# Test CLDR patterns in `fmt_datetime(format_str=)`
+# ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "format_str,locale,expected",
+    [
+        ("EEEE, d MMMM y", None, "Tuesday, 29 February 2000"),
+        ("EEEE, d MMMM y", "de", "Dienstag, 29 Februar 2000"),
+        ("EEEE d MMMM y 'à' HH'h'mm", "fr", "mardi 29 février 2000 à 14h35"),
+        ("h 'o''clock' a", None, "2 o'clock PM"),
+        ("QQQQ y", "en", "1st quarter 2000"),
+        ("y年M月d日 H:mm", "ja", "2000年2月29日 14:35"),
+        ("yyyy-MM-dd'T'HH:mm:ssxxx", None, "2000-02-29T14:35:00+00:00"),
+    ],
+)
+def test_fmt_datetime_format_str_cldr(format_str: str, locale: str | None, expected: str):
+    df = pl.DataFrame({"x": [datetime(2000, 2, 29, 14, 35)]})
+
+    gt = GT(df).fmt_datetime(columns="x", format_str=format_str, locale=locale)
+    assert _get_column_of_values(gt, column_name="x", context="html") == [expected]
+
+    # The table locale is used when `locale=` isn't given
+    gt = GT(df, locale=locale).fmt_datetime(columns="x", format_str=format_str)
+    assert _get_column_of_values(gt, column_name="x", context="html") == [expected]
+
+    assert vals.fmt_datetime(
+        [datetime(2000, 2, 29, 14, 35)], format_str=format_str, locale=locale
+    ) == [expected]
+
+
+def test_fmt_datetime_format_str_cldr_zone():
+    x = [
+        datetime(2000, 2, 29, 14, 35),
+        datetime(2000, 2, 29, 14, 35, tzinfo=ZoneInfo("America/New_York")),
+    ]
+    df = pd.DataFrame({"x": pd.Series(x, dtype=object)})
+    gt = GT(df).fmt_datetime(columns="x", format_str="HH:mm vvvv")
+    assert _get_column_of_values(gt, column_name="x", context="html") == [
+        "14:35 Coordinated Universal Time",
+        "14:35 Eastern Time",
+    ]
+    # Quoted text isn't a field, so its `v` isn't changed
+    assert vals.fmt_datetime(x[:1], format_str="HH:mm 'via' v") == ["14:35 via UTC"]
+
+
+@pytest.mark.parametrize(
+    "format_str,match",
+    [
+        ("d MMMM 'at", "has an unterminated quote"),
+        ("HH:mm '", "has an unterminated quote"),
+        ("jj:mm", r"aren't CLDR date or time fields \(`j`\)"),
+        ("d MMMM at HH:mm", r"aren't CLDR date or time fields \(`t`\)"),
+        ("EEEEEEE", "isn't valid: Invalid length for field: 'EEEEEEE'"),
+    ],
+)
+def test_fmt_datetime_format_str_cldr_invalid_raises(format_str: str, match: str):
+    # These are caught when `fmt_datetime()` is called, since Babel would silently drop the text
+    # after an unterminated quote or show the letters that aren't fields as is
+    df = pl.DataFrame({"x": [datetime(2000, 2, 29, 14, 35)]})
+    with pytest.raises(ValueError, match=match):
+        GT(df).fmt_datetime(columns="x", format_str=format_str)
+
+
+def test_fmt_datetime_format_str_strftime_ignores_table_locale():
+    gt = GT(pl.DataFrame({"x": [datetime(2000, 2, 29, 14, 35)]}), locale="de").fmt_datetime(
+        columns="x", format_str="%A %d.%m.%Y"
+    )
+    assert _get_column_of_values(gt, column_name="x", context="html") == ["Tuesday 29.02.2000"]
+
+
+def test_vals_fmt_datetime():
+    x = ["2025-01-01 09:30", "2025-07-14 17:45", datetime(2000, 2, 29, 14, 35)]
+    assert vals.fmt_datetime(x) == [
+        "2025-01-01 09:30:00",
+        "2025-07-14 17:45:00",
+        "2000-02-29 14:35:00",
+    ]
+    assert vals.fmt_datetime(x[:2], date_style="yMMMEd", time_style="hm", sep=", ") == [
+        "Wed, Jan 1, 2025, 9:30 AM",
+        "Mon, Jul 14, 2025, 5:45 PM",
+    ]
+    assert vals.fmt_datetime(x[:1], date_style="yMMMd", time_style="Hm", locale="de") == [
+        "1. Jan. 2025 09:30"
+    ]
+    assert vals.fmt_datetime(x[:1], format_str="%d/%m/%Y", pattern="[{x}]") == ["[01/01/2025]"]
 
 
 # ------------------------------------------------------------------------------
@@ -4453,11 +4725,11 @@ def test_fmt_time_na_value_returns_na():
 
 
 def test_fmt_datetime_format_str_and_locale_raises():
-    # ValueError when both format_str and locale are given in fmt_datetime
+    # ValueError when both a strftime() format_str and locale are given in fmt_datetime
     import datetime
 
     df = pd.DataFrame({"dt": [datetime.datetime(2024, 1, 15, 10, 30)]})
-    with pytest.raises(ValueError, match="format_str.*locale.*cannot be used together"):
+    with pytest.raises(ValueError, match="format_str.*cannot be used together with `locale=`"):
         GT(df).fmt_datetime(columns="dt", format_str="%Y-%m-%d", locale="en_US").as_raw_html()
 
 
