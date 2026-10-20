@@ -2068,6 +2068,18 @@ def test_fmt_datetime_format_str():
     ]
 
 
+@pytest.mark.parametrize("locale", ["en", "de", "fr-CA"])
+def test_fmt_datetime_format_str_with_table_locale(locale: str):
+    # The table locale is only used with `date_style=`/`time_style=`, so it shouldn't stop
+    # `format_str=` from being used
+    df = pd.DataFrame({"x": ["2013-05-15 23:15", "2020-05-20"]})
+
+    gt = GT(df, locale=locale).fmt_datetime(columns="x", format_str="%d.%m.%Y %H:%M")
+
+    x = _get_column_of_values(gt, column_name="x", context="html")
+    assert x == ["15.05.2013 23:15", "20.05.2020 00:00"]
+
+
 def test_fmt_datetime_bad_date_style_raises():
     df = pd.DataFrame(
         {
