@@ -5596,6 +5596,11 @@ def fmt_datetime(
     ```
     """
 
+    # A `strftime()` format string isn't localized, so it can't be combined with `locale=`; this
+    # is checked before resolving the locale so that a table-level locale doesn't trigger it
+    if format_str is not None and locale is not None:
+        raise ValueError("The `format_str=` and `locale=` arguments cannot be used together.")
+
     locale = _resolve_locale(self, locale=locale)
 
     # Get the date format string based on the `date_style` value
@@ -5642,9 +5647,6 @@ def fmt_datetime_context(
         _validate_datetime_obj(x=x)
 
     if format_str is not None:
-        if locale is not None:
-            raise ValueError("The `format_str=` and `locale=` arguments cannot be used together.")
-
         x_formatted = x.strftime(format_str)
 
     else:
