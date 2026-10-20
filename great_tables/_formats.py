@@ -8,7 +8,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime, time
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
-from functools import partial
+from functools import lru_cache, partial
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -24,7 +24,8 @@ from typing import (
 
 import babel
 import faicons
-from babel.dates import format_date, format_datetime, format_time
+from babel.core import get_global
+from babel.dates import PATTERN_CHARS, format_date, format_datetime, format_time, parse_pattern
 
 from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
 from ._helpers import px
@@ -74,6 +75,30 @@ DateStyle: TypeAlias = Literal[
     "y.mn.day",
     "year_week",
     "year_quarter",
+    "yMd",
+    "yMEd",
+    "yMMM",
+    "yMMMM",
+    "yMMMd",
+    "yMMMEd",
+    "GyMd",
+    "GyMMMd",
+    "GyMMMEd",
+    "yM",
+    "Md",
+    "MEd",
+    "MMMd",
+    "MMMEd",
+    "MMMMd",
+    "GyMMM",
+    "yQQQ",
+    "yQQQQ",
+    "Gy",
+    "y",
+    "M",
+    "MMM",
+    "d",
+    "Ed",
 ]
 TimeStyle: TypeAlias = Literal[
     "iso",
@@ -81,6 +106,26 @@ TimeStyle: TypeAlias = Literal[
     "h_m_s_p",
     "h_m_p",
     "h_p",
+    "Hms",
+    "Hm",
+    "H",
+    "EHm",
+    "EHms",
+    "Hmsv",
+    "Hmv",
+    "hms",
+    "hm",
+    "h",
+    "Ehm",
+    "Ehms",
+    "EBhms",
+    "Bhms",
+    "EBhm",
+    "Bhm",
+    "Bh",
+    "hmsv",
+    "hmv",
+    "ms",
 ]
 PlotType: TypeAlias = Literal[
     "line",
@@ -5194,7 +5239,7 @@ def fmt_date(
     """
     Format values as dates.
 
-    Format input values to time values using one of 17 preset date styles. Input can be in the form
+    Format input values to date values using one of 41 preset date styles. Input can be in the form
     of `date` type or as a ISO-8601 string (in the form of `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`).
 
     Parameters
@@ -5221,33 +5266,67 @@ def fmt_date(
     Formatting with the `date_style=` argument
     -----------------------------------------
     We need to supply a preset date style to the `date_style=` argument. The date styles are
-    numerous and can handle localization to any supported locale. The following table provides a
-    listing of all date styles and their output values (corresponding to an input date of
-    `2000-02-29`).
+    numerous and can handle localization to any supported locale. A large segment of date styles
+    are termed flexible date formats and this means that their output will adapt to any `locale=`
+    provided: the order of the fields, the punctuation, and even which fields are abbreviated
+    follow the locale's conventions (e.g., `"yMMMd"` is `"Feb 29, 2000"` in English and
+    `"29. Feb. 2000"` in German). That feature makes the flexible date formats a better option for
+    locales other than `"en"` (the default locale).
 
-    |    | Date Style            | Output                  |
-    |----|-----------------------|-------------------------|
-    | 1  | `"iso"`               | `"2000-02-29"`          |
-    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000"`  |
-    | 3  | `"wd_m_day_year"`     | `"Tue, Feb 29, 2000"`   |
-    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000"`    |
-    | 5  | `"month_day_year"`    | `"February 29, 2000"`   |
-    | 6  | `"m_day_year"`        | `"Feb 29, 2000"`        |
-    | 7  | `"day_m_year"`        | `"29 Feb 2000"`         |
-    | 8  | `"day_month_year"`    | `"29 February 2000"`    |
-    | 9  | `"day_month"`         | `"29 February"`         |
-    | 10 | `"day_m"`             | `"29 Feb"`              |
-    | 11 | `"year"`              | `"2000"`                |
-    | 12 | `"month"`             | `"February"`            |
-    | 13 | `"day"`               | `"29"`                  |
-    | 14 | `"year.mn.day"`       | `"2000/02/29"`          |
-    | 15 | `"y.mn.day"`          | `"00/02/29"`            |
-    | 16 | `"year_week"`         | `"2000-W09"`            |
-    | 17 | `"year_quarter"`      | `"2000-Q1"`             |
+    The following table provides a listing of all date styles and their output values
+    (corresponding to an input date of `2000-02-29`).
+
+    |    | Date Style             | Output                         | Notes    |
+    |----|------------------------|--------------------------------|----------|
+    | 1  | `"iso"`                | `"2000-02-29"`                 | ISO 8601 |
+    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000"` |          |
+    | 3  | `"wd_m_day_year"`      | `"Tue, Feb 29, 2000"`          |          |
+    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000"`   |          |
+    | 5  | `"month_day_year"`     | `"February 29, 2000"`          |          |
+    | 6  | `"m_day_year"`         | `"Feb 29, 2000"`               |          |
+    | 7  | `"day_m_year"`         | `"29 Feb 2000"`                |          |
+    | 8  | `"day_month_year"`     | `"29 February 2000"`           |          |
+    | 9  | `"day_month"`          | `"29 February"`                |          |
+    | 10 | `"day_m"`              | `"29 Feb"`                     |          |
+    | 11 | `"year"`               | `"2000"`                       |          |
+    | 12 | `"month"`              | `"February"`                   |          |
+    | 13 | `"day"`                | `"29"`                         |          |
+    | 14 | `"year.mn.day"`        | `"2000/02/29"`                 |          |
+    | 15 | `"y.mn.day"`           | `"00/02/29"`                   |          |
+    | 16 | `"year_week"`          | `"2000-W09"`                   | ISO 8601 |
+    | 17 | `"year_quarter"`       | `"2000-Q1"`                    |          |
+    | 18 | `"yMd"`                | `"2/29/2000"`                  | flexible |
+    | 19 | `"yMEd"`               | `"Tue, 2/29/2000"`             | flexible |
+    | 20 | `"yMMM"`               | `"Feb 2000"`                   | flexible |
+    | 21 | `"yMMMM"`              | `"February 2000"`              | flexible |
+    | 22 | `"yMMMd"`              | `"Feb 29, 2000"`               | flexible |
+    | 23 | `"yMMMEd"`             | `"Tue, Feb 29, 2000"`          | flexible |
+    | 24 | `"GyMd"`               | `"2/29/2000 AD"`               | flexible |
+    | 25 | `"GyMMMd"`             | `"Feb 29, 2000 AD"`            | flexible |
+    | 26 | `"GyMMMEd"`            | `"Tue, Feb 29, 2000 AD"`       | flexible |
+    | 27 | `"yM"`                 | `"2/2000"`                     | flexible |
+    | 28 | `"Md"`                 | `"2/29"`                       | flexible |
+    | 29 | `"MEd"`                | `"Tue, 2/29"`                  | flexible |
+    | 30 | `"MMMd"`               | `"Feb 29"`                     | flexible |
+    | 31 | `"MMMEd"`              | `"Tue, Feb 29"`                | flexible |
+    | 32 | `"MMMMd"`              | `"February 29"`                | flexible |
+    | 33 | `"GyMMM"`              | `"Feb 2000 AD"`                | flexible |
+    | 34 | `"yQQQ"`               | `"Q1 2000"`                    | flexible |
+    | 35 | `"yQQQQ"`              | `"1st quarter 2000"`           | flexible |
+    | 36 | `"Gy"`                 | `"2000 AD"`                    | flexible |
+    | 37 | `"y"`                  | `"2000"`                       | flexible |
+    | 38 | `"M"`                  | `"2"`                          | flexible |
+    | 39 | `"MMM"`                | `"Feb"`                        | flexible |
+    | 40 | `"d"`                  | `"29"`                         | flexible |
+    | 41 | `"Ed"`                 | `"29 Tue"`                     | flexible |
 
     The `"year_week"` style gives the ISO 8601 week date in every locale: weeks start on Monday,
     week 1 is the week containing the first Thursday of the year, and the year shown is the one the
     week belongs to (so `2024-12-30` is `"2025-W01"`).
+
+    The names of the flexible date styles are CLDR skeletons, where each letter stands for a field:
+    `G` is the era, `y` the year, `Q` the quarter, `M` the month, `d` the day of the month, and `E`
+    the day of the week. A longer run of `Q`, `M`, or `E` gives a longer form of that field.
 
     Returns
     -------
@@ -5279,12 +5358,22 @@ def fmt_date(
         .fmt_date(columns="date", date_style="month_day_year")
     )
     ```
+
+    A flexible date style adapts to the locale. Here, the `"yMMMEd"` style is used to format the
+    dates for a table in German.
+
+    ```{python}
+    (
+        GT(exibble_mini, locale="de")
+        .fmt_date(columns="date", date_style="yMMMEd")
+    )
+    ```
     """
 
     locale = _resolve_locale(self, locale=locale)
 
     # Get the date format string based on the `date_style` value
-    date_format_str = _get_date_format(date_style=date_style)
+    date_format_str = _get_date_format(date_style=date_style, locale=locale)
 
     pf_format = partial(
         fmt_date_context,
@@ -5317,14 +5406,10 @@ def fmt_date_context(
         # Stop if `x` is not a valid date object
         _validate_date_obj(x=x)
 
-    # Fix up the locale for `format_date()` by replacing any hyphens with underscores
-    if locale is None:
-        locale = "en_US"
-    else:
-        locale = _str_replace(locale, "-", "_")
-
     # Format the date object to a string using Babel's `format_date()` function
-    x_formatted = format_date(x, format=_resolve_iso_week(date_format_str, x), locale=locale)
+    x_formatted = format_date(
+        x, format=_resolve_iso_week(date_format_str, x), locale=_get_babel_locale(locale)
+    )
 
     # Use a supplied pattern specification to decorate the formatted value
     x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
@@ -5343,7 +5428,7 @@ def fmt_time(
     """
     Format values as times.
 
-    Format input values to time values using one of 5 preset time styles. Input can be in the form
+    Format input values to time values using one of 25 preset time styles. Input can be in the form
     of `time` values, or strings in the ISO 8601 forms of `HH:MM:SS` or `YYYY-MM-DD HH:MM:SS`.
     For `datetime` values (and datetime strings), the time part is formatted. Dates without a time
     (e.g., `"2024-01-05"`) raise an error; use [`fmt_date()`](`great_tables.GT.fmt_date`) for
@@ -5361,7 +5446,7 @@ def fmt_time(
         DataFrames) a Polars expression such as `pl.col("x") > 0`.
     time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
-        times are formatted within ISO 8601 datetime values. There are 5 time styles in total.
+        times are formatted within ISO 8601 datetime values. There are 25 time styles in total.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -5373,17 +5458,54 @@ def fmt_time(
     Formatting with the `time_style=` argument
     -----------------------------------------
     We need to supply a preset time style to the `time_style=` argument. The time styles are
-    numerous and can handle localization to any supported locale. The following table provides a
-    listing of all time styles and their output values (corresponding to an input time of
-    `14:35:00`).
+    numerous and can handle localization to any supported locale. Many of the time styles are
+    termed flexible time formats and this means that their output will adapt to any `locale=`
+    provided (e.g., `"hm"` is `"2:35 PM"` in English and `"午後2:35"` in Japanese). That feature
+    makes the flexible time formats a better option for locales other than `"en"` (the default
+    locale).
 
-    |    | Time Style    | Output                          | Notes         |
-    |----|---------------|---------------------------------|---------------|
-    | 1  | `"iso"`       | `"14:35:00"`                    | ISO 8601, 24h |
-    | 2  | `"iso-short"` | `"14:35"`                       | ISO 8601, 24h |
-    | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
-    | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
-    | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
+    The following table provides a listing of all time styles and their output values
+    (corresponding to an input of `2000-02-29 14:35:00`). It is noted which of these represent 12-
+    or 24-hour time.
+
+    |    | Time Style    | Output                            | Notes         |
+    |----|---------------|-----------------------------------|---------------|
+    | 1  | `"iso"`       | `"14:35:00"`                      | ISO 8601, 24h |
+    | 2  | `"iso-short"` | `"14:35"`                         | ISO 8601, 24h |
+    | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                    | 12h           |
+    | 4  | `"h_m_p"`     | `"2:35 PM"`                       | 12h           |
+    | 5  | `"h_p"`       | `"2 PM"`                          | 12h           |
+    | 6  | `"Hms"`       | `"14:35:00"`                      | flexible, 24h |
+    | 7  | `"Hm"`        | `"14:35"`                         | flexible, 24h |
+    | 8  | `"H"`         | `"14"`                            | flexible, 24h |
+    | 9  | `"EHm"`       | `"Tue 14:35"`                     | flexible, 24h |
+    | 10 | `"EHms"`      | `"Tue 14:35:00"`                  | flexible, 24h |
+    | 11 | `"Hmsv"`      | `"14:35:00 UTC"`                  | flexible, 24h |
+    | 12 | `"Hmv"`       | `"14:35 UTC"`                     | flexible, 24h |
+    | 13 | `"hms"`       | `"2:35:00 PM"`                    | flexible, 12h |
+    | 14 | `"hm"`        | `"2:35 PM"`                       | flexible, 12h |
+    | 15 | `"h"`         | `"2 PM"`                          | flexible, 12h |
+    | 16 | `"Ehm"`       | `"Tue 2:35 PM"`                   | flexible, 12h |
+    | 17 | `"Ehms"`      | `"Tue 2:35:00 PM"`                | flexible, 12h |
+    | 18 | `"EBhms"`     | `"Tue 2:35:00 in the afternoon"`  | flexible, 12h |
+    | 19 | `"Bhms"`      | `"2:35:00 in the afternoon"`      | flexible, 12h |
+    | 20 | `"EBhm"`      | `"Tue 2:35 in the afternoon"`     | flexible, 12h |
+    | 21 | `"Bhm"`       | `"2:35 in the afternoon"`         | flexible, 12h |
+    | 22 | `"Bh"`        | `"2 in the afternoon"`            | flexible, 12h |
+    | 23 | `"hmsv"`      | `"2:35:00 PM UTC"`                | flexible, 12h |
+    | 24 | `"hmv"`       | `"2:35 PM UTC"`                   | flexible, 12h |
+    | 25 | `"ms"`        | `"35:00"`                         | flexible      |
+
+    The names of the flexible time styles are CLDR skeletons, where each letter stands for a field:
+    `H` is the hour (0-23), `h` the hour (1-12) with AM or PM, `B` the hour with a period of the day
+    (e.g., "in the afternoon"), `m` the minute, `s` the second, `E` the day of the week, and `v` the
+    time zone.
+
+    The styles with the day of the week (`E`) need `datetime` values (or datetime strings); a `time`
+    value without a date raises an error with them. The styles with the time zone (`v`) give its
+    generic name for an aware value (e.g., `"ET"` for `America/New_York`), falling back to a name
+    like `"UTC"` or an offset like `"-0500"` for a zone without one. A naive value is taken to be in
+    UTC.
 
     Returns
     -------
@@ -5415,17 +5537,29 @@ def fmt_time(
         .fmt_time(columns="time", time_style="h_m_s_p")
     )
     ```
+
+    A flexible time style adapts to the locale. Here, the `"hm"` style is used to format the times
+    for a table in Japanese.
+
+    ```{python}
+    (
+        GT(exibble_mini, locale="ja")
+        .fmt_time(columns="time", time_style="hm")
+    )
+    ```
     """
 
     locale = _resolve_locale(self, locale=locale)
 
-    # Get the time format string based on the `time_style` value
-    time_format_str = _get_time_format(time_style=time_style)
+    # Get the time format pattern based on the `time_style` value
+    time_pattern = _DatetimePattern.from_pattern(
+        _get_time_format(time_style=time_style, locale=locale)
+    )
 
     pf_format = partial(
         fmt_time_context,
         data=self,
-        time_format_str=time_format_str,
+        time_pattern=time_pattern,
         pattern=pattern,
         locale=locale,
         context=None,  # Ensure the 'context' parameter is explicitly handled
@@ -5437,7 +5571,7 @@ def fmt_time(
 def fmt_time_context(
     x: Any,
     data: GTData,
-    time_format_str: str,
+    time_pattern: _DatetimePattern,
     pattern: str,
     locale: str | None,
     context: str,
@@ -5445,27 +5579,30 @@ def fmt_time_context(
     if is_na(data._tbl_data, x):
         return x
 
-    # If `x` is a string, assume it is an ISO time string and convert it to a time object
+    # If `x` is a string, assume it is an ISO time (or datetime) string and convert it
     if isinstance(x, str):
-        # Convert the ISO time string to a time object
         x = _iso_str_to_time(x)
 
-    elif isinstance(x, datetime):
-        # Use the time part of a datetime (as for datetime strings)
-        x = x.time()
-
-    else:
+    elif not isinstance(x, datetime):
         # Stop if `x` is not a valid time object
         _validate_time_obj(x=x)
 
-    # Fix up the locale for `format_time()` by replacing any hyphens with underscores
-    if locale is None:
-        locale = "en_US"
-    else:
-        locale = _str_replace(locale, "-", "_")
+    babel_locale = _get_babel_locale(locale)
 
-    # Format the time object to a string using Babel's `format_time()` function
-    x_formatted = format_time(x, format=time_format_str, locale=locale)
+    if isinstance(x, datetime):
+        # Babel's `format_time()` would drop the date, which a style showing the weekday needs
+        x_formatted = format_datetime(x, format=time_pattern.for_value(x), locale=babel_locale)
+
+    elif time_pattern.has_date_fields:
+        # Babel would take the date as today
+        raise ValueError(
+            f"Invalid time: '{x}' has no date, so it can't be formatted with a time style that "
+            "shows the weekday. Use datetime values or a time style without the weekday."
+        )
+
+    else:
+        # Format the time object to a string using Babel's `format_time()` function
+        x_formatted = format_time(x, format=time_pattern.for_value(x), locale=babel_locale)
 
     # Use a supplied pattern specification to decorate the formatted value
     x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
@@ -5487,9 +5624,9 @@ def fmt_datetime(
     """
     Format values as datetimes.
 
-    Format input values to datetime values using one of 17 preset date styles and one of 5 preset
-    time styles. Input can be in the form of `datetime` values, or strings in the ISO 8601 forms of
-    `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`.
+    Format input values to datetime values using one of 41 preset date styles and one of 25 preset
+    time styles, or with a format string. Input can be in the form of `datetime` values, or strings
+    in the ISO 8601 forms of `YYYY-MM-DD HH:MM:SS` or `YYYY-MM-DD`.
 
     Parameters
     ----------
@@ -5506,14 +5643,16 @@ def fmt_datetime(
         ISO 8601 date formatting. There are 41 date styles in total.
     time_style
         The time style to use. By default this is the short name `"iso"` which corresponds to how
-        times are formatted within ISO 8601 datetime values. There are 5 time styles in total.
+        times are formatted within ISO 8601 datetime values. There are 25 time styles in total.
     format_str
-        A string that specifies the format of the datetime string. This is a `strftime()` format
-        string that can be used to format date or datetime input. If `format=` is provided, the
-        `date_style=` and `time_style=` arguments are ignored.
+        A format string to use instead of the preset styles. This can be a CLDR datetime pattern
+        (e.g., `"EEEE, d MMMM y"`), which is localized using `locale=` (or the table locale), or a
+        `strftime()` format string (any string containing `%`, e.g., `"%d.%m.%Y"`), which isn't
+        localized. If `format_str=` is provided, the `date_style=`, `time_style=`, and `sep=`
+        arguments are ignored.
     sep
         A string that separates the date and time components of the datetime string. The default is
-        a space character (`" "`). This is ignored if `format=` is provided.
+        a space character (`" "`). This is ignored if `format_str=` is provided.
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -5521,51 +5660,138 @@ def fmt_datetime(
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
-        Only relevant if `date_style=` or `time_style=` are provided.
+        This can't be used with a `strftime()` format string in `format_str=`, since that isn't
+        localized (with one, a table locale set in [`GT()`](`great_tables.GT`) is ignored).
 
     Formatting with the `date_style=` and `time_style=` arguments
     -------------------------------------------------------------
     If not supplying a formatting string to `format_str=` we need to supply a preset date style to
-    the `date_style=` argument and a preset time style to the `time_style=` argument. The date
-    styles are numerous and can handle localization to any supported locale. The following table
-    provides a listing of all date styles and their output values (corresponding to an input date of
-    `2000-02-29 14:35:00`).
+    the `date_style=` argument and a preset time style to the `time_style=` argument. The date and
+    time parts are formatted separately and joined by `sep=`. The styles are numerous and can
+    handle localization to any supported locale. Those termed flexible adapt their output to any
+    `locale=` provided: the order of the fields, the punctuation, and even which fields are
+    abbreviated follow the locale's conventions. That feature makes the flexible formats a better
+    option for locales other than `"en"` (the default locale).
 
-    |    | Date Style            | Output                  |
-    |----|-----------------------|-------------------------|
-    | 1  | `"iso"`               | `"2000-02-29"`          |
-    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000"`  |
-    | 3  | `"wd_m_day_year"`     | `"Tue, Feb 29, 2000"`   |
-    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000"`    |
-    | 5  | `"month_day_year"`    | `"February 29, 2000"`   |
-    | 6  | `"m_day_year"`        | `"Feb 29, 2000"`        |
-    | 7  | `"day_m_year"`        | `"29 Feb 2000"`         |
-    | 8  | `"day_month_year"`    | `"29 February 2000"`    |
-    | 9  | `"day_month"`         | `"29 February"`         |
-    | 10 | `"day_m"`             | `"29 Feb"`              |
-    | 11 | `"year"`              | `"2000"`                |
-    | 12 | `"month"`             | `"February"`            |
-    | 13 | `"day"`               | `"29"`                  |
-    | 14 | `"year.mn.day"`       | `"2000/02/29"`          |
-    | 15 | `"y.mn.day"`          | `"00/02/29"`            |
-    | 16 | `"year_week"`         | `"2000-W09"`            |
-    | 17 | `"year_quarter"`      | `"2000-Q1"`             |
+    The following table provides a listing of all date styles and their output values
+    (corresponding to an input of `2000-02-29 14:35:00`).
+
+    |    | Date Style             | Output                         | Notes    |
+    |----|------------------------|--------------------------------|----------|
+    | 1  | `"iso"`                | `"2000-02-29"`                 | ISO 8601 |
+    | 2  | `"wday_month_day_year"`| `"Tuesday, February 29, 2000"` |          |
+    | 3  | `"wd_m_day_year"`      | `"Tue, Feb 29, 2000"`          |          |
+    | 4  | `"wday_day_month_year"`| `"Tuesday 29 February 2000"`   |          |
+    | 5  | `"month_day_year"`     | `"February 29, 2000"`          |          |
+    | 6  | `"m_day_year"`         | `"Feb 29, 2000"`               |          |
+    | 7  | `"day_m_year"`         | `"29 Feb 2000"`                |          |
+    | 8  | `"day_month_year"`     | `"29 February 2000"`           |          |
+    | 9  | `"day_month"`          | `"29 February"`                |          |
+    | 10 | `"day_m"`              | `"29 Feb"`                     |          |
+    | 11 | `"year"`               | `"2000"`                       |          |
+    | 12 | `"month"`              | `"February"`                   |          |
+    | 13 | `"day"`                | `"29"`                         |          |
+    | 14 | `"year.mn.day"`        | `"2000/02/29"`                 |          |
+    | 15 | `"y.mn.day"`           | `"00/02/29"`                   |          |
+    | 16 | `"year_week"`          | `"2000-W09"`                   | ISO 8601 |
+    | 17 | `"year_quarter"`       | `"2000-Q1"`                    |          |
+    | 18 | `"yMd"`                | `"2/29/2000"`                  | flexible |
+    | 19 | `"yMEd"`               | `"Tue, 2/29/2000"`             | flexible |
+    | 20 | `"yMMM"`               | `"Feb 2000"`                   | flexible |
+    | 21 | `"yMMMM"`              | `"February 2000"`              | flexible |
+    | 22 | `"yMMMd"`              | `"Feb 29, 2000"`               | flexible |
+    | 23 | `"yMMMEd"`             | `"Tue, Feb 29, 2000"`          | flexible |
+    | 24 | `"GyMd"`               | `"2/29/2000 AD"`               | flexible |
+    | 25 | `"GyMMMd"`             | `"Feb 29, 2000 AD"`            | flexible |
+    | 26 | `"GyMMMEd"`            | `"Tue, Feb 29, 2000 AD"`       | flexible |
+    | 27 | `"yM"`                 | `"2/2000"`                     | flexible |
+    | 28 | `"Md"`                 | `"2/29"`                       | flexible |
+    | 29 | `"MEd"`                | `"Tue, 2/29"`                  | flexible |
+    | 30 | `"MMMd"`               | `"Feb 29"`                     | flexible |
+    | 31 | `"MMMEd"`              | `"Tue, Feb 29"`                | flexible |
+    | 32 | `"MMMMd"`              | `"February 29"`                | flexible |
+    | 33 | `"GyMMM"`              | `"Feb 2000 AD"`                | flexible |
+    | 34 | `"yQQQ"`               | `"Q1 2000"`                    | flexible |
+    | 35 | `"yQQQQ"`              | `"1st quarter 2000"`           | flexible |
+    | 36 | `"Gy"`                 | `"2000 AD"`                    | flexible |
+    | 37 | `"y"`                  | `"2000"`                       | flexible |
+    | 38 | `"M"`                  | `"2"`                          | flexible |
+    | 39 | `"MMM"`                | `"Feb"`                        | flexible |
+    | 40 | `"d"`                  | `"29"`                         | flexible |
+    | 41 | `"Ed"`                 | `"29 Tue"`                     | flexible |
 
     The `"year_week"` style gives the ISO 8601 week date in every locale: weeks start on Monday,
     week 1 is the week containing the first Thursday of the year, and the year shown is the one the
     week belongs to (so `2024-12-30` is `"2025-W01"`).
 
-    The time styles can also handle localization to any supported locale. The following table
-    provides a listing of all time styles and their output values (corresponding to an input time of
-    `2000-02-29 14:35:00`).
+    The following table provides a listing of all time styles and their output values
+    (corresponding to an input of `2000-02-29 14:35:00`). It is noted which of these represent 12-
+    or 24-hour time.
 
-    |    | Time Style    | Output                          | Notes         |
-    |----|---------------|---------------------------------|---------------|
-    | 1  | `"iso"`       | `"14:35:00"`                    | ISO 8601, 24h |
-    | 2  | `"iso-short"` | `"14:35"`                       | ISO 8601, 24h |
-    | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                  | 12h           |
-    | 4  | `"h_m_p"`     | `"2:35 PM"`                     | 12h           |
-    | 5  | `"h_p"`       | `"2 PM"`                        | 12h           |
+    |    | Time Style    | Output                            | Notes         |
+    |----|---------------|-----------------------------------|---------------|
+    | 1  | `"iso"`       | `"14:35:00"`                      | ISO 8601, 24h |
+    | 2  | `"iso-short"` | `"14:35"`                         | ISO 8601, 24h |
+    | 3  | `"h_m_s_p"`   | `"2:35:00 PM"`                    | 12h           |
+    | 4  | `"h_m_p"`     | `"2:35 PM"`                       | 12h           |
+    | 5  | `"h_p"`       | `"2 PM"`                          | 12h           |
+    | 6  | `"Hms"`       | `"14:35:00"`                      | flexible, 24h |
+    | 7  | `"Hm"`        | `"14:35"`                         | flexible, 24h |
+    | 8  | `"H"`         | `"14"`                            | flexible, 24h |
+    | 9  | `"EHm"`       | `"Tue 14:35"`                     | flexible, 24h |
+    | 10 | `"EHms"`      | `"Tue 14:35:00"`                  | flexible, 24h |
+    | 11 | `"Hmsv"`      | `"14:35:00 UTC"`                  | flexible, 24h |
+    | 12 | `"Hmv"`       | `"14:35 UTC"`                     | flexible, 24h |
+    | 13 | `"hms"`       | `"2:35:00 PM"`                    | flexible, 12h |
+    | 14 | `"hm"`        | `"2:35 PM"`                       | flexible, 12h |
+    | 15 | `"h"`         | `"2 PM"`                          | flexible, 12h |
+    | 16 | `"Ehm"`       | `"Tue 2:35 PM"`                   | flexible, 12h |
+    | 17 | `"Ehms"`      | `"Tue 2:35:00 PM"`                | flexible, 12h |
+    | 18 | `"EBhms"`     | `"Tue 2:35:00 in the afternoon"`  | flexible, 12h |
+    | 19 | `"Bhms"`      | `"2:35:00 in the afternoon"`      | flexible, 12h |
+    | 20 | `"EBhm"`      | `"Tue 2:35 in the afternoon"`     | flexible, 12h |
+    | 21 | `"Bhm"`       | `"2:35 in the afternoon"`         | flexible, 12h |
+    | 22 | `"Bh"`        | `"2 in the afternoon"`            | flexible, 12h |
+    | 23 | `"hmsv"`      | `"2:35:00 PM UTC"`                | flexible, 12h |
+    | 24 | `"hmv"`       | `"2:35 PM UTC"`                   | flexible, 12h |
+    | 25 | `"ms"`        | `"35:00"`                         | flexible      |
+
+    The styles with the time zone (`v`) give its generic name for an aware value (e.g., `"ET"` for
+    `America/New_York`), falling back to a name like `"UTC"` or an offset like `"-0500"` for a zone
+    without one. A naive value is taken to be in UTC.
+
+    Formatting with a pattern in `format_str=`
+    ------------------------------------------
+    For full control over the output, a CLDR datetime pattern can be given to `format_str=`. In a
+    pattern, runs of letters are fields that are replaced with parts of the datetime, and the
+    length of a run sets the form of that field. Literal text that has letters must be put in
+    single quotes (e.g., `"h 'o''clock' a"`, where `''` is a single quote). Some of the fields are:
+
+    | Field             | Letters                  | Output for `2000-02-29 14:35:07`              |
+    |-------------------|--------------------------|-----------------------------------------------|
+    | year              | `y`, `yy`                | `"2000"`, `"00"`                              |
+    | quarter           | `Q`, `QQQ`, `QQQQ`       | `"1"`, `"Q1"`, `"1st quarter"`                |
+    | month             | `M`, `MM`, `MMM`, `MMMM` | `"2"`, `"02"`, `"Feb"`, `"February"`          |
+    | day of the month  | `d`, `dd`                | `"29"`, `"29"`                                |
+    | day of the week   | `E`, `EEEE`              | `"Tue"`, `"Tuesday"`                          |
+    | hour (1-12)       | `h`, `hh`                | `"2"`, `"02"`                                 |
+    | hour (0-23)       | `H`, `HH`                | `"14"`, `"14"`                                |
+    | AM or PM          | `a`                      | `"PM"`                                        |
+    | period of the day | `B`                      | `"in the afternoon"`                          |
+    | minute            | `mm`                     | `"35"`                                        |
+    | second            | `ss`                     | `"07"`                                        |
+    | time zone         | `z`, `zzzz`, `xxx`       | `"UTC"`, `"Coordinated Universal Time"`, `"+00:00"` |
+
+    The full list of fields is in the [CLDR date field symbol
+    table](https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table). The generic
+    time zone fields (`v` and `vvvv`, e.g., `"ET"` and `"Eastern Time"` for `America/New_York`)
+    fall back to the `z` and `zzzz` forms for a zone without a generic name, as with the time
+    styles. The output of a pattern is localized (e.g., `"EEEE, d MMMM y"` gives
+    `"Dienstag, 29 Februar 2000"` with `locale="de"`), though the pattern itself fixes the order of
+    the fields and the punctuation.
+
+    A `strftime()` format string can be used instead (any value with `%` is treated as one). Its
+    output isn't localized, so it can't be used together with `locale=`.
 
     Returns
     -------
@@ -5594,27 +5820,55 @@ def fmt_datetime(
         )
     )
     ```
+
+    With a CLDR pattern in `format_str=`, we choose the fields and their order ourselves. The
+    names of the weekdays and months are still localized, here for a table in French.
+
+    ```{python}
+    (
+        GT(exibble_mini, locale="fr")
+        .fmt_datetime(columns="date", format_str="EEEE d MMMM y")
+    )
+    ```
     """
 
-    # A `strftime()` format string isn't localized, so it can't be combined with `locale=`; this
-    # is checked before resolving the locale so that a table-level locale doesn't trigger it
-    if format_str is not None and locale is not None:
-        raise ValueError("The `format_str=` and `locale=` arguments cannot be used together.")
+    # A `format_str=` value with a `%` is a `strftime()` format string and any other is a CLDR pattern
+    strftime_str = None
+    format_pattern = None
+
+    if format_str is not None and "%" in format_str:
+        # A `strftime()` format string isn't localized, so it can't be combined with `locale=`;
+        # this is checked before resolving the locale so that a table locale doesn't trigger it
+        if locale is not None:
+            raise ValueError(
+                "A `strftime()` format string (one with `%`) given to `format_str=` isn't "
+                "localized, so it cannot be used together with `locale=`. To format with a "
+                'locale, use a CLDR pattern instead (e.g., `format_str="d MMMM y, HH:mm"`).'
+            )
+
+        strftime_str = format_str
+
+    elif format_str is not None:
+        _validate_cldr_pattern(format_str)
+        format_pattern = _DatetimePattern.from_pattern(format_str)
 
     locale = _resolve_locale(self, locale=locale)
 
     # Get the date format string based on the `date_style` value
-    date_format_str = _get_date_format(date_style=date_style)
+    date_format_str = _get_date_format(date_style=date_style, locale=locale)
 
-    # Get the time format string based on the `time_style` value
-    time_format_str = _get_time_format(time_style=time_style)
+    # Get the time format pattern based on the `time_style` value
+    time_pattern = _DatetimePattern.from_pattern(
+        _get_time_format(time_style=time_style, locale=locale)
+    )
 
     pf_format = partial(
         fmt_datetime_context,
         data=self,
         date_format_str=date_format_str,
-        time_format_str=time_format_str,
-        format_str=format_str,
+        time_pattern=time_pattern,
+        strftime_str=strftime_str,
+        format_pattern=format_pattern,
         sep=sep,
         pattern=pattern,
         locale=locale,
@@ -5627,8 +5881,9 @@ def fmt_datetime_context(
     x: Any,
     data: GTData,
     date_format_str: str,
-    time_format_str: str,
-    format_str: str | None,
+    time_pattern: _DatetimePattern,
+    strftime_str: str | None,
+    format_pattern: _DatetimePattern | None,
     sep: str,
     pattern: str,
     locale: str | None,
@@ -5646,23 +5901,21 @@ def fmt_datetime_context(
         # Stop if `x` is not a valid datetime object
         _validate_datetime_obj(x=x)
 
-    if format_str is not None:
-        x_formatted = x.strftime(format_str)
+    babel_locale = _get_babel_locale(locale)
+
+    if strftime_str is not None:
+        x_formatted = x.strftime(strftime_str)
+
+    elif format_pattern is not None:
+        x_formatted = format_datetime(x, format=format_pattern.for_value(x), locale=babel_locale)
 
     else:
-        # From the date and time format strings, create a datetime format string
-        datetime_format_str = f"{date_format_str}'{sep}'{time_format_str}"
+        # Format the date and the time separately and join them with `sep` (which, as literal
+        # text, can't safely be put into one CLDR pattern with them)
+        date_str = format_date(x, format=_resolve_iso_week(date_format_str, x), locale=babel_locale)
+        time_str = format_datetime(x, format=time_pattern.for_value(x), locale=babel_locale)
 
-        # Fix up the locale for `format_datetime()` by replacing any hyphens with underscores
-        if locale is None:
-            locale = "en_US"
-        else:
-            locale = _str_replace(locale, "-", "_")
-
-        # Format the datetime object to a string using Babel's `format_datetime()` function
-        x_formatted = format_datetime(
-            x, format=_resolve_iso_week(datetime_format_str, x), locale=locale
-        )
+        x_formatted = f"{date_str}{sep}{time_str}"
 
     # Use a supplied pattern specification to decorate the formatted value
     x_formatted = _apply_value_pattern(x_formatted, pattern=pattern, context=context)
@@ -7433,12 +7686,65 @@ def _get_time_formats_dict() -> dict[str, str]:
     return time_formats
 
 
-def _get_date_format(date_style: str) -> str:
+# The flexible date and time styles are CLDR skeletons, which name the fields to show; each locale
+# has its own pattern for a skeleton (e.g., `"yMd"` is `"M/d/y"` in `en` and `"d.M.y"` in `de`)
+_FLEXIBLE_DATE_STYLES = (
+    "yMd",
+    "yMEd",
+    "yMMM",
+    "yMMMM",
+    "yMMMd",
+    "yMMMEd",
+    "GyMd",
+    "GyMMMd",
+    "GyMMMEd",
+    "yM",
+    "Md",
+    "MEd",
+    "MMMd",
+    "MMMEd",
+    "MMMMd",
+    "GyMMM",
+    "yQQQ",
+    "yQQQQ",
+    "Gy",
+    "y",
+    "M",
+    "MMM",
+    "d",
+    "Ed",
+)
+_FLEXIBLE_TIME_STYLES = (
+    "Hms",
+    "Hm",
+    "H",
+    "EHm",
+    "EHms",
+    "Hmsv",
+    "Hmv",
+    "hms",
+    "hm",
+    "h",
+    "Ehm",
+    "Ehms",
+    "EBhms",
+    "Bhms",
+    "EBhm",
+    "Bhm",
+    "Bh",
+    "hmsv",
+    "hmv",
+    "ms",
+)
+
+
+def _get_date_format(date_style: str, locale: str | None) -> str:
     """
-    Get the date format string based on the date style.
+    Get the CLDR date pattern for a date style in a locale.
 
     Args:
         date_style (str): The style of the date.
+        locale (str | None): The locale, which gives the pattern for a flexible date style.
 
     Returns:
         str: The date format string.
@@ -7446,23 +7752,23 @@ def _get_date_format(date_style: str) -> str:
     Raises:
         ValueError: If `date_style` does not have a valid value.
     """
-    date_formats = _get_date_formats_dict()
 
     # Stop if `date_style` does not have a valid value
     _validate_date_style(date_style=date_style)
 
-    # Get the date format string based on the date style
-    date_format_str = date_formats[date_style]
+    if date_style in _FLEXIBLE_DATE_STYLES:
+        return _get_babel_locale(locale).datetime_skeletons[date_style].pattern
 
-    return date_format_str
+    return _get_date_formats_dict()[date_style]
 
 
-def _get_time_format(time_style: str) -> str:
+def _get_time_format(time_style: str, locale: str | None) -> str:
     """
-    Get the time format string based on the given time style.
+    Get the CLDR time pattern for a time style in a locale.
 
     Args:
         time_style (str): The style of the time format.
+        locale (str | None): The locale, which gives the pattern for a flexible time style.
 
     Returns:
         str: The time format string.
@@ -7470,15 +7776,124 @@ def _get_time_format(time_style: str) -> str:
     Raises:
         ValueError: If `time_style` does not have a valid value.
     """
-    time_formats = _get_time_formats_dict()
 
     # Stop if `time_style` does not have a valid value
     _validate_time_style(time_style=time_style)
 
-    # Get the time format string based on the date style
-    time_format_str = time_formats[time_style]
+    if time_style in _FLEXIBLE_TIME_STYLES:
+        return _get_babel_locale(locale).datetime_skeletons[time_style].pattern
 
-    return time_format_str
+    return _get_time_formats_dict()[time_style]
+
+
+@lru_cache(maxsize=None)
+def _get_babel_locale(locale: str | None) -> babel.Locale:
+    """
+    Get the Babel `Locale` for a locale from `_resolve_locale()` (where `None` is `en_US`).
+
+    It's cached, so that formatting each value doesn't parse the locale again.
+    """
+    if locale is None:
+        locale = "en_US"
+
+    return babel.Locale.parse(_str_replace(locale, "-", "_"))
+
+
+# A CLDR pattern is made of unquoted text, where every ASCII letter is a field, and quoted literal
+# text (`'...'`, where `''` is a single quote); the last alternative is an unterminated quote
+_CLDR_PATTERN_PARTS = re.compile(r"'[^']*'|[^']+|'[^']*$")
+
+# The letters of the CLDR fields for parts of the date (the others are for the time and the zone)
+_CLDR_DATE_FIELDS = frozenset("GyYuQqMLwWdDFgEec")
+
+
+def _unquoted_cldr_text(pattern: str) -> str:
+    """Get the unquoted text of a CLDR pattern (i.e., its fields and any punctuation)."""
+    return "".join(part for part in _CLDR_PATTERN_PARTS.findall(pattern) if part[0] != "'")
+
+
+def _validate_cldr_pattern(pattern: str) -> None:
+    """
+    Stop if the CLDR pattern given to `format_str=` can't be formatted as written.
+
+    Babel raises for a field of an invalid length (e.g., `EEEEEEE`), but it silently drops the
+    text after an unterminated quote and shows letters that aren't fields (e.g., `j`) as is.
+    """
+
+    for part in _CLDR_PATTERN_PARTS.findall(pattern):
+        if part[0] == "'" and (len(part) == 1 or part[-1] != "'"):
+            raise ValueError(
+                f"The `format_str=` pattern {pattern!r} has an unterminated quote. Literal text is "
+                "quoted with `'` (e.g., `\"h 'o''clock' a\"`), where `''` is a single quote."
+            )
+
+    unknown = sorted(
+        {
+            char
+            for char in _unquoted_cldr_text(pattern)
+            if char.isascii() and char.isalpha() and char not in PATTERN_CHARS
+        }
+    )
+
+    if unknown:
+        raise ValueError(
+            f"The `format_str=` pattern {pattern!r} has letters that aren't CLDR date or time "
+            f"fields ({', '.join(f'`{char}`' for char in unknown)}). Literal text is quoted with "
+            "`'` (e.g., `\"d MMMM 'at' h a\"`)."
+        )
+
+    try:
+        parse_pattern(pattern)
+    except ValueError as e:
+        raise ValueError(f"The `format_str=` pattern {pattern!r} isn't valid: {e}") from None
+
+
+def _has_generic_zone_name(x: datetime | time) -> bool:
+    """
+    Check whether the time zone of a value has a generic name (e.g., "ET" for `America/New_York`).
+
+    The zones without one include those of naive values (formatted as UTC), fixed offsets, and the
+    `Etc/*` zones; Babel names them as "Unknown Region (UTC) Time" and the like.
+    """
+    zone = getattr(x.tzinfo, "zone", None) or getattr(x.tzinfo, "key", None)
+    zone = get_global("zone_aliases").get(zone, zone)
+
+    return get_global("zone_territories").get(zone, "ZZ") != "ZZ"
+
+
+@dataclass(frozen=True)
+class _DatetimePattern:
+    """A CLDR pattern for formatting times or datetimes, prepared once per formatting call."""
+
+    pattern: str
+    # The pattern with its generic zone names (`v`, e.g., "ET") written as specific ones (`z`,
+    # e.g., "EST"), for the values whose zone has no generic name; `None` if there are none
+    zone_fallback: str | None
+    # Whether the pattern shows part of the date (e.g., the weekday), which a time doesn't have
+    has_date_fields: bool
+
+    @classmethod
+    def from_pattern(cls, pattern: str) -> _DatetimePattern:
+        unquoted = _unquoted_cldr_text(pattern)
+
+        zone_fallback = None
+        if "v" in unquoted:
+            zone_fallback = "".join(
+                part if part[0] == "'" else part.replace("v", "z")
+                for part in _CLDR_PATTERN_PARTS.findall(pattern)
+            )
+
+        return cls(
+            pattern=pattern,
+            zone_fallback=zone_fallback,
+            has_date_fields=not _CLDR_DATE_FIELDS.isdisjoint(unquoted),
+        )
+
+    def for_value(self, x: datetime | time) -> str:
+        if self.zone_fallback is None or _has_generic_zone_name(x):
+            return self.pattern
+
+        return self.zone_fallback
 
 
 def _validate_date_style(date_style: str) -> None:
@@ -7494,8 +7909,10 @@ def _validate_date_style(date_style: str) -> None:
     Returns:
         None
     """
-    if date_style not in _get_date_formats_dict():
-        raise ValueError(f"date_style must be one of: {', '.join(_get_date_formats_dict().keys())}")
+    date_styles = [*_get_date_formats_dict(), *_FLEXIBLE_DATE_STYLES]
+
+    if date_style not in date_styles:
+        raise ValueError(f"date_style must be one of: {', '.join(date_styles)}")
 
 
 def _validate_time_style(time_style: str) -> None:
@@ -7511,23 +7928,25 @@ def _validate_time_style(time_style: str) -> None:
     Returns:
         None
     """
-    if time_style not in _get_time_formats_dict():
-        raise ValueError(f"time_style must be one of: {', '.join(_get_time_formats_dict().keys())}")
+    time_styles = [*_get_time_formats_dict(), *_FLEXIBLE_TIME_STYLES]
+
+    if time_style not in time_styles:
+        raise ValueError(f"time_style must be one of: {', '.join(time_styles)}")
 
 
-def _iso_str_to_time(x: str) -> time:
+def _iso_str_to_time(x: str) -> time | datetime:
     """
-    Converts a string in ISO format to a time object.
+    Converts a string in ISO format to a time object (or a datetime object).
 
-    The string can be a time (`HH:MM:SS`) or a datetime (`YYYY-MM-DD HH:MM:SS`), in which case
-    its time part is used. A date without a time (`YYYY-MM-DD`) is rejected rather than read as
-    midnight.
+    The string can be a time (`HH:MM:SS`) or a datetime (`YYYY-MM-DD HH:MM:SS`), which is kept as a
+    datetime so that a time style showing the weekday can be used. A date without a time
+    (`YYYY-MM-DD`) is rejected rather than read as midnight.
 
     Args:
         x (str): The string to be converted.
 
     Returns:
-        time: The converted time object.
+        time | datetime: The converted time (or datetime) object.
     """
     try:
         return time.fromisoformat(x)
@@ -7545,7 +7964,7 @@ def _iso_str_to_time(x: str) -> time:
         )
 
     try:
-        return datetime.fromisoformat(x).time()
+        return datetime.fromisoformat(x)
     except ValueError:
         # The string is neither a time nor a datetime, so report the error for a time string
         raise time_error from None

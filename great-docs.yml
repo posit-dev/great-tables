@@ -305,7 +305,7 @@ reference:
         - vals.fmt_duration
         - vals.fmt_date
         - vals.fmt_time
-        - vals.fmt_duration
+        - vals.fmt_datetime
         - vals.fmt_markdown
         - vals.fmt_image
 

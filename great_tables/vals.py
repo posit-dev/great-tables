@@ -21,6 +21,7 @@ from ._formats_vals import (
     val_fmt_duration as fmt_duration,
     val_fmt_date as fmt_date,
     val_fmt_time as fmt_time,
+    val_fmt_datetime as fmt_datetime,
     val_fmt_markdown as fmt_markdown,
     val_fmt_image as fmt_image,
 )
