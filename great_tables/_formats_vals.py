@@ -14,6 +14,7 @@ from ._formats import (
     _get_locale_min_sep_threshold,
     _get_locale_sep_mark,
     _resolve_locale,
+    _validate_number_system,
     fmt_integer_context,
 )
 from ._gt_data import FramelessData, GTData
@@ -21,7 +22,7 @@ from ._tbl_data import PlExpr, SeriesLike, to_frame
 from .gt import GT, _get_column_of_values
 
 if TYPE_CHECKING:
-    from ._formats import DateStyle, TimeStyle
+    from ._formats import DateStyle, NumberSystem, TimeStyle
     from ._tbl_data import SeriesLike
 
 
@@ -125,6 +126,7 @@ def val_fmt_number(
     force_sign: bool = False,
     min_sep_threshold: int = 1,
     locale: str | None = None,
+    system: NumberSystem = "intl",
 ) -> list[str]:
     """
     Format numeric values.
@@ -181,7 +183,8 @@ def val_fmt_number(
     compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1.23K`, and `1230000`
-        becomes `1.23M`). The `compact` option is `False` by default.
+        becomes `1.23M`). The `compact` option is `False` by default. With `system="ind"`, values
+        are expressed in lakhs and crores instead (e.g., `1234567` becomes `12.35 Lac`).
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -207,6 +210,13 @@ def val_fmt_number(
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+    system
+        The numbering system to use for digit grouping. The international numbering system
+        (`"intl"`, the default) always separates groups of three digits (e.g., `"1,234,567"`). The
+        Indian numbering system (`"ind"`) separates the last three digits and then groups of two,
+        which correspond to thousands, lakhs, crores, and higher quantities (e.g., `"12,34,567"`).
+        The separator itself is still set by `sep_mark=` (or the locale) and can be turned off with
+        `use_seps=False`.
 
 
     Returns
@@ -241,6 +251,7 @@ def val_fmt_number(
         force_sign=force_sign,
         locale=locale,
         min_sep_threshold=min_sep_threshold,
+        system=system,
     )
 
     vals_fmt = _get_column_of_values(gt=gt_obj_fmt, column_name="x", context=_VALS_CONTEXT.get())
@@ -260,6 +271,7 @@ def val_fmt_integer(
     force_sign: bool = False,
     min_sep_threshold: int = 1,
     locale: str | None = None,
+    system: NumberSystem = "intl",
 ) -> list[str]:
     """
     Format values as integers.
@@ -296,7 +308,8 @@ def val_fmt_integer(
     compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
-        becomes `1M`). The `compact` option is `False` by default.
+        becomes `1M`). The `compact` option is `False` by default. With `system="ind"`, values are
+        expressed in lakhs and crores instead (e.g., `1234567` becomes `12 Lac`).
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -318,6 +331,13 @@ def val_fmt_integer(
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+    system
+        The numbering system to use for digit grouping. The international numbering system
+        (`"intl"`, the default) always separates groups of three digits (e.g., `"1,234,567"`). The
+        Indian numbering system (`"ind"`) separates the last three digits and then groups of two,
+        which correspond to thousands, lakhs, crores, and higher quantities (e.g., `"12,34,567"`).
+        The separator itself is still set by `sep_mark=` (or the locale) and can be turned off with
+        `use_seps=False`.
 
 
     Returns
@@ -335,6 +355,8 @@ def val_fmt_integer(
     """
 
     x = _upgrade_to_list(x)
+
+    _validate_number_system(system)
 
     # TODO: handle data init from fmt_integer()
     # e.g. locale
@@ -356,6 +378,7 @@ def val_fmt_integer(
         min_sep_threshold=min_sep_threshold,
         force_sign=force_sign,
         context=_VALS_CONTEXT.get(),
+        system=system,
     )
 
     return [pf(val) for val in x]
