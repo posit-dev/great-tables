@@ -4548,7 +4548,7 @@ def fmt_duration(
     input_units: str | None = None,
     output_units: str | list[str] | None = None,
     duration_style: DurationStyle = "narrow",
-    trim_zero_units: bool | list[str] = True,
+    trim_zero_units: bool | str | list[str] = True,
     max_output_units: int | None = None,
     pattern: str = "{x}",
     use_seps: bool = True,
@@ -4599,11 +4599,12 @@ def fmt_duration(
         Provides methods to remove output time units that have zero values. By default this is
         `True` and duration values that might otherwise be formatted as `"0w 1d 0h 4m 19s"` with
         `trim_zero_units=False` are instead displayed as `"1d 4m 19s"`. Aside from using
-        `True`/`False` we could provide a list of keywords for more precise control. These keywords
-        are: (1) `"leading"`, to omit all leading zero-value time units (e.g., `"0w 1d"` ->
-        `"1d"`), (2) `"trailing"`, to omit all trailing zero-value time units (e.g., `"3d 5h 0s"`
-        -> `"3d 5h"`), and (3) `"internal"`, which removes all internal zero-value time units
-        (e.g., `"5d 0h 33m"` -> `"5d 33m"`).
+        `True`/`False` we could provide a keyword or a list of keywords for more precise control.
+        These keywords are: (1) `"leading"`, to omit all leading zero-value time units (e.g.,
+        `"0w 1d"` -> `"1d"`), (2) `"trailing"`, to omit all trailing zero-value time units (e.g.,
+        `"3d 5h 0s"` -> `"3d 5h"`), and (3) `"internal"`, which removes all internal zero-value
+        time units (e.g., `"5d 0h 33m"` -> `"5d 33m"`). With `duration_style="colon-sep"`, only
+        `"leading"` has an effect (omitting zero hours, as in `"02:05"`).
     max_output_units
         If `output_units` is `None`, where the output time units are unspecified and left to be
         handled automatically, a numeric value provided for `max_output_units=` will be taken as the
@@ -4652,7 +4653,9 @@ def fmt_duration(
     - `["days", "hours", "minutes"]` -> `(D/)HH:MM`
 
     Any other specialized combinations will result in the default set being used, which is
-    `["days", "hours", "minutes", "seconds"]`.
+    `["days", "hours", "minutes", "seconds"]`. The largest unit carries any larger ones that
+    aren't shown, so with `["hours", "minutes", "seconds"]` a duration of 1 day, 8 hours, and 24
+    minutes is displayed as `32:24:00`.
 
     Compatibility of formatting function with data values
     -----------------------------------------------------
@@ -4815,6 +4818,28 @@ def fmt_duration(
     ):
         raise ValueError("`max_output_units` must be an integer >= 1 or None.")
 
+    # Resolve trim_zero_units to a list of keywords (also before the style overrides)
+    if isinstance(trim_zero_units, str):
+        trim_zero_units = [trim_zero_units]
+    if isinstance(trim_zero_units, bool):
+        if trim_zero_units:
+            resolved_trim = ["leading", "trailing", "internal"]
+        else:
+            resolved_trim = []
+    elif isinstance(trim_zero_units, list):
+        for kw in trim_zero_units:
+            if kw not in ("leading", "trailing", "internal"):
+                raise ValueError(
+                    f"Each entry in `trim_zero_units` must be one of 'leading', 'trailing', "
+                    f"or 'internal', got '{kw}'."
+                )
+        resolved_trim = trim_zero_units
+    else:
+        raise ValueError(
+            "`trim_zero_units` must be a bool, a keyword, or a list of keywords "
+            "('leading', 'trailing', 'internal')."
+        )
+
     # Sort output_units from largest to smallest
     unit_order = list(_DURATION_OUTPUT_UNITS)
     resolved_output_units = sorted(resolved_output_units, key=lambda u: unit_order.index(u))
@@ -4836,46 +4861,23 @@ def fmt_duration(
         else:
             colon_sep_output_units = ["days", "hours", "minutes", "seconds"]
 
-        # Override resolved_output_units for the decomposition step
-        resolved_output_units = ["days", "hours", "minutes", "seconds"]
+        # Split values into the shown units only, so that the largest one carries the rest
+        # (e.g., 1 day 8 hours is `32:00:00` as `HH:MM:SS`, not `08:00:00`)
+        resolved_output_units = colon_sep_output_units
 
         # Every colon-sep field is always shown, so dropping time parts would only zero them out
         max_output_units = None
 
-        # Handle trim_zero_units for colon-sep
-        if (
-            isinstance(trim_zero_units, list)
-            and trim_zero_units == ["leading"]
-            or trim_zero_units == "leading"
-        ):
-            colon_sep_trim_leading = True
+        # Only leading zero hours can be trimmed in the colon-sep style
+        colon_sep_trim_leading = resolved_trim == ["leading"]
+        resolved_trim = []
 
     if duration_style == "iso":
         resolved_output_units = ["days", "hours", "minutes", "seconds"]
         max_output_units = None
         # Zero-valued units are left out everywhere, giving the minimal form (`P7DT1M1S` rather
         # than R gt's `P7DT0H1M1S`); a zero duration keeps its smallest unit (`PT0S`)
-        trim_zero_units = ["leading", "trailing", "internal"]
-
-    # Resolve trim_zero_units to a list of keywords
-    if isinstance(trim_zero_units, bool):
-        if trim_zero_units:
-            resolved_trim = ["leading", "trailing", "internal"]
-        else:
-            resolved_trim = []
-    elif isinstance(trim_zero_units, list):
-        for kw in trim_zero_units:
-            if kw not in ("leading", "trailing", "internal"):
-                raise ValueError(
-                    f"Each entry in `trim_zero_units` must be one of 'leading', 'trailing', "
-                    f"or 'internal', got '{kw}'."
-                )
-        resolved_trim = trim_zero_units
-    else:
-        raise ValueError(
-            "`trim_zero_units` must be a bool or a list of keywords "
-            "('leading', 'trailing', 'internal')."
-        )
+        resolved_trim = ["leading", "trailing", "internal"]
 
     pf_format = partial(
         fmt_duration_context,
@@ -5225,7 +5227,8 @@ def _format_duration_colon_sep(
         if unit == "days":
             day_part = _format_number_for_duration(value, sep_mark, min_sep_threshold) + "/"
         else:
-            # Zero-pad hours, minutes, seconds to 2 digits
+            # Zero-pad hours, minutes, seconds to 2 digits; the largest field can be longer since
+            # it carries any larger units that aren't shown (e.g., `1944:00` as `MM:SS`)
             hms_parts.append(f"{value:02d}")
 
     return day_part + ":".join(hms_parts)
