@@ -125,6 +125,43 @@ class TestFmtDurationColonSep:
         )
         assert result == ["1/08:24:00", "2/00:00:08"]
 
+    # The largest shown unit carries any larger ones (116640 s is 1 day 8 hours 24 minutes)
+    @pytest.mark.parametrize(
+        "output_units, expected",
+        [
+            (["hours", "minutes", "seconds"], ["32:24:00", "1944:26:40"]),
+            (["hours", "minutes"], ["32:24", "1944:26"]),
+            (["minutes", "seconds"], ["1944:00", "116666:40"]),
+            (["days", "hours", "minutes"], ["1/08:24", "81/00:26"]),
+        ],
+    )
+    def test_largest_unit_carries(self, output_units: list[str], expected: list[str]):
+        result = vals.fmt_duration(
+            [116640, 7000000],
+            input_units="seconds",
+            duration_style="colon-sep",
+            output_units=output_units,
+        )
+        assert result == expected
+
+    def test_largest_unit_carries_timedelta(self):
+        result = vals.fmt_duration(
+            [timedelta(days=2, minutes=5)],
+            duration_style="colon-sep",
+            output_units=["hours", "minutes"],
+        )
+        assert result == ["48:05"]
+
+    def test_shown_as_zero_has_no_sign(self):
+        # The seconds aren't shown, so -30 seconds is `00:00` as `HH:MM`
+        result = vals.fmt_duration(
+            [-30, -90],
+            input_units="seconds",
+            duration_style="colon-sep",
+            output_units=["hours", "minutes"],
+        )
+        assert result == ["00:00", "−00:01"]
+
 
 class TestFmtDurationISO:
     """Tests for fmt_duration with ISO 8601 style."""
@@ -187,6 +224,10 @@ class TestFmtDurationTrimZeroUnits:
             [86405], input_units="seconds", trim_zero_units=["leading", "trailing"]
         )
         assert result == ["1d 0h 0m 5s"]
+
+    def test_trim_single_keyword(self):
+        result = vals.fmt_duration([86405], input_units="seconds", trim_zero_units="internal")
+        assert result == ["0w 1d 5s"]
 
 
 class TestFmtDurationOutputUnits:
@@ -310,9 +351,17 @@ class TestFmtDurationValidation:
         with pytest.raises(ValueError, match="duration_style"):
             vals.fmt_duration([100], input_units="seconds", duration_style="invalid")
 
-    def test_invalid_trim_zero_units(self):
+    # The colon-sep and ISO styles override `trim_zero_units=` but should still validate it
+    @pytest.mark.parametrize("duration_style", ["narrow", "wide", "colon-sep", "iso"])
+    @pytest.mark.parametrize("trim_zero_units", [["invalid"], "invalid", 1.5])
+    def test_invalid_trim_zero_units(self, duration_style: str, trim_zero_units: object):
         with pytest.raises(ValueError, match="trim_zero_units"):
-            vals.fmt_duration([100], input_units="seconds", trim_zero_units=["invalid"])
+            vals.fmt_duration(
+                [100],
+                input_units="seconds",
+                duration_style=duration_style,
+                trim_zero_units=trim_zero_units,
+            )
 
     # The colon-sep and ISO styles ignore `max_output_units=` but should still validate it
     @pytest.mark.parametrize("duration_style", ["narrow", "wide", "colon-sep", "iso"])
@@ -396,6 +445,16 @@ class TestFmtDurationColonSepTrimLeading:
             trim_zero_units=["leading"],
         )
         assert result == ["01:01:01"]
+
+    def test_colon_sep_trim_leading_keyword(self):
+        # A single keyword works the same as a one-keyword list
+        result = vals.fmt_duration(
+            [125, 3661],
+            input_units="seconds",
+            duration_style="colon-sep",
+            trim_zero_units="leading",
+        )
+        assert result == ["02:05", "01:01:01"]
 
 
 class TestFmtDurationNAHandling:
