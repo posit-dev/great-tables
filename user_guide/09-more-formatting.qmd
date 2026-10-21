@@ -100,7 +100,7 @@ The `duration_style=` argument controls the output format. The available styles 
 
 - `"narrow"` (the default): compact format like `"2d 3h 15m"`
 - `"wide"`: spelled out like `"2 days 3 hours 15 minutes"`
-- `"colon-sep"`: clock format like `"51:03:15"`
+- `"colon-sep"`: clock format like `"2/03:15:00"`
 - `"iso"`: ISO 8601 format like `"P2DT3H15M"`
 
 ```{python}
