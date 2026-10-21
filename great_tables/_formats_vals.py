@@ -1674,7 +1674,7 @@ def val_fmt_duration(
     input_units: str | None = None,
     output_units: str | list[str] | None = None,
     duration_style: str = "narrow",
-    trim_zero_units: bool | list[str] = True,
+    trim_zero_units: bool | str | list[str] = True,
     max_output_units: int | None = None,
     pattern: str = "{x}",
     use_seps: bool = True,
@@ -1706,7 +1706,7 @@ def val_fmt_duration(
         `"iso"` (e.g., `"P1DT8H24M"`).
     trim_zero_units
         Provides methods to remove output time units that have zero values. By default this is
-        `True`. Can also be a list of `"leading"`, `"trailing"`, and/or `"internal"`.
+        `True`. Can also be one of `"leading"`, `"trailing"`, or `"internal"`, or a list of these.
     max_output_units
         Maximum number of time units to display. By default (`None`), all possible time units will
         be displayed.
