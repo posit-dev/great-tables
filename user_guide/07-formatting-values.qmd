@@ -119,6 +119,18 @@ fmt_number_5 = vals.fmt_number([1.64, 3.26, 3000.63, 236742.37], locale="es")
 print(fmt_number_1, fmt_number_2, fmt_number_3, fmt_number_4, fmt_number_5, sep="\n")
 ```
 
+Both `vals.fmt_number()` and `vals.fmt_integer()` (along with their `GT` method counterparts) can
+also group digits with the Indian numbering system by using `system="ind"`. Here, the last three
+digits are separated and then groups of two follow, which corresponds to thousands, lakhs, and
+crores. With `compact=True`, large values are then expressed in lakhs (`Lac`) and crores (`Cr`).
+
+```{python}
+fmt_number_ind_1 = vals.fmt_number([3000.63, 236742.37, 12345678.9], system="ind")
+fmt_number_ind_2 = vals.fmt_number([3000.63, 236742.37, 12345678.9], system="ind", compact=True)
+
+print(fmt_number_ind_1, fmt_number_ind_2, sep="\n")
+```
+
 Scientific notation can be done with `vals.fmt_scientific()`.
 
 ```{python}

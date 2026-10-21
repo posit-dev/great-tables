@@ -132,6 +132,7 @@ PlotType: TypeAlias = Literal[
     "bar",
     "boxplot",
 ]
+NumberSystem: TypeAlias = Literal["intl", "ind"]
 MissingVals: TypeAlias = Literal[
     "marker",
     "gap",
@@ -233,6 +234,7 @@ def fmt_number(
     force_sign: bool = False,
     min_sep_threshold: int = 1,
     locale: str | None = None,
+    system: NumberSystem = "intl",
 ) -> GTSelf:
     """
     Format numeric values.
@@ -295,7 +297,8 @@ def fmt_number(
     compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1.23K`, and `1230000`
-        becomes `1.23M`). The `compact` option is `False` by default.
+        becomes `1.23M`). The `compact` option is `False` by default. With `system="ind"`, values
+        are expressed in lakhs and crores instead (e.g., `1234567` becomes `12.35 Lac`).
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -322,6 +325,13 @@ def fmt_number(
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+    system
+        The numbering system to use for digit grouping. The international numbering system
+        (`"intl"`, the default) always separates groups of three digits (e.g., `"1,234,567"`). The
+        Indian numbering system (`"ind"`) separates the last three digits and then groups of two,
+        which correspond to thousands, lakhs, crores, and higher quantities (e.g., `"12,34,567"`).
+        The separator itself is still set by `sep_mark=` (or the locale) and can be turned off with
+        `use_seps=False`.
 
 
     Returns
@@ -357,7 +367,25 @@ def fmt_number(
         .fmt_number(columns="num", decimals=3, use_seps=False)
     )
     ```
+
+    Large values can be grouped according to the Indian numbering system with `system="ind"`, and
+    with `compact=True` they're expressed in lakhs and crores.
+
+    ```{python}
+    import polars as pl
+
+    values = [12345.0, 123456.0, 1234567.0, 123456789.0]
+    df = pl.DataFrame({"value": values, "compact": values})
+
+    (
+        GT(df)
+        .fmt_number(columns="value", system="ind")
+        .fmt_number(columns="compact", system="ind", compact=True)
+    )
+    ```
     """
+    _validate_number_system(system)
+
     locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
@@ -381,6 +409,7 @@ def fmt_number(
         dec_mark=dec_mark,
         force_sign=force_sign,
         pattern=pattern,
+        system=system,
     )
 
     return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
@@ -403,6 +432,7 @@ def fmt_number_context(
     force_sign: bool,
     pattern: str,
     context: str,
+    system: NumberSystem = "intl",
 ) -> str:
     if is_na(data._tbl_data, x):
         return x
@@ -425,6 +455,7 @@ def fmt_number_context(
             min_sep_threshold=min_sep_threshold,
             dec_mark=dec_mark,
             force_sign=force_sign,
+            system=system,
         )
     else:
         x_formatted = _value_to_decimal_notation(
@@ -438,6 +469,7 @@ def fmt_number_context(
             min_sep_threshold=min_sep_threshold,
             dec_mark=dec_mark,
             force_sign=force_sign,
+            system=system,
         )
 
     # A value that rounds to zero is shown as zero, so it gets no minus sign or accounting style
@@ -472,6 +504,7 @@ def fmt_integer(
     force_sign: bool = False,
     min_sep_threshold: int = 1,
     locale: str | None = None,
+    system: NumberSystem = "intl",
 ) -> GTSelf:
     """
     Format values as integers.
@@ -514,7 +547,8 @@ def fmt_integer(
     compact
         A boolean value that allows for compact formatting of numeric values. Values will be scaled
         and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
-        becomes `1M`). The `compact` option is `False` by default.
+        becomes `1M`). The `compact` option is `False` by default. With `system="ind"`, values are
+        expressed in lakhs and crores instead (e.g., `1234567` becomes `12 Lac`).
     pattern
         A formatting pattern that allows for decoration of the formatted value. The formatted value
         is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -537,6 +571,13 @@ def fmt_integer(
     locale
         An optional locale identifier that can be used for formatting values according the locale's
         rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+    system
+        The numbering system to use for digit grouping. The international numbering system
+        (`"intl"`, the default) always separates groups of three digits (e.g., `"1,234,567"`). The
+        Indian numbering system (`"ind"`) separates the last three digits and then groups of two,
+        which correspond to thousands, lakhs, crores, and higher quantities (e.g., `"12,34,567"`).
+        The separator itself is still set by `sep_mark=` (or the locale) and can be turned off with
+        `use_seps=False`.
 
 
     Returns
@@ -572,6 +613,8 @@ def fmt_integer(
     ```
     """
 
+    _validate_number_system(system)
+
     locale = _resolve_locale(self, locale=locale)
 
     # Use locale-based marks if a locale ID is provided
@@ -589,6 +632,7 @@ def fmt_integer(
         min_sep_threshold=min_sep_threshold,
         force_sign=force_sign,
         pattern=pattern,
+        system=system,
     )
 
     return fmt_by_context(self, pf_format=pf_format, columns=columns, rows=rows)
@@ -606,6 +650,7 @@ def fmt_integer_context(
     force_sign: bool,
     pattern: str,
     context: str,
+    system: NumberSystem = "intl",
 ) -> str:
     if is_na(data._tbl_data, x):
         return x
@@ -628,6 +673,7 @@ def fmt_integer_context(
             min_sep_threshold=min_sep_threshold,
             dec_mark="not used",
             force_sign=force_sign,
+            system=system,
         )
 
     else:
@@ -642,6 +688,7 @@ def fmt_integer_context(
             min_sep_threshold=min_sep_threshold,
             dec_mark="not used",
             force_sign=force_sign,
+            system=system,
         )
 
     # A value that rounds to zero is shown as zero, so it gets no minus sign or accounting style
@@ -6529,6 +6576,7 @@ def _value_to_decimal_notation(
     dec_mark: str = ".",
     force_sign: bool = False,
     min_sep_threshold: int = 1,
+    system: NumberSystem = "intl",
 ) -> str:
     """
     Decimal notation.
@@ -6552,6 +6600,7 @@ def _value_to_decimal_notation(
             dec_mark=dec_mark,
             preserve_integer=False,
             min_sep_threshold=min_sep_threshold,
+            system=system,
         )
 
     else:
@@ -6566,6 +6615,7 @@ def _value_to_decimal_notation(
             sep_mark=sep_mark,
             dec_mark=dec_mark,
             min_sep_threshold=min_sep_threshold,
+            system=system,
         )
 
     # Drop the trailing decimal mark if it is present
@@ -6628,6 +6678,7 @@ def _format_number_n_sigfig(
     dec_mark: str = ".",
     preserve_integer: bool = False,
     min_sep_threshold: int = 1,
+    system: NumberSystem = "intl",
 ) -> str:
     sig_digits, power, is_negative = _get_number_profile(value, n_sigfig)
 
@@ -6651,12 +6702,7 @@ def _format_number_n_sigfig(
     # Insert grouping separators within the integer part, but only when it has enough digits
     # for the `min_sep_threshold` (the default of `1` starts grouping at four digits)
     if use_seps and len(integer_part) >= min_sep_threshold + 3:
-        count = 0
-        for digit in reversed(integer_part):
-            if count and count % 3 == 0:
-                formatted_integer = sep_mark + formatted_integer
-            formatted_integer = digit + formatted_integer
-            count += 1
+        formatted_integer = _group_integer_digits(integer_part, sep_mark=sep_mark, system=system)
     else:
         formatted_integer = integer_part
 
@@ -6678,6 +6724,7 @@ def _format_number_fixed_decimals(
     sep_mark: str = ",",
     dec_mark: str = ".",
     min_sep_threshold: int = 1,
+    system: NumberSystem = "intl",
 ) -> str:
     # If `number` is a string, cast it into a float
     if isinstance(value, str):
@@ -6725,12 +6772,7 @@ def _format_number_fixed_decimals(
     # Insert grouping separators within the integer part, but only when it has enough digits
     # for the `min_sep_threshold` (the default of `1` starts grouping at four digits)
     if use_seps and len(integer_part) >= min_sep_threshold + 3:
-        count = 0
-        for digit in reversed(integer_part):
-            if count and count % 3 == 0:
-                formatted_integer = sep_mark + formatted_integer
-            formatted_integer = digit + formatted_integer
-            count += 1
+        formatted_integer = _group_integer_digits(integer_part, sep_mark=sep_mark, system=system)
     else:
         formatted_integer = integer_part
 
@@ -6742,6 +6784,29 @@ def _format_number_fixed_decimals(
     result = formatted_integer + formatted_decimal
 
     return result
+
+
+def _group_integer_digits(integer_part: str, sep_mark: str, system: NumberSystem = "intl") -> str:
+    """
+    Insert grouping separators into the digits of an integer part.
+
+    The international system groups every three digits (`1,234,567`); the Indian system groups
+    the last three digits and then every two (`12,34,567`), for thousands, lakhs and crores.
+    """
+
+    head, groups = integer_part[:-3], [integer_part[-3:]]
+    size = 2 if system == "ind" else 3
+
+    while head:
+        groups.append(head[-size:])
+        head = head[:-size]
+
+    return sep_mark.join(reversed(groups))
+
+
+def _validate_number_system(system: str) -> None:
+    if system not in ("intl", "ind"):
+        raise ValueError(f"`system` must be either 'intl' or 'ind', got {system!r}.")
 
 
 def _rounds_up_to(
@@ -6768,6 +6833,13 @@ def _rounds_up_to(
     return float(formatted) >= threshold
 
 
+# The power of ten and the suffix of each unit used by `compact=True`, for each number system
+_COMPACT_SUFFIXES: dict[str, list[tuple[int, str]]] = {
+    "intl": [(0, ""), (3, "K"), (6, "M"), (9, "B"), (12, "T"), (15, "Q")],
+    "ind": [(0, ""), (5, " Lac"), (7, " Cr")],
+}
+
+
 def _format_number_compactly(
     value: float,
     decimals: int,
@@ -6779,6 +6851,7 @@ def _format_number_compactly(
     dec_mark: str,
     force_sign: bool,
     min_sep_threshold: int = 1,
+    system: NumberSystem = "intl",
 ) -> str:
     # If the value is exactly zero, then we can return `0` immediately
     if value == 0:
@@ -6792,26 +6865,34 @@ def _format_number_compactly(
     if n_sigfig is not None:
         _validate_n_sigfig(n_sigfig=n_sigfig)
 
-    # Determine the power index for the value and put it in the range of 0 to 5 which
-    # corresponds to the list of suffixes `["", "K", "M", "B", "T", "Q"]`
-    num_power_idx = _decimal_exponent(value) // 3
-    num_power_idx = max(0, min(5, num_power_idx))
+    # The powers of ten that each suffix stands for, from the smallest; as in gt, the Indian
+    # system leaves thousands unsuffixed and expresses anything from a crore up in crores
+    powers_and_suffixes = _COMPACT_SUFFIXES[system]
 
-    # Scale `x` value by the `base` value (`1000`) raised to the power index, by shifting the
-    # decimal point exactly (so that the value is rounded once, from the stored value)
-    scaled_value = _shift_decimal_point(value, -3 * num_power_idx)
+    # Use the largest power that doesn't exceed the value's own power of ten
+    exponent = _decimal_exponent(value)
+    num_power_idx = max(
+        (i for i, (power, _) in enumerate(powers_and_suffixes) if power <= exponent), default=0
+    )
+    power = powers_and_suffixes[num_power_idx][0]
 
-    # If rounding the scaled value carries it up to 1000 (e.g., 999,999 with two
+    # Scale `x` value by the power of ten, by shifting the decimal point exactly (so that the
+    # value is rounded once, from the stored value)
+    scaled_value = _shift_decimal_point(value, -power)
+
+    # If rounding the scaled value carries it up to the next suffix (e.g., 999,999 with two
     # decimals would give `1,000.00K`), use the next suffix instead (`1.00M`); the value is
     # then exactly 1 of the next suffix
-    if num_power_idx < 5 and _rounds_up_to(
-        scaled_value, threshold=1000, decimals=decimals, n_sigfig=n_sigfig
-    ):
-        num_power_idx += 1
-        scaled_value = math.copysign(1.0, value)
+    if num_power_idx < len(powers_and_suffixes) - 1:
+        next_power = powers_and_suffixes[num_power_idx + 1][0]
 
-    # The `units_str` is obtained by indexing a list of suffixes with the `num_power_idx`
-    units_str = ["", "K", "M", "B", "T", "Q"][num_power_idx]
+        if _rounds_up_to(
+            scaled_value, threshold=10 ** (next_power - power), decimals=decimals, n_sigfig=n_sigfig
+        ):
+            num_power_idx += 1
+            scaled_value = math.copysign(1.0, value)
+
+    units_str = powers_and_suffixes[num_power_idx][1]
 
     # Format the value to decimal notation; this is done before the `byte_units` text
     # is affixed to the value
@@ -6826,10 +6907,11 @@ def _format_number_compactly(
         min_sep_threshold=min_sep_threshold,
         dec_mark=dec_mark,
         force_sign=force_sign,
+        system=system,
     )
 
     # Create a `suffix_pattern` object for affixing the `units_str`, which is the
-    # string that represents the 'K', 'M', 'B', 'T', or 'Q' suffix
+    # string that represents the 'K', 'M', 'B', 'T', or 'Q' suffix (or 'Lac' or 'Cr')
     suffix_pattern = f"{{x}}{units_str}"
 
     x_formatted = suffix_pattern.replace("{x}", x_formatted)
