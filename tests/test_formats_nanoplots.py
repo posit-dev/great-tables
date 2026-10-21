@@ -182,3 +182,30 @@ def test_fmt_nanoplot_bracketed_number_stream(plot_type: str):
         return gt.as_raw_html()
 
     assert render(["[1, 5, 3]", "[2; 4]"]) == render(["1 5 3", "2 4"])
+
+
+@pytest.mark.parametrize("dtype", ["int64", "int32", "float32"])
+def test_generate_data_vals_numpy_scalars(dtype: str):
+    np = pytest.importorskip("numpy")
+
+    scalar = _generate_data_vals(np.dtype(dtype).type(3))
+    values = _generate_data_vals([np.dtype(dtype).type(1), None, np.dtype(dtype).type(3)])
+
+    assert scalar == 3 and type(scalar) in (int, float)
+    assert values == [1, None, 3] and all(type(v) in (int, float) for v in values if v is not None)
+
+
+@pytest.mark.parametrize("dtype", ["int64", "int32", "float32"])
+def test_fmt_nanoplot_pandas_numpy_columns(dtype: str):
+    pd = pytest.importorskip("pandas")
+
+    pl_dtypes = {"int64": pl.Int64, "int32": pl.Int32, "float32": pl.Float32}
+    values = [1, 2, 3]
+    gt_pandas = GT(pd.DataFrame({"x": pd.Series(values, dtype=dtype)}), id="t").fmt_nanoplot("x")
+    gt_polars = GT(
+        pl.DataFrame({"x": pl.Series(values, dtype=pl_dtypes[dtype])}), id="t"
+    ).fmt_nanoplot("x")
+
+    # The nanoplots of a pandas column match those of a Polars column of the same dtype
+    assert gt_pandas.as_raw_html().count("<svg") == 3
+    assert gt_pandas.as_raw_html() == gt_polars.as_raw_html()
