@@ -9368,7 +9368,8 @@ def fmt_nanoplot(
     # A numeric column has a single `y` value per cell; these are drawn as horizontal bars or lines
     # on a scale shared by all of the targeted cells (so autoscaling doesn't apply)
     if col_class.startswith(("int", "uint", "float")):
-        all_single_y_vals = target_vals
+        # Missing values (e.g., `pd.NA` in a nullable pandas column) are given as `None`
+        all_single_y_vals = [None if is_na(data_tbl, val) else val for val in target_vals]
         autoscale = False
     else:
         all_single_y_vals = None
