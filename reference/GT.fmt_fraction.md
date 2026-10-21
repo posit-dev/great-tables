@@ -1,10 +1,10 @@
 # GT.fmt_fraction()
 
-
 Format values as mixed fractions.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L2740-L2937)
 
 ``` python
 GT.fmt_fraction(
@@ -20,16 +20,13 @@ GT.fmt_fraction(
 )
 ```
 
-
 With numeric values in a **gt** table, we can perform mixed-fraction-based formatting. There are several options for setting the accuracy of the fractions. Furthermore, there is an option for choosing a layout (i.e., typesetting style) for the mixed-fraction output.
 
 The `accuracy=` parameter controls the type of fractions generated. It can be one of the keywords `"low"`, `"med"`, or `"high"` (to generate fractions with denominators of up to 1, 2, or 3 digits, respectively) or an integer value greater than zero to obtain fractions with a fixed denominator (`2` yields halves, `3` is for thirds, `4` is quarters, etc.). If choosing to provide a numeric value for `accuracy=`, the option to simplify the fraction (where possible) can be taken with `simplify=True` (the default for this is `True`).
 
 For HTML output, the `"inline"` layout (the default) places the numerals of the fraction on the baseline and uses a standard slash character. The `"diagonal"` layout will generate fractions that are typeset with raised and lowered numerals and a virgule (i.e., a fraction slash).
 
-
 ## Parameters
-
 
 `columns: SelectExpr = None`  
 The columns to target. Can either be a single column name or a series of column names provided in a list.
@@ -37,39 +34,35 @@ The columns to target. Can either be a single column name or a series of column 
 `rows: RowSelectExpr = None`  
 In conjunction with `columns=`, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 
-`accuracy: str | int = ``"low"`  
+`accuracy: str | int = "low"`  
 The accuracy of the fraction. Use `"low"` for denominators up to 1 digit (e.g., halves, thirds, quarters, etc.), `"med"` for up to 2-digit denominators, and `"high"` for up to 3-digit denominators. Alternatively, supply a positive integer to fix the denominator to that value (e.g., `accuracy=8` gives eighths). The default is `"low"`.
 
-`simplify: bool = ``True`  
+`simplify: bool = True`  
 When `accuracy=` is an integer, should the fraction be simplified via GCD reduction? For while `simplify=False` yields `"2/4"`. Has no effect when `accuracy=` is a keyword example, with `accuracy=4` and a value of `0.5`, `simplify=True` yields a `"1/2"` string representation. The default is `True`.
 
-`layout: str = ``"inline"`  
+`layout: str = "inline"`  
 The layout of the fraction. `"inline"` renders the fraction on the baseline with a standard slash (e.g., `3/4`). `"diagonal"` renders a diagonal fraction with a raised numerator, lowered denominator, and a fraction slash character (HTML only and falls back to inline in other contexts). The default is `"inline"`.
 
-`use_seps: bool = ``True`  
+`use_seps: bool = True`  
 Whether to use digit grouping separators in the whole-number part. The default is `True`.
 
-`pattern: str = ``"{x}"`  
+`pattern: str = "{x}"`  
 A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the `{x}` (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.
 
-`sep_mark: str = ``","`  
+`sep_mark: str = ","`  
 The mark to use as a thousands separator. The default is `","` and can be overridden by a locale setting.
 
 `locale: str | None = None`  
 An optional locale ID that can be used for applying a locale-specific thousands separator.
 
-
 ## Returns
-
 
 `GT`  
 The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.
 
-
 ## Examples
 
-Let's format the `num` column of the [exibble](data.exibble.md#great_tables.data.exibble) dataset as fractions with the default `"low"` accuracy.
-
+Let's format the `num` column of the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset as fractions with the default `"low"` accuracy.
 
 ``` python
 from great_tables import GT
@@ -80,70 +73,6 @@ from great_tables.data import exibble
     .fmt_fraction(columns="num")
 )
 ```
-
-
-<style>
-#qaxdnrdzgq table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#qaxdnrdzgq thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#qaxdnrdzgq p { margin: 0; padding: 0; }
- #qaxdnrdzgq .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #qaxdnrdzgq .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #qaxdnrdzgq .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #qaxdnrdzgq .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #qaxdnrdzgq .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #qaxdnrdzgq .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #qaxdnrdzgq .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #qaxdnrdzgq .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #qaxdnrdzgq .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #qaxdnrdzgq .gt_column_spanner_outer:first-child { padding-left: 0; }
- #qaxdnrdzgq .gt_column_spanner_outer:last-child { padding-right: 0; }
- #qaxdnrdzgq .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #qaxdnrdzgq .gt_spanner_row { border-bottom-style: hidden; }
- #qaxdnrdzgq .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #qaxdnrdzgq .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #qaxdnrdzgq .gt_from_md> :first-child { margin-top: 0; }
- #qaxdnrdzgq .gt_from_md> :last-child { margin-bottom: 0; }
- #qaxdnrdzgq .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #qaxdnrdzgq .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #qaxdnrdzgq .gt_indent_1 { text-indent: 5px; }
- #qaxdnrdzgq .gt_indent_2 { text-indent: calc(5px * 2); }
- #qaxdnrdzgq .gt_indent_3 { text-indent: calc(5px * 3); }
- #qaxdnrdzgq .gt_indent_4 { text-indent: calc(5px * 4); }
- #qaxdnrdzgq .gt_indent_5 { text-indent: calc(5px * 5); }
- #qaxdnrdzgq .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #qaxdnrdzgq .gt_row_group_first td { border-top-width: 2px; }
- #qaxdnrdzgq .gt_row_group_first th { border-top-width: 2px; }
- #qaxdnrdzgq .gt_striped { color: #333333; background-color: #F4F4F4; }
- #qaxdnrdzgq .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #qaxdnrdzgq .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #qaxdnrdzgq .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #qaxdnrdzgq .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #qaxdnrdzgq .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #qaxdnrdzgq .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #qaxdnrdzgq .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #qaxdnrdzgq .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #qaxdnrdzgq .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #qaxdnrdzgq .gt_left { text-align: left; }
- #qaxdnrdzgq .gt_center { text-align: center; }
- #qaxdnrdzgq .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #qaxdnrdzgq .gt_font_normal { font-weight: normal; }
- #qaxdnrdzgq .gt_font_bold { font-weight: bold; }
- #qaxdnrdzgq .gt_font_italic { font-style: italic; }
- #qaxdnrdzgq .gt_super { font-size: 65%; }
- #qaxdnrdzgq .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #qaxdnrdzgq .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #qaxdnrdzgq .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #qaxdnrdzgq .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #qaxdnrdzgq .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #qaxdnrdzgq .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
 
 | num       | char       |
 |-----------|------------|
@@ -156,9 +85,7 @@ from great_tables.data import exibble
 | 777,000   | grapefruit |
 | 8,880,000 | honeydew   |
 
-
 We can increase the accuracy to `"med"` or `"high"` for more precise fractions. We can also use a fixed denominator (here, tenths) to get uniform fractions. With `simplify=False`, the denominator stays fixed even when the fraction could be reduced, and `layout="diagonal"` gives us a typeset diagonal-fraction style.
-
 
 ``` python
 import polars as pl
@@ -180,80 +107,14 @@ df = pl.DataFrame({
 )
 ```
 
+|       | frac_sales | frac_revenue |
+|-------|------------|--------------|
+| Icate | 3⁄10       | 2⁄10         |
+| Octyl | 1⁄10       | 4⁄10         |
+| Sepal | 8⁄10       | 7⁄10         |
+| Unkel | 5⁄10       | 9⁄10         |
 
-<style>
-#bbnvfwdgfp table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#bbnvfwdgfp thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#bbnvfwdgfp p { margin: 0; padding: 0; }
- #bbnvfwdgfp .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #bbnvfwdgfp .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #bbnvfwdgfp .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #bbnvfwdgfp .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #bbnvfwdgfp .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #bbnvfwdgfp .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #bbnvfwdgfp .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #bbnvfwdgfp .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #bbnvfwdgfp .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #bbnvfwdgfp .gt_column_spanner_outer:first-child { padding-left: 0; }
- #bbnvfwdgfp .gt_column_spanner_outer:last-child { padding-right: 0; }
- #bbnvfwdgfp .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #bbnvfwdgfp .gt_spanner_row { border-bottom-style: hidden; }
- #bbnvfwdgfp .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #bbnvfwdgfp .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #bbnvfwdgfp .gt_from_md> :first-child { margin-top: 0; }
- #bbnvfwdgfp .gt_from_md> :last-child { margin-bottom: 0; }
- #bbnvfwdgfp .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #bbnvfwdgfp .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #bbnvfwdgfp .gt_indent_1 { text-indent: 5px; }
- #bbnvfwdgfp .gt_indent_2 { text-indent: calc(5px * 2); }
- #bbnvfwdgfp .gt_indent_3 { text-indent: calc(5px * 3); }
- #bbnvfwdgfp .gt_indent_4 { text-indent: calc(5px * 4); }
- #bbnvfwdgfp .gt_indent_5 { text-indent: calc(5px * 5); }
- #bbnvfwdgfp .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #bbnvfwdgfp .gt_row_group_first td { border-top-width: 2px; }
- #bbnvfwdgfp .gt_row_group_first th { border-top-width: 2px; }
- #bbnvfwdgfp .gt_striped { color: #333333; background-color: #F4F4F4; }
- #bbnvfwdgfp .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #bbnvfwdgfp .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #bbnvfwdgfp .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #bbnvfwdgfp .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #bbnvfwdgfp .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #bbnvfwdgfp .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #bbnvfwdgfp .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #bbnvfwdgfp .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #bbnvfwdgfp .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #bbnvfwdgfp .gt_left { text-align: left; }
- #bbnvfwdgfp .gt_center { text-align: center; }
- #bbnvfwdgfp .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #bbnvfwdgfp .gt_font_normal { font-weight: normal; }
- #bbnvfwdgfp .gt_font_bold { font-weight: bold; }
- #bbnvfwdgfp .gt_font_italic { font-style: italic; }
- #bbnvfwdgfp .gt_super { font-size: 65%; }
- #bbnvfwdgfp .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #bbnvfwdgfp .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #bbnvfwdgfp .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #bbnvfwdgfp .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #bbnvfwdgfp .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #bbnvfwdgfp .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-|  | frac_sales | frac_revenue |
-|----|----|----|
-| Icate | <span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span> | <span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">2</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span> |
-| Octyl | <span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">1</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span> | <span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">4</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span> |
-| Sepal | <span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">8</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span> | <span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">7</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span> |
-| Unkel | <span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">5</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span> | <span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">9</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span> |
-
-
-The [pizzaplace](data.pizzaplace.md#great_tables.data.pizzaplace) dataset has a full year of sales data. We can summarize the sell count and revenue by pizza size within each type, then express those as fractions. Using `layout="diagonal"` with `accuracy=10` and `simplify=False` gives uniform tenths in a typeset style, and [text_transform()](GT.text_transform.md#great_tables.GT.text_transform) replaces any zero-fraction values with *nil*.
-
+The [pizzaplace](../reference/data.pizzaplace.md#great_tables.data.pizzaplace) dataset has a full year of sales data. We can summarize the sell count and revenue by pizza size within each type, then express those as fractions. Using `layout="diagonal"` with `accuracy=10` and `simplify=False` gives uniform tenths in a typeset style, and [text_transform()](../reference/GT.text_transform.md#great_tables.GT.text_transform) replaces any zero-fraction values with *nil*.
 
 ``` python
 import polars as pl
@@ -309,192 +170,22 @@ grouped = (
 )
 ```
 
-
-<style>
-#ljjltwjvel table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#ljjltwjvel thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#ljjltwjvel p { margin: 0; padding: 0; }
- #ljjltwjvel .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: 400px; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #ljjltwjvel .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #ljjltwjvel .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #ljjltwjvel .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #ljjltwjvel .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ljjltwjvel .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ljjltwjvel .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ljjltwjvel .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #ljjltwjvel .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #ljjltwjvel .gt_column_spanner_outer:first-child { padding-left: 0; }
- #ljjltwjvel .gt_column_spanner_outer:last-child { padding-right: 0; }
- #ljjltwjvel .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #ljjltwjvel .gt_spanner_row { border-bottom-style: hidden; }
- #ljjltwjvel .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #ljjltwjvel .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #ljjltwjvel .gt_from_md> :first-child { margin-top: 0; }
- #ljjltwjvel .gt_from_md> :last-child { margin-bottom: 0; }
- #ljjltwjvel .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #ljjltwjvel .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #ljjltwjvel .gt_indent_1 { text-indent: 5px; }
- #ljjltwjvel .gt_indent_2 { text-indent: calc(5px * 2); }
- #ljjltwjvel .gt_indent_3 { text-indent: calc(5px * 3); }
- #ljjltwjvel .gt_indent_4 { text-indent: calc(5px * 4); }
- #ljjltwjvel .gt_indent_5 { text-indent: calc(5px * 5); }
- #ljjltwjvel .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #ljjltwjvel .gt_row_group_first td { border-top-width: 2px; }
- #ljjltwjvel .gt_row_group_first th { border-top-width: 2px; }
- #ljjltwjvel .gt_striped { color: #333333; background-color: #F4F4F4; }
- #ljjltwjvel .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ljjltwjvel .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ljjltwjvel .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #ljjltwjvel .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ljjltwjvel .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ljjltwjvel .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #ljjltwjvel .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #ljjltwjvel .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ljjltwjvel .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #ljjltwjvel .gt_left { text-align: left; }
- #ljjltwjvel .gt_center { text-align: center; }
- #ljjltwjvel .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #ljjltwjvel .gt_font_normal { font-weight: normal; }
- #ljjltwjvel .gt_font_bold { font-weight: bold; }
- #ljjltwjvel .gt_font_italic { font-style: italic; }
- #ljjltwjvel .gt_super { font-size: 65%; }
- #ljjltwjvel .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ljjltwjvel .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #ljjltwjvel .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ljjltwjvel .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #ljjltwjvel .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #ljjltwjvel .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_heading">
-<th colspan="6" id="title" class="gt_heading gt_title gt_font_normal">Pizzas Sold in 2015</th>
-</tr>
-<tr class="gt_heading">
-<th colspan="6" id="subtitle" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Fraction of Sell Count and Revenue by Size per Type</th>
-</tr>
-<tr class="gt_col_headings gt_spanner_row">
-<th colspan="2" rowspan="2" class="gt_col_heading gt_columns_bottom_border gt_left" scope="colgroup"></th>
-<th colspan="2" id="Sold" class="gt_center gt_columns_top_border gt_column_spanner_outer" scope="colgroup">Sold</th>
-<th colspan="2" id="Revenue" class="gt_center gt_columns_top_border gt_column_spanner_outer" scope="colgroup">Revenue</th>
-</tr>
-<tr class="gt_col_headings">
-<th id="sold" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">Amount</th>
-<th id="f_sold" class="gt_col_heading gt_columns_bottom_border gt_center" scope="col"><em>f</em></th>
-<th id="income" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">Amount</th>
-<th id="f_income" class="gt_col_heading gt_columns_bottom_border gt_center" scope="col"><em>f</em></th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="gt_row_group_first">
-<th rowspan="3" id="chicken" class="gt_row gt_left gt_stub_row_group" scope="rowgroup">chicken</th>
-<th id="stub-1" class="gt_row gt_left gt_stub" scope="row">L</th>
-<td class="gt_row gt_right" headers="chicken stub-1 Sold sold">4,932</td>
-<td class="gt_row gt_center" headers="chicken stub-1 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">4</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="chicken stub-1 Revenue income">$102,339.00</td>
-<td class="gt_row gt_center" headers="chicken stub-1 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">5</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-2" class="gt_row gt_left gt_stub" scope="row">M</th>
-<td class="gt_row gt_right" headers="chicken stub-2 Sold sold">3,894</td>
-<td class="gt_row gt_center" headers="chicken stub-2 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">4</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="chicken stub-2 Revenue income">$65,224.50</td>
-<td class="gt_row gt_center" headers="chicken stub-2 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-3" class="gt_row gt_left gt_stub" scope="row">S</th>
-<td class="gt_row gt_right" headers="chicken stub-3 Sold sold">2,224</td>
-<td class="gt_row gt_center" headers="chicken stub-3 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">2</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="chicken stub-3 Revenue income">$28,356.00</td>
-<td class="gt_row gt_center" headers="chicken stub-3 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">1</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr class="gt_row_group_first">
-<th rowspan="5" id="classic" class="gt_row gt_left gt_stub_row_group" scope="rowgroup">classic</th>
-<th id="stub-4" class="gt_row gt_left gt_stub" scope="row">L</th>
-<td class="gt_row gt_right" headers="classic stub-4 Sold sold">4,057</td>
-<td class="gt_row gt_center" headers="classic stub-4 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="classic stub-4 Revenue income">$74,518.50</td>
-<td class="gt_row gt_center" headers="classic stub-4 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-5" class="gt_row gt_left gt_stub" scope="row">S</th>
-<td class="gt_row gt_right" headers="classic stub-5 Sold sold">6,139</td>
-<td class="gt_row gt_center" headers="classic stub-5 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">4</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="classic stub-5 Revenue income">$69,870.25</td>
-<td class="gt_row gt_center" headers="classic stub-5 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-6" class="gt_row gt_left gt_stub" scope="row">M</th>
-<td class="gt_row gt_right" headers="classic stub-6 Sold sold">4,112</td>
-<td class="gt_row gt_center" headers="classic stub-6 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="classic stub-6 Revenue income">$60,581.75</td>
-<td class="gt_row gt_center" headers="classic stub-6 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-7" class="gt_row gt_left gt_stub" scope="row">XL</th>
-<td class="gt_row gt_right" headers="classic stub-7 Sold sold">552</td>
-<td class="gt_row gt_center" headers="classic stub-7 Sold f_sold"><em>nil</em></td>
-<td class="gt_row gt_right" headers="classic stub-7 Revenue income">$14,076.00</td>
-<td class="gt_row gt_center" headers="classic stub-7 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">1</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-8" class="gt_row gt_left gt_stub" scope="row">XXL</th>
-<td class="gt_row gt_right" headers="classic stub-8 Sold sold">28</td>
-<td class="gt_row gt_center" headers="classic stub-8 Sold f_sold"><em>nil</em></td>
-<td class="gt_row gt_right" headers="classic stub-8 Revenue income">$1,006.60</td>
-<td class="gt_row gt_center" headers="classic stub-8 Revenue f_income"><em>nil</em></td>
-</tr>
-<tr class="gt_row_group_first">
-<th rowspan="3" id="supreme" class="gt_row gt_left gt_stub_row_group" scope="rowgroup">supreme</th>
-<th id="stub-9" class="gt_row gt_left gt_stub" scope="row">L</th>
-<td class="gt_row gt_right" headers="supreme stub-9 Sold sold">4,564</td>
-<td class="gt_row gt_center" headers="supreme stub-9 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">4</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="supreme stub-9 Revenue income">$94,258.50</td>
-<td class="gt_row gt_center" headers="supreme stub-9 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">5</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-10" class="gt_row gt_left gt_stub" scope="row">M</th>
-<td class="gt_row gt_right" headers="supreme stub-10 Sold sold">4,046</td>
-<td class="gt_row gt_center" headers="supreme stub-10 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="supreme stub-10 Revenue income">$66,475.00</td>
-<td class="gt_row gt_center" headers="supreme stub-10 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-11" class="gt_row gt_left gt_stub" scope="row">S</th>
-<td class="gt_row gt_right" headers="supreme stub-11 Sold sold">3,377</td>
-<td class="gt_row gt_center" headers="supreme stub-11 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="supreme stub-11 Revenue income">$47,463.50</td>
-<td class="gt_row gt_center" headers="supreme stub-11 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">2</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr class="gt_row_group_first">
-<th rowspan="3" id="veggie" class="gt_row gt_left gt_stub_row_group" scope="rowgroup">veggie</th>
-<th id="stub-12" class="gt_row gt_left gt_stub" scope="row">L</th>
-<td class="gt_row gt_right" headers="veggie stub-12 Sold sold">5,403</td>
-<td class="gt_row gt_center" headers="veggie stub-12 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">5</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="veggie stub-12 Revenue income">$104,202.70</td>
-<td class="gt_row gt_center" headers="veggie stub-12 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">5</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-13" class="gt_row gt_left gt_stub" scope="row">M</th>
-<td class="gt_row gt_right" headers="veggie stub-13 Sold sold">3,583</td>
-<td class="gt_row gt_center" headers="veggie stub-13 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="veggie stub-13 Revenue income">$57,101.00</td>
-<td class="gt_row gt_center" headers="veggie stub-13 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">3</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-<tr>
-<th id="stub-14" class="gt_row gt_left gt_stub" scope="row">S</th>
-<td class="gt_row gt_right" headers="veggie stub-14 Sold sold">2,663</td>
-<td class="gt_row gt_center" headers="veggie stub-14 Sold f_sold"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">2</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-<td class="gt_row gt_right" headers="veggie stub-14 Revenue income">$32,386.75</td>
-<td class="gt_row gt_center" headers="veggie stub-14 Revenue f_income"><span style="font-size:0.6em;line-height:0.6em;vertical-align:0.45em;">2</span><span style="font-size:0.7em;line-height:0.7em;vertical-align:0.15em;">⁄</span><span style="font-size:0.6em;line-height:0.6em;vertical-align:-0.05em;">10</span></td>
-</tr>
-</tbody>
-</table>
+| Pizzas Sold in 2015 |  |  |  |  |  |
+|----|----|----|----|----|----|
+| Fraction of Sell Count and Revenue by Size per Type |  |  |  |  |  |
+|  |  | Sold |  | Revenue |  |
+|  |  | Amount | *f* | Amount | *f* |
+| chicken | L | 4,932 | 4⁄10 | \$102,339.00 | 5⁄10 |
+|  | M | 3,894 | 4⁄10 | \$65,224.50 | 3⁄10 |
+|  | S | 2,224 | 2⁄10 | \$28,356.00 | 1⁄10 |
+| classic | L | 4,057 | 3⁄10 | \$74,518.50 | 3⁄10 |
+|  | S | 6,139 | 4⁄10 | \$69,870.25 | 3⁄10 |
+|  | M | 4,112 | 3⁄10 | \$60,581.75 | 3⁄10 |
+|  | XL | 552 | *nil* | \$14,076.00 | 1⁄10 |
+|  | XXL | 28 | *nil* | \$1,006.60 | *nil* |
+| supreme | L | 4,564 | 4⁄10 | \$94,258.50 | 5⁄10 |
+|  | M | 4,046 | 3⁄10 | \$66,475.00 | 3⁄10 |
+|  | S | 3,377 | 3⁄10 | \$47,463.50 | 2⁄10 |
+| veggie | L | 5,403 | 5⁄10 | \$104,202.70 | 5⁄10 |
+|  | M | 3,583 | 3⁄10 | \$57,101.00 | 3⁄10 |
+|  | S | 2,663 | 2⁄10 | \$32,386.75 | 2⁄10 |

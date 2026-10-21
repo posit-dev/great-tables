@@ -1,10 +1,10 @@
 # GT.fmt_engineering()
 
-
 Format values to engineering notation.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L978-L1186)
 
 ``` python
 GT.fmt_engineering(
@@ -24,7 +24,6 @@ GT.fmt_engineering(
 )
 ```
 
-
 With numeric values in a table, we can perform formatting so that the targeted values are rendered in engineering notation, where numbers are written in the form of a mantissa (`m`) and an exponent (`n`). When combined the construction is either of the form *m* x 10^*n* or *m*E*n*. The mantissa is a number between `1` and `1000` and the exponent is a multiple of `3`. For example, the number `0.0000345` can be written in engineering notation as `34.50 x 10^-6`. This notation helps to simplify calculations and make it easier to compare numbers that are on very different scales.
 
 Engineering notation is particularly useful as it aligns with SI prefixes (e.g., *milli-*, *micro-*, *kilo-*, *mega-*). For instance, numbers in engineering notation with exponent `-3` correspond to milli-units, while those with exponent `6` correspond to mega-units.
@@ -36,9 +35,7 @@ We have fine control over the formatting task, with the following options:
 - pattern: option to use a text pattern for decoration of the formatted values
 - locale-based formatting: providing a locale ID will result in formatting specific to the chosen locale
 
-
 ## Parameters
-
 
 `columns: SelectExpr = None`  
 The columns to target. Can either be a single column name or a series of column names provided in a list.
@@ -46,58 +43,53 @@ The columns to target. Can either be a single column name or a series of column 
 `rows: RowSelectExpr = None`  
 In conjunction with `columns=`, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 
-`decimals: int = ``2`  
+`decimals: int = 2`  
 The `decimals` values corresponds to the exact number of decimal places to use. A value such as `2.34` can, for example, be formatted with `0` decimal places and it would result in `"2"`. With `4` decimal places, the formatted value becomes `"2.3400"`. The trailing zeros can be removed with `drop_trailing_zeros=True`.
 
 `n_sigfig: int | None = None`  
 A option to format numbers to *n* significant figures. By default, this is `None` and thus number values will be formatted according to the number of decimal places set via `decimals`. If opting to format according to the rules of significant figures, `n_sigfig` must be a number greater than or equal to `1`. Any values passed to the `decimals` and `drop_trailing_zeros` arguments will be ignored.
 
-`drop_trailing_zeros: bool = ``False`  
+`drop_trailing_zeros: bool = False`  
 A boolean value that allows for removal of trailing zeros (those redundant zeros after the decimal mark).
 
-`drop_trailing_dec_mark: bool = ``True`  
+`drop_trailing_dec_mark: bool = True`  
 A boolean value that determines whether decimal marks should always appear even if there are no decimal digits to display after formatting (e.g., `23` becomes `23.` if `False`). By default trailing decimal marks are not shown.
 
-`scale_by: float = ``1`  
+`scale_by: float = 1`  
 All numeric values will be multiplied by the `scale_by` value before undergoing formatting. Since the `default` value is `1`, no values will be changed unless a different multiplier value is supplied.
 
-`exp_style: str = ``"x10n"`  
+`exp_style: str = "x10n"`  
 Style of formatting to use for the engineering notation formatting. By default this is `"x10n"` but other options include using a single letter (e.g., `"e"`, `"E"`, etc.), a letter followed by a `"1"` to signal a minimum digit width of one, or `"low-ten"` for using a stylized `"10"` marker.
 
-`pattern: str = ``"{x}"`  
+`pattern: str = "{x}"`  
 A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the `{x}` (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.
 
-`dec_mark: str = ``"."`  
+`dec_mark: str = "."`  
 The string to be used as the decimal mark. For example, using `dec_mark=","` with the value `0.152` would result in a formatted value of `"0,152"`). This argument is ignored if a `locale` is supplied (i.e., is not `None`).
 
-`force_sign_m: bool = ``False`  
+`force_sign_m: bool = False`  
 Should the plus sign be shown for positive values of the mantissa (first component)? This would effectively show a sign for all values except zero on the first numeric component of the notation. If so, use `True` (the default for this is `False`), where only negative numbers will display a sign.
 
-`force_sign_n: bool = ``False`  
+`force_sign_n: bool = False`  
 Should the plus sign be shown for positive values of the exponent (second component)? This would effectively show a sign for all values except zero on the second numeric component of the notation. If so, use `True` (the default for this is `False`), where only negative numbers will display a sign.
 
 `locale: str | None = None`  
 An optional locale identifier that can be used for formatting values according the locale's rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
-
 ## Returns
-
 
 `GT`  
 The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.
-
 
 ## Adapting Output To A Specific `locale`
 
 This formatting method can adapt outputs according to a provided `locale` value. Examples include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid locale ID here means decimal marks will be correct for the given locale. Should a value be provided in `dec_mark` it will be overridden by the locale's preferred values.
 
-Note that a `locale` value provided here will override any global locale setting performed in <a href="../reference/GT.html#great_tables.GT" class="gdls-link"><code>GT()</code></a>'s own `locale` argument (it is settable there as a value received by all other methods that have a `locale` argument).
-
+Note that a `locale` value provided here will override any global locale setting performed in [`GT()`](../reference/GT.md#great_tables.GT)'s own `locale` argument (it is settable there as a value received by all other methods that have a `locale` argument).
 
 ## Examples
 
 With numeric values in a table, we can perform formatting so that the targeted values are rendered in engineering notation. For example, the number `0.0000345` can be written in engineering notation as `34.50 x 10^-6`.
-
 
 ``` python
 import polars as pl
@@ -110,81 +102,15 @@ numbers_df = pl.DataFrame({
 GT(numbers_df).fmt_engineering()
 ```
 
-
-<style>
-#fuceypebth table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#fuceypebth thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#fuceypebth p { margin: 0; padding: 0; }
- #fuceypebth .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #fuceypebth .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #fuceypebth .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #fuceypebth .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #fuceypebth .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #fuceypebth .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #fuceypebth .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #fuceypebth .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #fuceypebth .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #fuceypebth .gt_column_spanner_outer:first-child { padding-left: 0; }
- #fuceypebth .gt_column_spanner_outer:last-child { padding-right: 0; }
- #fuceypebth .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #fuceypebth .gt_spanner_row { border-bottom-style: hidden; }
- #fuceypebth .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #fuceypebth .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #fuceypebth .gt_from_md> :first-child { margin-top: 0; }
- #fuceypebth .gt_from_md> :last-child { margin-bottom: 0; }
- #fuceypebth .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #fuceypebth .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #fuceypebth .gt_indent_1 { text-indent: 5px; }
- #fuceypebth .gt_indent_2 { text-indent: calc(5px * 2); }
- #fuceypebth .gt_indent_3 { text-indent: calc(5px * 3); }
- #fuceypebth .gt_indent_4 { text-indent: calc(5px * 4); }
- #fuceypebth .gt_indent_5 { text-indent: calc(5px * 5); }
- #fuceypebth .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #fuceypebth .gt_row_group_first td { border-top-width: 2px; }
- #fuceypebth .gt_row_group_first th { border-top-width: 2px; }
- #fuceypebth .gt_striped { color: #333333; background-color: #F4F4F4; }
- #fuceypebth .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #fuceypebth .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #fuceypebth .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #fuceypebth .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #fuceypebth .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #fuceypebth .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #fuceypebth .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #fuceypebth .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #fuceypebth .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #fuceypebth .gt_left { text-align: left; }
- #fuceypebth .gt_center { text-align: center; }
- #fuceypebth .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #fuceypebth .gt_font_normal { font-weight: normal; }
- #fuceypebth .gt_font_bold { font-weight: bold; }
- #fuceypebth .gt_font_italic { font-style: italic; }
- #fuceypebth .gt_super { font-size: 65%; }
- #fuceypebth .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #fuceypebth .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #fuceypebth .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #fuceypebth .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #fuceypebth .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #fuceypebth .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-| numbers                 |
-|-------------------------|
-| 34.50 × 10<sup>−6</sup> |
-| 3.45 × 10<sup>3</sup>   |
-| 3.45 × 10<sup>6</sup>   |
-
+| numbers      |
+|--------------|
+| 34.50 × 10⁻⁶ |
+| 3.45 × 10³   |
+| 3.45 × 10⁶   |
 
 Notice that in each case, the exponent is a multiple of `3`.
 
-Let's define a DataFrame that contains two columns of values (one small and one large). After creating a simple table with [GT()](GT.md#great_tables.GT), we'll call <a href="../reference/GT.fmt_engineering.html#great_tables.GT.fmt_engineering" class="gdls-link"><code>fmt_engineering()</code></a> on both columns.
-
+Let's define a DataFrame that contains two columns of values (one small and one large). After creating a simple table with [GT()](../reference/GT.md#great_tables.GT), we'll call [`fmt_engineering()`](../reference/GT.fmt_engineering.md#great_tables.GT.fmt_engineering) on both columns.
 
 ``` python
 small_large_df = pl.DataFrame({
@@ -195,90 +121,24 @@ small_large_df = pl.DataFrame({
 GT(small_large_df).fmt_engineering()
 ```
 
-
-<style>
-#pbxstzcoxn table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#pbxstzcoxn thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#pbxstzcoxn p { margin: 0; padding: 0; }
- #pbxstzcoxn .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #pbxstzcoxn .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #pbxstzcoxn .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #pbxstzcoxn .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #pbxstzcoxn .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pbxstzcoxn .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pbxstzcoxn .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pbxstzcoxn .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #pbxstzcoxn .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #pbxstzcoxn .gt_column_spanner_outer:first-child { padding-left: 0; }
- #pbxstzcoxn .gt_column_spanner_outer:last-child { padding-right: 0; }
- #pbxstzcoxn .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #pbxstzcoxn .gt_spanner_row { border-bottom-style: hidden; }
- #pbxstzcoxn .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #pbxstzcoxn .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #pbxstzcoxn .gt_from_md> :first-child { margin-top: 0; }
- #pbxstzcoxn .gt_from_md> :last-child { margin-bottom: 0; }
- #pbxstzcoxn .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #pbxstzcoxn .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #pbxstzcoxn .gt_indent_1 { text-indent: 5px; }
- #pbxstzcoxn .gt_indent_2 { text-indent: calc(5px * 2); }
- #pbxstzcoxn .gt_indent_3 { text-indent: calc(5px * 3); }
- #pbxstzcoxn .gt_indent_4 { text-indent: calc(5px * 4); }
- #pbxstzcoxn .gt_indent_5 { text-indent: calc(5px * 5); }
- #pbxstzcoxn .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #pbxstzcoxn .gt_row_group_first td { border-top-width: 2px; }
- #pbxstzcoxn .gt_row_group_first th { border-top-width: 2px; }
- #pbxstzcoxn .gt_striped { color: #333333; background-color: #F4F4F4; }
- #pbxstzcoxn .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pbxstzcoxn .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #pbxstzcoxn .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #pbxstzcoxn .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pbxstzcoxn .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #pbxstzcoxn .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #pbxstzcoxn .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #pbxstzcoxn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pbxstzcoxn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #pbxstzcoxn .gt_left { text-align: left; }
- #pbxstzcoxn .gt_center { text-align: center; }
- #pbxstzcoxn .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #pbxstzcoxn .gt_font_normal { font-weight: normal; }
- #pbxstzcoxn .gt_font_bold { font-weight: bold; }
- #pbxstzcoxn .gt_font_italic { font-style: italic; }
- #pbxstzcoxn .gt_super { font-size: 65%; }
- #pbxstzcoxn .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pbxstzcoxn .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #pbxstzcoxn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pbxstzcoxn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #pbxstzcoxn .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #pbxstzcoxn .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-| small                     | large                   |
-|---------------------------|-------------------------|
-| 1.00 × 10<sup>−12</sup>   | 10.00                   |
-| 10.00 × 10<sup>−12</sup>  | 100.00                  |
-| 100.00 × 10<sup>−12</sup> | 1.00 × 10<sup>3</sup>   |
-| 1.00 × 10<sup>−9</sup>    | 10.00 × 10<sup>3</sup>  |
-| 10.00 × 10<sup>−9</sup>   | 100.00 × 10<sup>3</sup> |
-| 100.00 × 10<sup>−9</sup>  | 1.00 × 10<sup>6</sup>   |
-| 1.00 × 10<sup>−6</sup>    | 10.00 × 10<sup>6</sup>  |
-| 10.00 × 10<sup>−6</sup>   | 100.00 × 10<sup>6</sup> |
-| 100.00 × 10<sup>−6</sup>  | 1.00 × 10<sup>9</sup>   |
-| 1.00 × 10<sup>−3</sup>    | 10.00 × 10<sup>9</sup>  |
-| 10.00 × 10<sup>−3</sup>   | 100.00 × 10<sup>9</sup> |
-| 100.00 × 10<sup>−3</sup>  | 1.00 × 10<sup>12</sup>  |
-
+| small          | large        |
+|----------------|--------------|
+| 1.00 × 10⁻¹²   | 10.00        |
+| 10.00 × 10⁻¹²  | 100.00       |
+| 100.00 × 10⁻¹² | 1.00 × 10³   |
+| 1.00 × 10⁻⁹    | 10.00 × 10³  |
+| 10.00 × 10⁻⁹   | 100.00 × 10³ |
+| 100.00 × 10⁻⁹  | 1.00 × 10⁶   |
+| 1.00 × 10⁻⁶    | 10.00 × 10⁶  |
+| 10.00 × 10⁻⁶   | 100.00 × 10⁶ |
+| 100.00 × 10⁻⁶  | 1.00 × 10⁹   |
+| 1.00 × 10⁻³    | 10.00 × 10⁹  |
+| 10.00 × 10⁻³   | 100.00 × 10⁹ |
+| 100.00 × 10⁻³  | 1.00 × 10¹²  |
 
 Notice that within the form of *m* x 10^*n*, the *n* values move in steps of 3 (away from 0), and *m* values can have 1-3 digits before the decimal. Further to this, any values where *n* is 0 results in a display of only *m* (the first two values in the `large` column demonstrates this).
 
 Engineering notation expresses values so that they align to certain SI prefixes. Here is a table that compares select SI prefixes and their symbols to decimal and engineering-notation representations of the key numbers.
-
 
 ``` python
 import polars as pl
@@ -310,80 +170,16 @@ prefixes_df = prefixes_df.with_columns(
 )
 ```
 
-
-<style>
-#vonbmotsig table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#vonbmotsig thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#vonbmotsig p { margin: 0; padding: 0; }
- #vonbmotsig .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #vonbmotsig .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #vonbmotsig .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #vonbmotsig .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #vonbmotsig .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #vonbmotsig .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #vonbmotsig .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #vonbmotsig .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #vonbmotsig .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #vonbmotsig .gt_column_spanner_outer:first-child { padding-left: 0; }
- #vonbmotsig .gt_column_spanner_outer:last-child { padding-right: 0; }
- #vonbmotsig .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #vonbmotsig .gt_spanner_row { border-bottom-style: hidden; }
- #vonbmotsig .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #vonbmotsig .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #vonbmotsig .gt_from_md> :first-child { margin-top: 0; }
- #vonbmotsig .gt_from_md> :last-child { margin-bottom: 0; }
- #vonbmotsig .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #vonbmotsig .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #vonbmotsig .gt_indent_1 { text-indent: 5px; }
- #vonbmotsig .gt_indent_2 { text-indent: calc(5px * 2); }
- #vonbmotsig .gt_indent_3 { text-indent: calc(5px * 3); }
- #vonbmotsig .gt_indent_4 { text-indent: calc(5px * 4); }
- #vonbmotsig .gt_indent_5 { text-indent: calc(5px * 5); }
- #vonbmotsig .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #vonbmotsig .gt_row_group_first td { border-top-width: 2px; }
- #vonbmotsig .gt_row_group_first th { border-top-width: 2px; }
- #vonbmotsig .gt_striped { color: #333333; background-color: #F4F4F4; }
- #vonbmotsig .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #vonbmotsig .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #vonbmotsig .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #vonbmotsig .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #vonbmotsig .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #vonbmotsig .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #vonbmotsig .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #vonbmotsig .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #vonbmotsig .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #vonbmotsig .gt_left { text-align: left; }
- #vonbmotsig .gt_center { text-align: center; }
- #vonbmotsig .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #vonbmotsig .gt_font_normal { font-weight: normal; }
- #vonbmotsig .gt_font_bold { font-weight: bold; }
- #vonbmotsig .gt_font_italic { font-style: italic; }
- #vonbmotsig .gt_super { font-size: 65%; }
- #vonbmotsig .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #vonbmotsig .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #vonbmotsig .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #vonbmotsig .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #vonbmotsig .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #vonbmotsig .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-| name  | symbol | decimal               | engineering             |
-|-------|--------|-----------------------|-------------------------|
-| peta  | P      | 1,000,000,000,000,000 | 1.00 × 10<sup>15</sup>  |
-| tera  | T      | 1,000,000,000,000     | 1.00 × 10<sup>12</sup>  |
-| giga  | G      | 1,000,000,000         | 1.00 × 10<sup>9</sup>   |
-| mega  | M      | 1,000,000             | 1.00 × 10<sup>6</sup>   |
-| kilo  | k      | 1,000                 | 1.00 × 10<sup>3</sup>   |
-| --     | --      | 1                     | 1.00                    |
-| milli | m      | 0.001                 | 1.00 × 10<sup>−3</sup>  |
-| micro | μ      | 0.000001              | 1.00 × 10<sup>−6</sup>  |
-| nano  | n      | 0.000000001           | 1.00 × 10<sup>−9</sup>  |
-| pico  | p      | 0.000000000001        | 1.00 × 10<sup>−12</sup> |
-| femto | f      | 0.000000000000001     | 1.00 × 10<sup>−15</sup> |
+| name  | symbol | decimal               | engineering  |
+|-------|--------|-----------------------|--------------|
+| peta  | P      | 1,000,000,000,000,000 | 1.00 × 10¹⁵  |
+| tera  | T      | 1,000,000,000,000     | 1.00 × 10¹²  |
+| giga  | G      | 1,000,000,000         | 1.00 × 10⁹   |
+| mega  | M      | 1,000,000             | 1.00 × 10⁶   |
+| kilo  | k      | 1,000                 | 1.00 × 10³   |
+| --     | --      | 1                     | 1.00         |
+| milli | m      | 0.001                 | 1.00 × 10⁻³  |
+| micro | μ      | 0.000001              | 1.00 × 10⁻⁶  |
+| nano  | n      | 0.000000001           | 1.00 × 10⁻⁹  |
+| pico  | p      | 0.000000000001        | 1.00 × 10⁻¹² |
+| femto | f      | 0.000000000000001     | 1.00 × 10⁻¹⁵ |

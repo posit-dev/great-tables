@@ -84,7 +84,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-a699add0f2108d88e1df4312b71c9091.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd54e2ce69989177fd5404fd01f31db8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -132,6 +132,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table&quot;]">
 <link rel="canonical" href="https://posit-dev.github.io/great-tables/reference/vals.fmt_integer.html">
 <meta property="og:url" content="https://posit-dev.github.io/great-tables/reference/vals.fmt_integer.html">
+<link rel="alternate" type="text/markdown" href="vals.fmt_integer.md">
 
 
 <meta property="og:title" content="vals.fmt_integer() | Great Tables">
@@ -140,7 +141,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="twitter:title" content="vals.fmt_integer() | Great Tables">
 <meta name="twitter:description" content="Format values as integers.">
 <meta name="twitter:card" content="summary">
-  <link rel="alternate" type="text/markdown" href="vals.fmt_integer.md">
 </head>
 
 <body class="gd-ref-sidebar nav-sidebar floating nav-fixed doc-api-page doc-py-api-page quarto-light">
@@ -1318,7 +1318,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats_vals.py#L251-L361" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats_vals.py#L262-L384" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-Kind.FUNCTION">
 <div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sig-class">vals</span><span class="op">.</span><span class="sig-name">fmt_integer</span>(</span>
@@ -1332,7 +1332,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="va">force_sign</span><span class="op">=</span><span class="cn-bool">False</span>,</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="va">min_sep_threshold</span><span class="op">=</span><span class="dv">1</span>,</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="va">locale</span><span class="op">=</span><span class="cn-none">None</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="va">system</span><span class="op">=</span><span class="st">"intl"</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div class="doc-text">
 <p>With numeric values in a list, we can perform number-based formatting so that the input values are always rendered as integer values. The following major options are available:</p>
@@ -1367,7 +1368,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">compact</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="va">False</span></span></code></dt>
 <dd>
-<p>A boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., <code>1230</code> becomes <code>1K</code>, and <code>1230000</code> becomes <code>1M</code>). The <code>compact</code> option is <code>False</code> by default.</p>
+<p>A boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., <code>1230</code> becomes <code>1K</code>, and <code>1230000</code> becomes <code>1M</code>). The <code>compact</code> option is <code>False</code> by default. With <code>system="ind"</code>, values are expressed in lakhs and crores instead (e.g., <code>1234567</code> becomes <code>12 Lac</code>).</p>
 </dd>
 <dt><code><span class="doc-parameter-name">pattern</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"{x}"</span></span></code></dt>
 <dd>
@@ -1387,7 +1388,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">locale</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | None</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>
-An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).
+<p>An optional locale identifier that can be used for formatting values according the locale’s rules. Examples include <code>"en"</code> for English (United States) and <code>"fr"</code> for French (France).</p>
+</dd>
+<dt><code><span class="doc-parameter-name">system</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">NumberSystem</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"intl"</span></span></code></dt>
+<dd>
+The numbering system to use for digit grouping. The international numbering system (<code>"intl"</code>, the default) always separates groups of three digits (e.g., <code>"1,234,567"</code>). The Indian numbering system (<code>"ind"</code>) separates the last three digits and then groups of two, which correspond to thousands, lakhs, crores, and higher quantities (e.g., <code>"12,34,567"</code>). The separator itself is still set by <code>sep_mark=</code> (or the locale) and can be turned off with <code>use_seps=False</code>.
 </dd>
 </dl>
 </div>
@@ -1405,7 +1410,7 @@ A list of formatted values is returned.
 </section>
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
-<div id="fd30e8f5" class="cell" data-execution_count="1">
+<div id="cb3eb28c" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> vals</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>vals.fmt_integer([<span class="fl">100000.1</span>, <span class="fl">2000000000.2</span>], use_seps<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>

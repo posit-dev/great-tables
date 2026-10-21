@@ -2,18 +2,15 @@
 
 To cite this package in publications, please use the following citation.
 
-
-# Authors
+## Authors
 
 Richard Iannone. Maintainer.
 
-
-# Citation
+## Citation
 
 **Source:** [`CITATION.cff`](https://github.com/posit-dev/great-tables/blob/main/CITATION.cff)
 
-
-## BibTeX
+### BibTeX
 
 ``` bibtex
 @Manual{,
@@ -25,13 +22,11 @@ Richard Iannone. Maintainer.
 }
 ```
 
-
-## APA
+### APA
 
 Iannone, R. (2026). *great-tables: Make awesome display tables using Python.* (Version 1.0.0) \[Computer software\]. https://posit-dev.github.io/great-tables/
 
-
-## RIS
+### RIS
 
 ``` ris
 TY  - COMP

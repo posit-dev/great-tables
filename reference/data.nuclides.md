@@ -1,14 +1,10 @@
 # data.nuclides
 
-
 Nuclide data.
-
 
 `data.nuclides=_read_csv(_nuclides_fname, dtype=_nuclides_dtype)`
 
-
-The [nuclides](data.nuclides.md#great_tables.data.nuclides) dataset contains information on all known nuclides, providing data on nuclear structure and decay modes across 118 elements. There is data here on natural abundances, atomic mass, spin, half-life, and more. The typical users for such a dataset include researchers in fields such as nuclear physics, radiochemistry, and nuclear medicine.
-
+The [nuclides](../reference/data.nuclides.md#great_tables.data.nuclides) dataset contains information on all known nuclides, providing data on nuclear structure and decay modes across 118 elements. There is data here on natural abundances, atomic mass, spin, half-life, and more. The typical users for such a dataset include researchers in fields such as nuclear physics, radiochemistry, and nuclear medicine.
 
 This is a dataset with 3,383 rows and 29 columns.
 
@@ -27,6 +23,7 @@ This is a dataset with 3,383 rows and 29 columns.
 - `atomic_mass`, `atomic_mass_uncert`: The atomic mass and its associated uncertainty. In units of micro AMU.
 - `mass_excess`, `mass_excess_uncert`: The mass excess and its associated uncertainty. In units of keV.
 
+&nbsp;
 
     Rows: 3383
     Columns: 29

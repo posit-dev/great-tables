@@ -1,26 +1,22 @@
 # md()
 
-
 Interpret input text as Markdown-formatted text.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L278-L294)
 
 ``` python
 md(text)
 ```
 
-
-Markdown can be used in certain places (e.g., source notes, table title/subtitle, etc.) and we can expect it to render to HTML. There is also the <a href="../reference/html.html#great_tables.html" class="gdls-link"><code>html()</code></a> helper function that allows you to use raw HTML text.
-
+Markdown can be used in certain places (e.g., source notes, table title/subtitle, etc.) and we can expect it to render to HTML. There is also the [`html()`](../reference/html.md#great_tables.md) helper function that allows you to use raw HTML text.
 
 ## Parameters
-
 
 `text: str`  
 The text that is understood to contain Markdown formatting.
 
-
 ## Examples
 
-See <a href="../reference/GT.tab_header.html#great_tables.GT.tab_header" class="gdls-link"><code>GT.tab_header()</code></a>.
+See [`GT.tab_header()`](../reference/GT.tab_header.md#great_tables.GT.tab_header).

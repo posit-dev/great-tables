@@ -1,14 +1,10 @@
 # data.sp500
 
-
 Daily S&P 500 Index data from 1950 to 2015.
-
 
 `data.sp500=_read_csv(_sp500_fname, dtype=_sp500_dtype)`
 
-
 This dataset provides daily price indicators for the S&P 500 index from the beginning of 1950 to the end of 2015. The index includes 500 leading companies and captures about 80 percent coverage of available market capitalization.
-
 
 This is a dataset with 16,607 rows and 7 columns.
 
@@ -17,6 +13,7 @@ This is a dataset with 16,607 rows and 7 columns.
 - `volume`: The number of trades for the given `date`.
 - `adj_close`: The close price adjusted for both dividends and splits.
 
+&nbsp;
 
     Rows: 16607
     Columns: 7

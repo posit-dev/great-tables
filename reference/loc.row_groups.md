@@ -1,37 +1,30 @@
 # loc.row_groups
 
-
 Target row groups.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L494-L545)
 
 ``` python
 loc.row_groups(rows=None)
 ```
 
-
-With [loc.row_groups()](loc.row_groups.md#great_tables.loc.row_groups) we can target the cells containing the row group labels, which span across the table body. This is useful for applying custom styling with the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>tab_style()</code></a> method. That method has a `locations=` argument and this class should be used there to perform the targeting.
-
+With [loc.row_groups()](../reference/loc.row_groups.md#great_tables.loc.row_groups) we can target the cells containing the row group labels, which span across the table body. This is useful for applying custom styling with the [`tab_style()`](../reference/GT.tab_style.md#great_tables.GT.tab_style) method. That method has a `locations=` argument and this class should be used there to perform the targeting.
 
 ## Parameters
-
 
 `rows: RowSelectExpr = None`  
 The row groups to target. Can either be a single group name or a series of group names provided in a list. If no groups are specified, all are targeted.
 
-
 ## Returns
-
 
 `LocRowGroups`  
 A LocRowGroups object, which is used for a `locations=` argument if specifying the table's row groups.
 
-
 ## Examples
 
-Let's use a subset of the [gtcars](data.gtcars.md#great_tables.data.gtcars) dataset in a new table. We will style all of the cells comprising the row group labels by using `locations=loc.row_groups()` within <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>tab_style()</code></a>.
-
+Let's use a subset of the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) dataset in a new table. We will style all of the cells comprising the row group labels by using `locations=loc.row_groups()` within [`tab_style()`](../reference/GT.tab_style.md#great_tables.GT.tab_style).
 
 ``` python
 from great_tables import GT, style, loc
@@ -56,116 +49,12 @@ from great_tables.data import gtcars
 )
 ```
 
-
-<style>
-#dlfrfqdfhf table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#dlfrfqdfhf thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#dlfrfqdfhf p { margin: 0; padding: 0; }
- #dlfrfqdfhf .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #dlfrfqdfhf .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #dlfrfqdfhf .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #dlfrfqdfhf .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #dlfrfqdfhf .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dlfrfqdfhf .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dlfrfqdfhf .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dlfrfqdfhf .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #dlfrfqdfhf .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #dlfrfqdfhf .gt_column_spanner_outer:first-child { padding-left: 0; }
- #dlfrfqdfhf .gt_column_spanner_outer:last-child { padding-right: 0; }
- #dlfrfqdfhf .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #dlfrfqdfhf .gt_spanner_row { border-bottom-style: hidden; }
- #dlfrfqdfhf .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #dlfrfqdfhf .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #dlfrfqdfhf .gt_from_md> :first-child { margin-top: 0; }
- #dlfrfqdfhf .gt_from_md> :last-child { margin-bottom: 0; }
- #dlfrfqdfhf .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #dlfrfqdfhf .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #dlfrfqdfhf .gt_indent_1 { text-indent: 5px; }
- #dlfrfqdfhf .gt_indent_2 { text-indent: calc(5px * 2); }
- #dlfrfqdfhf .gt_indent_3 { text-indent: calc(5px * 3); }
- #dlfrfqdfhf .gt_indent_4 { text-indent: calc(5px * 4); }
- #dlfrfqdfhf .gt_indent_5 { text-indent: calc(5px * 5); }
- #dlfrfqdfhf .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #dlfrfqdfhf .gt_row_group_first td { border-top-width: 2px; }
- #dlfrfqdfhf .gt_row_group_first th { border-top-width: 2px; }
- #dlfrfqdfhf .gt_striped { color: #333333; background-color: #F4F4F4; }
- #dlfrfqdfhf .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dlfrfqdfhf .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #dlfrfqdfhf .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #dlfrfqdfhf .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dlfrfqdfhf .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #dlfrfqdfhf .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #dlfrfqdfhf .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #dlfrfqdfhf .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dlfrfqdfhf .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #dlfrfqdfhf .gt_left { text-align: left; }
- #dlfrfqdfhf .gt_center { text-align: center; }
- #dlfrfqdfhf .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #dlfrfqdfhf .gt_font_normal { font-weight: normal; }
- #dlfrfqdfhf .gt_font_bold { font-weight: bold; }
- #dlfrfqdfhf .gt_font_italic { font-style: italic; }
- #dlfrfqdfhf .gt_super { font-size: 65%; }
- #dlfrfqdfhf .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dlfrfqdfhf .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #dlfrfqdfhf .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dlfrfqdfhf .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #dlfrfqdfhf .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #dlfrfqdfhf .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_col_headings">
-<th id="car" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">car</th>
-<th id="hp" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">hp</th>
-<th id="trq" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">trq</th>
-<th id="msrp" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">msrp</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="gt_group_heading_row">
-<th colspan="4" id="Ford" class="gt_group_heading" scope="colgroup" style="color: crimson; font-weight: bold; background-color: lightgray">Ford</th>
-</tr>
-
-<tr>
-<td id="stub-1" class="gt_row gt_left gt_stub" scope="row">GT</td>
-<td class="gt_row gt_right" headers="Ford stub-1 hp">647</td>
-<td class="gt_row gt_right" headers="Ford stub-1 trq">550</td>
-<td class="gt_row gt_right" headers="Ford stub-1 msrp">$447,000</td>
-</tr>
-<tr class="gt_group_heading_row">
-<td colspan="4" id="Ferrari" class="gt_group_heading" scope="colgroup" style="color: crimson; font-weight: bold; background-color: lightgray">Ferrari</td>
-</tr>
-<tr>
-<td id="stub-2" class="gt_row gt_left gt_stub" scope="row">458 Speciale</td>
-<td class="gt_row gt_right" headers="Ferrari stub-2 hp">597</td>
-<td class="gt_row gt_right" headers="Ferrari stub-2 trq">398</td>
-<td class="gt_row gt_right" headers="Ferrari stub-2 msrp">$291,744</td>
-</tr>
-<tr>
-<td id="stub-3" class="gt_row gt_left gt_stub" scope="row">458 Spider</td>
-<td class="gt_row gt_right" headers="Ferrari stub-3 hp">562</td>
-<td class="gt_row gt_right" headers="Ferrari stub-3 trq">398</td>
-<td class="gt_row gt_right" headers="Ferrari stub-3 msrp">$263,553</td>
-</tr>
-<tr>
-<td id="stub-4" class="gt_row gt_left gt_stub" scope="row">458 Italia</td>
-<td class="gt_row gt_right" headers="Ferrari stub-4 hp">562</td>
-<td class="gt_row gt_right" headers="Ferrari stub-4 trq">398</td>
-<td class="gt_row gt_right" headers="Ferrari stub-4 msrp">$233,509</td>
-</tr>
-<tr>
-<td id="stub-5" class="gt_row gt_left gt_stub" scope="row">488 GTB</td>
-<td class="gt_row gt_right" headers="Ferrari stub-5 hp">661</td>
-<td class="gt_row gt_right" headers="Ferrari stub-5 trq">561</td>
-<td class="gt_row gt_right" headers="Ferrari stub-5 msrp">$245,400</td>
-</tr>
-</tbody>
-</table>
+| car          | hp  | trq | msrp      |
+|--------------|-----|-----|-----------|
+| Ford         |     |     |           |
+| GT           | 647 | 550 | \$447,000 |
+| Ferrari      |     |     |           |
+| 458 Speciale | 597 | 398 | \$291,744 |
+| 458 Spider   | 562 | 398 | \$263,553 |
+| 458 Italia   | 562 | 398 | \$233,509 |
+| 488 GTB      | 661 | 561 | \$245,400 |

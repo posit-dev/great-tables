@@ -1,35 +1,28 @@
 # system_fonts()
 
-
 Get a themed font stack that works well across systems.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L441-L657)
 
 ``` python
 system_fonts(name="system-ui")
 ```
 
-
-A font stack can be obtained from [system_fonts()](system_fonts.md#great_tables.system_fonts) using one of various keywords such as `"system-ui"`, `"old-style"`, and `"humanist"` (there are 15 in total) representing a themed set of fonts. These sets comprise a font family that has been tested to work across a wide range of computer systems.
-
+A font stack can be obtained from [system_fonts()](../reference/system_fonts.md#great_tables.system_fonts) using one of various keywords such as `"system-ui"`, `"old-style"`, and `"humanist"` (there are 15 in total) representing a themed set of fonts. These sets comprise a font family that has been tested to work across a wide range of computer systems.
 
 ## Parameters
 
-
-`name: FontStackName = ``"system-ui"`  
+`name: FontStackName = "system-ui"`  
 The name of a font stack. Must be drawn from the set of `"system-ui"` (the default), `"transitional"`, `"old-style"`, `"humanist"`, `"geometric-humanist"`, `"classical-humanist"`, `"neo-grotesque"`, `"monospace-slab-serif"`, `"monospace-code"`, `"industrial"`, `"rounded-sans"`, `"slab-serif"`, `"antique"`, `"didone"`, and `"handwritten"`.
 
-
 ## Returns
-
 
 `list[str]`  
 A list of font names that make up the font stack.
 
-
 ## The Font Stacks And The Individual Fonts Used By Platform
-
 
 ### System UI (`"system-ui"`)
 
@@ -39,9 +32,6 @@ font-family: system-ui, sans-serif;
 
 The operating system interface's default typefaces are known as system UI fonts. They contain a variety of font weights, are quite readable at small sizes, and are perfect for UI elements. These typefaces serve as a great starting point for text in data tables and so this font stack is the default for **Great Tables**.
 
-------------------------------------------------------------------------
-
-
 ### Transitional (`"transitional"`)
 
 ``` css
@@ -49,9 +39,6 @@ font-family: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, serif;
 ```
 
 The Enlightenment saw the development of transitional typefaces, which combine Old Style and Modern typefaces. *Times New Roman*, a transitional typeface created for the Times of London newspaper, is among the most well-known instances of this style.
-
-------------------------------------------------------------------------
-
 
 ### Old Style (`"old-style"`)
 
@@ -61,9 +48,6 @@ font-family: 'Iowan Old Style', 'Palatino Linotype', 'URW Palladio L', P052, ser
 
 Old style typefaces were created during the Renaissance and are distinguished by diagonal stress, a lack of contrast between thick and thin strokes, and rounded serifs. *Garamond* is among the most well-known instances of an antique typeface.
 
-------------------------------------------------------------------------
-
-
 ### Humanist (`"humanist"`)
 
 ``` css
@@ -71,9 +55,6 @@ font-family: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', source-s
 ```
 
 Low contrast between thick and thin strokes and organic, calligraphic forms are traits of humanist typefaces. These typefaces, which draw their inspiration from Renaissance calligraphy, are frequently regarded as being more readable and easier to read than other sans serif typefaces.
-
-------------------------------------------------------------------------
-
 
 ### Geometric Humanist (`"geometric-humanist"`)
 
@@ -83,9 +64,6 @@ font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-ser
 
 Clean, geometric forms and consistent stroke widths are characteristics of geometric humanist typefaces. These typefaces, which are frequently used for headlines and other display purposes, are frequently thought to be contemporary and slick in appearance. A well-known example of this classification is *Futura*.
 
-------------------------------------------------------------------------
-
-
 ### Classical Humanist (`"classical-humanist"`)
 
 ``` css
@@ -93,9 +71,6 @@ font-family: Optima, Candara, 'Noto Sans', source-sans-pro, sans-serif;
 ```
 
 The way the strokes gradually widen as they approach the stroke terminals without ending in a serif is what distinguishes classical humanist typefaces. The stone carving on Renaissance-era tombstones and classical Roman capitals served as inspiration for these typefaces.
-
-------------------------------------------------------------------------
-
 
 ### Neo-Grotesque (`"neo-grotesque"`)
 
@@ -105,9 +80,6 @@ font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial
 
 Neo-grotesque typefaces are a form of sans serif that originated in the late 19th and early 20th centuries. They are distinguished by their crisp, geometric shapes and regular stroke widths. *Helvetica* is among the most well-known examples of a Neo-grotesque typeface.
 
-------------------------------------------------------------------------
-
-
 ### Monospace Slab Serif (`"monospace-slab-serif"`)
 
 ``` css
@@ -115,9 +87,6 @@ font-family: 'Nimbus Mono PS', 'Courier New', monospace;
 ```
 
 Monospace slab serif typefaces are distinguished by their fixed-width letters, which are the same width irrespective of their shape, and their straightforward, geometric forms. For reports, tabular work, and technical documentation, this technique is used to simulate typewriter output.
-
-------------------------------------------------------------------------
-
 
 ### Monospace Code (`"monospace-code"`)
 
@@ -127,9 +96,6 @@ font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 
 
 Specifically created for use in programming and other technical applications, monospace code typefaces are used in these fields. These typefaces are distinguished by their clear, readable forms and monospaced design, which ensures that all letters and characters are the same width.
 
-------------------------------------------------------------------------
-
-
 ### Industrial (`"industrial"`)
 
 ``` css
@@ -137,9 +103,6 @@ font-family: Bahnschrift, 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus San
 ```
 
 The development of industrial typefaces began in the late 19th century and was greatly influenced by the industrial and technological advancements of the time. Industrial typefaces are distinguished by their strong sans serif letterforms, straightforward appearance, and use of geometric shapes and straight lines.
-
-------------------------------------------------------------------------
-
 
 ### Rounded Sans (`"rounded-sans"`)
 
@@ -149,9 +112,6 @@ font-family: ui-rounded, 'Hiragino Maru Gothic ProN', Quicksand, Comfortaa, Manj
 
 The rounded, curved letterforms that define rounded typefaces give them a softer, friendlier appearance. The typeface's rounded edges give it a more natural and playful feel, making it appropriate for use in casual or kid-friendly designs. Since the 1950s, the rounded sans-serif design has gained popularity and is still frequently used in branding, graphic design, and other fields.
 
-------------------------------------------------------------------------
-
-
 ### Slab Serif (`"slab-serif"`)
 
 ``` css
@@ -159,9 +119,6 @@ font-family: Rockwell, 'Rockwell Nova', 'Roboto Slab', 'DejaVu Serif', 'Sitka Sm
 ```
 
 Slab Serif typefaces are distinguished by the thick, block-like serifs that appear at the ends of each letterform. Typically, these serifs are unbracketed, which means that they do not have any curved or tapered transitions to the letter's main stroke.
-
-------------------------------------------------------------------------
-
 
 ### Antique (`"antique"`)
 
@@ -171,9 +128,6 @@ font-family: Superclarendon, 'Bookman Old Style', 'URW Bookman', 'URW Bookman L'
 
 Serif typefaces that were popular in the 19th century include antique typefaces, also referred to as Egyptians. They are distinguished by their thick, uniform stroke weight and block-like serifs. The typeface *Clarendon* is a highly regarded example of this style and *Superclarendon* is a modern take on that revered typeface.
 
-------------------------------------------------------------------------
-
-
 ### Didone (`"didone"`)
 
 ``` css
@@ -181,9 +135,6 @@ font-family: Didot, 'Bodoni MT', 'Noto Serif Display', 'URW Palladio L', P052, S
 ```
 
 Didone typefaces, also referred to as Modern typefaces, are distinguished by their vertical stress, sharp contrast between thick and thin strokes, and hairline serifs without bracketing. The Didone style first appeared in the late 18th century and became well-known in the early 19th century. *Bodoni* and *Didot* are two of the most well-known typefaces in this category.
-
-------------------------------------------------------------------------
-
 
 ### Handwritten (`"handwritten"`)
 
@@ -193,11 +144,9 @@ font-family: 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursiv
 
 The appearance and feel of handwriting are replicated by handwritten typefaces. Although there are a wide variety of handwriting styles, this font stack tends to use a more casual and commonplace style. In regards to these types of fonts in tables, one can say that any table having a handwritten font will evoke a feeling of gleefulness.
 
-
 ## Examples
 
-Using select columns from the [exibble](data.exibble.md#great_tables.data.exibble) dataset, let's create a table with a number of components added. Following that, we'll set a font for the entire table using the [tab_options()](GT.tab_options.md#great_tables.GT.tab_options) method with the `table_font_names` parameter. Instead of passing a list of font names, we'll use the [system_fonts()](system_fonts.md#great_tables.system_fonts) helper function to get a font stack. In this case, we'll use the `"industrial"` font stack.
-
+Using select columns from the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset, let's create a table with a number of components added. Following that, we'll set a font for the entire table using the [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) method with the `table_font_names` parameter. Instead of passing a list of font names, we'll use the [system_fonts()](../reference/system_fonts.md#great_tables.system_fonts) helper function to get a font stack. In this case, we'll use the `"industrial"` font stack.
 
 ``` python
 from great_tables import GT, exibble, md, system_fonts
@@ -220,148 +169,20 @@ from great_tables import GT, exibble, md, system_fonts
 )
 ```
 
+| Data listing from **exibble** |  |  |  |
+|----|----|----|----|
+| `exibble` is a **Great Tables** dataset. |  |  |  |
+|  | num | char | currency |
+| grp_a |  |  |  |
+| row_1 | 0.11 | apricot | \$49.95 |
+| row_2 | 2.22 | banana | \$17.95 |
+| row_3 | 33.33 | coconut | \$1.39 |
+| row_4 | 444.40 | durian | \$65,100.00 |
+| grp_b |  |  |  |
+| row_5 | 5,550.00 | None | \$1,325.81 |
+| row_6 | None | fig | \$13.26 |
+| row_7 | 777,000.00 | grapefruit | None |
+| row_8 | 8,880,000.00 | honeydew | \$0.44 |
+| This is only a subset of the dataset. |  |  |  |
 
-<style>
-#shcpeknfoi table {
-          font-family: Bahnschrift, 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus Sans Narrow', sans-serif-condensed, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#shcpeknfoi thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#shcpeknfoi p { margin: 0; padding: 0; }
- #shcpeknfoi .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #shcpeknfoi .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #shcpeknfoi .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #shcpeknfoi .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #shcpeknfoi .gt_heading { background-color: #FFFFFF; text-align: left; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #shcpeknfoi .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #shcpeknfoi .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #shcpeknfoi .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #shcpeknfoi .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #shcpeknfoi .gt_column_spanner_outer:first-child { padding-left: 0; }
- #shcpeknfoi .gt_column_spanner_outer:last-child { padding-right: 0; }
- #shcpeknfoi .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #shcpeknfoi .gt_spanner_row { border-bottom-style: hidden; }
- #shcpeknfoi .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #shcpeknfoi .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #shcpeknfoi .gt_from_md> :first-child { margin-top: 0; }
- #shcpeknfoi .gt_from_md> :last-child { margin-bottom: 0; }
- #shcpeknfoi .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #shcpeknfoi .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #shcpeknfoi .gt_indent_1 { text-indent: 5px; }
- #shcpeknfoi .gt_indent_2 { text-indent: calc(5px * 2); }
- #shcpeknfoi .gt_indent_3 { text-indent: calc(5px * 3); }
- #shcpeknfoi .gt_indent_4 { text-indent: calc(5px * 4); }
- #shcpeknfoi .gt_indent_5 { text-indent: calc(5px * 5); }
- #shcpeknfoi .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #shcpeknfoi .gt_row_group_first td { border-top-width: 2px; }
- #shcpeknfoi .gt_row_group_first th { border-top-width: 2px; }
- #shcpeknfoi .gt_striped { color: #333333; background-color: #F4F4F4; }
- #shcpeknfoi .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #shcpeknfoi .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #shcpeknfoi .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #shcpeknfoi .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #shcpeknfoi .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #shcpeknfoi .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #shcpeknfoi .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #shcpeknfoi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #shcpeknfoi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #shcpeknfoi .gt_left { text-align: left; }
- #shcpeknfoi .gt_center { text-align: center; }
- #shcpeknfoi .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #shcpeknfoi .gt_font_normal { font-weight: normal; }
- #shcpeknfoi .gt_font_bold { font-weight: bold; }
- #shcpeknfoi .gt_font_italic { font-style: italic; }
- #shcpeknfoi .gt_super { font-size: 65%; }
- #shcpeknfoi .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #shcpeknfoi .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #shcpeknfoi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #shcpeknfoi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #shcpeknfoi .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #shcpeknfoi .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_heading">
-<th colspan="4" id="title" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
-</tr>
-<tr class="gt_heading">
-<th colspan="4" id="subtitle" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
-</tr>
-<tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
-<th id="num" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">num</th>
-<th id="char" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">char</th>
-<th id="currency" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">currency</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="gt_group_heading_row">
-<th colspan="4" id="grp_a" class="gt_group_heading" scope="colgroup">grp_a</th>
-</tr>
-
-<tr>
-<td id="stub-1" class="gt_row gt_left gt_stub" scope="row">row_1</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 num">0.11</td>
-<td class="gt_row gt_left" headers="grp_a stub-1 char">apricot</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 currency">$49.95</td>
-</tr>
-<tr>
-<td id="stub-2" class="gt_row gt_left gt_stub" scope="row">row_2</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 num">2.22</td>
-<td class="gt_row gt_left" headers="grp_a stub-2 char">banana</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 currency">$17.95</td>
-</tr>
-<tr>
-<td id="stub-3" class="gt_row gt_left gt_stub" scope="row">row_3</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 num">33.33</td>
-<td class="gt_row gt_left" headers="grp_a stub-3 char">coconut</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 currency">$1.39</td>
-</tr>
-<tr>
-<td id="stub-4" class="gt_row gt_left gt_stub" scope="row">row_4</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 num">444.40</td>
-<td class="gt_row gt_left" headers="grp_a stub-4 char">durian</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 currency">$65,100.00</td>
-</tr>
-<tr class="gt_group_heading_row">
-<td colspan="4" id="grp_b" class="gt_group_heading" scope="colgroup">grp_b</td>
-</tr>
-<tr>
-<td id="stub-5" class="gt_row gt_left gt_stub" scope="row">row_5</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 num">5,550.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-5 char">None</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 currency">$1,325.81</td>
-</tr>
-<tr>
-<td id="stub-6" class="gt_row gt_left gt_stub" scope="row">row_6</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 num">None</td>
-<td class="gt_row gt_left" headers="grp_b stub-6 char">fig</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 currency">$13.26</td>
-</tr>
-<tr>
-<td id="stub-7" class="gt_row gt_left gt_stub" scope="row">row_7</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 num">777,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-7 char">grapefruit</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 currency">None</td>
-</tr>
-<tr>
-<td id="stub-8" class="gt_row gt_left gt_stub" scope="row">row_8</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 num">8,880,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-8 char">honeydew</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 currency">$0.44</td>
-</tr>
-</tbody><tfoot>
-<tr class="gt_sourcenotes">
-<td colspan="4" class="gt_sourcenote">This is only a subset of the dataset.</td>
-</tr>
-</tfoot>
-
-</table>
-
-
-Invoking the [system_fonts()](system_fonts.md#great_tables.system_fonts) helper function with the `"industrial"` argument will return a list of font names that make up the font stack. This is exactly the type of input that the `table_font_names` parameter requires.
+Invoking the [system_fonts()](../reference/system_fonts.md#great_tables.system_fonts) helper function with the `"industrial"` argument will return a list of font names that make up the font stack. This is exactly the type of input that the `table_font_names` parameter requires.

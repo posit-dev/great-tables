@@ -1,37 +1,30 @@
 # loc.spanner_labels
 
-
 Target spanner labels.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L361-L414)
 
 ``` python
 loc.spanner_labels(ids=None)
 ```
 
-
-With [loc.spanner_labels()](loc.spanner_labels.md#great_tables.loc.spanner_labels), we can target the cells containing the spanner labels. This is useful for applying custom styling with the <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>tab_style()</code></a> method. That method has a `locations=` argument and this class should be used there to perform the targeting.
-
+With [loc.spanner_labels()](../reference/loc.spanner_labels.md#great_tables.loc.spanner_labels), we can target the cells containing the spanner labels. This is useful for applying custom styling with the [`tab_style()`](../reference/GT.tab_style.md#great_tables.GT.tab_style) method. That method has a `locations=` argument and this class should be used there to perform the targeting.
 
 ## Parameters
-
 
 `ids: SelectExpr = None`  
 The ID values for the spanner labels to target. A list of one or more ID values is required.
 
-
 ## Returns
-
 
 `LocSpannerLabels`  
 A LocSpannerLabels object, which is used for a `locations=` argument if specifying the table's spanner labels.
 
-
 ## Examples
 
-Let's use a subset of the [gtcars](data.gtcars.md#great_tables.data.gtcars) dataset in a new table. We create two spanner labels through two separate calls of the <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link"><code>tab_spanner()</code></a> method. In each of those, the text supplied to `label=` argument is used as the ID value (though they have to be explicitly set via the `id=` argument). We will style only the spanner label having the text `"performance"` by using `locations=loc.spanner_labels(ids=["performance"])` within <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link"><code>tab_style()</code></a>.
-
+Let's use a subset of the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) dataset in a new table. We create two spanner labels through two separate calls of the [`tab_spanner()`](../reference/GT.tab_spanner.md#great_tables.GT.tab_spanner) method. In each of those, the text supplied to `label=` argument is used as the ID value (though they have to be explicitly set via the `id=` argument). We will style only the spanner label having the text `"performance"` by using `locations=loc.spanner_labels(ids=["performance"])` within [`tab_style()`](../reference/GT.tab_style.md#great_tables.GT.tab_style).
 
 ``` python
 from great_tables import GT, style, loc
@@ -56,119 +49,11 @@ from great_tables.data import gtcars
 )
 ```
 
-
-<style>
-#orzqmpdmap table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#orzqmpdmap thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#orzqmpdmap p { margin: 0; padding: 0; }
- #orzqmpdmap .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #orzqmpdmap .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #orzqmpdmap .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #orzqmpdmap .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #orzqmpdmap .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #orzqmpdmap .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #orzqmpdmap .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #orzqmpdmap .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #orzqmpdmap .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #orzqmpdmap .gt_column_spanner_outer:first-child { padding-left: 0; }
- #orzqmpdmap .gt_column_spanner_outer:last-child { padding-right: 0; }
- #orzqmpdmap .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #orzqmpdmap .gt_spanner_row { border-bottom-style: hidden; }
- #orzqmpdmap .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #orzqmpdmap .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #orzqmpdmap .gt_from_md> :first-child { margin-top: 0; }
- #orzqmpdmap .gt_from_md> :last-child { margin-bottom: 0; }
- #orzqmpdmap .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #orzqmpdmap .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #orzqmpdmap .gt_indent_1 { text-indent: 5px; }
- #orzqmpdmap .gt_indent_2 { text-indent: calc(5px * 2); }
- #orzqmpdmap .gt_indent_3 { text-indent: calc(5px * 3); }
- #orzqmpdmap .gt_indent_4 { text-indent: calc(5px * 4); }
- #orzqmpdmap .gt_indent_5 { text-indent: calc(5px * 5); }
- #orzqmpdmap .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #orzqmpdmap .gt_row_group_first td { border-top-width: 2px; }
- #orzqmpdmap .gt_row_group_first th { border-top-width: 2px; }
- #orzqmpdmap .gt_striped { color: #333333; background-color: #F4F4F4; }
- #orzqmpdmap .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #orzqmpdmap .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #orzqmpdmap .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #orzqmpdmap .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #orzqmpdmap .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #orzqmpdmap .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #orzqmpdmap .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #orzqmpdmap .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #orzqmpdmap .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #orzqmpdmap .gt_left { text-align: left; }
- #orzqmpdmap .gt_center { text-align: center; }
- #orzqmpdmap .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #orzqmpdmap .gt_font_normal { font-weight: normal; }
- #orzqmpdmap .gt_font_bold { font-weight: bold; }
- #orzqmpdmap .gt_font_italic { font-style: italic; }
- #orzqmpdmap .gt_super { font-size: 65%; }
- #orzqmpdmap .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #orzqmpdmap .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #orzqmpdmap .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #orzqmpdmap .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #orzqmpdmap .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #orzqmpdmap .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_col_headings gt_spanner_row">
-<th colspan="2" id="make-and-model" class="gt_center gt_columns_top_border gt_column_spanner_outer" scope="colgroup">make and model</th>
-<th colspan="2" id="performance" class="gt_center gt_columns_top_border gt_column_spanner_outer" style="color: blue; font-weight: bold" scope="colgroup">performance</th>
-<th rowspan="2" id="msrp" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">msrp</th>
-</tr>
-<tr class="gt_col_headings">
-<th id="mfr" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">mfr</th>
-<th id="model" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">model</th>
-<th id="hp" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">hp</th>
-<th id="trq" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">trq</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr>
-<td class="gt_row gt_left" headers="make-and-model mfr">Ford</td>
-<td class="gt_row gt_left" headers="make-and-model model">GT</td>
-<td class="gt_row gt_right" headers="performance hp">647</td>
-<td class="gt_row gt_right" headers="performance trq">550</td>
-<td class="gt_row gt_right" headers="msrp">$447,000</td>
-</tr>
-<tr>
-<td class="gt_row gt_left" headers="make-and-model mfr">Ferrari</td>
-<td class="gt_row gt_left" headers="make-and-model model">458 Speciale</td>
-<td class="gt_row gt_right" headers="performance hp">597</td>
-<td class="gt_row gt_right" headers="performance trq">398</td>
-<td class="gt_row gt_right" headers="msrp">$291,744</td>
-</tr>
-<tr>
-<td class="gt_row gt_left" headers="make-and-model mfr">Ferrari</td>
-<td class="gt_row gt_left" headers="make-and-model model">458 Spider</td>
-<td class="gt_row gt_right" headers="performance hp">562</td>
-<td class="gt_row gt_right" headers="performance trq">398</td>
-<td class="gt_row gt_right" headers="msrp">$263,553</td>
-</tr>
-<tr>
-<td class="gt_row gt_left" headers="make-and-model mfr">Ferrari</td>
-<td class="gt_row gt_left" headers="make-and-model model">458 Italia</td>
-<td class="gt_row gt_right" headers="performance hp">562</td>
-<td class="gt_row gt_right" headers="performance trq">398</td>
-<td class="gt_row gt_right" headers="msrp">$233,509</td>
-</tr>
-<tr>
-<td class="gt_row gt_left" headers="make-and-model mfr">Ferrari</td>
-<td class="gt_row gt_left" headers="make-and-model model">488 GTB</td>
-<td class="gt_row gt_right" headers="performance hp">661</td>
-<td class="gt_row gt_right" headers="performance trq">561</td>
-<td class="gt_row gt_right" headers="msrp">$245,400</td>
-</tr>
-</tbody>
-</table>
+| make and model |              | performance |     | msrp      |
+|----------------|--------------|-------------|-----|-----------|
+| mfr            | model        | hp          | trq |           |
+| Ford           | GT           | 647         | 550 | \$447,000 |
+| Ferrari        | 458 Speciale | 597         | 398 | \$291,744 |
+| Ferrari        | 458 Spider   | 562         | 398 | \$263,553 |
+| Ferrari        | 458 Italia   | 562         | 398 | \$233,509 |
+| Ferrari        | 488 GTB      | 661         | 561 | \$245,400 |

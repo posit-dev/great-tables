@@ -1,10 +1,10 @@
 # GT.fmt_integer()
 
-
 Format values as integers.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L494-L638)
 
 ``` python
 GT.fmt_integer(
@@ -19,9 +19,9 @@ GT.fmt_integer(
     force_sign=False,
     min_sep_threshold=1,
     locale=None,
+    system="intl",
 )
 ```
-
 
 With numeric values in one or more table columns, we can perform number-based formatting so that the targeted values are always rendered as integer values.
 
@@ -33,9 +33,7 @@ We can have fine control over integer formatting with the following options:
 - pattern: option to use a text pattern for decoration of the formatted values
 - locale-based formatting: providing a locale ID will result in number formatting specific to the chosen locale
 
-
 ## Parameters
-
 
 `columns: SelectExpr = None`  
 The columns to target. Can either be a single column name or a series of column names provided in a list.
@@ -43,52 +41,50 @@ The columns to target. Can either be a single column name or a series of column 
 `rows: RowSelectExpr = None`  
 In conjunction with `columns=`, we can specify which of their rows should undergo formatting. The default is all rows, resulting in all rows in targeted columns being formatted. Alternatively, we can supply a row index, a list of row indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 
-`use_seps: bool = ``True`  
+`use_seps: bool = True`  
 The `use_seps` option allows for the use of digit group separators. The type of digit group separator is set by `sep_mark` and overridden if a locale ID is provided to `locale`. This setting is `True` by default.
 
-`scale_by: float = ``1`  
+`scale_by: float = 1`  
 All numeric values will be multiplied by the `scale_by` value before undergoing formatting. Since the `default` value is `1`, no values will be changed unless a different multiplier value is supplied.
 
-`accounting: bool = ``False`  
+`accounting: bool = False`  
 Whether to use accounting style, which wraps negative numbers in parentheses instead of using a minus sign.
 
-`compact: bool = ``False`  
-A boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000` becomes `1M`). The `compact` option is `False` by default.
+`compact: bool = False`  
+A boolean value that allows for compact formatting of numeric values. Values will be scaled and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000` becomes `1M`). The `compact` option is `False` by default. With `system="ind"`, values are expressed in lakhs and crores instead (e.g., `1234567` becomes `12 Lac`).
 
-`pattern: str = ``"{x}"`  
+`pattern: str = "{x}"`  
 A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the `{x}` (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.
 
-`sep_mark: str = ``","`  
+`sep_mark: str = ","`  
 The string to use as a separator between groups of digits. For example, using `sep_mark=","` with a value of `1000` would result in a formatted value of `"1,000"`. This argument is ignored if a `locale` is supplied (i.e., is not `None`).
 
-`force_sign: bool = ``False`  
+`force_sign: bool = False`  
 Should the positive sign be shown for positive values (effectively showing a sign for all values except zero)? If so, use `True` for this option. The default is `False`, where only negative numbers will display a minus sign.
 
-`min_sep_threshold: int = ``1`  
-The minimum number of digits in the integer part of a number for digit grouping separators to be used. The default of `1` uses separators from 4-digit numbers onward (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in [GT()](GT.md#great_tables.GT)), the locale's own minimum grouping digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
+`min_sep_threshold: int = 1`  
+The minimum number of digits in the integer part of a number for digit grouping separators to be used. The default of `1` uses separators from 4-digit numbers onward (e.g., `1,000`), `2` starts at 5-digit numbers (`10,000`), and `3` starts at 6-digit numbers (`100,000`). When a locale is in effect (through `locale=` or a locale set in [GT()](../reference/GT.md#great_tables.GT)), the locale's own minimum grouping digits value is used instead (it's `2` for locales like `"es"` and `"pl"`).
 
 `locale: str | None = None`  
 An optional locale identifier that can be used for formatting values according the locale's rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
 
+`system: NumberSystem = "intl"`  
+The numbering system to use for digit grouping. The international numbering system (`"intl"`, the default) always separates groups of three digits (e.g., `"1,234,567"`). The Indian numbering system (`"ind"`) separates the last three digits and then groups of two, which correspond to thousands, lakhs, crores, and higher quantities (e.g., `"12,34,567"`). The separator itself is still set by `sep_mark=` (or the locale) and can be turned off with `use_seps=False`.
 
 ## Returns
 
-
 `GT`  
 The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.
-
 
 ## Adapting Output To A Specific `locale`
 
 This formatting method can adapt outputs according to a provided `locale` value. Examples include `"en"` for English (United States) and `"fr"` for French (France). The use of a valid locale ID here means separator marks will be correct for the given locale. Should any value be provided in `sep_mark`, it will be overridden by the locale's preferred value.
 
-Note that a `locale` value provided here will override any global locale setting performed in <a href="../reference/GT.html#great_tables.GT" class="gdls-link"><code>GT()</code></a>'s own `locale` argument (it is settable there as a value received by all other methods that have a `locale` argument).
-
+Note that a `locale` value provided here will override any global locale setting performed in [`GT()`](../reference/GT.md#great_tables.GT)'s own `locale` argument (it is settable there as a value received by all other methods that have a `locale` argument).
 
 ## Examples
 
-For this example, we'll use the [exibble](data.exibble.md#great_tables.data.exibble) dataset as the input table. With the <a href="../reference/GT.fmt_integer.html#great_tables.GT.fmt_integer" class="gdls-link"><code>fmt_integer()</code></a> method, we'll format the `num` column as integer values having no digit separators (with the `use_seps=False` option).
-
+For this example, we'll use the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset as the input table. With the [`fmt_integer()`](../reference/GT.fmt_integer.md#great_tables.GT.fmt_integer) method, we'll format the `num` column as integer values having no digit separators (with the `use_seps=False` option).
 
 ``` python
 from great_tables import GT, exibble
@@ -98,70 +94,6 @@ from great_tables import GT, exibble
     .fmt_integer(columns="num", use_seps=False)
 )
 ```
-
-
-<style>
-#flkdklyjdu table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#flkdklyjdu thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#flkdklyjdu p { margin: 0; padding: 0; }
- #flkdklyjdu .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #flkdklyjdu .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #flkdklyjdu .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #flkdklyjdu .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #flkdklyjdu .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #flkdklyjdu .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #flkdklyjdu .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #flkdklyjdu .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #flkdklyjdu .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #flkdklyjdu .gt_column_spanner_outer:first-child { padding-left: 0; }
- #flkdklyjdu .gt_column_spanner_outer:last-child { padding-right: 0; }
- #flkdklyjdu .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #flkdklyjdu .gt_spanner_row { border-bottom-style: hidden; }
- #flkdklyjdu .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #flkdklyjdu .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #flkdklyjdu .gt_from_md> :first-child { margin-top: 0; }
- #flkdklyjdu .gt_from_md> :last-child { margin-bottom: 0; }
- #flkdklyjdu .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #flkdklyjdu .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #flkdklyjdu .gt_indent_1 { text-indent: 5px; }
- #flkdklyjdu .gt_indent_2 { text-indent: calc(5px * 2); }
- #flkdklyjdu .gt_indent_3 { text-indent: calc(5px * 3); }
- #flkdklyjdu .gt_indent_4 { text-indent: calc(5px * 4); }
- #flkdklyjdu .gt_indent_5 { text-indent: calc(5px * 5); }
- #flkdklyjdu .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #flkdklyjdu .gt_row_group_first td { border-top-width: 2px; }
- #flkdklyjdu .gt_row_group_first th { border-top-width: 2px; }
- #flkdklyjdu .gt_striped { color: #333333; background-color: #F4F4F4; }
- #flkdklyjdu .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #flkdklyjdu .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #flkdklyjdu .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #flkdklyjdu .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #flkdklyjdu .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #flkdklyjdu .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #flkdklyjdu .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #flkdklyjdu .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #flkdklyjdu .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #flkdklyjdu .gt_left { text-align: left; }
- #flkdklyjdu .gt_center { text-align: center; }
- #flkdklyjdu .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #flkdklyjdu .gt_font_normal { font-weight: normal; }
- #flkdklyjdu .gt_font_bold { font-weight: bold; }
- #flkdklyjdu .gt_font_italic { font-style: italic; }
- #flkdklyjdu .gt_super { font-size: 65%; }
- #flkdklyjdu .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #flkdklyjdu .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #flkdklyjdu .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #flkdklyjdu .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #flkdklyjdu .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #flkdklyjdu .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
 
 | num     | char       | fctr  | date       | time  | datetime         | currency | row   | group |
 |---------|------------|-------|------------|-------|------------------|----------|-------|-------|

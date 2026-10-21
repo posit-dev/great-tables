@@ -1,10 +1,10 @@
 # GT.cols_label()
 
-
 Relabel one or more columns.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L17-L159)
 
 ``` python
 GT.cols_label(
@@ -13,42 +13,34 @@ GT.cols_label(
 )
 ```
 
-
 There are three important pieces to labelling:
 
 - Each argument has the form: {name in data} = {new label}.
 - Multiple columns may be given the same label.
 - Labels may use curly braces to apply special formatting, called unit notation. For example, "area ({{ft^2}})" would appear as "area (ft²)".
 
-See <a href="../reference/define_units.html#great_tables.define_units" class="gdls-link"><code>define_units()</code></a> for details on unit notation.
-
+See [`define_units()`](../reference/define_units.md#great_tables.define_units) for details on unit notation.
 
 ## Parameters
 
-
 `cases: dict[str, str | BaseText] | None = None`  
-A dictionary where the keys are column names and the values are the labels. Labels may use <a href="../reference/md.html#great_tables.md" class="gdls-link"><code>md()</code></a> or <a href="../reference/html.html#great_tables.html" class="gdls-link"><code>html()</code></a> helpers for formatting.
+A dictionary where the keys are column names and the values are the labels. Labels may use [`md()`](../reference/md.md#great_tables.md) or [`html()`](../reference/html.md#great_tables.md) helpers for formatting.
 
 `**kwargs: str | BaseText`  
 Keyword arguments to specify column labels. Each keyword corresponds to a column name, with its value indicating the new label.
 
-
 ## Returns
-
 
 `GT`  
 The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.
-
 
 ## Notes
 
 GT always selects columns using their name in the underlying data. This means that a column's label is purely for final presentation.
 
-
 ## Examples
 
-The example below relabels columns from the [countrypops](data.countrypops.md#great_tables.data.countrypops) data to start with uppercase.
-
+The example below relabels columns from the [countrypops](../reference/data.countrypops.md#great_tables.data.countrypops) data to start with uppercase.
 
 ``` python
 from great_tables import GT
@@ -68,70 +60,6 @@ countrypops_mini = countrypops.loc[countrypops["country_name"] == "Uganda"][
 )
 ```
 
-
-<style>
-#ehqlwfhfna table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#ehqlwfhfna thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#ehqlwfhfna p { margin: 0; padding: 0; }
- #ehqlwfhfna .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #ehqlwfhfna .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #ehqlwfhfna .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #ehqlwfhfna .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #ehqlwfhfna .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ehqlwfhfna .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ehqlwfhfna .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ehqlwfhfna .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #ehqlwfhfna .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #ehqlwfhfna .gt_column_spanner_outer:first-child { padding-left: 0; }
- #ehqlwfhfna .gt_column_spanner_outer:last-child { padding-right: 0; }
- #ehqlwfhfna .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #ehqlwfhfna .gt_spanner_row { border-bottom-style: hidden; }
- #ehqlwfhfna .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #ehqlwfhfna .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #ehqlwfhfna .gt_from_md> :first-child { margin-top: 0; }
- #ehqlwfhfna .gt_from_md> :last-child { margin-bottom: 0; }
- #ehqlwfhfna .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #ehqlwfhfna .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #ehqlwfhfna .gt_indent_1 { text-indent: 5px; }
- #ehqlwfhfna .gt_indent_2 { text-indent: calc(5px * 2); }
- #ehqlwfhfna .gt_indent_3 { text-indent: calc(5px * 3); }
- #ehqlwfhfna .gt_indent_4 { text-indent: calc(5px * 4); }
- #ehqlwfhfna .gt_indent_5 { text-indent: calc(5px * 5); }
- #ehqlwfhfna .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #ehqlwfhfna .gt_row_group_first td { border-top-width: 2px; }
- #ehqlwfhfna .gt_row_group_first th { border-top-width: 2px; }
- #ehqlwfhfna .gt_striped { color: #333333; background-color: #F4F4F4; }
- #ehqlwfhfna .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ehqlwfhfna .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ehqlwfhfna .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #ehqlwfhfna .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ehqlwfhfna .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ehqlwfhfna .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #ehqlwfhfna .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #ehqlwfhfna .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ehqlwfhfna .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #ehqlwfhfna .gt_left { text-align: left; }
- #ehqlwfhfna .gt_center { text-align: center; }
- #ehqlwfhfna .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #ehqlwfhfna .gt_font_normal { font-weight: normal; }
- #ehqlwfhfna .gt_font_bold { font-weight: bold; }
- #ehqlwfhfna .gt_font_italic { font-style: italic; }
- #ehqlwfhfna .gt_super { font-size: 65%; }
- #ehqlwfhfna .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ehqlwfhfna .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #ehqlwfhfna .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ehqlwfhfna .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #ehqlwfhfna .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #ehqlwfhfna .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
 | Country Name | Year | Population |
 |--------------|------|------------|
 | Uganda       | 2018 | 41515395   |
@@ -140,11 +68,9 @@ countrypops_mini = countrypops.loc[countrypops["country_name"] == "Uganda"][
 | Uganda       | 2021 | 45853778   |
 | Uganda       | 2022 | 47249585   |
 
-
 Note that we supplied the name of the column as the key, and the new label as the value.
 
 We can also use Markdown formatting for the column labels. In this example, we'll use `md("*Population*")` to make the label italicized.
-
 
 ``` python
 from great_tables import GT, md
@@ -160,70 +86,6 @@ from great_tables.data import countrypops
 )
 ```
 
-
-<style>
-#mryudhvwpo table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#mryudhvwpo thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#mryudhvwpo p { margin: 0; padding: 0; }
- #mryudhvwpo .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #mryudhvwpo .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #mryudhvwpo .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #mryudhvwpo .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #mryudhvwpo .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #mryudhvwpo .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #mryudhvwpo .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #mryudhvwpo .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #mryudhvwpo .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #mryudhvwpo .gt_column_spanner_outer:first-child { padding-left: 0; }
- #mryudhvwpo .gt_column_spanner_outer:last-child { padding-right: 0; }
- #mryudhvwpo .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #mryudhvwpo .gt_spanner_row { border-bottom-style: hidden; }
- #mryudhvwpo .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #mryudhvwpo .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #mryudhvwpo .gt_from_md> :first-child { margin-top: 0; }
- #mryudhvwpo .gt_from_md> :last-child { margin-bottom: 0; }
- #mryudhvwpo .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #mryudhvwpo .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #mryudhvwpo .gt_indent_1 { text-indent: 5px; }
- #mryudhvwpo .gt_indent_2 { text-indent: calc(5px * 2); }
- #mryudhvwpo .gt_indent_3 { text-indent: calc(5px * 3); }
- #mryudhvwpo .gt_indent_4 { text-indent: calc(5px * 4); }
- #mryudhvwpo .gt_indent_5 { text-indent: calc(5px * 5); }
- #mryudhvwpo .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #mryudhvwpo .gt_row_group_first td { border-top-width: 2px; }
- #mryudhvwpo .gt_row_group_first th { border-top-width: 2px; }
- #mryudhvwpo .gt_striped { color: #333333; background-color: #F4F4F4; }
- #mryudhvwpo .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #mryudhvwpo .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #mryudhvwpo .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #mryudhvwpo .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #mryudhvwpo .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #mryudhvwpo .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #mryudhvwpo .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #mryudhvwpo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #mryudhvwpo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #mryudhvwpo .gt_left { text-align: left; }
- #mryudhvwpo .gt_center { text-align: center; }
- #mryudhvwpo .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #mryudhvwpo .gt_font_normal { font-weight: normal; }
- #mryudhvwpo .gt_font_bold { font-weight: bold; }
- #mryudhvwpo .gt_font_italic { font-style: italic; }
- #mryudhvwpo .gt_super { font-size: 65%; }
- #mryudhvwpo .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #mryudhvwpo .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #mryudhvwpo .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #mryudhvwpo .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #mryudhvwpo .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #mryudhvwpo .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
 | Name   | Year | *Population* |
 |--------|------|--------------|
 | Uganda | 2018 | 41515395     |
@@ -232,9 +94,7 @@ from great_tables.data import countrypops
 | Uganda | 2021 | 45853778     |
 | Uganda | 2022 | 47249585     |
 
-
 We can also use unit notation to format the column labels. In this example, we'll use `{cm^3 molecules^-1 s^-1}` for part of the label for the `OH_k298` column.
-
 
 ``` python
 from great_tables import GT
@@ -258,80 +118,16 @@ reactions_mini = (
 )
 ```
 
-
-<style>
-#ejysfkwfnn table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#ejysfkwfnn thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#ejysfkwfnn p { margin: 0; padding: 0; }
- #ejysfkwfnn .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #ejysfkwfnn .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #ejysfkwfnn .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #ejysfkwfnn .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #ejysfkwfnn .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ejysfkwfnn .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ejysfkwfnn .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ejysfkwfnn .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #ejysfkwfnn .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #ejysfkwfnn .gt_column_spanner_outer:first-child { padding-left: 0; }
- #ejysfkwfnn .gt_column_spanner_outer:last-child { padding-right: 0; }
- #ejysfkwfnn .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #ejysfkwfnn .gt_spanner_row { border-bottom-style: hidden; }
- #ejysfkwfnn .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #ejysfkwfnn .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #ejysfkwfnn .gt_from_md> :first-child { margin-top: 0; }
- #ejysfkwfnn .gt_from_md> :last-child { margin-bottom: 0; }
- #ejysfkwfnn .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #ejysfkwfnn .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #ejysfkwfnn .gt_indent_1 { text-indent: 5px; }
- #ejysfkwfnn .gt_indent_2 { text-indent: calc(5px * 2); }
- #ejysfkwfnn .gt_indent_3 { text-indent: calc(5px * 3); }
- #ejysfkwfnn .gt_indent_4 { text-indent: calc(5px * 4); }
- #ejysfkwfnn .gt_indent_5 { text-indent: calc(5px * 5); }
- #ejysfkwfnn .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #ejysfkwfnn .gt_row_group_first td { border-top-width: 2px; }
- #ejysfkwfnn .gt_row_group_first th { border-top-width: 2px; }
- #ejysfkwfnn .gt_striped { color: #333333; background-color: #F4F4F4; }
- #ejysfkwfnn .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ejysfkwfnn .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ejysfkwfnn .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #ejysfkwfnn .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ejysfkwfnn .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ejysfkwfnn .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #ejysfkwfnn .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #ejysfkwfnn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ejysfkwfnn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #ejysfkwfnn .gt_left { text-align: left; }
- #ejysfkwfnn .gt_center { text-align: center; }
- #ejysfkwfnn .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #ejysfkwfnn .gt_font_normal { font-weight: normal; }
- #ejysfkwfnn .gt_font_bold { font-weight: bold; }
- #ejysfkwfnn .gt_font_italic { font-style: italic; }
- #ejysfkwfnn .gt_super { font-size: 65%; }
- #ejysfkwfnn .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ejysfkwfnn .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #ejysfkwfnn .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ejysfkwfnn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #ejysfkwfnn .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #ejysfkwfnn .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-| Compound Name | OH, cm<span style="white-space:nowrap;"><sup>3</sup></span> molecules<span style="white-space:nowrap;"><sup>−1</sup></span> s<span style="white-space:nowrap;"><sup>−1</sup></span> |
-|----|----|
-| methanethiol | 3.50 × 10<sup>−11</sup> |
-| ethanethiol | 4.50 × 10<sup>−11</sup> |
-| propanethiol | 5.30 × 10<sup>−11</sup> |
-| 2-propanethiol | 3.90 × 10<sup>−11</sup> |
-| 1-butanethiol | 5.60 × 10<sup>−11</sup> |
-| 2-methyl-1-propanethiol | 4.60 × 10<sup>−11</sup> |
-| 2-butanethiol | 3.80 × 10<sup>−11</sup> |
-| t-butylsulfide | 2.90 × 10<sup>−11</sup> |
-| 2-methylbutanethiol | 5.20 × 10<sup>−11</sup> |
-| n-pentanethiol | -- |
-| 1,2-ethanedithiol | 3.80 × 10<sup>−11</sup> |
+| Compound Name           | OH, cm³ molecules⁻¹ s⁻¹ |
+|-------------------------|-------------------------|
+| methanethiol            | 3.50 × 10⁻¹¹            |
+| ethanethiol             | 4.50 × 10⁻¹¹            |
+| propanethiol            | 5.30 × 10⁻¹¹            |
+| 2-propanethiol          | 3.90 × 10⁻¹¹            |
+| 1-butanethiol           | 5.60 × 10⁻¹¹            |
+| 2-methyl-1-propanethiol | 4.60 × 10⁻¹¹            |
+| 2-butanethiol           | 3.80 × 10⁻¹¹            |
+| t-butylsulfide          | 2.90 × 10⁻¹¹            |
+| 2-methylbutanethiol     | 5.20 × 10⁻¹¹            |
+| n-pentanethiol          | --                       |
+| 1,2-ethanedithiol       | 3.80 × 10⁻¹¹            |

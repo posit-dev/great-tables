@@ -1620,7 +1620,7 @@ Columns of data can be formatted with the `fmt_*()` methods. We can specify the 
 
 
 
-fmt_number(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None) -> 'GTSelf'
+fmt_number(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None, system: 'NumberSystem' = 'intl') -> 'GTSelf'
 
 Format numeric values.
 
@@ -1682,7 +1682,8 @@ scale_by
 compact
     A boolean value that allows for compact formatting of numeric values. Values will be scaled
     and decorated with the appropriate suffixes (e.g., `1230` becomes `1.23K`, and `1230000`
-    becomes `1.23M`). The `compact` option is `False` by default.
+    becomes `1.23M`). The `compact` option is `False` by default. With `system="ind"`, values
+    are expressed in lakhs and crores instead (e.g., `1234567` becomes `12.35 Lac`).
 pattern
     A formatting pattern that allows for decoration of the formatted value. The formatted value
     is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -1709,6 +1710,13 @@ min_sep_threshold
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+system
+    The numbering system to use for digit grouping. The international numbering system
+    (`"intl"`, the default) always separates groups of three digits (e.g., `"1,234,567"`). The
+    Indian numbering system (`"ind"`) separates the last three digits and then groups of two,
+    which correspond to thousands, lakhs, crores, and higher quantities (e.g., `"12,34,567"`).
+    The separator itself is still set by `sep_mark=` (or the locale) and can be turned off with
+    `use_seps=False`.
 
 
 Returns
@@ -1745,7 +1753,23 @@ from great_tables import GT, exibble
 )
 ```
 
-fmt_integer(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, use_seps: 'bool' = True, scale_by: 'float' = 1, accounting: 'bool' = False, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None) -> 'GTSelf'
+Large values can be grouped according to the Indian numbering system with `system="ind"`, and
+with `compact=True` they're expressed in lakhs and crores.
+
+```{python}
+import polars as pl
+
+values = [12345.0, 123456.0, 1234567.0, 123456789.0]
+df = pl.DataFrame({"value": values, "compact": values})
+
+(
+    GT(df)
+    .fmt_number(columns="value", system="ind")
+    .fmt_number(columns="compact", system="ind", compact=True)
+)
+```
+
+fmt_integer(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, use_seps: 'bool' = True, scale_by: 'float' = 1, accounting: 'bool' = False, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None, system: 'NumberSystem' = 'intl') -> 'GTSelf'
 
 Format values as integers.
 
@@ -1787,7 +1811,8 @@ accounting
 compact
     A boolean value that allows for compact formatting of numeric values. Values will be scaled
     and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
-    becomes `1M`). The `compact` option is `False` by default.
+    becomes `1M`). The `compact` option is `False` by default. With `system="ind"`, values are
+    expressed in lakhs and crores instead (e.g., `1234567` becomes `12 Lac`).
 pattern
     A formatting pattern that allows for decoration of the formatted value. The formatted value
     is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -1810,6 +1835,13 @@ min_sep_threshold
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+system
+    The numbering system to use for digit grouping. The international numbering system
+    (`"intl"`, the default) always separates groups of three digits (e.g., `"1,234,567"`). The
+    Indian numbering system (`"ind"`) separates the last three digits and then groups of two,
+    which correspond to thousands, lakhs, crores, and higher quantities (e.g., `"12,34,567"`).
+    The separator itself is still set by `sep_mark=` (or the locale) and can be turned off with
+    `use_seps=False`.
 
 
 Returns
@@ -10911,7 +10943,7 @@ If you have single values (or lists of them) in need of formatting, we have a se
 
 
 
-val_fmt_number(x: 'X', decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None) -> 'list[str]'
+val_fmt_number(x: 'X', decimals: 'int' = 2, n_sigfig: 'int | None' = None, drop_trailing_zeros: 'bool' = False, drop_trailing_dec_mark: 'bool' = True, use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', dec_mark: 'str' = '.', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None, system: 'NumberSystem' = 'intl') -> 'list[str]'
 
 Format numeric values.
 
@@ -10967,7 +10999,8 @@ scale_by
 compact
     A boolean value that allows for compact formatting of numeric values. Values will be scaled
     and decorated with the appropriate suffixes (e.g., `1230` becomes `1.23K`, and `1230000`
-    becomes `1.23M`). The `compact` option is `False` by default.
+    becomes `1.23M`). The `compact` option is `False` by default. With `system="ind"`, values
+    are expressed in lakhs and crores instead (e.g., `1234567` becomes `12.35 Lac`).
 pattern
     A formatting pattern that allows for decoration of the formatted value. The formatted value
     is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -10993,6 +11026,13 @@ min_sep_threshold
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+system
+    The numbering system to use for digit grouping. The international numbering system
+    (`"intl"`, the default) always separates groups of three digits (e.g., `"1,234,567"`). The
+    Indian numbering system (`"ind"`) separates the last three digits and then groups of two,
+    which correspond to thousands, lakhs, crores, and higher quantities (e.g., `"12,34,567"`).
+    The separator itself is still set by `sep_mark=` (or the locale) and can be turned off with
+    `use_seps=False`.
 
 
 Returns
@@ -11008,7 +11048,7 @@ from great_tables import vals
 vals.fmt_number([0.325, 777000], decimals=2)
 ```
 
-val_fmt_integer(x: 'X', use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None) -> 'list[str]'
+val_fmt_integer(x: 'X', use_seps: 'bool' = True, accounting: 'bool' = False, scale_by: 'float' = 1, compact: 'bool' = False, pattern: 'str' = '{x}', sep_mark: 'str' = ',', force_sign: 'bool' = False, min_sep_threshold: 'int' = 1, locale: 'str | None' = None, system: 'NumberSystem' = 'intl') -> 'list[str]'
 
 Format values as integers.
 
@@ -11044,7 +11084,8 @@ scale_by
 compact
     A boolean value that allows for compact formatting of numeric values. Values will be scaled
     and decorated with the appropriate suffixes (e.g., `1230` becomes `1K`, and `1230000`
-    becomes `1M`). The `compact` option is `False` by default.
+    becomes `1M`). The `compact` option is `False` by default. With `system="ind"`, values are
+    expressed in lakhs and crores instead (e.g., `1234567` becomes `12 Lac`).
 pattern
     A formatting pattern that allows for decoration of the formatted value. The formatted value
     is represented by the `{x}` (which can be used multiple times, if needed) and all other
@@ -11066,6 +11107,13 @@ min_sep_threshold
 locale
     An optional locale identifier that can be used for formatting values according the locale's
     rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
+system
+    The numbering system to use for digit grouping. The international numbering system
+    (`"intl"`, the default) always separates groups of three digits (e.g., `"1,234,567"`). The
+    Indian numbering system (`"ind"`) separates the last three digits and then groups of two,
+    which correspond to thousands, lakhs, crores, and higher quantities (e.g., `"12,34,567"`).
+    The separator itself is still set by `sep_mark=` (or the locale) and can be turned off with
+    `use_seps=False`.
 
 
 Returns
@@ -14710,6 +14758,18 @@ fmt_number_4 = vals.fmt_number([1.64, 3.26, 3000.63, 236742.37], pattern="[{x}]"
 fmt_number_5 = vals.fmt_number([1.64, 3.26, 3000.63, 236742.37], locale="es")
 
 print(fmt_number_1, fmt_number_2, fmt_number_3, fmt_number_4, fmt_number_5, sep="\n")
+```
+
+Both `vals.fmt_number()` and `vals.fmt_integer()` (along with their `GT` method counterparts) can
+also group digits with the Indian numbering system by using `system="ind"`. Here, the last three
+digits are separated and then groups of two follow, which corresponds to thousands, lakhs, and
+crores. With `compact=True`, large values are then expressed in lakhs (`Lac`) and crores (`Cr`).
+
+```{python}
+fmt_number_ind_1 = vals.fmt_number([3000.63, 236742.37, 12345678.9], system="ind")
+fmt_number_ind_2 = vals.fmt_number([3000.63, 236742.37, 12345678.9], system="ind", compact=True)
+
+print(fmt_number_ind_1, fmt_number_ind_2, sep="\n")
 ```
 
 Scientific notation can be done with `vals.fmt_scientific()`.

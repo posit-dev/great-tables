@@ -1,10 +1,10 @@
 # vals.fmt_time()
 
-
 Format values as times.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats_vals.py#L1895-L1995)
 
 ``` python
 vals.fmt_time(
@@ -15,25 +15,21 @@ vals.fmt_time(
 )
 ```
 
-
 Format input values to time values using one of 25 preset time styles. Input can be in the form of `time` values, or strings in the ISO 8601 forms of `HH:MM:SS` or `YYYY-MM-DD HH:MM:SS`.
 
-
 ## Parameters
-
 
 `x: X`  
 A list of values to be formatted.
 
-`time_style: TimeStyle = ``"iso"`  
+`time_style: TimeStyle = "iso"`  
 The time style to use. By default this is the short name `"iso"` which corresponds to how times are formatted within ISO 8601 datetime values. There are 25 time styles in total.
 
-`pattern: str = ``"{x}"`  
+`pattern: str = "{x}"`  
 A formatting pattern that allows for decoration of the formatted value. The formatted value is represented by the `{x}` (which can be used multiple times, if needed) and all other characters will be interpreted as string literals.
 
 `locale: str | None = None`  
 An optional locale identifier that can be used for formatting values according the locale's rules. Examples include `"en"` for English (United States) and `"fr"` for French (France).
-
 
 ## Formatting With The `time_style` Argument
 
@@ -71,22 +67,17 @@ The names of the flexible time styles are CLDR skeletons, where each letter stan
 
 The styles with the day of the week (`E`) need `datetime` values (or datetime strings); a `time` value without a date raises an error with them. The styles with the time zone (`v`) give its generic name for an aware value (e.g., `"ET"` for `America/New_York`), falling back to a name like `"UTC"` or an offset like `"-0500"` for a zone without one. A naive value is taken to be in UTC.
 
-
 ## Returns
-
 
 `list[str]`  
 A list of formatted values is returned.
 
-
 ## Examples
-
 
 ``` python
 from great_tables import vals
 
 vals.fmt_time(["05:32:17", "13:01:02"], time_style="h_m_s_p")
 ```
-
 
     ['5:32:17 AM', '1:01:02 PM']

@@ -1,10 +1,10 @@
 # nanoplot_options()
 
-
 Helper for setting the options for a nanoplot.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L1500-L1764)
 
 ``` python
 nanoplot_options(
@@ -41,12 +41,9 @@ nanoplot_options(
 )
 ```
 
-
-When using `cols_nanoplot()`, the defaults for the generated nanoplots can be modified with [nanoplot_options()](nanoplot_options.md#great_tables.nanoplot_options) within the `options=` argument.
-
+When using `cols_nanoplot()`, the defaults for the generated nanoplots can be modified with [nanoplot_options()](../reference/nanoplot_options.md#great_tables.nanoplot_options) within the `options=` argument.
 
 ## Parameters
-
 
 `data_point_radius: int | list[int] | None = None`  
 The `data_point_radius=` option lets you set the radius for each of the data points. By default this is set to `10`. Individual radius values can be set by using a list of numeric values; however, the list provided must match the number of data points.
@@ -138,7 +135,6 @@ Providing a function for `y_ref_line_fmt_fn=` yields customized formatting of th
 `currency: str | None = None`  
 If the values are to be displayed as currency values, supply either: (1) a 3-letter currency code (e.g., `"USD"` for U.S. Dollars, `"EUR"` for the Euro currency), or (2) a common currency name (e.g., `"dollar"`, `"pound"`, `"yen"`, etc.).
 
-
 ## Examples
 
-See <a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link"><code>fmt_nanoplot()</code></a>.
+See [`fmt_nanoplot()`](../reference/GT.fmt_nanoplot.md#great_tables.GT.fmt_nanoplot).

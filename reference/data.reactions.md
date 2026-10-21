@@ -1,16 +1,12 @@
 # data.reactions
 
-
 Reaction rates for gas-phase atmospheric reactions of organic compounds.
-
 
 `data.reactions=_read_csv(_reactions_fname, dtype=_reactions_dtype)`
 
-
-The [reactions](data.reactions.md#great_tables.data.reactions) dataset contains kinetic data for second-order (two body) gas-phase chemical reactions for 1,683 organic compounds. The reaction-rate values and parameters within this dataset are useful for studies of the atmospheric environment. Organic pollutants, which are present in trace amounts in the atmosphere, have been extensively studied by research groups since their persistence in the atmosphere requires specific attention. Many researchers have reported kinetic data on specific gas-phase reactions and these mainly involve oxidation reactions with OH, nitrate radicals, ozone, and chlorine atoms.
+The [reactions](../reference/data.reactions.md#great_tables.data.reactions) dataset contains kinetic data for second-order (two body) gas-phase chemical reactions for 1,683 organic compounds. The reaction-rate values and parameters within this dataset are useful for studies of the atmospheric environment. Organic pollutants, which are present in trace amounts in the atmosphere, have been extensively studied by research groups since their persistence in the atmosphere requires specific attention. Many researchers have reported kinetic data on specific gas-phase reactions and these mainly involve oxidation reactions with OH, nitrate radicals, ozone, and chlorine atoms.
 
 This compilation of rate constant (*k*) data as contains the values for rate constants at 298 K (in units of `cm^3 molecules^-1 s^-1`) as well as parameters that allow for the calculation of rate constants at different temperatures (the temperature dependence parameters: `A`, `B`, and `n`). Uncertainty values/factors and temperature limits are also provided here where information is available.
-
 
 This is a dataset with 1,683 rows and 39 columns.
 
@@ -42,6 +38,7 @@ This is a dataset with 1,683 rows and 39 columns.
 - `Cl_a`, `Cl_b`, `Cl_n`: Extended temperature dependence parameters for bimolecular Cl reactions, to be used in the Arrhenius expression: `k(T)=A exp(-B/T) (T/300)^n`. In that, `A` is expressed as cm^3 molecules^-1 s^-1, `B` is in units of K, and `n` is dimensionless. Any missing values indicate that data is not available.
 - `Cl_t_low`, `Cl_t_high`: The low and high temperature boundaries (in units of K) for which the `Cl_a`, `Cl_b`, and `Cl_n` parameters are valid.
 
+&nbsp;
 
     Rows: 1683
     Columns: 39

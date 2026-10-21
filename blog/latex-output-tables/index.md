@@ -8,13 +8,9 @@ In this post, we will go over the following:
 - rendering to PDF with Quarto: integrating LaTeX table code into PDFs
 - current limitations and roadmap: what has been implemented, and what is left
 
-
-# Generating a LaTeX table with Great Tables
+## Generating a LaTeX table with Great Tables
 
 We can use the [GT.as_latex()](../../reference/GT.as_latex.md#great_tables.GT.as_latex) method to generate LaTeX table code. This code includes important structural pieces like titles, spanners, and value formatting. For example, here's a simple table output as LaTeX code:
-
-
-Show the Code
 
 ``` python
 from great_tables import GT
@@ -56,8 +52,7 @@ gt_tbl = (
 print(gt_tbl.as_latex())
 ```
 
-
-``` numberSource
+``` latex
 \begin{table}
 \caption*{
 {\large Some Cars from the gtcars Dataset} \\
@@ -96,8 +91,7 @@ The returned LaTeX table code shows how some of Great Tables' structural compone
 
 A frequent issue with any programmatic generation of LaTeX table code is LaTeX escaping. Not doing so can lead to LaTeX rendering errors, potentially breaking an entire publishing workflow. Great Tables will automatically escape characters in LaTeX, limiting such errors.
 
-
-# Using LaTeX output from Great Tables in Quarto
+## Using LaTeX output from Great Tables in Quarto
 
 Producing LaTeX table code is especially handy when using [Quarto](https://quarto.org) to generate PDF documents. Quarto is a tool for publishing documents, websites, books, etc., with an emphasis on running Python code. It uses the .qmd file format, which is a superset of Markdown (.md).
 
@@ -182,79 +176,13 @@ print(gt_tbl.as_latex())
 ```
 ````
 
-<img src="gtcars_latex_table.png" class="img-fluid" />
+![](gtcars_latex_table.png)
 
 If you'd like to experiment with Great Tables' LaTeX rendering, you can get the text of a working .qmd file in the details below. Make sure your installation of Quarto is [up to date](https://quarto.org/docs/get-started/) and that you have Great Tables upgraded to `v0.14.0`.
 
-
-# Current limitations of LaTeX table output
+## Current limitations of LaTeX table output
 
 The [as_latex()](../../reference/GT.as_latex.md#great_tables.GT.as_latex) method is still experimental and has some limitations. The following table lists the work epics that have been done and those planned:
-
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap');
-#lbcrmsoyxt table {
-          font-family: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#lbcrmsoyxt thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#lbcrmsoyxt p { margin: 0; padding: 0; }
- #lbcrmsoyxt .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: 450px; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #lbcrmsoyxt .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #lbcrmsoyxt .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #lbcrmsoyxt .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #lbcrmsoyxt .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #lbcrmsoyxt .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #lbcrmsoyxt .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #lbcrmsoyxt .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 18px; font-weight: bolder; text-transform: uppercase; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #lbcrmsoyxt .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 18px; font-weight: bolder; text-transform: uppercase; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #lbcrmsoyxt .gt_column_spanner_outer:first-child { padding-left: 0; }
- #lbcrmsoyxt .gt_column_spanner_outer:last-child { padding-right: 0; }
- #lbcrmsoyxt .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #lbcrmsoyxt .gt_spanner_row { border-bottom-style: hidden; }
- #lbcrmsoyxt .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 80%; font-weight: bolder; text-transform: uppercase; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #lbcrmsoyxt .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 80%; font-weight: bolder; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #lbcrmsoyxt .gt_from_md> :first-child { margin-top: 0; }
- #lbcrmsoyxt .gt_from_md> :last-child { margin-bottom: 0; }
- #lbcrmsoyxt .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #lbcrmsoyxt .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 80%; font-weight: bolder; text-transform: uppercase; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #lbcrmsoyxt .gt_indent_1 { text-indent: 5px; }
- #lbcrmsoyxt .gt_indent_2 { text-indent: calc(5px * 2); }
- #lbcrmsoyxt .gt_indent_3 { text-indent: calc(5px * 3); }
- #lbcrmsoyxt .gt_indent_4 { text-indent: calc(5px * 4); }
- #lbcrmsoyxt .gt_indent_5 { text-indent: calc(5px * 5); }
- #lbcrmsoyxt .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #lbcrmsoyxt .gt_row_group_first td { border-top-width: 2px; }
- #lbcrmsoyxt .gt_row_group_first th { border-top-width: 2px; }
- #lbcrmsoyxt .gt_striped { color: #333333; background-color: #F4F4F4; }
- #lbcrmsoyxt .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #lbcrmsoyxt .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #lbcrmsoyxt .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #lbcrmsoyxt .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #lbcrmsoyxt .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #lbcrmsoyxt .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #lbcrmsoyxt .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #lbcrmsoyxt .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #lbcrmsoyxt .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #lbcrmsoyxt .gt_left { text-align: left; }
- #lbcrmsoyxt .gt_center { text-align: center; }
- #lbcrmsoyxt .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #lbcrmsoyxt .gt_font_normal { font-weight: normal; }
- #lbcrmsoyxt .gt_font_bold { font-weight: bold; }
- #lbcrmsoyxt .gt_font_italic { font-style: italic; }
- #lbcrmsoyxt .gt_super { font-size: 65%; }
- #lbcrmsoyxt .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #lbcrmsoyxt .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #lbcrmsoyxt .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #lbcrmsoyxt .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #lbcrmsoyxt .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #lbcrmsoyxt .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
 
 | LaTeX Support | status |
 |----|----|
@@ -268,7 +196,6 @@ The [as_latex()](../../reference/GT.as_latex.md#great_tables.GT.as_latex) method
 | `sub_missing()` and `sub_zero()` methods | 🚧 |
 | `tab_style()` method | 🚧 |
 
-
 Some of these TODOs are short-term, notably the ones dealing with the use of the table stub and row groups. We plan to address this soon but having those structural components in a table currently will raise an error when using [as_latex()](../../reference/GT.as_latex.md#great_tables.GT.as_latex).
 
 We don't yet see an obvious solution for Markdown-to-LaTeX conversion. We depend on the `commonmark` library to perform Markdown-to-HTML transformation but the library doesn't support LaTeX output.
@@ -277,8 +204,7 @@ Styling a LaTeX table is currently not possible. Having a [tab_style()](../../re
 
 As development continues, we will work to expand the capabilities of the [as_latex()](../../reference/GT.as_latex.md#great_tables.GT.as_latex) method to reduce these limitations and more clearly document what is and is not supported.
 
-
-# Let's LaTeX!
+## Let's LaTeX!
 
 While this is an early preview of a new rendering capability in Great Tables, we are optimistic that it can be greatly improved in due course. If you're experimenting with this feature, please let us know about any problems you bump into by using the Great Tables [issue tracker](https://github.com/posit-dev/great-tables/issues).
 

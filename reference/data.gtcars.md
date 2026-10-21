@@ -1,16 +1,12 @@
 # data.gtcars
 
-
 Deluxe automobiles from the 2014-2017 period.
-
 
 `data.gtcars=_read_csv(_gtcars_fname, dtype=_gtcars_dtype)`
 
-
 Expensive and fast cars. Each row describes a car of a certain make, model, year, and trim. Basic specifications such as horsepower, torque, EPA MPG ratings, type of drivetrain, and transmission characteristics are provided. The country of origin for the car manufacturer is also given.
 
-All of the [gtcars](data.gtcars.md#great_tables.data.gtcars) have something else in common (aside from the high asking prices): they are all grand tourer vehicles. These are proper GT cars that blend pure driving thrills with a level of comfort that is more expected from a fine limousine (e.g., a Rolls-Royce Phantom EWB). You'll find that, with these cars, comfort is emphasized over all-out performance. Nevertheless, the driving experience should also mean motoring at speed, doing so in style and safety.
-
+All of the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) have something else in common (aside from the high asking prices): they are all grand tourer vehicles. These are proper GT cars that blend pure driving thrills with a level of comfort that is more expected from a fine limousine (e.g., a Rolls-Royce Phantom EWB). You'll find that, with these cars, comfort is emphasized over all-out performance. Nevertheless, the driving experience should also mean motoring at speed, doing so in style and safety.
 
 This is a dataset with 47 rows and 15 columns.
 
@@ -27,6 +23,7 @@ This is a dataset with 47 rows and 15 columns.
 - `ctry_origin`: The country name for where the vehicle manufacturer is headquartered.
 - `msrp`: Manufacturer's suggested retail price in U.S. dollars (USD).
 
+&nbsp;
 
     Rows: 47
     Columns: 15

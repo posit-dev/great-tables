@@ -1,16 +1,12 @@
 # data.towny
 
-
 Populations of all municipalities in Ontario from 1996 to 2021.
 
-
 `data.towny=_read_csv(_towny_fname, dtype=_towny_dtype)`
-
 
 A dataset containing census population data from six census years (1996 to 2021) for all 414 of Ontario's local municipalities. The Municipal Act of Ontario (2001) defines a local municipality as "a single-tier municipality or a lower-tier municipality". There are 173 single-tier municipalities and 241 lower-tier municipalities representing 99 percent of Ontario's population and 17 percent of its land use.
 
 In the towny dataset we include information specific to each municipality such as location (in the latitude and longitude columns), their website URLs, their classifications, and land area sizes according to 2021 boundaries. Additionally, there are computed columns containing population density values for each census year and population change values from adjacent census years.
-
 
 This is a dataset with 414 rows and 25 columns.
 
@@ -25,6 +21,7 @@ This is a dataset with 414 rows and 25 columns.
 - `density_1996`, `density_2001`, `density_2006`, `density_2011`, `density_2016`, `density_2021`: Population density values, calculated as persons per square kilometer, for each municipality from the 1996 to 2021 census years.
 - `pop_change_1996_2001_pct`, `pop_change_2001_2006_pct`, `pop_change_2006_2011_pct`, `pop_change_2011_2016_pct`, `pop_change_2016_2021_pct`: Population changes between adjacent pairs of census years, from 1996 to 2021.
 
+&nbsp;
 
     Rows: 414
     Columns: 25

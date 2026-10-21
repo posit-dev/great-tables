@@ -1,35 +1,28 @@
 # vals.fmt_markdown()
 
-
 Format Markdown text.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats_vals.py#L2105-L2157)
 
 ``` python
 vals.fmt_markdown(x)
 ```
 
-
-Any Markdown-formatted text can be transformed to HTML when using the <a href="../reference/vals.fmt_markdown.html#great_tables.vals.fmt_markdown" class="gdls-link"><code>fmt_markdown()</code></a> function.
-
+Any Markdown-formatted text can be transformed to HTML when using the [`fmt_markdown()`](../reference/vals.fmt_markdown.md#great_tables.vals.fmt_markdown) function.
 
 ## Parameters
-
 
 `x: X`  
 A list of values to be formatted.
 
-
 ## Returns
-
 
 `list[str]`  
 A list of formatted values is returned.
 
-
 ## Examples
-
 
 ``` python
 from great_tables import vals
@@ -52,6 +45,5 @@ Info on Markdown syntax can be found
 vals.fmt_markdown([text_1, text_2])
 ```
 
-
     ['<h3>This is Markdown.</h3>\n<p>Markdown's syntax is comprised entirely of\npunctuation characters, which punctuation\ncharacters have been carefully chosen so as\nto look like what they mean... assuming\nyou've ever used email.',
-     'Info on Markdown syntax can be found\n[here](https://daringfireball.net/projects/markdown/).']
+     'Info on Markdown syntax can be found\n<a href="https://daringfireball.net/projects/markdown/">here</a>.']

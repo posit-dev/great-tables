@@ -1,18 +1,14 @@
 # data.metro
 
-
 The stations of the Paris Metro.
 
-
 `data.metro=_read_csv(_metro_fname, dtype=_metro_dtype)`
-
 
 A dataset with information on all 314 Paris Metro stations as of June 2024. Each record represents a station, describing which Metro lines are serviced by the station, which other connections are available, and annual passenger volumes. Basic location information is provided for each station in terms where they reside on a municipal level, and, through latitude/longitude coordinates.
 
 The system has 16 lines (numbered from 1 to 14, with two additional lines: 3bis and 7bis) and covers over 200 kilometers of track. The Metro runs on standard gauge tracks (1,435 mm) and operates using a variety of rolling stock, including rubber-tired trains and steel-wheeled trains (which are far more common).
 
 The Metro is operated by the RATP, which also operates other transit systems in the region, including buses, trams, and the RER. The RER is an important component of the region's transit infrastructure, and several RER stations have connectivity with the Metro. This integration allows passengers to transfer between those two systems seamlessly. The Metro also has connections to the Transilien rail network, tramway stations, several major train stations (e.g., Gare du Nord, Gare de l'Est, etc.), and many bus lines.
-
 
 This is a dataset with 314 rows and 11 columns.
 
@@ -27,6 +23,7 @@ This is a dataset with 314 rows and 11 columns.
 - `location`: The arrondissement of Paris or municipality in which the station resides. For some stations located at borders, the grouping of locations will be presented as a comma-separated series.
 - `passengers`: The total number of Metro station entries during 2021. Some of the newest stations in the Metro system do not have this data, thus they show as missing values.
 
+&nbsp;
 
     Rows: 314
     Columns: 11

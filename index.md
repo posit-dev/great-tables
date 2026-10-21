@@ -1,0 +1,67 @@
+![Logo](assets/GT_logo.svg)
+
+Great Tables
+
+Absolutely Delightful Table-making in Python
+
+Great Tables is all about making it simple to produce nice-looking display tables in Python. Display tables? Well yes, we are trying to distinguish between data tables (i.e., DataFrames) and those tables you'd find in a web page, a journal article, or in a magazine.
+
+Here's a quick example (click "Show the code" to see how it's done):
+
+``` python
+import polars as pl
+from great_tables import GT, md, html
+from great_tables.data import countrypops
+
+countries_mini = (
+    pl.from_pandas(countrypops)
+    .filter(pl.col("year") == 2022)
+    .sort("population", descending=True)
+    .select("country_name", "population")
+    .head(10)
+)
+
+(
+    GT(countries_mini)
+    .tab_header(
+        title="The World's Most Populous Countries",
+        subtitle="The top ten in 2022 are presented"
+    )
+    .tab_stub(rowname_col="country_name")
+    .tab_stubhead(label="country")
+    .fmt_integer(columns="population")
+    .tab_source_note(
+        source_note=md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
+    )
+)
+```
+
+| The World's Most Populous Countries |  |
+|----|----|
+| The top ten in 2022 are presented |  |
+| country | population |
+| India | 1,417,173,173 |
+| China | 1,412,175,000 |
+| United States | 333,287,557 |
+| Indonesia | 275,501,339 |
+| Pakistan | 235,824,862 |
+| Nigeria | 218,541,212 |
+| Brazil | 215,313,498 |
+| Bangladesh | 171,186,372 |
+| Russian Federation | 143,555,736 |
+| Mexico | 127,504,125 |
+| Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL). |  |
+
+We can think of display tables as output only, where we'd not want to use them as input ever again. Other features include annotations, table element styling, and text transformations that serve to communicate the subject matter more clearly.
+
+Great Tables lets you build tables with a chainable API that starts with [GT()](./reference/GT.md#great_tables.GT). From there you can add a header, format values, apply styles, and export to HTML, LaTeX, or image files.
+
+### Get Started
+
+Install with:
+
+``` bash
+pip install great_tables
+```
+
+Then head over to the [User Guide](./user-guide/) to learn how to build your first table, or explore the [Examples](./examples/) gallery for inspiration.

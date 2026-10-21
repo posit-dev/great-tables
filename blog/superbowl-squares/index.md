@@ -4,8 +4,7 @@ The Super Bowl is upon us, and with it the glittering squares of chance. Maybe y
 
 Whether you're a Squares-head or not, this post will help you win with data.
 
-
-# What is Super Bowl Squares?
+## What is Super Bowl Squares?
 
 Super Bowl Squares is a betting game, where you bet on the final digits of each team in a game.
 
@@ -20,9 +19,6 @@ So the final digits would be:
 - Away team digit: 7
 
 Let's say you choose the digits above, and write this as 4/7--meaning a final digit of 4 for home and 7 for away. You would mark yourself on this square:
-
-
-Code
 
 ``` python
 df = (
@@ -46,243 +42,32 @@ df = (
 )
 ```
 
-
-<style>
-#pkpdsupbkz table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#pkpdsupbkz thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#pkpdsupbkz p { margin: 0; padding: 0; }
- #pkpdsupbkz .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #pkpdsupbkz .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #pkpdsupbkz .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #pkpdsupbkz .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #pkpdsupbkz .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pkpdsupbkz .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pkpdsupbkz .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #pkpdsupbkz .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #pkpdsupbkz .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #pkpdsupbkz .gt_column_spanner_outer:first-child { padding-left: 0; }
- #pkpdsupbkz .gt_column_spanner_outer:last-child { padding-right: 0; }
- #pkpdsupbkz .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #pkpdsupbkz .gt_spanner_row { border-bottom-style: hidden; }
- #pkpdsupbkz .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #pkpdsupbkz .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #pkpdsupbkz .gt_from_md> :first-child { margin-top: 0; }
- #pkpdsupbkz .gt_from_md> :last-child { margin-bottom: 0; }
- #pkpdsupbkz .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #pkpdsupbkz .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #pkpdsupbkz .gt_indent_1 { text-indent: 5px; }
- #pkpdsupbkz .gt_indent_2 { text-indent: calc(5px * 2); }
- #pkpdsupbkz .gt_indent_3 { text-indent: calc(5px * 3); }
- #pkpdsupbkz .gt_indent_4 { text-indent: calc(5px * 4); }
- #pkpdsupbkz .gt_indent_5 { text-indent: calc(5px * 5); }
- #pkpdsupbkz .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #pkpdsupbkz .gt_row_group_first td { border-top-width: 2px; }
- #pkpdsupbkz .gt_row_group_first th { border-top-width: 2px; }
- #pkpdsupbkz .gt_striped { color: #333333; background-color: #F4F4F4; }
- #pkpdsupbkz .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pkpdsupbkz .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #pkpdsupbkz .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #pkpdsupbkz .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #pkpdsupbkz .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #pkpdsupbkz .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #pkpdsupbkz .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #pkpdsupbkz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pkpdsupbkz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #pkpdsupbkz .gt_left { text-align: left; }
- #pkpdsupbkz .gt_center { text-align: center; }
- #pkpdsupbkz .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #pkpdsupbkz .gt_font_normal { font-weight: normal; }
- #pkpdsupbkz .gt_font_bold { font-weight: bold; }
- #pkpdsupbkz .gt_font_italic { font-style: italic; }
- #pkpdsupbkz .gt_super { font-size: 65%; }
- #pkpdsupbkz .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pkpdsupbkz .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #pkpdsupbkz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #pkpdsupbkz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #pkpdsupbkz .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #pkpdsupbkz .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_heading">
-<th colspan="11" class="gt_heading gt_title gt_font_normal">Example Superbowl Square</th>
-</tr>
-<tr class="gt_col_headings gt_spanner_row">
-<th rowspan="2" id="Away" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">Away</th>
-<th colspan="10" id="Home" class="gt_center gt_columns_top_border gt_column_spanner_outer" scope="colgroup">Home</th>
-</tr>
-<tr class="gt_col_headings">
-<th id="0" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">0</th>
-<th id="1" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">1</th>
-<th id="2" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">2</th>
-<th id="3" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">3</th>
-<th id="4" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">4</th>
-<th id="5" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">5</th>
-<th id="6" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">6</th>
-<th id="7" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">7</th>
-<th id="8" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">8</th>
-<th id="9" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">9</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr>
-<th class="gt_row gt_left gt_stub">0</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub">1</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub">2</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub">3</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub">4</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub">5</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub">6</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub">7</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="background-color: green; color: #FFFFFF; font-weight: bold">4/7</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub">8</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub">9</th>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-<td class="gt_row gt_left" style="color: #FFFFFF; font-weight: bold">_._</td>
-</tr>
-</tbody>
-</table>
-
+| Example Superbowl Square |  |  |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|----|----|
+| Away | Home |  |  |  |  |  |  |  |  |  |
+|  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+| 0 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
+| 1 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
+| 2 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
+| 3 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
+| 4 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
+| 5 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
+| 6 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
+| 7 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | 4/7 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
+| 8 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
+| 9 | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ | \_.\_ |
 
 If the final score ends up being Home 4, Away 7--ding ding ding, big winner--you win the pool, and hopefully take home some combination of money and glory. For more details on playing, see [this WikiHow article](https://www.wikihow.com/Play-Football-Squares).
 
-
-# Why analyze squares?
+## Why analyze squares?
 
 Not all options in a Super Bowl Squares are created equal. This is because there are specific point values you can add to your score. For example, touchdowns often to result in 7 points, and its common to score 3 points via a field goal. This means that ending up with a final digit of 5 is uncommon.
 
 Analyzing the chance of each square winning let's you pick the best ones. (In some versions of Super Bowl Squares, the squares get randomly assigned to people. In that case, knowing the chance of winning tells you whether you got a bum deal or not ;).
 
-
-# What squares are most likely to win?
+## What squares are most likely to win?
 
 We looked back at games for the KC Chiefs (away), and games for the San Francisco 49ers (home), and calculated the proportion of the time each team ended with a specific digit. Putting this together for the two teams, here is the chance of winning on a given square:
-
-
-Code
 
 ``` python
 import polars as pl
@@ -355,234 +140,22 @@ joint = (
 )
 ```
 
-
-<style>
-#xlgcsbrjyz table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#xlgcsbrjyz thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#xlgcsbrjyz p { margin: 0; padding: 0; }
- #xlgcsbrjyz .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #xlgcsbrjyz .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #xlgcsbrjyz .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #xlgcsbrjyz .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #xlgcsbrjyz .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #xlgcsbrjyz .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #xlgcsbrjyz .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #xlgcsbrjyz .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #xlgcsbrjyz .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #xlgcsbrjyz .gt_column_spanner_outer:first-child { padding-left: 0; }
- #xlgcsbrjyz .gt_column_spanner_outer:last-child { padding-right: 0; }
- #xlgcsbrjyz .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #xlgcsbrjyz .gt_spanner_row { border-bottom-style: hidden; }
- #xlgcsbrjyz .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #xlgcsbrjyz .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #xlgcsbrjyz .gt_from_md> :first-child { margin-top: 0; }
- #xlgcsbrjyz .gt_from_md> :last-child { margin-bottom: 0; }
- #xlgcsbrjyz .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #xlgcsbrjyz .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #xlgcsbrjyz .gt_indent_1 { text-indent: 5px; }
- #xlgcsbrjyz .gt_indent_2 { text-indent: calc(5px * 2); }
- #xlgcsbrjyz .gt_indent_3 { text-indent: calc(5px * 3); }
- #xlgcsbrjyz .gt_indent_4 { text-indent: calc(5px * 4); }
- #xlgcsbrjyz .gt_indent_5 { text-indent: calc(5px * 5); }
- #xlgcsbrjyz .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #xlgcsbrjyz .gt_row_group_first td { border-top-width: 2px; }
- #xlgcsbrjyz .gt_row_group_first th { border-top-width: 2px; }
- #xlgcsbrjyz .gt_striped { color: #333333; background-color: #F4F4F4; }
- #xlgcsbrjyz .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #xlgcsbrjyz .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #xlgcsbrjyz .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #xlgcsbrjyz .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #xlgcsbrjyz .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #xlgcsbrjyz .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #xlgcsbrjyz .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #xlgcsbrjyz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #xlgcsbrjyz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #xlgcsbrjyz .gt_left { text-align: left; }
- #xlgcsbrjyz .gt_center { text-align: center; }
- #xlgcsbrjyz .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #xlgcsbrjyz .gt_font_normal { font-weight: normal; }
- #xlgcsbrjyz .gt_font_bold { font-weight: bold; }
- #xlgcsbrjyz .gt_font_italic { font-style: italic; }
- #xlgcsbrjyz .gt_super { font-size: 65%; }
- #xlgcsbrjyz .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #xlgcsbrjyz .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #xlgcsbrjyz .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #xlgcsbrjyz .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #xlgcsbrjyz .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #xlgcsbrjyz .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_heading">
-<th colspan="11" class="gt_heading gt_title gt_font_normal">Super Bowl Squares | Final Score Probabilities</th>
-</tr>
-<tr class="gt_heading">
-<th colspan="11" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Based on all NFL regular season and playoff games (2015-2023)</th>
-</tr>
-<tr class="gt_col_headings gt_spanner_row">
-<th rowspan="2" id="KC-Chiefs" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">KC Chiefs</th>
-<th colspan="10" id="San-Francisco-49ers" class="gt_center gt_columns_top_border gt_column_spanner_outer" scope="colgroup">San Francisco 49ers</th>
-</tr>
-<tr class="gt_col_headings">
-<th id="0" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">0</th>
-<th id="1" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">1</th>
-<th id="2" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">2</th>
-<th id="3" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">3</th>
-<th id="4" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">4</th>
-<th id="5" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">5</th>
-<th id="6" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">6</th>
-<th id="7" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">7</th>
-<th id="8" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">8</th>
-<th id="9" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">9</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #000000; background-color: #ff0000">0</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #a2a2c8">2.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ce8e8e">1.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ec3939">0.6</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #9898cb">2.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #c8a2a2">1.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e25656">0.9</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #d87272">1.2</td>
-<td class="gt_row gt_right" style="color: #FFFFFF; background-color: #4c4ce5">3.2</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #db6969">1.1</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e54c4c">0.8</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #000000; background-color: #de5f5f">1</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #c4abab">1.8</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #d87272">1.2</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #c1b4b4">1.9</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #d57c7c">1.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e84242">0.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e25656">0.9</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #8585d2">2.6</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e25656">0.9</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ec3939">0.6</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #000000; background-color: #bebebe">2</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #db6969">1.1</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e84242">0.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f51c1c">0.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #d87272">1.2</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e54c4c">0.8</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f22626">0.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ec3939">0.6</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #cb9898">1.6</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f22626">0.4</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #FFFFFF; background-color: #5f5fde">3</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #c8a2a2">1.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #db6969">1.1</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #c4abab">1.8</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #d57c7c">1.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e84242">0.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e25656">0.9</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #8e8ece">2.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e54c4c">0.8</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ec3939">0.6</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #FFFFFF; background-color: #0000ff">4</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #c4abab">1.8</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #d87272">1.2</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #c1b4b4">1.9</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #d57c7c">1.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e84242">0.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e25656">0.9</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #8585d2">2.6</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e25656">0.9</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ec3939">0.6</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #000000; background-color: #808080">5</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e84242">0.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f81313">0.2</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e84242">0.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f51c1c">0.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f22626">0.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #de5f5f">1.0</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f51c1c">0.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f81313">0.2</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #000000; background-color: #808080">6</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #de5f5f">1.0</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ec3939">0.6</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f81313">0.2</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #de5f5f">1.0</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e84242">0.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f22626">0.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #d28585">1.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f51c1c">0.3</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #000000; background-color: #808080">7</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #a2a2c8">2.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ce8e8e">1.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ec3939">0.6</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #9898cb">2.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #c8a2a2">1.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e25656">0.9</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #d87272">1.2</td>
-<td class="gt_row gt_right" style="color: #FFFFFF; background-color: #3939ec">3.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #db6969">1.1</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e54c4c">0.8</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #000000; background-color: #808080">8</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e54c4c">0.8</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f81313">0.2</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e54c4c">0.8</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ec3939">0.6</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f51c1c">0.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f22626">0.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #db6969">1.1</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f22626">0.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f51c1c">0.3</td>
-</tr>
-<tr>
-<th class="gt_row gt_left gt_stub" style="color: #000000; background-color: #808080">9</th>
-<td class="gt_row gt_right" style="color: #000000; background-color: #de5f5f">1.0</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e84242">0.7</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f51c1c">0.3</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #db6969">1.1</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #e54c4c">0.8</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f22626">0.4</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ce8e8e">1.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #ef3030">0.5</td>
-<td class="gt_row gt_right" style="color: #000000; background-color: #f22626">0.4</td>
-</tr>
-</tbody><tfoot>
-<tr class="gt_sourcenotes">
-<td colspan="11" class="gt_sourcenote"><span style="float: right;">Source data: [Lee Sharpe, nflverse](https://github.com/nflverse/nfldata)</span></td>
-</tr>
-</tfoot>
-
-</table>
-
+| Super Bowl Squares \| Final Score Probabilities |  |  |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|----|----|
+| Based on all NFL regular season and playoff games (2015-2023) |  |  |  |  |  |  |  |  |  |  |
+| KC Chiefs | San Francisco 49ers |  |  |  |  |  |  |  |  |  |
+|  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+| 0 | 2.3 | 1.5 | 0.6 | 2.4 | 1.7 | 0.9 | 1.2 | 3.2 | 1.1 | 0.8 |
+| 1 | 1.8 | 1.2 | 0.5 | 1.9 | 1.3 | 0.7 | 0.9 | 2.6 | 0.9 | 0.6 |
+| 2 | 1.1 | 0.7 | 0.3 | 1.2 | 0.8 | 0.4 | 0.6 | 1.6 | 0.5 | 0.4 |
+| 3 | 1.7 | 1.1 | 0.5 | 1.8 | 1.3 | 0.7 | 0.9 | 2.5 | 0.8 | 0.6 |
+| 4 | 1.8 | 1.2 | 0.5 | 1.9 | 1.3 | 0.7 | 0.9 | 2.6 | 0.9 | 0.6 |
+| 5 | 0.7 | 0.5 | 0.2 | 0.7 | 0.5 | 0.3 | 0.4 | 1.0 | 0.3 | 0.2 |
+| 6 | 1.0 | 0.6 | 0.2 | 1.0 | 0.7 | 0.4 | 0.5 | 1.4 | 0.5 | 0.3 |
+| 7 | 2.3 | 1.5 | 0.6 | 2.4 | 1.7 | 0.9 | 1.2 | 3.4 | 1.1 | 0.8 |
+| 8 | 0.8 | 0.5 | 0.2 | 0.8 | 0.6 | 0.3 | 0.4 | 1.1 | 0.4 | 0.3 |
+| 9 | 1.0 | 0.7 | 0.3 | 1.1 | 0.8 | 0.4 | 0.5 | 1.5 | 0.5 | 0.4 |
+| Source data: [Lee Sharpe, nflverse](https://github.com/nflverse/nfldata) |  |  |  |  |  |  |  |  |  |  |
 
 Notice how much higher the chance of winning on any score involving 7 is. This shows up in two places on the table:
 
@@ -591,11 +164,117 @@ Notice how much higher the chance of winning on any score involving 7 is. This s
 
 Moreover, the 7/7 square has the highest chance (3.4%). Some other good squares are 7/0 (or 0/7), and 0/0.
 
-
-# Go forth and win the respect of your coworkers
+## Go forth and win the respect of your coworkers
 
 We hope this square will make you the envy of your coworkers. Here at Great Tables, we're not just interested in the beautiful display of tables, but your success in defeating the person in the cubicle next to you.
 
 As a final shout out, we used the python data analysis tool Polars for all the data analysis. Using Polars with Great Tables was a total delight. To learn more about how we analyzed the data, along with the code, see the appendix below!
 
 > **Note: Appendix: analysis and code**
+>
+> ## Appendix: analysis and code
+>
+> ### Method
+>
+> In order to calculate the probability of a given square winning, we focused on the joint probability of observing a final digit for the home team AND a final digit for the away team.
+>
+> This can be expressed as `p(home_digit, away_digit | home="SF", away="KC")`. Note that the probability is conditioned on the teams playing in the Super Bowl. In order to estimate this, we `p(digit | team="SF")*p(digit | team="KC")`.
+>
+> This essentially makes two assumptions:
+>
+> 1.  That the final digit does not depend on whether a team is home or away (though it may depend on the team playing).
+> 2.  That the final digit for a given team is independent of the team they are playing.
+>
+> Another way to think about this is that digit is being modeled as if each team is drawing a ball numbered 0-9 from their own urn. We are modelling the chance of observing a pair of numbers, corresponding to a draw from each team's urns.
+>
+> The code for this analysis is in [this python script on github](https://github.com/posit-dev/great-tables/blob/main/docs/blog/superbowl-squares/_code.py), and is included below:
+>
+> ### Code
+>
+> ``` python
+> import polars as pl
+> import polars.selectors as cs
+> from great_tables import GT, md
+>
+>
+> # Utilities -----
+>
+>
+> def calc_n(df: pl.DataFrame, colname: str):
+>     """Count the number of final digits observed across games."""
+>
+>     return df.select(final_digit=pl.col(colname).mod(10)).group_by("final_digit").agg(n=pl.len())
+>
+>
+> def team_final_digits(game: pl.DataFrame, team_code: str) -> pl.DataFrame:
+>     """Calculate a team's proportion of digits across games (both home and away)."""
+>
+>     home_n = calc_n(game.filter(pl.col("home_team") == team_code), "home_score")
+>     away_n = calc_n(game.filter(pl.col("away_team") == team_code), "away_score")
+>
+>     joined = (
+>         home_n.join(away_n, "final_digit")
+>         .select("final_digit", n=pl.col("n") + pl.col("n_right"))
+>         .with_columns(prop=pl.col("n") / pl.col("n").sum())
+>     )
+>
+>     return joined
+>
+>
+> # Analysis -----
+>
+> games = pl.read_csv("./games.csv").filter(
+>     pl.col("game_id") != "2023_22_SF_KC",
+>     pl.col("season") >= 2015,
+> )
+>
+> # Individual probabilities of final digits per team
+> home = team_final_digits(games, "KC")
+> away = team_final_digits(games, "SF")
+>
+> # Cross and multiply p(digit | team=KC)p(digit | team=SF) to get
+> # the joint probability p(digit_KC, digit_SF | KC, SF)
+> joint = (
+>     home.join(away, how="cross")
+>     .with_columns(joint=pl.col("prop") * pl.col("prop_right"))
+>     .sort("final_digit", "final_digit_right")
+>     .pivot(values="joint", on="final_digit_right", index="final_digit")
+>     .with_columns((cs.exclude("final_digit") * 100).round(1))
+> )
+>
+> # Display -----
+>
+> (
+>     GT(joint, rowname_col="final_digit")
+>     .data_color(domain=[0, 4], palette=["red", "grey", "blue"])
+>     .tab_header(
+>         "Super Bowl Squares | Final Score Probabilities",
+>         "Based on all NFL regular season and playoff games (2015-2023)",
+>     )
+>     .tab_stubhead("")
+>     .tab_spanner("San Francisco 49ers", cs.all())
+>     .tab_stubhead("KC Chiefs")
+>     .tab_source_note(
+>         md(
+>             '<span style="float: right;">Source data: [Lee Sharpe, nflverse](https://github.com/nflverse/nfldata)</span>'
+>         )
+>     )
+> )
+> ```
+>
+> | Super Bowl Squares \| Final Score Probabilities |  |  |  |  |  |  |  |  |  |  |
+> |----|----|----|----|----|----|----|----|----|----|----|
+> | Based on all NFL regular season and playoff games (2015-2023) |  |  |  |  |  |  |  |  |  |  |
+> | KC Chiefs | San Francisco 49ers |  |  |  |  |  |  |  |  |  |
+> |  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+> | 0 | 2.3 | 1.5 | 0.6 | 2.4 | 1.7 | 0.9 | 1.2 | 3.2 | 1.1 | 0.8 |
+> | 1 | 1.8 | 1.2 | 0.5 | 1.9 | 1.3 | 0.7 | 0.9 | 2.6 | 0.9 | 0.6 |
+> | 2 | 1.1 | 0.7 | 0.3 | 1.2 | 0.8 | 0.4 | 0.6 | 1.6 | 0.5 | 0.4 |
+> | 3 | 1.7 | 1.1 | 0.5 | 1.8 | 1.3 | 0.7 | 0.9 | 2.5 | 0.8 | 0.6 |
+> | 4 | 1.8 | 1.2 | 0.5 | 1.9 | 1.3 | 0.7 | 0.9 | 2.6 | 0.9 | 0.6 |
+> | 5 | 0.7 | 0.5 | 0.2 | 0.7 | 0.5 | 0.3 | 0.4 | 1.0 | 0.3 | 0.2 |
+> | 6 | 1.0 | 0.6 | 0.2 | 1.0 | 0.7 | 0.4 | 0.5 | 1.4 | 0.5 | 0.3 |
+> | 7 | 2.3 | 1.5 | 0.6 | 2.4 | 1.7 | 0.9 | 1.2 | 3.4 | 1.1 | 0.8 |
+> | 8 | 0.8 | 0.5 | 0.2 | 0.8 | 0.6 | 0.3 | 0.4 | 1.1 | 0.4 | 0.3 |
+> | 9 | 1.0 | 0.7 | 0.3 | 1.1 | 0.8 | 0.4 | 0.5 | 1.5 | 0.5 | 0.4 |
+> | Source data: [Lee Sharpe, nflverse](https://github.com/nflverse/nfldata) |  |  |  |  |  |  |  |  |  |  |

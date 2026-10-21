@@ -1,10 +1,10 @@
 # GT.tab_options()
 
-
 Modify the table output options.
 
-
 Usage
+
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L16-L607)
 
 ``` python
 GT.tab_options(
@@ -171,12 +171,9 @@ GT.tab_options(
 )
 ```
 
-
 Modify the options available in a table. These options are named by the components, the subcomponents, and the element that can adjusted.
 
-
 ## Parameters
-
 
 `container_width: str | None = None`  
 The width of the table's container. Can be specified as a single-length character with units of pixels or as a percentage. If provided as a scalar numeric value, it is assumed that the value is given in units of pixels.
@@ -323,49 +320,49 @@ The font weight of the table's column labels.
 The text transformation for the column labels. Either of the `"uppercase"`, `"lowercase"`, or `"capitalize"` keywords can be used.
 
 `column_labels_padding: str | None = None`  
-The amount of vertical padding to incorporate in the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) (this includes the column spanners).
+The amount of vertical padding to incorporate in the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) (this includes the column spanners).
 
 `column_labels_padding_horizontal: str | None = None`  
-The amount of horizontal padding to incorporate in the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) (this includes the column spanners).
+The amount of horizontal padding to incorporate in the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) (this includes the column spanners).
 
 `column_labels_vlines_style: str | None = None`  
-The style of all vertical lines ('vlines') of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels).
+The style of all vertical lines ('vlines') of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels).
 
 `column_labels_vlines_width: str | None = None`  
-The width of all vertical lines ('vlines') of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels).
+The width of all vertical lines ('vlines') of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels).
 
 `column_labels_vlines_color: str | None = None`  
-The color of all vertical lines ('vlines') of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels).
+The color of all vertical lines ('vlines') of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels).
 
 `column_labels_border_top_style: str | None = None`  
-The style of the top border of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location.
+The style of the top border of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location.
 
 `column_labels_border_top_width: str | None = None`  
-The width of the top border of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location. If the `width` of this border is larger, then it will be the visible border.
+The width of the top border of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location. If the `width` of this border is larger, then it will be the visible border.
 
 `column_labels_border_top_color: str | None = None`  
-The color of the top border of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location.
+The color of the top border of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location.
 
 `column_labels_border_bottom_style: str | None = None`  
-The style of the bottom border of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location.
+The style of the bottom border of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location.
 
 `column_labels_border_bottom_width: str | None = None`  
-The width of the bottom border of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location. If the `width` of this border is larger, then it will be the visible border.
+The width of the bottom border of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location. If the `width` of this border is larger, then it will be the visible border.
 
 `column_labels_border_bottom_color: str | None = None`  
-The color of the bottom border of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location.
+The color of the bottom border of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location.
 
 `column_labels_border_lr_style: str | None = None`  
-The style of the left and right borders of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location.
+The style of the left and right borders of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location.
 
 `column_labels_border_lr_width: str | None = None`  
-The width of the left and right borders of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location. If the `width` of this border is larger, then it will be the visible border.
+The width of the left and right borders of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location. If the `width` of this border is larger, then it will be the visible border.
 
 `column_labels_border_lr_color: str | None = None`  
-The color of the left and right borders of the [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location.
+The color of the left and right borders of the [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location.
 
 `column_labels_hidden: bool | None = None`  
-An option to hide the column labels. If providing `True` then the entire [column_labels](loc.column_labels.md#great_tables.loc.column_labels) location won't be seen and the table header (if present) will collapse downward.
+An option to hide the column labels. If providing `True` then the entire [column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels) location won't be seen and the table header (if present) will collapse downward.
 
 `row_group_background_color: str | None = None`  
 The background color for the row group labels. A color name or a hexadecimal color code should be provided.
@@ -476,7 +473,7 @@ The width of the vertical border of the table stub.
 The color of the vertical border of the table stub.
 
 `stub_indent_length: str | None = None`  
-The width of each indentation level for row labels set by <a href="../reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent" class="gdls-link"><code>tab_stub_indent()</code></a>. Defaults to `"5px"`.
+The width of each indentation level for row labels set by [`tab_stub_indent()`](../reference/GT.tab_stub_indent.md#great_tables.GT.tab_stub_indent). Defaults to `"5px"`.
 
 `stub_row_group_font_size: str | None = None`  
 The font size for the row group column in the stub.
@@ -521,22 +518,22 @@ An option to either put source notes in separate lines (the default, or `True`) 
 The separating characters between adjacent source notes when rendered as a continuous line of text (when `source_notes_multiline` is `False`). The default value is a single space character (`" "`).
 
 `source_notes_border_bottom_style: str | None = None`  
-The style of the bottom border of the [source_notes](loc.source_notes.md#great_tables.loc.source_notes) location.
+The style of the bottom border of the [source_notes](../reference/loc.source_notes.md#great_tables.loc.source_notes) location.
 
 `source_notes_border_bottom_width: str | None = None`  
-The width of the bottom border of the [source_notes](loc.source_notes.md#great_tables.loc.source_notes) location. If the `width` of this border is larger, then it will be the visible border.
+The width of the bottom border of the [source_notes](../reference/loc.source_notes.md#great_tables.loc.source_notes) location. If the `width` of this border is larger, then it will be the visible border.
 
 `source_notes_border_bottom_color: str | None = None`  
-The color of the bottom border of the [source_notes](loc.source_notes.md#great_tables.loc.source_notes) location.
+The color of the bottom border of the [source_notes](../reference/loc.source_notes.md#great_tables.loc.source_notes) location.
 
 `source_notes_border_lr_style: str | None = None`  
-The style of the left and right borders of the [source_notes](loc.source_notes.md#great_tables.loc.source_notes) location.
+The style of the left and right borders of the [source_notes](../reference/loc.source_notes.md#great_tables.loc.source_notes) location.
 
 `source_notes_border_lr_width: str | None = None`  
-The width of the left and right borders of the [source_notes](loc.source_notes.md#great_tables.loc.source_notes) location. If the `width` of this border is larger, then it will be the visible border.
+The width of the left and right borders of the [source_notes](../reference/loc.source_notes.md#great_tables.loc.source_notes) location. If the `width` of this border is larger, then it will be the visible border.
 
 `source_notes_border_lr_color: str | None = None`  
-The color of the left and right borders of the [source_notes](loc.source_notes.md#great_tables.loc.source_notes) location.
+The color of the left and right borders of the [source_notes](../reference/loc.source_notes.md#great_tables.loc.source_notes) location.
 
 `row_striping_background_color: str | None = None`  
 The background color for striped table body rows. A color name or a hexadecimal color code should be provided.
@@ -550,18 +547,14 @@ An option for whether to include the table body when striping rows.
 `quarto_disable_processing: bool | None = None`  
 Whether to disable Quarto table processing.
 
-
 ## Returns
-
 
 `GT`  
 The GT object is returned. This is the same object that the method is called on so that we can facilitate method chaining.
 
-
 ## Examples
 
-Using select columns from the [exibble](data.exibble.md#great_tables.data.exibble) dataset, let's create a new table with a number of table components added. We can use this object going forward to demonstrate some of the features available in the [tab_options()](GT.tab_options.md#great_tables.GT.tab_options) method.
-
+Using select columns from the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset, let's create a new table with a number of table components added. We can use this object going forward to demonstrate some of the features available in the [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) method.
 
 ``` python
 from great_tables import GT, exibble, md
@@ -584,749 +577,106 @@ gt_tbl = (
 gt_tbl
 ```
 
-
-<style>
-#xmuytpyiqb table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#xmuytpyiqb thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#xmuytpyiqb p { margin: 0; padding: 0; }
- #xmuytpyiqb .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #xmuytpyiqb .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #xmuytpyiqb .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #xmuytpyiqb .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #xmuytpyiqb .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #xmuytpyiqb .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #xmuytpyiqb .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #xmuytpyiqb .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #xmuytpyiqb .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #xmuytpyiqb .gt_column_spanner_outer:first-child { padding-left: 0; }
- #xmuytpyiqb .gt_column_spanner_outer:last-child { padding-right: 0; }
- #xmuytpyiqb .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #xmuytpyiqb .gt_spanner_row { border-bottom-style: hidden; }
- #xmuytpyiqb .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #xmuytpyiqb .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #xmuytpyiqb .gt_from_md> :first-child { margin-top: 0; }
- #xmuytpyiqb .gt_from_md> :last-child { margin-bottom: 0; }
- #xmuytpyiqb .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #xmuytpyiqb .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #xmuytpyiqb .gt_indent_1 { text-indent: 5px; }
- #xmuytpyiqb .gt_indent_2 { text-indent: calc(5px * 2); }
- #xmuytpyiqb .gt_indent_3 { text-indent: calc(5px * 3); }
- #xmuytpyiqb .gt_indent_4 { text-indent: calc(5px * 4); }
- #xmuytpyiqb .gt_indent_5 { text-indent: calc(5px * 5); }
- #xmuytpyiqb .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #xmuytpyiqb .gt_row_group_first td { border-top-width: 2px; }
- #xmuytpyiqb .gt_row_group_first th { border-top-width: 2px; }
- #xmuytpyiqb .gt_striped { color: #333333; background-color: #F4F4F4; }
- #xmuytpyiqb .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #xmuytpyiqb .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #xmuytpyiqb .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #xmuytpyiqb .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #xmuytpyiqb .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #xmuytpyiqb .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #xmuytpyiqb .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #xmuytpyiqb .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #xmuytpyiqb .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #xmuytpyiqb .gt_left { text-align: left; }
- #xmuytpyiqb .gt_center { text-align: center; }
- #xmuytpyiqb .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #xmuytpyiqb .gt_font_normal { font-weight: normal; }
- #xmuytpyiqb .gt_font_bold { font-weight: bold; }
- #xmuytpyiqb .gt_font_italic { font-style: italic; }
- #xmuytpyiqb .gt_super { font-size: 65%; }
- #xmuytpyiqb .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #xmuytpyiqb .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #xmuytpyiqb .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #xmuytpyiqb .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #xmuytpyiqb .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #xmuytpyiqb .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_heading">
-<th colspan="4" id="title" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
-</tr>
-<tr class="gt_heading">
-<th colspan="4" id="subtitle" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
-</tr>
-<tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
-<th id="num" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">num</th>
-<th id="char" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">char</th>
-<th id="currency" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">currency</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="gt_group_heading_row">
-<th colspan="4" id="grp_a" class="gt_group_heading" scope="colgroup">grp_a</th>
-</tr>
-
-<tr>
-<td id="stub-1" class="gt_row gt_left gt_stub" scope="row">row_1</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 num">0.11</td>
-<td class="gt_row gt_left" headers="grp_a stub-1 char">apricot</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 currency">$49.95</td>
-</tr>
-<tr>
-<td id="stub-2" class="gt_row gt_left gt_stub" scope="row">row_2</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 num">2.22</td>
-<td class="gt_row gt_left" headers="grp_a stub-2 char">banana</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 currency">$17.95</td>
-</tr>
-<tr>
-<td id="stub-3" class="gt_row gt_left gt_stub" scope="row">row_3</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 num">33.33</td>
-<td class="gt_row gt_left" headers="grp_a stub-3 char">coconut</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 currency">$1.39</td>
-</tr>
-<tr>
-<td id="stub-4" class="gt_row gt_left gt_stub" scope="row">row_4</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 num">444.40</td>
-<td class="gt_row gt_left" headers="grp_a stub-4 char">durian</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 currency">$65,100.00</td>
-</tr>
-<tr class="gt_group_heading_row">
-<td colspan="4" id="grp_b" class="gt_group_heading" scope="colgroup">grp_b</td>
-</tr>
-<tr>
-<td id="stub-5" class="gt_row gt_left gt_stub" scope="row">row_5</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 num">5,550.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-5 char">None</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 currency">$1,325.81</td>
-</tr>
-<tr>
-<td id="stub-6" class="gt_row gt_left gt_stub" scope="row">row_6</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 num">None</td>
-<td class="gt_row gt_left" headers="grp_b stub-6 char">fig</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 currency">$13.26</td>
-</tr>
-<tr>
-<td id="stub-7" class="gt_row gt_left gt_stub" scope="row">row_7</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 num">777,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-7 char">grapefruit</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 currency">None</td>
-</tr>
-<tr>
-<td id="stub-8" class="gt_row gt_left gt_stub" scope="row">row_8</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 num">8,880,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-8 char">honeydew</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 currency">$0.44</td>
-</tr>
-</tbody><tfoot>
-<tr class="gt_sourcenotes">
-<td colspan="4" class="gt_sourcenote">This is only a subset of the dataset.</td>
-</tr>
-</tfoot>
-
-</table>
-
+| Data listing from **exibble** |  |  |  |
+|----|----|----|----|
+| `exibble` is a **Great Tables** dataset. |  |  |  |
+|  | num | char | currency |
+| grp_a |  |  |  |
+| row_1 | 0.11 | apricot | \$49.95 |
+| row_2 | 2.22 | banana | \$17.95 |
+| row_3 | 33.33 | coconut | \$1.39 |
+| row_4 | 444.40 | durian | \$65,100.00 |
+| grp_b |  |  |  |
+| row_5 | 5,550.00 | None | \$1,325.81 |
+| row_6 | None | fig | \$13.26 |
+| row_7 | 777,000.00 | grapefruit | None |
+| row_8 | 8,880,000.00 | honeydew | \$0.44 |
+| This is only a subset of the dataset. |  |  |  |
 
 We can modify the table width to be set as `"100%`". In effect, this spans the table to entirely fill the content width area. This is done with the `table_width` option.
-
 
 ``` python
 gt_tbl.tab_options(table_width="100%")
 ```
 
-
-<style>
-#xwywnnuxqw table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#xwywnnuxqw thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#xwywnnuxqw p { margin: 0; padding: 0; }
- #xwywnnuxqw .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: 100%; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #xwywnnuxqw .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #xwywnnuxqw .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #xwywnnuxqw .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #xwywnnuxqw .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #xwywnnuxqw .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #xwywnnuxqw .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #xwywnnuxqw .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #xwywnnuxqw .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #xwywnnuxqw .gt_column_spanner_outer:first-child { padding-left: 0; }
- #xwywnnuxqw .gt_column_spanner_outer:last-child { padding-right: 0; }
- #xwywnnuxqw .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #xwywnnuxqw .gt_spanner_row { border-bottom-style: hidden; }
- #xwywnnuxqw .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #xwywnnuxqw .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #xwywnnuxqw .gt_from_md> :first-child { margin-top: 0; }
- #xwywnnuxqw .gt_from_md> :last-child { margin-bottom: 0; }
- #xwywnnuxqw .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #xwywnnuxqw .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #xwywnnuxqw .gt_indent_1 { text-indent: 5px; }
- #xwywnnuxqw .gt_indent_2 { text-indent: calc(5px * 2); }
- #xwywnnuxqw .gt_indent_3 { text-indent: calc(5px * 3); }
- #xwywnnuxqw .gt_indent_4 { text-indent: calc(5px * 4); }
- #xwywnnuxqw .gt_indent_5 { text-indent: calc(5px * 5); }
- #xwywnnuxqw .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #xwywnnuxqw .gt_row_group_first td { border-top-width: 2px; }
- #xwywnnuxqw .gt_row_group_first th { border-top-width: 2px; }
- #xwywnnuxqw .gt_striped { color: #333333; background-color: #F4F4F4; }
- #xwywnnuxqw .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #xwywnnuxqw .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #xwywnnuxqw .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #xwywnnuxqw .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #xwywnnuxqw .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #xwywnnuxqw .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #xwywnnuxqw .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #xwywnnuxqw .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #xwywnnuxqw .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #xwywnnuxqw .gt_left { text-align: left; }
- #xwywnnuxqw .gt_center { text-align: center; }
- #xwywnnuxqw .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #xwywnnuxqw .gt_font_normal { font-weight: normal; }
- #xwywnnuxqw .gt_font_bold { font-weight: bold; }
- #xwywnnuxqw .gt_font_italic { font-style: italic; }
- #xwywnnuxqw .gt_super { font-size: 65%; }
- #xwywnnuxqw .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #xwywnnuxqw .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #xwywnnuxqw .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #xwywnnuxqw .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #xwywnnuxqw .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #xwywnnuxqw .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_heading">
-<th colspan="4" id="title" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
-</tr>
-<tr class="gt_heading">
-<th colspan="4" id="subtitle" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
-</tr>
-<tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
-<th id="num" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">num</th>
-<th id="char" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">char</th>
-<th id="currency" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">currency</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="gt_group_heading_row">
-<th colspan="4" id="grp_a" class="gt_group_heading" scope="colgroup">grp_a</th>
-</tr>
-
-<tr>
-<td id="stub-1" class="gt_row gt_left gt_stub" scope="row">row_1</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 num">0.11</td>
-<td class="gt_row gt_left" headers="grp_a stub-1 char">apricot</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 currency">$49.95</td>
-</tr>
-<tr>
-<td id="stub-2" class="gt_row gt_left gt_stub" scope="row">row_2</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 num">2.22</td>
-<td class="gt_row gt_left" headers="grp_a stub-2 char">banana</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 currency">$17.95</td>
-</tr>
-<tr>
-<td id="stub-3" class="gt_row gt_left gt_stub" scope="row">row_3</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 num">33.33</td>
-<td class="gt_row gt_left" headers="grp_a stub-3 char">coconut</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 currency">$1.39</td>
-</tr>
-<tr>
-<td id="stub-4" class="gt_row gt_left gt_stub" scope="row">row_4</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 num">444.40</td>
-<td class="gt_row gt_left" headers="grp_a stub-4 char">durian</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 currency">$65,100.00</td>
-</tr>
-<tr class="gt_group_heading_row">
-<td colspan="4" id="grp_b" class="gt_group_heading" scope="colgroup">grp_b</td>
-</tr>
-<tr>
-<td id="stub-5" class="gt_row gt_left gt_stub" scope="row">row_5</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 num">5,550.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-5 char">None</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 currency">$1,325.81</td>
-</tr>
-<tr>
-<td id="stub-6" class="gt_row gt_left gt_stub" scope="row">row_6</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 num">None</td>
-<td class="gt_row gt_left" headers="grp_b stub-6 char">fig</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 currency">$13.26</td>
-</tr>
-<tr>
-<td id="stub-7" class="gt_row gt_left gt_stub" scope="row">row_7</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 num">777,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-7 char">grapefruit</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 currency">None</td>
-</tr>
-<tr>
-<td id="stub-8" class="gt_row gt_left gt_stub" scope="row">row_8</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 num">8,880,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-8 char">honeydew</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 currency">$0.44</td>
-</tr>
-</tbody><tfoot>
-<tr class="gt_sourcenotes">
-<td colspan="4" class="gt_sourcenote">This is only a subset of the dataset.</td>
-</tr>
-</tfoot>
-
-</table>
-
+| Data listing from **exibble** |  |  |  |
+|----|----|----|----|
+| `exibble` is a **Great Tables** dataset. |  |  |  |
+|  | num | char | currency |
+| grp_a |  |  |  |
+| row_1 | 0.11 | apricot | \$49.95 |
+| row_2 | 2.22 | banana | \$17.95 |
+| row_3 | 33.33 | coconut | \$1.39 |
+| row_4 | 444.40 | durian | \$65,100.00 |
+| grp_b |  |  |  |
+| row_5 | 5,550.00 | None | \$1,325.81 |
+| row_6 | None | fig | \$13.26 |
+| row_7 | 777,000.00 | grapefruit | None |
+| row_8 | 8,880,000.00 | honeydew | \$0.44 |
+| This is only a subset of the dataset. |  |  |  |
 
 With the `table_background_color` option, we can modify the table's background color. Here, we want that to be `"lightcyan"`.
-
 
 ``` python
 gt_tbl.tab_options(table_background_color="lightcyan")
 ```
 
-
-<style>
-#nikpfuhjkn table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#nikpfuhjkn thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#nikpfuhjkn p { margin: 0; padding: 0; }
- #nikpfuhjkn .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: lightcyan; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #nikpfuhjkn .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #nikpfuhjkn .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: lightcyan; border-bottom-width: 0; }
- #nikpfuhjkn .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: lightcyan; border-top-width: 0; }
- #nikpfuhjkn .gt_heading { background-color: lightcyan; text-align: center; border-bottom-color: lightcyan; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #nikpfuhjkn .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #nikpfuhjkn .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #nikpfuhjkn .gt_col_heading { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #nikpfuhjkn .gt_column_spanner_outer { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #nikpfuhjkn .gt_column_spanner_outer:first-child { padding-left: 0; }
- #nikpfuhjkn .gt_column_spanner_outer:last-child { padding-right: 0; }
- #nikpfuhjkn .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #nikpfuhjkn .gt_spanner_row { border-bottom-style: hidden; }
- #nikpfuhjkn .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #nikpfuhjkn .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #nikpfuhjkn .gt_from_md> :first-child { margin-top: 0; }
- #nikpfuhjkn .gt_from_md> :last-child { margin-bottom: 0; }
- #nikpfuhjkn .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #nikpfuhjkn .gt_stub { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #nikpfuhjkn .gt_indent_1 { text-indent: 5px; }
- #nikpfuhjkn .gt_indent_2 { text-indent: calc(5px * 2); }
- #nikpfuhjkn .gt_indent_3 { text-indent: calc(5px * 3); }
- #nikpfuhjkn .gt_indent_4 { text-indent: calc(5px * 4); }
- #nikpfuhjkn .gt_indent_5 { text-indent: calc(5px * 5); }
- #nikpfuhjkn .gt_stub_row_group { color: #333333; background-color: lightcyan; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #nikpfuhjkn .gt_row_group_first td { border-top-width: 2px; }
- #nikpfuhjkn .gt_row_group_first th { border-top-width: 2px; }
- #nikpfuhjkn .gt_striped { color: #333333; background-color: #F4F4F4; }
- #nikpfuhjkn .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #nikpfuhjkn .gt_summary_row { color: #333333; background-color: lightcyan; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #nikpfuhjkn .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #nikpfuhjkn .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #nikpfuhjkn .gt_grand_summary_row { color: #333333; background-color: lightcyan; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #nikpfuhjkn .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #nikpfuhjkn .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #nikpfuhjkn .gt_sourcenotes { color: #333333; background-color: lightcyan; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #nikpfuhjkn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #nikpfuhjkn .gt_left { text-align: left; }
- #nikpfuhjkn .gt_center { text-align: center; }
- #nikpfuhjkn .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #nikpfuhjkn .gt_font_normal { font-weight: normal; }
- #nikpfuhjkn .gt_font_bold { font-weight: bold; }
- #nikpfuhjkn .gt_font_italic { font-style: italic; }
- #nikpfuhjkn .gt_super { font-size: 65%; }
- #nikpfuhjkn .gt_footnotes { color: font-color(lightcyan); background-color: lightcyan; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #nikpfuhjkn .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #nikpfuhjkn .gt_sourcenotes { color: #333333; background-color: lightcyan; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #nikpfuhjkn .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #nikpfuhjkn .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #nikpfuhjkn .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_heading">
-<th colspan="4" id="title" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
-</tr>
-<tr class="gt_heading">
-<th colspan="4" id="subtitle" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
-</tr>
-<tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
-<th id="num" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">num</th>
-<th id="char" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">char</th>
-<th id="currency" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">currency</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="gt_group_heading_row">
-<th colspan="4" id="grp_a" class="gt_group_heading" scope="colgroup">grp_a</th>
-</tr>
-
-<tr>
-<td id="stub-1" class="gt_row gt_left gt_stub" scope="row">row_1</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 num">0.11</td>
-<td class="gt_row gt_left" headers="grp_a stub-1 char">apricot</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 currency">$49.95</td>
-</tr>
-<tr>
-<td id="stub-2" class="gt_row gt_left gt_stub" scope="row">row_2</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 num">2.22</td>
-<td class="gt_row gt_left" headers="grp_a stub-2 char">banana</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 currency">$17.95</td>
-</tr>
-<tr>
-<td id="stub-3" class="gt_row gt_left gt_stub" scope="row">row_3</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 num">33.33</td>
-<td class="gt_row gt_left" headers="grp_a stub-3 char">coconut</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 currency">$1.39</td>
-</tr>
-<tr>
-<td id="stub-4" class="gt_row gt_left gt_stub" scope="row">row_4</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 num">444.40</td>
-<td class="gt_row gt_left" headers="grp_a stub-4 char">durian</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 currency">$65,100.00</td>
-</tr>
-<tr class="gt_group_heading_row">
-<td colspan="4" id="grp_b" class="gt_group_heading" scope="colgroup">grp_b</td>
-</tr>
-<tr>
-<td id="stub-5" class="gt_row gt_left gt_stub" scope="row">row_5</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 num">5,550.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-5 char">None</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 currency">$1,325.81</td>
-</tr>
-<tr>
-<td id="stub-6" class="gt_row gt_left gt_stub" scope="row">row_6</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 num">None</td>
-<td class="gt_row gt_left" headers="grp_b stub-6 char">fig</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 currency">$13.26</td>
-</tr>
-<tr>
-<td id="stub-7" class="gt_row gt_left gt_stub" scope="row">row_7</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 num">777,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-7 char">grapefruit</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 currency">None</td>
-</tr>
-<tr>
-<td id="stub-8" class="gt_row gt_left gt_stub" scope="row">row_8</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 num">8,880,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-8 char">honeydew</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 currency">$0.44</td>
-</tr>
-</tbody><tfoot>
-<tr class="gt_sourcenotes">
-<td colspan="4" class="gt_sourcenote">This is only a subset of the dataset.</td>
-</tr>
-</tfoot>
-
-</table>
-
+| Data listing from **exibble** |  |  |  |
+|----|----|----|----|
+| `exibble` is a **Great Tables** dataset. |  |  |  |
+|  | num | char | currency |
+| grp_a |  |  |  |
+| row_1 | 0.11 | apricot | \$49.95 |
+| row_2 | 2.22 | banana | \$17.95 |
+| row_3 | 33.33 | coconut | \$1.39 |
+| row_4 | 444.40 | durian | \$65,100.00 |
+| grp_b |  |  |  |
+| row_5 | 5,550.00 | None | \$1,325.81 |
+| row_6 | None | fig | \$13.26 |
+| row_7 | 777,000.00 | grapefruit | None |
+| row_8 | 8,880,000.00 | honeydew | \$0.44 |
+| This is only a subset of the dataset. |  |  |  |
 
 The data rows of a table typically take up the most physical space but we have some control over the extent of that. With the `data_row_padding` option, it's possible to modify the top and bottom padding of data rows. We'll do just that in the following example, reducing the padding to a value of `"3px"`.
-
 
 ``` python
 gt_tbl.tab_options(data_row_padding="3px")
 ```
 
-
-<style>
-#cveqepvchv table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#cveqepvchv thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#cveqepvchv p { margin: 0; padding: 0; }
- #cveqepvchv .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #cveqepvchv .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #cveqepvchv .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #cveqepvchv .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #cveqepvchv .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #cveqepvchv .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #cveqepvchv .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #cveqepvchv .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #cveqepvchv .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #cveqepvchv .gt_column_spanner_outer:first-child { padding-left: 0; }
- #cveqepvchv .gt_column_spanner_outer:last-child { padding-right: 0; }
- #cveqepvchv .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #cveqepvchv .gt_spanner_row { border-bottom-style: hidden; }
- #cveqepvchv .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #cveqepvchv .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #cveqepvchv .gt_from_md> :first-child { margin-top: 0; }
- #cveqepvchv .gt_from_md> :last-child { margin-bottom: 0; }
- #cveqepvchv .gt_row { padding-top: 3px; padding-bottom: 3px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #cveqepvchv .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #cveqepvchv .gt_indent_1 { text-indent: 5px; }
- #cveqepvchv .gt_indent_2 { text-indent: calc(5px * 2); }
- #cveqepvchv .gt_indent_3 { text-indent: calc(5px * 3); }
- #cveqepvchv .gt_indent_4 { text-indent: calc(5px * 4); }
- #cveqepvchv .gt_indent_5 { text-indent: calc(5px * 5); }
- #cveqepvchv .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #cveqepvchv .gt_row_group_first td { border-top-width: 2px; }
- #cveqepvchv .gt_row_group_first th { border-top-width: 2px; }
- #cveqepvchv .gt_striped { color: #333333; background-color: #F4F4F4; }
- #cveqepvchv .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #cveqepvchv .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #cveqepvchv .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #cveqepvchv .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #cveqepvchv .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #cveqepvchv .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #cveqepvchv .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #cveqepvchv .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #cveqepvchv .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #cveqepvchv .gt_left { text-align: left; }
- #cveqepvchv .gt_center { text-align: center; }
- #cveqepvchv .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #cveqepvchv .gt_font_normal { font-weight: normal; }
- #cveqepvchv .gt_font_bold { font-weight: bold; }
- #cveqepvchv .gt_font_italic { font-style: italic; }
- #cveqepvchv .gt_super { font-size: 65%; }
- #cveqepvchv .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #cveqepvchv .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #cveqepvchv .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #cveqepvchv .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #cveqepvchv .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #cveqepvchv .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_heading">
-<th colspan="4" id="title" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
-</tr>
-<tr class="gt_heading">
-<th colspan="4" id="subtitle" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
-</tr>
-<tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
-<th id="num" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">num</th>
-<th id="char" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">char</th>
-<th id="currency" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">currency</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="gt_group_heading_row">
-<th colspan="4" id="grp_a" class="gt_group_heading" scope="colgroup">grp_a</th>
-</tr>
-
-<tr>
-<td id="stub-1" class="gt_row gt_left gt_stub" scope="row">row_1</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 num">0.11</td>
-<td class="gt_row gt_left" headers="grp_a stub-1 char">apricot</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 currency">$49.95</td>
-</tr>
-<tr>
-<td id="stub-2" class="gt_row gt_left gt_stub" scope="row">row_2</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 num">2.22</td>
-<td class="gt_row gt_left" headers="grp_a stub-2 char">banana</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 currency">$17.95</td>
-</tr>
-<tr>
-<td id="stub-3" class="gt_row gt_left gt_stub" scope="row">row_3</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 num">33.33</td>
-<td class="gt_row gt_left" headers="grp_a stub-3 char">coconut</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 currency">$1.39</td>
-</tr>
-<tr>
-<td id="stub-4" class="gt_row gt_left gt_stub" scope="row">row_4</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 num">444.40</td>
-<td class="gt_row gt_left" headers="grp_a stub-4 char">durian</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 currency">$65,100.00</td>
-</tr>
-<tr class="gt_group_heading_row">
-<td colspan="4" id="grp_b" class="gt_group_heading" scope="colgroup">grp_b</td>
-</tr>
-<tr>
-<td id="stub-5" class="gt_row gt_left gt_stub" scope="row">row_5</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 num">5,550.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-5 char">None</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 currency">$1,325.81</td>
-</tr>
-<tr>
-<td id="stub-6" class="gt_row gt_left gt_stub" scope="row">row_6</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 num">None</td>
-<td class="gt_row gt_left" headers="grp_b stub-6 char">fig</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 currency">$13.26</td>
-</tr>
-<tr>
-<td id="stub-7" class="gt_row gt_left gt_stub" scope="row">row_7</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 num">777,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-7 char">grapefruit</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 currency">None</td>
-</tr>
-<tr>
-<td id="stub-8" class="gt_row gt_left gt_stub" scope="row">row_8</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 num">8,880,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-8 char">honeydew</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 currency">$0.44</td>
-</tr>
-</tbody><tfoot>
-<tr class="gt_sourcenotes">
-<td colspan="4" class="gt_sourcenote">This is only a subset of the dataset.</td>
-</tr>
-</tfoot>
-
-</table>
-
+| Data listing from **exibble** |  |  |  |
+|----|----|----|----|
+| `exibble` is a **Great Tables** dataset. |  |  |  |
+|  | num | char | currency |
+| grp_a |  |  |  |
+| row_1 | 0.11 | apricot | \$49.95 |
+| row_2 | 2.22 | banana | \$17.95 |
+| row_3 | 33.33 | coconut | \$1.39 |
+| row_4 | 444.40 | durian | \$65,100.00 |
+| grp_b |  |  |  |
+| row_5 | 5,550.00 | None | \$1,325.81 |
+| row_6 | None | fig | \$13.26 |
+| row_7 | 777,000.00 | grapefruit | None |
+| row_8 | 8,880,000.00 | honeydew | \$0.44 |
+| This is only a subset of the dataset. |  |  |  |
 
 The size of the title and the subtitle text in the header of the table can be altered with the `heading_title_font_size` and `heading_subtitle_font_size` options. Here, we'll use the `"small"` and `"x-small"` keyword values.
-
 
 ``` python
 gt_tbl.tab_options(heading_title_font_size="small", heading_subtitle_font_size="x-small")
 ```
 
-
-<style>
-#dupgeivueu table {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-#dupgeivueu thead, tbody, tfoot, tr, td, th { border-style: none; }
- tr { background-color: transparent; }
-#dupgeivueu p { margin: 0; padding: 0; }
- #dupgeivueu .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #dupgeivueu .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #dupgeivueu .gt_title { color: #333333; font-size: small; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #dupgeivueu .gt_subtitle { color: #333333; font-size: x-small; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top-color: #FFFFFF; border-top-width: 0; }
- #dupgeivueu .gt_heading { background-color: #FFFFFF; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dupgeivueu .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dupgeivueu .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #dupgeivueu .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; overflow-x: hidden; }
- #dupgeivueu .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #dupgeivueu .gt_column_spanner_outer:first-child { padding-left: 0; }
- #dupgeivueu .gt_column_spanner_outer:last-child { padding-right: 0; }
- #dupgeivueu .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #dupgeivueu .gt_spanner_row { border-bottom-style: hidden; }
- #dupgeivueu .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #dupgeivueu .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #dupgeivueu .gt_from_md> :first-child { margin-top: 0; }
- #dupgeivueu .gt_from_md> :last-child { margin-bottom: 0; }
- #dupgeivueu .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; margin: 10px; border-top-style: solid; border-top-width: 1px; border-top-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #dupgeivueu .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; }
- #dupgeivueu .gt_indent_1 { text-indent: 5px; }
- #dupgeivueu .gt_indent_2 { text-indent: calc(5px * 2); }
- #dupgeivueu .gt_indent_3 { text-indent: calc(5px * 3); }
- #dupgeivueu .gt_indent_4 { text-indent: calc(5px * 4); }
- #dupgeivueu .gt_indent_5 { text-indent: calc(5px * 5); }
- #dupgeivueu .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 5px; padding-right: 5px; vertical-align: top; }
- #dupgeivueu .gt_row_group_first td { border-top-width: 2px; }
- #dupgeivueu .gt_row_group_first th { border-top-width: 2px; }
- #dupgeivueu .gt_striped { color: #333333; background-color: #F4F4F4; }
- #dupgeivueu .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dupgeivueu .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #dupgeivueu .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #dupgeivueu .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #dupgeivueu .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #dupgeivueu .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #dupgeivueu .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #dupgeivueu .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dupgeivueu .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #dupgeivueu .gt_left { text-align: left; }
- #dupgeivueu .gt_center { text-align: center; }
- #dupgeivueu .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #dupgeivueu .gt_font_normal { font-weight: normal; }
- #dupgeivueu .gt_font_bold { font-weight: bold; }
- #dupgeivueu .gt_font_italic { font-style: italic; }
- #dupgeivueu .gt_super { font-size: 65%; }
- #dupgeivueu .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dupgeivueu .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #dupgeivueu .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #dupgeivueu .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; text-align: left; }
- #dupgeivueu .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #dupgeivueu .gt_asterisk { font-size: 100%; vertical-align: 0; }
- 
-</style>
-
-<table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead>
-<tr class="gt_heading">
-<th colspan="4" id="title" class="gt_heading gt_title gt_font_normal">Data listing from <strong>exibble</strong></th>
-</tr>
-<tr class="gt_heading">
-<th colspan="4" id="subtitle" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border"><code>exibble</code> is a <strong>Great Tables</strong> dataset.</th>
-</tr>
-<tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" scope="col"></th>
-<th id="num" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">num</th>
-<th id="char" class="gt_col_heading gt_columns_bottom_border gt_left" scope="col">char</th>
-<th id="currency" class="gt_col_heading gt_columns_bottom_border gt_right" scope="col">currency</th>
-</tr>
-</thead>
-<tbody class="gt_table_body">
-<tr class="gt_group_heading_row">
-<th colspan="4" id="grp_a" class="gt_group_heading" scope="colgroup">grp_a</th>
-</tr>
-
-<tr>
-<td id="stub-1" class="gt_row gt_left gt_stub" scope="row">row_1</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 num">0.11</td>
-<td class="gt_row gt_left" headers="grp_a stub-1 char">apricot</td>
-<td class="gt_row gt_right" headers="grp_a stub-1 currency">$49.95</td>
-</tr>
-<tr>
-<td id="stub-2" class="gt_row gt_left gt_stub" scope="row">row_2</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 num">2.22</td>
-<td class="gt_row gt_left" headers="grp_a stub-2 char">banana</td>
-<td class="gt_row gt_right" headers="grp_a stub-2 currency">$17.95</td>
-</tr>
-<tr>
-<td id="stub-3" class="gt_row gt_left gt_stub" scope="row">row_3</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 num">33.33</td>
-<td class="gt_row gt_left" headers="grp_a stub-3 char">coconut</td>
-<td class="gt_row gt_right" headers="grp_a stub-3 currency">$1.39</td>
-</tr>
-<tr>
-<td id="stub-4" class="gt_row gt_left gt_stub" scope="row">row_4</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 num">444.40</td>
-<td class="gt_row gt_left" headers="grp_a stub-4 char">durian</td>
-<td class="gt_row gt_right" headers="grp_a stub-4 currency">$65,100.00</td>
-</tr>
-<tr class="gt_group_heading_row">
-<td colspan="4" id="grp_b" class="gt_group_heading" scope="colgroup">grp_b</td>
-</tr>
-<tr>
-<td id="stub-5" class="gt_row gt_left gt_stub" scope="row">row_5</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 num">5,550.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-5 char">None</td>
-<td class="gt_row gt_right" headers="grp_b stub-5 currency">$1,325.81</td>
-</tr>
-<tr>
-<td id="stub-6" class="gt_row gt_left gt_stub" scope="row">row_6</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 num">None</td>
-<td class="gt_row gt_left" headers="grp_b stub-6 char">fig</td>
-<td class="gt_row gt_right" headers="grp_b stub-6 currency">$13.26</td>
-</tr>
-<tr>
-<td id="stub-7" class="gt_row gt_left gt_stub" scope="row">row_7</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 num">777,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-7 char">grapefruit</td>
-<td class="gt_row gt_right" headers="grp_b stub-7 currency">None</td>
-</tr>
-<tr>
-<td id="stub-8" class="gt_row gt_left gt_stub" scope="row">row_8</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 num">8,880,000.00</td>
-<td class="gt_row gt_left" headers="grp_b stub-8 char">honeydew</td>
-<td class="gt_row gt_right" headers="grp_b stub-8 currency">$0.44</td>
-</tr>
-</tbody><tfoot>
-<tr class="gt_sourcenotes">
-<td colspan="4" class="gt_sourcenote">This is only a subset of the dataset.</td>
-</tr>
-</tfoot>
-
-</table>
+| Data listing from **exibble** |  |  |  |
+|----|----|----|----|
+| `exibble` is a **Great Tables** dataset. |  |  |  |
+|  | num | char | currency |
+| grp_a |  |  |  |
+| row_1 | 0.11 | apricot | \$49.95 |
+| row_2 | 2.22 | banana | \$17.95 |
+| row_3 | 33.33 | coconut | \$1.39 |
+| row_4 | 444.40 | durian | \$65,100.00 |
+| grp_b |  |  |  |
+| row_5 | 5,550.00 | None | \$1,325.81 |
+| row_6 | None | fig | \$13.26 |
+| row_7 | 777,000.00 | grapefruit | None |
+| row_8 | 8,880,000.00 | honeydew | \$0.44 |
+| This is only a subset of the dataset. |  |  |  |

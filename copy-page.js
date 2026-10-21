@@ -5,7 +5,8 @@
  * - "Copy as Markdown" — copies the page's .md content to clipboard
  * - "View as Markdown" — navigates to the .md version of the page
  *
- * The .md files are generated alongside .html files by the post-render script.
+ * The markdown-pages filter writes each .md file beside its .html page during
+ * the Quarto render.
  */
 
 (function() {
