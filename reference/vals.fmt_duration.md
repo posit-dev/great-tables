@@ -41,8 +41,8 @@ Controls the output time units. The default (`None`) means that output units wil
 `duration_style: str = ``"narrow"`  
 Style for representing duration values. One of `"narrow"` (default, e.g., `"1d 8h 24m"`), `"wide"` (e.g., `"1 day 8 hours 24 minutes"`), `"colon-sep"` (e.g., `"1/08:24:00"`), or `"iso"` (e.g., `"P1DT8H24M"`).
 
-`trim_zero_units: bool | list[str] = ``True`  
-Provides methods to remove output time units that have zero values. By default this is `True`. Can also be a list of `"leading"`, `"trailing"`, and/or `"internal"`.
+`trim_zero_units: bool | str | list[str] = ``True`  
+Provides methods to remove output time units that have zero values. By default this is `True`. Can also be one of `"leading"`, `"trailing"`, or `"internal"`, or a list of these.
 
 `max_output_units: int | None = None`  
 Maximum number of time units to display. By default (`None`), all possible time units will be displayed.

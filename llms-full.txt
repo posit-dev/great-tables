@@ -4080,7 +4080,7 @@ names of the weekdays and months are still localized, here for a table in French
 )
 ```
 
-fmt_duration(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, input_units: 'str | None' = None, output_units: 'str | list[str] | None' = None, duration_style: 'DurationStyle' = 'narrow', trim_zero_units: 'bool | list[str]' = True, max_output_units: 'int | None' = None, pattern: 'str' = '{x}', use_seps: 'bool' = True, sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
+fmt_duration(self: 'GTSelf', columns: 'SelectExpr' = None, rows: 'RowSelectExpr' = None, input_units: 'str | None' = None, output_units: 'str | list[str] | None' = None, duration_style: 'DurationStyle' = 'narrow', trim_zero_units: 'bool | str | list[str]' = True, max_output_units: 'int | None' = None, pattern: 'str' = '{x}', use_seps: 'bool' = True, sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'GTSelf'
 
 Format numeric or duration values as styled time duration strings.
 
@@ -4124,11 +4124,12 @@ trim_zero_units
     Provides methods to remove output time units that have zero values. By default this is
     `True` and duration values that might otherwise be formatted as `"0w 1d 0h 4m 19s"` with
     `trim_zero_units=False` are instead displayed as `"1d 4m 19s"`. Aside from using
-    `True`/`False` we could provide a list of keywords for more precise control. These keywords
-    are: (1) `"leading"`, to omit all leading zero-value time units (e.g., `"0w 1d"` ->
-    `"1d"`), (2) `"trailing"`, to omit all trailing zero-value time units (e.g., `"3d 5h 0s"`
-    -> `"3d 5h"`), and (3) `"internal"`, which removes all internal zero-value time units
-    (e.g., `"5d 0h 33m"` -> `"5d 33m"`).
+    `True`/`False` we could provide a keyword or a list of keywords for more precise control.
+    These keywords are: (1) `"leading"`, to omit all leading zero-value time units (e.g.,
+    `"0w 1d"` -> `"1d"`), (2) `"trailing"`, to omit all trailing zero-value time units (e.g.,
+    `"3d 5h 0s"` -> `"3d 5h"`), and (3) `"internal"`, which removes all internal zero-value
+    time units (e.g., `"5d 0h 33m"` -> `"5d 33m"`). With `duration_style="colon-sep"`, only
+    `"leading"` has an effect (omitting zero hours, as in `"02:05"`).
 max_output_units
     If `output_units` is `None`, where the output time units are unspecified and left to be
     handled automatically, a numeric value provided for `max_output_units=` will be taken as the
@@ -4177,7 +4178,9 @@ option. The following combinations of output units are permitted:
 - `["days", "hours", "minutes"]` -> `(D/)HH:MM`
 
 Any other specialized combinations will result in the default set being used, which is
-`["days", "hours", "minutes", "seconds"]`.
+`["days", "hours", "minutes", "seconds"]`. The largest unit carries any larger ones that
+aren't shown, so with `["hours", "minutes", "seconds"]` a duration of 1 day, 8 hours, and 24
+minutes is displayed as `32:24:00`.
 
 Compatibility of formatting function with data values
 -----------------------------------------------------
@@ -11950,7 +11953,7 @@ from great_tables import vals
 vals.fmt_bytes([123.45, 3615844.256], standard="decimal")
 ```
 
-val_fmt_duration(x: 'X', input_units: 'str | None' = None, output_units: 'str | list[str] | None' = None, duration_style: 'str' = 'narrow', trim_zero_units: 'bool | list[str]' = True, max_output_units: 'int | None' = None, pattern: 'str' = '{x}', use_seps: 'bool' = True, sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'list[str]'
+val_fmt_duration(x: 'X', input_units: 'str | None' = None, output_units: 'str | list[str] | None' = None, duration_style: 'str' = 'narrow', trim_zero_units: 'bool | str | list[str]' = True, max_output_units: 'int | None' = None, pattern: 'str' = '{x}', use_seps: 'bool' = True, sep_mark: 'str' = ',', force_sign: 'bool' = False, locale: 'str | None' = None) -> 'list[str]'
 
 Format values as time duration strings.
 
@@ -11975,7 +11978,7 @@ duration_style
     `"iso"` (e.g., `"P1DT8H24M"`).
 trim_zero_units
     Provides methods to remove output time units that have zero values. By default this is
-    `True`. Can also be a list of `"leading"`, `"trailing"`, and/or `"internal"`.
+    `True`. Can also be one of `"leading"`, `"trailing"`, or `"internal"`, or a list of these.
 max_output_units
     Maximum number of time units to display. By default (`None`), all possible time units will
     be displayed.
@@ -15018,7 +15021,7 @@ The `duration_style=` argument controls the output format. The available styles 
 
 - `"narrow"` (the default): compact format like `"2d 3h 15m"`
 - `"wide"`: spelled out like `"2 days 3 hours 15 minutes"`
-- `"colon-sep"`: clock format like `"51:03:15"`
+- `"colon-sep"`: clock format like `"2/03:15:00"`
 - `"iso"`: ISO 8601 format like `"P2DT3H15M"`
 
 ```{python}
