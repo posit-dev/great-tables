@@ -2,6 +2,7 @@ import builtins
 import math
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -9,6 +10,7 @@ import pandas as pd
 import polars as pl
 import pyarrow as pa
 import pytest
+from syrupy.assertion import SnapshotAssertion
 
 from great_tables import GT
 from great_tables._tbl_data import (
@@ -16,6 +18,7 @@ from great_tables._tbl_data import (
     SeriesLike,
     _get_cell,
     _get_column_dtype,
+    _re_version,
     _set_cell,
     _set_cells,
     _validate_selector_list,
@@ -28,23 +31,105 @@ from great_tables._tbl_data import (
     group_splits,
     is_na,
     is_series,
+    n_rows,
     reorder,
     to_frame,
     to_list,
     validate_frame,
 )
 from great_tables._utils_render_html import create_body_component_h
-from tests.utils import DataFrameConstructor, SeriesConstructor, assert_frame_equal
+from tests.utils import (
+    DataFrameConstructor,
+    DataLike,
+    SeriesConstructor,
+    assert_frame_equal,
+)
 
 params_pl_container_dtypes = [
     pytest.param(pl.List, id="list"),
     pytest.param(pl.Array, id="array"),
 ]
 
+pandas_ge_v3 = _re_version(pd.__version__) >= (3, 0, 0)
+
+# One column per dtype, each ending with a missing value. The float column needs a non-integral
+# value, or the pandas nullable and pyarrow-backed constructors make it an integer column.
+DTYPE_MATRIX: DataLike = {
+    "int": [1, 2, None],
+    "float": [1.5, -0.0, None],
+    "str": ["a", "b", None],
+    "bool": [True, False, None],
+    "date": [date(2024, 1, 1), date(2024, 2, 29), None],
+    "datetime": [datetime(2024, 1, 1, 12, 30), datetime(2024, 2, 29), None],
+    "datetime_tz": [
+        datetime(2024, 1, 1, 12, 30, tzinfo=timezone.utc),
+        datetime(2024, 2, 29, tzinfo=timezone.utc),
+        None,
+    ],
+    "duration": [timedelta(hours=1), timedelta(days=2), None],
+    "decimal": [Decimal("1.50"), Decimal("-2.25"), None],
+    "list": [[1, 2], [3], None],
+}
+
+
+def _cast_to_categorical(df: DataFrameLike, column: str, *, ordered: bool) -> DataFrameLike:
+    # Python values can't build categorical columns. Ordered categories follow first appearance.
+    if isinstance(df, pd.DataFrame):
+        categories = df[column].dropna().unique()
+        categorical = pd.Categorical(df[column], categories=categories, ordered=ordered)
+        return df.assign(**{column: categorical})
+
+    if isinstance(df, pl.DataFrame):
+        categories = df[column].drop_nulls().unique(maintain_order=True)
+        return df.with_columns(
+            pl.col(column).cast(pl.Enum(categories) if ordered else pl.Categorical)
+        )
+
+    encoded = df[column].dictionary_encode()
+    if ordered:
+        encoded = encoded.cast(
+            pa.dictionary(encoded.type.index_type, encoded.type.value_type, ordered=True)
+        )
+    return df.set_column(df.column_names.index(column), column, encoded)
+
+
+def _column_cells(df: DataFrameLike, column: str) -> list[Any]:
+    return [_get_cell(df, row, column) for row in range(n_rows(df))]
+
+
+def _describe(value: Any) -> str:
+    # Type name and `str()` hold across library versions, unlike reprs. numpy 2 names its bool
+    # scalar "bool", so numpy types get a prefix to tell them from Python's.
+    prefix = "np." if isinstance(value, np.generic) else ""
+    return f"{prefix}{type(value).__name__}: {value}"
+
+
+def _describe_column(
+    column: str, values: list[Any], constructor: DataFrameConstructor | SeriesConstructor
+) -> list[str]:
+    described = [_describe(value) for value in values]
+
+    # A missing value in a plain pandas text column is None on pandas 2 (object dtype) and nan on
+    # pandas 3 (str dtype), so it's checked here and the snapshot holds on both majors
+    plain_pandas = constructor.__name__ in ("pandas_constructor", "pandas_series_constructor")
+    if column == "str" and plain_pandas:
+        assert described[-1] == ("float: nan" if pandas_ge_v3 else "NoneType: None")
+        described[-1] = "None (pandas 2) or nan (pandas 3)"
+
+    return described
+
 
 @pytest.fixture
 def df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
     return frame_constructor({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+
+
+@pytest.fixture
+def matrix_df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
+    text = DTYPE_MATRIX["str"]
+    df = frame_constructor({**DTYPE_MATRIX, "categorical": text, "categorical_ordered": text})
+    df = _cast_to_categorical(df, "categorical", ordered=False)
+    return _cast_to_categorical(df, "categorical_ordered", ordered=True)
 
 
 @pytest.fixture(params=params_pl_container_dtypes, scope="function")
@@ -84,6 +169,18 @@ def test_get_column_dtypes(df: DataFrameLike):
 
 def test_get_cell(df: DataFrameLike):
     assert _get_cell(df, 1, "col2") == "b"
+
+
+def test_get_cell_dtype_matrix(
+    matrix_df: DataFrameLike, frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
+):
+    # Unformatted cells render as `str()` of these values
+    result = {
+        col: _describe_column(col, _column_cells(matrix_df, col), frame_constructor)
+        for col in get_column_names(matrix_df)
+    }
+
+    assert snapshot == result
 
 
 def test_get_cell_container_dtypes(df_container_dtypes: pl.DataFrame):
@@ -342,6 +439,29 @@ def test_to_list(ser: SeriesLike):
     pylist = to_list(ser)
     assert len(pylist) == 3
     assert pylist[:2] == [1.0, 2.0]
+
+
+def test_to_list_dtype_matrix(series_constructor: SeriesConstructor, snapshot: SnapshotAssertion):
+    # `data_color(fn=...)` gets these values
+    result = {
+        col: _describe_column(col, to_list(series_constructor(values)), series_constructor)
+        for col, values in DTYPE_MATRIX.items()
+    }
+
+    assert snapshot == result
+
+
+@pytest.mark.parametrize("column", list(DTYPE_MATRIX))
+def test_to_frame_dtype_matrix(
+    series_constructor: SeriesConstructor,
+    paired_frame_constructor: DataFrameConstructor,
+    column: str,
+):
+    # A series makes the same frame as its values would
+    values = DTYPE_MATRIX[column]
+    expected = paired_frame_constructor({column: values})
+
+    assert_frame_equal(to_frame(series_constructor(values), name=column), expected)
 
 
 def test_cast_frame_to_string_polars_list_col():
