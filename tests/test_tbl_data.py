@@ -28,6 +28,7 @@ from great_tables._tbl_data import (
     eval_aggregate,
     eval_select,
     get_column_names,
+    get_rows,
     group_splits,
     is_na,
     is_series,
@@ -43,6 +44,7 @@ from tests.utils import (
     DataLike,
     SeriesConstructor,
     assert_frame_equal,
+    native_backend,
 )
 
 params_pl_container_dtypes = [
@@ -509,6 +511,32 @@ def test_to_frame_dtype_matrix(
     expected = paired_frame_constructor({column: values})
 
     assert_frame_equal(to_frame(series_constructor(values), name=column), expected)
+
+
+@pytest.mark.parametrize("indexes, expected", [([2, 0], [3.5, 1.5]), ([], [])])
+def test_get_rows(
+    series_constructor: SeriesConstructor,
+    request: pytest.FixtureRequest,
+    indexes: list[int],
+    expected: list[float],
+):
+    ser = series_constructor([1.5, 2.5, 3.5])
+
+    if not indexes and native_backend(ser) == "pyarrow":
+        # An empty list becomes indices of type null, which pyarrow has no `take()` kernel for
+        marker = pytest.mark.xfail(
+            strict=True,
+            raises=pa.ArrowNotImplementedError,
+            reason="get_rows() raises on pyarrow for an empty list of rows",
+        )
+        request.applymarker(marker)
+
+    assert to_list(get_rows(ser, indexes)) == expected
+
+
+def test_get_rows_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    assert to_list(get_rows(offset_index_df["col2"], [2, 0])) == ["c", "a"]
 
 
 def test_cast_frame_to_string_polars_list_col():
