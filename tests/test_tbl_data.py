@@ -14,6 +14,7 @@ from syrupy.assertion import SnapshotAssertion
 
 from great_tables import GT
 from great_tables._tbl_data import (
+    Agnostic,
     DataFrameLike,
     SeriesLike,
     _get_cell,
@@ -75,6 +76,26 @@ DTYPE_MATRIX: DataLike = {
     "list": [[1, 2], [3], None],
 }
 
+MATRIX_COLUMNS = [*DTYPE_MATRIX, "categorical", "categorical_ordered"]
+
+IS_NA_SCALARS: dict[str, Any] = {
+    "None": None,
+    "nan": math.nan,
+    "np.float64(nan)": np.float64("nan"),
+    "pd.NA": pd.NA,
+    "pd.NaT": pd.NaT,
+    "0": 0,
+    "1.5": 1.5,
+    "empty str": "",
+    "str": "a",
+    "False": False,
+    "date": date(2024, 1, 1),
+    "Decimal": Decimal("1.5"),
+    "list": [1, 2],
+    "np.array": np.array([1, 2]),
+    "np.array([nan])": np.array([math.nan]),
+}
+
 params_set_cells_values: list[dict[int, str | None]] = [
     {1: "x"},
     {2: "z", 0: "x", 1: "y"},
@@ -106,6 +127,13 @@ def _cast_to_categorical(df: DataFrameLike, column: str, *, ordered: bool) -> Da
 
 def _column_cells(df: DataFrameLike, column: str) -> list[Any]:
     return [_get_cell(df, row, column) for row in range(n_rows(df))]
+
+
+def _is_na_or_error(df: Any, x: Any) -> bool | str:
+    try:
+        return is_na(df, x)
+    except Exception as e:
+        return type(e).__name__
 
 
 def _describe(value: Any) -> str:
@@ -565,6 +593,24 @@ def test_cast_frame_to_string_polars_list_col():
 def test_is_na_pandas(x, expected):
     # A cell holding an array (or a list) isn't missing, even if its elements are
     assert is_na(pd.DataFrame(), x) is expected
+
+
+@pytest.mark.parametrize("column", MATRIX_COLUMNS)
+def test_is_na_dtype_matrix(matrix_df: DataFrameLike, column: str):
+    # `is_na()` must recognize each backend's own missing value (None, nan, NaT or NA) in every dtype
+    cells = _column_cells(matrix_df, column)
+
+    assert [is_na(matrix_df, cell) for cell in cells] == [False, False, True]
+
+
+def test_is_na_scalars(df: DataFrameLike, snapshot: SnapshotAssertion):
+    # A cell holding an array or a list isn't missing, even if its elements are. pandas scalars
+    # can't come out of a polars or pyarrow frame: polars says they aren't missing, pyarrow raises
+    assert snapshot == {name: _is_na_or_error(df, x) for name, x in IS_NA_SCALARS.items()}
+
+
+def test_is_na_agnostic(snapshot: SnapshotAssertion):
+    assert snapshot == {name: _is_na_or_error(Agnostic(), x) for name, x in IS_NA_SCALARS.items()}
 
 
 def test_pandas_array_cells_render():

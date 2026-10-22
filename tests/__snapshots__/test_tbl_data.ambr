@@ -424,6 +424,120 @@
     ]),
   })
 # ---
+# name: test_is_na_agnostic
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': False,
+    'pd.NaT': False,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[pandas_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': True,
+    'pd.NaT': True,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[pandas_nullable_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': True,
+    'pd.NaT': True,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[pandas_pyarrow_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': True,
+    'pd.NaT': True,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[polars_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': False,
+    'pd.NaT': False,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[pyarrow_table_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': 'ArrowInvalid',
+    'pd.NaT': 'ValueError',
+    'str': False,
+  })
+# ---
 # name: test_to_list_dtype_matrix[pandas_nullable_series_constructor]
   dict({
     'bool': list([
