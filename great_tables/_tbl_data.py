@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import numbers
 import re
 import warnings
@@ -347,8 +348,14 @@ def _(data: PyArrowTable, column: str, values: dict[int, Any]) -> PyArrowTable:
         return data
 
     colindex = data.column_names.index(column)
+    column_type = data.schema.field(colindex).type
+    is_string = pa.types.is_string(column_type) or pa.types.is_large_string(column_type)
     pylist = data.column(column).to_pylist()
     for row, value in values.items():
+        if is_string and isinstance(value, float) and math.isnan(value):
+            # A formatter passes a NaN through unchanged, and pa.array() cannot mix it with strings.
+            # Show it as polars does.
+            value = "NaN"
         pylist[row] = value
     return data.set_column(colindex, column, pa.array(pylist))
 
