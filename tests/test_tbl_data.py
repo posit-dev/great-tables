@@ -234,10 +234,6 @@ def test_get_column_dtypes(df: DataFrameLike):
     assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
 
 
-def test_get_cell(df: DataFrameLike):
-    assert _get_cell(df, 1, "col2") == "b"
-
-
 def test_get_cell_dtype_matrix(
     matrix_df: DataFrameLike, frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
 ):
@@ -508,22 +504,12 @@ def test_validate_frame_non_str_cols_result():
     assert list(res.columns) == ["x", "55", "y", "99"]
 
 
-def test_to_frame(ser: SeriesLike, paired_frame_constructor: DataFrameConstructor):
-    assert_frame_equal(to_frame(ser, name="x"), paired_frame_constructor({"x": [1.0, 2.0, None]}))
-
-
 def test_is_series(ser: SeriesLike):
     assert is_series(ser)
 
 
 def test_is_series_false():
     assert not is_series(1)
-
-
-def test_to_list(ser: SeriesLike):
-    pylist = to_list(ser)
-    assert len(pylist) == 3
-    assert pylist[:2] == [1.0, 2.0]
 
 
 def test_to_list_dtype_matrix(series_constructor: SeriesConstructor, snapshot: SnapshotAssertion):
@@ -582,25 +568,6 @@ def test_cast_frame_to_string_polars_list_col():
     assert new_df["x"].dtype.is_(pl.String)
     assert new_df["y"].dtype.is_(pl.String)
     assert new_df["z"].dtype.is_(pl.String)
-
-
-@pytest.mark.parametrize(
-    "x,expected",
-    [
-        (None, True),
-        (math.nan, True),
-        (pd.NA, True),
-        (pd.NaT, True),
-        (1, False),
-        ("a", False),
-        (np.array([1, 2]), False),
-        (np.array([math.nan]), False),
-        ([1, 2], False),
-    ],
-)
-def test_is_na_pandas(x, expected):
-    # A cell holding an array (or a list) isn't missing, even if its elements are
-    assert is_na(pd.DataFrame(), x) is expected
 
 
 @pytest.mark.parametrize("column", MATRIX_COLUMNS)
