@@ -351,7 +351,7 @@ weather_2 = pl.DataFrame(
 )
 ```
 
-    /home/runner/work/great-tables/great-tables/great_tables/_utils_nanoplots.py:2048: UserWarning: A curved data line is not supported when `x_vals` is supplied; using `data_line_type='straight'` instead.
+    /home/runner/work/great-tables/great-tables/great_tables/_utils_nanoplots.py:2050: UserWarning: A curved data line is not supported when `x_vals` is supplied; using `data_line_type='straight'` instead.
       warnings.warn(
 
 | station | temperatures |
