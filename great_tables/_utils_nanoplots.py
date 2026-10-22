@@ -302,6 +302,8 @@ _REFERENCE_LINE_FNS: dict[str, Callable[[list[int | float]], int | float]] = {
     "max": _gt_max,
     "q1": _gt_q1,
     "q3": _gt_q3,
+    "first": _gt_first,
+    "last": _gt_last,
 }
 
 REFERENCE_LINE_KEYWORDS = list(_REFERENCE_LINE_FNS)
