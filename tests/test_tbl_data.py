@@ -162,6 +162,15 @@ def test_get_column_names(df: DataFrameLike):
     assert get_column_names(df) == expected
 
 
+def test_get_column_names_empty_frame(frame_constructor: DataFrameConstructor):
+    assert get_column_names(frame_constructor({"x": []})) == ["x"]
+
+
+@pytest.mark.parametrize("data, expected", [({"x": [1, 2, 3]}, 3), ({"x": []}, 0)])
+def test_n_rows(frame_constructor: DataFrameConstructor, data: DataLike, expected: int):
+    assert n_rows(frame_constructor(data)) == expected
+
+
 def test_get_column_dtypes(df: DataFrameLike):
     col1 = df["col1"]
     assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
