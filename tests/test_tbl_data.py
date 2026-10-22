@@ -7,7 +7,6 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import polars as pl
-import polars.testing
 import pyarrow as pa
 import pytest
 
@@ -35,28 +34,17 @@ from great_tables._tbl_data import (
     validate_frame,
 )
 from great_tables._utils_render_html import create_body_component_h
-from tests.utils import assert_frame_equal
+from tests.utils import DataFrameConstructor, SeriesConstructor, assert_frame_equal
 
-params_frames = [
-    pytest.param(pd.DataFrame, id="pandas"),
-    pytest.param(pl.DataFrame, id="polars"),
-    pytest.param(pa.table, id="arrow"),
-]
-params_series = [
-    pytest.param(pd.Series, id="pandas"),
-    pytest.param(pl.Series, id="polars"),
-    pytest.param(pa.array, id="arrow"),
-    pytest.param(lambda a: pa.chunked_array([a]), id="arrow-chunked"),
-]
 params_pl_container_dtypes = [
     pytest.param(pl.List, id="list"),
     pytest.param(pl.Array, id="array"),
 ]
 
 
-@pytest.fixture(params=params_frames, scope="function")
-def df(request) -> pd.DataFrame:
-    return request.param({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+@pytest.fixture
+def df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
+    return frame_constructor({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
 
 
 @pytest.fixture(params=params_pl_container_dtypes, scope="function")
@@ -79,9 +67,9 @@ def df_container_dtypes(request):
         ).with_columns(col2_as_array)
 
 
-@pytest.fixture(params=params_series, scope="function")
-def ser(request) -> SeriesLike:
-    return request.param([1.0, 2.0, None])
+@pytest.fixture
+def ser(series_constructor: SeriesConstructor) -> SeriesLike:
+    return series_constructor([1.0, 2.0, None])
 
 
 def test_get_column_names(df: DataFrameLike):
@@ -104,12 +92,9 @@ def test_get_cell_container_dtypes(df_container_dtypes: pl.DataFrame):
     assert _get_cell(df_container_dtypes, 2, "col2") is None
 
 
-def test_set_cell(df: DataFrameLike):
+def test_set_cell(df: DataFrameLike, frame_constructor: DataFrameConstructor):
     expected_data = {"col1": [1, 2, 3], "col2": ["a", "x", "c"], "col3": [4.0, 5.0, 6.0]}
-    if isinstance(df, pa.Table):
-        expected = pa.table(expected_data)
-    else:
-        expected = df.__class__(expected_data)
+    expected = frame_constructor(expected_data)
 
     new_df = _set_cell(df, 1, "col2", "x")
     if new_df is None:
@@ -156,14 +141,10 @@ def test_set_cells_non_strings_as_set_cell(df: DataFrameLike, value):
         assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
 
 
-def test_reorder(df: DataFrameLike):
+def test_reorder(df: DataFrameLike, frame_constructor: DataFrameConstructor):
     res = reorder(df, [0, 2], ["col2"])
 
-    expected_data = {"col2": ["a", "c"]}
-    if isinstance(df, pa.Table):
-        dst = pa.table(expected_data)
-    else:
-        dst = df.__class__(expected_data)
+    dst = frame_constructor({"col2": ["a", "c"]})
 
     if isinstance(dst, pd.DataFrame):
         dst.index = pd.Index([0, 2])
@@ -245,9 +226,8 @@ def test_eval_selector_polars_list_raises():
     assert "entry 1 is type: <class 'float'>" in str(exc_info.value.args[0])
 
 
-@pytest.mark.parametrize("Frame", [pd.DataFrame, pl.DataFrame, pa.table])
-def test_group_splits_pd(Frame):
-    df = Frame({"g": ["b", "a", "b", "c"]})
+def test_group_splits(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"g": ["b", "a", "b", "c"]})
 
     splits = group_splits(df, "g")
     assert set(splits.keys()) == {"a", "b", "c"}
@@ -346,17 +326,8 @@ def test_validate_frame_non_str_cols_result():
     assert list(res.columns) == ["x", "55", "y", "99"]
 
 
-def test_to_frame(ser: SeriesLike):
-    df = to_frame(ser, name="x")
-
-    if isinstance(ser, pl.Series):
-        assert_frame_equal(df, pl.DataFrame({"x": [1.0, 2.0, None]}))
-    elif isinstance(ser, pd.Series):
-        assert_frame_equal(df, pd.DataFrame({"x": [1.0, 2.0, None]}))
-    elif isinstance(ser, (pa.Array, pa.ChunkedArray)):
-        assert_frame_equal(df, pa.table({"x": [1.0, 2.0, None]}))
-    else:
-        raise AssertionError(f"Unexpected series type: {type(ser)}")
+def test_to_frame(ser: SeriesLike, paired_frame_constructor: DataFrameConstructor):
+    assert_frame_equal(to_frame(ser, name="x"), paired_frame_constructor({"x": [1.0, 2.0, None]}))
 
 
 def test_is_series(ser: SeriesLike):
@@ -465,9 +436,8 @@ def test_eval_aggregate_polars(df: DataFrameLike, expr, expected):
     assert result == expected
 
 
-@pytest.mark.parametrize("Frame", [pd.DataFrame, pl.DataFrame, pa.table])
-def test_eval_aggregate_with_nulls(Frame):
-    df = Frame({"a": [1, None, 3]})
+def test_eval_aggregate_with_nulls(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"a": [1, None, 3]})
 
     if isinstance(df, pd.DataFrame):
 
@@ -659,38 +629,30 @@ def test_to_frame_list_keeps_values_pandas(vals, dtype):
         assert df["x"].tolist() == vals
 
 
-@pytest.mark.parametrize("DF", params_frames)
-def test_cast_frame_to_string_is_consistent_across_backends(DF):
+def test_cast_frame_to_string_is_consistent_across_backends(
+    frame_constructor: DataFrameConstructor,
+):
     """A cell must read the same no matter which dataframe library built the table.
 
     pandas spelled missing values `<NA>` while polars and pyarrow spelled them `None`,
     and polars and pyarrow spelled booleans `true`/`false` while pandas spelled them
     `True`/`False`. See #875.
     """
-    df = DF({"flag": [True, False, None], "txt": ["true", "false", None]})
+    df = frame_constructor({"flag": [True, False, None], "txt": ["true", "false", None]})
 
     res = cast_frame_to_string(df)
 
-    assert to_list(res["flag"] if not isinstance(res, pa.Table) else res.column("flag")) == [
-        "True",
-        "False",
-        None,
-    ]
+    assert to_list(res["flag"]) == ["True", "False", None]
     # a string column that happens to spell "true" is left alone
-    assert to_list(res["txt"] if not isinstance(res, pa.Table) else res.column("txt")) == [
-        "true",
-        "false",
-        None,
-    ]
+    assert to_list(res["txt"]) == ["true", "false", None]
 
 
-@pytest.mark.parametrize("DF", params_frames)
-def test_cast_frame_to_string_drops_the_sign_on_zero(DF):
+def test_cast_frame_to_string_drops_the_sign_on_zero(frame_constructor: DataFrameConstructor):
     """-0.0 is a floating point detail that should not reach a rendered table."""
-    df = DF({"x": [-0.0, 0.0, -1.5]})
+    df = frame_constructor({"x": [-0.0, 0.0, -1.5]})
 
     res = cast_frame_to_string(df)
-    col = to_list(res["x"] if not isinstance(res, pa.Table) else res.column("x"))
+    col = to_list(res["x"])
 
     assert not col[0].startswith("-")
     assert col[0] == col[1]
@@ -698,10 +660,9 @@ def test_cast_frame_to_string_drops_the_sign_on_zero(DF):
     assert col[2].startswith("-")
 
 
-@pytest.mark.parametrize("DF", params_frames)
-def test_render_body_is_consistent_across_backends(DF):
+def test_render_body_is_consistent_across_backends(frame_constructor: DataFrameConstructor):
     """The rendered cells for booleans and missing values do not depend on the backend."""
-    gt = GT(DF({"flag": [True, False, None]}))
+    gt = GT(frame_constructor({"flag": [True, False, None]}))
 
     body = create_body_component_h(gt._build_data("html"))
 
