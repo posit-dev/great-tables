@@ -870,3 +870,273 @@
     * Position 3: 99
   '''
 # ---
+# name: test_values_handed_to_user_callables[pandas_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NaTType: NaT',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'float: nan',
+      ]),
+      'int': list([
+        'float: 1.0',
+        'float: nan',
+      ]),
+      'str': list([
+        'str: a',
+        'None (pandas 2) or nan (pandas 3)',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NaTType: NaT',
+      ]),
+      'float': list([
+        'np.float64: 1.5',
+        'np.float64: nan',
+      ]),
+      'int': list([
+        'np.float64: 1.0',
+        'np.float64: nan',
+      ]),
+      'str': list([
+        'str: a',
+        'None (pandas 2) or nan (pandas 3)',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1.0',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
+# ---
+# name: test_values_handed_to_user_callables[pandas_nullable_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NaTType: NaT',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NAType: <NA>',
+      ]),
+      'int': list([
+        'int: 1',
+        'NAType: <NA>',
+      ]),
+      'str': list([
+        'str: a',
+        'NAType: <NA>',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NaTType: NaT',
+      ]),
+      'float': list([
+        'np.float64: 1.5',
+        'NAType: <NA>',
+      ]),
+      'int': list([
+        'np.int64: 1',
+        'NAType: <NA>',
+      ]),
+      'str': list([
+        'str: a',
+        'NAType: <NA>',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
+# ---
+# name: test_values_handed_to_user_callables[pandas_pyarrow_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NAType: <NA>',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NAType: <NA>',
+      ]),
+      'int': list([
+        'int: 1',
+        'NAType: <NA>',
+      ]),
+      'str': list([
+        'str: a',
+        'NAType: <NA>',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NAType: <NA>',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NAType: <NA>',
+      ]),
+      'int': list([
+        'int: 1',
+        'NAType: <NA>',
+      ]),
+      'str': list([
+        'str: a',
+        'NAType: <NA>',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
+# ---
+# name: test_values_handed_to_user_callables[polars_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'datetime: 2024-01-01 12:30:00',
+        'NoneType: None',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NoneType: None',
+      ]),
+      'int': list([
+        'int: 1',
+        'NoneType: None',
+      ]),
+      'str': list([
+        'str: a',
+        'NoneType: None',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'datetime: 2024-01-01 12:30:00',
+        'NoneType: None',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NoneType: None',
+      ]),
+      'int': list([
+        'int: 1',
+        'NoneType: None',
+      ]),
+      'str': list([
+        'str: a',
+        'NoneType: None',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
+# ---
+# name: test_values_handed_to_user_callables[pyarrow_table_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'datetime: 2024-01-01 12:30:00',
+        'NoneType: None',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NoneType: None',
+      ]),
+      'int': list([
+        'int: 1',
+        'NoneType: None',
+      ]),
+      'str': list([
+        'str: a',
+        'NoneType: None',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'datetime: 2024-01-01 12:30:00',
+        'NoneType: None',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NoneType: None',
+      ]),
+      'int': list([
+        'int: 1',
+        'NoneType: None',
+      ]),
+      'str': list([
+        'str: a',
+        'NoneType: None',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
+# ---

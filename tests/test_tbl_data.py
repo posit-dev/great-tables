@@ -2,7 +2,7 @@ import builtins
 import math
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
-from typing import Any, TypeVar
+from typing import Any, Callable, TypeVar
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -12,7 +12,7 @@ import pyarrow as pa
 import pytest
 from syrupy.assertion import SnapshotAssertion
 
-from great_tables import GT
+from great_tables import GT, loc
 from great_tables._tbl_data import (
     Agnostic,
     DataFrameLike,
@@ -156,6 +156,14 @@ def _describe_column(
         described[-1] = "None (pandas 2) or nan (pandas 3)"
 
     return described
+
+
+def _recorder(calls: list[Any], returns: Callable[[Any], Any]) -> Callable[[Any], Any]:
+    def record(arg: Any) -> Any:
+        calls.append(arg)
+        return returns(arg)
+
+    return record
 
 
 @pytest.fixture
@@ -611,6 +619,43 @@ def test_is_na_scalars(df: DataFrameLike, snapshot: SnapshotAssertion):
 
 def test_is_na_agnostic(snapshot: SnapshotAssertion):
     assert snapshot == {name: _is_na_or_error(Agnostic(), x) for name, x in IS_NA_SCALARS.items()}
+
+
+def test_values_handed_to_user_callables(
+    frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
+):
+    # User functions get the backend's own scalars, missing ones included (pandas NaN, NaT and NA,
+    # polars and pyarrow None); changing them breaks user code, e.g. `x < 100` raises on None
+    data = {
+        "int": [1, None],
+        "float": [1.5, None],
+        "str": ["a", None],
+        "datetime": [datetime(2024, 1, 1, 12, 30), None],
+    }
+    gt = GT(frame_constructor(data))
+
+    result: dict[str, dict[str, list[str]]] = {"fmt": {}, "data_color": {}, "text_transform": {}}
+    for col in data:
+        fmt_args: list[Any] = []
+        color_args: list[Any] = []
+        text_args: list[Any] = []
+
+        gt.fmt(_recorder(fmt_args, lambda x: ""), columns=col).as_raw_html()
+        gt.data_color(
+            columns=col, fn=_recorder(color_args, lambda xs: [None] * len(xs))
+        ).as_raw_html()
+        gt.text_transform(loc.body(columns=col), _recorder(text_args, lambda x: x)).as_raw_html()
+
+        # `data_color()` calls `fn` once, with the whole column as a list
+        [column_values] = color_args
+        assert type(column_values) is list
+
+        result["fmt"][col] = _describe_column(col, fmt_args, frame_constructor)
+        result["data_color"][col] = _describe_column(col, column_values, frame_constructor)
+        # `text_transform()` gets the rendered text of non-missing cells
+        result["text_transform"][col] = [_describe(arg) for arg in text_args]
+
+    assert snapshot == result
 
 
 def test_pandas_array_cells_render():
