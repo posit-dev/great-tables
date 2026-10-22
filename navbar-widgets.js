@@ -253,3 +253,20 @@
     document.fonts.ready.then(fit);
   }
 })();
+
+/**
+ * Add a release tooltip to a navbar with only a logo.
+ *
+ * Quarto cannot add attributes to the logo link, so the build passes the
+ * tooltip HTML in a header meta tag. This script copies it onto the link,
+ * where `tooltips.js` turns it into a Tippy tooltip.
+ */
+(function () {
+  "use strict";
+
+  var meta = document.querySelector('meta[name="gd-logo-tooltip"]');
+  var logo = document.querySelector(".navbar-brand-logo");
+  if (meta && logo && !logo.hasAttribute("data-tippy-content")) {
+    logo.setAttribute("data-tippy-content", meta.content);
+  }
+})();

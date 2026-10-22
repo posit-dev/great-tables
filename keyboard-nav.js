@@ -253,10 +253,11 @@
     }
 
     /**
-     * Detect whether the current page is a Reference page (API or CLI).
+     * Detect whether the current page is an API, CLI or MCP reference page.
      */
     function isReferencePage() {
-        return document.body.classList.contains('gd-ref-sidebar');
+        var classes = document.body.classList;
+        return classes.contains('doc-reference') || classes.contains('doc-api-page');
     }
 
     /**

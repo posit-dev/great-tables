@@ -101,10 +101,15 @@
     }
 
     /**
-     * Process all <span class="menu-text"> elements inside the sidebar.
+     * Insert break opportunities into the sidebar entries of a reference page.
+     *
+     * Only `#quarto-sidebar` changes, because replacing a menu label's
+     * contents would remove navbar widgets. The mobile menu copies the
+     * sidebar markup when it opens, so it gets the breaks too.
      */
     function processSidebar() {
-        var sidebar = document.querySelector('.gd-ref-sidebar');
+        if (!document.querySelector('body.doc-reference, body.doc-api-page')) return;
+        var sidebar = document.getElementById('quarto-sidebar');
         if (!sidebar) return;
 
         var spans = sidebar.querySelectorAll('.menu-text');
@@ -125,11 +130,15 @@
     }
 
     /**
-     * Disable sidebar section collapsing by stripping Bootstrap collapse
-     * data attributes and ensuring all sections stay expanded.
+     * Keep every section of the site sidebar permanently expanded.
+     *
+     * Remove Bootstrap collapse attributes from section headings and show
+     * every section list. Only `#quarto-sidebar` changes, because the navbar
+     * menu button and the small-screen sidebar toggle need their collapse
+     * attributes.
      */
     function disableSidebarCollapse() {
-        var sidebar = document.querySelector('.gd-ref-sidebar');
+        var sidebar = document.getElementById('quarto-sidebar');
         if (!sidebar) return;
 
         // Remove data-bs-toggle/target from all sidebar collapse triggers

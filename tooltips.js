@@ -154,10 +154,75 @@
   }
 
   /**
+   * Set an attribute only when its value changes.
+   *
+   * The mutation observer re-initialises tooltips whenever `title` or
+   * `data-tippy-content` is written, even if the value is unchanged, so an
+   * unconditional write would re-initialise them forever.
+   * @param {Element} el - Element to update
+   * @param {string} name - Attribute name
+   * @param {string} value - Attribute value
+   */
+  function setAttributeIfChanged(el, name, value) {
+    if (el.getAttribute(name) !== value) {
+      el.setAttribute(name, value);
+    }
+  }
+
+  /**
+   * Give the site search button a single tooltip in the site language.
+   *
+   * Quarto puts the search label in a `title` on the search wrapper, which
+   * would add a second tooltip over the button's own. Quarto also leaves the
+   * autocomplete library's default "Search" as the button's title and
+   * accessible name. The wrapper's `title` is removed, and the button's
+   * title and accessible name take the translated label from the page's
+   * search options.
+   */
+  function prepareSearchTooltips() {
+    var search = document.getElementById("quarto-search");
+    if (!search) return;
+
+    if (search.hasAttribute("title")) {
+      search.removeAttribute("title");
+    }
+
+    var optionsEl = document.getElementById("quarto-search-options");
+    if (!optionsEl) return;
+
+    var label;
+    try {
+      label = (JSON.parse(optionsEl.textContent).language || {})["search-label"];
+    } catch (e) {
+      if (e instanceof SyntaxError) return;
+      throw e;
+    }
+    if (typeof label !== "string" || !label.trim()) return;
+
+    var button = search.querySelector(".aa-DetachedSearchButton");
+    if (!button) return;
+
+    // Before conversion the label belongs in `title`; afterwards Tippy reads
+    // it from `data-tippy-content`.
+    var attribute = button.hasAttribute("title") ? "title" : "data-tippy-content";
+    setAttributeIfChanged(button, attribute, label);
+    // Converting the title removes the icon-only button's accessible name.
+    setAttributeIfChanged(button, "aria-label", label);
+
+    // Autocomplete names its combobox root with the same untranslated label.
+    var root = button.closest(".aa-Autocomplete");
+    if (root) {
+      setAttributeIfChanged(root, "aria-label", label);
+    }
+  }
+
+  /**
    * Convert title attributes to data-tippy-content.
    * This prevents native tooltips from appearing.
    */
   function convertTitleAttributes() {
+    prepareSearchTooltips();
+
     var skipSelector = CONFIG.skipSelectors.join(", ");
 
     // Find all elements with title attributes

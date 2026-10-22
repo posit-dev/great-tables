@@ -25,6 +25,12 @@
         const widget = document.getElementById('github-widget');
         if (!widget) return;
 
+        // Navigation label scripts would erase the widget inside the link, so
+        // the widget takes the link's place before its contents are built.
+        // This also stops a click on the widget from following the link.
+        const link = widget.closest('a.nav-link');
+        if (link) link.replaceWith(widget);
+
         config.owner = widget.dataset.owner;
         config.repo = widget.dataset.repo;
 

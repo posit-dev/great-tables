@@ -52,6 +52,9 @@
         var titleBlock = document.getElementById('title-block-header');
         if (!titleBlock) return;
 
+        // Skip the generated homepage
+        if (document.body.classList.contains('gd-homepage')) return;
+
         // Skip the Skills page (has its own layout)
         if (document.querySelector('.gd-skills-install')) return;
 
