@@ -253,8 +253,14 @@ def test_set_cell_offset_index(offset_index_df: pd.DataFrame):
 @pytest.mark.parametrize("values", params_set_cells_values)
 def test_set_cells(df: DataFrameLike, values: dict[int, str | None]):
     expected = _set_cells_with_set_cell(create_empty_frame(df), "col2", values)
+    res = _set_cells(create_empty_frame(df), "col2", values)
 
-    assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
+    assert_frame_equal(res, expected)
+    # Unset rows and None stay missing
+    cells = _column_cells(res, "col2")
+    assert [None if is_na(res, cell) else cell for cell in cells] == [
+        values.get(i) for i in range(3)
+    ]
 
 
 @pytest.mark.parametrize("values", params_set_cells_values)
