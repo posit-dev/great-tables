@@ -2,7 +2,7 @@ import builtins
 import math
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
-from typing import Any
+from typing import Any, TypeVar
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -52,6 +52,8 @@ params_pl_container_dtypes = [
 
 pandas_ge_v3 = _re_version(pd.__version__) >= (3, 0, 0)
 
+FrameT = TypeVar("FrameT", bound=DataFrameLike)
+
 # One column per dtype, each ending with a missing value. The float column needs a non-integral
 # value, or the pandas nullable and pyarrow-backed constructors make it an integer column.
 DTYPE_MATRIX: DataLike = {
@@ -70,6 +72,13 @@ DTYPE_MATRIX: DataLike = {
     "decimal": [Decimal("1.50"), Decimal("-2.25"), None],
     "list": [[1, 2], [3], None],
 }
+
+params_set_cells_values: list[dict[int, str | None]] = [
+    {1: "x"},
+    {2: "z", 0: "x", 1: "y"},
+    {0: None, 2: "z"},
+    {},
+]
 
 
 def _cast_to_categorical(df: DataFrameLike, column: str, *, ordered: bool) -> DataFrameLike:
@@ -132,6 +141,17 @@ def matrix_df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
     return _cast_to_categorical(df, "categorical_ordered", ordered=True)
 
 
+@pytest.fixture
+def offset_index_df(pandas_frame_constructor: DataFrameConstructor) -> pd.DataFrame:
+    # Index labels that aren't row positions, as after filtering rows
+    df = pandas_frame_constructor(
+        {"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]}
+    )
+    assert isinstance(df, pd.DataFrame)
+    df.index = [3, 7, 9]
+    return df
+
+
 @pytest.fixture(params=params_pl_container_dtypes, scope="function")
 def df_container_dtypes(request):
     dtype_constructor = request.param
@@ -192,6 +212,11 @@ def test_get_cell_dtype_matrix(
     assert snapshot == result
 
 
+def test_get_cell_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    assert _column_cells(offset_index_df, "col2") == ["a", "b", "c"]
+
+
 def test_get_cell_container_dtypes(df_container_dtypes: pl.DataFrame):
     "Checks that container dtype entries in polars dfs are returned as lists"
     assert isinstance(_get_cell(df_container_dtypes, 0, "col2"), list)
@@ -209,7 +234,7 @@ def test_set_cell(df: DataFrameLike, frame_constructor: DataFrameConstructor):
     assert_frame_equal(new_df, expected)
 
 
-def _set_cells_with_set_cell(df: DataFrameLike, column: str, values: dict) -> DataFrameLike:
+def _set_cells_with_set_cell(df: FrameT, column: str, values: dict[int, Any]) -> FrameT:
     for row, value in values.items():
         new_df = _set_cell(df, row, column, value)
         if new_df is not None:
@@ -217,19 +242,26 @@ def _set_cells_with_set_cell(df: DataFrameLike, column: str, values: dict) -> Da
     return df
 
 
-@pytest.mark.parametrize(
-    "values",
-    [
-        {1: "x"},
-        {2: "z", 0: "x", 1: "y"},
-        {0: None, 2: "z"},
-        {},
-    ],
-)
-def test_set_cells(df: DataFrameLike, values: dict):
+def test_set_cell_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    res = _set_cells_with_set_cell(offset_index_df, "col2", {1: "x"})
+
+    assert _column_cells(res, "col2") == ["a", "x", "c"]
+    assert list(res.index) == [3, 7, 9]
+
+
+@pytest.mark.parametrize("values", params_set_cells_values)
+def test_set_cells(df: DataFrameLike, values: dict[int, str | None]):
     expected = _set_cells_with_set_cell(create_empty_frame(df), "col2", values)
 
     assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
+
+
+@pytest.mark.parametrize("values", params_set_cells_values)
+def test_set_cells_offset_index(offset_index_df: pd.DataFrame, values: dict[int, str | None]):
+    expected = _set_cells_with_set_cell(create_empty_frame(offset_index_df), "col2", values)
+
+    assert_frame_equal(_set_cells(create_empty_frame(offset_index_df), "col2", values), expected)
 
 
 @pytest.mark.parametrize("value", [5, 1.5, True, math.nan])
