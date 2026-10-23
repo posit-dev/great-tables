@@ -1200,4 +1200,6 @@ def _(ser: PlSeries, indexes: list[int]) -> PlSeries:
 @get_rows.register(PyArrowArray)
 @get_rows.register(PyArrowChunkedArray)
 def _(ser: Any, indexes: list[int]) -> PyArrowArray | PyArrowChunkedArray:
-    return ser.take(indexes)
+    import pyarrow as pa
+
+    return ser.take(pa.array(indexes, type=pa.int64()))

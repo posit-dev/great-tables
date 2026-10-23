@@ -598,16 +598,16 @@ def test_get_extreme_value(lst: list[Any], stat: str, dst: list[Any]):
         ([1], "max", 1),
         ([1], "q1", 1),
         ([1], "q3", 1),
-        # ([1], "first", 1), # TODO: error results due to restrictive keyword check
-        # ([1], "last", 1), # TODO: error results due to restrictive keyword check
+        ([1], "first", 1),
+        ([1], "last", 1),
         ([1, 5.6], "mean", 3.3),
         ([1, 5.6], "median", 3.3),
         ([1, 5.6], "min", 1),
         ([1, 5.6], "max", 5.6),
         ([1, 5.6], "q1", 2.15),
         ([1, 5.6], "q3", 4.45),
-        # ([1, 5.6], "first", 1), # TODO: error results due to restrictive keyword check
-        # ([1, 5.6], "last", 5.6), # TODO: error results due to restrictive keyword check
+        ([1, 5.6], "first", 1),
+        ([1, 5.6], "last", 5.6),
         (
             [-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2],
             "mean",
@@ -618,9 +618,8 @@ def test_get_extreme_value(lst: list[Any], stat: str, dst: list[Any]):
         ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "max", 25.3),
         ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "q1", -1.55),
         ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "q3", 5.08),
-        # TODO: errors below due to restrictive keyword check
-        # ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "first", -13.2),
-        # ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "last", -3.2),
+        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "first", -13.2),
+        ([-13.2, 2.2, 14.3, 2.3, 25.3, -3.1, 0, 3.93, 6.23, 0.92, -3.2], "last", -3.2),
     ],
 )
 def test_generate_ref_line_from_keyword(
@@ -2921,6 +2920,13 @@ def test_remove_exponent_non_integer_string():
 )
 def test_generate_ref_line_from_keyword_ignores_missing_values(keyword: str, dst: float):
     vals = [1, None, 3, float("nan"), 5]
+
+    assert _generate_ref_line_from_keyword(vals, keyword=keyword) == dst
+
+
+@pytest.mark.parametrize("keyword,dst", [("first", 2), ("last", 4)])
+def test_generate_ref_line_from_keyword_first_last_skip_missing_values(keyword: str, dst: float):
+    vals = [None, 2, 3, 4, float("nan")]
 
     assert _generate_ref_line_from_keyword(vals, keyword=keyword) == dst
 
