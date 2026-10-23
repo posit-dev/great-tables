@@ -1,3 +1,4 @@
+import html
 import math
 import re
 from datetime import date, datetime, time, timedelta, timezone
@@ -1806,6 +1807,7 @@ FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(incl_space=True), ["$ 1,234,567.00", "−$ 5,432.37"]),
     (dict(compact=True), ["$1.23M", "−$5.43K"]),
     (dict(currency="LSL"), ["M1,234,567.00", "−M5,432.37"]),
+    (dict(currency="CRC"), ["&#8353;1,234,567.00", "−&#8353;5,432.37"]),
 ]
 
 
@@ -1860,6 +1862,9 @@ def test_fmt_currency_all_currencies(context: str):
     for i, code in enumerate(codes):
         gt = gt.fmt_currency(columns="x", rows=[i], currency=code)
     x = _get_column_of_values(gt, column_name="x", context=context)
+    if context == "html":
+        # Check the text a browser shows, so that a symbol can't run into the digits after it
+        x = [html.unescape(x_i) for x_i in x]
     assert all("1,23" in x_i for x_i in x)
 
 
