@@ -1,4 +1,359 @@
 # serializer version: 1
+# name: test_cast_frame_to_string_dtype_matrix[pandas_constructor]
+  dict({
+    'bool': list([
+      'True',
+      'False',
+      None,
+    ]),
+    'categorical': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'categorical_ordered': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'date': list([
+      '2024-01-01',
+      '2024-02-29',
+      None,
+    ]),
+    'datetime': list([
+      '2024-01-01 12:30:00',
+      '2024-02-29 00:00:00',
+      None,
+    ]),
+    'datetime_tz': list([
+      '2024-01-01 12:30:00+00:00',
+      '2024-02-29 00:00:00+00:00',
+      None,
+    ]),
+    'decimal': list([
+      '1.50',
+      '-2.25',
+      None,
+    ]),
+    'duration': list([
+      '0 days 01:00:00',
+      '2 days 00:00:00',
+      None,
+    ]),
+    'float': list([
+      '1.5',
+      '0.0',
+      None,
+    ]),
+    'int': list([
+      '1.0',
+      '2.0',
+      None,
+    ]),
+    'list': list([
+      '[1, 2]',
+      '[3]',
+      None,
+    ]),
+    'str': list([
+      'a',
+      'b',
+      None,
+    ]),
+  })
+# ---
+# name: test_cast_frame_to_string_dtype_matrix[pandas_nullable_constructor]
+  dict({
+    'bool': list([
+      'True',
+      'False',
+      None,
+    ]),
+    'categorical': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'categorical_ordered': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'date': list([
+      '2024-01-01',
+      '2024-02-29',
+      None,
+    ]),
+    'datetime': list([
+      '2024-01-01 12:30:00',
+      '2024-02-29 00:00:00',
+      None,
+    ]),
+    'datetime_tz': list([
+      '2024-01-01 12:30:00+00:00',
+      '2024-02-29 00:00:00+00:00',
+      None,
+    ]),
+    'decimal': list([
+      '1.50',
+      '-2.25',
+      None,
+    ]),
+    'duration': list([
+      '0 days 01:00:00',
+      '2 days 00:00:00',
+      None,
+    ]),
+    'float': list([
+      '1.5',
+      '0.0',
+      None,
+    ]),
+    'int': list([
+      '1',
+      '2',
+      None,
+    ]),
+    'list': list([
+      '[1, 2]',
+      '[3]',
+      None,
+    ]),
+    'str': list([
+      'a',
+      'b',
+      None,
+    ]),
+  })
+# ---
+# name: test_cast_frame_to_string_dtype_matrix[pandas_pyarrow_constructor]
+  dict({
+    'bool': list([
+      'True',
+      'False',
+      None,
+    ]),
+    'categorical': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'categorical_ordered': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'date': list([
+      '2024-01-01',
+      '2024-02-29',
+      None,
+    ]),
+    'datetime': list([
+      '2024-01-01 12:30:00',
+      '2024-02-29 00:00:00',
+      None,
+    ]),
+    'datetime_tz': list([
+      '2024-01-01 12:30:00+00:00',
+      '2024-02-29 00:00:00+00:00',
+      None,
+    ]),
+    'decimal': list([
+      '1.50',
+      '-2.25',
+      None,
+    ]),
+    'duration': list([
+      '0 days 01:00:00',
+      '2 days 00:00:00',
+      None,
+    ]),
+    'float': list([
+      '1.5',
+      '0.0',
+      None,
+    ]),
+    'int': list([
+      '1',
+      '2',
+      None,
+    ]),
+    'list': list([
+      '[1, 2]',
+      '[3]',
+      None,
+    ]),
+    'str': list([
+      'a',
+      'b',
+      None,
+    ]),
+  })
+# ---
+# name: test_cast_frame_to_string_dtype_matrix[polars_constructor]
+  dict({
+    'bool': list([
+      'True',
+      'False',
+      None,
+    ]),
+    'categorical': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'categorical_ordered': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'date': list([
+      '2024-01-01',
+      '2024-02-29',
+      None,
+    ]),
+    'datetime': list([
+      '2024-01-01 12:30:00.000000',
+      '2024-02-29 00:00:00.000000',
+      None,
+    ]),
+    'datetime_tz': list([
+      '2024-01-01 12:30:00.000000+00:00',
+      '2024-02-29 00:00:00.000000+00:00',
+      None,
+    ]),
+    'decimal': list([
+      '1.50',
+      '-2.25',
+      None,
+    ]),
+    'duration': list([
+      '1:00:00',
+      '2 days, 0:00:00',
+      None,
+    ]),
+    'float': list([
+      '1.5',
+      '0.0',
+      None,
+    ]),
+    'int': list([
+      '1',
+      '2',
+      None,
+    ]),
+    'list': list([
+      '[1, 2]',
+      '[3]',
+      None,
+    ]),
+    'str': list([
+      'a',
+      'b',
+      None,
+    ]),
+  })
+# ---
+# name: test_cast_frame_to_string_dtype_matrix[pyarrow_table_constructor]
+  dict({
+    'bool': list([
+      'True',
+      'False',
+      None,
+    ]),
+    'categorical': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'categorical_ordered': list([
+      'a',
+      'b',
+      None,
+    ]),
+    'date': list([
+      '2024-01-01',
+      '2024-02-29',
+      None,
+    ]),
+    'datetime': list([
+      '2024-01-01 12:30:00.000000',
+      '2024-02-29 00:00:00.000000',
+      None,
+    ]),
+    'datetime_tz': list([
+      '2024-01-01 12:30:00.000000Z',
+      '2024-02-29 00:00:00.000000Z',
+      None,
+    ]),
+    'decimal': list([
+      '1.50',
+      '-2.25',
+      None,
+    ]),
+    'duration': list([
+      '3600000000',
+      '172800000000',
+      None,
+    ]),
+    'float': list([
+      '1.5',
+      '0',
+      None,
+    ]),
+    'int': list([
+      '1',
+      '2',
+      None,
+    ]),
+    'list': list([
+      '[1, 2]',
+      '[3]',
+      None,
+    ]),
+    'str': list([
+      'a',
+      'b',
+      None,
+    ]),
+  })
+# ---
+# name: test_cast_frame_to_string_nan[pandas_constructor]
+  list([
+    '1.5',
+    None,
+    None,
+  ])
+# ---
+# name: test_cast_frame_to_string_nan[pandas_nullable_constructor]
+  list([
+    '1.5',
+    None,
+    None,
+  ])
+# ---
+# name: test_cast_frame_to_string_nan[pandas_pyarrow_constructor]
+  list([
+    '1.5',
+    None,
+    None,
+  ])
+# ---
+# name: test_cast_frame_to_string_nan[polars_constructor]
+  list([
+    '1.5',
+    'NaN',
+    None,
+  ])
+# ---
+# name: test_cast_frame_to_string_nan[pyarrow_table_constructor]
+  list([
+    '1.5',
+    'nan',
+    None,
+  ])
+# ---
 # name: test_frame_rendering[pandas_constructor]
   '''
   <tbody class="gt_table_body">
