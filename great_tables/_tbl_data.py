@@ -875,13 +875,22 @@ def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> list[Any]:
 
 
 @eval_transform.register
-def _(df: PlDataFrame, expr: PlExpr) -> list[Any]:
-    df_res = df.select(expr)
+def _(df: PlDataFrame, expr: PlExpr | Callable[[PlDataFrame], PlSeries | PlExpr]) -> list[Any]:
+    if not isinstance(expr, PlExpr):
+        # a callable takes the DataFrame and returns a Series (or an expression to evaluate)
+        expr = expr(df)
 
-    if len(df_res.columns) > 1:  # pragma: no cover
-        raise ValueError(f"Result must be a single column. Received {len(df_res.columns)} columns.")
+    if isinstance(expr, PlSeries):
+        res = expr
     else:
-        res = df_res[df_res.columns[0]]
+        df_res = df.select(expr)
+
+        if len(df_res.columns) > 1:  # pragma: no cover
+            raise ValueError(
+                f"Result must be a single column. Received {len(df_res.columns)} columns."
+            )
+        else:
+            res = df_res[df_res.columns[0]]
 
     if not isinstance(res, PlSeries):  # pragma: no cover
         raise ValueError(f"Result must be a polars Series. Received {type(res)}")
@@ -895,11 +904,13 @@ def _(df: PlDataFrame, expr: PlExpr) -> list[Any]:
 
 
 @eval_transform.register
-def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowArray]) -> list[Any]:
+def _(
+    df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowArray | PyArrowChunkedArray]
+) -> list[Any]:
     res = expr(df)
 
-    if not isinstance(res, PyArrowArray):  # pragma: no cover
-        raise ValueError(f"Result must be an Arrow Array. Received {type(res)}")
+    if not isinstance(res, (PyArrowArray, PyArrowChunkedArray)):
+        raise ValueError(f"Result must be an Arrow Array or ChunkedArray. Received {type(res)}")
     elif not len(res) == len(df):  # pragma: no cover
         raise ValueError(
             f"Result must be same length as input data. Observed different lengths."

@@ -1,6 +1,7 @@
 import pandas as pd
 import polars as pl
 import polars.selectors as cs
+import pyarrow as pa
 import pytest
 from great_tables import GT, stub
 from great_tables._gt_data import Spanners
@@ -22,6 +23,7 @@ from great_tables._locations import (
     set_style,
 )
 from great_tables._styles import CellStyleText, FromColumn
+from tests.utils import DataFrameConstructor
 
 
 def test_resolve_vector_i():
@@ -96,6 +98,48 @@ def test_resolve_rows_i_polars_expr():
 def test_resolve_rows_i_func_expr():
     gt = GT(pd.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
     assert resolve_rows_i(gt, lambda D: D["x"].isin(["a", "b"])) == [("a", 0), ("b", 1)]
+
+
+def test_resolve_rows_i_func_expr_polars():
+    gt = GT(pl.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    assert resolve_rows_i(gt, lambda D: D["x"].is_in(["a", "b"])) == [("a", 0), ("b", 1)]
+
+
+def test_resolve_rows_i_func_expr_polars_returning_expr():
+    gt = GT(pl.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    assert resolve_rows_i(gt, lambda D: pl.col("x").is_in(["a", "b"])) == [("a", 0), ("b", 1)]
+
+
+def test_resolve_rows_i_func_expr_return_non_bool_pl_series():
+    gt = GT(pl.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    with pytest.raises(ValueError) as exc_info:
+        resolve_rows_i(gt, lambda D: pl.Series([4, 5, 6]))
+
+    assert "return a boolean Series." in exc_info.value.args[0]
+
+
+def test_tab_style_rows_native_selector(frame_constructor: DataFrameConstructor):
+    from great_tables import loc, style
+
+    df = frame_constructor({"x": [1.5, 2.5, 3.5]})
+
+    if isinstance(df, pd.DataFrame):
+
+        def rows(df):
+            return df["x"] > 2
+
+    if isinstance(df, pl.DataFrame):
+        rows = pl.col("x") > 2
+
+    if isinstance(df, pa.Table):
+
+        def rows(tbl):
+            # a ChunkedArray, since Table columns are chunked
+            return pa.compute.greater(tbl["x"], 2)
+
+    gt = GT(df).tab_style(style.fill("red"), loc.body(columns="x", rows=rows))
+    assert [x.rownum for x in gt._styles] == [1, 2]
+    assert gt.as_raw_html().count("background-color: red;") == 2
 
 
 def test_resolve_rows_i_func_expr_return_non_bool_pd_series():
