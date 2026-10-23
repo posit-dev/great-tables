@@ -2,6 +2,7 @@ import builtins
 import math
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
+from typing import Any, Callable, TypeVar
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -9,13 +10,16 @@ import pandas as pd
 import polars as pl
 import pyarrow as pa
 import pytest
+from syrupy.assertion import SnapshotAssertion
 
-from great_tables import GT
+from great_tables import GT, loc
 from great_tables._tbl_data import (
+    Agnostic,
     DataFrameLike,
     SeriesLike,
     _get_cell,
     _get_column_dtype,
+    _re_version,
     _set_cell,
     _set_cells,
     _validate_selector_list,
@@ -25,26 +29,165 @@ from great_tables._tbl_data import (
     eval_aggregate,
     eval_select,
     get_column_names,
+    get_rows,
     group_splits,
     is_na,
     is_series,
+    n_rows,
     reorder,
     to_frame,
     to_list,
     validate_frame,
 )
 from great_tables._utils_render_html import create_body_component_h
-from tests.utils import DataFrameConstructor, SeriesConstructor, assert_frame_equal
+from tests.utils import (
+    DataFrameConstructor,
+    DataLike,
+    SeriesConstructor,
+    assert_frame_equal,
+    native_backend,
+)
 
 params_pl_container_dtypes = [
     pytest.param(pl.List, id="list"),
     pytest.param(pl.Array, id="array"),
 ]
 
+pandas_ge_v3 = _re_version(pd.__version__) >= (3, 0, 0)
+
+FrameT = TypeVar("FrameT", bound=DataFrameLike)
+
+# One column per dtype, each ending with a missing value. The float column needs a non-integral
+# value, or the pandas nullable and pyarrow-backed constructors make it an integer column.
+DTYPE_MATRIX: DataLike = {
+    "int": [1, 2, None],
+    "float": [1.5, -0.0, None],
+    "str": ["a", "b", None],
+    "bool": [True, False, None],
+    "date": [date(2024, 1, 1), date(2024, 2, 29), None],
+    "datetime": [datetime(2024, 1, 1, 12, 30), datetime(2024, 2, 29), None],
+    "datetime_tz": [
+        datetime(2024, 1, 1, 12, 30, tzinfo=timezone.utc),
+        datetime(2024, 2, 29, tzinfo=timezone.utc),
+        None,
+    ],
+    "duration": [timedelta(hours=1), timedelta(days=2), None],
+    "decimal": [Decimal("1.50"), Decimal("-2.25"), None],
+    "list": [[1, 2], [3], None],
+}
+
+MATRIX_COLUMNS = [*DTYPE_MATRIX, "categorical", "categorical_ordered"]
+
+IS_NA_SCALARS: dict[str, Any] = {
+    "None": None,
+    "nan": math.nan,
+    "np.float64(nan)": np.float64("nan"),
+    "pd.NA": pd.NA,
+    "pd.NaT": pd.NaT,
+    "0": 0,
+    "1.5": 1.5,
+    "empty str": "",
+    "str": "a",
+    "False": False,
+    "date": date(2024, 1, 1),
+    "Decimal": Decimal("1.5"),
+    "list": [1, 2],
+    "np.array": np.array([1, 2]),
+    "np.array([nan])": np.array([math.nan]),
+}
+
+params_set_cells_values: list[dict[int, str | None]] = [
+    {1: "x"},
+    {2: "z", 0: "x", 1: "y"},
+    {0: None, 2: "z"},
+    {},
+]
+
+
+def _cast_to_categorical(df: DataFrameLike, column: str, *, ordered: bool) -> DataFrameLike:
+    # Python values can't build categorical columns. Ordered categories follow first appearance.
+    if isinstance(df, pd.DataFrame):
+        categories = df[column].dropna().unique()
+        categorical = pd.Categorical(df[column], categories=categories, ordered=ordered)
+        return df.assign(**{column: categorical})
+
+    if isinstance(df, pl.DataFrame):
+        categories = df[column].drop_nulls().unique(maintain_order=True)
+        return df.with_columns(
+            pl.col(column).cast(pl.Enum(categories) if ordered else pl.Categorical)
+        )
+
+    encoded = df[column].dictionary_encode()
+    if ordered:
+        encoded = encoded.cast(
+            pa.dictionary(encoded.type.index_type, encoded.type.value_type, ordered=True)
+        )
+    return df.set_column(df.column_names.index(column), column, encoded)
+
+
+def _column_cells(df: DataFrameLike, column: str) -> list[Any]:
+    return [_get_cell(df, row, column) for row in range(n_rows(df))]
+
+
+def _is_na_or_error(df: Any, x: Any) -> bool | str:
+    try:
+        return is_na(df, x)
+    except Exception as e:
+        return type(e).__name__
+
+
+def _describe(value: Any) -> str:
+    # Type name and `str()` hold across library versions, unlike reprs. numpy 2 names its bool
+    # scalar "bool", so numpy types get a prefix to tell them from Python's.
+    prefix = "np." if isinstance(value, np.generic) else ""
+    return f"{prefix}{type(value).__name__}: {value}"
+
+
+def _describe_column(
+    column: str, values: list[Any], constructor: DataFrameConstructor | SeriesConstructor
+) -> list[str]:
+    described = [_describe(value) for value in values]
+
+    # A missing value in a plain pandas text column is None on pandas 2 (object dtype) and nan on
+    # pandas 3 (str dtype), so it's checked here and the snapshot holds on both majors
+    plain_pandas = constructor.__name__ in ("pandas_constructor", "pandas_series_constructor")
+    if column == "str" and plain_pandas:
+        assert described[-1] == ("float: nan" if pandas_ge_v3 else "NoneType: None")
+        described[-1] = "None (pandas 2) or nan (pandas 3)"
+
+    return described
+
+
+def _recorder(calls: list[Any], returns: Callable[[Any], Any]) -> Callable[[Any], Any]:
+    def record(arg: Any) -> Any:
+        calls.append(arg)
+        return returns(arg)
+
+    return record
+
 
 @pytest.fixture
 def df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
     return frame_constructor({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+
+
+@pytest.fixture
+def matrix_df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
+    text = DTYPE_MATRIX["str"]
+    df = frame_constructor({**DTYPE_MATRIX, "categorical": text, "categorical_ordered": text})
+    df = _cast_to_categorical(df, "categorical", ordered=False)
+    return _cast_to_categorical(df, "categorical_ordered", ordered=True)
+
+
+@pytest.fixture
+def offset_index_df(pandas_frame_constructor: DataFrameConstructor) -> pd.DataFrame:
+    # Index labels that aren't row positions, as after filtering rows
+    df = pandas_frame_constructor(
+        {"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]}
+    )
+    assert isinstance(df, pd.DataFrame)
+    df.index = [3, 7, 9]
+    return df
 
 
 @pytest.fixture(params=params_pl_container_dtypes, scope="function")
@@ -77,13 +220,35 @@ def test_get_column_names(df: DataFrameLike):
     assert get_column_names(df) == expected
 
 
+def test_get_column_names_empty_frame(frame_constructor: DataFrameConstructor):
+    assert get_column_names(frame_constructor({"x": []})) == ["x"]
+
+
+@pytest.mark.parametrize("data, expected", [({"x": [1, 2, 3]}, 3), ({"x": []}, 0)])
+def test_n_rows(frame_constructor: DataFrameConstructor, data: DataLike, expected: int):
+    assert n_rows(frame_constructor(data)) == expected
+
+
 def test_get_column_dtypes(df: DataFrameLike):
     col1 = df["col1"]
     assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
 
 
-def test_get_cell(df: DataFrameLike):
-    assert _get_cell(df, 1, "col2") == "b"
+def test_get_cell_dtype_matrix(
+    matrix_df: DataFrameLike, frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
+):
+    # Unformatted cells render as `str()` of these values
+    result = {
+        col: _describe_column(col, _column_cells(matrix_df, col), frame_constructor)
+        for col in get_column_names(matrix_df)
+    }
+
+    assert snapshot == result
+
+
+def test_get_cell_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    assert _column_cells(offset_index_df, "col2") == ["a", "b", "c"]
 
 
 def test_get_cell_container_dtypes(df_container_dtypes: pl.DataFrame):
@@ -103,7 +268,7 @@ def test_set_cell(df: DataFrameLike, frame_constructor: DataFrameConstructor):
     assert_frame_equal(new_df, expected)
 
 
-def _set_cells_with_set_cell(df: DataFrameLike, column: str, values: dict) -> DataFrameLike:
+def _set_cells_with_set_cell(df: FrameT, column: str, values: dict[int, Any]) -> FrameT:
     for row, value in values.items():
         new_df = _set_cell(df, row, column, value)
         if new_df is not None:
@@ -111,19 +276,32 @@ def _set_cells_with_set_cell(df: DataFrameLike, column: str, values: dict) -> Da
     return df
 
 
-@pytest.mark.parametrize(
-    "values",
-    [
-        {1: "x"},
-        {2: "z", 0: "x", 1: "y"},
-        {0: None, 2: "z"},
-        {},
-    ],
-)
-def test_set_cells(df: DataFrameLike, values: dict):
-    expected = _set_cells_with_set_cell(create_empty_frame(df), "col2", values)
+def test_set_cell_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    res = _set_cells_with_set_cell(offset_index_df, "col2", {1: "x"})
 
-    assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
+    assert _column_cells(res, "col2") == ["a", "x", "c"]
+    assert list(res.index) == [3, 7, 9]
+
+
+@pytest.mark.parametrize("values", params_set_cells_values)
+def test_set_cells(df: DataFrameLike, values: dict[int, str | None]):
+    expected = _set_cells_with_set_cell(create_empty_frame(df), "col2", values)
+    res = _set_cells(create_empty_frame(df), "col2", values)
+
+    assert_frame_equal(res, expected)
+    # Unset rows and None stay missing
+    cells = _column_cells(res, "col2")
+    assert [None if is_na(res, cell) else cell for cell in cells] == [
+        values.get(i) for i in range(3)
+    ]
+
+
+@pytest.mark.parametrize("values", params_set_cells_values)
+def test_set_cells_offset_index(offset_index_df: pd.DataFrame, values: dict[int, str | None]):
+    expected = _set_cells_with_set_cell(create_empty_frame(offset_index_df), "col2", values)
+
+    assert_frame_equal(_set_cells(create_empty_frame(offset_index_df), "col2", values), expected)
 
 
 @pytest.mark.parametrize("value", [5, 1.5, True, math.nan])
@@ -326,10 +504,6 @@ def test_validate_frame_non_str_cols_result():
     assert list(res.columns) == ["x", "55", "y", "99"]
 
 
-def test_to_frame(ser: SeriesLike, paired_frame_constructor: DataFrameConstructor):
-    assert_frame_equal(to_frame(ser, name="x"), paired_frame_constructor({"x": [1.0, 2.0, None]}))
-
-
 def test_is_series(ser: SeriesLike):
     assert is_series(ser)
 
@@ -338,10 +512,53 @@ def test_is_series_false():
     assert not is_series(1)
 
 
-def test_to_list(ser: SeriesLike):
-    pylist = to_list(ser)
-    assert len(pylist) == 3
-    assert pylist[:2] == [1.0, 2.0]
+def test_to_list_dtype_matrix(series_constructor: SeriesConstructor, snapshot: SnapshotAssertion):
+    # `data_color(fn=...)` gets these values
+    result = {
+        col: _describe_column(col, to_list(series_constructor(values)), series_constructor)
+        for col, values in DTYPE_MATRIX.items()
+    }
+
+    assert snapshot == result
+
+
+@pytest.mark.parametrize("column", list(DTYPE_MATRIX))
+def test_to_frame_dtype_matrix(
+    series_constructor: SeriesConstructor,
+    paired_frame_constructor: DataFrameConstructor,
+    column: str,
+):
+    # A series makes the same frame as its values would
+    values = DTYPE_MATRIX[column]
+    expected = paired_frame_constructor({column: values})
+
+    assert_frame_equal(to_frame(series_constructor(values), name=column), expected)
+
+
+@pytest.mark.parametrize("indexes, expected", [([2, 0], [3.5, 1.5]), ([], [])])
+def test_get_rows(
+    series_constructor: SeriesConstructor,
+    request: pytest.FixtureRequest,
+    indexes: list[int],
+    expected: list[float],
+):
+    ser = series_constructor([1.5, 2.5, 3.5])
+
+    if not indexes and native_backend(ser) == "pyarrow":
+        # An empty list becomes indices of type null, which pyarrow has no `take()` kernel for
+        marker = pytest.mark.xfail(
+            strict=True,
+            raises=pa.ArrowNotImplementedError,
+            reason="get_rows() raises on pyarrow for an empty list of rows",
+        )
+        request.applymarker(marker)
+
+    assert to_list(get_rows(ser, indexes)) == expected
+
+
+def test_get_rows_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    assert to_list(get_rows(offset_index_df["col2"], [2, 0])) == ["c", "a"]
 
 
 def test_cast_frame_to_string_polars_list_col():
@@ -353,23 +570,59 @@ def test_cast_frame_to_string_polars_list_col():
     assert new_df["z"].dtype.is_(pl.String)
 
 
-@pytest.mark.parametrize(
-    "x,expected",
-    [
-        (None, True),
-        (math.nan, True),
-        (pd.NA, True),
-        (pd.NaT, True),
-        (1, False),
-        ("a", False),
-        (np.array([1, 2]), False),
-        (np.array([math.nan]), False),
-        ([1, 2], False),
-    ],
-)
-def test_is_na_pandas(x, expected):
-    # A cell holding an array (or a list) isn't missing, even if its elements are
-    assert is_na(pd.DataFrame(), x) is expected
+@pytest.mark.parametrize("column", MATRIX_COLUMNS)
+def test_is_na_dtype_matrix(matrix_df: DataFrameLike, column: str):
+    # `is_na()` must recognize each backend's own missing value (None, nan, NaT or NA) in every dtype
+    cells = _column_cells(matrix_df, column)
+
+    assert [is_na(matrix_df, cell) for cell in cells] == [False, False, True]
+
+
+def test_is_na_scalars(df: DataFrameLike, snapshot: SnapshotAssertion):
+    # A cell holding an array or a list isn't missing, even if its elements are. pandas scalars
+    # can't come out of a polars or pyarrow frame: polars says they aren't missing, pyarrow raises
+    assert snapshot == {name: _is_na_or_error(df, x) for name, x in IS_NA_SCALARS.items()}
+
+
+def test_is_na_agnostic(snapshot: SnapshotAssertion):
+    assert snapshot == {name: _is_na_or_error(Agnostic(), x) for name, x in IS_NA_SCALARS.items()}
+
+
+def test_values_handed_to_user_callables(
+    frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
+):
+    # User functions get the backend's own scalars, missing ones included (pandas NaN, NaT and NA,
+    # polars and pyarrow None); changing them breaks user code, e.g. `x < 100` raises on None
+    data = {
+        "int": [1, None],
+        "float": [1.5, None],
+        "str": ["a", None],
+        "datetime": [datetime(2024, 1, 1, 12, 30), None],
+    }
+    gt = GT(frame_constructor(data))
+
+    result: dict[str, dict[str, list[str]]] = {"fmt": {}, "data_color": {}, "text_transform": {}}
+    for col in data:
+        fmt_args: list[Any] = []
+        color_args: list[Any] = []
+        text_args: list[Any] = []
+
+        gt.fmt(_recorder(fmt_args, lambda x: ""), columns=col).as_raw_html()
+        gt.data_color(
+            columns=col, fn=_recorder(color_args, lambda xs: [None] * len(xs))
+        ).as_raw_html()
+        gt.text_transform(loc.body(columns=col), _recorder(text_args, lambda x: x)).as_raw_html()
+
+        # `data_color()` calls `fn` once, with the whole column as a list
+        [column_values] = color_args
+        assert type(column_values) is list
+
+        result["fmt"][col] = _describe_column(col, fmt_args, frame_constructor)
+        result["data_color"][col] = _describe_column(col, column_values, frame_constructor)
+        # `text_transform()` gets the rendered text of non-missing cells
+        result["text_transform"][col] = [_describe(arg) for arg in text_args]
+
+    assert snapshot == result
 
 
 def test_pandas_array_cells_render():
