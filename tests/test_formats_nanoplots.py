@@ -1,3 +1,4 @@
+import re
 import math
 from typing import Any
 
@@ -211,3 +212,34 @@ def test_fmt_nanoplot_bracketed_number_stream(plot_type: str):
         return gt.as_raw_html()
 
     assert render(["[1, 5, 3]", "[2; 4]"]) == render(["1 5 3", "2 4"])
+
+
+def _numeric_column(kind: str):
+    import pyarrow as pa
+    from decimal import Decimal
+
+    vals = ["1.5", "2.5", "4.0"]
+    if kind == "polars_float":
+        return pl.DataFrame({"x": [float(v) for v in vals]})
+    if kind == "pyarrow_float64":
+        return pa.table({"x": pa.array([float(v) for v in vals])})
+    if kind == "polars_decimal":
+        return pl.DataFrame({"x": [Decimal(v) for v in vals]}, schema={"x": pl.Decimal(10, 2)})
+    if kind == "pyarrow_decimal":
+        return pa.table({"x": pa.array([Decimal(v) for v in vals], type=pa.decimal128(10, 2))})
+    raise ValueError(kind)
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+@pytest.mark.parametrize("kind", ["pyarrow_float64", "polars_decimal", "pyarrow_decimal"])
+def test_fmt_nanoplot_numeric_column_dtypes_match_polars_float(kind: str, plot_type: str):
+    pytest.importorskip("pyarrow")
+
+    def draw(tbl):
+        # the alignment is fixed: it is inferred from the dtype, which is not under test here
+        gt = GT(tbl).fmt_nanoplot("x", plot_type=plot_type).cols_align("right", columns="x")
+        html = gt.as_raw_html()
+        # the table id and the ids of the SVG elements differ between tables
+        return re.sub(r'id="[^"]*"|#[a-z]+\w*', "", html)
+
+    assert draw(_numeric_column(kind)) == draw(_numeric_column("polars_float"))
