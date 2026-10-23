@@ -536,23 +536,8 @@ def test_to_frame_dtype_matrix(
 
 
 @pytest.mark.parametrize("indexes, expected", [([2, 0], [3.5, 1.5]), ([], [])])
-def test_get_rows(
-    series_constructor: SeriesConstructor,
-    request: pytest.FixtureRequest,
-    indexes: list[int],
-    expected: list[float],
-):
+def test_get_rows(series_constructor: SeriesConstructor, indexes: list[int], expected: list[float]):
     ser = series_constructor([1.5, 2.5, 3.5])
-
-    if not indexes and native_backend(ser) == "pyarrow":
-        # An empty list becomes indices of type null, which pyarrow has no `take()` kernel for
-        marker = pytest.mark.xfail(
-            strict=True,
-            raises=pa.ArrowNotImplementedError,
-            reason="get_rows() raises on pyarrow for an empty list of rows",
-        )
-        request.applymarker(marker)
-
     assert to_list(get_rows(ser, indexes)) == expected
 
 
