@@ -24,6 +24,7 @@ from great_tables._tbl_data import (
     _set_cells,
     _validate_selector_list,
     cast_frame_to_string,
+    copy_data,
     copy_frame,
     create_empty_frame,
     eval_aggregate,
@@ -36,6 +37,7 @@ from great_tables._tbl_data import (
     is_series,
     n_rows,
     reorder,
+    replace_null_frame,
     to_frame,
     to_list,
     validate_frame,
@@ -321,14 +323,38 @@ def test_set_cells_non_strings_as_set_cell(df: DataFrameLike, value):
 
 
 def test_reorder(df: DataFrameLike, frame_constructor: DataFrameConstructor):
-    res = reorder(df, [0, 2], ["col2"])
+    res = reorder(df, [2, 0], ["col3", "col1"])
 
-    dst = frame_constructor({"col2": ["a", "c"]})
+    dst = frame_constructor({"col3": [6.0, 4.0], "col1": [3, 1]})
 
     if isinstance(dst, pd.DataFrame):
-        dst.index = pd.Index([0, 2])
+        dst.index = pd.Index([2, 0])
 
     assert_frame_equal(res, dst)
+
+
+def test_reorder_no_rows(df: DataFrameLike, request: pytest.FixtureRequest):
+    if native_backend(df) == "pyarrow":
+        # take() has no kernel for an empty list, which pyarrow types as null (as in #1005).
+        # summary_rows() hits it when #1002 turns an all-null group column into an empty group
+        reason = "pyarrow reorder() with no rows raises"
+        request.applymarker(
+            pytest.mark.xfail(strict=True, raises=pa.ArrowNotImplementedError, reason=reason)
+        )
+
+    res = reorder(df, [], ["col2"])
+
+    assert n_rows(res) == 0
+    assert get_column_names(res) == ["col2"]
+    assert _get_column_dtype(res, "col2") == _get_column_dtype(df, "col2")
+
+
+def test_reorder_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, and their index labels move with them
+    res = reorder(offset_index_df, [2, 0], ["col2"])
+
+    assert _column_cells(res, "col2") == ["c", "a"]
+    assert list(res.index) == [9, 3]
 
 
 @pytest.mark.parametrize("expr", [["col2", "col1"], [1, 0], ["col2", 0], [1, "col1"]])
@@ -415,14 +441,63 @@ def test_eval_selector_polars_list_raises():
     assert "entry 1 is type: <class 'float'>" in str(exc_info.value.args[0])
 
 
-def test_group_splits(frame_constructor: DataFrameConstructor):
-    df = frame_constructor({"g": ["b", "a", "b", "c"]})
+@pytest.mark.parametrize(
+    "keys, expected",
+    [
+        (["b", "a", "b", "c"], {"a": [1], "b": [0, 2], "c": [3]}),
+        ([2, 1, 2], {1: [1], 2: [0, 2]}),
+        ([True, False, True], {False: [1], True: [0, 2]}),
+    ],
+)
+def test_group_splits(
+    frame_constructor: DataFrameConstructor, keys: list[Any], expected: dict[Any, list[int]]
+):
+    splits = group_splits(frame_constructor({"g": keys}), "g")
 
-    splits = group_splits(df, "g")
-    assert set(splits.keys()) == {"a", "b", "c"}
-    assert splits["b"] == [0, 2]
-    assert splits["a"] == [1]
-    assert splits["c"] == [3]
+    # Compared as dicts: polars doesn't keep the group order, and GT orders groups itself
+    assert splits == expected
+    # A dict can't tell True from 1, and GT labels each group with `str()` of its key
+    assert sorted(map(str, splits)) == sorted(map(str, expected))
+
+
+@pytest.mark.parametrize(
+    "keys, expected",
+    [
+        (["b", None, "a", None], {"a": [2], "b": [0], None: [1, 3]}),
+        ([None, None], {None: [0, 1]}),
+    ],
+)
+def test_group_splits_null_keys(
+    frame_constructor: DataFrameConstructor,
+    keys: list[Any],
+    expected: dict[Any, list[int]],
+    request: pytest.FixtureRequest,
+):
+    df = frame_constructor({"g": keys})
+
+    if native_backend(df) == "pyarrow":
+        # The rows with a missing key are dropped
+        url = "https://github.com/posit-dev/great-tables/issues/1002"
+        request.applymarker(pytest.mark.xfail(strict=True, raises=AssertionError, reason=url))
+
+    # pandas spells the missing key NaN or NA, which `test_group_splits_null_key_is_none` pins
+    splits = {None if is_na(df, key) else key: rows for key, rows in group_splits(df, "g").items()}
+    assert splits == expected
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason="https://github.com/posit-dev/great-tables/issues/1003",
+    # TODO(Unassigned): Remove entire test once the issue is fixed
+)
+def test_group_splits_null_key_is_none(pandas_frame_constructor: DataFrameConstructor):
+    assert None in group_splits(pandas_frame_constructor({"g": ["b", None]}), "g")
+
+
+def test_group_splits_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    assert group_splits(offset_index_df, "col2") == {"a": [0], "b": [1], "c": [2]}
 
 
 def test_group_splits_pd_na():
@@ -435,14 +510,6 @@ def test_group_splits_pd_na():
     assert splits[nan_key] == [2]
 
 
-def test_group_splits_pl_na():
-    df = pl.DataFrame({"g": ["b", "a", None]})
-
-    splits = group_splits(df, "g")
-    assert set(splits.keys()) == {"b", "a", None}
-    assert splits[None] == [2]
-
-
 def test_validate_selector_list_strict_raises():
     with pytest.raises(TypeError) as exc_info:
         _validate_selector_list([pl.col("a")])
@@ -451,9 +518,10 @@ def test_validate_selector_list_strict_raises():
     assert msg in str(exc_info.value.args[0])
 
 
-def test_create_empty_frame(df: DataFrameLike):
-    res = create_empty_frame(df)
-    col = [None] * 3
+@pytest.mark.parametrize("row_count", [3, 0])
+def test_create_empty_frame(df: DataFrameLike, row_count: int):
+    res = create_empty_frame(df[:row_count])
+    col = [None] * row_count
 
     if isinstance(res, pd.DataFrame):
         dst = pd.DataFrame({"col1": col, "col2": col, "col3": col}, dtype="string")
@@ -474,6 +542,32 @@ def test_create_empty_frame(df: DataFrameLike):
         raise ValueError(f"Unsupported data type: {type(res)}")
 
     assert_frame_equal(res, dst)
+
+
+def test_create_empty_frame_offset_index(offset_index_df: pd.DataFrame):
+    assert list(create_empty_frame(offset_index_df).index) == [3, 7, 9]
+
+
+def test_replace_null_frame(matrix_df: DataFrameLike):
+    # GT fills the body cells that no formatter set with the original data cast to strings
+    str_data = cast_frame_to_string(matrix_df)
+    body = _set_cells(create_empty_frame(matrix_df), "str", {0: "x", 2: "z"})
+
+    res = replace_null_frame(body, str_data)
+
+    expected = {col: to_list(str_data[col]) for col in MATRIX_COLUMNS}
+    expected["str"] = ["x", "b", "z"]
+    assert {col: to_list(res[col]) for col in MATRIX_COLUMNS} == expected
+
+
+def test_replace_null_frame_offset_index(offset_index_df: pd.DataFrame):
+    # pandas fills by index label, which works because GT builds both frames from the same data
+    body = _set_cells(create_empty_frame(offset_index_df), "col2", {0: "x"})
+
+    res = replace_null_frame(body, cast_frame_to_string(offset_index_df))
+
+    assert _column_cells(res, "col2") == ["x", "b", "c"]
+    assert list(res.index) == [3, 7, 9]
 
 
 def test_validate_frame_dupe_cols():
@@ -573,6 +667,23 @@ def test_cast_frame_to_string_list_col(frame_constructor: DataFrameConstructor):
     assert to_list(cast_frame_to_string(df)["x"]) == ["[1, 2]", "[3]", None]
 
 
+def test_cast_frame_to_string_dtype_matrix(matrix_df: DataFrameLike, snapshot: SnapshotAssertion):
+    # Only body cells still missing at render time get these strings; unformatted cells already
+    # hold `str()` of their value
+    res = cast_frame_to_string(matrix_df)
+
+    assert snapshot == {col: to_list(res[col]) for col in get_column_names(res)}
+
+
+def test_cast_frame_to_string_nan(
+    frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
+):
+    # polars and pyarrow keep NaN apart from null, so GT renders the string NaN gets here
+    df = frame_constructor({"x": [1.5, math.nan, None]})
+
+    assert snapshot == to_list(cast_frame_to_string(df)["x"])
+
+
 def test_cast_frame_to_string_pyarrow_struct_col():
     # pyarrow can't cast nested types to strings. polars spells structs "{1}" instead
     df = pa.table({"x": [{"a": 1}, {"a": 2}, None]})
@@ -650,10 +761,31 @@ def test_frame_rendering(df: DataFrameLike, snapshot):
     assert create_body_component_h(gt._build_data("html")) == snapshot
 
 
-def test_copy_frame(df: DataFrameLike):
-    copy_df = copy_frame(df)
-    assert id(copy_df) != id(df)
-    assert_frame_equal(copy_df, df)
+@pytest.mark.parametrize("copy", [copy_data, copy_frame])
+def test_copy_keeps_dtypes(
+    matrix_df: DataFrameLike, copy: Callable[[DataFrameLike], DataFrameLike]
+):
+    if copy is copy_frame and isinstance(matrix_df, pa.Table):
+        # pa.array() can't rebuild a chunked list column holding a null.
+        # NOTE: GT never calls copy_frame()
+        with pytest.raises(TypeError):
+            copy_frame(matrix_df)
+        matrix_df = matrix_df.drop_columns("list")
+
+    res = copy(matrix_df)
+
+    assert res is not matrix_df
+    assert_frame_equal(res, matrix_df)
+
+
+@pytest.mark.parametrize("copy", [copy_data, copy_frame])
+def test_copy_is_independent(df: DataFrameLike, copy: Callable[[DataFrameLike], DataFrameLike]):
+    # GT sets formatted cells on a copy of the body, in place for pandas and polars
+    body = create_empty_frame(df)
+
+    _set_cells(copy(body), "col2", {0: "x"})
+
+    assert all(is_na(body, cell) for cell in _column_cells(body, "col2"))
 
 
 def test_eval_aggregate_pandas(df: DataFrameLike):
