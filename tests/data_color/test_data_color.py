@@ -12,7 +12,7 @@ from great_tables._gt_data import CellStyle, StyleInfo
 from great_tables._tbl_data import DataFrameLike
 from great_tables._utils_render_html import create_body_component_h
 from great_tables.data import exibble
-from tests.utils import assert_rendered_body
+from tests.utils import DataFrameConstructor, assert_rendered_body
 
 T_CellStyle = TypeVar("T_CellStyle", bound=CellStyle)
 
@@ -76,6 +76,13 @@ def test_data_color_pl_cols_rows_snap(snapshot: str):
     assert create_body_component_h(new_gt._build_data("html")) == create_body_component_h(
         new_gt2._build_data("html")
     )
+
+
+def test_data_color_no_rows_selected(frame_constructor: DataFrameConstructor):
+    """Selecting no rows colors no cells, on every backend (pyarrow raised, see #1005)."""
+    new_gt = GT(frame_constructor({"x": [1.5, 2.5, 3.5]})).data_color(columns="x", rows=[])
+
+    assert new_gt._styles == []
 
 
 @pytest.mark.parametrize("none_val", [None, np.nan, float("nan"), pd.NA])

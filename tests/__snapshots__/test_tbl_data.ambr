@@ -1,5 +1,5 @@
 # serializer version: 1
-# name: test_frame_rendering[arrow]
+# name: test_frame_rendering[pandas_constructor]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -20,7 +20,7 @@
   </tbody>
   '''
 # ---
-# name: test_frame_rendering[pandas]
+# name: test_frame_rendering[pandas_nullable_constructor]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -41,7 +41,7 @@
   </tbody>
   '''
 # ---
-# name: test_frame_rendering[polars]
+# name: test_frame_rendering[pandas_pyarrow_constructor]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -61,6 +61,806 @@
     </tr>
   </tbody>
   '''
+# ---
+# name: test_frame_rendering[polars_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="col1" class="gt_row gt_right">$1.00</td>
+      <td headers="col2" class="gt_row gt_left">a</td>
+      <td headers="col3" class="gt_row gt_right">4</td>
+    </tr>
+    <tr>
+      <td headers="col1" class="gt_row gt_right">$2.00</td>
+      <td headers="col2" class="gt_row gt_left">b</td>
+      <td headers="col3" class="gt_row gt_right">5</td>
+    </tr>
+    <tr>
+      <td headers="col1" class="gt_row gt_right">$3.00</td>
+      <td headers="col2" class="gt_row gt_left">c</td>
+      <td headers="col3" class="gt_row gt_right">6</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_frame_rendering[pyarrow_table_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="col1" class="gt_row gt_right">$1.00</td>
+      <td headers="col2" class="gt_row gt_left">a</td>
+      <td headers="col3" class="gt_row gt_right">4</td>
+    </tr>
+    <tr>
+      <td headers="col1" class="gt_row gt_right">$2.00</td>
+      <td headers="col2" class="gt_row gt_left">b</td>
+      <td headers="col3" class="gt_row gt_right">5</td>
+    </tr>
+    <tr>
+      <td headers="col1" class="gt_row gt_right">$3.00</td>
+      <td headers="col2" class="gt_row gt_left">c</td>
+      <td headers="col3" class="gt_row gt_right">6</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_get_cell_dtype_matrix[pandas_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NoneType: None',
+    ]),
+    'categorical': list([
+      'str: a',
+      'str: b',
+      'float: nan',
+    ]),
+    'categorical_ordered': list([
+      'str: a',
+      'str: b',
+      'float: nan',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'Timestamp: 2024-01-01 12:30:00',
+      'Timestamp: 2024-02-29 00:00:00',
+      'NaTType: NaT',
+    ]),
+    'datetime_tz': list([
+      'Timestamp: 2024-01-01 12:30:00+00:00',
+      'Timestamp: 2024-02-29 00:00:00+00:00',
+      'NaTType: NaT',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'Timedelta: 0 days 01:00:00',
+      'Timedelta: 2 days 00:00:00',
+      'NaTType: NaT',
+    ]),
+    'float': list([
+      'np.float64: 1.5',
+      'np.float64: -0.0',
+      'np.float64: nan',
+    ]),
+    'int': list([
+      'np.float64: 1.0',
+      'np.float64: 2.0',
+      'np.float64: nan',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'None (pandas 2) or nan (pandas 3)',
+    ]),
+  })
+# ---
+# name: test_get_cell_dtype_matrix[pandas_nullable_constructor]
+  dict({
+    'bool': list([
+      'np.bool: True',
+      'np.bool: False',
+      'NAType: <NA>',
+    ]),
+    'categorical': list([
+      'str: a',
+      'str: b',
+      'float: nan',
+    ]),
+    'categorical_ordered': list([
+      'str: a',
+      'str: b',
+      'float: nan',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'Timestamp: 2024-01-01 12:30:00',
+      'Timestamp: 2024-02-29 00:00:00',
+      'NaTType: NaT',
+    ]),
+    'datetime_tz': list([
+      'Timestamp: 2024-01-01 12:30:00+00:00',
+      'Timestamp: 2024-02-29 00:00:00+00:00',
+      'NaTType: NaT',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'Timedelta: 0 days 01:00:00',
+      'Timedelta: 2 days 00:00:00',
+      'NaTType: NaT',
+    ]),
+    'float': list([
+      'np.float64: 1.5',
+      'np.float64: -0.0',
+      'NAType: <NA>',
+    ]),
+    'int': list([
+      'np.int64: 1',
+      'np.int64: 2',
+      'NAType: <NA>',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'NAType: <NA>',
+    ]),
+  })
+# ---
+# name: test_get_cell_dtype_matrix[pandas_pyarrow_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NAType: <NA>',
+    ]),
+    'categorical': list([
+      'str: a',
+      'str: b',
+      'float: nan',
+    ]),
+    'categorical_ordered': list([
+      'str: a',
+      'str: b',
+      'float: nan',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'Timestamp: 2024-01-01 12:30:00',
+      'Timestamp: 2024-02-29 00:00:00',
+      'NAType: <NA>',
+    ]),
+    'datetime_tz': list([
+      'Timestamp: 2024-01-01 12:30:00+00:00',
+      'Timestamp: 2024-02-29 00:00:00+00:00',
+      'NAType: <NA>',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'Timedelta: 0 days 01:00:00',
+      'Timedelta: 2 days 00:00:00',
+      'NAType: <NA>',
+    ]),
+    'float': list([
+      'float: 1.5',
+      'float: -0.0',
+      'NAType: <NA>',
+    ]),
+    'int': list([
+      'int: 1',
+      'int: 2',
+      'NAType: <NA>',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'NAType: <NA>',
+    ]),
+  })
+# ---
+# name: test_get_cell_dtype_matrix[polars_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NoneType: None',
+    ]),
+    'categorical': list([
+      'str: a',
+      'str: b',
+      'NoneType: None',
+    ]),
+    'categorical_ordered': list([
+      'str: a',
+      'str: b',
+      'NoneType: None',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'datetime: 2024-01-01 12:30:00',
+      'datetime: 2024-02-29 00:00:00',
+      'NoneType: None',
+    ]),
+    'datetime_tz': list([
+      'datetime: 2024-01-01 12:30:00+00:00',
+      'datetime: 2024-02-29 00:00:00+00:00',
+      'NoneType: None',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'timedelta: 1:00:00',
+      'timedelta: 2 days, 0:00:00',
+      'NoneType: None',
+    ]),
+    'float': list([
+      'float: 1.5',
+      'float: -0.0',
+      'NoneType: None',
+    ]),
+    'int': list([
+      'int: 1',
+      'int: 2',
+      'NoneType: None',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'NoneType: None',
+    ]),
+  })
+# ---
+# name: test_get_cell_dtype_matrix[pyarrow_table_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NoneType: None',
+    ]),
+    'categorical': list([
+      'str: a',
+      'str: b',
+      'NoneType: None',
+    ]),
+    'categorical_ordered': list([
+      'str: a',
+      'str: b',
+      'NoneType: None',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'datetime: 2024-01-01 12:30:00',
+      'datetime: 2024-02-29 00:00:00',
+      'NoneType: None',
+    ]),
+    'datetime_tz': list([
+      'datetime: 2024-01-01 12:30:00+00:00',
+      'datetime: 2024-02-29 00:00:00+00:00',
+      'NoneType: None',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'timedelta: 1:00:00',
+      'timedelta: 2 days, 0:00:00',
+      'NoneType: None',
+    ]),
+    'float': list([
+      'float: 1.5',
+      'float: -0.0',
+      'NoneType: None',
+    ]),
+    'int': list([
+      'int: 1',
+      'int: 2',
+      'NoneType: None',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'NoneType: None',
+    ]),
+  })
+# ---
+# name: test_is_na_agnostic
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': False,
+    'pd.NaT': False,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[pandas_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': True,
+    'pd.NaT': True,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[pandas_nullable_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': True,
+    'pd.NaT': True,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[pandas_pyarrow_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': True,
+    'pd.NaT': True,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[polars_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': False,
+    'pd.NaT': False,
+    'str': False,
+  })
+# ---
+# name: test_is_na_scalars[pyarrow_table_constructor]
+  dict({
+    '0': False,
+    '1.5': False,
+    'Decimal': False,
+    'False': False,
+    'None': True,
+    'date': False,
+    'empty str': False,
+    'list': False,
+    'nan': True,
+    'np.array': False,
+    'np.array([nan])': False,
+    'np.float64(nan)': True,
+    'pd.NA': 'ArrowInvalid',
+    'pd.NaT': 'ValueError',
+    'str': False,
+  })
+# ---
+# name: test_to_list_dtype_matrix[pandas_nullable_series_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NAType: <NA>',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'Timestamp: 2024-01-01 12:30:00',
+      'Timestamp: 2024-02-29 00:00:00',
+      'NaTType: NaT',
+    ]),
+    'datetime_tz': list([
+      'Timestamp: 2024-01-01 12:30:00+00:00',
+      'Timestamp: 2024-02-29 00:00:00+00:00',
+      'NaTType: NaT',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'Timedelta: 0 days 01:00:00',
+      'Timedelta: 2 days 00:00:00',
+      'NaTType: NaT',
+    ]),
+    'float': list([
+      'float: 1.5',
+      'float: -0.0',
+      'NAType: <NA>',
+    ]),
+    'int': list([
+      'int: 1',
+      'int: 2',
+      'NAType: <NA>',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'NAType: <NA>',
+    ]),
+  })
+# ---
+# name: test_to_list_dtype_matrix[pandas_pyarrow_series_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NAType: <NA>',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'Timestamp: 2024-01-01 12:30:00',
+      'Timestamp: 2024-02-29 00:00:00',
+      'NAType: <NA>',
+    ]),
+    'datetime_tz': list([
+      'Timestamp: 2024-01-01 12:30:00+00:00',
+      'Timestamp: 2024-02-29 00:00:00+00:00',
+      'NAType: <NA>',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'Timedelta: 0 days 01:00:00',
+      'Timedelta: 2 days 00:00:00',
+      'NAType: <NA>',
+    ]),
+    'float': list([
+      'float: 1.5',
+      'float: -0.0',
+      'NAType: <NA>',
+    ]),
+    'int': list([
+      'int: 1',
+      'int: 2',
+      'NAType: <NA>',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'NAType: <NA>',
+    ]),
+  })
+# ---
+# name: test_to_list_dtype_matrix[pandas_series_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NoneType: None',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'Timestamp: 2024-01-01 12:30:00',
+      'Timestamp: 2024-02-29 00:00:00',
+      'NaTType: NaT',
+    ]),
+    'datetime_tz': list([
+      'Timestamp: 2024-01-01 12:30:00+00:00',
+      'Timestamp: 2024-02-29 00:00:00+00:00',
+      'NaTType: NaT',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'Timedelta: 0 days 01:00:00',
+      'Timedelta: 2 days 00:00:00',
+      'NaTType: NaT',
+    ]),
+    'float': list([
+      'float: 1.5',
+      'float: -0.0',
+      'float: nan',
+    ]),
+    'int': list([
+      'float: 1.0',
+      'float: 2.0',
+      'float: nan',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'None (pandas 2) or nan (pandas 3)',
+    ]),
+  })
+# ---
+# name: test_to_list_dtype_matrix[polars_series_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NoneType: None',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'datetime: 2024-01-01 12:30:00',
+      'datetime: 2024-02-29 00:00:00',
+      'NoneType: None',
+    ]),
+    'datetime_tz': list([
+      'datetime: 2024-01-01 12:30:00+00:00',
+      'datetime: 2024-02-29 00:00:00+00:00',
+      'NoneType: None',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'timedelta: 1:00:00',
+      'timedelta: 2 days, 0:00:00',
+      'NoneType: None',
+    ]),
+    'float': list([
+      'float: 1.5',
+      'float: -0.0',
+      'NoneType: None',
+    ]),
+    'int': list([
+      'int: 1',
+      'int: 2',
+      'NoneType: None',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'NoneType: None',
+    ]),
+  })
+# ---
+# name: test_to_list_dtype_matrix[pyarrow_array_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NoneType: None',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'datetime: 2024-01-01 12:30:00',
+      'datetime: 2024-02-29 00:00:00',
+      'NoneType: None',
+    ]),
+    'datetime_tz': list([
+      'datetime: 2024-01-01 12:30:00+00:00',
+      'datetime: 2024-02-29 00:00:00+00:00',
+      'NoneType: None',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'timedelta: 1:00:00',
+      'timedelta: 2 days, 0:00:00',
+      'NoneType: None',
+    ]),
+    'float': list([
+      'float: 1.5',
+      'float: -0.0',
+      'NoneType: None',
+    ]),
+    'int': list([
+      'int: 1',
+      'int: 2',
+      'NoneType: None',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'NoneType: None',
+    ]),
+  })
+# ---
+# name: test_to_list_dtype_matrix[pyarrow_chunked_array_constructor]
+  dict({
+    'bool': list([
+      'bool: True',
+      'bool: False',
+      'NoneType: None',
+    ]),
+    'date': list([
+      'date: 2024-01-01',
+      'date: 2024-02-29',
+      'NoneType: None',
+    ]),
+    'datetime': list([
+      'datetime: 2024-01-01 12:30:00',
+      'datetime: 2024-02-29 00:00:00',
+      'NoneType: None',
+    ]),
+    'datetime_tz': list([
+      'datetime: 2024-01-01 12:30:00+00:00',
+      'datetime: 2024-02-29 00:00:00+00:00',
+      'NoneType: None',
+    ]),
+    'decimal': list([
+      'Decimal: 1.50',
+      'Decimal: -2.25',
+      'NoneType: None',
+    ]),
+    'duration': list([
+      'timedelta: 1:00:00',
+      'timedelta: 2 days, 0:00:00',
+      'NoneType: None',
+    ]),
+    'float': list([
+      'float: 1.5',
+      'float: -0.0',
+      'NoneType: None',
+    ]),
+    'int': list([
+      'int: 1',
+      'int: 2',
+      'NoneType: None',
+    ]),
+    'list': list([
+      'list: [1, 2]',
+      'list: [3]',
+      'NoneType: None',
+    ]),
+    'str': list([
+      'str: a',
+      'str: b',
+      'NoneType: None',
+    ]),
+  })
 # ---
 # name: test_validate_frame_non_str_cols_warning
   '''
@@ -69,4 +869,274 @@
     * Position 1: 55
     * Position 3: 99
   '''
+# ---
+# name: test_values_handed_to_user_callables[pandas_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NaTType: NaT',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'float: nan',
+      ]),
+      'int': list([
+        'float: 1.0',
+        'float: nan',
+      ]),
+      'str': list([
+        'str: a',
+        'None (pandas 2) or nan (pandas 3)',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NaTType: NaT',
+      ]),
+      'float': list([
+        'np.float64: 1.5',
+        'np.float64: nan',
+      ]),
+      'int': list([
+        'np.float64: 1.0',
+        'np.float64: nan',
+      ]),
+      'str': list([
+        'str: a',
+        'None (pandas 2) or nan (pandas 3)',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1.0',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
+# ---
+# name: test_values_handed_to_user_callables[pandas_nullable_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NaTType: NaT',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NAType: <NA>',
+      ]),
+      'int': list([
+        'int: 1',
+        'NAType: <NA>',
+      ]),
+      'str': list([
+        'str: a',
+        'NAType: <NA>',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NaTType: NaT',
+      ]),
+      'float': list([
+        'np.float64: 1.5',
+        'NAType: <NA>',
+      ]),
+      'int': list([
+        'np.int64: 1',
+        'NAType: <NA>',
+      ]),
+      'str': list([
+        'str: a',
+        'NAType: <NA>',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
+# ---
+# name: test_values_handed_to_user_callables[pandas_pyarrow_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NAType: <NA>',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NAType: <NA>',
+      ]),
+      'int': list([
+        'int: 1',
+        'NAType: <NA>',
+      ]),
+      'str': list([
+        'str: a',
+        'NAType: <NA>',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'Timestamp: 2024-01-01 12:30:00',
+        'NAType: <NA>',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NAType: <NA>',
+      ]),
+      'int': list([
+        'int: 1',
+        'NAType: <NA>',
+      ]),
+      'str': list([
+        'str: a',
+        'NAType: <NA>',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
+# ---
+# name: test_values_handed_to_user_callables[polars_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'datetime: 2024-01-01 12:30:00',
+        'NoneType: None',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NoneType: None',
+      ]),
+      'int': list([
+        'int: 1',
+        'NoneType: None',
+      ]),
+      'str': list([
+        'str: a',
+        'NoneType: None',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'datetime: 2024-01-01 12:30:00',
+        'NoneType: None',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NoneType: None',
+      ]),
+      'int': list([
+        'int: 1',
+        'NoneType: None',
+      ]),
+      'str': list([
+        'str: a',
+        'NoneType: None',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
+# ---
+# name: test_values_handed_to_user_callables[pyarrow_table_constructor]
+  dict({
+    'data_color': dict({
+      'datetime': list([
+        'datetime: 2024-01-01 12:30:00',
+        'NoneType: None',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NoneType: None',
+      ]),
+      'int': list([
+        'int: 1',
+        'NoneType: None',
+      ]),
+      'str': list([
+        'str: a',
+        'NoneType: None',
+      ]),
+    }),
+    'fmt': dict({
+      'datetime': list([
+        'datetime: 2024-01-01 12:30:00',
+        'NoneType: None',
+      ]),
+      'float': list([
+        'float: 1.5',
+        'NoneType: None',
+      ]),
+      'int': list([
+        'int: 1',
+        'NoneType: None',
+      ]),
+      'str': list([
+        'str: a',
+        'NoneType: None',
+      ]),
+    }),
+    'text_transform': dict({
+      'datetime': list([
+        'str: 2024-01-01 12:30:00',
+      ]),
+      'float': list([
+        'str: 1.5',
+      ]),
+      'int': list([
+        'str: 1',
+      ]),
+      'str': list([
+        'str: a',
+      ]),
+    }),
+  })
 # ---
