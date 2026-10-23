@@ -190,6 +190,20 @@ def test_fmt_nanoplot_na_in_number_stream_with_ref_keywords(plot_type: str):
     assert [float(label) for label in ref_line_labels] == [3, 6]
 
 
+@pytest.mark.parametrize("plot_type", ["line", "bar", "boxplot"])
+@pytest.mark.parametrize("keyword,dst", [("first", [2, 7]), ("last", [4, 6])])
+def test_fmt_nanoplot_ref_keywords_first_last(plot_type: str, keyword: str, dst: list[float]):
+    gt = GT(pl.DataFrame({"v": ["2 5 3 9 4", "7 1 6"]})).fmt_nanoplot(
+        columns="v", plot_type=plot_type, reference_line=keyword, reference_area=["first", "last"]
+    )
+
+    import re
+
+    ref_line_labels = re.findall(r'<g class="ref-line">.*?>([^<>]*)</text></g>', gt.as_raw_html())
+
+    assert [float(label) for label in ref_line_labels] == dst
+
+
 @pytest.mark.parametrize("plot_type", ["line", "bar"])
 def test_fmt_nanoplot_bracketed_number_stream(plot_type: str):
     def render(vals: list[str]) -> str:

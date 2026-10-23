@@ -2,21 +2,24 @@ import builtins
 import math
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
+from typing import Any, Callable, TypeVar
 from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
 import polars as pl
-import polars.testing
 import pyarrow as pa
 import pytest
+from syrupy.assertion import SnapshotAssertion
 
-from great_tables import GT
+from great_tables import GT, loc
 from great_tables._tbl_data import (
+    Agnostic,
     DataFrameLike,
     SeriesLike,
     _get_cell,
     _get_column_dtype,
+    _re_version,
     _set_cell,
     _set_cells,
     _validate_selector_list,
@@ -26,37 +29,165 @@ from great_tables._tbl_data import (
     eval_aggregate,
     eval_select,
     get_column_names,
+    get_rows,
     group_splits,
     is_na,
     is_series,
+    n_rows,
     reorder,
     to_frame,
     to_list,
     validate_frame,
 )
 from great_tables._utils_render_html import create_body_component_h
-from tests.utils import assert_frame_equal
+from tests.utils import (
+    DataFrameConstructor,
+    DataLike,
+    SeriesConstructor,
+    assert_frame_equal,
+    native_backend,
+)
 
-params_frames = [
-    pytest.param(pd.DataFrame, id="pandas"),
-    pytest.param(pl.DataFrame, id="polars"),
-    pytest.param(pa.table, id="arrow"),
-]
-params_series = [
-    pytest.param(pd.Series, id="pandas"),
-    pytest.param(pl.Series, id="polars"),
-    pytest.param(pa.array, id="arrow"),
-    pytest.param(lambda a: pa.chunked_array([a]), id="arrow-chunked"),
-]
 params_pl_container_dtypes = [
     pytest.param(pl.List, id="list"),
     pytest.param(pl.Array, id="array"),
 ]
 
+pandas_ge_v3 = _re_version(pd.__version__) >= (3, 0, 0)
 
-@pytest.fixture(params=params_frames, scope="function")
-def df(request) -> pd.DataFrame:
-    return request.param({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+FrameT = TypeVar("FrameT", bound=DataFrameLike)
+
+# One column per dtype, each ending with a missing value. The float column needs a non-integral
+# value, or the pandas nullable and pyarrow-backed constructors make it an integer column.
+DTYPE_MATRIX: DataLike = {
+    "int": [1, 2, None],
+    "float": [1.5, -0.0, None],
+    "str": ["a", "b", None],
+    "bool": [True, False, None],
+    "date": [date(2024, 1, 1), date(2024, 2, 29), None],
+    "datetime": [datetime(2024, 1, 1, 12, 30), datetime(2024, 2, 29), None],
+    "datetime_tz": [
+        datetime(2024, 1, 1, 12, 30, tzinfo=timezone.utc),
+        datetime(2024, 2, 29, tzinfo=timezone.utc),
+        None,
+    ],
+    "duration": [timedelta(hours=1), timedelta(days=2), None],
+    "decimal": [Decimal("1.50"), Decimal("-2.25"), None],
+    "list": [[1, 2], [3], None],
+}
+
+MATRIX_COLUMNS = [*DTYPE_MATRIX, "categorical", "categorical_ordered"]
+
+IS_NA_SCALARS: dict[str, Any] = {
+    "None": None,
+    "nan": math.nan,
+    "np.float64(nan)": np.float64("nan"),
+    "pd.NA": pd.NA,
+    "pd.NaT": pd.NaT,
+    "0": 0,
+    "1.5": 1.5,
+    "empty str": "",
+    "str": "a",
+    "False": False,
+    "date": date(2024, 1, 1),
+    "Decimal": Decimal("1.5"),
+    "list": [1, 2],
+    "np.array": np.array([1, 2]),
+    "np.array([nan])": np.array([math.nan]),
+}
+
+params_set_cells_values: list[dict[int, str | None]] = [
+    {1: "x"},
+    {2: "z", 0: "x", 1: "y"},
+    {0: None, 2: "z"},
+    {},
+]
+
+
+def _cast_to_categorical(df: DataFrameLike, column: str, *, ordered: bool) -> DataFrameLike:
+    # Python values can't build categorical columns. Ordered categories follow first appearance.
+    if isinstance(df, pd.DataFrame):
+        categories = df[column].dropna().unique()
+        categorical = pd.Categorical(df[column], categories=categories, ordered=ordered)
+        return df.assign(**{column: categorical})
+
+    if isinstance(df, pl.DataFrame):
+        categories = df[column].drop_nulls().unique(maintain_order=True)
+        return df.with_columns(
+            pl.col(column).cast(pl.Enum(categories) if ordered else pl.Categorical)
+        )
+
+    encoded = df[column].dictionary_encode()
+    if ordered:
+        encoded = encoded.cast(
+            pa.dictionary(encoded.type.index_type, encoded.type.value_type, ordered=True)
+        )
+    return df.set_column(df.column_names.index(column), column, encoded)
+
+
+def _column_cells(df: DataFrameLike, column: str) -> list[Any]:
+    return [_get_cell(df, row, column) for row in range(n_rows(df))]
+
+
+def _is_na_or_error(df: Any, x: Any) -> bool | str:
+    try:
+        return is_na(df, x)
+    except Exception as e:
+        return type(e).__name__
+
+
+def _describe(value: Any) -> str:
+    # Type name and `str()` hold across library versions, unlike reprs. numpy 2 names its bool
+    # scalar "bool", so numpy types get a prefix to tell them from Python's.
+    prefix = "np." if isinstance(value, np.generic) else ""
+    return f"{prefix}{type(value).__name__}: {value}"
+
+
+def _describe_column(
+    column: str, values: list[Any], constructor: DataFrameConstructor | SeriesConstructor
+) -> list[str]:
+    described = [_describe(value) for value in values]
+
+    # A missing value in a plain pandas text column is None on pandas 2 (object dtype) and nan on
+    # pandas 3 (str dtype), so it's checked here and the snapshot holds on both majors
+    plain_pandas = constructor.__name__ in ("pandas_constructor", "pandas_series_constructor")
+    if column == "str" and plain_pandas:
+        assert described[-1] == ("float: nan" if pandas_ge_v3 else "NoneType: None")
+        described[-1] = "None (pandas 2) or nan (pandas 3)"
+
+    return described
+
+
+def _recorder(calls: list[Any], returns: Callable[[Any], Any]) -> Callable[[Any], Any]:
+    def record(arg: Any) -> Any:
+        calls.append(arg)
+        return returns(arg)
+
+    return record
+
+
+@pytest.fixture
+def df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
+    return frame_constructor({"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]})
+
+
+@pytest.fixture
+def matrix_df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
+    text = DTYPE_MATRIX["str"]
+    df = frame_constructor({**DTYPE_MATRIX, "categorical": text, "categorical_ordered": text})
+    df = _cast_to_categorical(df, "categorical", ordered=False)
+    return _cast_to_categorical(df, "categorical_ordered", ordered=True)
+
+
+@pytest.fixture
+def offset_index_df(pandas_frame_constructor: DataFrameConstructor) -> pd.DataFrame:
+    # Index labels that aren't row positions, as after filtering rows
+    df = pandas_frame_constructor(
+        {"col1": [1, 2, 3], "col2": ["a", "b", "c"], "col3": [4.0, 5.0, 6.0]}
+    )
+    assert isinstance(df, pd.DataFrame)
+    df.index = [3, 7, 9]
+    return df
 
 
 @pytest.fixture(params=params_pl_container_dtypes, scope="function")
@@ -79,9 +210,9 @@ def df_container_dtypes(request):
         ).with_columns(col2_as_array)
 
 
-@pytest.fixture(params=params_series, scope="function")
-def ser(request) -> SeriesLike:
-    return request.param([1.0, 2.0, None])
+@pytest.fixture
+def ser(series_constructor: SeriesConstructor) -> SeriesLike:
+    return series_constructor([1.0, 2.0, None])
 
 
 def test_get_column_names(df: DataFrameLike):
@@ -89,13 +220,35 @@ def test_get_column_names(df: DataFrameLike):
     assert get_column_names(df) == expected
 
 
+def test_get_column_names_empty_frame(frame_constructor: DataFrameConstructor):
+    assert get_column_names(frame_constructor({"x": []})) == ["x"]
+
+
+@pytest.mark.parametrize("data, expected", [({"x": [1, 2, 3]}, 3), ({"x": []}, 0)])
+def test_n_rows(frame_constructor: DataFrameConstructor, data: DataLike, expected: int):
+    assert n_rows(frame_constructor(data)) == expected
+
+
 def test_get_column_dtypes(df: DataFrameLike):
     col1 = df["col1"]
     assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
 
 
-def test_get_cell(df: DataFrameLike):
-    assert _get_cell(df, 1, "col2") == "b"
+def test_get_cell_dtype_matrix(
+    matrix_df: DataFrameLike, frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
+):
+    # Unformatted cells render as `str()` of these values
+    result = {
+        col: _describe_column(col, _column_cells(matrix_df, col), frame_constructor)
+        for col in get_column_names(matrix_df)
+    }
+
+    assert snapshot == result
+
+
+def test_get_cell_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    assert _column_cells(offset_index_df, "col2") == ["a", "b", "c"]
 
 
 def test_get_cell_container_dtypes(df_container_dtypes: pl.DataFrame):
@@ -104,12 +257,9 @@ def test_get_cell_container_dtypes(df_container_dtypes: pl.DataFrame):
     assert _get_cell(df_container_dtypes, 2, "col2") is None
 
 
-def test_set_cell(df: DataFrameLike):
+def test_set_cell(df: DataFrameLike, frame_constructor: DataFrameConstructor):
     expected_data = {"col1": [1, 2, 3], "col2": ["a", "x", "c"], "col3": [4.0, 5.0, 6.0]}
-    if isinstance(df, pa.Table):
-        expected = pa.table(expected_data)
-    else:
-        expected = df.__class__(expected_data)
+    expected = frame_constructor(expected_data)
 
     new_df = _set_cell(df, 1, "col2", "x")
     if new_df is None:
@@ -118,7 +268,7 @@ def test_set_cell(df: DataFrameLike):
     assert_frame_equal(new_df, expected)
 
 
-def _set_cells_with_set_cell(df: DataFrameLike, column: str, values: dict) -> DataFrameLike:
+def _set_cells_with_set_cell(df: FrameT, column: str, values: dict[int, Any]) -> FrameT:
     for row, value in values.items():
         new_df = _set_cell(df, row, column, value)
         if new_df is not None:
@@ -126,19 +276,32 @@ def _set_cells_with_set_cell(df: DataFrameLike, column: str, values: dict) -> Da
     return df
 
 
-@pytest.mark.parametrize(
-    "values",
-    [
-        {1: "x"},
-        {2: "z", 0: "x", 1: "y"},
-        {0: None, 2: "z"},
-        {},
-    ],
-)
-def test_set_cells(df: DataFrameLike, values: dict):
-    expected = _set_cells_with_set_cell(create_empty_frame(df), "col2", values)
+def test_set_cell_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    res = _set_cells_with_set_cell(offset_index_df, "col2", {1: "x"})
 
-    assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
+    assert _column_cells(res, "col2") == ["a", "x", "c"]
+    assert list(res.index) == [3, 7, 9]
+
+
+@pytest.mark.parametrize("values", params_set_cells_values)
+def test_set_cells(df: DataFrameLike, values: dict[int, str | None]):
+    expected = _set_cells_with_set_cell(create_empty_frame(df), "col2", values)
+    res = _set_cells(create_empty_frame(df), "col2", values)
+
+    assert_frame_equal(res, expected)
+    # Unset rows and None stay missing
+    cells = _column_cells(res, "col2")
+    assert [None if is_na(res, cell) else cell for cell in cells] == [
+        values.get(i) for i in range(3)
+    ]
+
+
+@pytest.mark.parametrize("values", params_set_cells_values)
+def test_set_cells_offset_index(offset_index_df: pd.DataFrame, values: dict[int, str | None]):
+    expected = _set_cells_with_set_cell(create_empty_frame(offset_index_df), "col2", values)
+
+    assert_frame_equal(_set_cells(create_empty_frame(offset_index_df), "col2", values), expected)
 
 
 @pytest.mark.parametrize("value", [5, 1.5, True, math.nan])
@@ -156,14 +319,10 @@ def test_set_cells_non_strings_as_set_cell(df: DataFrameLike, value):
         assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
 
 
-def test_reorder(df: DataFrameLike):
+def test_reorder(df: DataFrameLike, frame_constructor: DataFrameConstructor):
     res = reorder(df, [0, 2], ["col2"])
 
-    expected_data = {"col2": ["a", "c"]}
-    if isinstance(df, pa.Table):
-        dst = pa.table(expected_data)
-    else:
-        dst = df.__class__(expected_data)
+    dst = frame_constructor({"col2": ["a", "c"]})
 
     if isinstance(dst, pd.DataFrame):
         dst.index = pd.Index([0, 2])
@@ -245,9 +404,8 @@ def test_eval_selector_polars_list_raises():
     assert "entry 1 is type: <class 'float'>" in str(exc_info.value.args[0])
 
 
-@pytest.mark.parametrize("Frame", [pd.DataFrame, pl.DataFrame, pa.table])
-def test_group_splits_pd(Frame):
-    df = Frame({"g": ["b", "a", "b", "c"]})
+def test_group_splits(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"g": ["b", "a", "b", "c"]})
 
     splits = group_splits(df, "g")
     assert set(splits.keys()) == {"a", "b", "c"}
@@ -346,19 +504,6 @@ def test_validate_frame_non_str_cols_result():
     assert list(res.columns) == ["x", "55", "y", "99"]
 
 
-def test_to_frame(ser: SeriesLike):
-    df = to_frame(ser, name="x")
-
-    if isinstance(ser, pl.Series):
-        assert_frame_equal(df, pl.DataFrame({"x": [1.0, 2.0, None]}))
-    elif isinstance(ser, pd.Series):
-        assert_frame_equal(df, pd.DataFrame({"x": [1.0, 2.0, None]}))
-    elif isinstance(ser, (pa.Array, pa.ChunkedArray)):
-        assert_frame_equal(df, pa.table({"x": [1.0, 2.0, None]}))
-    else:
-        raise AssertionError(f"Unexpected series type: {type(ser)}")
-
-
 def test_is_series(ser: SeriesLike):
     assert is_series(ser)
 
@@ -367,10 +512,38 @@ def test_is_series_false():
     assert not is_series(1)
 
 
-def test_to_list(ser: SeriesLike):
-    pylist = to_list(ser)
-    assert len(pylist) == 3
-    assert pylist[:2] == [1.0, 2.0]
+def test_to_list_dtype_matrix(series_constructor: SeriesConstructor, snapshot: SnapshotAssertion):
+    # `data_color(fn=...)` gets these values
+    result = {
+        col: _describe_column(col, to_list(series_constructor(values)), series_constructor)
+        for col, values in DTYPE_MATRIX.items()
+    }
+
+    assert snapshot == result
+
+
+@pytest.mark.parametrize("column", list(DTYPE_MATRIX))
+def test_to_frame_dtype_matrix(
+    series_constructor: SeriesConstructor,
+    paired_frame_constructor: DataFrameConstructor,
+    column: str,
+):
+    # A series makes the same frame as its values would
+    values = DTYPE_MATRIX[column]
+    expected = paired_frame_constructor({column: values})
+
+    assert_frame_equal(to_frame(series_constructor(values), name=column), expected)
+
+
+@pytest.mark.parametrize("indexes, expected", [([2, 0], [3.5, 1.5]), ([], [])])
+def test_get_rows(series_constructor: SeriesConstructor, indexes: list[int], expected: list[float]):
+    ser = series_constructor([1.5, 2.5, 3.5])
+    assert to_list(get_rows(ser, indexes)) == expected
+
+
+def test_get_rows_offset_index(offset_index_df: pd.DataFrame):
+    # Rows are positions, not index labels
+    assert to_list(get_rows(offset_index_df["col2"], [2, 0])) == ["c", "a"]
 
 
 def test_cast_frame_to_string_polars_list_col():
@@ -382,23 +555,59 @@ def test_cast_frame_to_string_polars_list_col():
     assert new_df["z"].dtype.is_(pl.String)
 
 
-@pytest.mark.parametrize(
-    "x,expected",
-    [
-        (None, True),
-        (math.nan, True),
-        (pd.NA, True),
-        (pd.NaT, True),
-        (1, False),
-        ("a", False),
-        (np.array([1, 2]), False),
-        (np.array([math.nan]), False),
-        ([1, 2], False),
-    ],
-)
-def test_is_na_pandas(x, expected):
-    # A cell holding an array (or a list) isn't missing, even if its elements are
-    assert is_na(pd.DataFrame(), x) is expected
+@pytest.mark.parametrize("column", MATRIX_COLUMNS)
+def test_is_na_dtype_matrix(matrix_df: DataFrameLike, column: str):
+    # `is_na()` must recognize each backend's own missing value (None, nan, NaT or NA) in every dtype
+    cells = _column_cells(matrix_df, column)
+
+    assert [is_na(matrix_df, cell) for cell in cells] == [False, False, True]
+
+
+def test_is_na_scalars(df: DataFrameLike, snapshot: SnapshotAssertion):
+    # A cell holding an array or a list isn't missing, even if its elements are. pandas scalars
+    # can't come out of a polars or pyarrow frame: polars says they aren't missing, pyarrow raises
+    assert snapshot == {name: _is_na_or_error(df, x) for name, x in IS_NA_SCALARS.items()}
+
+
+def test_is_na_agnostic(snapshot: SnapshotAssertion):
+    assert snapshot == {name: _is_na_or_error(Agnostic(), x) for name, x in IS_NA_SCALARS.items()}
+
+
+def test_values_handed_to_user_callables(
+    frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
+):
+    # User functions get the backend's own scalars, missing ones included (pandas NaN, NaT and NA,
+    # polars and pyarrow None); changing them breaks user code, e.g. `x < 100` raises on None
+    data = {
+        "int": [1, None],
+        "float": [1.5, None],
+        "str": ["a", None],
+        "datetime": [datetime(2024, 1, 1, 12, 30), None],
+    }
+    gt = GT(frame_constructor(data))
+
+    result: dict[str, dict[str, list[str]]] = {"fmt": {}, "data_color": {}, "text_transform": {}}
+    for col in data:
+        fmt_args: list[Any] = []
+        color_args: list[Any] = []
+        text_args: list[Any] = []
+
+        gt.fmt(_recorder(fmt_args, lambda x: ""), columns=col).as_raw_html()
+        gt.data_color(
+            columns=col, fn=_recorder(color_args, lambda xs: [None] * len(xs))
+        ).as_raw_html()
+        gt.text_transform(loc.body(columns=col), _recorder(text_args, lambda x: x)).as_raw_html()
+
+        # `data_color()` calls `fn` once, with the whole column as a list
+        [column_values] = color_args
+        assert type(column_values) is list
+
+        result["fmt"][col] = _describe_column(col, fmt_args, frame_constructor)
+        result["data_color"][col] = _describe_column(col, column_values, frame_constructor)
+        # `text_transform()` gets the rendered text of non-missing cells
+        result["text_transform"][col] = [_describe(arg) for arg in text_args]
+
+    assert snapshot == result
 
 
 def test_pandas_array_cells_render():
@@ -465,9 +674,8 @@ def test_eval_aggregate_polars(df: DataFrameLike, expr, expected):
     assert result == expected
 
 
-@pytest.mark.parametrize("Frame", [pd.DataFrame, pl.DataFrame, pa.table])
-def test_eval_aggregate_with_nulls(Frame):
-    df = Frame({"a": [1, None, 3]})
+def test_eval_aggregate_with_nulls(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"a": [1, None, 3]})
 
     if isinstance(df, pd.DataFrame):
 
@@ -659,38 +867,30 @@ def test_to_frame_list_keeps_values_pandas(vals, dtype):
         assert df["x"].tolist() == vals
 
 
-@pytest.mark.parametrize("DF", params_frames)
-def test_cast_frame_to_string_is_consistent_across_backends(DF):
+def test_cast_frame_to_string_is_consistent_across_backends(
+    frame_constructor: DataFrameConstructor,
+):
     """A cell must read the same no matter which dataframe library built the table.
 
     pandas spelled missing values `<NA>` while polars and pyarrow spelled them `None`,
     and polars and pyarrow spelled booleans `true`/`false` while pandas spelled them
     `True`/`False`. See #875.
     """
-    df = DF({"flag": [True, False, None], "txt": ["true", "false", None]})
+    df = frame_constructor({"flag": [True, False, None], "txt": ["true", "false", None]})
 
     res = cast_frame_to_string(df)
 
-    assert to_list(res["flag"] if not isinstance(res, pa.Table) else res.column("flag")) == [
-        "True",
-        "False",
-        None,
-    ]
+    assert to_list(res["flag"]) == ["True", "False", None]
     # a string column that happens to spell "true" is left alone
-    assert to_list(res["txt"] if not isinstance(res, pa.Table) else res.column("txt")) == [
-        "true",
-        "false",
-        None,
-    ]
+    assert to_list(res["txt"]) == ["true", "false", None]
 
 
-@pytest.mark.parametrize("DF", params_frames)
-def test_cast_frame_to_string_drops_the_sign_on_zero(DF):
+def test_cast_frame_to_string_drops_the_sign_on_zero(frame_constructor: DataFrameConstructor):
     """-0.0 is a floating point detail that should not reach a rendered table."""
-    df = DF({"x": [-0.0, 0.0, -1.5]})
+    df = frame_constructor({"x": [-0.0, 0.0, -1.5]})
 
     res = cast_frame_to_string(df)
-    col = to_list(res["x"] if not isinstance(res, pa.Table) else res.column("x"))
+    col = to_list(res["x"])
 
     assert not col[0].startswith("-")
     assert col[0] == col[1]
@@ -698,10 +898,9 @@ def test_cast_frame_to_string_drops_the_sign_on_zero(DF):
     assert col[2].startswith("-")
 
 
-@pytest.mark.parametrize("DF", params_frames)
-def test_render_body_is_consistent_across_backends(DF):
+def test_render_body_is_consistent_across_backends(frame_constructor: DataFrameConstructor):
     """The rendered cells for booleans and missing values do not depend on the backend."""
-    gt = GT(DF({"flag": [True, False, None]}))
+    gt = GT(frame_constructor({"flag": [True, False, None]}))
 
     body = create_body_component_h(gt._build_data("html"))
 

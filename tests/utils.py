@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Literal
 
-from great_tables._tbl_data import DataFrameLike
+from great_tables._tbl_data import DataFrameLike, SeriesLike
 from great_tables._utils_render_html import (
     create_body_component_h,
     create_columns_component_h,
@@ -15,6 +15,14 @@ if TYPE_CHECKING:
 
 DataLike: TypeAlias = dict[str, list[Any]]
 DataFrameConstructor: TypeAlias = Callable[[DataLike], DataFrameLike]
+SeriesConstructor: TypeAlias = Callable[[list[Any]], SeriesLike]
+
+
+def native_backend(obj: Any) -> Literal["pandas", "polars", "pyarrow"]:
+    library = type(obj).__module__.split(".")[0]
+    if library in ("pandas", "polars", "pyarrow"):
+        return library
+    raise NotImplementedError(f"Unsupported data type: {type(obj)}")
 
 
 def assert_rendered_source_notes(snapshot, gt):
