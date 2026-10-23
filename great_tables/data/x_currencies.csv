@@ -24,6 +24,7 @@ BSD,44,2,Bahamian dollar,$
 BTN,64,2,Bhutanese ngultrum,Nu.
 BWP,72,2,Botswana pula,P
 BYR,974,0,Belarusian ruble,p.
+BYN,933,2,Belarusian ruble,Br
 BZD,84,2,Belize dollar,BZ$
 CAD,124,2,Canadian dollar,$
 CDF,976,2,Congolese franc,FC
@@ -96,6 +97,7 @@ MMK,104,2,Myanmar kyat,K
 MNT,496,2,Mongolian togrog,&#8366;
 MOP,446,1,Macanese pataca,MOP$
 MRO,478,1,Mauritanian ouguiya,UM
+MRU,929,2,Mauritanian ouguiya,UM
 MUR,480,2,Mauritian rupee,Rs
 MVR,462,2,Maldivian rufiyaa,Rf
 MWK,454,2,Malawian kwacha,MK
@@ -134,6 +136,7 @@ SOS,706,2,Somali shilling,Sh.So.
 SRD,968,2,Surinamese dollar,$
 SSP,728,2,South Sudanese pound,SSP
 STD,678,2,Ṣo Tom̩ and Principe dobra,Db
+STN,930,2,São Tomé and Príncipe dobra,Db
 SYP,760,2,Syrian pound,S&#163;
 SZL,748,2,Swazi lilangeni,L
 THB,764,2,Thai baht,&#3647;
@@ -154,6 +157,7 @@ UYI,940,0,Uruguay Peso en Unidades Indexadas,UYI
 UYU,858,2,Uruguayan peso,$U
 UZS,860,2,Uzbekistan som,&#1083;&#1074;
 VEF,937,2,Venezuelan bolivar,Bs.
+VES,928,2,Venezuelan bolívar soberano,Bs.S
 VND,704,0,Vietnamese dong,&#8363;
 VUV,548,0,Vanuatu vatu,VT
 WST,882,2,Samoan tala,WS$
