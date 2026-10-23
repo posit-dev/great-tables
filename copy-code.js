@@ -5,8 +5,8 @@
  * that floats properly and works in both light and dark modes.
  *
  * Handles:
- *  - Buttons injected by post-render.py (.gd-code-copy inside .gd-code-nav)
- *  - Quarto-native code blocks (pre.code-with-copy) that lack a custom button
+ *  - Quarto-native copy buttons, which it replaces
+ *  - Code blocks that have no copy button
  */
 (function () {
   "use strict";
@@ -155,16 +155,10 @@
   }
 
   function init() {
-    // 1. Wire up buttons that post-render.py already injected
-    document.querySelectorAll(".gd-code-copy").forEach(function (btn) {
-      btn.innerHTML = COPY_ICON;
-      btn.addEventListener("click", handleCopy);
-    });
-
-    // 2. Convert any remaining Quarto-native copy buttons
+    // 1. Convert Quarto-native copy buttons
     replaceQuartoButtons();
 
-    // 3. Inject buttons into code blocks that have none
+    // 2. Inject buttons into code blocks that have none
     injectMissingButtons();
   }
 

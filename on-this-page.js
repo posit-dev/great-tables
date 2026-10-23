@@ -59,13 +59,23 @@
     }
 
     /**
+     * Read the TOC title Quarto rendered for this page, so the button and
+     * panel use the same (translated or page-specific) label.
+     */
+    function getTocTitle() {
+        var title = document.getElementById('toc-title');
+        var text = title ? title.textContent.trim() : '';
+        return text || 'On this page';
+    }
+
+    /**
      * Create the floating trigger button.
      */
-    function createButton() {
+    function createButton(label) {
         var btn = document.createElement('button');
         btn.className = 'gd-otp-btn';
-        btn.setAttribute('aria-label', 'On this page');
-        btn.setAttribute('title', 'On this page');
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
         btn.setAttribute('type', 'button');
 
         // List / table-of-contents icon (Lucide-style)
@@ -87,15 +97,15 @@
     /**
      * Create the floating panel that shows the TOC entries.
      */
-    function createPanel(entries) {
+    function createPanel(entries, label) {
         var panel = document.createElement('div');
         panel.className = 'gd-otp-panel';
         panel.setAttribute('role', 'dialog');
-        panel.setAttribute('aria-label', 'On this page');
+        panel.setAttribute('aria-label', label);
 
         var heading = document.createElement('div');
         heading.className = 'gd-otp-panel-heading';
-        heading.textContent = 'On this page';
+        heading.textContent = label;
         panel.appendChild(heading);
 
         var list = document.createElement('ul');
@@ -167,8 +177,9 @@
         // Don't show the button if there are no TOC entries
         if (entries.length === 0) return;
 
-        var btn = createButton();
-        var panel = createPanel(entries);
+        var label = getTocTitle();
+        var btn = createButton(label);
+        var panel = createPanel(entries, label);
         var backdrop = createBackdrop();
         var isOpen = false;
 
