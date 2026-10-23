@@ -305,7 +305,7 @@ def test_set_cells_offset_index(offset_index_df: pd.DataFrame, values: dict[int,
     assert_frame_equal(_set_cells(create_empty_frame(offset_index_df), "col2", values), expected)
 
 
-@pytest.mark.parametrize("value", [5, 1.5, True, math.nan])
+@pytest.mark.parametrize("value", [5, 1.5, True])
 def test_set_cells_non_strings_as_set_cell(df: DataFrameLike, value):
     # Values that aren't strings are set as `_set_cell()` sets them, which differs by backend
     # (polars casts them to strings, pandas raises for most and PyArrow infers a new dtype)
@@ -995,3 +995,25 @@ def test_cast_frame_to_string_pandas_nullable_missing(dtype: str, expected: list
     res = cast_frame_to_string(df)
 
     assert to_list(res["x"]) == expected
+
+
+@pytest.mark.parametrize(
+    "fmt", ["fmt_number", "fmt_integer", "fmt_percent", "fmt_scientific", "fmt_currency"]
+)
+def test_pyarrow_nan_in_formatted_float_column(fmt: str):
+    """A NaN (not null) in a float column used to raise ArrowTypeError when the formatter output was set."""
+    gt = GT(pa.table({"x": pa.array([1.0, float("nan"), 2.5])}))
+
+    html = getattr(gt, fmt)("x").as_raw_html()
+
+    # the NaN is shown as polars shows it, and the other cells are still formatted
+    assert ">NaN<" in html
+    assert html.count("NaN") == 1
+
+
+def test_pyarrow_set_cells_nan_in_a_string_column():
+    data = pa.table({"x": pa.array(["a", "b", "c"])})
+
+    res = _set_cells(data, "x", {0: "1.00", 1: float("nan"), 2: None})
+
+    assert res.column("x").to_pylist() == ["1.00", "NaN", None]
