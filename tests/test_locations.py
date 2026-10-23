@@ -100,6 +100,24 @@ def test_resolve_rows_i_func_expr():
     assert resolve_rows_i(gt, lambda D: D["x"].isin(["a", "b"])) == [("a", 0), ("b", 1)]
 
 
+def test_resolve_rows_i_func_expr_polars():
+    gt = GT(pl.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    assert resolve_rows_i(gt, lambda D: D["x"].is_in(["a", "b"])) == [("a", 0), ("b", 1)]
+
+
+def test_resolve_rows_i_func_expr_polars_returning_expr():
+    gt = GT(pl.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    assert resolve_rows_i(gt, lambda D: pl.col("x").is_in(["a", "b"])) == [("a", 0), ("b", 1)]
+
+
+def test_resolve_rows_i_func_expr_return_non_bool_pl_series():
+    gt = GT(pl.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    with pytest.raises(ValueError) as exc_info:
+        resolve_rows_i(gt, lambda D: pl.Series([4, 5, 6]))
+
+    assert "return a boolean Series." in exc_info.value.args[0]
+
+
 def test_tab_style_rows_native_selector(frame_constructor: DataFrameConstructor):
     from great_tables import loc, style
 
