@@ -340,15 +340,25 @@ def test_eval_select_with_callable(df: DataFrameLike):
     def expr(col):
         return col == "col2"
 
-    if isinstance(df, pl.DataFrame):
-        # Polars does not support callable expressions
-        with pytest.raises(TypeError) as exc_info:
-            eval_select(df, expr)
-        assert "Unsupported selection expr type:" in str(exc_info.value.args[0])
-        return
-
     sel = eval_select(df, expr)
     assert sel == [("col2", 1)]
+
+
+def test_polars_columns_callable_in_public_api():
+    df = pl.DataFrame({"x1": [1.5], "x2": [2.5], "z": ["a"]})
+
+    html = GT(df).fmt_number(columns=lambda col: col.startswith("x")).as_raw_html()
+
+    assert ">1.50<" in html
+    assert ">2.50<" in html
+    assert ">a<" in html
+
+
+def test_polars_columns_callable_keeps_selectors_working():
+    df = pl.DataFrame({"x1": [1.5], "z": ["a"]})
+
+    assert eval_select(df, pl.selectors.numeric()) == [("x1", 0)]
+    assert eval_select(df, pl.col("z")) == [("z", 1)]
 
 
 @pytest.mark.parametrize(

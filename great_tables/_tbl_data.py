@@ -526,7 +526,11 @@ def _(
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: list[str] | PlSelectExpr, strict: bool = True) -> _NamePos:
+def _(
+    data: PlDataFrame,
+    expr: list[str] | PlSelectExpr | Callable[[str], bool],
+    strict: bool = True,
+) -> _NamePos:
     import polars as pl
     import polars.selectors as cs
     from polars import Expr
@@ -557,11 +561,12 @@ def _(data: PlDataFrame, expr: list[str] | PlSelectExpr, strict: bool = True) ->
             for sel in all_selectors
             for col_name in cs.expand_selector(data, sel, **expand_opts)
         ).as_list()
-    else:
-        if not isinstance(expr, (PlSelectExpr, Expr)):
-            raise TypeError(f"Unsupported selection expr type: {type(expr)}")
-
+    elif isinstance(expr, (PlSelectExpr, Expr)):
         final_columns = cs.expand_selector(data, expr, **expand_opts)
+    elif callable(expr):
+        final_columns = [col for col in data.columns if expr(col)]
+    else:
+        raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
     col_pos = {k: ii for ii, k in enumerate(data.columns)}
 
