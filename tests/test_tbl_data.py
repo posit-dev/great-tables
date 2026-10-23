@@ -28,6 +28,7 @@ from great_tables._tbl_data import (
     create_empty_frame,
     eval_aggregate,
     eval_select,
+    eval_transform,
     get_column_names,
     get_rows,
     group_splits,
@@ -340,15 +341,25 @@ def test_eval_select_with_callable(df: DataFrameLike):
     def expr(col):
         return col == "col2"
 
-    if isinstance(df, pl.DataFrame):
-        # Polars does not support callable expressions
-        with pytest.raises(TypeError) as exc_info:
-            eval_select(df, expr)
-        assert "Unsupported selection expr type:" in str(exc_info.value.args[0])
-        return
-
     sel = eval_select(df, expr)
     assert sel == [("col2", 1)]
+
+
+def test_polars_columns_callable_in_public_api():
+    df = pl.DataFrame({"x1": [1.5], "x2": [2.5], "z": ["a"]})
+
+    html = GT(df).fmt_number(columns=lambda col: col.startswith("x")).as_raw_html()
+
+    assert ">1.50<" in html
+    assert ">2.50<" in html
+    assert ">a<" in html
+
+
+def test_polars_columns_callable_keeps_selectors_working():
+    df = pl.DataFrame({"x1": [1.5], "z": ["a"]})
+
+    assert eval_select(df, pl.selectors.numeric()) == [("x1", 0)]
+    assert eval_select(df, pl.col("z")) == [("z", 1)]
 
 
 @pytest.mark.parametrize(
@@ -555,6 +566,20 @@ def test_cast_frame_to_string_polars_list_col():
     assert new_df["z"].dtype.is_(pl.String)
 
 
+def test_cast_frame_to_string_list_col(frame_constructor: DataFrameConstructor):
+    """List cells are spelled as Python spells them, whichever backend built the table."""
+    df = frame_constructor({"x": [[1, 2], [3], None]})
+
+    assert to_list(cast_frame_to_string(df)["x"]) == ["[1, 2]", "[3]", None]
+
+
+def test_cast_frame_to_string_pyarrow_struct_col():
+    # pyarrow can't cast nested types to strings. polars spells structs "{1}" instead
+    df = pa.table({"x": [{"a": 1}, {"a": 2}, None]})
+
+    assert cast_frame_to_string(df)["x"].to_pylist() == ["{'a': 1}", "{'a': 2}", None]
+
+
 @pytest.mark.parametrize("column", MATRIX_COLUMNS)
 def test_is_na_dtype_matrix(matrix_df: DataFrameLike, column: str):
     # `is_na()` must recognize each backend's own missing value (None, nan, NaT or NA) in every dtype
@@ -738,6 +763,44 @@ def test_eval_aggregate_pyarrow_raises2():
     assert "Expression must produce exactly 1 row (aggregation)" in str(exc_info.value)
 
 
+def test_eval_transform(df: DataFrameLike):
+    if isinstance(df, pd.DataFrame):
+
+        def expr(df):
+            return df["col1"] > 1
+
+    if isinstance(df, pl.DataFrame):
+        expr = pl.col("col1") > 1
+
+    if isinstance(df, pa.Table):
+
+        def expr(tbl):
+            # a ChunkedArray, since Table columns are chunked
+            return pa.compute.greater(tbl["col1"], 1)
+
+    assert eval_transform(df, expr) == [False, True, True]
+
+
+def test_eval_transform_pyarrow_array():
+    df = pa.table({"a": [1, 2, 3]})
+
+    def expr(tbl):
+        return pa.compute.greater(tbl["a"], 1).combine_chunks()
+
+    assert eval_transform(df, expr) == [False, True, True]
+
+
+def test_eval_transform_pyarrow_raises():
+    df = pa.table({"a": [1, 2, 3]})
+
+    def expr(tbl):
+        return [False, True, True]
+
+    with pytest.raises(ValueError) as exc_info:
+        eval_transform(df, expr)
+    assert "Result must be an Arrow Array or ChunkedArray" in str(exc_info.value)
+
+
 def test_is_na_singledispatch_fallback_raises():
     fallback = is_na.dispatch(object)
     with pytest.raises(NotImplementedError, match="Unsupported type"):
@@ -908,6 +971,17 @@ def test_render_body_is_consistent_across_backends(frame_constructor: DataFrameC
     assert ">False<" in body
     assert ">None<" in body
     assert "<NA>" not in body
+
+
+def test_render_body_list_column(frame_constructor: DataFrameConstructor):
+    """List cells render as Python spells them, whichever backend built the table."""
+    gt = GT(frame_constructor({"l": [[1, 2], [3], None]}))
+
+    body = create_body_component_h(gt._build_data("html"))
+
+    assert ">[1, 2]<" in body
+    assert ">[3]<" in body
+    assert ">None<" in body
 
 
 @pytest.mark.parametrize(

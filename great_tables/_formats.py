@@ -9486,6 +9486,15 @@ def _get_cell_y_vals(cell: Any) -> list[int | float]:
     return data_vals if isinstance(data_vals, list) else [data_vals]
 
 
+def _to_python_number(val: Any) -> Any:
+    """Turn a NumPy number (as in a pandas column) into a Python `int` or `float`."""
+
+    if val is None or isinstance(val, (int, float)):
+        return val
+
+    return val.item() if hasattr(val, "item") else float(val)
+
+
 def _generate_data_vals(
     data_vals: Any, is_x_axis: bool = False
 ) -> list[float] | tuple[list[float], list[float]]:
@@ -9517,13 +9526,13 @@ def _generate_data_vals(
 
         # Check that the values within the list are numeric; missing values are allowed
         for val in data_vals:
-            if val is not None and not isinstance(val, (int, float)):
+            if val is not None and not isinstance(val, numbers.Real):
                 raise ValueError(f"The input data values must be numeric.\n\nValue received: {val}")
 
-        return data_vals
+        return [_to_python_number(val) for val in data_vals]
 
-    elif isinstance(data_vals, int) or isinstance(data_vals, float):
-        return data_vals
+    elif isinstance(data_vals, numbers.Real):
+        return _to_python_number(data_vals)
 
     elif isinstance(data_vals, Decimal):
         return float(data_vals)
