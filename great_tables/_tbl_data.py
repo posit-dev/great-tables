@@ -877,11 +877,13 @@ def _(df: PlDataFrame, expr: PlExpr) -> list[Any]:
 
 
 @eval_transform.register
-def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowArray]) -> list[Any]:
+def _(
+    df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowArray | PyArrowChunkedArray]
+) -> list[Any]:
     res = expr(df)
 
-    if not isinstance(res, PyArrowArray):  # pragma: no cover
-        raise ValueError(f"Result must be an Arrow Array. Received {type(res)}")
+    if not isinstance(res, (PyArrowArray, PyArrowChunkedArray)):
+        raise ValueError(f"Result must be an Arrow Array or ChunkedArray. Received {type(res)}")
     elif not len(res) == len(df):  # pragma: no cover
         raise ValueError(
             f"Result must be same length as input data. Observed different lengths."

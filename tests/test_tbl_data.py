@@ -28,6 +28,7 @@ from great_tables._tbl_data import (
     create_empty_frame,
     eval_aggregate,
     eval_select,
+    eval_transform,
     get_column_names,
     get_rows,
     group_splits,
@@ -736,6 +737,44 @@ def test_eval_aggregate_pyarrow_raises2():
     with pytest.raises(ValueError) as exc_info:
         eval_aggregate(df, expr)
     assert "Expression must produce exactly 1 row (aggregation)" in str(exc_info.value)
+
+
+def test_eval_transform(df: DataFrameLike):
+    if isinstance(df, pd.DataFrame):
+
+        def expr(df):
+            return df["col1"] > 1
+
+    if isinstance(df, pl.DataFrame):
+        expr = pl.col("col1") > 1
+
+    if isinstance(df, pa.Table):
+
+        def expr(tbl):
+            # a ChunkedArray, since Table columns are chunked
+            return pa.compute.greater(tbl["col1"], 1)
+
+    assert eval_transform(df, expr) == [False, True, True]
+
+
+def test_eval_transform_pyarrow_array():
+    df = pa.table({"a": [1, 2, 3]})
+
+    def expr(tbl):
+        return pa.compute.greater(tbl["a"], 1).combine_chunks()
+
+    assert eval_transform(df, expr) == [False, True, True]
+
+
+def test_eval_transform_pyarrow_raises():
+    df = pa.table({"a": [1, 2, 3]})
+
+    def expr(tbl):
+        return [False, True, True]
+
+    with pytest.raises(ValueError) as exc_info:
+        eval_transform(df, expr)
+    assert "Result must be an Arrow Array or ChunkedArray" in str(exc_info.value)
 
 
 def test_is_na_singledispatch_fallback_raises():
