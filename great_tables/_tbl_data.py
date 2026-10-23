@@ -743,6 +743,12 @@ def _(df: PyArrowTable):
             # adding zero turns -0.0 into 0.0 and leaves every other value alone
             column = pc.add(column, pa.scalar(0.0, type=column.type))
 
+        if pa.types.is_nested(column.type):
+            # pyarrow can't cast nested values to strings; spell them as Python does
+            return pa.array(
+                [None if v is None else str(v) for v in column.to_pylist()], pa.string()
+            )
+
         return pa.array(column.cast(pa.string()))
 
     return pa.table({col: _to_string(df.column(col)) for col in df.column_names})

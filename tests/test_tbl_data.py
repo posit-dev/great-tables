@@ -565,6 +565,20 @@ def test_cast_frame_to_string_polars_list_col():
     assert new_df["z"].dtype.is_(pl.String)
 
 
+def test_cast_frame_to_string_list_col(frame_constructor: DataFrameConstructor):
+    """List cells are spelled as Python spells them, whichever backend built the table."""
+    df = frame_constructor({"x": [[1, 2], [3], None]})
+
+    assert to_list(cast_frame_to_string(df)["x"]) == ["[1, 2]", "[3]", None]
+
+
+def test_cast_frame_to_string_pyarrow_struct_col():
+    # pyarrow can't cast nested types to strings. polars spells structs "{1}" instead
+    df = pa.table({"x": [{"a": 1}, {"a": 2}, None]})
+
+    assert cast_frame_to_string(df)["x"].to_pylist() == ["{'a': 1}", "{'a': 2}", None]
+
+
 @pytest.mark.parametrize("column", MATRIX_COLUMNS)
 def test_is_na_dtype_matrix(matrix_df: DataFrameLike, column: str):
     # `is_na()` must recognize each backend's own missing value (None, nan, NaT or NA) in every dtype
@@ -918,6 +932,17 @@ def test_render_body_is_consistent_across_backends(frame_constructor: DataFrameC
     assert ">False<" in body
     assert ">None<" in body
     assert "<NA>" not in body
+
+
+def test_render_body_list_column(frame_constructor: DataFrameConstructor):
+    """List cells render as Python spells them, whichever backend built the table."""
+    gt = GT(frame_constructor({"l": [[1, 2], [3], None]}))
+
+    body = create_body_component_h(gt._build_data("html"))
+
+    assert ">[1, 2]<" in body
+    assert ">[3]<" in body
+    assert ">None<" in body
 
 
 @pytest.mark.parametrize(
