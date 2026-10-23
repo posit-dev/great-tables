@@ -240,7 +240,7 @@ def test_fmt_nanoplot_pandas_numpy_columns(dtype: str):
     assert gt_pandas.as_raw_html().count("<svg") == 3
     assert gt_pandas.as_raw_html() == gt_polars.as_raw_html()
 
-    
+
 def _numeric_column(kind: str):
     import pyarrow as pa
     from decimal import Decimal
