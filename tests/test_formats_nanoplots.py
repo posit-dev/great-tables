@@ -1,3 +1,4 @@
+import re
 import math
 from typing import Any
 
@@ -32,6 +33,21 @@ def test_generate_data_vals_fails_ambig():
 def test_generate_data_vals_fails_novals():
     with pytest.raises(ValueError):
         _generate_data_vals("abc")
+
+
+def test_fmt_nanoplot_pandas_nullable_float_with_missing_value():
+    np = pytest.importorskip("numpy")
+    pd = pytest.importorskip("pandas")
+
+    values = [1.5, None, 3.0]
+    gt_nullable = GT(pd.DataFrame({"x": pd.array(values, dtype="Float64")}), id="t")
+    gt_numpy = GT(pd.DataFrame({"x": [1.5, np.nan, 3.0]}), id="t")
+
+    html_nullable = gt_nullable.fmt_nanoplot("x").as_raw_html()
+
+    # The missing value gets no plot, and the others share the scale as with a NumPy column
+    assert html_nullable.count("<svg") == 2
+    assert html_nullable == gt_numpy.fmt_nanoplot("x").as_raw_html()
 
 
 def test_generate_data_vals_fails_date_strings():
@@ -223,3 +239,34 @@ def test_fmt_nanoplot_pandas_numpy_columns(dtype: str):
     # The nanoplots of a pandas column match those of a Polars column of the same dtype
     assert gt_pandas.as_raw_html().count("<svg") == 3
     assert gt_pandas.as_raw_html() == gt_polars.as_raw_html()
+
+    
+def _numeric_column(kind: str):
+    import pyarrow as pa
+    from decimal import Decimal
+
+    vals = ["1.5", "2.5", "4.0"]
+    if kind == "polars_float":
+        return pl.DataFrame({"x": [float(v) for v in vals]})
+    if kind == "pyarrow_float64":
+        return pa.table({"x": pa.array([float(v) for v in vals])})
+    if kind == "polars_decimal":
+        return pl.DataFrame({"x": [Decimal(v) for v in vals]}, schema={"x": pl.Decimal(10, 2)})
+    if kind == "pyarrow_decimal":
+        return pa.table({"x": pa.array([Decimal(v) for v in vals], type=pa.decimal128(10, 2))})
+    raise ValueError(kind)
+
+
+@pytest.mark.parametrize("plot_type", ["line", "bar"])
+@pytest.mark.parametrize("kind", ["pyarrow_float64", "polars_decimal", "pyarrow_decimal"])
+def test_fmt_nanoplot_numeric_column_dtypes_match_polars_float(kind: str, plot_type: str):
+    pytest.importorskip("pyarrow")
+
+    def draw(tbl):
+        # the alignment is fixed: it is inferred from the dtype, which is not under test here
+        gt = GT(tbl).fmt_nanoplot("x", plot_type=plot_type).cols_align("right", columns="x")
+        html = gt.as_raw_html()
+        # the table id and the ids of the SVG elements differ between tables
+        return re.sub(r'id="[^"]*"|#[a-z]+\w*', "", html)
+
+    assert draw(_numeric_column(kind)) == draw(_numeric_column("polars_float"))

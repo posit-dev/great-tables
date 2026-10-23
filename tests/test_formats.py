@@ -1808,6 +1808,10 @@ FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(compact=True), ["$1.23M", "−$5.43K"]),
     (dict(currency="LSL"), ["M1,234,567.00", "−M5,432.37"]),
     (dict(currency="CRC"), ["&#8353;1,234,567.00", "−&#8353;5,432.37"]),
+    (dict(currency="BYN"), ["Br1,234,567.00", "−Br5,432.37"]),
+    (dict(currency="MRU"), ["UM1,234,567.00", "−UM5,432.37"]),
+    (dict(currency="STN"), ["Db1,234,567.00", "−Db5,432.37"]),
+    (dict(currency="VES"), ["Bs.S1,234,567.00", "−Bs.S5,432.37"]),
 ]
 
 
@@ -1874,6 +1878,32 @@ def test_fmt_currency_no_minor_unit(currency: str):
     assert _get_currency_exponent(currency) == 0
     x = vals.fmt_currency([1234.5], currency=currency)
     assert x[0].endswith("1,234") or x[0].endswith("1,235")
+
+
+def test_fmt_currency_locale_currency_codes():
+    # Every locale's currency code is in the currency data, so `fmt_currency()` works with
+    # just `locale=`
+    codes = {entry["curr_code"] for entry in _locale._get_currencies_data()}
+    missing = {
+        entry["locale"]: entry["currency_code"]
+        for entry in _locale._get_locales_data()
+        if entry["currency_code"] and entry["currency_code"] not in codes
+    }
+    assert missing == {}
+
+
+@pytest.mark.parametrize(
+    "locale,x_out",
+    [
+        ("be", "Br1234,50"),
+        ("ar-MR", "UM1.234,50"),
+        ("pt-ST", "Db1234,50"),
+        ("es-VE", "Bs.S1.234,50"),
+    ],
+)
+def test_fmt_currency_locale_default_currency(locale: str, x_out: str):
+    # The locale's own currency is used when `currency=` isn't given
+    assert vals.fmt_currency([1234.5], locale=locale) == [x_out]
 
 
 # ------------------------------------------------------------------------------

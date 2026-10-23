@@ -9367,8 +9367,13 @@ def fmt_nanoplot(
 
     # A numeric column has a single `y` value per cell; these are drawn as horizontal bars or lines
     # on a scale shared by all of the targeted cells (so autoscaling doesn't apply)
-    if col_class.startswith(("int", "uint", "float")):
-        all_single_y_vals = target_vals
+    # (dtype names differ between libraries: PyArrow calls float64 `double` and has `decimal128(...)`)
+    if col_class.startswith(("int", "uint", "float", "double", "decimal")):
+        # Missing values (e.g., `pd.NA` in a nullable pandas column) are given as `None`
+        all_single_y_vals = [
+            None if is_na(data_tbl, v) else float(v) if isinstance(v, Decimal) else v
+            for v in target_vals
+        ]
         autoscale = False
     else:
         all_single_y_vals = None
@@ -9528,6 +9533,9 @@ def _generate_data_vals(
 
     elif isinstance(data_vals, numbers.Real):
         return _to_python_number(data_vals)
+
+    elif isinstance(data_vals, Decimal):
+        return float(data_vals)
 
     elif isinstance(data_vals, str):
         # If the cell value is a string, assume it is a value stream and convert to a list

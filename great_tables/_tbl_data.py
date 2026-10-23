@@ -526,7 +526,11 @@ def _(
 
 
 @eval_select.register
-def _(data: PlDataFrame, expr: list[str] | PlSelectExpr, strict: bool = True) -> _NamePos:
+def _(
+    data: PlDataFrame,
+    expr: list[str] | PlSelectExpr | Callable[[str], bool],
+    strict: bool = True,
+) -> _NamePos:
     import polars as pl
     import polars.selectors as cs
     from polars import Expr
@@ -557,11 +561,12 @@ def _(data: PlDataFrame, expr: list[str] | PlSelectExpr, strict: bool = True) ->
             for sel in all_selectors
             for col_name in cs.expand_selector(data, sel, **expand_opts)
         ).as_list()
-    else:
-        if not isinstance(expr, (PlSelectExpr, Expr)):
-            raise TypeError(f"Unsupported selection expr type: {type(expr)}")
-
+    elif isinstance(expr, (PlSelectExpr, Expr)):
         final_columns = cs.expand_selector(data, expr, **expand_opts)
+    elif callable(expr):
+        final_columns = [col for col in data.columns if expr(col)]
+    else:
+        raise TypeError(f"Unsupported selection expr type: {type(expr)}")
 
     col_pos = {k: ii for ii, k in enumerate(data.columns)}
 
@@ -738,6 +743,12 @@ def _(df: PyArrowTable):
             # adding zero turns -0.0 into 0.0 and leaves every other value alone
             column = pc.add(column, pa.scalar(0.0, type=column.type))
 
+        if pa.types.is_nested(column.type):
+            # pyarrow can't cast nested values to strings; spell them as Python does
+            return pa.array(
+                [None if v is None else str(v) for v in column.to_pylist()], pa.string()
+            )
+
         return pa.array(column.cast(pa.string()))
 
     return pa.table({col: _to_string(df.column(col)) for col in df.column_names})
@@ -877,11 +888,13 @@ def _(df: PlDataFrame, expr: PlExpr) -> list[Any]:
 
 
 @eval_transform.register
-def _(df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowArray]) -> list[Any]:
+def _(
+    df: PyArrowTable, expr: Callable[[PyArrowTable], PyArrowArray | PyArrowChunkedArray]
+) -> list[Any]:
     res = expr(df)
 
-    if not isinstance(res, PyArrowArray):  # pragma: no cover
-        raise ValueError(f"Result must be an Arrow Array. Received {type(res)}")
+    if not isinstance(res, (PyArrowArray, PyArrowChunkedArray)):
+        raise ValueError(f"Result must be an Arrow Array or ChunkedArray. Received {type(res)}")
     elif not len(res) == len(df):  # pragma: no cover
         raise ValueError(
             f"Result must be same length as input data. Observed different lengths."
