@@ -4,7 +4,7 @@ Format values by passing them through, optionally escaping and decorating.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L9628-L9719)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L9637-L9728)
 
 ``` python
 GT.fmt_passthrough(
