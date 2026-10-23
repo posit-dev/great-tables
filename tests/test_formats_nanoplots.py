@@ -35,6 +35,21 @@ def test_generate_data_vals_fails_novals():
         _generate_data_vals("abc")
 
 
+def test_fmt_nanoplot_pandas_nullable_float_with_missing_value():
+    np = pytest.importorskip("numpy")
+    pd = pytest.importorskip("pandas")
+
+    values = [1.5, None, 3.0]
+    gt_nullable = GT(pd.DataFrame({"x": pd.array(values, dtype="Float64")}), id="t")
+    gt_numpy = GT(pd.DataFrame({"x": [1.5, np.nan, 3.0]}), id="t")
+
+    html_nullable = gt_nullable.fmt_nanoplot("x").as_raw_html()
+
+    # The missing value gets no plot, and the others share the scale as with a NumPy column
+    assert html_nullable.count("<svg") == 2
+    assert html_nullable == gt_numpy.fmt_nanoplot("x").as_raw_html()
+
+
 def test_generate_data_vals_fails_date_strings():
     with pytest.raises(ValueError) as exc_info:
         _generate_data_vals(["2022-01-01"])

@@ -9369,7 +9369,11 @@ def fmt_nanoplot(
     # on a scale shared by all of the targeted cells (so autoscaling doesn't apply)
     # (dtype names differ between libraries: PyArrow calls float64 `double` and has `decimal128(...)`)
     if col_class.startswith(("int", "uint", "float", "double", "decimal")):
-        all_single_y_vals = [float(v) if isinstance(v, Decimal) else v for v in target_vals]
+        # Missing values (e.g., `pd.NA` in a nullable pandas column) are given as `None`
+        all_single_y_vals = [
+            None if is_na(data_tbl, v) else float(v) if isinstance(v, Decimal) else v
+            for v in target_vals
+        ]
         autoscale = False
     else:
         all_single_y_vals = None
