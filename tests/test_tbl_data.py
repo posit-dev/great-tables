@@ -19,6 +19,8 @@ from great_tables._tbl_data import (
     SeriesLike,
     _get_cell,
     _get_column_dtype,
+    _get_column_levels,
+    _is_numeric_dtype,
     _re_version,
     _set_cell,
     _set_cells,
@@ -42,6 +44,7 @@ from great_tables._tbl_data import (
     to_list,
     validate_frame,
 )
+from great_tables._tbl_data_align import classify_dtype_for_alignment
 from great_tables._utils_render_html import create_body_component_h
 from tests.utils import (
     DataFrameConstructor,
@@ -235,6 +238,80 @@ def test_n_rows(frame_constructor: DataFrameConstructor, data: DataLike, expecte
 def test_get_column_dtypes(df: DataFrameLike):
     col1 = df["col1"]
     assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
+
+
+def test_is_numeric_dtype_dtype_matrix(matrix_df: DataFrameLike, snapshot: SnapshotAssertion):
+    # `opt_interactive()` passes the values of numeric columns to `float()`, and
+    # `cols_align_decimal()` aligns only numeric columns
+    # TODO(Unassigned): Update the snapshot once #1020 and #1028 are fixed
+    assert snapshot == {col: _is_numeric_dtype(matrix_df, col) for col in MATRIX_COLUMNS}
+
+
+@pytest.mark.parametrize(
+    ("column", "numeric_on", "reason"),
+    [
+        pytest.param(
+            "list",
+            {"polars", "pyarrow"},
+            "https://github.com/posit-dev/great-tables/issues/1020",
+            id="list",
+        ),
+        pytest.param(
+            "categorical",
+            {"pyarrow"},
+            "https://github.com/posit-dev/great-tables/issues/1028",
+            id="categorical",
+        ),
+    ],
+)
+def test_is_numeric_dtype_nested_types(
+    matrix_df: DataFrameLike,
+    column: str,
+    numeric_on: set[str],
+    reason: str,
+    request: pytest.FixtureRequest,
+):
+    # The dtype name includes the element or index type, e.g. "list(int64)" or
+    # "dictionary<values=string, indices=int32, ordered=0>", so it matches "int" and
+    # `opt_interactive()` crashes
+    if native_backend(matrix_df) in numeric_on:
+        request.applymarker(pytest.mark.xfail(strict=True, raises=AssertionError, reason=reason))
+
+    assert not _is_numeric_dtype(matrix_df, column)
+
+
+def test_is_numeric_dtype_missing_column(df: DataFrameLike):
+    assert _is_numeric_dtype(df, "missing") is False
+
+
+def test_get_column_levels(frame_constructor: DataFrameConstructor):
+    # `data_color()` colors an ordered categorical column by its declared levels, not sorted ones
+    text = ["b", "a", None]
+    df = frame_constructor({"text": text, "unordered": text, "ordered": text})
+    df = _cast_to_categorical(df, "unordered", ordered=False)
+    df = _cast_to_categorical(df, "ordered", ordered=True)
+
+    # pyarrow has no implementation, so its ordered dictionaries return no levels (#1025)
+    # TODO(Unassigned): Expect ["b", "a"] on pyarrow too once #1025 is fixed
+    ordered = None if native_backend(df) == "pyarrow" else ["b", "a"]
+    levels = {col: _get_column_levels(df, col) for col in get_column_names(df)}
+    assert levels == {"text": None, "unordered": None, "ordered": ordered}
+
+
+def test_classify_dtype_for_alignment_dtype_matrix(
+    matrix_df: DataFrameLike, snapshot: SnapshotAssertion
+):
+    # GT also right-aligns text columns whose strings all look like numbers, and object columns
+    # without strings (#1024), so the final alignment is pinned too
+    # TODO(Unassigned): Update the snapshot once #1021 and #1024 are fixed
+    result = {
+        "classification": {
+            col: classify_dtype_for_alignment(matrix_df, col) for col in MATRIX_COLUMNS
+        },
+        "alignment": {col.var: col.column_align for col in GT(matrix_df)._boxhead._d},
+    }
+
+    assert snapshot == result
 
 
 def test_get_cell_dtype_matrix(

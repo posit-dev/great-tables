@@ -354,6 +354,166 @@
     None,
   ])
 # ---
+# name: test_classify_dtype_for_alignment_dtype_matrix[pandas_constructor]
+  dict({
+    'alignment': dict({
+      'bool': 'right',
+      'categorical': 'center',
+      'categorical_ordered': 'center',
+      'date': 'right',
+      'datetime': 'right',
+      'datetime_tz': 'right',
+      'decimal': 'right',
+      'duration': 'center',
+      'float': 'right',
+      'int': 'right',
+      'list': 'right',
+      'str': 'left',
+    }),
+    'classification': dict({
+      'bool': 'string',
+      'categorical': 'other',
+      'categorical_ordered': 'other',
+      'date': 'string',
+      'datetime': 'numeric',
+      'datetime_tz': 'numeric',
+      'decimal': 'string',
+      'duration': 'other',
+      'float': 'numeric',
+      'int': 'numeric',
+      'list': 'string',
+      'str': 'string',
+    }),
+  })
+# ---
+# name: test_classify_dtype_for_alignment_dtype_matrix[pandas_nullable_constructor]
+  dict({
+    'alignment': dict({
+      'bool': 'center',
+      'categorical': 'center',
+      'categorical_ordered': 'center',
+      'date': 'right',
+      'datetime': 'right',
+      'datetime_tz': 'right',
+      'decimal': 'right',
+      'duration': 'center',
+      'float': 'right',
+      'int': 'right',
+      'list': 'right',
+      'str': 'left',
+    }),
+    'classification': dict({
+      'bool': 'other',
+      'categorical': 'other',
+      'categorical_ordered': 'other',
+      'date': 'string',
+      'datetime': 'numeric',
+      'datetime_tz': 'numeric',
+      'decimal': 'string',
+      'duration': 'other',
+      'float': 'numeric',
+      'int': 'numeric',
+      'list': 'string',
+      'str': 'string',
+    }),
+  })
+# ---
+# name: test_classify_dtype_for_alignment_dtype_matrix[pandas_pyarrow_constructor]
+  dict({
+    'alignment': dict({
+      'bool': 'center',
+      'categorical': 'center',
+      'categorical_ordered': 'center',
+      'date': 'right',
+      'datetime': 'center',
+      'datetime_tz': 'center',
+      'decimal': 'right',
+      'duration': 'center',
+      'float': 'right',
+      'int': 'right',
+      'list': 'right',
+      'str': 'left',
+    }),
+    'classification': dict({
+      'bool': 'other',
+      'categorical': 'other',
+      'categorical_ordered': 'other',
+      'date': 'string',
+      'datetime': 'other',
+      'datetime_tz': 'other',
+      'decimal': 'string',
+      'duration': 'other',
+      'float': 'numeric',
+      'int': 'numeric',
+      'list': 'string',
+      'str': 'string',
+    }),
+  })
+# ---
+# name: test_classify_dtype_for_alignment_dtype_matrix[polars_constructor]
+  dict({
+    'alignment': dict({
+      'bool': 'center',
+      'categorical': 'center',
+      'categorical_ordered': 'center',
+      'date': 'right',
+      'datetime': 'right',
+      'datetime_tz': 'right',
+      'decimal': 'center',
+      'duration': 'center',
+      'float': 'right',
+      'int': 'right',
+      'list': 'center',
+      'str': 'left',
+    }),
+    'classification': dict({
+      'bool': 'other',
+      'categorical': 'other',
+      'categorical_ordered': 'other',
+      'date': 'numeric',
+      'datetime': 'numeric',
+      'datetime_tz': 'numeric',
+      'decimal': 'other',
+      'duration': 'other',
+      'float': 'numeric',
+      'int': 'numeric',
+      'list': 'other',
+      'str': 'string',
+    }),
+  })
+# ---
+# name: test_classify_dtype_for_alignment_dtype_matrix[pyarrow_table_constructor]
+  dict({
+    'alignment': dict({
+      'bool': 'center',
+      'categorical': 'center',
+      'categorical_ordered': 'center',
+      'date': 'right',
+      'datetime': 'center',
+      'datetime_tz': 'center',
+      'decimal': 'center',
+      'duration': 'center',
+      'float': 'right',
+      'int': 'right',
+      'list': 'center',
+      'str': 'left',
+    }),
+    'classification': dict({
+      'bool': 'other',
+      'categorical': 'other',
+      'categorical_ordered': 'other',
+      'date': 'numeric',
+      'datetime': 'other',
+      'datetime_tz': 'other',
+      'decimal': 'other',
+      'duration': 'other',
+      'float': 'numeric',
+      'int': 'numeric',
+      'list': 'other',
+      'str': 'string',
+    }),
+  })
+# ---
 # name: test_frame_rendering[pandas_constructor]
   '''
   <tbody class="gt_table_body">
@@ -890,6 +1050,86 @@
     'np.float64(nan)': True,
     'pd.NA': 'ArrowInvalid',
     'pd.NaT': 'ValueError',
+    'str': False,
+  })
+# ---
+# name: test_is_numeric_dtype_dtype_matrix[pandas_constructor]
+  dict({
+    'bool': False,
+    'categorical': False,
+    'categorical_ordered': False,
+    'date': False,
+    'datetime': False,
+    'datetime_tz': False,
+    'decimal': False,
+    'duration': False,
+    'float': True,
+    'int': True,
+    'list': False,
+    'str': False,
+  })
+# ---
+# name: test_is_numeric_dtype_dtype_matrix[pandas_nullable_constructor]
+  dict({
+    'bool': False,
+    'categorical': False,
+    'categorical_ordered': False,
+    'date': False,
+    'datetime': False,
+    'datetime_tz': False,
+    'decimal': False,
+    'duration': False,
+    'float': True,
+    'int': True,
+    'list': False,
+    'str': False,
+  })
+# ---
+# name: test_is_numeric_dtype_dtype_matrix[pandas_pyarrow_constructor]
+  dict({
+    'bool': False,
+    'categorical': False,
+    'categorical_ordered': False,
+    'date': False,
+    'datetime': False,
+    'datetime_tz': False,
+    'decimal': False,
+    'duration': False,
+    'float': True,
+    'int': True,
+    'list': False,
+    'str': False,
+  })
+# ---
+# name: test_is_numeric_dtype_dtype_matrix[polars_constructor]
+  dict({
+    'bool': False,
+    'categorical': False,
+    'categorical_ordered': False,
+    'date': False,
+    'datetime': False,
+    'datetime_tz': False,
+    'decimal': True,
+    'duration': False,
+    'float': True,
+    'int': True,
+    'list': True,
+    'str': False,
+  })
+# ---
+# name: test_is_numeric_dtype_dtype_matrix[pyarrow_table_constructor]
+  dict({
+    'bool': False,
+    'categorical': True,
+    'categorical_ordered': True,
+    'date': False,
+    'datetime': False,
+    'datetime_tz': False,
+    'decimal': True,
+    'duration': False,
+    'float': True,
+    'int': True,
+    'list': True,
     'str': False,
   })
 # ---
