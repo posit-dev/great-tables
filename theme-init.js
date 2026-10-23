@@ -8,9 +8,6 @@
     var theme = stored || (darkModeDisabled ? 'light' : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
     var html = document.documentElement;
 
-    // Hide body until theme is fully applied to prevent flash
-    html.classList.add('theme-loading');
-
     if (theme === 'dark') {
         html.classList.add('quarto-dark');
         html.setAttribute('data-bs-theme', 'dark');
@@ -61,13 +58,18 @@
         }
     }
 
-    // Reveal page once DOM is ready and styles are applied
+    // Reveal the page once the DOM is parsed and after-body scripts have run.
+    // The page is hidden by an inline <style> in the <head> (metadata.html)
+    // that targets html:not(.theme-loaded).  A double requestAnimationFrame
+    // ensures the browser has painted the changes from after-body scripts
+    // (sidebar, dark-mode toggle, "On This Page", tags, etc.) before the
+    // page becomes visible.
     function revealPage() {
         setPageIdentifier();
-        // Small delay to ensure CSS is processed
         requestAnimationFrame(function() {
-            html.classList.remove('theme-loading');
-            html.classList.add('theme-loaded');
+            requestAnimationFrame(function() {
+                html.classList.add('theme-loaded');
+            });
         });
     }
 
