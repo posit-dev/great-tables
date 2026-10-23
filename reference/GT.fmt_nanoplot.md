@@ -4,7 +4,7 @@ Format data for nanoplot visualizations.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L9071-L9469)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L9071-L9470)
 
 ``` python
 GT.fmt_nanoplot(
