@@ -863,9 +863,9 @@ def eval_transform(df: DataFrameLike, expr: Any) -> list[Any]:
 def _(df: PdDataFrame, expr: Callable[[PdDataFrame], PdSeries]) -> list[Any]:
     res = expr(df)
 
-    if not isinstance(res, PdSeries):  # pragma: no cover
+    if not isinstance(res, PdSeries):
         raise ValueError(f"Result must be a pandas Series. Received {type(res)}")
-    elif not len(res) == len(df):  # pragma: no cover
+    elif not len(res) == len(df):
         raise ValueError(
             f"Result must be same length as input data. Observed different lengths."
             f"\n\nInput data: {len(df)}.\nResult: {len(res)}."
@@ -885,16 +885,17 @@ def _(df: PlDataFrame, expr: PlExpr | Callable[[PlDataFrame], PlSeries | PlExpr]
     else:
         df_res = df.select(expr)
 
-        if len(df_res.columns) > 1:  # pragma: no cover
+        if len(df_res.columns) > 1:
             raise ValueError(
                 f"Result must be a single column. Received {len(df_res.columns)} columns."
             )
         else:
             res = df_res[df_res.columns[0]]
 
+    # NOTE: unreachable, a column of `df.select()` is always a Series
     if not isinstance(res, PlSeries):  # pragma: no cover
         raise ValueError(f"Result must be a polars Series. Received {type(res)}")
-    elif not len(res) == len(df):  # pragma: no cover
+    elif not len(res) == len(df):
         raise ValueError(
             f"Result must be same length as input data. Observed different lengths."
             f"\n\nInput data: {len(df)}.\nResult: {len(res)}."
@@ -911,7 +912,7 @@ def _(
 
     if not isinstance(res, (PyArrowArray, PyArrowChunkedArray)):
         raise ValueError(f"Result must be an Arrow Array or ChunkedArray. Received {type(res)}")
-    elif not len(res) == len(df):  # pragma: no cover
+    elif not len(res) == len(df):
         raise ValueError(
             f"Result must be same length as input data. Observed different lengths."
             f"\n\nInput data: {df.num_rows}.\nResult: {len(res)}."
