@@ -595,22 +595,37 @@ def test_data_color_pd_string_dtype_with_na_and_domain():
 
 
 @pytest.mark.parametrize(
-    "x",
+    "df",
     [
         pytest.param(
-            pd.Categorical(["high", "low", "mid"], categories=["low", "mid", "high"], ordered=True),
+            pd.DataFrame(
+                {"x": pd.Categorical(["high", "low", "mid"], ["low", "mid", "high"], ordered=True)}
+            ),
             id="pandas-ordered-categorical",
         ),
         pytest.param(
-            pl.Series(["high", "low", "mid"], dtype=pl.Enum(["low", "mid", "high"])),
+            pl.DataFrame(
+                {"x": pl.Series(["high", "low", "mid"], dtype=pl.Enum(["low", "mid", "high"]))}
+            ),
             id="polars-enum",
+        ),
+        pytest.param(
+            pa.table(
+                {
+                    "x": pa.DictionaryArray.from_arrays(
+                        pa.array([2, 0, 1], pa.int32()),
+                        pa.array(["low", "mid", "high"]),
+                        ordered=True,
+                    )
+                }
+            ),
+            id="pyarrow-ordered-dictionary",
         ),
     ],
 )
-def test_data_color_ordered_categorical_uses_levels(x: Any):
+def test_data_color_ordered_categorical_uses_levels(df: DataFrameLike):
     """An inferred domain follows the declared level order, not the order of appearance."""
-    frame = pd.DataFrame if isinstance(x, pd.Categorical) else pl.DataFrame
-    new_gt = GT(frame({"x": x})).data_color(columns="x", palette=["red", "blue"])
+    new_gt = GT(df).data_color(columns="x", palette=["red", "blue"])
 
     assert get_fill_colors(new_gt) == ["#0000ff", "#ff0000", "#ca0088"]
 

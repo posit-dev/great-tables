@@ -16,9 +16,10 @@ if TYPE_CHECKING:
 DataLike: TypeAlias = dict[str, list[Any]]
 DataFrameConstructor: TypeAlias = Callable[[DataLike], DataFrameLike]
 SeriesConstructor: TypeAlias = Callable[[list[Any]], SeriesLike]
+Backend: TypeAlias = Literal["pandas", "polars", "pyarrow"]
 
 
-def native_backend(obj: Any) -> Literal["pandas", "polars", "pyarrow"]:
+def native_backend(obj: Any) -> Backend:
     library = type(obj).__module__.split(".")[0]
     if library in ("pandas", "polars", "pyarrow"):
         return library

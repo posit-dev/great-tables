@@ -19,6 +19,8 @@ from great_tables._tbl_data import (
     SeriesLike,
     _get_cell,
     _get_column_dtype,
+    _get_column_levels,
+    _is_numeric_dtype,
     _re_version,
     _set_cell,
     _set_cells,
@@ -42,8 +44,10 @@ from great_tables._tbl_data import (
     to_list,
     validate_frame,
 )
+from great_tables._tbl_data_align import classify_dtype_for_alignment
 from great_tables._utils_render_html import create_body_component_h
 from tests.utils import (
+    Backend,
     DataFrameConstructor,
     DataLike,
     SeriesConstructor,
@@ -237,6 +241,92 @@ def test_get_column_dtypes(df: DataFrameLike):
     assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
 
 
+def test_is_numeric_dtype_dtype_matrix(matrix_df: DataFrameLike, snapshot: SnapshotAssertion):
+    # `opt_interactive()` passes the values of numeric columns to `float()`, and
+    # `cols_align_decimal()` aligns only numeric columns
+    # TODO(Unassigned): Update the snapshot once #1020 and #1028 are fixed
+    assert snapshot == {col: _is_numeric_dtype(matrix_df, col) for col in MATRIX_COLUMNS}
+
+
+@pytest.mark.parametrize(
+    ("column", "numeric_on", "reason"),
+    [
+        pytest.param(
+            "list",
+            {"polars", "pyarrow"},
+            "https://github.com/posit-dev/great-tables/issues/1020",
+            id="list",
+        ),
+        pytest.param(
+            "categorical",
+            {"pyarrow"},
+            "https://github.com/posit-dev/great-tables/issues/1028",
+            id="categorical",
+        ),
+    ],
+)
+def test_is_numeric_dtype_nested_types(
+    matrix_df: DataFrameLike,
+    column: str,
+    numeric_on: set[str],
+    reason: str,
+    request: pytest.FixtureRequest,
+):
+    # The dtype name includes the element or index type, e.g. "list(int64)" or
+    # "dictionary<values=string, indices=int32, ordered=0>", so it matches "int" and
+    # `opt_interactive()` crashes
+    if native_backend(matrix_df) in numeric_on:
+        request.applymarker(pytest.mark.xfail(strict=True, raises=AssertionError, reason=reason))
+
+    assert not _is_numeric_dtype(matrix_df, column)
+
+
+def test_is_numeric_dtype_missing_column(df: DataFrameLike):
+    assert _is_numeric_dtype(df, "missing") is False
+
+
+def test_get_column_levels(frame_constructor: DataFrameConstructor):
+    # `data_color()` colors an ordered categorical column by its declared levels, not sorted ones
+    text = ["b", "a", None]
+    df = frame_constructor({"text": text, "unordered": text, "ordered": text})
+    df = _cast_to_categorical(df, "unordered", ordered=False)
+    df = _cast_to_categorical(df, "ordered", ordered=True)
+
+    levels = {col: _get_column_levels(df, col) for col in get_column_names(df)}
+    assert levels == {"text": None, "unordered": None, "ordered": ["b", "a"]}
+
+
+def test_get_column_levels_pyarrow_chunked():
+    # Levels are the non-null union of the chunk dictionaries, in first-seen order
+    chunks = [
+        pa.DictionaryArray.from_arrays(
+            pa.array(indices, pa.int32()), pa.array(dictionary), ordered=True
+        )
+        for indices, dictionary in [([1, 0], ["b", "a"]), ([0], ["c", None])]
+    ]
+    df = pa.table({"x": pa.chunked_array(chunks)})
+    empty = pa.table({"x": pa.chunked_array([], chunks[0].type)})
+
+    assert _get_column_levels(df, "x") == ["b", "a", "c"]
+    assert _get_column_levels(empty, "x") == []
+
+
+def test_classify_dtype_for_alignment_dtype_matrix(
+    matrix_df: DataFrameLike, snapshot: SnapshotAssertion
+):
+    # GT also right-aligns text columns whose strings all look like numbers, and object columns
+    # without strings (#1024), so the final alignment is pinned too
+    # TODO(Unassigned): Update the snapshot once #1021 and #1024 are fixed
+    result = {
+        "classification": {
+            col: classify_dtype_for_alignment(matrix_df, col) for col in MATRIX_COLUMNS
+        },
+        "alignment": {col.var: col.column_align for col in GT(matrix_df)._boxhead._d},
+    }
+
+    assert snapshot == result
+
+
 def test_get_cell_dtype_matrix(
     matrix_df: DataFrameLike, frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
 ):
@@ -369,6 +459,27 @@ def test_eval_select_with_callable(df: DataFrameLike):
 
     sel = eval_select(df, expr)
     assert sel == [("col2", 1)]
+
+
+@pytest.mark.parametrize(
+    ("expr", "expected"), [(-1, [("col3", 2)]), ([-1, 0], [("col3", 2), ("col1", 0)])]
+)
+def test_eval_select_negative_int(
+    df: DataFrameLike, expr: int | list[int], expected: list[tuple[str, int]]
+):
+    assert eval_select(df, expr) == expected
+
+
+@pytest.mark.parametrize(("expr", "expected"), [("x", []), (["col1", "x"], [("col1", 0)])])
+def test_eval_select_unknown_name(
+    df: DataFrameLike, expr: str | list[str], expected: list[tuple[str, int]]
+):
+    # pandas and pyarrow skip names that aren't columns, polars raises
+    if native_backend(df) == "polars":
+        with pytest.raises(pl.exceptions.ColumnNotFoundError):
+            eval_select(df, expr)
+    else:
+        assert eval_select(df, expr) == expected
 
 
 def test_polars_columns_callable_in_public_api():
@@ -607,6 +718,14 @@ def test_validate_frame_non_str_cols_result():
         res = validate_frame(df)
 
     assert list(res.columns) == ["x", "55", "y", "99"]
+
+
+def test_validate_frame_passthrough(df: DataFrameLike, recwarn: pytest.WarningsRecorder):
+    assert validate_frame(df) is df
+
+    is_pyarrow = native_backend(df) == "pyarrow"
+    expected = ["PyArrow Table support is currently experimental."] if is_pyarrow else []
+    assert [str(w.message) for w in recwarn] == expected
 
 
 def test_is_series(ser: SeriesLike):
@@ -922,15 +1041,29 @@ def test_eval_transform_pyarrow_array():
     assert eval_transform(df, expr) == [False, True, True]
 
 
-def test_eval_transform_pyarrow_raises():
-    df = pa.table({"a": [1, 2, 3]})
+def test_eval_transform_wrong_type_raises(df: DataFrameLike):
+    # polars evaluates the list as one literal expression per item, all named "literal"
+    expected_error: dict[Backend, tuple[type[Exception], str]] = {
+        "pandas": (ValueError, "Result must be a pandas Series"),
+        "polars": (pl.exceptions.DuplicateError, "literal"),
+        "pyarrow": (ValueError, "Result must be an Arrow Array or ChunkedArray"),
+    }
+    error_type, pattern = expected_error[native_backend(df)]
 
-    def expr(tbl):
-        return [False, True, True]
+    with pytest.raises(error_type, match=pattern):
+        eval_transform(df, lambda _: [False, True, True])
 
-    with pytest.raises(ValueError) as exc_info:
-        eval_transform(df, expr)
-    assert "Result must be an Arrow Array or ChunkedArray" in str(exc_info.value)
+
+def test_eval_transform_wrong_length_raises(df: DataFrameLike):
+    with pytest.raises(ValueError, match=r"Input data: 3\.\nResult: 2\."):
+        eval_transform(df, lambda data: data["col1"][:2])
+
+
+def test_eval_transform_polars_multiple_columns_raises():
+    df = pl.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+
+    with pytest.raises(ValueError, match="Result must be a single column. Received 2 columns."):
+        eval_transform(df, pl.col("a", "b") > 1)
 
 
 def test_is_na_singledispatch_fallback_raises():

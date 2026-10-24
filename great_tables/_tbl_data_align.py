@@ -37,7 +37,7 @@ NUMERIC_DTYPE_PATTERN = re.compile(r"int|uint|float|date|double")
 
 # String dtypes that should be left-aligned
 # Includes "str" for pandas 3.x compatibility (pandas 2.x uses "object")
-STRING_DTYPES = {"object", "utf8", "string", "str"}
+STRING_DTYPES = {"object", "utf8", "string", "str", "large_string", "string_view"}
 
 # pandas ArrowDtype string columns report their backend in the dtype name
 PANDAS_ARROW_STRING_DTYPES = {"string[pyarrow]", "large_string[pyarrow]", "string_view[pyarrow]"}

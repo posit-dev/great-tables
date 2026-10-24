@@ -1808,6 +1808,7 @@ FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(compact=True), ["$1.23M", "−$5.43K"]),
     (dict(currency="LSL"), ["M1,234,567.00", "−M5,432.37"]),
     (dict(currency="CRC"), ["&#8353;1,234,567.00", "−&#8353;5,432.37"]),
+    (dict(currency="BGN"), ["&#1083;&#1074;1,234,567.00", "−&#1083;&#1074;5,432.37"]),
     (dict(currency="BYN"), ["Br1,234,567.00", "−Br5,432.37"]),
     (dict(currency="MRU"), ["UM1,234,567.00", "−UM5,432.37"]),
     (dict(currency="STN"), ["Db1,234,567.00", "−Db5,432.37"]),
@@ -1847,6 +1848,7 @@ def test_fmt_currency_force_sign():
         ("JPY", ["¥1,234", "-¥2"]),
         ("BRL", ["R\\$1,234.50", "-R\\$2.00"]),
         ("CHF", ["SFr.1,234.50", "-SFr.2.00"]),
+        ("BGN", ["лв1,234.50", "-лв2.00"]),
     ],
 )
 def test_fmt_currency_latex_symbols(currency: str, x_out: list[str]):
@@ -1870,6 +1872,8 @@ def test_fmt_currency_all_currencies(context: str):
         # Check the text a browser shows, so that a symbol can't run into the digits after it
         x = [html.unescape(x_i) for x_i in x]
     assert all("1,23" in x_i for x_i in x)
+    # No invisible characters (like a zero-width non-joiner) in the symbols
+    assert all(x_i.isprintable() for x_i in x)
 
 
 @pytest.mark.parametrize("currency", ["XAG", "XAU", "XDR", "XPD", "XPT", "XSU", "XUA"])
