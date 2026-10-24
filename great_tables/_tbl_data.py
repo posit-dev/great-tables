@@ -393,7 +393,7 @@ def _is_numeric_dtype(data: DataFrameLike, column: str) -> bool:
 @singledispatch
 def _get_column_levels(data: DataFrameLike, column: str) -> list[Any] | None:
     """Get the declared levels of an ordered categorical column (or `None` if there are none)"""
-    return None
+    return None  # pragma: no cover
 
 
 @_get_column_levels.register
