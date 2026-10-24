@@ -121,9 +121,33 @@ class TestClassifyDtypePyArrow:
 
     def test_large_string_type(self):
         table = pa.table({"col": pa.array(["a", "b", "c"], type=pa.large_string())})
-        # large_string doesn't match STRING_DTYPES exactly, gets "other" (#1022)
-        # TODO(Unassigned): Expect "string" once #1022 is fixed
-        assert classify_dtype_for_alignment(table, "col") == "other"
+        assert classify_dtype_for_alignment(table, "col") == "string"
+
+    @pytest.mark.parametrize(
+        "arrow_str",
+        [
+            pytest.param("string", id="string"),
+            pytest.param("large_string", id="large_string"),
+            pytest.param(
+                "string_view",
+                id="string_view",
+                marks=pytest.mark.skipif(
+                    not hasattr(pa, "string_view"), reason="requires pyarrow>=16"
+                ),
+            ),
+        ],
+    )
+    def test_pyarrow_string_types_left_aligned(self, arrow_str):
+        table = pa.table(
+            {
+                "num": pa.array([1, 2], type=pa.int64()),
+                "text": pa.array(["a", "b"], type=getattr(pa, arrow_str)()),
+            }
+        )
+        assert classify_dtype_for_alignment(table, "text") == "string"
+        gt_tbl = gt.GT(table)
+        aligns = [col.column_align for col in gt_tbl._boxhead._d]
+        assert aligns == ["right", "left"]
 
     def test_utf8_type(self):
         # utf8 is an alias for string in PyArrow
