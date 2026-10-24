@@ -292,11 +292,23 @@ def test_get_column_levels(frame_constructor: DataFrameConstructor):
     df = _cast_to_categorical(df, "unordered", ordered=False)
     df = _cast_to_categorical(df, "ordered", ordered=True)
 
-    # pyarrow has no implementation, so its ordered dictionaries return no levels (#1025)
-    # TODO(Unassigned): Expect ["b", "a"] on pyarrow too once #1025 is fixed
-    ordered = None if native_backend(df) == "pyarrow" else ["b", "a"]
     levels = {col: _get_column_levels(df, col) for col in get_column_names(df)}
-    assert levels == {"text": None, "unordered": None, "ordered": ordered}
+    assert levels == {"text": None, "unordered": None, "ordered": ["b", "a"]}
+
+
+def test_get_column_levels_pyarrow_chunked():
+    # Levels are the non-null union of the chunk dictionaries, in first-seen order
+    chunks = [
+        pa.DictionaryArray.from_arrays(
+            pa.array(indices, pa.int32()), pa.array(dictionary), ordered=True
+        )
+        for indices, dictionary in [([1, 0], ["b", "a"]), ([0], ["c", None])]
+    ]
+    df = pa.table({"x": pa.chunked_array(chunks)})
+    empty = pa.table({"x": pa.chunked_array([], chunks[0].type)})
+
+    assert _get_column_levels(df, "x") == ["b", "a", "c"]
+    assert _get_column_levels(empty, "x") == []
 
 
 def test_classify_dtype_for_alignment_dtype_matrix(

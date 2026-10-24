@@ -393,7 +393,7 @@ def _is_numeric_dtype(data: DataFrameLike, column: str) -> bool:
 @singledispatch
 def _get_column_levels(data: DataFrameLike, column: str) -> list[Any] | None:
     """Get the declared levels of an ordered categorical column (or `None` if there are none)"""
-    return None
+    return None  # pragma: no cover
 
 
 @_get_column_levels.register
@@ -416,6 +416,20 @@ def _(data: PlDataFrame, column: str) -> list[Any] | None:
 
     if isinstance(dtype, pl.Enum):
         return dtype.categories.to_list()
+
+    return None
+
+
+@_get_column_levels.register
+def _(data: PyArrowTable, column: str) -> list[Any] | None:
+    import pyarrow as pa
+
+    col = data.column(column)
+
+    if pa.types.is_dictionary(col.type) and col.type.ordered:
+        # Chunks can carry different dictionaries, and a null entry is not a level
+        dictionaries = [chunk.dictionary for chunk in col.chunks]
+        return pa.chunked_array(dictionaries, col.type.value_type).unique().drop_null().to_pylist()
 
     return None
 
