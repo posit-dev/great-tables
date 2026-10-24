@@ -420,6 +420,20 @@ def _(data: PlDataFrame, column: str) -> list[Any] | None:
     return None
 
 
+@_get_column_levels.register
+def _(data: PyArrowTable, column: str) -> list[Any] | None:
+    import pyarrow as pa
+
+    col = data.column(column)
+
+    if pa.types.is_dictionary(col.type) and col.type.ordered:
+        # Chunks can carry different dictionaries, and a null entry is not a level
+        dictionaries = [chunk.dictionary for chunk in col.chunks]
+        return pa.chunked_array(dictionaries, col.type.value_type).unique().drop_null().to_pylist()
+
+    return None
+
+
 # reorder ----
 
 
