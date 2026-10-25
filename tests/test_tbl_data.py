@@ -423,15 +423,7 @@ def test_reorder(df: DataFrameLike, frame_constructor: DataFrameConstructor):
     assert_frame_equal(res, dst)
 
 
-def test_reorder_no_rows(df: DataFrameLike, request: pytest.FixtureRequest):
-    if native_backend(df) == "pyarrow":
-        # take() has no kernel for an empty list, which pyarrow types as null (as in #1005).
-        # summary_rows() hits it when #1002 turns an all-null group column into an empty group
-        reason = "pyarrow reorder() with no rows raises"
-        request.applymarker(
-            pytest.mark.xfail(strict=True, raises=pa.ArrowNotImplementedError, reason=reason)
-        )
-
+def test_reorder_no_rows(df: DataFrameLike):
     res = reorder(df, [], ["col2"])
 
     assert n_rows(res) == 0

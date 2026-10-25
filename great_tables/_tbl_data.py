@@ -458,7 +458,9 @@ def _(data: PlDataFrame, rows: list[int], columns: list[str]) -> PlDataFrame:
 
 @reorder.register
 def _(data: PyArrowTable, rows: list[int], columns: list[str]) -> PyArrowTable:
-    return data.select(columns).take(rows)
+    import pyarrow as pa
+
+    return data.select(columns).take(pa.array(rows, type=pa.int64()))
 
 
 # group_splits ----
