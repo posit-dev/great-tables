@@ -598,9 +598,14 @@ def test_render_body_null_group_keys(
     values = [11, 12, 13, 14, 15]
     df = frame_constructor({"g": ["b", None, "a", None, "b"], "x": values})
 
-    if native_backend(df) == "pandas":
-        url = "https://github.com/posit-dev/great-tables/issues/1003"
-        request.applymarker(pytest.mark.xfail(strict=True, raises=TypeError, reason=url))
+    # The missing key breaks rendering on pandas 2 (TypeError) and on pandas 3 nullable dtypes
+    # (KeyError on <NA>), while a pandas 3 `str` column spells it nan and renders
+    plain_pandas_3 = pandas_ge_v3 and frame_constructor.__name__ == "pandas_constructor"
+    if native_backend(df) == "pandas" and not plain_pandas_3:
+        reason = "https://github.com/posit-dev/great-tables/issues/1003"
+        request.applymarker(
+            pytest.mark.xfail(strict=True, raises=(TypeError, KeyError), reason=reason)
+        )
 
     body = create_body_component_h(GT(df, groupname_col="g")._build_data("html"))
 
