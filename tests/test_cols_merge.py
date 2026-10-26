@@ -638,6 +638,20 @@ class TestColsMergeUncert:
 
         assert _body_cells(gt) == ["1.0 (+0.2/\u22120.1)", "2.0 (+0.3)", "3.0"]
 
+    def test_asymmetric_minus_sign_latex(self):
+        """Test that an ASCII minus sign is used for the lower bound in LaTeX output."""
+        from great_tables.gt import _get_column_of_values
+
+        df = pl.DataFrame({"val": [1.0, 2.0], "lower": [0.1, 0.2], "upper": [0.3, None]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert=["lower", "upper"])
+
+        assert _get_column_of_values(gt, "val", "latex") == ["1.0 (+0.3/-0.1)", "2.0 (-0.2)"]
+        assert _get_column_of_values(gt, "val", "html") == [
+            "1.0 (+0.3/\u22120.1)",
+            "2.0 (\u22120.2)",
+        ]
+
 
 # =============================================================================
 # Tests for cols_merge_range
