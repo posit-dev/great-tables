@@ -570,22 +570,56 @@ def test_group_splits(
         ([None, None], {None: [0, 1]}),
     ],
 )
+@pytest.mark.parametrize("categorical", [False, True])
 def test_group_splits_null_keys(
     frame_constructor: DataFrameConstructor,
     keys: list[Any],
     expected: dict[Any, list[int]],
+    categorical: bool,
     request: pytest.FixtureRequest,
 ):
     df = frame_constructor({"g": keys})
+    if categorical:
+        df = _cast_to_categorical(df, "g", ordered=False)
 
-    if native_backend(df) == "pyarrow":
-        # The rows with a missing key are dropped
-        url = "https://github.com/posit-dev/great-tables/issues/1002"
-        request.applymarker(pytest.mark.xfail(strict=True, raises=AssertionError, reason=url))
+    if categorical and native_backend(df) == "pandas":
+        # groupby(dropna=False).indices drops the NaN group of a categorical key
+        reason = "pandas drops the rows with a null categorical key"
+        request.applymarker(pytest.mark.xfail(strict=True, raises=AssertionError, reason=reason))
 
     # pandas spells the missing key NaN or NA, which `test_group_splits_null_key_is_none` pins
     splits = {None if is_na(df, key) else key: rows for key, rows in group_splits(df, "g").items()}
     assert splits == expected
+
+
+def test_render_body_null_group_keys(
+    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
+):
+    values = [11, 12, 13, 14, 15]
+    df = frame_constructor({"g": ["b", None, "a", None, "b"], "x": values})
+
+    # The missing key breaks rendering on pandas 2 (TypeError) and on pandas 3 nullable dtypes
+    # (KeyError on <NA>), while a pandas 3 `str` column spells it nan and renders
+    plain_pandas_3 = pandas_ge_v3 and frame_constructor.__name__ == "pandas_constructor"
+    if native_backend(df) == "pandas" and not plain_pandas_3:
+        reason = "https://github.com/posit-dev/great-tables/issues/1003"
+        request.applymarker(
+            pytest.mark.xfail(strict=True, raises=(TypeError, KeyError), reason=reason)
+        )
+
+    body = create_body_component_h(GT(df, groupname_col="g")._build_data("html"))
+
+    assert [value for value in values if f">{value}<" not in body] == []
+
+
+def test_render_null_group_keys_pyarrow_matches_polars():
+    data = {"g": ["b", None, "a", None, "b"], "x": [1, 2, 3, 4, 5]}
+
+    # The table id is random unless pinned
+    html_pa = GT(pa.table(data), groupname_col="g", id="t").as_raw_html()
+    html_pl = GT(pl.DataFrame(data), groupname_col="g", id="t").as_raw_html()
+
+    assert html_pa == html_pl
 
 
 @pytest.mark.xfail(
