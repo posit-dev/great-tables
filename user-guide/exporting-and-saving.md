@@ -52,9 +52,9 @@ html_str = gt_tbl.as_raw_html()
 print(html_str[:200])
 ```
 
-    <div id="qpkntzossh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+    <div id="qdpwcqvwbv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
     <style>
-    #qpkntzossh table {
+    #qdpwcqvwbv table {
               font
 
 The method accepts several arguments that control the output format.
