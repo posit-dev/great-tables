@@ -342,6 +342,21 @@ def _apply_single_col_merge(
             _get_display_value(body, tbl_data, row_idx, col_name) for col_name in col_merge.vars
         ]
 
+        if col_merge.type in ("merge_uncert", "merge_n_pct"):
+            # These merges look for missing values in the original data (as gt does), so text
+            # from sub_missing() is never merged in as a value
+            is_missing = [
+                is_na(tbl_data, _get_cell(tbl_data, row_idx, col_name))
+                for col_name in col_merge.vars
+            ]
+
+            # A missing base value leaves the cell as it is (empty, or the sub_missing() text)
+            if is_missing[0]:
+                merged_values[row_idx] = values[0] or ""
+                continue
+
+            values = [None if missing else value for value, missing in zip(values, is_missing)]
+
         # Dispatch to the appropriate merge strategy
         if col_merge.type == "merge":
             merged_value = col_merge.merge(*values)
@@ -380,17 +395,11 @@ def _get_display_value(body: Body, tbl_data: TblData, row_idx: int, col_name: st
 def _merge_uncert(values: list[Any], sep: str) -> str:
     """Apply uncertainty merge semantics.
 
-    NA handling:
-    - NA in col_val -> result is NA
-    - NA in col_uncert (but not col_val) -> show only col_val
-    - NA in both -> result is NA
+    NA handling (an NA in col_val is handled before this is called):
+    - NA in col_uncert -> show only col_val
     - For asymmetric (3 columns): val (+upper/−lower)
     """
     col_val = values[0]
-
-    # If the base value is missing, the result is always missing
-    if col_val is None:
-        return ""
 
     if len(values) == 2:
         # Symmetric uncertainty: val ± uncert
@@ -440,18 +449,12 @@ def _merge_range(values: list[Any], sep: str) -> str:
 def _merge_n_pct(values: list[Any], tbl_data: TblData, vars: list[str], row_idx: int) -> str:
     """Apply count-and-percentage merge semantics.
 
-    NA handling:
-    - NA in col_n -> result is NA
-    - NA in col_pct (but not col_n) -> show only col_n
-    - NA in both -> result is NA
+    NA handling (an NA in col_n is handled before this is called):
+    - NA in col_pct -> show only col_n
     - Zero in col_n (original value) -> show only "0" (no percentage)
     """
     col_n = values[0]
     col_pct = values[1]
-
-    # If the count is missing, the result is always missing
-    if col_n is None:
-        return ""
 
     # Check if the original value of col_n is zero
     original_n = _get_cell(tbl_data, row_idx, vars[0])

@@ -1,10 +1,15 @@
 import math
+import re
 
 import pandas as pd
 import polars as pl
 import pytest
 from great_tables import GT
 from great_tables._cols_merge import ColMergeInfo, merge_pattern
+
+
+def _body_cells(gt: GT) -> list[str]:
+    return re.findall(r'<td headers="[^"]*" class="gt_row[^"]*">(.*?)</td>', gt.as_raw_html())
 
 
 @pytest.fixture
@@ -615,6 +620,24 @@ class TestColsMergeUncert:
 
         assert "100.0 \u00b1 2.5" in html
 
+    def test_with_sub_missing(self):
+        """Test that sub_missing() text isn't merged in as an uncertainty or base value."""
+        df = pl.DataFrame({"val": [10.0, 20.0, None, None], "uncert": [0.5, None, 1.0, None]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert").sub_missing()
+
+        assert _body_cells(gt) == ["10.0 \u00b1 0.5", "20.0", "&mdash;", "&mdash;"]
+
+    def test_asymmetric_with_sub_missing(self):
+        """Test that sub_missing() text isn't merged in as a lower or upper bound."""
+        df = pl.DataFrame(
+            {"val": [1.0, 2.0, 3.0], "lower": [0.1, None, None], "upper": [0.2, 0.3, None]}
+        )
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert=["lower", "upper"]).sub_missing()
+
+        assert _body_cells(gt) == ["1.0 (+0.2/\u22120.1)", "2.0 (+0.3)", "3.0"]
+
 
 # =============================================================================
 # Tests for cols_merge_range
@@ -962,6 +985,19 @@ class TestColsMergeNPct:
         # Row 7: n=5, pct=NA → "5" (without parens)
 
         # NA in col_n: empty result (no meaningful content for that cell)
+
+    def test_with_sub_missing(self):
+        """Test that sub_missing() text isn't merged in as a count or percentage."""
+        df = pl.DataFrame({"n": [10, 20, None, None], "pct": [0.5, None, 0.25, None]})
+
+        gt = (
+            GT(df)
+            .fmt_percent(columns="pct", decimals=0)
+            .cols_merge_n_pct(col_n="n", col_pct="pct")
+            .sub_missing()
+        )
+
+        assert _body_cells(gt) == ["10 (50%)", "20", "&mdash;", "&mdash;"]
 
     def test_chaining_n_pct_and_range(self):
         """Test combining cols_merge_n_pct with cols_merge_range."""
