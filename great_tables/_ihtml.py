@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import html as html_lib
 import json
-import math
 import re
 import warnings
 from pathlib import Path
@@ -13,6 +12,7 @@ from ._tbl_data import (
     _get_cell,
     _is_numeric_dtype,
     cast_frame_to_string,
+    is_na,
     replace_null_frame,
 )
 from ._text import _process_text
@@ -85,11 +85,7 @@ def render_as_ihtml(data: GT) -> str:
             row[col.var] = str(cell_val) if cell_val is not None else ""
             if col.var in numeric_cols:
                 raw = _get_cell(orig_data, row_idx, col.var)
-                if raw is None:
-                    orig_numeric_vals[col.var].append(None)
-                else:
-                    v = float(raw)
-                    orig_numeric_vals[col.var].append(None if math.isnan(v) else v)
+                orig_numeric_vals[col.var].append(None if is_na(orig_data, raw) else float(raw))
         rows_data.append(row)
 
     n_rows = len(rows_data)
