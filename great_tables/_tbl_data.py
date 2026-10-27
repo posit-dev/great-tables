@@ -493,10 +493,18 @@ def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
 
 @group_splits.register
 def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
+    import pyarrow as pa
     import pyarrow.compute as pc
 
     group_col = data.column(group_key)
-    encoded = group_col.dictionary_encode().combine_chunks()
+    dtype = group_col.type
+    if pa.types.is_dictionary(dtype):
+        # NOTE: If a column is already dictionary-typed, dictionary_encode() returns it unchanged and
+        # ignores null_encoding so its nulls would stay null indices and their rows would be dropped
+        group_col = group_col.cast(dtype.value_type)
+
+    # The default null_encoding="mask" drops the rows with a null key; polars groups them under None
+    encoded = group_col.dictionary_encode(null_encoding="encode").combine_chunks()
 
     d = {}
     for idx, group_key in enumerate(encoded.dictionary):
