@@ -656,7 +656,8 @@ class Stub:
         primary_rowname_col = rowname_cols[-1] if rowname_cols else None
 
         if groupname_col is not None:
-            group_id = to_list(data[groupname_col])
+            # pandas spells a missing group NaN or NA; treat it as None, like polars and pyarrow
+            group_id = [None if is_na(data, g) else g for g in to_list(data[groupname_col])]
         else:
             group_id = [None] * n_rows(data)
 
@@ -754,6 +755,10 @@ class Stub:
             # the original data value.
             if is_na(tbl_data, cell_content):
                 cell_content = _get_cell(tbl_data, first_index, rowgroup_var.var)
+                # A missing group key has no value in the data either; leave the label
+                # unset so the heading renders empty, as it does for polars and pyarrow
+                if is_na(tbl_data, cell_content):
+                    cell_content = None
 
             new_group_rows.append(group_row.with_group_label(cell_content))
 

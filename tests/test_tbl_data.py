@@ -592,20 +592,9 @@ def test_group_splits_null_keys(
     assert splits == expected
 
 
-def test_render_body_null_group_keys(
-    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
-):
+def test_render_body_null_group_keys(frame_constructor: DataFrameConstructor):
     values = [11, 12, 13, 14, 15]
     df = frame_constructor({"g": ["b", None, "a", None, "b"], "x": values})
-
-    # The missing key breaks rendering on pandas 2 (TypeError) and on pandas 3 nullable dtypes
-    # (KeyError on <NA>), while a pandas 3 `str` column spells it nan and renders
-    plain_pandas_3 = pandas_ge_v3 and frame_constructor.__name__ == "pandas_constructor"
-    if native_backend(df) == "pandas" and not plain_pandas_3:
-        reason = "https://github.com/posit-dev/great-tables/issues/1003"
-        request.applymarker(
-            pytest.mark.xfail(strict=True, raises=(TypeError, KeyError), reason=reason)
-        )
 
     body = create_body_component_h(GT(df, groupname_col="g")._build_data("html"))
 
@@ -622,14 +611,16 @@ def test_render_null_group_keys_pyarrow_matches_polars():
     assert html_pa == html_pl
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="https://github.com/posit-dev/great-tables/issues/1003",
-    # TODO(Unassigned): Remove entire test once the issue is fixed
-)
-def test_group_splits_null_key_is_none(pandas_frame_constructor: DataFrameConstructor):
-    assert None in group_splits(pandas_frame_constructor({"g": ["b", None]}), "g")
+def test_render_null_group_keys_pandas_matches_polars(
+    pandas_frame_constructor: DataFrameConstructor,
+):
+    data = {"g": ["b", None, "a", None, "b"], "x": [1, 2, 3, 4, 5]}
+
+    # The missing group renders as an empty heading placed last, whatever the pandas dtype
+    html_pd = GT(pandas_frame_constructor(data), groupname_col="g", id="t").as_raw_html()
+    html_pl = GT(pl.DataFrame(data), groupname_col="g", id="t").as_raw_html()
+
+    assert html_pd == html_pl
 
 
 def test_group_splits_offset_index(offset_index_df: pd.DataFrame):
@@ -637,14 +628,14 @@ def test_group_splits_offset_index(offset_index_df: pd.DataFrame):
     assert group_splits(offset_index_df, "col2") == {"a": [0], "b": [1], "c": [2]}
 
 
-def test_group_splits_pd_na():
-    df = pd.DataFrame({"g": ["b", "a", None]})
+def test_group_splits_pd_na(pandas_frame_constructor: DataFrameConstructor):
+    df = pandas_frame_constructor({"g": ["b", "a", None]})
 
     splits = group_splits(df, "g")
-    assert len(splits.keys()) == 3
-    nan_key = [k for k in splits if isinstance(k, float) and math.isnan(k)][0]
 
-    assert splits[nan_key] == [2]
+    # The missing key is None, as for polars and pyarrow, rather than NaN or NA
+    assert set(splits) == {"a", "b", None}
+    assert splits[None] == [2]
 
 
 def test_validate_selector_list_strict_raises():
