@@ -316,7 +316,7 @@ def test_classify_dtype_for_alignment_dtype_matrix(
 ):
     # GT also right-aligns text columns whose strings all look like numbers, and object columns
     # without strings (#1024), so the final alignment is pinned too
-    # TODO(Unassigned): Update the snapshot once #1021 and #1024 are fixed
+    # TODO(Unassigned): Update the snapshot once #1024 is fixed
     result = {
         "classification": {
             col: classify_dtype_for_alignment(matrix_df, col) for col in MATRIX_COLUMNS
