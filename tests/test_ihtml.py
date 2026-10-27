@@ -10,6 +10,7 @@ import polars as pl
 
 from great_tables import GT, html, md, style, loc
 from great_tables.data import exibble
+from tests.utils import DataFrameConstructor
 
 
 # ---------------------------------------------------------------------------
@@ -649,11 +650,12 @@ class TestNumericSorting:
         assert col_map["val"]["cell"] == ["1,234.50"]
         assert props["data"]["val"] == [1234.5]
 
-    def test_null_numeric_values(self):
-        df = pl.DataFrame({"x": [1.0, None, 3.0]})
+    def test_missing_numeric_values_are_null(self, frame_constructor: DataFrameConstructor):
+        df = frame_constructor({"x": [1.5, None, float("nan")], "n": [1, None, 3]})
         html = GT(df).opt_interactive().as_raw_html()
         props = _extract_props(html)
-        assert props["data"]["x"] == [1.0, None, 3.0]
+        assert props["data"] == {"x": [1.5, None, None], "n": [1.0, None, 3.0]}
+        assert [c["cell"][1] for c in props["columns"]] == ["", ""]
 
     def test_integer_column_detected_as_numeric(self):
         df = pl.DataFrame({"n": [10, 20, 30]})
