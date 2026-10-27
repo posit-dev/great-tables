@@ -48,17 +48,7 @@ class TestClassifyDtype:
         assert classify_dtype_for_alignment(df, "col") == expected
         assert [col.column_align for col in gt.GT(df)._boxhead._d] == ["right"]
 
-    def test_datetime_type(
-        self, frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
-    ):
-        if frame_constructor.__name__ in (
-            "pandas_pyarrow_constructor",
-            "pyarrow_table_constructor",
-        ):
-            # pyarrow datetimes are center-aligned
-            url = "https://github.com/posit-dev/great-tables/issues/1021"
-            request.applymarker(pytest.mark.xfail(strict=True, raises=AssertionError, reason=url))
-
+    def test_datetime_type(self, frame_constructor: DataFrameConstructor):
         df = frame_constructor({"col": [datetime(2024, 1, 1, 12, 30), datetime(2024, 1, 2)]})
         assert classify_dtype_for_alignment(df, "col") == "numeric"
 

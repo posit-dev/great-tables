@@ -30,10 +30,8 @@ ALIGNMENT_MAP: dict[AlignmentClass, str] = {
     "other": "center",
 }
 
-# Pattern matching numeric types in dtype strings (matches at start of string)
-# NOTE: Uses re.match (start anchored) to match original _str_detect behavior
-# This means "list(int64)" won't match, but "int64" will
-NUMERIC_DTYPE_PATTERN = re.compile(r"int|uint|float|date|double")
+# Used with re.match, so it anchors at the start: "timestamp[us]" is numeric, "list(int64)" isn't
+NUMERIC_DTYPE_PATTERN = re.compile(r"int|uint|float|date|double|timestamp")
 
 # String dtypes that should be left-aligned
 # Includes "str" for pandas 3.x compatibility (pandas 2.x uses "object")
