@@ -655,11 +655,13 @@ class Stub:
         rowname_cols = _normalize_rowname_col(rowname_col, get_column_names(data))
         primary_rowname_col = rowname_cols[-1] if rowname_cols else None
 
-        if groupname_col is not None:
-            # pandas spells a missing group NaN or NA; treat it as None, like polars and pyarrow
-            group_id = [None if is_na(data, g) else g for g in to_list(data[groupname_col])]
-        else:
-            group_id = [None] * n_rows(data)
+        group_rows = GroupRows(data, group_key=groupname_col)
+
+        # Read each row's group id from the splits, so both agree on the missing key
+        group_id = [None] * n_rows(data)
+        for group in group_rows:
+            for ii in group.indices:
+                group_id[ii] = group.group_id
 
         if primary_rowname_col is not None:
             row_names = to_list(data[primary_rowname_col])
@@ -674,7 +676,7 @@ class Stub:
         group_names = OrderedSet(
             row.group_id for row in row_info if row.group_id is not None
         ).as_list()
-        group_rows = GroupRows(data, group_key=groupname_col).reorder(group_names)
+        group_rows = group_rows.reorder(group_names)
 
         return cls(row_info, group_rows)
 

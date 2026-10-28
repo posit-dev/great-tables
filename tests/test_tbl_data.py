@@ -576,20 +576,12 @@ def test_group_splits_null_keys(
     keys: list[Any],
     expected: dict[Any, list[int]],
     categorical: bool,
-    request: pytest.FixtureRequest,
 ):
     df = frame_constructor({"g": keys})
     if categorical:
         df = _cast_to_categorical(df, "g", ordered=False)
 
-    if categorical and native_backend(df) == "pandas":
-        # groupby(dropna=False).indices drops the NaN group of a categorical key
-        reason = "pandas drops the rows with a null categorical key"
-        request.applymarker(pytest.mark.xfail(strict=True, raises=AssertionError, reason=reason))
-
-    # pandas spells the missing key NaN or NA, which `test_group_splits_null_key_is_none` pins
-    splits = {None if is_na(df, key) else key: rows for key, rows in group_splits(df, "g").items()}
-    assert splits == expected
+    assert group_splits(df, "g") == expected
 
 
 def test_render_body_null_group_keys(frame_constructor: DataFrameConstructor):
@@ -601,41 +593,25 @@ def test_render_body_null_group_keys(frame_constructor: DataFrameConstructor):
     assert [value for value in values if f">{value}<" not in body] == []
 
 
-def test_render_null_group_keys_pyarrow_matches_polars():
-    data = {"g": ["b", None, "a", None, "b"], "x": [1, 2, 3, 4, 5]}
-
-    # The table id is random unless pinned
-    html_pa = GT(pa.table(data), groupname_col="g", id="t").as_raw_html()
-    html_pl = GT(pl.DataFrame(data), groupname_col="g", id="t").as_raw_html()
-
-    assert html_pa == html_pl
-
-
-def test_render_null_group_keys_pandas_matches_polars(
-    pandas_frame_constructor: DataFrameConstructor,
+@pytest.mark.parametrize("categorical", [False, True])
+def test_render_null_group_keys_matches_polars(
+    frame_constructor: DataFrameConstructor, categorical: bool
 ):
     data = {"g": ["b", None, "a", None, "b"], "x": [1, 2, 3, 4, 5]}
+    df = frame_constructor(data)
+    if categorical:
+        df = _cast_to_categorical(df, "g", ordered=False)
 
-    # The missing group renders as an empty heading placed last, whatever the pandas dtype
-    html_pd = GT(pandas_frame_constructor(data), groupname_col="g", id="t").as_raw_html()
+    # The table id is random unless pinned
+    html = GT(df, groupname_col="g", id="t").as_raw_html()
     html_pl = GT(pl.DataFrame(data), groupname_col="g", id="t").as_raw_html()
 
-    assert html_pd == html_pl
+    assert html == html_pl
 
 
 def test_group_splits_offset_index(offset_index_df: pd.DataFrame):
     # Rows are positions, not index labels
     assert group_splits(offset_index_df, "col2") == {"a": [0], "b": [1], "c": [2]}
-
-
-def test_group_splits_pd_na(pandas_frame_constructor: DataFrameConstructor):
-    df = pandas_frame_constructor({"g": ["b", "a", None]})
-
-    splits = group_splits(df, "g")
-
-    # The missing key is None, as for polars and pyarrow, rather than NaN or NA
-    assert set(splits) == {"a", "b", None}
-    assert splits[None] == [2]
 
 
 def test_validate_selector_list_strict_raises():

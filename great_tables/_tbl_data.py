@@ -471,7 +471,13 @@ def group_splits(data: DataFrameLike, group_key: str) -> dict[Any, list[int]]:
 
 @group_splits.register
 def _(data: PdDataFrame, group_key: str) -> dict[Any, list[int]]:
-    g_df = data.groupby(group_key, dropna=False)
+    import pandas as pd
+
+    key = data[group_key]
+    # groupby(dropna=False).indices drops the NaN group of a categorical key
+    if isinstance(key.dtype, pd.CategoricalDtype):
+        key = key.astype(object)
+    g_df = data.groupby(key, dropna=False)
     # pandas spells the missing key NaN or NA; polars and pyarrow spell it None
     return {None if is_na(data, k) else k: list(v) for k, v in g_df.indices.items()}
 
