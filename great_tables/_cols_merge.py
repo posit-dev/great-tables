@@ -270,7 +270,7 @@ def merge_pattern(pattern: str, *values: Any) -> str:
     return info.merge(*normalized)
 
 
-def perform_col_merge(data: GTData) -> GTData:
+def perform_col_merge(data: GTData, context: str) -> GTData:
     """Perform all column merge operations on the table data.
 
     This function processes all column merge operations registered on the GT object,
@@ -296,6 +296,7 @@ def perform_col_merge(data: GTData) -> GTData:
             col_merge=col_merge,
             body=new_body,
             tbl_data=data._tbl_data,
+            context=context,
         )
 
     return data._replace(_body=new_body)
@@ -305,6 +306,7 @@ def _apply_single_col_merge(
     col_merge: ColMergeInfo,
     body: Body,
     tbl_data: TblData,
+    context: str,
 ) -> Body:
     """Apply a single column merge operation to the body.
 
@@ -316,6 +318,8 @@ def _apply_single_col_merge(
         The body data to modify.
     tbl_data
         The original table data (for checking missing values).
+    context
+        The output context (e.g., "html" or "latex").
 
     Returns
     -------
@@ -361,7 +365,7 @@ def _apply_single_col_merge(
         if col_merge.type == "merge":
             merged_value = col_merge.merge(*values)
         elif col_merge.type == "merge_uncert":
-            merged_value = _merge_uncert(values, col_merge.sep)
+            merged_value = _merge_uncert(values, col_merge.sep, context)
         elif col_merge.type == "merge_range":
             merged_value = _merge_range(values, col_merge.sep)
         else:  # "merge_n_pct"
@@ -392,7 +396,7 @@ def _get_display_value(body: Body, tbl_data: TblData, row_idx: int, col_name: st
     return None
 
 
-def _merge_uncert(values: list[Any], sep: str) -> str:
+def _merge_uncert(values: list[Any], sep: str, context: str) -> str:
     """Apply uncertainty merge semantics.
 
     NA handling (an NA in col_val is handled before this is called):
@@ -412,17 +416,20 @@ def _merge_uncert(values: list[Any], sep: str) -> str:
         col_lower = values[1]
         col_upper = values[2] if len(values) > 2 else None
 
+        # LaTeX output gets a plain hyphen-minus rather than the Unicode minus sign
+        minus_mark = "-" if context == "latex" else "\u2212"
+
         if col_lower is None and col_upper is None:
             return str(col_val)
         elif col_lower is None:
             return f"{col_val} (+{col_upper})"
         elif col_upper is None:
-            return f"{col_val} (\u2212{col_lower})"
+            return f"{col_val} ({minus_mark}{col_lower})"
         elif str(col_lower) == str(col_upper):
             # When lower == upper, use symmetric format
             return f"{col_val}{sep}{col_lower}"
         else:
-            return f"{col_val} (+{col_upper}/\u2212{col_lower})"
+            return f"{col_val} (+{col_upper}/{minus_mark}{col_lower})"
 
 
 def _merge_range(values: list[Any], sep: str) -> str:
