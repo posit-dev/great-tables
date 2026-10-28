@@ -381,6 +381,9 @@ def _is_numeric_dtype(data: DataFrameLike, column: str) -> bool:
     except Exception:
         return False
     dtype_str = str(dtype).lower()
+    # Nested dtypes name their element types, but their cells aren't scalar numbers.
+    if dtype_str.startswith(("list", "large_list", "fixed_size_list", "array", "struct", "map")):
+        return False
     for token in ("int", "float", "decimal", "double", "numeric", "number"):
         if token in dtype_str:
             return True

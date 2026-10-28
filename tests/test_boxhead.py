@@ -7,7 +7,7 @@ from great_tables import GT
 from great_tables._boxhead import _align_to_char
 from great_tables.gt import _get_column_labels
 from great_tables._helpers import UnitStr
-from tests.utils import assert_rendered_columns
+from tests.utils import DataFrameConstructor, assert_rendered_columns
 
 
 def test_cols_label():
@@ -335,6 +335,24 @@ def test_cols_align_decimal_no_numeric_columns():
 
     assert [col.column_align for col in res._boxhead] == ["left"]
     assert res._transforms == gt._transforms
+
+
+@pytest.mark.parametrize("columns", [None, "items"])
+def test_cols_align_decimal_skips_list_columns(
+    frame_constructor: DataFrameConstructor, columns: str | None
+):
+    df = frame_constructor({"items": [[1, 2], [3], [], None], "num": [1.5, 22.25, 3.0, None]})
+    gt = GT(df)
+    aligned = gt.cols_align_decimal(columns=columns)
+    original_cells = re.findall(r"<td\b[^>]*>(.*?)</td>", gt.as_raw_html())
+    aligned_cells = re.findall(r"<td\b[^>]*>(.*?)</td>", aligned.as_raw_html())
+
+    assert aligned_cells[::2] == original_cells[::2]
+    if columns is None:
+        assert aligned_cells[1::2][:3] == ["\u20071.5\u2007", "22.25", "\u20073.0\u2007"]
+    else:
+        assert aligned_cells == original_cells
+        assert aligned._transforms == gt._transforms
 
 
 def test_cols_align_decimal_locale():

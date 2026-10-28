@@ -244,45 +244,64 @@ def test_get_column_dtypes(df: DataFrameLike):
 def test_is_numeric_dtype_dtype_matrix(matrix_df: DataFrameLike, snapshot: SnapshotAssertion):
     # `opt_interactive()` passes the values of numeric columns to `float()`, and
     # `cols_align_decimal()` aligns only numeric columns
-    # TODO(Unassigned): Update the snapshot once #1020 and #1028 are fixed
+    # TODO(Unassigned): Update the snapshot once #1028 is fixed
     assert snapshot == {col: _is_numeric_dtype(matrix_df, col) for col in MATRIX_COLUMNS}
 
 
-@pytest.mark.parametrize(
-    ("column", "numeric_on", "reason"),
-    [
-        pytest.param(
-            "list",
-            {"polars", "pyarrow"},
-            "https://github.com/posit-dev/great-tables/issues/1020",
-            id="list",
-        ),
-        pytest.param(
-            "categorical",
-            {"pyarrow"},
-            "https://github.com/posit-dev/great-tables/issues/1028",
-            id="categorical",
-        ),
-    ],
-)
-def test_is_numeric_dtype_nested_types(
-    matrix_df: DataFrameLike,
-    column: str,
-    numeric_on: set[str],
-    reason: str,
-    request: pytest.FixtureRequest,
-):
-    # The dtype name includes the element or index type, e.g. "list(int64)" or
-    # "dictionary<values=string, indices=int32, ordered=0>", so it matches "int" and
-    # `opt_interactive()` crashes
-    if native_backend(matrix_df) in numeric_on:
-        request.applymarker(pytest.mark.xfail(strict=True, raises=AssertionError, reason=reason))
+def test_is_numeric_dtype_list(matrix_df: DataFrameLike):
+    assert not _is_numeric_dtype(matrix_df, "list")
 
-    assert not _is_numeric_dtype(matrix_df, column)
+
+def test_is_numeric_dtype_categorical(matrix_df: DataFrameLike, request: pytest.FixtureRequest):
+    # The dictionary dtype names its index type, so it still matches "int" (#1028).
+    if native_backend(matrix_df) == "pyarrow":
+        request.applymarker(
+            pytest.mark.xfail(
+                strict=True,
+                raises=AssertionError,
+                reason="https://github.com/posit-dev/great-tables/issues/1028",
+            )
+        )
+    assert not _is_numeric_dtype(matrix_df, "categorical")
 
 
 def test_is_numeric_dtype_missing_column(df: DataFrameLike):
     assert _is_numeric_dtype(df, "missing") is False
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    [
+        pl.List(pl.Int64),
+        pl.List(pl.Float64),
+        pl.Array(pl.Int64, shape=2),
+        pl.Array(pl.Float64, shape=2),
+        pl.Struct({"int_field": pl.Int64}),
+    ],
+)
+def test_is_numeric_dtype_polars_containers(dtype):
+    df = pl.DataFrame({"items": pl.Series([], dtype=dtype)})
+    assert not _is_numeric_dtype(df, "items")
+
+
+@pytest.mark.parametrize(
+    "dtype",
+    [
+        pa.list_(pa.int64()),
+        pa.list_(pa.float64()),
+        pa.large_list(pa.int64()),
+        pa.list_(pa.int64(), list_size=2),
+        pa.struct({"int_field": pa.int64()}),
+        pa.map_(pa.string(), pa.int64()),
+    ],
+)
+@pytest.mark.parametrize("pandas_backed", [False, True])
+def test_is_numeric_dtype_pyarrow_containers(dtype, pandas_backed: bool):
+    if pandas_backed:
+        df = pd.DataFrame({"items": pd.Series([], dtype=pd.ArrowDtype(dtype))})
+    else:
+        df = pa.table({"items": pa.array([], type=dtype)})
+    assert not _is_numeric_dtype(df, "items")
 
 
 def test_get_column_levels(frame_constructor: DataFrameConstructor):

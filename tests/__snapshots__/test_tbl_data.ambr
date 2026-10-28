@@ -1113,7 +1113,7 @@
     'duration': False,
     'float': True,
     'int': True,
-    'list': True,
+    'list': False,
     'str': False,
   })
 # ---
@@ -1129,7 +1129,7 @@
     'duration': False,
     'float': True,
     'int': True,
-    'list': True,
+    'list': False,
     'str': False,
   })
 # ---
