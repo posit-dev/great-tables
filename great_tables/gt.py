@@ -561,7 +561,7 @@ class GT(
         built = self._render_formats(context)
 
         # Perform column merging
-        built = perform_col_merge(built)
+        built = perform_col_merge(built, context=context)
 
         final_body = body_reassemble(built._body)
 
