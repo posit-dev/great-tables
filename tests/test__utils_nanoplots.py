@@ -2752,7 +2752,8 @@ def test_fmt_nanoplot_boxplot_shared_scale():
 
     # Both rows are on a scale from 1 to 13
     xs = [(float(_tags(r, "line")[0]["x1"]), float(_tags(r, "line")[0]["x2"])) for r in res[:2]]
-    assert xs == pytest.approx([(0, 100), (500, 600)])
+    # pytest.approx() doesn't accept nested sequences (pytest >= 9.2), so compare flat
+    assert [x for pair in xs for x in pair] == pytest.approx([0, 100, 500, 600])
     assert "<svg" not in res[2]
 
 
