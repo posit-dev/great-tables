@@ -461,8 +461,26 @@ def tab_spanner_delim(
     for col_labels in rect[1:]:
         spanner_cfgs = spter.spanner_groups(col_labels)
         for cfg in spanner_cfgs:
-            new_obj = tab_spanner(new_obj, gather=False, **cfg)
+            spanner_id = _unique_spanner_id(new_obj._spanners, cfg["label"])
+            new_obj = tab_spanner(new_obj, id=spanner_id, gather=False, **cfg)
     return new_obj
+
+
+def _unique_spanner_id(spanners: Spanners, label: str) -> str:
+    """Use the label as the spanner id, adding a numeric suffix if a spanner already has it.
+
+    The same label can occur at more than one spanner level (e.g., `sales.2020.q1` and
+    `sales.total`), or it can match the id of a spanner that was added before.
+    """
+    crnt_spanner_ids = {span.spanner_id for span in spanners}
+
+    spanner_id = label
+    n = 1
+    while spanner_id in crnt_spanner_ids:
+        spanner_id = f"{label}-{n}"
+        n += 1
+
+    return spanner_id
 
 
 def _validate_sel_cols(columns: SelectExpr, sel_cols: list[str], col_vars: list[str]) -> None:

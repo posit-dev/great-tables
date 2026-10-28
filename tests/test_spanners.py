@@ -636,6 +636,30 @@ def test_tab_spanner_delim_level_multi():
     assert gt._boxhead[1].column_label == "b"
 
 
+def test_tab_spanner_delim_label_repeated_at_another_level():
+    df = pl.DataFrame({"sales.2020.q1": [], "sales.2020.q2": [], "sales.total": []})
+
+    gt = GT(df).tab_spanner_delim()
+
+    assert [(span.spanner_label, span.spanner_level, span.vars) for span in gt._spanners] == [
+        ("2020", 0, ["sales.2020.q1", "sales.2020.q2"]),
+        ("sales", 0, ["sales.total"]),
+        ("sales", 1, ["sales.2020.q1", "sales.2020.q2"]),
+    ]
+    assert [span.spanner_id for span in gt._spanners] == ["2020", "sales", "sales-1"]
+
+
+def test_tab_spanner_delim_label_matches_existing_spanner_id():
+    df = pl.DataFrame({"x": [], "y.a": [], "y.b": []})
+
+    gt = GT(df).tab_spanner("y", columns="x").tab_spanner_delim(columns=["y.a", "y.b"])
+
+    assert [(span.spanner_id, span.vars) for span in gt._spanners] == [
+        ("y", ["x"]),
+        ("y-1", ["y.a", "y.b"]),
+    ]
+
+
 def test_spanners_styled(snapshot: str):
     df = pl.DataFrame({"a": 1, "b": 2, "c": 3, "d": 4, "group": "A", "row": "row_1"})
 
