@@ -609,6 +609,17 @@ def test_render_null_group_keys_matches_polars(
     assert html == html_pl
 
 
+def test_render_null_group_keys_pandas_arrow_dictionary():
+    data = {"g": ["b", None, "a", None, "b"], "x": [1, 2, 3, 4, 5]}
+    keys = pa.array(data["g"]).dictionary_encode()
+    df = pd.DataFrame({**data, "g": pd.array(keys, dtype=pd.ArrowDtype(keys.type))})
+
+    html = GT(df, groupname_col="g", id="t").as_raw_html()
+    html_pl = GT(pl.DataFrame(data), groupname_col="g", id="t").as_raw_html()
+
+    assert html == html_pl
+
+
 def test_group_splits_offset_index(offset_index_df: pd.DataFrame):
     # Rows are positions, not index labels
     assert group_splits(offset_index_df, "col2") == {"a": [0], "b": [1], "c": [2]}

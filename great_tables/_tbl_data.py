@@ -474,8 +474,9 @@ def _(data: PdDataFrame, group_key: str) -> dict[Any, list[int]]:
     import pandas as pd
 
     key = data[group_key]
-    # groupby(dropna=False).indices drops the NaN group of a categorical key
-    if isinstance(key.dtype, pd.CategoricalDtype):
+    # groupby(dropna=False).indices drops the NaN group of a categorical key, and pandas 2
+    # files the null rows of an Arrow dictionary key under another group
+    if isinstance(key.dtype, pd.CategoricalDtype) or str(key.dtype).startswith("dictionary<"):
         key = key.astype(object)
     g_df = data.groupby(key, dropna=False)
     # pandas spells the missing key NaN or NA; polars and pyarrow spell it None
