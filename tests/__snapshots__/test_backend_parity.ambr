@@ -1,0 +1,1174 @@
+# serializer version: 1
+# name: test_as_latex[all]
+  '''
+  \begin{table}[!t]
+  \caption*{
+  {\large Parity} \\
+  {\small as\_latex()}
+  } 
+  
+  \fontsize{12.0pt}{14.4pt}\selectfont
+  
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l|rl}
+  \toprule
+    & \multicolumn{2}{c}{values} \\ 
+  \cmidrule(lr){2-3}
+    & x & s \\ 
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{b} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  apple & 1,234.57 & apple \\
+  cherry & -0.25 & cherry \\
+  \midrule\addlinespace[2.5pt]
+  \multicolumn{3}{l}{a} \\[2.5pt] 
+  \midrule\addlinespace[2.5pt]
+  None & — & — \\
+  \bottomrule
+  \end{tabular*}
+  
+  \end{table}
+  
+  '''
+# ---
+# name: test_cols_align_number_like_text[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">1.5</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">2024-01-01</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_cols_align_number_like_text[pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-s" class="gt_row gt_right">1.5</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_right">2024-01-01</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_cols_align_number_like_text[pandas_pyarrow_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-s" class="gt_row gt_right">1.5</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_right">2024-01-01</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_cols_merge[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-a" class="gt_row gt_left">apple (x)</td>
+    </tr>
+    <tr>
+      <td headers="parity-a" class="gt_row gt_left">NA (y)</td>
+    </tr>
+    <tr>
+      <td headers="parity-a" class="gt_row gt_left">cherry</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_cols_merge_n_pct[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-n" class="gt_row gt_right">10 (25.50%)</td>
+    </tr>
+    <tr>
+      <td headers="parity-n" class="gt_row gt_right"></td>
+    </tr>
+    <tr>
+      <td headers="parity-n" class="gt_row gt_right">0</td>
+    </tr>
+    <tr>
+      <td headers="parity-n" class="gt_row gt_right">5 (0.00%)</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_cols_merge_range[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-lo" class="gt_row gt_right">1.5–2.5</td>
+    </tr>
+    <tr>
+      <td headers="parity-lo" class="gt_row gt_right">3.5</td>
+    </tr>
+    <tr>
+      <td headers="parity-lo" class="gt_row gt_right">-0.25</td>
+    </tr>
+    <tr>
+      <td headers="parity-lo" class="gt_row gt_right">2.5–2.5</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_cols_merge_uncert[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-v" class="gt_row gt_right">1.5 ± 0.25</td>
+    </tr>
+    <tr>
+      <td headers="parity-v" class="gt_row gt_right"></td>
+    </tr>
+    <tr>
+      <td headers="parity-v" class="gt_row gt_right">-0.25</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_data_color_bin[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="color: #FFFFFF; background-color: #FF0000;" headers="parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #808080;" headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td style="color: #000000; background-color: #FFFFFF;" headers="parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_data_color_factor[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="color: #000000; background-color: #ffffff;" headers="parity-s" class="gt_row gt_left">apple</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #808080;" headers="parity-s" class="gt_row gt_left">None</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #ff0000;" headers="parity-s" class="gt_row gt_left">cherry</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_data_color_numeric[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="color: #FFFFFF; background-color: #ff0000;" headers="parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #808080;" headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td style="color: #000000; background-color: #ffffff;" headers="parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_data_color_ordered_levels[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="color: #000000; background-color: #ffffff;" headers="parity-s" class="gt_row gt_center">low</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #808080;" headers="parity-s" class="gt_row gt_center">None</td>
+    </tr>
+    <tr>
+      <td style="color: #000000; background-color: #ffa500;" headers="parity-s" class="gt_row gt_center">high</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #ff0000;" headers="parity-s" class="gt_row gt_center">mid</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_currency][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">$1,234.57</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">−$0.25</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_date][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-01-01</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-02-29</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_datetime][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-01-01 12:30:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-02-29 00:00:00</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_duration][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">1h</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">2d 5m</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_integer][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1,235</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">0</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_markdown][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_left"><strong>bold</strong></td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_left">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_left"><em>italic</em></td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_nanoplot-float][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line of 1.23K" viewBox="0 0 600 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-0-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><line x1="0.1214754111902177" y1="65.0" x2="600.0" y2="65.0" stroke="#4682B4" stroke-width="8"></line><g class="horizontal-line"><rect x="0" y="45.0" width="600" height="40" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="10.121475411190218" y="25" fill="transparent" stroke="transparent" font-size="30px">1.23K</text></g><line x1="0.1214754111902177" y1="5.0" x2="0.1214754111902177" y2="125.0" stroke="#BFBFBF" stroke-width="4"></line><circle cx="600.0" cy="65.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle></svg></div></td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line of −0.25" viewBox="0 0 600 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-2-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><line x1="0.0" y1="65.0" x2="0.1214754111902177" y2="65.0" stroke="#4682B4" stroke-width="8"></line><g class="horizontal-line"><rect x="0" y="45.0" width="600" height="40" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="-9.878524588809782" y="25" fill="transparent" stroke="transparent" font-size="30px" text-anchor="end">−0.25</text></g><line x1="0.1214754111902177" y1="5.0" x2="0.1214754111902177" y2="125.0" stroke="#BFBFBF" stroke-width="4"></line><circle cx="0.0" cy="65.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle></svg></div></td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_nanoplot-list][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 2 values from −0.25 to 1.50, ending at −0.25, with 1 missing" viewBox="0 0 250 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-0-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,15.0 50.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path> <path class="area-closed" d="M 200.0,115.0 200.0,125 200.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path>
+  <path d="M 200.0,115.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="200.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">1.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">−0.25</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">1.50</text></g><g class="vert-line"><rect x="115.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="137.0" y="20" fill="transparent" stroke="transparent" font-size="30px">NA</text></g><g class="vert-line"><rect x="190.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="210.0" y="20" fill="transparent" stroke="transparent" font-size="30px">−0.25</text></g></svg></div></td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 1 value: 3.75" viewBox="0 0 150 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-2-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50,65.0 50,125 50,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-2-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50,65.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50" cy="65.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">4.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">3.00</text></g><g class="vert-line"><rect x="40" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60" y="20" fill="transparent" stroke="transparent" font-size="30px">3.75</text></g></svg></div></td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_nanoplot-list][pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 2 values from −0.25 to 1.50, ending at −0.25, with 1 missing" viewBox="0 0 250 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-0-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,15.0 50.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path> <path class="area-closed" d="M 200.0,115.0 200.0,125 200.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path>
+  <path d="M 200.0,115.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="200.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">1.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">−0.25</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">1.50</text></g><g class="vert-line"><rect x="115.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="137.0" y="20" fill="transparent" stroke="transparent" font-size="30px">NA</text></g><g class="vert-line"><rect x="190.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="210.0" y="20" fill="transparent" stroke="transparent" font-size="30px">−0.25</text></g></svg></div></td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 1 value: 3.75" viewBox="0 0 150 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-2-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50,65.0 50,125 50,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-2-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50,65.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50" cy="65.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">4.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">3.00</text></g><g class="vert-line"><rect x="40" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60" y="20" fill="transparent" stroke="transparent" font-size="30px">3.75</text></g></svg></div></td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_nanoplot-list][pandas_nullable_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 2 values from −0.25 to 1.50, ending at −0.25, with 1 missing" viewBox="0 0 250 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-0-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,15.0 50.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path> <path class="area-closed" d="M 200.0,115.0 200.0,125 200.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path>
+  <path d="M 200.0,115.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="200.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">1.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">−0.25</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">1.50</text></g><g class="vert-line"><rect x="115.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="137.0" y="20" fill="transparent" stroke="transparent" font-size="30px">NA</text></g><g class="vert-line"><rect x="190.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="210.0" y="20" fill="transparent" stroke="transparent" font-size="30px">−0.25</text></g></svg></div></td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 1 value: 3.75" viewBox="0 0 150 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-2-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50,65.0 50,125 50,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-2-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50,65.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50" cy="65.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">4.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">3.00</text></g><g class="vert-line"><rect x="40" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60" y="20" fill="transparent" stroke="transparent" font-size="30px">3.75</text></g></svg></div></td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_nanoplot-list][pandas_pyarrow_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 2 values from −0.25 to 1.50, ending at −0.25, with 1 missing" viewBox="0 0 250 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-0-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,15.0 50.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path> <path class="area-closed" d="M 200.0,115.0 200.0,125 200.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path>
+  <path d="M 200.0,115.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="200.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">1.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">−0.25</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">1.50</text></g><g class="vert-line"><rect x="115.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="137.0" y="20" fill="transparent" stroke="transparent" font-size="30px">NA</text></g><g class="vert-line"><rect x="190.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="210.0" y="20" fill="transparent" stroke="transparent" font-size="30px">−0.25</text></g></svg></div></td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 1 value: 3.75" viewBox="0 0 150 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-2-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50,65.0 50,125 50,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-2-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50,65.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50" cy="65.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">4.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">3.00</text></g><g class="vert-line"><rect x="40" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60" y="20" fill="transparent" stroke="transparent" font-size="30px">3.75</text></g></svg></div></td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_number][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1,234.57</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">−0.25</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_percent][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">123,456.78%</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">−25.00%</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_scientific][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.23&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup></td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">−2.50&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−1</sup></td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_tf][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">true</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">false</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_tf][pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">true</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">false</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_time][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">12:30:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">08:05:30</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_time][pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">12:30:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">08:05:30</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_time][pandas_nullable_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">12:30:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">08:05:30</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_fmt[fmt_time][pandas_pyarrow_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">12:30:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">08:05:30</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_grand_summary_rows[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td headers="parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td headers="parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-grand-summary-Sum" class="gt_first_grand_summary_row_bottom gt_row gt_left gt_stub gt_grand_summary_row">Sum</th>
+      <td headers="parity-grand-summary-Sum parity-x" class="gt_first_grand_summary_row_bottom gt_row gt_right gt_grand_summary_row">1234.3178</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-grand-summary-Max" class="gt_row gt_left gt_stub gt_grand_summary_row">Max</th>
+      <td headers="parity-grand-summary-Max parity-x" class="gt_row gt_right gt_grand_summary_row">1234.5678</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_groupname_col[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="1" scope="col" id="parity-b">b</th>
+    </tr>
+    <tr>
+      <td headers="parity-b parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <td headers="parity-b parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="1" scope="col" id="parity-a">a</th>
+    </tr>
+    <tr>
+      <td headers="parity-a parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_groupname_col_with_null_key[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="1" scope="col" id="parity-b">b</th>
+    </tr>
+    <tr>
+      <td headers="parity-b parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <td headers="parity-b parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+    <tr class="gt_empty_group_heading">
+      <th class="gt_group_heading" colspan="1" scope="col" id="parity-group"></th>
+    </tr>
+    <tr>
+      <td headers="parity-group parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_opt_interactive[all]
+  '{"data": {"x": [1234.5678, null, -0.25], "s": ["apple", "", "cherry"]}, "columns": [{"id": "x", "name": "x", "minWidth": 119, "align": "right", "headerAlign": "right", "html": true, "type": "numeric", "cell": ["1234.5678", "", "-0.25"]}, {"id": "s", "name": "s", "minWidth": 94, "align": "left", "headerAlign": "left", "html": true}], "searchable": false, "filterable": false, "sortable": true, "pagination": true, "showPageInfo": true, "defaultPageSize": 10, "showPageSizeOptions": false, "pageSizeOptions": [10, 25, 50, 100], "striped": false, "highlight": true, "compact": false, "nowrap": false, "paginationType": "numbers", "theme": {"backgroundColor": "#FFFFFF", "color": "#333333", "style": {"fontFamily": "-apple-system, BlinkMacSystemFont, \\"Segoe UI\\", Roboto, Oxygen, Ubuntu, Cantarell, \\"Helvetica Neue\\", \\"Fira Sans\\", \\"Droid Sans\\", Arial, sans-serif", "fontSize": "16px"}, "tableBodyStyle": {"fontFamily": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \\"Liberation Mono\\", \\"Courier New\\", monospace", "fontSize": "14px"}, "headerStyle": {"fontFamily": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \\"Liberation Mono\\", \\"Courier New\\", monospace", "fontSize": "14px"}}}'
+# ---
+# name: test_row_group_order[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="1" scope="col" id="parity-a">a</th>
+    </tr>
+    <tr>
+      <td headers="parity-a parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="1" scope="col" id="parity-b">b</th>
+    </tr>
+    <tr>
+      <td headers="parity-b parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <td headers="parity-b parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_rowname_col[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <th scope="row" id="parity-stub-1" class="gt_row gt_left gt_stub">apple</th>
+      <td headers="parity-stub-1 parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-stub-2" class="gt_row gt_left gt_stub">None</th>
+      <td headers="parity-stub-2 parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-stub-3" class="gt_row gt_left gt_stub">cherry</th>
+      <td headers="parity-stub-3 parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_rows_by_index[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="background-color: red;" headers="parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td style="background-color: red;" headers="parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_rows_by_mask[no-nulls][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.5</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">0.5</td>
+    </tr>
+    <tr>
+      <td style="background-color: red;" headers="parity-x" class="gt_row gt_right">3.5</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_rows_by_mask[nulls-polars-callable][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.5</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td style="background-color: red;" headers="parity-x" class="gt_row gt_right">3.5</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_rows_by_mask[nulls-polars-callable][pandas_nullable_constructor]
+  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
+# ---
+# name: test_rows_by_mask[nulls-polars-callable][pandas_pyarrow_constructor]
+  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
+# ---
+# name: test_rows_by_mask[nulls-polars-callable][polars_constructor]
+  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
+# ---
+# name: test_rows_by_mask[nulls-polars-callable][pyarrow_table_constructor]
+  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
+# ---
+# name: test_rows_by_mask[nulls-polars-expr][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.5</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td style="background-color: red;" headers="parity-x" class="gt_row gt_right">3.5</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_rows_by_mask[nulls-polars-expr][pandas_nullable_constructor]
+  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
+# ---
+# name: test_rows_by_mask[nulls-polars-expr][pandas_pyarrow_constructor]
+  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
+# ---
+# name: test_rows_by_mask[nulls-polars-expr][pyarrow_table_constructor]
+  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
+# ---
+# name: test_sub_missing[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1234.5678</td>
+      <td headers="parity-s" class="gt_row gt_left">apple</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">--</td>
+      <td headers="parity-s" class="gt_row gt_left">--</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">-0.25</td>
+      <td headers="parity-s" class="gt_row gt_left">cherry</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_sub_values[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1234.5678</td>
+      <td headers="parity-s" class="gt_row gt_left">apple</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+      <td headers="parity-s" class="gt_row gt_left">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">quarter</td>
+      <td headers="parity-s" class="gt_row gt_left">replaced</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_sub_zero[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">nil</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.5</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_summary_rows[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="parity-b">b</th>
+    </tr>
+    <tr>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td headers="parity-b parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td headers="parity-b parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-summary-b-Sum" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td headers="parity-b parity-summary-b-Sum parity-x" class="gt_first_summary_row gt_row gt_right gt_summary_row">1234.3178</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-summary-b-Max" class="gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <td headers="parity-b parity-summary-b-Max parity-x" class="gt_row gt_right gt_summary_row">1234.5678</td>
+    </tr>
+    <tr class="gt_group_heading_row">
+      <th class="gt_group_heading" colspan="2" scope="colgroup" id="parity-a">a</th>
+    </tr>
+    <tr>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td headers="parity-a parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <th scope="row" class="gt_row gt_left gt_stub">&nbsp;</th>
+      <td headers="parity-a parity-x" class="gt_row gt_right">2.5</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-summary-a-Sum" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Sum</th>
+      <td headers="parity-a parity-summary-a-Sum parity-x" class="gt_first_summary_row gt_row gt_right gt_summary_row">2.5</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-summary-a-Max" class="gt_row gt_left gt_stub gt_summary_row">Max</th>
+      <td headers="parity-a parity-summary-a-Max parity-x" class="gt_row gt_right gt_summary_row">2.5</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_tab_stub_indent[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <th scope="row" id="parity-stub-1" class="gt_row gt_left gt_stub">apple</th>
+      <td headers="parity-stub-1 parity-x" class="gt_row gt_right">1234.5678</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-stub-2" class="gt_row gt_left gt_stub gt_indent_2">None</th>
+      <td headers="parity-stub-2 parity-x" class="gt_row gt_right">None</td>
+    </tr>
+    <tr>
+      <th scope="row" id="parity-stub-3" class="gt_row gt_left gt_stub gt_indent_2">cherry</th>
+      <td headers="parity-stub-3 parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_text_case_when[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">starts with a</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">other</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_text_replace[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">applE</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">chErry</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_text_transform[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">APPLE</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">None</td>
+    </tr>
+    <tr>
+      <td headers="parity-s" class="gt_row gt_left">CHERRY</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[bool][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">True</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">False</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[bool][pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">True</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">False</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[date][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-01-01</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-02-29</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[datetime][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-01-01 12:30:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-02-29 00:00:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[datetime_tz][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-01-01 12:30:00+00:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2024-02-29 00:00:00+00:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[decimal][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">1.50</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">-2.25</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[decimal][pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.50</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">-2.25</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[decimal][pandas_nullable_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.50</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">-2.25</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[decimal][pandas_pyarrow_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.50</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">-2.25</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[duration][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">1:00:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">2 days, 0:05:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[duration][pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">0 days 01:00:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">2 days 00:05:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[duration][pandas_nullable_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">0 days 01:00:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">2 days 00:05:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[duration][pandas_pyarrow_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">0 days 01:00:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">2 days 00:05:00</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[float][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.5</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">-0.25</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[int][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[int][pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">1.0</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">2.0</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[list][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">[1, 2]</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">[3]</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_center">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[list][pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">[1, 2]</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">[3]</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[list][pandas_nullable_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">[1, 2]</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">[3]</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[list][pandas_pyarrow_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">[1, 2]</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">[3]</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_right">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_unformatted[str][all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td headers="parity-x" class="gt_row gt_left">a</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_left">b</td>
+    </tr>
+    <tr>
+      <td headers="parity-x" class="gt_row gt_left">None</td>
+    </tr>
+  </tbody>
+  '''
+# ---
