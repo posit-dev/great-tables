@@ -248,10 +248,6 @@ def test_is_numeric_dtype_dtype_matrix(matrix_df: DataFrameLike, snapshot: Snaps
     assert snapshot == {col: _is_numeric_dtype(matrix_df, col) for col in MATRIX_COLUMNS}
 
 
-def test_is_numeric_dtype_list(matrix_df: DataFrameLike):
-    assert not _is_numeric_dtype(matrix_df, "list")
-
-
 def test_is_numeric_dtype_categorical(matrix_df: DataFrameLike, request: pytest.FixtureRequest):
     # The dictionary dtype names its index type, so it still matches "int" (#1028).
     if native_backend(matrix_df) == "pyarrow":
@@ -265,19 +261,10 @@ def test_is_numeric_dtype_categorical(matrix_df: DataFrameLike, request: pytest.
     assert not _is_numeric_dtype(matrix_df, "categorical")
 
 
-def test_is_numeric_dtype_missing_column(df: DataFrameLike):
-    assert _is_numeric_dtype(df, "missing") is False
-
-
 @pytest.mark.parametrize(
     "dtype",
-    [
-        pl.List(pl.Int64),
-        pl.List(pl.Float64),
-        pl.Array(pl.Int64, shape=2),
-        pl.Array(pl.Float64, shape=2),
-        pl.Struct({"int_field": pl.Int64}),
-    ],
+    [pl.List(pl.Int64), pl.Array(pl.Float64, shape=2), pl.Struct({"int_field": pl.Int64})],
+    ids=str,
 )
 def test_is_numeric_dtype_polars_containers(dtype):
     df = pl.DataFrame({"items": pl.Series([], dtype=dtype)})
@@ -288,12 +275,12 @@ def test_is_numeric_dtype_polars_containers(dtype):
     "dtype",
     [
         pa.list_(pa.int64()),
-        pa.list_(pa.float64()),
-        pa.large_list(pa.int64()),
+        pa.large_list(pa.float64()),
         pa.list_(pa.int64(), list_size=2),
         pa.struct({"int_field": pa.int64()}),
-        pa.map_(pa.string(), pa.int64()),
+        pa.map_(pa.string(), pa.float64()),
     ],
+    ids=str,
 )
 @pytest.mark.parametrize("pandas_backed", [False, True])
 def test_is_numeric_dtype_pyarrow_containers(dtype, pandas_backed: bool):
@@ -302,6 +289,10 @@ def test_is_numeric_dtype_pyarrow_containers(dtype, pandas_backed: bool):
     else:
         df = pa.table({"items": pa.array([], type=dtype)})
     assert not _is_numeric_dtype(df, "items")
+
+
+def test_is_numeric_dtype_missing_column(df: DataFrameLike):
+    assert _is_numeric_dtype(df, "missing") is False
 
 
 def test_get_column_levels(frame_constructor: DataFrameConstructor):

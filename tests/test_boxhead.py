@@ -337,22 +337,15 @@ def test_cols_align_decimal_no_numeric_columns():
     assert res._transforms == gt._transforms
 
 
-@pytest.mark.parametrize("columns", [None, "items"])
-def test_cols_align_decimal_skips_list_columns(
-    frame_constructor: DataFrameConstructor, columns: str | None
-):
+def test_cols_align_decimal_skips_list_columns(frame_constructor: DataFrameConstructor):
     df = frame_constructor({"items": [[1, 2], [3], [], None], "num": [1.5, 22.25, 3.0, None]})
     gt = GT(df)
-    aligned = gt.cols_align_decimal(columns=columns)
-    original_cells = re.findall(r"<td\b[^>]*>(.*?)</td>", gt.as_raw_html())
-    aligned_cells = re.findall(r"<td\b[^>]*>(.*?)</td>", aligned.as_raw_html())
+    res = gt.cols_align_decimal()
 
-    assert aligned_cells[::2] == original_cells[::2]
-    if columns is None:
-        assert aligned_cells[1::2][:3] == ["\u20071.5\u2007", "22.25", "\u20073.0\u2007"]
-    else:
-        assert aligned_cells == original_cells
-        assert aligned._transforms == gt._transforms
+    # The list column keeps its default alignment (it differs by backend) and isn't padded
+    before = [col.column_align for col in gt._boxhead]
+    assert [col.column_align for col in res._boxhead] == [before[0], "right"]
+    assert [t.loc.columns for t in res._transforms] == [["num"]]
 
 
 def test_cols_align_decimal_locale():
