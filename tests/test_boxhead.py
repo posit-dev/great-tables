@@ -7,7 +7,7 @@ from great_tables import GT
 from great_tables._boxhead import _align_to_char
 from great_tables.gt import _get_column_labels
 from great_tables._helpers import UnitStr
-from tests.utils import assert_rendered_columns
+from tests.utils import DataFrameConstructor, assert_rendered_columns
 
 
 def test_cols_label():
@@ -335,6 +335,17 @@ def test_cols_align_decimal_no_numeric_columns():
 
     assert [col.column_align for col in res._boxhead] == ["left"]
     assert res._transforms == gt._transforms
+
+
+def test_cols_align_decimal_skips_list_columns(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"items": [[1, 2], [3], [], None], "num": [1.5, 22.25, 3.0, None]})
+    gt = GT(df)
+    res = gt.cols_align_decimal()
+
+    # The list column keeps its default alignment (it differs by backend) and isn't padded
+    before = [col.column_align for col in gt._boxhead]
+    assert [col.column_align for col in res._boxhead] == [before[0], "right"]
+    assert [t.loc.columns for t in res._transforms] == [["num"]]
 
 
 def test_cols_align_decimal_locale():

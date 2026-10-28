@@ -618,6 +618,16 @@ class TestIhtmlWarnings:
 class TestNumericSorting:
     """Numeric columns should use numeric sort order, not lexicographic."""
 
+    def test_list_columns_are_not_numeric(self, frame_constructor: DataFrameConstructor):
+        df = frame_constructor({"items": [[1, 2], [3], [], None], "num": [1.5, 22.25, 3.0, None]})
+        props = _extract_props(GT(df).opt_interactive().as_raw_html())
+        col_map = {c["id"]: c for c in props["columns"]}
+
+        assert "type" not in col_map["items"]
+        assert props["data"]["items"] == ["[1, 2]", "[3]", "[]", ""]
+        assert col_map["num"]["type"] == "numeric"
+        assert props["data"]["num"] == [1.5, 22.25, 3.0, None]
+
     def test_numeric_columns_have_type_numeric(self):
         df = pl.DataFrame({"symbol": ["A", "B", "C"], "price": [227.5, 431.2, 118.9]})
         html = GT(df).opt_interactive().as_raw_html()
