@@ -4,7 +4,7 @@ Move one or more columns to the start.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L598-L668)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L616-L686)
 
 ``` python
 GT.cols_move_to_start(columns)

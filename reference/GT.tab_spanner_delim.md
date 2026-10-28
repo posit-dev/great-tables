@@ -4,7 +4,7 @@ Insert spanners by splitting column names with a delimiter.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L346-L465)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L346-L466)
 
 ``` python
 GT.tab_spanner_delim(

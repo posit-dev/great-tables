@@ -4,7 +4,7 @@ Merge columns to a value-with-uncertainty column.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1311-L1456)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1329-L1474)
 
 ``` python
 GT.cols_merge_uncert(

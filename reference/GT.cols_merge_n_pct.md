@@ -4,7 +4,7 @@ Merge two columns to combine counts and percentages.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1609-L1746)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1627-L1764)
 
 ``` python
 GT.cols_merge_n_pct(

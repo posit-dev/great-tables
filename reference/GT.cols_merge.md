@@ -4,7 +4,7 @@ Merge data from two or more columns into a single column.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1127-L1308)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1145-L1326)
 
 ``` python
 GT.cols_merge(

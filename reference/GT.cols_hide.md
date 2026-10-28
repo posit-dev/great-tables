@@ -4,7 +4,7 @@ Hide one or more columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L739-L801)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L757-L819)
 
 ``` python
 GT.cols_hide(columns)

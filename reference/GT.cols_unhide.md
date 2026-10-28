@@ -4,7 +4,7 @@ Unhide one or more columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L804-L856)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L822-L874)
 
 ``` python
 GT.cols_unhide(columns)
