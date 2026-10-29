@@ -1,0 +1,8 @@
+The icon data in x_fontawesome.csv is taken from Font Awesome Free 7.1.0
+(https://fontawesome.com), by Fonticons, Inc.
+
+The Font Awesome Free icons are licensed under the Creative Commons Attribution 4.0
+International License (CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
+
+The SVG path data is used as is; it's assembled into SVG elements by Great Tables.
+See https://fontawesome.com/license/free for the full Font Awesome Free license.
