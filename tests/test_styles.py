@@ -1,5 +1,6 @@
 import pandas as pd
 import polars as pl
+import pyarrow.compute as pc
 import pytest
 from great_tables._styles import (
     CellStyleCss,
@@ -9,12 +10,13 @@ from great_tables._styles import (
     FromColumn,
 )
 from great_tables._helpers import GoogleFont
+from tests.utils import DataFrameConstructor, by_backend
 
 
-def test_from_column_replace():
+def test_from_column_replace(frame_constructor: DataFrameConstructor):
     """FromColumn is replaced by the specified column's value in a row of data"""
 
-    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+    df = frame_constructor({"x": [1, 2], "color": ["red", "blue"]})
     from_col = FromColumn("color")
 
     style = CellStyleText(color=from_col)
@@ -24,8 +26,8 @@ def test_from_column_replace():
     assert new_style.color == "red"
 
 
-def test_from_column_fn():
-    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+def test_from_column_fn(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1, 2], "color": ["red", "blue"]})
     from_col = FromColumn("color", fn=lambda x: x.upper())
 
     style = CellStyleText(color=from_col)
@@ -34,10 +36,16 @@ def test_from_column_fn():
     assert new_style.color == "RED"
 
 
-def test_cell_value_from_function():
-    df = pd.DataFrame({"x": [1, 2], "color": ["red", "blue"]})
+def test_cell_value_from_function(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1, 2], "color": ["red", "blue"]})
+    uppercase_color = by_backend(
+        df,
+        pandas=lambda D: D["color"].str.upper(),
+        polars=lambda D: D["color"].str.to_uppercase(),
+        pyarrow=lambda D: pc.utf8_upper(D["color"]),
+    )
 
-    style = CellStyleText(color=lambda D: D["color"].str.upper())
+    style = CellStyleText(color=uppercase_color)
     new_style = style._evaluate_expressions(df)._from_row(df, 0)
 
     assert new_style.color == "RED"
