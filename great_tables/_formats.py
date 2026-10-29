@@ -23,10 +23,10 @@ from typing import (
 )
 
 import babel
-import faicons
 from babel.core import get_global
 from babel.dates import PATTERN_CHARS, format_date, format_datetime, format_time, parse_pattern
 
+from ._fontawesome import fa_svg
 from ._gt_data import FormatFn, FormatFns, FormatInfo, FormatterSkipElement, GTData, PFrameData
 from ._helpers import px
 from ._locale import (
@@ -8585,10 +8585,16 @@ def fmt_icon(
 
     We can draw from a library of thousands of icons and selectively insert them into a table. The
     `fmt_icon()` method makes this possible by mapping input cell labels to an icon name. We are
-    exclusively using Font Awesome icons here so the reference is the short icon name. Multiple
-    icons can be included per cell by separating icon names with commas (e.g.,
-    `"hard-drive,clock"`). The `sep=` argument allows for a common separator to be applied between
-    icons.
+    exclusively using Font Awesome (version 7) icons here so the reference is the short icon name
+    (e.g., `"star"`). Some icons come in both a regular and a solid style, and for these the
+    regular icon is used; a full name like `"fas fa-star"` (or `"far fa-star"`) can be given to
+    choose the style. Earlier names for icons are also accepted (e.g., `"user-large"` gives the
+    `"user"` icon). Multiple icons can be included per cell by separating icon names with commas
+    (e.g., `"hard-drive,clock"`). The `sep=` argument allows for a common separator to be applied
+    between icons.
+
+    The icon data is included in Great Tables, so icons are generated without any web requests.
+    Font Awesome Free icons are licensed under CC BY 4.0 (<https://fontawesome.com/license/free>).
 
     Parameters
     ----------
@@ -8606,9 +8612,7 @@ def fmt_icon(
         In the output of icons within a body cell, `sep=` provides the separator between each icon.
     stroke_color
         The icon stroke is essentially the outline of the icon. The color of the stroke can be
-        modified by applying a single color here. If not provided then the default value of
-        `"currentColor"` is applied so that the stroke color matches that of the parent HTML
-        element's color attribute.
+        modified by applying a single color here. If not provided then no stroke is drawn.
     stroke_width
         The `stroke_width=` option allows for setting the color of the icon outline stroke. By
         default, the stroke width is very small at "1px" so a size adjustment here can sometimes be
@@ -8808,20 +8812,19 @@ class FmtIcon:
             else:
                 fill_color = self.fill_color
 
-            icon_svg = faicons.icon_svg(
+            icon_svg = fa_svg(
                 icon,
                 height=height,
                 stroke=self.stroke_color,
                 stroke_width=stroke_width,
-                # (`str(None)` would give the invalid CSS `stroke-opacity:None`)
-                stroke_opacity=None if self.stroke_alpha is None else str(self.stroke_alpha),
+                stroke_opacity=self.stroke_alpha,
                 fill=fill_color,
-                fill_opacity=None if self.fill_alpha is None else str(self.fill_alpha),
+                fill_opacity=self.fill_alpha,
                 margin_left=self.margin_left,
                 margin_right=self.margin_right,
             )
 
-            out.append(str(icon_svg))
+            out.append(icon_svg)
 
         img_tags = self.sep.join(out)
         span = self.SPAN_TEMPLATE.format(img_tags)
