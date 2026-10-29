@@ -346,16 +346,18 @@ def _apply_single_col_merge(
             _get_display_value(body, tbl_data, row_idx, col_name) for col_name in col_merge.vars
         ]
 
-        if col_merge.type in ("merge_uncert", "merge_n_pct"):
-            # These merges look for missing values in the original data (as gt does), so text
-            # from sub_missing() is never merged in as a value
+        if col_merge.type in ("merge_uncert", "merge_range", "merge_n_pct"):
+            # These merges look for missing values in the original data, so text from
+            # sub_missing() is never merged in as a value
             is_missing = [
                 is_na(tbl_data, _get_cell(tbl_data, row_idx, col_name))
                 for col_name in col_merge.vars
             ]
 
-            # A missing base value leaves the cell as it is (empty, or the sub_missing() text)
-            if is_missing[0]:
+            # A missing base value (or both ends of a range missing) leaves the cell as it is
+            # (empty, or the sub_missing() text)
+            keep_cell = all(is_missing) if col_merge.type == "merge_range" else is_missing[0]
+            if keep_cell:
                 merged_values[row_idx] = values[0] or ""
                 continue
 
@@ -445,17 +447,14 @@ def _merge_uncert(
 def _merge_range(values: list[Any], sep: str) -> str:
     """Apply range merge semantics.
 
-    NA handling:
-    - NA in col_begin (but not col_end) -> show only col_end
-    - NA in col_end (but not col_begin) -> show only col_begin
-    - NA in both -> result is NA
+    NA handling (an NA in both columns is handled before this is called):
+    - NA in col_begin -> show only col_end
+    - NA in col_end -> show only col_begin
     """
     col_begin = values[0]
     col_end = values[1]
 
-    if col_begin is None and col_end is None:
-        return ""
-    elif col_begin is None:
+    if col_begin is None:
         return str(col_end)
     elif col_end is None:
         return str(col_begin)

@@ -724,6 +724,14 @@ class TestColsMergeRange:
 
         assert _body_cells(gt) == ["10.5\u201315.5", "", "30.5\u201335.5"]
 
+    def test_with_sub_missing(self, frame_constructor: DataFrameConstructor):
+        """Test that sub_missing() text isn't merged in as a range value."""
+        df = frame_constructor({"low": [1.5, None, None, 3.5], "high": [2.5, 2.5, None, None]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high").sub_missing()
+
+        assert _body_cells(gt) == ["1.5\u20132.5", "2.5", "&mdash;", "3.5"]
+
     def test_custom_sep(self):
         """Test custom separator."""
         df = pd.DataFrame({"low": [10, 20], "high": [15, 25]})
