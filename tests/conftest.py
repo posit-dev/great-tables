@@ -125,6 +125,11 @@ def frame_constructor(request: pytest.FixtureRequest) -> DataFrameConstructor:
     return request.param  # type: ignore[no-any-return]
 
 
+@pytest.fixture
+def all_frame_constructors() -> list[DataFrameConstructor]:
+    return frame_constructors
+
+
 @pytest.fixture(params=[c for c in frame_constructors if c.__name__.startswith("pandas_")])
 def pandas_frame_constructor(request: pytest.FixtureRequest) -> DataFrameConstructor:
     return request.param  # type: ignore[no-any-return]

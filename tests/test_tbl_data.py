@@ -53,6 +53,7 @@ from tests.utils import (
     DataLike,
     SeriesConstructor,
     assert_frame_equal,
+    cast_to_categorical,
     native_backend,
 )
 
@@ -112,27 +113,6 @@ params_set_cells_values: list[dict[int, str | None]] = [
 ]
 
 
-def _cast_to_categorical(df: DataFrameLike, column: str, *, ordered: bool) -> DataFrameLike:
-    # Python values can't build categorical columns. Ordered categories follow first appearance.
-    if isinstance(df, pd.DataFrame):
-        categories = df[column].dropna().unique()
-        categorical = pd.Categorical(df[column], categories=categories, ordered=ordered)
-        return df.assign(**{column: categorical})
-
-    if isinstance(df, pl.DataFrame):
-        categories = df[column].drop_nulls().unique(maintain_order=True)
-        return df.with_columns(
-            pl.col(column).cast(pl.Enum(categories) if ordered else pl.Categorical)
-        )
-
-    encoded = df[column].dictionary_encode()
-    if ordered:
-        encoded = encoded.cast(
-            pa.dictionary(encoded.type.index_type, encoded.type.value_type, ordered=True)
-        )
-    return df.set_column(df.column_names.index(column), column, encoded)
-
-
 def _column_cells(df: DataFrameLike, column: str) -> list[Any]:
     return [_get_cell(df, row, column) for row in range(n_rows(df))]
 
@@ -183,8 +163,8 @@ def df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
 def matrix_df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
     text = DTYPE_MATRIX["str"]
     df = frame_constructor({**DTYPE_MATRIX, "categorical": text, "categorical_ordered": text})
-    df = _cast_to_categorical(df, "categorical", ordered=False)
-    return _cast_to_categorical(df, "categorical_ordered", ordered=True)
+    df = cast_to_categorical(df, "categorical", ordered=False)
+    return cast_to_categorical(df, "categorical_ordered", ordered=True)
 
 
 @pytest.fixture
@@ -333,8 +313,8 @@ def test_get_column_levels(frame_constructor: DataFrameConstructor):
     # `data_color()` colors an ordered categorical column by its declared levels, not sorted ones
     text = ["b", "a", None]
     df = frame_constructor({"text": text, "unordered": text, "ordered": text})
-    df = _cast_to_categorical(df, "unordered", ordered=False)
-    df = _cast_to_categorical(df, "ordered", ordered=True)
+    df = cast_to_categorical(df, "unordered", ordered=False)
+    df = cast_to_categorical(df, "ordered", ordered=True)
 
     levels = {col: _get_column_levels(df, col) for col in get_column_names(df)}
     assert levels == {"text": None, "unordered": None, "ordered": ["b", "a"]}
@@ -623,7 +603,7 @@ def test_group_splits_null_keys(
 ):
     df = frame_constructor({"g": keys})
     if categorical:
-        df = _cast_to_categorical(df, "g", ordered=False)
+        df = cast_to_categorical(df, "g", ordered=False)
 
     assert group_splits(df, "g") == expected
 
@@ -644,7 +624,7 @@ def test_render_null_group_keys_matches_polars(
     data = {"g": ["b", None, "a", None, "b"], "x": [1, 2, 3, 4, 5]}
     df = frame_constructor(data)
     if categorical:
-        df = _cast_to_categorical(df, "g", ordered=False)
+        df = cast_to_categorical(df, "g", ordered=False)
 
     # The table id is random unless pinned
     html = GT(df, groupname_col="g", id="t").as_raw_html()
