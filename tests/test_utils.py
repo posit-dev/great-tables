@@ -16,6 +16,7 @@ from great_tables._utils import (
     heading_has_title,
     seq_groups,
 )
+from tests.utils import DataFrameConstructor
 
 
 def test_heading_has_title():
@@ -160,10 +161,8 @@ def test_migrate_unformatted_to_output_html():
 class TestHtmlEscaping:
     """Regression tests for HTML escaping of unformatted body cells (XSS prevention)."""
 
-    def test_body_cells_are_escaped(self):
-        import pandas as pd
-
-        df = pd.DataFrame({"x": ["<img src=x onerror=alert(1)>", "<script>alert(1)</script>"]})
+    def test_body_cells_are_escaped(self, frame_constructor: DataFrameConstructor):
+        df = frame_constructor({"x": ["<img src=x onerror=alert(1)>", "<script>alert(1)</script>"]})
         html = GT(df).as_raw_html()
 
         assert "<img src=x onerror=alert(1)>" not in html
@@ -171,10 +170,8 @@ class TestHtmlEscaping:
         assert "&lt;img src=x onerror=alert(1)&gt;" in html
         assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
 
-    def test_ampersand_and_angle_brackets_escaped(self):
-        import pandas as pd
-
-        df = pd.DataFrame({"x": ["x & y", "a < b", "c > d"]})
+    def test_ampersand_and_angle_brackets_escaped(self, frame_constructor: DataFrameConstructor):
+        df = frame_constructor({"x": ["x & y", "a < b", "c > d"]})
         html = GT(df).as_raw_html()
 
         assert "x &amp; y" in html
@@ -200,10 +197,12 @@ class TestHtmlEscaping:
         assert ">safe<" in html
         assert ">1.0<" in html
 
-    def test_group_label_escaped_without_groupname_col(self):
-        import pandas as pd
-
-        df = pd.DataFrame({"x": [1, 2], "grp": ["<script>xss</script>", "<script>xss</script>"]})
+    def test_group_label_escaped_without_groupname_col(
+        self, frame_constructor: DataFrameConstructor
+    ):
+        df = frame_constructor(
+            {"x": [1, 2], "grp": ["<script>xss</script>", "<script>xss</script>"]}
+        )
         html = GT(df, groupname_col="grp").as_raw_html()
 
         assert "<script>xss</script>" not in html
@@ -225,21 +224,11 @@ class TestHtmlEscaping:
     @pytest.mark.parametrize(
         "method", ["sub_missing", "sub_zero", "sub_small_vals", "sub_large_vals"]
     )
-    def test_cells_skipped_by_substitution_are_escaped(self, method: str):
-        import pandas as pd
-
-        df = pd.DataFrame({"x": ["<b>not bold</b>", "x & y"], "y": [None, 0.0]})
+    def test_cells_skipped_by_substitution_are_escaped(
+        self, frame_constructor: DataFrameConstructor, method: str
+    ):
+        df = frame_constructor({"x": ["<b>not bold</b>", "x & y"], "y": [None, 0.0]})
         html = getattr(GT(df), method)().as_raw_html()
-
-        assert "<b>not bold</b>" not in html
-        assert "&lt;b&gt;not bold&lt;/b&gt;" in html
-        assert "x &amp; y" in html
-
-    def test_pyarrow_body_cells_are_escaped(self):
-        import pyarrow as pa
-
-        tbl = pa.table({"x": ["<b>not bold</b>", "x & y"]})
-        html = GT(tbl).as_raw_html()
 
         assert "<b>not bold</b>" not in html
         assert "&lt;b&gt;not bold&lt;/b&gt;" in html
@@ -247,10 +236,10 @@ class TestHtmlEscaping:
 
 
 @pytest.mark.parametrize("method", ["sub_missing", "sub_zero", "sub_small_vals"])
-def test_latex_cells_skipped_by_substitution_are_escaped(method: str):
-    import pandas as pd
-
-    df = pd.DataFrame({"x": ["a & b", "50%"], "y": [None, 0.0]})
+def test_latex_cells_skipped_by_substitution_are_escaped(
+    frame_constructor: DataFrameConstructor, method: str
+):
+    df = frame_constructor({"x": ["a & b", "50%"], "y": [None, 0.0]})
     latex = getattr(GT(df), method)().as_latex()
 
     assert "a \\& b" in latex
@@ -260,10 +249,8 @@ def test_latex_cells_skipped_by_substitution_are_escaped(method: str):
 class TestFmtPassthrough:
     """Tests for fmt_passthrough()."""
 
-    def test_escape_true_escapes_html(self):
-        import pandas as pd
-
-        df = pd.DataFrame({"x": ["<b>bold</b>", "x & y"]})
+    def test_escape_true_escapes_html(self, frame_constructor: DataFrameConstructor):
+        df = frame_constructor({"x": ["<b>bold</b>", "x & y"]})
         html = GT(df).fmt_passthrough(columns="x").as_raw_html()
 
         assert "&lt;b&gt;bold&lt;/b&gt;" in html

@@ -1,10 +1,14 @@
+from typing import Callable
+
 import pandas as pd
 import polars as pl
+import pyarrow as pa
+import pyarrow.compute as pc
 import pytest
 
 from great_tables import GT, loc, style, vals
 from great_tables._utils_render_html import create_body_component_h
-from tests.utils import assert_rendered_body
+from tests.utils import DataFrameConstructor, assert_parity, assert_rendered_body, by_backend
 
 
 def render_only_body(gt) -> str:
@@ -26,14 +30,21 @@ def max_expr(df: pd.DataFrame):
     return df.max(numeric_only=True)
 
 
+def pyarrow_summary(
+    fn: Callable[[pa.ChunkedArray], pa.Scalar], columns: list[str]
+) -> Callable[[pa.Table], pa.Table]:
+    # pyarrow has no expressions, so a summary function returns a one-row table
+    return lambda tbl: pa.table({col: [fn(tbl[col]).as_py()] for col in columns})
+
+
 def test_row_group_order(snapshot):
     gt = GT(pd.DataFrame({"g": ["a", "b"], "x": [1, 2], "y": [3, 4]}), groupname_col="g")
 
     assert_rendered_body(snapshot, gt.row_group_order(["b", "a"]))
 
 
-def test_with_groupname_col():
-    gt = GT(pd.DataFrame({"g": ["b", "a"], "x": [1, 2], "y": [3, 4]}))
+def test_with_groupname_col(frame_constructor: DataFrameConstructor):
+    gt = GT(frame_constructor({"g": ["b", "a"], "x": [1, 2], "y": [3, 4]}))
 
     new_gt = gt.tab_stub(groupname_col="g")
     group_rows = new_gt._stub.group_rows
@@ -88,8 +99,8 @@ def test_with_groupname_col_unset():
     assert len(new_gt._stub.group_rows) == 0
 
 
-def test_with_rowname_col():
-    gt = GT(pd.DataFrame({"g": ["b", "a"], "x": [1, 2], "y": [3, 4]}))
+def test_with_rowname_col(frame_constructor: DataFrameConstructor):
+    gt = GT(frame_constructor({"g": ["b", "a"], "x": [1, 2], "y": [3, 4]}))
 
     new_gt = gt.tab_stub(rowname_col="g")
     rows = new_gt._stub.rows
@@ -184,25 +195,21 @@ def test_with_id_preserves_other_options():
     assert new_gt._options.container_width.value == "20px"
 
 
-def test_grand_summary_rows_snap(snapshot):
-    for Frame in [pd.DataFrame, pl.DataFrame]:
-        df = Frame({"a": [1, 2, 3], "b": [4, 5, 6]})
+def test_grand_summary_rows_snap(snapshot, all_frame_constructors: list[DataFrameConstructor]):
+    def render(constructor: DataFrameConstructor) -> str:
+        df = constructor({"a": [1, 2, 3], "b": [4, 5, 6]})
+        fns = by_backend(
+            df,
+            pandas={"Average": mean_expr, "Maximum": max_expr},
+            polars={"Average": pl.all().mean(), "Maximum": pl.all().max()},
+            pyarrow={
+                "Average": pyarrow_summary(pc.mean, ["a", "b"]),
+                "Maximum": pyarrow_summary(pc.max, ["a", "b"]),
+            },
+        )
+        return render_only_body(GT(df).grand_summary_rows(fns=fns))
 
-        if isinstance(df, pd.DataFrame):
-
-            def mean_expr(df):
-                return df.mean()
-
-            def max_expr(df):
-                return df.max()
-
-        if isinstance(df, pl.DataFrame):
-            mean_expr = pl.all().mean()
-            max_expr = pl.all().max()
-
-        res = GT(df).grand_summary_rows(fns={"Average": mean_expr, "Maximum": max_expr})
-
-        assert_rendered_body(snapshot(name="pd_and_pl"), res)
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
 def test_grand_summary_rows_with_rowname_snap(snapshot):
@@ -292,10 +299,13 @@ def test_grand_summary_rows_overwritten_row_maintains_location():
     assert 'gt_grand_summary_row">2</td>' in html
 
 
-def test_grand_summary_rows_with_fmt():
-    df = pd.DataFrame({"a": [1, 3], "row": ["x", "y"]})
+def test_grand_summary_rows_with_fmt(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"a": [1, 3], "row": ["x", "y"]})
+    average = by_backend(
+        df, pandas=mean_expr, polars=pl.col("a").mean(), pyarrow=pyarrow_summary(pc.mean, ["a"])
+    )
 
-    res = GT(df).grand_summary_rows(fns={"Average": mean_expr}, fmt=vals.fmt_integer)
+    res = GT(df).grand_summary_rows(fns={"Average": average}, fmt=vals.fmt_integer)
     html = render_only_body(res)
 
     assert 'gt_grand_summary_row">2</td>' in html
@@ -317,27 +327,21 @@ def test_grand_summary_rows_raises_columns_not_implemented():
 # summary_rows tests ----
 
 
-def test_summary_rows_snap(snapshot):
-    for Frame in [pd.DataFrame, pl.DataFrame]:
-        df = Frame({"group": ["A", "A", "B", "B"], "x": [1, 2, 3, 4], "y": [10, 20, 30, 40]})
+def test_summary_rows_snap(snapshot, all_frame_constructors: list[DataFrameConstructor]):
+    def render(constructor: DataFrameConstructor) -> str:
+        df = constructor({"group": ["A", "A", "B", "B"], "x": [1, 2, 3, 4], "y": [10, 20, 30, 40]})
+        fns = by_backend(
+            df,
+            pandas={"Sum": lambda df: df.sum(numeric_only=True), "Average": mean_expr},
+            polars={"Sum": pl.col("x", "y").sum(), "Average": pl.col("x", "y").mean()},
+            pyarrow={
+                "Sum": pyarrow_summary(pc.sum, ["x", "y"]),
+                "Average": pyarrow_summary(pc.mean, ["x", "y"]),
+            },
+        )
+        return render_only_body(GT(df, groupname_col="group").summary_rows(fns=fns))
 
-        if isinstance(df, pd.DataFrame):
-
-            def sum_expr(df):
-                return df.sum(numeric_only=True)
-
-            def mean_expr_pd(df):
-                return df.mean(numeric_only=True)
-
-            res = GT(df, groupname_col="group").summary_rows(
-                fns={"Sum": sum_expr, "Average": mean_expr_pd}
-            )
-        else:
-            res = GT(df, groupname_col="group").summary_rows(
-                fns={"Sum": pl.col("x", "y").sum(), "Average": pl.col("x", "y").mean()}
-            )
-
-        assert_rendered_body(snapshot(name="pd_and_pl"), res)
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
 def test_summary_rows_with_rowname_snap(snapshot):
@@ -385,11 +389,14 @@ def test_summary_rows_side_top():
     assert "gt_last_summary_row_top" in html
 
 
-def test_summary_rows_with_fmt():
-    df = pd.DataFrame({"group": ["A", "A"], "x": [1, 3]})
+def test_summary_rows_with_fmt(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"group": ["A", "A"], "x": [1, 3]})
+    average = by_backend(
+        df, pandas=mean_expr, polars=pl.col("x").mean(), pyarrow=pyarrow_summary(pc.mean, ["x"])
+    )
 
     res = GT(df, groupname_col="group").summary_rows(
-        fns={"Average": lambda df: df.mean(numeric_only=True)},
+        fns={"Average": average},
         fmt=vals.fmt_integer,
     )
     html = render_only_body(res)

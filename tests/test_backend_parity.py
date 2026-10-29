@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, Callable, cast
 from unittest.mock import ANY
 
 import polars as pl
@@ -23,11 +23,9 @@ from tests.utils import (
     Divergent,
     Render,
     assert_parity,
+    by_backend,
     cast_to_categorical,
-    native_backend,
 )
-
-T = TypeVar("T")
 
 ISSUES = "https://github.com/posit-dev/great-tables/issues"
 NUMBER_LIKE_TEXT = f"{ISSUES}/1023"
@@ -47,10 +45,6 @@ PANDAS_OBJECT_ALIGNED_RIGHT = Divergent(
 # pyarrow-backed constructors turn whole floats into ints
 FLOATS = [1234.5678, None, -0.25]
 TEXT = ["apple", None, "cherry"]
-
-
-def _native(df: DataFrameLike, *, pandas: T, polars: T, pyarrow: T) -> T:
-    return {"pandas": pandas, "polars": polars, "pyarrow": pyarrow}[native_backend(df)]
 
 
 def _body_html(gt: GT) -> str:
@@ -417,7 +411,7 @@ def test_rows_by_mask(
 ):
     def render(constructor: DataFrameConstructor) -> str:
         df = constructor({"x": values})
-        rows = _native(
+        rows = by_backend(
             df,
             pandas=lambda df: df["x"] > 2,
             polars=polars_rows,
@@ -432,7 +426,7 @@ def test_rows_by_mask(
 
 
 def _sum_and_max_fns(df: DataFrameLike) -> dict[str, Any]:
-    return _native(
+    return by_backend(
         df,
         pandas={"Sum": lambda df: df[["x"]].sum(), "Max": lambda df: df[["x"]].max()},
         polars={"Sum": pl.col("x").sum(), "Max": pl.col("x").max()},

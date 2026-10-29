@@ -3,6 +3,7 @@ import pytest
 
 from great_tables import GT
 from great_tables._gt_data import Body, GroupRowInfo, GroupRows, Stub, RowInfo
+from tests.utils import DataFrameConstructor
 
 
 @pytest.fixture
@@ -18,9 +19,9 @@ def grouped_gt():
 
 
 @pytest.fixture
-def numeric_grouped_gt():
+def numeric_grouped_gt(frame_constructor: DataFrameConstructor):
     """A GT table with a numeric groupname column and two groups."""
-    df = pd.DataFrame(
+    df = frame_constructor(
         {
             "group": [1000, 1000, 2000, 2000],
             "value": [1, 2, 3, 4],
