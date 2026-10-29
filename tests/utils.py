@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import difflib
-from typing import TYPE_CHECKING, Any, Callable, Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Callable, Literal, TypedDict, TypeVar
 
 from great_tables._tbl_data import DataFrameLike, PdDataFrame, PlDataFrame, SeriesLike
 from great_tables._utils_render_html import (
@@ -20,6 +20,7 @@ DataFrameConstructor: TypeAlias = Callable[[DataLike], DataFrameLike]
 SeriesConstructor: TypeAlias = Callable[[list[Any]], SeriesLike]
 Backend: TypeAlias = Literal["pandas", "polars", "pyarrow"]
 Render: TypeAlias = Callable[[DataFrameConstructor], str]
+T = TypeVar("T")
 
 
 class Divergent(TypedDict, total=False):
@@ -37,6 +38,11 @@ def native_backend(obj: Any) -> Backend:
     if library in ("pandas", "polars", "pyarrow"):
         return library
     raise NotImplementedError(f"Unsupported data type: {type(obj)}")
+
+
+def by_backend(df: DataFrameLike, *, pandas: T, polars: T, pyarrow: T) -> T:
+    """Return the argument written for `df`'s backend, e.g. a row callable or summary functions."""
+    return {"pandas": pandas, "polars": polars, "pyarrow": pyarrow}[native_backend(df)]
 
 
 def cast_to_categorical(df: DataFrameLike, column: str, *, ordered: bool) -> DataFrameLike:
