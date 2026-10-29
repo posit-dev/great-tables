@@ -2,6 +2,8 @@ import re
 
 import pandas as pd
 import polars as pl
+import pyarrow as pa
+import pyarrow.compute as pc
 import pytest
 from great_tables import GT
 from great_tables._boxhead import _align_to_char
@@ -346,6 +348,32 @@ def test_cols_align_decimal_skips_list_columns(frame_constructor: DataFrameConst
     before = [col.column_align for col in gt._boxhead]
     assert [col.column_align for col in res._boxhead] == [before[0], "right"]
     assert [t.loc.columns for t in res._transforms] == [["num"]]
+
+
+@pytest.mark.parametrize(
+    "make_frame",
+    [
+        pytest.param(
+            lambda: pl.DataFrame(
+                {"x": ["point", "line", "point"]}, schema={"x": pl.Enum(["point", "line"])}
+            ),
+            id="polars-enum",
+        ),
+        pytest.param(lambda: pd.DataFrame({"x": pd.interval_range(0, 3)}), id="pandas-interval"),
+        pytest.param(
+            lambda: pa.table({"x": pc.run_end_encode(pa.array(["a", "a", "b"]))}),
+            id="pyarrow-run_end_encoded",
+        ),
+    ],
+)
+def test_cols_align_decimal_skips_parameterized_dtypes(make_frame):
+    # These dtypes name their parameters, so they used to count as numeric (#1045)
+    gt = GT(make_frame())
+    res = gt.cols_align_decimal()
+
+    # The column keeps its default alignment and isn't padded
+    assert [col.column_align for col in res._boxhead] == [col.column_align for col in gt._boxhead]
+    assert res._transforms == gt._transforms
 
 
 def test_cols_align_decimal_locale():
