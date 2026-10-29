@@ -365,7 +365,9 @@ def _apply_single_col_merge(
         if col_merge.type == "merge":
             merged_value = col_merge.merge(*values)
         elif col_merge.type == "merge_uncert":
-            merged_value = _merge_uncert(values, col_merge.sep, context)
+            merged_value = _merge_uncert(
+                values, col_merge.sep, context, tbl_data, col_merge.vars, row_idx
+            )
         elif col_merge.type == "merge_range":
             merged_value = _merge_range(values, col_merge.sep)
         else:  # "merge_n_pct"
@@ -396,7 +398,14 @@ def _get_display_value(body: Body, tbl_data: TblData, row_idx: int, col_name: st
     return None
 
 
-def _merge_uncert(values: list[Any], sep: str, context: str) -> str:
+def _merge_uncert(
+    values: list[Any],
+    sep: str,
+    context: str,
+    tbl_data: TblData,
+    vars: list[str],
+    row_idx: int,
+) -> str:
     """Apply uncertainty merge semantics.
 
     NA handling (an NA in col_val is handled before this is called):
@@ -425,8 +434,9 @@ def _merge_uncert(values: list[Any], sep: str, context: str) -> str:
             return f"{col_val} (+{col_upper})"
         elif col_upper is None:
             return f"{col_val} ({minus_mark}{col_lower})"
-        elif str(col_lower) == str(col_upper):
-            # When lower == upper, use symmetric format
+        elif _get_cell(tbl_data, row_idx, vars[1]) == _get_cell(tbl_data, row_idx, vars[2]):
+            # When lower == upper, use symmetric format (comparing the original values, as gt
+            # does, rather than the formatted ones)
             return f"{col_val}{sep}{col_lower}"
         else:
             return f"{col_val} (+{col_upper}/{minus_mark}{col_lower})"

@@ -620,6 +620,21 @@ class TestColsMergeUncert:
 
         assert "100.0 \u00b1 2.5" in html
 
+    def test_bounds_equal_compares_original_values(self):
+        """Test that lower and upper bounds are compared by value, not by their formatted text."""
+        df = pl.DataFrame({"val": [1.0, 2.0], "lower": [0.12, 0.5], "upper": [0.14, 0.5]})
+
+        # Different bounds that format to the same text, and equal bounds that don't
+        gt = (
+            GT(df)
+            .fmt_number(columns=["val", "upper"], decimals=1)
+            .fmt_number(columns="lower", rows=[0], decimals=1)
+            .fmt_number(columns="lower", rows=[1], decimals=2)
+            .cols_merge_uncert(col_val="val", col_uncert=["lower", "upper"])
+        )
+
+        assert _body_cells(gt) == ["1.0 (+0.1/\u22120.1)", "2.0 \u00b1 0.50"]
+
     def test_with_sub_missing(self):
         """Test that sub_missing() text isn't merged in as an uncertainty or base value."""
         df = pl.DataFrame({"val": [10.0, 20.0, None, None], "uncert": [0.5, None, 1.0, None]})
