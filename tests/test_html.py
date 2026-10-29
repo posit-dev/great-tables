@@ -137,7 +137,9 @@ def test_htmltools_only_imported_by_shiny_module():
     importers = {
         path.relative_to(package_dir).as_posix()
         for path in package_dir.rglob("*.py")
-        if re.search(r"^\s*(from|import)\s+htmltools\b", path.read_text(), re.MULTILINE)
+        if re.search(
+            r"^\s*(from|import)\s+htmltools\b", path.read_text(encoding="utf-8"), re.MULTILINE
+        )
     }
 
     assert importers == {"shiny.py"}
