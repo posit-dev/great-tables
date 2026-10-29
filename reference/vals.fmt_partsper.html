@@ -130,9 +130,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <style id="gd-wide-layout-vars">:root{--gd-wide-content-scale:1.5;--gd-wide-sidebar-scale:1.2;}</style>
 <script src="../theme-init.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js"></script>
-<style>:root{--gd-nav-prefix-api:"API";--gd-nav-prefix-cli:"CLI";--gd-nav-prefix-mcp:"MCP";}</style>
 <meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table&quot;]">
 <meta name="gd-logo-tooltip" content="<code>v1.1.0</code><br>Released 2026-10-15">
+<style>:root{--gd-nav-prefix-api:"API";--gd-nav-prefix-cli:"CLI";--gd-nav-prefix-mcp:"MCP";}</style>
 <link rel="canonical" href="https://posit-dev.github.io/great-tables/reference/vals.fmt_partsper.html">
 <meta property="og:url" content="https://posit-dev.github.io/great-tables/reference/vals.fmt_partsper.html">
 <link rel="alternate" type="text/markdown" href="vals.fmt_partsper.md">
@@ -1467,7 +1467,7 @@ A list of formatted values is returned.
 </section>
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
-<div id="cb3525de" class="cell" data-execution_count="1">
+<div id="7f848378" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> vals</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>vals.fmt_partsper([<span class="fl">0.001</span>, <span class="fl">0.0001</span>], to_units<span class="op">=</span><span class="st">"per-mille"</span>)</span></code></pre></div>
@@ -1475,7 +1475,7 @@ A list of formatted values is returned.
 <pre><code>['1.00‰', '0.10‰']</code></pre>
 </div>
 </div>
-<div id="54a6a963" class="cell" data-execution_count="2">
+<div id="e85bd13e" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> vals</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>vals.fmt_partsper([<span class="fl">0.0000015</span>, <span class="fl">0.00035</span>], to_units<span class="op">=</span><span class="st">"ppm"</span>)</span></code></pre></div>
