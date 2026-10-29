@@ -382,7 +382,8 @@ def _is_numeric_dtype(data: DataFrameLike, column: str) -> bool:
         return False
     dtype_str = str(dtype).lower()
     # These dtypes name their parameters (element types, categories, interval subtypes, run-end
-    # types), but their cells aren't scalar numbers.
+    # types), and a parameter can contain a numeric token. Their cells aren't scalar numbers,
+    # except in a run-end-encoded column of numbers, which is skipped too to keep the rule simple.
     if dtype_str.startswith(
         (
             "list",

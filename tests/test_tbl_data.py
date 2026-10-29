@@ -307,12 +307,12 @@ def test_is_numeric_dtype_pyarrow_containers(dtype, pandas_backed: bool):
             id="pyarrow-run_end_encoded",
         ),
         pytest.param(
-            lambda: pd.DataFrame(
-                {
-                    "x": pd.array(
-                        ree := pc.run_end_encode(pa.array(["a", "b"])), pd.ArrowDtype(ree.type)
-                    )
-                }
+            lambda: pa.table({"x": pc.run_end_encode(pa.array([1.5, 22.25]))}),
+            id="pyarrow-run_end_encoded-numbers",
+        ),
+        pytest.param(
+            lambda: pa.table({"x": pc.run_end_encode(pa.array(["a", "b"]))}).to_pandas(
+                types_mapper=pd.ArrowDtype
             ),
             id="pandas-arrow-run_end_encoded",
         ),
@@ -320,7 +320,8 @@ def test_is_numeric_dtype_pyarrow_containers(dtype, pandas_backed: bool):
 )
 def test_is_numeric_dtype_parameterized_dtypes(make_frame: Callable[[], DataFrameLike]):
     # These dtypes name their parameters: an Enum its categories ("point" contains "int"), an
-    # interval its subtype and a run-end-encoded array its run-end type (#1045)
+    # interval its subtype and a run-end-encoded array its run-end type (#1045). A run-end-encoded
+    # column of numbers is skipped too, to keep the rule simple
     assert not _is_numeric_dtype(make_frame(), "x")
 
 
