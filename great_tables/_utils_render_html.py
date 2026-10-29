@@ -6,8 +6,6 @@ from dataclasses import dataclass, field
 from itertools import chain
 from typing import TYPE_CHECKING, Any, cast
 
-from htmltools import HTML, Tag, TagList, css, tags
-
 from . import _locations as loc
 from ._gt_data import (
     ColInfo,
@@ -20,6 +18,7 @@ from ._gt_data import (
     Styles,
     SummaryRowInfo,
 )
+from ._html import HTML, Tag, TagList, css
 from ._spanners import spanners_print_matrix
 from ._tbl_data import TblData, _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text
@@ -132,7 +131,7 @@ def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
         # return space-separated list of rendered styles
         return " ".join(rendered_styles)
     # if not wrapping the styles for html element,
-    # return None so htmltools omits a style attribute
+    # return None so that no style attribute is written
     return None
 
 
@@ -408,7 +407,8 @@ def _create_stubhead_cells(
 
     if not isinstance(stub_label, list):
         return [
-            tags.th(
+            Tag(
+                "th",
                 HTML(_apply_footnotes_to_text(footnotes_stubhead, data, _process_text(stub_label))),
                 class_=class_,
                 rowspan=rowspan,
@@ -422,7 +422,7 @@ def _create_stubhead_cells(
     cells = []
 
     if "group_label" in stub_layout:
-        cells.append(tags.th(class_=class_, rowspan=rowspan, colspan=1, style=style, scope="col"))
+        cells.append(Tag("th", class_=class_, rowspan=rowspan, colspan=1, style=style, scope="col"))
 
     for k, label in enumerate(stub_label):
         label_text = _process_text(label)
@@ -432,7 +432,8 @@ def _create_stubhead_cells(
         element_id = stubhead_ids[k] if k < len(stubhead_ids) else None
 
         cells.append(
-            tags.th(
+            Tag(
+                "th",
                 HTML(label_text),
                 class_=class_,
                 rowspan=rowspan,
@@ -551,7 +552,8 @@ def create_columns_component_h(data: GTData) -> str:
             )
 
             table_col_headings.append(
-                tags.th(
+                Tag(
+                    "th",
                     HTML(column_label_with_footnotes),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{info.defaulted_align}",
                     rowspan=1,
@@ -565,7 +567,7 @@ def create_columns_component_h(data: GTData) -> str:
         # Join the <th> cells into a string and begin each with a newline
         # th_cells = "\n" + "\n".join(["  " + str(tag) for tag in table_col_headings]) + "\n"
 
-        table_col_headings = tags.tr(*table_col_headings, class_="gt_col_headings")
+        table_col_headings = Tag("tr", *table_col_headings, class_="gt_col_headings")
 
     #
     # Create the spanners and column labels in the case where there *are* spanners -------------
@@ -647,7 +649,8 @@ def create_columns_component_h(data: GTData) -> str:
 
                 # Creation of <th> tags for column labels with no spanners above them
                 level_1_spanners.append(
-                    tags.th(
+                    Tag(
+                        "th",
                         HTML(column_label_with_footnotes),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{first_set_alignment}",
                         rowspan=2,
@@ -680,8 +683,10 @@ def create_columns_component_h(data: GTData) -> str:
                     ]
 
                     level_1_spanners.append(
-                        tags.th(
-                            tags.span(
+                        Tag(
+                            "th",
+                            Tag(
+                                "span",
                                 HTML(
                                     _apply_footnotes_to_text(
                                         footnotes_i,
@@ -737,7 +742,8 @@ def create_columns_component_h(data: GTData) -> str:
                 )
 
                 spanned_column_labels.append(
-                    tags.th(
+                    Tag(
+                        "th",
                         HTML(remaining_headings_label_with_footnotes),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{remaining_alignment}",
                         rowspan=1,
@@ -749,13 +755,15 @@ def create_columns_component_h(data: GTData) -> str:
                 )
 
             table_col_headings = TagList(
-                tags.tr(level_1_spanners, class_="gt_col_headings gt_spanner_row"),
-                tags.tr(spanned_column_labels, class_="gt_col_headings"),
+                Tag("tr", level_1_spanners, class_="gt_col_headings gt_spanner_row"),
+                Tag("tr", spanned_column_labels, class_="gt_col_headings"),
             )
 
         else:
             # Create the `table_col_headings` HTML component
-            table_col_headings = tags.tr(level_1_spanners, class_="gt_col_headings gt_spanner_row")
+            table_col_headings = Tag(
+                "tr", level_1_spanners, class_="gt_col_headings gt_spanner_row"
+            )
 
     if _get_spanners_matrix_height(data=data) > 2:
         # Spanners are listed top to bottom, so we need to work bottom to top
@@ -790,7 +798,8 @@ def create_columns_component_h(data: GTData) -> str:
                     ]
 
                     if span_label:
-                        span = tags.span(
+                        span = Tag(
+                            "span",
                             HTML(
                                 _apply_footnotes_to_text(
                                     footnotes_i,
@@ -801,10 +810,11 @@ def create_columns_component_h(data: GTData) -> str:
                             class_="gt_column_spanner",
                         )
                     else:
-                        span = tags.span(HTML("&nbsp;"))
+                        span = Tag("span", HTML("&nbsp;"))
 
                     level_i_spanners.append(
-                        tags.th(
+                        Tag(
+                            "th",
                             span,
                             class_="gt_center gt_columns_bottom_border gt_columns_top_border gt_column_spanner_outer",
                             rowspan=1,
@@ -818,8 +828,9 @@ def create_columns_component_h(data: GTData) -> str:
             if stub_layout:
                 level_i_spanners.insert(
                     0,
-                    tags.th(
-                        tags.span(HTML("&nbsp")),
+                    Tag(
+                        "th",
+                        Tag("span", HTML("&nbsp")),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{stubhead_label_alignment}",
                         rowspan=1,
                         colspan=len(stub_layout),
@@ -832,7 +843,8 @@ def create_columns_component_h(data: GTData) -> str:
             higher_spanner_rows = TagList(
                 higher_spanner_rows,
                 TagList(
-                    tags.tr(
+                    Tag(
+                        "tr",
                         level_i_spanners,
                         class_="gt_col_headings gt_spanner_row",
                         # TODO check if ok to just use base styling?
@@ -2234,7 +2246,7 @@ def _get_table_defs(data: GTData) -> dict[str, Any]:
     # TODO: skipping this for now as the method/function doesn't exist
     # validate_css_lengths(widths)
     # Create the `<colgroup>` tag
-    table_colgroups = tags.colgroup([tags.col(style=css(width=width)) for width in widths])
+    table_colgroups = Tag("colgroup", [Tag("col", style=css(width=width)) for width in widths])
 
     table_defs_dict = dict(table_style=table_style, table_colgroups=table_colgroups)
 
