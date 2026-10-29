@@ -6,6 +6,18 @@ import polars as pl
 import pytest
 from great_tables import GT
 from great_tables._cols_merge import ColMergeInfo, merge_pattern
+from tests.utils import DataFrameConstructor
+
+SIMPLE_DATA = {"a": [1, 2, 3], "b": [4, 5, 6], "c": [7, 8, 9]}
+
+# floats are non-integral: the pandas nullable and pyarrow-backed constructors turn whole floats
+# into ints
+MISSING_DATA = {
+    "number": ["Three", "Four", "Five"],
+    "val1": [10, 20, 30],
+    "val2": [15.5, 25.5, None],
+    "val3": [5.5, None, None],
+}
 
 
 def _body_cells(gt: GT) -> list[str]:
@@ -14,19 +26,7 @@ def _body_cells(gt: GT) -> list[str]:
 
 @pytest.fixture
 def simple_df():
-    return pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6], "c": [7, 8, 9]})
-
-
-@pytest.fixture
-def missing_df():
-    return pd.DataFrame(
-        {
-            "number": ["Three", "Four", "Five"],
-            "val1": [10, 20, 30],
-            "val2": [15.0, 25.0, None],
-            "val3": [5.0, None, None],
-        }
-    )
+    return pd.DataFrame(SIMPLE_DATA)
 
 
 class TestReplaceNa:
@@ -218,8 +218,8 @@ class TestColMergeInfoUnit:
 class TestColsMergeIntegration:
     """Integration tests that verify cols_merge works correctly with full GT rendering."""
 
-    def test_basic(self, simple_df: pd.DataFrame):
-        gt = GT(simple_df).cols_merge(columns=["a", "b"])
+    def test_basic(self, frame_constructor: DataFrameConstructor):
+        gt = GT(frame_constructor(SIMPLE_DATA)).cols_merge(columns=["a", "b"])
 
         # Check that merge was registered
         assert len(gt._col_merge) == 1
@@ -336,24 +336,26 @@ class TestColsMergeIntegration:
         assert "2+5*8" in html
         assert "3+6*9" in html
 
-    def test_with_missing_values(self, missing_df: pd.DataFrame):
-        gt = GT(missing_df).cols_merge(columns=["val1", "val2"], pattern="{0}<< ({1})>>")
+    def test_with_missing_values(self, frame_constructor: DataFrameConstructor):
+        gt = GT(frame_constructor(MISSING_DATA)).cols_merge(
+            columns=["val1", "val2"], pattern="{0}<< ({1})>>"
+        )
 
         html = gt.as_raw_html()
-        assert "10 (15.0)" in html or "10.0 (15.0)" in html
-        assert "20 (25.0)" in html or "20.0 (25.0)" in html
-        assert "30<" in html or "30.0<" in html  # The '<' is part of the closing tag (missing val2)
+        assert "10 (15.5)" in html
+        assert "20 (25.5)" in html
+        assert "30<" in html  # The '<' is part of the closing tag (missing val2)
 
-    def test_nested_conditionals(self, missing_df: pd.DataFrame):
-        gt = GT(missing_df).cols_merge(
+    def test_nested_conditionals(self, frame_constructor: DataFrameConstructor):
+        gt = GT(frame_constructor(MISSING_DATA)).cols_merge(
             columns=["val1", "val2", "val3"], pattern="{0}<< ({1}-<<{2}>>)>>"
         )
 
         html = gt.as_raw_html()
 
-        assert "10 (15.0-5.0)" in html or "10.0 (15.0-5.0)" in html
-        assert "20 (25.0-)" in html or "20.0 (25.0-)" in html
-        assert "30<" in html or "30.0<" in html
+        assert "10 (15.5-5.5)" in html
+        assert "20 (25.5-)" in html
+        assert "30<" in html
 
     def test_minimum_columns_error(self, simple_df: pd.DataFrame):
         with pytest.raises(ValueError, match="At least two columns"):
@@ -387,13 +389,15 @@ class TestColsMergeIntegration:
         assert "2.000+5" in html
         assert "3.000+6" in html
 
-    def test_with_sub_missing(self, missing_df: pd.DataFrame):
+    def test_with_sub_missing(self, frame_constructor: DataFrameConstructor):
         """Test that sub_missing() replacements are NOT treated as missing.
 
         In R's gt, sub_missing() replacements mean the value is no longer considered
         NA for cols_merge() purposes. The "--" replacement should appear in the
         merged output, not cause the conditional section to be omitted.
         """
+        missing_df = frame_constructor(MISSING_DATA)
+
         # calling sub_missing() before cols_merge()
         gt_1 = (
             GT(missing_df)
@@ -413,21 +417,21 @@ class TestColsMergeIntegration:
         html_2 = gt_2.as_raw_html()
 
         # Row 0: All values are present (none are missing values)
-        assert "10 to 15.0 to 5.0" in html_1
-        assert "10 to 15.0 to 5.0" in html_2
+        assert "10 to 15.5 to 5.5" in html_1
+        assert "10 to 15.5 to 5.5" in html_2
 
         # Row 1: val3 was None, but sub_missing() replaced it with "--" so that "--"
         # should be included (it's treated as a non-missing value because of sub_missing())
-        assert "20 to 25.0 to --" in html_1
-        assert "20 to 25.0 to --" in html_2
+        assert "20 to 25.5 to --" in html_1
+        assert "20 to 25.5 to --" in html_2
 
         # Row 2: val2 and val3 were None, both replaced with "--" by sub_missing() so both of
         # the "--" values should be included in the output
         assert "30 to -- to --" in html_1
         assert "30 to -- to --" in html_2
 
-    def test_with_formatted_values(self):
-        df = pl.DataFrame({"a": [1, 2, None], "b": [10, None, 30], "c": [100, 200, 300]})
+    def test_with_formatted_values(self, frame_constructor: DataFrameConstructor):
+        df = frame_constructor({"a": [1, 2, None], "b": [10, None, 30], "c": [100, 200, 300]})
 
         gt = (
             GT(df)
@@ -435,10 +439,7 @@ class TestColsMergeIntegration:
             .fmt_integer(columns=["a", "b", "c"])
         )
 
-        html = gt.as_raw_html()
-
-        assert "1 (10)" in html or "1(10)" in html
-        assert "2<" in html  # The < is from the closing tag, not from the pattern
+        assert _body_cells(gt) == ["1 (10)", "100", "2", "200", "NA (30)", "300"]
 
 
 # =============================================================================
@@ -580,9 +581,9 @@ class TestColsMergeUncert:
         assert "10.0 \u00b1 0.5" in html
         assert "30.0 \u00b1 1.5" in html
 
-    def test_asymmetric_all_na_combinations(self):
+    def test_asymmetric_all_na_combinations(self, frame_constructor: DataFrameConstructor):
         """Test asymmetric uncertainty with all NA combinations (matches R gt behavior)."""
-        df = pl.DataFrame(
+        df = frame_constructor(
             {
                 "value": [34.5, 29.2, 36.3, 31.6, 28.5, 30.9, None, None],
                 "lu": [2.1, 2.4, 2.6, 1.8, None, None, 1.2, None],
@@ -591,25 +592,23 @@ class TestColsMergeUncert:
         )
 
         gt = GT(df).cols_merge_uncert(col_val="value", col_uncert=["lu", "uu"])
-        html = gt.as_raw_html()
 
-        # Row 1: both bounds present, asymmetric → val (+upper/−lower)
-        assert "+1.8" in html
-        assert "\u22122.1" in html  # minus sign
-
-        # Row 3: symmetric (lower == upper == 2.6) → val ± uncert
-        assert "36.3 \u00b1 2.6" in html
-
-        # Row 4: upper is NA → val (−lower)
-        assert "\u22121.8" in html
-
-        # Row 5: lower is NA → val (+upper)
-        assert "+1.6" in html
-
-        # Row 6: both bounds NA but val present → just val
-        assert "30.9" in html
-
-        # Row 7 & 8: val is NA → empty (nothing meaningful rendered)
+        assert _body_cells(gt) == [
+            # both bounds present, asymmetric → val (+upper/−lower)
+            "34.5 (+1.8/\u22122.1)",
+            "29.2 (+2.7/\u22122.4)",
+            # symmetric (lower == upper == 2.6) → val ± uncert
+            "36.3 \u00b1 2.6",
+            # upper is NA → val (−lower)
+            "31.6 (\u22121.8)",
+            # lower is NA → val (+upper)
+            "28.5 (+1.6)",
+            # both bounds NA but val present → just val
+            "30.9",
+            # val is NA → empty
+            "",
+            "",
+        ]
 
     def test_symmetric_when_bounds_equal(self):
         """Test that when lower == upper, symmetric format (±) is used."""
@@ -635,23 +634,23 @@ class TestColsMergeUncert:
 
         assert _body_cells(gt) == ["1.0 (+0.1/\u22120.1)", "2.0 \u00b1 0.50"]
 
-    def test_with_sub_missing(self):
+    def test_with_sub_missing(self, frame_constructor: DataFrameConstructor):
         """Test that sub_missing() text isn't merged in as an uncertainty or base value."""
-        df = pl.DataFrame({"val": [10.0, 20.0, None, None], "uncert": [0.5, None, 1.0, None]})
+        df = frame_constructor({"val": [10.5, 20.5, None, None], "uncert": [0.5, None, 1.0, None]})
 
         gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert").sub_missing()
 
-        assert _body_cells(gt) == ["10.0 \u00b1 0.5", "20.0", "&mdash;", "&mdash;"]
+        assert _body_cells(gt) == ["10.5 \u00b1 0.5", "20.5", "&mdash;", "&mdash;"]
 
-    def test_asymmetric_with_sub_missing(self):
+    def test_asymmetric_with_sub_missing(self, frame_constructor: DataFrameConstructor):
         """Test that sub_missing() text isn't merged in as a lower or upper bound."""
-        df = pl.DataFrame(
-            {"val": [1.0, 2.0, 3.0], "lower": [0.1, None, None], "upper": [0.2, 0.3, None]}
+        df = frame_constructor(
+            {"val": [1.5, 2.5, 3.5], "lower": [0.1, None, None], "upper": [0.2, 0.3, None]}
         )
 
         gt = GT(df).cols_merge_uncert(col_val="val", col_uncert=["lower", "upper"]).sub_missing()
 
-        assert _body_cells(gt) == ["1.0 (+0.2/\u22120.1)", "2.0 (+0.3)", "3.0"]
+        assert _body_cells(gt) == ["1.5 (+0.2/\u22120.1)", "2.5 (+0.3)", "3.5"]
 
     def test_asymmetric_minus_sign_latex(self):
         """Test that an ASCII minus sign is used for the lower bound in LaTeX output."""
@@ -717,15 +716,13 @@ class TestColsMergeRange:
         # "20" should appear alone
         assert "20" in html
 
-    def test_na_in_both(self):
+    def test_na_in_both(self, frame_constructor: DataFrameConstructor):
         """Test that NA in both columns produces empty result."""
-        df = pl.DataFrame({"low": [10, None, 30], "high": [15, None, 35]})
+        df = frame_constructor({"low": [10.5, None, 30.5], "high": [15.5, None, 35.5]})
 
         gt = GT(df).cols_merge_range(col_begin="low", col_end="high")
-        html = gt.as_raw_html()
 
-        assert "10\u201315" in html
-        assert "30\u201335" in html
+        assert _body_cells(gt) == ["10.5\u201315.5", "", "30.5\u201335.5"]
 
     def test_custom_sep(self):
         """Test custom separator."""
@@ -975,7 +972,7 @@ class TestColsMergeNPct:
         assert "10 (16.7%)" in html
         assert "30 (50.0%)" in html
 
-    def test_comprehensive_na_zero_matrix(self):
+    def test_comprehensive_na_zero_matrix(self, frame_constructor: DataFrameConstructor):
         """Test all combinations of NA and zero values (mirrors R gt test matrix).
 
         R gt expected outputs for this dataset:
@@ -990,37 +987,42 @@ class TestColsMergeNPct:
         - (0, NA)      → "0"           (zero + NA pct → just zero)
         - (NA, 0)      → ""            (NA in col_n)
         """
-        df = pl.DataFrame(
+        df = frame_constructor(
             {
                 "a": [1, 5, 0, 2, None, 6, 5, None, 0, None],
                 "b": [0.0714, 0.3571, 0.0, 0.1429, None, 0.4286, None, 1000.0, None, 0.0],
             }
         )
 
-        gt = GT(df).fmt_percent(columns="b", decimals=1).cols_merge_n_pct(col_n="a", col_pct="b")
-        html = gt.as_raw_html()
-
-        # Positive cases: n with pct
-        assert "1 (7.1%)" in html
-        assert "5 (35.7%)" in html
-        assert "2 (14.3%)" in html
-        assert "6 (42.9%)" in html
-
-        # Zero in col_n: no percentage shown
-        # We check that "0 (" doesn't appear (zero rows don't get parens)
-        # Note: "0" should appear without parentheses for zero rows
-
-        # NA in col_pct only: show just the count
-        # Row 7: n=5, pct=NA → "5" (without parens)
-
-        # NA in col_n: empty result (no meaningful content for that cell)
-
-    def test_with_sub_missing(self):
-        """Test that sub_missing() text isn't merged in as a count or percentage."""
-        df = pl.DataFrame({"n": [10, 20, None, None], "pct": [0.5, None, 0.25, None]})
-
+        # plain pandas stores the counts as float64, so format them as integers
         gt = (
             GT(df)
+            .fmt_integer(columns="a")
+            .fmt_percent(columns="b", decimals=1)
+            .cols_merge_n_pct(col_n="a", col_pct="b")
+        )
+
+        assert _body_cells(gt) == [
+            "1 (7.1%)",
+            "5 (35.7%)",
+            "0",
+            "2 (14.3%)",
+            "",
+            "6 (42.9%)",
+            "5",
+            "",
+            "0",
+            "",
+        ]
+
+    def test_with_sub_missing(self, frame_constructor: DataFrameConstructor):
+        """Test that sub_missing() text isn't merged in as a count or percentage."""
+        df = frame_constructor({"n": [10, 20, None, None], "pct": [0.5, None, 0.25, None]})
+
+        # plain pandas stores the counts as float64, so format them as integers
+        gt = (
+            GT(df)
+            .fmt_integer(columns="n")
             .fmt_percent(columns="pct", decimals=0)
             .cols_merge_n_pct(col_n="n", col_pct="pct")
             .sub_missing()
