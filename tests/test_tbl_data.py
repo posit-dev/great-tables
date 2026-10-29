@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import polars as pl
 import pyarrow as pa
+import pyarrow.compute as pc
 import pytest
 from syrupy.assertion import SnapshotAssertion
 
@@ -289,6 +290,38 @@ def test_is_numeric_dtype_pyarrow_containers(dtype, pandas_backed: bool):
     else:
         df = pa.table({"items": pa.array([], type=dtype)})
     assert not _is_numeric_dtype(df, "items")
+
+
+@pytest.mark.parametrize(
+    "make_frame",
+    [
+        pytest.param(
+            lambda: pl.DataFrame(
+                {"x": ["point", "line"]}, schema={"x": pl.Enum(["point", "line"])}
+            ),
+            id="polars-enum",
+        ),
+        pytest.param(lambda: pd.DataFrame({"x": pd.interval_range(0, 2)}), id="pandas-interval"),
+        pytest.param(
+            lambda: pa.table({"x": pc.run_end_encode(pa.array(["a", "b"]))}),
+            id="pyarrow-run_end_encoded",
+        ),
+        pytest.param(
+            lambda: pd.DataFrame(
+                {
+                    "x": pd.array(
+                        ree := pc.run_end_encode(pa.array(["a", "b"])), pd.ArrowDtype(ree.type)
+                    )
+                }
+            ),
+            id="pandas-arrow-run_end_encoded",
+        ),
+    ],
+)
+def test_is_numeric_dtype_parameterized_dtypes(make_frame: Callable[[], DataFrameLike]):
+    # These dtypes name their parameters: an Enum its categories ("point" contains "int"), an
+    # interval its subtype and a run-end-encoded array its run-end type (#1045)
+    assert not _is_numeric_dtype(make_frame(), "x")
 
 
 def test_is_numeric_dtype_missing_column(df: DataFrameLike):
