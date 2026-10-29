@@ -12,6 +12,7 @@ import pyarrow.compute as pc
 import pytest
 
 from great_tables import GT, html, md, style, loc
+from great_tables._tbl_data import _re_version
 from great_tables.data import exibble
 from tests.utils import DataFrameConstructor
 
@@ -650,6 +651,10 @@ class TestNumericSorting:
                 lambda: pa.table({"x": pc.run_end_encode(pa.array(["a", "a", "b"]))}),
                 ["a", "a", "b"],
                 id="pyarrow-run_end_encoded",
+                marks=pytest.mark.skipif(
+                    _re_version(pa.__version__) < (26, 0, 0),
+                    reason="pyarrow < 26 can't cast run-end-encoded arrays to string",
+                ),
             ),
         ],
     )
