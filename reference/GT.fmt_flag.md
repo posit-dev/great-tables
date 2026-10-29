@@ -4,7 +4,7 @@ Generate flag icons for countries from their country codes.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8841-L8964)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8844-L8967)
 
 ``` python
 GT.fmt_flag(

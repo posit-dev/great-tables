@@ -5,7 +5,6 @@
 | Package | Version Constraint | Last Published | PyPI |
 |----|----|----|----|
 | `multimark` | `>=0.1.3` | 2026-10-06 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/multimark/) |
-| `faicons` | `>=0.2.2` | 2024-01-16 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/faicons/) |
 | `importlib-metadata` | -- | 2026-10-24 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/importlib-metadata/) |
 | `nokap` | `>=0.1.0` | 2026-06-08 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/nokap/) |
 | `typing_extensions` | `>=3.10.0.0` | 2026-07-02 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/typing_extensions/) |
@@ -58,6 +57,6 @@
 ## Summary
 
 - **Requires:** Python `>=3.10`
-- **Runtime Dependencies:** 7
+- **Runtime Dependencies:** 6
 - **Optional Dependencies:** 4 groups (19 unique packages)
-- **Total unique dependencies:** 26
+- **Total unique dependencies:** 25
