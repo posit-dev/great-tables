@@ -1,5 +1,5 @@
 # serializer version: 1
-# name: test_grand_summary_rows_snap[pd_and_pl]
+# name: test_grand_summary_rows_snap[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -94,7 +94,7 @@
   </tbody>
   '''
 # ---
-# name: test_summary_rows_snap[pd_and_pl]
+# name: test_summary_rows_snap[all]
   '''
   <tbody class="gt_table_body">
     <tr class="gt_group_heading_row">
