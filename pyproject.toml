@@ -42,7 +42,6 @@ classifiers = [
 dependencies = [
     "multimark>=0.1.3",
     "faicons>=0.2.2",
-    "htmltools>=0.4.1",
     "importlib-metadata",
     "nokap>=0.1.0",
     "typing_extensions>=3.10.0.0",
