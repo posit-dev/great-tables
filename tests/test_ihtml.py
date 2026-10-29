@@ -5,10 +5,14 @@ from __future__ import annotations
 import json
 import re
 
-import pytest
+import pandas as pd
 import polars as pl
+import pyarrow as pa
+import pyarrow.compute as pc
+import pytest
 
 from great_tables import GT, html, md, style, loc
+from great_tables._tbl_data import _re_version
 from great_tables.data import exibble
 from tests.utils import DataFrameConstructor
 
@@ -627,6 +631,40 @@ class TestNumericSorting:
         assert props["data"]["items"] == ["[1, 2]", "[3]", "[]", ""]
         assert col_map["num"]["type"] == "numeric"
         assert props["data"]["num"] == [1.5, 22.25, 3.0, None]
+
+    @pytest.mark.parametrize(
+        "make_frame, expected",
+        [
+            pytest.param(
+                lambda: pl.DataFrame(
+                    {"x": ["point", "line", "point"]}, schema={"x": pl.Enum(["point", "line"])}
+                ),
+                ["point", "line", "point"],
+                id="polars-enum",
+            ),
+            pytest.param(
+                lambda: pd.DataFrame({"x": pd.interval_range(0, 3)}),
+                ["(0, 1]", "(1, 2]", "(2, 3]"],
+                id="pandas-interval",
+            ),
+            pytest.param(
+                lambda: pa.table({"x": pc.run_end_encode(pa.array(["a", "a", "b"]))}),
+                ["a", "a", "b"],
+                id="pyarrow-run_end_encoded",
+                marks=pytest.mark.skipif(
+                    _re_version(pa.__version__) < (26, 0, 0),
+                    reason="pyarrow < 26 can't cast run-end-encoded arrays to string",
+                ),
+            ),
+        ],
+    )
+    def test_parameterized_dtypes_are_not_numeric(self, make_frame, expected):
+        # These dtypes name their parameters, so their values used to go through `float()` (#1045)
+        props = _extract_props(GT(make_frame()).opt_interactive().as_raw_html())
+        col_map = {c["id"]: c for c in props["columns"]}
+
+        assert "type" not in col_map["x"]
+        assert props["data"]["x"] == expected
 
     def test_numeric_columns_have_type_numeric(self):
         df = pl.DataFrame({"symbol": ["A", "B", "C"], "price": [227.5, 431.2, 118.9]})
