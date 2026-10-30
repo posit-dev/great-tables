@@ -47,7 +47,7 @@ def _data_color_renderer(data: DataLike, **kwargs: Any) -> Render:
     return lambda constructor: body_html(GT(constructor(data)).data_color(**kwargs))
 
 
-def get_first_style(obj: StyleInfo, cls: Type[T_CellStyle]) -> Type[T_CellStyle]:
+def get_first_style(obj: StyleInfo, cls: Type[T_CellStyle]) -> T_CellStyle:
     for cell_style in obj.styles:
         if isinstance(cell_style, cls):
             return cell_style
