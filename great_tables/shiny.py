@@ -8,9 +8,10 @@ __all__ = (
 import warnings
 
 from .gt import GT
-from htmltools import Tag, div, HTML
 
 try:
+    # (htmltools is a dependency of shiny, not of great_tables)
+    from htmltools import HTML, Tag, div
     from shiny.render.transformer import (
         output_transformer,
         TransformerMetadata,

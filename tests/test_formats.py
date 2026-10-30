@@ -3082,7 +3082,7 @@ def test_fmt_icon_fill_color_dict_none():
     assert bool(re.search('style="fill:blue;', column_vals[1]))
     assert bool(
         re.search(
-            'style="stroke-width:1px;height:1em;width:1.12em;position:relative;vertical-align:-0.125em;overflow:visible;">',
+            'style="fill:currentColor;stroke-width:1px;height:1em;width:1.12em;margin-left:auto;margin-right:auto;position:relative;vertical-align:-0.125em;overflow:visible;">',
             column_vals[2],
         )
     )
@@ -3104,7 +3104,7 @@ def test_fmt_icon_multiple_attrs():
     )
 
     assert (
-        'style="fill:red;fill-opacity:0.25;stroke:gray;stroke-width:2px;stroke-opacity:0.5;height:20px;width:25.0px;margin-left:3px;margin-right:4px;position:relative;vertical-align:-0.125em;overflow:visible;"'
+        'style="fill:red;fill-opacity:0.25;stroke:gray;stroke-width:2px;stroke-opacity:0.5;height:20px;width:25px;margin-left:3px;margin-right:4px;position:relative;vertical-align:-0.125em;overflow:visible;"'
         in _get_column_of_values(gt, column_name="x", context="html")[0]
     )
 
