@@ -19,10 +19,11 @@ PD_NA_CONSTRUCTORS = ("pandas_nullable_constructor", "pandas_pyarrow_constructor
 def _xfail_on_pd_na(
     frame_constructor: DataFrameConstructor,
     request: pytest.FixtureRequest,
+    raises: type[BaseException] = AssertionError,
 ) -> None:
     if frame_constructor.__name__ in PD_NA_CONSTRUCTORS:
         request.applymarker(
-            pytest.mark.xfail(strict=True, raises=AssertionError, reason=PD_NA_NOT_NORMALIZED)
+            pytest.mark.xfail(strict=True, raises=raises, reason=PD_NA_NOT_NORMALIZED)
         )
 
 
@@ -367,6 +368,18 @@ def test_tab_style_body_nan_normalized_to_none_values(
     new_gt = GT(df).tab_style_body(style=style.fill(color="red"), values=[None])
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
     assert styled_cells == {("x", 1)}
+
+
+def test_tab_style_body_fn_skips_missing(
+    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
+):
+    # `pd.NA >= 20` returns `pd.NA`, and taking its truth value raises outside the matcher's `try`
+    _xfail_on_pd_na(frame_constructor, request, raises=TypeError)
+    df = frame_constructor({"x": [10.5, None, 30.5]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="pink"), fn=lambda val: val >= 20)
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    # `None >= 20` raises inside the matcher, so the missing cell is skipped
+    assert styled_cells == {("x", 2)}
 
 
 # =============================================================================
