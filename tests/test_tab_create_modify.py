@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 import polars as pl
 import pytest
@@ -6,6 +8,22 @@ from great_tables._locations import LocBody
 from great_tables._styles import CellStyleFill
 from great_tables._tab_create_modify import tab_style
 from polars import selectors as cs
+from tests.utils import ISSUES, DataFrameConstructor
+
+# `tab_style_body()` turns only a float NaN into `None`, so the nullable and pyarrow-backed pandas
+# constructors hand `pd.NA` to the matcher
+PD_NA_NOT_NORMALIZED = f"{ISSUES}/1053"
+PD_NA_CONSTRUCTORS = ("pandas_nullable_constructor", "pandas_pyarrow_constructor")
+
+
+def _xfail_on_pd_na(
+    frame_constructor: DataFrameConstructor,
+    request: pytest.FixtureRequest,
+) -> None:
+    if frame_constructor.__name__ in PD_NA_CONSTRUCTORS:
+        request.applymarker(
+            pytest.mark.xfail(strict=True, raises=AssertionError, reason=PD_NA_NOT_NORMALIZED)
+        )
 
 
 @pytest.fixture
@@ -70,8 +88,8 @@ def test_tab_style_font_local(gt: GT):
     )
 
 
-def test_tab_style_font_from_column():
-    tbl = pl.DataFrame({"x": [1, 2], "font": ["Helvetica", "Courier"]})
+def test_tab_style_font_from_column(frame_constructor: DataFrameConstructor):
+    tbl = frame_constructor({"x": [1, 2], "font": ["Helvetica", "Courier"]})
 
     gt_tbl = GT(tbl).tab_style(
         style=style.text(font=from_column(column="font")), locations=loc.body(columns="x")
@@ -79,8 +97,10 @@ def test_tab_style_font_from_column():
 
     rendered_html = gt_tbl.as_raw_html()
 
-    assert rendered_html.find('<td style="font-family: Helvetica;" class="gt_row gt_right">1</td>')
-    assert rendered_html.find('<td style="font-family: Courier;" class="gt_row gt_right">2</td>')
+    assert re.findall(r'<td style="([^"]*)" headers="x"', rendered_html) == [
+        "font-family: Helvetica;",
+        "font-family: Courier;",
+    ]
 
 
 def test_tab_style_loc_body_mask(gt2: GT):
@@ -163,36 +183,29 @@ def test_tab_style_loc_body_mask_rows_not_equal_raises(gt2: GT):
 # =============================================================================
 
 
-def test_tab_style_body_values():
-    df = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+def test_tab_style_body_values(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1, 2, 3], "y": [4, 5, 6]})
     new_gt = GT(df).tab_style_body(style=style.fill(color="orange"), values=[2, 5])
     assert len(new_gt._styles) == 2
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
-    assert ("x", 1) in styled_cells
-    assert ("y", 1) in styled_cells
+    assert styled_cells == {("x", 1), ("y", 1)}
 
 
-def test_tab_style_body_pattern():
-    df = pd.DataFrame({"name": ["alice", "bob", "anna"], "score": [1, 2, 3]})
+def test_tab_style_body_pattern(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"name": ["alice", "bob", "anna"], "score": [1, 2, 3]})
     new_gt = GT(df).tab_style_body(style=style.fill(color="green"), pattern="^a")
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
-    assert ("name", 0) in styled_cells  # alice
-    assert ("name", 2) in styled_cells  # anna
-    assert ("score", 0) not in styled_cells  # "1" doesn't match "^a"
+    assert styled_cells == {("name", 0), ("name", 2)}
 
 
-def test_tab_style_body_fn():
-    df = pd.DataFrame({"x": [10, 20, 30], "y": [40, 50, 60]})
+def test_tab_style_body_fn(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [10, 20, 30], "y": [40, 50, 60]})
     new_gt = GT(df).tab_style_body(
         style=style.fill(color="pink"),
         fn=lambda val: val >= 30,
     )
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
-    assert ("x", 2) in styled_cells  # 30
-    assert ("y", 0) in styled_cells  # 40
-    assert ("y", 1) in styled_cells  # 50
-    assert ("y", 2) in styled_cells  # 60
-    assert ("x", 0) not in styled_cells  # 10
+    assert styled_cells == {("x", 2), ("y", 0), ("y", 1), ("y", 2)}
 
 
 def test_tab_style_body_fn_precedence_over_values():
@@ -306,25 +319,16 @@ def test_tab_style_body_fn_exception_skips():
     assert ("x", 1) not in styled_cells  # "text" > 2 raises, skipped
 
 
-def test_tab_style_body_pattern_none_skipped():
-    df = pd.DataFrame({"x": [None, "hello", None]})
-    new_gt = GT(df).tab_style_body(style=style.fill(color="blue"), pattern="hello")
+def test_tab_style_body_pattern_none_skipped(
+    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
+):
+    # `pd.NA` is matched as the text "<NA>"
+    _xfail_on_pd_na(frame_constructor, request)
+    df = frame_constructor({"x": [None, "hello", None]})
+    # "." matches any text, so a missing value stays unstyled only if it is skipped
+    new_gt = GT(df).tab_style_body(style=style.fill(color="blue"), pattern=".")
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
-    assert ("x", 1) in styled_cells
-    assert ("x", 0) not in styled_cells
-    assert ("x", 2) not in styled_cells
-
-
-def test_tab_style_body_polars():
-    df = pl.DataFrame({"x": [10, 20, 30], "y": [1, 2, 3]})
-    new_gt = GT(df).tab_style_body(
-        style=style.fill(color="yellow"),
-        fn=lambda val: val >= 20,
-    )
-    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
-    assert ("x", 1) in styled_cells  # 20
-    assert ("x", 2) in styled_cells  # 30
-    assert ("y", 2) not in styled_cells  # 3 < 20
+    assert styled_cells == {("x", 1)}
 
 
 def test_tab_style_body_multiple_styles():
@@ -343,21 +347,26 @@ def test_tab_style_body_renders_html():
     assert "orange" in html
 
 
-def test_tab_style_body_nan_normalized_to_none_fn():
-    df = pd.DataFrame({"x": [1.0, None, 3.0], "y": ["a", None, "c"]})
+def test_tab_style_body_nan_normalized_to_none_fn(
+    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
+):
+    _xfail_on_pd_na(frame_constructor, request)
+    # whole floats would become ints on the nullable and pyarrow-backed pandas constructors
+    df = frame_constructor({"x": [1.5, None, 3.5], "y": ["a", None, "c"]})
     new_gt = GT(df).tab_style_body(style=style.fill(color="red"), fn=lambda x: x is None)
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
-    assert ("x", 1) in styled_cells  # NaN normalized to None
-    assert ("y", 1) in styled_cells  # actual None
-    assert len(styled_cells) == 2
+    # plain pandas stores the missing float as NaN, which is normalized to None
+    assert styled_cells == {("x", 1), ("y", 1)}
 
 
-def test_tab_style_body_nan_normalized_to_none_values():
-    df = pd.DataFrame({"x": [1.0, None, 3.0]})
+def test_tab_style_body_nan_normalized_to_none_values(
+    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
+):
+    _xfail_on_pd_na(frame_constructor, request)
+    df = frame_constructor({"x": [1.5, None, 3.5]})
     new_gt = GT(df).tab_style_body(style=style.fill(color="red"), values=[None])
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
-    assert ("x", 1) in styled_cells
-    assert len(styled_cells) == 1
+    assert styled_cells == {("x", 1)}
 
 
 # =============================================================================
@@ -419,13 +428,13 @@ def test_text_transform_polars():
     assert "WORLD" in html
 
 
-def test_text_transform_skips_na():
-    df = pd.DataFrame({"x": [1.0, None, 3.0]})
+def test_text_transform_skips_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1.5, None, 3.5]})
     html = (
         GT(df).text_transform(locations=loc.body(columns="x"), fn=lambda x: f"[{x}]").as_raw_html()
     )
-    assert "[1.0]" in html
-    assert "[3.0]" in html
+    cells = re.findall(r'<td headers="x" class="gt_row[^"]*">(.*?)</td>', html)
+    assert cells == ["[1.5]", "None", "[3.5]"]
 
 
 def test_text_transform_chaining():
