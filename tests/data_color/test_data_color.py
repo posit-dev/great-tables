@@ -5,27 +5,46 @@ import numpy as np
 import pandas as pd
 import polars as pl
 import pyarrow as pa
+import pyarrow.compute as pc
 import pytest
+from syrupy.assertion import SnapshotAssertion
 
 from great_tables import GT, style
 from great_tables._gt_data import CellStyle, StyleInfo
-from great_tables._tbl_data import DataFrameLike
-from great_tables._utils_render_html import create_body_component_h
+from great_tables._tbl_data import DataFrameLike, is_na
 from great_tables.data import exibble
-from tests.utils import DataFrameConstructor, assert_rendered_body
+from tests.utils import (
+    INT_UPCAST,
+    OBJECT_ALIGNED_RIGHT,
+    DataFrameConstructor,
+    DataLike,
+    Divergent,
+    Render,
+    assert_parity,
+    assert_rendered_body,
+    body_html,
+    by_backend,
+)
 
 T_CellStyle = TypeVar("T_CellStyle", bound=CellStyle)
 
-params_frames = [
-    pytest.param(pd.DataFrame, id="pandas"),
-    pytest.param(pl.DataFrame, id="polars"),
-    pytest.param(pa.table, id="pyarrow"),
-]
+# plain and nullable pandas keep an all-missing column as `object`, which is right-aligned
+PANDAS_ALL_MISSING_ALIGNED_RIGHT = Divergent(
+    pandas_constructor=OBJECT_ALIGNED_RIGHT, pandas_nullable_constructor=OBJECT_ALIGNED_RIGHT
+)
+PANDAS_INT_UPCAST = Divergent(pandas_constructor=INT_UPCAST)
+
+EXIBBLE_DATA = exibble[["num", "char", "currency"]].head(4).to_dict("list")
+COLS_ROWS_DATA = {"a": [1, 2, 3, 4, 5, 200], "b": [51, 52, 53, 54, 55, 200]}
 
 
-@pytest.fixture(params=params_frames, scope="function")
-def df(request) -> DataFrameLike:
-    return request.param(exibble[["num", "char", "currency"]].head(4))
+@pytest.fixture
+def df(frame_constructor: DataFrameConstructor) -> DataFrameLike:
+    return frame_constructor(EXIBBLE_DATA)
+
+
+def _data_color_renderer(data: DataLike, **kwargs: Any) -> Render:
+    return lambda constructor: body_html(GT(constructor(data)).data_color(**kwargs))
 
 
 def get_first_style(obj: StyleInfo, cls: Type[T_CellStyle]) -> Type[T_CellStyle]:
@@ -50,19 +69,30 @@ def test_data_color_simple_df_snap(snapshot: str):
     assert_rendered_body(snapshot, new_gt)
 
 
-def test_data_color_simple_exibble_snap(snapshot: str, df: DataFrameLike):
-    gt = GT(df).data_color()
+def test_data_color_simple_exibble_snap(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
+    assert_parity(snapshot, all_frame_constructors, _data_color_renderer(EXIBBLE_DATA))
 
-    assert_rendered_body(snapshot, gt)
+
+def test_data_color_cols_rows_snap(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
+    render = _data_color_renderer(COLS_ROWS_DATA, columns=["a"], rows=[0, 1, 2, 3, 4])
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
-def test_data_color_pd_cols_rows_snap(snapshot: str):
-    df = pd.DataFrame({"a": [1, 2, 3, 4, 5, 200], "b": [51, 52, 53, 54, 55, 200]})
-    new_gt = GT(df).data_color(columns=["a"], rows=[0, 1, 2, 3, 4])
-    assert_rendered_body(snapshot, new_gt)
-    new_gt2 = GT(df).data_color(columns=["a"], rows=lambda df_: df_["a"].lt(60))
-    assert create_body_component_h(new_gt._build_data("html")) == create_body_component_h(
-        new_gt2._build_data("html")
+def test_data_color_rows_callable_matches_indices(frame_constructor: DataFrameConstructor):
+    df = frame_constructor(COLS_ROWS_DATA)
+    a_lt_60 = by_backend(
+        df,
+        pandas=lambda df_: df_["a"] < 60,
+        polars=lambda df_: df_["a"] < 60,
+        pyarrow=lambda tbl: pc.less(tbl["a"], 60),
+    )
+
+    assert body_html(GT(df).data_color(columns=["a"], rows=a_lt_60)) == body_html(
+        GT(df).data_color(columns=["a"], rows=[0, 1, 2, 3, 4])
     )
 
 
@@ -73,9 +103,7 @@ def test_data_color_pl_cols_rows_snap(snapshot: str):
     new_gt = GT(df).data_color(columns=["b"], rows=[0, 1, 2, 3, 4])
     assert_rendered_body(snapshot, new_gt)
     new_gt2 = GT(df).data_color(columns=cs.starts_with("b"), rows=pl.col("b").lt(60))
-    assert create_body_component_h(new_gt._build_data("html")) == create_body_component_h(
-        new_gt2._build_data("html")
-    )
+    assert body_html(new_gt) == body_html(new_gt2)
 
 
 def test_data_color_no_rows_selected(frame_constructor: DataFrameConstructor):
@@ -86,76 +114,86 @@ def test_data_color_no_rows_selected(frame_constructor: DataFrameConstructor):
 
 
 @pytest.mark.parametrize("none_val", [None, np.nan, float("nan"), pd.NA])
-@pytest.mark.parametrize("df_cls", [pd.DataFrame, pl.DataFrame])
-def test_data_color_missing_value(df_cls, none_val):
-    from great_tables import GT
-
-    # skip the case where pd.NA would be passed to polars
-    # since it raises an error on DataFrame construction
-    if df_cls is pl.DataFrame and none_val is pd.NA:
+def test_data_color_missing_value(frame_constructor: DataFrameConstructor, none_val):
+    # only pandas can build a column holding pd.NA
+    if none_val is pd.NA and not frame_constructor.__name__.startswith("pandas_"):
         pytest.skip()
 
-    df = df_cls({"x": [1.0, 2.0, none_val], "y": [3, 4, 5]})
+    # whole floats would become ints on the nullable and pyarrow-backed pandas constructors
+    df = frame_constructor({"x": [1.5, 2.5, none_val], "y": [3, 4, 5]})
     new_gt = GT(df).data_color("x", na_color="#FFFFF0")
     assert len(new_gt._styles) == 3
     assert get_first_style(new_gt._styles[-1], style.fill).color == "#FFFFF0"
 
 
-def test_data_color_palette_snap(snapshot, df: DataFrameLike):
-    gt = GT(df).data_color(columns=["num", "currency"], palette=["red", "green"])
-
-    assert_rendered_body(snapshot, gt)
-
-
-def test_data_color_domain_na_color_snap(snapshot: str, df: DataFrameLike):
-    """`data_color` works with `domain` and `na_color`."""
-    gt = GT(df).data_color(
-        columns="currency", palette=["red", "green"], domain=[0, 50], na_color="blue"
+def test_data_color_palette_snap(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
+    render = _data_color_renderer(
+        EXIBBLE_DATA, columns=["num", "currency"], palette=["red", "green"]
     )
+    assert_parity(snapshot, all_frame_constructors, render)
 
-    assert_rendered_body(snapshot, gt)
+
+def test_data_color_domain_na_color_snap(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
+    """`data_color` works with `domain` and `na_color`."""
+    render = _data_color_renderer(
+        EXIBBLE_DATA, columns="currency", palette=["red", "green"], domain=[0, 50], na_color="blue"
+    )
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
-def test_data_color_domain_na_color_reverse_snap(snapshot: str, df: DataFrameLike):
+def test_data_color_domain_na_color_reverse_snap(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
     """`data_color` works with `domain`, `na_color`, and `reverse`."""
-    gt = GT(df).data_color(
+    render = _data_color_renderer(
+        EXIBBLE_DATA,
         columns="currency",
         palette=["red", "green"],
         domain=[0, 50],
         na_color="blue",
         reverse=True,
     )
+    assert_parity(snapshot, all_frame_constructors, render)
 
-    assert_rendered_body(snapshot, gt)
 
-
-def test_data_color_overlapping_domain(snapshot: str, df: DataFrameLike):
+def test_data_color_overlapping_domain(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
     """`data_color` works with overlapping `domain` (RHS domain extends outside the data range)."""
-    gt = GT(df).data_color(
+    render = _data_color_renderer(
+        EXIBBLE_DATA,
         columns="currency",
         palette=["yellow", "rebeccapurple"],
         domain=[1000, 65555],
         na_color="red",
     )
+    assert_parity(snapshot, all_frame_constructors, render)
 
-    assert_rendered_body(snapshot, gt)
 
-
-def test_data_color_subset_domain(snapshot: str, df: DataFrameLike):
+def test_data_color_subset_domain(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
     """`data_color` works with subset `domain`."""
-    gt = GT(df).data_color(
+    render = _data_color_renderer(
+        EXIBBLE_DATA,
         columns="currency",
         palette=["yellow", "rebeccapurple"],
         domain=[1000, 60000],
         na_color="red",
     )
+    assert_parity(snapshot, all_frame_constructors, render)
 
-    assert_rendered_body(snapshot, gt)
 
-
-def test_data_color_autocolor_text_false(snapshot: str, df: DataFrameLike):
+def test_data_color_autocolor_text_false(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
     """`data_color` works with `autocolor_text=False`."""
-    gt = GT(df).data_color(
+    render = _data_color_renderer(
+        EXIBBLE_DATA,
         columns="currency",
         palette=["red", "green"],
         domain=[0, 50],
@@ -163,8 +201,7 @@ def test_data_color_autocolor_text_false(snapshot: str, df: DataFrameLike):
         reverse=True,
         autocolor_text=False,
     )
-
-    assert_rendered_body(snapshot, gt)
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
 def test_data_color_contrast_algo(df: DataFrameLike):
@@ -269,86 +306,58 @@ def test_data_color_viridis_snap(snapshot: str):
     assert_rendered_body(snapshot, new_gt)
 
 
-# Pandas: Single value -- single color; uses first color from palette
-def test_single_value_pd(snapshot: str):
-    df = pd.DataFrame({"x": [1], "y": [3]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
-
-    assert_rendered_body(snapshot, new_gt)
-
-
-# Pandas: Single value -- multiple rows (rest of the rows are missing); uses first color
-# from palette and applies `na_color=` to the missing rows
-def test_single_value_from_multiple_rows_pd(snapshot: str):
-    df = pd.DataFrame({"x": [1, None], "y": [3, 4]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
-
-    assert_rendered_body(snapshot, new_gt)
+# Single value, single color: uses the first color from the palette
+def test_single_value(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
+    render = _data_color_renderer(
+        {"x": [1], "y": [3]}, columns="x", palette=["green", "blue"], na_color="red"
+    )
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
-# Pandas: Multiple rows in a column but all are missing; applies `na_color=` to all rows
-def test_all_missing_from_multiple_rows_pd(snapshot: str):
-    df = pd.DataFrame({"x": [None, None], "y": [3, 6]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
-
-    assert_rendered_body(snapshot, new_gt)
-
-
-# Pandas: Single missing value from a single row; applies `na_color=` to the missing value
-def test_single_value_and_missing_pd(snapshot: str):
-    df = pd.DataFrame({"x": [None], "y": [3]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
-
-    assert_rendered_body(snapshot, new_gt)
+# Single value in multiple rows (the other rows are missing): uses the first color
+# from the palette and applies `na_color=` to the missing rows
+def test_single_value_from_multiple_rows(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
+    render = _data_color_renderer(
+        {"x": [1, None], "y": [3, 4]}, columns="x", palette=["green", "blue"], na_color="red"
+    )
+    assert_parity(snapshot, all_frame_constructors, render, PANDAS_INT_UPCAST)
 
 
-# Pandas: Non-missing values have a domain range of 0; applies `na_color=` to the missing values
-def test_all_values_have_zero_range_domain_pd(snapshot: str):
-    df = pd.DataFrame({"x": [2, 2, None, None], "y": [3, 4, 5, 6]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], domain=[0, 0])
-
-    assert_rendered_body(snapshot, new_gt)
-
-
-# Polars: Single value -- single color; uses first color from palette
-def test_single_value_pl(snapshot: str):
-    df = pl.DataFrame({"x": [1], "y": [3]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
-
-    assert_rendered_body(snapshot, new_gt)
+# Multiple rows in a column but all are missing; applies `na_color=` to all rows
+def test_all_missing_from_multiple_rows(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
+    render = _data_color_renderer(
+        {"x": [None, None], "y": [3, 6]}, columns="x", palette=["green", "blue"], na_color="red"
+    )
+    assert_parity(snapshot, all_frame_constructors, render, PANDAS_ALL_MISSING_ALIGNED_RIGHT)
 
 
-# Polars: Single value -- multiple rows (rest of the rows are missing); uses first color
-# from palette and applies `na_color=` to the missing rows
-def test_single_value_from_multiple_rows_pl(snapshot: str):
-    df = pl.DataFrame({"x": [1, None], "y": [3, 4]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
-
-    assert_rendered_body(snapshot, new_gt)
-
-
-# Polars: Multiple rows in a column but all are missing; applies `na_color=` to all rows
-def test_all_missing_from_multiple_rows_pl(snapshot: str):
-    df = pl.DataFrame({"x": [None, None], "y": [3, 6]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
-
-    assert_rendered_body(snapshot, new_gt)
+# Single missing value from a single row; applies `na_color=` to the missing value
+def test_single_value_and_missing(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
+    render = _data_color_renderer(
+        {"x": [None], "y": [3]}, columns="x", palette=["green", "blue"], na_color="red"
+    )
+    assert_parity(snapshot, all_frame_constructors, render, PANDAS_ALL_MISSING_ALIGNED_RIGHT)
 
 
-# Polars: Single missing value from a single row; applies `na_color=` to the missing value
-def test_single_value_and_missing_pl(snapshot: str):
-    df = pl.DataFrame({"x": [None], "y": [3]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], na_color="red")
-
-    assert_rendered_body(snapshot, new_gt)
-
-
-# Polars: Non-missing values have a domain range of 0; applies `na_color=` to the missing values
-def test_all_values_have_zero_range_domain_pl(snapshot: str):
-    df = pl.DataFrame({"x": [2, 2, None, None], "y": [3, 4, 5, 6]})
-    new_gt = GT(df).data_color("x", palette=["green", "blue"], domain=[0, 0])
-
-    assert_rendered_body(snapshot, new_gt)
+# Non-missing values have a domain range of 0; applies `na_color=` to the missing values
+def test_all_values_have_zero_range_domain(
+    snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
+):
+    render = _data_color_renderer(
+        {"x": [2, 2, None, None], "y": [3, 4, 5, 6]},
+        columns="x",
+        palette=["green", "blue"],
+        domain=[0, 0],
+    )
+    assert_parity(snapshot, all_frame_constructors, render, PANDAS_INT_UPCAST)
 
 
 # test for data_color with truncate=True
@@ -386,18 +395,19 @@ def test_data_color_alpha_factor_palette():
     assert all(len(c) == 9 and c.lower().endswith("7f") for c in colors)
 
 
-def test_data_color_alpha_na_color_not_double_applied():
+def test_data_color_alpha_na_color_not_double_applied(frame_constructor: DataFrameConstructor):
     """`alpha=` is applied once to `na_color=`, not compounded by the gradient-palette fix."""
-    df = pd.DataFrame({"x": [1.0, 2.0, None]})
+    # whole floats would become ints on the nullable and pyarrow-backed pandas constructors
+    df = frame_constructor({"x": [1.5, 2.5, None]})
     new_gt = GT(df).data_color(columns="x", palette=["red", "blue"], alpha=0.5, na_color="#00FF00")
 
     na_style_color = get_first_style(new_gt._styles[-1], style.fill).color.lower()
     assert na_style_color == "#00ff007f"
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame, pa.table])
-def test_data_color_midpoint_symmetric_domain(frame):
-    df = frame({"x": [-2.0, 0.0, 10.0, None]})
+def test_data_color_midpoint_symmetric_domain(frame_constructor: DataFrameConstructor):
+    # whole floats would become ints on the nullable and pyarrow-backed pandas constructors
+    df = frame_constructor({"x": [-2.5, 0.0, 12.5, None]})
     new_gt = GT(df).data_color(columns="x", palette=["red", "white", "green"], midpoint=0)
 
     colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
@@ -414,16 +424,19 @@ def test_data_color_midpoint_with_domain_is_piecewise():
     assert colors == ["#ff0000", "#ffffff", "#008000"]
 
 
-def test_data_color_midpoint_infinite_values_inferred_domain():
-    df = pd.DataFrame({"x": [-np.inf, 1.0, np.inf]})
+def test_data_color_midpoint_infinite_values_inferred_domain(
+    frame_constructor: DataFrameConstructor,
+):
+    df = frame_constructor({"x": [-np.inf, 1.0, np.inf]})
     new_gt = GT(df).data_color(columns="x", palette=["red", "white", "green"], midpoint=0)
 
     colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
     assert colors == ["#ff0000", "#008000", "#008000"]
 
 
-def test_data_color_midpoint_all_missing_column():
-    df = pd.DataFrame({"x": [None, None]})
+def test_data_color_midpoint_all_missing_column(frame_constructor: DataFrameConstructor):
+    # an `object` column on plain and nullable pandas, a null-typed one elsewhere
+    df = frame_constructor({"x": [None, None]})
     new_gt = GT(df).data_color(columns="x", midpoint=0)
 
     colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
@@ -438,8 +451,8 @@ def test_data_color_midpoint_ignored_with_fn():
     assert colors == ["#123456"] * 2
 
 
-def test_data_color_midpoint_string_column_raises():
-    df = pd.DataFrame({"x": ["a", "b"]})
+def test_data_color_midpoint_string_column_raises(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": ["a", "b"]})
 
     with pytest.raises(ValueError, match="can only be used with numeric columns"):
         GT(df).data_color(columns="x", midpoint=0)
@@ -484,31 +497,36 @@ def test_data_color_fn_ignores_palette_and_domain():
     assert colors == ["#123456"] * 3
 
 
-@pytest.mark.parametrize("df_cls", [pd.DataFrame, pl.DataFrame])
-def test_data_color_fn_receives_missing_values(df_cls):
+def test_data_color_fn_receives_missing_values(frame_constructor: DataFrameConstructor):
     """Missing values are passed to `fn=` (as in gt); `None` results get `na_color=`."""
-    df = df_cls({"x": [1.0, None, 3.0, 4.0]})
+    # whole floats would become ints on the nullable and pyarrow-backed pandas constructors
+    df = frame_constructor({"x": [1.5, None, 3.5, 4.5]})
     received = []
 
     def color_fn(vals):
         received.extend(vals)
-        return [None if pd.isna(x) or x == 4.0 else "red" for x in vals]
+        return [None if is_na(df, x) or x == 4.5 else "red" for x in vals]
 
     new_gt = GT(df).data_color(columns="x", fn=color_fn, na_color="#00FF00")
 
-    assert len(received) == 4
-    assert pd.isna(received[1])
+    # `fn=` gets each backend's own missing value; whether to unify them is undecided
+    missing_str = {
+        "pandas_constructor": "nan",
+        "pandas_nullable_constructor": "<NA>",
+        "pandas_pyarrow_constructor": "<NA>",
+    }.get(frame_constructor.__name__, "None")
+    assert [str(x) for x in received] == ["1.5", missing_str, "3.5", "4.5"]
 
     colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
     assert colors == ["#FF0000", "#00FF00", "#FF0000", "#00FF00"]
 
 
-def test_data_color_fn_can_color_missing_values():
+def test_data_color_fn_can_color_missing_values(frame_constructor: DataFrameConstructor):
     """`fn=` decides the color of missing values, overriding `na_color=`."""
-    df = pd.DataFrame({"x": [1.0, None]})
+    df = frame_constructor({"x": [1.5, None]})
     new_gt = GT(df).data_color(
         columns="x",
-        fn=lambda vals: ["#800080" if pd.isna(x) else "red" for x in vals],
+        fn=lambda vals: ["#800080" if is_na(df, x) else "red" for x in vals],
         na_color="#00FF00",
     )
 
@@ -528,8 +546,8 @@ def test_data_color_fn_alpha_and_autocolor_text():
     assert texts == ["#000000", "#000000"]
 
 
-def test_data_color_fn_with_rows():
-    df = pd.DataFrame({"x": [1, 2, 3, 4]})
+def test_data_color_fn_with_rows(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1, 2, 3, 4]})
     received = []
 
     def color_fn(vals):
@@ -542,9 +560,9 @@ def test_data_color_fn_with_rows():
     assert [s.rownum for s in new_gt._styles] == [1, 3]
 
 
-def test_data_color_fn_non_numeric_non_string_column():
+def test_data_color_fn_non_numeric_non_string_column(frame_constructor: DataFrameConstructor):
     """`fn=` bypasses the numeric/string column type requirement."""
-    df = pd.DataFrame({"x": [True, False]})
+    df = frame_constructor({"x": [True, False]})
     new_gt = GT(df).data_color(columns="x", fn=lambda vals: ["green" if x else "red" for x in vals])
 
     colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
@@ -638,10 +656,31 @@ def test_data_color_unordered_categorical_uses_appearance_order():
     assert get_fill_colors(new_gt) == ["#ff0000", "#ca0088", "#0000ff"]
 
 
-def test_data_color_enum_unused_levels_and_rows():
+@pytest.mark.parametrize(
+    "df",
+    [
+        pytest.param(
+            pd.DataFrame({"x": pd.Categorical(["a", "c"], ["a", "b", "c"], ordered=True)}),
+            id="pandas-ordered-categorical",
+        ),
+        pytest.param(
+            pl.DataFrame({"x": pl.Series(["a", "c"], dtype=pl.Enum(["a", "b", "c"]))}),
+            id="polars-enum",
+        ),
+        pytest.param(
+            pa.table(
+                {
+                    "x": pa.DictionaryArray.from_arrays(
+                        pa.array([0, 2], pa.int32()), pa.array(["a", "b", "c"]), ordered=True
+                    )
+                }
+            ),
+            id="pyarrow-ordered-dictionary",
+        ),
+    ],
+)
+def test_data_color_enum_unused_levels_and_rows(df: DataFrameLike):
     """Declared levels define the domain even when some are unused or rows are filtered."""
-    df = pl.DataFrame({"x": pl.Series(["a", "c"], dtype=pl.Enum(["a", "b", "c"]))})
-
     assert get_fill_colors(GT(df).data_color(columns="x", palette=["red", "blue"])) == [
         "#ff0000",
         "#0000ff",
@@ -661,10 +700,9 @@ def test_data_color_enum_explicit_domain_takes_precedence():
     assert get_fill_colors(new_gt) == ["#ca0088", "#0000ff", "#ff0000"]
 
 
-@pytest.mark.parametrize("frame", params_frames)
-def test_data_color_decimal_values(frame):
+def test_data_color_decimal_values(frame_constructor: DataFrameConstructor):
     """`Decimal` values are scaled as numbers."""
-    df = frame({"x": [Decimal("0"), Decimal("5"), None, Decimal("10")]})
+    df = frame_constructor({"x": [Decimal("0"), Decimal("5"), None, Decimal("10")]})
     new_gt = GT(df).data_color(columns="x", palette=["red", "blue"])
 
     assert get_fill_colors(new_gt) == ["#ff0000", "#ca0088", "#808080", "#0000ff"]
@@ -678,7 +716,7 @@ def test_data_color_decimal_values_with_domain():
     assert get_fill_colors(new_gt) == ["#ff0000", "#ca0088"]
 
 
-def test_data_color_fn_receives_decimal_values():
+def test_data_color_fn_receives_decimal_values(frame_constructor: DataFrameConstructor):
     """Values passed to `fn=` are not converted from `Decimal`."""
     seen: list[Any] = []
 
@@ -686,15 +724,14 @@ def test_data_color_fn_receives_decimal_values():
         seen.extend(vals)
         return ["red"] * len(vals)
 
-    GT(pd.DataFrame({"x": [Decimal("1.5")]})).data_color(columns="x", fn=fn)
+    GT(frame_constructor({"x": [Decimal("1.5")]})).data_color(columns="x", fn=fn)
 
     assert seen == [Decimal("1.5")] and isinstance(seen[0], Decimal)
 
 
-@pytest.mark.parametrize("frame", params_frames)
-def test_data_color_infinite_values_inferred_domain(frame):
+def test_data_color_infinite_values_inferred_domain(frame_constructor: DataFrameConstructor):
     """Infinite values are left out of an inferred domain and placed at its ends."""
-    df = frame({"x": [-np.inf, 1.0, 2.0, 3.0, np.inf]})
+    df = frame_constructor({"x": [-np.inf, 1.0, 2.0, 3.0, np.inf]})
     new_gt = GT(df).data_color(columns="x", palette=["red", "blue"])
 
     assert get_fill_colors(new_gt) == ["#ff0000", "#ff0000", "#ca0088", "#0000ff", "#0000ff"]
@@ -729,10 +766,10 @@ def get_fill_colors_by_cell(gt: GT) -> dict[tuple[str, int], str]:
     return {(s.colname, s.rownum): get_first_style(s, style.fill).color.lower() for s in gt._styles}
 
 
-@pytest.mark.parametrize("frame", params_frames)
-def test_data_color_direction_row(frame):
+def test_data_color_direction_row(frame_constructor: DataFrameConstructor):
     """With `direction="row"`, each row is colored across the targeted columns on its own domain."""
-    df = frame({"a": [1.0, 10.0, 5.0], "b": [2.0, 20.0, None], "c": [3.0, 30.0, 6.0]})
+    # whole floats would become ints on the nullable and pyarrow-backed pandas constructors
+    df = frame_constructor({"a": [1.5, 10.5, 5.5], "b": [2.5, 20.5, None], "c": [3.5, 30.5, 6.5]})
     new_gt = GT(df).data_color(palette=["red", "blue"], direction="row")
 
     assert get_fill_colors_by_cell(new_gt) == {
@@ -792,9 +829,9 @@ def test_data_color_direction_row_strings():
     }
 
 
-def test_data_color_direction_row_fn():
+def test_data_color_direction_row_fn(frame_constructor: DataFrameConstructor):
     """With `fn=`, the function receives the values of each row."""
-    df = pd.DataFrame({"a": [1, 3], "b": [2, 4]})
+    df = frame_constructor({"a": [1, 3], "b": [2, 4]})
     seen = []
 
     def fn(vals):

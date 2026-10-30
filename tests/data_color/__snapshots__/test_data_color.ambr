@@ -1,19 +1,5 @@
 # serializer version: 1
-# name: test_all_missing_from_multiple_rows_pd
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
-      <td headers="y" class="gt_row gt_right">3</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
-      <td headers="y" class="gt_row gt_right">6</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_all_missing_from_multiple_rows_pl
+# name: test_all_missing_from_multiple_rows[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -27,29 +13,35 @@
   </tbody>
   '''
 # ---
-# name: test_all_values_have_zero_range_domain_pd
+# name: test_all_missing_from_multiple_rows[pandas_constructor]
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td style="color: #FFFFFF; background-color: #008000;" headers="x" class="gt_row gt_right">2.0</td>
+      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
       <td headers="y" class="gt_row gt_right">3</td>
     </tr>
     <tr>
-      <td style="color: #FFFFFF; background-color: #008000;" headers="x" class="gt_row gt_right">2.0</td>
-      <td headers="y" class="gt_row gt_right">4</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #808080;" headers="x" class="gt_row gt_right">None</td>
-      <td headers="y" class="gt_row gt_right">5</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #808080;" headers="x" class="gt_row gt_right">None</td>
+      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
       <td headers="y" class="gt_row gt_right">6</td>
     </tr>
   </tbody>
   '''
 # ---
-# name: test_all_values_have_zero_range_domain_pl
+# name: test_all_missing_from_multiple_rows[pandas_nullable_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
+      <td headers="y" class="gt_row gt_right">3</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
+      <td headers="y" class="gt_row gt_right">6</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_all_values_have_zero_range_domain[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -71,59 +63,29 @@
   </tbody>
   '''
 # ---
-# name: test_data_color_autocolor_text_false[pandas]
+# name: test_all_values_have_zero_range_domain[pandas_constructor]
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="background-color: #ff0100;" headers="currency" class="gt_row gt_right">49.95</td>
+      <td style="color: #FFFFFF; background-color: #008000;" headers="x" class="gt_row gt_right">2.0</td>
+      <td headers="y" class="gt_row gt_right">3</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="background-color: #847400;" headers="currency" class="gt_row gt_right">17.95</td>
+      <td style="color: #FFFFFF; background-color: #008000;" headers="x" class="gt_row gt_right">2.0</td>
+      <td headers="y" class="gt_row gt_right">4</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="background-color: #1f7f00;" headers="currency" class="gt_row gt_right">1.39</td>
+      <td style="color: #FFFFFF; background-color: #808080;" headers="x" class="gt_row gt_right">None</td>
+      <td headers="y" class="gt_row gt_right">5</td>
     </tr>
     <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="background-color: #0000FF;" headers="currency" class="gt_row gt_right">65100.0</td>
+      <td style="color: #FFFFFF; background-color: #808080;" headers="x" class="gt_row gt_right">None</td>
+      <td headers="y" class="gt_row gt_right">6</td>
     </tr>
   </tbody>
   '''
 # ---
-# name: test_data_color_autocolor_text_false[polars]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="background-color: #ff0100;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="background-color: #847400;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="background-color: #1f7f00;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="background-color: #0000FF;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_autocolor_text_false[pyarrow]
+# name: test_data_color_autocolor_text_false[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -180,7 +142,37 @@
   </tbody>
   '''
 # ---
-# name: test_data_color_domain_na_color_reverse_snap[pandas]
+# name: test_data_color_cols_rows_snap[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="color: #FFFFFF; background-color: #000000;" headers="a" class="gt_row gt_right">1</td>
+      <td headers="b" class="gt_row gt_right">51</td>
+    </tr>
+    <tr>
+      <td style="color: #000000; background-color: #92b758;" headers="a" class="gt_row gt_right">2</td>
+      <td headers="b" class="gt_row gt_right">52</td>
+    </tr>
+    <tr>
+      <td style="color: #000000; background-color: #2fbce6;" headers="a" class="gt_row gt_right">3</td>
+      <td headers="b" class="gt_row gt_right">53</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #de559e;" headers="a" class="gt_row gt_right">4</td>
+      <td headers="b" class="gt_row gt_right">54</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #9e9e9e;" headers="a" class="gt_row gt_right">5</td>
+      <td headers="b" class="gt_row gt_right">55</td>
+    </tr>
+    <tr>
+      <td headers="a" class="gt_row gt_right">200</td>
+      <td headers="b" class="gt_row gt_right">200</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_data_color_domain_na_color_reverse_snap[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -206,111 +198,7 @@
   </tbody>
   '''
 # ---
-# name: test_data_color_domain_na_color_reverse_snap[polars]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #ff0100;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #847400;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #1f7f00;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #0000FF;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_domain_na_color_reverse_snap[pyarrow]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #ff0100;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #847400;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #1f7f00;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #0000FF;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_domain_na_color_snap[pandas]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #028000;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #bd5f00;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #fa1b00;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #0000FF;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_domain_na_color_snap[polars]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #028000;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #bd5f00;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #fa1b00;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #0000FF;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_domain_na_color_snap[pyarrow]
+# name: test_data_color_domain_na_color_snap[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -430,7 +318,7 @@
   </tbody>
   '''
 # ---
-# name: test_data_color_overlapping_domain[pandas]
+# name: test_data_color_overlapping_domain[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -456,59 +344,7 @@
   </tbody>
   '''
 # ---
-# name: test_data_color_overlapping_domain[polars]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #683499;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_overlapping_domain[pyarrow]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #683499;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_palette_snap[pandas]
+# name: test_data_color_palette_snap[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -530,88 +366,6 @@
       <td style="color: #FFFFFF; background-color: #008000;" headers="num" class="gt_row gt_right">444.4</td>
       <td headers="char" class="gt_row gt_left">durian</td>
       <td style="color: #FFFFFF; background-color: #008000;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_palette_snap[polars]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #ff0000;" headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #ff0100;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #fe0600;" headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #ff0000;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #f12f00;" headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #ff0000;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #008000;" headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #008000;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_palette_snap[pyarrow]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #ff0000;" headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #ff0100;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #fe0600;" headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #ff0000;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #f12f00;" headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #ff0000;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #008000;" headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #008000;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_pd_cols_rows_snap
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #000000;" headers="a" class="gt_row gt_right">1</td>
-      <td headers="b" class="gt_row gt_right">51</td>
-    </tr>
-    <tr>
-      <td style="color: #000000; background-color: #92b758;" headers="a" class="gt_row gt_right">2</td>
-      <td headers="b" class="gt_row gt_right">52</td>
-    </tr>
-    <tr>
-      <td style="color: #000000; background-color: #2fbce6;" headers="a" class="gt_row gt_right">3</td>
-      <td headers="b" class="gt_row gt_right">53</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #de559e;" headers="a" class="gt_row gt_right">4</td>
-      <td headers="b" class="gt_row gt_right">54</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #9e9e9e;" headers="a" class="gt_row gt_right">5</td>
-      <td headers="b" class="gt_row gt_right">55</td>
-    </tr>
-    <tr>
-      <td headers="a" class="gt_row gt_right">200</td>
-      <td headers="b" class="gt_row gt_right">200</td>
     </tr>
   </tbody>
   '''
@@ -667,7 +421,7 @@
   </tbody>
   '''
 # ---
-# name: test_data_color_simple_exibble_snap[pandas]
+# name: test_data_color_simple_exibble_snap[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -693,111 +447,7 @@
   </tbody>
   '''
 # ---
-# name: test_data_color_simple_exibble_snap[polars]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #000000;" headers="num" class="gt_row gt_right">0.1111</td>
-      <td style="color: #FFFFFF; background-color: #000000;" headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #020101;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #0c0505;" headers="num" class="gt_row gt_right">2.222</td>
-      <td style="color: #000000; background-color: #66bc87;" headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #010000;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #702f38;" headers="num" class="gt_row gt_right">33.33</td>
-      <td style="color: #FFFFFF; background-color: #b877ca;" headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #000000;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #9e9e9e;" headers="num" class="gt_row gt_right">444.4</td>
-      <td style="color: #FFFFFF; background-color: #9e9e9e;" headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #9e9e9e;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_simple_exibble_snap[pyarrow]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #000000;" headers="num" class="gt_row gt_right">0.1111</td>
-      <td style="color: #FFFFFF; background-color: #000000;" headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #020101;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #0c0505;" headers="num" class="gt_row gt_right">2.222</td>
-      <td style="color: #000000; background-color: #66bc87;" headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #010000;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #702f38;" headers="num" class="gt_row gt_right">33.33</td>
-      <td style="color: #FFFFFF; background-color: #b877ca;" headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #000000;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #9e9e9e;" headers="num" class="gt_row gt_right">444.4</td>
-      <td style="color: #FFFFFF; background-color: #9e9e9e;" headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #9e9e9e;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_subset_domain[pandas]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_subset_domain[polars]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="num" class="gt_row gt_right">0.1111</td>
-      <td headers="char" class="gt_row gt_left">apricot</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">49.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">2.222</td>
-      <td headers="char" class="gt_row gt_left">banana</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">17.95</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">33.33</td>
-      <td headers="char" class="gt_row gt_left">coconut</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">1.39</td>
-    </tr>
-    <tr>
-      <td headers="num" class="gt_row gt_right">444.4</td>
-      <td headers="char" class="gt_row gt_left">durian</td>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="currency" class="gt_row gt_right">65100.0</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_data_color_subset_domain[pyarrow]
+# name: test_data_color_subset_domain[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -854,17 +504,17 @@
   </tbody>
   '''
 # ---
-# name: test_single_value_and_missing_pd
+# name: test_single_value[all]
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
+      <td style="color: #FFFFFF; background-color: #008000;" headers="x" class="gt_row gt_right">1</td>
       <td headers="y" class="gt_row gt_right">3</td>
     </tr>
   </tbody>
   '''
 # ---
-# name: test_single_value_and_missing_pl
+# name: test_single_value_and_missing[all]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -874,7 +524,41 @@
   </tbody>
   '''
 # ---
-# name: test_single_value_from_multiple_rows_pd
+# name: test_single_value_and_missing[pandas_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
+      <td headers="y" class="gt_row gt_right">3</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_single_value_and_missing[pandas_nullable_constructor]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
+      <td headers="y" class="gt_row gt_right">3</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_single_value_from_multiple_rows[all]
+  '''
+  <tbody class="gt_table_body">
+    <tr>
+      <td style="color: #FFFFFF; background-color: #008000;" headers="x" class="gt_row gt_right">1</td>
+      <td headers="y" class="gt_row gt_right">3</td>
+    </tr>
+    <tr>
+      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
+      <td headers="y" class="gt_row gt_right">4</td>
+    </tr>
+  </tbody>
+  '''
+# ---
+# name: test_single_value_from_multiple_rows[pandas_constructor]
   '''
   <tbody class="gt_table_body">
     <tr>
@@ -884,40 +568,6 @@
     <tr>
       <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
       <td headers="y" class="gt_row gt_right">4</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_single_value_from_multiple_rows_pl
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #008000;" headers="x" class="gt_row gt_right">1</td>
-      <td headers="y" class="gt_row gt_right">3</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
-      <td headers="y" class="gt_row gt_right">4</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_single_value_pd
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #008000;" headers="x" class="gt_row gt_right">1</td>
-      <td headers="y" class="gt_row gt_right">3</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_single_value_pl
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #008000;" headers="x" class="gt_row gt_right">1</td>
-      <td headers="y" class="gt_row gt_right">3</td>
     </tr>
   </tbody>
   '''
