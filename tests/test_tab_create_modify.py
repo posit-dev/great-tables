@@ -48,10 +48,11 @@ def test_tab_style_google_font(gt: GT):
 
     rendered_html = new_gt.as_raw_html()
 
-    assert rendered_html.find(
+    assert (
         "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');"
+        in rendered_html
     )
-    assert rendered_html.find("font-family: IBM Plex Mono;")
+    assert "font-family: IBM Plex Mono;" in rendered_html
 
 
 def test_tab_style_font_local(gt: GT):
@@ -63,7 +64,10 @@ def test_tab_style_font_local(gt: GT):
 
     rendered_html = new_gt.as_raw_html()
 
-    assert rendered_html.find('<td style="font-family: Courier;" class="gt_row gt_right">1</td>')
+    assert (
+        '<td style="font-family: Courier;" headers="x" class="gt_row gt_right">1</td>'
+        in rendered_html
+    )
 
 
 def test_tab_style_font_from_column():
