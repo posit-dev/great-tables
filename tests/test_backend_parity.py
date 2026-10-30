@@ -16,23 +16,23 @@ from syrupy.assertion import SnapshotAssertion
 
 from great_tables import GT, col_bin, loc, style
 from great_tables._tbl_data import DataFrameLike
-from great_tables._utils_render_html import create_body_component_h
 from tests.utils import (
+    INT_UPCAST,
+    ISSUES,
+    OBJECT_ALIGNED_RIGHT,
     DataFrameConstructor,
     DataLike,
     Divergent,
     Render,
     assert_parity,
+    body_html,
     by_backend,
     cast_to_categorical,
 )
 
-ISSUES = "https://github.com/posit-dev/great-tables/issues"
 NUMBER_LIKE_TEXT = f"{ISSUES}/1023"
-OBJECT_ALIGNED_RIGHT = f"{ISSUES}/1024"
 NULL_IN_ROW_MASK = f"{ISSUES}/1047"
 DURATION_SPELLING = f"inherited from native data (pd.Timedelta spelling), {ISSUES}/1048"
-INT_UPCAST = "inherited from native data (pandas stores ints with a missing value as float64)"
 
 # every pandas constructor keeps times, decimals and lists in object columns
 PANDAS_OBJECT_ALIGNED_RIGHT = Divergent(
@@ -47,14 +47,10 @@ FLOATS = [1234.5678, None, -0.25]
 TEXT = ["apple", None, "cherry"]
 
 
-def _body_html(gt: GT) -> str:
-    return create_body_component_h(gt._build_data("html"))
-
-
 def _body_renderer(
     data: DataLike, build: Callable[[GT], GT] = lambda gt: gt, **gt_kwargs: Any
 ) -> Render:
-    return lambda constructor: _body_html(build(GT(constructor(data), id="parity", **gt_kwargs)))
+    return lambda constructor: body_html(build(GT(constructor(data), id="parity", **gt_kwargs)))
 
 
 # Formatting ------------------------------------------------------------------------------------
@@ -252,7 +248,7 @@ def test_data_color_ordered_levels(
 
     def render(constructor: DataFrameConstructor) -> str:
         df = cast_to_categorical(constructor(data), "s", ordered=True)
-        return _body_html(GT(df, id="parity").data_color(palette=["white", "orange", "red"]))
+        return body_html(GT(df, id="parity").data_color(palette=["white", "orange", "red"]))
 
     assert_parity(snapshot, all_frame_constructors, render)
 
@@ -417,7 +413,7 @@ def test_rows_by_mask(
             polars=polars_rows,
             pyarrow=lambda tbl: pc.greater(tbl["x"], 2),
         )
-        return _body_html(GT(df, id="parity").pipe(_highlight_rows(rows)))
+        return body_html(GT(df, id="parity").pipe(_highlight_rows(rows)))
 
     assert_parity(snapshot, all_frame_constructors, render, divergent)
 
@@ -442,7 +438,7 @@ def test_grand_summary_rows(
 ):
     def render(constructor: DataFrameConstructor) -> str:
         df = constructor({"x": FLOATS})
-        return _body_html(GT(df, id="parity").grand_summary_rows(fns=_sum_and_max_fns(df)))
+        return body_html(GT(df, id="parity").grand_summary_rows(fns=_sum_and_max_fns(df)))
 
     assert_parity(snapshot, all_frame_constructors, render)
 
@@ -456,7 +452,7 @@ def test_summary_rows(
     def render(constructor: DataFrameConstructor) -> str:
         df = constructor(data)
         gt = GT(df, groupname_col="g", id="parity")
-        return _body_html(gt.summary_rows(fns=_sum_and_max_fns(df)))
+        return body_html(gt.summary_rows(fns=_sum_and_max_fns(df)))
 
     assert_parity(snapshot, all_frame_constructors, render)
 

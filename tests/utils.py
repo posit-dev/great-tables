@@ -14,6 +14,8 @@ if TYPE_CHECKING:
     from syrupy.assertion import SnapshotAssertion
     from typing_extensions import TypeAlias
 
+    from great_tables import GT
+
 
 DataLike: TypeAlias = dict[str, list[Any]]
 DataFrameConstructor: TypeAlias = Callable[[DataLike], DataFrameLike]
@@ -31,6 +33,12 @@ class Divergent(TypedDict, total=False):
     pandas_pyarrow_constructor: str
     polars_constructor: str
     pyarrow_table_constructor: str
+
+
+# `Divergent` reasons shared by several test modules
+ISSUES = "https://github.com/posit-dev/great-tables/issues"
+OBJECT_ALIGNED_RIGHT = f"{ISSUES}/1024"
+INT_UPCAST = "inherited from native data (pandas stores ints with a missing value as float64)"
 
 
 def native_backend(obj: Any) -> Backend:
@@ -87,11 +95,12 @@ def assert_rendered_columns(snapshot, gt):
     assert snapshot == str(columns)
 
 
-def assert_rendered_body(snapshot, gt):
-    built = gt._build_data("html")
-    body = create_body_component_h(built)
+def body_html(gt: GT) -> str:
+    return create_body_component_h(gt._build_data("html"))
 
-    assert snapshot == body
+
+def assert_rendered_body(snapshot, gt):
+    assert snapshot == body_html(gt)
 
 
 def assert_parity(
