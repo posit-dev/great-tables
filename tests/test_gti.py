@@ -299,6 +299,35 @@ def test_spec_stub_without_stubhead_has_no_header():
     assert spec["columns"][0]["header"] is None
 
 
+@pytest.mark.parametrize(
+    "options, expected",
+    [
+        ({}, {"stub": False, "body": False}),
+        ({"row_striping_include_table_body": True}, {"stub": False, "body": True}),
+        ({"row_striping_include_stub": True}, {"stub": True, "body": False}),
+        (
+            {"row_striping_include_stub": True, "row_striping_include_table_body": True},
+            {"stub": True, "body": True},
+        ),
+    ],
+)
+def test_spec_striping(options: dict, expected: dict):
+    gt = GT(DF, rowname_col="id").tab_options(**options)
+    spec = spec_of(gt)
+
+    assert spec["striping"] == expected
+
+    # The runtime restripes the cells GT striped: the stub cells, the body cells, or both
+    html = gt.as_raw_html()
+    assert ('class="gt_row gt_left gt_stub gt_striped"' in html) is expected["stub"]
+    assert bool(re.search(r'<td [^>]*class="[^"]*gt_striped', html)) is expected["body"]
+
+
+def test_spec_striping_with_opt_row_striping():
+    assert spec_of(GT(DF).opt_row_striping())["striping"] == {"stub": False, "body": True}
+    assert spec_of(GT(DF).opt_row_striping(False))["striping"] == {"stub": False, "body": False}
+
+
 # ranks ----
 
 NAN = float("nan")
