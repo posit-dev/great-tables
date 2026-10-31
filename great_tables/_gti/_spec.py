@@ -10,6 +10,8 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `body`: one entry per `<tr>` of the table body, in order: a data row's index (an integer), or an
   object for a group heading, a summary row, or a grand summary row
 - `ranks`: per sortable column, each data row's dense sort rank (`null` for a missing value)
+- `striping`: whether the stub and body cells of alternate data rows are striped (`gt_striped`),
+  so that striping can be redone when rows are reordered
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -70,6 +72,11 @@ class GrandSummaryRow(TypedDict):
 BodyRow = Union[int, GroupHeadingRow, SummaryRow, GrandSummaryRow]
 
 
+class StripingSpec(TypedDict):
+    stub: bool
+    body: bool
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -79,6 +86,7 @@ class Spec(TypedDict):
     groups: list[GroupSpec]
     body: list[BodyRow]
     ranks: dict[str, list[int | None]]
+    striping: StripingSpec
 
 
 def build_spec(data: GTData) -> Spec:
@@ -164,6 +172,10 @@ def build_spec(data: GTData) -> Spec:
         ],
         body=_body_rows(data, groups_as_column=groups_as_column),
         ranks=ranks,
+        striping=StripingSpec(
+            stub=bool(data._options.row_striping_include_stub.value),
+            body=bool(data._options.row_striping_include_table_body.value),
+        ),
     )
 
 
