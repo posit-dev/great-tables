@@ -10,6 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from great_tables import GT, exibble, md
+from great_tables._gti import render_gti_html
 
 HERE = Path(__file__).parent
 OUT = HERE / ".fixtures"
@@ -17,15 +18,20 @@ JS_DIR = HERE.parent.parent.parent / "great_tables" / "js"
 
 
 def gt_html(table_id: str) -> str:
+    # Groups shown out of data order, with group and grand summary rows, so that body rows and
+    # data rows don't line up.
     gt = (
         GT(exibble, rowname_col="row", groupname_col="group", id=table_id)
         .tab_header(title="exibble", subtitle=md("A *small* table"))
         .tab_spanner(label="Numbers", columns=["num", "currency"])
         .fmt_number(columns="num", decimals=2)
         .fmt_currency(columns="currency")
+        .row_group_order(["grp_b", "grp_a"])
+        .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()}, side="top")
+        .grand_summary_rows(fns={"Max": lambda df: df[["num", "currency"]].max()})
         .tab_source_note("Source: great_tables.exibble")
     )
-    return f"<gt-table>{gt.as_raw_html()}</gt-table>"
+    return render_gti_html(gt, runtime="none")
 
 
 def page(body: str, head: str = "") -> str:
