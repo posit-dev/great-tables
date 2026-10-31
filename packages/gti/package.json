@@ -1,0 +1,22 @@
+{
+  "name": "gti",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The <gt-table> custom element behind Great Tables' interactive tables",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "tsc --noEmit && node scripts/build.mjs --check",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.19.2",
+    "esbuild": "0.28.2",
+    "happy-dom": "21.0.4",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  }
+}
