@@ -1,12 +1,12 @@
 # Interactive Tables
 
-**Great Tables** can render a fully interactive table (with sorting, searching, filtering, and pagination) by calling `opt_interactive()`. The result is a self-contained HTML widget powered by [DataTables](https://datatables.net/) that works in Jupyter notebooks, Quarto documents, and any HTML output.
+**Great Tables** can render a fully interactive table (with sorting, searching, filtering, and pagination) by calling `opt_interactive()`. The result is an HTML widget powered by [reactable](https://glin.github.io/reactable/) that works in Jupyter notebooks, Quarto documents, and any HTML output. The widget loads React from a CDN, so viewing it requires an internet connection.
 
 Interactive tables are ideal for exploratory contexts where the reader needs to find specific values in a larger dataset (e.g., dashboards, internal tools, or notebook-based analysis). Sorting and filtering let readers answer their own questions about the data without you having to anticipate every view. For static outputs like PDF reports, printed documents, or email, stick with static tables since the interactivity features won't be functional in those formats.
 
 ## Enabling interactivity
 
-A single call to `opt_interactive()` switches the table from static to interactive. All of the normal formatting and styling methods continue to work exactly as before.
+A single call to `opt_interactive()` switches the table from static to interactive. The formatting methods continue to work exactly as before.
 
 ``` python
 from great_tables import GT
@@ -31,7 +31,7 @@ The full dataset, interactively
 
 Click on any column header to sort. The table is paginated by default with 10 rows per page.
 
-One important thing to note: all of your existing formatting, styling, and structural methods (headers, footnotes, spanners) continue to work in interactive mode. You don't need to rebuild your table or learn a separate API. Instead, just append `.opt_interactive()` to the end of your method chain and the table gains sorting and pagination while keeping everything else intact.
+You don't need to rebuild your table or learn a separate API. Instead, just append `.opt_interactive()` to the end of your method chain and the table gains sorting and pagination. The header (from [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header)), source notes, and column labels are kept, but some parts of a static table aren't shown in interactive mode yet: column spanners, the stub and row groups, footnotes, and summary rows.
 
 ## Search and per-column filters
 
@@ -86,7 +86,7 @@ Set `use_pagination=False` to display the full table without paging. This is use
 
 ## Styling with [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style)
 
-The [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) methods works in interactive mode for [loc.body()](../reference/loc.body.md#great_tables.loc.body) and [loc.column_labels()](../reference/loc.column_labels.md#great_tables.loc.column_labels). Styles are applied row-by-row as DataTables renders each page, so they follow the data when you sort or filter.
+The [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) method works in interactive mode for [loc.body()](../reference/loc.body.md#great_tables.loc.body) and [loc.column_labels()](../reference/loc.column_labels.md#great_tables.loc.column_labels). Styles are applied row by row as reactable renders each page, so they follow the data when you sort or filter.
 
 ``` python
 from great_tables import style, loc
@@ -117,7 +117,7 @@ GT Cars: Targeted styles
 
 From the output you might notice:
 
-- rows where HP exceeds 500 are highlighted in amber
+- HP values over 500 are highlighted in amber
 - MSRP values over \$200,000 appear in bold red
 - the `HP` and `Torque` column headers have a blue-tinted background
 
@@ -125,7 +125,7 @@ Sort by `HP` or `MSRP` to confirm that the styling moves with the data.
 
 ## Colorizing with [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color)
 
-The use of [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) is fully supported in interactive tables. It applies a continuous color scale to each cell based on the underlying value. Because [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) is implemented via [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) internally, it inherits the same interactive behavior automatically.
+The [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) method also works in interactive tables. It applies a continuous color scale to each cell based on the underlying value. Because [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) is implemented via [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) internally, the colors follow the data when you sort or filter.
 
 ``` python
 (
@@ -142,7 +142,7 @@ The use of [data_color()](../reference/GT.data_color.md#great_tables.GT.data_col
 
 GT Cars: data_color()
 
-Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. Try filtering by `Make` to see how the scales update in context.
+Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are computed from the full dataset, so a cell keeps its color when you filter by `Make`.
 
 ### Multiple columns, shared scale
 
