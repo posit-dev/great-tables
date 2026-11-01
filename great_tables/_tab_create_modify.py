@@ -189,14 +189,16 @@ def tab_style_body(
         indices or names, or a row selection expression. By default, all rows are considered.
     values
         A list of specific values to match against. A body cell whose value equals any element
-        in this list will be styled. Ignored when `pattern` or `fn` is supplied.
+        in this list will be styled. Include `None` in the list to match missing cells. Ignored
+        when `pattern` or `fn` is supplied.
     pattern
         A regex pattern string. Body cells whose *string representation* matches this pattern
-        will be styled. Takes precedence over `values`; ignored when `fn` is supplied.
+        will be styled. Missing cells are never matched. Takes precedence over `values`; ignored
+        when `fn` is supplied.
     fn
-        A function that receives a cell's raw value and returns `True` (style the cell) or
-        `False` (skip). This is the most flexible matching option and takes the highest
-        precedence.
+        A function that receives a cell's value and returns `True` (style the cell) or `False`
+        (skip). A missing value arrives as `None` (`NaN`, `NaT`, and `pd.NA` are converted). This
+        is the most flexible matching option and takes the highest precedence.
     targets
         How to expand matched cells. `"cell"` (the default) styles only matched cells;
         `"row"` styles the entire row of each match; `"column"` styles the entire column. A
