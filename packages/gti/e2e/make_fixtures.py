@@ -93,6 +93,15 @@ def display_html(table_id: str, groups_as_column: bool = False, **options) -> st
     return render_gti_html(gt, runtime="none")
 
 
+def resize_html(table_id: str, groups_as_column: bool = False) -> str:
+    # The table to sort, searchable, 3 rows to a page, with a spanner and resize handles.
+    gt = sort_gt(table_id, groups_as_column).tab_spanner(
+        label="Numbers", columns=["num", "currency"]
+    )
+    gt = gt.opt_interactive(use_search=True, use_resizers=True, page_size_default=3)
+    return render_gti_html(gt, runtime="none")
+
+
 def page(body: str, head: str = "") -> str:
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -160,6 +169,16 @@ def main() -> None:
         ),
         "display-nowrap.html": page(
             display_html("d", use_text_wrapping=False) + "\n" + runtime_src, head=styles
+        ),
+        # Tables with resizable columns: with a spanner (and groups shown as a column), and
+        # without text wrapping, with column widths set by the author.
+        "resize.html": page(resize_html("r") + "\n" + runtime_src, head=styles),
+        "resize-column.html": page(
+            resize_html("r", groups_as_column=True) + "\n" + runtime_src, head=styles
+        ),
+        "resize-nowrap.html": page(
+            display_html("d", use_text_wrapping=False, use_resizers=True) + "\n" + runtime_src,
+            head=styles,
         ),
     }
     for name, html in fixtures.items():
