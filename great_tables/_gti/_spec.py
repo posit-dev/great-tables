@@ -13,6 +13,7 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `striping`: whether the stub and body cells of alternate data rows are striped (`gt_striped`),
   so that striping can be redone when rows are reordered or hidden
 - `controls`: which controls the reader gets: sort buttons in the column labels, a search box
+- `pagination`: whether rows are split into pages, how many to a page, and the page controls
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -83,6 +84,20 @@ class ControlsSpec(TypedDict):
     search: bool
 
 
+PaginationType = Literal["numbers", "simple", "full", "jump"]
+
+PAGINATION_TYPES: tuple[PaginationType, ...] = ("numbers", "simple", "full", "jump")
+
+
+class PaginationSpec(TypedDict):
+    enabled: bool
+    page_size: int
+    page_sizes: list[int]
+    size_select: bool
+    info: bool
+    type: PaginationType
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -94,6 +109,7 @@ class Spec(TypedDict):
     ranks: dict[str, list[int | None]]
     striping: StripingSpec
     controls: ControlsSpec
+    pagination: PaginationSpec
 
 
 def build_spec(data: GTData) -> Spec:
@@ -188,6 +204,23 @@ def build_spec(data: GTData) -> Spec:
             sorting=bool(data._options.ihtml_use_sorting.value),
             search=bool(data._options.ihtml_use_search.value),
         ),
+        pagination=_pagination(data),
+    )
+
+
+def _pagination(data: GTData) -> PaginationSpec:
+    options = data._options
+    pagination_type = options.ihtml_pagination_type.value
+    return PaginationSpec(
+        enabled=bool(options.ihtml_use_pagination.value),
+        page_size=int(options.ihtml_page_size_default.value),
+        page_sizes=[
+            int(size) for size in options.ihtml_page_size_values.value or [10, 25, 50, 100]
+        ],
+        size_select=bool(options.ihtml_use_page_size_select.value),
+        info=bool(options.ihtml_use_pagination_info.value),
+        # (`opt_interactive()` doesn't check the type; the reactable renderer falls back the same way)
+        type=pagination_type if pagination_type in PAGINATION_TYPES else "numbers",
     )
 
 
