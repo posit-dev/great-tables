@@ -69,6 +69,17 @@ def search_html(table_id: str, groups_as_column: bool = False) -> str:
     return render_gti_html(gt.opt_interactive(use_search=True), runtime="none")
 
 
+def pages_html(
+    table_id: str, groups_as_column: bool = False, widths: bool = False, **options
+) -> str:
+    # The table to sort, searchable, 3 rows to a page, so that groups run across pages.
+    gt = sort_gt(table_id, groups_as_column)
+    if widths:
+        gt = gt.cols_width({"char": "180px"})
+    gt = gt.opt_interactive(use_search=True, page_size_default=3, **options)
+    return render_gti_html(gt, runtime="none")
+
+
 def page(body: str, head: str = "") -> str:
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -106,6 +117,21 @@ def main() -> None:
         "search-column.html": page(
             search_html("q", groups_as_column=True) + "\n" + runtime_src, head=styles
         ),
+        # Tables to page: with a page size select; with groups shown as a column; with a page
+        # input; with column widths set by the author.
+        "pages.html": page(
+            pages_html("p", use_page_size_select=True, page_size_values=[3, 5])
+            + "\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "pages-column.html": page(
+            pages_html("p", groups_as_column=True) + "\n" + runtime_src, head=styles
+        ),
+        "pages-jump.html": page(
+            pages_html("p", pagination_type="jump") + "\n" + runtime_src, head=styles
+        ),
+        "pages-widths.html": page(pages_html("p", widths=True) + "\n" + runtime_src, head=styles),
     }
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")
