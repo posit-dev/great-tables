@@ -1,12 +1,11 @@
 import math
-import re
 
 import pandas as pd
 import polars as pl
 import pytest
 from great_tables import GT
 from great_tables._cols_merge import ColMergeInfo, merge_pattern
-from tests.utils import DataFrameConstructor
+from tests.utils import DataFrameConstructor, body_cells
 
 SIMPLE_DATA = {"a": [1, 2, 3], "b": [4, 5, 6], "c": [7, 8, 9]}
 
@@ -18,10 +17,6 @@ MISSING_DATA = {
     "val2": [15.5, 25.5, None],
     "val3": [5.5, None, None],
 }
-
-
-def _body_cells(gt: GT) -> list[str]:
-    return re.findall(r'<td headers="[^"]*" class="gt_row[^"]*">(.*?)</td>', gt.as_raw_html())
 
 
 @pytest.fixture
@@ -439,7 +434,7 @@ class TestColsMergeIntegration:
             .fmt_integer(columns=["a", "b", "c"])
         )
 
-        assert _body_cells(gt) == ["1 (10)", "100", "2", "200", "NA (30)", "300"]
+        assert body_cells(gt) == ["1 (10)", "100", "2", "200", "NA (30)", "300"]
 
 
 # =============================================================================
@@ -593,7 +588,7 @@ class TestColsMergeUncert:
 
         gt = GT(df).cols_merge_uncert(col_val="value", col_uncert=["lu", "uu"])
 
-        assert _body_cells(gt) == [
+        assert body_cells(gt) == [
             # both bounds present, asymmetric → val (+upper/−lower)
             "34.5 (+1.8/\u22122.1)",
             "29.2 (+2.7/\u22122.4)",
@@ -632,7 +627,7 @@ class TestColsMergeUncert:
             .cols_merge_uncert(col_val="val", col_uncert=["lower", "upper"])
         )
 
-        assert _body_cells(gt) == ["1.0 (+0.1/\u22120.1)", "2.0 \u00b1 0.50"]
+        assert body_cells(gt) == ["1.0 (+0.1/\u22120.1)", "2.0 \u00b1 0.50"]
 
     def test_with_sub_missing(self, frame_constructor: DataFrameConstructor):
         """Test that sub_missing() text isn't merged in as an uncertainty or base value."""
@@ -640,7 +635,7 @@ class TestColsMergeUncert:
 
         gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert").sub_missing()
 
-        assert _body_cells(gt) == ["10.5 \u00b1 0.5", "20.5", "&mdash;", "&mdash;"]
+        assert body_cells(gt) == ["10.5 \u00b1 0.5", "20.5", "&mdash;", "&mdash;"]
 
     def test_asymmetric_with_sub_missing(self, frame_constructor: DataFrameConstructor):
         """Test that sub_missing() text isn't merged in as a lower or upper bound."""
@@ -650,7 +645,7 @@ class TestColsMergeUncert:
 
         gt = GT(df).cols_merge_uncert(col_val="val", col_uncert=["lower", "upper"]).sub_missing()
 
-        assert _body_cells(gt) == ["1.5 (+0.2/\u22120.1)", "2.5 (+0.3)", "3.5"]
+        assert body_cells(gt) == ["1.5 (+0.2/\u22120.1)", "2.5 (+0.3)", "3.5"]
 
     def test_asymmetric_minus_sign_latex(self):
         """Test that an ASCII minus sign is used for the lower bound in LaTeX output."""
@@ -722,7 +717,7 @@ class TestColsMergeRange:
 
         gt = GT(df).cols_merge_range(col_begin="low", col_end="high")
 
-        assert _body_cells(gt) == ["10.5\u201315.5", "", "30.5\u201335.5"]
+        assert body_cells(gt) == ["10.5\u201315.5", "", "30.5\u201335.5"]
 
     def test_custom_sep(self):
         """Test custom separator."""
@@ -1002,7 +997,7 @@ class TestColsMergeNPct:
             .cols_merge_n_pct(col_n="a", col_pct="b")
         )
 
-        assert _body_cells(gt) == [
+        assert body_cells(gt) == [
             "1 (7.1%)",
             "5 (35.7%)",
             "0",
@@ -1028,7 +1023,7 @@ class TestColsMergeNPct:
             .sub_missing()
         )
 
-        assert _body_cells(gt) == ["10 (50%)", "20", "&mdash;", "&mdash;"]
+        assert body_cells(gt) == ["10 (50%)", "20", "&mdash;", "&mdash;"]
 
     def test_chaining_n_pct_and_range(self):
         """Test combining cols_merge_n_pct with cols_merge_range."""

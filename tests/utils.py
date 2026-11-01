@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import difflib
+import re
 from typing import TYPE_CHECKING, Any, Callable, Literal, TypedDict, TypeVar
 
 from great_tables._tbl_data import DataFrameLike, PdDataFrame, PlDataFrame, SeriesLike
@@ -97,6 +98,12 @@ def assert_rendered_columns(snapshot, gt):
 
 def body_html(gt: GT) -> str:
     return create_body_component_h(gt._build_data("html"))
+
+
+def body_cells(gt: GT) -> list[str]:
+    # A missing cell renders as `None` on every backend. `_get_column_of_values()` reads the
+    # internal body instead, where it is `<NA>` on pandas.
+    return re.findall(r'<td headers="[^"]*" class="gt_row[^"]*">(.*?)</td>', body_html(gt))
 
 
 def assert_rendered_body(snapshot, gt):
