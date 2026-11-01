@@ -2,6 +2,7 @@ import {
   define,
   GtTable,
   PAGE_EVENT,
+  RESIZE_EVENT,
   SEARCH_EVENT,
   SEARCH_HIGHLIGHT,
   SORT_EVENT,
@@ -15,7 +16,13 @@ import { parseSpec, SPEC_VERSION, SpecError } from "./spec";
 
 define();
 
-export type { PageEventDetail, SearchEventDetail, SortEventDetail, State } from "./gt-table";
+export type {
+  PageEventDetail,
+  ResizeEventDetail,
+  SearchEventDetail,
+  SortEventDetail,
+  State,
+} from "./gt-table";
 export type { SortKey, SortKeyInit } from "./sort";
 export type * from "./spec";
 export {
@@ -28,6 +35,7 @@ export {
   pageItems,
   pageSizeChoices,
   parseSpec,
+  RESIZE_EVENT,
   SEARCH_EVENT,
   SEARCH_HIGHLIGHT,
   SORT_EVENT,
