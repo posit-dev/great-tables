@@ -8,7 +8,7 @@ from great_tables._locations import LocBody
 from great_tables._styles import CellStyleFill
 from great_tables._tab_create_modify import tab_style
 from polars import selectors as cs
-from tests.utils import ISSUES, DataFrameConstructor
+from tests.utils import ISSUES, DataFrameConstructor, body_cells
 
 # `tab_style_body()` turns only a float NaN into `None`, so the nullable and pyarrow-backed pandas
 # constructors hand `pd.NA` to the matcher
@@ -443,11 +443,8 @@ def test_text_transform_polars():
 
 def test_text_transform_skips_na(frame_constructor: DataFrameConstructor):
     df = frame_constructor({"x": [1.5, None, 3.5]})
-    html = (
-        GT(df).text_transform(locations=loc.body(columns="x"), fn=lambda x: f"[{x}]").as_raw_html()
-    )
-    cells = re.findall(r'<td headers="x" class="gt_row[^"]*">(.*?)</td>', html)
-    assert cells == ["[1.5]", "None", "[3.5]"]
+    gt = GT(df).text_transform(locations=loc.body(columns="x"), fn=lambda x: f"[{x}]")
+    assert body_cells(gt) == ["[1.5]", "None", "[3.5]"]
 
 
 def test_text_transform_chaining():
