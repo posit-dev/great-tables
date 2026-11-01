@@ -76,6 +76,23 @@ export interface ControlsSpec {
   search: boolean;
 }
 
+/** How page controls look: page numbers, previous/next only, first/previous/next/last, or a page input. */
+export type PaginationType = "numbers" | "simple" | "full" | "jump";
+
+export interface PaginationSpec {
+  /** Whether rows are split into pages. */
+  enabled: boolean;
+  /** The number of data rows on a page, to start with. */
+  page_size: number;
+  /** The page sizes the reader can choose from (with `size_select`). */
+  page_sizes: number[];
+  /** Whether the reader can choose the page size. */
+  size_select: boolean;
+  /** Whether to say which rows are shown ("11–20 of 310 rows"). */
+  info: boolean;
+  type: PaginationType;
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -92,6 +109,7 @@ export interface Spec {
   ranks: Record<string, (number | null)[]>;
   striping: StripingSpec;
   controls: ControlsSpec;
+  pagination: PaginationSpec;
 }
 
 export class SpecError extends Error {
@@ -100,6 +118,10 @@ export class SpecError extends Error {
 
 const isObject = (x: unknown): x is Record<string, unknown> =>
   typeof x === "object" && x !== null && !Array.isArray(x);
+
+const isPageSize = (x: unknown): x is number => Number.isInteger(x) && (x as number) > 0;
+
+const PAGINATION_TYPES: readonly unknown[] = ["numbers", "simple", "full", "jump"];
 
 const isIndex = (x: unknown, n: number): x is number =>
   Number.isInteger(x) && (x as number) >= 0 && (x as number) < n;
@@ -150,6 +172,22 @@ export function parseSpec(text: string): Spec {
   const controls = raw.controls;
   if (!isObject(controls) || typeof controls.sorting !== "boolean" || typeof controls.search !== "boolean") {
     throw new SpecError("`controls` must say whether sorting and search are on");
+  }
+  const pagination = raw.pagination;
+  if (
+    !isObject(pagination) ||
+    typeof pagination.enabled !== "boolean" ||
+    typeof pagination.size_select !== "boolean" ||
+    typeof pagination.info !== "boolean" ||
+    !isPageSize(pagination.page_size) ||
+    !Array.isArray(pagination.page_sizes) ||
+    !pagination.page_sizes.every(isPageSize) ||
+    !PAGINATION_TYPES.includes(pagination.type)
+  ) {
+    throw new SpecError(
+      "`pagination` must have a positive `page_size` and `page_sizes`, a known `type`, and say " +
+        "whether pages, a page size select and page info are on",
+    );
   }
 
   const body = raw.body as unknown[];
