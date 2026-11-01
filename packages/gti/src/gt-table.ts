@@ -14,7 +14,7 @@
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { CellText, rowMatches, searchTerms } from "./search";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
-import { type BodyRow, parseSpec, type Spec, SpecError } from "./spec";
+import { type BodyRow, parseSpec, type SelectionMode, type Spec, SpecError } from "./spec";
 
 export const TAG_NAME = "gt-table";
 
@@ -29,6 +29,9 @@ export const PAGE_EVENT = "gt-table-page";
 
 /** The event fired when the reader resizes a column (with a handle, or its keys). */
 export const RESIZE_EVENT = "gt-table-resize";
+
+/** The event fired when the reader selects or deselects rows (not when `selection` is set). */
+export const SELECT_EVENT = "gt-table-select";
 
 /** The name of the search highlight, for styling with `::highlight(gt-i-search)`. */
 export const SEARCH_HIGHLIGHT = "gt-i-search";
@@ -52,10 +55,15 @@ export interface SearchEventDetail {
 export interface ResizeEventDetail {
   /** The column's name in the data; `null` for the stub column holding summary row labels. */
   column: string | null;
-  /** The column's position among the body cells (from 0, counting the stub). */
+  /** The column's position among the body cells (from 0, counting the selection column and the stub). */
   index: number;
   /** Its new width, in px. */
   width: number;
+}
+
+export interface SelectEventDetail {
+  /** The data rows selected (numbered by position in the data), in data order. */
+  selection: number[];
 }
 
 export interface PageEventDetail {
@@ -233,6 +241,18 @@ export class GtTable extends HTMLElement {
   private marked: HTMLTableRowElement | null = null;
   /** Whether the last press on the body was a touch. */
   private touched = false;
+  /** The data rows selected. */
+  private selected = new Set<number>();
+  /** Whether the table has a column of checkboxes for selecting rows (before the others). */
+  private selectColumn = false;
+  /** Per data row, its checkbox. */
+  private selectBoxes: HTMLInputElement[] = [];
+  /** The checkbox selecting every row that matches the search, when several can be selected. */
+  private selectAll: HTMLInputElement | null = null;
+  /** The row a Shift-click selects a range from: the last one clicked. */
+  private selectAnchor: number | null = null;
+  /** The data rows that match the search, in the order shown (on every page). */
+  private order: number[] = [];
 
   get state(): State | null {
     return this.getAttribute("data-gti-state") as State | null;
@@ -318,6 +338,42 @@ export class GtTable extends HTMLElement {
     return pageCount(this.matchCount, this.size);
   }
 
+  /**
+   * The data rows selected (numbered by position in the data), in data order. Can be set before
+   * the table is hydrated: rows the table doesn't have are dropped then (and all but the first,
+   * if only one can be selected).
+   *
+   * @throws {RangeError} for a row that isn't a data row's index, or more rows than can be
+   * selected (one, or none at all).
+   */
+  get selection(): number[] {
+    return Array.from(this.selected).sort((a, b) => a - b);
+  }
+
+  set selection(rows: readonly number[]) {
+    const unique = Array.from(new Set(rows));
+    const bad = unique.find((row) => !Number.isInteger(row) || row < 0);
+    if (bad !== undefined) {
+      throw new RangeError(`\`selection\` must hold data row indices, not ${String(bad)}`);
+    }
+    const spec = this.spec;
+    if (spec !== null) {
+      const mode = spec.controls.selection;
+      const missing = unique.find((row) => row >= spec.nrows);
+      if (missing !== undefined) {
+        throw new RangeError(`the table has no data row ${missing}`);
+      }
+      if (unique.length > (mode === null ? 0 : mode === "single" ? 1 : Infinity)) {
+        throw new RangeError(
+          mode === null ? "rows can't be selected in this table" : "only one row can be selected in this table",
+        );
+      }
+    }
+    this.selected = new Set(unique);
+    this.selectAnchor = null;
+    this.showSelection();
+  }
+
   // The page size in use: none until hydrated, or when rows can't be moved
   private get size(): number | null {
     return this.movable ? (this.pageSizeValue ?? null) : null;
@@ -401,6 +457,14 @@ export class GtTable extends HTMLElement {
     this.spec = spec;
 
     this.movable = !this.hasMergedStubCells();
+    this.order = spec.body.filter((entry): entry is number => typeof entry === "number");
+    // Rows selected before hydration that the table can't have selected are dropped
+    const mode = spec.controls.selection;
+    const kept = this.selection.filter((row) => row < spec.nrows);
+    this.selected = new Set(mode === null ? [] : mode === "single" ? kept.slice(0, 1) : kept);
+    if (mode !== null) {
+      this.addSelection(table, mode);
+    }
     this.setDisplay(spec);
     if (this.movable && spec.controls.sorting) {
       this.addSortHeaders(table, spec);
@@ -557,6 +621,218 @@ export class GtTable extends HTMLElement {
     );
   }
 
+  /**
+   * A column of checkboxes before the others, for selecting rows: one per data row, and (when
+   * several rows can be selected) one in the column labels for every row that matches the search.
+   * Clicking anywhere else on a data row selects it too.
+   */
+  private addSelection(table: HTMLTableElement, mode: SelectionMode): void {
+    const doc = this.ownerDocument;
+    const tbody = this.tbody as HTMLTableSectionElement;
+    // The rows across the table (title, group headings, footer) span the new column too
+    const widen = (tr: HTMLTableRowElement) => {
+      const cell = tr.firstElementChild;
+      cell?.setAttribute("colspan", String(Number(cell.getAttribute("colspan") ?? 1) + 1));
+    };
+    // A cell in the column, styled as the row's other body cells are
+    const cell = (tr: HTMLTableRowElement) => {
+      const td = doc.createElement("td");
+      const model = tr.querySelector(":scope > td");
+      const classes = model === null ? ["gt_row"] : Array.from(model.classList).filter((c) => !/^gt_(left|right|center)$/.test(c));
+      td.className = [...classes, "gt_center", "gt-i-select"].join(" ");
+      tr.prepend(td);
+      return td;
+    };
+
+    const headings = Array.from(table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"));
+    const first = headings[0];
+    if (first !== undefined) {
+      const th = doc.createElement("th");
+      th.className = "gt_col_heading gt_columns_bottom_border gt_center gt-i-select";
+      th.scope = "col";
+      if (headings.length > 1) {
+        th.rowSpan = headings.length;
+      }
+      if (mode === "multiple") {
+        const box = this.checkbox("Select all rows");
+        box.addEventListener("click", () => this.userSelectAll());
+        // (The whole cell is the target)
+        th.addEventListener("click", (event) => {
+          if (event.target === th) {
+            box.click();
+          }
+        });
+        th.append(box);
+        this.selectAll = box;
+        this.addLiveRegion();
+      } else {
+        const label = doc.createElement("span");
+        label.className = "gt-i-hidden";
+        label.textContent = "Select";
+        th.append(label);
+      }
+      first.prepend(th);
+    }
+    for (const tr of table.querySelectorAll<HTMLTableRowElement>(
+      ":scope > thead > tr:not(.gt_col_headings), :scope > tfoot > tr",
+    )) {
+      widen(tr);
+    }
+    for (const tr of tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr")) {
+      const entry = this.bodyRow(tr);
+      if (typeof entry === "number") {
+        const box = this.checkbox(`Select ${this.rowLabel(tr) || `row ${entry + 1}`}`);
+        box.addEventListener("click", (event) => this.userSelect(entry, event.shiftKey));
+        cell(tr).append(box);
+        this.selectBoxes[entry] = box;
+      } else if (entry !== null && ("summary" in entry || "grand_summary" in entry)) {
+        cell(tr);
+      } else {
+        widen(tr);
+      }
+    }
+    const colgroup = table.querySelector(":scope > colgroup");
+    if (colgroup !== null) {
+      const col = doc.createElement("col");
+      col.className = "gt-i-select";
+      col.style.width = "2.5em";
+      colgroup.prepend(col);
+    }
+    this.selectColumn = true;
+
+    // Shift-click selects a range of rows, rather than extending the page's text selection
+    if (mode === "multiple") {
+      tbody.addEventListener("mousedown", (event) => {
+        if (event.shiftKey && this.clickedRow(event) !== null) {
+          event.preventDefault();
+        }
+      });
+    }
+    tbody.addEventListener("click", (event) => {
+      const row = this.clickedRow(event);
+      // (Not when the click ends selecting text in the row)
+      const text = this.ownerDocument.getSelection();
+      const tr = row === null ? null : this.rowElements[row];
+      if (
+        row === null ||
+        (text !== null && !text.isCollapsed && (tr?.contains(text.anchorNode) || tr?.contains(text.focusNode)))
+      ) {
+        return;
+      }
+      this.userSelect(row, event.shiftKey);
+    });
+    this.showSelection();
+  }
+
+  // The data row clicked, unless the click was on something of its own (a link, a checkbox) or on
+  // a group's label cell
+  private clickedRow(event: Event): number | null {
+    const target = event.target as Element;
+    const tr = target.closest("tr");
+    const row = tr === null || tr.parentElement !== this.tbody ? null : this.bodyRow(tr);
+    return typeof row === "number" && target.closest(`${INTERACTIVE}, .gt_stub_row_group`) === null ? row : null;
+  }
+
+  private checkbox(label: string): HTMLInputElement {
+    const box = this.ownerDocument.createElement("input");
+    box.type = "checkbox";
+    box.setAttribute("aria-label", label);
+    return box;
+  }
+
+  // A data row's label: its stub cells' text
+  private rowLabel(tr: HTMLTableRowElement): string {
+    return Array.from(tr.querySelectorAll<HTMLTableCellElement>(":scope > .gt_stub"), labelText)
+      .filter((text) => text !== "")
+      .join(" ");
+  }
+
+  // A click on a row (or its checkbox) toggles it; with Shift (when several can be selected),
+  // the rows from the last one clicked, in the order shown, follow it
+  private userSelect(row: number, range: boolean): void {
+    const mode = this.spec?.controls.selection;
+    const on = !this.selected.has(row);
+    let rows = [row];
+    if (mode === "multiple" && range && this.selectAnchor !== null) {
+      const from = this.order.indexOf(this.selectAnchor);
+      const to = this.order.indexOf(row);
+      if (from !== -1 && to !== -1) {
+        rows = this.order.slice(Math.min(from, to), Math.max(from, to) + 1);
+      }
+    }
+    if (mode === "single") {
+      this.selected.clear();
+    }
+    for (const r of rows) {
+      if (on) {
+        this.selected.add(r);
+      } else {
+        this.selected.delete(r);
+      }
+    }
+    this.selectAnchor = row;
+    this.showSelection();
+    if (rows.length > 1) {
+      this.announce(this.selectionText());
+    }
+    this.dispatchSelect();
+  }
+
+  // The select-all checkbox selects every row that matches the search, or deselects them if they
+  // all are
+  private userSelectAll(): void {
+    const all = this.order.every((row) => this.selected.has(row));
+    for (const row of this.order) {
+      if (all) {
+        this.selected.delete(row);
+      } else {
+        this.selected.add(row);
+      }
+    }
+    this.selectAnchor = null;
+    this.showSelection();
+    this.announce(this.selectionText());
+    this.dispatchSelect();
+  }
+
+  private selectionText(): string {
+    const count = this.selected.size;
+    return count === 0 ? "No rows selected" : `${plural(count)} selected`;
+  }
+
+  private dispatchSelect(): void {
+    this.dispatchEvent(
+      new CustomEvent<SelectEventDetail>(SELECT_EVENT, {
+        bubbles: true,
+        composed: true,
+        detail: { selection: this.selection },
+      }),
+    );
+  }
+
+  private showSelection(): void {
+    this.selectBoxes.forEach((box, row) => {
+      const on = this.selected.has(row);
+      box.checked = on;
+      this.rowElements[row]?.classList.toggle("gt-i-selected", on);
+    });
+    this.updateSelectAll();
+  }
+
+  // The select-all checkbox is checked when every row that matches is selected, and mixed when
+  // some are
+  private updateSelectAll(): void {
+    const box = this.selectAll;
+    if (box === null) {
+      return;
+    }
+    const count = this.order.filter((row) => this.selected.has(row)).length;
+    box.checked = count > 0 && count === this.order.length;
+    box.indeterminate = count > 0 && count < this.order.length;
+    box.disabled = this.order.length === 0;
+    box.setAttribute("aria-label", this.matched === null ? "Select all rows" : "Select all matching rows");
+  }
+
   private addSortHeaders(table: HTMLTableElement, spec: Spec): void {
     const cells = new Map<string, HTMLTableCellElement>();
     for (const th of table.querySelectorAll<HTMLTableCellElement>(":scope > thead th[id]")) {
@@ -627,7 +903,7 @@ export class GtTable extends HTMLElement {
         for (let column = index; column < index + colspan; column++) {
           ends[column] = r + rowspan;
         }
-        if (colspan === 1 && r + rowspan >= rows.length) {
+        if (colspan === 1 && r + rowspan >= rows.length && !th.classList.contains("gt-i-select")) {
           this.addResizer(th, index);
         }
         index += colspan;
@@ -750,8 +1026,10 @@ export class GtTable extends HTMLElement {
 
   private dispatchResize(resizer: Resizer, width: number): void {
     const spec = this.spec as Spec;
-    // (Body cells start with the group column, when groups are a column of the stub)
-    const column = spec.columns[resizer.index - (spec.stub.groups_as_column ? 1 : 0)];
+    // (Body cells start with the selection column, and the group column when groups are a column
+    // of the stub)
+    const lead = (this.selectColumn ? 1 : 0) + (spec.stub.groups_as_column ? 1 : 0);
+    const column = spec.columns[resizer.index - lead];
     this.dispatchEvent(
       new CustomEvent<ResizeEventDetail>(RESIZE_EVENT, {
         bubbles: true,
@@ -1049,11 +1327,12 @@ export class GtTable extends HTMLElement {
     const texts: CellText[][] = [];
     for (let row = 0; row < nrows; row++) {
       const tr = this.rowElements[row];
-      // A group's label cell is on one of its rows only, so it isn't searched
+      // A group's label cell is on one of its rows only, so it isn't searched (nor is the
+      // selection column)
       const cells =
         tr === undefined
           ? []
-          : Array.from(tr.children).filter((cell) => !cell.classList.contains("gt_stub_row_group"));
+          : Array.from(tr.children).filter((cell) => !cell.matches(".gt_stub_row_group, .gt-i-select"));
       texts.push(cells.map((cell) => new CellText(cell)));
     }
     this.cellTexts = texts;
@@ -1075,6 +1354,7 @@ export class GtTable extends HTMLElement {
 
     this.restripe(shown);
     this.showEmpty(this.matched !== null && total === 0);
+    this.updateSelectAll();
     this.updateSortHeaders();
     this.highlight(shown);
     this.updatePager();
@@ -1107,6 +1387,7 @@ export class GtTable extends HTMLElement {
       tbody.insertBefore(fragment, block.anchor);
     }
 
+    this.order = order;
     page = Math.min(page, pageCount(order.length, size));
     const start = size === null ? 0 : (page - 1) * size;
     const end = size === null ? order.length : Math.min(order.length, start + size);
@@ -1166,7 +1447,9 @@ export class GtTable extends HTMLElement {
     const target = (top > 0 ? group.top[0] : undefined) ?? span.first;
     if (cell.parentElement !== target) {
       cell.parentElement?.classList.remove("gt_row_group_first");
-      target.prepend(cell);
+      // (After the selection column's cell)
+      const lead = target.firstElementChild;
+      target.insertBefore(cell, lead?.classList.contains("gt-i-select") ? lead.nextSibling : lead);
       target.classList.add("gt_row_group_first");
     }
     cell.setAttribute("rowspan", String(span.count + top + bottom));
@@ -1714,6 +1997,12 @@ export class GtTable extends HTMLElement {
     this.live = null;
     this.marked = null;
     this.touched = false;
+    this.selected = new Set();
+    this.selectColumn = false;
+    this.selectBoxes = [];
+    this.selectAll = null;
+    this.selectAnchor = null;
+    this.order = [];
     this.removeAttribute("data-gti-highlight");
     this.removeAttribute("data-gti-nowrap");
     this.removeAttribute("data-gti-resizing");
