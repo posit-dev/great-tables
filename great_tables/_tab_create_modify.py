@@ -295,7 +295,7 @@ def tab_style_body(
     """
     from ._gt_data import ColInfoTypeEnum
     from ._locations import LocBody, LocStub, resolve_cols_i, resolve_rows_i
-    from ._tbl_data import _get_cell
+    from ._tbl_data import _get_cell, is_na
 
     if fn is None and pattern is None and values is None:
         raise ValueError(
@@ -311,6 +311,10 @@ def tab_style_body(
 
     cols = resolve_cols_i(data=self, expr=columns, excl_stub=False)
     resolved_rows = resolve_rows_i(data=self, expr=rows)
+
+    def _none_if_missing(val: Any) -> Any:
+        # Every backend's missing value (NaN, NaT, `pd.NA`) becomes None, so `x is None` finds it
+        return None if is_na(data, val) else val
 
     # Determine the matching function (precedence: fn > pattern > values)
     if fn is not None:
@@ -332,17 +336,11 @@ def tab_style_body(
                 return has_none
             return x in values_set
 
-    def _normalize_cell_value(val: Any) -> Any:
-        # Normalize NaN (pandas/numpy) to None so that `x is None` works uniformly
-        if isinstance(val, float) and val != val:
-            return None
-        return val
-
     # Find all matching (column_name, row_index) pairs
     matched_cells: list[tuple[str, int]] = []
     for col_name, _col_idx in cols:
         for _row_name, row_idx in resolved_rows:
-            cell_value = _normalize_cell_value(_get_cell(data, row_idx, col_name))
+            cell_value = _none_if_missing(_get_cell(data, row_idx, col_name))
             try:
                 is_match = match_fn(cell_value)
             except Exception:

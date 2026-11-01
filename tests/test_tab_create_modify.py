@@ -1,30 +1,16 @@
 import re
+from datetime import datetime
 
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import pytest
 from great_tables import GT, style, loc, google_font, from_column
 from great_tables._locations import LocBody
 from great_tables._styles import CellStyleFill
 from great_tables._tab_create_modify import tab_style
 from polars import selectors as cs
-from tests.utils import ISSUES, DataFrameConstructor
-
-# `tab_style_body()` turns only a float NaN into `None`, so the nullable and pyarrow-backed pandas
-# constructors hand `pd.NA` to the matcher
-PD_NA_NOT_NORMALIZED = f"{ISSUES}/1053"
-PD_NA_CONSTRUCTORS = ("pandas_nullable_constructor", "pandas_pyarrow_constructor")
-
-
-def _xfail_on_pd_na(
-    frame_constructor: DataFrameConstructor,
-    request: pytest.FixtureRequest,
-    raises: type[BaseException] = AssertionError,
-) -> None:
-    if frame_constructor.__name__ in PD_NA_CONSTRUCTORS:
-        request.applymarker(
-            pytest.mark.xfail(strict=True, raises=raises, reason=PD_NA_NOT_NORMALIZED)
-        )
+from tests.utils import DataFrameConstructor
 
 
 @pytest.fixture
@@ -320,11 +306,7 @@ def test_tab_style_body_fn_exception_skips():
     assert ("x", 1) not in styled_cells  # "text" > 2 raises, skipped
 
 
-def test_tab_style_body_pattern_none_skipped(
-    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
-):
-    # `pd.NA` is matched as the text "<NA>"
-    _xfail_on_pd_na(frame_constructor, request)
+def test_tab_style_body_pattern_skips_missing(frame_constructor: DataFrameConstructor):
     df = frame_constructor({"x": [None, "hello", None]})
     # "." matches any text, so a missing value stays unstyled only if it is skipped
     new_gt = GT(df).tab_style_body(style=style.fill(color="blue"), pattern=".")
@@ -348,33 +330,37 @@ def test_tab_style_body_renders_html():
     assert "orange" in html
 
 
-def test_tab_style_body_nan_normalized_to_none_fn(
-    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
-):
-    _xfail_on_pd_na(frame_constructor, request)
+def test_tab_style_body_fn_gets_missing_as_none(frame_constructor: DataFrameConstructor):
     # whole floats would become ints on the nullable and pyarrow-backed pandas constructors
-    df = frame_constructor({"x": [1.5, None, 3.5], "y": ["a", None, "c"]})
+    dates = [datetime(2024, 1, 1), None, datetime(2024, 1, 3)]
+    df = frame_constructor({"x": [1.5, None, 3.5], "y": ["a", None, "c"], "d": dates})
     new_gt = GT(df).tab_style_body(style=style.fill(color="red"), fn=lambda x: x is None)
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
-    # plain pandas stores the missing float as NaN, which is normalized to None
-    assert styled_cells == {("x", 1), ("y", 1)}
+    # each backend's missing value (NaN, NaT, `pd.NA` or None) reaches `fn` as None
+    assert styled_cells == {("x", 1), ("y", 1), ("d", 1)}
 
 
-def test_tab_style_body_nan_normalized_to_none_values(
-    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
-):
-    _xfail_on_pd_na(frame_constructor, request)
+def test_tab_style_body_values_none_matches_missing(frame_constructor: DataFrameConstructor):
     df = frame_constructor({"x": [1.5, None, 3.5]})
     new_gt = GT(df).tab_style_body(style=style.fill(color="red"), values=[None])
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
     assert styled_cells == {("x", 1)}
 
 
-def test_tab_style_body_fn_skips_missing(
-    frame_constructor: DataFrameConstructor, request: pytest.FixtureRequest
-):
-    # `pd.NA >= 20` returns `pd.NA`, and taking its truth value raises outside the matcher's `try`
-    _xfail_on_pd_na(frame_constructor, request, raises=TypeError)
+def test_tab_style_body_pyarrow_map_and_uint64_cells():
+    # `is_na()` mustn't round-trip these cells through `pa.array()`, which rejects them
+    tbl = pa.table(
+        {
+            "x": pa.array([1, 2**64 - 1], type=pa.uint64()),
+            "tags": pa.array([[("a", 1)], [("b", 2)]], type=pa.map_(pa.string(), pa.int64())),
+        }
+    )
+    new_gt = GT(tbl).tab_style_body(style=style.fill(color="red"), values=[1])
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert styled_cells == {("x", 0)}
+
+
+def test_tab_style_body_fn_skips_missing(frame_constructor: DataFrameConstructor):
     df = frame_constructor({"x": [10.5, None, 30.5]})
     new_gt = GT(df).tab_style_body(style=style.fill(color="pink"), fn=lambda val: val >= 20)
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
