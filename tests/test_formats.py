@@ -6056,10 +6056,10 @@ def test_fmt_duration_iso_minus_in_latex():
 # Accessible markup of cell graphics ----------------------------------------------------------
 
 
-def test_fmt_image_alt_text():
+def test_fmt_image_alt_text(frame_constructor: DataFrameConstructor):
     from great_tables import from_column
 
-    df = pl.DataFrame(
+    df = frame_constructor(
         {"img": ["https://e.x/a.png", "https://e.x/b.png, https://e.x/c.png"], "d": ["A & B", None]}
     )
 
@@ -6111,10 +6111,10 @@ def test_svg_ids_in_cells_are_unique():
     assert "t-c-0-a" in ids and "t-c-2-a" in ids
 
 
-def test_fmt_nanoplot_accessible_name():
+def test_fmt_nanoplot_accessible_name(frame_constructor: DataFrameConstructor):
     from great_tables import from_column
 
-    df = pl.DataFrame({"n": ["12,30,47,20,30", "1,2,3"], "d": ["Sales", None]})
+    df = frame_constructor({"n": ["12,30,47,20,30", "1,2,3"], "d": ["Sales", None]})
 
     def labels(gt: GT) -> list[str]:
         return re.findall(r'aria-label="([^"]*)"', gt.as_raw_html())
