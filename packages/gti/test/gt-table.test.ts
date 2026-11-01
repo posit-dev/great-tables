@@ -5,6 +5,7 @@ import {
   type DisplaySpec,
   define,
   GtTable,
+  type LayoutSpec,
   PAGE_EVENT,
   type PageEventDetail,
   type PaginationSpec,
@@ -61,6 +62,7 @@ interface TableOptions {
   /** Pagination is off unless set. */
   pagination?: Partial<PaginationSpec>;
   display?: Partial<DisplaySpec>;
+  layout?: Partial<LayoutSpec>;
   groupsAsColumn?: boolean;
   yLabel?: string;
   /** The column label rows, if not one row of a label per column. */
@@ -157,6 +159,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
       ...options.pagination,
     },
     display: { highlight: false, compact: false, wrap: true, ...options.display },
+    layout: { height: null, ...options.layout },
   };
   return { html, spec };
 }
@@ -1926,5 +1929,80 @@ describe("row selection", () => {
     expect(el.state).toBe("ready");
     expect(el.selection).toEqual([]);
     expect(el.querySelectorAll("tr.gt-i-selected")).toHaveLength(0);
+  });
+});
+
+describe("a body that scrolls", () => {
+  const scrolling = (options: TableOptions = {}) => mountTable(GROUPED, { layout: { height: "200px" }, ...options });
+  const scroller = (el: GtTable) => el.querySelector(".gt-i-scroller") as HTMLElement;
+
+  it("scrolls in GT's container, within the height, with the rows stuck to its edges marked", async () => {
+    const el = await scrolling();
+    expect(el.hasAttribute("data-gti-scroll")).toBe(true);
+    expect(el.hasAttribute("data-gti-sticky")).toBe(true);
+    expect(el.style.getPropertyValue("--gt-i-height")).toBe("200px");
+    expect(scroller(el).id).toBe("t");
+    // Only the grand summary rows at the bottom stick to the bottom
+    expect(Array.from(el.querySelectorAll("tr.gt-i-stuck-bottom"), (tr) => tr.textContent)).toEqual(["Max--"]);
+    // Group headings stick under the column labels
+    expect((el.querySelector(".gt_group_heading") as HTMLElement).style.top).toContain("var(--gt-i-head");
+    const table = el.querySelector("table") as HTMLTableElement;
+    expect(table.style.borderCollapse).toBe("separate");
+  });
+
+  it("wraps a table without a container in one", async () => {
+    const { html, spec } = gtTable(GROUPED, { layout: { height: "50vh" } });
+    const el = await mount(`<gt-table>${html.replace(/^<div id="t">|<\/div>$/g, "")}${specScript(spec)}</gt-table>`);
+    expect(scroller(el).tagName).toBe("DIV");
+    expect(scroller(el).firstElementChild?.tagName).toBe("TABLE");
+  });
+
+  it("has shadows over its edges, hidden at first", async () => {
+    const el = await scrolling();
+    const shades = Array.from(el.querySelectorAll(":scope > .gt-i-shade"));
+    expect(shades.map((shade) => shade.getAttribute("data-gti-edge"))).toEqual(["top", "bottom"]);
+    expect(shades.every((shade) => shade.getAttribute("aria-hidden") === "true")).toBe(true);
+    expect(shades.some((shade) => shade.hasAttribute("data-gti-shown"))).toBe(false);
+  });
+
+  it("goes back to the top on another page, but not when sorting", async () => {
+    const el = await scrolling({ pagination: { enabled: true } });
+    scroller(el).scrollTop = 40;
+    el.sort = [{ column: "x" }];
+    expect(scroller(el).scrollTop).toBe(40);
+    el.page = 2;
+    expect(scroller(el).scrollTop).toBe(0);
+  });
+
+  it("follows the spec, whatever the producer wrote, and undoes it all when the table is replaced", async () => {
+    const { html, spec } = gtTable(GROUPED);
+    const el = await mount(
+      `<gt-table data-gti-scroll style="--gt-i-height: 200px">${html}${specScript(spec)}</gt-table>`,
+    );
+    expect(el.hasAttribute("data-gti-scroll")).toBe(false);
+    expect(el.style.getPropertyValue("--gt-i-height")).toBe("");
+    expect(el.querySelector(".gt-i-scroller, .gt-i-shade")).toBeNull();
+
+    const replace = async (table: { html: string; spec: object }) => {
+      el.remove();
+      el.innerHTML = table.html + specScript(table.spec);
+      document.body.append(el);
+      await tick();
+    };
+    await replace(gtTable(GROUPED, { layout: { height: "200px" } }));
+    expect(el.hasAttribute("data-gti-sticky")).toBe(true);
+    await replace({ html, spec });
+    expect(el.hasAttribute("data-gti-sticky")).toBe(false);
+    expect(el.style.getPropertyValue("--gt-i-head")).toBe("");
+    expect(el.querySelector(".gt-i-shade")).toBeNull();
+  });
+
+  it("moves a group's label cell with its borders when groups are a column", async () => {
+    const el = await scrolling({ groupsAsColumn: true });
+    el.search = "20";
+    const label = el.querySelector(".gt_stub_row_group") as HTMLTableCellElement;
+    // (On group b's first row shown, row 0)
+    expect(el.bodyRow(label.parentElement as HTMLTableRowElement)).toBe(0);
+    expect(label.style.getPropertyValue("border-top-style")).not.toBe("");
   });
 });

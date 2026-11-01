@@ -14,6 +14,7 @@ const valid = {
   controls: { sorting: true, search: false, resizing: false, selection: null },
   pagination: { enabled: true, page_size: 10, page_sizes: [10, 25], size_select: false, info: true, type: "numbers" },
   display: { highlight: false, compact: false, wrap: true },
+  layout: { height: null },
 };
 
 const pagination = (fields: object) => JSON.stringify({ ...valid, pagination: { ...valid.pagination, ...fields } });
@@ -23,6 +24,10 @@ const parse = (spec: object) => parseSpec(JSON.stringify(spec));
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
+  });
+
+  it("takes a height", () => {
+    expect(parse({ ...valid, layout: { height: "min(60vh, 600px)" } }).layout.height).toBe("min(60vh, 600px)");
   });
 
   it("ignores fields it doesn't know", () => {
@@ -85,6 +90,10 @@ describe("parseSpec()", () => {
     ["has no display", JSON.stringify({ ...valid, display: undefined }), /`display`/],
     ["has a bad display flag", JSON.stringify({ ...valid, display: { ...valid.display, wrap: 0 } }), /`display`/],
     ["has no highlight flag", JSON.stringify({ ...valid, display: { compact: false, wrap: true } }), /`display`/],
+    ["has no layout", JSON.stringify({ ...valid, layout: undefined }), /`layout`/],
+    ["has no height", JSON.stringify({ ...valid, layout: {} }), /`layout`/],
+    ["has a height that isn't a string", JSON.stringify({ ...valid, layout: { height: 400 } }), /`layout`/],
+    ["has an empty height", JSON.stringify({ ...valid, layout: { height: " " } }), /`layout`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

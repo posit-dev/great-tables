@@ -226,6 +226,10 @@ class TestFeatureFlags:
         props = _extract_props(gt_mini.opt_interactive(height="400px").as_raw_html())
         assert props["height"] == "400px"
 
+    def test_height_in_pixels(self, gt_mini: GT):
+        props = _extract_props(gt_mini.opt_interactive(height=400).as_raw_html())
+        assert props["height"] == "400px"
+
     def test_height_auto_not_in_props(self, gt_mini: GT):
         props = _extract_props(gt_mini.opt_interactive(height="auto").as_raw_html())
         assert "height" not in props

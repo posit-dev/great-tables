@@ -241,6 +241,75 @@ gt-table[data-gti-nowrap] :is(.gt_row, .gt_col_heading, .gt_column_spanner) {
   text-overflow: ellipsis;
 }
 
+/*
+ * A body that scrolls, within the height the producer sets (on the element, so that the table
+ * doesn't change when it's hydrated). GT's container already scrolls sideways; it scrolls down too,
+ * whatever the author set for it.
+ */
+gt-table[data-gti-scroll] > div:has(> table),
+gt-table[data-gti-scroll] .gt-i-scroller {
+  box-sizing: border-box;
+  max-height: var(--gt-i-height);
+  overflow-y: auto !important;
+}
+
+/*
+ * Once hydrated, the column labels (and the table's header) stick to the top, each group heading
+ * below them (set by the runtime, as their height changes), and the grand summary rows at the
+ * bottom to the bottom. The table's borders are drawn on its cells by then, so they stick too.
+ */
+gt-table[data-gti-sticky] {
+  position: relative;
+}
+
+gt-table[data-gti-sticky] thead {
+  position: sticky;
+  /* (Over the container's padding) */
+  top: calc(0px - var(--gt-i-pad, 0px));
+  z-index: 2;
+}
+
+gt-table[data-gti-sticky] tr.gt_group_heading_row > *,
+gt-table[data-gti-sticky] tr.gt-i-stuck-bottom > * {
+  position: sticky;
+  z-index: 1;
+}
+
+/* The shadows over the scrolling body's edges, while there's more of it past them */
+gt-table .gt-i-shade {
+  position: absolute;
+  z-index: 3;
+  height: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+gt-table .gt-i-shade[data-gti-edge="top"] {
+  background: linear-gradient(rgba(0, 0, 0, 0.15), transparent);
+}
+
+gt-table .gt-i-shade[data-gti-edge="bottom"] {
+  transform: translateY(-100%);
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.15));
+}
+
+gt-table .gt-i-shade[data-gti-shown] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  gt-table .gt-i-shade {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  gt-table .gt-i-shade {
+    display: none;
+  }
+}
+
 /* The toolbar sits above the table (lined up with it once hydrated) */
 gt-table .gt-i-toolbar {
   display: flex;

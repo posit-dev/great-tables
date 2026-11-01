@@ -110,6 +110,14 @@ export interface DisplaySpec {
   wrap: boolean;
 }
 
+export interface LayoutSpec {
+  /**
+   * The most the table can take up (a CSS length) before its body scrolls, under column labels
+   * that stay in view; `null` to grow with its content.
+   */
+  height: string | null;
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -128,6 +136,7 @@ export interface Spec {
   controls: ControlsSpec;
   pagination: PaginationSpec;
   display: DisplaySpec;
+  layout: LayoutSpec;
 }
 
 export class SpecError extends Error {
@@ -224,6 +233,13 @@ export function parseSpec(text: string): Spec {
     typeof display.wrap !== "boolean"
   ) {
     throw new SpecError("`display` must say whether rows are highlighted and compact, and text wraps");
+  }
+  const layout = raw.layout;
+  if (
+    !isObject(layout) ||
+    !(layout.height === null || (typeof layout.height === "string" && layout.height.trim() !== ""))
+  ) {
+    throw new SpecError("`layout` must have a `height`: a CSS length, or `null`");
   }
 
   const body = raw.body as unknown[];
