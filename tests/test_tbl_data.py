@@ -848,7 +848,7 @@ def test_is_na_dtype_matrix(matrix_df: DataFrameLike, column: str):
 
 def test_is_na_scalars(df: DataFrameLike, snapshot: SnapshotAssertion):
     # A cell holding an array or a list isn't missing, even if its elements are. pandas scalars
-    # can't come out of a polars or pyarrow frame: polars says they aren't missing, pyarrow raises
+    # can't come out of a polars or pyarrow frame, so both say they aren't missing
     assert snapshot == {name: _is_na_or_error(df, x) for name, x in IS_NA_SCALARS.items()}
 
 

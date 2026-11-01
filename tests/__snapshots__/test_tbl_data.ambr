@@ -1048,8 +1048,8 @@
     'np.array': False,
     'np.array([nan])': False,
     'np.float64(nan)': True,
-    'pd.NA': 'ArrowInvalid',
-    'pd.NaT': 'ValueError',
+    'pd.NA': False,
+    'pd.NaT': False,
     'str': False,
   })
 # ---

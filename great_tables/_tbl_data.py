@@ -1200,10 +1200,10 @@ def _(df: PlDataFrame, x: Any) -> bool:
 
 @is_na.register
 def _(df: PyArrowTable, x: Any) -> bool:
-    import pyarrow as pa
+    from math import isnan
 
-    arr = pa.array([x])
-    return arr.is_null(nan_is_null=True).to_pylist()[0]
+    # Cells leave a pyarrow table as Python values (`as_py()`), where a null is None
+    return x is None or (isinstance(x, float) and isnan(x))
 
 
 @singledispatch
