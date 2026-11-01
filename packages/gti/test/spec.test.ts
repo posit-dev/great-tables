@@ -11,7 +11,7 @@ const valid = {
   body: [{ group: "a" }, 1, 0, { summary: "Total", group: "a", side: "bottom" }],
   ranks: { x: [1, null] },
   striping: { stub: false, body: true },
-  controls: { sorting: true, search: false, resizing: false },
+  controls: { sorting: true, search: false, resizing: false, selection: null },
   pagination: { enabled: true, page_size: 10, page_sizes: [10, 25], size_select: false, info: true, type: "numbers" },
   display: { highlight: false, compact: false, wrap: true },
 };
@@ -59,7 +59,21 @@ describe("parseSpec()", () => {
     ["has no controls", JSON.stringify({ ...valid, controls: undefined }), /`controls`/],
     ["has a bad controls", JSON.stringify({ ...valid, controls: { sorting: true } }), /`controls`/],
     ["has a bad controls", JSON.stringify({ ...valid, controls: { sorting: 1, search: false } }), /`controls`/],
-    ["has no resizing flag", JSON.stringify({ ...valid, controls: { sorting: true, search: false } }), /`controls`/],
+    [
+      "has no resizing flag",
+      JSON.stringify({ ...valid, controls: { sorting: true, search: false, selection: null } }),
+      /`controls`/,
+    ],
+    [
+      "has no selection mode",
+      JSON.stringify({ ...valid, controls: { sorting: true, search: false, resizing: false } }),
+      /`controls`/,
+    ],
+    [
+      "has an unknown selection mode",
+      JSON.stringify({ ...valid, controls: { ...valid.controls, selection: "all" } }),
+      /`controls`/,
+    ],
     ["has no pagination", JSON.stringify({ ...valid, pagination: undefined }), /`pagination`/],
     ["has a page size of 0", pagination({ page_size: 0 }), /`pagination`/],
     ["has a fractional page size", pagination({ page_size: 2.5 }), /`pagination`/],

@@ -12,6 +12,8 @@ import {
   type ResizeEventDetail,
   SEARCH_EVENT,
   type SearchEventDetail,
+  SELECT_EVENT,
+  type SelectEventDetail,
   SORT_EVENT,
   type SortEventDetail,
   SPEC_VERSION,
@@ -144,7 +146,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
       : body,
     ranks: RANKS,
     striping,
-    controls: { sorting: true, search: false, resizing: false, ...options.controls },
+    controls: { sorting: true, search: false, resizing: false, selection: null, ...options.controls },
     pagination: {
       enabled: false,
       page_size: 2,
@@ -1552,5 +1554,377 @@ describe("column resizing", () => {
     press(handles(el)[1] as HTMLElement, "ArrowRight");
     el.sort = [{ column: "y", descending: false }];
     expect(widths(el)).toEqual(["100px", "110px", "100px"]);
+  });
+});
+
+describe("row selection", () => {
+  const selectable = (mode: "single" | "multiple" = "multiple", options: TableOptions = {}, body = GROUPED) =>
+    mountTable(body, { ...options, controls: { selection: mode, ...options.controls } });
+  const box = (el: GtTable, row: number) =>
+    el.rowElement(row)?.querySelector<HTMLInputElement>(":scope > .gt-i-select > input") as HTMLInputElement;
+  const all = (el: GtTable) => el.querySelector<HTMLInputElement>("thead .gt-i-select input") as HTMLInputElement;
+  const press = (target: Element, shiftKey = false) =>
+    target.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, shiftKey }));
+  const selects = (el: GtTable) => {
+    const details: number[][] = [];
+    el.addEventListener(SELECT_EVENT, (event) =>
+      details.push((event as CustomEvent<SelectEventDetail>).detail.selection),
+    );
+    return details;
+  };
+  const tinted = (el: GtTable) =>
+    Array.from(el.querySelectorAll("tr.gt-i-selected"), (tr) => el.bodyRow(tr as HTMLTableRowElement));
+  const colspans = (el: GtTable, selector: string) =>
+    Array.from(el.querySelectorAll(selector), (cell) => cell.getAttribute("colspan"));
+
+  it("isn't on unless the spec says so", async () => {
+    const el = await mountTable();
+    expect(el.querySelector(".gt-i-select")).toBeNull();
+    expect(el.selection).toEqual([]);
+    expect(() => {
+      el.selection = [0];
+    }).toThrow(/can't be selected/);
+    el.selection = [];
+  });
+
+  it("puts a labelled checkbox before each data row's cells", async () => {
+    const el = await selectable();
+    for (const row of [0, 1, 2, 3, 4]) {
+      const tr = el.rowElement(row) as HTMLTableRowElement;
+      const cell = tr.cells[0] as HTMLTableCellElement;
+      expect(cell.matches("td.gt_row.gt_center.gt-i-select")).toBe(true);
+      expect(cell.classList.contains("gt_right")).toBe(false);
+      expect(box(el, row).type).toBe("checkbox");
+      expect(box(el, row).getAttribute("aria-label")).toBe(`Select row_${row + 1}`);
+      expect(tr.cells).toHaveLength(4);
+    }
+  });
+
+  it("names rows without a stub by number", async () => {
+    const { html, spec } = gtTable([0, 1], { controls: { selection: "single" } });
+    const plain = html.replace(/<th class="gt_row gt_left gt_stub">row_\d<\/th>/g, "<td class=\"gt_row\">-</td>");
+    const el = await mount(`<gt-table>${plain}${specScript(spec)}</gt-table>`);
+    expect(box(el, 1).getAttribute("aria-label")).toBe("Select row 2");
+  });
+
+  it("widens the rows across the table, and gives summary rows an empty cell", async () => {
+    const thead =
+      `<tr class="gt_heading"><td class="gt_heading gt_title" colspan="3">Title</td></tr>` +
+      `<tr class="gt_col_headings"><th class="gt_col_heading"></th>` +
+      `<th class="gt_col_heading" id="t-x">x</th><th class="gt_col_heading" id="t-y">y</th></tr>`;
+    const { html, spec } = gtTable(GROUPED, { thead, controls: { selection: "multiple" } });
+    const footed = html.replace("</tbody>", `</tbody><tfoot><tr><td class="gt_footnote" colspan="3">Note</td></tr></tfoot>`);
+    const el = await mount(`<gt-table>${footed}${specScript(spec)}</gt-table>`);
+    expect(colspans(el, ".gt_title, .gt_group_heading, .gt_footnote")).toEqual(["4", "4", "4", "4"]);
+    // Styled as the row's other cells are
+    const lead = (kind: string) => el.querySelector(`th.gt_stub.${kind}`)?.closest("tr")?.cells[0];
+    expect(lead("gt_summary_row")?.matches("td.gt_summary_row.gt-i-select:empty")).toBe(true);
+    expect(lead("gt_grand_summary_row")?.matches("td.gt_grand_summary_row.gt-i-select:empty")).toBe(true);
+    expect(el.querySelectorAll("td.gt-i-select:empty")).toHaveLength(2);
+  });
+
+  it("puts a select-all checkbox in the column labels, across every row of them", async () => {
+    const thead =
+      `<tr class="gt_col_headings gt_spanner_row"><th class="gt_col_heading" rowspan="2"></th>` +
+      `<th class="gt_column_spanner_outer" colspan="2"><span class="gt_column_spanner">XY</span></th></tr>` +
+      `<tr class="gt_col_headings"><th class="gt_col_heading" id="t-x">x</th><th class="gt_col_heading" id="t-y">y</th></tr>`;
+    const el = await selectable("multiple", { thead });
+    const th = el.querySelector("thead th.gt-i-select") as HTMLTableCellElement;
+    expect(th.parentElement?.classList.contains("gt_spanner_row")).toBe(true);
+    expect(th.parentElement?.firstElementChild).toBe(th);
+    expect(th.rowSpan).toBe(2);
+    expect(th.scope).toBe("col");
+    expect(all(el).getAttribute("aria-label")).toBe("Select all rows");
+    // One row: no rowspan
+    expect((await selectable()).querySelector("thead th.gt-i-select")?.hasAttribute("rowspan")).toBe(false);
+  });
+
+  it("labels the column for screen readers when one row is selected at a time", async () => {
+    const el = await selectable("single");
+    const th = el.querySelector("thead th.gt-i-select") as HTMLTableCellElement;
+    expect(th.querySelector("input")).toBeNull();
+    expect(th.querySelector(".gt-i-hidden")?.textContent).toBe("Select");
+  });
+
+  it("adds a column to the author's column widths", async () => {
+    const { html, spec } = gtTable(GROUPED, { controls: { selection: "multiple" } });
+    const colgroup = `<colgroup><col style="width:100px"><col style="width:100px"><col style="width:100px"></colgroup>`;
+    const el = await mount(
+      `<gt-table>${html.replace('<table class="gt_table">', `<table class="gt_table">${colgroup}`)}${specScript(spec)}</gt-table>`,
+    );
+    const cols = el.querySelectorAll<HTMLElement>("colgroup > col");
+    expect(cols).toHaveLength(4);
+    expect(cols[0]?.classList.contains("gt-i-select")).toBe(true);
+    expect(cols[0]?.style.width).toBe("2.5em");
+  });
+
+  it("selects and deselects rows with their checkboxes, telling listeners", async () => {
+    const el = await selectable();
+    const details = selects(el);
+    box(el, 4).click();
+    box(el, 1).click();
+    expect(el.selection).toEqual([1, 4]);
+    expect(box(el, 4).checked).toBe(true);
+    expect(tinted(el)).toEqual([4, 1]);
+    box(el, 4).click();
+    expect(el.selection).toEqual([1]);
+    expect(box(el, 4).checked).toBe(false);
+    expect(details).toEqual([[4], [1, 4], [1]]);
+  });
+
+  it("selects a row clicked anywhere but on its own controls or a group's label", async () => {
+    const el = await selectable("multiple", { groupsAsColumn: true });
+    press(el.rowElement(0)?.cells[2] as Element);
+    expect(el.selection).toEqual([0]);
+    press(el.rowElement(0)?.querySelector(".gt_stub") as Element);
+    expect(el.selection).toEqual([]);
+    // (The click on the group label cell, on row 3's row)
+    press(el.querySelector(".gt_stub_row_group") as Element);
+    const link = el.ownerDocument.createElement("a");
+    link.href = "#";
+    link.addEventListener("click", (event) => event.preventDefault());
+    el.rowElement(2)?.cells[2]?.append(link);
+    press(link);
+    press(el.querySelector(".gt_grand_summary_row") as Element);
+    expect(el.selection).toEqual([]);
+  });
+
+  it("doesn't select a row when the click ends selecting text in it", async () => {
+    const el = await selectable();
+    const cell = el.rowElement(0)?.cells[2] as HTMLTableCellElement;
+    const range = document.createRange();
+    range.selectNodeContents(cell);
+    getSelection()?.addRange(range);
+    press(cell);
+    expect(el.selection).toEqual([]);
+    getSelection()?.removeAllRanges();
+    press(cell);
+    expect(el.selection).toEqual([0]);
+  });
+
+  it("selects one row at a time in single mode", async () => {
+    const el = await selectable("single");
+    const details = selects(el);
+    box(el, 0).click();
+    press(el.rowElement(2)?.cells[2] as Element);
+    expect(el.selection).toEqual([2]);
+    expect(box(el, 0).checked).toBe(false);
+    // Shift selects no range
+    press(el.rowElement(1)?.cells[2] as Element, true);
+    expect(el.selection).toEqual([1]);
+    press(el.rowElement(1)?.cells[2] as Element);
+    expect(el.selection).toEqual([]);
+    expect(details).toEqual([[0], [2], [1], []]);
+  });
+
+  it("selects a range in the order shown with Shift", async () => {
+    const el = await selectable("multiple", {}, [0, 1, 2, 3, 4]);
+    el.sort = [{ column: "y", descending: true }];
+    // (Rows by y, descending: 2, 0, then 1, 3, 4)
+    expect(shown(el)).toEqual([2, 0, 1, 3, 4]);
+    press(el.rowElement(0)?.cells[2] as Element);
+    press(el.rowElement(3)?.cells[2] as Element, true);
+    expect(el.selection).toEqual([0, 1, 3]);
+    expect(live(el)).toBe("3 rows selected");
+    // A range follows the row clicked: here, deselecting
+    box(el, 2).click();
+    expect(el.selection).toEqual([0, 1, 2, 3]);
+    press(el.rowElement(1)?.cells[2] as Element, true);
+    expect(el.selection).toEqual([3]);
+  });
+
+  it("keeps Shift-clicks from selecting text", async () => {
+    const el = await selectable();
+    const cell = el.rowElement(0)?.cells[2] as Element;
+    const down = (shiftKey: boolean) =>
+      cell.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, shiftKey }));
+    expect(down(true)).toBe(false);
+    expect(down(false)).toBe(true);
+  });
+
+  it("ranges over the rows that match the search only", async () => {
+    const el = await selectable("multiple", {}, [0, 1, 2, 3, 4]);
+    el.search = "a";
+    expect(visible(el)).toEqual([1, 3, 4]);
+    press(el.rowElement(1)?.cells[2] as Element);
+    press(el.rowElement(4)?.cells[2] as Element, true);
+    expect(el.selection).toEqual([1, 3, 4]);
+  });
+
+  it("selects every row that matches the search with the select-all checkbox, on every page", async () => {
+    const el = await selectable("multiple", { pagination: { enabled: true } }, [0, 1, 2, 3, 4]);
+    const details = selects(el);
+    all(el).click();
+    expect(el.selection).toEqual([0, 1, 2, 3, 4]);
+    expect(all(el).checked).toBe(true);
+    expect(live(el)).toBe("5 rows selected");
+    all(el).click();
+    expect(el.selection).toEqual([]);
+    expect(live(el)).toBe("No rows selected");
+
+    el.search = "a";
+    expect(all(el).getAttribute("aria-label")).toBe("Select all matching rows");
+    box(el, 0).click();
+    all(el).click();
+    expect(el.selection).toEqual([0, 1, 3, 4]);
+    expect(all(el).checked).toBe(true);
+    // Deselecting them leaves the rest alone
+    all(el).click();
+    expect(el.selection).toEqual([0]);
+    expect(details).toEqual([[0, 1, 2, 3, 4], [], [0], [0, 1, 3, 4], [0]]);
+  });
+
+  it("shows whether all, some or none of the matching rows are selected", async () => {
+    const el = await selectable("multiple", {}, [0, 1, 2, 3, 4]);
+    const state = () => [all(el).checked, all(el).indeterminate];
+    expect(state()).toEqual([false, false]);
+    box(el, 1).click();
+    expect(state()).toEqual([false, true]);
+    el.selection = [0, 1, 2, 3, 4];
+    expect(state()).toEqual([true, false]);
+    el.selection = [1, 3];
+    el.search = "a";
+    expect(state()).toEqual([false, true]);
+    el.search = "zzz";
+    expect(state()).toEqual([false, false]);
+    expect(all(el).disabled).toBe(true);
+    el.search = "";
+    expect(all(el).disabled).toBe(false);
+  });
+
+  it("selects the whole header cell's checkbox from a click on the cell", async () => {
+    const el = await selectable();
+    press(el.querySelector("thead th.gt-i-select") as Element);
+    expect(el.selection).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("keeps the selection as rows are sorted, searched and paged", async () => {
+    const el = await selectable("multiple", { pagination: { enabled: true } }, [0, 1, 2, 3, 4]);
+    el.selection = [0, 3];
+    el.sort = [{ column: "x" }];
+    el.search = "b";
+    el.search = "";
+    el.page = 2;
+    expect(el.selection).toEqual([0, 3]);
+    expect(box(el, 3).checked).toBe(true);
+    expect(tinted(el).sort()).toEqual([0, 3]);
+  });
+
+  it("sets the selection without telling listeners, checking the rows", async () => {
+    const el = await selectable("single");
+    const details = selects(el);
+    el.selection = [3];
+    expect(box(el, 3).checked).toBe(true);
+    el.selection = [];
+    expect(details).toEqual([]);
+    expect(() => {
+      el.selection = [0, 1];
+    }).toThrow(/only one row/);
+    expect(() => {
+      el.selection = [5];
+    }).toThrow(/no data row 5/);
+    for (const bad of [-1, 1.5, Number.NaN]) {
+      expect(() => {
+        el.selection = [bad];
+      }).toThrow(RangeError);
+    }
+    // (Duplicates are one row)
+    el.selection = [2, 2];
+    expect(el.selection).toEqual([2]);
+  });
+
+  it("takes a selection set before hydration, dropping what the table can't have", async () => {
+    const { html, spec } = gtTable(GROUPED, { controls: { selection: "multiple" } });
+    document.body.innerHTML = "";
+    const el = document.createElement(TAG_NAME) as GtTable;
+    el.selection = [4, 1, 9];
+    expect(el.selection).toEqual([1, 4, 9]);
+    el.innerHTML = `${html}${specScript(spec)}`;
+    document.body.append(el);
+    await tick();
+    expect(el.state).toBe("ready");
+    expect(el.selection).toEqual([1, 4]);
+    expect(box(el, 4).checked).toBe(true);
+
+    const single = gtTable(GROUPED, { controls: { selection: "single" } });
+    const other = document.createElement(TAG_NAME) as GtTable;
+    other.selection = [4, 1];
+    other.innerHTML = `${single.html}${specScript(single.spec)}`;
+    document.body.append(other);
+    await tick();
+    expect(other.selection).toEqual([1]);
+  });
+
+  it("puts the group column after the checkboxes, as the groups' rows move", async () => {
+    const el = await selectable("multiple", { groupsAsColumn: true });
+    const lead = (row: number) =>
+      Array.from(el.rowElement(row)?.cells ?? [], (cell) => cell.className.split(" ").pop()).slice(0, 2);
+    expect(lead(3)).toEqual(["gt-i-select", "gt_stub_row_group"]);
+    el.sort = [{ column: "x" }];
+    // (Group "b" now starts with row 0, its row with the lowest x)
+    expect(lead(0)).toEqual(["gt-i-select", "gt_stub_row_group"]);
+    expect(lead(3)).toEqual(["gt-i-select", "gt_stub"]);
+  });
+
+  it("stripes the checkboxes' cells as the body's", async () => {
+    const el = await selectable("multiple", { striping: { stub: false, body: true } }, [0, 1, 2, 3, 4]);
+    const striped = () =>
+      [0, 1, 2, 3, 4].map((row) => el.rowElement(row)?.cells[0]?.classList.contains("gt_striped"));
+    expect(striped()).toEqual([false, true, false, true, false]);
+    el.sort = [{ column: "row", descending: true }];
+    expect(striped()).toEqual([false, true, false, true, false].reverse());
+  });
+
+  it("doesn't search the checkboxes' cells", async () => {
+    const el = await selectable("multiple", {}, [0, 1, 2, 3, 4]);
+    el.search = "Select";
+    expect(visible(el)).toEqual([]);
+  });
+
+  it("has no resize handle, counting the column in resize events", async () => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
+    const el = await selectable("multiple", { controls: { resizing: true } });
+    const details: ResizeEventDetail[] = [];
+    el.addEventListener(RESIZE_EVENT, (event) => details.push((event as CustomEvent<ResizeEventDetail>).detail));
+    const handles = Array.from(el.querySelectorAll<HTMLElement>(".gt-i-resizer"));
+    // (The stub is the second column now)
+    expect(handles.map((handle) => handle.getAttribute("aria-label"))).toEqual(["Resize column 2", "Resize x", "Resize y"]);
+    handles[1]?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }));
+    expect(details).toEqual([{ column: "x", index: 2, width: 110 }]);
+    expect(Array.from(el.querySelectorAll<HTMLElement>("colgroup > col"), (col) => col.style.width)).toEqual([
+      "100px",
+      "100px",
+      "110px",
+      "100px",
+    ]);
+  });
+
+  it("selects rows in a table whose stub has merged cells", async () => {
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], { controls: { selection: "multiple" } });
+    const merged = html.replace(
+      `<th class="gt_row gt_left gt_stub">row_1</th>`,
+      `<th class="gt_row gt_left gt_stub" rowspan="2">row_1</th>`,
+    );
+    const el = await mount(`<gt-table>${merged}${specScript(spec)}</gt-table>`);
+    expect(el.rowElement(1)?.cells[0]?.classList.contains("gt-i-select")).toBe(true);
+    press(el.rowElement(0)?.cells[2] as Element);
+    press(el.rowElement(2)?.cells[2] as Element, true);
+    expect(el.selection).toEqual([0, 1, 2]);
+    all(el).click();
+    expect(el.selection).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("clears the selection when the table is hydrated again", async () => {
+    const el = await selectable();
+    el.selection = [1];
+    // (New children, then a move)
+    const { html, spec } = gtTable(GROUPED, { controls: { selection: "multiple" } });
+    el.innerHTML = `${html}${specScript(spec)}`;
+    el.remove();
+    document.body.append(el);
+    await tick();
+    expect(el.state).toBe("ready");
+    expect(el.selection).toEqual([]);
+    expect(el.querySelectorAll("tr.gt-i-selected")).toHaveLength(0);
   });
 });
