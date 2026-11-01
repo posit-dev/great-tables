@@ -62,6 +62,13 @@ export interface GrandSummaryRow {
   side: "top" | "bottom";
 }
 
+export interface StripingSpec {
+  /** Whether alternate data rows have striped stub cells. */
+  stub: boolean;
+  /** Whether alternate data rows have striped body cells. */
+  body: boolean;
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -76,6 +83,7 @@ export interface Spec {
   body: BodyRow[];
   /** Per sortable column, each data row's dense sort rank (`null` for a missing value). */
   ranks: Record<string, (number | null)[]>;
+  striping: StripingSpec;
 }
 
 export class SpecError extends Error {
@@ -126,6 +134,10 @@ export function parseSpec(text: string): Spec {
   }
   if (!isObject(raw.stub) || !isObject(raw.ranks)) {
     throw new SpecError("`stub` and `ranks` must be objects");
+  }
+  const striping = raw.striping;
+  if (!isObject(striping) || typeof striping.stub !== "boolean" || typeof striping.body !== "boolean") {
+    throw new SpecError("`striping` must say whether the stub and body are striped");
   }
 
   const body = raw.body as unknown[];

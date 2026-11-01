@@ -34,6 +34,26 @@ def gt_html(table_id: str) -> str:
     return render_gti_html(gt, runtime="none")
 
 
+def sort_html(table_id: str, groups_as_column: bool = False) -> str:
+    # Groups out of data order, each with a summary row, striped, with missing values to sort.
+    gt = (
+        GT(
+            exibble[["num", "char", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+            id=table_id,
+        )
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .row_group_order(["grp_b", "grp_a"])
+        .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
+        .grand_summary_rows(fns={"Max": lambda df: df[["num", "currency"]].max()})
+        .opt_row_striping()
+        .tab_options(row_group_as_column=groups_as_column)
+    )
+    return render_gti_html(gt, runtime="none")
+
+
 def page(body: str, head: str = "") -> str:
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -56,6 +76,11 @@ def main() -> None:
         "twice.html": page(
             "\n".join([gt_html("t1"), inline_runtime, gt_html("t2"), inline_runtime]),
             head=styles,
+        ),
+        # Tables to sort, with group headings or with groups shown as a column.
+        "sort.html": page(sort_html("s") + "\n" + runtime_src, head=styles),
+        "sort-column.html": page(
+            sort_html("s", groups_as_column=True) + "\n" + runtime_src, head=styles
         ),
     }
     for name, html in fixtures.items():

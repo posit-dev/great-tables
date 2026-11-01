@@ -1,3 +1,94 @@
 gt-table {
   display: block;
 }
+
+/* Sortable column labels: the label is a button that looks like the label */
+gt-table .gt-i-sort {
+  appearance: none;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+gt-table .gt-i-sort:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* On touch screens, a target of at least 44 x 44 px, without changing the layout */
+@media (pointer: coarse) {
+  gt-table .gt-i-sort::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+gt-table .gt-i-sort-icon {
+  display: inline-block;
+  min-width: 1em;
+  margin-inline-start: 0.2em;
+  font-size: 0.75em;
+  line-height: 1;
+  text-align: center;
+  opacity: 0;
+}
+
+gt-table .gt-i-sort-icon::before {
+  content: "\2195";
+}
+
+/* Unsorted columns show a faint hint on hover and focus, and always on touch screens */
+gt-table .gt-i-sort:hover .gt-i-sort-icon,
+gt-table .gt-i-sort:focus-visible .gt-i-sort-icon {
+  opacity: 0.4;
+}
+
+@media (pointer: coarse) {
+  gt-table .gt-i-sort-icon {
+    opacity: 0.4;
+  }
+}
+
+/* (Specific enough to beat the hover hint) */
+gt-table th[data-gti-sort] .gt-i-sort .gt-i-sort-icon {
+  opacity: 1;
+}
+
+gt-table th[data-gti-sort="ascending"] .gt-i-sort-icon::before {
+  content: "\25B2";
+}
+
+gt-table th[data-gti-sort="descending"] .gt-i-sort-icon::before {
+  content: "\25BC";
+}
+
+/* The position of a column in a sort by several */
+gt-table .gt-i-sort-icon[data-gti-sort-index]::after {
+  content: attr(data-gti-sort-index);
+  font-size: 0.8em;
+  vertical-align: super;
+}
+
+/* Announcements for screen readers only */
+gt-table .gt-i-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
