@@ -13,7 +13,7 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `striping`: whether the stub and body cells of alternate data rows are striped (`gt_striped`),
   so that striping can be redone when rows are reordered or hidden
 - `controls`: which controls the reader gets: sort buttons in the column labels, a search box,
-  and handles for resizing columns
+  handles for resizing columns, and whether rows can be selected (one at a time, or several)
 - `pagination`: whether rows are split into pages, how many to a page, and the page controls
 - `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
   in the table's CSS, as smaller row padding), and whether cell text wraps
@@ -82,10 +82,16 @@ class StripingSpec(TypedDict):
     body: bool
 
 
+SelectionMode = Literal["single", "multiple"]
+
+SELECTION_MODES: tuple[SelectionMode, ...] = ("single", "multiple")
+
+
 class ControlsSpec(TypedDict):
     sorting: bool
     search: bool
     resizing: bool
+    selection: SelectionMode | None
 
 
 PaginationType = Literal["numbers", "simple", "full", "jump"]
@@ -215,6 +221,7 @@ def build_spec(data: GTData) -> Spec:
             sorting=bool(data._options.ihtml_use_sorting.value),
             search=bool(data._options.ihtml_use_search.value),
             resizing=bool(data._options.ihtml_use_resizers.value),
+            selection=_selection_mode(data),
         ),
         pagination=_pagination(data),
         display=DisplaySpec(
@@ -223,6 +230,12 @@ def build_spec(data: GTData) -> Spec:
             wrap=bool(data._options.ihtml_use_text_wrapping.value),
         ),
     )
+
+
+def _selection_mode(data: GTData) -> SelectionMode | None:
+    # (`tab_options()` takes only these)
+    mode = data._options.ihtml_selection_mode.value
+    return mode if mode in SELECTION_MODES else None
 
 
 def _pagination(data: GTData) -> PaginationSpec:
