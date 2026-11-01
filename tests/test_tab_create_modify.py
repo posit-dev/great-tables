@@ -1,5 +1,7 @@
+import math
 import re
 from datetime import datetime
+from typing import Any
 
 import pandas as pd
 import polars as pl
@@ -345,6 +347,16 @@ def test_tab_style_body_values_none_matches_missing(frame_constructor: DataFrame
     new_gt = GT(df).tab_style_body(style=style.fill(color="red"), values=[None])
     styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
     assert styled_cells == {("x", 1)}
+
+
+@pytest.mark.parametrize("missing", [pd.NA, pd.NaT, math.nan])
+def test_tab_style_body_values_pandas_na_matches_missing(
+    pandas_frame_constructor: DataFrameConstructor, missing: Any
+):
+    df = pandas_frame_constructor({"x": [1.5, None], "d": [datetime(2024, 1, 1), None]})
+    new_gt = GT(df).tab_style_body(style=style.fill(color="red"), values=[missing])
+    styled_cells = {(s.colname, s.rownum) for s in new_gt._styles}
+    assert styled_cells == {("x", 1), ("d", 1)}
 
 
 def test_tab_style_body_pyarrow_map_and_uint64_cells():

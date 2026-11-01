@@ -328,12 +328,10 @@ def tab_style_body(
             return compiled.search(str(x)) is not None
 
     else:
-        has_none = None in values
-        values_set = set(v for v in values if v is not None)
+        # Normalized like the cells, so `pd.NA` or NaN in `values` matches a missing cell
+        values_set = {_none_if_missing(v) for v in values}
 
         def match_fn(x: Any) -> bool:
-            if x is None:
-                return has_none
             return x in values_set
 
     # Find all matching (column_name, row_index) pairs
