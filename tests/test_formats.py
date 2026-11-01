@@ -2574,11 +2574,12 @@ FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
 
 
 @pytest.mark.parametrize("fmt_tf_kwargs,x_out", FMT_TF_CASES)
-def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
-    df = pl.DataFrame({"x": [True, False, None]})
+def test_fmt_tf_case(
+    frame_constructor: DataFrameConstructor, fmt_tf_kwargs: dict[str, Any], x_out: list[str]
+):
+    df = frame_constructor({"x": [True, False, None]})
     gt = GT(df).fmt_tf(columns="x", **fmt_tf_kwargs)
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == x_out
+    assert body_cells(gt) == x_out
 
 
 @pytest.mark.parametrize(
@@ -2597,15 +2598,13 @@ def test_fmt_tf_pandas_bool_dtypes(x_in: list[Any], dtype: str, x_out: list[str]
     assert x == x_out
 
 
-def test_fmt_tf_column_invalid_type():
-    df = pl.DataFrame({"x": [0, 1, 2]})
+def test_fmt_tf_column_invalid_type(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [0, 1, 2]})
     gt = GT(df).fmt_tf(columns="x")
 
-    with pytest.raises(ValueError) as exc_info:
-        # This triggers the actual formatting by accessing the formatted values
+    # The message ends with the cell's type: `numpy.int64` on plain and nullable pandas, else `int`
+    with pytest.raises(ValueError, match="Expected boolean value or NA, but got"):
         _get_column_of_values(gt, column_name="x", context="html")
-
-    assert "Expected boolean value or NA, but got" in exc_info.value.args[0]
 
 
 def test_fmt_tf_invalid_na_val_type():
