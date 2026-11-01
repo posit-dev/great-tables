@@ -102,6 +102,19 @@ def resize_html(table_id: str, groups_as_column: bool = False) -> str:
     return render_gti_html(gt, runtime="none")
 
 
+def select_html(
+    table_id: str, mode: str = "multiple", groups_as_column: bool = False, **options
+) -> str:
+    # The table to sort, with a title and a source note, and rows to select.
+    gt = (
+        sort_gt(table_id, groups_as_column)
+        .tab_header(title="exibble")
+        .tab_source_note("Source: great_tables.exibble")
+    )
+    gt = gt.opt_interactive(selection_mode=mode, **options)
+    return render_gti_html(gt, runtime="none")
+
+
 def page(body: str, head: str = "") -> str:
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -178,6 +191,24 @@ def main() -> None:
         ),
         "resize-nowrap.html": page(
             display_html("d", use_text_wrapping=False, use_resizers=True) + "\n" + runtime_src,
+            head=styles,
+        ),
+        # Tables with rows to select: several, searchable, 3 rows to a page, highlighted; one at a
+        # time, on one page; and several, with groups shown as a column and resizable columns.
+        "select.html": page(
+            select_html("x", use_search=True, page_size_default=3, use_highlight=True)
+            + "\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "select-single.html": page(
+            select_html("x", mode="single", use_pagination=False) + "\n" + runtime_src,
+            head=styles,
+        ),
+        "select-column.html": page(
+            select_html("x", groups_as_column=True, use_pagination=False, use_resizers=True)
+            + "\n"
+            + runtime_src,
             head=styles,
         ),
     }
