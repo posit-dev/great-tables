@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pandas as pd
+
 from great_tables import GT, exibble, loc, md, style
 from great_tables._gti import render_gti_html
 
@@ -115,6 +117,24 @@ def select_html(
     return render_gti_html(gt, runtime="none")
 
 
+def scroll_html(
+    table_id: str, groups_as_column: bool = False, height: str = "300px", **options
+) -> str:
+    # exibble three times over (24 rows, in two groups), with a title, a spanner, group and
+    # grand summary rows, a footnote and a source note, in a body that scrolls.
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    gt = (
+        sort_gt(table_id, groups_as_column, data=data)
+        .tab_header(title="exibble", subtitle="Three times over")
+        .tab_spanner(label="Numbers", columns=["num", "currency"])
+        .tab_footnote("A fruit.", locations=loc.body(columns="char", rows=[0]))
+        .tab_source_note("Source: great_tables.exibble")
+    )
+    gt = gt.opt_interactive(height=height, **options)
+    return render_gti_html(gt, runtime="none")
+
+
 def page(body: str, head: str = "") -> str:
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -211,6 +231,50 @@ def main() -> None:
             + runtime_src,
             head=styles,
         ),
+        # Tables whose body scrolls: on one page, selectable, with a search box; with groups shown
+        # as a column; 10 rows to a page, with resizable columns and no text wrapping.
+        "scroll.html": page(
+            scroll_html("v", use_pagination=False, use_search=True, selection_mode="multiple")
+            + "\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "scroll-column.html": page(
+            scroll_html("v", groups_as_column=True, use_pagination=False) + "\n" + runtime_src,
+            head=styles,
+        ),
+        "scroll-pages.html": page(
+            scroll_html(
+                "v",
+                height="200px",
+                page_size_default=10,
+                use_resizers=True,
+                use_text_wrapping=False,
+            )
+            + "\n"
+            + runtime_src,
+            head=styles,
+        ),
+        # The same tables (selectable, with groups shown as headings or as a column) as GT draws
+        # them, and with a body that scrolls, taller than they are: their borders should match.
+        **{
+            f"scroll-borders{suffix}.html": page(
+                "\n".join(
+                    scroll_html(
+                        table_id,
+                        groups_as_column=bool(suffix),
+                        height=height,
+                        use_pagination=False,
+                        selection_mode="multiple",
+                    )
+                    for table_id, height in [("b1", "auto"), ("b2", "5000px")]
+                )
+                + "\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix in ["", "-column"]
+        },
     }
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")
