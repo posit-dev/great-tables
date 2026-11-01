@@ -1961,15 +1961,17 @@ def test_fmt_time_datetime_strings():
     assert x == ["10:59:59", "13:23:59", "23:15:00"]
 
 
-def test_fmt_time_datetime_values():
+def test_fmt_time_datetime_values(frame_constructor: DataFrameConstructor):
     # `datetime` values use their time part, as datetime strings do (and missing values pass)
-    df_pd = pd.DataFrame({"x": pd.to_datetime(["2024-01-05 10:59:59", None])})
-    gt = GT(df_pd).fmt_time(columns="x", time_style="iso")
-    assert _get_column_of_values(gt, column_name="x", context="html") == ["10:59:59", "<NA>"]
+    df = frame_constructor(
+        {"x": [datetime(2024, 1, 5, 10, 59, 59), None, datetime(2024, 1, 5, 13, 23, 59)]}
+    )
 
-    df_pl = pl.DataFrame({"x": [datetime(2024, 1, 5, 13, 23, 59)]})
-    gt = GT(df_pl).fmt_time(columns="x", time_style="h_m_p")
-    assert _get_column_of_values(gt, column_name="x", context="html") == ["1:23 PM"]
+    gt = GT(df).fmt_time(columns="x", time_style="iso")
+    assert body_cells(gt) == ["10:59:59", "None", "13:23:59"]
+
+    gt = GT(df).fmt_time(columns="x", time_style="h_m_p")
+    assert body_cells(gt) == ["10:59 AM", "None", "1:23 PM"]
 
 
 def test_fmt_time_date_string_raises():
@@ -2260,9 +2262,11 @@ def test_time_style_docstring_tables_match_output(method):
 
 
 @pytest.mark.parametrize("time_style", ["EHm", "EHms", "Ehm", "Ehms", "EBhms", "EBhm"])
-def test_fmt_time_weekday_style_needs_a_date(time_style: str):
+def test_fmt_time_weekday_style_needs_a_date(
+    frame_constructor: DataFrameConstructor, time_style: str
+):
     # Datetimes (and datetime strings) show their own weekday: 2024-01-05 is a Friday
-    df = pl.DataFrame({"x": [datetime(2024, 1, 5, 14, 35)]})
+    df = frame_constructor({"x": [datetime(2024, 1, 5, 14, 35)]})
     x = _get_column_of_values(
         GT(df).fmt_time(columns="x", time_style=time_style), column_name="x", context="html"
     )
@@ -2273,7 +2277,7 @@ def test_fmt_time_weekday_style_needs_a_date(time_style: str):
     with pytest.raises(ValueError, match="has no date"):
         vals.fmt_time(["14:35"], time_style=time_style)
 
-    df_time = pl.DataFrame({"x": [time(14, 35)]})
+    df_time = frame_constructor({"x": [time(14, 35)]})
     with pytest.raises(ValueError, match="has no date"):
         _get_column_of_values(
             GT(df_time).fmt_time(columns="x", time_style=time_style),
@@ -2310,8 +2314,8 @@ def test_fmt_time_zone_styles(tzinfo, expected: str):
     assert _get_column_of_values(gt, column_name="x", context="html") == [f"2000-02-29, {expected}"]
 
 
-def test_fmt_time_zone_style_on_time_values():
-    df = pl.DataFrame({"x": [time(14, 35)]})
+def test_fmt_time_zone_style_on_time_values(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [time(14, 35)]})
     gt = GT(df).fmt_time(columns="x", time_style="Hmsv")
     assert _get_column_of_values(gt, column_name="x", context="html") == ["14:35:00 UTC"]
 
@@ -4812,22 +4816,22 @@ def test_fmt_units_as_latex_has_no_html():
     assert "\nkg m\\textsuperscript{\\ensuremath{-}3} \\\\" in latex
 
 
-def test_fmt_date_invalid_date_object_raises():
+def test_fmt_date_invalid_date_object_raises(frame_constructor: DataFrameConstructor):
     # ValueError when cell value is not a string or date object
     with pytest.raises(ValueError, match="Invalid date object"):
-        GT(pd.DataFrame({"d": [42]})).fmt_date(columns="d").as_raw_html()
+        GT(frame_constructor({"d": [42]})).fmt_date(columns="d").as_raw_html()
 
 
-def test_fmt_time_invalid_time_object_raises():
+def test_fmt_time_invalid_time_object_raises(frame_constructor: DataFrameConstructor):
     # ValueError when cell value is not a string or time object
     with pytest.raises(ValueError, match="Invalid time object"):
-        GT(pd.DataFrame({"t": [42]})).fmt_time(columns="t").as_raw_html()
+        GT(frame_constructor({"t": [42]})).fmt_time(columns="t").as_raw_html()
 
 
-def test_fmt_datetime_invalid_datetime_object_raises():
+def test_fmt_datetime_invalid_datetime_object_raises(frame_constructor: DataFrameConstructor):
     # ValueError when cell value is not a string or datetime object
     with pytest.raises(ValueError, match="Invalid datetime object"):
-        GT(pd.DataFrame({"dt": [42]})).fmt_datetime(columns="dt").as_raw_html()
+        GT(frame_constructor({"dt": [42]})).fmt_datetime(columns="dt").as_raw_html()
 
 
 def test_format_number_fixed_decimals_string_value():
@@ -4862,13 +4866,10 @@ def test_fmt_image_polars_expr_raises():
         GT(df).fmt_image(columns="path", height=pl.lit("2em")).as_raw_html()
 
 
-def test_fmt_time_na_value_returns_na():
-    # return x when is_na in fmt_time_context
-    df = pl.DataFrame({"t": ["10:30:00", None]})
+def test_fmt_time_na_value_returns_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"t": ["10:30:00", None]})
     gt = GT(df).fmt_time(columns="t")
-    result = _get_column_of_values(gt, column_name="t", context="html")
-    assert "10" in result[0]
-    assert result[1] is None or str(result[1]) in ("None", "null", "")
+    assert body_cells(gt) == ["10:30:00", "None"]
 
 
 def test_fmt_datetime_format_str_and_locale_raises():
