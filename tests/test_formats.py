@@ -47,7 +47,7 @@ from great_tables._formats import (
 )
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
-from tests.utils import DataFrameConstructor, assert_rendered_body
+from tests.utils import DataFrameConstructor, assert_rendered_body, body_cells, by_backend
 
 
 def assert_repr_html(snapshot, gt):
@@ -1735,13 +1735,20 @@ def test_fmt_engineering_case(
     assert x == x_out
 
 
-def test_fmt_engineering_with_missing_values():
-    df = pd.DataFrame({"x": [1234.5, None, float("nan"), 0.000123]})
+def test_fmt_engineering_with_missing_values(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1234.5, None, float("nan"), 0.000123]})
     gt = GT(df).fmt_engineering(columns="x", decimals=2)
-    x = _get_column_of_values(gt, column_name="x", context="html")
 
-    assert x[1] == "<NA>"
-    assert x[2] == "<NA>"
+    # Undecided: how a float NaN should render. Formatters skip it as missing on every backend,
+    # and `sub_missing()` replaces it, but polars and pyarrow keep NaN apart from null, so left as
+    # is it renders `NaN` there and `None` on pandas, where NaN is the missing value
+    nan_cell = by_backend(df, pandas="None", polars="NaN", pyarrow="NaN")
+    assert body_cells(gt) == [
+        "1.23&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>",
+        "None",
+        nan_cell,
+        "123.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−6</sup>",
+    ]
 
 
 def test_fmt_engineering_exp_style_force_sign():
@@ -3118,15 +3125,15 @@ def test_fmt_flag_one_per_cell():
         assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", val))
 
 
-def test_fmt_flag_na_values():
-    df = pd.DataFrame({"x": ["FR", pd.NA]})
+def test_fmt_flag_na_values(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": ["FR", None]})
 
     gt = GT(df).fmt_flag(columns="x")
 
-    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+    cells = body_cells(gt)
 
-    assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", column_vals[0]))
-    assert column_vals[1] == "<NA>"
+    assert re.search("^<span style.*?<svg.*?>.*?</svg></span>$", cells[0])
+    assert cells[1] == "None"
 
 
 def test_fmt_flag_two_per_cell():
@@ -4298,25 +4305,22 @@ def test_fmt_bytes_n_sigfig():
     assert "B" in x[0] or "b" in x[0].lower()
 
 
-def test_fmt_bytes_na_value():
-    df = pd.DataFrame({"x": [None]})
+def test_fmt_bytes_na_value(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1536, None]})
     gt = GT(df).fmt_bytes(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == "None" or isinstance(x[0], type(None)) or x[0] == x[0]
+    assert body_cells(gt) == ["1.5 kB", "None"]
 
 
-def test_fmt_partsper_na_value():
-    df = pd.DataFrame({"x": [None]})
+def test_fmt_partsper_na_value(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [0.0015, None]})
     gt = GT(df).fmt_partsper(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == "None" or x[0] == x[0]
+    assert body_cells(gt) == ["1.50‰", "None"]
 
 
-def test_fmt_roman_na_value():
-    df = pd.DataFrame({"x": [None]})
+def test_fmt_roman_na_value(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [4, None]})
     gt = GT(df).fmt_roman(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == x[0]
+    assert body_cells(gt) == ["IV", "None"]
 
 
 def test_get_duration_patterns_hyphen_locale():
@@ -4767,14 +4771,13 @@ def test_fmt_time_invalid_time_style_raises():
         GT(df).fmt_time(columns="x", time_style="invalid_style").as_raw_html()
 
 
-def test_fmt_units_na_value_returns_na():
-    # fmt_units returns NA value unchanged when cell is NA
-    df = pl.DataFrame({"units": ["m^2", None]})
+def test_fmt_units_na_value_returns_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"units": ["m^2", None]})
     gt = GT(df).fmt_units(columns="units")
-    result = _get_column_of_values(gt, column_name="units", context="html")
-    # First row has a formatted unit, second row is NA (returns None or 'None')
-    assert "m" in result[0]
-    assert result[1] is None or str(result[1]) in ("None", "null")
+    assert body_cells(gt) == [
+        'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        "None",
+    ]
 
 
 def test_fmt_units_custom_pattern():
@@ -4999,13 +5002,12 @@ def test_validate_currency_invalid_raises():
         _validate_currency("INVALID_CURRENCY_CODE")
 
 
-def test_fmt_icon_na_value_returns_na():
-    # FmtIcon.to_html returns val unchanged when is_na
-    df = pl.DataFrame({"icon": ["star", None]})
+def test_fmt_icon_na_value_returns_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"icon": ["star", None]})
     gt = GT(df).fmt_icon(columns="icon")
-    result = _get_column_of_values(gt, column_name="icon", context="html")
-    assert "svg" in result[0].lower()
-    assert result[1] is None or str(result[1]) in ("None", "null", "")
+    cells = body_cells(gt)
+    assert re.search("^<span style.*?<svg.*?>.*?</svg></span>$", cells[0])
+    assert cells[1] == "None"
 
 
 def test_fmt_flag_unrecognized_codes_kept_as_text():
@@ -5134,12 +5136,10 @@ def test_fmt_fraction_pattern():
     assert x == ["~1/2~"]
 
 
-def test_fmt_fraction_na():
-    df = pd.DataFrame({"x": [float("nan")]})
+def test_fmt_fraction_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [0.5, 1.25, 3.75, None]})
     gt = GT(df).fmt_fraction(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    # pandas NA values pass through the is_na check and are not formatted
-    assert len(x) == 1
+    assert body_cells(gt) == ["1/2", "1 1/4", "3 3/4", "None"]
 
 
 def test_fmt_fraction_inf():
@@ -5148,13 +5148,6 @@ def test_fmt_fraction_inf():
     x = _get_column_of_values(gt, column_name="x", context="html")
     # The minus sign is the same as for finite negative fractions (and for other formatters)
     assert x == ["inf", "−inf"]
-
-
-def test_fmt_fraction_polars():
-    df = pl.DataFrame({"x": [0.5, 1.25, 3.75]})
-    gt = GT(df).fmt_fraction(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == ["1/2", "1 1/4", "3 3/4"]
 
 
 @pytest.mark.parametrize(
@@ -5372,21 +5365,12 @@ def test_fmt_chem_full_reaction():
     assert "<sub" in x[0]
 
 
-def test_fmt_chem_na():
-    df = pd.DataFrame({"x": [float("nan")]})
+def test_fmt_chem_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": ["H2O", "CO2", None]})
     gt = GT(df).fmt_chem(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
+    subscript_2 = '<span style="white-space:nowrap;"><sub style="line-height:0;">2</sub></span>'
 
-    assert len(x) == 1
-
-
-def test_fmt_chem_polars():
-    df = pl.DataFrame({"x": ["H2O", "CO2"]})
-    gt = GT(df).fmt_chem(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-
-    assert "<sub" in x[0]
-    assert "<sub" in x[1]
+    assert body_cells(gt) == [f"H{subscript_2}O", f"CO{subscript_2}", "None"]
 
 
 def test_fmt_chem_rows_subset():
@@ -5525,12 +5509,11 @@ def test_round_rhu(x: float, digits: int, expected: float):
     assert math.copysign(1, result) == math.copysign(1, expected)
 
 
-def test_fmt_index_na():
-    df = pd.DataFrame({"x": [float("nan"), 1.0]})
+def test_fmt_index_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [None, 1, 2, 3]})
     gt = GT(df).fmt_index(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
 
-    assert x[1] == "A"
+    assert body_cells(gt) == ["None", "A", "B", "C"]
 
 
 def test_fmt_index_float_rounds():
@@ -5568,16 +5551,6 @@ def test_fmt_index_float32():
     x = _get_column_of_values(gt, column_name="x", context="html")
 
     assert x == ["A", "C", "AA"]
-
-
-def test_fmt_index_polars():
-    df = pl.DataFrame({"x": [1, 2, 3]})
-    gt = GT(df).fmt_index(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-
-    assert x[0] == "A"
-    assert x[1] == "B"
-    assert x[2] == "C"
 
 
 def test_fmt_index_rows_subset():
@@ -5702,20 +5675,13 @@ def test_fmt_url_target_none():
     assert "target=" not in x[0]
 
 
-def test_fmt_url_na():
-    df = pd.DataFrame({"x": [float("nan")]})
+def test_fmt_url_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": ["https://example.com", None]})
     gt = GT(df).fmt_url(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
+    cells = body_cells(gt)
 
-    assert len(x) == 1
-
-
-def test_fmt_url_polars():
-    df = pl.DataFrame({"x": ["https://example.com"]})
-    gt = GT(df).fmt_url(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-
-    assert 'href="https://example.com"' in x[0]
+    assert 'href="https://example.com"' in cells[0]
+    assert cells[1] == "None"
 
 
 def test_fmt_url_rows_subset():
@@ -5816,20 +5782,13 @@ def test_fmt_email_custom_color():
     assert 'href="mailto:user@example.com"' in x[0]
 
 
-def test_fmt_email_na():
-    df = pd.DataFrame({"x": [float("nan")]})
+def test_fmt_email_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": ["test@test.com", None]})
     gt = GT(df).fmt_email(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
+    cells = body_cells(gt)
 
-    assert len(x) == 1
-
-
-def test_fmt_email_polars():
-    df = pl.DataFrame({"x": ["test@test.com"]})
-    gt = GT(df).fmt_email(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-
-    assert 'href="mailto:test@test.com"' in x[0]
+    assert 'href="mailto:test@test.com"' in cells[0]
+    assert cells[1] == "None"
 
 
 def test_fmt_email_rows_subset():
