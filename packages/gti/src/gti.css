@@ -83,7 +83,7 @@ gt-table .gt-i-sort-icon[data-gti-sort-index]::after {
   vertical-align: super;
 }
 
-/* Rows hidden by a search stay hidden, whatever the page's styles say about table rows */
+/* Rows hidden by a search or paging stay hidden, whatever the page's styles say about table rows */
 gt-table tr[hidden] {
   display: none !important;
 }
@@ -134,6 +134,111 @@ gt-table .gt-i-search:focus-visible {
   ::highlight(gt-i-search) {
     background-color: Mark;
     color: MarkText;
+  }
+}
+
+/* The page controls sit below the table (lined up with it, like the toolbar) */
+gt-table .gt-i-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 1em;
+  box-sizing: border-box;
+  max-width: 100%;
+  margin-top: 0.5em;
+  font-size: 0.875em;
+  /* (So the controls don't shift as the numbers change) */
+  font-variant-numeric: tabular-nums;
+}
+
+gt-table .gt-i-pager[hidden] {
+  display: none;
+}
+
+gt-table .gt-i-pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25em;
+  margin-inline-start: auto;
+}
+
+gt-table .gt-i-page-numbers {
+  display: contents;
+}
+
+gt-table .gt-i-page {
+  appearance: none;
+  box-sizing: border-box;
+  min-width: 2em;
+  min-height: 2em;
+  margin: 0;
+  padding: 0.25em 0.5em;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+gt-table .gt-i-page:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-page:focus-visible,
+gt-table .gt-i-pager select:focus-visible,
+gt-table .gt-i-pager input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-page[aria-current="page"] {
+  border-color: rgba(128, 128, 128, 0.6);
+  font-weight: bold;
+}
+
+gt-table .gt-i-page[aria-disabled="true"] {
+  background: none;
+  cursor: default;
+  opacity: 0.4;
+}
+
+gt-table .gt-i-page-gap {
+  min-width: 1.5em;
+  text-align: center;
+}
+
+gt-table .gt-i-pager select,
+gt-table .gt-i-pager input {
+  box-sizing: border-box;
+  min-height: 2em;
+  margin: 0;
+  padding: 0.125em 0.25em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+gt-table .gt-i-page-jump input {
+  width: 3.5em;
+  text-align: center;
+}
+
+@media (pointer: coarse) {
+  gt-table .gt-i-page,
+  gt-table .gt-i-pager select,
+  gt-table .gt-i-pager input {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Below 16px, iOS zooms the page in on focus */
+  gt-table .gt-i-pager select,
+  gt-table .gt-i-pager input {
+    font-size: max(1em, 16px);
   }
 }
 

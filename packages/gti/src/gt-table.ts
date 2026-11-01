@@ -3,14 +3,15 @@
  *
  * It wraps a static Great Tables table and adds interactivity on top of it (hydration), rather
  * than rendering a table of its own: it reads the table's spec, maps each body row to its entry,
- * and sorts and searches by moving and hiding the table's own `<tr>`s, so styles, footnote marks
- * and the like move with their rows.
+ * and sorts, searches and pages by moving and hiding the table's own `<tr>`s, so styles, footnote
+ * marks and the like move with their rows.
  *
  * `data-gti-state` says how far it got: `pending` (waiting for the document to be parsed),
  * `empty` (no table yet), `static` (a table without a spec, left as it is), `error` (the spec is
  * unusable or doesn't match the table; see the console), or `ready`.
  */
 
+import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { CellText, rowMatches, searchTerms } from "./search";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
 import { type BodyRow, parseSpec, type Spec, SpecError } from "./spec";
@@ -22,6 +23,9 @@ export const SORT_EVENT = "gt-table-sort";
 
 /** The event fired when the reader searches (not when the `search` property is set). */
 export const SEARCH_EVENT = "gt-table-search";
+
+/** The event fired when the reader changes the page or the page size (not when properties are set). */
+export const PAGE_EVENT = "gt-table-page";
 
 /** The name of the search highlight, for styling with `::highlight(gt-i-search)`. */
 export const SEARCH_HIGHLIGHT = "gt-i-search";
@@ -42,14 +46,34 @@ export interface SearchEventDetail {
   count: number;
 }
 
+export interface PageEventDetail {
+  /** The page shown, from 1. */
+  page: number;
+  pageSize: number | null;
+  pageCount: number;
+}
+
 /** A row group, as far as showing and hiding its rows goes. */
 interface Group {
-  /** The group's heading and summary rows, shown only while some of its data rows are. */
-  structural: HTMLTableRowElement[];
+  /** The group's heading, shown on every page with some of its data rows. */
+  headings: HTMLTableRowElement[];
+  /** The group's summary rows above its data rows, shown on the page where the group starts. */
+  top: HTMLTableRowElement[];
+  /** The group's summary rows below its data rows, shown on the page where the group ends. */
+  bottom: HTMLTableRowElement[];
   /** The group's label cell, when row groups are shown as a column of the stub. */
   cell: HTMLTableCellElement | null;
-  /** Whether that cell is on a summary row (at the top of the group), where it stays. */
-  cellFixed: boolean;
+}
+
+/** The part of a group on the current page. */
+interface Span {
+  /** The number of its data rows on the page. */
+  count: number;
+  first: HTMLTableRowElement;
+  /** Whether the group starts on the page (so its top summary rows are shown). */
+  starts: boolean;
+  /** Whether the group ends on the page (so its bottom summary rows are shown). */
+  ends: boolean;
 }
 
 /** A run of data rows of one group (if any) between structural rows: what sorts. */
@@ -73,6 +97,30 @@ const INTERACTIVE = "a[href], button, input, select, textarea, details, [tabinde
 // How long typing pauses before the search runs
 const SEARCH_DELAY_MS = 150;
 
+type PagerButton = "first" | "previous" | "next" | "last";
+
+const PAGER_BUTTONS: Record<PagerButton, string> = {
+  first: "First",
+  previous: "Previous",
+  next: "Next",
+  last: "Last",
+};
+
+/** The page controls below the table. */
+interface Pager {
+  nav: HTMLElement;
+  info: HTMLElement | null;
+  select: HTMLSelectElement | null;
+  buttons: Partial<Record<PagerButton, HTMLButtonElement>>;
+  /** The page number buttons (`numbers`). */
+  numbers: HTMLElement | null;
+  /** "Page 2 of 5" (`simple` and `full`). */
+  status: HTMLElement | null;
+  /** The page number input (`jump`), and the page count after it. */
+  jump: HTMLInputElement | null;
+  jumpCount: HTMLElement | null;
+}
+
 /** A column label's text, for announcements: without footnote marks. */
 function labelText(th: HTMLTableCellElement): string {
   const copy = th.cloneNode(true) as HTMLTableCellElement;
@@ -83,6 +131,8 @@ function labelText(th: HTMLTableCellElement): string {
 }
 
 const plural = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
+
+const isPositiveInteger = (x: unknown): x is number => Number.isInteger(x) && (x as number) > 0;
 
 export class GtTable extends HTMLElement {
   /** The static `<table>` this element hydrates, or `null` if there isn't one. */
@@ -97,6 +147,8 @@ export class GtTable extends HTMLElement {
   private bodyRows = new WeakMap<HTMLTableRowElement, BodyRow>();
   private blocks: Block[] = [];
   private groups: Group[] = [];
+  /** Per data row, its group. */
+  private rowGroups: (Group | null)[] = [];
   /** Whether rows can be moved and hidden: not with a hierarchical stub (see `sortableColumns`). */
   private movable = false;
   private sortKeys: SortKey[] = [];
@@ -105,6 +157,25 @@ export class GtTable extends HTMLElement {
   private terms: string[] = [];
   /** Per data row, whether it matches the search; `null` without one. */
   private matched: Uint8Array | null = null;
+  /** The number of data rows that match the search (all of them, without one). */
+  private matchCount = 0;
+  private pageValue = 1;
+  /** The page size: `null` for one page of every row, or `undefined` for the spec's. */
+  private pageSizeValue: number | null | undefined = undefined;
+  /** The rows of the current page: from `start` to `end` of the `total` that match. */
+  private view = { start: 0, end: 0, total: 0 };
+  private pager: Pager | null = null;
+  /**
+   * The column widths of the table with every row shown, which hidden rows mustn't change: in our
+   * `<colgroup>`, or in the author's for the columns without a width (`cols_width()`).
+   */
+  private colgroup: HTMLTableColElement | null = null;
+  /** The `<col>`s we set the widths of. */
+  private fittedCols: HTMLElement[] = [];
+  private widthsFixed = false;
+  /** The element's width when the column widths were measured. */
+  private fittedWidth = 0;
+  private refitFrame = 0;
   /** Per data row, the text of its cells; made on the first search. */
   private cellTexts: CellText[][] | null = null;
   private ranges: AbstractRange[] = [];
@@ -136,6 +207,7 @@ export class GtTable extends HTMLElement {
   set sort(keys: readonly SortKeyInit[]) {
     const ranks: Spec["ranks"] = this.movable && this.spec !== null ? this.spec.ranks : {};
     this.sortKeys = normalizeSort(keys, ranks);
+    this.pageValue = 1;
     this.render();
   }
 
@@ -154,6 +226,53 @@ export class GtTable extends HTMLElement {
     if (this.searchBox !== null) {
       this.searchBox.value = this.searchValue;
     }
+  }
+
+  /**
+   * The page shown, from 1. A new sort or search goes back to the first page. Can be set before
+   * the table is hydrated; a page past the last is the last.
+   *
+   * @throws {RangeError} for a page that isn't a positive integer.
+   */
+  get page(): number {
+    return this.spec === null ? this.pageValue : Math.min(this.pageValue, this.pageCount);
+  }
+
+  set page(page: number) {
+    if (!isPositiveInteger(page)) {
+      throw new RangeError(`\`page\` must be a positive integer, not ${String(page)}`);
+    }
+    this.pageValue = page;
+    this.render();
+  }
+
+  /**
+   * The number of data rows on a page, or `null` for one page of every row. It starts as the
+   * table's page size (from `opt_interactive()`), and can be set before the table is hydrated. When
+   * it changes, the first row of the page stays in view. Like sorting, paging does nothing for a
+   * table whose stub has cells merged across rows.
+   *
+   * @throws {RangeError} for a size that isn't a positive integer or `null`.
+   */
+  get pageSize(): number | null {
+    return this.spec === null ? (this.pageSizeValue ?? null) : this.size;
+  }
+
+  set pageSize(size: number | null) {
+    if (size !== null && !isPositiveInteger(size)) {
+      throw new RangeError(`\`pageSize\` must be a positive integer or null, not ${String(size)}`);
+    }
+    this.resize(size);
+  }
+
+  /** The number of pages of the rows that match the search; 1 without pagination. */
+  get pageCount(): number {
+    return pageCount(this.matchCount, this.size);
+  }
+
+  // The page size in use: none until hydrated, or when rows can't be moved
+  private get size(): number | null {
+    return this.movable ? (this.pageSizeValue ?? null) : null;
   }
 
   connectedCallback(): void {
@@ -180,6 +299,7 @@ export class GtTable extends HTMLElement {
     this.stopObserving();
     this.layout?.disconnect();
     this.layout = null;
+    this.cancelRefit();
   }
 
   /** The `<tr>` of data row `row` (numbered by position in the data), if it's in the table. */
@@ -239,8 +359,13 @@ export class GtTable extends HTMLElement {
     if (this.movable && spec.controls.search) {
       this.addSearchBox(table);
     }
-    if (this.searchValue !== "") {
-      this.applySearch(this.searchValue);
+    if (this.pageSizeValue === undefined) {
+      this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
+    }
+    // A search or page set before hydration applies now
+    this.matchRows();
+    if (this.matched !== null || this.size !== null) {
+      this.render();
     }
     this.setState("ready");
   }
@@ -260,15 +385,15 @@ export class GtTable extends HTMLElement {
     const groupOf = (key: string | null): Group => {
       let group = groups.get(key);
       if (group === undefined) {
-        group = { structural: [], cell: null, cellFixed: false };
+        group = { headings: [], top: [], bottom: [], cell: null };
         groups.set(key, group);
       }
       return group;
     };
-    const rowGroup = new Map<number, Group>();
+    const rowGroups: (Group | null)[] = new Array<Group | null>(spec.nrows).fill(null);
     for (const { id, rows } of spec.groups) {
       for (const row of rows) {
-        rowGroup.set(row, groupOf(id));
+        rowGroups[row] = groupOf(id);
       }
     }
     const groupCell = (tr: HTMLTableRowElement) =>
@@ -291,17 +416,19 @@ export class GtTable extends HTMLElement {
         // Group headings and summary rows belong to a group; grand summary rows don't
         if ("group" in entry) {
           const group = groupOf(entry.group);
-          group.structural.push(tr);
-          const cell = groupCell(tr);
-          if (cell !== null) {
-            group.cell = cell;
-            group.cellFixed = true;
+          if (!("summary" in entry)) {
+            group.headings.push(tr);
+          } else if (entry.side === "top") {
+            group.top.push(tr);
+          } else {
+            group.bottom.push(tr);
           }
+          group.cell = groupCell(tr) ?? group.cell;
         }
         return;
       }
       rowElements[entry] = tr;
-      const group = rowGroup.get(entry) ?? null;
+      const group = rowGroups[entry] ?? null;
       // Groups shown as a column have no headings between them, so a block also ends where
       // the group changes
       let block = open[open.length - 1];
@@ -322,6 +449,7 @@ export class GtTable extends HTMLElement {
     this.bodyRows = bodyRows;
     this.blocks = blocks;
     this.groups = Array.from(groups.values());
+    this.rowGroups = rowGroups;
   }
 
   // A hierarchical stub merges cells across rows (`rowspan`), which reordering would break
@@ -433,26 +561,49 @@ export class GtTable extends HTMLElement {
     this.observeLayout();
   }
 
+  // The toolbar and page controls are lined up with the table, and the column widths are measured
+  // again when the element's width changes
   private observeLayout(): void {
-    if (this.toolbar === null || this.layout !== null || typeof ResizeObserver === "undefined") {
+    if (
+      this.layout !== null ||
+      typeof ResizeObserver === "undefined" ||
+      (this.toolbar === null && this.pager === null && this.colgroup === null)
+    ) {
       return;
     }
-    this.layout = new ResizeObserver(() => this.alignToolbar());
+    this.layout = new ResizeObserver(() => {
+      this.alignBars();
+      const resized = this.colgroup !== null && this.clientWidth !== this.fittedWidth;
+      const unmeasured = !this.widthsFixed && this.hidesRows();
+      if ((resized || unmeasured) && this.refitFrame === 0) {
+        // (In the next frame: changing the layout while it's being observed is a loop)
+        this.refitFrame = requestAnimationFrame(() => {
+          this.refitFrame = 0;
+          this.refit();
+        });
+      }
+    });
     this.layout.observe(this);
     if (this.table !== null) {
       this.layout.observe(this.table);
     }
   }
 
-  private alignToolbar(): void {
-    if (this.toolbar === null || this.table === null) {
+  private alignBars(): void {
+    if (this.table === null) {
+      return;
+    }
+    const bars = [this.toolbar, this.pager?.nav].filter((bar) => bar != null);
+    if (bars.length === 0) {
       return;
     }
     const outer = this.getBoundingClientRect();
     const table = this.table.getBoundingClientRect();
     const left = Math.max(0, table.left - outer.left);
-    this.toolbar.style.marginLeft = `${left}px`;
-    this.toolbar.style.width = `${Math.max(0, Math.min(table.width, outer.width - left))}px`;
+    for (const bar of bars) {
+      bar.style.marginLeft = `${left}px`;
+      bar.style.width = `${Math.max(0, Math.min(table.width, outer.width - left))}px`;
+    }
   }
 
   private addLiveRegion(): void {
@@ -468,6 +619,7 @@ export class GtTable extends HTMLElement {
 
   private userSort(keys: SortKey[]): void {
     this.sortKeys = keys;
+    this.pageValue = 1;
     this.render();
     this.announce(this.sortText());
     this.dispatchEvent(
@@ -504,18 +656,68 @@ export class GtTable extends HTMLElement {
     );
   }
 
+  private userPage(page: number): void {
+    const count = this.pageCount;
+    page = Math.min(Math.max(1, page), count);
+    if (page === this.page) {
+      this.updatePager();
+      return;
+    }
+    this.pageValue = page;
+    this.render();
+    this.announce(`Page ${page} of ${count}`);
+    this.dispatchPage();
+  }
+
+  private userPageSize(size: number): void {
+    if (size === this.size) {
+      return;
+    }
+    this.resize(size);
+    this.announce(`${plural(size)} per page, page ${this.page} of ${this.pageCount}`);
+    this.dispatchPage();
+  }
+
+  private dispatchPage(): void {
+    this.dispatchEvent(
+      new CustomEvent<PageEventDetail>(PAGE_EVENT, {
+        bubbles: true,
+        composed: true,
+        detail: { page: this.page, pageSize: this.pageSize, pageCount: this.pageCount },
+      }),
+    );
+  }
+
+  // A new page size keeps the first row of the page in view
+  private resize(size: number | null): void {
+    const old = this.size;
+    const first = old === null ? 0 : (this.page - 1) * old;
+    this.pageSizeValue = size;
+    if (this.spec === null) {
+      return;
+    }
+    const now = this.size;
+    this.pageValue = now === null ? 1 : Math.floor(first / now) + 1;
+    this.render();
+  }
+
   /** Search, returning the number of matching data rows. */
   private applySearch(value: string): number {
     this.searchValue = value;
-    this.terms = searchTerms(value);
+    this.pageValue = 1;
+    this.matchRows();
+    this.render();
+    return this.matchCount;
+  }
+
+  // Which data rows match the search
+  private matchRows(): void {
+    this.terms = searchTerms(this.searchValue);
     const spec = this.spec;
-    if (spec === null || !this.movable) {
-      return 0;
-    }
-    if (this.terms.length === 0) {
-      this.matched = null;
-      this.render();
-      return spec.nrows;
+    this.matched = null;
+    this.matchCount = spec?.nrows ?? 0;
+    if (spec === null || !this.movable || this.terms.length === 0) {
+      return;
     }
 
     const texts = this.cellTexts ?? this.makeCellTexts(spec.nrows);
@@ -528,8 +730,7 @@ export class GtTable extends HTMLElement {
       }
     });
     this.matched = matches;
-    this.render();
-    return count;
+    this.matchCount = count;
   }
 
   private makeCellTexts(nrows: number): CellText[][] {
@@ -547,74 +748,229 @@ export class GtTable extends HTMLElement {
     return texts;
   }
 
-  /** Show the data rows for the current sort and search. */
+  /** Show the data rows for the current sort, search and page. */
   private render(): void {
-    const spec = this.spec;
-    const tbody = this.tbody;
-    if (spec === null || tbody === null) {
+    if (this.spec === null || this.tbody === null) {
       return;
     }
-    const matches = this.matched;
+    const size = this.size;
+    // Hiding rows would narrow columns sized to their content, so they keep the widths they have
+    // with every row shown
+    if (!this.widthsFixed && this.hidesRows()) {
+      this.fixWidths();
+    }
+    const { shown, page, start, total } = this.place(this.matched, size, this.pageValue);
+    this.pageValue = page;
+    this.view = { start, end: start + shown.length, total };
+
+    this.restripe(shown);
+    this.showEmpty(this.matched !== null && total === 0);
+    this.updateSortHeaders();
+    this.highlight(shown);
+    this.updatePager();
+  }
+
+  /**
+   * Put the data rows in order, and show the ones that match (`matches`) and are on page `page`
+   * (of `size` rows), with their groups' headings and summary rows. Returns the rows shown, the
+   * page (the last, if `page` is past it), and where the page starts in the `total` rows that match.
+   */
+  private place(
+    matches: Uint8Array | null,
+    size: number | null,
+    page: number,
+  ): { shown: HTMLTableRowElement[]; page: number; start: number; total: number } {
+    const spec = this.spec as Spec;
+    const tbody = this.tbody as HTMLTableSectionElement;
 
     // Each block is sorted on its own, so rows stay in their group, and group headings and
     // summary rows stay where they are
-    const shown: HTMLTableRowElement[] = [];
-    const counts = new Map<Group, number>();
-    const firsts = new Map<Group, HTMLTableRowElement>();
+    const order: number[] = [];
     for (const block of this.blocks) {
-      const order = sortRows(block.rows, this.sortKeys, spec.ranks);
       const fragment = this.ownerDocument.createDocumentFragment();
-      let count = 0;
-      for (const row of order) {
-        const tr = this.rowElements[row] as HTMLTableRowElement;
-        fragment.append(tr);
-        const visible = matches === null || matches[row] === 1;
-        tr.hidden = !visible;
-        if (visible) {
-          if (count === 0 && block.group !== null) {
-            firsts.set(block.group, tr);
-          }
-          shown.push(tr);
-          count++;
+      for (const row of sortRows(block.rows, this.sortKeys, spec.ranks)) {
+        fragment.append(this.rowElements[row] as HTMLTableRowElement);
+        if (matches === null || matches[row] === 1) {
+          order.push(row);
         }
       }
       tbody.insertBefore(fragment, block.anchor);
-      if (block.group !== null) {
-        counts.set(block.group, (counts.get(block.group) ?? 0) + count);
-      }
     }
 
+    page = Math.min(page, pageCount(order.length, size));
+    const start = size === null ? 0 : (page - 1) * size;
+    const end = size === null ? order.length : Math.min(order.length, start + size);
+
+    // A group's rows are together, so it starts on the page unless the row before the page is in
+    // it, and ends on it unless the row after is
+    const groupAt = (i: number) => this.rowGroups[order[i] as number] ?? null;
+    const onPage = new Uint8Array(spec.nrows);
+    const shown: HTMLTableRowElement[] = [];
+    const spans = new Map<Group, Span>();
+    for (let i = start; i < end; i++) {
+      const row = order[i] as number;
+      const tr = this.rowElements[row] as HTMLTableRowElement;
+      onPage[row] = 1;
+      shown.push(tr);
+      const group = groupAt(i);
+      if (group === null) {
+        continue;
+      }
+      let span = spans.get(group);
+      if (span === undefined) {
+        span = { count: 0, first: tr, starts: i === 0 || groupAt(i - 1) !== group, ends: false };
+        spans.set(group, span);
+      }
+      span.count++;
+      span.ends = i === order.length - 1 || groupAt(i + 1) !== group;
+    }
+
+    this.rowElements.forEach((tr, row) => {
+      tr.hidden = onPage[row] !== 1;
+    });
     for (const group of this.groups) {
-      const count = counts.get(group) ?? 0;
-      for (const tr of group.structural) {
-        tr.hidden = count === 0;
+      const span = spans.get(group);
+      for (const tr of group.headings) {
+        tr.hidden = span === undefined;
       }
-      this.placeGroupCell(group, count, firsts.get(group));
+      for (const tr of group.top) {
+        tr.hidden = span?.starts !== true;
+      }
+      for (const tr of group.bottom) {
+        tr.hidden = span?.ends !== true;
+      }
+      this.placeGroupCell(group, span);
     }
-
-    this.restripe(shown);
-    this.showEmpty(matches !== null && shown.length === 0);
-    this.updateSortHeaders();
-    this.highlight(shown);
+    return { shown, page, start, total: order.length };
   }
 
   // The label cell of a group shown as a column goes on the group's first shown row, and spans
   // its shown rows
-  private placeGroupCell(group: Group, count: number, first: HTMLTableRowElement | undefined): void {
+  private placeGroupCell(group: Group, span: Span | undefined): void {
     const cell = group.cell;
-    if (cell === null || count === 0) {
+    if (cell === null || span === undefined) {
       return;
     }
-    const target = group.cellFixed ? cell.parentElement : first;
-    if (target !== undefined && target !== null && cell.parentElement !== target) {
+    const top = span.starts ? group.top.length : 0;
+    const bottom = span.ends ? group.bottom.length : 0;
+    const target = (top > 0 ? group.top[0] : undefined) ?? span.first;
+    if (cell.parentElement !== target) {
       cell.parentElement?.classList.remove("gt_row_group_first");
       target.prepend(cell);
       target.classList.add("gt_row_group_first");
     }
-    cell.setAttribute("rowspan", String(count + group.structural.length));
+    cell.setAttribute("rowspan", String(span.count + top + bottom));
   }
 
-  // Alternate shown data rows (counted through the whole body, as GT does) are striped
+  // Whether the search or paging hides data rows
+  private hidesRows(): boolean {
+    const size = this.size;
+    return this.matchCount < (this.spec?.nrows ?? 0) || (size !== null && this.matchCount > size);
+  }
+
+  // Fix the column widths (those the author didn't set with `cols_width()`)
+  private fixWidths(): void {
+    const table = this.table as HTMLTableElement;
+    if (table.getClientRects().length === 0) {
+      // Not laid out (say, in a hidden tab): try again once it is
+      return;
+    }
+    this.widthsFixed = true;
+    const authored = table.querySelector<HTMLTableColElement>(":scope > colgroup");
+    const widths = this.measureWidths();
+    if (widths === null) {
+      return;
+    }
+    let colgroup = authored;
+    if (colgroup === null) {
+      colgroup = this.ownerDocument.createElement("colgroup");
+      colgroup.className = "gt-i-widths";
+      for (const _ of widths.columns) {
+        colgroup.append(this.ownerDocument.createElement("col"));
+      }
+    }
+    const cols = Array.from(colgroup.children) as HTMLElement[];
+    if (cols.length !== widths.columns.length || cols.some((col) => col.tagName !== "COL" || col.hasAttribute("span"))) {
+      return;
+    }
+    this.fittedCols = cols.filter((col) => col.style.width === "");
+    if (this.fittedCols.length === 0) {
+      return;
+    }
+    this.colgroup = colgroup;
+    this.setWidths(widths);
+    this.observeLayout();
+    // Text in a font that hasn't loaded yet has the wrong width
+    const fonts = (this.ownerDocument as Partial<Document>).fonts;
+    if (fonts !== undefined && fonts.status !== "loaded") {
+      fonts.ready.then(() => this.refit());
+    }
+  }
+
+  // Measure the column widths again (for a new element width, or once fonts have loaded)
+  private refit(): void {
+    const colgroup = this.colgroup;
+    if (colgroup === null || this.table === null) {
+      // Widths not measured yet are measured on rendering
+      this.render();
+      return;
+    }
+    const widths = this.measureWidths();
+    if (widths !== null && widths.columns.length === colgroup.children.length) {
+      this.setWidths(widths);
+    } else {
+      this.colgroup = null;
+      this.fittedCols = [];
+    }
+    this.render();
+  }
+
+  /**
+   * The width of each column with every row shown, as in the static table, from a row with a cell
+   * in every column, and of the table; `null` if there isn't such a row. Leaves every row shown,
+   * without our widths.
+   */
+  private measureWidths(): { columns: number[]; table: number } | null {
+    const table = this.table as HTMLTableElement;
+    for (const col of this.fittedCols) {
+      col.style.removeProperty("width");
+    }
+    table.style.removeProperty("min-width");
+    this.empty?.remove();
+    this.place(null, null, 1);
+    const trs = Array.from((this.tbody as HTMLTableSectionElement).querySelectorAll(":scope > tr"));
+    const span = (cell: Element) => Number(cell.getAttribute("colspan") ?? 1);
+    const columns = Math.max(0, ...trs.map((tr) => Array.from(tr.children).reduce((n, cell) => n + span(cell), 0)));
+    const full = trs.find(
+      (tr) => tr.children.length === columns && Array.from(tr.children).every((cell) => span(cell) === 1),
+    );
+    if (full === undefined || columns === 0) {
+      return null;
+    }
+    return {
+      columns: Array.from(full.children).map((cell) => cell.getBoundingClientRect().width),
+      table: table.getBoundingClientRect().width,
+    };
+  }
+
+  private setWidths(widths: { columns: number[]; table: number }): void {
+    const colgroup = this.colgroup as HTMLTableColElement;
+    const table = this.table as HTMLTableElement;
+    const cols = Array.from(colgroup.children);
+    for (const col of this.fittedCols) {
+      col.style.width = `${widths.columns[cols.indexOf(col)]}px`;
+    }
+    if (!colgroup.isConnected) {
+      // (A <colgroup> goes before the table's rows, after any caption)
+      table.insertBefore(colgroup, table.querySelector(":scope > thead, :scope > tbody"));
+    }
+    // Column widths alone let a table that overflows its container shrink to fit it
+    table.style.minWidth = `${widths.table}px`;
+    this.fittedWidth = this.clientWidth;
+  }
+
+  // Alternate shown data rows (counted through the page's body, as GT counts through the table's)
+  // are striped
   private restripe(trs: HTMLTableRowElement[]): void {
     const { stub, body } = (this.spec as Spec).striping;
     if (!stub && !body) {
@@ -664,6 +1020,228 @@ export class GtTable extends HTMLElement {
       });
       tbody.insertBefore(this.empty, grand ?? null);
     }
+  }
+
+  // The page controls are shown while there are pages: while the table has more rows than fit on a
+  // page (of the smallest size the reader can choose), whatever the search
+  private updatePager(): void {
+    const spec = this.spec as Spec;
+    const size = this.size;
+    const { size_select, page_sizes } = spec.pagination;
+    if (size === null || spec.nrows <= (size_select ? Math.min(size, ...page_sizes) : size)) {
+      if (this.pager !== null) {
+        this.pager.nav.hidden = true;
+      }
+      return;
+    }
+    const pager = this.pager ?? this.addPager();
+    pager.nav.hidden = false;
+
+    const page = this.page;
+    const count = this.pageCount;
+    const { start, end, total } = this.view;
+    if (pager.info !== null) {
+      const rows = total === 0 ? "0 rows" : `${end - start > 1 ? `${start + 1}–` : ""}${end} of ${plural(total)}`;
+      pager.info.textContent = this.matched === null ? rows : `${rows} (filtered from ${spec.nrows})`;
+    }
+    if (pager.select !== null) {
+      const choices = pageSizeChoices(size, page_sizes).map(String);
+      if (Array.from(pager.select.options, (option) => option.value).join() !== choices.join()) {
+        pager.select.replaceChildren(
+          ...choices.map((choice) => {
+            const option = this.ownerDocument.createElement("option");
+            option.value = option.textContent = choice;
+            return option;
+          }),
+        );
+      }
+      pager.select.value = String(size);
+    }
+
+    const { first, previous, next, last } = pager.buttons;
+    for (const button of [first, previous]) {
+      button?.setAttribute("aria-disabled", String(page === 1));
+    }
+    for (const button of [next, last]) {
+      button?.setAttribute("aria-disabled", String(page === count));
+    }
+    if (pager.numbers !== null) {
+      this.updatePageNumbers(pager.numbers, page, count);
+    }
+    if (pager.status !== null) {
+      pager.status.textContent = `Page ${page} of ${count}`;
+    }
+    if (pager.jump !== null && pager.jumpCount !== null) {
+      pager.jump.value = String(page);
+      pager.jumpCount.textContent = ` of ${count}`;
+    }
+  }
+
+  private updatePageNumbers(numbers: HTMLElement, page: number, count: number): void {
+    const key = `${page}/${count}`;
+    if (numbers.dataset.gtiPages === key) {
+      return;
+    }
+    numbers.dataset.gtiPages = key;
+    // A page number keeps focus as it's replaced: the new page's has it
+    const active = this.ownerDocument.activeElement;
+    const focused = active !== null && numbers.contains(active);
+    numbers.replaceChildren(
+      ...pageItems(page, count).map((item) => {
+        if (item === null) {
+          const gap = this.ownerDocument.createElement("span");
+          gap.className = "gt-i-page-gap";
+          gap.setAttribute("aria-hidden", "true");
+          gap.textContent = "…";
+          return gap;
+        }
+        const button = this.pageButton(String(item), String(item));
+        button.setAttribute("aria-label", `Page ${item}`);
+        if (item === page) {
+          button.setAttribute("aria-current", "page");
+        }
+        return button;
+      }),
+    );
+    if (focused) {
+      numbers.querySelector<HTMLButtonElement>('[aria-current="page"]')?.focus();
+    }
+  }
+
+  private pageButton(target: string, text: string): HTMLButtonElement {
+    const button = this.ownerDocument.createElement("button");
+    button.type = "button";
+    button.className = "gt-i-page";
+    button.dataset.gtiPage = target;
+    button.textContent = text;
+    return button;
+  }
+
+  private addPager(): Pager {
+    const doc = this.ownerDocument;
+    const table = this.table as HTMLTableElement;
+    const { type, info, size_select } = (this.spec as Spec).pagination;
+    const nav = doc.createElement("nav");
+    nav.className = "gt-i-pager";
+    nav.setAttribute("aria-label", "Table pages");
+    const pager: Pager = {
+      nav,
+      info: null,
+      select: null,
+      buttons: {},
+      numbers: null,
+      status: null,
+      jump: null,
+      jumpCount: null,
+    };
+
+    if (info) {
+      pager.info = doc.createElement("span");
+      pager.info.className = "gt-i-page-info";
+      nav.append(pager.info);
+    }
+    if (size_select) {
+      const label = doc.createElement("label");
+      label.className = "gt-i-page-size";
+      const select = doc.createElement("select");
+      label.append("Rows per page ", select);
+      nav.append(label);
+      select.addEventListener("change", () => this.userPageSize(Number(select.value)));
+      pager.select = select;
+    }
+
+    const controls = doc.createElement("div");
+    controls.className = "gt-i-pages";
+    const add = (name: PagerButton) => {
+      const button = this.pageButton(name, PAGER_BUTTONS[name]);
+      pager.buttons[name] = button;
+      controls.append(button);
+    };
+    if (type === "full") {
+      add("first");
+    }
+    add("previous");
+    if (type === "numbers") {
+      pager.numbers = doc.createElement("span");
+      pager.numbers.className = "gt-i-page-numbers";
+      controls.append(pager.numbers);
+    } else if (type === "jump") {
+      const label = doc.createElement("label");
+      label.className = "gt-i-page-jump";
+      const input = doc.createElement("input");
+      input.type = "text";
+      input.inputMode = "numeric";
+      input.autocomplete = "off";
+      input.setAttribute("enterkeyhint", "go");
+      pager.jumpCount = doc.createElement("span");
+      label.append("Page ", input, pager.jumpCount);
+      controls.append(label);
+      const go = () => {
+        const page = Number(input.value.trim());
+        if (input.value.trim() !== "" && Number.isInteger(page)) {
+          this.userPage(page);
+        } else {
+          input.value = String(this.page);
+        }
+      };
+      input.addEventListener("change", go);
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          // (And don't submit a form the table is in)
+          event.preventDefault();
+          go();
+        }
+      });
+      pager.jump = input;
+    } else {
+      pager.status = doc.createElement("span");
+      pager.status.className = "gt-i-page-status";
+      controls.append(pager.status);
+    }
+    add("next");
+    if (type === "full") {
+      add("last");
+    }
+    nav.append(controls);
+
+    nav.addEventListener("click", (event) => {
+      const button = (event.target as Element).closest<HTMLButtonElement>("button[data-gti-page]");
+      if (button === null || button.getAttribute("aria-disabled") === "true") {
+        return;
+      }
+      const target = button.dataset.gtiPage;
+      const page = this.page;
+      this.userPage(
+        target === "first"
+          ? 1
+          : target === "previous"
+            ? page - 1
+            : target === "next"
+              ? page + 1
+              : target === "last"
+                ? this.pageCount
+                : Number(target),
+      );
+    });
+    nav.addEventListener("keydown", (event) => {
+      if ((event.key === "PageUp" || event.key === "PageDown") && !(event.target instanceof HTMLSelectElement)) {
+        event.preventDefault();
+        this.userPage(this.page + (event.key === "PageUp" ? -1 : 1));
+      }
+    });
+
+    // Below the table, outside its scrolling container, in the table's font
+    let below: Element = table;
+    while (below.parentElement !== null && below.parentElement !== this) {
+      below = below.parentElement;
+    }
+    below.after(nav);
+    nav.style.fontFamily = getComputedStyle(table).fontFamily;
+    this.pager = pager;
+    this.addLiveRegion();
+    this.observeLayout();
+    this.alignBars();
+    return pager;
   }
 
   private highlight(shown: HTMLTableRowElement[]): void {
@@ -748,13 +1326,22 @@ export class GtTable extends HTMLElement {
     }
   }
 
+  private cancelRefit(): void {
+    if (this.refitFrame !== 0) {
+      cancelAnimationFrame(this.refitFrame);
+      this.refitFrame = 0;
+    }
+  }
+
   private reset(): void {
     this.stopObserving();
     this.cancelSearchTimer();
+    this.cancelRefit();
     this.layout?.disconnect();
     this.highlightClear();
     this.live?.remove();
     this.toolbar?.remove();
+    this.pager?.nav.remove();
     this.table = null;
     this.spec = null;
     this.tbody = null;
@@ -762,12 +1349,22 @@ export class GtTable extends HTMLElement {
     this.bodyRows = new WeakMap();
     this.blocks = [];
     this.groups = [];
+    this.rowGroups = [];
     this.movable = false;
     this.sortKeys = [];
     this.sortHeaders = new Map();
     this.searchValue = "";
     this.terms = [];
     this.matched = null;
+    this.matchCount = 0;
+    this.pageValue = 1;
+    this.pageSizeValue = undefined;
+    this.view = { start: 0, end: 0, total: 0 };
+    this.pager = null;
+    this.colgroup = null;
+    this.fittedCols = [];
+    this.widthsFixed = false;
+    this.fittedWidth = 0;
     this.cellTexts = null;
     this.searchBox = null;
     this.toolbar = null;

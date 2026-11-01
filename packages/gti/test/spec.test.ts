@@ -12,7 +12,10 @@ const valid = {
   ranks: { x: [1, null] },
   striping: { stub: false, body: true },
   controls: { sorting: true, search: false },
+  pagination: { enabled: true, page_size: 10, page_sizes: [10, 25], size_select: false, info: true, type: "numbers" },
 };
+
+const pagination = (fields: object) => JSON.stringify({ ...valid, pagination: { ...valid.pagination, ...fields } });
 
 const parse = (spec: object) => parseSpec(JSON.stringify(spec));
 
@@ -55,6 +58,14 @@ describe("parseSpec()", () => {
     ["has no controls", JSON.stringify({ ...valid, controls: undefined }), /`controls`/],
     ["has a bad controls", JSON.stringify({ ...valid, controls: { sorting: true } }), /`controls`/],
     ["has a bad controls", JSON.stringify({ ...valid, controls: { sorting: 1, search: false } }), /`controls`/],
+    ["has no pagination", JSON.stringify({ ...valid, pagination: undefined }), /`pagination`/],
+    ["has a page size of 0", pagination({ page_size: 0 }), /`pagination`/],
+    ["has a fractional page size", pagination({ page_size: 2.5 }), /`pagination`/],
+    ["has a bad page sizes", pagination({ page_sizes: [10, -1] }), /`pagination`/],
+    ["has page sizes that aren't an array", pagination({ page_sizes: 10 }), /`pagination`/],
+    ["has an unknown pagination type", pagination({ type: "scroll" }), /`pagination`/],
+    ["has a bad pagination flag", pagination({ size_select: "yes" }), /`pagination`/],
+    ["has no pagination info flag", pagination({ info: undefined }), /`pagination`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

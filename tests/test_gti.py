@@ -339,6 +339,47 @@ def test_spec_controls_from_opt_interactive(use_sorting: bool, use_search: bool)
     assert spec_of(gt)["controls"] == {"sorting": use_sorting, "search": use_search}
 
 
+def test_spec_pagination_default():
+    assert spec_of(GT(DF))["pagination"] == {
+        "enabled": True,
+        "page_size": 10,
+        "page_sizes": [10, 25, 50, 100],
+        "size_select": False,
+        "info": True,
+        "type": "numbers",
+    }
+
+
+def test_spec_pagination_from_opt_interactive():
+    gt = GT(DF).opt_interactive(
+        use_pagination=False,
+        use_pagination_info=False,
+        use_page_size_select=True,
+        page_size_default=5,
+        page_size_values=[5, 20],
+        pagination_type="jump",
+    )
+    assert spec_of(gt)["pagination"] == {
+        "enabled": False,
+        "page_size": 5,
+        "page_sizes": [5, 20],
+        "size_select": True,
+        "info": False,
+        "type": "jump",
+    }
+
+
+@pytest.mark.parametrize("pagination_type", ["numbers", "simple", "full", "jump"])
+def test_spec_pagination_types(pagination_type: str):
+    gt = GT(DF).opt_interactive(pagination_type=pagination_type)
+    assert spec_of(gt)["pagination"]["type"] == pagination_type
+
+
+def test_spec_pagination_unknown_type_is_numbers():
+    gt = GT(DF).opt_interactive(pagination_type="pages")
+    assert spec_of(gt)["pagination"]["type"] == "numbers"
+
+
 # ranks ----
 
 NAN = float("nan")

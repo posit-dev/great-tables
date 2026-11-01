@@ -4,6 +4,9 @@ import {
   type ControlsSpec,
   define,
   GtTable,
+  PAGE_EVENT,
+  type PageEventDetail,
+  type PaginationSpec,
   SEARCH_EVENT,
   type SearchEventDetail,
   SORT_EVENT,
@@ -50,6 +53,8 @@ const GROUPED: BodyRow[] = [
 interface TableOptions {
   striping?: StripingSpec;
   controls?: Partial<ControlsSpec>;
+  /** Pagination is off unless set. */
+  pagination?: Partial<PaginationSpec>;
   groupsAsColumn?: boolean;
   yLabel?: string;
 }
@@ -131,6 +136,15 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     ranks: RANKS,
     striping,
     controls: { sorting: true, search: false, ...options.controls },
+    pagination: {
+      enabled: false,
+      page_size: 2,
+      page_sizes: [2, 4],
+      size_select: false,
+      info: true,
+      type: "numbers",
+      ...options.pagination,
+    },
   };
   return { html, spec };
 }
@@ -878,5 +892,382 @@ describe("controls", () => {
     expect(el.querySelector("button")).toBeNull();
     expect(searchBox(el)).not.toBeNull();
     expect(el.querySelectorAll(".gt-i-live")).toHaveLength(1);
+  });
+});
+
+describe("pagination", () => {
+  // Pages of 2 rows: [3, 0], [4, 1] and [2]
+  const paged = (options: TableOptions = {}) =>
+    mountTable(GROUPED, { ...options, pagination: { enabled: true, ...options.pagination } });
+
+  it("shows the first page", async () => {
+    const el = await paged();
+    expect([el.page, el.pageSize, el.pageCount]).toEqual([1, 2, 3]);
+    expect(visible(el)).toEqual(["group:b", 3, 0, "grand:Max"]);
+    // Every row stays in the table
+    expect(shown(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "group:a", 1, 2, "grand:Max"]);
+  });
+
+  it("repeats a group's heading on each of its pages, and the grand summary rows on every page", async () => {
+    const el = await paged();
+    el.page = 2;
+    expect(visible(el)).toEqual(["group:b", 4, "summary:Total", "group:a", 1, "grand:Max"]);
+    el.page = 3;
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+  });
+
+  it("shows top summary rows where the group starts and bottom ones where it ends", async () => {
+    const body: BodyRow[] = [
+      { grand_summary: "Min", side: "top" },
+      { group: "b" },
+      { summary: "Top", group: "b", side: "top" },
+      3,
+      0,
+      4,
+      { summary: "Total", group: "b", side: "bottom" },
+      { group: "a" },
+      1,
+      2,
+    ];
+    const el = await mountTable(body, { pagination: { enabled: true } });
+    expect(visible(el)).toEqual(["grand:Min", "group:b", "summary:Top", 3, 0]);
+    el.page = 2;
+    expect(visible(el)).toEqual(["grand:Min", "group:b", 4, "summary:Total", "group:a", 1]);
+  });
+
+  it("takes a page past the last as the last, and rejects pages that aren't positive integers", async () => {
+    const el = await paged();
+    el.page = 9;
+    expect(el.page).toBe(3);
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    for (const page of [0, -1, 1.5, Number.NaN]) {
+      expect(() => {
+        el.page = page;
+      }).toThrow(RangeError);
+    }
+    expect(el.page).toBe(3);
+  });
+
+  it("goes back to the first page on a new sort or search", async () => {
+    const el = await paged();
+    el.page = 2;
+    click(el, "x");
+    expect(el.page).toBe(1);
+    el.page = 2;
+    el.sort = [];
+    expect(el.page).toBe(1);
+    el.page = 2;
+    el.search = "a";
+    expect(el.page).toBe(1);
+  });
+
+  it("pages the rows that match the search, in sorted order", async () => {
+    const el = await paged();
+    el.search = "a";
+    expect(el.pageCount).toBe(2);
+    expect(visible(el)).toEqual(["group:b", 3, 4, "summary:Total", "grand:Max"]);
+    el.page = 2;
+    expect(visible(el)).toEqual(["group:a", 1, "grand:Max"]);
+
+    el.sort = [{ column: "x", descending: true }];
+    expect(visible(el)).toEqual(["group:b", 4, 3, "summary:Total", "grand:Max"]);
+    el.search = "zzz";
+    expect([el.page, el.pageCount]).toEqual([1, 1]);
+    expect(visible(el)).toEqual(["grand:Max"]);
+  });
+
+  it("keeps the first row of the page in view when the page size changes", async () => {
+    const el = await paged();
+    el.page = 3;
+    el.pageSize = 4;
+    // Row 5 of 5 is on page 2 of 4 rows
+    expect([el.page, el.pageCount]).toEqual([2, 2]);
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    el.pageSize = 1;
+    expect([el.page, el.pageCount]).toEqual([5, 5]);
+
+    el.pageSize = null;
+    expect([el.page, el.pageSize, el.pageCount]).toEqual([1, null, 1]);
+    expect(visible(el)).toEqual(shown(el));
+    for (const size of [0, 2.5, -2]) {
+      expect(() => {
+        el.pageSize = size;
+      }).toThrow(RangeError);
+    }
+  });
+
+  it("restripes each page from its first row", async () => {
+    const el = await paged({ striping: { stub: true, body: true } });
+    const striped = () =>
+      Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody > tr"))
+        .filter((tr) => typeof el.bodyRow(tr) === "number" && !tr.hidden)
+        .map((tr) => (tr.querySelector("td") as HTMLElement).classList.contains("gt_striped"));
+    expect(striped()).toEqual([false, true]);
+    el.page = 3;
+    expect(striped()).toEqual([false]);
+  });
+
+  it("puts a group's label cell on its first row on the page when groups are a column", async () => {
+    const el = await paged({ groupsAsColumn: true });
+    const groupCell = (row: number) =>
+      el.rowElement(row)?.querySelector<HTMLTableCellElement>(".gt_stub_row_group") ?? null;
+
+    expect(groupCell(3)?.getAttribute("rowspan")).toBe("2");
+    el.page = 2;
+    // Row 4 and the summary row; row 1
+    expect(visible(el)).toEqual([4, "summary:Total", 1, "grand:Max"]);
+    expect(groupCell(4)?.textContent).toBe("b");
+    expect(groupCell(4)?.getAttribute("rowspan")).toBe("2");
+    expect(groupCell(1)?.getAttribute("rowspan")).toBe("1");
+    expect(el.rowElement(4)?.classList.contains("gt_row_group_first")).toBe(true);
+    expect(el.rowElement(3)?.classList.contains("gt_row_group_first")).toBe(false);
+
+    el.pageSize = null;
+    expect(groupCell(3)?.getAttribute("rowspan")).toBe("4");
+    expect(groupCell(1)?.getAttribute("rowspan")).toBe("2");
+  });
+
+  it("keeps a group's label cell on its top summary row on the page where the group starts", async () => {
+    const body: BodyRow[] = [{ group: "b" }, { summary: "Top", group: "b", side: "top" }, 3, 0, 4, { group: "a" }, 1, 2];
+    const el = await mountTable(body, { groupsAsColumn: true, pagination: { enabled: true } });
+    const top = el.querySelector(".gt_summary_row")?.parentElement as HTMLTableRowElement;
+    const cell = el.querySelector(".gt_stub_row_group") as HTMLTableCellElement;
+
+    expect(cell.parentElement).toBe(top);
+    expect(cell.getAttribute("rowspan")).toBe("3");
+    el.page = 2;
+    expect(cell.parentElement).toBe(el.rowElement(4));
+    expect(cell.getAttribute("rowspan")).toBe("1");
+    el.page = 1;
+    expect(cell.parentElement).toBe(top);
+    expect(top.classList.contains("gt_row_group_first")).toBe(true);
+  });
+
+  it("isn't on unless the spec says so, but `pageSize` turns it on", async () => {
+    const el = await mountTable();
+    expect([el.page, el.pageSize, el.pageCount]).toEqual([1, null, 1]);
+    expect(el.querySelector(".gt-i-pager")).toBeNull();
+    el.pageSize = 2;
+    expect(visible(el)).toEqual(["group:b", 3, 0, "grand:Max"]);
+    expect(el.querySelector(".gt-i-pager")).not.toBeNull();
+  });
+
+  it("applies a page and page size set before hydration", async () => {
+    const { html, spec } = gtTable(GROUPED, { pagination: { enabled: true, page_size: 4 } });
+    const el = document.createElement(TAG_NAME) as GtTable;
+    el.pageSize = 2;
+    el.page = 2;
+    expect([el.page, el.pageSize]).toEqual([2, 2]);
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+
+    expect([el.page, el.pageSize, el.pageCount]).toEqual([2, 2, 3]);
+    expect(visible(el)).toEqual(["group:b", 4, "summary:Total", "group:a", 1, "grand:Max"]);
+  });
+
+  it("doesn't page a table whose stub has merged cells", async () => {
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], { pagination: { enabled: true } });
+    const merged = html.replace(
+      `<th class="gt_row gt_left gt_stub">row_1</th>`,
+      `<th class="gt_row gt_left gt_stub" rowspan="2">row_1</th>`,
+    );
+    const el = await mount(`<gt-table>${merged}${specScript(spec)}</gt-table>`);
+    el.page = 2;
+
+    expect([el.page, el.pageSize, el.pageCount]).toEqual([1, null, 1]);
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+    expect(el.querySelector(".gt-i-pager")).toBeNull();
+  });
+});
+
+describe("the page controls", () => {
+  const pager = (el: GtTable) => el.querySelector(".gt-i-pager") as HTMLElement;
+  const info = (el: GtTable) => el.querySelector(".gt-i-page-info")?.textContent;
+  const pageButton = (el: GtTable, target: string) =>
+    el.querySelector(`.gt-i-pager button[data-gti-page="${target}"]`) as HTMLButtonElement;
+  const press = (target: HTMLElement, key: string) => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    return event;
+  };
+  const numbers = (el: GtTable) =>
+    Array.from(el.querySelectorAll(".gt-i-page-numbers > *"), (item) =>
+      item.getAttribute("aria-current") === "page" ? `[${item.textContent}]` : item.textContent,
+    );
+
+  async function mountPager(pagination: Partial<PaginationSpec> = {}, options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, { ...options, pagination: { enabled: true, ...pagination } });
+    const events: PageEventDetail[] = [];
+    el.addEventListener(PAGE_EVENT, (event) => {
+      events.push((event as CustomEvent<PageEventDetail>).detail);
+    });
+    return { el, events };
+  }
+
+  it("is a labelled nav below the table, in the table's font", async () => {
+    const { el } = await mountPager();
+    const nav = pager(el);
+    expect(nav.tagName).toBe("NAV");
+    expect(nav.getAttribute("aria-label")).toBe("Table pages");
+    expect(nav.previousElementSibling).toBe(el.querySelector("#t"));
+    expect(nav.hidden).toBe(false);
+    expect(nav.style.fontFamily).toBe(getComputedStyle(el.table as HTMLTableElement).fontFamily);
+    expect(el.querySelector(".gt-i-live")?.getAttribute("aria-live")).toBe("polite");
+  });
+
+  it("has previous and next buttons and page numbers", async () => {
+    const { el } = await mountPager();
+    expect(info(el)).toBe("1–2 of 5 rows");
+    expect(numbers(el)).toEqual(["[1]", "2", "3"]);
+    expect(pageButton(el, "2").getAttribute("aria-label")).toBe("Page 2");
+    expect(pageButton(el, "previous").textContent).toBe("Previous");
+    expect(pageButton(el, "previous").getAttribute("aria-disabled")).toBe("true");
+    expect(pageButton(el, "next").getAttribute("aria-disabled")).toBe("false");
+    expect(pageButton(el, "first")).toBeNull();
+  });
+
+  it("changes the page, with an event and an announcement", async () => {
+    const { el, events } = await mountPager();
+    pageButton(el, "next").click();
+    expect(el.page).toBe(2);
+    expect(events).toEqual([{ page: 2, pageSize: 2, pageCount: 3 }]);
+    expect(live(el)).toBe("Page 2 of 3");
+    expect(info(el)).toBe("3–4 of 5 rows");
+    expect(numbers(el)).toEqual(["1", "[2]", "3"]);
+
+    pageButton(el, "3").click();
+    expect(info(el)).toBe("5 of 5 rows");
+    expect(pageButton(el, "next").getAttribute("aria-disabled")).toBe("true");
+    // Not past the last page, nor to the page it's on
+    pageButton(el, "next").click();
+    pageButton(el, "3").click();
+    expect(events).toHaveLength(2);
+    pageButton(el, "previous").click();
+    expect(el.page).toBe(2);
+  });
+
+  it("doesn't fire an event or announce when `page` is set", async () => {
+    const { el, events } = await mountPager();
+    el.page = 3;
+    el.pageSize = 4;
+    expect(events).toEqual([]);
+    expect(live(el)).toBe("");
+    expect(info(el)).toBe("5 of 5 rows");
+  });
+
+  it("keeps focus on the current page number as the numbers change", async () => {
+    const { el } = await mountPager();
+    pageButton(el, "2").focus();
+    pageButton(el, "2").click();
+    expect(document.activeElement).toBe(pageButton(el, "2"));
+    expect(document.activeElement?.getAttribute("aria-current")).toBe("page");
+  });
+
+  it("pages with Page Up and Page Down", async () => {
+    const { el, events } = await mountPager();
+    const next = pageButton(el, "next");
+    expect(press(next, "PageDown").defaultPrevented).toBe(true);
+    expect(el.page).toBe(2);
+    press(next, "PageDown");
+    press(next, "PageDown");
+    expect(el.page).toBe(3);
+    press(next, "PageUp");
+    expect(el.page).toBe(2);
+    expect(events.map((event) => event.page)).toEqual([2, 3, 2]);
+  });
+
+  it("says how many rows match a search", async () => {
+    const { el } = await mountPager();
+    el.search = "a";
+    expect(info(el)).toBe("1–2 of 3 rows (filtered from 5)");
+    expect(numbers(el)).toEqual(["[1]", "2"]);
+    el.search = "c";
+    expect(info(el)).toBe("1 of 1 row (filtered from 5)");
+    el.search = "zzz";
+    expect(info(el)).toBe("0 rows (filtered from 5)");
+    // Still there, so it doesn't come and go while searching
+    expect(pager(el).hidden).toBe(false);
+    expect(pageButton(el, "next").getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("leaves out the row info when asked", async () => {
+    const { el } = await mountPager({ info: false });
+    expect(el.querySelector(".gt-i-page-info")).toBeNull();
+  });
+
+  it("isn't shown when every row fits on a page", async () => {
+    const { el } = await mountPager({ page_size: 5 });
+    expect(el.querySelector(".gt-i-pager")).toBeNull();
+    expect(visible(el)).toEqual(shown(el));
+
+    el.pageSize = 2;
+    expect(pager(el).hidden).toBe(false);
+    el.pageSize = null;
+    expect(pager(el).hidden).toBe(true);
+  });
+
+  it("can have first and last buttons", async () => {
+    const { el } = await mountPager({ type: "full" });
+    const labels = Array.from(el.querySelectorAll(".gt-i-pages button"), (b) => b.textContent);
+    expect(labels).toEqual(["First", "Previous", "Next", "Last"]);
+    expect(el.querySelector(".gt-i-page-status")?.textContent).toBe("Page 1 of 3");
+
+    pageButton(el, "last").click();
+    expect(el.page).toBe(3);
+    expect(el.querySelector(".gt-i-page-status")?.textContent).toBe("Page 3 of 3");
+    expect(pageButton(el, "last").getAttribute("aria-disabled")).toBe("true");
+    pageButton(el, "first").click();
+    expect(el.page).toBe(1);
+  });
+
+  it("can have previous and next buttons only", async () => {
+    const { el } = await mountPager({ type: "simple" });
+    const labels = Array.from(el.querySelectorAll(".gt-i-pages button"), (b) => b.textContent);
+    expect(labels).toEqual(["Previous", "Next"]);
+    expect(el.querySelector(".gt-i-page-numbers")).toBeNull();
+  });
+
+  it("can have a page number input", async () => {
+    const { el, events } = await mountPager({ type: "jump" });
+    const input = el.querySelector(".gt-i-page-jump input") as HTMLInputElement;
+    expect(input.value).toBe("1");
+    expect(input.inputMode).toBe("numeric");
+    expect(el.querySelector(".gt-i-page-jump")?.textContent).toBe("Page  of 3");
+
+    input.value = "3";
+    expect(press(input, "Enter").defaultPrevented).toBe(true);
+    expect(el.page).toBe(3);
+    // Past the last page is the last; anything else is undone
+    el.page = 1;
+    input.value = "99";
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    expect([el.page, input.value]).toEqual([3, "3"]);
+    input.value = "two";
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    expect([el.page, input.value]).toEqual([3, "3"]);
+    expect(events.map((event) => event.page)).toEqual([3, 3]);
+  });
+
+  it("can have a page size select", async () => {
+    const { el, events } = await mountPager({ size_select: true, page_size: 3 });
+    const select = el.querySelector(".gt-i-page-size select") as HTMLSelectElement;
+    expect(select.closest("label")?.textContent).toContain("Rows per page");
+    expect(Array.from(select.options, (option) => option.value)).toEqual(["2", "3", "4"]);
+    expect(select.value).toBe("3");
+
+    el.page = 2;
+    select.value = "2";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    // Row 4 stays in view
+    expect([el.page, el.pageSize, el.pageCount]).toEqual([2, 2, 3]);
+    expect(events).toEqual([{ page: 2, pageSize: 2, pageCount: 3 }]);
+    expect(live(el)).toBe("2 rows per page, page 2 of 3");
+  });
+
+  it("stays with a page size select while a smaller page size could have pages", async () => {
+    const { el } = await mountPager({ size_select: true, page_size: 5 });
+    expect(pager(el).hidden).toBe(false);
+    expect(el.pageCount).toBe(1);
   });
 });
