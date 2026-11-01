@@ -27,6 +27,9 @@ export const SEARCH_EVENT = "gt-table-search";
 /** The event fired when the reader changes the page or the page size (not when properties are set). */
 export const PAGE_EVENT = "gt-table-page";
 
+/** The event fired when the reader resizes a column (with a handle, or its keys). */
+export const RESIZE_EVENT = "gt-table-resize";
+
 /** The name of the search highlight, for styling with `::highlight(gt-i-search)`. */
 export const SEARCH_HIGHLIGHT = "gt-i-search";
 
@@ -44,6 +47,15 @@ export interface SearchEventDetail {
   search: string;
   /** The number of data rows that match. */
   count: number;
+}
+
+export interface ResizeEventDetail {
+  /** The column's name in the data; `null` for the stub column holding summary row labels. */
+  column: string | null;
+  /** The column's position among the body cells (from 0, counting the stub). */
+  index: number;
+  /** Its new width, in px. */
+  width: number;
 }
 
 export interface PageEventDetail {
@@ -85,6 +97,14 @@ interface Block {
   group: Group | null;
 }
 
+/** A column label's resize handle. */
+interface Resizer {
+  handle: HTMLElement;
+  th: HTMLTableCellElement;
+  /** The column's position among the body cells (and `<col>`s). */
+  index: number;
+}
+
 interface SortHeader {
   th: HTMLTableCellElement;
   icon: HTMLElement;
@@ -93,6 +113,10 @@ interface SortHeader {
 
 // Header content that can't go inside a <button>
 const INTERACTIVE = "a[href], button, input, select, textarea, details, [tabindex]";
+
+// How far a resize handle's arrow keys move it, in px (and with Shift)
+const RESIZE_STEP = 10;
+const RESIZE_STEP_LARGE = 50;
 
 // How long typing pauses before the search runs
 const SEARCH_DELAY_MS = 150;
@@ -199,6 +223,12 @@ export class GtTable extends HTMLElement {
   private layout: ResizeObserver | null = null;
   private empty: HTMLTableRowElement | null = null;
   private live: HTMLElement | null = null;
+  private resizers: Resizer[] = [];
+  /**
+   * The column widths when the reader first resized one, which a reset goes back to; `null`
+   * before. From then on, every column has a fixed width.
+   */
+  private startWidths: number[] | null = null;
   /** The data row marked by a tap, when rows are highlighted. */
   private marked: HTMLTableRowElement | null = null;
   /** Whether the last press on the body was a touch. */
@@ -377,6 +407,9 @@ export class GtTable extends HTMLElement {
     }
     if (this.movable && spec.controls.search) {
       this.addSearchBox(table);
+    }
+    if (spec.controls.resizing) {
+      this.addResizers(table);
     }
     if (this.pageSizeValue === undefined) {
       this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
@@ -573,6 +606,224 @@ export class GtTable extends HTMLElement {
     if (this.sortHeaders.size > 0) {
       this.addLiveRegion();
     }
+  }
+
+  // A resize handle for each column with a label of its own (not one spanning several columns)
+  private addResizers(table: HTMLTableElement): void {
+    const rows = Array.from(
+      table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"),
+    );
+    // Lay the labels out on the columns: labels spanning rows (the stubhead, columns without a
+    // spanner) take their columns in the rows below. Per column, the row its last label ends before
+    const ends: number[] = [];
+    rows.forEach((tr, r) => {
+      let index = 0;
+      for (const th of tr.children as HTMLCollectionOf<HTMLTableCellElement>) {
+        while ((ends[index] ?? 0) > r) {
+          index += 1;
+        }
+        const colspan = Number(th.getAttribute("colspan") ?? 1);
+        const rowspan = Number(th.getAttribute("rowspan") ?? 1);
+        for (let column = index; column < index + colspan; column++) {
+          ends[column] = r + rowspan;
+        }
+        if (colspan === 1 && r + rowspan >= rows.length) {
+          this.addResizer(th, index);
+        }
+        index += colspan;
+      }
+    });
+  }
+
+  private addResizer(th: HTMLTableCellElement, index: number): void {
+    const handle = this.ownerDocument.createElement("span");
+    handle.className = "gt-i-resizer";
+    handle.tabIndex = 0;
+    // (The ARIA window splitter pattern)
+    handle.setAttribute("role", "separator");
+    handle.setAttribute("aria-orientation", "vertical");
+    handle.setAttribute("aria-label", `Resize ${labelText(th) || `column ${index + 1}`}`);
+    const resizer: Resizer = { handle, th, index };
+    this.showWidth(resizer, th.getBoundingClientRect().width);
+    th.classList.add("gt-i-resizable");
+    th.append(handle);
+    this.resizers.push(resizer);
+
+    handle.addEventListener("pointerdown", (event) => {
+      const start = event.button === 0 ? this.columnWidth(resizer) : null;
+      if (start === null) {
+        return;
+      }
+      // (No text selection, and no scrolling by touch)
+      event.preventDefault();
+      const x = event.clientX;
+      const direction = this.isRtl() ? -1 : 1;
+      let width = start;
+      const move = (event: PointerEvent) => {
+        width = this.setColumnWidth(resizer, start + (event.clientX - x) * direction);
+      };
+      const end = () => {
+        handle.removeEventListener("pointermove", move);
+        handle.removeEventListener("pointerup", end);
+        handle.removeEventListener("pointercancel", end);
+        handle.removeEventListener("lostpointercapture", end);
+        this.removeAttribute("data-gti-resizing");
+        handle.removeAttribute("data-gti-active");
+        if (width !== start) {
+          this.dispatchResize(resizer, width);
+        }
+      };
+      handle.setPointerCapture?.(event.pointerId);
+      this.setAttribute("data-gti-resizing", "");
+      handle.setAttribute("data-gti-active", "");
+      handle.addEventListener("pointermove", move);
+      handle.addEventListener("pointerup", end);
+      handle.addEventListener("pointercancel", end);
+      handle.addEventListener("lostpointercapture", end);
+    });
+    handle.addEventListener("keydown", (event) => {
+      const step = (event.shiftKey ? RESIZE_STEP_LARGE : RESIZE_STEP) * (this.isRtl() ? -1 : 1);
+      const steps: Record<string, number> = { ArrowRight: step, ArrowLeft: -step };
+      const key = event.key;
+      if (!(key in steps || key === "Home" || key === "Enter")) {
+        return;
+      }
+      const width = this.columnWidth(resizer);
+      if (width === null) {
+        return;
+      }
+      event.preventDefault();
+      if (key === "Enter") {
+        this.userResetWidth(resizer);
+        return;
+      }
+      // (Home is the narrowest)
+      const next = this.setColumnWidth(resizer, key === "Home" ? 0 : width + (steps[key] ?? 0));
+      if (next !== width) {
+        this.dispatchResize(resizer, next);
+      }
+    });
+    handle.addEventListener("dblclick", () => this.userResetWidth(resizer));
+  }
+
+  private isRtl(): boolean {
+    return getComputedStyle(this.table as HTMLTableElement).direction === "rtl";
+  }
+
+  private resizerCol(resizer: Resizer): HTMLElement | null {
+    return (this.colgroup?.children[resizer.index] as HTMLElement | undefined) ?? null;
+  }
+
+  // A column's width, in px, once every column's width is fixed (`null` if they can't be)
+  private columnWidth(resizer: Resizer): number | null {
+    const col = this.freezeWidths() ? this.resizerCol(resizer) : null;
+    return col === null ? null : parseFloat(col.style.width);
+  }
+
+  // A new width for a column, at least 2em of its label; returns the width it gets
+  private setColumnWidth(resizer: Resizer, width: number): number {
+    const col = this.resizerCol(resizer) as HTMLElement;
+    const min = Math.ceil(2 * (parseFloat(getComputedStyle(resizer.th).fontSize) || 16));
+    width = Math.max(min, Math.round(width));
+    col.style.width = `${width}px`;
+    this.showWidth(resizer, width);
+    return width;
+  }
+
+  private showWidth(resizer: Resizer, width: number): void {
+    const px = String(Math.round(width));
+    resizer.handle.setAttribute("aria-valuenow", px);
+    resizer.handle.setAttribute("aria-valuetext", `${px} pixels`);
+  }
+
+  // A double-click or Enter puts the column back to its width before any column was resized
+  private userResetWidth(resizer: Resizer): void {
+    const width = this.startWidths?.[resizer.index];
+    const col = this.resizerCol(resizer);
+    if (width === undefined || col === null || parseFloat(col.style.width) === width) {
+      return;
+    }
+    col.style.width = `${width}px`;
+    this.showWidth(resizer, width);
+    this.dispatchResize(resizer, width);
+  }
+
+  private dispatchResize(resizer: Resizer, width: number): void {
+    const spec = this.spec as Spec;
+    // (Body cells start with the group column, when groups are a column of the stub)
+    const column = spec.columns[resizer.index - (spec.stub.groups_as_column ? 1 : 0)];
+    this.dispatchEvent(
+      new CustomEvent<ResizeEventDetail>(RESIZE_EVENT, {
+        bubbles: true,
+        composed: true,
+        detail: { column: column?.id ?? null, index: resizer.index, width },
+      }),
+    );
+  }
+
+  /**
+   * Fix every column at the width it has (so that resizing one leaves the others where they
+   * are), with the table's layout fixed and as wide as its columns. Returns whether they are.
+   */
+  private freezeWidths(): boolean {
+    if (this.startWidths !== null) {
+      return true;
+    }
+    const table = this.table as HTMLTableElement;
+    const widths = this.shownWidths();
+    if (widths === null) {
+      return false;
+    }
+    let colgroup = this.colgroup ?? table.querySelector<HTMLTableColElement>(":scope > colgroup");
+    if (colgroup === null) {
+      colgroup = this.ownerDocument.createElement("colgroup");
+      colgroup.className = "gt-i-widths";
+      for (const _ of widths) {
+        colgroup.append(this.ownerDocument.createElement("col"));
+      }
+    }
+    const cols = Array.from(colgroup.children) as HTMLElement[];
+    if (cols.length !== widths.length || cols.some((col) => col.tagName !== "COL" || col.hasAttribute("span"))) {
+      return false;
+    }
+    // (Whole pixels, as the reader sets them; rounded up, so that no text is cut)
+    const whole = widths.map((width) => Math.ceil(width - 0.01));
+    cols.forEach((col, i) => {
+      col.style.width = `${whole[i]}px`;
+    });
+    if (!colgroup.isConnected) {
+      table.insertBefore(colgroup, table.querySelector(":scope > thead, :scope > tbody"));
+    }
+    table.style.removeProperty("min-width");
+    table.style.tableLayout = "fixed";
+    table.style.width = "fit-content";
+    this.colgroup = colgroup;
+    this.fittedCols = [];
+    this.widthsFixed = true;
+    this.startWidths = whole;
+    return true;
+  }
+
+  /**
+   * The width of each column as shown, from a shown body row with a cell in every column, or else
+   * from the column labels; `null` if a column has neither.
+   */
+  private shownWidths(): number[] | null {
+    const trs = Array.from((this.tbody as HTMLTableSectionElement).querySelectorAll(":scope > tr"));
+    const span = (cell: Element) => Number(cell.getAttribute("colspan") ?? 1);
+    const columns = Math.max(0, ...trs.map((tr) => Array.from(tr.children).reduce((n, cell) => n + span(cell), 0)));
+    const full = trs.find(
+      (tr) =>
+        !(tr as HTMLElement).hidden &&
+        tr.children.length === columns &&
+        Array.from(tr.children).every((cell) => span(cell) === 1),
+    );
+    const label = (i: number) => this.resizers.find((resizer) => resizer.index === i)?.th;
+    const widths =
+      full === undefined
+        ? Array.from({ length: columns }, (_, i) => label(i)?.getBoundingClientRect().width)
+        : Array.from(full.children, (cell) => cell.getBoundingClientRect().width);
+    return columns > 0 && widths.every((width) => width !== undefined) ? (widths as number[]) : null;
   }
 
   private addSearchBox(table: HTMLTableElement): void {
@@ -975,6 +1226,11 @@ export class GtTable extends HTMLElement {
   // Measure the column widths again (for a new element width, or once fonts have loaded)
   private refit(): void {
     const colgroup = this.colgroup;
+    if (this.startWidths !== null) {
+      // The reader's widths stay
+      this.render();
+      return;
+    }
     if (colgroup === null || this.table === null) {
       // Widths not measured yet are measured on rendering
       this.render();
@@ -1448,6 +1704,8 @@ export class GtTable extends HTMLElement {
     this.cutsText = false;
     this.tableFitted = false;
     this.fittedWidth = 0;
+    this.resizers = [];
+    this.startWidths = null;
     this.cellTexts = null;
     this.searchBox = null;
     this.toolbar = null;
@@ -1458,6 +1716,7 @@ export class GtTable extends HTMLElement {
     this.touched = false;
     this.removeAttribute("data-gti-highlight");
     this.removeAttribute("data-gti-nowrap");
+    this.removeAttribute("data-gti-resizing");
     this.removeAttribute("data-gti-state");
   }
 
