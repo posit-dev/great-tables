@@ -5,6 +5,7 @@ import {
   RESIZE_EVENT,
   SEARCH_EVENT,
   SEARCH_HIGHLIGHT,
+  SELECT_EVENT,
   SORT_EVENT,
   TAG_NAME,
   VERSION,
@@ -20,6 +21,7 @@ export type {
   PageEventDetail,
   ResizeEventDetail,
   SearchEventDetail,
+  SelectEventDetail,
   SortEventDetail,
   State,
 } from "./gt-table";
@@ -38,6 +40,7 @@ export {
   RESIZE_EVENT,
   SEARCH_EVENT,
   SEARCH_HIGHLIGHT,
+  SELECT_EVENT,
   SORT_EVENT,
   SPEC_VERSION,
   SpecError,
