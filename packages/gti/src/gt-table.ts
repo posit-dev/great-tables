@@ -134,6 +134,16 @@ const plural = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
 
 const isPositiveInteger = (x: unknown): x is number => Number.isInteger(x) && (x as number) > 0;
 
+/** A `<col>`'s width (`cols_width()`) in px, in a table `table` px wide; `NaN` for other units. */
+function authoredWidth(col: HTMLElement, table: number): number {
+  const width = col.style.width;
+  const value = parseFloat(width);
+  if (width.endsWith("px")) {
+    return value;
+  }
+  return width.endsWith("%") ? (value * table) / 100 : Number.NaN;
+}
+
 export class GtTable extends HTMLElement {
   /** The static `<table>` this element hydrates, or `null` if there isn't one. */
   table: HTMLTableElement | null = null;
@@ -173,6 +183,10 @@ export class GtTable extends HTMLElement {
   /** The `<col>`s we set the widths of. */
   private fittedCols: HTMLElement[] = [];
   private widthsFixed = false;
+  /** Whether text doesn't wrap, in a table with columns the author sized, which it may overrun. */
+  private cutsText = false;
+  /** Whether we made the table's layout fixed (with a width), to keep the author's column widths. */
+  private tableFitted = false;
   /** The element's width when the column widths were measured. */
   private fittedWidth = 0;
   private refitFrame = 0;
@@ -185,6 +199,10 @@ export class GtTable extends HTMLElement {
   private layout: ResizeObserver | null = null;
   private empty: HTMLTableRowElement | null = null;
   private live: HTMLElement | null = null;
+  /** The data row marked by a tap, when rows are highlighted. */
+  private marked: HTMLTableRowElement | null = null;
+  /** Whether the last press on the body was a touch. */
+  private touched = false;
 
   get state(): State | null {
     return this.getAttribute("data-gti-state") as State | null;
@@ -353,6 +371,7 @@ export class GtTable extends HTMLElement {
     this.spec = spec;
 
     this.movable = !this.hasMergedStubCells();
+    this.setDisplay(spec);
     if (this.movable && spec.controls.sorting) {
       this.addSortHeaders(table, spec);
     }
@@ -450,6 +469,48 @@ export class GtTable extends HTMLElement {
     this.blocks = blocks;
     this.groups = Array.from(groups.values());
     this.rowGroups = rowGroups;
+  }
+
+  // Row highlighting and text wrapping, which gti.css styles by the element's attributes
+  private setDisplay(spec: Spec): void {
+    const { highlight, wrap } = spec.display;
+    this.toggleAttribute("data-gti-nowrap", !wrap);
+    this.toggleAttribute("data-gti-highlight", highlight);
+    this.cutsText = !wrap && this.table?.querySelector(":scope > colgroup") != null;
+    if (this.cutsText) {
+      this.fixWidths();
+      this.observeLayout();
+    }
+    const tbody = this.tbody;
+    if (!highlight || tbody === null) {
+      return;
+    }
+    for (const tr of this.rowElements) {
+      tr.classList.add("gt-i-row");
+    }
+    // Nothing hovers on a touch screen, so a tap marks the row instead (until it's tapped again,
+    // or another row is)
+    tbody.addEventListener("pointerdown", (event) => {
+      this.touched = event.pointerType === "touch";
+    });
+    tbody.addEventListener("click", (event) => {
+      const touched = this.touched;
+      this.touched = false;
+      const target = event.target as Element;
+      const tr = target.closest("tr");
+      if (
+        !touched ||
+        tr === null ||
+        tr.parentElement !== tbody ||
+        typeof this.bodyRow(tr) !== "number" ||
+        target.closest(`${INTERACTIVE}, .gt_stub_row_group`) !== null
+      ) {
+        return;
+      }
+      this.marked?.classList.remove("gt-i-marked");
+      this.marked = tr === this.marked ? null : tr;
+      this.marked?.classList.add("gt-i-marked");
+    });
   }
 
   // A hierarchical stub merges cells across rows (`rowspan`), which reordering would break
@@ -567,14 +628,14 @@ export class GtTable extends HTMLElement {
     if (
       this.layout !== null ||
       typeof ResizeObserver === "undefined" ||
-      (this.toolbar === null && this.pager === null && this.colgroup === null)
+      (this.toolbar === null && this.pager === null && this.colgroup === null && !this.cutsText)
     ) {
       return;
     }
     this.layout = new ResizeObserver(() => {
       this.alignBars();
       const resized = this.colgroup !== null && this.clientWidth !== this.fittedWidth;
-      const unmeasured = !this.widthsFixed && this.hidesRows();
+      const unmeasured = !this.widthsFixed && this.needsWidths();
       if ((resized || unmeasured) && this.refitFrame === 0) {
         // (In the next frame: changing the layout while it's being observed is a loop)
         this.refitFrame = requestAnimationFrame(() => {
@@ -754,9 +815,7 @@ export class GtTable extends HTMLElement {
       return;
     }
     const size = this.size;
-    // Hiding rows would narrow columns sized to their content, so they keep the widths they have
-    // with every row shown
-    if (!this.widthsFixed && this.hidesRows()) {
+    if (!this.widthsFixed && this.needsWidths()) {
       this.fixWidths();
     }
     const { shown, page, start, total } = this.place(this.matched, size, this.pageValue);
@@ -868,6 +927,12 @@ export class GtTable extends HTMLElement {
     return this.matchCount < (this.spec?.nrows ?? 0) || (size !== null && this.matchCount > size);
   }
 
+  // Hiding rows would narrow columns sized to their content, so they keep the widths they have
+  // with every row shown; and text that doesn't wrap would widen columns the author sized
+  private needsWidths(): boolean {
+    return this.cutsText || this.hidesRows();
+  }
+
   // Fix the column widths (those the author didn't set with `cols_width()`)
   private fixWidths(): void {
     const table = this.table as HTMLTableElement;
@@ -894,7 +959,7 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.fittedCols = cols.filter((col) => col.style.width === "");
-    if (this.fittedCols.length === 0) {
+    if (this.fittedCols.length === 0 && !this.cutsText) {
       return;
     }
     this.colgroup = colgroup;
@@ -936,6 +1001,10 @@ export class GtTable extends HTMLElement {
       col.style.removeProperty("width");
     }
     table.style.removeProperty("min-width");
+    if (this.tableFitted) {
+      table.style.removeProperty("width");
+      this.tableFitted = false;
+    }
     this.empty?.remove();
     this.place(null, null, 1);
     const trs = Array.from((this.tbody as HTMLTableSectionElement).querySelectorAll(":scope > tr"));
@@ -964,8 +1033,20 @@ export class GtTable extends HTMLElement {
       // (A <colgroup> goes before the table's rows, after any caption)
       table.insertBefore(colgroup, table.querySelector(":scope > thead, :scope > tbody"));
     }
-    // Column widths alone let a table that overflows its container shrink to fit it
-    table.style.minWidth = `${widths.table}px`;
+    // Without text wrapping, a column the author sized is as wide as its text, unless the table's
+    // layout is fixed, which takes a table width (GT sets one only if every column is sized)
+    const overrun = cols.some(
+      (col, i) =>
+        !this.fittedCols.includes(col as HTMLElement) &&
+        (widths.columns[i] ?? 0) > authoredWidth(col as HTMLElement, widths.table) + 1,
+    );
+    if (this.cutsText && overrun) {
+      table.style.width = "fit-content";
+      this.tableFitted = true;
+    } else {
+      // Column widths alone let a table that overflows its container shrink to fit it
+      table.style.minWidth = `${widths.table}px`;
+    }
     this.fittedWidth = this.clientWidth;
   }
 
@@ -1364,6 +1445,8 @@ export class GtTable extends HTMLElement {
     this.colgroup = null;
     this.fittedCols = [];
     this.widthsFixed = false;
+    this.cutsText = false;
+    this.tableFitted = false;
     this.fittedWidth = 0;
     this.cellTexts = null;
     this.searchBox = null;
@@ -1371,6 +1454,10 @@ export class GtTable extends HTMLElement {
     this.layout = null;
     this.empty = null;
     this.live = null;
+    this.marked = null;
+    this.touched = false;
+    this.removeAttribute("data-gti-highlight");
+    this.removeAttribute("data-gti-nowrap");
     this.removeAttribute("data-gti-state");
   }
 
