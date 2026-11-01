@@ -11,7 +11,8 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   object for a group heading, a summary row, or a grand summary row
 - `ranks`: per sortable column, each data row's dense sort rank (`null` for a missing value)
 - `striping`: whether the stub and body cells of alternate data rows are striped (`gt_striped`),
-  so that striping can be redone when rows are reordered
+  so that striping can be redone when rows are reordered or hidden
+- `controls`: which controls the reader gets: sort buttons in the column labels, a search box
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -77,6 +78,11 @@ class StripingSpec(TypedDict):
     body: bool
 
 
+class ControlsSpec(TypedDict):
+    sorting: bool
+    search: bool
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -87,6 +93,7 @@ class Spec(TypedDict):
     body: list[BodyRow]
     ranks: dict[str, list[int | None]]
     striping: StripingSpec
+    controls: ControlsSpec
 
 
 def build_spec(data: GTData) -> Spec:
@@ -175,6 +182,11 @@ def build_spec(data: GTData) -> Spec:
         striping=StripingSpec(
             stub=bool(data._options.row_striping_include_stub.value),
             body=bool(data._options.row_striping_include_table_body.value),
+        ),
+        # From `opt_interactive()`'s options, so that it can switch to GTI without changes
+        controls=ControlsSpec(
+            sorting=bool(data._options.ihtml_use_sorting.value),
+            search=bool(data._options.ihtml_use_search.value),
         ),
     )
 

@@ -69,6 +69,13 @@ export interface StripingSpec {
   body: boolean;
 }
 
+export interface ControlsSpec {
+  /** Whether column labels are buttons that sort by their column. */
+  sorting: boolean;
+  /** Whether there's a search box. */
+  search: boolean;
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -84,6 +91,7 @@ export interface Spec {
   /** Per sortable column, each data row's dense sort rank (`null` for a missing value). */
   ranks: Record<string, (number | null)[]>;
   striping: StripingSpec;
+  controls: ControlsSpec;
 }
 
 export class SpecError extends Error {
@@ -138,6 +146,10 @@ export function parseSpec(text: string): Spec {
   const striping = raw.striping;
   if (!isObject(striping) || typeof striping.stub !== "boolean" || typeof striping.body !== "boolean") {
     throw new SpecError("`striping` must say whether the stub and body are striped");
+  }
+  const controls = raw.controls;
+  if (!isObject(controls) || typeof controls.sorting !== "boolean" || typeof controls.search !== "boolean") {
+    throw new SpecError("`controls` must say whether sorting and search are on");
   }
 
   const body = raw.body as unknown[];

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from great_tables import GT, exibble, md
+from great_tables import GT, exibble, loc, md
 from great_tables._gti import render_gti_html
 
 HERE = Path(__file__).parent
@@ -34,11 +34,13 @@ def gt_html(table_id: str) -> str:
     return render_gti_html(gt, runtime="none")
 
 
-def sort_html(table_id: str, groups_as_column: bool = False) -> str:
+def sort_gt(
+    table_id: str, groups_as_column: bool = False, summaries: bool = True, data=exibble
+) -> GT:
     # Groups out of data order, each with a summary row, striped, with missing values to sort.
     gt = (
         GT(
-            exibble[["num", "char", "currency", "row", "group"]],
+            data[["num", "char", "currency", "row", "group"]],
             rowname_col="row",
             groupname_col="group",
             id=table_id,
@@ -46,12 +48,25 @@ def sort_html(table_id: str, groups_as_column: bool = False) -> str:
         .fmt_number(columns="num", decimals=2)
         .fmt_currency(columns="currency")
         .row_group_order(["grp_b", "grp_a"])
-        .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
-        .grand_summary_rows(fns={"Max": lambda df: df[["num", "currency"]].max()})
         .opt_row_striping()
         .tab_options(row_group_as_column=groups_as_column)
     )
-    return render_gti_html(gt, runtime="none")
+    if summaries:
+        gt = gt.summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
+        gt = gt.grand_summary_rows(fns={"Max": lambda df: df[["num", "currency"]].max()})
+    return gt
+
+
+def sort_html(table_id: str, groups_as_column: bool = False, summaries: bool = True) -> str:
+    return render_gti_html(sort_gt(table_id, groups_as_column, summaries), runtime="none")
+
+
+def search_html(table_id: str, groups_as_column: bool = False) -> str:
+    # The table to sort, with a search box, an accented value and a footnote mark in a cell.
+    data = exibble.assign(char=exibble["char"].replace("durian", "Crème brûlée"))
+    gt = sort_gt(table_id, groups_as_column, data=data)
+    gt = gt.tab_footnote("A fruit.", locations=loc.body(columns="char", rows=[0]))
+    return render_gti_html(gt.opt_interactive(use_search=True), runtime="none")
 
 
 def page(body: str, head: str = "") -> str:
@@ -81,6 +96,15 @@ def main() -> None:
         "sort.html": page(sort_html("s") + "\n" + runtime_src, head=styles),
         "sort-column.html": page(
             sort_html("s", groups_as_column=True) + "\n" + runtime_src, head=styles
+        ),
+        "sort-column-bare.html": page(
+            sort_html("s", groups_as_column=True, summaries=False) + "\n" + runtime_src,
+            head=styles,
+        ),
+        # Tables to search, likewise.
+        "search.html": page(search_html("q") + "\n" + runtime_src, head=styles),
+        "search-column.html": page(
+            search_html("q", groups_as_column=True) + "\n" + runtime_src, head=styles
         ),
     }
     for name, html in fixtures.items():

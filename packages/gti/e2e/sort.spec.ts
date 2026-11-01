@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { open } from "./helpers";
+import { dataRows, groupCells, ready, shown, striping } from "./helpers";
 
 // exibble, shown as group grp_b (rows 4-7) then grp_a (rows 0-3), each with a summary row, then a
 // grand summary row. `num` is missing in row 5 and `char` in row 4.
@@ -9,45 +9,7 @@ const UNSORTED = [
   "grand:Max",
 ];
 
-/** The body as shown: data row indices, and labels for the structural rows. */
-function shown(page: Page): Promise<(number | string)[]> {
-  return page.locator("gt-table").evaluate((node) => {
-    const el = node as any;
-    return Array.from(node.querySelectorAll("tbody.gt_table_body > tr")).map((tr) => {
-      const entry = el.bodyRow(tr);
-      if (typeof entry === "number") {
-        return entry;
-      }
-      if ("grand_summary" in entry) {
-        return `grand:${entry.grand_summary}`;
-      }
-      return "summary" in entry ? `summary:${entry.summary}` : `group:${entry.group}`;
-    });
-  });
-}
-
-const dataRows = (rows: (number | string)[]) => rows.filter((r) => typeof r === "number");
-
-/** For each data row as shown: whether its cells are striped, and their background. */
-function striping(page: Page): Promise<{ striped: boolean; background: string }[]> {
-  return page.locator("gt-table").evaluate((node) => {
-    const el = node as any;
-    return Array.from(node.querySelectorAll("tbody.gt_table_body > tr"))
-      .filter((tr) => typeof el.bodyRow(tr) === "number")
-      .map((tr) => {
-        const td = tr.querySelector("td") as HTMLElement;
-        return { striped: td.classList.contains("gt_striped"), background: getComputedStyle(td).backgroundColor };
-      });
-  });
-}
-
 const sortButton = (page: Page, column: string) => page.locator(`th#s-${column} > button.gt-i-sort`);
-
-async function ready(page: Page, name: string): Promise<string[]> {
-  const errors = await open(page, name);
-  await expect(page.locator("gt-table")).toHaveAttribute("data-gti-state", "ready");
-  return errors;
-}
 
 test("sorts within groups when a column label is clicked", async ({ page }) => {
   const errors = await ready(page, "sort.html");
@@ -164,34 +126,23 @@ test("keeps each group's label cell on its first row when groups are a column", 
   await sortButton(page, "num").click();
   await sortButton(page, "num").click();
 
-  const groups = await page.locator("gt-table").evaluate((node) => {
-    const el = node as any;
-    return Array.from(node.querySelectorAll("th.gt_stub_row_group")).map((cell) => {
-      const tr = cell.parentElement as HTMLTableRowElement;
-      // The rows the cell spans, by position
-      const span = Number(cell.getAttribute("rowspan"));
-      const spanned = [tr];
-      while (spanned.length < span) {
-        spanned.push(spanned[spanned.length - 1]?.nextElementSibling as HTMLTableRowElement);
-      }
-      const box = cell.getBoundingClientRect();
-      const top = spanned[0]?.getBoundingClientRect().top;
-      const bottom = spanned[spanned.length - 1]?.getBoundingClientRect().bottom;
-      return {
-        label: cell.textContent?.trim(),
-        row: el.bodyRow(tr),
-        first: tr.firstElementChild === cell && tr.classList.contains("gt_row_group_first"),
-        last: el.bodyRow(spanned[spanned.length - 1]),
-        fits: Math.abs(box.top - (top ?? 0)) < 1 && Math.abs(box.bottom - (bottom ?? 0)) < 1,
-      };
-    });
-  });
-
-  expect(groups).toEqual([
+  expect(await groupCells(page)).toEqual([
     { label: "grp_b", row: 7, first: true, last: { summary: "Total", group: "grp_b", side: "bottom" }, fits: true },
     { label: "grp_a", row: 3, first: true, last: { summary: "Total", group: "grp_a", side: "bottom" }, fits: true },
   ]);
   await expect(page.locator("tr.gt_row_group_first")).toHaveCount(2);
+  expect(errors).toEqual([]);
+});
+
+test("keeps groups shown as a column apart when nothing is between them", async ({ page }) => {
+  const errors = await ready(page, "sort-column-bare.html");
+  await sortButton(page, "num").click();
+
+  expect(await shown(page)).toEqual([4, 6, 7, 5, 0, 1, 2, 3]);
+  expect(await groupCells(page)).toEqual([
+    { label: "grp_b", row: 4, first: true, last: 5, fits: true },
+    { label: "grp_a", row: 0, first: true, last: 3, fits: true },
+  ]);
   expect(errors).toEqual([]);
 });
 

@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   type BodyRow,
+  type ControlsSpec,
   define,
   GtTable,
+  SEARCH_EVENT,
+  type SearchEventDetail,
   SORT_EVENT,
   type SortEventDetail,
   SPEC_VERSION,
@@ -46,6 +49,7 @@ const GROUPED: BodyRow[] = [
 
 interface TableOptions {
   striping?: StripingSpec;
+  controls?: Partial<ControlsSpec>;
   groupsAsColumn?: boolean;
   yLabel?: string;
 }
@@ -60,8 +64,13 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
   let j = 0;
   let lead: string | null = null;
   const trs: string[] = [];
+  const groups: { id: string | null; rows: number[] }[] = [];
   for (const entry of body) {
+    if (typeof entry === "number") {
+      groups[groups.length - 1]?.rows.push(entry);
+    }
     if (typeof entry === "object" && "group" in entry && !("summary" in entry)) {
+      groups.push({ id: entry.group, rows: [] });
       if (groupsAsColumn) {
         lead = entry.group;
       } else {
@@ -115,12 +124,13 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     ],
     spanners: [],
     stub: { columns: ["row"], groups_as_column: groupsAsColumn },
-    groups: [],
+    groups,
     body: groupsAsColumn
       ? body.filter((entry) => typeof entry !== "object" || !("group" in entry) || "summary" in entry)
       : body,
     ranks: RANKS,
     striping,
+    controls: { sorting: true, search: false, ...options.controls },
   };
   return { html, spec };
 }
@@ -132,7 +142,8 @@ async function mountTable(body: BodyRow[] = GROUPED, options: TableOptions = {})
 
 /** The body as shown: data row indices, and labels for the structural rows. */
 function shown(el: GtTable): (number | string)[] {
-  return Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody > tr")).map((tr) => {
+  const trs = el.querySelectorAll<HTMLTableRowElement>("tbody.gt_table_body > tr:not(.gt-i-empty)");
+  return Array.from(trs).map((tr) => {
     const entry = el.bodyRow(tr);
     if (typeof entry === "number") {
       return entry;
@@ -517,6 +528,16 @@ describe("sorting", () => {
     expect(el.querySelectorAll(".gt_stub_row_group")).toHaveLength(1);
   });
 
+  it("keeps groups shown as a column apart without summary rows between them", async () => {
+    const body: BodyRow[] = [{ group: "b" }, 3, 0, 4, { group: "a" }, 1, 2];
+    const el = await mountTable(body, { groupsAsColumn: true });
+    click(el, "x");
+    expect(shown(el)).toEqual([0, 4, 3, 1, 2]);
+    const groupCell = (row: number) => el.rowElement(row)?.querySelector(".gt_stub_row_group");
+    expect(groupCell(0)?.textContent).toBe("b");
+    expect(groupCell(1)?.textContent).toBe("a");
+  });
+
   it("doesn't sort a table whose stub has merged cells", async () => {
     const { html, spec } = gtTable([0, 1, 2, 3, 4]);
     const merged = html.replace(
@@ -531,5 +552,331 @@ describe("sorting", () => {
     expect(() => {
       el.sort = [{ column: "x" }];
     }).toThrow(RangeError);
+  });
+});
+
+/** The body rows that aren't hidden, as `shown()` gives them. */
+function visible(el: GtTable): (number | string)[] {
+  const trs = Array.from(
+    el.querySelectorAll<HTMLTableRowElement>("tbody.gt_table_body > tr:not(.gt-i-empty)"),
+  );
+  const all = shown(el);
+  return all.filter((_, i) => !(trs[i] as HTMLTableRowElement).hidden);
+}
+
+const live = (el: GtTable) => el.querySelector(".gt-i-live")?.textContent;
+const searchBox = (el: GtTable) => el.querySelector<HTMLInputElement>("input.gt-i-search");
+
+describe("searching", () => {
+  it("shows the rows that match, keeping their group's heading and summary rows", async () => {
+    const el = await mountTable();
+    el.search = "a";
+
+    expect(el.search).toBe("a");
+    expect(visible(el)).toEqual(["group:b", 3, 4, "summary:Total", "group:a", 1, "grand:Max"]);
+    // Rows stay where they are, hidden
+    expect(shown(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "group:a", 1, 2, "grand:Max"]);
+  });
+
+  it("hides a group without matches, but not the grand summary", async () => {
+    const el = await mountTable();
+    el.search = "c";
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+  });
+
+  it("ignores case and accents", async () => {
+    const el = await mountTable();
+    el.search = "RÓW_3";
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+  });
+
+  it("needs every word of the search in the row, each in one of its cells", async () => {
+    const el = await mountTable();
+    el.search = "row_1 20";
+    expect(visible(el)).toEqual(["group:b", 0, "summary:Total", "grand:Max"]);
+    el.search = "  20   ";
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+    // Not across cells
+    el.search = "520";
+    expect(visible(el)).toEqual(["grand:Max"]);
+  });
+
+  it("doesn't search group headings or summary rows", async () => {
+    const el = await mountTable();
+    el.search = "total";
+    expect(visible(el)).toEqual(["grand:Max"]);
+  });
+
+  it("says so when nothing matches, until the search changes", async () => {
+    const el = await mountTable();
+    el.search = "zzz";
+    const empty = el.querySelector("tr.gt-i-empty") as HTMLTableRowElement;
+    expect(empty.querySelector("td")?.textContent).toBe("No matching rows");
+    expect(empty.querySelector("td")?.colSpan).toBe(3);
+    // Where the data rows would be, and not a body row
+    expect(empty.nextElementSibling).toBe(el.querySelector(".gt_grand_summary_row")?.parentElement);
+    expect(el.bodyRow(empty)).toBeNull();
+
+    el.search = "zz";
+    expect(el.querySelectorAll("tr.gt-i-empty")).toHaveLength(1);
+    el.search = "";
+    expect(el.querySelector("tr.gt-i-empty")).toBeNull();
+    expect(visible(el)).toEqual(shown(el));
+  });
+
+  it("puts the empty row at the end of a body without grand summary rows at the bottom", async () => {
+    const body: BodyRow[] = [{ grand_summary: "Max", side: "top" }, 0, 1, 2, 3, 4];
+    const el = await mountTable(body);
+    el.search = "zzz";
+    expect(el.querySelector("tbody")?.lastElementChild?.className).toBe("gt-i-empty");
+    expect(visible(el)).toEqual(["grand:Max"]);
+  });
+
+  it("shows every row for a blank search", async () => {
+    const el = await mountTable();
+    el.search = "a";
+    el.search = " ";
+    expect(visible(el)).toEqual(shown(el));
+    expect(el.querySelector("tr.gt-i-empty")).toBeNull();
+  });
+
+  it("keeps the search when sorting, and the sort when searching", async () => {
+    const el = await mountTable();
+    el.search = "a";
+    click(el, "x");
+    expect(visible(el)).toEqual(["group:b", 4, 3, "summary:Total", "group:a", 1, "grand:Max"]);
+    el.search = "";
+    expect(visible(el)).toEqual(["group:b", 0, 4, 3, "summary:Total", "group:a", 1, 2, "grand:Max"]);
+  });
+
+  it("restripes the rows it shows", async () => {
+    const el = await mountTable(GROUPED, { striping: { stub: true, body: true } });
+    const striped = () =>
+      Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody > tr"))
+        .filter((tr) => typeof el.bodyRow(tr) === "number" && !tr.hidden)
+        .map((tr) => (tr.querySelector("td") as HTMLElement).classList.contains("gt_striped"));
+
+    el.search = "a";
+    expect(striped()).toEqual([false, true, false]);
+    expect(el.rowElement(4)?.querySelector("th")?.classList.contains("gt_striped")).toBe(true);
+    el.search = "";
+    expect(striped()).toEqual([false, true, false, true, false]);
+  });
+
+  it("moves a group's label cell to its first shown row when groups are a column", async () => {
+    const el = await mountTable(GROUPED, { groupsAsColumn: true });
+    const groupCell = (row: number) =>
+      el.rowElement(row)?.querySelector<HTMLTableCellElement>(".gt_stub_row_group") ?? null;
+
+    el.search = "row_5";
+    expect(visible(el)).toEqual([4, "summary:Total", "grand:Max"]);
+    expect(groupCell(4)?.textContent).toBe("b");
+    // Its shown data row and the summary row
+    expect(groupCell(4)?.getAttribute("rowspan")).toBe("2");
+    expect(el.rowElement(4)?.classList.contains("gt_row_group_first")).toBe(true);
+    expect(el.rowElement(3)?.classList.contains("gt_row_group_first")).toBe(false);
+
+    el.search = "c";
+    expect(visible(el)).toEqual([2, "grand:Max"]);
+    expect(groupCell(2)?.textContent).toBe("a");
+    expect(groupCell(2)?.getAttribute("rowspan")).toBe("1");
+
+    // Back on each group's first row
+    el.search = "";
+    expect(groupCell(3)?.getAttribute("rowspan")).toBe("4");
+    expect(groupCell(1)?.getAttribute("rowspan")).toBe("2");
+    expect(el.querySelectorAll(".gt_stub_row_group")).toHaveLength(2);
+  });
+
+  it("doesn't search a group's label cell", async () => {
+    const el = await mountTable(GROUPED, { groupsAsColumn: true });
+    // Only row 0's own cells have a "b"; group b's label cell is on row 3
+    el.search = "b";
+    expect(visible(el)).toEqual([0, "summary:Total", "grand:Max"]);
+  });
+
+  it("leaves a table whose stub has merged cells unfiltered", async () => {
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], { controls: { search: true } });
+    const merged = html.replace(
+      `<th class="gt_row gt_left gt_stub">row_1</th>`,
+      `<th class="gt_row gt_left gt_stub" rowspan="2">row_1</th>`,
+    );
+    const el = await mount(`<gt-table>${merged}${specScript(spec)}</gt-table>`);
+    el.search = "c";
+
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+    expect(searchBox(el)).toBeNull();
+  });
+
+  it("searches once hydrated when `search` is set before", async () => {
+    const { html, spec } = gtTable(GROUPED, { controls: { search: true } });
+    const el = document.createElement(TAG_NAME) as GtTable;
+    el.search = "c";
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+
+    expect(el.state).toBe("ready");
+    expect(el.search).toBe("c");
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    expect(searchBox(el)?.value).toBe("c");
+  });
+
+  it("forgets the search when its table is replaced", async () => {
+    const el = await mountTable();
+    el.search = "c";
+    el.remove();
+    const { html, spec } = gtTable(GROUPED);
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+
+    expect(el.search).toBe("");
+    expect(visible(el)).toEqual(shown(el));
+  });
+});
+
+describe("the search box", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const type = (input: HTMLInputElement, value: string) => {
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const press = (input: HTMLInputElement, key: string) => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+    input.dispatchEvent(event);
+    return event;
+  };
+
+  async function mountSearch() {
+    const el = await mountTable(GROUPED, { controls: { search: true } });
+    const events: SearchEventDetail[] = [];
+    el.addEventListener(SEARCH_EVENT, (event) => {
+      events.push((event as CustomEvent<SearchEventDetail>).detail);
+    });
+    return { el, input: searchBox(el) as HTMLInputElement, events };
+  }
+
+  it("is a labelled search field in a toolbar before the table", async () => {
+    const { el, input } = await mountSearch();
+    const toolbar = el.firstElementChild as HTMLElement;
+
+    expect(toolbar.className).toBe("gt-i-toolbar");
+    expect(input.parentElement).toBe(toolbar);
+    expect(input.type).toBe("search");
+    expect(input.getAttribute("aria-label")).toBe("Search the table");
+    expect(input.getAttribute("enterkeyhint")).toBe("search");
+    expect(input.getAttribute("autocomplete")).toBe("off");
+    expect(input.value).toBe("");
+    expect(el.querySelector(".gt-i-live")?.getAttribute("aria-live")).toBe("polite");
+  });
+
+  it("searches once typing pauses", async () => {
+    const { el, input, events } = await mountSearch();
+    vi.useFakeTimers();
+
+    type(input, "a");
+    vi.advanceTimersByTime(100);
+    type(input, "c");
+    vi.advanceTimersByTime(100);
+    expect(el.search).toBe("");
+    expect(events).toEqual([]);
+
+    vi.advanceTimersByTime(50);
+    expect(el.search).toBe("c");
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    expect(events).toEqual([{ search: "c", count: 1 }]);
+    expect(live(el)).toBe("Showing 1 of 5 rows");
+  });
+
+  it("searches at once on Enter, and only when the search changed", async () => {
+    const { el, input, events } = await mountSearch();
+    vi.useFakeTimers();
+
+    type(input, "a");
+    press(input, "Enter");
+    expect(events).toEqual([{ search: "a", count: 3 }]);
+    expect(live(el)).toBe("Showing 3 of 5 rows");
+
+    vi.advanceTimersByTime(500);
+    press(input, "Enter");
+    expect(events).toHaveLength(1);
+
+    type(input, "zzz");
+    press(input, "Enter");
+    expect(events[1]).toEqual({ search: "zzz", count: 0 });
+    expect(live(el)).toBe("No matching rows");
+  });
+
+  it("clears the search on Escape", async () => {
+    const { el, input, events } = await mountSearch();
+    type(input, "a");
+    press(input, "Enter");
+
+    const escape = press(input, "Escape");
+    expect(escape.defaultPrevented).toBe(true);
+    expect(input.value).toBe("");
+    expect(el.search).toBe("");
+    expect(visible(el)).toEqual(shown(el));
+    expect(events[1]).toEqual({ search: "", count: 5 });
+    expect(live(el)).toBe("Showing all 5 rows");
+
+    // With nothing to clear, Escape is left to the page
+    expect(press(input, "Escape").defaultPrevented).toBe(false);
+    expect(events).toHaveLength(2);
+  });
+
+  it("follows `search` when it's set, without an event or an announcement", async () => {
+    const { el, input, events } = await mountSearch();
+    vi.useFakeTimers();
+    type(input, "a");
+    el.search = "c";
+    // The pending search from typing is dropped
+    vi.advanceTimersByTime(500);
+
+    expect(input.value).toBe("c");
+    expect(el.search).toBe("c");
+    expect(events).toEqual([]);
+    expect(live(el)).toBe("");
+  });
+
+  it("takes the table's font", async () => {
+    const { el } = await mountSearch();
+    const toolbar = el.querySelector(".gt-i-toolbar") as HTMLElement;
+    expect(toolbar.style.fontFamily).toBe(getComputedStyle(el.table as HTMLTableElement).fontFamily);
+  });
+});
+
+describe("controls", () => {
+  it("has sort buttons and no search box by default", async () => {
+    const el = await mountTable();
+    expect(el.querySelectorAll("button.gt-i-sort")).toHaveLength(2);
+    expect(el.querySelector(".gt-i-toolbar")).toBeNull();
+  });
+
+  it("leaves out the sort buttons when sorting is off, but sorts through `sort`", async () => {
+    const el = await mountTable(GROUPED, { controls: { sorting: false } });
+    expect(el.querySelector("button")).toBeNull();
+    expect(el.querySelector(".gt-i-live")).toBeNull();
+    expect(el.sortableColumns).toEqual(["row", "x", "y"]);
+
+    el.sort = [{ column: "x" }];
+    expect(shown(el)).toEqual(["group:b", 0, 4, 3, "summary:Total", "group:a", 1, 2, "grand:Max"]);
+  });
+
+  it("searches through `search` without a search box", async () => {
+    const el = await mountTable();
+    el.search = "c";
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+  });
+
+  it("has a search box and no sort buttons when asked", async () => {
+    const el = await mountTable(GROUPED, { controls: { sorting: false, search: true } });
+    expect(el.querySelector("button")).toBeNull();
+    expect(searchBox(el)).not.toBeNull();
+    expect(el.querySelectorAll(".gt-i-live")).toHaveLength(1);
   });
 });

@@ -328,6 +328,17 @@ def test_spec_striping_with_opt_row_striping():
     assert spec_of(GT(DF).opt_row_striping(False))["striping"] == {"stub": False, "body": False}
 
 
+def test_spec_controls_default():
+    assert spec_of(GT(DF))["controls"] == {"sorting": True, "search": False}
+
+
+@pytest.mark.parametrize("use_sorting", [True, False])
+@pytest.mark.parametrize("use_search", [True, False])
+def test_spec_controls_from_opt_interactive(use_sorting: bool, use_search: bool):
+    gt = GT(DF).opt_interactive(use_sorting=use_sorting, use_search=use_search)
+    assert spec_of(gt)["controls"] == {"sorting": use_sorting, "search": use_search}
+
+
 # ranks ----
 
 NAN = float("nan")

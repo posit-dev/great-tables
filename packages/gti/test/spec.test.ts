@@ -11,6 +11,7 @@ const valid = {
   body: [{ group: "a" }, 1, 0, { summary: "Total", group: "a", side: "bottom" }],
   ranks: { x: [1, null] },
   striping: { stub: false, body: true },
+  controls: { sorting: true, search: false },
 };
 
 const parse = (spec: object) => parseSpec(JSON.stringify(spec));
@@ -51,6 +52,9 @@ describe("parseSpec()", () => {
     ["has short ranks", JSON.stringify({ ...valid, ranks: { x: [1] } }), /`ranks.x`/],
     ["has no striping", JSON.stringify({ ...valid, striping: undefined }), /`striping`/],
     ["has a bad striping", JSON.stringify({ ...valid, striping: { stub: 1, body: true } }), /`striping`/],
+    ["has no controls", JSON.stringify({ ...valid, controls: undefined }), /`controls`/],
+    ["has a bad controls", JSON.stringify({ ...valid, controls: { sorting: true } }), /`controls`/],
+    ["has a bad controls", JSON.stringify({ ...valid, controls: { sorting: 1, search: false } }), /`controls`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);
