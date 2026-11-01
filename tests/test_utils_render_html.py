@@ -8,6 +8,7 @@ from great_tables._utils_render_html import (
     create_source_notes_component_h,
 )
 from tests.utils import (
+    DataFrameConstructor,
     assert_rendered_body,
     assert_rendered_columns,
     assert_rendered_source_notes,
@@ -546,6 +547,13 @@ def _get_columns_html(gt: GT) -> str:
     return str(create_columns_component_h(built))
 
 
+def _stub_cells(body: str) -> list[tuple[str, str]]:
+    """Get the (rowspan, text) of each stub cell in the table body; rowspan is "" when unset."""
+    import re
+
+    return re.findall(r'<th (?:rowspan="(\d+)" )?scope="row(?:group)?"[^>]*gt_stub">([^<]*)<', body)
+
+
 def test_multi_col_stub_data_model_two_levels():
     """A rowname_col list sets the stub levels; the last column is the primary row identifier."""
     df = pd.DataFrame({"ticker": ["AAPL"], "sector": ["Tech"], "price": [150]})
@@ -658,9 +666,9 @@ def test_multi_col_stub_group_boundary_resets_rowspan():
     assert body.count(">Finance<") == 2
 
 
-def test_multi_col_stub_rowspan_within_group():
+def test_multi_col_stub_rowspan_within_group(frame_constructor: DataFrameConstructor):
     """When using row_group_as_column, rowspan collapsing still works within each group."""
-    df = pd.DataFrame(
+    df = frame_constructor(
         {
             "region": ["North", "North", "South"],
             "sector": ["Tech", "Tech", "Tech"],
@@ -671,10 +679,14 @@ def test_multi_col_stub_rowspan_within_group():
     gt = GT(df, rowname_col=["sector", "ticker"], groupname_col="region")
     body = _get_body_html(gt)
 
-    # North group has 2 Tech rows → sector should get rowspan="2"
-    assert 'rowspan="2"' in body
-    # South group has 1 Tech row → no rowspan
-    assert body.count(">Tech<") == 2  # once with rowspan, once without
+    # South's Tech row follows North's two, but the group boundary keeps it out of their rowspan
+    assert _stub_cells(body) == [
+        ("2", "Tech"),
+        ("", "AAPL"),
+        ("", "MSFT"),
+        ("", "Tech"),
+        ("", "NVDA"),
+    ]
 
 
 def test_multi_col_stub_single_col_unchanged():
@@ -740,16 +752,14 @@ def test_text_transform_stub_no_stub_is_noop():
     assert gt.as_raw_html()  # should render without error
 
 
-def test_text_transform_stub_skips_na_values():
+def test_text_transform_stub_skips_na_values(frame_constructor: DataFrameConstructor):
     """text_transform(loc.stub()) must skip cells that are NA in both body and source data."""
-    import numpy as np
     from great_tables import loc
 
-    df = pd.DataFrame({"name": ["Alice", np.nan, "Bob"], "value": [1, 2, 3]})
+    df = frame_constructor({"name": ["Alice", None, "Bob"], "value": [1, 2, 3]})
     gt = GT(df, rowname_col="name").text_transform(locations=loc.stub(), fn=str.upper)
     body = _get_body_html(gt)
-    assert "ALICE" in body
-    assert "BOB" in body
+    assert [text for _, text in _stub_cells(body)] == ["ALICE", "None", "BOB"]
 
 
 def test_cols_width_stub_sentinel_no_stub_is_noop():
@@ -995,8 +1005,8 @@ def test_header_ids_are_sanitized_and_deduplicated():
     assert set(ids) == {"t-1-num", "t-1-n2", "t-1-num-2", "t-1-A-B"}
 
 
-def test_numeric_group_ids():
-    df = pl.DataFrame({"g": [0, 0, 1], "n": [1, 2, 3]})
+def test_numeric_group_ids(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"g": [0, 0, 1], "n": [1, 2, 3]})
     ids, headers = _header_attrs(GT(df, groupname_col="g").as_raw_html())
 
     assert {"0", "1"} <= set(ids)
