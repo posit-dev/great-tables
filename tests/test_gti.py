@@ -329,7 +329,12 @@ def test_spec_striping_with_opt_row_striping():
 
 
 def test_spec_controls_default():
-    assert spec_of(GT(DF))["controls"] == {"sorting": True, "search": False, "resizing": False}
+    assert spec_of(GT(DF))["controls"] == {
+        "sorting": True,
+        "search": False,
+        "resizing": False,
+        "selection": None,
+    }
 
 
 @pytest.mark.parametrize("use_sorting", [True, False])
@@ -345,7 +350,23 @@ def test_spec_controls_from_opt_interactive(
         "sorting": use_sorting,
         "search": use_search,
         "resizing": use_resizers,
+        "selection": None,
     }
+
+
+@pytest.mark.parametrize("mode", ["single", "multiple", None])
+def test_spec_controls_selection(mode: str | None):
+    gt = GT(DF).opt_interactive(selection_mode=mode)
+    assert spec_of(gt)["controls"]["selection"] == mode
+    assert spec_of(GT(DF).tab_options(ihtml_selection_mode=mode))["controls"]["selection"] == mode
+
+
+@pytest.mark.parametrize("mode", ["Single", "many", ""])
+def test_selection_mode_must_be_single_or_multiple(mode: str):
+    with pytest.raises(ValueError, match="ihtml_selection_mode"):
+        GT(DF).opt_interactive(selection_mode=mode)
+    with pytest.raises(ValueError, match="ihtml_selection_mode"):
+        GT(DF).tab_options(ihtml_selection_mode=mode)
 
 
 def test_spec_pagination_default():
