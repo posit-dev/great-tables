@@ -14,6 +14,8 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   so that striping can be redone when rows are reordered or hidden
 - `controls`: which controls the reader gets: sort buttons in the column labels, a search box
 - `pagination`: whether rows are split into pages, how many to a page, and the page controls
+- `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
+  in the table's CSS, as smaller row padding), and whether cell text wraps
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -98,6 +100,12 @@ class PaginationSpec(TypedDict):
     type: PaginationType
 
 
+class DisplaySpec(TypedDict):
+    highlight: bool
+    compact: bool
+    wrap: bool
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -110,6 +118,7 @@ class Spec(TypedDict):
     striping: StripingSpec
     controls: ControlsSpec
     pagination: PaginationSpec
+    display: DisplaySpec
 
 
 def build_spec(data: GTData) -> Spec:
@@ -205,6 +214,11 @@ def build_spec(data: GTData) -> Spec:
             search=bool(data._options.ihtml_use_search.value),
         ),
         pagination=_pagination(data),
+        display=DisplaySpec(
+            highlight=bool(data._options.ihtml_use_highlight.value),
+            compact=bool(data._options.ihtml_use_compact_mode.value),
+            wrap=bool(data._options.ihtml_use_text_wrapping.value),
+        ),
     )
 
 

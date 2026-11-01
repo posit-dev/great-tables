@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from great_tables import GT, exibble, loc, md
+from great_tables import GT, exibble, loc, md, style
 from great_tables._gti import render_gti_html
 
 HERE = Path(__file__).parent
@@ -80,6 +80,19 @@ def pages_html(
     return render_gti_html(gt, runtime="none")
 
 
+def display_html(table_id: str, groups_as_column: bool = False, **options) -> str:
+    # The table to sort, on one page, with a filled cell in row 0 and a long value in row 2 (in a
+    # narrow column, with the column widths set).
+    data = exibble.assign(
+        char=exibble["char"].replace("coconut", "a coconut, cracked open at noon")
+    )
+    gt = sort_gt(table_id, groups_as_column, data=data)
+    gt = gt.tab_style(style.fill("lightblue"), loc.body(columns="currency", rows=[0]))
+    gt = gt.cols_width({"char": "90px"})
+    gt = gt.opt_interactive(use_pagination=False, **options)
+    return render_gti_html(gt, runtime="none")
+
+
 def page(body: str, head: str = "") -> str:
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -132,6 +145,22 @@ def main() -> None:
             pages_html("p", pagination_type="jump") + "\n" + runtime_src, head=styles
         ),
         "pages-widths.html": page(pages_html("p", widths=True) + "\n" + runtime_src, head=styles),
+        # Tables with highlighted rows (with group headings, or groups shown as a column); as they
+        # are, compact, and without text wrapping.
+        "display.html": page(display_html("d") + "\n" + runtime_src, head=styles),
+        "display-highlight.html": page(
+            display_html("d", use_highlight=True) + "\n" + runtime_src, head=styles
+        ),
+        "display-highlight-column.html": page(
+            display_html("d", groups_as_column=True, use_highlight=True) + "\n" + runtime_src,
+            head=styles,
+        ),
+        "display-compact.html": page(
+            display_html("d", use_compact_mode=True) + "\n" + runtime_src, head=styles
+        ),
+        "display-nowrap.html": page(
+            display_html("d", use_text_wrapping=False) + "\n" + runtime_src, head=styles
+        ),
     }
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")

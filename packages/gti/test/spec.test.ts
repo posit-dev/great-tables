@@ -13,6 +13,7 @@ const valid = {
   striping: { stub: false, body: true },
   controls: { sorting: true, search: false },
   pagination: { enabled: true, page_size: 10, page_sizes: [10, 25], size_select: false, info: true, type: "numbers" },
+  display: { highlight: false, compact: false, wrap: true },
 };
 
 const pagination = (fields: object) => JSON.stringify({ ...valid, pagination: { ...valid.pagination, ...fields } });
@@ -66,6 +67,9 @@ describe("parseSpec()", () => {
     ["has an unknown pagination type", pagination({ type: "scroll" }), /`pagination`/],
     ["has a bad pagination flag", pagination({ size_select: "yes" }), /`pagination`/],
     ["has no pagination info flag", pagination({ info: undefined }), /`pagination`/],
+    ["has no display", JSON.stringify({ ...valid, display: undefined }), /`display`/],
+    ["has a bad display flag", JSON.stringify({ ...valid, display: { ...valid.display, wrap: 0 } }), /`display`/],
+    ["has no highlight flag", JSON.stringify({ ...valid, display: { compact: false, wrap: true } }), /`display`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

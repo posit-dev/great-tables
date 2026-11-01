@@ -380,6 +380,52 @@ def test_spec_pagination_unknown_type_is_numbers():
     assert spec_of(gt)["pagination"]["type"] == "numbers"
 
 
+def test_spec_display_default():
+    assert spec_of(GT(DF))["display"] == {"highlight": False, "compact": False, "wrap": True}
+
+
+def test_spec_display_from_opt_interactive():
+    gt = GT(DF).opt_interactive(use_highlight=True, use_compact_mode=True, use_text_wrapping=False)
+    assert spec_of(gt)["display"] == {"highlight": True, "compact": True, "wrap": False}
+
+
+def row_padding(html: str, selector: str) -> str:
+    rule = re.search(rf"{selector} {{[^}}]*?padding-top: ([^;]+);", html)
+    assert rule is not None
+    return rule.group(1)
+
+
+def test_render_compact_halves_row_padding():
+    gt = GT(DF, rowname_col="id", groupname_col="grp", id="t").summary_rows(fns=SUM)
+    normal = render_gti_html(gt, runtime="none")
+    compact = render_gti_html(gt.opt_interactive(use_compact_mode=True), runtime="none")
+
+    for selector in [r"#t \.gt_row", r"#t \.gt_summary_row", r"#t \.gt_group_heading"]:
+        assert row_padding(normal, selector) == "8px"
+        assert row_padding(compact, selector) == "4px"
+    # Not the column labels
+    assert row_padding(compact, r"#t \.gt_col_heading") == row_padding(
+        normal, r"#t \.gt_col_heading"
+    )
+
+
+def test_render_compact_keeps_the_authors_padding():
+    gt = GT(DF, id="t").tab_options(data_row_padding="12px").opt_interactive(use_compact_mode=True)
+    html = render_gti_html(gt, runtime="none")
+
+    assert row_padding(html, r"#t \.gt_row") == "12px"
+    # (The table's own options are unchanged)
+    assert gt._options.data_row_padding.value == "12px"
+    assert gt._options.summary_row_padding.value == "8px"
+
+
+def test_render_nowrap_marks_the_element():
+    gt = GT(DF)
+    assert render_gti_html(gt, runtime="none").startswith("<gt-table>\n")
+    nowrap = render_gti_html(gt.opt_interactive(use_text_wrapping=False), runtime="none")
+    assert nowrap.startswith("<gt-table data-gti-nowrap>\n")
+
+
 # ranks ----
 
 NAN = float("nan")
