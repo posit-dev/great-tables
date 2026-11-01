@@ -4326,6 +4326,17 @@ def test_fmt_roman_na_value(frame_constructor: DataFrameConstructor):
     assert body_cells(gt) == ["IV", "None"]
 
 
+@pytest.mark.parametrize(
+    "fmt_method", ["fmt_bytes", "fmt_partsper", "fmt_roman", "fmt_date", "fmt_datetime"]
+)
+def test_fmt_all_missing_column(frame_constructor: DataFrameConstructor, fmt_method: str):
+    # A column of only missing values has its own dtype: pandas `object`, polars `Null`, pyarrow
+    # `null`
+    df = frame_constructor({"x": [None]})
+    gt = getattr(GT(df), fmt_method)(columns="x")
+    assert body_cells(gt) == ["None"]
+
+
 def test_get_duration_patterns_hyphen_locale():
     from great_tables._formats import _get_duration_patterns
 
@@ -4494,20 +4505,6 @@ def test_fmt_tf_invalid_tf_style_raises():
     df = pl.DataFrame({"x": [True, False]})
     with pytest.raises(ValueError, match="Invalid `tf_style`"):
         GT(df).fmt_tf(columns="x", tf_style="invalid-style").as_raw_html()
-
-
-def test_fmt_datetime_na_value():
-    df = pd.DataFrame({"x": [None]})
-    gt = GT(df).fmt_datetime(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == "None" or x[0] == x[0]
-
-
-def test_fmt_date_na_value():
-    df = pd.DataFrame({"x": [None]})
-    gt = GT(df).fmt_date(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == x[0]
 
 
 def test_fmt_image_get_mime_type_svg():
