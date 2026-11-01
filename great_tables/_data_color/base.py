@@ -569,6 +569,8 @@ def _map_data_colors(
     # If a color-mapping function is provided, it determines the colors directly (bypassing
     # the palette, domain, and rescaling logic below)
     if fn is not None:
+        # `fn=` gets every backend's missing value as None
+        vals = [None if is_na(data_table, x) else x for x in vals]
         return _apply_color_fn(fn=fn, label=label, vals=vals, na_color=na_color, alpha=alpha)
 
     # Set a flag to indicate whether or not the domain should be calculated automatically
