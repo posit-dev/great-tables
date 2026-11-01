@@ -12,7 +12,8 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `ranks`: per sortable column, each data row's dense sort rank (`null` for a missing value)
 - `striping`: whether the stub and body cells of alternate data rows are striped (`gt_striped`),
   so that striping can be redone when rows are reordered or hidden
-- `controls`: which controls the reader gets: sort buttons in the column labels, a search box
+- `controls`: which controls the reader gets: sort buttons in the column labels, a search box,
+  and handles for resizing columns
 - `pagination`: whether rows are split into pages, how many to a page, and the page controls
 - `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
   in the table's CSS, as smaller row padding), and whether cell text wraps
@@ -84,6 +85,7 @@ class StripingSpec(TypedDict):
 class ControlsSpec(TypedDict):
     sorting: bool
     search: bool
+    resizing: bool
 
 
 PaginationType = Literal["numbers", "simple", "full", "jump"]
@@ -212,6 +214,7 @@ def build_spec(data: GTData) -> Spec:
         controls=ControlsSpec(
             sorting=bool(data._options.ihtml_use_sorting.value),
             search=bool(data._options.ihtml_use_search.value),
+            resizing=bool(data._options.ihtml_use_resizers.value),
         ),
         pagination=_pagination(data),
         display=DisplaySpec(

@@ -74,6 +74,8 @@ export interface ControlsSpec {
   sorting: boolean;
   /** Whether there's a search box. */
   search: boolean;
+  /** Whether column labels have handles for resizing their columns. */
+  resizing: boolean;
 }
 
 /** How page controls look: page numbers, previous/next only, first/previous/next/last, or a page input. */
@@ -180,8 +182,13 @@ export function parseSpec(text: string): Spec {
     throw new SpecError("`striping` must say whether the stub and body are striped");
   }
   const controls = raw.controls;
-  if (!isObject(controls) || typeof controls.sorting !== "boolean" || typeof controls.search !== "boolean") {
-    throw new SpecError("`controls` must say whether sorting and search are on");
+  if (
+    !isObject(controls) ||
+    typeof controls.sorting !== "boolean" ||
+    typeof controls.search !== "boolean" ||
+    typeof controls.resizing !== "boolean"
+  ) {
+    throw new SpecError("`controls` must say whether sorting, search and resizing are on");
   }
   const pagination = raw.pagination;
   if (

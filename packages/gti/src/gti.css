@@ -83,6 +83,71 @@ gt-table .gt-i-sort-icon[data-gti-sort-index]::after {
   vertical-align: super;
 }
 
+/*
+ * Column resizing: a handle along the inline end of each column label (inside it, since GT's
+ * labels hide what overflows), drawn as a faint line on hover and focus, and while dragged
+ */
+gt-table th.gt-i-resizable {
+  position: relative;
+}
+
+gt-table .gt-i-resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  z-index: 1;
+  width: 8px;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+gt-table .gt-i-resizer::after {
+  content: "";
+  position: absolute;
+  top: 15%;
+  bottom: 15%;
+  inset-inline-end: 1px;
+  width: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0;
+}
+
+gt-table th.gt-i-resizable:hover .gt-i-resizer::after {
+  opacity: 0.25;
+}
+
+gt-table .gt-i-resizer:hover::after,
+gt-table .gt-i-resizer:focus-visible::after,
+gt-table .gt-i-resizer[data-gti-active]::after {
+  opacity: 0.6;
+}
+
+gt-table .gt-i-resizer:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+/* While a column is dragged, the cursor stays and no text is selected */
+gt-table[data-gti-resizing],
+gt-table[data-gti-resizing] * {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+/* On touch screens, a target of 24px (any wider would cover much of a narrow label), always shown */
+@media (pointer: coarse) {
+  gt-table .gt-i-resizer {
+    width: 24px;
+  }
+
+  gt-table .gt-i-resizer::after {
+    opacity: 0.25;
+  }
+}
+
 /* Rows hidden by a search or paging stay hidden, whatever the page's styles say about table rows */
 gt-table tr[hidden] {
   display: none !important;

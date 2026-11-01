@@ -8,6 +8,8 @@ import {
   PAGE_EVENT,
   type PageEventDetail,
   type PaginationSpec,
+  RESIZE_EVENT,
+  type ResizeEventDetail,
   SEARCH_EVENT,
   type SearchEventDetail,
   SORT_EVENT,
@@ -59,6 +61,8 @@ interface TableOptions {
   display?: Partial<DisplaySpec>;
   groupsAsColumn?: boolean;
   yLabel?: string;
+  /** The column label rows, if not one row of a label per column. */
+  thead?: string;
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -114,9 +118,12 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
   }
 
   const thead =
-    `<thead><tr class="gt_col_headings"><th class="gt_col_heading"></th>` +
-    `<th class="gt_col_heading gt_right" id="t-x">x</th>` +
-    `<th class="gt_col_heading gt_left" id="t-y">${options.yLabel ?? "y"}</th></tr></thead>`;
+    `<thead>${
+      options.thead ??
+      `<tr class="gt_col_headings"><th class="gt_col_heading"></th>` +
+        `<th class="gt_col_heading gt_right" id="t-x">x</th>` +
+        `<th class="gt_col_heading gt_left" id="t-y">${options.yLabel ?? "y"}</th></tr>`
+    }</thead>`;
   const html =
     `<div id="t"><table class="gt_table">${thead}` +
     `<tbody class="gt_table_body">${trs.join("")}</tbody></table></div>`;
@@ -137,7 +144,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
       : body,
     ranks: RANKS,
     striping,
-    controls: { sorting: true, search: false, ...options.controls },
+    controls: { sorting: true, search: false, resizing: false, ...options.controls },
     pagination: {
       enabled: false,
       page_size: 2,
@@ -1339,5 +1346,211 @@ describe("row display", () => {
     tap(el.rowElement(4)?.cells[1] as Element);
     el.sort = [{ column: "x", descending: true }];
     expect(marked(el)).toEqual([4]);
+  });
+});
+
+describe("column resizing", () => {
+  // (happy-dom has no layout: every box is 100px wide)
+  const resizable = (options: TableOptions = {}) => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
+    return mountTable(GROUPED, { ...options, controls: { resizing: true, ...options.controls } });
+  };
+  const handles = (el: GtTable) => Array.from(el.querySelectorAll<HTMLElement>(".gt-i-resizer"));
+  const widths = (el: GtTable) =>
+    Array.from(el.querySelectorAll<HTMLElement>("table > colgroup > col"), (col) => col.style.width);
+  const press = (target: Element, key: string, shiftKey = false) =>
+    target.dispatchEvent(new KeyboardEvent("keydown", { key, shiftKey, bubbles: true, cancelable: true }));
+  const pointer = (target: Element, type: string, clientX: number, button = 0) =>
+    target.dispatchEvent(
+      new PointerEvent(type, { clientX, button, pointerId: 1, pointerType: "mouse", bubbles: true, cancelable: true }),
+    );
+  const resizes = (el: GtTable) => {
+    const details: ResizeEventDetail[] = [];
+    el.addEventListener(RESIZE_EVENT, (event) => details.push((event as CustomEvent<ResizeEventDetail>).detail));
+    return details;
+  };
+
+  it("isn't on unless the spec says so", async () => {
+    const el = await mountTable();
+    expect(handles(el)).toEqual([]);
+    expect(el.querySelector(".gt-i-resizable")).toBeNull();
+  });
+
+  it("puts a labelled, focusable splitter at the end of each column label", async () => {
+    const el = await resizable();
+    const all = handles(el);
+    expect(all.map((handle) => handle.getAttribute("aria-label"))).toEqual([
+      "Resize column 1",
+      "Resize x",
+      "Resize y",
+    ]);
+    for (const handle of all) {
+      expect(handle.getAttribute("role")).toBe("separator");
+      expect(handle.getAttribute("aria-orientation")).toBe("vertical");
+      expect(handle.getAttribute("aria-valuenow")).toBe("100");
+      expect(handle.getAttribute("aria-valuetext")).toBe("100 pixels");
+      expect(handle.tabIndex).toBe(0);
+      // (Beside the sort button, not in it)
+      expect(handle.parentElement?.classList.contains("gt-i-resizable")).toBe(true);
+      expect(handle.closest("button")).toBeNull();
+    }
+  });
+
+  it("resizes a column with the arrow keys, fixing every column's width", async () => {
+    const el = await resizable();
+    const details = resizes(el);
+    const handle = handles(el)[1] as HTMLElement;
+    expect(el.querySelector("colgroup")).toBeNull();
+
+    press(handle, "ArrowRight");
+    const table = el.querySelector("table") as HTMLTableElement;
+    expect(table.firstElementChild?.matches("colgroup.gt-i-widths")).toBe(true);
+    expect(widths(el)).toEqual(["100px", "110px", "100px"]);
+    expect(table.style.tableLayout).toBe("fixed");
+    expect(table.style.width).toBe("fit-content");
+    expect(handle.getAttribute("aria-valuenow")).toBe("110");
+
+    press(handle, "ArrowRight", true);
+    press(handle, "ArrowLeft");
+    expect(widths(el)).toEqual(["100px", "150px", "100px"]);
+    // Home makes it as narrow as it gets: 2em
+    press(handle, "Home");
+    expect(widths(el)).toEqual(["100px", "32px", "100px"]);
+    press(handle, "ArrowLeft");
+    expect(details).toEqual([
+      { column: "x", index: 1, width: 110 },
+      { column: "x", index: 1, width: 160 },
+      { column: "x", index: 1, width: 150 },
+      { column: "x", index: 1, width: 32 },
+    ]);
+    // Other keys are left alone
+    expect(press(handle, "a")).toBe(true);
+    expect(press(handle, "ArrowRight")).toBe(false);
+  });
+
+  it("puts a column back to its starting width with Enter or a double-click", async () => {
+    const el = await resizable();
+    const details = resizes(el);
+    const [stub, x] = handles(el) as [HTMLElement, HTMLElement];
+    press(x, "ArrowRight", true);
+    press(stub, "ArrowLeft");
+    press(x, "Enter");
+    expect(widths(el)).toEqual(["90px", "100px", "100px"]);
+    expect(x.getAttribute("aria-valuenow")).toBe("100");
+    stub.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(widths(el)).toEqual(["100px", "100px", "100px"]);
+    // (Already there)
+    press(x, "Enter");
+    expect(details.map((detail) => [detail.column, detail.width])).toEqual([
+      ["x", 150],
+      ["row", 90],
+      ["x", 100],
+      ["row", 100],
+    ]);
+  });
+
+  it("resizes a column by dragging, without sorting it", async () => {
+    const el = await resizable();
+    const details = resizes(el);
+    const handle = handles(el)[2] as HTMLElement;
+    pointer(handle, "pointerdown", 50);
+    expect(el.hasAttribute("data-gti-resizing")).toBe(true);
+    expect(handle.hasAttribute("data-gti-active")).toBe(true);
+    pointer(handle, "pointermove", 90);
+    expect(widths(el)).toEqual(["100px", "100px", "140px"]);
+    pointer(handle, "pointermove", 20);
+    pointer(handle, "pointerup", 20);
+    expect(widths(el)).toEqual(["100px", "100px", "70px"]);
+    expect(el.hasAttribute("data-gti-resizing")).toBe(false);
+    expect(handle.hasAttribute("data-gti-active")).toBe(false);
+    // (Once, when the drag ends)
+    expect(details).toEqual([{ column: "y", index: 2, width: 70 }]);
+    // Moving after the drag does nothing
+    pointer(handle, "pointermove", 0);
+    expect(widths(el)).toEqual(["100px", "100px", "70px"]);
+
+    handle.click();
+    expect(el.sort).toEqual([]);
+    expect(header(el, "y").hasAttribute("aria-sort")).toBe(false);
+  });
+
+  it("doesn't drag with other buttons, or fire an event for a drag that goes nowhere", async () => {
+    const el = await resizable();
+    const details = resizes(el);
+    const handle = handles(el)[1] as HTMLElement;
+    pointer(handle, "pointerdown", 50, 2);
+    expect(el.hasAttribute("data-gti-resizing")).toBe(false);
+    pointer(handle, "pointerdown", 50);
+    pointer(handle, "pointermove", 70);
+    pointer(handle, "pointermove", 50);
+    pointer(handle, "pointercancel", 50);
+    expect(el.hasAttribute("data-gti-resizing")).toBe(false);
+    expect(details).toEqual([]);
+  });
+
+  it("runs the other way in a right-to-left table", async () => {
+    const el = await resizable();
+    (el.querySelector("table") as HTMLTableElement).style.direction = "rtl";
+    const handle = handles(el)[1] as HTMLElement;
+    press(handle, "ArrowRight");
+    expect(widths(el)).toEqual(["100px", "90px", "100px"]);
+    pointer(handle, "pointerdown", 50);
+    pointer(handle, "pointermove", 20);
+    pointer(handle, "pointerup", 20);
+    expect(widths(el)).toEqual(["100px", "120px", "100px"]);
+  });
+
+  it("uses the author's column widths", async () => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
+    const { html, spec } = gtTable(GROUPED, { controls: { resizing: true } });
+    const colgroup = `<colgroup><col style="width:100px"><col style="width:100px"><col style="width:100px"></colgroup>`;
+    const el = await mount(
+      `<gt-table>${html.replace('<table class="gt_table">', `<table class="gt_table" style="table-layout:fixed">${colgroup}`)}${specScript(spec)}</gt-table>`,
+    );
+    press(handles(el)[1] as HTMLElement, "ArrowRight");
+    expect(el.querySelectorAll("colgroup")).toHaveLength(1);
+    expect(el.querySelector("colgroup.gt-i-widths")).toBeNull();
+    expect(widths(el)).toEqual(["100px", "110px", "100px"]);
+  });
+
+  it("has handles on the bottom row of labels only, laid out under the spanners", async () => {
+    // A spanner over `x` alone; the stubhead and `y` span both rows
+    const thead =
+      `<tr class="gt_col_headings gt_spanner_row"><th class="gt_col_heading" rowspan="2"></th>` +
+      `<th class="gt_column_spanner_outer" colspan="1"><span class="gt_column_spanner">X</span></th>` +
+      `<th class="gt_col_heading" rowspan="2" id="t-y">y</th></tr>` +
+      `<tr class="gt_col_headings"><th class="gt_col_heading" id="t-x">x</th></tr>`;
+    const el = await resizable({ thead });
+    const details = resizes(el);
+    expect(el.querySelector(".gt_column_spanner_outer .gt-i-resizer")).toBeNull();
+    const all = handles(el);
+    expect(all.map((handle) => handle.getAttribute("aria-label"))).toEqual(["Resize column 1", "Resize y", "Resize x"]);
+    for (const handle of all) {
+      press(handle, "ArrowRight");
+    }
+    expect(details.map((detail) => [detail.column, detail.index])).toEqual([
+      ["row", 0],
+      ["y", 2],
+      ["x", 1],
+    ]);
+  });
+
+  it("has no handle on a label over the group column and the stub", async () => {
+    const thead =
+      `<tr class="gt_col_headings"><th class="gt_col_heading" colspan="2">Rows</th>` +
+      `<th class="gt_col_heading" id="t-x">x</th><th class="gt_col_heading" id="t-y">y</th></tr>`;
+    const el = await resizable({ thead, groupsAsColumn: true });
+    const details = resizes(el);
+    expect(handles(el).map((handle) => handle.getAttribute("aria-label"))).toEqual(["Resize x", "Resize y"]);
+    press(handles(el)[0] as HTMLElement, "ArrowRight");
+    expect(widths(el)).toEqual(["100px", "100px", "110px", "100px"]);
+    expect(details).toEqual([{ column: "x", index: 2, width: 110 }]);
+  });
+
+  it("keeps the widths as rows are sorted", async () => {
+    const el = await resizable();
+    press(handles(el)[1] as HTMLElement, "ArrowRight");
+    el.sort = [{ column: "y", descending: false }];
+    expect(widths(el)).toEqual(["100px", "110px", "100px"]);
   });
 });
