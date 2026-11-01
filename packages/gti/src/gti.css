@@ -83,6 +83,66 @@ gt-table .gt-i-sort-icon[data-gti-sort-index]::after {
   vertical-align: super;
 }
 
+/* Rows hidden by a search stay hidden, whatever the page's styles say about table rows */
+gt-table tr[hidden] {
+  display: none !important;
+}
+
+/* The toolbar sits above the table (lined up with it once hydrated) */
+gt-table .gt-i-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  max-width: 100%;
+  margin-bottom: 0.5em;
+}
+
+gt-table .gt-i-search {
+  box-sizing: border-box;
+  width: 14em;
+  max-width: 100%;
+  min-height: 2em;
+  margin: 0;
+  padding: 0.25em 0.5em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875em;
+}
+
+gt-table .gt-i-search:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+@media (pointer: coarse) {
+  gt-table .gt-i-search {
+    min-height: 44px;
+    /* Below 16px, iOS zooms the page in on focus */
+    font-size: max(1em, 16px);
+  }
+}
+
+/* Search matches; the highlight is shared by every table on the page */
+::highlight(gt-i-search) {
+  background-color: rgba(255, 213, 0, 0.55);
+}
+
+@media (forced-colors: active) {
+  ::highlight(gt-i-search) {
+    background-color: Mark;
+    color: MarkText;
+  }
+}
+
+gt-table tr.gt-i-empty td {
+  padding: 1em;
+  font-style: italic;
+  opacity: 0.75;
+}
+
 /* Announcements for screen readers only */
 gt-table .gt-i-live {
   position: absolute;
