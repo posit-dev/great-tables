@@ -93,6 +93,15 @@ export interface PaginationSpec {
   type: PaginationType;
 }
 
+export interface DisplaySpec {
+  /** Whether data rows are highlighted under the pointer, or when tapped on a touch screen. */
+  highlight: boolean;
+  /** Whether rows are compact (already in the table's CSS, as the producer made it). */
+  compact: boolean;
+  /** Whether cell text wraps; if not, text cut off by a column's width ends in an ellipsis. */
+  wrap: boolean;
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -110,6 +119,7 @@ export interface Spec {
   striping: StripingSpec;
   controls: ControlsSpec;
   pagination: PaginationSpec;
+  display: DisplaySpec;
 }
 
 export class SpecError extends Error {
@@ -188,6 +198,16 @@ export function parseSpec(text: string): Spec {
       "`pagination` must have a positive `page_size` and `page_sizes`, a known `type`, and say " +
         "whether pages, a page size select and page info are on",
     );
+  }
+
+  const display = raw.display;
+  if (
+    !isObject(display) ||
+    typeof display.highlight !== "boolean" ||
+    typeof display.compact !== "boolean" ||
+    typeof display.wrap !== "boolean"
+  ) {
+    throw new SpecError("`display` must say whether rows are highlighted and compact, and text wraps");
   }
 
   const body = raw.body as unknown[];

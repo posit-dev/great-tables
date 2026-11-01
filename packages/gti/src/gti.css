@@ -88,6 +88,38 @@ gt-table tr[hidden] {
   display: none !important;
 }
 
+/*
+ * Row highlighting: a tint over the data row under the pointer, or the row tapped on a touch
+ * screen, from the text colour (so it works on dark tables too). An inset shadow is drawn over the
+ * cells' own backgrounds (striping, `tab_style()` fills), which still show through. Cells merged
+ * across rows (row group labels, a hierarchical stub) aren't one row's, so they're left alone.
+ */
+@media (hover: hover) {
+  gt-table[data-gti-highlight] tr.gt-i-row:hover > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])) {
+    box-shadow: inset 0 0 0 100vmax color-mix(in srgb, currentColor 8%, transparent);
+  }
+}
+
+gt-table[data-gti-highlight] tr.gt-i-marked > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])) {
+  box-shadow: inset 0 0 0 100vmax color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* (Forced colours drop shadows) */
+@media (forced-colors: active) {
+  gt-table[data-gti-highlight] tr.gt-i-row:hover > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])),
+  gt-table[data-gti-highlight] tr.gt-i-marked > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])) {
+    forced-color-adjust: none;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
+
+/* Without text wrapping, cell text stays on one line; GT's cells already hide what overflows */
+gt-table[data-gti-nowrap] :is(.gt_row, .gt_col_heading, .gt_column_spanner) {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* The toolbar sits above the table (lined up with it once hydrated) */
 gt-table .gt-i-toolbar {
   display: flex;

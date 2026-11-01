@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   type BodyRow,
   type ControlsSpec,
+  type DisplaySpec,
   define,
   GtTable,
   PAGE_EVENT,
@@ -55,6 +56,7 @@ interface TableOptions {
   controls?: Partial<ControlsSpec>;
   /** Pagination is off unless set. */
   pagination?: Partial<PaginationSpec>;
+  display?: Partial<DisplaySpec>;
   groupsAsColumn?: boolean;
   yLabel?: string;
 }
@@ -145,6 +147,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
       type: "numbers",
       ...options.pagination,
     },
+    display: { highlight: false, compact: false, wrap: true, ...options.display },
   };
   return { html, spec };
 }
@@ -1269,5 +1272,72 @@ describe("the page controls", () => {
     const { el } = await mountPager({ size_select: true, page_size: 5 });
     expect(pager(el).hidden).toBe(false);
     expect(el.pageCount).toBe(1);
+  });
+});
+
+describe("row display", () => {
+  const tap = (target: Element, pointerType = "touch") => {
+    target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType }));
+    (target as HTMLElement).click();
+  };
+  const marked = (el: GtTable) =>
+    Array.from(el.querySelectorAll("tr.gt-i-marked"), (tr) => el.bodyRow(tr as HTMLTableRowElement));
+
+  it("marks the element when text doesn't wrap", async () => {
+    expect((await mountTable(GROUPED, { display: { wrap: false } })).hasAttribute("data-gti-nowrap")).toBe(
+      true,
+    );
+    const { html, spec } = gtTable(GROUPED);
+    // (The spec decides, whatever the producer wrote)
+    const el = await mount(`<gt-table data-gti-nowrap>${html}${specScript(spec)}</gt-table>`);
+    expect(el.hasAttribute("data-gti-nowrap")).toBe(false);
+  });
+
+  it("marks the data rows when rows are highlighted", async () => {
+    const el = await mountTable(GROUPED, { display: { highlight: true } });
+    expect(el.hasAttribute("data-gti-highlight")).toBe(true);
+    const rows = Array.from(el.querySelectorAll("tr.gt-i-row"), (tr) => el.bodyRow(tr as HTMLTableRowElement));
+    expect(rows).toEqual([3, 0, 4, 1, 2]);
+  });
+
+  it("leaves the rows alone when they aren't highlighted", async () => {
+    const el = await mountTable();
+    expect(el.hasAttribute("data-gti-highlight")).toBe(false);
+    expect(el.querySelector("tr.gt-i-row")).toBeNull();
+    tap(el.rowElement(0)?.cells[1] as Element);
+    expect(marked(el)).toEqual([]);
+  });
+
+  it("marks the row tapped on a touch screen, until it or another row is tapped", async () => {
+    const el = await mountTable(GROUPED, { display: { highlight: true } });
+    const cell = (row: number) => el.rowElement(row)?.cells[1] as Element;
+    tap(cell(0));
+    expect(marked(el)).toEqual([0]);
+    tap(cell(1));
+    expect(marked(el)).toEqual([1]);
+    tap(cell(1));
+    expect(marked(el)).toEqual([]);
+    // Not by a mouse, which hovers
+    tap(cell(2), "mouse");
+    expect(marked(el)).toEqual([]);
+  });
+
+  it("doesn't mark structural rows, group labels or rows tapped on a link", async () => {
+    const el = await mountTable(GROUPED, { display: { highlight: true }, groupsAsColumn: true });
+    tap(el.querySelector(".gt_grand_summary_row") as Element);
+    tap(el.querySelector(".gt_stub_row_group") as Element);
+    const link = el.ownerDocument.createElement("a");
+    link.href = "#";
+    el.rowElement(2)?.cells[1]?.append(link);
+    link.addEventListener("click", (event) => event.preventDefault());
+    tap(link);
+    expect(marked(el)).toEqual([]);
+  });
+
+  it("keeps the mark on its row as rows move", async () => {
+    const el = await mountTable(GROUPED, { display: { highlight: true } });
+    tap(el.rowElement(4)?.cells[1] as Element);
+    el.sort = [{ column: "x", descending: true }];
+    expect(marked(el)).toEqual([4]);
   });
 });

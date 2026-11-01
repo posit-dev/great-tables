@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Any, Type, TypeVar
+from typing import Any, Literal, Type, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -11,7 +11,7 @@ from syrupy.assertion import SnapshotAssertion
 
 from great_tables import GT, style
 from great_tables._gt_data import CellStyle, StyleInfo
-from great_tables._tbl_data import DataFrameLike, is_na
+from great_tables._tbl_data import DataFrameLike
 from great_tables.data import exibble
 from tests.utils import (
     INT_UPCAST,
@@ -497,25 +497,23 @@ def test_data_color_fn_ignores_palette_and_domain():
     assert colors == ["#123456"] * 3
 
 
-def test_data_color_fn_receives_missing_values(frame_constructor: DataFrameConstructor):
-    """Missing values are passed to `fn=` (as in gt); `None` results get `na_color=`."""
+@pytest.mark.parametrize("direction", ["column", "row"])
+def test_data_color_fn_receives_missing_values(
+    frame_constructor: DataFrameConstructor, direction: Literal["column", "row"]
+):
+    """Missing values are passed to `fn=` as `None` (as in gt); `None` results get `na_color=`."""
     # whole floats would become ints on the nullable and pyarrow-backed pandas constructors
     df = frame_constructor({"x": [1.5, None, 3.5, 4.5]})
     received = []
 
     def color_fn(vals):
         received.extend(vals)
-        return [None if is_na(df, x) or x == 4.5 else "red" for x in vals]
+        return [None if x is None or x == 4.5 else "red" for x in vals]
 
-    new_gt = GT(df).data_color(columns="x", fn=color_fn, na_color="#00FF00")
+    new_gt = GT(df).data_color(columns="x", fn=color_fn, na_color="#00FF00", direction=direction)
 
-    # `fn=` gets each backend's own missing value; whether to unify them is undecided
-    missing_str = {
-        "pandas_constructor": "nan",
-        "pandas_nullable_constructor": "<NA>",
-        "pandas_pyarrow_constructor": "<NA>",
-    }.get(frame_constructor.__name__, "None")
-    assert [str(x) for x in received] == ["1.5", missing_str, "3.5", "4.5"]
+    # every backend's missing value (NaN, `pd.NA` or None) reaches `fn=` as None
+    assert received == [1.5, None, 3.5, 4.5]
 
     colors = [get_first_style(s, style.fill).color for s in new_gt._styles]
     assert colors == ["#FF0000", "#00FF00", "#FF0000", "#00FF00"]
@@ -526,7 +524,7 @@ def test_data_color_fn_can_color_missing_values(frame_constructor: DataFrameCons
     df = frame_constructor({"x": [1.5, None]})
     new_gt = GT(df).data_color(
         columns="x",
-        fn=lambda vals: ["#800080" if is_na(df, x) else "red" for x in vals],
+        fn=lambda vals: ["#800080" if x is None else "red" for x in vals],
         na_color="#00FF00",
     )
 
