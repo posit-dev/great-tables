@@ -4,7 +4,7 @@ Option to wrap an outline around the entire table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1305-L1383)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1313-L1391)
 
 ``` python
 GT.opt_table_outline(

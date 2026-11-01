@@ -4,7 +4,7 @@ Option to add or remove row striping.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L838-L885)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L846-L893)
 
 ``` python
 GT.opt_row_striping(row_striping=True)

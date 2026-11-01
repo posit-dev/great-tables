@@ -4,7 +4,7 @@ Option to modify the set of footnote marks.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L610-L656)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L618-L664)
 
 ``` python
 GT.opt_footnote_marks(marks="numbers")

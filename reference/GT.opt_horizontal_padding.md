@@ -4,7 +4,7 @@ Option to scale the horizontal padding of the table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1038-L1131)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1046-L1139)
 
 ``` python
 GT.opt_horizontal_padding(scale=1.0)

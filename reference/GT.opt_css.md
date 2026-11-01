@@ -4,7 +4,7 @@ Option to add custom CSS for the table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1719-L1809)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1727-L1817)
 
 ``` python
 GT.opt_css(
