@@ -595,6 +595,14 @@ def tab_options(
         css_val = modified_args["table_additional_css"].strip()
         modified_args["table_additional_css"] = [css_val] if css_val else []
 
+    # - `ihtml_selection_mode` is "single" or "multiple" (or `None`, leaving it as it is)
+    selection_mode = modified_args.get("ihtml_selection_mode")
+    if selection_mode is not None and selection_mode not in ("single", "multiple"):
+        raise ValueError(
+            f"The chosen option for `ihtml_selection_mode` ({selection_mode!r}) is invalid. "
+            'Use either "single" or "multiple".'
+        )
+
     # Validate and coerce option values based on their declared types
     new_options_info = {}
     for k, v in modified_args.items():
@@ -1874,7 +1882,10 @@ def opt_interactive(
         height and enable vertical scrolling.
     selection_mode
         Row selection mode. One of `"single"`, `"multiple"`, or `None` (the default,
-        which disables row selection).
+        which disables row selection). Rows are selected by clicking them or their checkboxes.
+        With `"single"`, selecting a row clears the one selected before; with `"multiple"`,
+        Shift-click selects a range of rows, and a checkbox in the column labels selects every
+        row that matches the search.
 
     Returns
     -------

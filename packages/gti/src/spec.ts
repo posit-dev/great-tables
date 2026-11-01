@@ -69,6 +69,10 @@ export interface StripingSpec {
   body: boolean;
 }
 
+export type SelectionMode = "single" | "multiple";
+
+const SELECTION_MODES: readonly unknown[] = ["single", "multiple", null];
+
 export interface ControlsSpec {
   /** Whether column labels are buttons that sort by their column. */
   sorting: boolean;
@@ -76,6 +80,8 @@ export interface ControlsSpec {
   search: boolean;
   /** Whether column labels have handles for resizing their columns. */
   resizing: boolean;
+  /** Whether data rows can be selected: one at a time, several, or not at all. */
+  selection: SelectionMode | null;
 }
 
 /** How page controls look: page numbers, previous/next only, first/previous/next/last, or a page input. */
@@ -186,9 +192,12 @@ export function parseSpec(text: string): Spec {
     !isObject(controls) ||
     typeof controls.sorting !== "boolean" ||
     typeof controls.search !== "boolean" ||
-    typeof controls.resizing !== "boolean"
+    typeof controls.resizing !== "boolean" ||
+    !SELECTION_MODES.includes(controls.selection)
   ) {
-    throw new SpecError("`controls` must say whether sorting, search and resizing are on");
+    throw new SpecError(
+      "`controls` must say whether sorting, search and resizing are on, and how rows are selected",
+    );
   }
   const pagination = raw.pagination;
   if (

@@ -179,6 +179,62 @@ gt-table[data-gti-highlight] tr.gt-i-marked > :not(.gt_stub_row_group, [rowspan]
   }
 }
 
+/*
+ * Row selection: a column of checkboxes before the others, as narrow as they are, and a stronger
+ * tint (the same way as the highlight) over selected rows
+ */
+gt-table .gt-i-select {
+  width: 1px;
+  padding-inline: 0.5em;
+  text-align: center;
+  cursor: pointer;
+}
+
+gt-table .gt-i-select input {
+  width: 1.1em;
+  height: 1.1em;
+  margin: 0;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+gt-table .gt-i-select input:disabled {
+  cursor: default;
+}
+
+/* On touch screens, the whole cell is a finger-sized target already; the box gets a little bigger */
+@media (pointer: coarse) {
+  gt-table .gt-i-select input {
+    width: 1.3em;
+    height: 1.3em;
+  }
+}
+
+gt-table tr.gt-i-selected > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])) {
+  box-shadow: inset 0 0 0 100vmax color-mix(in srgb, currentColor 14%, transparent);
+}
+
+/* (Over the highlight's rules, which are as specific less one class) */
+@media (hover: hover) {
+  gt-table[data-gti-highlight] tr.gt-i-row.gt-i-selected:hover > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])) {
+    box-shadow: inset 0 0 0 100vmax color-mix(in srgb, currentColor 18%, transparent);
+  }
+}
+
+gt-table[data-gti-highlight] tr.gt-i-marked.gt-i-selected > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])) {
+  box-shadow: inset 0 0 0 100vmax color-mix(in srgb, currentColor 18%, transparent);
+}
+
+@media (forced-colors: active) {
+  gt-table tr.gt-i-selected > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])),
+  gt-table[data-gti-highlight] tr.gt-i-row.gt-i-selected:hover > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])),
+  gt-table[data-gti-highlight] tr.gt-i-marked.gt-i-selected > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])) {
+    forced-color-adjust: none;
+    background-color: SelectedItem;
+    color: SelectedItemText;
+  }
+}
+
 /* Without text wrapping, cell text stays on one line; GT's cells already hide what overflows */
 gt-table[data-gti-nowrap] :is(.gt_row, .gt_col_heading, .gt_column_spanner) {
   white-space: nowrap;
@@ -345,8 +401,9 @@ gt-table tr.gt-i-empty td {
   opacity: 0.75;
 }
 
-/* Announcements for screen readers only */
-gt-table .gt-i-live {
+/* Announcements and labels for screen readers only */
+gt-table .gt-i-live,
+gt-table .gt-i-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
