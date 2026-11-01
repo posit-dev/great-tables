@@ -1,3 +1,4 @@
 include great_tables/css/*.scss
 include great_tables/data/*.csv
 include great_tables/data/FONT_AWESOME_LICENSE.txt
+prune packages
