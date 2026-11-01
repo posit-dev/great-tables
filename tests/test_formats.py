@@ -47,7 +47,7 @@ from great_tables._formats import (
 )
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
-from tests.utils import assert_rendered_body
+from tests.utils import DataFrameConstructor, assert_rendered_body
 
 
 def assert_repr_html(snapshot, gt):
@@ -1073,10 +1073,9 @@ def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
     assert x == x_out
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_large_integers_keep_all_digits(frame):
+def test_large_integers_keep_all_digits(frame_constructor: DataFrameConstructor):
     # Integers above 2^53 can't be stored exactly as floats
-    df = frame({"x": [1234567890123456789, -9007199254740993]})
+    df = frame_constructor({"x": [1234567890123456789, -9007199254740993]})
 
     gt = GT(df).fmt_integer(columns="x")
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -1091,11 +1090,10 @@ def test_large_integers_keep_all_digits(frame):
     assert x == ["$1,234,567,890,123,456,789", "−$9,007,199,254,740,993"]
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
 @pytest.mark.parametrize("scale_by", [1000, np.int64(1000)])
-def test_large_integers_scale_by_doesnt_overflow(frame, scale_by):
+def test_large_integers_scale_by_doesnt_overflow(frame_constructor: DataFrameConstructor, scale_by):
     # A pandas `int64` cell is a NumPy integer, which would overflow and wrap around when scaled
-    df = frame({"x": [1234567890123456789, -9007199254740993]})
+    df = frame_constructor({"x": [1234567890123456789, -9007199254740993]})
 
     gt = GT(df).fmt_integer(columns="x", scale_by=scale_by)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -1110,9 +1108,10 @@ def test_large_integers_scale_by_doesnt_overflow(frame, scale_by):
     assert x == ["$1,234,567,890,123,456,789,000", "−$9,007,199,254,740,993,000"]
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_large_integers_percent_and_partsper_keep_all_digits(frame):
-    df = frame({"x": [12345678901234567]})
+def test_large_integers_percent_and_partsper_keep_all_digits(
+    frame_constructor: DataFrameConstructor,
+):
+    df = frame_constructor({"x": [12345678901234567]})
 
     gt = GT(df).fmt_percent(columns="x", decimals=0)
     assert _get_column_of_values(gt, column_name="x", context="html") == [
@@ -1131,11 +1130,9 @@ def test_large_integers_percent_and_partsper_keep_all_digits(frame):
     assert _get_column_of_values(gt, column_name="x", context="html") == ["12,345,678,901,234,567‰"]
 
 
-def test_fmt_percent_and_partsper_decimal_column():
-    from decimal import Decimal
-
+def test_fmt_percent_and_partsper_decimal_column(frame_constructor: DataFrameConstructor):
     # The scale factors are integers, so `Decimal` values can be scaled (`Decimal * float` raises)
-    df = pl.DataFrame({"x": [Decimal("0.125"), Decimal("1.5")]}, schema={"x": pl.Decimal(10, 3)})
+    df = frame_constructor({"x": [Decimal("0.125"), Decimal("1.5")]})
 
     gt = GT(df).fmt_percent(columns="x", decimals=1)
     assert _get_column_of_values(gt, column_name="x", context="html") == ["12.5%", "150.0%"]
@@ -1147,9 +1144,9 @@ def test_fmt_percent_and_partsper_decimal_column():
 @pytest.mark.parametrize(
     "scale_by", [2.5, np.float64(2.5), Decimal("2.5")], ids=["float", "np.float64", "Decimal"]
 )
-def test_decimal_column_float_scale_by(scale_by):
+def test_decimal_column_float_scale_by(frame_constructor: DataFrameConstructor, scale_by):
     # `Decimal * float` raises, so a float factor is turned into a `Decimal` (2.5 stays exact)
-    df = pl.DataFrame({"x": [Decimal("0.125"), Decimal("1.5")]}, schema={"x": pl.Decimal(10, 3)})
+    df = frame_constructor({"x": [Decimal("0.125"), Decimal("1.5")]})
 
     gt = GT(df).fmt_number(columns="x", decimals=4, scale_by=scale_by)
     assert _get_column_of_values(gt, column_name="x", context="html") == ["0.3125", "3.7500"]
@@ -1158,9 +1155,11 @@ def test_decimal_column_float_scale_by(scale_by):
     assert _get_column_of_values(gt, column_name="x", context="html") == ["$0.31", "$3.75"]
 
 
-def test_float_column_decimal_scale_by():
+# `convert_dtypes()` warns when it checks whether `inf` is a whole number
+@pytest.mark.filterwarnings("ignore:invalid value encountered:RuntimeWarning")
+def test_float_column_decimal_scale_by(frame_constructor: DataFrameConstructor):
     # A `Decimal` factor for floats is turned into a float, so non-finite values stay floats
-    df = pl.DataFrame({"x": [0.125, 1.5, float("inf")]})
+    df = frame_constructor({"x": [0.125, 1.5, float("inf")]})
 
     gt = GT(df).fmt_number(columns="x", decimals=4, scale_by=Decimal("2.5"))
     assert _get_column_of_values(gt, column_name="x", context="html") == ["0.3125", "3.7500", "inf"]
@@ -1209,9 +1208,10 @@ def test_si_and_compact_round_once_from_stored_value(fn, x: float, x_out: str):
     assert fn(x) == [x_out]
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_large_integers_engineering_si_compact_keep_all_digits(frame):
-    df = frame({"x": [1234567890123456789]})
+def test_large_integers_engineering_si_compact_keep_all_digits(
+    frame_constructor: DataFrameConstructor,
+):
+    df = frame_constructor({"x": [1234567890123456789]})
 
     gt = GT(df).fmt_engineering(columns="x", n_sigfig=19, exp_style="E")
     assert _get_column_of_values(gt, column_name="x", context="html") == ["1.234567890123456789E18"]
@@ -1223,8 +1223,8 @@ def test_large_integers_engineering_si_compact_keep_all_digits(frame):
     assert _get_column_of_values(gt, column_name="x", context="html") == ["1.234567890123456789 E"]
 
 
-def test_decimal_column_engineering_and_si():
-    df = pl.DataFrame({"x": [Decimal("0.125"), Decimal("1500")]}, schema={"x": pl.Decimal(10, 3)})
+def test_decimal_column_engineering_and_si(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [Decimal("0.125"), Decimal("1500")]})
 
     gt = GT(df).fmt_engineering(columns="x", exp_style="E")
     assert _get_column_of_values(gt, column_name="x", context="html") == ["125.00E−03", "1.50E03"]
@@ -1273,9 +1273,8 @@ def test_decimal_exponent(x, exponent: int):
     assert _decimal_exponent(x) == exponent
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_large_integers_n_sigfig_keep_all_digits(frame):
-    df = frame({"x": [1234567890123456789, -9007199254740993]})
+def test_large_integers_n_sigfig_keep_all_digits(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1234567890123456789, -9007199254740993]})
 
     gt = GT(df).fmt_number(columns="x", n_sigfig=19)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -2747,10 +2746,9 @@ def test_fmt_bytes_agrees_with_fmt_number_si():
             ) == vals.fmt_number_si(x, decimals=decimals, unit="B")
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_fmt_bytes_large_integers_keep_all_digits(frame):
+def test_fmt_bytes_large_integers_keep_all_digits(frame_constructor: DataFrameConstructor):
     # Integers above 2^53 can't be stored exactly as floats
-    df = frame({"x": [1234567890123456789, -9007199254740993]})
+    df = frame_constructor({"x": [1234567890123456789, -9007199254740993]})
 
     gt = GT(df).fmt_bytes(columns="x", decimals=18)
     x = _get_column_of_values(gt, column_name="x", context="html")
