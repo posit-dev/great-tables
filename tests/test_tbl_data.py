@@ -848,7 +848,7 @@ def test_is_na_dtype_matrix(matrix_df: DataFrameLike, column: str):
 
 def test_is_na_scalars(df: DataFrameLike, snapshot: SnapshotAssertion):
     # A cell holding an array or a list isn't missing, even if its elements are. pandas scalars
-    # can't come out of a polars or pyarrow frame: polars says they aren't missing, pyarrow raises
+    # can't come out of a polars or pyarrow frame, so both say they aren't missing
     assert snapshot == {name: _is_na_or_error(df, x) for name, x in IS_NA_SCALARS.items()}
 
 
@@ -859,8 +859,9 @@ def test_is_na_agnostic(snapshot: SnapshotAssertion):
 def test_values_handed_to_user_callables(
     frame_constructor: DataFrameConstructor, snapshot: SnapshotAssertion
 ):
-    # User functions get the backend's own scalars, missing ones included (pandas NaN, NaT and NA,
-    # polars and pyarrow None); changing them breaks user code, e.g. `x < 100` raises on None
+    # `fmt()` functions get the backend's own scalars, missing ones included (pandas NaN, NaT and
+    # NA, polars and pyarrow None); changing them breaks user code, e.g. `x < 100` raises on None.
+    # `data_color()` hands a missing value to `fn` as None on every backend
     data = {
         "int": [1, None],
         "float": [1.5, None],
@@ -886,7 +887,7 @@ def test_values_handed_to_user_callables(
         assert type(column_values) is list
 
         result["fmt"][col] = _describe_column(col, fmt_args, frame_constructor)
-        result["data_color"][col] = _describe_column(col, column_values, frame_constructor)
+        result["data_color"][col] = [_describe(value) for value in column_values]
         # `text_transform()` gets the rendered text of non-missing cells
         result["text_transform"][col] = [_describe(arg) for arg in text_args]
 
