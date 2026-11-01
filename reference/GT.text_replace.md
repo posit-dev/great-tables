@@ -4,7 +4,7 @@ Perform targeted text replacement with a regex pattern.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L501-L570)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L499-L568)
 
 ``` python
 GT.text_replace(

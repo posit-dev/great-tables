@@ -4,7 +4,7 @@ Perform text replacements using a case-when approach.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L677-L760)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L675-L758)
 
 ``` python
 GT.text_case_when(

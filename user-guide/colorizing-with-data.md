@@ -223,7 +223,7 @@ GT(simple_df).data_color(columns="float", fn=above_below_3, na_color="lightgray"
 
 There are a few things to know about how this works:
 
-- **Missing values are passed to the function.** In a Polars DataFrame they arrive as `None` (with pandas, they usually arrive as `NaN`, and `pd.isna()` is a reliable way to check for missing values from either library). The function needs to handle them, or a comparison like `x < 3` will fail.
+- **Missing values are passed to the function as `None`.** This holds for every DataFrame library and column type (`NaN`, `NaT`, and `pd.NA` are converted). The function needs to handle them, or a comparison like `x < 3` will fail.
 - **Returning `None` gives the `na_color=` color.** That's what happened to the missing value above. It's also a handy way to leave out any value you'd rather not color.
 - **Some arguments step aside.** The `palette=`, `domain=`, `reverse=`, `truncate=`, and `midpoint=` arguments are ignored when `fn=` is used, since the function takes over their job. The `na_color=`, `alpha=`, and `autocolor_text=` arguments still apply, so text is automatically recolored for contrast as usual.
 - **Any column type works.** The function decides what the values mean, so you can color columns that the built-in mapping can't handle, such as booleans.

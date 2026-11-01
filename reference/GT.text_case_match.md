@@ -4,7 +4,7 @@ Perform text replacements with a switch-like approach.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L573-L674)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L571-L672)
 
 ``` python
 GT.text_case_match(

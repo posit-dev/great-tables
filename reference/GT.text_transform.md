@@ -4,7 +4,7 @@ Apply a custom text transformation to cells at specified locations.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L420-L498)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L418-L496)
 
 ``` python
 GT.text_transform(

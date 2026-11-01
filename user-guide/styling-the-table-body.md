@@ -405,7 +405,7 @@ from great_tables import style, exibble
 
 ### Using a predicate function
 
-For more flexibility, pass a function to `fn=`. The function receives the raw cell value and should return `True` to apply the style. Missing values (`NaN` in Pandas) are normalized to `None` before being passed to your function, so `x is None` works reliably.
+For more flexibility, pass a function to `fn=`. The function receives the cell value and should return `True` to apply the style. Missing values (`NaN`, `NaT`, or `pd.NA`, depending on the DataFrame library and column type) reach your function as `None`, so `x is None` finds them.
 
 ``` python
 (
@@ -468,7 +468,7 @@ If the function raises an exception for a cell (e.g., comparing a string with `>
 
 ### Using a regex pattern
 
-The `pattern=` argument matches against the string representation of each cell. `None` values are skipped.
+The `pattern=` argument matches against the string representation of each cell. Missing values are skipped.
 
 ``` python
 (

@@ -4,7 +4,7 @@ Perform data cell colorization.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/base.py#L51-L543)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/base.py#L51-L542)
 
 ``` python
 GT.data_color(
@@ -68,7 +68,7 @@ The color contrast algorithm to use when `autocolor_text=True`. By default this 
 If `True`, then any values that fall outside of the domain will be truncated to the minimum or maximum value of the domain (will have the same color). If `False`, then any values that fall outside of the domain will be set to `NaN` and will follow the `na_color=` color.
 
 `fn: Callable[[list[Any]], list[str | None]] | None = None`  
-A color-mapping function. The function should take a list of data values (from a single column, or from a single row with `direction="row"`) as input and return a list of colors of the same length. Each color may be a hexadecimal color value (e.g., `"#FF0000"`) or a color name (e.g., `"red"`). All values are passed to the function, including missing values, so the function must handle those itself. Any position where the function returns `None` receives the `na_color=` color. If a function is supplied, then the `palette=`, `domain=`, `reverse=`, `truncate=`, and `midpoint=` arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=` arguments still apply to the returned colors. The [`col_numeric()`](../reference/col_numeric.md#great_tables.col_numeric), [`col_bin()`](../reference/col_bin.md#great_tables.col_bin), and [`col_factor()`](../reference/col_factor.md#great_tables.col_factor) helpers create ready-made color-mapping functions that can be supplied here.
+A color-mapping function. The function should take a list of data values (from a single column, or from a single row with `direction="row"`) as input and return a list of colors of the same length. Each color may be a hexadecimal color value (e.g., `"#FF0000"`) or a color name (e.g., `"red"`). All values are passed to the function, including missing values (as `None`), so the function must handle those itself. Any position where the function returns `None` receives the `na_color=` color. If a function is supplied, then the `palette=`, `domain=`, `reverse=`, `truncate=`, and `midpoint=` arguments are ignored. The `alpha=`, `autocolor_text=`, and `contrast_algo=` arguments still apply to the returned colors. The [`col_numeric()`](../reference/col_numeric.md#great_tables.col_numeric), [`col_bin()`](../reference/col_bin.md#great_tables.col_bin), and [`col_factor()`](../reference/col_factor.md#great_tables.col_factor) helpers create ready-made color-mapping functions that can be supplied here.
 
 `direction: Literal["column", "row"] = "column"`  
 Should the color computations be performed column-wise or row-wise? By default this is `"column"` and the colors are computed down each targeted column. With `"row"`, the colors are computed across each targeted row instead, using the values of that row in the targeted columns (so each row has its own domain when the domain is inferred).
@@ -155,7 +155,7 @@ When the built-in mapping (a palette spread across a domain) isn't what you need
 
 - it's called once per targeted column, receiving a list of that column's values (only for the rows selected by `rows=`, in table order); with `direction="row"`, it's called once per targeted row instead, receiving that row's values in the targeted columns
 - it must return a list of colors of the same length, where each color is a hexadecimal value (`"#RRGGBB"`, `"#RRGGBBAA"`, or the short `"#RGB"` form) or a CSS/X11 color name
-- missing values are included in the list, so the function must handle them: with pandas they usually arrive as `NaN` (or `None`/`pd.NA`, depending on the column type), and with Polars and PyArrow they arrive as `None`; `pd.isna()` catches all of these
+- missing values are included in the list as `None` (`NaN`, `NaT`, and `pd.NA` are converted), so the function must handle them
 - returning `None` at any position gives that cell the `na_color=` color, which is the easiest way to deal with missing values
 - columns of any type can be colored (e.g., booleans or dates), since the numeric-or-string requirement of the built-in mapping doesn't apply
 
@@ -237,13 +237,11 @@ GT(exibble).data_color(
 | 777000.0 | grapefruit | seven | None | 19:10 | 2018-07-07 05:22 | None | row_7 | grp_b |
 | 8880000.0 | honeydew | eight | 2015-08-15 | 20:20 | None | 0.44 | row_8 | grp_b |
 
-For complete control over how values map to colors, we can supply a function to `fn=`. The function receives the list of values in a column (missing values included) and must return a list of colors of the same length. Here, values in the `num` column are colored according to whether they are below or above `100`. Returning `None` for the missing value means that it gets the `na_color=` color:
+For complete control over how values map to colors, we can supply a function to `fn=`. The function receives the list of values in a column (missing values included, as `None`) and must return a list of colors of the same length. Here, values in the `num` column are colored according to whether they are below or above `100`. Returning `None` for the missing value means that it gets the `na_color=` color:
 
 ``` python
-import pandas as pd
-
 def above_below_100(vals):
-    return [None if pd.isna(x) else "lightblue" if x < 100 else "orange" for x in vals]
+    return [None if x is None else "lightblue" if x < 100 else "orange" for x in vals]
 
 GT(exibble).data_color(
     columns="num",
@@ -266,6 +264,8 @@ GT(exibble).data_color(
 A color-mapping function is also useful for highlighting the sign of values. Here, positive changes are colored green, negative changes orange, and zero values are left white. Because the function assigns its own color to the missing value, `na_color=` isn't needed:
 
 ``` python
+import pandas as pd
+
 df = pd.DataFrame(
     {
         "region": ["North", "South", "East", "West", "Central"],
@@ -275,7 +275,7 @@ df = pd.DataFrame(
 
 def sign_colors(vals):
     return [
-        "#E0E0E0" if pd.isna(x) else "#1B9E77" if x > 0 else "#D95F02" if x < 0 else "#FFFFFF"
+        "#E0E0E0" if x is None else "#1B9E77" if x > 0 else "#D95F02" if x < 0 else "#FFFFFF"
         for x in vals
     ]
 

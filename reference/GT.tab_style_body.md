@@ -4,7 +4,7 @@ Apply styles to body cells based on their data values.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L156-L417)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L156-L415)
 
 ``` python
 GT.tab_style_body(
@@ -35,13 +35,13 @@ The columns to consider for matching. Can be a single column name, a list of col
 The rows to consider for matching. Can be a single row index or name, a list of row indices or names, or a row selection expression. By default, all rows are considered.
 
 `values: list[Any] | None = None`  
-A list of specific values to match against. A body cell whose value equals any element in this list will be styled. Ignored when `pattern` or `fn` is supplied.
+A list of specific values to match against. A body cell whose value equals any element in this list will be styled. Include `None` in the list to match missing cells. Ignored when `pattern` or `fn` is supplied.
 
 `pattern: str | None = None`  
-A regex pattern string. Body cells whose *string representation* matches this pattern will be styled. Takes precedence over `values`; ignored when `fn` is supplied.
+A regex pattern string. Body cells whose *string representation* matches this pattern will be styled. Missing cells are never matched. Takes precedence over `values`; ignored when `fn` is supplied.
 
 `fn: Callable[[Any], bool] | None = None`  
-A function that receives a cell's raw value and returns `True` (style the cell) or `False` (skip). This is the most flexible matching option and takes the highest precedence.
+A function that receives a cell's value and returns `True` (style the cell) or `False` (skip). A missing value arrives as `None` (`NaN`, `NaT`, and `pd.NA` are converted). This is the most flexible matching option and takes the highest precedence.
 
 `targets: Literal["cell", "row", "column"] | list[Literal["cell", "row", "column"]] = "cell"`  
 How to expand matched cells. `"cell"` (the default) styles only matched cells; `"row"` styles the entire row of each match; `"column"` styles the entire column. A list can combine these (e.g., `["cell", "row"]`).
