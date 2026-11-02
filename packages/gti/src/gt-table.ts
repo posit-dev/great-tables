@@ -185,10 +185,40 @@ interface Bar {
   jump: HTMLElement;
   jumpInput: HTMLInputElement;
   jumpCount: HTMLElement;
+  info: Info;
+}
+
+/**
+ * The info panel, which the bar's (i) button opens above the bar: which rows are shown, the page
+ * size, the sort and the selection (each with a way to change it, where the table has one), and
+ * the keys the table answers to.
+ */
+interface Info {
+  button: HTMLButtonElement;
+  panel: HTMLElement;
+  /** Which rows are shown ("21–30 of 118 rows"). */
+  rows: HTMLElement;
+  /** The page size select, and the item it's in (with `size_select`). */
+  size: HTMLElement | null;
+  select: HTMLSelectElement | null;
+  /** The sort, and the button that resets it (with sorting). */
+  sort: HTMLElement | null;
+  sortText: HTMLElement | null;
+  sortReset: HTMLButtonElement | null;
+  /** The selection, and the button that clears it (with selection). */
+  selection: HTMLElement | null;
+  selectionText: HTMLElement | null;
+  selectionClear: HTMLButtonElement | null;
+  /** The keys the table answers to, of which those for paging are listed while there are pages. */
+  keys: HTMLElement | null;
+  pageKeys: HTMLElement[];
 }
 
 // The bar is as wide as the table, but no narrower than this (where there's room)
 const BAR_MIN_WIDTH = 300;
+
+// (For the info panels' ids)
+let infoCount = 0;
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -198,6 +228,7 @@ const ICONS = {
   previous: "M15 5l-7 7 7 7",
   next: "M9 5l7 7-7 7",
   clear: "M6 6l12 12M18 6 6 18",
+  info: "M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0M12 11v5M12 7.5v.01",
 };
 
 // What can have text typed into it, where `/` is a character rather than the search's key
@@ -316,6 +347,8 @@ export class GtTable extends HTMLElement {
   private slashKey: ((event: KeyboardEvent) => void) | null = null;
   /** Whether the bar's readout is an input for the page to go to. */
   private jumping = false;
+  /** The page's handler for a press outside the open info panel, which closes it. */
+  private outsidePress: ((event: PointerEvent) => void) | null = null;
   /**
    * The column widths of the table with every row shown, which hidden rows mustn't change: in our
    * `<colgroup>`, or in the author's for the columns without a width (`cols_width()`).
@@ -562,6 +595,7 @@ export class GtTable extends HTMLElement {
   }
 
   disconnectedCallback(): void {
+    this.closeInfo(false);
     this.stopObserving();
     this.layout?.disconnect();
     this.layout = null;
@@ -1399,6 +1433,18 @@ export class GtTable extends HTMLElement {
     this.dispatchSelect();
   }
 
+  // The info panel's clear button deselects every row, matching the search or not
+  private userClearSelection(): void {
+    if (this.selected.size === 0) {
+      return;
+    }
+    this.selected.clear();
+    this.selectAnchor = null;
+    this.showSelection();
+    this.announce(this.selectionText());
+    this.dispatchSelect();
+  }
+
   private selectionText(): string {
     const count = this.selected.size;
     return count === 0 ? "No rows selected" : `${plural(count)} selected`;
@@ -1421,6 +1467,7 @@ export class GtTable extends HTMLElement {
       this.rowElements[row]?.classList.toggle("gt-i-selected", on);
     });
     this.updateSelectAll();
+    this.updateInfo();
   }
 
   // The select-all checkbox is checked when every row that matches is selected, and mixed when
@@ -1810,6 +1857,7 @@ export class GtTable extends HTMLElement {
     box.className = "gt-i-readout-box";
     box.append(readout, jump);
     pages.append(previous, box, next);
+    const info = this.makeInfo();
 
     const bar: Bar = {
       root,
@@ -1824,12 +1872,14 @@ export class GtTable extends HTMLElement {
       jump,
       jumpInput,
       jumpCount,
+      info,
     };
     this.bar = bar;
     if (spec.controls.search) {
       this.addBarSearch(bar);
     }
-    root.append(pages);
+    // (The panel follows its button, so that Tab goes from one into the other)
+    root.append(pages, info.button, info.panel);
 
     previous.addEventListener("click", () => {
       if (previous.getAttribute("aria-disabled") !== "true") {
@@ -1855,10 +1905,25 @@ export class GtTable extends HTMLElement {
     });
     jumpInput.addEventListener("blur", () => this.endJump(true));
 
-    // In the bar (but not while typing in it), the arrow keys and Page Up and Down go to the page
-    // before or after, and Home and End to the first or last
+    // In the bar (but not while typing in it, or in the info panel), the arrow keys and Page Up and
+    // Down go to the page before or after, and Home and End to the first or last; Escape closes the
+    // info panel
     root.addEventListener("keydown", (event) => {
-      if (pages.hidden || event.altKey || event.ctrlKey || event.metaKey || event.target instanceof HTMLInputElement) {
+      if (event.key === "Escape" && !info.panel.hidden) {
+        // (And don't, say, close a dialog the table is in)
+        event.preventDefault();
+        event.stopPropagation();
+        this.closeInfo(true);
+        return;
+      }
+      if (
+        pages.hidden ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.target instanceof HTMLInputElement ||
+        info.panel.contains(event.target as Node)
+      ) {
         return;
       }
       const page = this.page;
@@ -1984,6 +2049,248 @@ export class GtTable extends HTMLElement {
     return button;
   }
 
+  /** Make the info panel, and the bar's button that opens it (a disclosure). */
+  private makeInfo(): Info {
+    const doc = this.ownerDocument;
+    const spec = this.spec as Spec;
+    const button = this.barButton("info", "Table info", "Table info");
+    const panel = doc.createElement("div");
+    panel.className = "gt-i-info";
+    panel.id = `gt-i-info-${++infoCount}`;
+    panel.setAttribute("role", "group");
+    panel.setAttribute("aria-label", "Table info");
+    panel.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-controls", panel.id);
+
+    const rows = doc.createElement("p");
+    rows.className = "gt-i-info-rows";
+    panel.append(rows);
+    const info: Info = {
+      button,
+      panel,
+      rows,
+      size: null,
+      select: null,
+      sort: null,
+      sortText: null,
+      sortReset: null,
+      selection: null,
+      selectionText: null,
+      selectionClear: null,
+      keys: null,
+      pageKeys: [],
+    };
+
+    // An item: what it's about, then the control that changes it
+    const item = (name: string, tag: "div" | "label", text: HTMLElement, control: HTMLElement) => {
+      const el = doc.createElement(tag);
+      el.className = "gt-i-info-item";
+      el.dataset.gtiInfo = name;
+      el.append(text, control);
+      panel.append(el);
+      return el;
+    };
+    const span = (text = "") => {
+      const el = doc.createElement("span");
+      el.textContent = text;
+      return el;
+    };
+    const action = (text: string, label: string, act: () => void) => {
+      const el = doc.createElement("button");
+      el.type = "button";
+      el.className = "gt-i-info-button";
+      el.textContent = text;
+      el.setAttribute("aria-label", label);
+      // (Disabled with ARIA, so that it keeps focus once it has done what it does)
+      el.addEventListener("click", () => {
+        if (el.getAttribute("aria-disabled") !== "true") {
+          act();
+        }
+      });
+      return el;
+    };
+
+    if (spec.pagination.size_select) {
+      const select = doc.createElement("select");
+      select.addEventListener("change", () => this.userPageSize(Number(select.value)));
+      info.size = item("size", "label", span("Rows per page"), select);
+      info.select = select;
+    }
+    if (this.sortHeaders.size > 0) {
+      info.sortText = span();
+      info.sortReset = action("Reset", "Reset the sort", () => this.userSort([]));
+      info.sort = item("sort", "div", info.sortText, info.sortReset);
+    }
+    if (spec.controls.selection !== null) {
+      info.selectionText = span();
+      info.selectionClear = action("Clear", "Clear the selection", () => this.userClearSelection());
+      info.selection = item("selection", "div", info.selectionText, info.selectionClear);
+    }
+
+    // The keys the table answers to, and the clicks with Shift
+    const heading = doc.createElement("p");
+    heading.className = "gt-i-info-heading";
+    heading.textContent = "Shortcuts";
+    const keys = doc.createElement("dl");
+    keys.className = "gt-i-info-keys";
+    const key = (names: string[], text: string, click = false) => {
+      const entry = doc.createElement("div");
+      const dt = doc.createElement("dt");
+      names.forEach((name, i) => {
+        const kbd = doc.createElement("kbd");
+        kbd.textContent = name;
+        dt.append(...(i > 0 ? [" "] : []), kbd);
+      });
+      if (click) {
+        dt.append(" + click");
+      }
+      const dd = doc.createElement("dd");
+      dd.textContent = text;
+      entry.append(dt, dd);
+      keys.append(entry);
+      return entry;
+    };
+    if (spec.controls.search) {
+      key(["/"], "Search");
+      key(["Esc"], "Clear the search, then close it");
+    }
+    if (spec.pagination.enabled) {
+      info.pageKeys = [
+        key(["←", "→"], "Previous or next page, in the bar"),
+        key(["Home", "End"], "First or last page, in the bar"),
+      ];
+    }
+    if (this.sortHeaders.size > 0) {
+      key(["Shift"], "Sort by more than one column", true);
+    }
+    if (spec.controls.selection === "multiple") {
+      key(["Shift"], "Select a range of rows", true);
+    }
+    if (keys.childElementCount > 0) {
+      info.keys = doc.createElement("div");
+      info.keys.className = "gt-i-info-shortcuts";
+      info.keys.append(heading, keys);
+      panel.append(info.keys);
+    }
+
+    button.addEventListener("click", () => {
+      if (panel.hidden) {
+        this.openInfo();
+      } else {
+        this.closeInfo(false);
+      }
+    });
+    // The panel closes when focus goes elsewhere (but not when the window loses it)
+    const leave = (event: FocusEvent) => {
+      const to = event.relatedTarget as Node | null;
+      if (to !== null && to !== button && !panel.contains(to)) {
+        this.closeInfo(false);
+      }
+    };
+    button.addEventListener("focusout", leave);
+    panel.addEventListener("focusout", leave);
+    return info;
+  }
+
+  private openInfo(): void {
+    const info = this.bar?.info;
+    if (info === undefined || !info.panel.hidden) {
+      return;
+    }
+    this.updateInfo();
+    // (Over the table, so filled with what's behind it)
+    info.panel.style.backgroundColor = backdropColor(this);
+    info.panel.hidden = false;
+    info.button.setAttribute("aria-expanded", "true");
+    this.placeInfo(info);
+    // A press anywhere else closes it
+    this.outsidePress = (event: PointerEvent) => {
+      const path = event.composedPath();
+      if (!path.includes(info.panel) && !path.includes(info.button)) {
+        this.closeInfo(false);
+      }
+    };
+    this.ownerDocument.addEventListener("pointerdown", this.outsidePress);
+  }
+
+  // Above the bar, or below it if there's more room in the view there than above, for a panel
+  // that doesn't fit above; no taller than the room it has
+  private placeInfo(info: Info): void {
+    const panel = info.panel;
+    panel.removeAttribute("data-gti-below");
+    panel.style.maxHeight = "";
+    const bar = (this.bar as Bar).root.getBoundingClientRect();
+    const gap = 8;
+    const above = bar.top - gap;
+    const below = this.ownerDocument.documentElement.clientHeight - bar.bottom - gap;
+    const height = panel.getBoundingClientRect().height;
+    const down = height > above && below > above;
+    panel.toggleAttribute("data-gti-below", down);
+    const room = down ? below : above;
+    if (height > room) {
+      panel.style.maxHeight = `${Math.max(room, 160)}px`;
+    }
+  }
+
+  private closeInfo(focus: boolean): void {
+    if (this.outsidePress !== null) {
+      this.ownerDocument.removeEventListener("pointerdown", this.outsidePress);
+      this.outsidePress = null;
+    }
+    const info = this.bar?.info;
+    if (info === undefined || info.panel.hidden) {
+      return;
+    }
+    info.panel.hidden = true;
+    info.button.setAttribute("aria-expanded", "false");
+    if (focus) {
+      info.button.focus();
+    }
+  }
+
+  private updateInfo(): void {
+    const bar = this.bar;
+    if (bar === null) {
+      return;
+    }
+    const info = bar.info;
+    const size = this.size;
+    info.rows.textContent = this.rowsText();
+    info.rows.hidden = !(this.spec as Spec).pagination.info;
+
+    if (info.size !== null && info.select !== null) {
+      info.size.hidden = !this.pagesOffered();
+      if (size !== null) {
+        const choices = this.sizeChoices(size).map(String);
+        if (Array.from(info.select.options, (option) => option.value).join() !== choices.join()) {
+          info.select.replaceChildren(
+            ...choices.map((choice) => {
+              const option = this.ownerDocument.createElement("option");
+              option.value = option.textContent = choice;
+              return option;
+            }),
+          );
+        }
+        info.select.value = String(size);
+      }
+    }
+    if (info.sortText !== null && info.sortReset !== null) {
+      info.sortText.textContent = this.sortText();
+      info.sortReset.setAttribute("aria-disabled", String(this.sortKeys.length === 0));
+    }
+    if (info.selectionText !== null && info.selectionClear !== null) {
+      info.selectionText.textContent = this.selectionText();
+      info.selectionClear.setAttribute("aria-disabled", String(this.selected.size === 0));
+    }
+    for (const entry of info.pageKeys) {
+      entry.hidden = bar.pages.hidden;
+    }
+    if (info.keys !== null) {
+      info.keys.hidden = Array.from(info.keys.querySelectorAll<HTMLElement>("dl > div"), (entry) => entry.hidden).every(Boolean);
+    }
+  }
+
   private openSearch(focus: boolean): void {
     const bar = this.bar;
     if (bar?.field == null || bar.toggle === null) {
@@ -2049,14 +2356,18 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // The bar shows while it has a search, or there are pages: while the table has more rows than
-  // fit on a page, whatever the search
+  // The bar shows while it has a search, or there are pages (or could be, in the page sizes the
+  // info panel offers); the page controls, while there are pages: while the table has more rows
+  // than fit on a page, whatever the search
   private updateBar(bar: Bar): void {
     const spec = this.spec as Spec;
     const size = this.size;
     const paged = size !== null && spec.nrows > size;
     bar.pages.hidden = !paged;
-    bar.root.hidden = !paged && bar.field === null;
+    bar.root.hidden = !this.pagesOffered() && bar.field === null;
+    if (bar.root.hidden) {
+      this.closeInfo(false);
+    }
 
     // A table of every row, with no height to scroll in, keeps its bar in view as it's scrolled
     // past (over the rows, so filled with what's behind them)
@@ -2070,6 +2381,7 @@ export class GtTable extends HTMLElement {
       bar.count.hidden = !searching;
       bar.count.textContent = searching ? plural(this.matchCount) : "";
     }
+    this.updateInfo();
     if (!paged) {
       return;
     }
@@ -2080,7 +2392,7 @@ export class GtTable extends HTMLElement {
     bar.next.setAttribute("aria-disabled", String(page === count));
     bar.readout.replaceChildren(String(page), this.slash(), String(count));
     bar.readout.setAttribute("aria-label", `Page ${page} of ${count}`);
-    bar.readout.title = spec.pagination.info ? `Go to a page (${this.rowsText()})` : "Go to a page";
+    bar.readout.title = "Go to a page";
     bar.jumpCount.replaceChildren(this.slash(), String(count));
     bar.jumpInput.setAttribute("aria-label", `Go to page (of ${count})`);
     // (Room for the most pages the rows can have, unsearched)
@@ -2094,11 +2406,33 @@ export class GtTable extends HTMLElement {
     return slash;
   }
 
-  // Which rows are shown: "21–30 of 118 rows", and of how many without the search
+  // Which rows are shown: "21–30 of 118 rows" (or "118 rows", without pages), and of how many
+  // without the search
   private rowsText(): string {
     const { start, end, total } = this.view;
-    const rows = total === 0 ? "0 rows" : `${end - start > 1 ? `${start + 1}–` : ""}${end} of ${plural(total)}`;
+    const rows =
+      total === 0 || this.size === null
+        ? plural(total)
+        : `${end - start > 1 ? `${start + 1}–` : ""}${end} of ${plural(total)}`;
     return this.matched === null ? rows : `${rows} (filtered from ${(this.spec as Spec).nrows})`;
+  }
+
+  // The page sizes the reader can choose from, with the size shown: the author's (with
+  // `size_select`), and in the info panel the table's own too, so that it can be gone back to
+  private sizeChoices(size: number): number[] {
+    const spec = this.spec as Spec;
+    const { size_select, page_sizes, page_size } = spec.pagination;
+    if (!size_select) {
+      return [size];
+    }
+    return pageSizeChoices(size, spec.controls.bar === true ? [...page_sizes, page_size] : page_sizes);
+  }
+
+  // Whether there are pages, or could be: whether the table has more rows than fit on a page of
+  // the size shown, or the smallest the reader can choose
+  private pagesOffered(): boolean {
+    const size = this.size;
+    return size !== null && (this.spec as Spec).nrows > Math.min(...this.sizeChoices(size));
   }
 
   // Put a control below the table, outside its scrolling container
@@ -2796,14 +3130,13 @@ export class GtTable extends HTMLElement {
     const spec = this.spec as Spec;
     const size = this.size;
     if (spec.controls.bar === true) {
-      // (A bar without a search comes with the pages)
-      if (this.bar !== null || (size !== null && spec.nrows > size)) {
+      // (A bar without a search comes with the pages, or the page sizes)
+      if (this.bar !== null || this.pagesOffered()) {
         this.updateBar(this.bar ?? this.addBar());
       }
       return;
     }
-    const { size_select, page_sizes } = spec.pagination;
-    if (size === null || spec.nrows <= (size_select ? Math.min(size, ...page_sizes) : size)) {
+    if (size === null || !this.pagesOffered()) {
       if (this.pager !== null) {
         this.pager.nav.hidden = true;
       }
@@ -2818,7 +3151,7 @@ export class GtTable extends HTMLElement {
       pager.info.textContent = this.rowsText();
     }
     if (pager.select !== null) {
-      const choices = pageSizeChoices(size, page_sizes).map(String);
+      const choices = this.sizeChoices(size).map(String);
       if (Array.from(pager.select.options, (option) => option.value).join() !== choices.join()) {
         pager.select.replaceChildren(
           ...choices.map((choice) => {
@@ -3117,6 +3450,7 @@ export class GtTable extends HTMLElement {
     this.hint?.remove();
     this.toolbar?.remove();
     this.pager?.nav.remove();
+    this.closeInfo(false);
     this.bar?.root.remove();
     if (this.slashKey !== null) {
       this.removeEventListener("keydown", this.slashKey);
