@@ -708,9 +708,9 @@ def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
     # TODO: should ensure row count name isn't already in data
     import polars as pl
 
-    # with_row_index supersedes with_row_count
+    # polars 0.20.4 renamed with_row_count to with_row_index
     meth_row_number = getattr(data, "with_row_index", None)
-    if not meth_row_number:
+    if not meth_row_number:  # pragma: no cover
         meth_row_number = data.with_row_count
 
     groups = meth_row_number("__row_count__").group_by(group_key).agg(pl.col("__row_count__"))

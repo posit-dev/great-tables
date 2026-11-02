@@ -22,9 +22,11 @@ from great_tables._tbl_data import (
     _get_column_dtype,
     _get_column_levels,
     _is_numeric_dtype,
+    _is_same_value,
     _re_version,
     _set_cell,
     _set_cells,
+    _set_cells_one_by_one,
     _validate_selector_list,
     cast_frame_to_string,
     copy_data,
@@ -434,6 +436,15 @@ def test_set_cells_non_strings_as_set_cell(df: DataFrameLike, value):
             _set_cells(create_empty_frame(df), "col2", values)
     else:
         assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
+
+
+def test_set_cells_one_by_one(df: DataFrameLike, frame_constructor: DataFrameConstructor):
+    # PyArrow's `_set_cell()` returns a new table; pandas and polars modify theirs in place
+    expected_data = {"col1": [1, 2, 3], "col2": ["a", "x", "y"], "col3": [4.0, 5.0, 6.0]}
+
+    res = _set_cells_one_by_one(df, "col2", {1: "x", 2: "y"})
+
+    assert_frame_equal(res, frame_constructor(expected_data))
 
 
 def test_reorder(df: DataFrameLike, frame_constructor: DataFrameConstructor):
@@ -1209,6 +1220,8 @@ def no_polars_import(monkeypatch: pytest.MonkeyPatch):
         ([10**40], "object"),
         ([True, 2], "object"),
         ([datetime(2000, 2, 29), datetime(2000, 2, 29, tzinfo=timezone.utc)], "object"),
+        # float64 can't hold 2**53 + 1 exactly
+        ([2**53 + 1, 0.5], "object"),
     ],
 )
 @pytest.mark.usefixtures("no_polars_import")
@@ -1222,6 +1235,11 @@ def test_to_frame_list_keeps_values_pandas(vals, dtype):
 
     if dtype == "object":
         assert df["x"].tolist() == vals
+
+
+def test_is_same_value_numpy_arrays():
+    # NumPy arrays compare element-wise, so they always count as changed
+    assert _is_same_value(np.array([1, 2]), np.array([1, 2])) is False
 
 
 def test_cast_frame_to_string_is_consistent_across_backends(
