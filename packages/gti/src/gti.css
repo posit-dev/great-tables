@@ -150,6 +150,70 @@ gt-table[data-gti-resizing] * {
   }
 }
 
+/*
+ * Column filters: a button after the label (over the resize handle), faint until the column is
+ * filtered, when its funnel is filled
+ */
+gt-table .gt-i-filter-button {
+  appearance: none;
+  display: inline-flex;
+  position: relative;
+  z-index: 2;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  margin-inline-start: 0.25em;
+  padding: 0.125em;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+  opacity: 0.45;
+}
+
+gt-table .gt-i-filter-button .gt-i-icon {
+  width: 0.875em;
+  height: 0.875em;
+}
+
+gt-table .gt-i-filter-button:hover,
+gt-table .gt-i-filter-button:focus-visible,
+gt-table .gt-i-filter-button[aria-expanded="true"],
+gt-table th[data-gti-filtered] .gt-i-filter-button {
+  opacity: 1;
+}
+
+gt-table .gt-i-filter-button:hover,
+gt-table .gt-i-filter-button[aria-expanded="true"] {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-filter-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table th[data-gti-filtered] .gt-i-filter-button .gt-i-icon {
+  fill: currentColor;
+}
+
+/* On touch screens, a target of at least 44 x 44 px, without changing the layout */
+@media (pointer: coarse) {
+  gt-table .gt-i-filter-button::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
 /* Rows hidden by a search or paging stay hidden, whatever the page's styles say about table rows */
 gt-table tr[hidden] {
   display: none !important;
@@ -875,9 +939,145 @@ gt-table .gt-i-info kbd {
   text-align: center;
 }
 
+/*
+ * A filter's panel: over the table, below its button (where the runtime puts it), and no wider
+ * than the element
+ */
+gt-table .gt-i-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  position: absolute;
+  z-index: 10;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: min(14em, 100%);
+  max-width: min(24em, 100%);
+  padding: 0.625em 0.75em 0.75em;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 0.875em;
+  font-weight: normal;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: start;
+}
+
+gt-table .gt-i-filter[hidden] {
+  display: none;
+}
+
+gt-table .gt-i-filter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+gt-table .gt-i-filter-title {
+  overflow: hidden;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+gt-table .gt-i-filter input:not([type="checkbox"]) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0.25em 0.5em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+gt-table .gt-i-filter input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-filter input[aria-invalid="true"] {
+  border-color: #c62828;
+}
+
+gt-table .gt-i-filter-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em;
+}
+
+gt-table .gt-i-filter-bound {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125em;
+  min-width: 0;
+}
+
+gt-table .gt-i-filter-bound > span {
+  font-size: 0.875em;
+  opacity: 0.7;
+}
+
+/* A facet's values, which scroll when there are many */
+gt-table .gt-i-filter-options {
+  display: flex;
+  flex-direction: column;
+  max-height: 16em;
+  margin-inline: -0.25em;
+  overflow-y: auto;
+}
+
+gt-table .gt-i-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.125em 0.25em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+gt-table .gt-i-filter-option:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-filter-option input {
+  flex: none;
+  margin: 0;
+  accent-color: currentColor;
+}
+
+gt-table .gt-i-filter-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+gt-table .gt-i-filter-count {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+/* (A value no row the search and the other filters keep has, which can still be chosen) */
+gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter-count) {
+  opacity: 0.45;
+}
+
 @media (forced-colors: active) {
-  gt-table .gt-i-info {
+  gt-table :is(.gt-i-info, .gt-i-filter) {
     border-color: CanvasText;
+  }
+
+  gt-table .gt-i-filter-button {
+    opacity: 1;
+  }
+
+  gt-table th[data-gti-filtered] .gt-i-filter-button .gt-i-icon {
+    fill: CanvasText;
   }
 }
 
@@ -916,8 +1116,18 @@ gt-table .gt-i-info kbd {
     min-height: 44px;
   }
 
+  gt-table .gt-i-filter input:not([type="checkbox"]),
+  gt-table .gt-i-filter-option {
+    min-height: 44px;
+  }
+
+  gt-table .gt-i-filter-option input {
+    width: 1.25em;
+    height: 1.25em;
+  }
+
   /* Below 16px, iOS zooms the page in on focus */
-  gt-table :is(.gt-i-search-field, .gt-i-readout-box, .gt-i-info select) {
+  gt-table :is(.gt-i-search-field, .gt-i-readout-box, .gt-i-info select, .gt-i-filter input) {
     font-size: max(0.875em, 16px);
   }
 }

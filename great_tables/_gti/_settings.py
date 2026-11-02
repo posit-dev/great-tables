@@ -23,6 +23,12 @@ PAGINATION_TYPES: tuple[PaginationType, ...] = ("numbers", "simple", "full", "ju
 
 PAGE_SIZES = (10, 25, 50, 100)
 
+# A column's filter: as its kind suggests ("auto"), or the text it shows, a choice of its values,
+# or a range of its numbers
+FilterType = Literal["auto", "text", "facet", "range"]
+
+FILTER_TYPES: tuple[FilterType, ...] = ("auto", "text", "facet", "range")
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -47,6 +53,8 @@ class Settings:
     # (GTI's control bar below the table; `opt_interactive()` tables keep a search box above the
     # table and page controls below it, as `pagination_type` says)
     bar: bool = True
+    # (The columns readers can filter by, and how, in the order they were set)
+    filters: tuple[tuple[str, FilterType], ...] = ()
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:

@@ -23,22 +23,41 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `layout`: how the table fits its space: the most it can take up before its body scrolls
   vertically (a CSS length; `null` to grow with its content), and what it does when it's wider
   than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table does)
+- `filters`: the columns readers can filter by, in column order, and how: by the text they show
+  (`"text"`), a choice of their values (`"facet"`), or a range of their numbers (`"range"`). A
+  facet or range column has its distinct values (`values`), in the order of its `ranks`, so that
+  a data row's value is `values[rank]`: as JSON values (numbers, strings, booleans; dates and
+  times as ISO 8601 strings), with `null` for values JSON can't hold (NaN). Producers that leave
+  `filters` out have none.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
 
 from __future__ import annotations
 
+import datetime as dt
+import math
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Literal, TypedDict, Union
 
-from .._tbl_data import ColumnKind, _get_column_kind, _get_column_ranks, n_rows
+from .._tbl_data import (
+    ColumnKind,
+    _get_column_kind,
+    _get_column_ranks,
+    _get_column_values,
+    n_rows,
+)
 from .._utils_render_html import _get_header_ids
-from ._settings import PaginationType, SelectionMode, settings_of
+from ._settings import FilterType, PaginationType, SelectionMode, settings_of
 
 if TYPE_CHECKING:
     from .._gt_data import GTData
 
 SPEC_VERSION = 1
+
+# An "auto" filter on a column of text is a facet when the column has at most this many distinct
+# values (and each is in two rows, on average)
+FACET_MAX_VALUES = 20
 
 
 class ColumnSpec(TypedDict):
@@ -117,6 +136,12 @@ class LayoutSpec(TypedDict):
     responsive: Literal["scroll"] | None
 
 
+class FilterSpec(TypedDict):
+    column: str
+    type: Literal["text", "facet", "range"]
+    values: list[Any] | None  # a facet or range column's distinct values, by rank
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -131,6 +156,7 @@ class Spec(TypedDict):
     pagination: PaginationSpec
     display: DisplaySpec
     layout: LayoutSpec
+    filters: list[FilterSpec]
 
 
 def build_spec(data: GTData) -> Spec:
@@ -203,10 +229,24 @@ def build_spec(data: GTData) -> Spec:
     groups_as_column = "group_label" in stub_layout
     # (A `GTI`'s own settings, or those `opt_interactive()` set)
     settings = settings_of(data)
+    nrows = n_rows(tbl_data)
+
+    chosen = dict(settings.filters)
+    filters: list[FilterSpec] = []
+    for column in columns:
+        var = column["id"]
+        if var is None or var not in chosen:
+            continue
+        column_ranks = ranks.get(var)
+        filter_type = _filter_type(chosen[var], column["kind"], column_ranks, nrows)
+        values = None
+        if filter_type != "text":
+            values = _filter_values(tbl_data, var, column_ranks or [])
+        filters.append(FilterSpec(column=var, type=filter_type, values=values))
 
     return Spec(
         version=SPEC_VERSION,
-        nrows=n_rows(tbl_data),
+        nrows=nrows,
         columns=columns,
         spanners=spanners,
         stub=StubSpec(
@@ -242,7 +282,55 @@ def build_spec(data: GTData) -> Spec:
         ),
         # (Responsive layouts are GTI's own, and "scroll" is the only one so far)
         layout=LayoutSpec(height=settings.height, responsive="scroll"),
+        filters=filters,
     )
+
+
+def _filter_type(
+    chosen: FilterType, kind: ColumnKind, ranks: list[int | None] | None, nrows: int
+) -> Literal["text", "facet", "range"]:
+    """How a column is filtered: as chosen, or (for "auto") as its kind and values suggest."""
+    # (Facets and ranges go by the column's ranks, which a column the backend can't sort lacks)
+    if ranks is None or chosen == "text":
+        return "text"
+    if chosen != "auto":
+        return chosen
+    if kind == "number":
+        return "range"
+    if kind in ("boolean", "category"):
+        return "facet"
+    if kind == "string":
+        distinct = max((rank for rank in ranks if rank is not None), default=-1) + 1
+        if distinct <= FACET_MAX_VALUES and distinct * 2 <= nrows:
+            return "facet"
+    return "text"
+
+
+def _filter_values(data: Any, column: str, ranks: list[int | None]) -> list[Any]:
+    """A column's distinct values, in the order of their ranks, as JSON values."""
+    distinct = max((rank for rank in ranks if rank is not None), default=-1) + 1
+    values: list[Any] = [None] * distinct
+    seen = [False] * distinct
+    for value, rank in zip(_get_column_values(data, column), ranks):
+        if rank is not None and not seen[rank]:
+            seen[rank] = True
+            values[rank] = _json_value(value)
+    return values
+
+
+def _json_value(value: Any) -> Any:
+    """A data value as JSON can hold it: NaN and infinities as `None`, dates as ISO 8601 text."""
+    # (NumPy's booleans and numbers, as Python's)
+    if getattr(getattr(value, "dtype", None), "kind", None) in ("b", "i", "u", "f"):
+        value = value.item()
+    if value is None or isinstance(value, (bool, int, str)):
+        return value
+    if isinstance(value, (float, Decimal)):
+        number = float(value)
+        return number if math.isfinite(number) else None
+    if isinstance(value, (dt.date, dt.time)):
+        return value.isoformat()
+    return str(value)
 
 
 def _body_rows(data: GTData, groups_as_column: bool) -> list[BodyRow]:

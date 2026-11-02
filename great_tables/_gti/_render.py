@@ -83,17 +83,17 @@ def render_gti_html(
 
 
 def _has_bar(spec: Spec) -> bool:
-    """Whether the runtime draws a control bar below the table: for a search, or pages.
+    """Whether the runtime draws a control bar below the table: for a search, filters, or pages.
 
     (Or pages there could be: the page sizes readers can choose from, in the bar's info panel,
-    include the table's own.)
+    include the table's own. With filters, the bar's info panel says how many rows they leave.)
     """
     controls, pagination = spec["controls"], spec["pagination"]
     sizes = [pagination["page_size"]]
     if pagination["size_select"]:
         sizes += pagination["page_sizes"]
     paged = pagination["enabled"] and spec["nrows"] > min(sizes)
-    return controls["bar"] and (controls["search"] or paged)
+    return controls["bar"] and (controls["search"] or bool(spec["filters"]) or paged)
 
 
 def _compact(gt: GT) -> GT:

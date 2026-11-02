@@ -21,6 +21,8 @@ const pagination = (fields: object) => JSON.stringify({ ...valid, pagination: { 
 
 const parse = (spec: object) => parseSpec(JSON.stringify(spec));
 
+const filters = (list: unknown) => JSON.stringify({ ...valid, filters: list });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -38,6 +40,16 @@ describe("parseSpec()", () => {
   it("takes the control bar, or its absence", () => {
     expect(parse({ ...valid, controls: { ...valid.controls, bar: true } }).controls.bar).toBe(true);
     expect(parse(valid).controls.bar).toBeUndefined();
+  });
+
+  it("takes filters, or their absence", () => {
+    const list = [
+      { column: "x", type: "range", values: [1.5, 3] },
+      { column: "y", type: "text", values: null },
+    ];
+    expect(parse({ ...valid, filters: list }).filters).toEqual(list);
+    expect(parse({ ...valid, filters: [{ column: "x", type: "facet", values: [true, "b"] }] }).filters).toHaveLength(1);
+    expect(parse(valid).filters).toBeUndefined();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -111,6 +123,14 @@ describe("parseSpec()", () => {
     ["has an empty height", JSON.stringify({ ...valid, layout: { height: " ", responsive: null } }), /`layout`/],
     ["has no responsive layout", JSON.stringify({ ...valid, layout: { height: null } }), /`layout.responsive`/],
     ["has an unknown responsive layout", JSON.stringify({ ...valid, layout: { height: null, responsive: "stack" } }), /`layout.responsive`/],
+    ["has filters that aren't an array", filters({ column: "x" }), /`filters`/],
+    ["has a filter without a column", filters([{ type: "text", values: null }]), /`filters\[0\]`/],
+    ["has a filter of an unknown type", filters([{ column: "x", type: "date", values: null }]), /`filters\[0\]`/],
+    ["has a text filter with values", filters([{ column: "x", type: "text", values: [1] }]), /`filters\[0\]`/],
+    ["has a facet without values", filters([{ column: "x", type: "facet", values: null }]), /`filters\[0\]`/],
+    ["has a facet on a column without ranks", filters([{ column: "y", type: "facet", values: [1, 2] }]), /`filters\[0\]`/],
+    ["has a range without a value for a rank", filters([{ column: "x", type: "range", values: [1] }]), /`filters\[0\]`/],
+    ["has a facet with a value that isn't JSON's", filters([{ column: "x", type: "facet", values: [1, {}] }]), /`filters\[0\]`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

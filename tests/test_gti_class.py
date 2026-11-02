@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime as dt
 import re
 
 import numpy as np
@@ -9,6 +10,7 @@ import pytest
 from great_tables import GT, GTI, exibble
 from great_tables._gti import build_spec
 from great_tables._gti._render import _load_runtime, render_gti_html
+from great_tables._gti._spec import FACET_MAX_VALUES
 
 DF = pd.DataFrame({"id": [f"r{i}" for i in range(6)], "y": [10, 20, 30, 40, 50, 60]})
 
@@ -233,6 +235,146 @@ def test_i_display_takes_bools(option: str):
         GTI(DF).i_display(**{option: "yes"})
 
 
+# filters ----
+
+# Columns of each kind: numbers, booleans, a category, text with few values (each repeated) and
+# with many, and values that can't be sorted
+FILTER_DF = pd.DataFrame(
+    {
+        "id": [f"r{i}" for i in range(6)],
+        "num": [3.5, 1.0, None, 3.5, 2.0, 1.0],
+        "flag": [True, False, True, True, False, True],
+        "cat": pd.Categorical(["lo", "hi", "lo", None, "hi", "lo"], categories=["lo", "hi"]),
+        "few": ["b", "a", "b", "a", "b", "b"],
+        "many": ["u", "v", "w", "x", "y", "z"],
+        "mixed": [1, "a", 2.0, 1, "a", 2.0],
+    }
+)
+
+
+def filters_of(gt: GT) -> list[dict]:
+    return spec_of(gt)["filters"]
+
+
+def test_i_cols_filter_off_by_default():
+    assert filters_of(GTI(FILTER_DF)) == []
+    assert GTI(FILTER_DF)._interactive.filters == ()
+
+
+def test_i_cols_filter_auto():
+    gti = GTI(FILTER_DF, rowname_col="id").i_cols_filter()
+
+    # (Every column but the stub, in column order, with the facets' and ranges' values in rank
+    # order)
+    assert filters_of(gti) == [
+        {"column": "num", "type": "range", "values": [1.0, 2.0, 3.5]},
+        {"column": "flag", "type": "facet", "values": [False, True]},
+        {"column": "cat", "type": "facet", "values": ["lo", "hi"]},
+        {"column": "few", "type": "facet", "values": ["a", "b"]},
+        {"column": "many", "type": "text", "values": None},
+        {"column": "mixed", "type": "text", "values": None},
+    ]
+
+
+@pytest.mark.parametrize(
+    "distinct, expected", [(FACET_MAX_VALUES, "facet"), (FACET_MAX_VALUES + 1, "text")]
+)
+def test_i_cols_filter_auto_facets_text_with_few_values(distinct: int, expected: str):
+    df = pd.DataFrame({"x": [f"v{i:02}" for i in range(distinct)] * 2})
+    assert filters_of(GTI(df).i_cols_filter())[0]["type"] == expected
+
+
+def test_i_cols_filter_types():
+    gti = (
+        GTI(FILTER_DF, rowname_col="id")
+        .i_cols_filter(columns="num", type="facet")
+        .i_cols_filter(columns=["few", "flag"], type="text")
+        .i_cols_filter(columns="id")
+    )
+
+    assert gti._interactive.filters == (
+        ("num", "facet"),
+        ("few", "text"),
+        ("flag", "text"),
+        ("id", "auto"),
+    )
+    # (The stub, when named; in column order)
+    assert filters_of(gti) == [
+        {"column": "id", "type": "text", "values": None},
+        {"column": "num", "type": "facet", "values": [1.0, 2.0, 3.5]},
+        {"column": "flag", "type": "text", "values": None},
+        {"column": "few", "type": "text", "values": None},
+    ]
+
+
+def test_i_cols_filter_replaces_and_removes():
+    gti = GTI(FILTER_DF).i_cols_filter(columns=["num", "few"], type="text")
+    assert gti.i_cols_filter(columns="num", type="range")._interactive.filters == (
+        ("few", "text"),
+        ("num", "range"),
+    )
+    assert gti.i_cols_filter(columns="few", type=None)._interactive.filters == (("num", "text"),)
+    assert gti.i_cols_filter(type=None)._interactive.filters == ()
+
+
+def test_i_cols_filter_leaves_out_the_row_group_column():
+    gti = GTI(FILTER_DF, groupname_col="few").i_cols_filter(columns=["few", "num"])
+    assert [f["column"] for f in filters_of(gti)] == ["num"]
+
+
+@pytest.mark.parametrize("type", ["Range", "number", True, ""])
+def test_i_cols_filter_type_must_be_known(type):
+    with pytest.raises(ValueError, match='`type=` must be "auto", "text", "facet", "range"'):
+        GTI(FILTER_DF).i_cols_filter(columns="num", type=type)
+
+
+@pytest.mark.parametrize("column", ["few", "flag", "cat"])
+def test_i_cols_filter_range_needs_numbers(column: str):
+    with pytest.raises(ValueError, match=f"Column '{column}' can't be filtered by a range"):
+        GTI(FILTER_DF).i_cols_filter(columns=column, type="range")
+
+
+def test_i_cols_filter_facet_needs_comparable_values():
+    with pytest.raises(ValueError, match="Column 'mixed' can't be filtered by a facet"):
+        GTI(FILTER_DF).i_cols_filter(columns="mixed", type="facet")
+    # (But by text)
+    gti = GTI(FILTER_DF).i_cols_filter(columns="mixed", type="text")
+    assert filters_of(gti) == [{"column": "mixed", "type": "text", "values": None}]
+
+
+def test_i_cols_filter_unsortable_facet_is_text():
+    # (A facet goes by the column's ranks, which a column the backend can't sort lacks: naive and
+    # aware datetimes can't be compared)
+    df = pd.DataFrame(
+        {"x": [dt.datetime(2024, 1, 1), dt.datetime(2024, 1, 2, tzinfo=dt.timezone.utc)]}
+    )
+    gti = GTI(df).i_cols_filter(columns="x", type="facet")
+    assert filters_of(gti) == [{"column": "x", "type": "text", "values": None}]
+
+
+def test_i_cols_filter_values_are_json():
+    df = pd.DataFrame(
+        {
+            "n": np.array([2, 1, 2], dtype="int32"),
+            "d": [dt.date(2024, 5, 1), dt.date(2023, 1, 2), None],
+            "f": [0.5, float("nan"), 0.25],
+        }
+    )
+    gti = GTI(df).i_cols_filter(type="facet")
+    assert [f["values"] for f in filters_of(gti)] == [
+        [1, 2],
+        ["2023-01-02", "2024-05-01"],
+        [0.25, 0.5],
+    ]
+    assert all(type(value) is int for value in filters_of(gti)[0]["values"])
+
+
+def test_i_cols_filter_keeps_room_for_the_bar():
+    gti = GTI(DF).i_search(False)
+    assert gt_table_tag(gti) == "<gt-table>"
+    assert gt_table_tag(gti.i_cols_filter(columns="y")) == "<gt-table data-gti-bar>"
+
+
 # the control bar ----
 
 
@@ -294,6 +436,15 @@ def test_from_gt_with_opt_interactive():
         controls={"resizing": False, "selection": "single"},
         pagination={"page_size": 25},
     )
+
+
+def test_from_gt_with_use_filters():
+    gt = GT(FILTER_DF[["id", "num", "few"]], rowname_col="id").opt_interactive(use_filters=True)
+    # (A GT table's own filters are reactable's, which `<gt-table>` doesn't have)
+    assert filters_of(gt) == []
+    assert GTI.from_gt(gt)._interactive.filters == (("num", "auto"), ("few", "auto"))
+    assert [f["type"] for f in filters_of(GTI.from_gt(gt))] == ["range", "facet"]
+    assert GTI.from_gt(gt.opt_interactive())._interactive.filters == ()
 
 
 def test_from_gt_of_a_gti():

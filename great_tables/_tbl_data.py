@@ -654,6 +654,30 @@ def _(data: PyArrowTable, column: str) -> list[int | None] | None:
     return _dense_ranks(order, col.to_pylist(), is_null)
 
 
+# _get_column_values ----
+
+
+@singledispatch
+def _get_column_values(data: DataFrameLike, column: str) -> list[Any]:
+    """Get a column's values, as a list (missing values as the backend has them)."""
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_values.register
+def _(data: PdDataFrame, column: str) -> list[Any]:
+    return data[column].to_list()
+
+
+@_get_column_values.register
+def _(data: PlDataFrame, column: str) -> list[Any]:
+    return data[column].to_list()
+
+
+@_get_column_values.register
+def _(data: PyArrowTable, column: str) -> list[Any]:
+    return data.column(column).to_pylist()
+
+
 # reorder ----
 
 
