@@ -160,6 +160,27 @@ def wide_html(
     return render_gti_html(gt, runtime="none")
 
 
+def pad_html(table_id: str, **options) -> str:
+    # exibble without its groups (8 rows), striped, selectable and searchable, 5 rows to a page
+    # (or 10, which fits every row), so that the last page is short.
+    gt = (
+        GT(exibble.drop(columns="group"), rowname_col="row", id=table_id)
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .opt_row_striping()
+        .tab_source_note("Source: great_tables.exibble")
+    )
+    gt = gt.opt_interactive(
+        selection_mode="multiple",
+        use_search=True,
+        use_page_size_select=True,
+        page_size_values=[5, 10],
+        page_size_default=5,
+        **options,
+    )
+    return render_gti_html(gt, runtime="none")
+
+
 def page(body: str, head: str = "") -> str:
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -336,6 +357,12 @@ def main() -> None:
             )
             for suffix in ["", "-column"]
         },
+        # A table whose last page is short: as GT draws it, and wider than its container (300px).
+        "pad.html": page(pad_html("pd") + "\n" + runtime_src, head=styles),
+        "pad-wide.html": page(
+            '<div style="width: 300px">' + pad_html("pd") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
     }
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")
