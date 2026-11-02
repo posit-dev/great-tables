@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from . import _locations as loc
 from ._gt_data import (
+    _NO_GROUP,
     ColInfo,
     ColInfoTypeEnum,
     FootnoteInfo,
@@ -1232,7 +1233,7 @@ def _create_row_component_h(
     tbl_data: TblData | None = None,
     css_class: str | None = None,
     data: GTData | None = None,  # For footnote handling
-    summary_group_id: str | None = None,  # For group summary rows (distinguishes from grand)
+    summary_group_id: Any = _NO_GROUP,  # For group summary rows; any key, None included
     row_class: str | None = None,  # CSS class for the <tr> element
     stub_col_rowspans: list[int] | None = None,  # Rowspan values for stub cols (multi-col stub)
     stub_col_rows: list[list[int]] | None = None,  # Data rows covered by each stub cell
@@ -1241,7 +1242,7 @@ def _create_row_component_h(
     """Create a single table row (either data row or summary row)"""
 
     is_summary_row = summary_row is not None
-    is_group_summary = summary_group_id is not None
+    is_group_summary = summary_group_id is not _NO_GROUP
     summary_css_class = "gt_summary_row" if is_group_summary else "gt_grand_summary_row"
     body_cells: list[str] = []
 

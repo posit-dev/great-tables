@@ -248,8 +248,8 @@
       <td headers="group x" class="gt_row gt_right">2</td>
     </tr>
     <tr>
-      <th scope="row" id="grand-summary-Total" class="gt_first_summary_row gt_row gt_left gt_stub gt_grand_summary_row">Total</th>
-      <td headers="grand-summary-Total x" class="gt_first_summary_row gt_row gt_right gt_grand_summary_row">2</td>
+      <th scope="row" id="summary-None-Total" class="gt_first_summary_row gt_row gt_left gt_stub gt_summary_row">Total</th>
+      <td headers="group summary-None-Total x" class="gt_first_summary_row gt_row gt_right gt_summary_row">2</td>
     </tr>
   </tbody>
   '''
