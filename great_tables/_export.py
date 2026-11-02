@@ -654,8 +654,9 @@ def write_raw_html(
     """
     import os
 
-    html_content = as_raw_html(
-        gt, inline_css=inline_css, make_page=make_page, all_important=all_important
+    # (As the table renders itself: a `GTI` table renders as interactive HTML)
+    html_content = gt.as_raw_html(
+        inline_css=inline_css, make_page=make_page, all_important=all_important
     )
 
     newline = newline if newline is not None else os.linesep
