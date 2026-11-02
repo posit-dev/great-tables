@@ -524,7 +524,9 @@ class GTI(GT):
         return self._set_interactive(filters=tuple(filters.items()))
 
     def i_view(
-        self, filter: dict[str, Any] | None = None, sort: str | list[str] | None = None
+        self,
+        filter: str | dict[str, Any] | None = None,
+        sort: str | list[str] | None = None,
     ) -> Self:
         """
         Show the table filtered and sorted, as readers first see it.
@@ -546,6 +548,13 @@ class GTI(GT):
             typing is), `"in"` for a facet (a list of values, with `None` for a missing value),
             and `"gte"` (at least) and `"lte"` (at most) for a range (a number). A column can have
             one clause of each operation. With `None` (the default), the rows aren't filtered.
+
+            The query can be written as text instead: clauses joined by `and`, each a column name
+            and then `contains` and a string, `in` and values in parentheses, or `>=` or `<=` and
+            a number (e.g., `'status in ("single-tier") and population_2021 >= 10000'`). Strings
+            are in double quotes, and values are written as in JSON (`null` for a missing value,
+            `true` and `false`). A column name that isn't letters, digits and underscores goes in
+            backticks (`` `Name of town` ``).
         sort
             The columns to sort by: a column name, or a list of them (the first sorts the rows,
             the next sorts the rows that tie, and so on), each in ascending order, or descending
@@ -563,7 +572,7 @@ class GTI(GT):
         --------
         Here's a table of Ontario's municipalities, first showing the single-tier ones with at
         least 10,000 people, most populous first. Readers can change the filters (or clear them)
-        in the column labels, and the sort with the sort buttons.
+        in the column labels or the bar below the table, and the sort with the sort buttons.
 
         ```{python}
         from great_tables import GTI
@@ -580,6 +589,20 @@ class GTI(GT):
                         {"col": "population_2021", "op": "gte", "value": 10000},
                     ]
                 },
+                sort="-population_2021",
+            )
+        )
+        ```
+
+        The same view, with its filter written as text:
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_filter(columns=["status", "population_2021"])
+            .i_view(
+                filter='status in ("single-tier") and population_2021 >= 10000',
                 sort="-population_2021",
             )
         )
