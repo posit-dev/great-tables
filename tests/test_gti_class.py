@@ -8,7 +8,7 @@ import pytest
 
 from great_tables import GT, GTI, exibble
 from great_tables._gti import build_spec
-from great_tables._gti._render import _load_runtime
+from great_tables._gti._render import _load_runtime, render_gti_html
 
 DF = pd.DataFrame({"id": [f"r{i}" for i in range(6)], "y": [10, 20, 30, 40, 50, 60]})
 
@@ -23,7 +23,13 @@ def interactive_of(gt: GT) -> dict:
 
 
 GTI_DEFAULTS = {
-    "controls": {"sorting": True, "search": True, "resizing": True, "selection": None},
+    "controls": {
+        "sorting": True,
+        "search": True,
+        "resizing": True,
+        "selection": None,
+        "bar": True,
+    },
     "pagination": {
         "enabled": True,
         "page_size": 10,
@@ -63,6 +69,7 @@ def test_gt_defaults_are_unchanged():
         "search": False,
         "resizing": False,
         "selection": None,
+        "bar": False,
     }
     assert spec["pagination"]["type"] == "numbers"
     assert spec["pagination"]["size_select"] is False
@@ -178,7 +185,7 @@ def test_i_scroll(height, expected: str):
     gti = GTI(DF).i_scroll(height)
     assert interactive_of(gti) == with_changes(layout={"height": expected})
     assert gti.as_raw_html().startswith(
-        f'<gt-table data-gti-scroll style="--gt-i-height: {expected}">'
+        f'<gt-table data-gti-bar data-gti-scroll style="--gt-i-height: {expected}">'
     )
 
 
@@ -198,7 +205,7 @@ def test_i_display():
     assert interactive_of(gti) == with_changes(
         display={"highlight": False, "compact": True, "wrap": False}
     )
-    assert gti.as_raw_html().startswith("<gt-table data-gti-nowrap>")
+    assert gti.as_raw_html().startswith("<gt-table data-gti-bar data-gti-nowrap>")
 
 
 def test_i_display_compact_halves_row_padding():
@@ -215,6 +222,29 @@ def test_i_display_compact_halves_row_padding():
 def test_i_display_takes_bools(option: str):
     with pytest.raises(TypeError, match=f"`{option}=` must be `True` or `False`"):
         GTI(DF).i_display(**{option: "yes"})
+
+
+# the control bar ----
+
+
+def gt_table_tag(gt: GT) -> str:
+    return gt.as_raw_html().split("\n", 1)[0]
+
+
+def test_control_bar_room_is_kept_for_a_search_or_pages():
+    many = pd.DataFrame({"y": range(11)})
+    assert gt_table_tag(GTI(DF)) == "<gt-table data-gti-bar>"
+    assert gt_table_tag(GTI(many).i_search(False)) == "<gt-table data-gti-bar>"
+    # (Not for one page, or none)
+    assert gt_table_tag(GTI(DF).i_search(False)) == "<gt-table>"
+    assert gt_table_tag(GTI(many).i_search(False).i_pagination(False)) == "<gt-table>"
+    assert gt_table_tag(GTI(many).i_search(False).i_pagination(page_size=11)) == "<gt-table>"
+
+
+def test_opt_interactive_tables_have_no_control_bar():
+    gt = GT(pd.DataFrame({"y": range(11)})).opt_interactive(use_search=True)
+    assert spec_of(gt)["controls"]["bar"] is False
+    assert render_gti_html(gt, runtime="none").startswith("<gt-table>\n")
 
 
 # from_gt ----
@@ -266,7 +296,7 @@ def test_from_gt_needs_a_gt():
 def test_as_raw_html_is_interactive():
     html = GTI(DF).as_raw_html()
     js, css = _load_runtime()
-    assert html.startswith("<gt-table>\n")
+    assert html.startswith("<gt-table data-gti-bar>\n")
     assert css in html and js in html
 
 
@@ -274,7 +304,7 @@ def test_as_raw_html_make_page():
     html = GTI(DF).as_raw_html(make_page=True)
     assert html.startswith('<!DOCTYPE html>\n<html lang="en">\n<head>\n')
     assert '<meta name="viewport" content="width=device-width, initial-scale=1"/>' in html
-    assert "<body>\n<gt-table>\n" in html
+    assert "<body>\n<gt-table data-gti-bar>\n" in html
     assert html.endswith("</body>\n</html>\n")
 
 
@@ -290,14 +320,14 @@ def test_as_raw_html_inline_css_is_not_available():
 
 
 def test_repr_html_is_interactive():
-    assert "<gt-table>" in GTI(DF)._repr_html_()
+    assert "<gt-table data-gti-bar>" in GTI(DF)._repr_html_()
 
 
 def test_write_raw_html(tmp_path):
     GTI(DF).write_raw_html(tmp_path / "gti.html", make_page=True)
     GT(DF).write_raw_html(tmp_path / "gt.html")
 
-    assert "<gt-table>" in (tmp_path / "gti.html").read_text(encoding="utf-8")
+    assert "<gt-table data-gti-bar>" in (tmp_path / "gti.html").read_text(encoding="utf-8")
     assert "<gt-table" not in (tmp_path / "gt.html").read_text(encoding="utf-8")
 
 

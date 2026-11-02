@@ -335,6 +335,7 @@ def test_spec_controls_default():
         "search": False,
         "resizing": False,
         "selection": None,
+        "bar": False,
     }
 
 
@@ -352,6 +353,7 @@ def test_spec_controls_from_opt_interactive(
         "search": use_search,
         "resizing": use_resizers,
         "selection": None,
+        "bar": False,
     }
 
 
