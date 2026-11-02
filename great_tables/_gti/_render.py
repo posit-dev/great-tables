@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from html import escape
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
@@ -54,8 +55,11 @@ def render_gti_html(gt: GT, runtime: Literal["inline", "none"] = "inline") -> st
     spec = build_spec(built)
     spec_json = spec_to_script_json(spec)
 
-    # (The runtime sets this too, but the table shouldn't change when it's hydrated)
+    # (The runtime sets these too, but the table shouldn't change when it's hydrated)
     attrs = "" if spec["display"]["wrap"] else " data-gti-nowrap"
+    height = spec["layout"]["height"]
+    if height is not None:
+        attrs += f' data-gti-scroll style="--gt-i-height: {escape(height)}"'
     html = (
         f"<gt-table{attrs}>\n{table_html}"
         f'<script type="application/json" data-gti-spec>{spec_json}</script>\n'

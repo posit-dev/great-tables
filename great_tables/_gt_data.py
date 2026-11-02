@@ -1608,7 +1608,7 @@ class Options:
     ihtml_page_size_default: OptionsInfo = OptionsInfo(False, "ihtml", "value", 10)
     ihtml_page_size_values: OptionsInfo = OptionsInfo(False, "ihtml", "values", [10, 25, 50, 100])
     ihtml_pagination_type: OptionsInfo = OptionsInfo(False, "ihtml", "value", "numbers")
-    ihtml_height: OptionsInfo = OptionsInfo(False, "ihtml", "value", "auto")
+    ihtml_height: OptionsInfo = OptionsInfo(False, "ihtml", "px", "auto")
     ihtml_selection_mode: OptionsInfo = OptionsInfo(False, "ihtml", "value", None)
 
     def __getitem__(self, k: str) -> Any:

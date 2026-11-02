@@ -11,6 +11,7 @@
  * unusable or doesn't match the table; see the console), or `ready`.
  */
 
+import { TableBorders } from "./borders";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { CellText, rowMatches, searchTerms } from "./search";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
@@ -176,6 +177,27 @@ function authoredWidth(col: HTMLElement, table: number): number {
   return width.endsWith("%") ? (value * table) / 100 : Number.NaN;
 }
 
+// Set a style property, unless it's set to that already (rows are restyled as they're shown)
+function setStyle(el: HTMLElement, property: string, value: string): void {
+  if (el.style.getPropertyValue(property) !== value) {
+    el.style.setProperty(property, value);
+  }
+}
+
+const isTransparent = (color: string) =>
+  color === "" || color === "transparent" || /^rgba\(.*,\s*0\)$/.test(color) || /\/\s*0\)$/.test(color);
+
+// The colour behind an element: the first background that isn't transparent, out from it
+function backdropColor(el: Element): string {
+  for (let node: Element | null = el; node !== null; node = node.parentElement) {
+    const color = getComputedStyle(node).backgroundColor;
+    if (!isTransparent(color)) {
+      return color;
+    }
+  }
+  return "Canvas";
+}
+
 export class GtTable extends HTMLElement {
   /** The static `<table>` this element hydrates, or `null` if there isn't one. */
   table: HTMLTableElement | null = null;
@@ -253,6 +275,18 @@ export class GtTable extends HTMLElement {
   private selectAnchor: number | null = null;
   /** The data rows that match the search, in the order shown (on every page). */
   private order: number[] = [];
+  /** The container the body scrolls in, when it scrolls (`layout.height`). */
+  private scroller: HTMLElement | null = null;
+  /** The table's borders, drawn on its cells so that they move with the rows that stick. */
+  private borders: TableBorders | null = null;
+  /** The rows that stick under the column labels (group headings) and to the bottom. */
+  private stuckTop: HTMLTableRowElement[] = [];
+  private stuckBottom: HTMLTableRowElement[] = [];
+  /** The height the rows stuck at the bottom take up. */
+  private foot = 0;
+  /** The shadows over the scrolling body's top and bottom edges, while there are rows past them. */
+  private shades: { top: HTMLElement; bottom: HTMLElement } | null = null;
+  private shadeFrame = 0;
 
   get state(): State | null {
     return this.getAttribute("data-gti-state") as State | null;
@@ -404,6 +438,7 @@ export class GtTable extends HTMLElement {
     this.layout?.disconnect();
     this.layout = null;
     this.cancelRefit();
+    this.cancelShades();
   }
 
   /** The `<tr>` of data row `row` (numbered by position in the data), if it's in the table. */
@@ -465,6 +500,8 @@ export class GtTable extends HTMLElement {
     if (mode !== null) {
       this.addSelection(table, mode);
     }
+    // (Before column widths are measured, since the cells' borders change)
+    this.setLayout(table, spec);
     this.setDisplay(spec);
     if (this.movable && spec.controls.sorting) {
       this.addSortHeaders(table, spec);
@@ -566,6 +603,186 @@ export class GtTable extends HTMLElement {
     this.blocks = blocks;
     this.groups = Array.from(groups.values());
     this.rowGroups = rowGroups;
+  }
+
+  // A body that scrolls within a height (which gti.css applies by the element's attribute)
+  private setLayout(table: HTMLTableElement, spec: Spec): void {
+    const { height } = spec.layout;
+    this.toggleAttribute("data-gti-scroll", height !== null);
+    if (height === null) {
+      this.style.removeProperty("--gt-i-height");
+      return;
+    }
+    this.style.setProperty("--gt-i-height", height);
+    this.addScroll(table);
+  }
+
+  /**
+   * Scroll the body within the table's container (GT's `<div>` around the table), under column
+   * labels (and the table's header) that stay in view, with each group's heading stuck below them
+   * while its rows go by, and the grand summary rows at the bottom stuck to the bottom. Footnotes
+   * and source notes scroll with the body.
+   */
+  private addScroll(table: HTMLTableElement): void {
+    const doc = this.ownerDocument;
+    let scroller = table.parentElement;
+    if (scroller === null || scroller === this || scroller.tagName !== "DIV") {
+      scroller = doc.createElement("div");
+      table.before(scroller);
+      scroller.append(table);
+    }
+    scroller.classList.add("gt-i-scroller");
+    this.scroller = scroller;
+
+    this.stuckTop = this.groups.flatMap((group) => group.headings);
+    this.stuckBottom = (this.tbody === null ? [] : Array.from(this.tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr"))).filter((tr) => {
+      const entry = this.bodyRows.get(tr);
+      return typeof entry === "object" && "grand_summary" in entry && entry.side === "bottom";
+    });
+    for (const tr of this.stuckBottom) {
+      tr.classList.add("gt-i-stuck-bottom");
+    }
+    // The sticky rows draw the edges between them and the rows that scroll under them
+    const sticky = new Set([...this.stuckTop, ...this.stuckBottom]);
+    this.borders = new TableBorders(table, (tr) => tr.parentElement?.tagName === "THEAD" || sticky.has(tr));
+
+    // Rows scroll under the sticky ones, which need a background to hide them
+    const backdrop = backdropColor(table);
+    const thead = table.tHead;
+    if (thead !== null && isTransparent(getComputedStyle(thead).backgroundColor)) {
+      thead.style.backgroundColor = backdrop;
+    }
+    for (const tr of sticky) {
+      for (const cell of Array.from(tr.cells)) {
+        if (isTransparent(getComputedStyle(cell).backgroundColor)) {
+          cell.style.backgroundColor = backdrop;
+        }
+      }
+    }
+
+    const shade = (edge: string) => {
+      const div = doc.createElement("div");
+      div.className = "gt-i-shade";
+      div.setAttribute("data-gti-edge", edge);
+      div.setAttribute("aria-hidden", "true");
+      this.append(div);
+      return div;
+    };
+    this.shades = { top: shade("top"), bottom: shade("bottom") };
+    scroller.addEventListener("scroll", () => this.queueShades(), { passive: true });
+
+    this.setAttribute("data-gti-sticky", "");
+    this.drawBorders();
+    this.observeLayout();
+  }
+
+  // Draw the borders of the rows shown, and stick the sticky ones where they go
+  private drawBorders(): void {
+    const borders = this.borders;
+    if (borders === null) {
+      return;
+    }
+    borders.redraw();
+    // A group heading's own top border slides under the column labels' bottom one as it sticks
+    for (const tr of this.stuckTop) {
+      for (const cell of Array.from(tr.cells)) {
+        const own = borders.drawnBorder(cell, "top")?.width ?? 0;
+        setStyle(cell, "top", own > 0 ? `calc(var(--gt-i-head, 0px) - ${own}px)` : "var(--gt-i-head, 0px)");
+      }
+    }
+    this.stick();
+  }
+
+  // Measure the sticky rows: how far down group headings stick, and how far up each row stuck at
+  // the bottom does (above the ones after it); and keep what has focus clear of them
+  private stick(): void {
+    const scroller = this.scroller;
+    const table = this.table;
+    if (scroller === null || table === null) {
+      return;
+    }
+    // Sticky boxes stop short of the container's padding, which rows would show through: they
+    // stick over it instead
+    const padding = getComputedStyle(scroller);
+    const padTop = parseFloat(padding.paddingTop) || 0;
+    const padBottom = parseFloat(padding.paddingBottom) || 0;
+    const head = table.tHead?.getBoundingClientRect().height ?? 0;
+    let foot = 0;
+    for (let i = this.stuckBottom.length - 1; i >= 0; i--) {
+      const tr = this.stuckBottom[i] as HTMLTableRowElement;
+      if (tr.hidden) {
+        continue;
+      }
+      for (const cell of Array.from(tr.cells)) {
+        setStyle(cell, "bottom", `${foot - padBottom}px`);
+      }
+      foot += tr.getBoundingClientRect().height;
+    }
+    const heading = Math.max(0, ...this.stuckTop.filter((tr) => !tr.hidden).map((tr) => tr.getBoundingClientRect().height));
+    this.foot = foot;
+    setStyle(this, "--gt-i-pad", `${padTop}px`);
+    setStyle(this, "--gt-i-head", `${head - padTop}px`);
+    setStyle(scroller, "scroll-padding-top", `${head + heading}px`);
+    setStyle(scroller, "scroll-padding-bottom", `${foot}px`);
+    this.placeShades();
+  }
+
+  private queueShades(): void {
+    if (this.shadeFrame === 0 && typeof requestAnimationFrame !== "undefined") {
+      this.shadeFrame = requestAnimationFrame(() => {
+        this.shadeFrame = 0;
+        this.placeShades();
+      });
+    }
+  }
+
+  private cancelShades(): void {
+    if (this.shadeFrame !== 0) {
+      cancelAnimationFrame(this.shadeFrame);
+      this.shadeFrame = 0;
+    }
+  }
+
+  // The shadows go over the part of the table in view: the top one under the column labels (and a
+  // group heading stuck under them), the bottom one over the rows stuck at the bottom
+  private placeShades(): void {
+    const { scroller, shades, table } = this;
+    if (scroller === null || shades === null || table === null) {
+      return;
+    }
+    const outer = this.getBoundingClientRect();
+    const port = scroller.getBoundingClientRect();
+    const box = table.getBoundingClientRect();
+    const top = port.top + scroller.clientTop;
+    const left = Math.max(box.left, port.left + scroller.clientLeft);
+    const right = Math.min(box.right, port.left + scroller.clientLeft + scroller.clientWidth);
+    // (Measured, since the column labels stick only once the container's padding scrolls by)
+    const head = table.tHead === null ? top : table.tHead.getBoundingClientRect().bottom;
+    let under = Math.max(0, head - top);
+    for (const tr of this.stuckTop) {
+      const cell = tr.hidden ? undefined : tr.cells[0];
+      if (cell === undefined) {
+        continue;
+      }
+      const rect = cell.getBoundingClientRect();
+      if (rect.top > head + 0.5) {
+        // (Headings further down aren't stuck)
+        break;
+      }
+      under = Math.max(under, rect.bottom - top);
+    }
+    const place = (shade: HTMLElement, y: number, shown: boolean) => {
+      setStyle(shade, "top", `${y - outer.top - this.clientTop}px`);
+      setStyle(shade, "left", `${left - outer.left - this.clientLeft}px`);
+      setStyle(shade, "width", `${Math.max(0, right - left)}px`);
+      shade.toggleAttribute("data-gti-shown", shown);
+    };
+    place(shades.top, top + under, scroller.scrollTop > 0);
+    place(
+      shades.bottom,
+      top + scroller.clientHeight - this.foot,
+      scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1,
+    );
   }
 
   // Row highlighting and text wrapping, which gti.css styles by the element's attributes
@@ -1157,12 +1374,17 @@ export class GtTable extends HTMLElement {
     if (
       this.layout !== null ||
       typeof ResizeObserver === "undefined" ||
-      (this.toolbar === null && this.pager === null && this.colgroup === null && !this.cutsText)
+      (this.toolbar === null &&
+        this.pager === null &&
+        this.colgroup === null &&
+        !this.cutsText &&
+        this.scroller === null)
     ) {
       return;
     }
     this.layout = new ResizeObserver(() => {
       this.alignBars();
+      this.stick();
       const resized = this.colgroup !== null && this.clientWidth !== this.fittedWidth;
       const unmeasured = !this.widthsFixed && this.needsWidths();
       if ((resized || unmeasured) && this.refitFrame === 0) {
@@ -1176,6 +1398,14 @@ export class GtTable extends HTMLElement {
     this.layout.observe(this);
     if (this.table !== null) {
       this.layout.observe(this.table);
+    }
+    // (The column labels' height, as they wrap; the scrolling container's, as rows are hidden)
+    if (this.scroller !== null) {
+      this.layout.observe(this.scroller);
+      const thead = this.table?.tHead;
+      if (thead != null) {
+        this.layout.observe(thead);
+      }
     }
   }
 
@@ -1349,11 +1579,17 @@ export class GtTable extends HTMLElement {
       this.fixWidths();
     }
     const { shown, page, start, total } = this.place(this.matched, size, this.pageValue);
+    const before = this.view;
     this.pageValue = page;
     this.view = { start, end: start + shown.length, total };
 
     this.restripe(shown);
     this.showEmpty(this.matched !== null && total === 0);
+    this.drawBorders();
+    // Other rows (a new page, or search results) are shown from the top
+    if (this.scroller !== null && (start !== before.start || total !== before.total)) {
+      this.scroller.scrollTop = 0;
+    }
     this.updateSelectAll();
     this.updateSortHeaders();
     this.highlight(shown);
@@ -1446,11 +1682,17 @@ export class GtTable extends HTMLElement {
     const bottom = span.ends ? group.bottom.length : 0;
     const target = (top > 0 ? group.top[0] : undefined) ?? span.first;
     if (cell.parentElement !== target) {
-      cell.parentElement?.classList.remove("gt_row_group_first");
+      const from = cell.parentElement as HTMLTableRowElement | null;
+      from?.classList.remove("gt_row_group_first");
       // (After the selection column's cell)
       const lead = target.firstElementChild;
       target.insertBefore(cell, lead?.classList.contains("gt-i-select") ? lead.nextSibling : lead);
       target.classList.add("gt_row_group_first");
+      // (GT's CSS gives the cells of a group's first row a border)
+      if (from !== null) {
+        this.borders?.forget(from);
+      }
+      this.borders?.forget(target);
     }
     cell.setAttribute("rowspan", String(span.count + top + bottom));
   }
@@ -1957,9 +2199,12 @@ export class GtTable extends HTMLElement {
     this.stopObserving();
     this.cancelSearchTimer();
     this.cancelRefit();
+    this.cancelShades();
     this.layout?.disconnect();
     this.highlightClear();
     this.live?.remove();
+    this.shades?.top.remove();
+    this.shades?.bottom.remove();
     this.toolbar?.remove();
     this.pager?.nav.remove();
     this.table = null;
@@ -2003,9 +2248,20 @@ export class GtTable extends HTMLElement {
     this.selectAll = null;
     this.selectAnchor = null;
     this.order = [];
+    this.scroller = null;
+    this.borders = null;
+    this.stuckTop = [];
+    this.stuckBottom = [];
+    this.foot = 0;
+    this.shades = null;
     this.removeAttribute("data-gti-highlight");
     this.removeAttribute("data-gti-nowrap");
     this.removeAttribute("data-gti-resizing");
+    this.removeAttribute("data-gti-scroll");
+    this.removeAttribute("data-gti-sticky");
+    this.style.removeProperty("--gt-i-height");
+    this.style.removeProperty("--gt-i-head");
+    this.style.removeProperty("--gt-i-pad");
     this.removeAttribute("data-gti-state");
   }
 

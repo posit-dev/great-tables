@@ -456,6 +456,45 @@ def test_render_nowrap_marks_the_element():
     assert nowrap.startswith("<gt-table data-gti-nowrap>\n")
 
 
+def test_spec_layout_default():
+    assert spec_of(GT(DF))["layout"] == {"height": None}
+    assert spec_of(GT(DF).opt_interactive(height="auto"))["layout"] == {"height": None}
+
+
+@pytest.mark.parametrize(
+    "height, expected",
+    [
+        ("400px", "400px"),
+        ("60vh", "60vh"),
+        ("12.5em", "12.5em"),
+        ("50%", "50%"),
+        ("min(60vh, 600px)", "min(60vh, 600px)"),
+        (400, "400px"),
+        (250.5, "250.5px"),
+    ],
+)
+def test_spec_layout_height(height, expected: str):
+    assert spec_of(GT(DF).opt_interactive(height=height))["layout"] == {"height": expected}
+    assert spec_of(GT(DF).tab_options(ihtml_height=height))["layout"] == {"height": expected}
+
+
+@pytest.mark.parametrize("height", ["400", "-5px", "red", "", "400px;color:red", True, -1])
+def test_height_must_be_a_length(height):
+    with pytest.raises(ValueError, match="ihtml_height"):
+        GT(DF).opt_interactive(height=height)
+    with pytest.raises(ValueError, match="ihtml_height"):
+        GT(DF).tab_options(ihtml_height=height)
+
+
+def test_render_height_marks_the_element():
+    gt = GT(DF)
+    assert render_gti_html(gt.opt_interactive(height="auto"), runtime="none").startswith(
+        "<gt-table>\n"
+    )
+    scroll = render_gti_html(gt.opt_interactive(height="min(60vh, 600px)"), runtime="none")
+    assert scroll.startswith('<gt-table data-gti-scroll style="--gt-i-height: min(60vh, 600px)">\n')
+
+
 # ranks ----
 
 NAN = float("nan")

@@ -17,6 +17,8 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `pagination`: whether rows are split into pages, how many to a page, and the page controls
 - `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
   in the table's CSS, as smaller row padding), and whether cell text wraps
+- `layout`: how the table fits its space: the most it can take up before its body scrolls
+  vertically (a CSS length; `null` to grow with its content)
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -114,6 +116,10 @@ class DisplaySpec(TypedDict):
     wrap: bool
 
 
+class LayoutSpec(TypedDict):
+    height: str | None
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -127,6 +133,7 @@ class Spec(TypedDict):
     controls: ControlsSpec
     pagination: PaginationSpec
     display: DisplaySpec
+    layout: LayoutSpec
 
 
 def build_spec(data: GTData) -> Spec:
@@ -229,7 +236,14 @@ def build_spec(data: GTData) -> Spec:
             compact=bool(data._options.ihtml_use_compact_mode.value),
             wrap=bool(data._options.ihtml_use_text_wrapping.value),
         ),
+        layout=LayoutSpec(height=_height(data)),
     )
+
+
+def _height(data: GTData) -> str | None:
+    # (`tab_options()` takes "auto", a CSS length, or a number, made into px)
+    height = data._options.ihtml_height.value
+    return None if height in (None, "auto") else str(height)
 
 
 def _selection_mode(data: GTData) -> SelectionMode | None:

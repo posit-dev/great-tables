@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import warnings
 from collections.abc import Iterable
 from dataclasses import dataclass, fields, replace
@@ -11,6 +12,14 @@ from ._helpers import FontStackName, GoogleFont, _scaled_px, px
 if TYPE_CHECKING:
     from ._locations import LocColumnLabels, LocRowGroups, LocStub
     from ._types import GTSelf
+
+# A CSS length (not negative), e.g. "400px" or "60vh", or a `calc()`, `min()`, `max()` or `clamp()`
+# of lengths, e.g. "min(60vh, 600px)"
+_CSS_LENGTH = re.compile(
+    r"(?:\d+(?:\.\d+)?|\.\d+)(?:px|em|rem|ex|ch|lh|rlh|vw|vh|vmin|vmax|[sld]v[hw]|%|cm|mm|q|in|pt|pc)"
+    r"|(?:calc|min|max|clamp)\([0-9a-z.%+\-*/(), ]+\)",
+    re.IGNORECASE,
+)
 
 
 def tab_options(
@@ -187,7 +196,7 @@ def tab_options(
     ihtml_page_size_default: int | None = None,
     ihtml_page_size_values: list[int] | None = None,
     ihtml_pagination_type: str | None = None,
-    ihtml_height: str | None = None,
+    ihtml_height: str | int | float | None = None,
     ihtml_selection_mode: str | None = None,
 ) -> GTSelf:
     """
@@ -603,6 +612,14 @@ def tab_options(
             'Use either "single" or "multiple".'
         )
 
+    # - `ihtml_height` is "auto", a CSS length, or a number of pixels
+    height = modified_args.get("ihtml_height")
+    if height is not None and not _is_height(height):
+        raise ValueError(
+            f'The chosen option for `ihtml_height` ({height!r}) is invalid. Use "auto", a CSS '
+            'length (e.g., "400px" or "60vh"), or a number of pixels.'
+        )
+
     # Validate and coerce option values based on their declared types
     new_options_info = {}
     for k, v in modified_args.items():
@@ -613,6 +630,14 @@ def tab_options(
     new_options = replace(self._options, **new_options_info)
 
     return self._replace(_options=new_options)
+
+
+def _is_height(value: object) -> bool:
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, (int, float)):
+        return value >= 0 and value != float("inf")
+    return isinstance(value, str) and (value == "auto" or _CSS_LENGTH.fullmatch(value) is not None)
 
 
 def opt_footnote_marks(self: GTSelf, marks: str | list[str] = "numbers") -> GTSelf:
@@ -1833,7 +1858,7 @@ def opt_interactive(
     page_size_default: int = 10,
     page_size_values: list[int] | None = None,
     pagination_type: str = "numbers",
-    height: str = "auto",
+    height: str | int | float = "auto",
     selection_mode: str | None = None,
 ) -> GTSelf:
     """
@@ -1878,8 +1903,9 @@ def opt_interactive(
         `"simple"` (previous/next only), or `"full"` (first/previous/next/last).
     height
         The height of the table's scrollable body. Use `"auto"` (the default) to let the
-        table grow with its content, or supply a CSS length (e.g., `"400px"`) to fix the
-        height and enable vertical scrolling.
+        table grow with its content, or supply a CSS length (e.g., `"400px"` or `"60vh"`) or a
+        number of pixels to limit the height and enable vertical scrolling, with the column
+        labels staying in view.
     selection_mode
         Row selection mode. One of `"single"`, `"multiple"`, or `None` (the default,
         which disables row selection). Rows are selected by clicking them or their checkboxes.
