@@ -8,7 +8,7 @@ them. The spec (see `_spec.py`) is made from either.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
     from .._gt_data import GTData, Options
@@ -55,6 +55,10 @@ class Settings:
     bar: bool = True
     # (The columns readers can filter by, and how, in the order they were set)
     filters: tuple[tuple[str, FilterType], ...] = ()
+    # (How the table is first shown: a query, checked as `i_view()` takes it, and sort keys,
+    # each a column and whether it's descending)
+    view_filter: dict[str, list[dict[str, Any]]] | None = None
+    view_sort: tuple[tuple[str, bool], ...] = ()
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:
