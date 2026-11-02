@@ -116,7 +116,14 @@ export interface LayoutSpec {
    * that stay in view; `null` to grow with its content.
    */
   height: string | null;
+  /**
+   * What the table does when it's wider than its container: `"scroll"` sideways, with the stub
+   * pinned (and the title and notes kept in view); `null` to scroll sideways as GT's table does.
+   */
+  responsive: ResponsiveMode | null;
 }
+
+export type ResponsiveMode = "scroll";
 
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
@@ -240,6 +247,9 @@ export function parseSpec(text: string): Spec {
     !(layout.height === null || (typeof layout.height === "string" && layout.height.trim() !== ""))
   ) {
     throw new SpecError("`layout` must have a `height`: a CSS length, or `null`");
+  }
+  if (!(layout.responsive === null || layout.responsive === "scroll")) {
+    throw new SpecError('`layout.responsive` must be "scroll" or `null`');
   }
 
   const body = raw.body as unknown[];
