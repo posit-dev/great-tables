@@ -35,6 +35,11 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, layout: { height: null, responsive: null } }).layout.responsive).toBeNull();
   });
 
+  it("takes the control bar, or its absence", () => {
+    expect(parse({ ...valid, controls: { ...valid.controls, bar: true } }).controls.bar).toBe(true);
+    expect(parse(valid).controls.bar).toBeUndefined();
+  });
+
   it("ignores fields it doesn't know", () => {
     expect(parse({ ...valid, later: { anything: true } }).nrows).toBe(2);
   });
@@ -83,6 +88,11 @@ describe("parseSpec()", () => {
       "has an unknown selection mode",
       JSON.stringify({ ...valid, controls: { ...valid.controls, selection: "all" } }),
       /`controls`/,
+    ],
+    [
+      "has a control bar flag that isn't a boolean",
+      JSON.stringify({ ...valid, controls: { ...valid.controls, bar: "yes" } }),
+      /`controls.bar`/,
     ],
     ["has no pagination", JSON.stringify({ ...valid, pagination: undefined }), /`pagination`/],
     ["has a page size of 0", pagination({ page_size: 0 }), /`pagination`/],

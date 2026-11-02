@@ -1391,6 +1391,412 @@ describe("the page controls", () => {
   });
 });
 
+describe("the control bar", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const bar = (el: GtTable) => el.querySelector(".gt-i-bar") as HTMLElement;
+  const part = (el: GtTable, name: string) =>
+    el.querySelector(`.gt-i-bar [data-gti-bar="${name}"]`) as HTMLButtonElement;
+  const field = (el: GtTable) => el.querySelector(".gt-i-search-field") as HTMLElement;
+  const count = (el: GtTable) => el.querySelector(".gt-i-search-count") as HTMLElement;
+  const readout = (el: GtTable) => el.querySelector(".gt-i-readout") as HTMLButtonElement;
+  const jump = (el: GtTable) => el.querySelector(".gt-i-readout-jump") as HTMLElement;
+  const jumpInput = (el: GtTable) => jump(el).querySelector("input") as HTMLInputElement;
+  const type = (input: HTMLInputElement, value: string) => {
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const press = (target: Element, key: string, init: KeyboardEventInit = {}) => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...init });
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  // A search, and pages of 2 rows ([3, 0], [4, 1] and [2]), unless set otherwise
+  async function mountBar(options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, ...options.pagination },
+    });
+    const events: (PageEventDetail | SearchEventDetail)[] = [];
+    for (const name of [PAGE_EVENT, SEARCH_EVENT]) {
+      el.addEventListener(name, (event) => {
+        events.push((event as CustomEvent<PageEventDetail | SearchEventDetail>).detail);
+      });
+    }
+    return { el, events };
+  }
+
+  it("is one bar below the table, in the table's font, instead of a toolbar and pager", async () => {
+    const { el } = await mountBar();
+    expect(bar(el).previousElementSibling).toBe(el.querySelector("#t"));
+    expect(bar(el).hidden).toBe(false);
+    expect(bar(el).style.fontFamily).toBe(getComputedStyle(el.table as HTMLTableElement).fontFamily);
+    expect(el.querySelector(".gt-i-toolbar")).toBeNull();
+    expect(el.querySelector(".gt-i-pager")).toBeNull();
+    expect(el.querySelectorAll(".gt-i-live")).toHaveLength(1);
+
+    const nav = el.querySelector(".gt-i-bar-pages") as HTMLElement;
+    expect(nav.tagName).toBe("NAV");
+    expect(nav.getAttribute("aria-label")).toBe("Table pages");
+    expect(part(el, "search").getAttribute("aria-label")).toBe("Search the table");
+    expect(part(el, "search").title).toBe("Search (/)");
+    expect(part(el, "previous").title).toBe("Previous page (←)");
+    expect(part(el, "next").title).toBe("Next page (→)");
+    expect(part(el, "search").querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("opens the search field from its button", async () => {
+    const { el } = await mountBar();
+    expect(field(el).hidden).toBe(true);
+    part(el, "search").click();
+
+    expect(field(el).hidden).toBe(false);
+    expect(part(el, "search").hidden).toBe(true);
+    expect(bar(el).hasAttribute("data-gti-searching")).toBe(true);
+    expect(document.activeElement).toBe(searchBox(el));
+    expect(searchBox(el)?.getAttribute("aria-label")).toBe("Search the table");
+  });
+
+  it("searches as the search box does, and says how many rows match", async () => {
+    const { el, events } = await mountBar();
+    part(el, "search").click();
+    const input = searchBox(el) as HTMLInputElement;
+    vi.useFakeTimers();
+
+    type(input, "a");
+    vi.advanceTimersByTime(100);
+    expect(el.search).toBe("");
+    vi.advanceTimersByTime(50);
+    expect(el.search).toBe("a");
+    expect(count(el).hidden).toBe(false);
+    expect(count(el).textContent).toBe("3 rows");
+    expect(live(el)).toBe("Showing 3 of 5 rows");
+
+    type(input, "c");
+    press(input, "Enter");
+    expect(count(el).textContent).toBe("1 row");
+    expect(events).toEqual([
+      { search: "a", count: 3 },
+      { search: "c", count: 1 },
+    ]);
+    // The pages stay, so the bar doesn't change while searching
+    expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(false);
+  });
+
+  it("clears the search on Escape, then closes the field", async () => {
+    const { el } = await mountBar();
+    part(el, "search").click();
+    const input = searchBox(el) as HTMLInputElement;
+    type(input, "a");
+    press(input, "Enter");
+    expect(part(el, "clear").getAttribute("aria-label")).toBe("Clear the search");
+    expect(part(el, "clear").title).toBe("Clear (Esc)");
+
+    expect(press(input, "Escape").defaultPrevented).toBe(true);
+    expect([input.value, el.search]).toEqual(["", ""]);
+    expect(field(el).hidden).toBe(false);
+    expect(count(el).hidden).toBe(true);
+    expect(part(el, "clear").getAttribute("aria-label")).toBe("Close the search");
+    expect(part(el, "clear").title).toBe("Close (Esc)");
+
+    expect(press(input, "Escape").defaultPrevented).toBe(true);
+    expect(field(el).hidden).toBe(true);
+    expect(part(el, "search").hidden).toBe(false);
+    expect(bar(el).hasAttribute("data-gti-searching")).toBe(false);
+    expect(document.activeElement).toBe(part(el, "search"));
+  });
+
+  it("clears the search with its clear button, then closes the field", async () => {
+    const { el } = await mountBar();
+    part(el, "search").click();
+    const input = searchBox(el) as HTMLInputElement;
+    type(input, "a");
+    press(input, "Enter");
+
+    part(el, "clear").click();
+    expect(el.search).toBe("");
+    expect(field(el).hidden).toBe(false);
+    expect(document.activeElement).toBe(input);
+
+    part(el, "clear").click();
+    expect(field(el).hidden).toBe(true);
+    expect(document.activeElement).toBe(part(el, "search"));
+  });
+
+  it("closes an empty field when focus leaves it, and drops a search waiting on typing", async () => {
+    const { el, events } = await mountBar();
+    part(el, "search").click();
+    const input = searchBox(el) as HTMLInputElement;
+    const leave = (to: Element | null) =>
+      input.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: to }));
+
+    // Not when focus goes to the clear button, or the field has a search in it
+    leave(part(el, "clear"));
+    expect(field(el).hidden).toBe(false);
+    type(input, "a");
+    press(input, "Enter");
+    leave(null);
+    expect(field(el).hidden).toBe(false);
+
+    vi.useFakeTimers();
+    type(input, "");
+    leave(null);
+    expect(field(el).hidden).toBe(true);
+    expect(el.search).toBe("");
+    vi.advanceTimersByTime(500);
+    expect(events).toEqual([
+      { search: "a", count: 3 },
+      { search: "", count: 5 },
+    ]);
+  });
+
+  it("opens the search on `/`, but not from a field for typing", async () => {
+    const { el } = await mountBar();
+    const cell = el.querySelector("tbody td") as HTMLElement;
+    expect(press(cell, "/", { ctrlKey: true }).defaultPrevented).toBe(false);
+    expect(field(el).hidden).toBe(true);
+
+    expect(press(cell, "/").defaultPrevented).toBe(true);
+    expect(field(el).hidden).toBe(false);
+    expect(document.activeElement).toBe(searchBox(el));
+    // (A `/` typed in the search is the search's)
+    expect(press(searchBox(el) as HTMLInputElement, "/").defaultPrevented).toBe(false);
+  });
+
+  it("follows `search`, opening the field for a search and closing it for none", async () => {
+    const { el, events } = await mountBar();
+    el.search = "a";
+    expect(field(el).hidden).toBe(false);
+    expect(searchBox(el)?.value).toBe("a");
+    expect(count(el).textContent).toBe("3 rows");
+
+    el.search = "";
+    expect(field(el).hidden).toBe(true);
+    expect(events).toEqual([]);
+    expect(live(el)).toBe("");
+  });
+
+  it("keeps the field open when `search` is emptied while it has focus", async () => {
+    const { el } = await mountBar();
+    part(el, "search").click();
+    el.search = "a";
+    el.search = "";
+    expect(field(el).hidden).toBe(false);
+    expect(document.activeElement).toBe(searchBox(el));
+  });
+
+  it("shows a search set before hydration", async () => {
+    const { html, spec } = gtTable(GROUPED, { controls: { search: true, bar: true } });
+    const el = document.createElement(TAG_NAME) as GtTable;
+    el.search = "c";
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+
+    expect(field(el).hidden).toBe(false);
+    expect(searchBox(el)?.value).toBe("c");
+    expect(count(el).textContent).toBe("1 row");
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+  });
+
+  it("has a readout of the page and page count, which says which rows are shown", async () => {
+    const { el } = await mountBar();
+    expect(readout(el).textContent).toBe("1/3");
+    expect(readout(el).getAttribute("aria-label")).toBe("Page 1 of 3");
+    expect(readout(el).title).toBe("Go to a page (1–2 of 5 rows)");
+    expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.style.getPropertyValue("--gt-i-digits")).toBe("1");
+
+    el.search = "a";
+    expect(readout(el).textContent).toBe("1/2");
+    expect(readout(el).title).toBe("Go to a page (1–2 of 3 rows (filtered from 5))");
+  });
+
+  it("leaves the rows out of the readout's title when asked", async () => {
+    const { el } = await mountBar({ pagination: { info: false } });
+    expect(readout(el).title).toBe("Go to a page");
+  });
+
+  it("changes the page with its arrows, with an event and an announcement", async () => {
+    const { el, events } = await mountBar();
+    expect(part(el, "previous").getAttribute("aria-disabled")).toBe("true");
+    part(el, "previous").click();
+    expect(events).toEqual([]);
+
+    part(el, "next").click();
+    expect(el.page).toBe(2);
+    expect(events).toEqual([{ page: 2, pageSize: 2, pageCount: 3 }]);
+    expect(live(el)).toBe("Page 2 of 3");
+    expect(readout(el).textContent).toBe("2/3");
+
+    part(el, "next").click();
+    expect(part(el, "next").getAttribute("aria-disabled")).toBe("true");
+    part(el, "next").click();
+    expect(events).toHaveLength(2);
+    part(el, "previous").click();
+    expect(el.page).toBe(2);
+  });
+
+  it("pages with the arrow keys, Page Up and Down, and Home and End", async () => {
+    const { el, events } = await mountBar();
+    const next = part(el, "next");
+    expect(press(next, "ArrowRight").defaultPrevented).toBe(true);
+    expect(el.page).toBe(2);
+    press(next, "PageDown");
+    press(readout(el), "ArrowLeft");
+    press(next, "End");
+    press(next, "PageUp");
+    press(next, "Home");
+    expect(events.map((event) => (event as PageEventDetail).page)).toEqual([2, 3, 2, 3, 2, 1]);
+
+    // Not with a modifier, or while typing
+    expect(press(next, "ArrowRight", { altKey: true }).defaultPrevented).toBe(false);
+    part(el, "search").click();
+    expect(press(searchBox(el) as HTMLInputElement, "ArrowRight").defaultPrevented).toBe(false);
+    expect(press(next, "Escape").defaultPrevented).toBe(false);
+    expect(el.page).toBe(1);
+  });
+
+  it("turns the readout into an input for the page to go to", async () => {
+    const { el, events } = await mountBar();
+    readout(el).click();
+    const input = jumpInput(el);
+    expect([readout(el).hidden, jump(el).hidden]).toEqual([true, false]);
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe("1");
+    expect(input.inputMode).toBe("numeric");
+    expect(input.getAttribute("aria-label")).toBe("Go to page (of 3)");
+    expect(jump(el).textContent).toBe("/3");
+
+    input.value = "3";
+    expect(press(input, "Enter").defaultPrevented).toBe(true);
+    expect(el.page).toBe(3);
+    expect([readout(el).hidden, jump(el).hidden]).toEqual([false, true]);
+    expect(document.activeElement).toBe(readout(el));
+    expect(events).toEqual([{ page: 3, pageSize: 2, pageCount: 3 }]);
+  });
+
+  it("goes to the last page for one past it, and nowhere for anything else", async () => {
+    const { el } = await mountBar();
+    readout(el).click();
+    jumpInput(el).value = "99";
+    press(jumpInput(el), "Enter");
+    expect(el.page).toBe(3);
+
+    for (const value of ["two", "1.5", ""]) {
+      readout(el).click();
+      jumpInput(el).value = value;
+      press(jumpInput(el), "Enter");
+      expect(el.page).toBe(3);
+    }
+  });
+
+  it("goes nowhere on Escape, and to the page typed when the input loses focus", async () => {
+    const { el } = await mountBar();
+    readout(el).click();
+    jumpInput(el).value = "2";
+    const escape = press(jumpInput(el), "Escape");
+    expect(escape.defaultPrevented).toBe(true);
+    expect(el.page).toBe(1);
+    expect(jump(el).hidden).toBe(true);
+    expect(document.activeElement).toBe(readout(el));
+
+    readout(el).click();
+    jumpInput(el).value = "2";
+    jumpInput(el).dispatchEvent(new FocusEvent("blur"));
+    expect(el.page).toBe(2);
+    expect(jump(el).hidden).toBe(true);
+  });
+
+  it("has no pages, and sticks to the bottom of the view, when every row fits on a page", async () => {
+    const { el } = await mountBar({ pagination: { enabled: false } });
+    expect(bar(el).hidden).toBe(false);
+    expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(true);
+    expect(bar(el).hasAttribute("data-gti-stick")).toBe(true);
+
+    el.pageSize = 2;
+    expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(false);
+    expect(bar(el).hasAttribute("data-gti-stick")).toBe(false);
+    expect(bar(el).style.backgroundColor).toBe("");
+    // (Pages that every row fits on aren't pages)
+    el.pageSize = 5;
+    expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(true);
+  });
+
+  it("doesn't stick in a body that scrolls", async () => {
+    const { el } = await mountBar({ pagination: { enabled: false }, layout: { height: "300px" } });
+    expect(bar(el).hasAttribute("data-gti-stick")).toBe(false);
+  });
+
+  it("comes with the pages, without a search", async () => {
+    const { el } = await mountBar({ controls: { search: false }, pagination: { page_size: 5 } });
+    expect(bar(el)).toBeNull();
+
+    el.pageSize = 2;
+    expect(bar(el).hidden).toBe(false);
+    expect(el.querySelector(".gt-i-bar-search")).toBeNull();
+    expect(readout(el).textContent).toBe("1/3");
+    el.pageSize = null;
+    expect(bar(el).hidden).toBe(true);
+  });
+
+  it("isn't there without a search or pages", async () => {
+    const { el } = await mountBar({ controls: { search: false }, pagination: { enabled: false } });
+    expect(bar(el)).toBeNull();
+  });
+
+  it("is at least 300px wide, centred under a narrower table, within the element", async () => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      if (this instanceof GtTable) {
+        return new DOMRect(0, 0, 800, 200);
+      }
+      return this.tagName === "TABLE" ? new DOMRect(350, 0, 100, 180) : new DOMRect(0, 0, 0, 0);
+    });
+    const { el } = await mountBar();
+    expect([bar(el).style.marginLeft, bar(el).style.width]).toEqual(["250px", "300px"]);
+  });
+
+  it("is as wide as a wider table, and kept within the element", async () => {
+    let table = new DOMRect(100, 0, 500, 180);
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      if (this instanceof GtTable) {
+        return new DOMRect(0, 0, 800, 200);
+      }
+      return this.tagName === "TABLE" ? table : new DOMRect(0, 0, 0, 0);
+    });
+    const { el } = await mountBar();
+    expect([bar(el).style.marginLeft, bar(el).style.width]).toEqual(["100px", "500px"]);
+
+    table = new DOMRect(0, 0, 100, 180);
+    el.search = "a";
+    (el as unknown as { alignBars(): void }).alignBars();
+    expect([bar(el).style.marginLeft, bar(el).style.width]).toEqual(["0px", "300px"]);
+  });
+
+  it("isn't used without `bar` in the spec", async () => {
+    const el = await mountTable(GROUPED, { controls: { search: true }, pagination: { enabled: true } });
+    expect(bar(el)).toBeNull();
+    expect(el.querySelector(".gt-i-toolbar")).not.toBeNull();
+    expect(el.querySelector(".gt-i-pager")).not.toBeNull();
+  });
+
+  it("goes when the table's children are replaced, as does its `/` key", async () => {
+    const { el } = await mountBar();
+    const { html, spec } = gtTable(GROUPED, { controls: { search: false } });
+    el.remove();
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+
+    expect(bar(el)).toBeNull();
+    expect(el.querySelector(".gt-i-toolbar")).toBeNull();
+    expect(press(el.querySelector("tbody td") as HTMLElement, "/").defaultPrevented).toBe(false);
+  });
+});
+
 describe("row display", () => {
   const tap = (target: Element, pointerType = "touch") => {
     target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType }));
