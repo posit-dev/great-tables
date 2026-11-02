@@ -16,7 +16,15 @@ import { ColumnFilter, type FilterQuery, filterQuery, MISSING, setFilterQuery } 
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { CellText, rowMatches, searchTerms } from "./search";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
-import { type BodyRow, parseSpec, type ResponsiveMode, type SelectionMode, type Spec, SpecError } from "./spec";
+import {
+  type BodyRow,
+  parseSpec,
+  type ResponsiveMode,
+  type SelectionMode,
+  type Spec,
+  SpecError,
+  type ViewSpec,
+} from "./spec";
 
 export const TAG_NAME = "gt-table";
 
@@ -553,7 +561,8 @@ export class GtTable extends HTMLElement {
    * keep, `null` for a missing one); or "gte" or "lte", for a range (`value` is the bound).
    *
    * @throws {RangeError} for a query that isn't `{and: [...]}`, or with a clause on a column that
-   *   isn't one of `filterableColumns`, or that the column's filter can't have.
+   *   isn't one of `filterableColumns`, or that the column's filter can't have (an "in" without
+   *   values, or a second clause with the same `op` on a column, too).
    */
   get filter(): FilterQuery | null {
     return filterQuery(this.filters.map((control) => control.filter));
@@ -767,9 +776,12 @@ export class GtTable extends HTMLElement {
     if (this.movable && (spec.controls.search || this.filters.length > 0) && bar) {
       this.addBar();
     }
+    if (this.movable && spec.view !== undefined) {
+      this.applySpecView(spec, spec.view);
+    }
     // A search or page set before hydration applies now
     this.matchRows();
-    if (this.matched !== null || this.size !== null) {
+    if (this.matched !== null || this.size !== null || this.sortKeys.length > 0) {
       this.render();
     } else {
       // (Not rendered, so every row is shown, as it was)
@@ -779,6 +791,33 @@ export class GtTable extends HTMLElement {
       }
     }
     this.setState("ready");
+  }
+
+  // Sort and filter the table as the spec's view says (without events). A part of the view the
+  // table can't have is left out, with a warning, and the rest applied.
+  private applySpecView(spec: Spec, view: ViewSpec): void {
+    try {
+      this.sortKeys = normalizeSort(view.sort, spec.ranks);
+    } catch (err) {
+      if (!(err instanceof RangeError)) {
+        throw err;
+      }
+      console.warn(`<gt-table>: the view's sort is left out (${err.message}).`);
+    }
+    try {
+      setFilterQuery(
+        this.filters.map((control) => control.filter),
+        view.filter as FilterQuery | null,
+      );
+    } catch (err) {
+      if (!(err instanceof RangeError)) {
+        throw err;
+      }
+      console.warn(`<gt-table>: the view's filter is left out (${err.message}).`);
+    }
+    for (const control of this.filters) {
+      this.syncFilter(control);
+    }
   }
 
   private mapRows(table: HTMLTableElement, spec: Spec): void {
