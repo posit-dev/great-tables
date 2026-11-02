@@ -12,6 +12,7 @@
  */
 
 import { placeCells, type Side, TableBorders } from "./borders";
+import { ColumnFilter, type FilterQuery, filterQuery, MISSING, setFilterQuery } from "./filter";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { CellText, rowMatches, searchTerms } from "./search";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
@@ -24,6 +25,9 @@ export const SORT_EVENT = "gt-table-sort";
 
 /** The event fired when the reader searches (not when the `search` property is set). */
 export const SEARCH_EVENT = "gt-table-search";
+
+/** The event fired when the reader changes a column's filter (not when the `filter` property is set). */
+export const FILTER_EVENT = "gt-table-filter";
 
 /** The event fired when the reader changes the page or the page size (not when properties are set). */
 export const PAGE_EVENT = "gt-table-page";
@@ -50,6 +54,13 @@ export interface SortEventDetail {
 export interface SearchEventDetail {
   search: string;
   /** The number of data rows that match. */
+  count: number;
+}
+
+export interface FilterEventDetail {
+  /** The filters, as a query (`null` without any). */
+  filter: FilterQuery | null;
+  /** The number of data rows that match the filters (and the search). */
   count: number;
 }
 
@@ -118,6 +129,30 @@ interface SortHeader {
   th: HTMLTableCellElement;
   icon: HTMLElement;
   label: string;
+}
+
+/** A column's filter, and its button in the column label, which opens its panel (a disclosure). */
+interface FilterControl {
+  filter: ColumnFilter;
+  label: string;
+  /** The column label, and its button; `null` for a column without a label (filtered by `filter` only). */
+  th: HTMLTableCellElement | null;
+  button: HTMLButtonElement | null;
+  /** The panel, made when it's first opened; its Clear button, and its inputs. */
+  panel: HTMLElement | null;
+  clear: HTMLButtonElement | null;
+  text: HTMLInputElement | null;
+  min: HTMLInputElement | null;
+  max: HTMLInputElement | null;
+  /** A facet's values: their checkboxes, and the number of rows each would have. */
+  options: FacetOption[];
+}
+
+interface FacetOption {
+  key: number;
+  item: HTMLElement;
+  box: HTMLInputElement;
+  count: HTMLElement;
 }
 
 // Header content that can't go inside a <button>
@@ -205,6 +240,10 @@ interface Info {
   sort: HTMLElement | null;
   sortText: HTMLElement | null;
   sortReset: HTMLButtonElement | null;
+  /** The filters, and the button that clears them (with filters). */
+  filters: HTMLElement | null;
+  filtersText: HTMLElement | null;
+  filtersClear: HTMLButtonElement | null;
   /** The selection, and the button that clears it (with selection). */
   selection: HTMLElement | null;
   selectionText: HTMLElement | null;
@@ -229,14 +268,15 @@ const ICONS = {
   next: "M9 5l7 7-7 7",
   clear: "M6 6l12 12M18 6 6 18",
   info: "M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0M12 11v5M12 7.5v.01",
+  filter: "M4 5h16l-6 7.5V18l-4 2v-7.5z",
 };
 
 // What can have text typed into it, where `/` is a character rather than the search's key
 const TYPED = 'input:not([type="checkbox"]):not([type="radio"]), textarea, select, [contenteditable]';
 
-/** A column label's text, for announcements: without footnote marks. */
-function labelText(th: HTMLTableCellElement): string {
-  const copy = th.cloneNode(true) as HTMLTableCellElement;
+/** A cell's text, for announcements: without footnote marks. */
+function labelText(cell: Element): string {
+  const copy = cell.cloneNode(true) as Element;
   for (const mark of copy.querySelectorAll(".gt_footnote_marks")) {
     mark.remove();
   }
@@ -332,10 +372,19 @@ export class GtTable extends HTMLElement {
   private sortHeaders = new Map<string, SortHeader>();
   private searchValue = "";
   private terms: string[] = [];
-  /** Per data row, whether it matches the search; `null` without one. */
+  /** Per data row, whether it matches the search and the filters; `null` without any. */
   private matched: Uint8Array | null = null;
-  /** The number of data rows that match the search (all of them, without one). */
+  /** The number of data rows that match the search and the filters (all of them, without any). */
   private matchCount = 0;
+  /** The columns' filters, in column order. */
+  private filters: FilterControl[] = [];
+  /** The filter whose panel is open, and the page's handlers for a press outside it and for scrolling. */
+  private openFilter: FilterControl | null = null;
+  private filterPress: ((event: PointerEvent) => void) | null = null;
+  private filterScroll: (() => void) | null = null;
+  /** A change to a filter, waiting on the typing to pause. */
+  private filterChange: (() => void) | null = null;
+  private filterTimer: ReturnType<typeof setTimeout> | null = null;
   private pageValue = 1;
   /** The page size: `null` for one page of every row, or `undefined` for the spec's. */
   private pageSizeValue: number | null | undefined = undefined;
@@ -491,6 +540,37 @@ export class GtTable extends HTMLElement {
     }
   }
 
+  /** The columns the table can be filtered by (see `filter`). Empty until hydrated. */
+  get filterableColumns(): string[] {
+    return this.filters.map((control) => control.filter.column);
+  }
+
+  /**
+   * The filters, as a query: `{and: [clauses]}`, with a clause `{col, op, value}` for each filter
+   * on a column (two for a range with both bounds), or `null` without any. Rows are shown that
+   * every clause, and the search, keep. A clause's `op` is "contains", for a text filter (`value`
+   * is the text, matched as the search matches it); "in", for a facet (`value` is the values to
+   * keep, `null` for a missing one); or "gte" or "lte", for a range (`value` is the bound).
+   *
+   * @throws {RangeError} for a query that isn't `{and: [...]}`, or with a clause on a column that
+   *   isn't one of `filterableColumns`, or that the column's filter can't have.
+   */
+  get filter(): FilterQuery | null {
+    return filterQuery(this.filters.map((control) => control.filter));
+  }
+
+  set filter(query: FilterQuery | null) {
+    this.cancelFilterTimer();
+    setFilterQuery(
+      this.filters.map((control) => control.filter),
+      query,
+    );
+    for (const control of this.filters) {
+      this.syncFilter(control);
+    }
+    this.applyFilters();
+  }
+
   /**
    * The page shown, from 1. A new sort or search goes back to the first page. Can be set before
    * the table is hydrated; a page past the last is the last.
@@ -596,6 +676,7 @@ export class GtTable extends HTMLElement {
 
   disconnectedCallback(): void {
     this.closeInfo(false);
+    this.closeFilter(false);
     this.stopObserving();
     this.layout?.disconnect();
     this.layout = null;
@@ -669,6 +750,9 @@ export class GtTable extends HTMLElement {
     if (this.movable && spec.controls.sorting) {
       this.addSortHeaders(table, spec);
     }
+    if (this.movable && (spec.filters?.length ?? 0) > 0) {
+      this.addFilters(table, spec);
+    }
     const bar = spec.controls.bar === true;
     if (this.movable && spec.controls.search && !bar) {
       this.addSearchBox(table);
@@ -680,7 +764,7 @@ export class GtTable extends HTMLElement {
       this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
     }
     // (With pages only, the bar comes with them)
-    if (this.movable && spec.controls.search && bar) {
+    if (this.movable && (spec.controls.search || this.filters.length > 0) && bar) {
       this.addBar();
     }
     // A search or page set before hydration applies now
@@ -2079,6 +2163,9 @@ export class GtTable extends HTMLElement {
       sort: null,
       sortText: null,
       sortReset: null,
+      filters: null,
+      filtersText: null,
+      filtersClear: null,
       selection: null,
       selectionText: null,
       selectionClear: null,
@@ -2125,6 +2212,14 @@ export class GtTable extends HTMLElement {
       info.sortText = span();
       info.sortReset = action("Reset", "Reset the sort", () => this.userSort([]));
       info.sort = item("sort", "div", info.sortText, info.sortReset);
+    }
+    if (this.filters.length > 0) {
+      info.filtersText = span();
+      info.filtersClear = action("Clear", "Clear the filters", () => {
+        this.cancelFilterTimer();
+        this.userFilter(() => this.clearFilters());
+      });
+      info.filters = item("filters", "div", info.filtersText, info.filtersClear);
     }
     if (spec.controls.selection !== null) {
       info.selectionText = span();
@@ -2202,6 +2297,7 @@ export class GtTable extends HTMLElement {
     if (info === undefined || !info.panel.hidden) {
       return;
     }
+    this.closeFilter(false);
     this.updateInfo();
     // (Over the table, so filled with what's behind it)
     info.panel.style.backgroundColor = backdropColor(this);
@@ -2283,6 +2379,10 @@ export class GtTable extends HTMLElement {
       info.sortText.textContent = this.sortText();
       info.sortReset.setAttribute("aria-disabled", String(this.sortKeys.length === 0));
     }
+    if (info.filtersText !== null && info.filtersClear !== null) {
+      info.filtersText.textContent = this.filtersText();
+      info.filtersClear.setAttribute("aria-disabled", String(this.activeFilters().length === 0));
+    }
     if (info.selectionText !== null && info.selectionClear !== null) {
       info.selectionText.textContent = this.selectionText();
       info.selectionClear.setAttribute("aria-disabled", String(this.selected.size === 0));
@@ -2293,6 +2393,452 @@ export class GtTable extends HTMLElement {
     if (info.keys !== null) {
       info.keys.hidden = Array.from(info.keys.querySelectorAll<HTMLElement>("dl > div"), (entry) => entry.hidden).every(Boolean);
     }
+  }
+
+  // A filter button in the label of each column that can be filtered (after its sort button), and
+  // a filter for each, whether or not it has a label (and so a button)
+  private addFilters(table: HTMLTableElement, spec: Spec): void {
+    const doc = this.ownerDocument;
+    const cells = new Map<string, HTMLTableCellElement>();
+    for (const th of table.querySelectorAll<HTMLTableCellElement>(":scope > thead th[id]")) {
+      cells.set(th.id, th);
+    }
+
+    for (const filterSpec of spec.filters ?? []) {
+      const id = filterSpec.column;
+      const index = spec.columns.findIndex((column) => column.id === id);
+      const column = spec.columns[index];
+      if (column === undefined || this.filters.some((control) => control.filter.column === id)) {
+        continue;
+      }
+      const th = column.header === null ? null : (cells.get(column.header) ?? null);
+      const label = this.sortHeaders.get(id)?.label ?? ((th !== null && labelText(th)) || id);
+      const filter = new ColumnFilter(filterSpec, index, spec.ranks[id] ?? []);
+      const control: FilterControl = {
+        filter,
+        label,
+        th,
+        button: null,
+        panel: null,
+        clear: null,
+        text: null,
+        min: null,
+        max: null,
+        options: [],
+      };
+      this.filters.push(control);
+      if (th === null) {
+        continue;
+      }
+
+      const button = doc.createElement("button");
+      button.type = "button";
+      button.className = "gt-i-filter-button";
+      button.title = "Filter";
+      button.setAttribute("aria-expanded", "false");
+      button.append(icon(doc, "filter"));
+      th.append(button);
+      control.button = button;
+      button.addEventListener("click", () => {
+        if (this.openFilter === control) {
+          this.closeFilter(false);
+        } else {
+          this.openFilterPanel(control);
+        }
+      });
+      button.addEventListener("focusout", (event) => this.leaveFilter(control, event));
+    }
+
+    if (this.filters.length > 0) {
+      this.updateFilterButtons();
+      this.addLiveRegion();
+      this.observeLayout();
+    }
+  }
+
+  /**
+   * Make a filter's panel: the column's label and a Clear button, over a text field (a text
+   * filter), a checkbox for each value (a facet), or fields for the bounds (a range).
+   */
+  private makeFilterPanel(control: FilterControl): HTMLElement {
+    const doc = this.ownerDocument;
+    const { filter, label } = control;
+    const panel = doc.createElement("div");
+    panel.className = "gt-i-filter";
+    panel.id = `gt-i-filter-${++infoCount}`;
+    panel.dataset.gtiFilter = filter.type;
+    panel.setAttribute("role", "group");
+    panel.setAttribute("aria-label", `Filter ${label}`);
+    panel.hidden = true;
+    control.button?.setAttribute("aria-controls", panel.id);
+
+    const head = doc.createElement("div");
+    head.className = "gt-i-filter-head";
+    const title = doc.createElement("span");
+    title.className = "gt-i-filter-title";
+    title.textContent = label;
+    const clear = doc.createElement("button");
+    clear.type = "button";
+    clear.className = "gt-i-info-button";
+    clear.textContent = "Clear";
+    clear.setAttribute("aria-label", `Clear the filter on ${label}`);
+    // (Disabled with ARIA, so that it keeps focus once it has cleared the filter)
+    clear.addEventListener("click", () => {
+      if (clear.getAttribute("aria-disabled") !== "true") {
+        this.cancelFilterTimer();
+        this.userFilter(() => filter.clear());
+        this.syncFilter(control);
+      }
+    });
+    head.append(title, clear);
+    panel.append(head);
+    control.clear = clear;
+
+    // A field for text, which filters once typing pauses, or at once on Enter
+    const field = (name: string, placeholder: string, mode: "text" | "decimal") => {
+      const input = doc.createElement("input");
+      input.type = "text";
+      input.inputMode = mode;
+      input.placeholder = placeholder;
+      input.setAttribute("aria-label", name);
+      input.setAttribute("enterkeyhint", "done");
+      input.autocomplete = "off";
+      input.spellcheck = false;
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          // (And don't submit a form the table is in)
+          event.preventDefault();
+          this.flushFilter();
+        }
+      });
+      return input;
+    };
+
+    if (filter.type === "text") {
+      const input = field(`${label} contains`, "Contains", "text");
+      input.className = "gt-i-filter-text";
+      input.addEventListener("input", () => this.queueFilter(() => filter.setText(input.value)));
+      panel.append(input);
+      control.text = input;
+    } else if (filter.type === "range") {
+      // (The bounds the column's numbers have, as placeholders)
+      const numbers = (filter.spec.values ?? []).filter((value): value is number => typeof value === "number");
+      const bounds = doc.createElement("div");
+      bounds.className = "gt-i-filter-range";
+      const bound = (text: string, placeholder: number | undefined) => {
+        const el = doc.createElement("label");
+        el.className = "gt-i-filter-bound";
+        const name = doc.createElement("span");
+        name.textContent = text;
+        const hint = placeholder === undefined ? "" : String(placeholder);
+        const input = field(`${label}, ${text.toLowerCase()}`, hint, "decimal");
+        input.addEventListener("input", () => this.queueFilter(() => this.readBounds(control)));
+        el.append(name, input);
+        bounds.append(el);
+        return input;
+      };
+      control.min = bound("At least", numbers[0]);
+      control.max = bound("At most", numbers[numbers.length - 1]);
+      panel.append(bounds);
+    } else {
+      const list = doc.createElement("div");
+      list.className = "gt-i-filter-options";
+      for (const [key, text] of this.facetLabels(filter)) {
+        const item = doc.createElement("label");
+        item.className = "gt-i-filter-option";
+        const box = doc.createElement("input");
+        box.type = "checkbox";
+        const name = doc.createElement("span");
+        name.className = "gt-i-filter-value";
+        name.textContent = text;
+        const count = doc.createElement("span");
+        count.className = "gt-i-filter-count";
+        item.append(box, name, count);
+        list.append(item);
+        box.addEventListener("change", () =>
+          this.userFilter(() => {
+            if (box.checked) {
+              filter.chosen.add(key);
+            } else {
+              filter.chosen.delete(key);
+            }
+          }),
+        );
+        control.options.push({ key, item, box, count });
+      }
+      panel.append(list);
+    }
+
+    // Escape closes it, as Tab does out of either end of it (back to its button: the panel is at
+    // the end of the element, not after the button)
+    panel.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        // (And don't, say, close a dialog the table is in)
+        event.preventDefault();
+        event.stopPropagation();
+        this.closeFilter(true);
+      } else if (event.key === "Tab") {
+        const controls = Array.from(panel.querySelectorAll<HTMLElement>("button, input"));
+        if (event.target === (event.shiftKey ? controls[0] : controls[controls.length - 1])) {
+          event.preventDefault();
+          this.closeFilter(true);
+        }
+      }
+    });
+    panel.addEventListener("focusout", (event) => this.leaveFilter(control, event));
+
+    // Outside the table's scrolling containers, so that it isn't cut off
+    this.append(panel);
+    control.panel = panel;
+    this.syncFilter(control);
+    return panel;
+  }
+
+  // A facet's values, in order (a missing one last), with the text a row with each shows
+  private facetLabels(filter: ColumnFilter): [number, string][] {
+    const values = filter.spec.values ?? [];
+    const labels = new Map<number, string>();
+    let missing = false;
+    this.rowElements.forEach((tr, row) => {
+      const key = filter.key(row);
+      if (key === MISSING) {
+        missing = true;
+      } else if (!labels.has(key)) {
+        const cell = this.dataCells(tr)[filter.index];
+        labels.set(key, (cell !== undefined && labelText(cell)) || String(values[key]));
+      }
+    });
+    const entries = values.map((value, key): [number, string] => [key, labels.get(key) ?? String(value)]);
+    if (missing) {
+      entries.push([MISSING, "(Missing)"]);
+    }
+    return entries;
+  }
+
+  // A range's bounds, from its fields: a bound that isn't a number is marked, and left as it was
+  private readBounds(control: FilterControl): void {
+    const read = (input: HTMLInputElement | null, old: number | null) => {
+      const text = input?.value.trim() ?? "";
+      const value = text === "" ? null : Number(text);
+      const bad = value !== null && !Number.isFinite(value);
+      if (bad) {
+        input?.setAttribute("aria-invalid", "true");
+      } else {
+        input?.removeAttribute("aria-invalid");
+      }
+      return bad ? old : value;
+    };
+    const { filter } = control;
+    filter.min = read(control.min, filter.min);
+    filter.max = read(control.max, filter.max);
+  }
+
+  // Show a filter's state in its panel's fields
+  private syncFilter(control: FilterControl): void {
+    const { filter } = control;
+    if (control.text !== null) {
+      control.text.value = filter.text;
+    }
+    for (const [input, value] of [
+      [control.min, filter.min],
+      [control.max, filter.max],
+    ] as const) {
+      if (input !== null) {
+        input.value = value === null ? "" : String(value);
+        input.removeAttribute("aria-invalid");
+      }
+    }
+    for (const option of control.options) {
+      option.box.checked = filter.chosen.has(option.key);
+    }
+  }
+
+  private openFilterPanel(control: FilterControl): void {
+    const button = control.button;
+    if (button === null) {
+      return;
+    }
+    this.closeFilter(false);
+    this.closeInfo(false);
+    const panel = control.panel ?? this.makeFilterPanel(control);
+    // (Over the table, so filled with what's behind it; in the table's font)
+    panel.style.backgroundColor = backdropColor(this);
+    panel.style.fontFamily = getComputedStyle(this.table as HTMLTableElement).fontFamily;
+    panel.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+    this.openFilter = control;
+    this.updateFilterPanel();
+
+    // A press anywhere else closes it; it follows its button as anything scrolls
+    const doc = this.ownerDocument;
+    this.filterPress = (event: PointerEvent) => {
+      const path = event.composedPath();
+      if (!path.includes(panel) && !path.includes(button)) {
+        this.closeFilter(false);
+      }
+    };
+    this.filterScroll = () => this.placeFilter();
+    doc.addEventListener("pointerdown", this.filterPress);
+    doc.addEventListener("scroll", this.filterScroll, { capture: true, passive: true });
+    panel.querySelector<HTMLElement>("input")?.focus();
+  }
+
+  // The open panel closes when focus goes elsewhere (but not when the window loses it)
+  private leaveFilter(control: FilterControl, event: FocusEvent): void {
+    const to = event.relatedTarget as Node | null;
+    if (this.openFilter === control && to !== null && to !== control.button && !control.panel?.contains(to)) {
+      this.closeFilter(false);
+    }
+  }
+
+  private closeFilter(focus: boolean): void {
+    const doc = this.ownerDocument;
+    if (this.filterPress !== null) {
+      doc.removeEventListener("pointerdown", this.filterPress);
+      this.filterPress = null;
+    }
+    if (this.filterScroll !== null) {
+      doc.removeEventListener("scroll", this.filterScroll, { capture: true });
+      this.filterScroll = null;
+    }
+    const control = this.openFilter;
+    if (control === null) {
+      return;
+    }
+    this.openFilter = null;
+    // (A change may be waiting on the typing to pause)
+    this.flushFilter();
+    if (control.panel !== null) {
+      control.panel.hidden = true;
+    }
+    control.button?.setAttribute("aria-expanded", "false");
+    if (focus) {
+      control.button?.focus();
+    }
+  }
+
+  // The open panel is below its button, from the button's inline start (as far as the element's
+  // width allows)
+  private placeFilter(): void {
+    const control = this.openFilter;
+    const panel = control?.panel;
+    if (control?.button == null || panel == null) {
+      return;
+    }
+    const host = this.getBoundingClientRect();
+    const button = control.button.getBoundingClientRect();
+    const width = panel.offsetWidth;
+    const start = this.isRtl() ? button.right - width : button.left;
+    panel.style.left = `${Math.max(0, Math.min(start - host.left, host.width - width))}px`;
+    panel.style.top = `${button.bottom - host.top + 4}px`;
+  }
+
+  private updateFilters(): void {
+    if (this.filters.length > 0) {
+      this.updateFilterButtons();
+      this.updateFilterPanel();
+    }
+  }
+
+  // A filtered column's button is marked (and says so)
+  private updateFilterButtons(): void {
+    for (const { filter, label, th, button } of this.filters) {
+      if (th !== null && button !== null) {
+        th.toggleAttribute("data-gti-filtered", filter.active);
+        button.setAttribute("aria-label", filter.active ? `Filter ${label} (on)` : `Filter ${label}`);
+      }
+    }
+  }
+
+  // The open panel's Clear button, and a facet's counts: the rows with each value that the search
+  // and the other filters keep (so a value with none can still be chosen, but is dimmed)
+  private updateFilterPanel(): void {
+    const control = this.openFilter;
+    if (control === null) {
+      return;
+    }
+    const { filter } = control;
+    control.clear?.setAttribute("aria-disabled", String(!filter.active));
+    if (control.options.length > 0) {
+      const counts = new Map<number, number>();
+      const others = this.activeFilters().filter((other) => other !== filter);
+      this.eachKept(others, (row) => {
+        const key = filter.key(row);
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      });
+      for (const option of control.options) {
+        const count = counts.get(option.key) ?? 0;
+        option.count.textContent = String(count);
+        option.item.toggleAttribute("data-gti-none", count === 0);
+      }
+    }
+    this.placeFilter();
+  }
+
+  private activeFilters(): ColumnFilter[] {
+    return this.filters.map((control) => control.filter).filter((filter) => filter.active);
+  }
+
+  private clearFilters(): void {
+    for (const control of this.filters) {
+      control.filter.clear();
+      this.syncFilter(control);
+    }
+  }
+
+  private filtersText(): string {
+    const labels = this.filters.filter((control) => control.filter.active).map((control) => control.label);
+    return labels.length === 0 ? "Not filtered" : `Filtered by ${labels.join(", ")}`;
+  }
+
+  // Change a filter once typing pauses (or sooner, with `flushFilter()`)
+  private queueFilter(change: () => void): void {
+    this.cancelFilterTimer();
+    this.filterChange = change;
+    this.filterTimer = setTimeout(() => this.flushFilter(), SEARCH_DELAY_MS);
+  }
+
+  private flushFilter(): void {
+    const change = this.filterChange;
+    this.cancelFilterTimer();
+    if (change !== null) {
+      this.userFilter(change);
+    }
+  }
+
+  // Change the filters as the reader asked, and filter the rows by them, if they changed
+  private userFilter(change: () => void): void {
+    const filters = this.filters.map((control) => control.filter);
+    const before = JSON.stringify(filterQuery(filters));
+    change();
+    const query = filterQuery(filters);
+    if (JSON.stringify(query) === before || this.spec === null) {
+      this.updateFilters();
+      return;
+    }
+    this.applyFilters();
+    const count = this.matchCount;
+    const total = this.spec.nrows;
+    this.announce(
+      this.matched === null
+        ? `Showing all ${plural(total)}`
+        : count === 0
+          ? "No matching rows"
+          : `Showing ${count} of ${plural(total)}`,
+    );
+    this.dispatchEvent(
+      new CustomEvent<FilterEventDetail>(FILTER_EVENT, {
+        bubbles: true,
+        composed: true,
+        detail: { filter: query, count },
+      }),
+    );
+  }
+
+  private applyFilters(): void {
+    this.pageValue = 1;
+    this.matchRows();
+    this.render();
   }
 
   private openSearch(focus: boolean): void {
@@ -2360,15 +2906,16 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // The bar shows while it has a search, or there are pages (or could be, in the page sizes the
-  // info panel offers); the page controls, while there are pages: while the table has more rows
-  // than fit on a page, whatever the search
+  // The bar shows while it has a search or filters (whose info panel says how many rows they
+  // leave), or there are pages (or could be, in the page sizes the info panel offers); the page
+  // controls, while there are pages: while the table has more rows than fit on a page, whatever
+  // the search
   private updateBar(bar: Bar): void {
     const spec = this.spec as Spec;
     const size = this.size;
     const paged = size !== null && spec.nrows > size;
     bar.pages.hidden = !paged;
-    bar.root.hidden = !this.pagesOffered() && bar.field === null;
+    bar.root.hidden = !this.pagesOffered() && bar.field === null && this.filters.length === 0;
     if (bar.root.hidden) {
       this.closeInfo(false);
     }
@@ -2458,6 +3005,7 @@ export class GtTable extends HTMLElement {
         this.pager === null &&
         this.bar === null &&
         this.colgroup === null &&
+        this.filters.length === 0 &&
         !this.cutsText &&
         this.scroller === null)
     ) {
@@ -2465,6 +3013,7 @@ export class GtTable extends HTMLElement {
     }
     this.layout = new ResizeObserver(() => {
       this.alignBars();
+      this.placeFilter();
       this.stick();
       // (In the next frame, like the column widths below)
       this.queuePin();
@@ -2622,43 +3171,59 @@ export class GtTable extends HTMLElement {
     return this.matchCount;
   }
 
-  // Which data rows match the search
+  // Which data rows match the search and the filters
   private matchRows(): void {
     this.terms = searchTerms(this.searchValue);
     const spec = this.spec;
     this.matched = null;
     this.matchCount = spec?.nrows ?? 0;
-    if (spec === null || !this.movable || this.terms.length === 0) {
+    const filters = this.activeFilters();
+    if (spec === null || !this.movable || (this.terms.length === 0 && filters.length === 0)) {
       return;
     }
 
-    const texts = this.cellTexts ?? this.makeCellTexts(spec.nrows);
     const matches = new Uint8Array(spec.nrows);
     let count = 0;
-    texts.forEach((cells, row) => {
-      if (rowMatches(cells, this.terms)) {
-        matches[row] = 1;
-        count++;
-      }
+    this.eachKept(filters, (row) => {
+      matches[row] = 1;
+      count++;
     });
     this.matched = matches;
     this.matchCount = count;
+  }
+
+  // Call `each` with each data row that matches the search and `filters`
+  private eachKept(filters: readonly ColumnFilter[], each: (row: number) => void): void {
+    const nrows = (this.spec as Spec).nrows;
+    const texts =
+      this.terms.length > 0 || filters.some((filter) => filter.type === "text")
+        ? (this.cellTexts ?? this.makeCellTexts(nrows))
+        : null;
+    for (let row = 0; row < nrows; row++) {
+      const cells = texts?.[row] ?? [];
+      if (
+        (this.terms.length === 0 || rowMatches(cells, this.terms)) &&
+        filters.every((filter) => filter.keeps(row, cells[filter.index]))
+      ) {
+        each(row);
+      }
+    }
   }
 
   private makeCellTexts(nrows: number): CellText[][] {
     const texts: CellText[][] = [];
     for (let row = 0; row < nrows; row++) {
       const tr = this.rowElements[row];
-      // A group's label cell is on one of its rows only, so it isn't searched (nor is the
-      // selection column)
-      const cells =
-        tr === undefined
-          ? []
-          : Array.from(tr.children).filter((cell) => !cell.matches(".gt_stub_row_group, .gt-i-select"));
-      texts.push(cells.map((cell) => new CellText(cell)));
+      texts.push(tr === undefined ? [] : this.dataCells(tr).map((cell) => new CellText(cell)));
     }
     this.cellTexts = texts;
     return texts;
+  }
+
+  // A data row's cells, one per column of the spec: not a group's label cell, which is on one of
+  // its rows only (so it isn't searched), nor the selection column's
+  private dataCells(tr: HTMLTableRowElement): Element[] {
+    return Array.from(tr.children).filter((cell) => !cell.matches(".gt_stub_row_group, .gt-i-select"));
   }
 
   /** Show the data rows for the current sort, search and page. */
@@ -2695,6 +3260,7 @@ export class GtTable extends HTMLElement {
     this.updateSortHeaders();
     this.highlight(shown);
     this.updatePager();
+    this.updateFilters();
   }
 
   /**
@@ -3365,20 +3931,25 @@ export class GtTable extends HTMLElement {
       highlight.delete(range);
     }
     this.ranges = [];
-    if (this.terms.length === 0 || this.cellTexts === null) {
+    // The search's terms, in every cell, and a text filter's, in its column's
+    const texts = this.activeFilters().filter((filter) => filter.type === "text");
+    if ((this.terms.length === 0 && texts.length === 0) || this.cellTexts === null) {
       return;
     }
     // (Ranges are made afresh, since moving rows collapses live ranges in them)
     for (const tr of shown) {
       const row = this.bodyRows.get(tr) as number;
-      for (const cell of this.cellTexts[row] ?? []) {
-        for (const found of cell.find(this.terms)) {
-          const range = this.ownerDocument.createRange();
-          range.setStart(found.startNode, found.startOffset);
-          range.setEnd(found.endNode, found.endOffset);
-          highlight.add(range);
-          this.ranges.push(range);
-        }
+      const cells = this.cellTexts[row] ?? [];
+      const found = cells.flatMap((cell) => cell.find(this.terms));
+      for (const filter of texts) {
+        found.push(...(cells[filter.index]?.find([filter.needle]) ?? []));
+      }
+      for (const { startNode, startOffset, endNode, endOffset } of found) {
+        const range = this.ownerDocument.createRange();
+        range.setStart(startNode, startOffset);
+        range.setEnd(endNode, endOffset);
+        highlight.add(range);
+        this.ranges.push(range);
       }
     }
   }
@@ -3432,6 +4003,14 @@ export class GtTable extends HTMLElement {
     }
   }
 
+  private cancelFilterTimer(): void {
+    if (this.filterTimer !== null) {
+      clearTimeout(this.filterTimer);
+      this.filterTimer = null;
+    }
+    this.filterChange = null;
+  }
+
   private cancelRefit(): void {
     if (this.refitFrame !== 0) {
       cancelAnimationFrame(this.refitFrame);
@@ -3442,6 +4021,11 @@ export class GtTable extends HTMLElement {
   private reset(): void {
     this.stopObserving();
     this.cancelSearchTimer();
+    this.cancelFilterTimer();
+    this.closeFilter(false);
+    for (const control of this.filters) {
+      control.panel?.remove();
+    }
     this.cancelRefit();
     this.cancelShades();
     this.cancelPin();
@@ -3474,6 +4058,7 @@ export class GtTable extends HTMLElement {
     this.terms = [];
     this.matched = null;
     this.matchCount = 0;
+    this.filters = [];
     this.pageValue = 1;
     this.pageSizeValue = undefined;
     this.view = { start: 0, end: 0, total: 0 };
