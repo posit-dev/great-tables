@@ -1868,6 +1868,13 @@ describe("the info panel", () => {
     expect(rows(el).textContent).toBe("5 rows");
   });
 
+  it("says how many rows there are, without pages from the start", async () => {
+    const { el } = await mountInfo({ pagination: { enabled: false } });
+    expect(rows(el).textContent).toBe("5 rows");
+    el.search = "a";
+    expect(rows(el).textContent).toBe("3 rows (filtered from 5)");
+  });
+
   it("leaves out which rows are shown when asked", async () => {
     const { el } = await mountInfo({ pagination: { info: false } });
     expect(rows(el).hidden).toBe(true);
