@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from .._gt_data import Options
+from ._settings import settings_of
 from ._spec import Spec, build_spec
 
 if TYPE_CHECKING:
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
 JS_DIR = Path(__file__).parent.parent / "js"
 
-# `opt_interactive(use_compact_mode=True)`: the rows' vertical padding, half of GT's default
+# A compact table's rows' vertical padding, half of GT's default
 COMPACT_PADDING = {
     "data_row_padding": "4px",
     "summary_row_padding": "4px",
@@ -41,17 +42,20 @@ def spec_to_script_json(spec: Spec) -> str:
     return text.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
-def render_gti_html(gt: GT, runtime: Literal["inline", "none"] = "inline") -> str:
+def render_gti_html(
+    gt: GT, runtime: Literal["inline", "none"] = "inline", all_important: bool = False
+) -> str:
     """Render a table as a `<gt-table>` element: GT's static HTML, plus its spec.
 
     With `runtime="inline"`, the runtime's CSS and JS follow the element (they register
     `<gt-table>` only once per page, however often they're included); with `runtime="none"`, the
-    page must provide them.
+    page must provide them. With `all_important=True`, the table's CSS (not the runtime's) is
+    marked `!important`, as with `as_raw_html()`.
     """
-    if gt._options.ihtml_use_compact_mode.value:
+    if settings_of(gt).compact:
         gt = _compact(gt)
     built = gt._build_data(context="html")
-    table_html = built._render_as_html()
+    table_html = built._render_as_html(all_important=all_important)
     spec = build_spec(built)
     spec_json = spec_to_script_json(spec)
 
