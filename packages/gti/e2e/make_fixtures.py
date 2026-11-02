@@ -201,9 +201,10 @@ def bar_html(
     return render_gti_html(gti, runtime="none")
 
 
-def filter_html(table_id: str, **pagination) -> str:
+def filter_html(table_id: str, view: str | None = None, **pagination) -> str:
     # A GTI table of exibble three times over (24 rows, in two groups), 5 rows to a page, whose
-    # rows can be selected: `num` filtered by a range, `char` by text, and `fctr` by a facet.
+    # rows can be selected: `num` filtered by a range, `char` by text, and `fctr` by a facet; with
+    # the view's filter, as text, if given.
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     gti = (
@@ -218,8 +219,12 @@ def filter_html(table_id: str, **pagination) -> str:
         .i_cols_filter(columns="num")
         .i_cols_filter(columns="char", type="text")
         .i_cols_filter(columns="fctr", type="facet")
+        .i_view(filter=view)
     )
     return render_gti_html(gti, runtime="none")
+
+
+TOKENS_VIEW = 'num >= 1000 and char contains "a" and fctr in ("two", "seven", "one", "eight")'
 
 
 def page(body: str, head: str = "") -> str:
@@ -438,6 +443,19 @@ def main() -> None:
         "filters-container.html": page(
             '<div style="width: 300px">' + filter_html("f") + "</div>\n" + runtime_src,
             head=styles,
+        ),
+        # Filter tokens: of a view filtered by every column (3 rows); in a container 300px wide;
+        # and without the runtime (added by the test), with text after it.
+        "tokens.html": page(filter_html("f", view=TOKENS_VIEW) + "\n" + runtime_src, head=styles),
+        "tokens-container.html": page(
+            '<div style="width: 300px">'
+            + filter_html("f", view=TOKENS_VIEW)
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "tokens-late.html": page(
+            filter_html("f", view=TOKENS_VIEW) + '\n<p id="after">After the table</p>', head=styles
         ),
     }
     for name, html in fixtures.items():
