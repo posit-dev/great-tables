@@ -105,6 +105,20 @@ describe("filterQuery() and setFilterQuery()", () => {
     expect(filterQuery(filters)).toBeNull();
   });
 
+  it("takes blank text, which keeps every row", () => {
+    const filters = [z()];
+    setFilterQuery(filters, { and: [{ col: "z", op: "contains", value: "  " }] });
+    expect(filterQuery(filters)).toBeNull();
+  });
+
+  it("tells a facet's values apart by type", () => {
+    const facet = new ColumnFilter({ column: "v", type: "facet", values: [1, "1", true] }, 1, [0, 1, 2]);
+    setFilterQuery([facet], { and: [{ col: "v", op: "in", value: [1.0] }] });
+    expect(Array.from(facet.chosen)).toEqual([0]);
+    setFilterQuery([facet], { and: [{ col: "v", op: "in", value: ["1", true] }] });
+    expect(Array.from(facet.chosen)).toEqual([1, 2]);
+  });
+
   it("takes a missing value in a facet", () => {
     const filters = [y()];
     setFilterQuery(filters, { and: [{ col: "y", op: "in", value: [null, "c"] }] });
@@ -120,7 +134,11 @@ describe("filterQuery() and setFilterQuery()", () => {
     ["has a clause that isn't one", { and: [good, null] }, /isn't a column/],
     ["has an op its filter can't have", { and: [good, { col: "x", op: "in", value: [5] }] }, /"x" has a range filter/],
     ["has a bound that isn't a number", { and: [good, { col: "x", op: "gte", value: "5" }] }, /"x" has a range filter/],
-    ["has a value that isn't the column's", { and: [good, { col: "y", op: "in", value: ["d"] }] }, /"d" isn't a value of "y"/],
+    ["has a value that isn't the column's", { and: [{ col: "x", op: "lte", value: 9 }, { col: "y", op: "in", value: ["d"] }] }, /"d" isn't a value of "y"/],
+    ["has two clauses with an op", { and: [good, { col: "y", op: "in", value: ["b"] }] }, /"y" has more than one "in" clause/],
+    ["has two bounds on one side", { and: [good, { col: "x", op: "gte", value: 1 }, { col: "x", op: "gte", value: 2 }] }, /"x" has more than one "gte" clause/],
+    ["has two texts", { and: [good, { col: "z", op: "contains", value: "a" }, { col: "z", op: "contains", value: "b" }] }, /"z" has more than one "contains"/],
+    ["has a choice of no values", { and: [{ col: "x", op: "lte", value: 9 }, { col: "y", op: "in", value: [] }] }, /"in" clause on "y" needs at least one value/],
     ["has text that isn't a string", { and: [good, { col: "z", op: "contains", value: 3 }] }, /"z" has a text filter/],
   ])("rejects a query that %s, changing nothing", (_, query, message) => {
     const filters = [x(), y(), z()];
