@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <style>html:not(.theme-loaded){visibility:hidden}html:not(.theme-loaded) body{visibility:hidden;opacity:0}</style>
 <noscript><style>html:not(.theme-loaded),html:not(.theme-loaded) body{visibility:visible!important;opacity:1!important}</style></noscript>
-<meta name="generator" content="quarto-1.10.20">
+<meta name="generator" content="quarto-1.11.9">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -79,14 +79,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../favicon.ico" rel="icon">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-17888a1159294d3eb470f19f6f52f5a5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-2cbc4fce51ec727eb1ce5774130eab4b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-c17ba41ba6215283560c22479a3a4e8f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -149,11 +150,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="twitter:card" content="summary">
 </head>
 
-<body class="nav-sidebar floating nav-fixed doc-api-page doc-py-api-page quarto-light">
+<body class="nav-sidebar floating nav-fixed doc-api-page doc-py-api-page quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
@@ -161,8 +162,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo dark-content">
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -197,15 +197,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
+            <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav">
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
     <div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <h1 class="quarto-secondary-nav-title no-breadcrumbs"><span class="doc-object-name doc-function doc-label doc-label-method">GT.as_raw_html()</span></h1>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
   </nav>
@@ -213,7 +214,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Section">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -224,13 +225,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">Table Creation</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">Table Creation</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.html" class="sidebar-item-text sidebar-link">
@@ -241,13 +239,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Major structural table parts</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label">Major structural table parts</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.tab_header.html" class="sidebar-item-text sidebar-link">
@@ -348,13 +343,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Formatting column data</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label">Formatting column data</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.fmt_number.html" class="sidebar-item-text sidebar-link">
@@ -581,13 +573,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text">Text transformation</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label">Text transformation</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.text_replace.html" class="sidebar-item-text sidebar-link">
@@ -616,13 +605,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text">Modifying columns</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label">Modifying columns</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.cols_align.html" class="sidebar-item-text sidebar-link">
@@ -723,13 +709,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
- <span class="menu-text">Adding rows</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label">Adding rows</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.summary_rows.html" class="sidebar-item-text sidebar-link">
@@ -746,13 +729,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
- <span class="menu-text">Location Targeting and Styling Classes</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label">Location Targeting and Styling Classes</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/loc.header.html" class="sidebar-item-text sidebar-link">
@@ -871,13 +851,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
- <span class="menu-text">Helper Functions</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-controls="quarto-sidebar-section-8" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-8-label">Helper Functions</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-8" aria-labelledby="quarto-sidebar-section-8-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.with_id.html" class="sidebar-item-text sidebar-link">
@@ -936,13 +913,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
- <span class="menu-text">Table options</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-controls="quarto-sidebar-section-9" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-9-label">Table options</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-9" aria-labelledby="quarto-sidebar-section-9-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.opt_stylize.html" class="sidebar-item-text sidebar-link">
@@ -1013,13 +987,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true">
- <span class="menu-text">Export</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-controls="quarto-sidebar-section-10" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-10-label">Export</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-10" aria-labelledby="quarto-sidebar-section-10-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.gtsave.html" class="sidebar-item-text sidebar-link">
@@ -1054,13 +1025,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true">
- <span class="menu-text">Pipeline</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" aria-controls="quarto-sidebar-section-11" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-11-label">Pipeline</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-11" aria-labelledby="quarto-sidebar-section-11-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/GT.pipe.html" class="sidebar-item-text sidebar-link">
@@ -1071,13 +1039,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true">
- <span class="menu-text">Value Formatting Functions</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" aria-controls="quarto-sidebar-section-12" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-12-label">Value Formatting Functions</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-12" aria-labelledby="quarto-sidebar-section-12-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/vals.fmt_number.html" class="sidebar-item-text sidebar-link">
@@ -1208,13 +1173,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true">
- <span class="menu-text">Built-in Datasets</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" aria-controls="quarto-sidebar-section-13" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-13-label">Built-in Datasets</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 show">  
+      <ul id="quarto-sidebar-section-13" aria-labelledby="quarto-sidebar-section-13-label" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/load_dataset.html" class="sidebar-item-text sidebar-link">
@@ -1325,7 +1287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
@@ -1336,7 +1298,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content" id="quarto-document-content" tabindex="-1">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -1409,7 +1371,7 @@ An HTML string containing the table. The format depends on the parameters passed
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples:</h2>
 <p>Let’s use a subset of the <a href="../reference/data.gtcars.html#great_tables.data.gtcars" class="gdls-link gdls-code">gtcars</a> dataset to create a new table.</p>
-<div id="d08376cc" class="cell" data-execution_count="1">
+<div id="90169b8c" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, md, style, loc</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> gtcars</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
@@ -1441,67 +1403,67 @@ An HTML string containing the table. The format depends on the parameters passed
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>gt_tbl</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<div id="ztgsdyubml" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="qpchoantqf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>
-#ztgsdyubml table {
+#qpchoantqf table {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
 
-#ztgsdyubml thead, tbody, tfoot, tr, td, th { border-style: none; }
+#qpchoantqf thead, tbody, tfoot, tr, td, th { border-style: none; }
  tr { background-color: transparent; }
-#ztgsdyubml p { margin: 0; padding: 0; }
- #ztgsdyubml .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
- #ztgsdyubml .gt_caption { padding-top: 4px; padding-bottom: 4px; }
- #ztgsdyubml .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
- #ztgsdyubml .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; border-top-color: #FFFFFF; border-top-width: 0; }
- #ztgsdyubml .gt_heading { background-color: Azure; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ztgsdyubml .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ztgsdyubml .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
- #ztgsdyubml .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; overflow-x: hidden; }
- #ztgsdyubml .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
- #ztgsdyubml .gt_column_spanner_outer:first-child { padding-left: 0; }
- #ztgsdyubml .gt_column_spanner_outer:last-child { padding-right: 0; }
- #ztgsdyubml .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
- #ztgsdyubml .gt_spanner_row { border-bottom-style: hidden; }
- #ztgsdyubml .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
- #ztgsdyubml .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
- #ztgsdyubml .gt_from_md> :first-child { margin-top: 0; }
- #ztgsdyubml .gt_from_md> :last-child { margin-bottom: 0; }
- #ztgsdyubml .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; margin: 10px; border-top-style: solid; border-top-width: 2px; border-top-color: Lavender; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
- #ztgsdyubml .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; }
- #ztgsdyubml .gt_indent_1 { text-indent: 5px; }
- #ztgsdyubml .gt_indent_2 { text-indent: calc(5px * 2); }
- #ztgsdyubml .gt_indent_3 { text-indent: calc(5px * 3); }
- #ztgsdyubml .gt_indent_4 { text-indent: calc(5px * 4); }
- #ztgsdyubml .gt_indent_5 { text-indent: calc(5px * 5); }
- #ztgsdyubml .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; vertical-align: top; }
- #ztgsdyubml .gt_row_group_first td { border-top-width: 2px; }
- #ztgsdyubml .gt_row_group_first th { border-top-width: 2px; }
- #ztgsdyubml .gt_striped { color: #333333; background-color: #F4F4F4; }
- #ztgsdyubml .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ztgsdyubml .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ztgsdyubml .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
- #ztgsdyubml .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
- #ztgsdyubml .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
- #ztgsdyubml .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
- #ztgsdyubml .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
- #ztgsdyubml .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ztgsdyubml .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }
- #ztgsdyubml .gt_left { text-align: left; }
- #ztgsdyubml .gt_center { text-align: center; }
- #ztgsdyubml .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
- #ztgsdyubml .gt_font_normal { font-weight: normal; }
- #ztgsdyubml .gt_font_bold { font-weight: bold; }
- #ztgsdyubml .gt_font_italic { font-style: italic; }
- #ztgsdyubml .gt_super { font-size: 65%; }
- #ztgsdyubml .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ztgsdyubml .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
- #ztgsdyubml .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
- #ztgsdyubml .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }
- #ztgsdyubml .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
- #ztgsdyubml .gt_asterisk { font-size: 100%; vertical-align: 0; }
+#qpchoantqf p { margin: 0; padding: 0; }
+ #qpchoantqf .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
+ #qpchoantqf .gt_caption { padding-top: 4px; padding-bottom: 4px; }
+ #qpchoantqf .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }
+ #qpchoantqf .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; border-top-color: #FFFFFF; border-top-width: 0; }
+ #qpchoantqf .gt_heading { background-color: Azure; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #qpchoantqf .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #qpchoantqf .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }
+ #qpchoantqf .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; overflow-x: hidden; }
+ #qpchoantqf .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }
+ #qpchoantqf .gt_column_spanner_outer:first-child { padding-left: 0; }
+ #qpchoantqf .gt_column_spanner_outer:last-child { padding-right: 0; }
+ #qpchoantqf .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }
+ #qpchoantqf .gt_spanner_row { border-bottom-style: hidden; }
+ #qpchoantqf .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }
+ #qpchoantqf .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }
+ #qpchoantqf .gt_from_md> :first-child { margin-top: 0; }
+ #qpchoantqf .gt_from_md> :last-child { margin-bottom: 0; }
+ #qpchoantqf .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; margin: 10px; border-top-style: solid; border-top-width: 2px; border-top-color: Lavender; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }
+ #qpchoantqf .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; }
+ #qpchoantqf .gt_indent_1 { text-indent: 5px; }
+ #qpchoantqf .gt_indent_2 { text-indent: calc(5px * 2); }
+ #qpchoantqf .gt_indent_3 { text-indent: calc(5px * 3); }
+ #qpchoantqf .gt_indent_4 { text-indent: calc(5px * 4); }
+ #qpchoantqf .gt_indent_5 { text-indent: calc(5px * 5); }
+ #qpchoantqf .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; vertical-align: top; }
+ #qpchoantqf .gt_row_group_first td { border-top-width: 2px; }
+ #qpchoantqf .gt_row_group_first th { border-top-width: 2px; }
+ #qpchoantqf .gt_striped { color: #333333; background-color: #F4F4F4; }
+ #qpchoantqf .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #qpchoantqf .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #qpchoantqf .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }
+ #qpchoantqf .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }
+ #qpchoantqf .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }
+ #qpchoantqf .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }
+ #qpchoantqf .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }
+ #qpchoantqf .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #qpchoantqf .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }
+ #qpchoantqf .gt_left { text-align: left; }
+ #qpchoantqf .gt_center { text-align: center; }
+ #qpchoantqf .gt_right { text-align: right; font-variant-numeric: tabular-nums; }
+ #qpchoantqf .gt_font_normal { font-weight: normal; }
+ #qpchoantqf .gt_font_bold { font-weight: bold; }
+ #qpchoantqf .gt_font_italic { font-style: italic; }
+ #qpchoantqf .gt_super { font-size: 65%; }
+ #qpchoantqf .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #qpchoantqf .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }
+ #qpchoantqf .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }
+ #qpchoantqf .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }
+ #qpchoantqf .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }
+ #qpchoantqf .gt_asterisk { font-size: 100%; vertical-align: 0; }
  
 </style>
 <table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
@@ -1553,24 +1515,24 @@ An HTML string containing the table. The format depends on the parameters passed
 </div>
 </div>
 <p>Now we can return the table as an HTML string using the <a href="../reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a> method.</p>
-<div id="b7740547" class="cell" data-execution_count="2">
+<div id="463f9e84" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.as_raw_html()</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="2">
-<pre><code>'&lt;div id="hwfeeiylve" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;\n&lt;style&gt;\n#hwfeeiylve table {\n          font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Helvetica Neue\', \'Fira Sans\', \'Droid Sans\', Arial, sans-serif;\n          -webkit-font-smoothing: antialiased;\n          -moz-osx-font-smoothing: grayscale;\n        }\n\n#hwfeeiylve thead, tbody, tfoot, tr, td, th { border-style: none; }\n tr { background-color: transparent; }\n#hwfeeiylve p { margin: 0; padding: 0; }\n #hwfeeiylve .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }\n #hwfeeiylve .gt_caption { padding-top: 4px; padding-bottom: 4px; }\n #hwfeeiylve .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }\n #hwfeeiylve .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; border-top-color: #FFFFFF; border-top-width: 0; }\n #hwfeeiylve .gt_heading { background-color: Azure; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }\n #hwfeeiylve .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #hwfeeiylve .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }\n #hwfeeiylve .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; overflow-x: hidden; }\n #hwfeeiylve .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }\n #hwfeeiylve .gt_column_spanner_outer:first-child { padding-left: 0; }\n #hwfeeiylve .gt_column_spanner_outer:last-child { padding-right: 0; }\n #hwfeeiylve .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }\n #hwfeeiylve .gt_spanner_row { border-bottom-style: hidden; }\n #hwfeeiylve .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }\n #hwfeeiylve .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }\n #hwfeeiylve .gt_from_md&gt; :first-child { margin-top: 0; }\n #hwfeeiylve .gt_from_md&gt; :last-child { margin-bottom: 0; }\n #hwfeeiylve .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; margin: 10px; border-top-style: solid; border-top-width: 2px; border-top-color: Lavender; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }\n #hwfeeiylve .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; }\n #hwfeeiylve .gt_indent_1 { text-indent: 5px; }\n #hwfeeiylve .gt_indent_2 { text-indent: calc(5px * 2); }\n #hwfeeiylve .gt_indent_3 { text-indent: calc(5px * 3); }\n #hwfeeiylve .gt_indent_4 { text-indent: calc(5px * 4); }\n #hwfeeiylve .gt_indent_5 { text-indent: calc(5px * 5); }\n #hwfeeiylve .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; vertical-align: top; }\n #hwfeeiylve .gt_row_group_first td { border-top-width: 2px; }\n #hwfeeiylve .gt_row_group_first th { border-top-width: 2px; }\n #hwfeeiylve .gt_striped { color: #333333; background-color: #F4F4F4; }\n #hwfeeiylve .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #hwfeeiylve .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }\n #hwfeeiylve .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }\n #hwfeeiylve .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #hwfeeiylve .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }\n #hwfeeiylve .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }\n #hwfeeiylve .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }\n #hwfeeiylve .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #hwfeeiylve .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }\n #hwfeeiylve .gt_left { text-align: left; }\n #hwfeeiylve .gt_center { text-align: center; }\n #hwfeeiylve .gt_right { text-align: right; font-variant-numeric: tabular-nums; }\n #hwfeeiylve .gt_font_normal { font-weight: normal; }\n #hwfeeiylve .gt_font_bold { font-weight: bold; }\n #hwfeeiylve .gt_font_italic { font-style: italic; }\n #hwfeeiylve .gt_super { font-size: 65%; }\n #hwfeeiylve .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #hwfeeiylve .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }\n #hwfeeiylve .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #hwfeeiylve .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }\n #hwfeeiylve .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }\n #hwfeeiylve .gt_asterisk { font-size: 100%; vertical-align: 0; }\n \n&lt;/style&gt;\n&lt;table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false"&gt;\n&lt;thead&gt;\n\n  &lt;tr class="gt_heading"&gt;\n    &lt;td colspan="3" class="gt_heading gt_title gt_font_normal" id="title"&gt;Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr class="gt_heading"&gt;\n    &lt;td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="subtitle"&gt;gtcars is an R dataset&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;tr class="gt_col_headings"&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="mfr"&gt;mfr&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="model"&gt;model&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="msrp"&gt;msrp&lt;/th&gt;\n&lt;/tr&gt;\n&lt;/thead&gt;\n&lt;tbody class="gt_table_body"&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ford&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;GT&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$447,000.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Speciale&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$291,744.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Spider&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$263,553.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Italia&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$233,509.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;488 GTB&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$245,400.00&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/tbody&gt;\n\n&lt;/table&gt;\n\n&lt;/div&gt;\n'</code></pre>
+<pre><code>'&lt;div id="xfssfecugs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;\n&lt;style&gt;\n#xfssfecugs table {\n          font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Helvetica Neue\', \'Fira Sans\', \'Droid Sans\', Arial, sans-serif;\n          -webkit-font-smoothing: antialiased;\n          -moz-osx-font-smoothing: grayscale;\n        }\n\n#xfssfecugs thead, tbody, tfoot, tr, td, th { border-style: none; }\n tr { background-color: transparent; }\n#xfssfecugs p { margin: 0; padding: 0; }\n #xfssfecugs .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }\n #xfssfecugs .gt_caption { padding-top: 4px; padding-bottom: 4px; }\n #xfssfecugs .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }\n #xfssfecugs .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; border-top-color: #FFFFFF; border-top-width: 0; }\n #xfssfecugs .gt_heading { background-color: Azure; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }\n #xfssfecugs .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #xfssfecugs .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }\n #xfssfecugs .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; overflow-x: hidden; }\n #xfssfecugs .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }\n #xfssfecugs .gt_column_spanner_outer:first-child { padding-left: 0; }\n #xfssfecugs .gt_column_spanner_outer:last-child { padding-right: 0; }\n #xfssfecugs .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }\n #xfssfecugs .gt_spanner_row { border-bottom-style: hidden; }\n #xfssfecugs .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }\n #xfssfecugs .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }\n #xfssfecugs .gt_from_md&gt; :first-child { margin-top: 0; }\n #xfssfecugs .gt_from_md&gt; :last-child { margin-bottom: 0; }\n #xfssfecugs .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; margin: 10px; border-top-style: solid; border-top-width: 2px; border-top-color: Lavender; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }\n #xfssfecugs .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; }\n #xfssfecugs .gt_indent_1 { text-indent: 5px; }\n #xfssfecugs .gt_indent_2 { text-indent: calc(5px * 2); }\n #xfssfecugs .gt_indent_3 { text-indent: calc(5px * 3); }\n #xfssfecugs .gt_indent_4 { text-indent: calc(5px * 4); }\n #xfssfecugs .gt_indent_5 { text-indent: calc(5px * 5); }\n #xfssfecugs .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; vertical-align: top; }\n #xfssfecugs .gt_row_group_first td { border-top-width: 2px; }\n #xfssfecugs .gt_row_group_first th { border-top-width: 2px; }\n #xfssfecugs .gt_striped { color: #333333; background-color: #F4F4F4; }\n #xfssfecugs .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #xfssfecugs .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }\n #xfssfecugs .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }\n #xfssfecugs .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #xfssfecugs .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }\n #xfssfecugs .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }\n #xfssfecugs .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }\n #xfssfecugs .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #xfssfecugs .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }\n #xfssfecugs .gt_left { text-align: left; }\n #xfssfecugs .gt_center { text-align: center; }\n #xfssfecugs .gt_right { text-align: right; font-variant-numeric: tabular-nums; }\n #xfssfecugs .gt_font_normal { font-weight: normal; }\n #xfssfecugs .gt_font_bold { font-weight: bold; }\n #xfssfecugs .gt_font_italic { font-style: italic; }\n #xfssfecugs .gt_super { font-size: 65%; }\n #xfssfecugs .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #xfssfecugs .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }\n #xfssfecugs .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #xfssfecugs .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }\n #xfssfecugs .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }\n #xfssfecugs .gt_asterisk { font-size: 100%; vertical-align: 0; }\n \n&lt;/style&gt;\n&lt;table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false"&gt;\n&lt;thead&gt;\n\n  &lt;tr class="gt_heading"&gt;\n    &lt;td colspan="3" class="gt_heading gt_title gt_font_normal" id="title"&gt;Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr class="gt_heading"&gt;\n    &lt;td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="subtitle"&gt;gtcars is an R dataset&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;tr class="gt_col_headings"&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="mfr"&gt;mfr&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="model"&gt;model&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="msrp"&gt;msrp&lt;/th&gt;\n&lt;/tr&gt;\n&lt;/thead&gt;\n&lt;tbody class="gt_table_body"&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ford&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;GT&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$447,000.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Speciale&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$291,744.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Spider&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$263,553.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Italia&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$233,509.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;488 GTB&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$245,400.00&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/tbody&gt;\n\n&lt;/table&gt;\n\n&lt;/div&gt;\n'</code></pre>
 </div>
 </div>
 <p>The HTML string contains the HTML for the table. It has only the table so it’s not a complete HTML document but rather an HTML fragment. While this useful for embedding a table in an existing HTML document, you could also use the <code>make_page=True</code> argument to get a complete HTML page with the table contained within.</p>
-<div id="a9e57d4e" class="cell" data-execution_count="3">
+<div id="ab40b5ab" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.as_raw_html(make_page<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<pre><code>'&lt;!DOCTYPE html&gt;\n&lt;html lang="en"&gt;\n&lt;head&gt;\n&lt;meta charset="utf-8"/&gt;\n&lt;/head&gt;\n&lt;body&gt;\n&lt;div id="unwlhtvvsi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;\n&lt;style&gt;\n#unwlhtvvsi table {\n          font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Helvetica Neue\', \'Fira Sans\', \'Droid Sans\', Arial, sans-serif;\n          -webkit-font-smoothing: antialiased;\n          -moz-osx-font-smoothing: grayscale;\n        }\n\n#unwlhtvvsi thead, tbody, tfoot, tr, td, th { border-style: none; }\n tr { background-color: transparent; }\n#unwlhtvvsi p { margin: 0; padding: 0; }\n #unwlhtvvsi .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }\n #unwlhtvvsi .gt_caption { padding-top: 4px; padding-bottom: 4px; }\n #unwlhtvvsi .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }\n #unwlhtvvsi .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; border-top-color: #FFFFFF; border-top-width: 0; }\n #unwlhtvvsi .gt_heading { background-color: Azure; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }\n #unwlhtvvsi .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #unwlhtvvsi .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }\n #unwlhtvvsi .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; overflow-x: hidden; }\n #unwlhtvvsi .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }\n #unwlhtvvsi .gt_column_spanner_outer:first-child { padding-left: 0; }\n #unwlhtvvsi .gt_column_spanner_outer:last-child { padding-right: 0; }\n #unwlhtvvsi .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }\n #unwlhtvvsi .gt_spanner_row { border-bottom-style: hidden; }\n #unwlhtvvsi .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }\n #unwlhtvvsi .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }\n #unwlhtvvsi .gt_from_md&gt; :first-child { margin-top: 0; }\n #unwlhtvvsi .gt_from_md&gt; :last-child { margin-bottom: 0; }\n #unwlhtvvsi .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; margin: 10px; border-top-style: solid; border-top-width: 2px; border-top-color: Lavender; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }\n #unwlhtvvsi .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; }\n #unwlhtvvsi .gt_indent_1 { text-indent: 5px; }\n #unwlhtvvsi .gt_indent_2 { text-indent: calc(5px * 2); }\n #unwlhtvvsi .gt_indent_3 { text-indent: calc(5px * 3); }\n #unwlhtvvsi .gt_indent_4 { text-indent: calc(5px * 4); }\n #unwlhtvvsi .gt_indent_5 { text-indent: calc(5px * 5); }\n #unwlhtvvsi .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; vertical-align: top; }\n #unwlhtvvsi .gt_row_group_first td { border-top-width: 2px; }\n #unwlhtvvsi .gt_row_group_first th { border-top-width: 2px; }\n #unwlhtvvsi .gt_striped { color: #333333; background-color: #F4F4F4; }\n #unwlhtvvsi .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #unwlhtvvsi .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }\n #unwlhtvvsi .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }\n #unwlhtvvsi .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #unwlhtvvsi .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }\n #unwlhtvvsi .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }\n #unwlhtvvsi .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }\n #unwlhtvvsi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #unwlhtvvsi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }\n #unwlhtvvsi .gt_left { text-align: left; }\n #unwlhtvvsi .gt_center { text-align: center; }\n #unwlhtvvsi .gt_right { text-align: right; font-variant-numeric: tabular-nums; }\n #unwlhtvvsi .gt_font_normal { font-weight: normal; }\n #unwlhtvvsi .gt_font_bold { font-weight: bold; }\n #unwlhtvvsi .gt_font_italic { font-style: italic; }\n #unwlhtvvsi .gt_super { font-size: 65%; }\n #unwlhtvvsi .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #unwlhtvvsi .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }\n #unwlhtvvsi .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #unwlhtvvsi .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }\n #unwlhtvvsi .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }\n #unwlhtvvsi .gt_asterisk { font-size: 100%; vertical-align: 0; }\n \n&lt;/style&gt;\n&lt;table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false"&gt;\n&lt;thead&gt;\n\n  &lt;tr class="gt_heading"&gt;\n    &lt;td colspan="3" class="gt_heading gt_title gt_font_normal" id="title"&gt;Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr class="gt_heading"&gt;\n    &lt;td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="subtitle"&gt;gtcars is an R dataset&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;tr class="gt_col_headings"&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="mfr"&gt;mfr&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="model"&gt;model&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="msrp"&gt;msrp&lt;/th&gt;\n&lt;/tr&gt;\n&lt;/thead&gt;\n&lt;tbody class="gt_table_body"&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ford&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;GT&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$447,000.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Speciale&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$291,744.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Spider&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$263,553.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Italia&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$233,509.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;488 GTB&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$245,400.00&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/tbody&gt;\n\n&lt;/table&gt;\n\n&lt;/div&gt;\n\n&lt;/body&gt;\n&lt;/html&gt;\n'</code></pre>
+<pre><code>'&lt;!DOCTYPE html&gt;\n&lt;html lang="en"&gt;\n&lt;head&gt;\n&lt;meta charset="utf-8"/&gt;\n&lt;/head&gt;\n&lt;body&gt;\n&lt;div id="gxcrcehzrv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;\n&lt;style&gt;\n#gxcrcehzrv table {\n          font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Helvetica Neue\', \'Fira Sans\', \'Droid Sans\', Arial, sans-serif;\n          -webkit-font-smoothing: antialiased;\n          -moz-osx-font-smoothing: grayscale;\n        }\n\n#gxcrcehzrv thead, tbody, tfoot, tr, td, th { border-style: none; }\n tr { background-color: transparent; }\n#gxcrcehzrv p { margin: 0; padding: 0; }\n #gxcrcehzrv .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }\n #gxcrcehzrv .gt_caption { padding-top: 4px; padding-bottom: 4px; }\n #gxcrcehzrv .gt_title { color: #333333; font-size: 125%; font-weight: initial; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; border-bottom-color: #FFFFFF; border-bottom-width: 0; }\n #gxcrcehzrv .gt_subtitle { color: #333333; font-size: 85%; font-weight: initial; padding-top: 3px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; border-top-color: #FFFFFF; border-top-width: 0; }\n #gxcrcehzrv .gt_heading { background-color: Azure; text-align: center; border-bottom-color: #FFFFFF; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }\n #gxcrcehzrv .gt_bottom_border { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #gxcrcehzrv .gt_col_headings { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; }\n #gxcrcehzrv .gt_col_heading { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px; overflow-x: hidden; }\n #gxcrcehzrv .gt_column_spanner_outer { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: normal; text-transform: inherit; padding-top: 0; padding-bottom: 0; padding-left: 4px; padding-right: 4px; }\n #gxcrcehzrv .gt_column_spanner_outer:first-child { padding-left: 0; }\n #gxcrcehzrv .gt_column_spanner_outer:last-child { padding-right: 0; }\n #gxcrcehzrv .gt_column_spanner { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: bottom; padding-top: 5px; padding-bottom: 5px; overflow-x: hidden; display: inline-block; width: 100%; }\n #gxcrcehzrv .gt_spanner_row { border-bottom-style: hidden; }\n #gxcrcehzrv .gt_group_heading { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; text-align: left; }\n #gxcrcehzrv .gt_empty_group_heading { padding: 0.5px; color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; vertical-align: middle; }\n #gxcrcehzrv .gt_from_md&gt; :first-child { margin-top: 0; }\n #gxcrcehzrv .gt_from_md&gt; :last-child { margin-bottom: 0; }\n #gxcrcehzrv .gt_row { padding-top: 8px; padding-bottom: 8px; padding-left: 10px; padding-right: 10px; margin: 10px; border-top-style: solid; border-top-width: 2px; border-top-color: Lavender; border-left-style: none; border-left-width: 1px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 1px; border-right-color: #D3D3D3; vertical-align: middle; overflow-x: hidden; }\n #gxcrcehzrv .gt_stub { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; }\n #gxcrcehzrv .gt_indent_1 { text-indent: 5px; }\n #gxcrcehzrv .gt_indent_2 { text-indent: calc(5px * 2); }\n #gxcrcehzrv .gt_indent_3 { text-indent: calc(5px * 3); }\n #gxcrcehzrv .gt_indent_4 { text-indent: calc(5px * 4); }\n #gxcrcehzrv .gt_indent_5 { text-indent: calc(5px * 5); }\n #gxcrcehzrv .gt_stub_row_group { color: #333333; background-color: #FFFFFF; font-size: 100%; font-weight: initial; text-transform: inherit; border-right-style: solid; border-right-width: 2px; border-right-color: #D3D3D3; padding-left: 10px; padding-right: 10px; vertical-align: top; }\n #gxcrcehzrv .gt_row_group_first td { border-top-width: 2px; }\n #gxcrcehzrv .gt_row_group_first th { border-top-width: 2px; }\n #gxcrcehzrv .gt_striped { color: #333333; background-color: #F4F4F4; }\n #gxcrcehzrv .gt_table_body { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #gxcrcehzrv .gt_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }\n #gxcrcehzrv .gt_first_summary_row { border-top-style: solid; border-top-width: 2px; border-top-color: #D3D3D3; }\n #gxcrcehzrv .gt_last_summary_row_top { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #D3D3D3; }\n #gxcrcehzrv .gt_grand_summary_row { color: #333333; background-color: #FFFFFF; text-transform: inherit; padding-top: 8px; padding-bottom: 8px; padding-left: 5px; padding-right: 5px; }\n #gxcrcehzrv .gt_first_grand_summary_row_bottom { border-top-style: double; border-top-width: 6px; border-top-color: #D3D3D3; }\n #gxcrcehzrv .gt_last_grand_summary_row_top { border-bottom-style: double; border-bottom-width: 6px; border-bottom-color: #D3D3D3; }\n #gxcrcehzrv .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #gxcrcehzrv .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }\n #gxcrcehzrv .gt_left { text-align: left; }\n #gxcrcehzrv .gt_center { text-align: center; }\n #gxcrcehzrv .gt_right { text-align: right; font-variant-numeric: tabular-nums; }\n #gxcrcehzrv .gt_font_normal { font-weight: normal; }\n #gxcrcehzrv .gt_font_bold { font-weight: bold; }\n #gxcrcehzrv .gt_font_italic { font-style: italic; }\n #gxcrcehzrv .gt_super { font-size: 65%; }\n #gxcrcehzrv .gt_footnotes { color: font-color(#FFFFFF); background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #gxcrcehzrv .gt_footnote { margin: 0px; font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 5px; padding-right: 5px; }\n #gxcrcehzrv .gt_sourcenotes { color: #333333; background-color: #FFFFFF; border-bottom-style: none; border-bottom-width: 2px; border-bottom-color: #D3D3D3; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; }\n #gxcrcehzrv .gt_sourcenote { font-size: 90%; padding-top: 4px; padding-bottom: 4px; padding-left: 10px; padding-right: 10px; text-align: left; }\n #gxcrcehzrv .gt_footnote_marks { font-size: 75%; vertical-align: 0.4em; position: initial; }\n #gxcrcehzrv .gt_asterisk { font-size: 100%; vertical-align: 0; }\n \n&lt;/style&gt;\n&lt;table class="gt_table" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" data-quarto-bootstrap="false"&gt;\n&lt;thead&gt;\n\n  &lt;tr class="gt_heading"&gt;\n    &lt;td colspan="3" class="gt_heading gt_title gt_font_normal" id="title"&gt;Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr class="gt_heading"&gt;\n    &lt;td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" id="subtitle"&gt;gtcars is an R dataset&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;tr class="gt_col_headings"&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="mfr"&gt;mfr&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="model"&gt;model&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="msrp"&gt;msrp&lt;/th&gt;\n&lt;/tr&gt;\n&lt;/thead&gt;\n&lt;tbody class="gt_table_body"&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ford&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;GT&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$447,000.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Speciale&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$291,744.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Spider&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$263,553.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;458 Italia&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$233,509.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr&gt;\n    &lt;td style="background-color: LightCyan;" headers="mfr" class="gt_row gt_left"&gt;Ferrari&lt;/td&gt;\n    &lt;td headers="model" class="gt_row gt_left"&gt;488 GTB&lt;/td&gt;\n    &lt;td headers="msrp" class="gt_row gt_right"&gt;$245,400.00&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/tbody&gt;\n\n&lt;/table&gt;\n\n&lt;/div&gt;\n\n&lt;/body&gt;\n&lt;/html&gt;\n'</code></pre>
 </div>
 </div>
 <p>Should you want to include all of the CSS styles as inline styles, you can use <code>inline_css=True</code> to get an HTML string with all CSS inlined into the HTML tags.</p>
-<div id="32d168b2" class="cell" data-execution_count="4">
+<div id="0aca6102" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>gt_tbl.as_raw_html(inline_css<span class="op">=</span><span class="va">True</span>)</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<pre><code>'&lt;div id="lpjymzcjfr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;\n\n&lt;table class="gt_table" data-quarto-bootstrap="false" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Helvetica Neue\', \'Fira Sans\', \'Droid Sans\', Arial, sans-serif;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;display: table;border-collapse: collapse;line-height: normal;margin-left: auto;margin-right: auto;color: #333333;font-size: 16px;font-weight: normal;font-style: normal;background-color: #FFFFFF;width: auto;border-top-style: solid;border-top-width: 2px;border-top-color: #A8A8A8;border-right-style: none;border-right-width: 2px;border-right-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #A8A8A8;border-left-style: none;border-left-width: 2px;border-left-color: #D3D3D3;"&gt;\n&lt;thead style="border-style: none;"&gt;\n\n  &lt;tr class="gt_heading" style="border-style: none;background-color: Azure;text-align: center;border-bottom-color: #FFFFFF;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;"&gt;\n    &lt;td class="gt_heading gt_title gt_font_normal" colspan="3" id="title" style="border-style: none;color: #333333;font-size: 125%;font-weight: normal;padding-top: 4px;padding-bottom: 4px;padding-left: 10px;padding-right: 10px;border-bottom-color: #FFFFFF;border-bottom-width: 0;background-color: Azure;text-align: center;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;"&gt;Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr class="gt_heading" style="border-style: none;background-color: Azure;text-align: center;border-bottom-color: #FFFFFF;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;"&gt;\n    &lt;td class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" colspan="3" id="subtitle" style="border-style: none;color: #333333;font-size: 85%;font-weight: normal;padding-top: 3px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px;border-top-color: #FFFFFF;border-top-width: 0;background-color: Azure;text-align: center;border-bottom-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;"&gt;gtcars is an R dataset&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;tr class="gt_col_headings" style="border-style: none;background-color: transparent;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;"&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" id="mfr" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px;overflow-x: hidden;text-align: left;"&gt;mfr&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" id="model" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px;overflow-x: hidden;text-align: left;"&gt;model&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" id="msrp" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;msrp&lt;/th&gt;\n&lt;/tr&gt;\n&lt;/thead&gt;\n&lt;tbody class="gt_table_body" style="border-style: none;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;"&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ford&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;GT&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$447,000.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ferrari&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;458 Speciale&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$291,744.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ferrari&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;458 Spider&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$263,553.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ferrari&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;458 Italia&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$233,509.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ferrari&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;488 GTB&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$245,400.00&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/tbody&gt;\n\n&lt;/table&gt;\n\n&lt;/div&gt;\n'</code></pre>
+<pre><code>'&lt;div id="kogdbpbgvl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;\n\n&lt;table class="gt_table" data-quarto-bootstrap="false" aria-labelledby="title" aria-describedby="subtitle" data-quarto-disable-processing="false" style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen, Ubuntu, Cantarell, \'Helvetica Neue\', \'Fira Sans\', \'Droid Sans\', Arial, sans-serif;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;display: table;border-collapse: collapse;line-height: normal;margin-left: auto;margin-right: auto;color: #333333;font-size: 16px;font-weight: normal;font-style: normal;background-color: #FFFFFF;width: auto;border-top-style: solid;border-top-width: 2px;border-top-color: #A8A8A8;border-right-style: none;border-right-width: 2px;border-right-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #A8A8A8;border-left-style: none;border-left-width: 2px;border-left-color: #D3D3D3;"&gt;\n&lt;thead style="border-style: none;"&gt;\n\n  &lt;tr class="gt_heading" style="border-style: none;background-color: Azure;text-align: center;border-bottom-color: #FFFFFF;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;"&gt;\n    &lt;td class="gt_heading gt_title gt_font_normal" colspan="3" id="title" style="border-style: none;color: #333333;font-size: 125%;font-weight: normal;padding-top: 4px;padding-bottom: 4px;padding-left: 10px;padding-right: 10px;border-bottom-color: #FFFFFF;border-bottom-width: 0;background-color: Azure;text-align: center;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;"&gt;Data listing from &lt;strong&gt;gtcars&lt;/strong&gt;&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr class="gt_heading" style="border-style: none;background-color: Azure;text-align: center;border-bottom-color: #FFFFFF;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;"&gt;\n    &lt;td class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" colspan="3" id="subtitle" style="border-style: none;color: #333333;font-size: 85%;font-weight: normal;padding-top: 3px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px;border-top-color: #FFFFFF;border-top-width: 0;background-color: Azure;text-align: center;border-bottom-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;"&gt;gtcars is an R dataset&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;tr class="gt_col_headings" style="border-style: none;background-color: transparent;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;"&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" id="mfr" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px;overflow-x: hidden;text-align: left;"&gt;mfr&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" id="model" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px;overflow-x: hidden;text-align: left;"&gt;model&lt;/th&gt;\n  &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" id="msrp" rowspan="1" colspan="1" scope="col" style="border-style: none;color: #333333;background-color: #FFFFFF;font-size: 100%;font-weight: normal;text-transform: inherit;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: bottom;padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;msrp&lt;/th&gt;\n&lt;/tr&gt;\n&lt;/thead&gt;\n&lt;tbody class="gt_table_body" style="border-style: none;border-top-style: solid;border-top-width: 2px;border-top-color: #D3D3D3;border-bottom-style: solid;border-bottom-width: 2px;border-bottom-color: #D3D3D3;"&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ford&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;GT&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$447,000.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ferrari&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;458 Speciale&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$291,744.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ferrari&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;458 Spider&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$263,553.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ferrari&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;458 Italia&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$233,509.00&lt;/td&gt;\n  &lt;/tr&gt;\n  &lt;tr style="border-style: none;background-color: transparent;"&gt;\n    &lt;td class="gt_row gt_left" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;background-color: LightCyan" headers="mfr"&gt;Ferrari&lt;/td&gt;\n    &lt;td class="gt_row gt_left" headers="model" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: left;"&gt;488 GTB&lt;/td&gt;\n    &lt;td class="gt_row gt_right" headers="msrp" style="border-style: none;padding-top: 8px;padding-bottom: 8px;padding-left: 10px;padding-right: 10px;margin: 10px;border-top-style: solid;border-top-width: 2px;border-top-color: Lavender;border-left-style: none;border-left-width: 1px;border-left-color: #D3D3D3;border-right-style: none;border-right-width: 1px;border-right-color: #D3D3D3;vertical-align: middle;overflow-x: hidden;text-align: right;font-variant-numeric: tabular-nums;"&gt;$245,400.00&lt;/td&gt;\n  &lt;/tr&gt;\n&lt;/tbody&gt;\n\n&lt;/table&gt;\n\n&lt;/div&gt;\n'</code></pre>
 </div>
 </div>
 
@@ -1594,7 +1556,8 @@ An HTML string containing the table. The format depends on the parameters passed
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -1603,8 +1566,69 @@ An HTML string containing the table. The format depends on the parameters passed
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -1618,6 +1642,7 @@ An HTML string containing the table. The format depends on the parameters passed
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -1780,44 +1805,54 @@ An HTML string containing the table. The format depends on the parameters passed
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -1915,6 +1950,9 @@ An HTML string containing the table. The format depends on the parameters passed
       }
     }
   });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script>
 </div> <!-- /content -->
 <footer class="footer">

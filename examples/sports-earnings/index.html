@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <style>html:not(.theme-loaded){visibility:hidden}html:not(.theme-loaded) body{visibility:hidden;opacity:0}</style>
 <noscript><style>html:not(.theme-loaded),html:not(.theme-loaded) body{visibility:visible!important;opacity:1!important}</style></noscript>
-<meta name="generator" content="quarto-1.10.20">
+<meta name="generator" content="quarto-1.11.9">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -77,14 +77,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../favicon.ico" rel="icon">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-17888a1159294d3eb470f19f6f52f5a5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-2cbc4fce51ec727eb1ce5774130eab4b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-c17ba41ba6215283560c22479a3a4e8f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -140,18 +141,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <meta property="og:title" content="Great Tables">
-<meta property="og:image" content="https://posit-dev.github.io/great-tables/examples/sports-earnings/data: image/png; base64,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">
 <meta property="og:site_name" content="Great Tables">
 <meta name="twitter:title" content="Great Tables">
-<meta name="twitter:image" content="https://posit-dev.github.io/great-tables/examples/sports-earnings/data: image/png; base64,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">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../../index.html" class="navbar-brand navbar-brand-logo">
@@ -159,8 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <img src="../../GT_logo.svg" alt="Great Tables" class="navbar-logo dark-content">
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -195,6 +193,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
+            <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -206,7 +205,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content" tabindex="-1"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
@@ -451,7 +450,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -460,8 +460,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -475,6 +536,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -637,44 +699,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -772,6 +844,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       }
     }
   });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script>
 </div> <!-- /content -->
 <footer class="footer">
