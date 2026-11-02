@@ -177,8 +177,9 @@ class GTI(GT):
         A column is sorted by clicking (or tapping) its label: once for ascending order, again for
         descending, and a third time to go back to the table's own order. With Shift held, a column
         is added to the sort (and is sorted within the columns before it). Rows are sorted by the
-        column's values, not by how they're formatted, and stay in their row groups. Sorting is on
-        by default.
+        column's values, not by how they're formatted, and stay in their row groups. The info panel
+        (from the (i) button in the control bar) says how the table is sorted, and can put it back
+        in its own order. Sorting is on by default.
 
         Parameters
         ----------
@@ -269,6 +270,7 @@ class GTI(GT):
         *,
         page_size: int = 10,
         page_sizes: list[int] | tuple[int, ...] | None = (10, 25, 50, 100),
+        info: bool = True,
     ) -> Self:
         """
         Split the table's rows into pages.
@@ -277,7 +279,9 @@ class GTI(GT):
         the table to go from page to page (as do the arrow keys, Page Up and Page Down, and Home
         and End, in the bar). Between the arrows is the page and the number of pages, which can be
         clicked to type the page to go to. Each page is as tall as a full one, so the controls stay
-        in place. Pagination is on by default, with ten rows to a page.
+        in place. The (i) button at the end of the bar opens the table's info panel, which says
+        which rows are shown and has the choice of page size. Pagination is on by default, with ten
+        rows to a page.
 
         Parameters
         ----------
@@ -286,8 +290,10 @@ class GTI(GT):
         page_size
             How many rows are on a page, to begin with.
         page_sizes
-            The page sizes readers can choose from. With `None` (or none at all), readers can't
-            change the page size.
+            The page sizes readers can choose from, in the info panel (as well as `page_size`).
+            With `None` (or none at all), readers can't change the page size.
+        info
+            Whether the info panel says which rows are shown (as in "21–30 of 215 rows").
 
         Returns
         -------
@@ -306,6 +312,7 @@ class GTI(GT):
         ```
         """
         enabled = _flag(enabled, "enabled")
+        info = _flag(info, "info")
         page_size = _page_size(page_size, "page_size")
         # (Not `page_sizes or ()`, which a NumPy array can't answer)
         sizes = () if page_sizes is None else tuple(_page_size(s, "page_sizes") for s in page_sizes)
@@ -314,6 +321,7 @@ class GTI(GT):
             page_size=page_size,
             page_sizes=sizes,
             page_size_select=bool(sizes),
+            page_info=info,
         )
 
     def i_selection(self, mode: SelectionMode | None = "multiple") -> Self:
@@ -323,7 +331,8 @@ class GTI(GT):
         Rows are selected by clicking them or their checkboxes, in a column before the others. With
         `"single"`, selecting a row clears the one selected before; with `"multiple"`, Shift-click
         selects a range of rows, and a checkbox in the column labels selects every row that matches
-        the search. Selection is off by default.
+        the search. The info panel (from the (i) button in the control bar) says how many rows are
+        selected, and can clear the selection. Selection is off by default.
 
         Parameters
         ----------
