@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypedDict, Union
 
 from .._tbl_data import ColumnKind, _get_column_kind, _get_column_ranks, n_rows
 from .._utils_render_html import _get_header_ids
+from ._settings import PaginationType, SelectionMode, settings_of
 
 if TYPE_CHECKING:
     from .._gt_data import GTData
@@ -85,21 +86,11 @@ class StripingSpec(TypedDict):
     body: bool
 
 
-SelectionMode = Literal["single", "multiple"]
-
-SELECTION_MODES: tuple[SelectionMode, ...] = ("single", "multiple")
-
-
 class ControlsSpec(TypedDict):
     sorting: bool
     search: bool
     resizing: bool
     selection: SelectionMode | None
-
-
-PaginationType = Literal["numbers", "simple", "full", "jump"]
-
-PAGINATION_TYPES: tuple[PaginationType, ...] = ("numbers", "simple", "full", "jump")
 
 
 class PaginationSpec(TypedDict):
@@ -206,6 +197,8 @@ def build_spec(data: GTData) -> Spec:
                 ranks[column["id"]] = column_ranks
 
     groups_as_column = "group_label" in stub_layout
+    # (A `GTI`'s own settings, or those `opt_interactive()` set)
+    settings = settings_of(data)
 
     return Spec(
         version=SPEC_VERSION,
@@ -225,49 +218,25 @@ def build_spec(data: GTData) -> Spec:
             stub=bool(data._options.row_striping_include_stub.value),
             body=bool(data._options.row_striping_include_table_body.value),
         ),
-        # From `opt_interactive()`'s options, so that it can switch to GTI without changes
         controls=ControlsSpec(
-            sorting=bool(data._options.ihtml_use_sorting.value),
-            search=bool(data._options.ihtml_use_search.value),
-            resizing=bool(data._options.ihtml_use_resizers.value),
-            selection=_selection_mode(data),
+            sorting=settings.sorting,
+            search=settings.search,
+            resizing=settings.resizing,
+            selection=settings.selection,
         ),
-        pagination=_pagination(data),
+        pagination=PaginationSpec(
+            enabled=settings.pagination,
+            page_size=settings.page_size,
+            page_sizes=list(settings.page_sizes),
+            size_select=settings.page_size_select,
+            info=settings.page_info,
+            type=settings.pagination_type,
+        ),
         display=DisplaySpec(
-            highlight=bool(data._options.ihtml_use_highlight.value),
-            compact=bool(data._options.ihtml_use_compact_mode.value),
-            wrap=bool(data._options.ihtml_use_text_wrapping.value),
+            highlight=settings.highlight, compact=settings.compact, wrap=settings.wrap
         ),
         # (Responsive layouts are GTI's own, and "scroll" is the only one so far)
-        layout=LayoutSpec(height=_height(data), responsive="scroll"),
-    )
-
-
-def _height(data: GTData) -> str | None:
-    # (`tab_options()` takes "auto", a CSS length, or a number, made into px)
-    height = data._options.ihtml_height.value
-    return None if height in (None, "auto") else str(height)
-
-
-def _selection_mode(data: GTData) -> SelectionMode | None:
-    # (`tab_options()` takes only these)
-    mode = data._options.ihtml_selection_mode.value
-    return mode if mode in SELECTION_MODES else None
-
-
-def _pagination(data: GTData) -> PaginationSpec:
-    options = data._options
-    pagination_type = options.ihtml_pagination_type.value
-    return PaginationSpec(
-        enabled=bool(options.ihtml_use_pagination.value),
-        page_size=int(options.ihtml_page_size_default.value),
-        page_sizes=[
-            int(size) for size in options.ihtml_page_size_values.value or [10, 25, 50, 100]
-        ],
-        size_select=bool(options.ihtml_use_page_size_select.value),
-        info=bool(options.ihtml_use_pagination_info.value),
-        # (`opt_interactive()` doesn't check the type; the reactable renderer falls back the same way)
-        type=pagination_type if pagination_type in PAGINATION_TYPES else "numbers",
+        layout=LayoutSpec(height=settings.height, responsive="scroll"),
     )
 
 
