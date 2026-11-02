@@ -369,6 +369,20 @@ def test_i_cols_filter_values_are_json():
     assert all(type(value) is int for value in filters_of(gti)[0]["values"])
 
 
+def test_i_view_sets_the_whole_view():
+    query = {"and": [{"col": "few", "op": "in", "value": ["a"]}]}
+    gti = GTI(FILTER_DF).i_cols_filter(columns="few").i_view(filter=query, sort="-num")
+    assert gti._interactive.view_filter == query
+    assert gti._interactive.view_sort == (("num", True),)
+    assert spec_of(gti)["view"] == {
+        "filter": query,
+        "sort": [{"column": "num", "descending": True}],
+    }
+    # (What's not given goes back to its default)
+    assert gti.i_view(sort="id")._interactive.view_filter is None
+    assert spec_of(gti.i_view())["view"] == {"filter": None, "sort": []}
+
+
 def test_i_cols_filter_keeps_room_for_the_bar():
     gti = GTI(DF).i_search(False)
     assert gt_table_tag(gti) == "<gt-table>"
@@ -505,8 +519,11 @@ def test_static_output_is_not_available(method: str, tmp_path):
 
 
 def test_opt_interactive_is_not_available():
-    with pytest.raises(TypeError, match="`i_` methods"):
+    with pytest.raises(TypeError, match="`i_` methods") as info:
         GTI(DF).opt_interactive(use_search=True)
+    # (Naming every one)
+    for name in [name for name in dir(GTI) if name.startswith("i_")]:
+        assert f"`{name}()`" in str(info.value)
 
 
 # GT and the i_ methods ----
