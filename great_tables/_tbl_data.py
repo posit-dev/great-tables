@@ -4,6 +4,7 @@ import math
 import numbers
 import re
 import warnings
+from contextlib import suppress
 from collections.abc import Callable
 from datetime import datetime, time
 from decimal import Decimal
@@ -1319,6 +1320,28 @@ def _is_same_values(given: list[Any], stored: list[Any]) -> bool:
     """Whether a column kept every value of the list it was made from."""
 
     return len(given) == len(stored) and all(map(_is_same_value, given, stored))
+
+
+def frame_from_dict(data: dict[str, list[Any]]) -> DataFrameLike:
+    """Make a DataFrame from columns of values, with the first library installed: polars, pandas,
+    then pyarrow."""
+
+    with suppress(ImportError):
+        import polars as pl
+
+        return pl.DataFrame(data)
+
+    with suppress(ImportError):
+        import pandas as pd
+
+        return pd.DataFrame(data)
+
+    with suppress(ImportError):
+        import pyarrow as pa
+
+        return pa.table(data)
+
+    raise ImportError("Making a DataFrame requires polars, pandas, or pyarrow to be installed.")
 
 
 @singledispatch

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import tempfile
 import time
 import warnings
@@ -40,6 +41,12 @@ def _create_temp_file_server(fname: Path) -> HTTPServer:
     return server
 
 
+def _running_in_marimo() -> bool:
+    # A marimo kernel has always imported marimo, so there's no need to import it to check
+    marimo = sys.modules.get("marimo")
+    return marimo is not None and marimo.running_in_notebook()
+
+
 def _infer_render_target(
     ipy: InteractiveShell | None | type = MISSING,
 ) -> Literal["auto", "notebook", "browser"]:
@@ -47,6 +54,11 @@ def _infer_render_target(
     # Note that `ipy` arguments are possible return values of IPython.get_ipython()
     # They are manually passed in from unit tests to validate this function.
     target: Literal["auto", "notebook", "browser"]
+
+    # marimo doesn't run an IPython shell, so get_ipython() returns None in it
+    if _running_in_marimo():
+        return "notebook"
+
     try:
         import IPython  # pyright: ignore[reportUnknownVariableType]
         from IPython.terminal.interactiveshell import TerminalInteractiveShell
@@ -99,7 +111,11 @@ def show(
     if target == "auto":
         target = _infer_render_target()
 
-    if target == "notebook":
+    if target == "notebook" and _running_in_marimo():
+        import marimo
+
+        marimo.output.append(self)
+    elif target == "notebook":
         from IPython.core.display import display_html
 
         html = self._repr_html_()
