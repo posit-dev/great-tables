@@ -82,6 +82,12 @@ export interface ControlsSpec {
   resizing: boolean;
   /** Whether data rows can be selected: one at a time, several, or not at all. */
   selection: SelectionMode | null;
+  /**
+   * Whether the search and page controls are in one bar below the table (GTI's), rather than a
+   * search box above the table and page controls below it (as `pagination.type` says). Without
+   * it, the latter.
+   */
+  bar?: boolean;
 }
 
 /** How page controls look: page numbers, previous/next only, first/previous/next/last, or a page input. */
@@ -214,6 +220,9 @@ export function parseSpec(text: string): Spec {
     throw new SpecError(
       "`controls` must say whether sorting, search and resizing are on, and how rows are selected",
     );
+  }
+  if (!(controls.bar === undefined || typeof controls.bar === "boolean")) {
+    throw new SpecError("`controls.bar` must be `true` or `false`, if given");
   }
   const pagination = raw.pagination;
   if (
