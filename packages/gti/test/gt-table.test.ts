@@ -4,6 +4,9 @@ import {
   type ControlsSpec,
   type DisplaySpec,
   define,
+  FILTER_EVENT,
+  type FilterEventDetail,
+  type FilterSpec,
   GtTable,
   type LayoutSpec,
   PAGE_EVENT,
@@ -67,6 +70,7 @@ interface TableOptions {
   yLabel?: string;
   /** The column label rows, if not one row of a label per column. */
   thead?: string;
+  filters?: FilterSpec[];
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -160,6 +164,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     },
     display: { highlight: false, compact: false, wrap: true, ...options.display },
     layout: { height: null, responsive: null, ...options.layout },
+    ...(options.filters === undefined ? {} : { filters: options.filters }),
   };
   return { html, spec };
 }
@@ -2054,8 +2059,451 @@ describe("the info panel", () => {
   });
 });
 
+describe("filters", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const filterButton = (el: GtTable, column: string) =>
+    header(el, column).querySelector(".gt-i-filter-button") as HTMLButtonElement;
+  const panel = (el: GtTable, column: string) =>
+    el.querySelector(`#${filterButton(el, column).getAttribute("aria-controls")}`) as HTMLElement;
+  const clearButton = (el: GtTable, column: string) =>
+    panel(el, column).querySelector(".gt-i-filter-head button") as HTMLButtonElement;
+  const inputs = (el: GtTable, column: string) =>
+    Array.from(panel(el, column).querySelectorAll<HTMLInputElement>("input"));
+  const options = (el: GtTable, column: string) =>
+    Array.from(
+      panel(el, column).querySelectorAll(".gt-i-filter-option"),
+      (item) =>
+        `${item.querySelector(".gt-i-filter-value")?.textContent} ${item.querySelector(".gt-i-filter-count")?.textContent}` +
+        (item.hasAttribute("data-gti-none") ? " (none)" : ""),
+    );
+  const check = (el: GtTable, column: string, i: number) => inputs(el, column)[i]?.click();
+  const type = (input: HTMLInputElement | undefined, value: string) => {
+    (input as HTMLInputElement).value = value;
+    input?.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const press = (target: Element | undefined, key: string, shiftKey = false) => {
+    const event = new KeyboardEvent("keydown", { key, shiftKey, bubbles: true, cancelable: true });
+    target?.dispatchEvent(event);
+    return event;
+  };
+  const leave = (from: Element, to: Element | null) =>
+    from.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: to }));
+
+  // A range on `x` and a facet on `y`, in the bar's table, unless set otherwise
+  async function mountFilters(options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, {
+      filters: [RANGE, FACET],
+      ...options,
+      controls: { bar: true, ...options.controls },
+    });
+    const events: FilterEventDetail[] = [];
+    el.addEventListener(FILTER_EVENT, (event) => events.push((event as CustomEvent<FilterEventDetail>).detail));
+    return { el, events };
+  }
+
+  it("puts a filter button in the label of each column that can be filtered, after its sort button", async () => {
+    const { el } = await mountFilters();
+    expect(el.filterableColumns).toEqual(["x", "y"]);
+    for (const column of ["x", "y"]) {
+      const filter = filterButton(el, column);
+      expect(filter.previousElementSibling).toBe(button(el, column));
+      expect(filter.type).toBe("button");
+      expect(filter.title).toBe("Filter");
+      expect(filter.getAttribute("aria-label")).toBe(`Filter ${column}`);
+      expect(filter.getAttribute("aria-expanded")).toBe("false");
+      expect(header(el, column).hasAttribute("data-gti-filtered")).toBe(false);
+    }
+    // (Its panel is made when it first opens)
+    expect(el.querySelector(".gt-i-filter")).toBeNull();
+  });
+
+  it("has no filters without any in the spec", async () => {
+    const el = await mountTable();
+    expect(el.filterableColumns).toEqual([]);
+    expect(el.querySelector(".gt-i-filter-button")).toBeNull();
+    expect(el.filter).toBeNull();
+    el.filter = null;
+    expect(() => {
+      el.filter = { and: [{ col: "x", op: "gte", value: 1 }] };
+    }).toThrow(/"x" isn't a column that can be filtered/);
+  });
+
+  it("ignores a filter on a column the table doesn't have, and a second one on a column", async () => {
+    const { el } = await mountFilters({
+      filters: [{ column: "w", type: "text", values: null }, RANGE, { ...RANGE, type: "facet" }],
+    });
+    expect(el.filterableColumns).toEqual(["x"]);
+    expect(el.querySelectorAll(".gt-i-filter-button")).toHaveLength(1);
+  });
+
+  it("opens a panel for a filter from its button, and closes it from it", async () => {
+    const { el } = await mountFilters();
+    filterButton(el, "y").click();
+    const open = panel(el, "y");
+    expect(open.hidden).toBe(false);
+    expect(open.getAttribute("role")).toBe("group");
+    expect(open.getAttribute("aria-label")).toBe("Filter y");
+    expect(open.dataset.gtiFilter).toBe("facet");
+    expect(open.querySelector(".gt-i-filter-title")?.textContent).toBe("y");
+    expect(clearButton(el, "y").getAttribute("aria-label")).toBe("Clear the filter on y");
+    expect(clearButton(el, "y").getAttribute("aria-disabled")).toBe("true");
+    expect(filterButton(el, "y").getAttribute("aria-expanded")).toBe("true");
+    // (Its first field has focus; the panel is in the element, outside the table)
+    expect(document.activeElement).toBe(inputs(el, "y")[0]);
+    expect(open.parentElement).toBe(el);
+
+    filterButton(el, "y").click();
+    expect(open.hidden).toBe(true);
+    expect(filterButton(el, "y").getAttribute("aria-expanded")).toBe("false");
+    // One panel is open at a time
+    filterButton(el, "y").click();
+    filterButton(el, "x").click();
+    expect(panel(el, "y").hidden).toBe(true);
+    expect(panel(el, "x").hidden).toBe(false);
+    expect(panel(el, "x").id).not.toBe(panel(el, "y").id);
+  });
+
+  it("chooses a facet's values, counting the rows with each", async () => {
+    const { el, events } = await mountFilters();
+    filterButton(el, "y").click();
+    expect(options(el, "y")).toEqual(["a 3", "b 1", "c 1"]);
+
+    check(el, "y", 2);
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["c"] }] });
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    expect(events).toEqual([{ filter: { and: [{ col: "y", op: "in", value: ["c"] }] }, count: 1 }]);
+    expect(live(el)).toBe("Showing 1 of 5 rows");
+    expect(header(el, "y").hasAttribute("data-gti-filtered")).toBe(true);
+    expect(filterButton(el, "y").getAttribute("aria-label")).toBe("Filter y (on)");
+    expect(clearButton(el, "y").getAttribute("aria-disabled")).toBe("false");
+    // (Its own values keep their counts)
+    expect(options(el, "y")).toEqual(["a 3", "b 1", "c 1"]);
+
+    check(el, "y", 1);
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["b", "c"] }] });
+    expect(visible(el)).toEqual(["group:b", 0, "summary:Total", "group:a", 2, "grand:Max"]);
+    check(el, "y", 2);
+    check(el, "y", 1);
+    expect(el.filter).toBeNull();
+    expect(live(el)).toBe("Showing all 5 rows");
+    expect(events[events.length - 1]).toEqual({ filter: null, count: 5 });
+    expect(header(el, "y").hasAttribute("data-gti-filtered")).toBe(false);
+  });
+
+  it("counts a facet's rows within the search and the other filters", async () => {
+    const { el } = await mountFilters({ controls: { search: true } });
+    el.filter = { and: [{ col: "x", op: "gte", value: 10 }] };
+    filterButton(el, "y").click();
+    expect(options(el, "y")).toEqual(["a 1", "b 1", "c 1"]);
+    el.search = "row_1";
+    expect(options(el, "y")).toEqual(["a 0 (none)", "b 1", "c 0 (none)"]);
+    // (A value without any can still be chosen)
+    check(el, "y", 0);
+    expect(visible(el)).toEqual(["grand:Max"]);
+    expect(live(el)).toBe("No matching rows");
+  });
+
+  it("lists a facet's missing value last, as the cells show the values", async () => {
+    const { el } = await mountFilters({ filters: [{ ...RANGE, type: "facet" }] });
+    filterButton(el, "x").click();
+    expect(options(el, "x")).toEqual(["5 1", "10 1", "20 2", "(Missing) 1"]);
+    check(el, "x", 3);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "in", value: [null] }] });
+    expect(visible(el)).toEqual(["group:b", 3, "summary:Total", "grand:Max"]);
+  });
+
+  it("filters by a range once typing pauses, or at once on Enter", async () => {
+    const { el, events } = await mountFilters();
+    filterButton(el, "x").click();
+    const [min, max] = inputs(el, "x");
+    expect(min?.getAttribute("aria-label")).toBe("x, at least");
+    expect(max?.getAttribute("aria-label")).toBe("x, at most");
+    expect([min?.placeholder, max?.placeholder]).toEqual(["5", "20"]);
+    expect(min?.inputMode).toBe("decimal");
+
+    vi.useFakeTimers();
+    type(min, "10");
+    vi.advanceTimersByTime(100);
+    expect(events).toEqual([]);
+    vi.advanceTimersByTime(50);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: 10 }] });
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "group:a", 2, "grand:Max"]);
+    expect(events).toEqual([{ filter: { and: [{ col: "x", op: "gte", value: 10 }] }, count: 3 }]);
+    expect(live(el)).toBe("Showing 3 of 5 rows");
+
+    type(max, " 10 ");
+    expect(press(max, "Enter").defaultPrevented).toBe(true);
+    expect(el.filter).toEqual({
+      and: [
+        { col: "x", op: "gte", value: 10 },
+        { col: "x", op: "lte", value: 10 },
+      ],
+    });
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    // (Nothing more once the time's up, nor on Enter when nothing changed)
+    vi.advanceTimersByTime(500);
+    press(max, "Enter");
+    expect(events).toHaveLength(2);
+  });
+
+  it("marks a bound that isn't a number, keeping the one before", async () => {
+    const { el, events } = await mountFilters();
+    filterButton(el, "x").click();
+    const [min] = inputs(el, "x");
+    type(min, "10");
+    press(min, "Enter");
+    type(min, "1O");
+    press(min, "Enter");
+    expect(min?.getAttribute("aria-invalid")).toBe("true");
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: 10 }] });
+    expect(events).toHaveLength(1);
+
+    type(min, "");
+    press(min, "Enter");
+    expect(min?.hasAttribute("aria-invalid")).toBe(false);
+    expect(el.filter).toBeNull();
+  });
+
+  it("filters by the text a column shows, and with the search", async () => {
+    const { el, events } = await mountFilters({
+      filters: [{ column: "y", type: "text", values: null }],
+      controls: { search: true },
+    });
+    filterButton(el, "y").click();
+    const [input] = inputs(el, "y");
+    expect(input?.className).toBe("gt-i-filter-text");
+    expect(input?.placeholder).toBe("Contains");
+    expect(input?.getAttribute("aria-label")).toBe("y contains");
+
+    type(input, " A ");
+    press(input, "Enter");
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "contains", value: "A" }] });
+    expect(visible(el)).toEqual(["group:b", 3, 4, "summary:Total", "group:a", 1, "grand:Max"]);
+    expect(events).toEqual([{ filter: { and: [{ col: "y", op: "contains", value: "A" }] }, count: 3 }]);
+    // (In its column only; and the search has to match too)
+    type(input, "row");
+    press(input, "Enter");
+    expect(visible(el)).toEqual(["grand:Max"]);
+    type(input, "a");
+    press(input, "Enter");
+    el.search = "row_4";
+    expect(visible(el)).toEqual(["group:b", 3, "summary:Total", "grand:Max"]);
+  });
+
+  it("clears a filter from its panel, keeping focus on the Clear button", async () => {
+    const { el, events } = await mountFilters();
+    filterButton(el, "y").click();
+    check(el, "y", 0);
+    clearButton(el, "y").focus();
+    clearButton(el, "y").click();
+    expect(el.filter).toBeNull();
+    expect(inputs(el, "y").map((box) => box.checked)).toEqual([false, false, false]);
+    expect(events[events.length - 1]).toEqual({ filter: null, count: 5 });
+    expect(clearButton(el, "y").getAttribute("aria-disabled")).toBe("true");
+    expect(document.activeElement).toBe(clearButton(el, "y"));
+    // (Not again)
+    clearButton(el, "y").click();
+    expect(events).toHaveLength(2);
+  });
+
+  it("gets and sets the filters as a query, without an event", async () => {
+    const { el, events } = await mountFilters({ pagination: { enabled: true } });
+    el.page = 2;
+    el.filter = {
+      and: [
+        { col: "y", op: "in", value: ["a", "b"] },
+        { col: "x", op: "lte", value: 10 },
+      ],
+    };
+    expect(el.filter).toEqual({
+      and: [
+        { col: "x", op: "lte", value: 10 },
+        { col: "y", op: "in", value: ["a", "b"] },
+      ],
+    });
+    expect(el.page).toBe(1);
+    expect(visible(el)).toEqual(["group:a", 1, "grand:Max"]);
+    expect(events).toEqual([]);
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(true);
+    expect(header(el, "y").hasAttribute("data-gti-filtered")).toBe(true);
+
+    // The panels show it, open or not
+    filterButton(el, "x").click();
+    expect(inputs(el, "x").map((input) => input.value)).toEqual(["", "10"]);
+    el.filter = { and: [{ col: "x", op: "gte", value: 6 }] };
+    expect(inputs(el, "x").map((input) => input.value)).toEqual(["6", ""]);
+    filterButton(el, "y").click();
+    expect(inputs(el, "y").map((box) => box.checked)).toEqual([false, false, false]);
+    el.filter = null;
+    expect(el.filter).toBeNull();
+    expect(visible(el)).toEqual(["group:b", 3, 0, "grand:Max"]);
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(false);
+  });
+
+  it("rejects a query that it can't take, changing nothing", async () => {
+    const { el } = await mountFilters();
+    const query = { and: [{ col: "x", op: "gte" as const, value: 10 }] };
+    el.filter = query;
+    for (const bad of [
+      { and: [{ col: "y", op: "in", value: ["d"] }] },
+      { and: [{ col: "y", op: "in", value: ["a"] }, { col: "x", op: "contains", value: "1" }] },
+      { and: [{ col: "row", op: "contains", value: "1" }] },
+      { or: [] },
+    ]) {
+      expect(() => {
+        el.filter = bad as never;
+      }).toThrow(RangeError);
+      expect(el.filter).toEqual(query);
+    }
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "group:a", 2, "grand:Max"]);
+  });
+
+  it("filters a column without a label by the `filter` property only", async () => {
+    const { el } = await mountFilters({ filters: [{ column: "row", type: "text", values: null }] });
+    expect(el.filterableColumns).toEqual(["row"]);
+    expect(el.querySelector(".gt-i-filter-button")).toBeNull();
+    el.filter = { and: [{ col: "row", op: "contains", value: "ROW_2" }] };
+    expect(visible(el)).toEqual(["group:a", 1, "grand:Max"]);
+  });
+
+  it("selects the rows that the filters keep with the select-all checkbox", async () => {
+    const { el } = await mountFilters({ controls: { selection: "multiple", search: true } });
+    const all = el.querySelector<HTMLInputElement>("thead .gt-i-select input") as HTMLInputElement;
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }] };
+    expect(all.getAttribute("aria-label")).toBe("Select all matching rows");
+    all.click();
+    expect(el.selection).toEqual([1, 3, 4]);
+    // (And the search's too)
+    el.search = "row_2";
+    all.click();
+    expect(el.selection).toEqual([3, 4]);
+  });
+
+  it("closes on Escape, giving focus back to its button", async () => {
+    const { el } = await mountFilters();
+    filterButton(el, "y").click();
+    const event = press(inputs(el, "y")[1], "Escape");
+    expect(event.defaultPrevented).toBe(true);
+    expect(panel(el, "y").hidden).toBe(true);
+    expect(document.activeElement).toBe(filterButton(el, "y"));
+  });
+
+  it("closes on Tab out of either end, giving focus back to its button", async () => {
+    const { el } = await mountFilters();
+    filterButton(el, "x").click();
+    // (Not within it)
+    expect(press(inputs(el, "x")[0], "Tab").defaultPrevented).toBe(false);
+    expect(press(inputs(el, "x")[0], "Tab", true).defaultPrevented).toBe(false);
+    expect(panel(el, "x").hidden).toBe(false);
+    expect(press(inputs(el, "x")[1], "Tab").defaultPrevented).toBe(true);
+    expect(panel(el, "x").hidden).toBe(true);
+    expect(document.activeElement).toBe(filterButton(el, "x"));
+
+    filterButton(el, "x").click();
+    expect(press(clearButton(el, "x"), "Tab", true).defaultPrevented).toBe(true);
+    expect(panel(el, "x").hidden).toBe(true);
+  });
+
+  it("closes on a press outside it, or when focus goes elsewhere", async () => {
+    const { el } = await mountFilters();
+    const outside = el.querySelector("tbody td") as HTMLElement;
+    filterButton(el, "y").click();
+    panel(el, "y").dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
+    expect(panel(el, "y").hidden).toBe(false);
+    outside.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
+    expect(panel(el, "y").hidden).toBe(true);
+    expect(document.activeElement).not.toBe(filterButton(el, "y"));
+
+    filterButton(el, "y").click();
+    leave(filterButton(el, "y"), inputs(el, "y")[0] as Element);
+    leave(inputs(el, "y")[0] as Element, filterButton(el, "y"));
+    // (Not when the window loses focus)
+    leave(inputs(el, "y")[0] as Element, null);
+    expect(panel(el, "y").hidden).toBe(false);
+    leave(inputs(el, "y")[0] as Element, outside);
+    expect(panel(el, "y").hidden).toBe(true);
+  });
+
+  it("filters by what was typed when it closes before typing pauses", async () => {
+    const { el, events } = await mountFilters();
+    vi.useFakeTimers();
+    filterButton(el, "x").click();
+    type(inputs(el, "x")[0], "10");
+    press(inputs(el, "x")[0], "Escape");
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: 10 }] });
+    expect(events).toHaveLength(1);
+    vi.advanceTimersByTime(500);
+    expect(events).toHaveLength(1);
+  });
+
+  it("closes the info panel when it opens, and the other way round", async () => {
+    const { el } = await mountFilters();
+    const info = el.querySelector(".gt-i-info") as HTMLElement;
+    const toggle = el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
+    toggle.click();
+    filterButton(el, "y").click();
+    expect(info.hidden).toBe(true);
+    expect(panel(el, "y").hidden).toBe(false);
+    toggle.click();
+    expect(info.hidden).toBe(false);
+    expect(panel(el, "y").hidden).toBe(true);
+  });
+
+  it("shows the bar for filters alone, whose info panel says how the table is filtered", async () => {
+    const { el, events } = await mountFilters();
+    const bar = el.querySelector(".gt-i-bar") as HTMLElement;
+    const item = el.querySelector('[data-gti-info="filters"]') as HTMLElement;
+    const clear = item.querySelector("button") as HTMLButtonElement;
+    const rows = el.querySelector(".gt-i-info-rows") as HTMLElement;
+    expect(bar.hidden).toBe(false);
+    expect(item.firstElementChild?.textContent).toBe("Not filtered");
+    expect(clear.getAttribute("aria-label")).toBe("Clear the filters");
+    expect(clear.getAttribute("aria-disabled")).toBe("true");
+    // (Before the selection's and after the sort's)
+    expect(item.previousElementSibling?.getAttribute("data-gti-info")).toBe("sort");
+
+    el.filter = {
+      and: [
+        { col: "x", op: "gte", value: 10 },
+        { col: "y", op: "in", value: ["a"] },
+      ],
+    };
+    expect(item.firstElementChild?.textContent).toBe("Filtered by x, y");
+    expect(rows.textContent).toBe("1 row (filtered from 5)");
+    expect(clear.getAttribute("aria-disabled")).toBe("false");
+    clear.click();
+    expect(el.filter).toBeNull();
+    expect(events).toEqual([{ filter: null, count: 5 }]);
+    expect(live(el)).toBe("Showing all 5 rows");
+    expect(item.firstElementChild?.textContent).toBe("Not filtered");
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(false);
+  });
+
+  it("works without the bar", async () => {
+    const { el } = await mountFilters({ controls: { bar: false } });
+    expect(el.querySelector(".gt-i-bar")).toBeNull();
+    filterButton(el, "y").click();
+    check(el, "y", 1);
+    expect(visible(el)).toEqual(["group:b", 0, "summary:Total", "grand:Max"]);
+  });
+
+  it("goes when the table does", async () => {
+    const { el } = await mountFilters();
+    filterButton(el, "y").click();
+    el.remove();
+    expect(panel(el, "y").hidden).toBe(true);
+    expect((el as unknown as { filterPress: unknown }).filterPress).toBeNull();
+    expect((el as unknown as { filterScroll: unknown }).filterScroll).toBeNull();
+  });
+});
+
 describe("row display", () => {
-  const tap = (target: Element, pointerType = "touch") => {
+  const tap =(target: Element, pointerType = "touch") => {
     target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType }));
     (target as HTMLElement).click();
   };
