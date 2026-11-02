@@ -13,28 +13,54 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `striping`: whether the stub and body cells of alternate data rows are striped (`gt_striped`),
   so that striping can be redone when rows are reordered or hidden
 - `controls`: which controls the reader gets: sort buttons in the column labels, a search box,
-  handles for resizing columns, and whether rows can be selected (one at a time, or several)
+  handles for resizing columns, and whether rows can be selected (one at a time, or several); and
+  whether the search and page controls are in one bar below the table (`bar`, GTI's), rather than
+  a search box above the table and page controls below it (as `pagination.type` says). Producers
+  that leave `bar` out get the latter.
 - `pagination`: whether rows are split into pages, how many to a page, and the page controls
 - `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
   in the table's CSS, as smaller row padding), and whether cell text wraps
 - `layout`: how the table fits its space: the most it can take up before its body scrolls
   vertically (a CSS length; `null` to grow with its content), and what it does when it's wider
   than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table does)
+- `filters`: the columns readers can filter by, in column order, and how: by the text they show
+  (`"text"`), a choice of their values (`"facet"`), or a range of their numbers (`"range"`). A
+  facet or range column has its distinct values (`values`), in the order of its `ranks`, so that
+  a data row's value is `values[rank]`: as JSON values (numbers, strings, booleans; dates and
+  times as ISO 8601 strings), with `null` for values JSON can't hold (NaN). Producers that leave
+  `filters` out have none.
+- `view`: how the table is first shown: filtered by a query (as `<gt-table>`'s `filter` property
+  takes, or `null`), and sorted by columns (as its `sort` property takes). The runtime applies it
+  without events. Producers that leave `view` out show the table as it is.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
 
 from __future__ import annotations
 
+import datetime as dt
+import math
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Literal, TypedDict, Union
 
-from .._tbl_data import ColumnKind, _get_column_kind, _get_column_ranks, n_rows
+from .._tbl_data import (
+    ColumnKind,
+    _get_column_kind,
+    _get_column_ranks,
+    _get_column_values,
+    n_rows,
+)
 from .._utils_render_html import _get_header_ids
+from ._settings import FilterType, PaginationType, SelectionMode, settings_of
 
 if TYPE_CHECKING:
     from .._gt_data import GTData
 
 SPEC_VERSION = 1
+
+# An "auto" filter on a column of text is a facet when the column has at most this many distinct
+# values (and each is in two rows, on average)
+FACET_MAX_VALUES = 20
 
 
 class ColumnSpec(TypedDict):
@@ -85,21 +111,12 @@ class StripingSpec(TypedDict):
     body: bool
 
 
-SelectionMode = Literal["single", "multiple"]
-
-SELECTION_MODES: tuple[SelectionMode, ...] = ("single", "multiple")
-
-
 class ControlsSpec(TypedDict):
     sorting: bool
     search: bool
     resizing: bool
     selection: SelectionMode | None
-
-
-PaginationType = Literal["numbers", "simple", "full", "jump"]
-
-PAGINATION_TYPES: tuple[PaginationType, ...] = ("numbers", "simple", "full", "jump")
+    bar: bool
 
 
 class PaginationSpec(TypedDict):
@@ -122,6 +139,22 @@ class LayoutSpec(TypedDict):
     responsive: Literal["scroll"] | None
 
 
+class FilterSpec(TypedDict):
+    column: str
+    type: Literal["text", "facet", "range"]
+    values: list[Any] | None  # a facet or range column's distinct values, by rank
+
+
+class ViewSortSpec(TypedDict):
+    column: str
+    descending: bool
+
+
+class ViewSpec(TypedDict):
+    filter: dict[str, list[dict[str, Any]]] | None  # a query (see `_query.py`)
+    sort: list[ViewSortSpec]
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -136,6 +169,8 @@ class Spec(TypedDict):
     pagination: PaginationSpec
     display: DisplaySpec
     layout: LayoutSpec
+    filters: list[FilterSpec]
+    view: ViewSpec
 
 
 def build_spec(data: GTData) -> Spec:
@@ -206,10 +241,31 @@ def build_spec(data: GTData) -> Spec:
                 ranks[column["id"]] = column_ranks
 
     groups_as_column = "group_label" in stub_layout
+    # (A `GTI`'s own settings, or those `opt_interactive()` set)
+    settings = settings_of(data)
+    nrows = n_rows(tbl_data)
+
+    chosen = dict(settings.filters)
+    filters: list[FilterSpec] = []
+    for column in columns:
+        var = column["id"]
+        if var is None or var not in chosen:
+            continue
+        column_ranks = ranks.get(var)
+        filter_type = _filter_type(chosen[var], column["kind"], column_ranks, nrows)
+        values = None
+        if filter_type != "text":
+            values = _filter_values(tbl_data, var, column_ranks or [])
+        filters.append(FilterSpec(column=var, type=filter_type, values=values))
+
+    # (Imported here, as `_query` imports from this module)
+    from ._query import check_view
+
+    view = check_view(settings.view_filter, settings.view_sort, filters, ranks)
 
     return Spec(
         version=SPEC_VERSION,
-        nrows=n_rows(tbl_data),
+        nrows=nrows,
         columns=columns,
         spanners=spanners,
         stub=StubSpec(
@@ -225,50 +281,76 @@ def build_spec(data: GTData) -> Spec:
             stub=bool(data._options.row_striping_include_stub.value),
             body=bool(data._options.row_striping_include_table_body.value),
         ),
-        # From `opt_interactive()`'s options, so that it can switch to GTI without changes
         controls=ControlsSpec(
-            sorting=bool(data._options.ihtml_use_sorting.value),
-            search=bool(data._options.ihtml_use_search.value),
-            resizing=bool(data._options.ihtml_use_resizers.value),
-            selection=_selection_mode(data),
+            sorting=settings.sorting,
+            search=settings.search,
+            resizing=settings.resizing,
+            selection=settings.selection,
+            bar=settings.bar,
         ),
-        pagination=_pagination(data),
+        pagination=PaginationSpec(
+            enabled=settings.pagination,
+            page_size=settings.page_size,
+            page_sizes=list(settings.page_sizes),
+            size_select=settings.page_size_select,
+            info=settings.page_info,
+            type=settings.pagination_type,
+        ),
         display=DisplaySpec(
-            highlight=bool(data._options.ihtml_use_highlight.value),
-            compact=bool(data._options.ihtml_use_compact_mode.value),
-            wrap=bool(data._options.ihtml_use_text_wrapping.value),
+            highlight=settings.highlight, compact=settings.compact, wrap=settings.wrap
         ),
         # (Responsive layouts are GTI's own, and "scroll" is the only one so far)
-        layout=LayoutSpec(height=_height(data), responsive="scroll"),
+        layout=LayoutSpec(height=settings.height, responsive="scroll"),
+        filters=filters,
+        view=view,
     )
 
 
-def _height(data: GTData) -> str | None:
-    # (`tab_options()` takes "auto", a CSS length, or a number, made into px)
-    height = data._options.ihtml_height.value
-    return None if height in (None, "auto") else str(height)
+def _filter_type(
+    chosen: FilterType, kind: ColumnKind, ranks: list[int | None] | None, nrows: int
+) -> Literal["text", "facet", "range"]:
+    """How a column is filtered: as chosen, or (for "auto") as its kind and values suggest."""
+    # (Facets and ranges go by the column's ranks, which a column the backend can't sort lacks)
+    if ranks is None or chosen == "text":
+        return "text"
+    if chosen != "auto":
+        return chosen
+    if kind == "number":
+        return "range"
+    if kind in ("boolean", "category"):
+        return "facet"
+    if kind == "string":
+        distinct = max((rank for rank in ranks if rank is not None), default=-1) + 1
+        if distinct <= FACET_MAX_VALUES and distinct * 2 <= nrows:
+            return "facet"
+    return "text"
 
 
-def _selection_mode(data: GTData) -> SelectionMode | None:
-    # (`tab_options()` takes only these)
-    mode = data._options.ihtml_selection_mode.value
-    return mode if mode in SELECTION_MODES else None
+def _filter_values(data: Any, column: str, ranks: list[int | None]) -> list[Any]:
+    """A column's distinct values, in the order of their ranks, as JSON values."""
+    distinct = max((rank for rank in ranks if rank is not None), default=-1) + 1
+    values: list[Any] = [None] * distinct
+    seen = [False] * distinct
+    for value, rank in zip(_get_column_values(data, column), ranks):
+        if rank is not None and not seen[rank]:
+            seen[rank] = True
+            values[rank] = _json_value(value)
+    return values
 
 
-def _pagination(data: GTData) -> PaginationSpec:
-    options = data._options
-    pagination_type = options.ihtml_pagination_type.value
-    return PaginationSpec(
-        enabled=bool(options.ihtml_use_pagination.value),
-        page_size=int(options.ihtml_page_size_default.value),
-        page_sizes=[
-            int(size) for size in options.ihtml_page_size_values.value or [10, 25, 50, 100]
-        ],
-        size_select=bool(options.ihtml_use_page_size_select.value),
-        info=bool(options.ihtml_use_pagination_info.value),
-        # (`opt_interactive()` doesn't check the type; the reactable renderer falls back the same way)
-        type=pagination_type if pagination_type in PAGINATION_TYPES else "numbers",
-    )
+def _json_value(value: Any) -> Any:
+    """A data value as JSON can hold it: NaN and infinities as `None`, dates as ISO 8601 text."""
+    # (NumPy's booleans and numbers, as Python's)
+    if getattr(getattr(value, "dtype", None), "kind", None) in ("b", "i", "u", "f"):
+        value = value.item()
+    if value is None or isinstance(value, (bool, int, str)):
+        return value
+    if isinstance(value, (float, Decimal)):
+        number = float(value)
+        return number if math.isfinite(number) else None
+    if isinstance(value, (dt.date, dt.time)):
+        return value.isoformat()
+    return str(value)
 
 
 def _body_rows(data: GTData, groups_as_column: bool) -> list[BodyRow]:

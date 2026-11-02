@@ -10,7 +10,7 @@ import polars as pl
 import pyarrow as pa
 import pytest
 
-from great_tables import GT, exibble, loc, style
+from great_tables import GT, GTI, exibble, loc, style
 from great_tables._gti import SPEC_VERSION, build_spec, render_gti_html, spec_to_script_json
 from great_tables._gti._render import _load_runtime
 from great_tables._tbl_data import _get_column_kind, _get_column_ranks
@@ -335,6 +335,7 @@ def test_spec_controls_default():
         "search": False,
         "resizing": False,
         "selection": None,
+        "bar": False,
     }
 
 
@@ -352,6 +353,7 @@ def test_spec_controls_from_opt_interactive(
         "search": use_search,
         "resizing": use_resizers,
         "selection": None,
+        "bar": False,
     }
 
 
@@ -663,6 +665,49 @@ def test_arrow_string_kind_and_ranks(arrow_type: str):
 
     assert _get_column_kind(df, "x") == "string"
     assert _get_column_ranks(df, "x") == [1, None, 0, 1]
+
+
+# filters ----
+
+
+def test_filter_values(frame_constructor):
+    df = frame_constructor(
+        {
+            "num": [2.5, None, -1.0, 2.5],
+            "int": [3, 1, 3, 2],
+            "str": ["b", None, "a", "b"],
+            "bool": [True, False, True, True],
+            "date": [dt.date(2024, 1, 2), dt.date(2023, 5, 1), None, dt.date(2024, 1, 2)],
+        }
+    )
+    spec = spec_of(GTI(df).i_cols_filter(type="facet"))
+
+    # A facet's values, in the order of the column's ranks (so that `values[rank]` is a row's)
+    assert {f["column"]: f["values"] for f in spec["filters"]} == {
+        "num": [-1.0, 2.5],
+        "int": [1, 2, 3],
+        "str": ["a", "b"],
+        "bool": [False, True],
+        "date": ["2023-05-01", "2024-01-02"],
+    }
+    for f in spec["filters"]:
+        ranks = spec["ranks"][f["column"]]
+        assert len(f["values"]) == max(rank for rank in ranks if rank is not None) + 1
+    assert all(type(value) is int for value in spec["filters"][1]["values"])
+
+
+def test_filter_values_nan(frame_constructor):
+    df = frame_constructor({"x": [1.0, NAN, 0.0, None]})
+    spec = spec_of(GTI(df).i_cols_filter())
+    html = render_gti_html(GTI(df).i_cols_filter(), runtime="none")
+
+    if is_pandas(frame_constructor):
+        # pandas counts NaN as missing
+        assert spec["filters"][0]["values"] == [0.0, 1.0]
+    else:
+        # Polars and PyArrow rank NaN (after all numbers), which JSON holds as null
+        assert spec["filters"][0]["values"] == [0.0, 1.0, None]
+    assert split_gti_html(html)[0]["filters"] == spec["filters"]
 
 
 # rendering ----

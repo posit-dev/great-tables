@@ -1,5 +1,6 @@
 import {
   define,
+  FILTER_EVENT,
   GtTable,
   PAGE_EVENT,
   RESIZE_EVENT,
@@ -17,7 +18,9 @@ import { parseSpec, SPEC_VERSION, SpecError } from "./spec";
 
 define();
 
+export type { FilterClause, FilterQuery } from "./filter";
 export type {
+  FilterEventDetail,
   PageEventDetail,
   ResizeEventDetail,
   SearchEventDetail,
@@ -29,6 +32,7 @@ export type { SortKey, SortKeyInit } from "./sort";
 export type * from "./spec";
 export {
   define,
+  FILTER_EVENT,
   fold,
   GtTable,
   normalizeSort,

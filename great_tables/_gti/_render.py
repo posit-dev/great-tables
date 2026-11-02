@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from .._gt_data import Options
+from ._settings import settings_of
 from ._spec import Spec, build_spec
 
 if TYPE_CHECKING:
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
 JS_DIR = Path(__file__).parent.parent / "js"
 
-# `opt_interactive(use_compact_mode=True)`: the rows' vertical padding, half of GT's default
+# A compact table's rows' vertical padding, half of GT's default
 COMPACT_PADDING = {
     "data_row_padding": "4px",
     "summary_row_padding": "4px",
@@ -41,22 +42,24 @@ def spec_to_script_json(spec: Spec) -> str:
     return text.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
-def render_gti_html(gt: GT, runtime: Literal["inline", "none"] = "inline") -> str:
+def render_gti_html(
+    gt: GT, runtime: Literal["inline", "none"] = "inline", all_important: bool = False
+) -> str:
     """Render a table as a `<gt-table>` element: GT's static HTML, plus its spec.
 
     With `runtime="inline"`, the runtime's CSS and JS follow the element (they register
     `<gt-table>` only once per page, however often they're included); with `runtime="none"`, the
-    page must provide them.
+    page must provide them. With `all_important=True`, the table's CSS (not the runtime's) is
+    marked `!important`, as with `as_raw_html()`.
     """
-    if gt._options.ihtml_use_compact_mode.value:
-        gt = _compact(gt)
-    built = gt._build_data(context="html")
-    table_html = built._render_as_html()
-    spec = build_spec(built)
+    table_html, spec = render_parts(gt, all_important=all_important)
     spec_json = spec_to_script_json(spec)
 
-    # (The runtime sets these too, but the table shouldn't change when it's hydrated)
-    attrs = "" if spec["display"]["wrap"] else " data-gti-nowrap"
+    # (The runtime sets these too, but the table shouldn't change when it's hydrated; nor should
+    # what's below it, so the control bar's room is kept until it's there)
+    attrs = " data-gti-bar" if _has_bar(spec) else ""
+    if not spec["display"]["wrap"]:
+        attrs += " data-gti-nowrap"
     height = spec["layout"]["height"]
     if height is not None:
         attrs += f' data-gti-scroll style="--gt-i-height: {escape(height)}"'
@@ -73,6 +76,28 @@ def render_gti_html(gt: GT, runtime: Literal["inline", "none"] = "inline") -> st
         raise ValueError(f'`runtime=` must be "inline" or "none", not {runtime!r}.')
 
     return html
+
+
+def render_parts(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
+    """A table's static HTML (its `<div>`) and its spec."""
+    if settings_of(gt).compact:
+        gt = _compact(gt)
+    built = gt._build_data(context="html")
+    return built._render_as_html(all_important=all_important), build_spec(built)
+
+
+def _has_bar(spec: Spec) -> bool:
+    """Whether the runtime draws a control bar below the table: for a search, filters, or pages.
+
+    (Or pages there could be: the page sizes readers can choose from, in the bar's info panel,
+    include the table's own. With filters, the bar's info panel says how many rows they leave.)
+    """
+    controls, pagination = spec["controls"], spec["pagination"]
+    sizes = [pagination["page_size"]]
+    if pagination["size_select"]:
+        sizes += pagination["page_sizes"]
+    paged = pagination["enabled"] and spec["nrows"] > min(sizes)
+    return controls["bar"] and (controls["search"] or bool(spec["filters"]) or paged)
 
 
 def _compact(gt: GT) -> GT:

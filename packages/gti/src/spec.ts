@@ -82,6 +82,12 @@ export interface ControlsSpec {
   resizing: boolean;
   /** Whether data rows can be selected: one at a time, several, or not at all. */
   selection: SelectionMode | null;
+  /**
+   * Whether the search and page controls are in one bar below the table (GTI's), rather than a
+   * search box above the table and page controls below it (as `pagination.type` says). Without
+   * it, the latter.
+   */
+  bar?: boolean;
 }
 
 /** How page controls look: page numbers, previous/next only, first/previous/next/last, or a page input. */
@@ -125,6 +131,39 @@ export interface LayoutSpec {
 
 export type ResponsiveMode = "scroll";
 
+/** How a column is filtered: by the text it shows, a choice of its values, or a range of its numbers. */
+export type FilterType = "text" | "facet" | "range";
+
+const FILTER_TYPES: readonly unknown[] = ["text", "facet", "range"];
+
+/** A data value, as JSON holds it (dates and times as ISO 8601 text). */
+export type FilterValue = string | number | boolean | null;
+
+export interface FilterSpec {
+  column: string;
+  type: FilterType;
+  /**
+   * A facet or range column's distinct values, in the order of its ranks (a data row's value is
+   * `values[rank]`); `null` for a text filter.
+   */
+  values: FilterValue[] | null;
+}
+
+/** A column to sort by, as a spec's view has it. */
+export interface ViewSortSpec {
+  column: string;
+  descending: boolean;
+}
+
+/**
+ * How the table is shown to start with: its filter (a query, as the `filter` property takes) and
+ * its sort keys. Applied as the table is made ready, without events.
+ */
+export interface ViewSpec {
+  filter: { and: unknown[] } | null;
+  sort: ViewSortSpec[];
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -144,6 +183,10 @@ export interface Spec {
   pagination: PaginationSpec;
   display: DisplaySpec;
   layout: LayoutSpec;
+  /** The columns readers can filter by, in column order. Without it, none. */
+  filters?: FilterSpec[];
+  /** How the table is shown to start with. Without it, unfiltered and in its rows' order. */
+  view?: ViewSpec;
 }
 
 export class SpecError extends Error {
@@ -159,6 +202,9 @@ const PAGINATION_TYPES: readonly unknown[] = ["numbers", "simple", "full", "jump
 
 const isIndex = (x: unknown, n: number): x is number =>
   Number.isInteger(x) && (x as number) >= 0 && (x as number) < n;
+
+const isFilterValue = (x: unknown): x is FilterValue =>
+  x === null || typeof x === "string" || typeof x === "boolean" || (typeof x === "number" && Number.isFinite(x));
 
 function isBodyRow(x: unknown, nrows: number): x is BodyRow {
   if (typeof x === "number") {
@@ -215,6 +261,9 @@ export function parseSpec(text: string): Spec {
       "`controls` must say whether sorting, search and resizing are on, and how rows are selected",
     );
   }
+  if (!(controls.bar === undefined || typeof controls.bar === "boolean")) {
+    throw new SpecError("`controls.bar` must be `true` or `false`, if given");
+  }
   const pagination = raw.pagination;
   if (
     !isObject(pagination) ||
@@ -261,6 +310,52 @@ export function parseSpec(text: string): Spec {
   for (const [column, ranks] of Object.entries(raw.ranks)) {
     if (!Array.isArray(ranks) || ranks.length !== nrows) {
       throw new SpecError(`\`ranks.${column}\` must have one entry per data row`);
+    }
+  }
+
+  const filters = raw.filters;
+  if (filters !== undefined) {
+    if (!Array.isArray(filters)) {
+      throw new SpecError("`filters` must be an array, if given");
+    }
+    const allRanks = raw.ranks as Record<string, unknown>;
+    filters.forEach((filter: unknown, i) => {
+      const column = isObject(filter) ? filter.column : undefined;
+      const ranks =
+        typeof column === "string" && Object.prototype.hasOwnProperty.call(allRanks, column)
+          ? allRanks[column]
+          : undefined;
+      const values = isObject(filter) ? filter.values : undefined;
+      if (
+        !isObject(filter) ||
+        typeof column !== "string" ||
+        !FILTER_TYPES.includes(filter.type) ||
+        (filter.type === "text"
+          ? values != null
+          : !Array.isArray(values) ||
+            !values.every(isFilterValue) ||
+            !Array.isArray(ranks) ||
+            !ranks.every((rank) => rank === null || isIndex(rank, values.length)))
+      ) {
+        throw new SpecError(
+          `\`filters[${i}]\` must name a column and a known \`type\`, with \`values\` for every rank of a facet or range`,
+        );
+      }
+    });
+  }
+
+  const view = raw.view;
+  if (view !== undefined) {
+    const filter = isObject(view) ? view.filter : undefined;
+    if (
+      !isObject(view) ||
+      !(filter === null || (isObject(filter) && Array.isArray(filter.and))) ||
+      !Array.isArray(view.sort) ||
+      !view.sort.every((key) => isObject(key) && typeof key.column === "string" && typeof key.descending === "boolean")
+    ) {
+      throw new SpecError(
+        "`view` must have a `filter` (`{and: [...]}`, or `null`) and `sort` keys with a `column` and `descending`, if given",
+      );
     }
   }
 

@@ -21,6 +21,10 @@ const pagination = (fields: object) => JSON.stringify({ ...valid, pagination: { 
 
 const parse = (spec: object) => parseSpec(JSON.stringify(spec));
 
+const filters = (list: unknown) => JSON.stringify({ ...valid, filters: list });
+
+const view = (value: unknown) => JSON.stringify({ ...valid, view: value });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -33,6 +37,28 @@ describe("parseSpec()", () => {
 
   it("takes no responsive layout", () => {
     expect(parse({ ...valid, layout: { height: null, responsive: null } }).layout.responsive).toBeNull();
+  });
+
+  it("takes the control bar, or its absence", () => {
+    expect(parse({ ...valid, controls: { ...valid.controls, bar: true } }).controls.bar).toBe(true);
+    expect(parse(valid).controls.bar).toBeUndefined();
+  });
+
+  it("takes filters, or their absence", () => {
+    const list = [
+      { column: "x", type: "range", values: [1.5, 3] },
+      { column: "y", type: "text", values: null },
+    ];
+    expect(parse({ ...valid, filters: list }).filters).toEqual(list);
+    expect(parse({ ...valid, filters: [{ column: "x", type: "facet", values: [true, "b"] }] }).filters).toHaveLength(1);
+    expect(parse(valid).filters).toBeUndefined();
+  });
+
+  it("takes a view, or its absence", () => {
+    const view = { filter: { and: [{ col: "x", op: "gte", value: 1 }] }, sort: [{ column: "x", descending: true }] };
+    expect(parse({ ...valid, view }).view).toEqual(view);
+    expect(parse({ ...valid, view: { filter: null, sort: [] } }).view).toEqual({ filter: null, sort: [] });
+    expect(parse(valid).view).toBeUndefined();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -84,6 +110,11 @@ describe("parseSpec()", () => {
       JSON.stringify({ ...valid, controls: { ...valid.controls, selection: "all" } }),
       /`controls`/,
     ],
+    [
+      "has a control bar flag that isn't a boolean",
+      JSON.stringify({ ...valid, controls: { ...valid.controls, bar: "yes" } }),
+      /`controls.bar`/,
+    ],
     ["has no pagination", JSON.stringify({ ...valid, pagination: undefined }), /`pagination`/],
     ["has a page size of 0", pagination({ page_size: 0 }), /`pagination`/],
     ["has a fractional page size", pagination({ page_size: 2.5 }), /`pagination`/],
@@ -101,6 +132,20 @@ describe("parseSpec()", () => {
     ["has an empty height", JSON.stringify({ ...valid, layout: { height: " ", responsive: null } }), /`layout`/],
     ["has no responsive layout", JSON.stringify({ ...valid, layout: { height: null } }), /`layout.responsive`/],
     ["has an unknown responsive layout", JSON.stringify({ ...valid, layout: { height: null, responsive: "stack" } }), /`layout.responsive`/],
+    ["has filters that aren't an array", filters({ column: "x" }), /`filters`/],
+    ["has a filter without a column", filters([{ type: "text", values: null }]), /`filters\[0\]`/],
+    ["has a filter of an unknown type", filters([{ column: "x", type: "date", values: null }]), /`filters\[0\]`/],
+    ["has a text filter with values", filters([{ column: "x", type: "text", values: [1] }]), /`filters\[0\]`/],
+    ["has a facet without values", filters([{ column: "x", type: "facet", values: null }]), /`filters\[0\]`/],
+    ["has a facet on a column without ranks", filters([{ column: "y", type: "facet", values: [1, 2] }]), /`filters\[0\]`/],
+    ["has a range without a value for a rank", filters([{ column: "x", type: "range", values: [1] }]), /`filters\[0\]`/],
+    ["has a facet with a value that isn't JSON's", filters([{ column: "x", type: "facet", values: [1, {}] }]), /`filters\[0\]`/],
+    ["has a view that isn't an object", view([]), /`view`/],
+    ["has a view without a filter", view({ sort: [] }), /`view`/],
+    ["has a view with a filter that isn't a query", view({ filter: [], sort: [] }), /`view`/],
+    ["has a view without sort keys", view({ filter: null }), /`view`/],
+    ["has a view with a bad sort key", view({ filter: null, sort: [{ column: "x" }] }), /`view`/],
+    ["has a view with a sort key that's a name", view({ filter: null, sort: ["x"] }), /`view`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);
