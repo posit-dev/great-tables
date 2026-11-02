@@ -460,6 +460,7 @@ def is_pandas(frame_constructor) -> bool:
             id="datetimes",
         ),
         pytest.param([None, 2.0, None], [None, 0, None], id="mostly-null"),
+        pytest.param([[2], None, [1]], None, id="lists"),
     ],
 )
 def test_ranks(frame_constructor, values, expected):
@@ -520,6 +521,9 @@ def test_ranks_ignore_the_pandas_index():
 def test_ranks_unsortable():
     assert _get_column_ranks(pd.DataFrame({"x": [1, "a", 2.0]}), "x") is None
     assert _get_column_ranks(pl.DataFrame({"x": [object(), object()]}), "x") is None
+    # Naive and aware datetimes can't be compared
+    naive_and_aware = [dt.datetime(2024, 1, 1), dt.datetime(2024, 1, 2, tzinfo=dt.timezone.utc)]
+    assert _get_column_ranks(pd.DataFrame({"x": naive_and_aware}), "x") is None
 
 
 def test_column_kinds(frame_constructor):
@@ -533,6 +537,7 @@ def test_column_kinds(frame_constructor):
             "datetime": [dt.datetime(2024, 1, 1), None],
             "time": [dt.time(12, 30), None],
             "duration": [dt.timedelta(days=1), None],
+            "list": [[1, 2], None],
         }
     )
     expected = {
@@ -544,6 +549,7 @@ def test_column_kinds(frame_constructor):
         "datetime": "datetime",
         "time": "time",
         "duration": "duration",
+        "list": "other",
     }
     assert {column: _get_column_kind(df, column) for column in expected} == expected
 
@@ -552,6 +558,12 @@ def test_column_kind_categorical(frame_constructor):
     df = cast_to_categorical(frame_constructor({"x": ["a", "b"]}), "x", ordered=False)
 
     assert _get_column_kind(df, "x") == "category"
+
+
+def test_column_kind_pandas_period():
+    df = pd.DataFrame({"x": pd.period_range("2024-01", periods=2, freq="M")})
+
+    assert _get_column_kind(df, "x") == "other"
 
 
 # rendering ----
