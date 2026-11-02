@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { CELL, collapse, ROW, ROW_GROUP, TABLE, TableBorders } from "../src/borders";
+import { CELL, collapse, placeCells, ROW, ROW_GROUP, TABLE, TableBorders } from "../src/borders";
 
 const border = (width: number, style = "solid", color = "red", origin = CELL) => ({ width, style, color, origin });
 
@@ -89,6 +89,35 @@ describe("TableBorders", () => {
     expect(borders.drawnBorder(b as HTMLTableCellElement, "right")).toEqual({ width: 3, style: "dashed", color: "green" });
   });
 
+  it("draws the edge after a cell that holds it on that cell", () => {
+    const table = make(
+      `<tbody><tr><th class="pin" style="border-right: 2px solid red">a</th><td style="border-left: 1px solid blue">b</td><td>c</td></tr></tbody>`,
+    );
+    const borders = new TableBorders(table, () => false, (cell) => cell.classList.contains("pin"));
+    borders.redraw();
+    const [a, b, c] = cells(table) as HTMLTableCellElement[];
+    expect(borders.drawnBorder(a as HTMLTableCellElement, "right")).toEqual({ width: 2, style: "solid", color: "red" });
+    expect(borders.drawnBorder(b as HTMLTableCellElement, "left")).toBeNull();
+    expect(drawn(b as HTMLTableCellElement)[3]).toBe("none");
+    // (Cells that don't hold theirs leave it to the cell after)
+    expect(borders.drawnBorder(c as HTMLTableCellElement, "left")).toBeNull();
+    expect(borders.drawnBorder(b as HTMLTableCellElement, "right")).toBeNull();
+  });
+
+  it("runs the columns from the right in a right-to-left table", () => {
+    const table = make(
+      `<tbody><tr><th class="pin" style="border-left: 2px solid red">a</th><td style="border-right: 1px solid blue; border-left: 3px dashed green">b</td></tr></tbody>`,
+    );
+    table.style.direction = "rtl";
+    const borders = new TableBorders(table, () => false, (cell) => cell.classList.contains("pin"));
+    borders.redraw();
+    const [a, b] = cells(table) as HTMLTableCellElement[];
+    // a's left edge is between the cells, held by a; b's left is the row's end
+    expect(borders.drawnBorder(a as HTMLTableCellElement, "left")).toEqual({ width: 2, style: "solid", color: "red" });
+    expect(borders.drawnBorder(b as HTMLTableCellElement, "right")).toBeNull();
+    expect(borders.drawnBorder(b as HTMLTableCellElement, "left")).toEqual({ width: 3, style: "dashed", color: "green" });
+  });
+
   it("gives a cell spanning rows the edges along its side", () => {
     const table = make(
       `<tbody><tr><td rowspan="2" style="border-right: 1px solid red">g</td><td>a</td></tr>` +
@@ -131,5 +160,28 @@ describe("TableBorders", () => {
     expect(b.style.getPropertyValue("border-top-width")).toBe("2px");
     expect(b.style.getPropertyValue("border-bottom-style")).toBe("");
     expect(borders.drawnBorder(b, "top")).toBeNull();
+  });
+});
+
+describe("placeCells()", () => {
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  it("lays cells out on a grid, spanning rows only in their row group", () => {
+    document.body.innerHTML =
+      `<table><thead><tr><th colspan="2">h</th><th>i</th></tr></thead>` +
+      `<tbody><tr><th rowspan="5">g</th><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></tbody>` +
+      `<tfoot><tr><td>e</td></tr></tfoot></table>`;
+    const table = document.querySelector("table") as HTMLTableElement;
+    const { placed, grid, columns } = placeCells(Array.from(table.rows));
+    expect(columns).toBe(3);
+    const at = (text: string) => placed.find((p) => p.cell.textContent === text);
+    expect(at("h")).toMatchObject({ r0: 0, r1: 0, c0: 0, c1: 1 });
+    expect(at("g")).toMatchObject({ r0: 1, r1: 2, c0: 0, c1: 0 });
+    // (Past the cell spanning rows)
+    expect(at("c")).toMatchObject({ r0: 2, c0: 1 });
+    expect(at("e")).toMatchObject({ r0: 3, c0: 0 });
+    expect(grid[2]?.map((p) => p?.cell.textContent)).toEqual(["g", "c", "d"]);
   });
 });
