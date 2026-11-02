@@ -135,6 +135,31 @@ def scroll_html(
     return render_gti_html(gt, runtime="none")
 
 
+def wide_html(
+    table_id: str, groups_as_column: bool = False, height: str = "auto", **options
+) -> str:
+    # exibble three times over (24 rows, in two groups) with every column, striped, with a title,
+    # a spanner, group and grand summary rows, a footnote and a source note: wider than a phone.
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    gt = (
+        GT(data, rowname_col="row", groupname_col="group", id=table_id)
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .row_group_order(["grp_b", "grp_a"])
+        .opt_row_striping()
+        .tab_options(row_group_as_column=groups_as_column)
+        .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
+        .grand_summary_rows(fns={"Max": lambda df: df[["num", "currency"]].max()})
+        .tab_header(title="exibble", subtitle="Three times over")
+        .tab_spanner(label="Numbers", columns=["num", "currency"])
+        .tab_footnote("A fruit.", locations=loc.body(columns="char", rows=[0]))
+        .tab_source_note("Source: great_tables.exibble")
+    )
+    gt = gt.opt_interactive(height=height, use_pagination=False, **options)
+    return render_gti_html(gt, runtime="none")
+
+
 def page(body: str, head: str = "") -> str:
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -268,6 +293,42 @@ def main() -> None:
                         selection_mode="multiple",
                     )
                     for table_id, height in [("b1", "auto"), ("b2", "5000px")]
+                )
+                + "\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix in ["", "-column"]
+        },
+        # Tables wider than their container (360px): selectable, with a search box; with groups
+        # shown as a column, in a body that scrolls; and in a page as narrow as a phone's.
+        "wide.html": page(
+            '<div style="width: 360px">'
+            + wide_html("w", selection_mode="multiple", use_search=True)
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "wide-column.html": page(
+            '<div style="width: 360px">'
+            + wide_html("w", groups_as_column=True, height="300px", selection_mode="multiple")
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "wide-phone.html": page(
+            wide_html("w") + "\n" + runtime_src,
+            head='<meta name="viewport" content="width=device-width, initial-scale=1">\n' + styles,
+        ),
+        # The same tables (selectable, with groups shown as headings or as a column) as GT draws
+        # them, in a container they fit in, and in one they don't: their borders should match.
+        **{
+            f"wide-borders{suffix}.html": page(
+                "\n".join(
+                    f'<div style="width: {width}">'
+                    + wide_html(table_id, groups_as_column=bool(suffix), selection_mode="multiple")
+                    + "</div>"
+                    for table_id, width in [("b1", "min-content"), ("b2", "360px")]
                 )
                 + "\n"
                 + runtime_src,
