@@ -6,8 +6,10 @@ from typing import Any, NoReturn
 
 from typing_extensions import Self
 
-from ._gti._settings import SELECTION_MODES, Settings, SelectionMode
+from ._gti._settings import FILTER_TYPES, SELECTION_MODES, FilterType, Settings, SelectionMode
+from ._locations import resolve_cols_c
 from ._options import _is_height
+from ._tbl_data import SelectExpr, _get_column_kind
 from .gt import GT
 
 __all__ = ["GTI"]
@@ -150,10 +152,15 @@ class GTI(GT):
             raise TypeError(f"`GTI.from_gt()` needs a `GT` table, not {type(gt).__name__!r}.")
 
         if gt._options.ihtml_active.value:
+            # (`use_filters=True` filters every column, with GTI's filters)
+            filters = gt._options.ihtml_use_filters.value
             settings = replace(
                 Settings.from_options(gt._options),
                 pagination_type=Settings().pagination_type,
                 bar=True,
+                filters=tuple((column, "auto") for column in resolve_cols_c(gt, None))
+                if filters
+                else (),
             )
         else:
             settings = Settings()
@@ -168,7 +175,8 @@ class GTI(GT):
 
     # -----
     # The `i_` methods: each sets all of one feature's settings (those not given go back to their
-    # defaults), so that what a table does doesn't depend on the order of the calls
+    # defaults), so that what a table does doesn't depend on the order of the calls (but for the
+    # `i_cols_` ones, which set the settings of the columns given, as `fmt_*()` methods do)
 
     def i_sorting(self, enabled: bool = True) -> Self:
         """
@@ -438,6 +446,83 @@ class GTI(GT):
             wrap=_flag(wrap, "wrap"),
         )
 
+    def i_cols_filter(self, columns: SelectExpr = None, type: FilterType | None = "auto") -> Self:
+        """
+        Let readers filter the table by its columns.
+
+        A filtered column has a filter button in its label, which opens the column's filter. Its
+        rows are filtered by the text they show (`"text"`: those with a cell containing what's
+        typed, ignoring case and accents, as the search does), by a choice of the column's values
+        (`"facet"`: a checklist of them, each with the number of rows that have it, given the
+        other filters and the search), or by a range of its numbers (`"range"`: at least one
+        value, and at most another). The facets and ranges go by the column's values, not by how
+        they're formatted. Rows are shown when they pass every filter, and the search; the info
+        panel (from the (i) button in the control bar) says how many filters there are, and can
+        clear them. Filters are off by default.
+
+        Each call sets the filters of the columns it's given, so that some columns can be filtered
+        one way, and others another; a later call for a column replaces what an earlier one set.
+
+        Parameters
+        ----------
+        columns
+            The columns to filter by: a column name, a list of them, or a selector (e.g., Polars'
+            `cs.numeric()`). With `None` (the default), every column but the stub (which can be
+            named). The row group column can't be filtered.
+        type
+            How the columns are filtered: `"text"`, `"facet"`, or `"range"` (for columns of
+            numbers), or `"auto"` to choose by the column: a range for numbers, a facet for
+            booleans and categories (and text columns with only a few values, each repeated),
+            and text otherwise. With `None`, the columns aren't filtered.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of Ontario's municipalities that can be filtered by status (a facet, as
+        there are only a few of them) and population (a range).
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_filter(columns=["status", "population_2021"])
+        )
+        ```
+        """
+        if type is not None and type not in FILTER_TYPES:
+            raise ValueError(
+                '`type=` must be "auto", "text", "facet", "range", or `None` (no filter), not '
+                f"{type!r}."
+            )
+        selected = resolve_cols_c(self, columns, excl_stub=False)
+        for column in selected:
+            kind = _get_column_kind(self._tbl_data, column)
+            if type == "range" and kind != "number":
+                raise ValueError(
+                    f"Column {column!r} can't be filtered by a range, which is for columns of "
+                    f'numbers (its values are of the {kind!r} kind). Try `type="facet"` or '
+                    '`type="text"`.'
+                )
+            if type == "facet" and kind == "other":
+                raise ValueError(
+                    f"Column {column!r} can't be filtered by a facet: its values can't be told "
+                    'apart and ordered. Try `type="text"`.'
+                )
+
+        filters = dict(self._interactive.filters)
+        for column in selected:
+            filters.pop(column, None)
+            if type is not None:
+                filters[column] = type
+        return self._set_interactive(filters=tuple(filters.items()))
+
     # -----
     # A `GTI` table is only ever interactive HTML
 
@@ -504,7 +589,7 @@ class GTI(GT):
         raise TypeError(
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
-            "`i_selection()`, `i_scroll()`, and `i_display()`."
+            "`i_selection()`, `i_scroll()`, `i_display()`, and `i_cols_filter()`."
         )
 
 
