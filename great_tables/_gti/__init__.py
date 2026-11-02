@@ -1,6 +1,6 @@
 """GTI: the interactive table renderer, built on the `<gt-table>` element (packages/gti).
 
-Internal for now; `GTI()` and `opt_interactive()` will render through it.
+`GTI` tables render through it (see `great_tables/gti.py`); `opt_interactive()` will too.
 """
 
 from ._render import render_gti_html, spec_to_script_json
