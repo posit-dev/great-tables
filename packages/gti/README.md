@@ -34,13 +34,18 @@ The browser tests write their pages with `e2e/make_fixtures.py`, which needs a P
 `great_tables` installed. They use `$PYTHON` if set, otherwise the repo's `.venv`, otherwise
 `python3`.
 
+Great Tables' differential tests of its view queries (`tests/test_gti_query.py`) run tables
+through the built runtime with `scripts/engine.mjs`, so they need `npm ci` here too (they're
+skipped without it).
+
 ## Layout
 
 ```
 src/        TypeScript source (index.ts is the bundle entry) and gti.css
 test/       Vitest unit tests
 e2e/        Playwright tests, and the script that writes their fixture pages
-scripts/    build.mjs (build, staleness check, size budget)
+scripts/    build.mjs (build, staleness check, size budget), engine.mjs (the runtime under Node,
+            for Python's differential tests)
 ```
 
 The npm package name is undecided, so the package is marked private for now.

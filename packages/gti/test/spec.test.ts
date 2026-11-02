@@ -23,6 +23,8 @@ const parse = (spec: object) => parseSpec(JSON.stringify(spec));
 
 const filters = (list: unknown) => JSON.stringify({ ...valid, filters: list });
 
+const view = (value: unknown) => JSON.stringify({ ...valid, view: value });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -50,6 +52,13 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, filters: list }).filters).toEqual(list);
     expect(parse({ ...valid, filters: [{ column: "x", type: "facet", values: [true, "b"] }] }).filters).toHaveLength(1);
     expect(parse(valid).filters).toBeUndefined();
+  });
+
+  it("takes a view, or its absence", () => {
+    const view = { filter: { and: [{ col: "x", op: "gte", value: 1 }] }, sort: [{ column: "x", descending: true }] };
+    expect(parse({ ...valid, view }).view).toEqual(view);
+    expect(parse({ ...valid, view: { filter: null, sort: [] } }).view).toEqual({ filter: null, sort: [] });
+    expect(parse(valid).view).toBeUndefined();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -131,6 +140,12 @@ describe("parseSpec()", () => {
     ["has a facet on a column without ranks", filters([{ column: "y", type: "facet", values: [1, 2] }]), /`filters\[0\]`/],
     ["has a range without a value for a rank", filters([{ column: "x", type: "range", values: [1] }]), /`filters\[0\]`/],
     ["has a facet with a value that isn't JSON's", filters([{ column: "x", type: "facet", values: [1, {}] }]), /`filters\[0\]`/],
+    ["has a view that isn't an object", view([]), /`view`/],
+    ["has a view without a filter", view({ sort: [] }), /`view`/],
+    ["has a view with a filter that isn't a query", view({ filter: [], sort: [] }), /`view`/],
+    ["has a view without sort keys", view({ filter: null }), /`view`/],
+    ["has a view with a bad sort key", view({ filter: null, sort: [{ column: "x" }] }), /`view`/],
+    ["has a view with a sort key that's a name", view({ filter: null, sort: ["x"] }), /`view`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

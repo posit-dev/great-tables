@@ -71,6 +71,7 @@ interface TableOptions {
   /** The column label rows, if not one row of a label per column. */
   thead?: string;
   filters?: FilterSpec[];
+  view?: object;
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -165,6 +166,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     display: { highlight: false, compact: false, wrap: true, ...options.display },
     layout: { height: null, responsive: null, ...options.layout },
     ...(options.filters === undefined ? {} : { filters: options.filters }),
+    ...(options.view === undefined ? {} : { view: options.view }),
   };
   return { html, spec };
 }
@@ -2499,6 +2501,75 @@ describe("filters", () => {
     expect(panel(el, "y").hidden).toBe(true);
     expect((el as unknown as { filterPress: unknown }).filterPress).toBeNull();
     expect((el as unknown as { filterScroll: unknown }).filterScroll).toBeNull();
+  });
+});
+
+describe("the spec's view", () => {
+  const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const SORT = [{ column: "x", descending: true }];
+  const FILTER = { and: [{ col: "x", op: "gte", value: 10 }] };
+
+  async function mountView(view: object, options: TableOptions = {}) {
+    const dispatch = vi.spyOn(GtTable.prototype, "dispatchEvent");
+    const el = await mountTable(GROUPED, { filters: [RANGE, FACET], view, ...options, controls: { bar: true, ...options.controls } });
+    const events = dispatch.mock.calls.map(([event]) => event.type).filter((type) => type.startsWith("gt-table-"));
+    return { el, events };
+  }
+
+  it("sorts and filters the table as it's made ready, without events", async () => {
+    const { el, events } = await mountView({ filter: FILTER, sort: SORT });
+    expect(el.state).toBe("ready");
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "group:a", 2, "grand:Max"]);
+    expect(el.sort).toEqual(SORT);
+    expect(el.filter).toEqual(FILTER);
+    expect(events).toEqual([]);
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(true);
+    expect(header(el, "x").getAttribute("aria-sort")).toBe("descending");
+  });
+
+  it("shows the filter in its panel", async () => {
+    const { el } = await mountView({ filter: { and: [...FILTER.and, { col: "y", op: "in", value: ["b"] }] }, sort: [] });
+    (header(el, "x").querySelector(".gt-i-filter-button") as HTMLButtonElement).click();
+    expect(Array.from(el.querySelectorAll<HTMLInputElement>(".gt-i-filter input"), (input) => input.value)).toEqual(["10", ""]);
+    expect(visible(el)).toEqual(["group:b", 0, "summary:Total", "grand:Max"]);
+  });
+
+  it("sorts in the view's order without sort buttons", async () => {
+    const { el } = await mountView({ filter: null, sort: SORT }, { controls: { sorting: false } });
+    expect(el.querySelector(".gt-i-sort")).toBeNull();
+    expect(visible(el)).toEqual(["group:b", 0, 4, 3, "summary:Total", "group:a", 2, 1, "grand:Max"]);
+  });
+
+  it("changes nothing with an empty view", async () => {
+    const { el } = await mountView({ filter: null, sort: [] });
+    expect(visible(el)).toEqual(shown(await mountTable(GROUPED)));
+  });
+
+  it.each([
+    ["sort", { filter: FILTER, sort: [{ column: "w", descending: false }] }, ["group:b", 0, 4, "summary:Total", "group:a", 2, "grand:Max"]],
+    ["filter", { filter: { and: [{ col: "y", op: "gte", value: 1 }] }, sort: SORT }, ["group:b", 0, 4, 3, "summary:Total", "group:a", 2, 1, "grand:Max"]],
+  ])("leaves out a %s it can't have, with a warning", async (part, view, rows) => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { el } = await mountView(view);
+    expect(el.state).toBe("ready");
+    expect(visible(el)).toEqual(rows);
+    expect(warn).toHaveBeenCalledOnce();
+    expect(warn.mock.calls[0]?.[0]).toMatch(new RegExp(`the view's ${part} is left out`));
+  });
+
+  it("leaves a table whose stub has merged cells as it is", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], { filters: [RANGE], view: { filter: FILTER, sort: SORT } });
+    const merged = html.replace(
+      `<th class="gt_row gt_left gt_stub">row_1</th>`,
+      `<th class="gt_row gt_left gt_stub" rowspan="2">row_1</th>`,
+    );
+    const el = await mount(`<gt-table>${merged}${specScript(spec)}</gt-table>`);
+    expect(el.state).toBe("ready");
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+    expect(el.sort).toEqual([]);
+    expect(warn).not.toHaveBeenCalled();
   });
 });
 

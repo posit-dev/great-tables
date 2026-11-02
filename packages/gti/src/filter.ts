@@ -149,16 +149,25 @@ export class ColumnFilter {
   /**
    * The state that query clauses (all on this column) give the filter.
    *
-   * @throws {RangeError} for a clause this kind of filter can't have.
+   * @throws {RangeError} for a clause this kind of filter can't have, an `in` without values, or
+   *   a second clause with the same `op`.
    */
   parse(clauses: readonly FilterClause[]): FilterState {
     const state: FilterState = { text: "", chosen: new Set(), min: null, max: null };
     const col = JSON.stringify(this.column);
+    const ops = new Set<unknown>();
     for (const clause of clauses) {
       const { op, value } = clause as { op: unknown; value: unknown };
+      if (ops.has(op)) {
+        throw new RangeError(`${col} has more than one ${JSON.stringify(op)} clause`);
+      }
+      ops.add(op);
       if (this.spec.type === "text" && op === "contains" && typeof value === "string") {
         state.text = value;
       } else if (this.spec.type === "facet" && op === "in" && Array.isArray(value)) {
+        if (value.length === 0) {
+          throw new RangeError(`the "in" clause on ${col} needs at least one value`);
+        }
         for (const item of value) {
           const key = item === null ? MISSING : this.keyOf(item);
           if (key === undefined) {

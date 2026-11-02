@@ -29,6 +29,9 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   a data row's value is `values[rank]`: as JSON values (numbers, strings, booleans; dates and
   times as ISO 8601 strings), with `null` for values JSON can't hold (NaN). Producers that leave
   `filters` out have none.
+- `view`: how the table is first shown: filtered by a query (as `<gt-table>`'s `filter` property
+  takes, or `null`), and sorted by columns (as its `sort` property takes). The runtime applies it
+  without events. Producers that leave `view` out show the table as it is.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -142,6 +145,16 @@ class FilterSpec(TypedDict):
     values: list[Any] | None  # a facet or range column's distinct values, by rank
 
 
+class ViewSortSpec(TypedDict):
+    column: str
+    descending: bool
+
+
+class ViewSpec(TypedDict):
+    filter: dict[str, list[dict[str, Any]]] | None  # a query (see `_query.py`)
+    sort: list[ViewSortSpec]
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -157,6 +170,7 @@ class Spec(TypedDict):
     display: DisplaySpec
     layout: LayoutSpec
     filters: list[FilterSpec]
+    view: ViewSpec
 
 
 def build_spec(data: GTData) -> Spec:
@@ -244,6 +258,11 @@ def build_spec(data: GTData) -> Spec:
             values = _filter_values(tbl_data, var, column_ranks or [])
         filters.append(FilterSpec(column=var, type=filter_type, values=values))
 
+    # (Imported here, as `_query` imports from this module)
+    from ._query import check_view
+
+    view = check_view(settings.view_filter, settings.view_sort, filters, ranks)
+
     return Spec(
         version=SPEC_VERSION,
         nrows=nrows,
@@ -283,6 +302,7 @@ def build_spec(data: GTData) -> Spec:
         # (Responsive layouts are GTI's own, and "scroll" is the only one so far)
         layout=LayoutSpec(height=settings.height, responsive="scroll"),
         filters=filters,
+        view=view,
     )
 
 

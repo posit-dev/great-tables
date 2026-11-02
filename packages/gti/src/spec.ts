@@ -149,6 +149,21 @@ export interface FilterSpec {
   values: FilterValue[] | null;
 }
 
+/** A column to sort by, as a spec's view has it. */
+export interface ViewSortSpec {
+  column: string;
+  descending: boolean;
+}
+
+/**
+ * How the table is shown to start with: its filter (a query, as the `filter` property takes) and
+ * its sort keys. Applied as the table is made ready, without events.
+ */
+export interface ViewSpec {
+  filter: { and: unknown[] } | null;
+  sort: ViewSortSpec[];
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -170,6 +185,8 @@ export interface Spec {
   layout: LayoutSpec;
   /** The columns readers can filter by, in column order. Without it, none. */
   filters?: FilterSpec[];
+  /** How the table is shown to start with. Without it, unfiltered and in its rows' order. */
+  view?: ViewSpec;
 }
 
 export class SpecError extends Error {
@@ -325,6 +342,21 @@ export function parseSpec(text: string): Spec {
         );
       }
     });
+  }
+
+  const view = raw.view;
+  if (view !== undefined) {
+    const filter = isObject(view) ? view.filter : undefined;
+    if (
+      !isObject(view) ||
+      !(filter === null || (isObject(filter) && Array.isArray(filter.and))) ||
+      !Array.isArray(view.sort) ||
+      !view.sort.every((key) => isObject(key) && typeof key.column === "string" && typeof key.descending === "boolean")
+    ) {
+      throw new SpecError(
+        "`view` must have a `filter` (`{and: [...]}`, or `null`) and `sort` keys with a `column` and `descending`, if given",
+      );
+    }
   }
 
   return raw as unknown as Spec;

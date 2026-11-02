@@ -52,11 +52,7 @@ def render_gti_html(
     page must provide them. With `all_important=True`, the table's CSS (not the runtime's) is
     marked `!important`, as with `as_raw_html()`.
     """
-    if settings_of(gt).compact:
-        gt = _compact(gt)
-    built = gt._build_data(context="html")
-    table_html = built._render_as_html(all_important=all_important)
-    spec = build_spec(built)
+    table_html, spec = render_parts(gt, all_important=all_important)
     spec_json = spec_to_script_json(spec)
 
     # (The runtime sets these too, but the table shouldn't change when it's hydrated; nor should
@@ -80,6 +76,14 @@ def render_gti_html(
         raise ValueError(f'`runtime=` must be "inline" or "none", not {runtime!r}.')
 
     return html
+
+
+def render_parts(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
+    """A table's static HTML (its `<div>`) and its spec."""
+    if settings_of(gt).compact:
+        gt = _compact(gt)
+    built = gt._build_data(context="html")
+    return built._render_as_html(all_important=all_important), build_spec(built)
 
 
 def _has_bar(spec: Spec) -> bool:
