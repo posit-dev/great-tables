@@ -2,8 +2,9 @@
 
 The differential tests run tables through the built runtime, under Node (with happy-dom: see
 packages/gti/scripts/engine.mjs), and check that the rows it shows for a view are the rows that
-`view_rows()` gets with Narwhals, on pandas, Polars, and PyArrow data. They're skipped without
-Node and the package's dependencies (`npm ci` in packages/gti).
+`view_rows()` gets with Narwhals, on pandas, Polars, and PyArrow data; and that Python reads and
+writes queries as text as the runtime does, with the same errors. They're skipped without Node and
+the package's dependencies (`npm ci` in packages/gti).
 """
 
 from __future__ import annotations
@@ -28,7 +29,9 @@ from great_tables._gti._query import (
     cell_text,
     check_query,
     fold,
+    format_query,
     js_trim,
+    parse_query,
     parse_sort,
     query_code,
     view_rows,
@@ -157,6 +160,153 @@ def test_check_query_rejects(bad: Any, message: str):
 def test_check_query_takes_a_range_with_both_bounds():
     both = query(("x", "gte", 1), ("x", "lte", 2))
     assert check_query(both) == both
+
+
+# queries as text (as packages/gti/test/query.test.ts has them) ----
+
+
+def test_parse_query_reads_every_kind_of_clause():
+    text = (
+        'population_2021 >= 10000 and status in ("single-tier", "city") and name contains "cote" '
+        "and x <= -1.5e3"
+    )
+    assert parse_query(text) == query(
+        ("population_2021", "gte", 10000),
+        ("status", "in", ["single-tier", "city"]),
+        ("name", "contains", "cote"),
+        ("x", "lte", -1500),
+    )
+    # (An integer as an int, as JSON reads it, but any other number as a float)
+    values = [c["value"] for c in parse_query("a >= 1 and a >= 1.0 and a >= 1e0")["and"]]
+    assert [type(value) for value in values] == [int, float, float]
+
+
+def test_parse_query_reads_no_query_from_empty_text():
+    assert parse_query("") is None
+    assert parse_query(" \t\n ") is None
+
+
+def test_parse_query_reads_keywords_in_any_case_and_any_spacing():
+    assert parse_query('a IN(1,TRUE , False,NULL)AND b Contains"x"') == query(
+        ("a", "in", [1, True, False, None]), ("b", "contains", "x")
+    )
+
+
+def test_parse_query_reads_any_column_name_in_backticks():
+    text = '`Name of town` contains "x" and `a``b` >= 1 and `` <= 2 and `and` in (null)'
+    assert parse_query(text) == query(
+        ("Name of town", "contains", "x"), ("a`b", "gte", 1), ("", "lte", 2), ("and", "in", [None])
+    )
+    # (Keywords are column names where a column goes)
+    assert parse_query("in in (1)") == query(("in", "in", [1]))
+
+
+def test_parse_query_reads_strings_as_json_does():
+    assert parse_query(r'a contains "q\"\\\/\b\f\n\r\té😀 Côté"') == query(
+        ("a", "contains", 'q"\\/\b\f\n\r\té😀 Côté')
+    )
+
+
+VALUE_EXPECTED = "expected a value: a string in double quotes, a number, true, false or null"
+UNENDED_STRING = "a string must end with a double quote (with escapes as in JSON)"
+
+
+@pytest.mark.parametrize(
+    "text, message",
+    [
+        ("a", 'expected "contains", "in", ">=" or "<=", at the end'),
+        ("a = 1", 'expected "contains", "in", ">=" or "<=", at character 3'),
+        (">= 1", "expected a column name, at character 1"),
+        ("a >= x", "expected a number, at character 6"),
+        ('a >= "1"', "expected a number, at character 6"),
+        ("a contains x", "expected a string in double quotes, at character 12"),
+        ("a in 1", 'expected "(", at character 6'),
+        ("a in ()", f"{VALUE_EXPECTED}, at character 7"),
+        ("a in (1 2)", 'expected "," or ")", at character 9'),
+        ("a in (1,", f"{VALUE_EXPECTED}, at the end"),
+        ("a >= 1 b", 'expected "and" or the end of the query, at character 8'),
+        ("a >= 1 and", "expected a column name, at the end"),
+        ("a >= 1 or b >= 2", 'expected "and" or the end of the query, at character 8'),
+        ("a >= 1e999", "the number 1e999 is too large, at character 6"),
+        ('a contains "x', f"{UNENDED_STRING}, at character 12"),
+        ('a contains "\\x"', f"{UNENDED_STRING}, at character 12"),
+        ("`a", "a column name in backticks must end with a backtick, at the end"),
+        ("a >= .5", "expected a number, at character 6"),
+        ("a >= 01", 'expected "and" or the end of the query, at character 7'),
+        # (Characters, not UTF-16 code units)
+        ('`😀` contains "😀" x', 'expected "and" or the end of the query, at character 18'),
+    ],
+)
+def test_parse_query_says_whats_wrong_and_where(text: str, message: str):
+    with pytest.raises(ValueError) as err:
+        parse_query(text)
+    assert str(err.value) == message
+
+
+def test_format_query_writes_a_query_as_text():
+    assert format_query(
+        query(
+            ("population_2021", "gte", 10000),
+            ("status", "in", ["single-tier", None, True, 1.5]),
+            ("Name of town", "contains", 'a "b"'),
+            ("a`b", "lte", -0.25),
+        )
+    ) == (
+        'population_2021 >= 10000 and status in ("single-tier", null, true, 1.5) and '
+        '`Name of town` contains "a \\"b\\"" and `a``b` <= -0.25'
+    )
+    assert format_query(None) == ""
+
+
+@pytest.mark.parametrize(
+    "value, text",
+    [
+        (1.0, "1"),
+        (-0.0, "0"),
+        (2**60, "1152921504606847000"),
+        (1e21, "1e+21"),
+        (1.5e21, "1.5e+21"),
+        (123456.789, "123456.789"),
+        (1e-6, "0.000001"),
+        (1.25e-7, "1.25e-7"),
+        (5e-324, "5e-324"),
+        (-1.7976931348623157e308, "-1.7976931348623157e+308"),
+    ],
+)
+def test_format_query_writes_numbers_as_javascript_does(value: float, text: str):
+    assert format_query(query(("x", "gte", value))) == f"x >= {text}"
+
+
+def test_format_query_writes_strings_as_javascript_does():
+    # (With a lone surrogate escaped, as `JSON.stringify()` has it)
+    text = format_query(query(("x", "contains", "\x00\x1f\x7f é\ud800")))
+    assert text == 'x contains "\\u0000\\u001f\x7f é\\ud800"'
+
+
+def test_format_query_writes_what_parse_query_reads_back():
+    queries = [
+        query(("", "contains", "")),
+        query(("``", "in", ["\n", " ", "é", 1e21, 5e-7])),
+        query(("1a", "gte", -1), ("_", "lte", 0)),
+        query(("and", "in", [False])),
+    ]
+    for q in queries:
+        assert parse_query(format_query(q)) == q
+
+
+def test_check_query_reads_text():
+    assert check_query('x in (1, null) and y >= 2 and z contains " ab "') == query(
+        ("x", "in", [1, None]), ("y", "gte", 2), ("z", "contains", " ab ")
+    )
+    assert check_query("  ") is None
+    with pytest.raises(ValueError) as err:
+        check_query("y >= x")
+    assert (
+        str(err.value) == "`filter=` can't be read as a query: expected a number, at character 6."
+    )
+    # (And checks the query it reads)
+    with pytest.raises(ValueError, match="more than one 'gte' clause on column 'y'"):
+        check_query("y >= 1 and y >= 2")
 
 
 @pytest.mark.parametrize(
@@ -409,7 +559,8 @@ def test_query_code_needs_a_backend():
 
 
 @pytest.fixture(scope="module")
-def engine() -> Any:
+def node_engine() -> Any:
+    """Send a line to the engine, and get its answer."""
     node = shutil.which("node")
     if node is None or not (PKG_DIR / "node_modules" / "happy-dom").exists():
         pytest.skip("needs Node and packages/gti's dependencies (`npm ci`)")
@@ -423,17 +574,22 @@ def engine() -> Any:
     )
     assert proc.stdin is not None and proc.stdout is not None
 
-    def run(gt: GT) -> dict:
-        html = render_gti_html(gt, runtime="none")
-        proc.stdin.write(json.dumps({"html": html}) + "\n")
+    def send(line: dict) -> dict:
+        proc.stdin.write(json.dumps(line) + "\n")
         proc.stdin.flush()
         result = json.loads(proc.stdout.readline())
         assert "error" not in result, result.get("error")
         return result
 
-    yield run
+    yield send
     proc.stdin.close()
     proc.wait(timeout=10)
+
+
+@pytest.fixture(scope="module")
+def engine(node_engine: Callable[[dict], dict]) -> Callable[[GT], dict]:
+    """The rows the runtime shows for a table, its state, and its warnings."""
+    return lambda gt: node_engine({"html": render_gti_html(gt, runtime="none")})
 
 
 def assert_same_rows(engine: Callable[[GT], dict], gt: GT) -> list[int]:
@@ -448,6 +604,9 @@ def assert_same_rows(engine: Callable[[GT], dict], gt: GT) -> list[int]:
 def test_engine_shows_the_view(engine: Callable[[GT], dict]):
     gti = filtered().i_view(filter=query(("flag", "in", [True])), sort="-name")
     assert assert_same_rows(engine, gti) == [2, 0]
+    # (Of a query as text, too)
+    text = filtered().i_view(filter='flag in (true) and name contains "C"', sort="-name")
+    assert assert_same_rows(engine, text) == [2]
 
 
 # Tables of each backend whose views are compared: missing values, NaN, text, and range edges
@@ -770,3 +929,93 @@ def test_a_facet_has_one_zero(engine: Callable[[GT], dict], backend: str):
         filtered = gti.i_view(filter=query(("x", "in", [zero])))
         assert assert_same_rows(engine, filtered) == [0, 1, 3]
         assert run_code(query_code(filtered, "narwhals"), filtered._tbl_data) == [0, 1, 3]
+
+
+# queries as text, in Python and in the runtime ----
+
+# (Numbers as JavaScript holds them: doubles, and the integers it holds exactly)
+NUMBERS = st.floats(allow_nan=False, allow_infinity=False) | st.integers(-(2**53), 2**53)
+NAMES = st.sampled_from(["a", "x_1", "and", "IN", "Name of town", "a`b", "", "1a", "é"]) | st.text()
+
+
+@st.composite
+def clauses(draw: Any) -> dict:
+    op = draw(st.sampled_from(["contains", "in", "gte", "lte"]))
+    if op == "contains":
+        value = draw(st.text())
+    elif op == "in":
+        values = st.text() | NUMBERS | st.booleans() | st.none()
+        value = draw(st.lists(values, min_size=1, max_size=4))
+    else:
+        value = draw(NUMBERS)
+    return {"col": draw(NAMES), "op": op, "value": value}
+
+
+QUERIES = st.lists(clauses(), min_size=1, max_size=4).map(lambda clauses: {"and": clauses})
+
+# Pieces of queries, right and wrong, for texts that are nearly queries
+PIECES = [
+    *["a", "B_2", "`x y`", "`a``b`", "``", "`", "😀", "and", "AND", "contains", "in", "IN"],
+    *["true", "False", "null", "(", ")", ",", ">=", "<=", ">", "=", "-", " ", "\t", "\n", "\xa0"],
+    *['"x"', '"é\\n"', '"\\u00e9"', '"\\x"', '"', "1", "-0", "1.5e3", "01", ".5", "1e999"],
+]
+
+
+@st.composite
+def texts(draw: Any) -> str:
+    """Text that's mostly a query, or nearly one."""
+    kind = draw(st.sampled_from(["pieces", "query", "mutated", "any"]))
+    if kind == "pieces":
+        return "".join(draw(st.lists(st.sampled_from(PIECES), max_size=12)))
+    if kind == "any":
+        return draw(st.text(max_size=20))
+    text = format_query(draw(QUERIES))
+    if kind == "query":
+        return text
+    start = draw(st.integers(0, len(text)))
+    end = draw(st.integers(start, min(len(text), start + 3)))
+    return text[:start] + draw(st.sampled_from(["", *PIECES])) + text[end:]
+
+
+def tagged(value: Any) -> Any:
+    """A query's values, with booleans and numbers told apart (as `==` doesn't)."""
+    if isinstance(value, bool):
+        return ("bool", value)
+    if isinstance(value, (int, float)):
+        return ("number", float(value))
+    if isinstance(value, list):
+        return [tagged(item) for item in value]
+    if isinstance(value, dict):
+        return {key: tagged(item) for key, item in value.items()}
+    return value
+
+
+def python_parse(text: str) -> dict:
+    """What `parse_query()` makes of text, as the engine has it."""
+    try:
+        return {"query": tagged(parse_query(text))}
+    except ValueError as err:
+        return {"syntaxError": str(err)}
+
+
+@hypothesis.settings(max_examples=300)
+@hypothesis.given(q=QUERIES)
+def test_parse_query_reads_back_what_format_query_writes(q: dict):
+    assert tagged(parse_query(format_query(q))) == tagged(q)
+
+
+@hypothesis.settings(max_examples=500, deadline=None)
+@hypothesis.given(text=texts())
+def test_python_reads_queries_as_the_runtime_does(node_engine: Callable[[dict], dict], text: str):
+    assert python_parse(text) == tagged(node_engine({"parse": text}))
+
+
+@hypothesis.settings(max_examples=300, deadline=None)
+@hypothesis.given(q=QUERIES)
+def test_python_writes_queries_as_the_runtime_does(node_engine: Callable[[dict], dict], q: dict):
+    assert format_query(q) == node_engine({"format": q})["text"]
+
+
+def test_python_writes_lone_surrogates_as_the_runtime_does(node_engine: Callable[[dict], dict]):
+    q = query(("\udc00", "contains", "a\ud800"))
+    assert format_query(q) == node_engine({"format": q})["text"]

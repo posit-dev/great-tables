@@ -383,6 +383,31 @@ def test_i_view_sets_the_whole_view():
     assert spec_of(gti.i_view())["view"] == {"filter": None, "sort": []}
 
 
+def test_i_view_takes_a_query_as_text():
+    gti = GTI(FILTER_DF).i_cols_filter(columns=["few", "num"])
+    text = gti.i_view(filter='few in ("a") and num >= 1.5')
+    query = {
+        "and": [
+            {"col": "few", "op": "in", "value": ["a"]},
+            {"col": "num", "op": "gte", "value": 1.5},
+        ]
+    }
+    assert spec_of(text) == spec_of(gti.i_view(filter=query))
+    assert gti.i_view(filter=" ")._interactive.view_filter is None
+    with pytest.raises(ValueError, match=r"can't be read as a query: expected a number, at char"):
+        gti.i_view(filter="num >= x")
+
+
+def test_i_view_keeps_room_for_the_filter_tokens():
+    gti = GTI(FILTER_DF).i_cols_filter(columns=["few", "id"])
+    assert gt_table_tag(gti.i_view(filter='few in ("a")')) == (
+        "<gt-table data-gti-bar data-gti-tokens>"
+    )
+    # (Not for no filter, or one that's off)
+    assert gt_table_tag(gti.i_view(sort="few")) == "<gt-table data-gti-bar>"
+    assert gt_table_tag(gti.i_view(filter='id contains " \\u00a0"')) == "<gt-table data-gti-bar>"
+
+
 def test_i_cols_filter_keeps_room_for_the_bar():
     gti = GTI(DF).i_search(False)
     assert gt_table_tag(gti) == "<gt-table>"
