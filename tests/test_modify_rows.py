@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Callable
 
 import pandas as pd
@@ -340,6 +341,36 @@ def test_summary_rows_snap(snapshot, all_frame_constructors: list[DataFrameConst
             },
         )
         return render_only_body(GT(df, groupname_col="group").summary_rows(fns=fns))
+
+    assert_parity(snapshot, all_frame_constructors, render)
+
+
+@pytest.mark.parametrize(
+    "groups",
+    [
+        pytest.param(["a", "", "a"], id="empty-string"),
+        pytest.param(["a", None, "a"], id="missing"),
+        pytest.param([1, 0, 1], id="integers"),
+        pytest.param([True, False, True], id="booleans"),
+        pytest.param([date(2024, 1, 1), date(2024, 1, 2), date(2024, 1, 1)], id="dates"),
+    ],
+)
+def test_summary_rows_every_group_key_snap(
+    snapshot, all_frame_constructors: list[DataFrameConstructor], groups: list
+):
+    # Every group gets its summary row, whatever its key: "", 0 and False are falsy, None also
+    # meant "no group" (grand summary rows), and other types aren't valid keyword names (#1049)
+    def render(constructor: DataFrameConstructor) -> str:
+        df = constructor({"g": groups, "x": [1, 2, 3]})
+        fns = by_backend(
+            df,
+            pandas={"Total": lambda df: pd.Series({"x": df["x"].sum()})},
+            polars={"Total": pl.col("x").sum()},
+            pyarrow={"Total": pyarrow_summary(pc.sum, ["x"])},
+        )
+        html = render_only_body(GT(df, groupname_col="g").summary_rows(fns=fns))
+        assert html.count(">Total<") == 2
+        return html
 
     assert_parity(snapshot, all_frame_constructors, render)
 
