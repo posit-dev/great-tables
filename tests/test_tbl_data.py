@@ -22,6 +22,7 @@ from great_tables._tbl_data import (
     _get_column_dtype,
     _get_column_levels,
     _is_numeric_dtype,
+    _is_same_value,
     _re_version,
     _set_cell,
     _set_cells,
@@ -1219,6 +1220,8 @@ def no_polars_import(monkeypatch: pytest.MonkeyPatch):
         ([10**40], "object"),
         ([True, 2], "object"),
         ([datetime(2000, 2, 29), datetime(2000, 2, 29, tzinfo=timezone.utc)], "object"),
+        # float64 can't hold 2**53 + 1 exactly
+        ([2**53 + 1, 0.5], "object"),
     ],
 )
 @pytest.mark.usefixtures("no_polars_import")
@@ -1232,6 +1235,11 @@ def test_to_frame_list_keeps_values_pandas(vals, dtype):
 
     if dtype == "object":
         assert df["x"].tolist() == vals
+
+
+def test_is_same_value_numpy_arrays():
+    # NumPy arrays compare element-wise, so they always count as changed
+    assert _is_same_value(np.array([1, 2]), np.array([1, 2])) is False
 
 
 def test_cast_frame_to_string_is_consistent_across_backends(
