@@ -4,7 +4,7 @@ Modify the table output options.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L16-L615)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L25-L632)
 
 ``` python
 GT.tab_options(

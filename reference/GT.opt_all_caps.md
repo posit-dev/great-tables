@@ -4,7 +4,7 @@ Option to use all caps in select table locations.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1142-L1310)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1167-L1335)
 
 ``` python
 GT.opt_all_caps(

@@ -4,7 +4,7 @@ Option to modify the formatting of footnote marks.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L667-L775)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L692-L800)
 
 ``` python
 GT.opt_footnote_spec(
