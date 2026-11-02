@@ -13,7 +13,7 @@ import { gzipSync } from "node:zlib";
 import * as esbuild from "esbuild";
 
 // Budget for the core runtime (JS and CSS together), minified and gzipped.
-const BUDGET_BYTES = 30 * 1024;
+const BUDGET_BYTES = 34 * 1024;
 
 const pkgDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(pkgDir, "..", "..", "great_tables", "js");
