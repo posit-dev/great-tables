@@ -181,15 +181,19 @@ def pad_html(table_id: str, **options) -> str:
     return render_gti_html(gt, runtime="none")
 
 
-def bar_html(table_id: str, columns: list[str] | None = None, **pagination) -> str:
+def bar_html(
+    table_id: str, columns: list[str] | None = None, selection: str | None = None, **pagination
+) -> str:
     # A GTI table (with GTI's control bar): exibble three times over (24 rows, in two groups),
-    # 2 rows to a page (so 12 pages), or with only the columns given; or without pages.
+    # 2 rows to a page (so 12 pages), or with only the columns given; or without pages. Rows can
+    # be selected, with `selection`.
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     if columns is None:
         gti = GTI.from_gt(sort_gt(table_id, data=data))
     else:
         gti = GTI(data[columns], id=table_id)
+    gti = gti.i_selection(selection)
     if pagination.get("enabled", True):
         gti = gti.i_pagination(**{"page_size": 2, **pagination})
     else:
@@ -392,6 +396,22 @@ def main() -> None:
             head=styles,
         ),
         "bar-late.html": page(bar_html("c") + '\n<p id="after">After the table</p>', head=styles),
+        # The info panel: of a GTI table whose rows can be selected, with page sizes of 2 and 5
+        # (below room for the panel above it); and of one in a container 300px wide
+        "info.html": page(
+            '<div style="height: 400px"></div>\n'
+            + bar_html("c", selection="multiple", page_sizes=[5])
+            + "\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "info-container.html": page(
+            '<div style="width: 300px">'
+            + bar_html("c", selection="multiple")
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
     }
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")

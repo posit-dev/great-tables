@@ -557,6 +557,8 @@ gt-table[data-gti-bar]:is(:not(:defined), [data-gti-state="pending"]) {
 
 gt-table .gt-i-bar {
   display: flex;
+  /* (For the info panel) */
+  position: relative;
   align-items: center;
   gap: 0.5em;
   box-sizing: border-box;
@@ -618,7 +620,8 @@ gt-table .gt-i-bar:dir(rtl) :is([data-gti-bar="previous"], [data-gti-bar="next"]
   transform: scaleX(-1);
 }
 
-gt-table :is(.gt-i-bar-button, .gt-i-readout):hover {
+gt-table :is(.gt-i-bar-button, .gt-i-readout):hover,
+gt-table .gt-i-bar-button[aria-expanded="true"] {
   background: rgba(128, 128, 128, 0.15);
 }
 
@@ -743,6 +746,141 @@ gt-table .gt-i-readout-jump input {
   text-align: center;
 }
 
+/*
+ * The info panel: over the table, above the bar's inline end (where its button is), or below it
+ * where there's more room there (as the runtime sets), and no wider than the bar
+ */
+gt-table .gt-i-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  position: absolute;
+  bottom: calc(100% + 0.375em);
+  inset-inline-end: 0;
+  z-index: 10;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: min(16em, 100%);
+  max-width: 100%;
+  max-height: min(30em, 80vh);
+  overflow-y: auto;
+  padding: 0.75em;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 0.875em;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: start;
+}
+
+gt-table .gt-i-info[data-gti-below] {
+  top: calc(100% + 0.375em);
+  bottom: auto;
+}
+
+gt-table .gt-i-info p,
+gt-table .gt-i-info dl,
+gt-table .gt-i-info dd {
+  margin: 0;
+}
+
+gt-table .gt-i-info-rows {
+  font-weight: bold;
+}
+
+gt-table .gt-i-info-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+gt-table .gt-i-info-button,
+gt-table .gt-i-info select {
+  appearance: none;
+  box-sizing: border-box;
+  flex: none;
+  min-height: 2em;
+  margin: 0;
+  padding: 0.125em 0.625em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+gt-table .gt-i-info select {
+  appearance: auto;
+  padding-inline: 0.25em;
+}
+
+gt-table .gt-i-info-button:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-info-button[aria-disabled="true"] {
+  background: none;
+  cursor: default;
+  opacity: 0.4;
+}
+
+gt-table .gt-i-info-button:focus-visible,
+gt-table .gt-i-info select:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-info-shortcuts {
+  padding-top: 0.5em;
+  border-top: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+gt-table .gt-i-info-heading {
+  margin-bottom: 0.25em;
+  font-size: 0.875em;
+  opacity: 0.7;
+}
+
+/* (A grid of the keys and what they do) */
+gt-table .gt-i-info-keys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.25em 0.75em;
+}
+
+gt-table .gt-i-info-keys > div {
+  display: contents;
+}
+
+gt-table .gt-i-info-keys dt {
+  white-space: nowrap;
+}
+
+gt-table .gt-i-info-keys dd {
+  opacity: 0.85;
+}
+
+gt-table .gt-i-info kbd {
+  display: inline-block;
+  min-width: 1.25em;
+  padding: 0 0.3em;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 3px;
+  font: inherit;
+  font-size: 0.875em;
+  text-align: center;
+}
+
+@media (forced-colors: active) {
+  gt-table .gt-i-info {
+    border-color: CanvasText;
+  }
+}
+
 /* In a narrow bar, the readout tightens up, and the open search takes the page controls' room */
 @container (max-width: 20em) {
   gt-table .gt-i-of {
@@ -772,8 +910,14 @@ gt-table .gt-i-readout-jump input {
     height: 44px;
   }
 
+  gt-table .gt-i-info-button,
+  gt-table .gt-i-info select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
   /* Below 16px, iOS zooms the page in on focus */
-  gt-table :is(.gt-i-search-field, .gt-i-readout-box) {
+  gt-table :is(.gt-i-search-field, .gt-i-readout-box, .gt-i-info select) {
     font-size: max(0.875em, 16px);
   }
 }

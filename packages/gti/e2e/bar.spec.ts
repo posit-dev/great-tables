@@ -28,11 +28,14 @@ test("is one bar below the table, with no toolbar or pager", async ({ page }) =>
   await expect(bar(page)).toBeVisible();
   await expect(el(page).locator(".gt-i-toolbar, .gt-i-pager")).toHaveCount(0);
   expect((await box(bar(page))).top).toBeGreaterThanOrEqual((await box(el(page).locator("table"))).bottom);
-  // In one row, with the page controls at the end
+  // In one row, with the page controls at the end, then the info button
   const toggle = await box(barButton(page, "Search the table"));
   const next = await box(barButton(page, "Next page"));
+  const info = await box(barButton(page, "Table info"));
   expect(Math.abs(toggle.top - next.top)).toBeLessThan(1);
-  expect(next.right).toBeCloseTo((await box(bar(page))).right, 0);
+  expect(Math.abs(info.top - next.top)).toBeLessThan(1);
+  expect(info.left).toBeGreaterThanOrEqual(next.right);
+  expect(info.right).toBeCloseTo((await box(bar(page))).right, 0);
   await expect(readout(page)).toHaveText("1/12");
   await expect(readout(page)).toHaveAccessibleName("Page 1 of 12");
   expect(errors).toEqual([]);

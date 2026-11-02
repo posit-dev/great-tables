@@ -116,6 +116,15 @@ def test_i_pagination():
     off = GTI(DF).i_pagination(False)
     assert interactive_of(off) == with_changes(pagination={"enabled": False})
 
+    no_info = GTI(DF).i_pagination(info=False)
+    assert interactive_of(no_info) == with_changes(pagination={"info": False})
+
+
+@pytest.mark.parametrize("info", ["yes", 1, None])
+def test_i_pagination_info_takes_bools(info):
+    with pytest.raises(TypeError, match="`info=` must be `True` or `False`"):
+        GTI(DF).i_pagination(info=info)
+
 
 @pytest.mark.parametrize("page_sizes", [None, [], ()])
 def test_i_pagination_without_size_choice(page_sizes):
@@ -238,7 +247,14 @@ def test_control_bar_room_is_kept_for_a_search_or_pages():
     # (Not for one page, or none)
     assert gt_table_tag(GTI(DF).i_search(False)) == "<gt-table>"
     assert gt_table_tag(GTI(many).i_search(False).i_pagination(False)) == "<gt-table>"
-    assert gt_table_tag(GTI(many).i_search(False).i_pagination(page_size=11)) == "<gt-table>"
+    no_choice = GTI(many).i_search(False).i_pagination(page_size=11, page_sizes=None)
+    assert gt_table_tag(no_choice) == "<gt-table>"
+    # (But for a page size readers can choose, in the bar's info panel, that makes pages)
+    assert gt_table_tag(GTI(many).i_search(False).i_pagination(page_size=11)) == (
+        "<gt-table data-gti-bar>"
+    )
+    few = GTI(many).i_search(False).i_pagination(page_size=11, page_sizes=[11, 50])
+    assert gt_table_tag(few) == "<gt-table>"
 
 
 def test_opt_interactive_tables_have_no_control_bar():
