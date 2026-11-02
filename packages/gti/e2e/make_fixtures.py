@@ -201,6 +201,27 @@ def bar_html(
     return render_gti_html(gti, runtime="none")
 
 
+def filter_html(table_id: str, **pagination) -> str:
+    # A GTI table of exibble three times over (24 rows, in two groups), 5 rows to a page, whose
+    # rows can be selected: `num` filtered by a range, `char` by text, and `fctr` by a facet.
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    gti = (
+        GTI(
+            data[["num", "char", "fctr", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+            id=table_id,
+        )
+        .i_selection("multiple")
+        .i_pagination(page_size=5, **pagination)
+        .i_cols_filter(columns="num")
+        .i_cols_filter(columns="char", type="text")
+        .i_cols_filter(columns="fctr", type="facet")
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def page(body: str, head: str = "") -> str:
     return (
         '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
@@ -410,6 +431,12 @@ def main() -> None:
             + bar_html("c", selection="multiple")
             + "</div>\n"
             + runtime_src,
+            head=styles,
+        ),
+        # Filters: on a GTI table 5 rows to a page; and on one in a container 300px wide
+        "filters.html": page(filter_html("f") + "\n" + runtime_src, head=styles),
+        "filters-container.html": page(
+            '<div style="width: 300px">' + filter_html("f") + "</div>\n" + runtime_src,
             head=styles,
         ),
     }
