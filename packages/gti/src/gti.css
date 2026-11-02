@@ -611,23 +611,31 @@ gt-table .gt-i-page-jump input {
 }
 
 /*
- * The control bar below the table (GTI's): one row, of a fixed height, with the search on the
- * inline start and the page arrows and readout on the inline end. Its room is kept from the start
- * (`data-gti-bar`, from the producer), so that what's below the table doesn't move when it comes.
+ * The control bar below the table (GTI's): a line of a fixed height, with the search on the
+ * inline start and the page arrows and readout on the inline end, under a line of the filters'
+ * tokens (while any filter is on). Its room is kept from the start (`data-gti-bar`, and
+ * `data-gti-tokens` for a view with a filter, from the producer), so that what's below the table
+ * doesn't move when it comes.
  */
 gt-table[data-gti-bar]:is(:not(:defined), [data-gti-state="pending"]) {
   padding-bottom: 2.5em;
 }
 
+gt-table[data-gti-bar][data-gti-tokens]:is(:not(:defined), [data-gti-state="pending"]) {
+  padding-bottom: 4.875em;
+}
+
 gt-table .gt-i-bar {
+  --gt-i-line: 2em;
   display: flex;
+  flex-wrap: wrap;
   /* (For the info panel) */
   position: relative;
   align-items: center;
-  gap: 0.5em;
+  gap: 0.375em 0.5em;
   box-sizing: border-box;
   max-width: 100%;
-  height: 2em;
+  min-height: var(--gt-i-line);
   margin-top: 0.5em;
   white-space: nowrap;
   /* (So the readout doesn't shift as the numbers change) */
@@ -704,10 +712,10 @@ gt-table .gt-i-bar-button[aria-disabled="true"] {
 /* The search: a button, which opens a field growing toward the page controls */
 gt-table .gt-i-bar-search {
   display: flex;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   align-items: center;
   min-width: 0;
-  height: 100%;
+  height: var(--gt-i-line);
 }
 
 gt-table .gt-i-search-field {
@@ -767,7 +775,7 @@ gt-table .gt-i-bar-pages {
   flex: none;
   align-items: center;
   gap: 0.125em;
-  height: 100%;
+  height: var(--gt-i-line);
   margin-inline-start: auto;
 }
 
@@ -808,6 +816,89 @@ gt-table .gt-i-readout-jump input {
   color: inherit;
   font: inherit;
   text-align: center;
+}
+
+/*
+ * The filters' tokens: a line of them above the rest of the bar, which scrolls sideways when
+ * they don't fit (each cut short with an ellipsis, past a width)
+ */
+gt-table .gt-i-tokens {
+  display: flex;
+  flex: 0 0 100%;
+  order: -1;
+  align-items: center;
+  gap: 0.375em;
+  box-sizing: border-box;
+  height: var(--gt-i-line);
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+gt-table .gt-i-tokens > li {
+  display: flex;
+  flex: none;
+  box-sizing: border-box;
+  max-width: 18em;
+  height: 100%;
+  font-size: 0.875em;
+}
+
+/* (An outline, inside it, so that its buttons fill the line: on a touch screen, a target's height) */
+gt-table .gt-i-tokens .gt-i-token {
+  border-radius: 999px;
+  outline: 1px solid rgba(128, 128, 128, 0.6);
+  outline-offset: -1px;
+}
+
+gt-table .gt-i-tokens button {
+  appearance: none;
+  margin: 0;
+  padding: 0 0.375em;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+gt-table .gt-i-tokens .gt-i-token-open {
+  min-width: 0;
+  overflow: hidden;
+  padding-inline-start: 0.75em;
+  text-overflow: ellipsis;
+}
+
+gt-table .gt-i-tokens .gt-i-token-open[aria-expanded="true"] {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-tokens .gt-i-token-remove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  padding-inline-end: 0.5em;
+  opacity: 0.7;
+}
+
+gt-table .gt-i-token-remove .gt-i-icon {
+  width: 1em;
+  height: 1em;
+}
+
+gt-table .gt-i-token-clear {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+/* (Inside the button: the line cuts off what's outside it) */
+gt-table .gt-i-tokens button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
 }
 
 /*
@@ -1072,6 +1163,15 @@ gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter
     border-color: CanvasText;
   }
 
+  gt-table .gt-i-tokens .gt-i-token {
+    outline-color: CanvasText;
+  }
+
+  gt-table .gt-i-tokens .gt-i-token-open[aria-expanded="true"] {
+    background: Highlight;
+    color: HighlightText;
+  }
+
   gt-table .gt-i-filter-button {
     opacity: 1;
   }
@@ -1101,8 +1201,16 @@ gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter
     padding-bottom: calc(0.5em + 44px);
   }
 
+  gt-table[data-gti-bar][data-gti-tokens]:is(:not(:defined), [data-gti-state="pending"]) {
+    padding-bottom: calc(0.875em + 88px);
+  }
+
   gt-table .gt-i-bar {
-    height: 44px;
+    --gt-i-line: 44px;
+  }
+
+  gt-table .gt-i-tokens button {
+    min-width: 44px;
   }
 
   gt-table .gt-i-bar-button {
