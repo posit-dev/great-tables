@@ -159,7 +159,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
       ...options.pagination,
     },
     display: { highlight: false, compact: false, wrap: true, ...options.display },
-    layout: { height: null, ...options.layout },
+    layout: { height: null, responsive: null, ...options.layout },
   };
   return { html, spec };
 }
@@ -2004,5 +2004,150 @@ describe("a body that scrolls", () => {
     // (On group b's first row shown, row 0)
     expect(el.bodyRow(label.parentElement as HTMLTableRowElement)).toBe(0);
     expect(label.style.getPropertyValue("border-top-style")).not.toBe("");
+  });
+});
+
+describe("a table wider than its container", () => {
+  // (happy-dom has no layout: the table is as wide as `width`, in a container 300px wide, and every
+  // cell is 100px wide)
+  let width = 800;
+  const layout = () => {
+    vi.spyOn(Element.prototype, "scrollWidth", "get").mockImplementation(() => width);
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => 300);
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
+  };
+  const responsive = (options: TableOptions = {}) => {
+    layout();
+    return mountTable(GROUPED, { layout: { responsive: "scroll" }, ...options });
+  };
+  const scroller = (el: GtTable) => el.querySelector(".gt-i-scroller") as HTMLElement;
+  const inset = (cell: Element | null) => (cell as HTMLElement).style.getPropertyValue("inset-inline-start");
+  const hint = (el: GtTable) => el.querySelector(".gt-i-hint");
+
+  afterEach(() => {
+    width = 800;
+  });
+
+  it("pins the selection column and the stub, filled, drawing their borders", async () => {
+    const el = await responsive({ controls: { selection: "multiple" } });
+    expect(el.hasAttribute("data-gti-wide")).toBe(true);
+    expect(scroller(el).id).toBe("t");
+    const stub = Array.from(el.querySelectorAll("tbody th.gt_stub"));
+    expect(stub.length).toBeGreaterThan(0);
+    expect(stub.every((cell) => cell.classList.contains("gt-i-pinned"))).toBe(true);
+    expect(Array.from(el.querySelectorAll("thead th"), (th) => th.classList.contains("gt-i-pinned"))).toEqual([
+      true,
+      true,
+      false,
+      false,
+    ]);
+    expect(el.querySelector("tbody td.gt_row:not(.gt-i-select)")?.classList.contains("gt-i-pinned")).toBe(false);
+    // Each column after the ones before it, with what has focus kept clear of them
+    expect(inset(el.querySelector("tbody td.gt-i-select"))).toBe("0px");
+    expect(inset(stub[0] as Element)).toBe("100px");
+    expect(scroller(el).style.getPropertyValue("scroll-padding-inline-start")).toBe("200px");
+    // (Without a background of their own, they're filled with what's behind them)
+    expect(stub[0]?.classList.contains("gt-i-filled")).toBe(true);
+    expect((stub[0] as HTMLElement).style.getPropertyValue("--gt-i-fill")).toContain("linear-gradient");
+    expect((el.querySelector("table") as HTMLTableElement).style.borderCollapse).toBe("separate");
+  });
+
+  it("selects a row clicked, in the container that has focus", async () => {
+    const el = await responsive({ controls: { selection: "multiple" } });
+    expect(scroller(el).tabIndex).toBe(0);
+    (el.querySelector("tbody td.gt_row:not(.gt-i-select)") as HTMLElement).click();
+    expect(el.selection).toEqual([3]);
+  });
+
+  it("pins the row group column too, when groups are a column", async () => {
+    const el = await responsive({ groupsAsColumn: true });
+    const label = el.querySelector(".gt_stub_row_group") as HTMLElement;
+    expect(label.classList.contains("gt-i-pinned")).toBe(true);
+    expect(inset(label)).toBe("0px");
+    expect(inset(el.querySelector("tbody th.gt_stub"))).toBe("100px");
+  });
+
+  it("keeps the contents of the cells across the table in view", async () => {
+    const el = await responsive();
+    const headings = Array.from(el.querySelectorAll<HTMLElement>(".gt_group_heading"));
+    expect(headings.map((th) => th.firstElementChild?.className)).toEqual(["gt-i-inview", "gt-i-inview"]);
+    expect(headings.map((th) => th.textContent)).toEqual(["b", "a"]);
+    const div = headings[0]?.firstElementChild as HTMLElement;
+    expect(div.style.getPropertyValue("--gt-i-room")).toBe("300px");
+    expect(div.style.getPropertyValue("inset-inline-start")).toBe("0px");
+    // And the row saying that nothing matches
+    el.search = "zzz";
+    expect(el.querySelector("tr.gt-i-empty td > .gt-i-inview")?.textContent).toBe("No matching rows");
+  });
+
+  it("says it scrolls, until it first does, and shades its sides", async () => {
+    const el = await responsive();
+    expect(hint(el)?.textContent).toBe("Scroll for more →");
+    expect(hint(el)?.getAttribute("aria-hidden")).toBe("true");
+    expect(hint(el)?.hasAttribute("data-gti-shown")).toBe(true);
+    expect(Array.from(el.querySelectorAll(":scope > .gt-i-shade"), (shade) => shade.getAttribute("data-gti-edge"))).toEqual([
+      "left",
+      "right",
+    ]);
+    scroller(el).scrollLeft = 40;
+    scroller(el).dispatchEvent(new Event("scroll"));
+    expect(hint(el)).toBeNull();
+    el.search = "2";
+    expect(hint(el)).toBeNull();
+  });
+
+  it("is a region that can have focus, named for the table", async () => {
+    layout();
+    const { html, spec } = gtTable(GROUPED, { layout: { responsive: "scroll" } });
+    const el = await mount(
+      `<gt-table>${html.replace('<table class="gt_table">', '<table class="gt_table" aria-labelledby="t-title">')}${specScript(spec)}</gt-table>`,
+    );
+    expect(scroller(el).tabIndex).toBe(0);
+    expect(scroller(el).getAttribute("role")).toBe("region");
+    expect(scroller(el).getAttribute("aria-labelledby")).toBe("t-title");
+    // (Or "Table", without a title)
+    const untitled = await responsive();
+    expect(scroller(untitled).getAttribute("aria-label")).toBe("Table");
+  });
+
+  it("is left alone while it fits, and pinned once it doesn't", async () => {
+    width = 300;
+    const el = await responsive();
+    expect(el.hasAttribute("data-gti-wide")).toBe(false);
+    expect(el.querySelector(".gt-i-hint, .gt-i-inview, .gt-i-shade")).toBeNull();
+    expect((el.querySelector("table") as HTMLTableElement).style.borderCollapse).toBe("");
+    expect(scroller(el).hasAttribute("role")).toBe(false);
+
+    width = 800;
+    el.search = "2";
+    expect(el.hasAttribute("data-gti-wide")).toBe(true);
+    expect(hint(el)?.hasAttribute("data-gti-shown")).toBe(true);
+    expect(scroller(el).getAttribute("role")).toBe("region");
+
+    width = 300;
+    el.search = "";
+    expect(el.hasAttribute("data-gti-wide")).toBe(false);
+    expect(hint(el)?.hasAttribute("data-gti-shown")).toBe(false);
+    expect(scroller(el).hasAttribute("role")).toBe(false);
+    expect(scroller(el).hasAttribute("tabindex")).toBe(false);
+  });
+
+  it("is GT's table without a responsive layout, and undoes it all when the table is replaced", async () => {
+    layout();
+    const plain = gtTable(GROUPED);
+    const el = await mount(`<gt-table>${plain.html}${specScript(plain.spec)}</gt-table>`);
+    expect(el.querySelector(".gt-i-scroller, .gt-i-pinned")).toBeNull();
+
+    const replace = async (table: { html: string; spec: object }) => {
+      el.remove();
+      el.innerHTML = table.html + specScript(table.spec);
+      document.body.append(el);
+      await tick();
+    };
+    await replace(gtTable(GROUPED, { layout: { responsive: "scroll" } }));
+    expect(el.hasAttribute("data-gti-wide")).toBe(true);
+    await replace(plain);
+    expect(el.hasAttribute("data-gti-wide")).toBe(false);
+    expect(el.querySelector(".gt-i-shade, .gt-i-hint, .gt-i-pinned, .gt-i-inview, [role=region]")).toBeNull();
   });
 });
