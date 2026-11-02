@@ -7,6 +7,7 @@ import re
 
 import pandas as pd
 import polars as pl
+import pyarrow as pa
 import pytest
 
 from great_tables import GT, exibble, loc, style
@@ -564,6 +565,31 @@ def test_column_kind_pandas_period():
     df = pd.DataFrame({"x": pd.period_range("2024-01", periods=2, freq="M")})
 
     assert _get_column_kind(df, "x") == "other"
+
+
+@pytest.mark.parametrize(
+    "arrow_type",
+    [
+        "string",
+        "large_string",
+        pytest.param(
+            "string_view",
+            marks=[
+                pytest.mark.skipif(not hasattr(pa, "string_view"), reason="requires pyarrow>=16"),
+                pytest.mark.xfail(
+                    strict=True,
+                    raises=pa.ArrowTypeError,
+                    reason="PyArrow can't sort string_view columns",
+                ),
+            ],
+        ),
+    ],
+)
+def test_arrow_string_kind_and_ranks(arrow_type: str):
+    df = pa.table({"x": pa.array(["b", None, "a", "b"], type=getattr(pa, arrow_type)())})
+
+    assert _get_column_kind(df, "x") == "string"
+    assert _get_column_ranks(df, "x") == [1, None, 0, 1]
 
 
 # rendering ----
