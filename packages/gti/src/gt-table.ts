@@ -139,7 +139,10 @@ interface SortHeader {
   label: string;
 }
 
-/** A column's filter, and its button in the column label, which opens its panel (a disclosure). */
+/**
+ * A column's filter, and its button in the column label, which opens its panel (a disclosure), as
+ * its token in the bar does.
+ */
 interface FilterControl {
   filter: ColumnFilter;
   label: string;
@@ -154,6 +157,17 @@ interface FilterControl {
   max: HTMLInputElement | null;
   /** A facet's values: their checkboxes, and the number of rows each would have. */
   options: FacetOption[];
+  /** Its token in the bar, made when the filter is first on. */
+  token: FilterToken | null;
+  /** The column's values (by rank, a missing one last) with the text a row with each shows, once needed. */
+  names: [number, string][] | null;
+}
+
+/** A filter's token in the bar: a button saying what it keeps, which opens its panel, and one removing it. */
+interface FilterToken {
+  item: HTMLElement;
+  open: HTMLButtonElement;
+  remove: HTMLButtonElement;
 }
 
 interface FacetOption {
@@ -209,7 +223,8 @@ interface Pager {
 
 /**
  * The control bar below the table (`controls.bar`): a search that opens from a button, on the
- * inline start, and arrows either side of the page and page count on the inline end.
+ * inline start, and arrows either side of the page and page count on the inline end; above them,
+ * a token for each filter that's on.
  */
 interface Bar {
   root: HTMLElement;
@@ -229,6 +244,9 @@ interface Bar {
   jumpInput: HTMLInputElement;
   jumpCount: HTMLElement;
   info: Info;
+  /** The filters' tokens, in a row above the rest (with filters), and the button clearing them all. */
+  tokens: HTMLElement | null;
+  clearAll: HTMLElement | null;
 }
 
 /**
@@ -388,6 +406,8 @@ export class GtTable extends HTMLElement {
   private filters: FilterControl[] = [];
   /** The filter whose panel is open, and the page's handlers for a press outside it and for scrolling. */
   private openFilter: FilterControl | null = null;
+  /** What opened it (its column's button, or its token), which it's placed by and focus goes back to. */
+  private filterAnchor: HTMLElement | null = null;
   private filterPress: ((event: PointerEvent) => void) | null = null;
   private filterScroll: (() => void) | null = null;
   /** A change to a filter, waiting on the typing to pause. */
@@ -2000,8 +2020,13 @@ export class GtTable extends HTMLElement {
       jumpInput,
       jumpCount,
       info,
+      tokens: null,
+      clearAll: null,
     };
     this.bar = bar;
+    if (this.filters.length > 0) {
+      this.addTokens(bar, rtl);
+    }
     if (spec.controls.search) {
       this.addBarSearch(bar);
     }
@@ -2049,7 +2074,8 @@ export class GtTable extends HTMLElement {
         event.ctrlKey ||
         event.metaKey ||
         event.target instanceof HTMLInputElement ||
-        info.panel.contains(event.target as Node)
+        info.panel.contains(event.target as Node) ||
+        bar.tokens?.contains(event.target as Node)
       ) {
         return;
       }
@@ -2464,6 +2490,8 @@ export class GtTable extends HTMLElement {
         min: null,
         max: null,
         options: [],
+        token: null,
+        names: null,
       };
       this.filters.push(control);
       if (th === null) {
@@ -2582,7 +2610,7 @@ export class GtTable extends HTMLElement {
     } else {
       const list = doc.createElement("div");
       list.className = "gt-i-filter-options";
-      for (const [key, text] of this.facetLabels(filter)) {
+      for (const [key, text] of this.facetNames(control)) {
         const item = doc.createElement("label");
         item.className = "gt-i-filter-option";
         const box = doc.createElement("input");
@@ -2633,8 +2661,12 @@ export class GtTable extends HTMLElement {
     return panel;
   }
 
-  // A facet's values, in order (a missing one last), with the text a row with each shows
-  private facetLabels(filter: ColumnFilter): [number, string][] {
+  // A column's values, in order (a missing one last), with the text a row with each shows
+  private facetNames(control: FilterControl): [number, string][] {
+    if (control.names !== null) {
+      return control.names;
+    }
+    const { filter } = control;
     const values = filter.spec.values ?? [];
     const labels = new Map<number, string>();
     let missing = false;
@@ -2651,6 +2683,7 @@ export class GtTable extends HTMLElement {
     if (missing) {
       entries.push([MISSING, "(Missing)"]);
     }
+    control.names = entries;
     return entries;
   }
 
@@ -2692,8 +2725,7 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  private openFilterPanel(control: FilterControl): void {
-    const button = control.button;
+  private openFilterPanel(control: FilterControl, button: HTMLElement | null = control.button): void {
     if (button === null) {
       return;
     }
@@ -2706,6 +2738,7 @@ export class GtTable extends HTMLElement {
     panel.hidden = false;
     button.setAttribute("aria-expanded", "true");
     this.openFilter = control;
+    this.filterAnchor = button;
     this.updateFilterPanel();
 
     // A press anywhere else closes it; it follows its button as anything scrolls
@@ -2725,7 +2758,7 @@ export class GtTable extends HTMLElement {
   // The open panel closes when focus goes elsewhere (but not when the window loses it)
   private leaveFilter(control: FilterControl, event: FocusEvent): void {
     const to = event.relatedTarget as Node | null;
-    if (this.openFilter === control && to !== null && to !== control.button && !control.panel?.contains(to)) {
+    if (this.openFilter === control && to !== null && to !== this.filterAnchor && !control.panel?.contains(to)) {
       this.closeFilter(false);
     }
   }
@@ -2741,40 +2774,47 @@ export class GtTable extends HTMLElement {
       this.filterScroll = null;
     }
     const control = this.openFilter;
+    const anchor = this.filterAnchor;
     if (control === null) {
       return;
     }
     this.openFilter = null;
+    this.filterAnchor = null;
     // (A change may be waiting on the typing to pause)
     this.flushFilter();
     if (control.panel !== null) {
       control.panel.hidden = true;
     }
-    control.button?.setAttribute("aria-expanded", "false");
+    anchor?.setAttribute("aria-expanded", "false");
+    // (A token kept for its open panel goes, if its filter is off)
+    this.updateTokens();
     if (focus) {
-      control.button?.focus();
+      (anchor?.isConnected ? anchor : (control.button ?? this.bar?.info.button))?.focus();
     }
   }
 
   // The open panel is below its button, from the button's inline start (as far as the element's
-  // width allows)
+  // width allows); or, from a token in the bar, above it where there's room in the window
   private placeFilter(): void {
-    const control = this.openFilter;
-    const panel = control?.panel;
-    if (control?.button == null || panel == null) {
+    const panel = this.openFilter?.panel;
+    const anchor = this.filterAnchor;
+    if (anchor === null || panel == null) {
       return;
     }
     const host = this.getBoundingClientRect();
-    const button = control.button.getBoundingClientRect();
+    const button = anchor.getBoundingClientRect();
     const width = panel.offsetWidth;
+    const height = panel.offsetHeight;
     const start = this.isRtl() ? button.right - width : button.left;
+    const above = anchor !== this.openFilter?.button && button.top - height - 4 >= 0;
     panel.style.left = `${Math.max(0, Math.min(start - host.left, host.width - width))}px`;
-    panel.style.top = `${button.bottom - host.top + 4}px`;
+    panel.style.top = `${(above ? button.top - height - 4 : button.bottom + 4) - host.top}px`;
   }
 
   private updateFilters(): void {
     if (this.filters.length > 0) {
       this.updateFilterButtons();
+      this.updateTokens();
       this.updateFilterPanel();
     }
   }
@@ -2787,6 +2827,177 @@ export class GtTable extends HTMLElement {
         button.setAttribute("aria-label", filter.active ? `Filter ${label} (on)` : `Filter ${label}`);
       }
     }
+  }
+
+  // The tokens' row, in the bar, in which the arrow keys go from token to token and Backspace or
+  // Delete removes one
+  private addTokens(bar: Bar, rtl: boolean): void {
+    const list = this.ownerDocument.createElement("ul");
+    list.className = "gt-i-tokens";
+    list.setAttribute("aria-label", "Filters");
+    list.hidden = true;
+    bar.root.append(list);
+    bar.tokens = list;
+    list.addEventListener("keydown", (event) => {
+      if (event.altKey || event.ctrlKey || event.metaKey) {
+        return;
+      }
+      const items = Array.from(list.children);
+      const at = items.findIndex((item) => item.contains(event.target as Node));
+      const control = this.filters.find((c) => c.token?.item === items[at]);
+      const targets: Record<string, number> = {
+        ArrowLeft: rtl ? at + 1 : at - 1,
+        ArrowRight: rtl ? at - 1 : at + 1,
+        Home: 0,
+        End: items.length - 1,
+      };
+      const target = items[targets[event.key] ?? -1];
+      if ((event.key === "Backspace" || event.key === "Delete") && control !== undefined) {
+        event.preventDefault();
+        this.removeToken(control);
+      } else if (target !== undefined) {
+        event.preventDefault();
+        target.querySelector("button")?.focus();
+      }
+    });
+  }
+
+  // A token for each filter that's on (and one whose panel is open from it), in column order, and
+  // a button clearing them all when there's more than one. Tokens that stay are kept in the row,
+  // so that they keep focus.
+  private updateTokens(): void {
+    const bar = this.bar;
+    const list = bar?.tokens;
+    if (list == null) {
+      return;
+    }
+    const items: Element[] = [];
+    for (const control of this.filters) {
+      if (control.filter.active || (control.token !== null && control.token.open === this.filterAnchor)) {
+        const token = control.token ?? this.makeToken(control);
+        const text = this.tokenText(control);
+        token.open.textContent = text;
+        token.open.title = text;
+        items.push(token.item);
+      }
+    }
+    if (items.length > 1) {
+      items.push(bar?.clearAll ?? this.makeClearAll(bar as Bar));
+    }
+    let at = list.firstElementChild;
+    for (const item of items) {
+      if (item === at) {
+        at = at.nextElementSibling;
+      } else {
+        list.insertBefore(item, at);
+      }
+    }
+    while (at !== null) {
+      const next = at.nextElementSibling;
+      at.remove();
+      at = next;
+    }
+    list.hidden = items.length === 0;
+  }
+
+  private makeToken(control: FilterControl): FilterToken {
+    const doc = this.ownerDocument;
+    const item = doc.createElement("li");
+    item.className = "gt-i-token";
+    const open = doc.createElement("button");
+    open.type = "button";
+    open.className = "gt-i-token-open";
+    open.setAttribute("aria-expanded", "false");
+    const remove = doc.createElement("button");
+    remove.type = "button";
+    remove.className = "gt-i-token-remove";
+    remove.setAttribute("aria-label", `Remove the filter on ${control.label}`);
+    remove.title = "Remove (Delete)";
+    remove.append(icon(doc, "clear"));
+    item.append(open, remove);
+    open.addEventListener("click", () => {
+      if (this.openFilter === control && this.filterAnchor === open) {
+        this.closeFilter(false);
+      } else {
+        this.openFilterPanel(control, open);
+        open.setAttribute("aria-controls", control.panel?.id ?? "");
+      }
+    });
+    open.addEventListener("focusout", (event) => this.leaveFilter(control, event));
+    remove.addEventListener("click", () => this.removeToken(control));
+    control.token = { item, open, remove };
+    return control.token;
+  }
+
+  private makeClearAll(bar: Bar): HTMLElement {
+    const doc = this.ownerDocument;
+    const item = doc.createElement("li");
+    const button = doc.createElement("button");
+    button.type = "button";
+    button.className = "gt-i-token-clear";
+    button.textContent = "Clear all";
+    button.setAttribute("aria-label", "Clear all the filters");
+    item.append(button);
+    button.addEventListener("click", () => {
+      this.closeFilter(false);
+      this.cancelFilterTimer();
+      this.userFilter(() => this.clearFilters());
+      bar.info.button.focus();
+    });
+    bar.clearAll = item;
+    return item;
+  }
+
+  // What a filter keeps, in the column's terms: "Status: single-tier, city", "Population ≥ 10,000"
+  // or "Name contains “cote”" (with the values as the table shows them)
+  private tokenText(control: FilterControl): string {
+    const { filter, label } = control;
+    if (!filter.active) {
+      return `${label}: any`;
+    }
+    if (filter.type === "text") {
+      return `${label} contains “${filter.text.trim()}”`;
+    }
+    const names = this.facetNames(control);
+    if (filter.type === "facet") {
+      const chosen = names.filter(([key]) => filter.chosen.has(key)).map(([, name]) => name);
+      return `${label}: ${chosen.length > 3 ? `${chosen.slice(0, 2).join(", ")} +${chosen.length - 2}` : chosen.join(", ")}`;
+    }
+    // (A bound that's one of the column's values as the table shows it, or else as a number)
+    const lang = this.closest("[lang]")?.getAttribute("lang") || undefined;
+    const bound = (value: number) => {
+      const name = names[filter.rankOf(value) ?? -1]?.[1];
+      if (name !== undefined) {
+        return name;
+      }
+      try {
+        return new Intl.NumberFormat(lang).format(value);
+      } catch {
+        return String(value);
+      }
+    };
+    const { min, max } = filter;
+    return `${label} ${
+      min === null ? `≤ ${bound(max as number)}` : max === null ? `≥ ${bound(min)}` : `${bound(min)}–${bound(max)}`
+    }`;
+  }
+
+  // Turn a filter off from its token, with focus on the token after it (or before it, or the info
+  // button, without one)
+  private removeToken(control: FilterControl): void {
+    const list = this.bar?.tokens;
+    const item = control.token?.item;
+    if (list == null || item === undefined) {
+      return;
+    }
+    const at = Array.from(list.children).indexOf(item);
+    if (this.openFilter === control) {
+      this.closeFilter(false);
+    }
+    this.userFilter(() => control.filter.clear());
+    this.syncFilter(control);
+    const tokens = Array.from(list.children).filter((el) => el !== this.bar?.clearAll);
+    (tokens[Math.min(at, tokens.length - 1)]?.querySelector("button") ?? this.bar?.info.button)?.focus();
   }
 
   // The open panel's Clear button, and a facet's counts: the rows with each value that the search

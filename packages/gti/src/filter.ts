@@ -169,7 +169,7 @@ export class ColumnFilter {
           throw new RangeError(`the "in" clause on ${col} needs at least one value`);
         }
         for (const item of value) {
-          const key = item === null ? MISSING : this.keyOf(item);
+          const key = item === null ? MISSING : this.rankOf(item);
           if (key === undefined) {
             throw new RangeError(`${JSON.stringify(item)} isn't a value of ${col}`);
           }
@@ -195,7 +195,8 @@ export class ColumnFilter {
     return this.spec.values?.[rank] ?? null;
   }
 
-  private keyOf(value: unknown): number | undefined {
+  /** The rank of one of the column's values (not a missing one), if it's one of them. */
+  rankOf(value: unknown): number | undefined {
     if (this.keys === null) {
       this.keys = new Map();
       this.spec.values?.forEach((item, rank) => {

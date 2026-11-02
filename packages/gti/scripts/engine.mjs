@@ -6,6 +6,10 @@
 // Each line in is a JSON object `{"html": ...}`: a `<gt-table>`, with its spec but not the
 // runtime. Each line out is `{"rows": [...], "state": ..., "warnings": [...]}`: the data rows
 // shown once the table is ready, in order, the element's state, and what it warned about.
+//
+// A line `{"parse": text}` reads a query's text (`GTI.parseQuery()`), giving `{"query": ...}` or
+// `{"syntaxError": message}`, and a line `{"format": query}` writes one (`GTI.formatQuery()`),
+// giving `{"text": ...}`: for checking that Great Tables reads and writes queries as the runtime does.
 
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -22,7 +26,8 @@ const window = new Window({
 const document = window.document;
 const warnings = [];
 window.console.warn = (...args) => warnings.push(args.map(String).join(" "));
-window.eval(runtime);
+// (The runtime is strict code, so its `var GTI` stays in the eval: it's the eval's value instead)
+const GTI = window.eval(`${runtime}\nGTI;`);
 
 const tick = () => new Promise((resolve) => window.setTimeout(resolve, 0));
 
@@ -41,6 +46,18 @@ async function run(html) {
   return { rows, state: el?.state ?? null, warnings: [...warnings] };
 }
 
+function parse(text) {
+  try {
+    return { query: GTI.parseQuery(text) };
+  } catch (err) {
+    // (The runtime's `SyntaxError`, of the window's realm)
+    if (err?.name === "SyntaxError") {
+      return { syntaxError: err.message };
+    }
+    throw err;
+  }
+}
+
 const lines = createInterface({ input: process.stdin, crlfDelay: Infinity });
 for await (const line of lines) {
   if (line.trim() === "") {
@@ -48,7 +65,14 @@ for await (const line of lines) {
   }
   let result;
   try {
-    result = await run(JSON.parse(line).html);
+    const input = JSON.parse(line);
+    if ("parse" in input) {
+      result = parse(input.parse);
+    } else if ("format" in input) {
+      result = { text: GTI.formatQuery(input.format) };
+    } else {
+      result = await run(input.html);
+    }
   } catch (err) {
     result = { error: String(err?.stack ?? err) };
   }

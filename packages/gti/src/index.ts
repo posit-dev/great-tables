@@ -12,6 +12,7 @@ import {
   VERSION,
 } from "./gt-table";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
+import { formatQuery, parseQuery } from "./query";
 import { fold, searchTerms } from "./search";
 import { normalizeSort, sortRows, toggleSort } from "./sort";
 import { parseSpec, SPEC_VERSION, SpecError } from "./spec";
@@ -34,12 +35,14 @@ export {
   define,
   FILTER_EVENT,
   fold,
+  formatQuery,
   GtTable,
   normalizeSort,
   PAGE_EVENT,
   pageCount,
   pageItems,
   pageSizeChoices,
+  parseQuery,
   parseSpec,
   RESIZE_EVENT,
   SEARCH_EVENT,

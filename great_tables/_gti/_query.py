@@ -26,6 +26,8 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import math
+import re
 import unicodedata
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -67,8 +69,14 @@ def check_query(query: Any) -> Query | None:
     """Check a query's shape and values, and normalize them (as JSON values, in a new query).
 
     This is what can be checked without the table: that the columns have filters, and of the
-    right types, is checked when the table is built (`check_view()`).
+    right types, is checked when the table is built (`check_view()`). A query can be given as
+    text (`parse_query()`).
     """
+    if isinstance(query, str):
+        try:
+            query = parse_query(query)
+        except ValueError as err:
+            raise ValueError(f"`filter=` can't be read as a query: {err}.") from None
     if query is None:
         return None
     clauses = query.get("and") if isinstance(query, Mapping) else None
@@ -146,6 +154,213 @@ def _bound(value: Any, col: str, op: str) -> int | float:
     raise ValueError(
         f"The filter's {op!r} clause on column {col!r} needs a finite number, not {value!r}."
     )
+
+
+# Queries as text, as the runtime reads and writes them (packages/gti/src/query.ts) ----
+#
+#     status in ("single-tier", null) and population >= 10000 and `Name of town` contains "ville"
+#
+# Clauses joined by `and`; a clause is a column, then `contains` and a string, `in` and values in
+# parentheses, or `>=` or `<=` and a number. A column is a name of letters, digits and underscores
+# (not starting with a digit), or any name in backticks (a backtick in it doubled). Strings and
+# numbers are as in JSON; the other values are `true`, `false` and `null`. Keywords can be in any
+# case. Empty text is no query. Errors are the runtime's, word for word.
+
+_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+_STRING = re.compile(r'"(?:[^"\\\x00-\x1f]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"')
+_NUMBER = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?")
+_SPACE = re.compile(r"[ \t\n\r]*")
+_WORDS = {"true": True, "false": False, "null": None}
+_VALUE_EXPECTED = "expected a value: a string in double quotes, a number, true, false or null"
+
+
+@dataclass
+class _Token:
+    kind: Literal["name", "quoted", "string", "number", "symbol", "end"]
+    # The text of a name or symbol, or a string's or number's value
+    value: Any
+    at: int
+
+
+class _QueryParser:
+    def __init__(self, text: str):
+        self.text = text
+        self.at = 0
+        self.token = self._next()
+
+    def fail(self, message: str, where: _Token | None = None) -> Any:
+        where = where or self.token
+        place = "the end" if where.kind == "end" else f"character {where.at + 1}"
+        raise ValueError(f"{message}, at {place}")
+
+    def _next(self) -> _Token:
+        text = self.text
+        self.at = _SPACE.match(text, self.at).end()  # type: ignore[union-attr]
+        start = self.at
+        if start >= len(text):
+            return _Token("end", None, start)
+        char = text[start]
+        if name := _NAME.match(text, start):
+            self.at = name.end()
+            return _Token("name", name.group(), start)
+        if char == "`":
+            end = start + 1
+            name_chars: list[str] = []
+            while True:
+                if end >= len(text):
+                    self.fail(
+                        "a column name in backticks must end with a backtick",
+                        _Token("end", None, end),
+                    )
+                if text[end] == "`":
+                    if text[end + 1 : end + 2] != "`":
+                        break
+                    end += 1
+                name_chars.append(text[end])
+                end += 1
+            self.at = end + 1
+            return _Token("quoted", "".join(name_chars), start)
+        if char == '"':
+            string = _STRING.match(text, start)
+            if string is None:
+                self.fail(
+                    "a string must end with a double quote (with escapes as in JSON)",
+                    _Token("symbol", char, start),
+                )
+            self.at = string.end()  # type: ignore[union-attr]
+            return _Token("string", json.loads(string.group()), start)  # type: ignore[union-attr]
+        if number := _NUMBER.match(text, start):
+            literal = number.group()
+            # (As JavaScript reads it: a double, even for an integer)
+            value = float(literal)
+            if not math.isfinite(value):
+                self.fail(f"the number {literal} is too large", _Token("symbol", literal, start))
+            self.at = number.end()
+            return _Token(
+                "number", value if any(c in literal for c in ".eE") else int(value), start
+            )
+        symbol = text[start : start + 2] if text[start : start + 2] in (">=", "<=") else char
+        self.at = start + len(symbol)
+        return _Token("symbol", symbol, start)
+
+    def advance(self) -> _Token:
+        token = self.token
+        self.token = self._next()
+        return token
+
+    def is_word(self, word: str) -> bool:
+        return self.token.kind == "name" and self.token.value.lower() == word
+
+    def is_symbol(self, symbol: str) -> bool:
+        return self.token.kind == "symbol" and self.token.value == symbol
+
+    def value(self) -> Any:
+        if self.token.kind in ("string", "number"):
+            return self.advance().value
+        for word, value in _WORDS.items():
+            if self.is_word(word):
+                self.advance()
+                return value
+        return self.fail(_VALUE_EXPECTED)
+
+    def clause(self) -> dict[str, Any]:
+        if self.token.kind not in ("name", "quoted"):
+            self.fail("expected a column name")
+        col = self.advance().value
+        if self.is_word("contains"):
+            self.advance()
+            if self.token.kind != "string":
+                self.fail("expected a string in double quotes")
+            return {"col": col, "op": "contains", "value": self.advance().value}
+        if self.is_word("in"):
+            self.advance()
+            if not self.is_symbol("("):
+                self.fail('expected "("')
+            self.advance()
+            values = [self.value()]
+            while not self.is_symbol(")"):
+                if not self.is_symbol(","):
+                    self.fail('expected "," or ")"')
+                self.advance()
+                values.append(self.value())
+            self.advance()
+            return {"col": col, "op": "in", "value": values}
+        if self.is_symbol(">=") or self.is_symbol("<="):
+            op = "gte" if self.advance().value == ">=" else "lte"
+            if self.token.kind != "number":
+                self.fail("expected a number")
+            return {"col": col, "op": op, "value": self.advance().value}
+        return self.fail('expected "contains", "in", ">=" or "<="')
+
+    def query(self) -> Query | None:
+        if self.token.kind == "end":
+            return None
+        clauses = [self.clause()]
+        while self.token.kind != "end":
+            if not self.is_word("and"):
+                self.fail('expected "and" or the end of the query')
+            self.advance()
+            clauses.append(self.clause())
+        return {"and": clauses}
+
+
+def parse_query(text: str) -> Query | None:
+    """Read a query's text into a query (`None` for empty text), without checking its clauses.
+
+    Raises `ValueError`, with the runtime's message, if the text isn't a query.
+    """
+    return _QueryParser(text).query()
+
+
+def format_query(query: Query | None) -> str:
+    """Write a (checked) query as text, as the runtime's `formatQuery()` does.
+
+    `parse_query()` reads the text back as the same query.
+    """
+    return " and ".join(_format_clause(clause) for clause in (query or {"and": []})["and"])
+
+
+def _format_clause(clause: Mapping[str, Any]) -> str:
+    col, op, value = clause["col"], clause["op"], clause["value"]
+    name = col if _NAME.fullmatch(col) else "`" + col.replace("`", "``") + "`"
+    if op == "contains":
+        return f"{name} contains {_format_value(value)}"
+    if op == "in":
+        return f"{name} in ({', '.join(_format_value(item) for item in value)})"
+    return f"{name} {'>=' if op == 'gte' else '<='} {_format_value(value)}"
+
+
+def _format_value(value: Any) -> str:
+    # (As the runtime writes it: a number as `String()` does, a string as `JSON.stringify()`)
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        try:
+            return _js_number(float(value))
+        except OverflowError:
+            return str(value)
+    text = json.dumps(value, ensure_ascii=False)
+    return _SURROGATE.sub(lambda m: f"\\u{ord(m.group()):04x}", text)
+
+
+_SURROGATE = re.compile("[\ud800-\udfff]")
+
+
+def _js_number(value: float) -> str:
+    """A finite number as JavaScript's `String()` writes it: its shortest digits, laid out."""
+    if value == 0:
+        return "0"
+    sign, digit_tuple, exponent = Decimal(repr(value)).normalize().as_tuple()
+    digits = "".join(map(str, digit_tuple))
+    k, n = len(digits), int(exponent) + len(digits)
+    if k <= n <= 21:
+        text = digits + "0" * (n - k)
+    elif 0 < n <= 21:
+        text = f"{digits[:n]}.{digits[n:]}"
+    elif -6 < n <= 0:
+        text = f"0.{'0' * -n}{digits}"
+    else:
+        rest = f".{digits[1:]}" if k > 1 else ""
+        text = f"{digits[0]}{rest}e{'+' if n >= 1 else '-'}{abs(n - 1)}"
+    return ("-" if sign else "") + text
 
 
 def parse_sort(sort: Any) -> SortKeys:
