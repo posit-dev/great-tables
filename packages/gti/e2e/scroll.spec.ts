@@ -155,19 +155,24 @@ test.describe("a body that scrolls", () => {
 });
 
 test.describe("a body that scrolls, by touch", () => {
-  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 700 } });
+  // (Not `isMobile`, which lays the page out wider and zooms it out, away from the points touched)
+  test.use({ hasTouch: true, viewport: { width: 390, height: 700 } });
 
   test("scrolls on a swipe, under the column labels", async ({ page }) => {
     const errors = await ready(page, "scroll-column.html");
     const view = await port(page);
+    const x = Math.round((view.left + view.right) / 2);
+    const y = Math.round(view.bottom - 40);
+
+    // A real touch drag up the body
     const cdp = await page.context().newCDPSession(page);
-    await cdp.send("Input.synthesizeScrollGesture", {
-      x: Math.round((view.left + view.right) / 2),
-      y: Math.round(view.bottom - 40),
-      yDistance: -150,
-      gestureSourceType: "touch",
-      speed: 800,
-    });
+    const touch = (type: "touchStart" | "touchMove" | "touchEnd", points: { x: number; y: number }[]) =>
+      cdp.send("Input.dispatchTouchEvent", { type, touchPoints: points });
+    await touch("touchStart", [{ x, y }]);
+    for (let dy = 15; dy <= 150; dy += 15) {
+      await touch("touchMove", [{ x, y: y - dy }]);
+    }
+    await touch("touchEnd", []);
     await expect.poll(() => scrollTop(page)).toBeGreaterThan(50);
     expect((await rect(el(page).locator("thead"))).top).toBeCloseTo(view.top, 0);
     expect(errors).toEqual([]);
