@@ -546,6 +546,238 @@ gt-table .gt-i-page-jump input {
   }
 }
 
+/*
+ * The control bar below the table (GTI's): one row, of a fixed height, with the search on the
+ * inline start and the page arrows and readout on the inline end. Its room is kept from the start
+ * (`data-gti-bar`, from the producer), so that what's below the table doesn't move when it comes.
+ */
+gt-table[data-gti-bar]:is(:not(:defined), [data-gti-state="pending"]) {
+  padding-bottom: 2.5em;
+}
+
+gt-table .gt-i-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  box-sizing: border-box;
+  max-width: 100%;
+  height: 2em;
+  margin-top: 0.5em;
+  white-space: nowrap;
+  /* (So the readout doesn't shift as the numbers change) */
+  font-variant-numeric: tabular-nums;
+  container-type: inline-size;
+}
+
+gt-table .gt-i-bar[hidden],
+gt-table .gt-i-bar [hidden] {
+  display: none;
+}
+
+/* A table of every row keeps its bar in view as it's scrolled past (the runtime fills it) */
+gt-table .gt-i-bar[data-gti-stick] {
+  position: sticky;
+  bottom: 0;
+  z-index: 7;
+}
+
+gt-table .gt-i-bar-button,
+gt-table .gt-i-readout {
+  appearance: none;
+  box-sizing: border-box;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+gt-table .gt-i-bar-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  padding: 0;
+}
+
+gt-table .gt-i-icon {
+  width: 1.125em;
+  height: 1.125em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+gt-table .gt-i-bar:dir(rtl) :is([data-gti-bar="previous"], [data-gti-bar="next"]) .gt-i-icon {
+  transform: scaleX(-1);
+}
+
+gt-table :is(.gt-i-bar-button, .gt-i-readout):hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table :is(.gt-i-bar-button, .gt-i-readout):focus-visible,
+gt-table .gt-i-readout-jump input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-bar-button[aria-disabled="true"] {
+  background: none;
+  cursor: default;
+  opacity: 0.4;
+}
+
+/* The search: a button, which opens a field growing toward the page controls */
+gt-table .gt-i-bar-search {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+}
+
+gt-table .gt-i-search-field {
+  display: flex;
+  flex: 0 1 20em;
+  align-items: center;
+  gap: 0.375em;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 100%;
+  padding-inline-start: 0.5em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+
+gt-table .gt-i-search-field:focus-within {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-search-field > .gt-i-icon {
+  flex: none;
+  opacity: 0.6;
+}
+
+gt-table .gt-i-search-field .gt-i-search {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 3em;
+  min-height: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  font-size: inherit;
+}
+
+/* (The field has its own clear button) */
+gt-table .gt-i-search-field .gt-i-search::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+gt-table .gt-i-search-count {
+  flex: none;
+  opacity: 0.7;
+}
+
+gt-table .gt-i-search-field .gt-i-bar-button {
+  height: 100%;
+  border: 0;
+}
+
+/* The page controls: arrows either side of the page and page count */
+gt-table .gt-i-bar-pages {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.125em;
+  height: 100%;
+  margin-inline-start: auto;
+}
+
+/* As wide as the readout can get, which a click makes an input for the page to go to */
+gt-table .gt-i-readout-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: calc(var(--gt-i-digits, 1) * 2ch + 2.5em);
+  height: 100%;
+  font-size: 0.875em;
+}
+
+gt-table .gt-i-readout {
+  width: 100%;
+  height: 100%;
+  padding: 0 0.25em;
+}
+
+gt-table .gt-i-of {
+  margin-inline: 0.25em;
+  opacity: 0.7;
+}
+
+gt-table .gt-i-readout-jump {
+  display: inline-flex;
+  align-items: center;
+}
+
+gt-table .gt-i-readout-jump input {
+  box-sizing: content-box;
+  width: calc(var(--gt-i-digits, 1) * 1ch);
+  margin: 0;
+  padding: 0.125em 0.375em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+}
+
+/* In a narrow bar, the readout tightens up, and the open search takes the page controls' room */
+@container (max-width: 20em) {
+  gt-table .gt-i-of {
+    margin-inline: 0;
+  }
+
+  gt-table .gt-i-bar[data-gti-searching] .gt-i-search-field {
+    flex: 1 1 auto;
+  }
+
+  gt-table .gt-i-bar[data-gti-searching] .gt-i-bar-pages {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  gt-table[data-gti-bar]:is(:not(:defined), [data-gti-state="pending"]) {
+    padding-bottom: calc(0.5em + 44px);
+  }
+
+  gt-table .gt-i-bar {
+    height: 44px;
+  }
+
+  gt-table .gt-i-bar-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Below 16px, iOS zooms the page in on focus */
+  gt-table :is(.gt-i-search-field, .gt-i-readout-box) {
+    font-size: max(0.875em, 16px);
+  }
+}
+
 gt-table tr.gt-i-empty td {
   padding: 1em;
   font-style: italic;

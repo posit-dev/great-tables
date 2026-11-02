@@ -13,7 +13,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `striping`: whether the stub and body cells of alternate data rows are striped (`gt_striped`),
   so that striping can be redone when rows are reordered or hidden
 - `controls`: which controls the reader gets: sort buttons in the column labels, a search box,
-  handles for resizing columns, and whether rows can be selected (one at a time, or several)
+  handles for resizing columns, and whether rows can be selected (one at a time, or several); and
+  whether the search and page controls are in one bar below the table (`bar`, GTI's), rather than
+  a search box above the table and page controls below it (as `pagination.type` says). Producers
+  that leave `bar` out get the latter.
 - `pagination`: whether rows are split into pages, how many to a page, and the page controls
 - `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
   in the table's CSS, as smaller row padding), and whether cell text wraps
@@ -91,6 +94,7 @@ class ControlsSpec(TypedDict):
     search: bool
     resizing: bool
     selection: SelectionMode | None
+    bar: bool
 
 
 class PaginationSpec(TypedDict):
@@ -223,6 +227,7 @@ def build_spec(data: GTData) -> Spec:
             search=settings.search,
             resizing=settings.resizing,
             selection=settings.selection,
+            bar=settings.bar,
         ),
         pagination=PaginationSpec(
             enabled=settings.pagination,

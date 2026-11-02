@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from great_tables import GT, exibble, loc, md, style
+from great_tables import GT, GTI, exibble, loc, md, style
 from great_tables._gti import render_gti_html
 
 HERE = Path(__file__).parent
@@ -179,6 +179,22 @@ def pad_html(table_id: str, **options) -> str:
         **options,
     )
     return render_gti_html(gt, runtime="none")
+
+
+def bar_html(table_id: str, columns: list[str] | None = None, **pagination) -> str:
+    # A GTI table (with GTI's control bar): exibble three times over (24 rows, in two groups),
+    # 2 rows to a page (so 12 pages), or with only the columns given; or without pages.
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    if columns is None:
+        gti = GTI.from_gt(sort_gt(table_id, data=data))
+    else:
+        gti = GTI(data[columns], id=table_id)
+    if pagination.get("enabled", True):
+        gti = gti.i_pagination(**{"page_size": 2, **pagination})
+    else:
+        gti = gti.i_pagination(False)
+    return render_gti_html(gti, runtime="none")
 
 
 def page(body: str, head: str = "") -> str:
@@ -363,6 +379,19 @@ def main() -> None:
             '<div style="width: 300px">' + pad_html("pd") + "</div>\n" + runtime_src,
             head=styles,
         ),
+        # GTI tables, with the control bar: 12 pages and a search; as narrow as one column; in a
+        # container 300px wide; on one page, which the bar sticks to the bottom of the view of;
+        # and without the runtime (added by the test), with text after it.
+        "bar.html": page(bar_html("c") + "\n" + runtime_src, head=styles),
+        "bar-narrow.html": page(bar_html("c", columns=["char"]) + "\n" + runtime_src, head=styles),
+        "bar-container.html": page(
+            '<div style="width: 300px">' + bar_html("c") + "</div>\n" + runtime_src, head=styles
+        ),
+        "bar-sticky.html": page(
+            bar_html("c", enabled=False) + '\n<div style="height: 1500px"></div>\n' + runtime_src,
+            head=styles,
+        ),
+        "bar-late.html": page(bar_html("c") + '\n<p id="after">After the table</p>', head=styles),
     }
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")

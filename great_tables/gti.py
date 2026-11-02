@@ -151,7 +151,9 @@ class GTI(GT):
 
         if gt._options.ihtml_active.value:
             settings = replace(
-                Settings.from_options(gt._options), pagination_type=Settings().pagination_type
+                Settings.from_options(gt._options),
+                pagination_type=Settings().pagination_type,
+                bar=True,
             )
         else:
             settings = Settings()
@@ -205,8 +207,9 @@ class GTI(GT):
         Let readers search the table.
 
         A search shows only the rows with a cell that has the text searched for (as it's shown in
-        the table, ignoring case and accents), and highlights the matches. Searching is on by
-        default.
+        the table, ignoring case and accents), and highlights the matches. The search is a button
+        in the control bar below the table (or the `/` key, from within the table), which opens a
+        search field; Esc clears the search, then closes the field. Searching is on by default.
 
         Parameters
         ----------
@@ -270,9 +273,11 @@ class GTI(GT):
         """
         Split the table's rows into pages.
 
-        With pagination, readers see a page of rows at a time, with controls below the table to go
-        from page to page. Each page is as tall as a full one, so the controls stay in place.
-        Pagination is on by default, with ten rows to a page.
+        With pagination, readers see a page of rows at a time, with arrows in the control bar below
+        the table to go from page to page (as do the arrow keys, Page Up and Page Down, and Home
+        and End, in the bar). Between the arrows is the page and the number of pages, which can be
+        clicked to type the page to go to. Each page is as tall as a full one, so the controls stay
+        in place. Pagination is on by default, with ten rows to a page.
 
         Parameters
         ----------

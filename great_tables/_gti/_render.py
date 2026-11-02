@@ -59,8 +59,11 @@ def render_gti_html(
     spec = build_spec(built)
     spec_json = spec_to_script_json(spec)
 
-    # (The runtime sets these too, but the table shouldn't change when it's hydrated)
-    attrs = "" if spec["display"]["wrap"] else " data-gti-nowrap"
+    # (The runtime sets these too, but the table shouldn't change when it's hydrated; nor should
+    # what's below it, so the control bar's room is kept until it's there)
+    attrs = " data-gti-bar" if _has_bar(spec) else ""
+    if not spec["display"]["wrap"]:
+        attrs += " data-gti-nowrap"
     height = spec["layout"]["height"]
     if height is not None:
         attrs += f' data-gti-scroll style="--gt-i-height: {escape(height)}"'
@@ -77,6 +80,13 @@ def render_gti_html(
         raise ValueError(f'`runtime=` must be "inline" or "none", not {runtime!r}.')
 
     return html
+
+
+def _has_bar(spec: Spec) -> bool:
+    """Whether the runtime draws a control bar below the table: for a search, or pages."""
+    controls, pagination = spec["controls"], spec["pagination"]
+    paged = pagination["enabled"] and spec["nrows"] > pagination["page_size"]
+    return controls["bar"] and (controls["search"] or paged)
 
 
 def _compact(gt: GT) -> GT:

@@ -164,6 +164,45 @@ interface Pager {
   jumpCount: HTMLElement | null;
 }
 
+/**
+ * The control bar below the table (`controls.bar`): a search that opens from a button, on the
+ * inline start, and arrows either side of the page and page count on the inline end.
+ */
+interface Bar {
+  root: HTMLElement;
+  /** The button that opens the search, and the field it opens into. */
+  toggle: HTMLButtonElement | null;
+  field: HTMLElement | null;
+  /** The number of rows that match, in the field. */
+  count: HTMLElement | null;
+  /** The button that clears the search, or closes the field when there's none. */
+  clear: HTMLButtonElement | null;
+  pages: HTMLElement;
+  previous: HTMLButtonElement;
+  next: HTMLButtonElement;
+  /** The page and page count ("3/12"), which a click makes an input for the page to go to. */
+  readout: HTMLButtonElement;
+  jump: HTMLElement;
+  jumpInput: HTMLInputElement;
+  jumpCount: HTMLElement;
+}
+
+// The bar is as wide as the table, but no narrower than this (where there's room)
+const BAR_MIN_WIDTH = 300;
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+// The bar's icons, drawn with strokes on a 24 x 24 grid
+const ICONS = {
+  search: "M4 10.5a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0-13 0M15.5 15.5 20 20",
+  previous: "M15 5l-7 7 7 7",
+  next: "M9 5l7 7-7 7",
+  clear: "M6 6l12 12M18 6 6 18",
+};
+
+// What can have text typed into it, where `/` is a character rather than the search's key
+const TYPED = 'input:not([type="checkbox"]):not([type="radio"]), textarea, select, [contenteditable]';
+
 /** A column label's text, for announcements: without footnote marks. */
 function labelText(th: HTMLTableCellElement): string {
   const copy = th.cloneNode(true) as HTMLTableCellElement;
@@ -221,6 +260,17 @@ function backdropColor(el: Element): string {
   return "Canvas";
 }
 
+function icon(doc: Document, name: keyof typeof ICONS): SVGSVGElement {
+  const svg = doc.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "gt-i-icon");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  const path = doc.createElementNS(SVG_NS, "path");
+  path.setAttribute("d", ICONS[name]);
+  svg.append(path);
+  return svg;
+}
+
 // Wrap a cell's contents in the box that keeps them in view as the table scrolls sideways
 function keepInView(cell: HTMLTableCellElement): HTMLElement {
   const div = cell.ownerDocument.createElement("div");
@@ -261,6 +311,11 @@ export class GtTable extends HTMLElement {
   /** The rows of the current page: from `start` to `end` of the `total` that match. */
   private view = { start: 0, end: 0, total: 0 };
   private pager: Pager | null = null;
+  private bar: Bar | null = null;
+  /** The element's handler for `/`, which opens the bar's search. */
+  private slashKey: ((event: KeyboardEvent) => void) | null = null;
+  /** Whether the bar's readout is an input for the page to go to. */
+  private jumping = false;
   /**
    * The column widths of the table with every row shown, which hidden rows mustn't change: in our
    * `<colgroup>`, or in the author's for the columns without a width (`cols_width()`).
@@ -391,6 +446,15 @@ export class GtTable extends HTMLElement {
     this.applySearch(String(value));
     if (this.searchBox !== null) {
       this.searchBox.value = this.searchValue;
+    }
+    // The bar's search is open while there's a search (and closes after one, unless it has focus)
+    const field = this.bar?.field;
+    if (field != null) {
+      if (this.searchValue !== "") {
+        this.openSearch(false);
+      } else if (!field.contains(this.ownerDocument.activeElement)) {
+        this.closeSearch(false);
+      }
     }
   }
 
@@ -571,7 +635,8 @@ export class GtTable extends HTMLElement {
     if (this.movable && spec.controls.sorting) {
       this.addSortHeaders(table, spec);
     }
-    if (this.movable && spec.controls.search) {
+    const bar = spec.controls.bar === true;
+    if (this.movable && spec.controls.search && !bar) {
       this.addSearchBox(table);
     }
     if (spec.controls.resizing) {
@@ -580,10 +645,16 @@ export class GtTable extends HTMLElement {
     if (this.pageSizeValue === undefined) {
       this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
     }
+    // (With pages only, the bar comes with them)
+    if (this.movable && spec.controls.search && bar) {
+      this.addBar();
+    }
     // A search or page set before hydration applies now
     this.matchRows();
     if (this.matched !== null || this.size !== null) {
       this.render();
+    } else if (this.bar !== null) {
+      this.updateBar(this.bar);
     }
     this.setState("ready");
   }
@@ -1642,10 +1713,33 @@ export class GtTable extends HTMLElement {
   }
 
   private addSearchBox(table: HTMLTableElement): void {
-    const doc = this.ownerDocument;
-    const toolbar = doc.createElement("div");
+    const toolbar = this.ownerDocument.createElement("div");
     toolbar.className = "gt-i-toolbar";
-    const input = doc.createElement("input");
+    const input = this.searchInput();
+    toolbar.append(input);
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && input.value !== "") {
+        // Clear the search (and don't, say, close a dialog the table is in)
+        event.preventDefault();
+        event.stopPropagation();
+        this.clearSearch(input);
+      }
+    });
+
+    // Outside the table's scrolling container, so that it stays in view
+    this.prepend(toolbar);
+    this.toolbar = toolbar;
+    this.addLiveRegion();
+
+    // In the table's font, lined up with the table (which GT may have centred or narrowed)
+    toolbar.style.fontFamily = getComputedStyle(table).fontFamily;
+    this.observeLayout();
+  }
+
+  // The search field, which searches once typing pauses, or at once on Enter
+  private searchInput(): HTMLInputElement {
+    const input = this.ownerDocument.createElement("input");
     input.type = "search";
     input.className = "gt-i-search";
     input.placeholder = "Search";
@@ -1654,7 +1748,6 @@ export class GtTable extends HTMLElement {
     input.autocomplete = "off";
     input.spellcheck = false;
     input.value = this.searchValue;
-    toolbar.append(input);
 
     input.addEventListener("input", () => {
       this.cancelSearchTimer();
@@ -1667,25 +1760,354 @@ export class GtTable extends HTMLElement {
       if (event.key === "Enter") {
         this.cancelSearchTimer();
         this.userSearch(input.value);
-      } else if (event.key === "Escape" && input.value !== "") {
-        // Clear the search (and don't, say, close a dialog the table is in)
+      }
+    });
+    this.searchBox = input;
+    return input;
+  }
+
+  private clearSearch(input: HTMLInputElement): void {
+    input.value = "";
+    this.cancelSearchTimer();
+    this.userSearch("");
+  }
+
+  /**
+   * Add the control bar below the table: the search's button and field (with a search), and the
+   * page arrows and readout (hidden until there are pages).
+   */
+  private addBar(): Bar {
+    const doc = this.ownerDocument;
+    const table = this.table as HTMLTableElement;
+    const spec = this.spec as Spec;
+    const root = doc.createElement("div");
+    root.className = "gt-i-bar";
+    // (The arrow keys go the way the arrows point, which a right-to-left table turns around)
+    const rtl = getComputedStyle(table).direction === "rtl";
+    const [back, ahead] = rtl ? ["→", "←"] : ["←", "→"];
+
+    const pages = doc.createElement("nav");
+    pages.className = "gt-i-bar-pages";
+    pages.setAttribute("aria-label", "Table pages");
+    pages.hidden = true;
+    const previous = this.barButton("previous", "Previous page", `Previous page (${back})`);
+    const next = this.barButton("next", "Next page", `Next page (${ahead})`);
+    const readout = doc.createElement("button");
+    readout.type = "button";
+    readout.className = "gt-i-readout";
+    const jump = doc.createElement("label");
+    jump.className = "gt-i-readout-jump";
+    jump.hidden = true;
+    const jumpInput = doc.createElement("input");
+    jumpInput.type = "text";
+    jumpInput.inputMode = "numeric";
+    jumpInput.autocomplete = "off";
+    jumpInput.setAttribute("enterkeyhint", "go");
+    const jumpCount = doc.createElement("span");
+    jump.append(jumpInput, jumpCount);
+    // (Kept as wide as the readout at its widest, so the arrows stay put)
+    const box = doc.createElement("span");
+    box.className = "gt-i-readout-box";
+    box.append(readout, jump);
+    pages.append(previous, box, next);
+
+    const bar: Bar = {
+      root,
+      toggle: null,
+      field: null,
+      count: null,
+      clear: null,
+      pages,
+      previous,
+      next,
+      readout,
+      jump,
+      jumpInput,
+      jumpCount,
+    };
+    this.bar = bar;
+    if (spec.controls.search) {
+      this.addBarSearch(bar);
+    }
+    root.append(pages);
+
+    previous.addEventListener("click", () => {
+      if (previous.getAttribute("aria-disabled") !== "true") {
+        this.userPage(this.page - 1);
+      }
+    });
+    next.addEventListener("click", () => {
+      if (next.getAttribute("aria-disabled") !== "true") {
+        this.userPage(this.page + 1);
+      }
+    });
+    readout.addEventListener("click", () => this.startJump());
+    jumpInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        // (And don't submit a form the table is in)
+        event.preventDefault();
+        this.endJump(true);
+      } else if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
-        input.value = "";
-        this.cancelSearchTimer();
-        this.userSearch("");
+        this.endJump(false);
+      }
+    });
+    jumpInput.addEventListener("blur", () => this.endJump(true));
+
+    // In the bar (but not while typing in it), the arrow keys and Page Up and Down go to the page
+    // before or after, and Home and End to the first or last
+    root.addEventListener("keydown", (event) => {
+      if (pages.hidden || event.altKey || event.ctrlKey || event.metaKey || event.target instanceof HTMLInputElement) {
+        return;
+      }
+      const page = this.page;
+      const before = page - 1;
+      const after = page + 1;
+      const targets: Record<string, number> = {
+        ArrowLeft: rtl ? after : before,
+        ArrowRight: rtl ? before : after,
+        PageUp: before,
+        PageDown: after,
+        Home: 1,
+        End: this.pageCount,
+      };
+      const target = targets[event.key];
+      if (target !== undefined) {
+        event.preventDefault();
+        this.userPage(target);
       }
     });
 
-    // Outside the table's scrolling container, so that it stays in view
-    this.prepend(toolbar);
-    this.toolbar = toolbar;
-    this.searchBox = input;
+    // Below the table, outside its scrolling container, in the table's font
+    this.placeBelow(root);
+    root.style.fontFamily = getComputedStyle(table).fontFamily;
     this.addLiveRegion();
-
-    // In the table's font, lined up with the table (which GT may have centred or narrowed)
-    toolbar.style.fontFamily = getComputedStyle(table).fontFamily;
     this.observeLayout();
+    this.alignBars();
+    return bar;
+  }
+
+  private addBarSearch(bar: Bar): void {
+    const doc = this.ownerDocument;
+    const search = doc.createElement("div");
+    search.className = "gt-i-bar-search";
+    const toggle = this.barButton("search", "Search the table", "Search (/)");
+    const field = doc.createElement("div");
+    field.className = "gt-i-search-field";
+    field.hidden = true;
+    const input = this.searchInput();
+    const count = doc.createElement("span");
+    count.className = "gt-i-search-count";
+    // (The live region says how many rows match)
+    count.setAttribute("aria-hidden", "true");
+    count.hidden = true;
+    const clear = this.barButton("clear", "Close the search", "Close (Esc)");
+    field.append(icon(doc, "search"), input, count, clear);
+    search.append(toggle, field);
+    bar.root.append(search);
+    bar.toggle = toggle;
+    bar.field = field;
+    bar.count = count;
+    bar.clear = clear;
+
+    // The clear button clears the search, or closes the field when there's none
+    const updateClear = () => {
+      const close = input.value === "";
+      clear.setAttribute("aria-label", close ? "Close the search" : "Clear the search");
+      clear.title = close ? "Close (Esc)" : "Clear (Esc)";
+    };
+    toggle.addEventListener("click", () => this.openSearch(true));
+    input.addEventListener("input", updateClear);
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        // Clear the search, then close the field (and don't, say, close a dialog the table is in)
+        event.preventDefault();
+        event.stopPropagation();
+        if (input.value === "") {
+          this.closeSearch(true);
+        } else {
+          this.clearSearch(input);
+          updateClear();
+        }
+      }
+    });
+    clear.addEventListener("click", () => {
+      if (input.value === "") {
+        this.closeSearch(true);
+      } else {
+        this.clearSearch(input);
+        updateClear();
+        input.focus();
+      }
+    });
+    // An empty field closes when focus leaves it
+    field.addEventListener("focusout", (event) => {
+      if (!field.contains(event.relatedTarget as Node | null)) {
+        this.closeSearch(false);
+      }
+    });
+
+    // `/` opens the search, from anywhere in the table that isn't for typing
+    this.slashKey = (event: KeyboardEvent) => {
+      const target = event.target as Element;
+      if (
+        event.key !== "/" ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.defaultPrevented ||
+        target.closest(TYPED) !== null
+      ) {
+        return;
+      }
+      event.preventDefault();
+      this.openSearch(true);
+    };
+    this.addEventListener("keydown", this.slashKey);
+
+    // (A search set before hydration shows in it)
+    if (this.searchValue !== "") {
+      this.openSearch(false);
+    }
+    updateClear();
+  }
+
+  private barButton(name: keyof typeof ICONS, label: string, title: string): HTMLButtonElement {
+    const button = this.ownerDocument.createElement("button");
+    button.type = "button";
+    button.className = "gt-i-bar-button";
+    button.dataset.gtiBar = name;
+    button.setAttribute("aria-label", label);
+    button.title = title;
+    button.append(icon(this.ownerDocument, name));
+    return button;
+  }
+
+  private openSearch(focus: boolean): void {
+    const bar = this.bar;
+    if (bar?.field == null || bar.toggle === null) {
+      return;
+    }
+    bar.field.hidden = false;
+    bar.toggle.hidden = true;
+    bar.root.setAttribute("data-gti-searching", "");
+    if (focus) {
+      this.searchBox?.focus();
+    }
+  }
+
+  // The field closes only without a search in it, so that a search in force shows
+  private closeSearch(focus: boolean): void {
+    const bar = this.bar;
+    const input = this.searchBox;
+    if (bar?.field == null || bar.toggle === null || input === null || input.value !== "") {
+      return;
+    }
+    // (A search for nothing may be waiting on the typing to pause)
+    this.cancelSearchTimer();
+    this.userSearch("");
+    bar.field.hidden = true;
+    bar.toggle.hidden = false;
+    bar.root.removeAttribute("data-gti-searching");
+    if (focus) {
+      bar.toggle.focus();
+    }
+  }
+
+  private startJump(): void {
+    const bar = this.bar;
+    if (bar === null) {
+      return;
+    }
+    this.jumping = true;
+    bar.jumpInput.value = String(this.page);
+    bar.readout.hidden = true;
+    bar.jump.hidden = false;
+    bar.jumpInput.focus();
+    bar.jumpInput.select();
+  }
+
+  // Back to the readout, going to the page typed (with `go`, if it's a whole number)
+  private endJump(go: boolean): void {
+    const bar = this.bar;
+    if (bar === null || !this.jumping) {
+      return;
+    }
+    // (Before the input is hidden, which takes its focus and so ends the jump again)
+    this.jumping = false;
+    const focused = bar.jump.contains(this.ownerDocument.activeElement);
+    const value = bar.jumpInput.value.trim();
+    bar.jump.hidden = true;
+    bar.readout.hidden = false;
+    if (focused) {
+      bar.readout.focus();
+    }
+    const page = Number(value);
+    if (go && value !== "" && Number.isInteger(page)) {
+      this.userPage(page);
+    }
+  }
+
+  // The bar shows while it has a search, or there are pages: while the table has more rows than
+  // fit on a page, whatever the search
+  private updateBar(bar: Bar): void {
+    const spec = this.spec as Spec;
+    const size = this.size;
+    const paged = size !== null && spec.nrows > size;
+    bar.pages.hidden = !paged;
+    bar.root.hidden = !paged && bar.field === null;
+
+    // A table of every row, with no height to scroll in, keeps its bar in view as it's scrolled
+    // past (over the rows, so filled with what's behind them)
+    const sticks = size === null && spec.layout.height === null;
+    if (sticks !== bar.root.hasAttribute("data-gti-stick")) {
+      bar.root.toggleAttribute("data-gti-stick", sticks);
+      bar.root.style.backgroundColor = sticks ? backdropColor(this) : "";
+    }
+    if (bar.count !== null) {
+      const searching = this.terms.length > 0;
+      bar.count.hidden = !searching;
+      bar.count.textContent = searching ? plural(this.matchCount) : "";
+    }
+    if (!paged) {
+      return;
+    }
+
+    const page = this.page;
+    const count = this.pageCount;
+    bar.previous.setAttribute("aria-disabled", String(page === 1));
+    bar.next.setAttribute("aria-disabled", String(page === count));
+    bar.readout.replaceChildren(String(page), this.slash(), String(count));
+    bar.readout.setAttribute("aria-label", `Page ${page} of ${count}`);
+    bar.readout.title = spec.pagination.info ? `Go to a page (${this.rowsText()})` : "Go to a page";
+    bar.jumpCount.replaceChildren(this.slash(), String(count));
+    bar.jumpInput.setAttribute("aria-label", `Go to page (of ${count})`);
+    // (Room for the most pages the rows can have, unsearched)
+    bar.pages.style.setProperty("--gt-i-digits", String(String(pageCount(spec.nrows, size)).length));
+  }
+
+  private slash(): HTMLElement {
+    const slash = this.ownerDocument.createElement("span");
+    slash.className = "gt-i-of";
+    slash.textContent = "/";
+    return slash;
+  }
+
+  // Which rows are shown: "21–30 of 118 rows", and of how many without the search
+  private rowsText(): string {
+    const { start, end, total } = this.view;
+    const rows = total === 0 ? "0 rows" : `${end - start > 1 ? `${start + 1}–` : ""}${end} of ${plural(total)}`;
+    return this.matched === null ? rows : `${rows} (filtered from ${(this.spec as Spec).nrows})`;
+  }
+
+  // Put a control below the table, outside its scrolling container
+  private placeBelow(el: HTMLElement): void {
+    let below: Element = this.table as HTMLTableElement;
+    while (below.parentElement !== null && below.parentElement !== this) {
+      below = below.parentElement;
+    }
+    below.after(el);
   }
 
   // The toolbar and page controls are lined up with the table, and the column widths are measured
@@ -1696,6 +2118,7 @@ export class GtTable extends HTMLElement {
       typeof ResizeObserver === "undefined" ||
       (this.toolbar === null &&
         this.pager === null &&
+        this.bar === null &&
         this.colgroup === null &&
         !this.cutsText &&
         this.scroller === null)
@@ -1736,7 +2159,7 @@ export class GtTable extends HTMLElement {
       return;
     }
     const bars = [this.toolbar, this.pager?.nav].filter((bar) => bar != null);
-    if (bars.length === 0) {
+    if (bars.length === 0 && this.bar === null) {
       return;
     }
     const outer = this.getBoundingClientRect();
@@ -1745,6 +2168,15 @@ export class GtTable extends HTMLElement {
     for (const bar of bars) {
       bar.style.marginLeft = `${left}px`;
       bar.style.width = `${Math.max(0, Math.min(table.width, outer.width - left))}px`;
+    }
+    // The control bar is no narrower than its controls need (where there's room), centred under a
+    // narrower table
+    if (this.bar !== null) {
+      const width = Math.min(outer.width, Math.max(table.width, BAR_MIN_WIDTH));
+      const centre = table.left - outer.left + table.width / 2;
+      const at = Math.max(0, Math.min(centre - width / 2, outer.width - width));
+      this.bar.root.style.marginLeft = `${at}px`;
+      this.bar.root.style.width = `${width}px`;
     }
   }
 
@@ -2363,6 +2795,13 @@ export class GtTable extends HTMLElement {
   private updatePager(): void {
     const spec = this.spec as Spec;
     const size = this.size;
+    if (spec.controls.bar === true) {
+      // (A bar without a search comes with the pages)
+      if (this.bar !== null || (size !== null && spec.nrows > size)) {
+        this.updateBar(this.bar ?? this.addBar());
+      }
+      return;
+    }
     const { size_select, page_sizes } = spec.pagination;
     if (size === null || spec.nrows <= (size_select ? Math.min(size, ...page_sizes) : size)) {
       if (this.pager !== null) {
@@ -2375,10 +2814,8 @@ export class GtTable extends HTMLElement {
 
     const page = this.page;
     const count = this.pageCount;
-    const { start, end, total } = this.view;
     if (pager.info !== null) {
-      const rows = total === 0 ? "0 rows" : `${end - start > 1 ? `${start + 1}–` : ""}${end} of ${plural(total)}`;
-      pager.info.textContent = this.matched === null ? rows : `${rows} (filtered from ${spec.nrows})`;
+      pager.info.textContent = this.rowsText();
     }
     if (pager.select !== null) {
       const choices = pageSizeChoices(size, page_sizes).map(String);
@@ -2567,11 +3004,7 @@ export class GtTable extends HTMLElement {
     });
 
     // Below the table, outside its scrolling container, in the table's font
-    let below: Element = table;
-    while (below.parentElement !== null && below.parentElement !== this) {
-      below = below.parentElement;
-    }
-    below.after(nav);
+    this.placeBelow(nav);
     nav.style.fontFamily = getComputedStyle(table).fontFamily;
     this.pager = pager;
     this.addLiveRegion();
@@ -2684,6 +3117,10 @@ export class GtTable extends HTMLElement {
     this.hint?.remove();
     this.toolbar?.remove();
     this.pager?.nav.remove();
+    this.bar?.root.remove();
+    if (this.slashKey !== null) {
+      this.removeEventListener("keydown", this.slashKey);
+    }
     this.table = null;
     this.spec = null;
     this.tbody = null;
@@ -2703,6 +3140,9 @@ export class GtTable extends HTMLElement {
     this.pageSizeValue = undefined;
     this.view = { start: 0, end: 0, total: 0 };
     this.pager = null;
+    this.bar = null;
+    this.slashKey = null;
+    this.jumping = false;
     this.colgroup = null;
     this.fittedCols = [];
     this.widthsFixed = false;
