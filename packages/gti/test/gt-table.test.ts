@@ -2504,6 +2504,215 @@ describe("filters", () => {
   });
 });
 
+describe("filter tokens", () => {
+  const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const row = (el: GtTable) => el.querySelector(".gt-i-tokens") as HTMLElement;
+  const tokens = (el: GtTable) =>
+    Array.from(row(el).querySelectorAll(".gt-i-token-open, .gt-i-token-clear"), (b) => b.textContent);
+  const token = (el: GtTable, i: number) => row(el).querySelectorAll<HTMLButtonElement>(".gt-i-token-open")[i] as HTMLButtonElement;
+  const remove = (el: GtTable, i: number) =>
+    row(el).querySelectorAll<HTMLButtonElement>(".gt-i-token-remove")[i] as HTMLButtonElement;
+  const clearAll = (el: GtTable) => row(el).querySelector(".gt-i-token-clear") as HTMLButtonElement;
+  const panel = (el: GtTable) => el.querySelector(".gt-i-filter:not([hidden])") as HTMLElement | null;
+  const press = (target: Element | null | undefined, key: string) => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+    target?.dispatchEvent(event);
+    return event;
+  };
+
+  async function mountTokens(options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, {
+      filters: [RANGE, FACET],
+      ...options,
+      controls: { bar: true, ...options.controls },
+    });
+    const events: FilterEventDetail[] = [];
+    el.addEventListener(FILTER_EVENT, (event) => events.push((event as CustomEvent<FilterEventDetail>).detail));
+    return { el, events };
+  }
+
+  it("shows a token for each filter that's on, in column order, above the rest of the bar", async () => {
+    const { el } = await mountTokens();
+    const list = row(el);
+    expect(list.tagName).toBe("UL");
+    expect(list.getAttribute("aria-label")).toBe("Filters");
+    expect(list.parentElement?.classList.contains("gt-i-bar")).toBe(true);
+    expect(list.hidden).toBe(true);
+
+    el.filter = { and: [{ col: "y", op: "in", value: ["c", "b"] }] };
+    expect(list.hidden).toBe(false);
+    expect(tokens(el)).toEqual(["y: b, c"]);
+    // (A token's whole text is its title too, as it can be cut short)
+    expect(token(el, 0).title).toBe("y: b, c");
+    expect(token(el, 0).getAttribute("aria-expanded")).toBe("false");
+    expect(remove(el, 0).getAttribute("aria-label")).toBe("Remove the filter on y");
+
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }, { col: "x", op: "gte", value: 10 }] };
+    expect(tokens(el)).toEqual(["x ≥ 10", "y: a", "Clear all"]);
+    el.filter = null;
+    expect(list.hidden).toBe(true);
+    expect(tokens(el)).toEqual([]);
+  });
+
+  it("has no token row without filters, or without the bar", async () => {
+    expect((await mountTokens({ filters: [] })).el.querySelector(".gt-i-tokens")).toBeNull();
+    const { el } = await mountTokens({ controls: { bar: false } });
+    el.filter = { and: [{ col: "x", op: "gte", value: 10 }] };
+    expect(el.querySelector(".gt-i-tokens")).toBeNull();
+  });
+
+  it("says what a range keeps, with its bounds as the table shows them", async () => {
+    const { el } = await mountTokens();
+    el.setAttribute("lang", "de");
+    el.filter = { and: [{ col: "x", op: "lte", value: 20 }] };
+    expect(tokens(el)).toEqual(["x ≤ 20"]);
+    el.filter = { and: [{ col: "x", op: "gte", value: 5 }, { col: "x", op: "lte", value: 10 }] };
+    expect(tokens(el)).toEqual(["x 5–10"]);
+    // (A bound that isn't one of the column's values, as a number in the page's language)
+    el.filter = { and: [{ col: "x", op: "gte", value: 1234.5 }] };
+    expect(tokens(el)).toEqual(["x ≥ 1.234,5"]);
+  });
+
+  it("says what a facet and a text filter keep, shortening a long list of values", async () => {
+    const { el } = await mountTokens({
+      filters: [{ ...RANGE, type: "facet" }, { column: "y", type: "text", values: null }],
+    });
+    el.filter = { and: [{ col: "x", op: "in", value: [null, 20, 5] }] };
+    expect(tokens(el)).toEqual(["x: 5, 20, (Missing)"]);
+    el.filter = {
+      and: [
+        { col: "x", op: "in", value: [5, 10, 20, null] },
+        { col: "y", op: "contains", value: "  a " },
+      ],
+    };
+    expect(tokens(el)).toEqual(["x: 5, 10 +2", "y contains “a”", "Clear all"]);
+  });
+
+  it("opens its filter's panel from a token, by it, and closes it back to it", async () => {
+    const { el } = await mountTokens();
+    el.filter = { and: [{ col: "y", op: "in", value: ["b"] }] };
+    token(el, 0).click();
+    const open = panel(el) as HTMLElement;
+    expect(open.getAttribute("aria-label")).toBe("Filter y");
+    expect(token(el, 0).getAttribute("aria-expanded")).toBe("true");
+    expect(token(el, 0).getAttribute("aria-controls")).toBe(open.id);
+    // (Not the column's button)
+    const columnButton = header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement;
+    expect(columnButton.getAttribute("aria-expanded")).toBe("false");
+    expect(open.contains(document.activeElement)).toBe(true);
+
+    press(document.activeElement, "Escape");
+    expect(panel(el)).toBeNull();
+    expect(token(el, 0).getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(token(el, 0));
+
+    // A second click closes it
+    token(el, 0).click();
+    token(el, 0).click();
+    expect(panel(el)).toBeNull();
+  });
+
+  it("keeps a token while its panel is open, even with its filter cleared there", async () => {
+    const { el } = await mountTokens();
+    el.filter = { and: [{ col: "y", op: "in", value: ["b"] }] };
+    token(el, 0).click();
+    (panel(el)?.querySelector(".gt-i-filter-head button") as HTMLButtonElement).click();
+    expect(el.filter).toBeNull();
+    expect(tokens(el)).toEqual(["y: any"]);
+    press(document.activeElement, "Escape");
+    // (Its token gone, focus goes to the column's button)
+    expect(row(el).hidden).toBe(true);
+    expect(document.activeElement).toBe(header(el, "y").querySelector(".gt-i-filter-button"));
+  });
+
+  it("opens the panel of a column without a label, from its token", async () => {
+    const { el } = await mountTokens({ filters: [{ column: "row", type: "text", values: null }] });
+    el.filter = { and: [{ col: "row", op: "contains", value: "row_1" }] };
+    expect(tokens(el)).toEqual(["row contains “row_1”"]);
+    token(el, 0).click();
+    expect((panel(el)?.querySelector("input") as HTMLInputElement).value).toBe("row_1");
+    press(document.activeElement, "Escape");
+    expect(document.activeElement).toBe(token(el, 0));
+  });
+
+  it("removes a filter from its token, with focus on the next token", async () => {
+    const { el, events } = await mountTokens();
+    el.filter = { and: [{ col: "x", op: "gte", value: 10 }, { col: "y", op: "in", value: ["a"] }] };
+    remove(el, 0).click();
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a"] }] });
+    expect(events).toEqual([{ filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, count: 3 }]);
+    expect(tokens(el)).toEqual(["y: a"]);
+    expect(document.activeElement).toBe(token(el, 0));
+    // The last one goes to the info button
+    press(token(el, 0), "Backspace");
+    expect(el.filter).toBeNull();
+    expect(document.activeElement).toBe(el.querySelector(".gt-i-bar [aria-controls^='gt-i-info']"));
+  });
+
+  it("goes from token to token with the arrow keys, and removes one with Delete", async () => {
+    const { el } = await mountTokens({ pagination: { enabled: true } });
+    el.filter = { and: [{ col: "x", op: "gte", value: 5 }, { col: "y", op: "in", value: ["a", "b"] }] };
+    token(el, 0).focus();
+    // (Not paging, as the arrow keys do elsewhere in the bar)
+    expect(press(token(el, 0), "ArrowRight").defaultPrevented).toBe(true);
+    expect(el.page).toBe(1);
+    expect(document.activeElement).toBe(token(el, 1));
+    press(document.activeElement, "ArrowRight");
+    expect(document.activeElement).toBe(clearAll(el));
+    press(document.activeElement, "Home");
+    expect(document.activeElement).toBe(token(el, 0));
+    press(document.activeElement, "End");
+    press(document.activeElement, "ArrowLeft");
+    expect(document.activeElement).toBe(token(el, 1));
+    // (From a token's remove button too)
+    press(remove(el, 1), "ArrowLeft");
+    expect(document.activeElement).toBe(token(el, 0));
+    press(document.activeElement, "Delete");
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a", "b"] }] });
+    expect(document.activeElement).toBe(token(el, 0));
+    // (Delete on the Clear all button does nothing)
+    expect(press(clearAll(el), "Delete").defaultPrevented).toBe(false);
+  });
+
+  it("clears every filter with Clear all, with focus on the info button", async () => {
+    const { el, events } = await mountTokens();
+    el.filter = { and: [{ col: "x", op: "gte", value: 10 }, { col: "y", op: "in", value: ["a"] }] };
+    token(el, 1).click();
+    clearAll(el).click();
+    expect(el.filter).toBeNull();
+    expect(events).toEqual([{ filter: null, count: 5 }]);
+    expect(panel(el)).toBeNull();
+    expect(row(el).hidden).toBe(true);
+    expect(clearAll(el)).toBeNull();
+    expect(document.activeElement).toBe(el.querySelector(".gt-i-bar [aria-controls^='gt-i-info']"));
+  });
+
+  it("shows the spec's view's filter", async () => {
+    const el = await mountTable(GROUPED, {
+      filters: [RANGE, FACET],
+      controls: { bar: true },
+      view: { filter: { and: [{ col: "x", op: "gte", value: 10 }] }, sort: [] },
+    });
+    expect(tokens(el)).toEqual(["x ≥ 10"]);
+  });
+
+  it("follows the filters as the reader changes them", async () => {
+    const { el } = await mountTokens();
+    (header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement).click();
+    (panel(el)?.querySelectorAll("input")[2] as HTMLInputElement).click();
+    expect(tokens(el)).toEqual(["y: c"]);
+  });
+
+  it("goes when the table does", async () => {
+    const { el } = await mountTokens();
+    el.filter = { and: [{ col: "x", op: "gte", value: 10 }] };
+    const list = row(el);
+    el.remove();
+    expect(list.isConnected).toBe(false);
+  });
+});
+
 describe("the spec's view", () => {
   const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
   const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
