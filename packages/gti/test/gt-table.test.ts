@@ -1603,21 +1603,15 @@ describe("the control bar", () => {
     expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
   });
 
-  it("has a readout of the page and page count, which says which rows are shown", async () => {
+  it("has a readout of the page and page count", async () => {
     const { el } = await mountBar();
     expect(readout(el).textContent).toBe("1/3");
     expect(readout(el).getAttribute("aria-label")).toBe("Page 1 of 3");
-    expect(readout(el).title).toBe("Go to a page (1–2 of 5 rows)");
+    expect(readout(el).title).toBe("Go to a page");
     expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.style.getPropertyValue("--gt-i-digits")).toBe("1");
 
     el.search = "a";
     expect(readout(el).textContent).toBe("1/2");
-    expect(readout(el).title).toBe("Go to a page (1–2 of 3 rows (filtered from 5))");
-  });
-
-  it("leaves the rows out of the readout's title when asked", async () => {
-    const { el } = await mountBar({ pagination: { info: false } });
-    expect(readout(el).title).toBe("Go to a page");
   });
 
   it("changes the page with its arrows, with an event and an announcement", async () => {
@@ -1794,6 +1788,262 @@ describe("the control bar", () => {
     expect(bar(el)).toBeNull();
     expect(el.querySelector(".gt-i-toolbar")).toBeNull();
     expect(press(el.querySelector("tbody td") as HTMLElement, "/").defaultPrevented).toBe(false);
+  });
+});
+
+describe("the info panel", () => {
+  const bar = (el: GtTable) => el.querySelector(".gt-i-bar") as HTMLElement;
+  const toggle = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
+  const panel = (el: GtTable) => el.querySelector(".gt-i-info") as HTMLElement;
+  const rows = (el: GtTable) => el.querySelector(".gt-i-info-rows") as HTMLElement;
+  const item = (el: GtTable, name: string) => el.querySelector(`[data-gti-info="${name}"]`) as HTMLElement | null;
+  const action = (el: GtTable, name: string) => item(el, name)?.querySelector("button") as HTMLButtonElement;
+  const select = (el: GtTable) => item(el, "size")?.querySelector("select") as HTMLSelectElement;
+  const keys = (el: GtTable) =>
+    Array.from(el.querySelectorAll<HTMLElement>(".gt-i-info-keys > div"))
+      .filter((entry) => !entry.hidden)
+      .map((entry) => `${entry.querySelector("dt")?.textContent}: ${entry.querySelector("dd")?.textContent}`);
+  const press = (target: Element, key: string) => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  // A search, and pages of 2 rows ([3, 0], [4, 1] and [2]), unless set otherwise
+  async function mountInfo(options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, ...options.pagination },
+    });
+    const events: unknown[] = [];
+    for (const name of [PAGE_EVENT, SORT_EVENT, SELECT_EVENT]) {
+      el.addEventListener(name, (event) => events.push((event as CustomEvent).detail));
+    }
+    return { el, events };
+  }
+
+  it("opens from a button at the end of the bar, and closes from it", async () => {
+    const { el } = await mountInfo();
+    const button = toggle(el);
+    expect(button.getAttribute("aria-label")).toBe("Table info");
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(button.getAttribute("aria-controls")).toBe(panel(el).id);
+    expect(button.previousElementSibling).toBe(el.querySelector(".gt-i-bar-pages"));
+    // (Next to its button, so that Tab goes from one into the other)
+    expect(button.nextElementSibling).toBe(panel(el));
+    expect(panel(el).getAttribute("role")).toBe("group");
+    expect(panel(el).getAttribute("aria-label")).toBe("Table info");
+    expect(panel(el).hidden).toBe(true);
+
+    button.click();
+    expect(panel(el).hidden).toBe(false);
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    button.click();
+    expect(panel(el).hidden).toBe(true);
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("gives every panel its own id", async () => {
+    const { html, spec } = gtTable(GROUPED, { controls: { search: true, bar: true } });
+    document.body.innerHTML = `<gt-table>${html}${specScript(spec)}</gt-table>`.repeat(2);
+    await tick();
+    const [one, two] = Array.from(document.querySelectorAll(".gt-i-info"), (node) => node.id);
+    expect(one).not.toBe(two);
+  });
+
+  it("says which rows are shown, and of how many without the search", async () => {
+    const { el } = await mountInfo();
+    expect(rows(el).textContent).toBe("1–2 of 5 rows");
+    expect(rows(el).hidden).toBe(false);
+    el.page = 3;
+    expect(rows(el).textContent).toBe("5 of 5 rows");
+    el.search = "a";
+    expect(rows(el).textContent).toBe("1–2 of 3 rows (filtered from 5)");
+    el.search = "zzz";
+    expect(rows(el).textContent).toBe("0 rows (filtered from 5)");
+    // Without pages, how many
+    el.search = "";
+    el.pageSize = null;
+    expect(rows(el).textContent).toBe("5 rows");
+  });
+
+  it("leaves out which rows are shown when asked", async () => {
+    const { el } = await mountInfo({ pagination: { info: false } });
+    expect(rows(el).hidden).toBe(true);
+  });
+
+  it("chooses the page size, from the author's and the table's own", async () => {
+    const { el, events } = await mountInfo({ pagination: { size_select: true, page_sizes: [4, 10] } });
+    const choices = () => Array.from(select(el).options, (option) => option.value);
+    expect(item(el, "size")?.tagName).toBe("LABEL");
+    expect(item(el, "size")?.textContent).toContain("Rows per page");
+    expect(choices()).toEqual(["2", "4", "10"]);
+    expect(select(el).value).toBe("2");
+
+    select(el).value = "4";
+    select(el).dispatchEvent(new Event("change", { bubbles: true }));
+    expect(el.pageSize).toBe(4);
+    expect(events).toEqual([{ page: 1, pageSize: 4, pageCount: 2 }]);
+    expect(live(el)).toBe("4 rows per page, page 1 of 2");
+    expect(choices()).toEqual(["2", "4", "10"]);
+
+    el.pageSize = 3;
+    expect(choices()).toEqual(["2", "3", "4", "10"]);
+    expect(select(el).value).toBe("3");
+  });
+
+  it("has no page size to choose without `size_select`", async () => {
+    const { el } = await mountInfo();
+    expect(item(el, "size")).toBeNull();
+  });
+
+  it("keeps the bar for page sizes that the rows can be split into", async () => {
+    const { el } = await mountInfo({
+      controls: { search: false },
+      pagination: { page_size: 5, page_sizes: [2], size_select: true },
+    });
+    expect(bar(el).hidden).toBe(false);
+    expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(true);
+    expect(item(el, "size")?.hidden).toBe(false);
+    // (Nor are there keys for paging, without pages)
+    expect(keys(el)).toEqual(["Shift + click: Sort by more than one column"]);
+
+    select(el).value = "2";
+    select(el).dispatchEvent(new Event("change", { bubbles: true }));
+    expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(false);
+    expect(keys(el)).toEqual([
+      "← →: Previous or next page, in the bar",
+      "Home End: First or last page, in the bar",
+      "Shift + click: Sort by more than one column",
+    ]);
+  });
+
+  it("says how the table is sorted, and puts it back in its own order", async () => {
+    const { el, events } = await mountInfo();
+    expect(item(el, "sort")?.textContent).toBe("Not sortedReset");
+    expect(action(el, "sort").getAttribute("aria-label")).toBe("Reset the sort");
+    expect(action(el, "sort").getAttribute("aria-disabled")).toBe("true");
+    action(el, "sort").click();
+    expect(events).toEqual([]);
+
+    el.sort = [{ column: "x", descending: true }, { column: "y" }];
+    expect(item(el, "sort")?.firstElementChild?.textContent).toBe("Sorted by x, descending, then y, ascending");
+    expect(action(el, "sort").getAttribute("aria-disabled")).toBe("false");
+    el.page = 2;
+    action(el, "sort").click();
+    expect(el.sort).toEqual([]);
+    expect(el.page).toBe(1);
+    expect(events).toEqual([{ sort: [] }]);
+    expect(live(el)).toBe("Not sorted");
+    expect(action(el, "sort").getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("has no sort without sorting", async () => {
+    const { el } = await mountInfo({ controls: { sorting: false } });
+    expect(item(el, "sort")).toBeNull();
+  });
+
+  it("says how many rows are selected, and clears them", async () => {
+    const { el, events } = await mountInfo({ controls: { selection: "multiple" } });
+    expect(item(el, "selection")?.firstElementChild?.textContent).toBe("No rows selected");
+    expect(action(el, "selection").getAttribute("aria-label")).toBe("Clear the selection");
+    expect(action(el, "selection").getAttribute("aria-disabled")).toBe("true");
+
+    el.selection = [0, 2];
+    expect(item(el, "selection")?.firstElementChild?.textContent).toBe("2 rows selected");
+    // (Rows that don't match the search too)
+    el.search = "c";
+    action(el, "selection").click();
+    expect(el.selection).toEqual([]);
+    expect(events).toEqual([{ selection: [] }]);
+    expect(live(el)).toBe("No rows selected");
+    expect(el.querySelectorAll("tr.gt-i-selected")).toHaveLength(0);
+    expect(action(el, "selection").getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("has no selection without selection", async () => {
+    const { el } = await mountInfo();
+    expect(item(el, "selection")).toBeNull();
+  });
+
+  it("lists the shortcuts the table has", async () => {
+    const { el } = await mountInfo({ controls: { selection: "multiple" } });
+    expect(keys(el)).toEqual([
+      "/: Search",
+      "Esc: Clear the search, then close it",
+      "← →: Previous or next page, in the bar",
+      "Home End: First or last page, in the bar",
+      "Shift + click: Sort by more than one column",
+      "Shift + click: Select a range of rows",
+    ]);
+    expect(el.querySelectorAll(".gt-i-info-keys kbd")).toHaveLength(8);
+  });
+
+  it("has no shortcuts to list without any", async () => {
+    const { el } = await mountInfo({
+      controls: { search: false, sorting: false },
+      pagination: { page_size: 5, page_sizes: [2], size_select: true },
+    });
+    expect(el.querySelector<HTMLElement>(".gt-i-info-shortcuts")?.hidden).toBe(true);
+  });
+
+  it("closes on Escape, giving focus back to its button", async () => {
+    const { el } = await mountInfo();
+    toggle(el).click();
+    action(el, "sort").focus();
+    expect(press(action(el, "sort"), "Escape").defaultPrevented).toBe(true);
+    expect(panel(el).hidden).toBe(true);
+    expect(document.activeElement).toBe(toggle(el));
+    // (Escape is the table's only while the panel is open)
+    expect(press(toggle(el), "Escape").defaultPrevented).toBe(false);
+  });
+
+  it("closes on a press outside it, or when focus goes elsewhere", async () => {
+    const { el } = await mountInfo();
+    const outside = el.querySelector("tbody td") as HTMLElement;
+    toggle(el).click();
+    panel(el).dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
+    expect(panel(el).hidden).toBe(false);
+    outside.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
+    expect(panel(el).hidden).toBe(true);
+
+    toggle(el).click();
+    const leave = (from: Element, to: Element | null) =>
+      from.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: to }));
+    leave(toggle(el), action(el, "sort"));
+    leave(action(el, "sort"), toggle(el));
+    // (Not when the window loses focus)
+    leave(action(el, "sort"), null);
+    expect(panel(el).hidden).toBe(false);
+    leave(action(el, "sort"), outside);
+    expect(panel(el).hidden).toBe(true);
+    expect(document.activeElement).not.toBe(toggle(el));
+  });
+
+  it("doesn't page with the keys pressed in it", async () => {
+    const { el } = await mountInfo();
+    toggle(el).click();
+    expect(press(action(el, "sort"), "ArrowRight").defaultPrevented).toBe(false);
+    expect(press(action(el, "sort"), "End").defaultPrevented).toBe(false);
+    expect(el.page).toBe(1);
+    // (But does on its button, in the bar)
+    expect(press(toggle(el), "ArrowRight").defaultPrevented).toBe(true);
+    expect(el.page).toBe(2);
+  });
+
+  it("closes when the bar goes, and when the table does", async () => {
+    const { el } = await mountInfo({ controls: { search: false } });
+    toggle(el).click();
+    el.pageSize = null;
+    expect(bar(el).hidden).toBe(true);
+    expect(panel(el).hidden).toBe(true);
+
+    el.pageSize = 2;
+    toggle(el).click();
+    el.remove();
+    expect(panel(el).hidden).toBe(true);
+    expect((el as unknown as { outsidePress: unknown }).outsidePress).toBeNull();
   });
 });
 
