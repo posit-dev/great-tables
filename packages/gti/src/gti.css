@@ -552,6 +552,15 @@ gt-table tr.gt-i-empty td {
   opacity: 0.75;
 }
 
+/*
+ * The empty rows that keep a short page as tall as a full one (as tall as the runtime sets, which
+ * their cells' padding mustn't add to), which aren't data rows to select
+ */
+gt-table tr.gt-i-filler > * {
+  padding-block: 0 !important;
+  cursor: default;
+}
+
 /* Announcements and labels for screen readers only */
 gt-table .gt-i-live,
 gt-table .gt-i-hidden {
