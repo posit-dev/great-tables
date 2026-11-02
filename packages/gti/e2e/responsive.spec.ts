@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { open, ready } from "./helpers";
+import { borderLines, open, ready } from "./helpers";
 
 // exibble three times over with every column (24 rows, grp_b then grp_a, each with a summary row,
 // then a grand summary row), striped, with a title, a spanner, a footnote and a source note, in a
@@ -254,50 +254,3 @@ test.describe("a table wider than a phone", () => {
     expect(errors).toEqual([]);
   });
 });
-
-/**
- * The lines drawn across a table, along a line through it (down at `x` px from the page's left, or
- * across from the table's left at `y` as a fraction of its height, `width` px long): runs of up to 8px in a colour other than white, with
- * the cells' contents hidden. The table is shot as it shows on the page.
- */
-async function borderLines(page: Page, table: Locator, at: { x?: number; y?: number; width?: number }): Promise<string[]> {
-  await table.evaluate((node) => {
-    for (const cell of Array.from(node.querySelectorAll<HTMLElement>("th, td"))) {
-      cell.style.color = "transparent";
-    }
-    for (const input of Array.from(node.querySelectorAll<HTMLElement>("input"))) {
-      input.style.visibility = "hidden";
-    }
-  });
-  const box = await table.evaluate((node) => {
-    const { top, left, height } = node.getBoundingClientRect();
-    return { top, left, height };
-  });
-  const clip =
-    at.x !== undefined
-      ? { x: Math.round(at.x), y: box.top, width: 1, height: box.height }
-      : { x: box.left, y: Math.round(box.top + (at.y as number) * (box.height - 1)), width: at.width as number, height: 1 };
-  const png = (await page.screenshot({ clip })).toString("base64");
-  return page.evaluate(async (png) => {
-    const img = new Image();
-    img.src = `data:image/png;base64,${png}`;
-    await img.decode();
-    const canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    ctx.drawImage(img, 0, 0);
-    const pixels = ctx.getImageData(0, 0, img.width, img.height).data;
-    const runs: [string, number][] = [];
-    for (let i = 0; i < pixels.length; i += 4) {
-      const colour = `${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`;
-      const last = runs[runs.length - 1];
-      if (last !== undefined && last[0] === colour) {
-        last[1]++;
-      } else {
-        runs.push([colour, 1]);
-      }
-    }
-    return runs.filter(([colour, n]) => n <= 8 && colour !== "255,255,255").map(([colour, n]) => `${colour} x${n}`);
-  }, png);
-}

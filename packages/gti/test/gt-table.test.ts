@@ -1096,6 +1096,110 @@ describe("pagination", () => {
   });
 });
 
+describe("padding short pages", () => {
+  // (happy-dom has no layout: a row is 20px tall, or as tall as set, and a body as its rows shown)
+  const layOut = (laidOut = true) => {
+    const height = (tr: Element) => parseFloat((tr as HTMLElement).style.height) || 20;
+    vi.spyOn(Element.prototype, "getClientRects").mockImplementation(
+      () => (laidOut ? [new DOMRect(0, 0, 100, 20)] : []) as unknown as DOMRectList,
+    );
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      if (this.tagName === "TR") {
+        return new DOMRect(0, 0, 100, height(this));
+      }
+      if (this.tagName === "TBODY") {
+        const rows = Array.from(this.children).filter((tr) => !(tr as HTMLElement).hidden);
+        return new DOMRect(0, 0, 100, rows.reduce((sum, tr) => sum + height(tr), 0));
+      }
+      return new DOMRect(0, 0, 100, 20);
+    });
+  };
+  // Pages of 2 rows: [0, 1], [2, 3] and [4], then a grand summary row
+  const UNGROUPED: BodyRow[] = [0, 1, 2, 3, 4, { grand_summary: "Max", side: "bottom" }];
+  const paged = (body: BodyRow[] = UNGROUPED, options: TableOptions = {}) => {
+    layOut();
+    return mountTable(body, { ...options, pagination: { enabled: true, ...options.pagination } });
+  };
+  const fillers = (el: GtTable) => Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody tr.gt-i-filler"));
+
+  it("pads a short page with empty rows, to a full page's height", async () => {
+    const el = await paged();
+    expect(fillers(el)).toEqual([]);
+    el.page = 3;
+    // (Before the grand summary rows at the bottom)
+    expect(visible(el)).toEqual([4, "?", "grand:Max"]);
+    const [tr] = fillers(el) as [HTMLTableRowElement];
+    expect(tr.getAttribute("aria-hidden")).toBe("true");
+    expect(tr.style.height).toBe("20px");
+    expect(el.bodyRow(tr)).toBeNull();
+    // An empty cell in each column, with the stub's class (for its borders), and none of a data
+    // row's others
+    expect(Array.from(tr.cells, (cell) => [cell.tagName, cell.className, cell.textContent])).toEqual([
+      ["TD", "gt_row gt_stub", ""],
+      ["TD", "gt_row", ""],
+      ["TD", "gt_row", ""],
+    ]);
+    // Not counted
+    expect(el.querySelector(".gt-i-page-info")?.textContent).toBe("5 of 5 rows");
+
+    el.page = 1;
+    expect(fillers(el)).toEqual([]);
+    expect(visible(el)).toEqual([0, 1, "grand:Max"]);
+  });
+
+  it("pads the rows a search finds, and the row saying that none do", async () => {
+    const el = await paged(UNGROUPED, { controls: { search: true } });
+    el.search = "row_3";
+    expect(visible(el)).toEqual([2, "?", "grand:Max"]);
+    el.search = "zzz";
+    const trs = Array.from(el.querySelectorAll("tbody tr")).filter((tr) => !(tr as HTMLElement).hidden);
+    expect(trs.map((tr) => tr.className)).toEqual(["gt-i-empty", "gt-i-filler", ""]);
+    el.search = "";
+    expect(fillers(el)).toEqual([]);
+  });
+
+  it("isn't done when every row fits on a page, or the table isn't laid out", async () => {
+    const el = await paged();
+    el.pageSize = 5;
+    expect(fillers(el)).toEqual([]);
+    el.pageSize = null;
+    expect(fillers(el)).toEqual([]);
+
+    vi.restoreAllMocks();
+    layOut(false);
+    const hidden = await mountTable(UNGROUPED, { pagination: { enabled: true } });
+    hidden.page = 3;
+    expect(fillers(hidden)).toEqual([]);
+  });
+
+  it("pads to a full page's height at the new page size", async () => {
+    const el = await paged();
+    el.pageSize = 3;
+    el.page = 2;
+    expect(visible(el)).toEqual([3, 4, "?", "grand:Max"]);
+    el.pageSize = 4;
+    el.page = 2;
+    expect(visible(el)).toEqual([4, "?", "?", "?", "grand:Max"]);
+  });
+
+  it("has a cell in the selection column and the row group column, without a checkbox", async () => {
+    const el = await paged(GROUPED, { groupsAsColumn: true, controls: { selection: "multiple" } });
+    el.page = 3;
+    const [tr] = fillers(el) as [HTMLTableRowElement];
+    expect(Array.from(tr.cells, (cell) => cell.className)).toEqual([
+      "gt_row gt-i-select",
+      "gt_row gt_stub_row_group",
+      "gt_row gt_stub",
+      "gt_row",
+      "gt_row",
+    ]);
+    expect(tr.querySelector("input")).toBeNull();
+    // Clicking it selects nothing
+    (tr.cells[3] as HTMLElement).click();
+    expect(el.selection).toEqual([]);
+  });
+});
+
 describe("the page controls", () => {
   const pager = (el: GtTable) => el.querySelector(".gt-i-pager") as HTMLElement;
   const info = (el: GtTable) => el.querySelector(".gt-i-page-info")?.textContent;
