@@ -130,6 +130,9 @@ const onOwnControl = (target: Element, tr: HTMLTableRowElement) => {
   return hit !== null && tr.contains(hit);
 };
 
+// The classes of a data row's cells that the cells of the rows padding a page take
+const FILLER_CLASSES = ["gt_stub", "gt_stub_row_group", "gt-i-select", "gt-i-pinned"];
+
 // How far a resize handle's arrow keys move it, in px (and with Shift)
 const RESIZE_STEP = 10;
 const RESIZE_STEP_LARGE = 50;
@@ -281,6 +284,17 @@ export class GtTable extends HTMLElement {
   private toolbar: HTMLElement | null = null;
   private layout: ResizeObserver | null = null;
   private empty: HTMLTableRowElement | null = null;
+  /** The empty rows that keep a short page as tall as a full one (see `pad()`), shown or not. */
+  private fillers: HTMLTableRowElement[] = [];
+  /** The classes of a filler row's cells, one per column. */
+  private fillerCells: string[] | null = null;
+  /**
+   * The page size and table width the body's height on a full page (`padHeight`) and a data row's
+   * (`rowHeight`) were measured at; empty if they weren't (the table wasn't laid out).
+   */
+  private padKey = "";
+  private padHeight = 0;
+  private rowHeight = 0;
   private live: HTMLElement | null = null;
   private resizers: Resizer[] = [];
   /**
@@ -1465,6 +1479,10 @@ export class GtTable extends HTMLElement {
         this.removeAttribute("data-gti-resizing");
         handle.removeAttribute("data-gti-active");
         if (width !== start) {
+          // (Short pages are padded to the new height of a full one)
+          if (this.padStale()) {
+            this.render();
+          }
           this.dispatchResize(resizer, width);
         }
       };
@@ -1691,7 +1709,7 @@ export class GtTable extends HTMLElement {
       this.queuePin();
       const resized = this.colgroup !== null && this.clientWidth !== this.fittedWidth;
       const unmeasured = !this.widthsFixed && this.needsWidths();
-      if ((resized || unmeasured) && this.refitFrame === 0) {
+      if ((resized || unmeasured || this.padStale()) && this.refitFrame === 0) {
         // (In the next frame: changing the layout while it's being observed is a loop)
         this.refitFrame = requestAnimationFrame(() => {
           this.refitFrame = 0;
@@ -1879,8 +1897,13 @@ export class GtTable extends HTMLElement {
       return;
     }
     const size = this.size;
+    this.removeFillers();
     if (!this.widthsFixed && this.needsWidths()) {
       this.fixWidths();
+    }
+    const pads = size !== null && this.spec.nrows > size;
+    if (pads) {
+      this.measurePage(size);
     }
     const { shown, page, start, total } = this.place(this.matched, size, this.pageValue);
     const before = this.view;
@@ -1890,6 +1913,10 @@ export class GtTable extends HTMLElement {
     this.restripe(shown);
     this.showEmpty(this.matched !== null && total === 0);
     this.drawBorders();
+    if (pads) {
+      // (The row saying that nothing matches is one of the page's)
+      this.pad(size - Math.max(1, shown.length));
+    }
     // Other rows (a new page, or search results) are shown from the top
     if (this.scroller !== null && (start !== before.start || total !== before.total)) {
       this.scroller.scrollTop = 0;
@@ -2091,6 +2118,7 @@ export class GtTable extends HTMLElement {
       this.tableFitted = false;
     }
     this.empty?.remove();
+    this.removeFillers();
     this.place(null, null, 1);
     const trs = Array.from((this.tbody as HTMLTableSectionElement).querySelectorAll(":scope > tr"));
     const span = (cell: Element) => Number(cell.getAttribute("colspan") ?? 1);
@@ -2182,12 +2210,152 @@ export class GtTable extends HTMLElement {
       this.inView?.push(keepInView(td));
     }
     if (this.empty.parentNode === null) {
-      const grand = Array.from(tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr")).find((tr) => {
-        const entry = this.bodyRows.get(tr);
-        return typeof entry === "object" && "grand_summary" in entry && entry.side === "bottom";
-      });
-      tbody.insertBefore(this.empty, grand ?? null);
+      tbody.insertBefore(this.empty, this.grandBottom());
     }
+  }
+
+  // The first of the grand summary rows at the bottom, which the rows we add to the body go before
+  private grandBottom(): HTMLTableRowElement | null {
+    const tbody = this.tbody as HTMLTableSectionElement;
+    const grand = Array.from(tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr")).find((tr) => {
+      const entry = this.bodyRows.get(tr);
+      return typeof entry === "object" && "grand_summary" in entry && entry.side === "bottom";
+    });
+    return grand ?? null;
+  }
+
+  // What the body's height on a full page depends on: the page size and the table's width (as
+  // text wraps); empty if the table isn't laid out
+  private padKeyNow(size: number): string {
+    const table = this.table;
+    return table === null || table.getClientRects().length === 0
+      ? ""
+      : `${size} ${Math.round(table.getBoundingClientRect().width)}`;
+  }
+
+  // Whether short pages are padded to a height measured at another page size or table width (or
+  // not measured, as the table wasn't laid out); not while a column is being resized
+  private padStale(): boolean {
+    const size = this.size;
+    return (
+      size !== null &&
+      (this.spec?.nrows ?? 0) > size &&
+      this.padKey !== this.padKeyNow(size) &&
+      !this.hasAttribute("data-gti-resizing")
+    );
+  }
+
+  /**
+   * Measure the body's height on the first page of every row, which shorter pages are padded to,
+   * and the average height of its data rows; again for each page size and table width.
+   */
+  private measurePage(size: number): void {
+    const key = this.padKeyNow(size);
+    if (key === this.padKey) {
+      return;
+    }
+    this.padKey = key;
+    this.padHeight = 0;
+    this.rowHeight = 0;
+    if (key === "") {
+      // Not laid out (say, in a hidden tab): measured once it is
+      return;
+    }
+    this.empty?.remove();
+    const { shown } = this.place(null, size, 1);
+    this.borders?.redraw();
+    this.padHeight = this.bodyHeight();
+    const heights = shown.map((tr) => tr.getBoundingClientRect().height);
+    this.rowHeight = heights.length === 0 ? 0 : heights.reduce((a, b) => a + b, 0) / heights.length;
+  }
+
+  private bodyHeight(): number {
+    return (this.tbody as HTMLTableSectionElement).getBoundingClientRect().height;
+  }
+
+  /**
+   * Pad a short page (the last, or a search's) with up to `room` empty rows, so that the body is
+   * as tall as on a full page (the first, or the tallest seen since): the table keeps its height
+   * from page to page. Each is about a data row's height, the last making up the difference.
+   */
+  private pad(room: number): void {
+    if (this.padKey === "" || this.rowHeight <= 0) {
+      return;
+    }
+    const height = this.bodyHeight();
+    this.padHeight = Math.max(this.padHeight, height);
+    const short = this.padHeight - height;
+    const count = Math.min(room, Math.round(short / this.rowHeight));
+    if (count <= 0) {
+      return;
+    }
+    const tbody = this.tbody as HTMLTableSectionElement;
+    const anchor = this.grandBottom();
+    const fillers = this.fillers.slice(0, count);
+    while (fillers.length < count) {
+      fillers.push(this.makeFiller());
+    }
+    for (const tr of fillers) {
+      tr.style.height = `${short / count}px`;
+      tbody.insertBefore(tr, anchor);
+    }
+    // (Their borders, and their pinned cells)
+    this.drawBorders();
+    const last = fillers[count - 1] as HTMLTableRowElement;
+    const off = this.padHeight - this.bodyHeight();
+    if (Math.abs(off) > 0.01) {
+      last.style.height = `${Math.max(0, short / count + off)}px`;
+    }
+  }
+
+  private removeFillers(): void {
+    for (const tr of this.fillers) {
+      tr.remove();
+    }
+  }
+
+  // A row padding a page: an empty cell in each column, for the lines between them, without a
+  // data row's text, stripes or styles; not a body row, and hidden from screen readers
+  private makeFiller(): HTMLTableRowElement {
+    const doc = this.ownerDocument;
+    const tr = doc.createElement("tr");
+    tr.className = "gt-i-filler";
+    tr.setAttribute("aria-hidden", "true");
+    if (this.fillerCells === null) {
+      this.fillerCells = this.columnClasses();
+    }
+    for (const classes of this.fillerCells) {
+      const td = doc.createElement("td");
+      td.className = classes;
+      tr.append(td);
+    }
+    this.fillers.push(tr);
+    return tr;
+  }
+
+  // Per column, the classes a filler row's cell takes from a data row's cell in it: whether it's
+  // in the stub or the row group column (which have their own borders), and whether it's pinned
+  private columnClasses(): string[] {
+    const tbody = this.tbody as HTMLTableSectionElement;
+    const isData = (tr: HTMLTableRowElement) => typeof this.bodyRows.get(tr) === "number";
+    const all = Array.from(tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr"));
+    const shownRows = all.filter((tr) => !tr.hidden);
+    // (Or, with none shown, any data row: one in every column, with the label cell of its group)
+    const rows = shownRows.some(isData) ? shownRows : all;
+    const { grid, columns } = placeCells(rows);
+    const filled = (line: unknown[]) => line.filter((p) => p !== undefined).length;
+    let best: ReturnType<typeof placeCells>["grid"][number] = [];
+    rows.forEach((tr, r) => {
+      const line = grid[r] ?? [];
+      if (isData(tr) && filled(line) > filled(best)) {
+        best = line;
+      }
+    });
+    return Array.from({ length: columns }, (_, c) => {
+      const cell = best[c]?.cell;
+      const kept = FILLER_CLASSES.filter((name) => cell?.classList.contains(name) === true);
+      return ["gt_row", ...kept].join(" ");
+    });
   }
 
   // The page controls are shown while there are pages: while the table has more rows than fit on a
@@ -2548,6 +2716,12 @@ export class GtTable extends HTMLElement {
     this.toolbar = null;
     this.layout = null;
     this.empty = null;
+    this.removeFillers();
+    this.fillers = [];
+    this.fillerCells = null;
+    this.padKey = "";
+    this.padHeight = 0;
+    this.rowHeight = 0;
     this.live = null;
     this.marked = null;
     this.touched = false;
