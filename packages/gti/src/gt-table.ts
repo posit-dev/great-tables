@@ -11,11 +11,11 @@
  * unusable or doesn't match the table; see the console), or `ready`.
  */
 
-import { TableBorders } from "./borders";
+import { placeCells, type Side, TableBorders } from "./borders";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { CellText, rowMatches, searchTerms } from "./search";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
-import { type BodyRow, parseSpec, type SelectionMode, type Spec, SpecError } from "./spec";
+import { type BodyRow, parseSpec, type ResponsiveMode, type SelectionMode, type Spec, SpecError } from "./spec";
 
 export const TAG_NAME = "gt-table";
 
@@ -123,6 +123,13 @@ interface SortHeader {
 // Header content that can't go inside a <button>
 const INTERACTIVE = "a[href], button, input, select, textarea, details, [tabindex]";
 
+// Whether a click in a row was on something of the row's own (a link, a checkbox), or on a group's
+// label cell (not the container the table scrolls in, which can have focus)
+const onOwnControl = (target: Element, tr: HTMLTableRowElement) => {
+  const hit = target.closest(`${INTERACTIVE}, .gt_stub_row_group`);
+  return hit !== null && tr.contains(hit);
+};
+
 // How far a resize handle's arrow keys move it, in px (and with Shift)
 const RESIZE_STEP = 10;
 const RESIZE_STEP_LARGE = 50;
@@ -187,6 +194,19 @@ function setStyle(el: HTMLElement, property: string, value: string): void {
 const isTransparent = (color: string) =>
   color === "" || color === "transparent" || /^rgba\(.*,\s*0\)$/.test(color) || /\/\s*0\)$/.test(color);
 
+// A computed colour's opacity, from 0 to 1
+function opacity(color: string): number {
+  if (isTransparent(color)) {
+    return 0;
+  }
+  const match = /^rgba\(.*,\s*([\d.]+)\)$/.exec(color) ?? /\/\s*([\d.]+)(%?)\s*\)$/.exec(color);
+  if (match === null) {
+    return 1;
+  }
+  const value = parseFloat(match[1] as string);
+  return match[2] === "%" ? value / 100 : value;
+}
+
 // The colour behind an element: the first background that isn't transparent, out from it
 function backdropColor(el: Element): string {
   for (let node: Element | null = el; node !== null; node = node.parentElement) {
@@ -196,6 +216,15 @@ function backdropColor(el: Element): string {
     }
   }
   return "Canvas";
+}
+
+// Wrap a cell's contents in the box that keeps them in view as the table scrolls sideways
+function keepInView(cell: HTMLTableCellElement): HTMLElement {
+  const div = cell.ownerDocument.createElement("div");
+  div.className = "gt-i-inview";
+  div.append(...Array.from(cell.childNodes));
+  cell.append(div);
+  return div;
 }
 
 export class GtTable extends HTMLElement {
@@ -284,9 +313,30 @@ export class GtTable extends HTMLElement {
   private stuckBottom: HTMLTableRowElement[] = [];
   /** The height the rows stuck at the bottom take up. */
   private foot = 0;
-  /** The shadows over the scrolling body's top and bottom edges, while there are rows past them. */
-  private shades: { top: HTMLElement; bottom: HTMLElement } | null = null;
+  /** Whether the body scrolls down, within a height (`layout.height`). */
+  private scrollsDown = false;
+  /**
+   * The shadows over the scrolling body's top and bottom edges, while there are rows past them;
+   * and over its left and right edges, while there are columns past them (`layout.responsive`).
+   */
+  private shades: Partial<Record<Side, HTMLElement>> = {};
   private shadeFrame = 0;
+  /** What the table does when it's wider than its container (`layout.responsive`). */
+  private responsive: ResponsiveMode | null = null;
+  /** The number of columns pinned at the table's inline start (the selection column and the stub). */
+  private pinColumns = 0;
+  /** A pinned cell along the pinned columns' inline end, which the shadow over the columns past them is placed by. */
+  private edgeCell: HTMLTableCellElement | null = null;
+  /** The cells across the table (its title, group headings and notes), whose contents stay in view. */
+  private acrossCells: HTMLTableCellElement[] = [];
+  /** The wrappers that keep those cells' contents in view, once the table has been wider than its container. */
+  private inView: HTMLElement[] | null = null;
+  /** The hint that the table scrolls sideways, until it first does. */
+  private hint: HTMLElement | null = null;
+  private hinted = false;
+  private pinFrame = 0;
+  /** Whether we made the container a region that can be focused, as it scrolls. */
+  private regioned = false;
 
   get state(): State | null {
     return this.getAttribute("data-gti-state") as State | null;
@@ -439,6 +489,7 @@ export class GtTable extends HTMLElement {
     this.layout = null;
     this.cancelRefit();
     this.cancelShades();
+    this.cancelPin();
   }
 
   /** The `<tr>` of data row `row` (numbered by position in the data), if it's in the table. */
@@ -605,16 +656,82 @@ export class GtTable extends HTMLElement {
     this.rowGroups = rowGroups;
   }
 
-  // A body that scrolls within a height (which gti.css applies by the element's attribute)
+  // A body that scrolls within a height (which gti.css applies by the element's attribute), and a
+  // table wider than its container that scrolls sideways with its stub pinned
   private setLayout(table: HTMLTableElement, spec: Spec): void {
-    const { height } = spec.layout;
+    const { height, responsive } = spec.layout;
     this.toggleAttribute("data-gti-scroll", height !== null);
     if (height === null) {
       this.style.removeProperty("--gt-i-height");
+    } else {
+      this.style.setProperty("--gt-i-height", height);
+    }
+    if (height === null && responsive === null) {
       return;
     }
-    this.style.setProperty("--gt-i-height", height);
-    this.addScroll(table);
+    this.addScroller(table);
+    if (responsive !== null) {
+      this.addPinning(table, responsive);
+    }
+    if (height !== null) {
+      this.addScroll(table);
+    }
+    this.drawBorders();
+    this.observeLayout();
+  }
+
+  // The container the table scrolls in: GT's `<div>` around the table (or ours, without one)
+  private addScroller(table: HTMLTableElement): void {
+    let scroller = table.parentElement;
+    if (scroller === null || scroller === this || scroller.tagName !== "DIV") {
+      scroller = this.ownerDocument.createElement("div");
+      table.before(scroller);
+      scroller.append(table);
+    }
+    scroller.classList.add("gt-i-scroller");
+    this.scroller = scroller;
+    scroller.addEventListener("scroll", () => this.scrolled(), { passive: true });
+  }
+
+  private scrolled(): void {
+    // The hint goes once the reader has scrolled sideways
+    if (this.hint !== null && Math.abs(this.scroller?.scrollLeft ?? 0) > 0.5) {
+      this.hint.remove();
+      this.hint = null;
+      this.hinted = true;
+    }
+    this.queueShades();
+  }
+
+  /**
+   * Get ready for the table being wider than its container (see `pin()`): mark the cells of the
+   * columns that stay in view at its inline start (the selection column and the stub, with the
+   * row group column), and the cells across the table, whose contents stay in view.
+   */
+  private addPinning(table: HTMLTableElement, mode: ResponsiveMode): void {
+    this.responsive = mode;
+    // (Every row is shown on hydration)
+    const { placed } = placeCells(Array.from(table.rows));
+    const tbody = this.tbody;
+    const stub = placed.filter(
+      (p) =>
+        p.cell.parentElement?.parentElement === tbody &&
+        p.cell.matches(".gt_stub, .gt_stub_row_group, .gt-i-select"),
+    );
+    const columns = Math.max(0, ...stub.map((p) => p.c1 + 1));
+    for (const p of placed) {
+      if (p.c1 < columns && p.cell.parentElement?.parentElement?.tagName !== "TFOOT") {
+        p.cell.classList.add("gt-i-pinned");
+      }
+    }
+    this.pinColumns = columns;
+    this.acrossCells = Array.from(
+      table.querySelectorAll<HTMLTableCellElement>(
+        ":scope > thead > tr > :is(.gt_title, .gt_subtitle), " +
+          ":scope > tbody > tr > :is(.gt_group_heading, .gt_empty_group_heading), " +
+          ":scope > tfoot > tr > :is(.gt_footnote, .gt_sourcenote)",
+      ),
+    );
   }
 
   /**
@@ -624,16 +741,7 @@ export class GtTable extends HTMLElement {
    * and source notes scroll with the body.
    */
   private addScroll(table: HTMLTableElement): void {
-    const doc = this.ownerDocument;
-    let scroller = table.parentElement;
-    if (scroller === null || scroller === this || scroller.tagName !== "DIV") {
-      scroller = doc.createElement("div");
-      table.before(scroller);
-      scroller.append(table);
-    }
-    scroller.classList.add("gt-i-scroller");
-    this.scroller = scroller;
-
+    this.scrollsDown = true;
     this.stuckTop = this.groups.flatMap((group) => group.headings);
     this.stuckBottom = (this.tbody === null ? [] : Array.from(this.tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr"))).filter((tr) => {
       const entry = this.bodyRows.get(tr);
@@ -642,9 +750,7 @@ export class GtTable extends HTMLElement {
     for (const tr of this.stuckBottom) {
       tr.classList.add("gt-i-stuck-bottom");
     }
-    // The sticky rows draw the edges between them and the rows that scroll under them
-    const sticky = new Set([...this.stuckTop, ...this.stuckBottom]);
-    this.borders = new TableBorders(table, (tr) => tr.parentElement?.tagName === "THEAD" || sticky.has(tr));
+    this.separateBorders();
 
     // Rows scroll under the sticky ones, which need a background to hide them
     const backdrop = backdropColor(table);
@@ -652,7 +758,7 @@ export class GtTable extends HTMLElement {
     if (thead !== null && isTransparent(getComputedStyle(thead).backgroundColor)) {
       thead.style.backgroundColor = backdrop;
     }
-    for (const tr of sticky) {
+    for (const tr of [...this.stuckTop, ...this.stuckBottom]) {
       for (const cell of Array.from(tr.cells)) {
         if (isTransparent(getComputedStyle(cell).backgroundColor)) {
           cell.style.backgroundColor = backdrop;
@@ -660,36 +766,50 @@ export class GtTable extends HTMLElement {
       }
     }
 
-    const shade = (edge: string) => {
-      const div = doc.createElement("div");
-      div.className = "gt-i-shade";
-      div.setAttribute("data-gti-edge", edge);
-      div.setAttribute("aria-hidden", "true");
-      this.append(div);
-      return div;
-    };
-    this.shades = { top: shade("top"), bottom: shade("bottom") };
-    scroller.addEventListener("scroll", () => this.queueShades(), { passive: true });
-
+    this.addShade("top");
+    this.addShade("bottom");
     this.setAttribute("data-gti-sticky", "");
-    this.drawBorders();
-    this.observeLayout();
   }
 
-  // Draw the borders of the rows shown, and stick the sticky ones where they go
+  // The table's borders, drawn on its cells (from now on), so that they move with the cells that
+  // stick: the sticky rows draw the edges between them and the rows that scroll under them, and
+  // the pinned cells the edges between them and the cells that scroll under them
+  private separateBorders(): TableBorders {
+    if (this.borders === null) {
+      const sticky = new Set([...this.stuckTop, ...this.stuckBottom]);
+      this.borders = new TableBorders(
+        this.table as HTMLTableElement,
+        (tr) => tr.parentElement?.tagName === "THEAD" || sticky.has(tr),
+        (cell) => cell.classList.contains("gt-i-pinned"),
+      );
+    }
+    return this.borders;
+  }
+
+  private addShade(edge: Side): void {
+    const div = this.ownerDocument.createElement("div");
+    div.className = "gt-i-shade";
+    div.setAttribute("data-gti-edge", edge);
+    div.setAttribute("aria-hidden", "true");
+    this.append(div);
+    this.shades[edge] = div;
+  }
+
+  // Draw the borders of the rows shown, pin the stub if the table is wider than its container,
+  // and stick the sticky rows where they go
   private drawBorders(): void {
     const borders = this.borders;
-    if (borders === null) {
-      return;
-    }
-    borders.redraw();
-    // A group heading's own top border slides under the column labels' bottom one as it sticks
-    for (const tr of this.stuckTop) {
-      for (const cell of Array.from(tr.cells)) {
-        const own = borders.drawnBorder(cell, "top")?.width ?? 0;
-        setStyle(cell, "top", own > 0 ? `calc(var(--gt-i-head, 0px) - ${own}px)` : "var(--gt-i-head, 0px)");
+    if (borders !== null) {
+      borders.redraw();
+      // A group heading's own top border slides under the column labels' bottom one as it sticks
+      for (const tr of this.stuckTop) {
+        for (const cell of Array.from(tr.cells)) {
+          const own = borders.drawnBorder(cell, "top")?.width ?? 0;
+          setStyle(cell, "top", own > 0 ? `calc(var(--gt-i-head, 0px) - ${own}px)` : "var(--gt-i-head, 0px)");
+        }
       }
     }
+    this.pin();
     this.stick();
   }
 
@@ -701,30 +821,174 @@ export class GtTable extends HTMLElement {
     if (scroller === null || table === null) {
       return;
     }
-    // Sticky boxes stop short of the container's padding, which rows would show through: they
-    // stick over it instead
-    const padding = getComputedStyle(scroller);
-    const padTop = parseFloat(padding.paddingTop) || 0;
-    const padBottom = parseFloat(padding.paddingBottom) || 0;
-    const head = table.tHead?.getBoundingClientRect().height ?? 0;
-    let foot = 0;
-    for (let i = this.stuckBottom.length - 1; i >= 0; i--) {
-      const tr = this.stuckBottom[i] as HTMLTableRowElement;
-      if (tr.hidden) {
+    if (this.scrollsDown) {
+      // Sticky boxes stop short of the container's padding, which rows would show through: they
+      // stick over it instead
+      const padding = getComputedStyle(scroller);
+      const padTop = parseFloat(padding.paddingTop) || 0;
+      const padBottom = parseFloat(padding.paddingBottom) || 0;
+      const head = table.tHead?.getBoundingClientRect().height ?? 0;
+      let foot = 0;
+      for (let i = this.stuckBottom.length - 1; i >= 0; i--) {
+        const tr = this.stuckBottom[i] as HTMLTableRowElement;
+        if (tr.hidden) {
+          continue;
+        }
+        for (const cell of Array.from(tr.cells)) {
+          setStyle(cell, "bottom", `${foot - padBottom}px`);
+        }
+        foot += tr.getBoundingClientRect().height;
+      }
+      const heading = Math.max(0, ...this.stuckTop.filter((tr) => !tr.hidden).map((tr) => tr.getBoundingClientRect().height));
+      this.foot = foot;
+      setStyle(this, "--gt-i-pad", `${padTop}px`);
+      setStyle(this, "--gt-i-head", `${head - padTop}px`);
+      setStyle(scroller, "scroll-padding-top", `${head + heading}px`);
+      setStyle(scroller, "scroll-padding-bottom", `${foot}px`);
+    }
+    this.markRegion();
+    this.placeShades();
+  }
+
+  /**
+   * While the table is wider than its container (`data-gti-wide`, which gti.css sticks the cells
+   * marked `gt-i-pinned` by), pin the stub where its columns are in the rows shown, and keep the
+   * contents of the cells across the table in the part in view. The table's borders are drawn on
+   * its cells from the first time, and a hint says it scrolls, until it first does.
+   */
+  private pin(): void {
+    const { scroller, table } = this;
+    this.cancelPin();
+    if (this.responsive === null || scroller === null || table === null) {
+      return;
+    }
+    const wide = scroller.scrollWidth > scroller.clientWidth + 1;
+    this.toggleAttribute("data-gti-wide", wide);
+    if (!wide) {
+      this.hint?.removeAttribute("data-gti-shown");
+      this.placeShades();
+      return;
+    }
+    if (this.inView === null) {
+      const across = this.empty === null ? this.acrossCells : [...this.acrossCells, this.empty.cells[0] as HTMLTableCellElement];
+      this.inView = across.map(keepInView);
+      this.addShade("left");
+      this.addShade("right");
+    }
+    if (!this.hinted && this.hint === null) {
+      this.hint = this.ownerDocument.createElement("div");
+      this.hint.className = "gt-i-hint";
+      this.hint.setAttribute("aria-hidden", "true");
+      this.hint.textContent = this.isRtl() ? "← Scroll for more" : "Scroll for more →";
+      // (In the table's font, which is the table's own)
+      this.hint.style.fontFamily = getComputedStyle(table).fontFamily;
+      this.append(this.hint);
+    }
+    this.hint?.setAttribute("data-gti-shown", "");
+
+    const view = getComputedStyle(scroller);
+    const padStart = parseFloat(view.paddingInlineStart) || 0;
+    const columns = this.pinColumns;
+    if (columns > 0) {
+      if (this.borders === null) {
+        this.separateBorders().redraw();
+      }
+      // Each pinned column sticks after the ones before it, as wide as they are in the rows shown
+      const rows = Array.from(table.rows).filter((tr) => !tr.hidden && tr.parentElement?.tagName !== "TFOOT");
+      const pinned = placeCells(rows).placed.filter((p) => p.c1 < columns && p.cell.classList.contains("gt-i-pinned"));
+      const offsets: (number | undefined)[] = [0];
+      for (let c = 0; c < columns; c++) {
+        const at = offsets[c];
+        for (const p of pinned) {
+          if (at !== undefined && p.c0 === c && offsets[p.c1 + 1] === undefined) {
+            offsets[p.c1 + 1] = at + p.cell.getBoundingClientRect().width;
+          }
+        }
+      }
+      for (const p of pinned) {
+        setStyle(p.cell, "inset-inline-start", `${(offsets[p.c0] ?? 0) - padStart}px`);
+        this.fill(p.cell);
+      }
+      this.edgeCell = pinned.find((p) => p.c1 === columns - 1)?.cell ?? null;
+      // (What has focus is kept clear of them)
+      setStyle(scroller, "scroll-padding-inline-start", `${offsets[columns] ?? 0}px`);
+    }
+
+    // The contents of the cells across the table are as wide as the part in view, and stick in it
+    for (const div of this.inView) {
+      const cell = div.parentElement;
+      if (cell === null || !div.isConnected || (cell.parentElement as HTMLTableRowElement).hidden) {
         continue;
       }
-      for (const cell of Array.from(tr.cells)) {
-        setStyle(cell, "bottom", `${foot - padBottom}px`);
-      }
-      foot += tr.getBoundingClientRect().height;
+      const style = getComputedStyle(cell);
+      const start = (parseFloat(style.paddingInlineStart) || 0) + (parseFloat(style.borderInlineStartWidth) || 0);
+      const end = (parseFloat(style.paddingInlineEnd) || 0) + (parseFloat(style.borderInlineEndWidth) || 0);
+      setStyle(div, "inset-inline-start", `${start - padStart}px`);
+      setStyle(div, "--gt-i-room", `${Math.max(0, scroller.clientWidth - start - end)}px`);
     }
-    const heading = Math.max(0, ...this.stuckTop.filter((tr) => !tr.hidden).map((tr) => tr.getBoundingClientRect().height));
-    this.foot = foot;
-    setStyle(this, "--gt-i-pad", `${padTop}px`);
-    setStyle(this, "--gt-i-head", `${head - padTop}px`);
-    setStyle(scroller, "scroll-padding-top", `${head + heading}px`);
-    setStyle(scroller, "scroll-padding-bottom", `${foot}px`);
+    this.markRegion();
     this.placeShades();
+  }
+
+  // A pinned cell hides the cells that scroll under it: one without a background, or with one
+  // that's see-through (a stripe), is filled with what's behind it (in gti.css, while pinned)
+  private fill(cell: HTMLTableCellElement): void {
+    const style = getComputedStyle(cell);
+    const filled = cell.classList.contains("gt-i-filled");
+    if (!filled && (style.backgroundImage || "none") !== "none") {
+      // (The author's)
+      return;
+    }
+    const color = style.backgroundColor;
+    if (opacity(color) >= 1) {
+      cell.classList.remove("gt-i-filled");
+      return;
+    }
+    const behind = backdropColor(cell.parentElement as Element);
+    setStyle(cell, "--gt-i-fill", `linear-gradient(${color || "transparent"}, ${color || "transparent"}), linear-gradient(${behind}, ${behind})`);
+    cell.classList.add("gt-i-filled");
+  }
+
+  private queuePin(): void {
+    if (this.responsive !== null && this.pinFrame === 0 && typeof requestAnimationFrame !== "undefined") {
+      this.pinFrame = requestAnimationFrame(() => {
+        this.pinFrame = 0;
+        this.pin();
+      });
+    }
+  }
+
+  private cancelPin(): void {
+    if (this.pinFrame !== 0) {
+      cancelAnimationFrame(this.pinFrame);
+      this.pinFrame = 0;
+    }
+  }
+
+  // A container that scrolls is a region named for the table, which can have focus, so that it
+  // can be scrolled with the keyboard (unless the author made it focusable already)
+  private markRegion(): void {
+    const { scroller, table } = this;
+    if (scroller === null || table === null) {
+      return;
+    }
+    const scrolls = scroller.scrollWidth > scroller.clientWidth + 1 || scroller.scrollHeight > scroller.clientHeight + 1;
+    if (scrolls && !this.regioned && !scroller.hasAttribute("tabindex")) {
+      scroller.tabIndex = 0;
+      scroller.setAttribute("role", "region");
+      const title = table.getAttribute("aria-labelledby");
+      if (title !== null) {
+        scroller.setAttribute("aria-labelledby", title);
+      } else {
+        scroller.setAttribute("aria-label", "Table");
+      }
+      this.regioned = true;
+    } else if (!scrolls && this.regioned) {
+      for (const name of ["tabindex", "role", "aria-labelledby", "aria-label"]) {
+        scroller.removeAttribute(name);
+      }
+      this.regioned = false;
+    }
   }
 
   private queueShades(): void {
@@ -744,45 +1008,83 @@ export class GtTable extends HTMLElement {
   }
 
   // The shadows go over the part of the table in view: the top one under the column labels (and a
-  // group heading stuck under them), the bottom one over the rows stuck at the bottom
+  // group heading stuck under them), the bottom one over the rows stuck at the bottom; the one at
+  // the inline start along the pinned columns, the one at the end along the container's edge, from
+  // the column labels to the end of the body. The hint sits by the end, halfway down (or near the top)
   private placeShades(): void {
     const { scroller, shades, table } = this;
-    if (scroller === null || shades === null || table === null) {
+    if (scroller === null || table === null) {
       return;
     }
     const outer = this.getBoundingClientRect();
     const port = scroller.getBoundingClientRect();
     const box = table.getBoundingClientRect();
     const top = port.top + scroller.clientTop;
-    const left = Math.max(box.left, port.left + scroller.clientLeft);
-    const right = Math.min(box.right, port.left + scroller.clientLeft + scroller.clientWidth);
-    // (Measured, since the column labels stick only once the container's padding scrolls by)
-    const head = table.tHead === null ? top : table.tHead.getBoundingClientRect().bottom;
-    let under = Math.max(0, head - top);
-    for (const tr of this.stuckTop) {
-      const cell = tr.hidden ? undefined : tr.cells[0];
-      if (cell === undefined) {
-        continue;
+    const bottom = top + scroller.clientHeight;
+    const start = port.left + scroller.clientLeft;
+    const end = start + scroller.clientWidth;
+    const x = (at: number) => `${at - outer.left - this.clientLeft}px`;
+    const y = (at: number) => `${at - outer.top - this.clientTop}px`;
+
+    if (shades.top !== undefined && shades.bottom !== undefined) {
+      const left = Math.max(box.left, start);
+      const right = Math.min(box.right, end);
+      // (Measured, since the column labels stick only once the container's padding scrolls by)
+      const head = table.tHead === null ? top : table.tHead.getBoundingClientRect().bottom;
+      let under = Math.max(0, head - top);
+      for (const tr of this.stuckTop) {
+        const cell = tr.hidden ? undefined : tr.cells[0];
+        if (cell === undefined) {
+          continue;
+        }
+        const rect = cell.getBoundingClientRect();
+        if (rect.top > head + 0.5) {
+          // (Headings further down aren't stuck)
+          break;
+        }
+        under = Math.max(under, rect.bottom - top);
       }
-      const rect = cell.getBoundingClientRect();
-      if (rect.top > head + 0.5) {
-        // (Headings further down aren't stuck)
-        break;
-      }
-      under = Math.max(under, rect.bottom - top);
+      const place = (shade: HTMLElement, at: number, shown: boolean) => {
+        setStyle(shade, "top", y(at));
+        setStyle(shade, "left", x(left));
+        setStyle(shade, "width", `${Math.max(0, right - left)}px`);
+        shade.toggleAttribute("data-gti-shown", shown);
+      };
+      place(shades.top, top + under, scroller.scrollTop > 0);
+      place(shades.bottom, bottom - this.foot, scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1);
     }
-    const place = (shade: HTMLElement, y: number, shown: boolean) => {
-      setStyle(shade, "top", `${y - outer.top - this.clientTop}px`);
-      setStyle(shade, "left", `${left - outer.left - this.clientLeft}px`);
-      setStyle(shade, "width", `${Math.max(0, right - left)}px`);
-      shade.toggleAttribute("data-gti-shown", shown);
+
+    if (shades.left === undefined || shades.right === undefined) {
+      return;
+    }
+    const wide = this.hasAttribute("data-gti-wide");
+    const labels = table.querySelector(":scope > thead > tr.gt_col_headings") ?? this.tbody;
+    const y0 = Math.max(top, labels?.getBoundingClientRect().top ?? box.top);
+    const y1 = Math.min(bottom, this.tbody?.getBoundingClientRect().bottom ?? box.bottom);
+    const rtl = this.isRtl();
+    const edge = this.edgeCell?.isConnected ? this.edgeCell.getBoundingClientRect() : null;
+    const scrolled = Math.abs(scroller.scrollLeft);
+    const place = (shade: HTMLElement, at: number, shown: boolean) => {
+      setStyle(shade, "top", y(y0));
+      setStyle(shade, "left", x(at));
+      setStyle(shade, "height", `${Math.max(0, y1 - y0)}px`);
+      shade.toggleAttribute("data-gti-shown", wide && shown);
     };
-    place(shades.top, top + under, scroller.scrollTop > 0);
-    place(
-      shades.bottom,
-      top + scroller.clientHeight - this.foot,
-      scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1,
-    );
+    const past = scrolled > 0.5;
+    const more = scrolled + scroller.clientWidth < scroller.scrollWidth - 1;
+    if (rtl) {
+      place(shades.right, edge?.left ?? end, past);
+      place(shades.left, start, more);
+    } else {
+      place(shades.left, edge?.right ?? start, past);
+      place(shades.right, end, more);
+    }
+    const hint = this.hint;
+    if (hint !== null && wide) {
+      // (Not far down a long table, which may go past the window)
+      setStyle(hint, "top", y(Math.min((y0 + y1) / 2, y0 + 120)));
+      setStyle(hint, "left", x(rtl ? start + 8 : end - 8 - hint.offsetWidth));
+    }
   }
 
   // Row highlighting and text wrapping, which gti.css styles by the element's attributes
@@ -817,7 +1119,7 @@ export class GtTable extends HTMLElement {
         tr === null ||
         tr.parentElement !== tbody ||
         typeof this.bodyRow(tr) !== "number" ||
-        target.closest(`${INTERACTIVE}, .gt_stub_row_group`) !== null
+        onOwnControl(target, tr)
       ) {
         return;
       }
@@ -947,7 +1249,7 @@ export class GtTable extends HTMLElement {
     const target = event.target as Element;
     const tr = target.closest("tr");
     const row = tr === null || tr.parentElement !== this.tbody ? null : this.bodyRow(tr);
-    return typeof row === "number" && target.closest(`${INTERACTIVE}, .gt_stub_row_group`) === null ? row : null;
+    return typeof row === "number" && !onOwnControl(target, tr as HTMLTableRowElement) ? row : null;
   }
 
   private checkbox(label: string): HTMLInputElement {
@@ -1385,6 +1687,8 @@ export class GtTable extends HTMLElement {
     this.layout = new ResizeObserver(() => {
       this.alignBars();
       this.stick();
+      // (In the next frame, like the column widths below)
+      this.queuePin();
       const resized = this.colgroup !== null && this.clientWidth !== this.fittedWidth;
       const unmeasured = !this.widthsFixed && this.needsWidths();
       if ((resized || unmeasured) && this.refitFrame === 0) {
@@ -1874,6 +2178,8 @@ export class GtTable extends HTMLElement {
       td.colSpan = width;
       td.textContent = "No matching rows";
       this.empty.append(td);
+      // (Kept in view, like the rows across the table, once it's been wider than its container)
+      this.inView?.push(keepInView(td));
     }
     if (this.empty.parentNode === null) {
       const grand = Array.from(tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr")).find((tr) => {
@@ -2200,11 +2506,14 @@ export class GtTable extends HTMLElement {
     this.cancelSearchTimer();
     this.cancelRefit();
     this.cancelShades();
+    this.cancelPin();
     this.layout?.disconnect();
     this.highlightClear();
     this.live?.remove();
-    this.shades?.top.remove();
-    this.shades?.bottom.remove();
+    for (const shade of Object.values(this.shades)) {
+      shade.remove();
+    }
+    this.hint?.remove();
     this.toolbar?.remove();
     this.pager?.nav.remove();
     this.table = null;
@@ -2253,12 +2562,22 @@ export class GtTable extends HTMLElement {
     this.stuckTop = [];
     this.stuckBottom = [];
     this.foot = 0;
-    this.shades = null;
+    this.scrollsDown = false;
+    this.shades = {};
+    this.responsive = null;
+    this.pinColumns = 0;
+    this.edgeCell = null;
+    this.acrossCells = [];
+    this.inView = null;
+    this.hint = null;
+    this.hinted = false;
+    this.regioned = false;
     this.removeAttribute("data-gti-highlight");
     this.removeAttribute("data-gti-nowrap");
     this.removeAttribute("data-gti-resizing");
     this.removeAttribute("data-gti-scroll");
     this.removeAttribute("data-gti-sticky");
+    this.removeAttribute("data-gti-wide");
     this.style.removeProperty("--gt-i-height");
     this.style.removeProperty("--gt-i-head");
     this.style.removeProperty("--gt-i-pad");
