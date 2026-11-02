@@ -687,8 +687,12 @@ export class GtTable extends HTMLElement {
     this.matchRows();
     if (this.matched !== null || this.size !== null) {
       this.render();
-    } else if (this.bar !== null) {
-      this.updateBar(this.bar);
+    } else {
+      // (Not rendered, so every row is shown, as it was)
+      this.view = { start: 0, end: spec.nrows, total: spec.nrows };
+      if (this.bar !== null) {
+        this.updateBar(this.bar);
+      }
     }
     this.setState("ready");
   }
