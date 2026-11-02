@@ -30,9 +30,11 @@ from ._helpers import (
 from ._data_color.col_fns import col_bin, col_factor, col_numeric
 from ._styles import FromColumn as from_column
 from .gt import GT
+from .gti import GTI
 
 __all__ = (
     "GT",
+    "GTI",
     "LETTERS",
     "col_bin",
     "col_factor",
