@@ -25,6 +25,7 @@ from great_tables._tbl_data import (
     _re_version,
     _set_cell,
     _set_cells,
+    _set_cells_one_by_one,
     _validate_selector_list,
     cast_frame_to_string,
     copy_data,
@@ -434,6 +435,15 @@ def test_set_cells_non_strings_as_set_cell(df: DataFrameLike, value):
             _set_cells(create_empty_frame(df), "col2", values)
     else:
         assert_frame_equal(_set_cells(create_empty_frame(df), "col2", values), expected)
+
+
+def test_set_cells_one_by_one(df: DataFrameLike, frame_constructor: DataFrameConstructor):
+    # PyArrow's `_set_cell()` returns a new table; pandas and polars modify theirs in place
+    expected_data = {"col1": [1, 2, 3], "col2": ["a", "x", "y"], "col3": [4.0, 5.0, 6.0]}
+
+    res = _set_cells_one_by_one(df, "col2", {1: "x", 2: "y"})
+
+    assert_frame_equal(res, frame_constructor(expected_data))
 
 
 def test_reorder(df: DataFrameLike, frame_constructor: DataFrameConstructor):
