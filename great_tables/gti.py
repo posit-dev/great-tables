@@ -523,6 +523,73 @@ class GTI(GT):
                 filters[column] = type
         return self._set_interactive(filters=tuple(filters.items()))
 
+    def i_view(
+        self, filter: dict[str, Any] | None = None, sort: str | list[str] | None = None
+    ) -> Self:
+        """
+        Show the table filtered and sorted, as readers first see it.
+
+        The table is first shown with the rows that `filter=` keeps, in the order `sort=` gives
+        them, which readers can then change (with the column filters and sort buttons) or clear.
+        Rows stay within their row groups, as they do when readers sort the table, and a table
+        whose stub has cells merged across rows is shown as it is. Without arguments, the table
+        is shown with all its rows, in order (the default).
+
+        Parameters
+        ----------
+        filter
+            The filters, as a query: `{"and": [clauses]}`, where a clause is a dictionary with a
+            column (`"col"`), an operation (`"op"`), and a value (`"value"`), and keeps the rows
+            that it's true of. A clause's column needs a filter (see
+            [`i_cols_filter()`](`great_tables.GTI.i_cols_filter`)) of a type that has its
+            operation: `"contains"` for a text filter (the value is the text, matched as readers'
+            typing is), `"in"` for a facet (a list of values, with `None` for a missing value),
+            and `"gte"` (at least) and `"lte"` (at most) for a range (a number). A column can have
+            one clause of each operation. With `None` (the default), the rows aren't filtered.
+        sort
+            The columns to sort by: a column name, or a list of them (the first sorts the rows,
+            the next sorts the rows that tie, and so on), each in ascending order, or descending
+            with a `-` before its name (e.g., `"-population_2021"`). Missing values are last. The
+            columns can be sorted even if readers can't sort them
+            ([`i_sorting(False)`](`great_tables.GTI.i_sorting`)). With `None` (the default), the
+            rows keep their order.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of Ontario's municipalities, first showing the single-tier ones with at
+        least 10,000 people, most populous first. Readers can change the filters (or clear them)
+        in the column labels, and the sort with the sort buttons.
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_filter(columns=["status", "population_2021"])
+            .i_view(
+                filter={
+                    "and": [
+                        {"col": "status", "op": "in", "value": ["single-tier"]},
+                        {"col": "population_2021", "op": "gte", "value": 10000},
+                    ]
+                },
+                sort="-population_2021",
+            )
+        )
+        ```
+        """
+        # (Imported here, as `_query` is only needed for a view)
+        from ._gti._query import check_query, parse_sort
+
+        return self._set_interactive(view_filter=check_query(filter), view_sort=parse_sort(sort))
+
     # -----
     # A `GTI` table is only ever interactive HTML
 
@@ -589,7 +656,7 @@ class GTI(GT):
         raise TypeError(
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
-            "`i_selection()`, `i_scroll()`, `i_display()`, and `i_cols_filter()`."
+            "`i_selection()`, `i_scroll()`, `i_display()`, `i_cols_filter()`, and `i_view()`."
         )
 
 
