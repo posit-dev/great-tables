@@ -44,6 +44,9 @@ class Settings:
     highlight: bool = True
     compact: bool = False
     wrap: bool = True
+    # (GTI's control bar below the table; `opt_interactive()` tables keep a search box above the
+    # table and page controls below it, as `pagination_type` says)
+    bar: bool = True
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:
@@ -71,6 +74,7 @@ class Settings:
             highlight=bool(options.ihtml_use_highlight.value),
             compact=bool(options.ihtml_use_compact_mode.value),
             wrap=bool(options.ihtml_use_text_wrapping.value),
+            bar=False,
         )
 
 
