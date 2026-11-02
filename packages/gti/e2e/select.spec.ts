@@ -58,7 +58,11 @@ test.describe("the selection column", () => {
     const errors = await ready(page, "select-column.html");
     const lead = await row(page, 4)
       .locator("> *")
-      .evaluateAll((cells) => cells.slice(0, 3).map((cell) => cell.className.split(" ").pop()));
+      .evaluateAll((cells) =>
+        cells
+          .slice(0, 3)
+          .map((cell) => ["gt-i-select", "gt_stub_row_group", "gt_stub"].find((name) => cell.classList.contains(name))),
+      );
     expect(lead).toEqual(["gt-i-select", "gt_stub_row_group", "gt_stub"]);
     // (Laid out in its own column, from its group's first row)
     const select = await row(page, 4).locator("> .gt-i-select").boundingBox();

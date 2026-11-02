@@ -14,7 +14,7 @@ const valid = {
   controls: { sorting: true, search: false, resizing: false, selection: null },
   pagination: { enabled: true, page_size: 10, page_sizes: [10, 25], size_select: false, info: true, type: "numbers" },
   display: { highlight: false, compact: false, wrap: true },
-  layout: { height: null },
+  layout: { height: null, responsive: "scroll" },
 };
 
 const pagination = (fields: object) => JSON.stringify({ ...valid, pagination: { ...valid.pagination, ...fields } });
@@ -27,7 +27,12 @@ describe("parseSpec()", () => {
   });
 
   it("takes a height", () => {
-    expect(parse({ ...valid, layout: { height: "min(60vh, 600px)" } }).layout.height).toBe("min(60vh, 600px)");
+    const layout = { height: "min(60vh, 600px)", responsive: "scroll" };
+    expect(parse({ ...valid, layout }).layout.height).toBe("min(60vh, 600px)");
+  });
+
+  it("takes no responsive layout", () => {
+    expect(parse({ ...valid, layout: { height: null, responsive: null } }).layout.responsive).toBeNull();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -91,9 +96,11 @@ describe("parseSpec()", () => {
     ["has a bad display flag", JSON.stringify({ ...valid, display: { ...valid.display, wrap: 0 } }), /`display`/],
     ["has no highlight flag", JSON.stringify({ ...valid, display: { compact: false, wrap: true } }), /`display`/],
     ["has no layout", JSON.stringify({ ...valid, layout: undefined }), /`layout`/],
-    ["has no height", JSON.stringify({ ...valid, layout: {} }), /`layout`/],
-    ["has a height that isn't a string", JSON.stringify({ ...valid, layout: { height: 400 } }), /`layout`/],
-    ["has an empty height", JSON.stringify({ ...valid, layout: { height: " " } }), /`layout`/],
+    ["has no height", JSON.stringify({ ...valid, layout: { responsive: null } }), /`layout`/],
+    ["has a height that isn't a string", JSON.stringify({ ...valid, layout: { height: 400, responsive: null } }), /`layout`/],
+    ["has an empty height", JSON.stringify({ ...valid, layout: { height: " ", responsive: null } }), /`layout`/],
+    ["has no responsive layout", JSON.stringify({ ...valid, layout: { height: null } }), /`layout.responsive`/],
+    ["has an unknown responsive layout", JSON.stringify({ ...valid, layout: { height: null, responsive: "stack" } }), /`layout.responsive`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

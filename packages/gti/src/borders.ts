@@ -1,5 +1,6 @@
 /**
- * Borders for a table whose header and footer rows stick as its body scrolls.
+ * Borders for a table whose header and footer rows stick as its body scrolls, or whose stub stays
+ * in view as it scrolls sideways.
  *
  * GT's tables collapse their borders (`border-collapse: collapse`), and collapsed borders are the
  * table's, not the cells': they stay where they are as sticky cells move. So a table that scrolls
@@ -77,12 +78,54 @@ const PROPERTIES = SIDES.flatMap((side) =>
 
 type Borders = Record<Side, Border>;
 
-interface Placed {
+/** A cell on the grid of a table's rows: the rows (`r0` to `r1`) and columns (`c0` to `c1`) it covers. */
+export interface Placed {
   cell: HTMLTableCellElement;
   r0: number;
   r1: number;
   c0: number;
   c1: number;
+}
+
+/**
+ * Lay the cells of some of a table's rows (in order) out on a grid, as the browser would with only
+ * those rows: a cell spans rows only in its row group. Returns the cells placed, each row's line of
+ * the grid, and the number of columns.
+ */
+export function placeCells(rows: readonly HTMLTableRowElement[]): {
+  placed: Placed[];
+  grid: (Placed | undefined)[][];
+  columns: number;
+} {
+  const n = rows.length;
+  const sectionEnd: number[] = new Array<number>(n);
+  for (let r = n - 1; r >= 0; r--) {
+    const next = rows[r + 1];
+    sectionEnd[r] = next !== undefined && next.parentElement === rows[r]?.parentElement ? (sectionEnd[r + 1] as number) : r;
+  }
+  const grid: (Placed | undefined)[][] = rows.map(() => []);
+  const placed: Placed[] = [];
+  rows.forEach((tr, r) => {
+    const line = grid[r] as (Placed | undefined)[];
+    let c = 0;
+    for (const cell of Array.from(tr.cells)) {
+      while (line[c] !== undefined) {
+        c++;
+      }
+      const r1 = cell.rowSpan === 0 ? (sectionEnd[r] as number) : Math.min(r + Math.max(1, cell.rowSpan) - 1, sectionEnd[r] as number);
+      const c1 = c + Math.max(1, cell.colSpan) - 1;
+      const p: Placed = { cell, r0: r, r1, c0: c, c1 };
+      placed.push(p);
+      for (let rr = r; rr <= r1; rr++) {
+        const target = grid[rr] as (Placed | undefined)[];
+        for (let cc = c; cc <= c1; cc++) {
+          target[cc] = p;
+        }
+      }
+      c = c1 + 1;
+    }
+  });
+  return { placed, grid, columns: Math.max(0, ...grid.map((line) => line.length)) };
 }
 
 /**
@@ -96,14 +139,22 @@ export class TableBorders {
   private readonly authored = new WeakMap<HTMLTableCellElement, [string, string][]>();
   private readonly drawn = new WeakMap<HTMLTableCellElement, Record<Side, Border | null>>();
   private readonly ownsBelow: (tr: HTMLTableRowElement) => boolean;
+  private readonly ownsAfter: (cell: HTMLTableCellElement) => boolean;
 
   /**
    * `ownsBelow` says which rows draw the edge below them (sticky rows that hold the edge between
-   * them and the rows that scroll under them); otherwise the row below an edge draws it.
+   * them and the rows that scroll under them); otherwise the row below an edge draws it. Likewise,
+   * `ownsAfter` says which cells draw the edge after them, along the row (pinned cells, which the
+   * cells after them scroll under); otherwise the cell after an edge draws it.
    */
-  constructor(table: HTMLTableElement, ownsBelow: (tr: HTMLTableRowElement) => boolean) {
+  constructor(
+    table: HTMLTableElement,
+    ownsBelow: (tr: HTMLTableRowElement) => boolean,
+    ownsAfter: (cell: HTMLTableCellElement) => boolean = () => false,
+  ) {
     this.table = table;
     this.ownsBelow = ownsBelow;
+    this.ownsAfter = ownsAfter;
     this.read(table);
     const style = table.style;
     style.borderCollapse = "separate";
@@ -144,35 +195,7 @@ export class TableBorders {
       return;
     }
 
-    // Lay the cells out on a grid of the rows shown (a cell spans rows only in its row group)
-    const sectionEnd: number[] = new Array<number>(n);
-    for (let r = n - 1; r >= 0; r--) {
-      const next = rows[r + 1];
-      sectionEnd[r] = next !== undefined && next.parentElement === rows[r]?.parentElement ? (sectionEnd[r + 1] as number) : r;
-    }
-    const grid: (Placed | undefined)[][] = rows.map(() => []);
-    const placed: Placed[] = [];
-    rows.forEach((tr, r) => {
-      const line = grid[r] as (Placed | undefined)[];
-      let c = 0;
-      for (const cell of Array.from(tr.cells)) {
-        while (line[c] !== undefined) {
-          c++;
-        }
-        const r1 = cell.rowSpan === 0 ? (sectionEnd[r] as number) : Math.min(r + Math.max(1, cell.rowSpan) - 1, sectionEnd[r] as number);
-        const c1 = c + Math.max(1, cell.colSpan) - 1;
-        const p: Placed = { cell, r0: r, r1, c0: c, c1 };
-        placed.push(p);
-        for (let rr = r; rr <= r1; rr++) {
-          const target = grid[rr] as (Placed | undefined)[];
-          for (let cc = c; cc <= c1; cc++) {
-            target[cc] = p;
-          }
-        }
-        c = c1 + 1;
-      }
-    });
-    const ncols = Math.max(...grid.map((line) => line.length));
+    const { placed, grid, columns: ncols } = placeCells(rows);
 
     const sides = new Map<HTMLTableCellElement, Record<Side, Border | null>>();
     for (const p of placed) {
@@ -226,7 +249,11 @@ export class TableBorders {
     }
 
     // Edges between columns, in each row: the edge before column `c` (the row's end for `ncols`).
-    // A cell spanning rows takes the strongest of the borders along its side.
+    // A cell spanning rows takes the strongest of the borders along its side. Columns run from the
+    // right in a right-to-left table.
+    const rtl = table.ownerDocument.defaultView?.getComputedStyle(table).direction === "rtl";
+    const before: Side = rtl ? "right" : "left";
+    const after: Side = rtl ? "left" : "right";
     rows.forEach((tr, r) => {
       const line = grid[r] as (Placed | undefined)[];
       for (let c = 0; c <= ncols; c++) {
@@ -238,16 +265,16 @@ export class TableBorders {
         const first = c === 0;
         const last = b === undefined;
         const border = collapse([
-          a === undefined ? undefined : of(a.cell, "right", CELL),
-          b === undefined ? undefined : of(b.cell, "left", CELL),
-          first ? of(tr, "left", ROW) : last ? of(tr, "right", ROW) : undefined,
-          first ? of(group(tr), "left", ROW_GROUP) : last ? of(group(tr), "right", ROW_GROUP) : undefined,
-          first ? of(table, "left", TABLE) : last ? of(table, "right", TABLE) : undefined,
+          a === undefined ? undefined : of(a.cell, after, CELL),
+          b === undefined ? undefined : of(b.cell, before, CELL),
+          first ? of(tr, before, ROW) : last ? of(tr, after, ROW) : undefined,
+          first ? of(group(tr), before, ROW_GROUP) : last ? of(group(tr), after, ROW_GROUP) : undefined,
+          first ? of(table, before, TABLE) : last ? of(table, after, TABLE) : undefined,
         ]);
-        if (b !== undefined) {
-          give(b, "left", border);
-        } else if (a !== undefined) {
-          give(a, "right", border);
+        if (a !== undefined && (b === undefined || this.ownsAfter(a.cell))) {
+          give(a, after, border);
+        } else if (b !== undefined) {
+          give(b, before, border);
         }
       }
     });

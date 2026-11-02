@@ -458,8 +458,11 @@ def test_render_nowrap_marks_the_element():
 
 
 def test_spec_layout_default():
-    assert spec_of(GT(DF))["layout"] == {"height": None}
-    assert spec_of(GT(DF).opt_interactive(height="auto"))["layout"] == {"height": None}
+    assert spec_of(GT(DF))["layout"] == {"height": None, "responsive": "scroll"}
+    assert spec_of(GT(DF).opt_interactive(height="auto"))["layout"] == {
+        "height": None,
+        "responsive": "scroll",
+    }
 
 
 @pytest.mark.parametrize(
@@ -475,8 +478,9 @@ def test_spec_layout_default():
     ],
 )
 def test_spec_layout_height(height, expected: str):
-    assert spec_of(GT(DF).opt_interactive(height=height))["layout"] == {"height": expected}
-    assert spec_of(GT(DF).tab_options(ihtml_height=height))["layout"] == {"height": expected}
+    layout = {"height": expected, "responsive": "scroll"}
+    assert spec_of(GT(DF).opt_interactive(height=height))["layout"] == layout
+    assert spec_of(GT(DF).tab_options(ihtml_height=height))["layout"] == layout
 
 
 @pytest.mark.parametrize("height", ["400", "-5px", "red", "", "400px;color:red", True, -1])

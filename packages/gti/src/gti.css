@@ -1,5 +1,7 @@
 gt-table {
   display: block;
+  /* (For the shadows and the hint over the table) */
+  position: relative;
 }
 
 /* Sortable column labels: the label is a button that looks like the label */
@@ -258,31 +260,74 @@ gt-table[data-gti-scroll] .gt-i-scroller {
  * below them (set by the runtime, as their height changes), and the grand summary rows at the
  * bottom to the bottom. The table's borders are drawn on its cells by then, so they stick too.
  */
-gt-table[data-gti-sticky] {
-  position: relative;
-}
-
 gt-table[data-gti-sticky] thead {
   position: sticky;
   /* (Over the container's padding) */
   top: calc(0px - var(--gt-i-pad, 0px));
-  z-index: 2;
+  z-index: 5;
 }
 
 gt-table[data-gti-sticky] tr.gt_group_heading_row > *,
 gt-table[data-gti-sticky] tr.gt-i-stuck-bottom > * {
   position: sticky;
-  z-index: 1;
+  z-index: 3;
+}
+
+/*
+ * A table wider than its container scrolls sideways (whatever the author set for the container),
+ * with the selection column and the stub stuck at its inline start (where the runtime sets), over
+ * the cells scrolling under them (and under the column resize handles), filled with what's behind
+ * them if they're see-through. The contents of the cells across the table (its title, group
+ * headings and notes) are as wide as the part in view, and stick in it.
+ */
+gt-table[data-gti-wide] .gt-i-scroller {
+  overflow-x: auto !important;
+}
+
+gt-table[data-gti-wide] .gt-i-pinned {
+  position: sticky;
+  z-index: 2;
+}
+
+gt-table[data-gti-wide] tr.gt-i-stuck-bottom > .gt-i-pinned {
+  z-index: 4;
+}
+
+gt-table[data-gti-wide] .gt-i-filled {
+  background-image: var(--gt-i-fill);
+}
+
+gt-table[data-gti-wide] .gt-i-inview {
+  position: sticky;
+  max-width: var(--gt-i-room, none);
+}
+
+/* (GT's cells hide what overflows them, by id, which would keep their contents from sticking) */
+gt-table[data-gti-wide] :is(td, th):has(> .gt-i-inview) {
+  overflow: visible !important;
+}
+
+/* A container that scrolls can have focus, to scroll with the keyboard */
+gt-table .gt-i-scroller:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
 }
 
 /* The shadows over the scrolling body's edges, while there's more of it past them */
 gt-table .gt-i-shade {
   position: absolute;
-  z-index: 3;
-  height: 6px;
+  z-index: 6;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s;
+}
+
+gt-table .gt-i-shade:is([data-gti-edge="top"], [data-gti-edge="bottom"]) {
+  height: 6px;
+}
+
+gt-table .gt-i-shade:is([data-gti-edge="left"], [data-gti-edge="right"]) {
+  width: 6px;
 }
 
 gt-table .gt-i-shade[data-gti-edge="top"] {
@@ -294,12 +339,43 @@ gt-table .gt-i-shade[data-gti-edge="bottom"] {
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.15));
 }
 
+gt-table .gt-i-shade[data-gti-edge="left"] {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.15), transparent);
+}
+
+gt-table .gt-i-shade[data-gti-edge="right"] {
+  transform: translateX(-100%);
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.15), transparent);
+}
+
 gt-table .gt-i-shade[data-gti-shown] {
   opacity: 1;
 }
 
+/* The hint that the table scrolls sideways, until it first does */
+gt-table .gt-i-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  padding: 0.25em 0.75em;
+  border-radius: 1em;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.8125em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.15s;
+}
+
+gt-table .gt-i-hint[data-gti-shown] {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  gt-table .gt-i-shade {
+  gt-table :is(.gt-i-shade, .gt-i-hint) {
     transition: none;
   }
 }
@@ -307,6 +383,12 @@ gt-table .gt-i-shade[data-gti-shown] {
 @media (forced-colors: active) {
   gt-table .gt-i-shade {
     display: none;
+  }
+
+  gt-table .gt-i-hint {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
   }
 }
 

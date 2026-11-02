@@ -18,7 +18,8 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
   in the table's CSS, as smaller row padding), and whether cell text wraps
 - `layout`: how the table fits its space: the most it can take up before its body scrolls
-  vertically (a CSS length; `null` to grow with its content)
+  vertically (a CSS length; `null` to grow with its content), and what it does when it's wider
+  than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table does)
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -118,6 +119,7 @@ class DisplaySpec(TypedDict):
 
 class LayoutSpec(TypedDict):
     height: str | None
+    responsive: Literal["scroll"] | None
 
 
 class Spec(TypedDict):
@@ -236,7 +238,8 @@ def build_spec(data: GTData) -> Spec:
             compact=bool(data._options.ihtml_use_compact_mode.value),
             wrap=bool(data._options.ihtml_use_text_wrapping.value),
         ),
-        layout=LayoutSpec(height=_height(data)),
+        # (Responsive layouts are GTI's own, and "scroll" is the only one so far)
+        layout=LayoutSpec(height=_height(data), responsive="scroll"),
     )
 
 
