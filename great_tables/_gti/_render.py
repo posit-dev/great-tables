@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from .._gt_data import Options
+from ._query import js_trim
 from ._settings import settings_of
 from ._spec import Spec, build_spec
 
@@ -58,6 +59,8 @@ def render_gti_html(
     # (The runtime sets these too, but the table shouldn't change when it's hydrated; nor should
     # what's below it, so the control bar's room is kept until it's there)
     attrs = " data-gti-bar" if _has_bar(spec) else ""
+    if attrs and _has_tokens(spec):
+        attrs += " data-gti-tokens"
     if not spec["display"]["wrap"]:
         attrs += " data-gti-nowrap"
     height = spec["layout"]["height"]
@@ -98,6 +101,16 @@ def _has_bar(spec: Spec) -> bool:
         sizes += pagination["page_sizes"]
     paged = pagination["enabled"] and spec["nrows"] > min(sizes)
     return controls["bar"] and (controls["search"] or bool(spec["filters"]) or paged)
+
+
+def _has_tokens(spec: Spec) -> bool:
+    """Whether the bar starts with a line of tokens: for a view with a filter that's on.
+
+    (A filter is off with blank text, which the runtime trims as JavaScript does.)
+    """
+    view = spec.get("view")
+    clauses = (view["filter"] or {"and": []})["and"] if view is not None else []
+    return any(c["op"] != "contains" or js_trim(c["value"]) != "" for c in clauses)
 
 
 def _compact(gt: GT) -> GT:
