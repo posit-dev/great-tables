@@ -228,6 +228,23 @@ def filter_html(table_id: str, view: str | None = None, **pagination) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def state_html(table_id: str, url: bool = True, storage: bool = False) -> str:
+    # A GTI table of exibble three times over (24 rows), 5 rows to a page, with a search: `num`
+    # filtered by a range and `fctr` by a facet, first sorted by `num` (descending); whose view is
+    # kept in the URL, or storage, or both
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    gti = (
+        GTI(data[["num", "char", "fctr", "row"]], rowname_col="row", id=table_id)
+        .i_pagination(page_size=5)
+        .i_cols_filter(columns="num")
+        .i_cols_filter(columns="fctr", type="facet")
+        .i_view(sort="-num")
+        .i_view_state(url=url, storage=storage)
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def export_html(table_id: str) -> str:
     # A GTI table of exibble three times over (24 rows, in two groups), with a spanner, 5 rows to a
     # page, whose rows can be selected and exported (as "exibble.csv")
@@ -527,6 +544,11 @@ def main() -> None:
         ),
         "tokens-late.html": page(
             filter_html("f", view=TOKENS_VIEW) + '\n<p id="after">After the table</p>', head=styles
+        ),
+        # View state: two GTI tables on a page, one kept in the URL and storage, one in the URL
+        "state.html": page(
+            state_html("va", storage=True) + "\n" + state_html("vb") + "\n" + runtime_src,
+            head=styles,
         ),
         # Export: from a GTI table 5 rows to a page, whose rows can be selected
         "export.html": page(export_html("e") + "\n" + runtime_src, head=styles),
