@@ -623,6 +623,62 @@ class GTI(GT):
 
         return self._set_interactive(view_filter=check_query(filter), view_sort=parse_sort(sort))
 
+    def i_view_state(self, url: bool = True, storage: bool = False) -> Self:
+        """
+        Keep the reader's view of the table, for when the page is opened again.
+
+        The view is the table's filters, sort, search, page, and page size (not the rows selected,
+        or the columns' widths). As the reader changes it, it can be kept in the page's URL
+        (`url=`), so that reloading the page, or sharing its link, opens the table as it was; and
+        in the browser's storage (`storage=`), so that the reader finds it as they left it when
+        they come back to the page. The table's info panel then has a button that goes back to the
+        view the table is first shown with (see [`i_view()`](`great_tables.GTI.i_view`)), which is
+        also what's kept as no view at all.
+
+        In the URL, the view is in the query string, with each part of it named after the table's
+        ID (e.g., `?towny.filter=population_2021+%3E%3D+10000&towny.sort=-population_2021`, the
+        filter written as `i_view()` takes it as text), so that tables with different IDs keep
+        their own views, and the page's other parameters are left alone. A link that has the view
+        of a table opens it with that view, rather than the one in the browser's storage. A part
+        of the view the table can't have (say, a filter on a column that has none, after the table
+        is changed) is left out, with a warning in the browser's console, and the rest kept.
+
+        The view is kept by the table's ID, so the table needs one: set it with `GTI(id=)` (or
+        [`with_id()`](`great_tables.GT.with_id`)).
+
+        Parameters
+        ----------
+        url
+            Whether to keep the view in the page's URL (the default).
+        storage
+            Whether to keep the view in the browser's storage (`localStorage`), for the page.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of Ontario's municipalities whose filters, sort, search and page are kept in
+        the page's URL as they're changed, so that a link to the page shows what the reader sees.
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name", id="towny")
+            .fmt_integer(columns="population_2021")
+            .i_cols_filter(columns=["status", "population_2021"])
+            .i_view_state()
+        )
+        ```
+        """
+        return self._set_interactive(
+            view_state_url=_flag(url, "url"), view_state_storage=_flag(storage, "storage")
+        )
+
     def i_export(
         self,
         formats: ExportFormat | list[ExportFormat] | tuple[ExportFormat, ...] | None = (
@@ -779,8 +835,8 @@ class GTI(GT):
         raise TypeError(
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
-            "`i_selection()`, `i_scroll()`, `i_display()`, `i_cols_filter()`, `i_view()`, and "
-            "`i_export()`."
+            "`i_selection()`, `i_scroll()`, `i_display()`, `i_cols_filter()`, `i_view()`, "
+            "`i_view_state()`, and `i_export()`."
         )
 
 
