@@ -68,6 +68,11 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, export: value }).export).toEqual(value);
     expect(parse({ ...valid, export: { formats: [], filename: "table" } }).export?.formats).toEqual([]);
     expect(parse(valid).export).toBeUndefined();
+    // (With what the view's code needs, or without it)
+    const code = { backend: "pandas", columns: { x: { dtype: "float", nullable: false, literals: null } } };
+    const withCode = { formats: ["code"], filename: "table", code };
+    expect(parse({ ...valid, export: withCode }).export).toEqual(withCode);
+    expect(parse({ ...valid, export: { ...value, code: null } }).export?.code).toBeNull();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -160,6 +165,16 @@ describe("parseSpec()", () => {
     ["has an export with a format it doesn't know", exports({ formats: ["xlsx"], filename: "table" }), /`export`/],
     ["has an export without a filename", exports({ formats: ["csv"] }), /`export`/],
     ["has an export with a filename that isn't text", exports({ formats: ["csv"], filename: 1 }), /`export`/],
+    [
+      "has an export with code for a library it doesn't know",
+      exports({ formats: ["code"], filename: "table", code: { backend: "duckdb", columns: {} } }),
+      /`export`/,
+    ],
+    [
+      "has an export with code without columns",
+      exports({ formats: ["code"], filename: "table", code: { backend: "polars" } }),
+      /`export`/,
+    ],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

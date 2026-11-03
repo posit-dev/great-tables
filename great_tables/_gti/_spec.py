@@ -158,9 +158,25 @@ class ViewSpec(TypedDict):
     sort: list[ViewSortSpec]
 
 
+CodeBackend = Literal["polars", "pandas", "narwhals"]
+
+
+class CodeColumnSpec(TypedDict):
+    # (What the code goes by: a column of strings, of floats, of categories, or of another type)
+    dtype: Literal["string", "float", "categorical", "other"]
+    nullable: bool  # a pandas nullable dtype, whose comparisons can be missing
+    literals: list[str | None] | None  # a facet's values as Python (`None` where it can't be)
+
+
+class CodeSpec(TypedDict):
+    backend: CodeBackend  # the code's library, first: the data's
+    columns: dict[str, CodeColumnSpec]  # each column the view can filter or sort by
+
+
 class ExportSpec(TypedDict):
     formats: list[ExportFormat]
     filename: str  # without its extension
+    code: CodeSpec | None  # what the code for the view needs (with the "code" format)
 
 
 class Spec(TypedDict):
@@ -268,9 +284,12 @@ def build_spec(data: GTData) -> Spec:
         filters.append(FilterSpec(column=var, type=filter_type, values=values))
 
     # (Imported here, as `_query` imports from this module)
-    from ._query import check_view
+    from ._query import check_view, code_spec
 
     view = check_view(settings.view_filter, settings.view_sort, filters, ranks)
+    code = None
+    if "code" in settings.export_formats:
+        code = code_spec(tbl_data, columns, filters, ranks)
 
     return Spec(
         version=SPEC_VERSION,
@@ -312,7 +331,9 @@ def build_spec(data: GTData) -> Spec:
         layout=LayoutSpec(height=settings.height, responsive="scroll"),
         filters=filters,
         view=view,
-        export=ExportSpec(formats=list(settings.export_formats), filename=settings.export_filename),
+        export=ExportSpec(
+            formats=list(settings.export_formats), filename=settings.export_filename, code=code
+        ),
     )
 
 

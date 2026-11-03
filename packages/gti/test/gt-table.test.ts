@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   type BodyRow,
+  type CodeSpec,
   type ControlsSpec,
   type DisplaySpec,
   define,
@@ -79,7 +80,7 @@ interface TableOptions {
   /** The spanners over the column labels (in `thead`). */
   spanners?: SpannerSpec[];
   /** Export is off unless set. */
-  export?: { formats: ExportFormat[]; filename?: string };
+  export?: { formats: ExportFormat[]; filename?: string; code?: CodeSpec | null };
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -2447,6 +2448,156 @@ describe("export", () => {
     const el = await mount("<gt-table><table></table></gt-table>");
     expect(el.toCSV()).toBe("");
     await expect(el.copyTable()).resolves.toBe(false);
+  });
+
+  describe("as code", () => {
+    // `x`, of floats, with a range, and `y`, of strings, with a facet; the data pandas'
+    const CODE: CodeSpec = {
+      backend: "pandas",
+      columns: {
+        x: { dtype: "float", nullable: false, literals: null },
+        y: { dtype: "string", nullable: false, literals: ['"a"', '"b"', '"c"'] },
+      },
+    };
+    const FILTERS: FilterSpec[] = [
+      { column: "x", type: "range", values: [5, 10, 20] },
+      { column: "y", type: "facet", values: ["a", "b", "c"] },
+    ];
+    const PANDAS = 'df[\n    df["y"].isin(["a"])\n].sort_values(["x"], ascending=[False], na_position="last", kind="stable")\n';
+    const mountCode = (code: CodeSpec | null = CODE, options: TableOptions = {}) =>
+      mountExport({ filters: FILTERS, export: { formats: ["csv", "clipboard", "code"], code }, ...options });
+    const select = (el: GtTable) => panel(el).querySelector("select") as HTMLSelectElement;
+    const note = (el: GtTable) => panel(el).querySelector(".gt-i-export-note") as HTMLElement;
+    const view = (el: GtTable) => {
+      el.filter = { and: [{ col: "y", op: "in", value: ["a"] }] };
+      el.sort = [{ column: "x", descending: true }];
+    };
+
+    it("has a choice of library, the data's to begin with", async () => {
+      const { el } = await mountCode();
+      const item = select(el).closest("label") as HTMLElement;
+      expect(item.textContent).toBe("Code forPolarspandasNarwhals");
+      expect(Array.from(select(el).options, (option) => [option.value, option.textContent])).toEqual([
+        ["polars", "Polars"],
+        ["pandas", "pandas"],
+        ["narwhals", "Narwhals"],
+      ]);
+      expect(select(el).value).toBe("pandas");
+      expect(Array.from(panel(el).querySelectorAll("button"), (button) => button.textContent)).toEqual([
+        "Download CSV",
+        "Copy",
+        "Copy code",
+      ]);
+      const { el: polars } = await mountCode({ ...CODE, backend: "polars" });
+      expect(select(polars).value).toBe("polars");
+    });
+
+    it("isn't there without the code's spec", async () => {
+      const { el } = await mountCode(null);
+      expect(select(el)).toBeNull();
+      expect(action(el, "code")).toBeNull();
+      expect(note(el)).toBeNull();
+      expect(el.toCode()).toBe("");
+      // (Nor without the format)
+      const { el: csv } = await mountExport({ filters: FILTERS, export: { formats: ["csv"], code: CODE } });
+      expect(select(csv)).toBeNull();
+      expect(action(csv, "code")).toBeNull();
+    });
+
+    it("copies the view's code, for the library chosen", async () => {
+      const written = catchClipboard();
+      const { el, events } = await mountCode();
+      view(el);
+      toggle(el).click();
+      action(el, "code").click();
+      await tick();
+      expect(written).toEqual([{ "text/plain": PANDAS }]);
+      expect(events).toEqual([{ format: "code", rows: [], code: PANDAS, backend: "pandas" }]);
+      expect(status(el).textContent).toBe("Copied the code");
+      expect(live(el)).toBe("Copied the code");
+
+      select(el).value = "polars";
+      select(el).dispatchEvent(new Event("change", { bubbles: true }));
+      action(el, "code").click();
+      await tick();
+      const polars =
+        'import polars as pl\n\ndf.filter(\n    pl.col("y").is_in(["a"]),\n' +
+        ').sort(["x"], descending=[True], nulls_last=True, maintain_order=True)\n';
+      expect(written[1]).toEqual({ "text/plain": polars });
+      expect(events[1]).toEqual({ format: "code", rows: [], code: polars, backend: "polars" });
+      // (Still open, to copy again)
+      expect(panel(el).hidden).toBe(false);
+    });
+
+    it("leaves out the search, saying so, and the selection", async () => {
+      const written = catchClipboard();
+      const { el } = await mountCode(CODE, { controls: { selection: "multiple" } });
+      view(el);
+      expect(note(el).textContent).toBe("The code leaves out the search.");
+      expect(note(el).hidden).toBe(true);
+      el.search = "row_4";
+      expect(note(el).hidden).toBe(false);
+      el.selection = [1];
+      check(el, true);
+      action(el, "code").click();
+      await tick();
+      expect(written).toEqual([{ "text/plain": PANDAS }]);
+      el.search = "";
+      expect(note(el).hidden).toBe(true);
+    });
+
+    it("copies as a copy would, without the Clipboard API", async () => {
+      catchClipboard("rejected");
+      const { data } = catchCopyEvent();
+      const { el, events } = await mountCode();
+      view(el);
+      action(el, "code").click();
+      await tick();
+      expect(data).toEqual({ "text/plain": PANDAS });
+      expect(events).toHaveLength(1);
+    });
+
+    it("says when it couldn't copy the code, or write it", async () => {
+      catchClipboard("rejected");
+      catchCopyEvent(false);
+      const { el, events } = await mountCode();
+      action(el, "code").click();
+      await tick();
+      expect(status(el).textContent).toBe("Couldn't copy the code");
+      expect(live(el)).toBe("Couldn't copy the code");
+
+      // (A value without Python for it, as a duration's)
+      const written = catchClipboard();
+      const { el: other, events: others } = await mountCode({
+        ...CODE,
+        columns: { ...CODE.columns, y: { dtype: "other", nullable: false, literals: [null, null, null] } },
+      });
+      view(other);
+      action(other, "code").click();
+      await tick();
+      expect(status(other).textContent).toBe("Couldn't write the code");
+      expect(live(other)).toBe("Couldn't write the code");
+      expect(() => other.toCode()).toThrow(RangeError);
+      expect(written).toEqual([]);
+      expect([...events, ...others]).toEqual([]);
+    });
+
+    it("writes the code from code, for any library, without an event", async () => {
+      const { el, events } = await mountCode();
+      expect(el.toCode()).toBe("df\n");
+      view(el);
+      expect(el.toCode()).toBe(PANDAS);
+      expect(el.toCode("pandas")).toBe(PANDAS);
+      expect(el.toCode("narwhals")).toMatch(/^import narwhals as nw\n\n\(\n {4}nw\.from_native\(df\)\n/);
+      expect(() => el.toCode("duckdb" as never)).toThrow(
+        new RangeError('`backend` must be "polars", "pandas" or "narwhals", not "duckdb"'),
+      );
+      expect(events).toEqual([]);
+      expect(status(el).textContent).toBe("3 rows (filtered from 5)");
+      // (Nor any before the table is ready)
+      const bare = await mount("<gt-table><table></table></gt-table>");
+      expect(bare.toCode()).toBe("");
+    });
   });
 
   it("closes on Escape, giving focus back to its button", async () => {

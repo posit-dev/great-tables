@@ -164,15 +164,43 @@ export interface ViewSpec {
   sort: ViewSortSpec[];
 }
 
-/** How readers can export the rows: by copying them, or downloading them as CSV. */
-export type ExportFormat = "clipboard" | "csv";
+/**
+ * How readers can export the rows: by copying them, or downloading them as CSV; or copy the code
+ * that filters and sorts the data as the view does.
+ */
+export type ExportFormat = "clipboard" | "csv" | "code";
 
-const EXPORT_FORMATS: readonly unknown[] = ["clipboard", "csv"];
+const EXPORT_FORMATS: readonly unknown[] = ["clipboard", "csv", "code"];
 
-/** The export button in the control bar: what it offers, and the name of a download (without its extension). */
+/** The library code is for. */
+export type CodeBackend = "polars" | "pandas" | "narwhals";
+
+export const CODE_BACKENDS: readonly unknown[] = ["polars", "pandas", "narwhals"];
+
+/** What the code goes by, of a column the view can filter or sort by. */
+export interface CodeColumnSpec {
+  /** Its type: of strings, of floats, of categories, or another. */
+  dtype: "string" | "float" | "categorical" | "other";
+  /** Whether it's of a pandas nullable dtype (whose comparisons can be missing). */
+  nullable: boolean;
+  /** A facet's values (as its filter's `values` are), as Python; `null` for one that can't be. */
+  literals: (string | null)[] | null;
+}
+
+/** What the code for the view needs: the library to write it for first (the data's), and the columns. */
+export interface CodeSpec {
+  backend: CodeBackend;
+  columns: Record<string, CodeColumnSpec>;
+}
+
+/**
+ * The export button in the control bar: what it offers, the name of a download (without its
+ * extension), and (with "code") what the view's code needs.
+ */
 export interface ExportSpec {
   formats: ExportFormat[];
   filename: string;
+  code?: CodeSpec | null;
 }
 
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
@@ -379,10 +407,11 @@ export function parseSpec(text: string): Spec {
       isObject(exports) &&
       Array.isArray(exports.formats) &&
       exports.formats.every((format) => EXPORT_FORMATS.includes(format)) &&
-      typeof exports.filename === "string"
+      typeof exports.filename === "string" &&
+      (exports.code == null || (isObject(exports.code) && CODE_BACKENDS.includes(exports.code.backend) && isObject(exports.code.columns)))
     )
   ) {
-    throw new SpecError("`export` must have known `formats` and a `filename`, if given");
+    throw new SpecError("`export` must have known `formats`, a `filename`, and a `code` with a known `backend`, if given");
   }
 
   return raw as unknown as Spec;

@@ -5,6 +5,8 @@ import re
 
 import numpy as np
 import pandas as pd
+import polars as pl
+import pyarrow as pa
 import pytest
 
 from great_tables import GT, GTI, exibble
@@ -418,13 +420,17 @@ def test_i_cols_filter_keeps_room_for_the_bar():
 
 
 def test_export_is_off_by_default():
-    assert spec_of(GTI(DF))["export"] == {"formats": [], "filename": "table"}
+    assert spec_of(GTI(DF))["export"] == {"formats": [], "filename": "table", "code": None}
     assert spec_of(GTI.from_gt(GT(DF).opt_interactive()))["export"]["formats"] == []
 
 
 def test_i_export_sets_the_formats_and_filename():
     gti = GTI(DF).i_export()
-    assert spec_of(gti)["export"] == {"formats": ["csv", "clipboard"], "filename": "table"}
+    assert spec_of(gti)["export"] == {
+        "formats": ["csv", "clipboard"],
+        "filename": "table",
+        "code": None,
+    }
     # (In the order given, once each)
     assert spec_of(gti.i_export(["clipboard", "csv", "clipboard"]))["export"]["formats"] == [
         "clipboard",
@@ -433,6 +439,7 @@ def test_i_export_sets_the_formats_and_filename():
     assert spec_of(gti.i_export("csv", filename="towny"))["export"] == {
         "formats": ["csv"],
         "filename": "towny",
+        "code": None,
     }
     # (Without the extension, which the runtime adds)
     assert gti.i_export(filename="Towny 2021.CSV")._interactive.export_filename == "Towny 2021"
@@ -447,7 +454,7 @@ def test_i_export_turns_off():
 
 
 def test_i_export_checks_its_arguments():
-    with pytest.raises(ValueError, match='`formats=` must be "csv", "clipboard"'):
+    with pytest.raises(ValueError, match='`formats=` must be "csv", "clipboard", "code"'):
         GTI(DF).i_export("xlsx")
     with pytest.raises(ValueError, match="not one with 'json'"):
         GTI(DF).i_export(["csv", "json"])
@@ -456,6 +463,67 @@ def test_i_export_checks_its_arguments():
     for empty in ["", " ", ".csv"]:
         with pytest.raises(ValueError, match="`filename=` must name the file"):
             GTI(DF).i_export(filename=empty)
+
+
+def test_i_export_code_has_what_the_code_needs():
+    gti = GTI(DF).i_cols_filter(columns="id", type="facet").i_export(["csv", "code"])
+    export = spec_of(gti)["export"]
+    assert export["formats"] == ["csv", "code"]
+    # (For the columns the view can filter or sort by: a facet's values as Python)
+    code = export["code"]
+    assert code["backend"] == "pandas"
+    assert list(code["columns"]) == ["id", "y"]
+    assert code["columns"]["id"]["dtype"] == "string"
+    assert code["columns"]["id"]["literals"] == ['"r0"', '"r1"', '"r2"', '"r3"', '"r4"', '"r5"']
+    assert code["columns"]["y"] == {"dtype": "other", "nullable": False, "literals": None}
+
+
+def test_i_export_code_is_for_the_data_library():
+    data = {"x": [1.5, 0.0, None], "c": ["a", "b", "a"]}
+    for frame, backend in [
+        (pl.DataFrame(data, schema_overrides={"c": pl.Categorical}), "polars"),
+        (pd.DataFrame(data).astype({"c": "category"}), "pandas"),
+        (pa.table(data).set_column(1, "c", pa.array(data["c"]).dictionary_encode()), "narwhals"),
+    ]:
+        gti = GTI(frame).i_cols_filter(type="facet").i_export("code")
+        code = spec_of(gti)["export"]["code"]
+        assert code["backend"] == backend
+        assert code["columns"]["x"] == {
+            "dtype": "float",
+            "nullable": False,
+            "literals": ["0.0", "1.5"],
+        }
+        assert code["columns"]["c"] == {
+            "dtype": "categorical",
+            "nullable": False,
+            "literals": ['"a"', '"b"'],
+        }
+
+
+def test_i_export_code_has_python_values():
+    frame = pd.DataFrame(
+        {
+            "n": pd.array([1, None, 3], dtype="Int64"),
+            "d": [dt.date(2020, 1, 2), None, dt.date(2020, 1, 2)],
+            "t": [dt.datetime(2020, 1, 2, 3, 4), dt.datetime(2021, 1, 1), None],
+            "s": ["it's", 'say "hi"', "é"],
+            "b": [True, False, True],
+            "td": pd.to_timedelta([1, 2, 3], unit="D"),
+        }
+    )
+    gti = GTI(frame).i_cols_filter(columns="n", type="range")
+    gti = gti.i_cols_filter(columns=["d", "t", "s", "b", "td"], type="facet").i_export("code")
+    columns = spec_of(gti)["export"]["code"]["columns"]
+    assert columns["n"] == {"dtype": "other", "nullable": True, "literals": None}
+    assert columns["d"]["literals"] == ["datetime.date(2020, 1, 2)"]
+    assert columns["t"]["literals"] == [
+        "datetime.datetime(2020, 1, 2, 3, 4)",
+        "datetime.datetime(2021, 1, 1, 0, 0)",
+    ]
+    assert columns["s"]["literals"] == ['"it\'s"', '"say \\"hi\\""', '"é"']
+    assert columns["b"]["literals"] == ["False", "True"]
+    # (Durations, which the code can't have yet)
+    assert columns["td"]["literals"] == [None, None, None]
 
 
 def test_i_export_keeps_room_for_the_bar():
