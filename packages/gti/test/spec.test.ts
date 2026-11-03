@@ -43,6 +43,12 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, layout: { height: null, responsive: null } }).layout.responsive).toBeNull();
   });
 
+  it("takes what readers can do with a column, or its absence", () => {
+    const column = { ...valid.columns[0], sortable: false, searchable: true, resizable: false };
+    expect(parse({ ...valid, columns: [column] }).columns).toEqual([column]);
+    expect(parse(valid).columns[0]?.sortable).toBeUndefined();
+  });
+
   it("takes the control bar, or its absence", () => {
     expect(parse({ ...valid, controls: { ...valid.controls, bar: true } }).controls.bar).toBe(true);
     expect(parse(valid).controls.bar).toBeUndefined();
@@ -184,6 +190,17 @@ describe("parseSpec()", () => {
       "has an export with code without columns",
       exports({ formats: ["code"], filename: "table", code: { backend: "polars" } }),
       /`export`/,
+    ],
+    ["has a column that isn't an object", JSON.stringify({ ...valid, columns: ["x"] }), /`columns\[0\]`/],
+    [
+      "has a column that's sortable with a string",
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], sortable: "no" }] }),
+      /`columns\[0\]`/,
+    ],
+    [
+      "has a column that's resizable with a number",
+      JSON.stringify({ ...valid, columns: [valid.columns[0], { ...valid.columns[0], resizable: 0 }] }),
+      /`columns\[1\]`/,
     ],
     ["has a view state that isn't an object", viewState(true), /`view_state`/],
     ["has a view state without storage", viewState({ url: true, key: "t", undo: false }), /`view_state`/],
