@@ -69,8 +69,10 @@ class Settings:
     unsortable: tuple[str, ...] = ()
     unsearchable: tuple[str, ...] = ()
     unresizable: tuple[str, ...] = ()
-    # (The columns readers can hide, in the order they were set; none, by default)
+    # (The columns readers can hide, and those they can move, in the order they were set; none, by
+    # default)
     hideable: tuple[str, ...] = ()
+    reorderable: tuple[str, ...] = ()
     # (The columns pinned to a side, as `i_cols_pin()` set them, in the order they were set)
     pins: tuple[tuple[str, PinSide], ...] = ()
     # (The columns readers can filter by, and how, in the order they were set)
