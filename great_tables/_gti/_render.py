@@ -6,7 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
-from .._gt_data import Options
+from .._gt_data import ColInfoTypeEnum, Options
 from ._query import js_trim
 from ._settings import settings_of
 from ._spec import Spec, build_spec
@@ -83,8 +83,10 @@ def render_gti_html(
 
 def render_parts(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
     """A table's static HTML (its `<div>`) and its spec."""
-    if settings_of(gt).compact:
+    settings = settings_of(gt)
+    if settings.compact:
         gt = _compact(gt)
+    gt = _leave_out(gt, settings.query_only)
     built = gt._build_data(context="html")
     return built._render_as_html(all_important=all_important), build_spec(built)
 
@@ -114,6 +116,34 @@ def _has_tokens(spec: Spec) -> bool:
     view = spec.get("view")
     clauses = (view["filter"] or {"and": []})["and"] if view is not None else []
     return any(c["op"] != "contains" or js_trim(c["value"]) != "" for c in clauses)
+
+
+def _leave_out(gt: GT, columns: tuple[str, ...]) -> GT:
+    """Hide the columns only for querying, as `cols_hide()` does (their spec has them still).
+
+    This is checked here, as the stub and the row group column may have been set after
+    `i_cols_controls()`.
+    """
+    if not columns:
+        return gt
+    boxhead = gt._boxhead
+    kept = [
+        column
+        for kind in (ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group)
+        for column in boxhead.vars_from_type(kind)
+        if column in columns
+    ]
+    if kept:
+        raise ValueError(
+            "The stub and the row group column can't be left out of the table, so "
+            f"`display=False` can't be set for {', '.join(map(repr, kept))}."
+        )
+    boxhead = boxhead.set_cols_hidden(list(columns))
+    if not boxhead._get_default_columns() and not boxhead._get_stub_columns():
+        raise ValueError(
+            "A table without a stub can't have every column left out of it with " "`display=False`."
+        )
+    return gt._replace(_boxhead=boxhead)
 
 
 def _compact(gt: GT) -> GT:
