@@ -264,6 +264,7 @@ def test_spec_stub_for_summary_labels_only():
         "searchable": True,
         "resizable": True,
         "pin": None,
+        "hideable": False,
     }
     assert spec["stub"]["columns"] == []
     assert None not in spec["ranks"]
