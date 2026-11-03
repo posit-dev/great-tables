@@ -503,15 +503,15 @@ def test_query_code():
     assert query_code(gti, "polars") == (
         "import polars as pl\n\n"
         "df.filter(\n"
-        '    pl.col("few").is_in(["x"]) | pl.col("few").is_null(),\n'
         '    (pl.col("num") >= 1.5) & pl.col("num").is_finite(),\n'
+        '    pl.col("few").is_in(["x"]) | pl.col("few").is_null(),\n'
         ').sort(["num", "name"], descending=[True, False], nulls_last=True, maintain_order=True)\n'
     )
     assert query_code(gti, "pandas") == (
         "import numpy as np\n\n"
         "df[\n"
-        '    (df["few"].isin(["x"]) | df["few"].isna())\n'
-        '    & ((df["num"] >= 1.5) & np.isfinite(df["num"]))\n'
+        '    ((df["num"] >= 1.5) & np.isfinite(df["num"]))\n'
+        '    & (df["few"].isin(["x"]) | df["few"].isna())\n'
         '].sort_values(["num", "name"], ascending=[False, True], na_position="last", '
         'kind="stable")\n'
     )
@@ -520,8 +520,8 @@ def test_query_code():
         "(\n"
         "    nw.from_native(df)\n"
         "    .filter(\n"
-        '        nw.col("few").is_in(["x"]) | nw.col("few").is_null(),\n'
         '        (nw.col("num") >= 1.5) & nw.col("num").is_finite(),\n'
+        '        nw.col("few").is_in(["x"]) | nw.col("few").is_null(),\n'
         "    )\n"
         '    .with_row_index("_row")\n'
         '    .with_columns((nw.col("num").is_nan() & ~nw.col("num").is_null()).fill_null(False)'
@@ -547,6 +547,33 @@ def test_query_code_of_text_and_missing_values():
         '    pl.col("name").str.to_lowercase().str.contains("e", literal=True),\n'
         '    pl.col("few").is_null(),\n'
         ")\n"
+    )
+
+
+def test_query_code_has_the_query_as_the_runtime_does():
+    # (Its clauses in the order of the filters, a range's lower bound first, and a facet's values
+    # in their order, a missing value last; and whole bounds as integers)
+    gti = filtered().i_view(
+        filter=query(("few", "in", [None, "y", "x"]), ("num", "lte", 3.0), ("num", "gte", 1))
+    )
+    assert query_code(gti, "polars") == (
+        "import polars as pl\n\n"
+        "df.filter(\n"
+        '    (pl.col("num") >= 1) & pl.col("num").is_finite(),\n'
+        '    (pl.col("num") <= 3) & pl.col("num").is_finite(),\n'
+        '    pl.col("few").is_in(["x", "y"]) | pl.col("few").is_null(),\n'
+        ")\n"
+    )
+
+
+def test_query_code_for_pandas_of_other_data():
+    gti = (
+        GTI(pl.from_pandas(DF))
+        .i_cols_filter(columns="num", type="range")
+        .i_view(filter=query(("num", "gte", 2.5)))
+    )
+    assert query_code(gti, "pandas") == (
+        'import numpy as np\n\ndf[\n    (df["num"] >= 2.5) & np.isfinite(df["num"])\n]\n'
     )
 
 
@@ -929,6 +956,76 @@ def test_a_facet_has_one_zero(engine: Callable[[GT], dict], backend: str):
         filtered = gti.i_view(filter=query(("x", "in", [zero])))
         assert assert_same_rows(engine, filtered) == [0, 1, 3]
         assert run_code(query_code(filtered, "narwhals"), filtered._tbl_data) == [0, 1, 3]
+
+
+# The code the runtime writes for a view (`toCode()`) is the code `query_code()` writes
+
+LIBRARIES = ["polars", "pandas", "narwhals"]
+
+
+def runtime_code(node_engine: Callable[[dict], dict], gt: GTI) -> dict:
+    shown = node_engine(
+        {"html": render_gti_html(gt.i_export("code"), runtime="none"), "code": True}
+    )
+    assert shown["state"] == "ready"
+    assert shown["warnings"] == []
+    return shown["code"]
+
+
+@pytest.mark.parametrize("backend", BACKENDS)
+@hypothesis.settings(max_examples=200, deadline=None)
+@hypothesis.given(data=st.data())
+def test_random_runtime_code(node_engine: Callable[[dict], dict], backend: str, data: Any):
+    gti, _ = data.draw(tables(backend))
+    filter, sort = data.draw(views(render_parts(gti)[1]))
+    gti = gti.i_view(filter=filter, sort=sort)
+    assert runtime_code(node_engine, gti) == {lib: query_code(gti, lib) for lib in LIBRARIES}
+
+
+def test_runtime_code_of_other_values(node_engine: Callable[[dict], dict]):
+    import datetime as dt
+
+    data = pd.DataFrame(
+        {
+            "n": pd.array([1, None, 3], dtype="Int64"),
+            "d": [dt.date(2020, 1, 2), None, dt.date(2021, 3, 4)],
+            "t": [dt.datetime(2020, 1, 2, 3, 4, 5, 6), dt.datetime(2021, 1, 1), None],
+            "s": ['say "hi"', "é\n", "x"],
+            "x": [1e-5, 0.1, 1e16],
+        }
+    )
+    gti = (
+        GTI(data)
+        .i_cols_filter(columns=["n", "x"], type="range")
+        .i_cols_filter(columns=["d", "t", "s"], type="facet")
+        .i_view(
+            filter=query(
+                ("x", "lte", 2.0**60),
+                ("x", "gte", 1.5e-7),
+                ("n", "gte", -0.0),
+                ("t", "in", ["2021-01-01T00:00:00", "2020-01-02T03:04:05.000006"]),
+                ("d", "in", ["2021-03-04", None]),
+                ("s", "in", ["é\n", 'say "hi"']),
+            ),
+            sort=["-x", "s"],
+        )
+    )
+    code = runtime_code(node_engine, gti)
+    assert code == {lib: query_code(gti, lib) for lib in LIBRARIES}
+    assert 'pl.col("x") >= 1.5e-07' in code["polars"]
+    assert 'pl.col("x") <= 1152921504606846976' in code["polars"]
+    assert "datetime.datetime(2020, 1, 2, 3, 4, 5, 6)" in code["polars"]
+    assert '(df["n"] >= 0).fillna(False)' in code["pandas"]
+
+
+def test_runtime_code_of_durations(node_engine: Callable[[dict], dict]):
+    data = pd.DataFrame({"td": pd.to_timedelta([1, 2], unit="D")})
+    gti = GTI(data).i_cols_filter(type="facet")
+    values = render_parts(gti)[1]["filters"][0]["values"]
+    code = runtime_code(node_engine, gti.i_view(filter=query(("td", "in", values[:1]))))
+    assert code["polars"] == {"error": 'the filter on "td" can\'t be written as code'}
+    # (Without a filter on them, the code is written)
+    assert runtime_code(node_engine, gti)["polars"] == "import polars as pl\n\ndf\n"
 
 
 # queries as text, in Python and in the runtime ----
