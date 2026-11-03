@@ -240,7 +240,7 @@ const onOwnControl = (target: Element, tr: HTMLTableRowElement) => {
 };
 
 // The classes of a data row's cells that the cells of the rows padding a page take
-const FILLER_CLASSES = ["gt_stub", "gt_stub_row_group", "gt-i-select", "gt-i-pinned"];
+const FILLER_CLASSES = ["gt_stub", "gt_stub_row_group", "gt-i-select", "gt-i-pinned", "gt-i-pin"];
 
 // How far a resize handle's arrow keys move it, in px (and with Shift)
 const RESIZE_STEP = 10;
@@ -692,10 +692,16 @@ export class GtTable extends HTMLElement {
   private shadeFrame = 0;
   /** What the table does when it's wider than its container (`layout.responsive`). */
   private responsive: ResponsiveMode | null = null;
-  /** The number of columns pinned at the table's inline start (the selection column and the stub). */
+  /** The number of columns pinned at the table's inline start: the selection column and the stub (`stubColumns`), and the data columns pinned there. */
   private pinColumns = 0;
+  private stubColumns = 0;
+  /** The number of data columns pinned at the table's inline end, and of columns in all. */
+  private endColumns = 0;
+  private gridColumns = 0;
   /** A pinned cell along the pinned columns' inline end, which the shadow over the columns past them is placed by. */
   private edgeCell: HTMLTableCellElement | null = null;
+  /** A cell along the inline start of the columns pinned at the inline end, which the shadow before them is placed by. */
+  private endEdge: HTMLTableCellElement | null = null;
   /** The cells across the table (its title, group headings and notes), whose contents stay in view. */
   private acrossCells: HTMLTableCellElement[] = [];
   /** The wrappers that keep those cells' contents in view, once the table has been wider than its container. */
@@ -1452,7 +1458,7 @@ export class GtTable extends HTMLElement {
     }
     this.addScroller(table);
     if (responsive !== null) {
-      this.addPinning(table, responsive);
+      this.addPinning(table, spec, responsive);
     }
     if (height !== null) {
       this.addScroll(table);
@@ -1487,25 +1493,42 @@ export class GtTable extends HTMLElement {
   /**
    * Get ready for the table being wider than its container (see `pin()`): mark the cells of the
    * columns that stay in view at its inline start (the selection column and the stub, with the
-   * row group column), and the cells across the table, whose contents stay in view.
+   * row group column, and the data columns pinned there) and at its end (`gt-i-pin` marking the
+   * data columns', which stay in view while there's room), and the cells across the table, whose
+   * contents stay in view.
    */
-  private addPinning(table: HTMLTableElement, mode: ResponsiveMode): void {
+  private addPinning(table: HTMLTableElement, spec: Spec, mode: ResponsiveMode): void {
     this.responsive = mode;
     // (Every row is shown on hydration)
-    const { placed } = placeCells(Array.from(table.rows));
+    const { placed, columns: width } = placeCells(Array.from(table.rows));
     const tbody = this.tbody;
     const stub = placed.filter(
       (p) =>
         p.cell.parentElement?.parentElement === tbody &&
         p.cell.matches(".gt_stub, .gt_stub_row_group, .gt-i-select"),
     );
-    const columns = Math.max(0, ...stub.map((p) => p.c1 + 1));
+    const stubColumns = Math.max(0, ...stub.map((p) => p.c1 + 1));
+    // The data columns follow the stub's, and pinned ones are next to their side
+    const data = spec.columns.filter((column) => column.role === "data");
+    let columns = stubColumns;
+    while (data[columns - stubColumns]?.pin === "start") {
+      columns++;
+    }
+    let ends = 0;
+    while (width - ends > columns && data[data.length - ends - 1]?.pin === "end") {
+      ends++;
+    }
     for (const p of placed) {
-      if (p.c1 < columns && p.cell.parentElement?.parentElement?.tagName !== "TFOOT") {
+      const start = p.c1 < columns;
+      if ((start || p.c0 >= width - ends) && p.cell.parentElement?.parentElement?.tagName !== "TFOOT") {
         p.cell.classList.add("gt-i-pinned");
+        p.cell.classList.toggle("gt-i-pin", !start || p.c1 >= stubColumns);
       }
     }
     this.pinColumns = columns;
+    this.stubColumns = stubColumns;
+    this.endColumns = ends;
+    this.gridColumns = width;
     this.acrossCells = Array.from(
       table.querySelectorAll<HTMLTableCellElement>(
         ":scope > thead > tr > :is(.gt_title, .gt_subtitle), " +
@@ -1561,7 +1584,7 @@ export class GtTable extends HTMLElement {
       this.borders = new TableBorders(
         this.table as HTMLTableElement,
         (tr) => tr.parentElement?.tagName === "THEAD" || sticky.has(tr),
-        (cell) => cell.classList.contains("gt-i-pinned"),
+        (cell) => cell.matches(".gt-i-pinned, .gt-i-pin"),
       );
     }
     return this.borders;
@@ -1633,7 +1656,8 @@ export class GtTable extends HTMLElement {
 
   /**
    * While the table is wider than its container (`data-gti-wide`, which gti.css sticks the cells
-   * marked `gt-i-pinned` by), pin the stub where its columns are in the rows shown, and keep the
+   * marked `gt-i-pinned` by), pin the stub (and the data columns pinned at either side, while
+   * they take up at most half the container) where its columns are in the rows shown, and keep the
    * contents of the cells across the table in the part in view. The table's borders are drawn on
    * its cells from the first time, and a hint says it scrolls, until it first does.
    */
@@ -1669,30 +1693,61 @@ export class GtTable extends HTMLElement {
 
     const view = getComputedStyle(scroller);
     const padStart = parseFloat(view.paddingInlineStart) || 0;
-    const columns = this.pinColumns;
-    if (columns > 0) {
+    const padEnd = parseFloat(view.paddingInlineEnd) || 0;
+    const { pinColumns: columns, endColumns: ends, gridColumns: width } = this;
+    if (columns > 0 || ends > 0) {
       if (this.borders === null) {
         this.separateBorders().redraw();
       }
-      // Each pinned column sticks after the ones before it, as wide as they are in the rows shown
+      // Each pinned column sticks after the ones before it (or, at the end, before the ones after
+      // it), as wide as they are in the rows shown
       const rows = Array.from(table.rows).filter((tr) => !tr.hidden && tr.parentElement?.tagName !== "TFOOT");
-      const pinned = placeCells(rows).placed.filter((p) => p.c1 < columns && p.cell.classList.contains("gt-i-pinned"));
-      const offsets: (number | undefined)[] = [0];
+      const marked = placeCells(rows).placed.filter((p) => p.cell.matches(".gt-i-pinned, .gt-i-pin"));
+      const starts = marked.filter((p) => p.c1 < columns);
+      const endings = marked.filter((p) => p.c0 >= width - ends);
+      const before: (number | undefined)[] = [0];
       for (let c = 0; c < columns; c++) {
-        const at = offsets[c];
-        for (const p of pinned) {
-          if (at !== undefined && p.c0 === c && offsets[p.c1 + 1] === undefined) {
-            offsets[p.c1 + 1] = at + p.cell.getBoundingClientRect().width;
+        const at = before[c];
+        for (const p of starts) {
+          if (at !== undefined && p.c0 === c && before[p.c1 + 1] === undefined) {
+            before[p.c1 + 1] = at + p.cell.getBoundingClientRect().width;
           }
         }
       }
-      for (const p of pinned) {
-        setStyle(p.cell, "inset-inline-start", `${(offsets[p.c0] ?? 0) - padStart}px`);
-        this.fill(p.cell);
+      const after: (number | undefined)[] = [];
+      after[width] = 0;
+      for (let c = width; c > width - ends; c--) {
+        const at = after[c];
+        for (const p of endings) {
+          if (at !== undefined && p.c1 === c - 1 && after[p.c0] === undefined) {
+            after[p.c0] = at + p.cell.getBoundingClientRect().width;
+          }
+        }
       }
-      this.edgeCell = pinned.find((p) => p.c1 === columns - 1)?.cell ?? null;
+      // The data columns are pinned while there's room for them: only the stub is, in a container
+      // they'd take up more than half of
+      const crowded =
+        columns + ends > this.stubColumns && (before[columns] ?? 0) + (after[width - ends] ?? 0) > scroller.clientWidth / 2;
+      const kept = crowded ? this.stubColumns : columns;
+      for (const p of starts) {
+        p.cell.classList.toggle("gt-i-pinned", p.c1 < kept);
+        if (p.c1 < kept) {
+          setStyle(p.cell, "inset-inline-start", `${(before[p.c0] ?? 0) - padStart}px`);
+          this.fill(p.cell);
+        }
+      }
+      for (const p of endings) {
+        p.cell.classList.toggle("gt-i-pinned", !crowded);
+        if (!crowded) {
+          setStyle(p.cell, "inset-inline-end", `${(after[p.c1 + 1] ?? 0) - padEnd}px`);
+          this.fill(p.cell);
+        }
+      }
+      this.edgeCell = starts.find((p) => p.c1 === kept - 1)?.cell ?? null;
+      this.endEdge = crowded ? null : (endings.find((p) => p.c0 === width - ends)?.cell ?? null);
       // (What has focus is kept clear of them)
-      setStyle(scroller, "scroll-padding-inline-start", `${offsets[columns] ?? 0}px`);
+      setStyle(scroller, "scroll-padding-inline-start", `${before[kept] ?? 0}px`);
+      setStyle(scroller, "scroll-padding-inline-end", `${crowded ? 0 : (after[width - ends] ?? 0)}px`);
     }
 
     // The contents of the cells across the table are as wide as the part in view, and stick in it
@@ -1790,8 +1845,9 @@ export class GtTable extends HTMLElement {
 
   // The shadows go over the part of the table in view: the top one under the column labels (and a
   // group heading stuck under them), the bottom one over the rows stuck at the bottom; the one at
-  // the inline start along the pinned columns, the one at the end along the container's edge, from
-  // the column labels to the end of the body. The hint sits by the end, halfway down (or near the top)
+  // the inline start along the pinned columns, the one at the end along the container's edge (or
+  // the columns pinned there), from the column labels to the end of the body. The hint sits by
+  // the end, halfway down (or near the top)
   private placeShades(): void {
     const { scroller, shades, table } = this;
     if (scroller === null || table === null) {
@@ -1844,6 +1900,7 @@ export class GtTable extends HTMLElement {
     const y1 = Math.min(bottom, this.tbody?.getBoundingClientRect().bottom ?? box.bottom);
     const rtl = this.isRtl();
     const edge = this.edgeCell?.isConnected ? this.edgeCell.getBoundingClientRect() : null;
+    const endEdge = this.endEdge?.isConnected ? this.endEdge.getBoundingClientRect() : null;
     const scrolled = Math.abs(scroller.scrollLeft);
     const place = (shade: HTMLElement, at: number, shown: boolean) => {
       setStyle(shade, "top", y(y0));
@@ -1855,16 +1912,16 @@ export class GtTable extends HTMLElement {
     const more = scrolled + scroller.clientWidth < scroller.scrollWidth - 1;
     if (rtl) {
       place(shades.right, edge?.left ?? end, past);
-      place(shades.left, start, more);
+      place(shades.left, endEdge?.right ?? start, more);
     } else {
       place(shades.left, edge?.right ?? start, past);
-      place(shades.right, end, more);
+      place(shades.right, endEdge?.left ?? end, more);
     }
     const hint = this.hint;
     if (hint !== null && wide) {
       // (Not far down a long table, which may go past the window)
       setStyle(hint, "top", y(Math.min((y0 + y1) / 2, y0 + 120)));
-      setStyle(hint, "left", x(rtl ? start + 8 : end - 8 - hint.offsetWidth));
+      setStyle(hint, "left", x(rtl ? (endEdge?.right ?? start) + 8 : (endEdge?.left ?? end) - 8 - hint.offsetWidth));
     }
   }
 
@@ -5615,7 +5672,11 @@ export class GtTable extends HTMLElement {
     this.shades = {};
     this.responsive = null;
     this.pinColumns = 0;
+    this.stubColumns = 0;
+    this.endColumns = 0;
+    this.gridColumns = 0;
     this.edgeCell = null;
+    this.endEdge = null;
     this.acrossCells = [];
     this.inView = null;
     this.hint = null;
