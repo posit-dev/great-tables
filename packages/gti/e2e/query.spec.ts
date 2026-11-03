@@ -83,10 +83,10 @@ test("says what's wrong with text, marks where, and doesn't apply it", async ({ 
   await toggle(page).click();
   await query(page).fill("num >= lots and fctr in (1)");
   await page.keyboard.press("Enter");
-  await expect(error(page)).toHaveText("Expected a number");
+  await expect(error(page)).toHaveText("Expected a number, or a date in double quotes");
   await expect(query(page)).toHaveAttribute("aria-invalid", "true");
-  await expect(query(page)).toHaveAccessibleDescription("Expected a number");
-  await expect(live(page)).toHaveText("Expected a number");
+  await expect(query(page)).toHaveAccessibleDescription("Expected a number, or a date in double quotes");
+  await expect(live(page)).toHaveText("Expected a number, or a date in double quotes");
   expect((await highlighted(page)).error).toEqual(["lots"]);
   expect(await query(page).evaluate((node: HTMLInputElement) => node.selectionStart)).toBe(7);
   await expect(el(page).locator(".gt-i-query-field")).toHaveCSS("border-top-color", "rgb(198, 40, 40)");
@@ -102,7 +102,7 @@ test("says what's wrong with text, marks where, and doesn't apply it", async ({ 
   // (One at the end, on the room after the text)
   await query(page).fill("num >=");
   await page.keyboard.press("Enter");
-  await expect(error(page)).toHaveText("Expected a number");
+  await expect(error(page)).toHaveText("Expected a number, or a date in double quotes");
   expect((await highlighted(page)).error).toEqual([" "]);
 
   await query(page).fill('fctr in ("one")');
