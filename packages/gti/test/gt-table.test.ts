@@ -3297,6 +3297,172 @@ describe("filter tokens", () => {
   });
 });
 
+describe("date filters", () => {
+  // (On `x`, as dates: rows 0 and 4 on the 20th, 1 on the 5th, 2 on the 10th, and 3 missing)
+  const DATES: FilterSpec = { column: "x", type: "date", values: ["2015-01-05", "2015-01-10", "2015-01-20"] };
+  const TIMES: FilterSpec = {
+    column: "x",
+    type: "date",
+    values: ["2015-01-05T00:00:00", "2015-01-10T09:30:00", "2015-01-20T12:00:05.123456"],
+  };
+  const filterButton = (el: GtTable) => header(el, "x").querySelector(".gt-i-filter-button") as HTMLButtonElement;
+  const inputs = (el: GtTable) => {
+    const panel = el.querySelector(`#${filterButton(el).getAttribute("aria-controls")}`) as HTMLElement;
+    return Array.from(panel.querySelectorAll<HTMLInputElement>("input")) as [HTMLInputElement, HTMLInputElement];
+  };
+  const type = (input: HTMLInputElement, value: string) => {
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const enter = (input: HTMLInputElement) => {
+    const event = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+    input.dispatchEvent(event);
+    return event;
+  };
+  const tokens = (el: GtTable) => Array.from(el.querySelectorAll(".gt-i-token-open"), (b) => b.textContent);
+
+  const mountDates = (filter: FilterSpec, kind: "date" | "datetime") =>
+    mountTable(GROUPED, {
+      filters: [filter],
+      columns: { x: { kind } as never },
+      controls: { bar: true },
+    });
+
+  it("filters by dates from date fields, from the column's first to its last", async () => {
+    const el = await mountDates(DATES, "date");
+    filterButton(el).click();
+    const [from, to] = inputs(el);
+    expect([from.type, to.type]).toEqual(["date", "date"]);
+    expect([from.getAttribute("aria-label"), to.getAttribute("aria-label")]).toEqual(["x, from", "x, to"]);
+    expect([from.min, from.max]).toEqual(["2015-01-05", "2015-01-20"]);
+    expect(from.step).toBe("");
+    expect(from.closest(".gt-i-filter-range")?.classList.contains("gt-i-filter-range-stacked")).toBe(false);
+
+    type(from, "2015-01-10");
+    expect(enter(from).defaultPrevented).toBe(true);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: "2015-01-10" }] });
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "group:a", 2, "grand:Max"]);
+    type(to, "2015-01-19");
+    enter(to);
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    type(from, "");
+    enter(from);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "lte", value: "2015-01-19" }] });
+
+    // (And shows a filter set otherwise)
+    el.filter = { and: [{ col: "x", op: "gte", value: "2015-01-06" }] };
+    expect([from.value, to.value]).toEqual(["2015-01-06", ""]);
+    expect(() => {
+      el.filter = { and: [{ col: "x", op: "gte", value: "2015-01-06T00:00" }] };
+    }).toThrow(/isn't a date \("YYYY-MM-DD"\), for "x"/);
+  });
+
+  it("filters by dates and times, a date as its midnight", async () => {
+    const el = await mountDates(TIMES, "datetime");
+    filterButton(el).click();
+    const [from, to] = inputs(el);
+    expect(from.type).toBe("datetime-local");
+    // (One above the other, being wide)
+    expect(from.closest(".gt-i-filter-range")?.classList.contains("gt-i-filter-range-stacked")).toBe(true);
+    // (With seconds, as a time has them; and milliseconds at most)
+    expect(from.step).toBe("1");
+    expect([from.min, from.max]).toEqual(["2015-01-05T00:00:00", "2015-01-20T12:00:05.123"]);
+
+    el.filter = { and: [{ col: "x", op: "gte", value: "2015-01-10" }] };
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "group:a", 2, "grand:Max"]);
+    expect(from.value).toBe("2015-01-10T00:00");
+    el.filter = { and: [{ col: "x", op: "gte", value: "2015-01-10T09:30:00.000001" }] };
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+    // (A field that has its bound, as it shows it, leaves it be)
+    from.dispatchEvent(new Event("input", { bubbles: true }));
+    enter(from);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: "2015-01-10T09:30:00.000001" }] });
+    type(from, "2015-01-10T09:29");
+    enter(from);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: "2015-01-10T09:29" }] });
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "group:a", 2, "grand:Max"]);
+  });
+
+  it("has date fields for dates and times that are all at midnight", async () => {
+    // (As pandas holds dates)
+    const midnights = { ...DATES, values: DATES.values?.map((value) => `${value}T00:00:00`) ?? null };
+    const el = await mountDates(midnights, "datetime");
+    filterButton(el).click();
+    const [from] = inputs(el);
+    expect([from.type, from.min, from.step]).toEqual(["date", "2015-01-05", ""]);
+    type(from, "2015-01-10");
+    enter(from);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: "2015-01-10" }] });
+    // (But still takes a time)
+    el.filter = { and: [{ col: "x", op: "gte", value: "2015-01-10T09:30" }] };
+    expect(from.value).toBe("2015-01-10");
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+  });
+
+  it("says what it keeps, with its dates as the table shows them, or as the language has them", async () => {
+    const el = await mountDates(DATES, "date");
+    el.setAttribute("lang", "de");
+    el.filter = { and: [{ col: "x", op: "gte", value: "2015-01-10" }] };
+    expect(tokens(el)).toEqual(["x ≥ 10"]);
+    el.filter = { and: [{ col: "x", op: "gte", value: "2015-01-07" }, { col: "x", op: "lte", value: "2015-01-20" }] };
+    expect(tokens(el)).toEqual(["x 07.01.2015 – 20"]);
+
+    const times = await mountDates(TIMES, "datetime");
+    times.setAttribute("lang", "de");
+    times.filter = { and: [{ col: "x", op: "lte", value: "2015-01-10T09:30" }] };
+    expect(tokens(times)).toEqual(["x ≤ 10"]);
+    times.filter = { and: [{ col: "x", op: "lte", value: "2015-01-07T09:30" }] };
+    expect(tokens(times)).toEqual(["x ≤ 07.01.2015, 09:30"]);
+    times.filter = { and: [{ col: "x", op: "lte", value: "2015-01-07T09:30:15" }] };
+    expect(tokens(times)).toEqual(["x ≤ 07.01.2015, 09:30:15"]);
+  });
+
+  it("suggests its ops, and its first and last dates, in the query box", async () => {
+    const el = await mountDates(DATES, "date");
+    (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
+    const input = el.querySelector(".gt-i-query input") as HTMLInputElement;
+    const options = () =>
+      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => (li.firstChild as Text).data);
+    const press = (key: string) =>
+      input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+    input.value = "x ";
+    input.setSelectionRange(2, 2);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    expect(options()).toEqual(['>= "…"', '<= "…"']);
+    press("Enter");
+    expect(input.value).toBe('x >= ""');
+    expect(input.selectionStart).toBe(6);
+    expect(options()).toEqual(["5", "20"]);
+    press("ArrowDown");
+    press("Enter");
+    expect(input.value).toBe('x >= "2015-01-20" ');
+    press("Escape");
+    press("Enter");
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: "2015-01-20" }] });
+
+    // (While a date's typed, the dates it fits; but none once it's closed, so Enter applies it)
+    (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
+    input.value = 'x <= "2015-01';
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    expect(options()).toEqual(["5", "20"]);
+    input.value = 'x <= "2015-01-1"';
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    expect(options()).toEqual([]);
+    input.value = 'x <= "2015-01-10"';
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    press("Enter");
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "lte", value: "2015-01-10" }] });
+
+    (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
+    input.value = "x >= 5";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    press("Enter");
+    expect(el.querySelector(".gt-i-query-error")?.textContent).toBe(
+      'X has a date filter: give a date in double quotes ("YYYY-MM-DD")',
+    );
+  });
+});
+
 describe("the query box", () => {
   const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
   const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
@@ -3436,10 +3602,10 @@ describe("the query box", () => {
     replace(el, "x >= ten");
     press(input(el), "Enter");
     expect(error(el).hidden).toBe(false);
-    expect(error(el).textContent).toBe("Expected a number");
+    expect(error(el).textContent).toBe("Expected a number, or a date in double quotes");
     expect(input(el).getAttribute("aria-invalid")).toBe("true");
     expect(input(el).getAttribute("aria-describedby")).toBe(error(el).id);
-    expect(live(el)).toBe("Expected a number");
+    expect(live(el)).toBe("Expected a number, or a date in double quotes");
     expect(input(el).selectionStart).toBe(5);
     expect(root(el).hidden).toBe(false);
     expect(el.filter).toBeNull();
@@ -3453,7 +3619,7 @@ describe("the query box", () => {
 
     replace(el, "x >=");
     press(input(el), "Enter");
-    expect(error(el).textContent).toBe("Expected a number");
+    expect(error(el).textContent).toBe("Expected a number, or a date in double quotes");
     replace(el, "x >= 1 or y in (1)");
     press(input(el), "Enter");
     expect(error(el).textContent).toBe('Expected "and" or the end of the query');

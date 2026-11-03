@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pyNumber, viewCode } from "../src/code";
+import { pyDate, pyNumber, viewCode } from "../src/code";
 import type { FilterQuery } from "../src/filter";
 import type { SortKey } from "../src/sort";
 import type { CodeBackend, CodeColumnSpec, CodeSpec, FilterSpec } from "../src/spec";
@@ -56,6 +56,22 @@ describe("pyNumber", () => {
     expect(pyNumber(-1.5e-7)).toBe("-1.5e-07");
     expect(pyNumber(5e-324)).toBe("5e-324");
     expect(pyNumber(123456.789)).toBe("123456.789");
+  });
+});
+
+describe("pyDate", () => {
+  it("writes a date as Python's `repr()` of a date does", () => {
+    expect(pyDate("2015-06-05", false)).toBe("datetime.date(2015, 6, 5)");
+    expect(pyDate("0001-01-01", false)).toBe("datetime.date(1, 1, 1)");
+  });
+
+  it("writes a date and time as Python's `repr()` of a datetime does, a date as its midnight", () => {
+    expect(pyDate("2015-06-05", true)).toBe("datetime.datetime(2015, 6, 5, 0, 0)");
+    expect(pyDate("2015-06-05T09:30", true)).toBe("datetime.datetime(2015, 6, 5, 9, 30)");
+    expect(pyDate("2015-06-05T09:30:00", true)).toBe("datetime.datetime(2015, 6, 5, 9, 30)");
+    expect(pyDate("2015-06-05T09:30:07", true)).toBe("datetime.datetime(2015, 6, 5, 9, 30, 7)");
+    expect(pyDate("2015-06-05T09:30:00.5", true)).toBe("datetime.datetime(2015, 6, 5, 9, 30, 0, 500000)");
+    expect(pyDate("2015-06-05T09:30:01.000001", true)).toBe("datetime.datetime(2015, 6, 5, 9, 30, 1, 1)");
   });
 });
 
@@ -228,6 +244,33 @@ describe("viewCode", () => {
     );
     // (Which Polars and Narwhals don't need)
     expect(code(query, [], "polars", { spec })).toContain('    pl.col("num") >= 1,\n    pl.col("num") <= 2.5,\n');
+  });
+
+  it("writes a date filter's bounds as dates, or datetimes for a column with times", () => {
+    const filters: FilterSpec[] = [
+      { column: "d", type: "date", values: ["2015-06-15"] },
+      { column: "t", type: "date", values: ["2015-06-15T09:30:00"] },
+    ];
+    const spec: CodeSpec = { backend: "polars", columns: { d: column("date"), t: column("datetime", null, true) } };
+    const query: FilterQuery = {
+      and: [
+        { col: "d", op: "gte", value: "2015-06-15" },
+        { col: "t", op: "lte", value: "2015-06-15" },
+      ],
+    };
+    expect(code(query, [], "polars", { filters, spec })).toBe(
+      "import datetime\nimport polars as pl\n\ndf.filter(\n" +
+        '    pl.col("d") >= datetime.date(2015, 6, 15),\n' +
+        '    pl.col("t") <= datetime.datetime(2015, 6, 15, 0, 0),\n)\n',
+    );
+    expect(code(query, [], "pandas", { filters, spec })).toBe(
+      "import datetime\n\ndf[\n" +
+        '    (df["d"] >= datetime.date(2015, 6, 15))\n' +
+        '    & ((df["t"] <= datetime.datetime(2015, 6, 15, 0, 0)).fillna(False))\n]\n',
+    );
+    expect(code(query, [], "narwhals", { filters, spec })).toContain(
+      '        nw.col("d") >= datetime.date(2015, 6, 15),\n        nw.col("t") <= datetime.datetime(2015, 6, 15, 0, 0),\n',
+    );
   });
 
   it("writes column names as Python strings", () => {
