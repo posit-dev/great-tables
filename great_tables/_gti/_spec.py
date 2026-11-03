@@ -32,6 +32,9 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `view`: how the table is first shown: filtered by a query (as `<gt-table>`'s `filter` property
   takes, or `null`), and sorted by columns (as its `sort` property takes). The runtime applies it
   without events. Producers that leave `view` out show the table as it is.
+- `export`: how readers can export the rows, from the bar: by copying them (`"clipboard"`) or
+  downloading them as CSV (`"csv"`), and the name of a download, without its extension
+  (`filename`). Producers that leave `export` out (or give no `formats`) have no export.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -51,7 +54,7 @@ from .._tbl_data import (
     n_rows,
 )
 from .._utils_render_html import _get_header_ids
-from ._settings import FilterType, PaginationType, SelectionMode, settings_of
+from ._settings import ExportFormat, FilterType, PaginationType, SelectionMode, settings_of
 
 if TYPE_CHECKING:
     from .._gt_data import GTData
@@ -155,6 +158,11 @@ class ViewSpec(TypedDict):
     sort: list[ViewSortSpec]
 
 
+class ExportSpec(TypedDict):
+    formats: list[ExportFormat]
+    filename: str  # without its extension
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -171,6 +179,7 @@ class Spec(TypedDict):
     layout: LayoutSpec
     filters: list[FilterSpec]
     view: ViewSpec
+    export: ExportSpec
 
 
 def build_spec(data: GTData) -> Spec:
@@ -303,6 +312,7 @@ def build_spec(data: GTData) -> Spec:
         layout=LayoutSpec(height=settings.height, responsive="scroll"),
         filters=filters,
         view=view,
+        export=ExportSpec(formats=list(settings.export_formats), filename=settings.export_filename),
     )
 
 
