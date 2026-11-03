@@ -49,6 +49,13 @@ describe("parseSpec()", () => {
     expect(parse(valid).columns[0]?.sortable).toBeUndefined();
   });
 
+  it("takes the side a column is pinned to, or its absence", () => {
+    for (const pin of ["start", "end", null]) {
+      expect(parse({ ...valid, columns: [{ ...valid.columns[0], pin }] }).columns[0]?.pin).toBe(pin);
+    }
+    expect(parse(valid).columns[0]?.pin).toBeUndefined();
+  });
+
   it("takes the control bar, or its absence", () => {
     expect(parse({ ...valid, controls: { ...valid.controls, bar: true } }).controls.bar).toBe(true);
     expect(parse(valid).controls.bar).toBeUndefined();
@@ -201,6 +208,16 @@ describe("parseSpec()", () => {
       "has a column that's resizable with a number",
       JSON.stringify({ ...valid, columns: [valid.columns[0], { ...valid.columns[0], resizable: 0 }] }),
       /`columns\[1\]`/,
+    ],
+    [
+      "has a column pinned to a physical side",
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], pin: "left" }] }),
+      /`columns\[0\]`.*pinned/,
+    ],
+    [
+      "has a column pinned with a boolean",
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], pin: true }] }),
+      /`columns\[0\]`/,
     ],
     ["has a view state that isn't an object", viewState(true), /`view_state`/],
     ["has a view state without storage", viewState({ url: true, key: "t", undo: false }), /`view_state`/],

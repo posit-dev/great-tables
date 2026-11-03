@@ -35,6 +35,11 @@ ExportFormat = Literal["csv", "clipboard", "code"]
 
 EXPORT_FORMATS: tuple[ExportFormat, ...] = ("csv", "clipboard", "code")
 
+# The side of the table a column is pinned to: the stub's (the first columns), or the other one
+PinSide = Literal["left", "right"]
+
+PIN_SIDES: tuple[PinSide, ...] = ("left", "right")
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -64,6 +69,8 @@ class Settings:
     unsortable: tuple[str, ...] = ()
     unsearchable: tuple[str, ...] = ()
     unresizable: tuple[str, ...] = ()
+    # (The columns pinned to a side, as `i_cols_pin()` set them, in the order they were set)
+    pins: tuple[tuple[str, PinSide], ...] = ()
     # (The columns readers can filter by, and how, in the order they were set)
     filters: tuple[tuple[str, FilterType], ...] = ()
     # (How the table is first shown: a query, checked as `i_view()` takes it, and sort keys,

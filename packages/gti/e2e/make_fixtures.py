@@ -275,6 +275,36 @@ def export_html(table_id: str) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def pin_html(table_id: str, groups_as_column: bool = False, height: str | None = None) -> str:
+    # A GTI table of exibble three times over (24 rows, in two groups), on one page, selectable,
+    # with every column: char moved to the start and pinned there, and fctr moved to the end and
+    # pinned there, under a spanner across its edge (with currency); with group and grand summary
+    # rows, a footnote and a source note. Wider than its container.
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    gti = (
+        GTI(data, rowname_col="row", groupname_col="group", id=table_id)
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .cols_move_to_start("char")
+        .cols_move_to_end("fctr")
+        .row_group_order(["grp_b", "grp_a"])
+        .opt_row_striping()
+        .tab_options(row_group_as_column=groups_as_column)
+        .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
+        .grand_summary_rows(fns={"Max": lambda df: df[["num", "currency"]].max()})
+        .tab_spanner(label="Ends", columns=["currency", "fctr"])
+        .tab_footnote("A fruit.", locations=loc.body(columns="char", rows=[0]))
+        .tab_source_note("Source: great_tables.exibble")
+        .i_pagination(enabled=False)
+        .i_selection("multiple")
+        .i_scroll(height)
+        .i_cols_pin("char")
+        .i_cols_pin("fctr", side="right")
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def code_gti(table_id: str, data, filter: str | None = None, sort: list[str] | None = None) -> GTI:
     # A GTI table of exibble (8 rows, in two groups), with a search: `num` filtered by a range,
     # `char` by text, and `fctr` and `date` by facets; exported as code (and as CSV, and copied)
@@ -569,6 +599,24 @@ def main() -> None:
         "undo.html": page(state_html("u", url=False) + "\n" + runtime_src, head=styles),
         # Column controls: a GTI table with columns that can't be sorted, searched, or resized
         "controls.html": page(controls_html("cc") + "\n" + runtime_src, head=styles),
+        # Pinned columns (at the start and the end), in a container 480px wide: with group
+        # headings; with groups shown as a column, in a body that scrolls (in one 640px wide, with
+        # room for that column); and right to left
+        "pin.html": page(
+            '<div style="width: 480px">' + pin_html("pn") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "pin-column.html": page(
+            '<div style="width: 640px">'
+            + pin_html("pn", groups_as_column=True, height="300px")
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "pin-rtl.html": page(
+            '<div dir="rtl" style="width: 480px">' + pin_html("pn") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
         # Export: from a GTI table 5 rows to a page, whose rows can be selected
         "export.html": page(export_html("e") + "\n" + runtime_src, head=styles),
         # Export as code: from GTI tables of pandas data and of Polars data, the latter with a

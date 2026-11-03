@@ -428,6 +428,91 @@ def test_i_cols_controls_flags_must_be_bools(name: str, value):
         GTI(DF).i_cols_controls(columns="y", **{name: value})
 
 
+def pins_of(gt: GT) -> dict:
+    return {column["id"]: column["pin"] for column in spec_of(gt)["columns"]}
+
+
+PIN_DF = pd.DataFrame({name: [1, 2] for name in ["id", "a", "b", "c", "d", "e"]})
+
+
+def test_i_cols_pin_none_by_default():
+    gti = GTI(PIN_DF, rowname_col="id")
+    assert gti._interactive.pins == ()
+    assert set(pins_of(gti).values()) == {None}
+
+
+def test_i_cols_pin():
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_pin(["a", "b"]).i_cols_pin("e", side="right")
+    assert gti._interactive.pins == (("a", "left"), ("b", "left"), ("e", "right"))
+    # (As the start and end of the column order, in the spec)
+    assert pins_of(gti) == {
+        "id": None,
+        "a": "start",
+        "b": "start",
+        "c": None,
+        "d": None,
+        "e": "end",
+    }
+
+
+def test_i_cols_pin_replaces_and_unpins():
+    gti = GTI(PIN_DF).i_cols_pin(["id", "a"]).i_cols_pin("a", side="right")
+    assert gti._interactive.pins == (("id", "left"), ("a", "right"))
+    assert gti.i_cols_pin("a", side=None)._interactive.pins == (("id", "left"),)
+    assert gti.i_cols_pin(side=None)._interactive.pins == ()
+    # (Every column but the stub)
+    every = GTI(PIN_DF, rowname_col="id").i_cols_pin(side="right")
+    assert [column for column, _ in every._interactive.pins] == ["a", "b", "c", "d", "e"]
+    assert set(pins_of(every).values()) == {None, "end"}
+
+
+def test_i_cols_pin_leaves_out_the_stub_and_row_group_column():
+    # (They're always pinned, at the start)
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_pin(["id", "a"], side="right")
+    assert pins_of(gti.cols_move_to_end("a")) == {
+        "id": None,
+        "b": None,
+        "c": None,
+        "d": None,
+        "e": None,
+        "a": "end",
+    }
+    grouped = GTI(PIN_DF, groupname_col="b").i_cols_pin(["b", "id"])
+    assert grouped._interactive.pins == (("id", "left"),)
+
+
+def test_i_cols_pin_checks_columns_are_next_to_their_side():
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_pin(["a", "c"])
+    with pytest.raises(ValueError, match=r"Column 'c' can't be pinned to the left") as error:
+        spec_of(gti)
+    assert "('b') would have to be pinned too" in str(error.value)
+    assert "`cols_move_to_start()`" in str(error.value)
+
+    right = GTI(PIN_DF, rowname_col="id").i_cols_pin(["b", "e"], side="right")
+    with pytest.raises(ValueError, match=r"Column 'b' can't be pinned to the right") as error:
+        spec_of(right)
+    assert "('c', 'd') would have to be pinned too" in str(error.value)
+    assert "`cols_move_to_end()`" in str(error.value)
+
+    # (Checked once the columns are in their places: moving them there is enough)
+    assert pins_of(gti.cols_move_to_start("c"))["c"] == "start"
+    assert pins_of(right.cols_move_to_end("b"))["b"] == "end"
+
+
+def test_i_cols_pin_skips_hidden_columns():
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_pin(["a", "c"]).cols_hide("b")
+    assert pins_of(gti) == {"id": None, "a": "start", "c": "start", "d": None, "e": None}
+    # (A pinned column that's hidden isn't in the spec)
+    hidden = GTI(PIN_DF).i_cols_pin(["id", "c"]).cols_hide(["a", "c"])
+    assert pins_of(hidden) == {"id": "start", "b": None, "d": None, "e": None}
+
+
+@pytest.mark.parametrize("side", ["start", "LEFT", True])
+def test_i_cols_pin_side_must_be_a_side(side):
+    with pytest.raises(ValueError, match='`side=` must be "left", "right", or `None`'):
+        GTI(PIN_DF).i_cols_pin("a", side=side)
+
+
 def test_i_cols_filter_values_are_json():
     df = pd.DataFrame(
         {
