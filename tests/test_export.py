@@ -204,6 +204,29 @@ def test_infer_render_target_import_error():
     assert result == "browser"
 
 
+@pytest.mark.parametrize("running, dst", [(True, "notebook"), (False, "browser")])
+def test_infer_render_target_marimo(running: bool, dst: str):
+    marimo = MagicMock()
+    marimo.running_in_notebook.return_value = running
+
+    with patch.dict("sys.modules", {"marimo": marimo}):
+        assert _infer_render_target(None) == dst
+
+
+def test_show_notebook_target_in_marimo(gt_tbl: GT):
+    marimo = MagicMock()
+    marimo.running_in_notebook.return_value = True
+
+    with (
+        patch.dict("sys.modules", {"marimo": marimo}),
+        patch("IPython.core.display.display_html") as mock_display,
+    ):
+        gt_tbl.show()
+
+    marimo.output.append.assert_called_once_with(gt_tbl)
+    mock_display.assert_not_called()
+
+
 def test_show_browser_target(gt_tbl: GT):
     with (
         patch("webbrowser.open"),
