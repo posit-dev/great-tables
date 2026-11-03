@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   type BodyRow,
   type CodeSpec,
+  type ColumnSpec,
   type ControlsSpec,
   type DisplaySpec,
   define,
@@ -86,6 +87,8 @@ interface TableOptions {
   export?: { formats: ExportFormat[]; filename?: string; code?: CodeSpec | null };
   /** The view isn't kept unless set. */
   viewState?: object;
+  /** What readers can do with each column (by its id), if not everything. */
+  columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable">>;
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -158,7 +161,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
       { id: "row", role: "stub", kind: "string", align: "left", header: null },
       { id: "x", role: "data", kind: "number", align: "right", header: "t-x" },
       { id: "y", role: "data", kind: "string", align: "left", header: "t-y" },
-    ],
+    ].map((column) => ({ ...column, ...options.columns?.[column.id] })),
     spanners: options.spanners ?? [],
     stub: { columns: ["row"], groups_as_column: groupsAsColumn },
     groups,
@@ -4523,6 +4526,131 @@ describe("column resizing", () => {
     press(handles(el)[1] as HTMLElement, "ArrowRight");
     el.sort = [{ column: "y", descending: false }];
     expect(widths(el)).toEqual(["100px", "110px", "100px"]);
+  });
+});
+
+describe("column controls", () => {
+  const handles = (el: GtTable) =>
+    Array.from(el.querySelectorAll<HTMLElement>(".gt-i-resizer"), (handle) => handle.getAttribute("aria-label"));
+  const infoItem = (el: GtTable, name: string) => el.querySelector(`[data-gti-info="${name}"]`) as HTMLElement | null;
+  const keys = (el: GtTable) =>
+    Array.from(el.querySelectorAll<HTMLElement>(".gt-i-info-keys > div"))
+      .filter((entry) => !entry.hidden)
+      .map((entry) => entry.querySelector("dd")?.textContent);
+  const SORTED_BY_X = ["group:b", 0, 4, 3, "summary:Total", "group:a", 1, 2, "grand:Max"];
+
+  it("gives an unsortable column no sort button, though code can sort by it", async () => {
+    const el = await mountTable(GROUPED, { columns: { x: { sortable: false } }, yLabel: "Why" });
+    expect(header(el, "x").querySelector("button")).toBeNull();
+    expect(header(el, "x").textContent).toBe("x");
+    expect(button(el, "y")).not.toBeNull();
+    expect(el.sortableColumns).toContain("x");
+
+    el.sort = [{ column: "x", descending: false }];
+    expect(shown(el)).toEqual(SORTED_BY_X);
+    expect(header(el, "x").hasAttribute("aria-sort")).toBe(false);
+  });
+
+  it("starts sorted by an unsortable column, as the spec's view says", async () => {
+    const el = await mountTable(GROUPED, {
+      columns: { x: { sortable: false } },
+      view: { filter: null, sort: [{ column: "x", descending: false }] },
+    });
+    expect(shown(el)).toEqual(SORTED_BY_X);
+  });
+
+  it("says how the table is sorted by an unsortable column with its label", async () => {
+    const thead =
+      `<tr class="gt_col_headings"><th class="gt_col_heading"></th>` +
+      `<th class="gt_col_heading" id="t-x">Ex</th><th class="gt_col_heading" id="t-y">y</th></tr>`;
+    const el = await mountTable(GROUPED, {
+      thead,
+      columns: { x: { sortable: false } },
+      controls: { bar: true, search: true },
+    });
+    el.sort = [{ column: "x", descending: true }];
+    expect(infoItem(el, "sort")?.firstElementChild?.textContent).toBe("Sorted by Ex, descending");
+  });
+
+  it("leaves the sort out of the info panel when no column has a sort button", async () => {
+    const el = await mountTable(GROUPED, {
+      columns: { x: { sortable: false }, y: { sortable: false } },
+      controls: { bar: true, search: true },
+    });
+    expect(el.querySelector("button.gt-i-sort")).toBeNull();
+    expect(el.querySelector(".gt-i-info")).not.toBeNull();
+    expect(infoItem(el, "sort")).toBeNull();
+    expect(keys(el)).not.toContain("Sort by more than one column");
+  });
+
+  it("filters by an unsortable column", async () => {
+    const el = await mountTable(GROUPED, {
+      columns: { y: { sortable: false } },
+      filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }],
+    });
+    expect(header(el, "y").querySelector("button.gt-i-sort")).toBeNull();
+    expect(header(el, "y").querySelector("button.gt-i-filter-button")).not.toBeNull();
+    el.filter = { and: [{ col: "y", op: "in", value: ["c"] }] };
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+  });
+
+  it("leaves an unsearchable column out of the search", async () => {
+    const el = await mountTable(GROUPED, { columns: { x: { searchable: false } }, controls: { search: true } });
+    // (Rows 0 and 4 have "20" in x; none has it in another column)
+    el.search = "20";
+    expect(visible(el)).toEqual(["grand:Max"]);
+    el.search = "c";
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    // (Every word in one of the cells it looks in)
+    el.search = "row_1 b";
+    expect(visible(el)).toEqual(["group:b", 0, "summary:Total", "grand:Max"]);
+    el.search = "row_1 20";
+    expect(visible(el)).toEqual(["grand:Max"]);
+  });
+
+  it("leaves an unsearchable stub column out of the search", async () => {
+    const el = await mountTable(GROUPED, { columns: { row: { searchable: false } }, controls: { search: true } });
+    el.search = "row_1";
+    expect(visible(el)).toEqual(["grand:Max"]);
+    el.search = "5";
+    expect(visible(el)).toEqual(["group:a", 1, "grand:Max"]);
+  });
+
+  it("filters an unsearchable column by its text", async () => {
+    const el = await mountTable(GROUPED, {
+      columns: { x: { searchable: false } },
+      controls: { search: true },
+      filters: [{ column: "x", type: "text", values: null }],
+    });
+    el.filter = { and: [{ col: "x", op: "contains", value: "20" }] };
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+  });
+
+  describe("resizing", () => {
+    const resizable = (options: TableOptions = {}) => {
+      vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
+      return mountTable(GROUPED, { ...options, controls: { resizing: true, ...options.controls } });
+    };
+
+    it("gives an unresizable column no handle", async () => {
+      const el = await resizable({ columns: { x: { resizable: false } } });
+      expect(handles(el)).toEqual(["Resize column 1", "Resize y"]);
+      expect(header(el, "x").classList.contains("gt-i-resizable")).toBe(false);
+    });
+
+    it("finds the column after the selection column", async () => {
+      const el = await resizable({ columns: { row: { resizable: false } }, controls: { selection: "multiple" } });
+      expect(handles(el)).toEqual(["Resize x", "Resize y"]);
+    });
+
+    it("finds the column after the row group column", async () => {
+      const thead =
+        `<tr class="gt_col_headings"><th class="gt_col_heading">Group</th><th class="gt_col_heading"></th>` +
+        `<th class="gt_col_heading" id="t-x">x</th><th class="gt_col_heading" id="t-y">y</th></tr>`;
+      const el = await resizable({ thead, groupsAsColumn: true, columns: { y: { resizable: false } } });
+      // (The row group column stays resizable)
+      expect(handles(el)).toEqual(["Resize Group", "Resize column 2", "Resize x"]);
+    });
   });
 });
 
