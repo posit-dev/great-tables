@@ -42,7 +42,9 @@ import {
   type Spec,
   SpecError,
   type ViewSpec,
+  type ViewStateSpec,
 } from "./spec";
+import { paramsText, readParams, readView, type View, viewParams, writeParams } from "./state";
 
 export const TAG_NAME = "gt-table";
 
@@ -69,6 +71,12 @@ export const SELECT_EVENT = "gt-table-select";
  * `toCSV()`, `copyTable()` or `toCode()` is called).
  */
 export const EXPORT_EVENT = "gt-table-export";
+
+/**
+ * The event fired when the reader changes the view: the filters, sort, search, page or page size
+ * (with the events for each), or resets it (not when properties are set, or `resetView()` is called).
+ */
+export const VIEW_EVENT = "gt-table-view";
 
 /** The name of the search highlight, for styling with `::highlight(gt-i-search)`. */
 export const SEARCH_HIGHLIGHT = "gt-i-search";
@@ -132,6 +140,9 @@ export interface PageEventDetail {
   pageSize: number | null;
   pageCount: number;
 }
+
+/** The view: as the `filter`, `sort`, `search`, `page` and `pageSize` properties have it. */
+export type ViewEventDetail = View;
 
 /** A row group, as far as showing and hiding its rows goes. */
 interface Group {
@@ -344,8 +355,8 @@ interface Popup {
 
 /**
  * The info panel, which the bar's (i) button opens: which rows are shown, the page size, the sort
- * and the selection (each with a way to change it, where the table has one), and the keys the
- * table answers to.
+ * and the selection (each with a way to change it, where the table has one), where the view is
+ * kept (with a way to reset it), and the keys the table answers to.
  */
 interface Info extends Popup {
   /** Which rows are shown ("21–30 of 118 rows"). */
@@ -365,6 +376,9 @@ interface Info extends Popup {
   selection: HTMLElement | null;
   selectionText: HTMLElement | null;
   selectionClear: HTMLButtonElement | null;
+  /** Where the view is kept, and the button that resets it (with `view_state`). */
+  view: HTMLElement | null;
+  viewReset: HTMLButtonElement | null;
   /** The keys the table answers to, of which those for paging are listed while there are pages. */
   keys: HTMLElement | null;
   pageKeys: HTMLElement[];
@@ -671,6 +685,11 @@ export class GtTable extends HTMLElement {
   private pinFrame = 0;
   /** Whether we made the container a region that can be focused, as it scrolls. */
   private regioned = false;
+  /** The view the table is first shown with (the spec's), which `resetView()` goes back to. */
+  private authorView: View | null = null;
+  /** Where the reader's view is kept (`view_state`), once it has been read; and its parameters as last kept. */
+  private keeper: ViewStateSpec | null = null;
+  private keptText: string | null = null;
 
   get state(): State | null {
     return this.getAttribute("data-gti-state") as State | null;
@@ -709,18 +728,7 @@ export class GtTable extends HTMLElement {
   set search(value: string) {
     this.cancelSearchTimer();
     this.applySearch(String(value));
-    if (this.searchBox !== null) {
-      this.searchBox.value = this.searchValue;
-    }
-    // The bar's search is open while there's a search (and closes after one, unless it has focus)
-    const field = this.bar?.field;
-    if (field != null) {
-      if (this.searchValue !== "") {
-        this.openSearch(false);
-      } else if (!field.contains(this.ownerDocument.activeElement)) {
-        this.closeSearch(false);
-      }
-    }
+    this.showSearch();
   }
 
   /** The columns the table can be filtered by (see `filter`). Empty until hydrated. */
@@ -917,6 +925,21 @@ export class GtTable extends HTMLElement {
     return spec == null || code == null ? "" : viewCode(this.filter, this.sortKeys, spec.filters ?? [], code, backend ?? code.backend);
   }
 
+  /**
+   * Go back to the view the table is first shown with: the filters and sort of the author's view
+   * (`i_view()`), without a search, on the first page of the table's page size. The view kept in
+   * the URL and the browser's storage (with `view_state`) is cleared. Does nothing until hydrated.
+   */
+  resetView(): void {
+    const base = this.authorView;
+    if (base === null) {
+      return;
+    }
+    this.setView(base);
+    this.matchRows();
+    this.render();
+  }
+
   private hydrate(): void {
     if (!this.isConnected || this.table !== null) {
       return;
@@ -958,6 +981,8 @@ export class GtTable extends HTMLElement {
     this.spec = spec;
 
     this.movable = !this.hasMergedStubCells();
+    const state = spec.view_state;
+    this.keeper = this.movable && state?.key != null && (state.url || state.storage) ? state : null;
     this.order = spec.body.filter((entry): entry is number => typeof entry === "number");
     // Rows selected before hydration that the table can't have selected are dropped
     const mode = spec.controls.selection;
@@ -992,6 +1017,16 @@ export class GtTable extends HTMLElement {
     if (this.movable && spec.view !== undefined) {
       this.applySpecView(spec, spec.view);
     }
+    if (this.movable) {
+      this.authorView = {
+        filter: this.filter,
+        sort: this.sort,
+        search: "",
+        page: 1,
+        pageSize: spec.pagination.enabled ? spec.pagination.page_size : null,
+      };
+      this.restoreView(spec, this.authorView);
+    }
     // A search or page set before hydration applies now
     this.matchRows();
     if (this.matched !== null || this.size !== null || this.sortKeys.length > 0) {
@@ -1003,6 +1038,7 @@ export class GtTable extends HTMLElement {
         this.updateBar(this.bar);
       }
     }
+    this.saveView();
     this.setState("ready");
   }
 
@@ -1031,6 +1067,128 @@ export class GtTable extends HTMLElement {
     for (const control of this.filters) {
       this.syncFilter(control);
     }
+  }
+
+  // Show the view kept in the URL, or else in the browser's storage (as `view_state` says), without
+  // events. A part of it the table can't have is left out, with a warning, and the rest shown.
+  private restoreView(spec: Spec, base: View): void {
+    const state = this.keeper;
+    const win = this.ownerDocument.defaultView;
+    if (state === null || state.key === null || win === null) {
+      return;
+    }
+    const params =
+      (state.url ? readParams(win.location.search, state.key) : null) ??
+      (state.storage ? readParams(this.storedView(state.key) ?? "") : null);
+    if (params === null) {
+      return;
+    }
+    const warn = (message: string) => console.warn(`<gt-table>: ${message}.`);
+    const { size_select, page_size, page_sizes } = spec.pagination;
+    const view = readView(
+      params,
+      base,
+      {
+        ranks: spec.controls.sorting ? spec.ranks : null,
+        search: spec.controls.search,
+        sizes: !spec.pagination.enabled ? [] : size_select ? [...page_sizes, page_size] : [page_size],
+      },
+      warn,
+    );
+    try {
+      setFilterQuery(
+        this.filters.map((control) => control.filter),
+        view.filter,
+      );
+    } catch (err) {
+      if (!(err instanceof RangeError)) {
+        throw err;
+      }
+      warn(`the saved view's filter is left out (${err.message})`);
+      view.filter = base.filter;
+    }
+    this.setView(view);
+  }
+
+  // Set the view's parts (the filters, sort, search, page and page size), to be shown
+  private setView(view: View): void {
+    this.cancelSearchTimer();
+    this.cancelFilterTimer();
+    setFilterQuery(
+      this.filters.map((control) => control.filter),
+      view.filter,
+    );
+    for (const control of this.filters) {
+      this.syncFilter(control);
+    }
+    this.sortKeys = view.sort.map((key) => ({ ...key }));
+    this.searchValue = view.search;
+    this.showSearch();
+    this.pageSizeValue = view.pageSize;
+    this.pageValue = view.page;
+  }
+
+  // The view shown
+  private currentView(): View {
+    return { filter: this.filter, sort: this.sort, search: this.searchValue, page: this.page, pageSize: this.size };
+  }
+
+  // Whether the view is the one the table is first shown with
+  private isAuthorView(): boolean {
+    return this.authorView === null || viewParams(this.currentView(), this.authorView).length === 0;
+  }
+
+  // Keep the view, as `view_state` says, when it has changed: in the URL (replacing the table's
+  // parameters there, not adding to the history), and in the browser's storage
+  private saveView(): void {
+    const state = this.keeper;
+    const base = this.authorView;
+    const win = this.ownerDocument.defaultView;
+    if (state === null || state.key === null || base === null || win === null) {
+      return;
+    }
+    const params = viewParams(this.currentView(), base);
+    const text = paramsText(params);
+    if (text === this.keptText) {
+      return;
+    }
+    this.keptText = text;
+    // (A page in a sandboxed frame, say, can't have either)
+    try {
+      const { location, history } = win;
+      if (state.url && paramsText(readParams(location.search, state.key) ?? []) !== text) {
+        const query = writeParams(location.search, state.key, params);
+        history.replaceState(history.state, "", `${location.pathname}${query}${location.hash}`);
+      }
+    } catch {
+      // (Not kept in the URL)
+    }
+    try {
+      if (state.storage) {
+        const storage = win.localStorage;
+        if (text === "") {
+          storage.removeItem(this.storageKey(state.key));
+        } else {
+          storage.setItem(this.storageKey(state.key), text);
+        }
+      }
+    } catch {
+      // (Not kept in storage)
+    }
+  }
+
+  // The view kept in the browser's storage, if any (and it can be read)
+  private storedView(key: string): string | null {
+    try {
+      return this.ownerDocument.defaultView?.localStorage.getItem(this.storageKey(key)) ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  // (Per page, as the URL's view is)
+  private storageKey(key: string): string {
+    return `gti:${this.ownerDocument.location?.pathname ?? ""}#${key}`;
   }
 
   private mapRows(table: HTMLTableElement, spec: Spec): void {
@@ -2456,6 +2614,8 @@ export class GtTable extends HTMLElement {
       selection: null,
       selectionText: null,
       selectionClear: null,
+      view: null,
+      viewReset: null,
       keys: null,
       pageKeys: [],
     };
@@ -2512,6 +2672,12 @@ export class GtTable extends HTMLElement {
       info.selectionText = span();
       info.selectionClear = action("Clear", "Clear the selection", () => this.userClearSelection());
       info.selection = item("selection", "div", info.selectionText, info.selectionClear);
+    }
+    const kept = this.keeper;
+    if (kept !== null) {
+      const where = kept.url ? (kept.storage ? "the link and this browser" : "the link") : "this browser";
+      info.viewReset = action("Reset", "Reset the view", () => this.userResetView());
+      info.view = item("view", "div", span(`View kept in ${where}`), info.viewReset);
     }
 
     // The keys the table answers to, and the clicks with Shift
@@ -2659,6 +2825,7 @@ export class GtTable extends HTMLElement {
       info.selectionText.textContent = this.selectionText();
       info.selectionClear.setAttribute("aria-disabled", String(this.selected.size === 0));
     }
+    info.viewReset?.setAttribute("aria-disabled", String(this.isAuthorView()));
     for (const entry of info.pageKeys) {
       entry.hidden = bar.pages.hidden;
     }
@@ -3915,12 +4082,29 @@ export class GtTable extends HTMLElement {
         detail: { filter: query, count },
       }),
     );
+    this.dispatchView();
   }
 
   private applyFilters(): void {
     this.pageValue = 1;
     this.matchRows();
     this.render();
+  }
+
+  // Show the search in its box. The bar's search is open while there's a search (and closes after
+  // one, unless it has focus).
+  private showSearch(): void {
+    if (this.searchBox !== null) {
+      this.searchBox.value = this.searchValue;
+    }
+    const field = this.bar?.field;
+    if (field != null) {
+      if (this.searchValue !== "") {
+        this.openSearch(false);
+      } else if (!field.contains(this.ownerDocument.activeElement)) {
+        this.closeSearch(false);
+      }
+    }
   }
 
   private openSearch(focus: boolean): void {
@@ -4172,6 +4356,7 @@ export class GtTable extends HTMLElement {
         detail: { sort: this.sort },
       }),
     );
+    this.dispatchView();
   }
 
   private userSearch(value: string): void {
@@ -4197,6 +4382,7 @@ export class GtTable extends HTMLElement {
         detail: { search: this.searchValue, count },
       }),
     );
+    this.dispatchView();
   }
 
   private userPage(page: number): void {
@@ -4210,6 +4396,7 @@ export class GtTable extends HTMLElement {
     this.render();
     this.announce(`Page ${page} of ${count}`);
     this.dispatchPage();
+    this.dispatchView();
   }
 
   private userPageSize(size: number): void {
@@ -4219,6 +4406,23 @@ export class GtTable extends HTMLElement {
     this.resize(size);
     this.announce(`${plural(size)} per page, page ${this.page} of ${this.pageCount}`);
     this.dispatchPage();
+    this.dispatchView();
+  }
+
+  private userResetView(): void {
+    this.resetView();
+    this.announce(`The view is reset: ${this.rowsText()}`);
+    this.dispatchView();
+  }
+
+  private dispatchView(): void {
+    this.dispatchEvent(
+      new CustomEvent<ViewEventDetail>(VIEW_EVENT, {
+        bubbles: true,
+        composed: true,
+        detail: this.currentView(),
+      }),
+    );
   }
 
   private dispatchPage(): void {
@@ -4343,6 +4547,7 @@ export class GtTable extends HTMLElement {
     this.highlight(shown);
     this.updatePager();
     this.updateFilters();
+    this.saveView();
   }
 
   /**
@@ -5139,6 +5344,9 @@ export class GtTable extends HTMLElement {
     this.filters = [];
     this.pageValue = 1;
     this.pageSizeValue = undefined;
+    this.authorView = null;
+    this.keeper = null;
+    this.keptText = null;
     this.view = { start: 0, end: 0, total: 0 };
     this.pager = null;
     this.bar = null;

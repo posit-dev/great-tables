@@ -11,6 +11,7 @@ import {
   SORT_EVENT,
   TAG_NAME,
   VERSION,
+  VIEW_EVENT,
 } from "./gt-table";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { formatQuery, parseQuery } from "./query";
@@ -30,8 +31,10 @@ export type {
   SelectEventDetail,
   SortEventDetail,
   State,
+  ViewEventDetail,
 } from "./gt-table";
 export type { SortKey, SortKeyInit } from "./sort";
+export type { View } from "./state";
 export type * from "./spec";
 export {
   define,
@@ -59,4 +62,5 @@ export {
   TAG_NAME,
   toggleSort,
   VERSION,
+  VIEW_EVENT,
 };

@@ -35,6 +35,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `export`: how readers can export the rows, from the bar: by copying them (`"clipboard"`) or
   downloading them as CSV (`"csv"`), and the name of a download, without its extension
   (`filename`). Producers that leave `export` out (or give no `formats`) have no export.
+- `view_state`: where the reader's view (filters, sort, search, page and page size) is kept, so that
+  it's there when the page is opened again: in the page's URL (`url`), and in the browser's storage
+  (`storage`), by a `key` (the table's ID) that names its URL parameters. Producers that leave
+  `view_state` out (or keep it in neither) don't keep it.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -179,6 +183,12 @@ class ExportSpec(TypedDict):
     code: CodeSpec | None  # what the code for the view needs (with the "code" format)
 
 
+class ViewStateSpec(TypedDict):
+    url: bool
+    storage: bool
+    key: str | None  # the table's ID (needed for either)
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -196,6 +206,7 @@ class Spec(TypedDict):
     filters: list[FilterSpec]
     view: ViewSpec
     export: ExportSpec
+    view_state: ViewStateSpec
 
 
 def build_spec(data: GTData) -> Spec:
@@ -290,6 +301,12 @@ def build_spec(data: GTData) -> Spec:
     code = None
     if "code" in settings.export_formats:
         code = code_spec(tbl_data, columns, filters, ranks)
+    key = data._options.table_id.value
+    if (settings.view_state_url or settings.view_state_storage) and not key:
+        raise ValueError(
+            "`i_view_state()` keeps the reader's view by the table's ID, and this table has none. "
+            'Give it one with `GTI(id=)` (e.g., `GTI(df, id="towny")`) or `with_id()`.'
+        )
 
     return Spec(
         version=SPEC_VERSION,
@@ -333,6 +350,9 @@ def build_spec(data: GTData) -> Spec:
         view=view,
         export=ExportSpec(
             formats=list(settings.export_formats), filename=settings.export_filename, code=code
+        ),
+        view_state=ViewStateSpec(
+            url=settings.view_state_url, storage=settings.view_state_storage, key=key
         ),
     )
 

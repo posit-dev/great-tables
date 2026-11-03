@@ -27,6 +27,8 @@ const view = (value: unknown) => JSON.stringify({ ...valid, view: value });
 
 const exports = (value: unknown) => JSON.stringify({ ...valid, export: value });
 
+const viewState = (value: unknown) => JSON.stringify({ ...valid, view_state: value });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -73,6 +75,14 @@ describe("parseSpec()", () => {
     const withCode = { formats: ["code"], filename: "table", code };
     expect(parse({ ...valid, export: withCode }).export).toEqual(withCode);
     expect(parse({ ...valid, export: { ...value, code: null } }).export?.code).toBeNull();
+  });
+
+  it("takes where the view is kept, or its absence", () => {
+    const value = { url: true, storage: true, key: "towny" };
+    expect(parse({ ...valid, view_state: value }).view_state).toEqual(value);
+    // (Without a key, kept nowhere)
+    expect(parse({ ...valid, view_state: { url: false, storage: false, key: null } }).view_state?.key).toBeNull();
+    expect(parse(valid).view_state).toBeUndefined();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -175,6 +185,11 @@ describe("parseSpec()", () => {
       exports({ formats: ["code"], filename: "table", code: { backend: "polars" } }),
       /`export`/,
     ],
+    ["has a view state that isn't an object", viewState(true), /`view_state`/],
+    ["has a view state without storage", viewState({ url: true, key: "t" }), /`view_state`/],
+    ["has a view state kept without a key", viewState({ url: true, storage: false, key: null }), /`view_state`/],
+    ["has a view state kept with an empty key", viewState({ url: false, storage: true, key: "" }), /`view_state`/],
+    ["has a view state with a key that isn't text", viewState({ url: true, storage: false, key: 1 }), /`view_state`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

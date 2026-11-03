@@ -203,6 +203,17 @@ export interface ExportSpec {
   code?: CodeSpec | null;
 }
 
+/**
+ * Where the reader's view (filters, sort, search, page and page size) is kept, so that it's there
+ * when the page is opened again: in the page's URL, as parameters named after `key` (the table's
+ * ID), and in the browser's storage.
+ */
+export interface ViewStateSpec {
+  url: boolean;
+  storage: boolean;
+  key: string | null;
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -228,6 +239,8 @@ export interface Spec {
   view?: ViewSpec;
   /** How readers can export the rows (from GTI's control bar). Without it (or any formats), they can't. */
   export?: ExportSpec;
+  /** Where the reader's view is kept. Without it (or kept in neither), it isn't. */
+  view_state?: ViewStateSpec;
 }
 
 export class SpecError extends Error {
@@ -412,6 +425,20 @@ export function parseSpec(text: string): Spec {
     )
   ) {
     throw new SpecError("`export` must have known `formats`, a `filename`, and a `code` with a known `backend`, if given");
+  }
+
+  const state = raw.view_state;
+  if (
+    state !== undefined &&
+    !(
+      isObject(state) &&
+      typeof state.url === "boolean" &&
+      typeof state.storage === "boolean" &&
+      (state.key === null || typeof state.key === "string") &&
+      ((!state.url && !state.storage) || (typeof state.key === "string" && state.key !== ""))
+    )
+  ) {
+    throw new SpecError("`view_state` must say whether the view is kept in the URL and in storage, with a `key` for either, if given");
   }
 
   return raw as unknown as Spec;
