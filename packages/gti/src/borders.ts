@@ -89,8 +89,8 @@ export interface Placed {
 
 /**
  * Lay the cells of some of a table's rows (in order) out on a grid, as the browser would with only
- * those rows: a cell spans rows only in its row group. Returns the cells placed, each row's line of
- * the grid, and the number of columns.
+ * those rows: a cell spans rows only in its row group, and hidden cells (in hidden columns) aren't
+ * placed. Returns the cells placed, each row's line of the grid, and the number of columns.
  */
 export function placeCells(rows: readonly HTMLTableRowElement[]): {
   placed: Placed[];
@@ -109,6 +109,9 @@ export function placeCells(rows: readonly HTMLTableRowElement[]): {
     const line = grid[r] as (Placed | undefined)[];
     let c = 0;
     for (const cell of Array.from(tr.cells)) {
+      if (cell.hidden) {
+        continue;
+      }
       while (line[c] !== undefined) {
         c++;
       }
