@@ -9,9 +9,11 @@ from typing_extensions import Self
 from ._gti._settings import (
     EXPORT_FORMATS,
     FILTER_TYPES,
+    PIN_SIDES,
     SELECTION_MODES,
     ExportFormat,
     FilterType,
+    PinSide,
     SelectionMode,
     Settings,
 )
@@ -606,6 +608,76 @@ class GTI(GT):
             changes[name] = tuple(kept if enabled else [*kept, *selected])
         return self._set_interactive(**changes)
 
+    def i_cols_pin(self, columns: SelectExpr = None, side: PinSide | None = "left") -> Self:
+        """
+        Pin columns to a side of the table, so they stay in view as it scrolls sideways.
+
+        A table wider than its container scrolls sideways, with its stub (and the row group
+        column, if row groups are shown as one) pinned to the left, in view. This pins other
+        columns too: to the left, after the stub, or to the right. Pinned columns have to be next
+        to their side of the table (with only other columns pinned there between them and it), so
+        a column further in has to be moved there first, with
+        [`cols_move_to_start()`](`great_tables.GT.cols_move_to_start`) or
+        [`cols_move_to_end()`](`great_tables.GT.cols_move_to_end`); this is checked when the
+        table is made, after any moves. Hidden columns don't count. A spanner over columns on
+        both sides of a pinned edge isn't pinned, and neither is the footer.
+
+        Pinned columns can't take up more than half of the table's container: in a narrower one,
+        only the stub stays pinned (until the container is wide enough again).
+
+        The sides are those of the columns' order: the left is the stub's side, and the right is
+        the other. A table shown right to left (in a page that's written that way) has its stub on
+        the right, and so its columns pinned to the "left" are on the right, by the stub.
+
+        Each call pins (or unpins) the columns it's given, so that some columns can be pinned to
+        one side, and others to the other; a later call for a column replaces what an earlier one
+        set.
+
+        Parameters
+        ----------
+        columns
+            The columns to pin: a column name, a list of them, or a selector (e.g., Polars'
+            `cs.numeric()`). With `None` (the default), every column but the stub. The stub and
+            the row group column are always pinned (naming them does nothing).
+        side
+            The side to pin the columns to: `"left"` (the stub's) or `"right"`. With `None`, the
+            columns are unpinned.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a wide table of Ontario's municipalities that keeps each one's status in view, by
+        its name, and its latest population at the other side.
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        (
+            GTI(towny.drop(columns="website").head(10), rowname_col="name")
+            .cols_move_to_end(columns="population_2021")
+            .fmt_integer(columns=["population_1996", "population_2021"])
+            .i_cols_pin(columns="status")
+            .i_cols_pin(columns="population_2021", side="right")
+        )
+        ```
+        """
+        if side is not None and side not in PIN_SIDES:
+            raise ValueError(
+                f'`side=` must be "left", "right", or `None` (unpinned), not {side!r}.'
+            )
+        selected = resolve_cols_c(self, columns, excl_stub=False)
+        pins = dict(self._interactive.pins)
+        for column in selected:
+            pins.pop(column, None)
+            if side is not None:
+                pins[column] = side
+        return self._set_interactive(pins=tuple(pins.items()))
+
     def i_view(
         self,
         filter: str | dict[str, Any] | None = None,
@@ -923,7 +995,7 @@ class GTI(GT):
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
             "`i_selection()`, `i_scroll()`, `i_display()`, `i_cols_filter()`, "
-            "`i_cols_controls()`, `i_view()`, `i_view_state()`, and `i_export()`."
+            "`i_cols_controls()`, `i_cols_pin()`, `i_view()`, `i_view_state()`, and `i_export()`."
         )
 
 
