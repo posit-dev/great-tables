@@ -902,6 +902,161 @@ gt-table .gt-i-tokens button:focus-visible {
 }
 
 /*
+ * The query box: on the tokens' line (in their place), a field of the filters as text, which is
+ * drawn over a copy of it for its highlights (where the browser has them), with suggestions above
+ * it and what's wrong with it below (in colours for a light background, or a dark one)
+ */
+gt-table .gt-i-query {
+  --gt-i-keyword: #8250df;
+  --gt-i-string: #1a7f37;
+  --gt-i-number: #0550ae;
+  --gt-i-error: #c62828;
+  flex: 0 0 100%;
+  order: -1;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+gt-table .gt-i-query[data-gti-dark] {
+  --gt-i-keyword: #d2a8ff;
+  --gt-i-string: #7ee787;
+  --gt-i-number: #79c0ff;
+  --gt-i-error: #ff7b72;
+}
+
+gt-table .gt-i-query-field {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--gt-i-line);
+  padding-inline-start: 0.5em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+
+gt-table .gt-i-query-field:focus-within {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-query-field:has([aria-invalid="true"]) {
+  border-color: var(--gt-i-error);
+}
+
+gt-table .gt-i-query-text {
+  flex: 1 1 auto;
+  position: relative;
+  min-width: 3em;
+  height: 100%;
+}
+
+gt-table .gt-i-query-text > * {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  white-space: pre;
+}
+
+gt-table .gt-i-query-mirror {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: transparent;
+  pointer-events: none;
+}
+
+gt-table .gt-i-query-text input {
+  background: transparent;
+  color: inherit;
+  caret-color: currentColor;
+  outline: none;
+}
+
+/* (Where it's highlighted, the copy's text shows, through the input's) */
+gt-table .gt-i-query[data-gti-painted] .gt-i-query-mirror {
+  color: inherit;
+}
+
+gt-table .gt-i-query[data-gti-painted] input:not(:placeholder-shown) {
+  -webkit-text-fill-color: transparent;
+}
+
+gt-table .gt-i-query-field .gt-i-bar-button {
+  height: 100%;
+  border: 0;
+}
+
+gt-table .gt-i-query-list {
+  position: absolute;
+  bottom: calc(100% + 0.25em);
+  z-index: 10;
+  box-sizing: border-box;
+  min-width: min(12em, 100%);
+  max-width: 100%;
+  max-height: min(15em, 50vh);
+  margin: 0;
+  padding: 0.25em 0;
+  overflow-y: auto;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  font-size: 0.875em;
+}
+
+gt-table .gt-i-query-list > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.25em 0.75em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+gt-table .gt-i-query-list > li[aria-selected="true"] {
+  background: rgba(128, 128, 128, 0.2);
+}
+
+gt-table .gt-i-query-detail {
+  opacity: 0.7;
+}
+
+gt-table .gt-i-query-error {
+  margin: 0.25em 0 0;
+  color: var(--gt-i-error);
+  font-size: 0.875em;
+  white-space: normal;
+}
+
+/* The query's highlights (shared by every table on the page) */
+gt-table .gt-i-query-mirror::highlight(gt-i-query-keyword) {
+  color: var(--gt-i-keyword);
+}
+
+gt-table .gt-i-query-mirror::highlight(gt-i-query-string) {
+  color: var(--gt-i-string);
+}
+
+gt-table .gt-i-query-mirror::highlight(gt-i-query-number) {
+  color: var(--gt-i-number);
+}
+
+gt-table .gt-i-query-mirror::highlight(gt-i-query-error) {
+  text-decoration: underline wavy var(--gt-i-error);
+  text-decoration-skip-ink: none;
+}
+
+/*
  * The info panel: over the table, above the bar's inline end (where its button is), or below it
  * where there's more room there (as the runtime sets), and no wider than the bar
  */
@@ -1167,6 +1322,29 @@ gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter
     outline-color: CanvasText;
   }
 
+  /* (The input's own text, without highlights) */
+  gt-table .gt-i-query-mirror {
+    display: none;
+  }
+
+  gt-table .gt-i-query[data-gti-painted] input:not(:placeholder-shown) {
+    -webkit-text-fill-color: initial;
+  }
+
+  gt-table .gt-i-query {
+    --gt-i-error: CanvasText;
+  }
+
+  gt-table .gt-i-query-list {
+    border-color: CanvasText;
+  }
+
+  gt-table .gt-i-query-list > li[aria-selected="true"] {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+
   gt-table .gt-i-tokens .gt-i-token-open[aria-expanded="true"] {
     background: Highlight;
     color: HighlightText;
@@ -1225,7 +1403,8 @@ gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter
   }
 
   gt-table .gt-i-filter input:not([type="checkbox"]),
-  gt-table .gt-i-filter-option {
+  gt-table .gt-i-filter-option,
+  gt-table .gt-i-query-list > li {
     min-height: 44px;
   }
 
@@ -1235,7 +1414,7 @@ gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter
   }
 
   /* Below 16px, iOS zooms the page in on focus */
-  gt-table :is(.gt-i-search-field, .gt-i-readout-box, .gt-i-info select, .gt-i-filter input) {
+  gt-table :is(.gt-i-search-field, .gt-i-query-field, .gt-i-query-list, .gt-i-readout-box, .gt-i-info select, .gt-i-filter input) {
     font-size: max(0.875em, 16px);
   }
 }
