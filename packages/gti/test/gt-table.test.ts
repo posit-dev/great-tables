@@ -18,6 +18,7 @@ import {
   PAGE_EVENT,
   type PageEventDetail,
   type PaginationSpec,
+  type QueryColumnSpec,
   RESIZE_EVENT,
   type ResizeEventDetail,
   SEARCH_EVENT,
@@ -87,6 +88,9 @@ interface TableOptions {
   export?: { formats: ExportFormat[]; filename?: string; code?: CodeSpec | null };
   /** The view isn't kept unless set. */
   viewState?: object;
+  /** The columns only for querying, and their ranks. */
+  queryColumns?: QueryColumnSpec[];
+  queryRanks?: Record<string, (number | null)[]>;
   /** What readers can do with each column (by its id), if not everything, and where it's pinned. */
   columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable">>;
 }
@@ -168,7 +172,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     body: groupsAsColumn
       ? body.filter((entry) => typeof entry !== "object" || !("group" in entry) || "summary" in entry)
       : body,
-    ranks: RANKS,
+    ranks: { ...RANKS, ...options.queryRanks },
     striping,
     controls: { sorting: true, search: false, resizing: false, selection: null, ...options.controls },
     pagination: {
@@ -183,6 +187,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     display: { highlight: false, compact: false, wrap: true, ...options.display },
     layout: { height: null, responsive: null, ...options.layout },
     ...(options.filters === undefined ? {} : { filters: options.filters }),
+    ...(options.queryColumns === undefined ? {} : { query_columns: options.queryColumns }),
     ...(options.view === undefined ? {} : { view: options.view }),
     ...(options.export === undefined ? {} : { export: { filename: "table", ...options.export } }),
     ...(options.viewState === undefined ? {} : { view_state: options.viewState }),
@@ -4592,6 +4597,51 @@ describe("column controls", () => {
     expect(header(el, "y").querySelector("button.gt-i-filter-button")).not.toBeNull();
     el.filter = { and: [{ col: "y", op: "in", value: ["c"] }] };
     expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+  });
+
+  describe("a column only for querying", () => {
+    // `q`, not in the table: "pear" for rows 0 and 4, "apple" for the rest (as a facet)
+    const QUERY = { queryRanks: { q: [1, 0, 0, 0, 1] }, controls: { bar: true, search: true } };
+    const facet = (texts: string[] | null = ["<Pear>", "Apple", "Apple", "Apple", "<Pear>"]) => ({
+      ...QUERY,
+      queryColumns: [{ id: "q", kind: "string" as const, label: "Kind", texts }],
+      filters: [{ column: "q", type: "facet" as const, values: ["apple", "pear"] }],
+    });
+    const tokens = (el: GtTable) =>
+      Array.from(el.querySelectorAll(".gt-i-tokens .gt-i-token-open"), (b) => b.textContent);
+
+    it("filters by it, with its label, and its values' texts", async () => {
+      const el = await mountTable(GROUPED, facet());
+      expect(el.filterableColumns).toEqual(["q"]);
+      expect(el.querySelector(".gt-i-filter-button")).toBeNull();
+      el.filter = { and: [{ col: "q", op: "in", value: ["pear"] }] };
+      expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+      expect(tokens(el)).toEqual(["Kind: <Pear>"]);
+      // (Without texts, its values)
+      const plain = await mountTable(GROUPED, facet(null));
+      plain.filter = { and: [{ col: "q", op: "in", value: ["pear"] }] };
+      expect(tokens(plain)).toEqual(["Kind: pear"]);
+    });
+
+    it("filters it by its texts, which the search doesn't look in", async () => {
+      const el = await mountTable(GROUPED, {
+        ...QUERY,
+        queryColumns: [{ id: "q", kind: "string", label: "Kind", texts: ["Crème", "", "x\ncreme", "", "pie"] }],
+        filters: [{ column: "q", type: "text", values: null }],
+      });
+      el.filter = { and: [{ col: "q", op: "contains", value: "CREME" }] };
+      expect(visible(el)).toEqual(["group:b", 0, "summary:Total", "group:a", 2, "grand:Max"]);
+      el.filter = null;
+      el.search = "creme";
+      expect(visible(el)).toEqual(["grand:Max"]);
+    });
+
+    it("sorts by it, as by an unsortable column, saying so with its label", async () => {
+      const el = await mountTable(GROUPED, { ...facet(), view: { filter: null, sort: [{ column: "q", descending: true }] } });
+      expect(el.sortableColumns).toContain("q");
+      expect(shown(el)).toEqual(["group:b", 0, 4, 3, "summary:Total", "group:a", 1, 2, "grand:Max"]);
+      expect(el.querySelector('[data-gti-info="sort"]')?.firstElementChild?.textContent).toBe("Sorted by Kind, descending");
+    });
   });
 
   it("leaves an unsearchable column out of the search", async () => {
