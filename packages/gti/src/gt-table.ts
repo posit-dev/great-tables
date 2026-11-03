@@ -580,6 +580,8 @@ export class GtTable extends HTMLElement {
   private movable = false;
   private sortKeys: SortKey[] = [];
   private sortHeaders = new Map<string, SortHeader>();
+  /** The labels of the columns readers can't sort by (that code can), for saying how it's sorted. */
+  private unsortedLabels = new Map<string, string>();
   private searchValue = "";
   private terms: string[] = [];
   /** Per data row, whether it matches the search and the filters; `null` without any. */
@@ -629,6 +631,8 @@ export class GtTable extends HTMLElement {
   private refitFrame = 0;
   /** Per data row, the text of its cells; made on the first search. */
   private cellTexts: CellText[][] | null = null;
+  /** The columns (by their index in the spec) the search leaves out. */
+  private unsearched = new Set<number>();
   private ranges: AbstractRange[] = [];
   private searchBox: HTMLInputElement | null = null;
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
@@ -1035,6 +1039,11 @@ export class GtTable extends HTMLElement {
     this.keeper = this.movable && state?.key != null && (state.url || state.storage) ? state : null;
     this.undoable = this.movable && state?.undo === true;
     this.order = spec.body.filter((entry): entry is number => typeof entry === "number");
+    spec.columns.forEach((column, i) => {
+      if (column.searchable === false) {
+        this.unsearched.add(i);
+      }
+    });
     // Rows selected before hydration that the table can't have selected are dropped
     const mode = spec.controls.selection;
     const kept = this.selection.filter((row) => row < spec.nrows);
@@ -1056,7 +1065,7 @@ export class GtTable extends HTMLElement {
       this.addSearchBox(table);
     }
     if (spec.controls.resizing) {
-      this.addResizers(table);
+      this.addResizers(table, spec);
     }
     if (this.pageSizeValue === undefined) {
       this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
@@ -2150,6 +2159,10 @@ export class GtTable extends HTMLElement {
       }
       const id = column.id;
       const label = labelText(th) || id;
+      if (column.sortable === false) {
+        this.unsortedLabels.set(id, label);
+        continue;
+      }
       const button = this.ownerDocument.createElement("button");
       button.type = "button";
       button.className = "gt-i-sort";
@@ -2185,11 +2198,14 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // A resize handle for each column with a label of its own (not one spanning several columns)
-  private addResizers(table: HTMLTableElement): void {
+  // A resize handle for each column with a label of its own (not one spanning several columns),
+  // unless the spec says it can't be resized
+  private addResizers(table: HTMLTableElement, spec: Spec): void {
     const rows = Array.from(
       table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"),
     );
+    // (The spec's columns come after the selection column and the row groups', if there are those)
+    const lead = (spec.controls.selection === null ? 0 : 1) + (spec.stub.groups_as_column ? 1 : 0);
     // Lay the labels out on the columns: labels spanning rows (the stubhead, columns without a
     // spanner) take their columns in the rows below. Per column, the row its last label ends before
     const ends: number[] = [];
@@ -2204,7 +2220,12 @@ export class GtTable extends HTMLElement {
         for (let column = index; column < index + colspan; column++) {
           ends[column] = r + rowspan;
         }
-        if (colspan === 1 && r + rowspan >= rows.length && !th.classList.contains("gt-i-select")) {
+        if (
+          colspan === 1 &&
+          r + rowspan >= rows.length &&
+          !th.classList.contains("gt-i-select") &&
+          spec.columns[index - lead]?.resizable !== false
+        ) {
           this.addResizer(th, index);
         }
         index += colspan;
@@ -4677,7 +4698,7 @@ export class GtTable extends HTMLElement {
     for (let row = 0; row < nrows; row++) {
       const cells = texts?.[row] ?? [];
       if (
-        (this.terms.length === 0 || rowMatches(cells, this.terms)) &&
+        (this.terms.length === 0 || rowMatches(this.searched(cells), this.terms)) &&
         filters.every((filter) => filter.keeps(row, cells[filter.index]))
       ) {
         each(row);
@@ -4693,6 +4714,11 @@ export class GtTable extends HTMLElement {
     }
     this.cellTexts = texts;
     return texts;
+  }
+
+  // A data row's cells that the search looks in
+  private searched(cells: CellText[]): CellText[] {
+    return this.unsearched.size === 0 ? cells : cells.filter((_, i) => !this.unsearched.has(i));
   }
 
   // A data row's cells, one per column of the spec: not a group's label cell, which is on one of
@@ -5402,7 +5428,7 @@ export class GtTable extends HTMLElement {
       highlight.delete(range);
     }
     this.ranges = [];
-    // The search's terms, in every cell, and a text filter's, in its column's
+    // The search's terms, in every cell it looks in, and a text filter's, in its column's
     const texts = this.activeFilters().filter((filter) => filter.type === "text");
     if ((this.terms.length === 0 && texts.length === 0) || this.cellTexts === null) {
       return;
@@ -5411,7 +5437,7 @@ export class GtTable extends HTMLElement {
     for (const tr of shown) {
       const row = this.bodyRows.get(tr) as number;
       const cells = this.cellTexts[row] ?? [];
-      const found = cells.flatMap((cell) => cell.find(this.terms));
+      const found = this.searched(cells).flatMap((cell) => cell.find(this.terms));
       for (const filter of texts) {
         found.push(...(cells[filter.index]?.find([filter.needle]) ?? []));
       }
@@ -5455,7 +5481,7 @@ export class GtTable extends HTMLElement {
 
   private sortText(): string {
     const parts = this.sortKeys.map((key) => {
-      const label = this.sortHeaders.get(key.column)?.label ?? key.column;
+      const label = this.sortHeaders.get(key.column)?.label ?? this.unsortedLabels.get(key.column) ?? key.column;
       return `${label}, ${key.descending ? "descending" : "ascending"}`;
     });
     return parts.length === 0 ? "Not sorted" : `Sorted by ${parts.join(", then ")}`;
@@ -5529,6 +5555,7 @@ export class GtTable extends HTMLElement {
     this.movable = false;
     this.sortKeys = [];
     this.sortHeaders = new Map();
+    this.unsortedLabels = new Map();
     this.searchValue = "";
     this.terms = [];
     this.matched = null;
@@ -5559,6 +5586,7 @@ export class GtTable extends HTMLElement {
     this.resizers = [];
     this.startWidths = null;
     this.cellTexts = null;
+    this.unsearched = new Set();
     this.searchBox = null;
     this.toolbar = null;
     this.layout = null;
