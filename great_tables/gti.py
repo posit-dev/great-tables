@@ -195,7 +195,8 @@ class GTI(GT):
         is added to the sort (and is sorted within the columns before it). Rows are sorted by the
         column's values, not by how they're formatted, and stay in their row groups. The info panel
         (from the (i) button in the control bar) says how the table is sorted, and can put it back
-        in its own order. Sorting is on by default.
+        in its own order. Sorting is on by default; some columns can be left unsortable with
+        [`i_cols_controls()`](`great_tables.GTI.i_cols_controls`).
 
         Parameters
         ----------
@@ -226,7 +227,9 @@ class GTI(GT):
         A search shows only the rows with a cell that has the text searched for (as it's shown in
         the table, ignoring case and accents), and highlights the matches. The search is a button
         in the control bar below the table (or the `/` key, from within the table), which opens a
-        search field; Esc clears the search, then closes the field. Searching is on by default.
+        search field; Esc clears the search, then closes the field. Searching is on by default;
+        some columns can be left out of it with
+        [`i_cols_controls()`](`great_tables.GTI.i_cols_controls`).
 
         Parameters
         ----------
@@ -256,7 +259,8 @@ class GTI(GT):
 
         A column is resized by dragging the handle at the end of its label (or, with the handle
         focused, with the arrow keys); double-clicking the handle sets the column back to its own
-        width. Resizing is on by default.
+        width. Resizing is on by default; some columns can be kept at their width with
+        [`i_cols_controls()`](`great_tables.GTI.i_cols_controls`).
 
         Parameters
         ----------
@@ -533,6 +537,75 @@ class GTI(GT):
                 filters[column] = type
         return self._set_interactive(filters=tuple(filters.items()))
 
+    def i_cols_controls(
+        self,
+        columns: SelectExpr = None,
+        *,
+        sortable: bool | None = None,
+        searchable: bool | None = None,
+        resizable: bool | None = None,
+    ) -> Self:
+        """
+        Choose which columns readers can sort by, search, and resize.
+
+        Where the table lets readers sort it ([`i_sorting()`](`great_tables.GTI.i_sorting`)),
+        search it ([`i_search()`](`great_tables.GTI.i_search`)), and resize its columns
+        ([`i_resizing()`](`great_tables.GTI.i_resizing`)), they can do so with every column, by
+        default. This leaves some columns out: an unsortable column's label has no sort button
+        (though the column can still be filtered, and [`i_view()`](`great_tables.GTI.i_view`)
+        can still sort by it), the search doesn't look in (or highlight) an unsearchable column's
+        cells (though its own filter does), and an unresizable column's label has no handle.
+
+        Each call sets what it's given for the columns it's given, so that some columns can be
+        left out of one thing, and others another; a later call for a column replaces what an
+        earlier one set.
+
+        Parameters
+        ----------
+        columns
+            The columns: a column name, a list of them, or a selector (e.g., Polars'
+            `cs.numeric()`). With `None` (the default), every column but the stub (which can be
+            named). The row group column can't be one of them.
+        sortable, searchable, resizable
+            Whether readers can sort by the columns, search them, and resize them. With `None`
+            (the default), the columns are left as they are.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of Ontario's municipalities whose search looks only at their names, and
+        that can't be sorted by status.
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_controls(columns=["status", "population_2021"], searchable=False)
+            .i_cols_controls(columns="status", sortable=False)
+        )
+        ```
+        """
+        flags = {
+            "unsortable": _optional_flag(sortable, "sortable"),
+            "unsearchable": _optional_flag(searchable, "searchable"),
+            "unresizable": _optional_flag(resizable, "resizable"),
+        }
+        selected = resolve_cols_c(self, columns, excl_stub=False)
+        changes: dict[str, Any] = {}
+        for name, enabled in flags.items():
+            if enabled is None:
+                continue
+            kept = [column for column in getattr(self._interactive, name) if column not in selected]
+            changes[name] = tuple(kept if enabled else [*kept, *selected])
+        return self._set_interactive(**changes)
+
     def i_view(
         self,
         filter: str | dict[str, Any] | None = None,
@@ -570,8 +643,9 @@ class GTI(GT):
             the next sorts the rows that tie, and so on), each in ascending order, or descending
             with a `-` before its name (e.g., `"-population_2021"`). Missing values are last. The
             columns can be sorted even if readers can't sort them
-            ([`i_sorting(False)`](`great_tables.GTI.i_sorting`)). With `None` (the default), the
-            rows keep their order.
+            ([`i_sorting(False)`](`great_tables.GTI.i_sorting`), or
+            [`i_cols_controls(sortable=False)`](`great_tables.GTI.i_cols_controls`)). With `None`
+            (the default), the rows keep their order.
 
         Returns
         -------
@@ -848,8 +922,8 @@ class GTI(GT):
         raise TypeError(
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
-            "`i_selection()`, `i_scroll()`, `i_display()`, `i_cols_filter()`, `i_view()`, "
-            "`i_view_state()`, and `i_export()`."
+            "`i_selection()`, `i_scroll()`, `i_display()`, `i_cols_filter()`, "
+            "`i_cols_controls()`, `i_view()`, `i_view_state()`, and `i_export()`."
         )
 
 
@@ -863,6 +937,12 @@ def _static_only(method: str) -> str:
 def _flag(value: object, name: str) -> bool:
     if not isinstance(value, bool):
         raise TypeError(f"`{name}=` must be `True` or `False`, not {value!r}.")
+    return value
+
+
+def _optional_flag(value: object, name: str) -> bool | None:
+    if not (value is None or isinstance(value, bool)):
+        raise TypeError(f"`{name}=` must be `True`, `False`, or `None`, not {value!r}.")
     return value
 
 

@@ -354,6 +354,80 @@ def test_i_cols_filter_unsortable_facet_is_text():
     assert filters_of(gti) == [{"column": "x", "type": "text", "values": None}]
 
 
+def controls_of(gt: GT) -> dict:
+    return {
+        column["id"]: (column["sortable"], column["searchable"], column["resizable"])
+        for column in spec_of(gt)["columns"]
+    }
+
+
+def test_i_cols_controls_all_on_by_default():
+    gti = GTI(FILTER_DF, rowname_col="id")
+    assert set(controls_of(gti).values()) == {(True, True, True)}
+    assert (gti._interactive.unsortable, gti._interactive.unsearchable) == ((), ())
+    assert gti._interactive.unresizable == ()
+
+
+def test_i_cols_controls():
+    gti = (
+        GTI(FILTER_DF[["id", "num", "flag", "few"]], rowname_col="id")
+        .i_cols_controls(columns=["num", "few"], sortable=False, searchable=False)
+        .i_cols_controls(columns="id", resizable=False)
+    )
+
+    # (The stub, when named; others left as they are)
+    assert controls_of(gti) == {
+        "id": (True, True, False),
+        "num": (False, False, True),
+        "flag": (True, True, True),
+        "few": (False, False, True),
+    }
+
+
+def test_i_cols_controls_replaces_and_restores():
+    gti = GTI(FILTER_DF).i_cols_controls(columns=["num", "few"], sortable=False)
+    # (`None` leaves a column as it is; `True` puts it back)
+    assert gti.i_cols_controls(columns="num", searchable=False)._interactive.unsortable == (
+        "num",
+        "few",
+    )
+    assert gti.i_cols_controls(columns="num", sortable=True)._interactive.unsortable == ("few",)
+    assert gti.i_cols_controls(sortable=True)._interactive.unsortable == ()
+    # (Every column but the stub)
+    every = GTI(FILTER_DF, rowname_col="id").i_cols_controls(resizable=False)
+    assert "id" not in every._interactive.unresizable
+    assert len(every._interactive.unresizable) == len(FILTER_DF.columns) - 1
+
+
+def test_i_cols_controls_leaves_out_the_row_group_column():
+    gti = GTI(FILTER_DF, groupname_col="few").i_cols_controls(["few", "num"], sortable=False)
+    assert gti._interactive.unsortable == ("num",)
+
+
+def test_i_cols_controls_keeps_ranks_of_unsortable_columns():
+    # (So that `i_view()` can still sort by them)
+    gti = GTI(DF).i_cols_controls(columns="y", sortable=False).i_view(sort="-y")
+    spec = spec_of(gti)
+    assert "y" in spec["ranks"]
+    assert spec["view"]["sort"] == [{"column": "y", "descending": True}]
+
+
+def test_i_cols_controls_for_summary_labels_only():
+    # (The stub column for summary labels has no name to give)
+    total = {"Total": lambda df: df[["y"]].sum()}
+    spec = spec_of(GTI(DF).grand_summary_rows(fns=total).i_cols_controls(sortable=False))
+    assert spec["columns"][0]["id"] is None
+    assert spec["columns"][0]["sortable"] is True
+    assert [column["sortable"] for column in spec["columns"][1:]] == [False, False]
+
+
+@pytest.mark.parametrize("name", ["sortable", "searchable", "resizable"])
+@pytest.mark.parametrize("value", [1, "no", 0.0])
+def test_i_cols_controls_flags_must_be_bools(name: str, value):
+    with pytest.raises(TypeError, match=f"`{name}=` must be `True`, `False`, or `None`"):
+        GTI(DF).i_cols_controls(columns="y", **{name: value})
+
+
 def test_i_cols_filter_values_are_json():
     df = pd.DataFrame(
         {

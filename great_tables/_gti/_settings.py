@@ -59,6 +59,11 @@ class Settings:
     # (GTI's control bar below the table; `opt_interactive()` tables keep a search box above the
     # table and page controls below it, as `pagination_type` says)
     bar: bool = True
+    # (The columns readers can't sort by, search, or resize, where the table lets them, as
+    # `i_cols_controls()` set them, in the order they were set)
+    unsortable: tuple[str, ...] = ()
+    unsearchable: tuple[str, ...] = ()
+    unresizable: tuple[str, ...] = ()
     # (The columns readers can filter by, and how, in the order they were set)
     filters: tuple[tuple[str, FilterType], ...] = ()
     # (How the table is first shown: a query, checked as `i_view()` takes it, and sort keys,

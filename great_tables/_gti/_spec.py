@@ -3,7 +3,9 @@
 The spec is JSON, embedded next to the table, and kept free of Python-only concepts so that other
 producers (R gt) can emit it too. Version 1 holds the table's structure and sort ranks:
 
-- `columns`: the body columns, in the order of the body cells (stub columns first)
+- `columns`: the body columns, in the order of the body cells (stub columns first), and whether
+  readers can sort by each, search it, and resize it, where `controls` lets them (producers that
+  leave these out let them)
 - `spanners`: the column spanners, with the visible columns under each
 - `stub`: the stub columns, and whether row groups are shown as a column of the stub
 - `groups`: the row groups, in display order, with their data rows
@@ -77,6 +79,9 @@ class ColumnSpec(TypedDict):
     kind: ColumnKind
     align: str | None
     header: str | None  # the id of the column's label cell, if it has one
+    sortable: bool
+    searchable: bool
+    resizable: bool
 
 
 class SpannerSpec(TypedDict):
@@ -221,6 +226,26 @@ def build_spec(data: GTData) -> Spec:
     )
     header_ids = _get_header_ids(data)
     tbl_data = data._tbl_data
+    # (A `GTI`'s own settings, or those `opt_interactive()` set)
+    settings = settings_of(data)
+
+    def column_spec(
+        id: str | None,
+        role: Literal["stub", "data"],
+        kind: ColumnKind,
+        align: str | None,
+        header: str | None,
+    ) -> ColumnSpec:
+        return ColumnSpec(
+            id=id,
+            role=role,
+            kind=kind,
+            align=align,
+            header=header,
+            sortable=id not in settings.unsortable,
+            searchable=id not in settings.unsearchable,
+            resizable=id not in settings.unresizable,
+        )
 
     stub_columns = boxhead._get_stub_columns()
     default_columns = boxhead._get_default_columns()
@@ -233,7 +258,7 @@ def build_spec(data: GTData) -> Spec:
             stubhead = header_ids.stubhead if len(header_ids.stubhead) == len(stub_columns) else []
             for i, info in enumerate(stub_columns):
                 columns.append(
-                    ColumnSpec(
+                    column_spec(
                         id=info.var,
                         role="stub",
                         kind=_get_column_kind(tbl_data, info.var),
@@ -243,12 +268,12 @@ def build_spec(data: GTData) -> Spec:
                 )
         else:
             columns.append(
-                ColumnSpec(id=None, role="stub", kind="other", align="left", header=None)
+                column_spec(id=None, role="stub", kind="other", align="left", header=None)
             )
 
     for info in default_columns:
         columns.append(
-            ColumnSpec(
+            column_spec(
                 id=info.var,
                 role="data",
                 kind=_get_column_kind(tbl_data, info.var),
@@ -279,8 +304,6 @@ def build_spec(data: GTData) -> Spec:
                 ranks[column["id"]] = column_ranks
 
     groups_as_column = "group_label" in stub_layout
-    # (A `GTI`'s own settings, or those `opt_interactive()` set)
-    settings = settings_of(data)
     nrows = n_rows(tbl_data)
 
     chosen = dict(settings.filters)
