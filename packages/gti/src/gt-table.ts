@@ -74,7 +74,8 @@ export const EXPORT_EVENT = "gt-table-export";
 
 /**
  * The event fired when the reader changes the view: the filters, sort, search, page or page size
- * (with the events for each), or resets it (not when properties are set, or `resetView()` is called).
+ * (with the events for each); or resets it, or undoes or redoes a change to it (not when properties
+ * are set, or `resetView()`, `undo()` or `redo()` is called).
  */
 export const VIEW_EVENT = "gt-table-view";
 
@@ -248,6 +249,11 @@ const RESIZE_STEP_LARGE = 50;
 // How long typing pauses before the search runs
 const SEARCH_DELAY_MS = 150;
 
+// The most changes to the view that can be undone, and how soon after a change to the search, or
+// to one filter, another is part of the same change
+const UNDO_STEPS = 50;
+const STEP_MS = 1000;
+
 type PagerButton = "first" | "previous" | "next" | "last";
 
 const PAGER_BUTTONS: Record<PagerButton, string> = {
@@ -302,6 +308,9 @@ interface Bar {
   clearAll: HTMLElement | null;
   /** The filters as text (with filters). */
   query: QueryBox | null;
+  /** The buttons that undo and redo the reader's changes to the view (with `view_state.undo`). */
+  undo: HTMLButtonElement | null;
+  redo: HTMLButtonElement | null;
 }
 
 /**
@@ -424,7 +433,12 @@ const ICONS = {
   query: "M8 7l-5 5 5 5M16 7l5 5-5 5",
   apply: "M5 12.5l4.5 4.5L19 7",
   export: "M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14",
+  undo: "M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
+  redo: "M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13",
 };
+
+// Whether the keys are a Mac's (⌘ rather than Ctrl)
+const onMac = () => typeof navigator !== "undefined" && /Mac|iP(hone|ad|od)/.test(navigator.platform);
 
 // What can have text typed into it, where `/` is a character rather than the search's key
 const TYPED = 'input:not([type="checkbox"]):not([type="radio"]), textarea, select, [contenteditable]';
@@ -446,6 +460,9 @@ function withoutMarks(cell: Element): Element {
   }
   return clone;
 }
+
+// Whether two views show the same rows, in the same order, on the same page
+const sameView = (a: View, b: View | undefined) => b !== undefined && viewParams(a, b).length === 0;
 
 const plural = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
 
@@ -690,6 +707,20 @@ export class GtTable extends HTMLElement {
   /** Where the reader's view is kept (`view_state`), once it has been read; and its parameters as last kept. */
   private keeper: ViewStateSpec | null = null;
   private keptText: string | null = null;
+  /** Whether the reader's changes to the view can be undone (`view_state.undo`). */
+  private undoable = false;
+  /**
+   * The views before each of the reader's changes that can be undone (the last, last), and after
+   * each undone; and the view after the last change (`null`, until hydrated, or without undo).
+   */
+  private past: View[] = [];
+  private future: View[] = [];
+  private present: View | null = null;
+  /** What the last change was to (see `record()`), and when. */
+  private lastPart: string | null = null;
+  private lastTime = 0;
+  /** The element's handler for the keys that undo and redo. */
+  private undoKey: ((event: KeyboardEvent) => void) | null = null;
 
   get state(): State | null {
     return this.getAttribute("data-gti-state") as State | null;
@@ -714,6 +745,7 @@ export class GtTable extends HTMLElement {
     this.sortKeys = normalizeSort(keys, ranks);
     this.pageValue = 1;
     this.render();
+    this.forget();
   }
 
   /**
@@ -729,6 +761,7 @@ export class GtTable extends HTMLElement {
     this.cancelSearchTimer();
     this.applySearch(String(value));
     this.showSearch();
+    this.forget();
   }
 
   /** The columns the table can be filtered by (see `filter`). Empty until hydrated. */
@@ -761,6 +794,7 @@ export class GtTable extends HTMLElement {
       this.syncFilter(control);
     }
     this.applyFilters();
+    this.forget();
   }
 
   /**
@@ -779,6 +813,8 @@ export class GtTable extends HTMLElement {
     }
     this.pageValue = page;
     this.render();
+    // (Going to another page isn't a change that's undone, from code or not)
+    this.forget(false);
   }
 
   /**
@@ -798,6 +834,7 @@ export class GtTable extends HTMLElement {
       throw new RangeError(`\`pageSize\` must be a positive integer or null, not ${String(size)}`);
     }
     this.resize(size);
+    this.forget();
   }
 
   /** The number of pages of the rows that match the search; 1 without pagination. */
@@ -928,16 +965,29 @@ export class GtTable extends HTMLElement {
   /**
    * Go back to the view the table is first shown with: the filters and sort of the author's view
    * (`i_view()`), without a search, on the first page of the table's page size. The view kept in
-   * the URL and the browser's storage (with `view_state`) is cleared. Does nothing until hydrated.
+   * the URL and the browser's storage (with `view_state`) is cleared, and the reader's changes
+   * can't be undone (see `undo()`). Does nothing until hydrated.
    */
   resetView(): void {
-    const base = this.authorView;
-    if (base === null) {
-      return;
+    if (this.authorView !== null) {
+      this.showView(this.authorView);
+      this.forget();
     }
-    this.setView(base);
-    this.matchRows();
-    this.render();
+  }
+
+  /**
+   * Undo the reader's last change to the view (with `view_state.undo`), returning whether there was
+   * one. A run of changes to the search, or to one filter, each soon after the last, is one change;
+   * going to another page isn't one, but is undone with the change after it. Setting a property
+   * (but `page`) or calling `resetView()` forgets the changes before it.
+   */
+  undo(): boolean {
+    return this.travel(this.past, this.future);
+  }
+
+  /** Redo the last change undone (see `undo()`), returning whether there was one. */
+  redo(): boolean {
+    return this.travel(this.future, this.past);
   }
 
   private hydrate(): void {
@@ -983,6 +1033,7 @@ export class GtTable extends HTMLElement {
     this.movable = !this.hasMergedStubCells();
     const state = spec.view_state;
     this.keeper = this.movable && state?.key != null && (state.url || state.storage) ? state : null;
+    this.undoable = this.movable && state?.undo === true;
     this.order = spec.body.filter((entry): entry is number => typeof entry === "number");
     // Rows selected before hydration that the table can't have selected are dropped
     const mode = spec.controls.selection;
@@ -1011,7 +1062,10 @@ export class GtTable extends HTMLElement {
       this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
     }
     // (With pages only, the bar comes with them)
-    if (bar && ((spec.export?.formats.length ?? 0) > 0 || (this.movable && (spec.controls.search || this.filters.length > 0)))) {
+    if (
+      bar &&
+      ((spec.export?.formats.length ?? 0) > 0 || this.undoable || (this.movable && (spec.controls.search || this.filters.length > 0)))
+    ) {
       this.addBar();
     }
     if (this.movable && spec.view !== undefined) {
@@ -1039,6 +1093,11 @@ export class GtTable extends HTMLElement {
       }
     }
     this.saveView();
+    if (this.undoable) {
+      this.present = this.currentView();
+      this.addUndoKeys();
+      this.syncUndo();
+    }
     this.setState("ready");
   }
 
@@ -1135,7 +1194,103 @@ export class GtTable extends HTMLElement {
 
   // Whether the view is the one the table is first shown with
   private isAuthorView(): boolean {
-    return this.authorView === null || viewParams(this.currentView(), this.authorView).length === 0;
+    return this.authorView === null || sameView(this.currentView(), this.authorView);
+  }
+
+  // Show a view
+  private showView(view: View): void {
+    this.setView(view);
+    this.matchRows();
+    this.render();
+  }
+
+  // Note the reader's change to the view, as one to undo. `part` is what it changed (`null`, for a
+  // change of its own), and a run of changes to the same part, each soon after the last, is one;
+  // going to another page ("page") isn't one, and is undone with the change after it.
+  private record(part: string | null): void {
+    const before = this.present;
+    if (before === null) {
+      return;
+    }
+    const now = this.currentView();
+    const time = Date.now();
+    const past = this.past;
+    const run = part !== null && part === this.lastPart && time - this.lastTime < STEP_MS;
+    this.present = now;
+    this.lastPart = part;
+    this.lastTime = time;
+    if (part === "page") {
+      return;
+    }
+    if (run) {
+      // (A run that ends where it began is no change, and what follows, another)
+      if (sameView(now, past[past.length - 1])) {
+        past.pop();
+        this.lastPart = null;
+      }
+    } else if (!sameView(now, before)) {
+      past.push(before);
+      if (past.length > UNDO_STEPS) {
+        past.shift();
+      }
+      this.future = [];
+    }
+    this.syncUndo();
+  }
+
+  // The view, changed from code: the reader's changes before it can't be undone (with `clear`)
+  private forget(clear = true): void {
+    const before = this.present;
+    if (before === null) {
+      return;
+    }
+    this.present = this.currentView();
+    this.lastPart = null;
+    if (clear && !sameView(this.present, before)) {
+      this.past = [];
+      this.future = [];
+      this.syncUndo();
+    }
+  }
+
+  // Show the view last put on `from` (the views before the changes, to undo the last; or after the
+  // changes undone, to redo it), putting the view shown on `to`
+  private travel(from: View[], to: View[]): boolean {
+    const view = from.pop();
+    if (view === undefined) {
+      return false;
+    }
+    to.push(this.currentView());
+    this.showView(view);
+    this.present = this.currentView();
+    this.lastPart = null;
+    this.syncUndo();
+    return true;
+  }
+
+  private syncUndo(): void {
+    this.bar?.undo?.setAttribute("aria-disabled", String(this.past.length === 0));
+    this.bar?.redo?.setAttribute("aria-disabled", String(this.future.length === 0));
+  }
+
+  // Ctrl+Z (⌘Z) undoes, and Ctrl+Y or Ctrl+Shift+Z (⇧⌘Z) redoes, from anywhere in the table that
+  // isn't for typing (whose text has its own undo)
+  private addUndoKeys(): void {
+    this.undoKey = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (
+        !(event.ctrlKey || event.metaKey) ||
+        event.altKey ||
+        event.defaultPrevented ||
+        (event.target as Element).closest(TYPED) !== null ||
+        !(key === "z" || (key === "y" && event.ctrlKey && !event.shiftKey))
+      ) {
+        return;
+      }
+      event.preventDefault();
+      this.userTravel(key === "z" && !event.shiftKey);
+    };
+    this.addEventListener("keydown", this.undoKey);
   }
 
   // Keep the view, as `view_state` says, when it has changed: in the URL (replacing the table's
@@ -2374,7 +2529,18 @@ export class GtTable extends HTMLElement {
       tokens: null,
       clearAll: null,
       query: null,
+      undo: null,
+      redo: null,
     };
+    if (this.undoable) {
+      const mac = onMac();
+      bar.undo = this.barButton("undo", "Undo", `Undo (${mac ? "⌘Z" : "Ctrl+Z"})`);
+      bar.redo = this.barButton("redo", "Redo", `Redo (${mac ? "⇧⌘Z" : "Ctrl+Y"})`);
+      bar.undo.setAttribute("aria-keyshortcuts", "Control+Z Meta+Z");
+      bar.redo.setAttribute("aria-keyshortcuts", "Control+Y Control+Shift+Z Meta+Shift+Z");
+      bar.undo.addEventListener("click", () => this.userTravel(true));
+      bar.redo.addEventListener("click", () => this.userTravel(false));
+    }
     this.bar = bar;
     if (this.filters.length > 0) {
       this.addTokens(bar, rtl);
@@ -2388,6 +2554,7 @@ export class GtTable extends HTMLElement {
       pages,
       ...(bar.query === null ? [] : [bar.query.toggle]),
       ...(exporter === null ? [] : [exporter.button, exporter.panel]),
+      ...(bar.undo === null || bar.redo === null ? [] : [bar.undo, bar.redo]),
       info.button,
       info.panel,
     );
@@ -2718,6 +2885,11 @@ export class GtTable extends HTMLElement {
     }
     if (spec.controls.selection === "multiple") {
       key(["Shift"], "Select a range of rows", true);
+    }
+    if (this.undoable) {
+      const mac = onMac();
+      key(mac ? ["⌘", "Z"] : ["Ctrl", "Z"], "Undo a change to the view");
+      key(mac ? ["⇧", "⌘", "Z"] : ["Ctrl", "Y"], "Redo it");
     }
     if (keys.childElementCount > 0) {
       info.keys = doc.createElement("div");
@@ -4058,13 +4230,15 @@ export class GtTable extends HTMLElement {
   // Change the filters as the reader asked, and filter the rows by them, if they changed
   private userFilter(change: () => void): void {
     const filters = this.filters.map((control) => control.filter);
-    const before = JSON.stringify(filterQuery(filters));
+    const texts = () => filters.map((filter) => JSON.stringify(filterQuery([filter])));
+    const before = texts();
     change();
-    const query = filterQuery(filters);
-    if (JSON.stringify(query) === before || this.spec === null) {
+    const changed = texts().flatMap((text, i) => (text === before[i] ? [] : [i]));
+    if (changed.length === 0 || this.spec === null) {
       this.updateFilters();
       return;
     }
+    const query = filterQuery(filters);
     this.applyFilters();
     const count = this.matchCount;
     const total = this.spec.nrows;
@@ -4082,7 +4256,8 @@ export class GtTable extends HTMLElement {
         detail: { filter: query, count },
       }),
     );
-    this.dispatchView();
+    // (Changes to one filter can be one change to undo; to more, at once, are one of their own)
+    this.dispatchView(changed.length === 1 ? `filter ${changed[0]}` : null);
   }
 
   private applyFilters(): void {
@@ -4172,8 +4347,8 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // The bar shows while it has a search, filters (whose info panel says how many rows they leave)
-  // or an export, or there are pages (or could be, in the page sizes the info panel offers); the page
+  // The bar shows while it has a search, filters (whose info panel says how many rows they leave),
+  // an export or undo, or there are pages (or could be, in the page sizes the info panel offers); the page
   // controls, while there are pages: while the table has more rows than fit on a page, whatever
   // the search
   private updateBar(bar: Bar): void {
@@ -4181,7 +4356,8 @@ export class GtTable extends HTMLElement {
     const size = this.size;
     const paged = size !== null && spec.nrows > size;
     bar.pages.hidden = !paged;
-    bar.root.hidden = !this.pagesOffered() && bar.field === null && this.filters.length === 0 && bar.exporter === null;
+    bar.root.hidden =
+      !this.pagesOffered() && bar.field === null && this.filters.length === 0 && bar.exporter === null && bar.undo === null;
     if (bar.root.hidden) {
       this.closePanel(false);
     }
@@ -4356,7 +4532,7 @@ export class GtTable extends HTMLElement {
         detail: { sort: this.sort },
       }),
     );
-    this.dispatchView();
+    this.dispatchView(null);
   }
 
   private userSearch(value: string): void {
@@ -4382,7 +4558,7 @@ export class GtTable extends HTMLElement {
         detail: { search: this.searchValue, count },
       }),
     );
-    this.dispatchView();
+    this.dispatchView("search");
   }
 
   private userPage(page: number): void {
@@ -4396,7 +4572,7 @@ export class GtTable extends HTMLElement {
     this.render();
     this.announce(`Page ${page} of ${count}`);
     this.dispatchPage();
-    this.dispatchView();
+    this.dispatchView("page");
   }
 
   private userPageSize(size: number): void {
@@ -4406,16 +4582,29 @@ export class GtTable extends HTMLElement {
     this.resize(size);
     this.announce(`${plural(size)} per page, page ${this.page} of ${this.pageCount}`);
     this.dispatchPage();
-    this.dispatchView();
+    this.dispatchView(null);
   }
 
+  // (A reset is a change to undo)
   private userResetView(): void {
-    this.resetView();
+    this.showView(this.authorView as View);
     this.announce(`The view is reset: ${this.rowsText()}`);
-    this.dispatchView();
+    this.dispatchView(null);
   }
 
-  private dispatchView(): void {
+  // Undo the last change to the view (`back`), or redo it, as the reader asked
+  private userTravel(back: boolean): void {
+    if (back ? this.undo() : this.redo()) {
+      this.announce(`${back ? "Undone" : "Redone"}: ${this.rowsText()}`);
+      this.dispatchView();
+    }
+  }
+
+  // (With `part`, noting the change as one to undo; see `record()`)
+  private dispatchView(part?: string | null): void {
+    if (part !== undefined) {
+      this.record(part);
+    }
     this.dispatchEvent(
       new CustomEvent<ViewEventDetail>(VIEW_EVENT, {
         bubbles: true,
@@ -5326,6 +5515,9 @@ export class GtTable extends HTMLElement {
     if (this.slashKey !== null) {
       this.removeEventListener("keydown", this.slashKey);
     }
+    if (this.undoKey !== null) {
+      this.removeEventListener("keydown", this.undoKey);
+    }
     this.table = null;
     this.spec = null;
     this.tbody = null;
@@ -5347,6 +5539,12 @@ export class GtTable extends HTMLElement {
     this.authorView = null;
     this.keeper = null;
     this.keptText = null;
+    this.undoable = false;
+    this.past = [];
+    this.future = [];
+    this.present = null;
+    this.lastPart = null;
+    this.undoKey = null;
     this.view = { start: 0, end: 0, total: 0 };
     this.pager = null;
     this.bar = null;

@@ -206,12 +206,13 @@ export interface ExportSpec {
 /**
  * Where the reader's view (filters, sort, search, page and page size) is kept, so that it's there
  * when the page is opened again: in the page's URL, as parameters named after `key` (the table's
- * ID), and in the browser's storage.
+ * ID), and in the browser's storage; and whether the reader's changes to it can be undone.
  */
 export interface ViewStateSpec {
   url: boolean;
   storage: boolean;
   key: string | null;
+  undo: boolean;
 }
 
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
@@ -239,7 +240,7 @@ export interface Spec {
   view?: ViewSpec;
   /** How readers can export the rows (from GTI's control bar). Without it (or any formats), they can't. */
   export?: ExportSpec;
-  /** Where the reader's view is kept. Without it (or kept in neither), it isn't. */
+  /** Where the reader's view is kept, and whether it can be undone. Without it, it isn't, and can't be. */
   view_state?: ViewStateSpec;
 }
 
@@ -435,10 +436,13 @@ export function parseSpec(text: string): Spec {
       typeof state.url === "boolean" &&
       typeof state.storage === "boolean" &&
       (state.key === null || typeof state.key === "string") &&
-      ((!state.url && !state.storage) || (typeof state.key === "string" && state.key !== ""))
+      ((!state.url && !state.storage) || (typeof state.key === "string" && state.key !== "")) &&
+      typeof state.undo === "boolean"
     )
   ) {
-    throw new SpecError("`view_state` must say whether the view is kept in the URL and in storage, with a `key` for either, if given");
+    throw new SpecError(
+      "`view_state` must say whether the view is kept in the URL and in storage (with a `key` for either), and whether it can be undone, if given",
+    );
   }
 
   return raw as unknown as Spec;
