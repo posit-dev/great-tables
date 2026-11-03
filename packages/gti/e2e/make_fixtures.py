@@ -334,6 +334,35 @@ def hide_html(table_id: str) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def reorder_html(table_id: str) -> str:
+    # The hiding columns' table, but with currency and fctr both pinned at the end (under "Ends"),
+    # its data columns readers can hide and move: char alone (pinned at the start), so it can't
+    # move; num, date, time and datetime among themselves; and currency and fctr between them.
+    # With set widths, a search, and CSV export, its view kept in the URL, and changes undone
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    columns = ["char", "num", "date", "time", "datetime", "currency", "fctr"]
+    gti = (
+        GTI(data, rowname_col="row", groupname_col="group", id=table_id)
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .cols_move_to_start("char")
+        .cols_move_to_end(["currency", "fctr"])
+        .cols_width({"row": "80px", "num": "140px", **{c: "100px" for c in columns if c != "num"}})
+        .row_group_order(["grp_b", "grp_a"])
+        .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
+        .tab_spanner(label="Ends", columns=["currency", "fctr"])
+        .i_pagination(enabled=False)
+        .i_search()
+        .i_export("csv", filename="reorder")
+        .i_cols_pin("char")
+        .i_cols_pin(["currency", "fctr"], side="right")
+        .i_cols_controls(columns=columns, hideable=True, reorderable=True)
+        .i_view_state(undo=True)
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def code_gti(table_id: str, data, filter: str | None = None, sort: list[str] | None = None) -> GTI:
     # A GTI table of exibble (8 rows, in two groups), with a search: `num` filtered by a range,
     # `char` by text, and `fctr` and `date` by facets; exported as code (and as CSV, and copied)
@@ -663,6 +692,16 @@ def main() -> None:
             )
             + "\n"
             + runtime_src,
+            head=styles,
+        ),
+        # Reordering columns: of a table like the hiding columns' one, in a container 780px wide
+        # (with room for its pinned columns), and right to left
+        "reorder.html": page(
+            '<div style="width: 780px">' + reorder_html("r") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "reorder-rtl.html": page(
+            '<div dir="rtl" style="width: 780px">' + reorder_html("r") + "</div>\n" + runtime_src,
             head=styles,
         ),
         # Export: from a GTI table 5 rows to a page, whose rows can be selected
