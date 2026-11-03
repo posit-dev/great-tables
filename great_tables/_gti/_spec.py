@@ -5,7 +5,8 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 
 - `columns`: the body columns, in the order of the body cells (stub columns first), and whether
   readers can sort by each, search it, and resize it, where `controls` lets them (producers that
-  leave these out let them)
+  leave these out let them); and the side a data column is pinned to (`pin`: `"start"`, the
+  stub's, or `"end"`), when the table scrolls sideways. Pinned columns are next to their side.
 - `spanners`: the column spanners, with the visible columns under each
 - `stub`: the stub columns, and whether row groups are shown as a column of the stub
 - `groups`: the row groups, in display order, with their data rows
@@ -82,6 +83,9 @@ class ColumnSpec(TypedDict):
     sortable: bool
     searchable: bool
     resizable: bool
+    # The side it's pinned to (in the column order: the stub's, or the other), if it is; the stub
+    # always is, at the start
+    pin: Literal["start", "end"] | None
 
 
 class SpannerSpec(TypedDict):
@@ -228,6 +232,7 @@ def build_spec(data: GTData) -> Spec:
     tbl_data = data._tbl_data
     # (A `GTI`'s own settings, or those `opt_interactive()` set)
     settings = settings_of(data)
+    pins = dict(settings.pins)
 
     def column_spec(
         id: str | None,
@@ -236,6 +241,7 @@ def build_spec(data: GTData) -> Spec:
         align: str | None,
         header: str | None,
     ) -> ColumnSpec:
+        side = pins.get(id) if role == "data" and id is not None else None
         return ColumnSpec(
             id=id,
             role=role,
@@ -245,6 +251,7 @@ def build_spec(data: GTData) -> Spec:
             sortable=id not in settings.unsortable,
             searchable=id not in settings.unsearchable,
             resizable=id not in settings.unresizable,
+            pin=None if side is None else "start" if side == "left" else "end",
         )
 
     stub_columns = boxhead._get_stub_columns()
@@ -281,6 +288,8 @@ def build_spec(data: GTData) -> Spec:
                 header=header_ids.columns.get(info.var),
             )
         )
+
+    _check_pins([column for column in columns if column["role"] == "data"])
 
     visible = {info.var for info in default_columns}
     spanners: list[SpannerSpec] = []
@@ -383,6 +392,29 @@ def build_spec(data: GTData) -> Spec:
             undo=settings.view_state_undo,
         ),
     )
+
+
+def _check_pins(columns: list[ColumnSpec]) -> None:
+    # Pinned columns stay in view by the side they're pinned to, so they have to be next to it,
+    # with only pinned columns (on that side) between them and it
+    for side, name, move, order in [
+        ("start", "left", "cols_move_to_start", columns),
+        ("end", "right", "cols_move_to_end", columns[::-1]),
+    ]:
+        edge = 0
+        while edge < len(order) and order[edge]["pin"] == side:
+            edge += 1
+        stray = next((column for column in order[edge:] if column["pin"] == side), None)
+        if stray is not None:
+            between = [column["id"] for column in order[edge : order.index(stray)]]
+            if side == "end":
+                between.reverse()
+            raise ValueError(
+                f"Column {stray['id']!r} can't be pinned to the {name}, since it isn't next to "
+                f"that side of the table: the columns between them "
+                f"({', '.join(map(repr, between))}) would have to be pinned too. Pin them with "
+                f"`i_cols_pin()` as well, or move the column there with `{move}()`."
+            )
 
 
 def _filter_type(
