@@ -414,6 +414,56 @@ def test_i_cols_filter_keeps_room_for_the_bar():
     assert gt_table_tag(gti.i_cols_filter(columns="y")) == "<gt-table data-gti-bar>"
 
 
+# export ----
+
+
+def test_export_is_off_by_default():
+    assert spec_of(GTI(DF))["export"] == {"formats": [], "filename": "table"}
+    assert spec_of(GTI.from_gt(GT(DF).opt_interactive()))["export"]["formats"] == []
+
+
+def test_i_export_sets_the_formats_and_filename():
+    gti = GTI(DF).i_export()
+    assert spec_of(gti)["export"] == {"formats": ["csv", "clipboard"], "filename": "table"}
+    # (In the order given, once each)
+    assert spec_of(gti.i_export(["clipboard", "csv", "clipboard"]))["export"]["formats"] == [
+        "clipboard",
+        "csv",
+    ]
+    assert spec_of(gti.i_export("csv", filename="towny"))["export"] == {
+        "formats": ["csv"],
+        "filename": "towny",
+    }
+    # (Without the extension, which the runtime adds)
+    assert gti.i_export(filename="Towny 2021.CSV")._interactive.export_filename == "Towny 2021"
+    # (What's not given goes back to its default)
+    assert gti.i_export(filename="x").i_export()._interactive.export_filename == "table"
+
+
+def test_i_export_turns_off():
+    gti = GTI(DF).i_export()
+    assert spec_of(gti.i_export(None))["export"]["formats"] == []
+    assert spec_of(gti.i_export([]))["export"]["formats"] == []
+
+
+def test_i_export_checks_its_arguments():
+    with pytest.raises(ValueError, match='`formats=` must be "csv", "clipboard"'):
+        GTI(DF).i_export("xlsx")
+    with pytest.raises(ValueError, match="not one with 'json'"):
+        GTI(DF).i_export(["csv", "json"])
+    with pytest.raises(TypeError, match="`filename=` must be a string"):
+        GTI(DF).i_export(filename=1)  # type: ignore[arg-type]
+    for empty in ["", " ", ".csv"]:
+        with pytest.raises(ValueError, match="`filename=` must name the file"):
+            GTI(DF).i_export(filename=empty)
+
+
+def test_i_export_keeps_room_for_the_bar():
+    gti = GTI(DF).i_search(False)
+    assert gt_table_tag(gti.i_export()) == "<gt-table data-gti-bar>"
+    assert gt_table_tag(gti.i_export(None)) == "<gt-table>"
+
+
 # the control bar ----
 
 

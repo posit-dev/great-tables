@@ -4,6 +4,9 @@ import {
   type ControlsSpec,
   type DisplaySpec,
   define,
+  EXPORT_EVENT,
+  type ExportEventDetail,
+  type ExportFormat,
   FILTER_EVENT,
   type FilterEventDetail,
   type FilterSpec,
@@ -21,6 +24,7 @@ import {
   SORT_EVENT,
   type SortEventDetail,
   SPEC_VERSION,
+  type SpannerSpec,
   type StripingSpec,
   TAG_NAME,
 } from "../src/index";
@@ -72,6 +76,10 @@ interface TableOptions {
   thead?: string;
   filters?: FilterSpec[];
   view?: object;
+  /** The spanners over the column labels (in `thead`). */
+  spanners?: SpannerSpec[];
+  /** Export is off unless set. */
+  export?: { formats: ExportFormat[]; filename?: string };
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -145,7 +153,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
       { id: "x", role: "data", kind: "number", align: "right", header: "t-x" },
       { id: "y", role: "data", kind: "string", align: "left", header: "t-y" },
     ],
-    spanners: [],
+    spanners: options.spanners ?? [],
     stub: { columns: ["row"], groups_as_column: groupsAsColumn },
     groups,
     body: groupsAsColumn
@@ -167,6 +175,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     layout: { height: null, responsive: null, ...options.layout },
     ...(options.filters === undefined ? {} : { filters: options.filters }),
     ...(options.view === undefined ? {} : { view: options.view }),
+    ...(options.export === undefined ? {} : { export: { filename: "table", ...options.export } }),
   };
   return { html, spec };
 }
@@ -2054,6 +2063,416 @@ describe("the info panel", () => {
     expect(panel(el).hidden).toBe(true);
 
     el.pageSize = 2;
+    toggle(el).click();
+    el.remove();
+    expect(panel(el).hidden).toBe(true);
+    expect((el as unknown as { outsidePress: unknown }).outsidePress).toBeNull();
+  });
+});
+
+describe("export", () => {
+  const toggle = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="export"]') as HTMLButtonElement;
+  const panel = (el: GtTable) => el.querySelector(".gt-i-export") as HTMLElement;
+  const status = (el: GtTable) => panel(el).querySelector(".gt-i-info-rows") as HTMLElement;
+  const action = (el: GtTable, format: ExportFormat) =>
+    panel(el).querySelector(`[data-gti-export="${format}"]`) as HTMLButtonElement;
+  const selectedOnly = (el: GtTable) => panel(el).querySelector<HTMLInputElement>("input[type=checkbox]");
+  const check = (el: GtTable, on: boolean) => {
+    const box = selectedOnly(el) as HTMLInputElement;
+    box.checked = on;
+    box.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  const lines = (csv: string) => csv.split("\r\n").slice(0, -1);
+  const press = (target: Element, key: string) => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  // GROUPED in pages of 2 rows, with a search and export as both formats, unless set otherwise
+  async function mountExport(options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, ...options.pagination },
+      export: options.export ?? { formats: ["csv", "clipboard"], filename: "towny" },
+    });
+    const events: ExportEventDetail[] = [];
+    el.addEventListener(EXPORT_EVENT, (event) => events.push((event as CustomEvent<ExportEventDetail>).detail));
+    return { el, events };
+  }
+
+  // The download's link (as clicked) and its CSV
+  function catchDownload() {
+    const blobs: Blob[] = [];
+    const links: { href: string; download: string; connected: boolean }[] = [];
+    vi.spyOn(URL, "createObjectURL").mockImplementation((blob) => {
+      blobs.push(blob as Blob);
+      return `blob:gti-${blobs.length}`;
+    });
+    const revoke = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+      links.push({ href: this.getAttribute("href") ?? "", download: this.download, connected: this.isConnected });
+    });
+    return { blobs, links, revoke };
+  }
+
+  // What's written to the clipboard (with the Clipboard API), by type
+  function catchClipboard(write: "ok" | "rejected" = "ok") {
+    const written: Record<string, string>[] = [];
+    vi.spyOn(navigator.clipboard, "write").mockImplementation(async (items) => {
+      if (write === "rejected") {
+        throw new DOMException("Not allowed", "NotAllowedError");
+      }
+      for (const item of items) {
+        const entry: Record<string, string> = {};
+        for (const type of item.types) {
+          entry[type] = await (await item.getType(type)).text();
+        }
+        written.push(entry);
+      }
+    });
+    return written;
+  }
+
+  // A copy as the browser would make it, without the Clipboard API: the data set in the copy event
+  function catchCopyEvent(copied: boolean | "throws" = true) {
+    const data: Record<string, string> = {};
+    const doc = document as Document & { execCommand: unknown };
+    const execCommand = vi.fn((command: string) => {
+      if (copied === "throws") {
+        throw new Error("Not allowed");
+      }
+      const event = new Event("copy", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "clipboardData", {
+        value: { setData: (type: string, value: string) => (data[type] = value) },
+      });
+      document.dispatchEvent(event);
+      return copied && command === "copy" && event.defaultPrevented;
+    });
+    doc.execCommand = execCommand;
+    return { data, execCommand };
+  }
+
+  const copied = (html: string) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return div.firstElementChild as HTMLTableElement;
+  };
+
+  afterEach(() => {
+    delete (document as unknown as { execCommand?: unknown }).execCommand;
+  });
+
+  it("opens from a button in the bar, before the info panel's", async () => {
+    const { el } = await mountExport();
+    const button = toggle(el);
+    expect(button.getAttribute("aria-label")).toBe("Export the table");
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(button.getAttribute("aria-controls")).toBe(panel(el).id);
+    expect(button.nextElementSibling).toBe(panel(el));
+    expect(panel(el).nextElementSibling).toBe(el.querySelector('.gt-i-bar [data-gti-bar="info"]'));
+    expect(panel(el).getAttribute("role")).toBe("group");
+    expect(panel(el).getAttribute("aria-label")).toBe("Export");
+    expect(panel(el).id).not.toBe(el.querySelector(".gt-i-info:not(.gt-i-export)")?.id);
+    expect(panel(el).hidden).toBe(true);
+
+    button.click();
+    expect(panel(el).hidden).toBe(false);
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    button.click();
+    expect(panel(el).hidden).toBe(true);
+  });
+
+  it("has a button for each format, in the author's order", async () => {
+    const { el } = await mountExport({ export: { formats: ["clipboard", "csv"] } });
+    const buttons = Array.from(panel(el).querySelectorAll("button"), (button) => button.textContent);
+    expect(buttons).toEqual(["Copy", "Download CSV"]);
+    const { el: one } = await mountExport({ export: { formats: ["csv"] } });
+    expect(Array.from(panel(one).querySelectorAll("button"), (button) => button.textContent)).toEqual([
+      "Download CSV",
+    ]);
+  });
+
+  it("isn't there without formats", async () => {
+    const { el } = await mountExport({ export: { formats: [] } });
+    expect(toggle(el)).toBeNull();
+    expect(panel(el)).toBeNull();
+    const plain = await mountTable(GROUPED, { controls: { search: true, bar: true } });
+    expect(toggle(plain)).toBeNull();
+  });
+
+  it("is one panel open at a time with the info panel", async () => {
+    const { el } = await mountExport();
+    const info = el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
+    const infoPanel = el.querySelector(".gt-i-info:not(.gt-i-export)") as HTMLElement;
+    toggle(el).click();
+    info.click();
+    expect(panel(el).hidden).toBe(true);
+    expect(toggle(el).getAttribute("aria-expanded")).toBe("false");
+    expect(infoPanel.hidden).toBe(false);
+    toggle(el).click();
+    expect(infoPanel.hidden).toBe(true);
+    expect(panel(el).hidden).toBe(false);
+  });
+
+  it("says how many rows it exports", async () => {
+    const { el } = await mountExport();
+    expect(status(el).textContent).toBe("5 rows");
+    el.search = "a";
+    expect(status(el).textContent).toBe("3 rows (filtered from 5)");
+    el.search = "zzz";
+    expect(status(el).textContent).toBe("0 rows (filtered from 5)");
+  });
+
+  it("exports the rows the search keeps, on every page, in the order shown", async () => {
+    const { el } = await mountExport();
+    expect(lines(el.toCSV())).toEqual([",row,x,y", "b,row_4,,a", "b,row_1,20,b", "b,row_5,20,a", "a,row_2,5,a", "a,row_3,10,c"]);
+
+    el.sort = [{ column: "x", descending: true }];
+    el.page = 2;
+    el.search = "a";
+    expect(lines(el.toCSV())).toEqual([",row,x,y", "b,row_5,20,a", "b,row_4,,a", "a,row_2,5,a"]);
+  });
+
+  it("leaves out summary rows, and has no group column without groups", async () => {
+    const el = await mountTable([{ grand_summary: "Max", side: "top" }, 0, 1, 2, 3, 4], {
+      controls: { bar: true },
+      export: { formats: ["csv"] },
+    });
+    expect(lines(el.toCSV())).toEqual(["row,x,y", "row_1,20,b", "row_2,5,a", "row_3,10,c", "row_4,,a", "row_5,20,a"]);
+  });
+
+  it("labels the group column's cells with groups as a column", async () => {
+    const body: BodyRow[] = [{ group: "b" }, 3, 0, 4, { group: "a" }, 1, 2];
+    const el = await mountTable(body, { groupsAsColumn: true, controls: { bar: true }, export: { formats: ["csv"] } });
+    expect(lines(el.toCSV())).toEqual([",row,x,y", "b,row_4,,a", "b,row_1,20,b", "b,row_5,20,a", "a,row_2,5,a", "a,row_3,10,c"]);
+  });
+
+  it("labels columns with their spanners', and the text they show", async () => {
+    // A spanner over `x` and `y`, the latter's label with a footnote mark
+    const thead =
+      `<tr class="gt_col_headings gt_spanner_row"><th class="gt_col_heading" rowspan="2"></th>` +
+      `<th class="gt_column_spanner_outer" colspan="2" id="t-s"><span class="gt_column_spanner">Values</span></th></tr>` +
+      `<tr class="gt_col_headings"><th class="gt_col_heading" id="t-x">x</th>` +
+      `<th class="gt_col_heading" id="t-y"> y\n<span class="gt_footnote_marks">1</span></th></tr>`;
+    const { el } = await mountExport({
+      thead,
+      spanners: [{ id: "s", level: 1, columns: ["x", "y"], header: "t-s" }],
+    });
+    expect(lines(el.toCSV())[0]).toBe(",row,Values – x,Values – y");
+  });
+
+  it("guards cells a spreadsheet would read as a formula, unless asked not to", async () => {
+    const { el } = await mountExport({ yLabel: "=y" });
+    expect(lines(el.toCSV())[0]).toBe(",row,x,'=y");
+    expect(lines(el.toCSV({ guard: false }))[0]).toBe(",row,x,=y");
+  });
+
+  it("exports the selected rows, when asked, whether or not the search keeps them", async () => {
+    const { el } = await mountExport({ controls: { selection: "multiple" } });
+    const item = selectedOnly(el)?.closest("label") as HTMLElement;
+    expect(item.textContent).toBe("Selected rows only");
+    expect(item.hidden).toBe(true);
+    expect(el.toCSV({ selected: true })).toBe(",row,x,y\r\n");
+
+    el.selection = [2, 0];
+    expect(item.hidden).toBe(false);
+    el.search = "c";
+    expect(lines(el.toCSV({ selected: true }))).toEqual([",row,x,y", "b,row_1,20,b", "a,row_3,10,c"]);
+    expect(lines(el.toCSV())).toEqual([",row,x,y", "a,row_3,10,c"]);
+
+    check(el, true);
+    expect(status(el).textContent).toBe("2 rows selected");
+    // (Unchecked when there's no longer a selection)
+    el.selection = [];
+    expect(item.hidden).toBe(true);
+    expect(selectedOnly(el)?.checked).toBe(false);
+    expect(status(el).textContent).toBe("1 row (filtered from 5)");
+  });
+
+  it("has no selected rows option without selection", async () => {
+    const { el } = await mountExport();
+    expect(selectedOnly(el)).toBeNull();
+  });
+
+  it("gives each row of a merged stub cell its text", async () => {
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], { controls: { bar: true }, export: { formats: ["csv"] } });
+    const merged = html
+      .replace(`<th class="gt_row gt_left gt_stub">row_1</th>`, `<th class="gt_row gt_left gt_stub" rowspan="2">row_1</th>`)
+      .replace(`<th class="gt_row gt_left gt_stub">row_2</th>`, "");
+    const el = await mount(`<gt-table>${merged}${specScript(spec)}</gt-table>`);
+    expect(el.sortableColumns).toEqual([]);
+    // (With a bar for the export alone)
+    expect(el.querySelector<HTMLElement>(".gt-i-bar")?.hidden).toBe(false);
+    expect(toggle(el)).not.toBeNull();
+    expect(lines(el.toCSV())).toEqual(["row,x,y", "row_1,20,b", "row_1,5,a", "row_3,10,c", "row_4,,a", "row_5,20,a"]);
+  });
+
+  it("downloads CSV, with a byte order mark, named as the author asked", async () => {
+    const { blobs, links, revoke } = catchDownload();
+    const { el, events } = await mountExport();
+    toggle(el).click();
+    vi.useFakeTimers();
+    try {
+      action(el, "csv").click();
+      expect(links).toEqual([{ href: "blob:gti-1", download: "towny.csv", connected: true }]);
+      expect(el.querySelector("a[download]")).toBeNull();
+      expect(revoke).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(4e4);
+      expect(revoke).toHaveBeenCalledWith("blob:gti-1");
+    } finally {
+      vi.useRealTimers();
+    }
+    const blob = blobs[0] as Blob;
+    expect(blob.type).toBe("text/csv;charset=utf-8");
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    expect(Array.from(bytes.slice(0, 3))).toEqual([0xef, 0xbb, 0xbf]);
+    expect(new TextDecoder().decode(bytes.slice(3))).toBe(el.toCSV());
+
+    expect(events).toEqual([{ format: "csv", rows: [3, 0, 4, 1, 2] }]);
+    expect(status(el).textContent).toBe("Downloaded 5 rows");
+    expect(live(el)).toBe("Downloaded 5 rows");
+    // (Still open, to export again)
+    expect(panel(el).hidden).toBe(false);
+  });
+
+  it("downloads the selected rows, when asked", async () => {
+    const { blobs } = catchDownload();
+    const { el, events } = await mountExport({ controls: { selection: "multiple" }, export: { formats: ["csv"] } });
+    el.selection = [1];
+    check(el, true);
+    action(el, "csv").click();
+    expect((await (blobs[0] as Blob).text()).replace("\uFEFF", "")).toBe(",row,x,y\r\na,row_2,5,a\r\n");
+    expect(events).toEqual([{ format: "csv", rows: [1] }]);
+    expect(status(el).textContent).toBe("Downloaded 1 row");
+  });
+
+  it("copies the rows as an HTML table and as tab-separated text", async () => {
+    const written = catchClipboard();
+    const { el, events } = await mountExport();
+    // An author's style, and one of GTI's
+    const td = el.rowElement(0)?.querySelector("td") as HTMLElement;
+    td.style.cssText = "color: red; text-align: center; top: 3px; --gt-i-x: 1px";
+    td.innerHTML = `20<span class="gt_footnote_marks">2</span>`;
+    action(el, "clipboard").click();
+    await tick();
+
+    expect(written).toHaveLength(1);
+    const { "text/plain": text, "text/html": html } = written[0] as { "text/plain": string; "text/html": string };
+    expect(text).toBe("\trow\tx\ty\nb\trow_4\t\ta\nb\trow_1\t20\tb\nb\trow_5\t20\ta\na\trow_2\t5\ta\na\trow_3\t10\tc");
+    const table = copied(html);
+    expect(Array.from(table.rows, (tr) => Array.from(tr.cells, (cell) => cell.textContent))).toEqual([
+      ["", "row", "x", "y"],
+      ["b", "row_4", "", "a"],
+      ["b", "row_1", "20", "b"],
+      ["b", "row_5", "20", "a"],
+      ["a", "row_2", "5", "a"],
+      ["a", "row_3", "10", "c"],
+    ]);
+    expect(table.querySelectorAll("thead th")).toHaveLength(4);
+    expect(table.querySelectorAll("[class], [id], [rowspan], [headers]")).toHaveLength(0);
+    // (The stub's cells are still header cells)
+    const row1 = table.rows[2] as HTMLTableRowElement;
+    expect(Array.from(row1.cells, (cell) => cell.tagName)).toEqual(["TD", "TH", "TD", "TD"]);
+    expect(Array.from(row1.cells, (cell) => cell.style.textAlign)).toEqual(["", "left", "center", "left"]);
+    const x = row1.cells[2] as HTMLElement;
+    expect(x.style.color).toBe("red");
+    expect(x.style.top).toBe("");
+    expect(x.style.getPropertyValue("--gt-i-x")).toBe("");
+    expect(Array.from((table.rows[1] as HTMLTableRowElement).cells, (cell) => cell.style.textAlign)).toEqual([
+      "",
+      "left",
+      "right",
+      "left",
+    ]);
+    // (Leaving the table's own cells as they were)
+    expect(td.querySelector(".gt_footnote_marks")).not.toBeNull();
+
+    expect(events).toEqual([{ format: "clipboard", rows: [3, 0, 4, 1, 2] }]);
+    expect(status(el).textContent).toBe("Copied 5 rows");
+    expect(live(el)).toBe("Copied 5 rows");
+  });
+
+  it("copies as a copy would, without the Clipboard API", async () => {
+    catchClipboard("rejected");
+    const { data, execCommand } = catchCopyEvent();
+    const { el, events } = await mountExport();
+    el.search = "c";
+    action(el, "clipboard").click();
+    await tick();
+    expect(execCommand).toHaveBeenCalledWith("copy");
+    expect(data["text/plain"]).toBe("\trow\tx\ty\na\trow_3\t10\tc");
+    expect(copied(data["text/html"] as string).rows).toHaveLength(2);
+    expect(events).toEqual([{ format: "clipboard", rows: [2] }]);
+    // (Only for the copy)
+    document.dispatchEvent(new Event("copy"));
+    expect(execCommand).toHaveBeenCalledTimes(1);
+
+    // And when the Clipboard API isn't there at all
+    vi.spyOn(navigator.clipboard, "write").mockImplementation(() => {
+      throw new TypeError("No clipboard");
+    });
+    await expect(el.copyTable()).resolves.toBe(true);
+    expect(execCommand).toHaveBeenCalledTimes(2);
+  });
+
+  it("says when it couldn't copy", async () => {
+    catchClipboard("rejected");
+    catchCopyEvent(false);
+    const { el, events } = await mountExport();
+    action(el, "clipboard").click();
+    await tick();
+    expect(status(el).textContent).toBe("Couldn't copy the rows");
+    expect(live(el)).toBe("Couldn't copy the rows");
+    expect(events).toEqual([]);
+
+    catchCopyEvent("throws");
+    await expect(el.copyTable()).resolves.toBe(false);
+  });
+
+  it("exports from code without an event", async () => {
+    const written = catchClipboard();
+    const { el, events } = await mountExport({ controls: { selection: "multiple" } });
+    el.selection = [4];
+    await expect(el.copyTable({ selected: true })).resolves.toBe(true);
+    expect(written[0]?.["text/plain"]).toBe("\trow\tx\ty\nb\trow_5\t20\ta");
+    el.toCSV();
+    expect(events).toEqual([]);
+    // (Nor does it change the panel)
+    expect(status(el).textContent).toBe("5 rows");
+  });
+
+  it("exports nothing before the table is ready", async () => {
+    const el = await mount("<gt-table><table></table></gt-table>");
+    expect(el.toCSV()).toBe("");
+    await expect(el.copyTable()).resolves.toBe(false);
+  });
+
+  it("closes on Escape, giving focus back to its button", async () => {
+    const { el } = await mountExport();
+    toggle(el).click();
+    action(el, "csv").focus();
+    expect(press(action(el, "csv"), "Escape").defaultPrevented).toBe(true);
+    expect(panel(el).hidden).toBe(true);
+    expect(document.activeElement).toBe(toggle(el));
+    expect(press(toggle(el), "Escape").defaultPrevented).toBe(false);
+  });
+
+  it("doesn't page with the keys pressed in it", async () => {
+    const { el } = await mountExport();
+    toggle(el).click();
+    expect(press(action(el, "csv"), "ArrowRight").defaultPrevented).toBe(false);
+    expect(el.page).toBe(1);
+  });
+
+  it("closes when focus goes elsewhere, and when the table goes", async () => {
+    const { el } = await mountExport();
+    const outside = el.querySelector("tbody td") as HTMLElement;
+    toggle(el).click();
+    action(el, "csv").dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: outside }));
+    expect(panel(el).hidden).toBe(true);
+
     toggle(el).click();
     el.remove();
     expect(panel(el).hidden).toBe(true);

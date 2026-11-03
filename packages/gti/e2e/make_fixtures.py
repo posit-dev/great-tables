@@ -224,6 +224,21 @@ def filter_html(table_id: str, view: str | None = None, **pagination) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def export_html(table_id: str) -> str:
+    # A GTI table of exibble three times over (24 rows, in two groups), with a spanner, 5 rows to a
+    # page, whose rows can be selected and exported (as "exibble.csv")
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    gt = sort_gt(table_id, data=data).tab_spanner(label="Numbers", columns=["num", "currency"])
+    gti = (
+        GTI.from_gt(gt)
+        .i_selection("multiple")
+        .i_pagination(page_size=5)
+        .i_export(filename="exibble")
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 TOKENS_VIEW = 'num >= 1000 and char contains "a" and fctr in ("two", "seven", "one", "eight")'
 
 
@@ -457,6 +472,8 @@ def main() -> None:
         "tokens-late.html": page(
             filter_html("f", view=TOKENS_VIEW) + '\n<p id="after">After the table</p>', head=styles
         ),
+        # Export: from a GTI table 5 rows to a page, whose rows can be selected
+        "export.html": page(export_html("e") + "\n" + runtime_src, head=styles),
     }
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")

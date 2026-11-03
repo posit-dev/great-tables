@@ -29,6 +29,11 @@ FilterType = Literal["auto", "text", "facet", "range"]
 
 FILTER_TYPES: tuple[FilterType, ...] = ("auto", "text", "facet", "range")
 
+# How readers can export the rows: by copying them, or downloading them as CSV
+ExportFormat = Literal["csv", "clipboard"]
+
+EXPORT_FORMATS: tuple[ExportFormat, ...] = ("csv", "clipboard")
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -59,6 +64,10 @@ class Settings:
     # each a column and whether it's descending)
     view_filter: dict[str, list[dict[str, Any]]] | None = None
     view_sort: tuple[tuple[str, bool], ...] = ()
+    # (How readers can export the rows, from the bar; none, by default. The name of a download,
+    # without its extension)
+    export_formats: tuple[ExportFormat, ...] = ()
+    export_filename: str = "table"
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:

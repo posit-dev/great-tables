@@ -25,6 +25,8 @@ const filters = (list: unknown) => JSON.stringify({ ...valid, filters: list });
 
 const view = (value: unknown) => JSON.stringify({ ...valid, view: value });
 
+const exports = (value: unknown) => JSON.stringify({ ...valid, export: value });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -59,6 +61,13 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, view }).view).toEqual(view);
     expect(parse({ ...valid, view: { filter: null, sort: [] } }).view).toEqual({ filter: null, sort: [] });
     expect(parse(valid).view).toBeUndefined();
+  });
+
+  it("takes an export, or its absence", () => {
+    const value = { formats: ["csv", "clipboard"], filename: "towny" };
+    expect(parse({ ...valid, export: value }).export).toEqual(value);
+    expect(parse({ ...valid, export: { formats: [], filename: "table" } }).export?.formats).toEqual([]);
+    expect(parse(valid).export).toBeUndefined();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -146,6 +155,11 @@ describe("parseSpec()", () => {
     ["has a view without sort keys", view({ filter: null }), /`view`/],
     ["has a view with a bad sort key", view({ filter: null, sort: [{ column: "x" }] }), /`view`/],
     ["has a view with a sort key that's a name", view({ filter: null, sort: ["x"] }), /`view`/],
+    ["has an export that isn't an object", exports(["csv"]), /`export`/],
+    ["has an export without formats", exports({ filename: "table" }), /`export`/],
+    ["has an export with a format it doesn't know", exports({ formats: ["xlsx"], filename: "table" }), /`export`/],
+    ["has an export without a filename", exports({ formats: ["csv"] }), /`export`/],
+    ["has an export with a filename that isn't text", exports({ formats: ["csv"], filename: 1 }), /`export`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

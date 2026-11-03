@@ -6,7 +6,15 @@ from typing import Any, NoReturn
 
 from typing_extensions import Self
 
-from ._gti._settings import FILTER_TYPES, SELECTION_MODES, FilterType, Settings, SelectionMode
+from ._gti._settings import (
+    EXPORT_FORMATS,
+    FILTER_TYPES,
+    SELECTION_MODES,
+    ExportFormat,
+    FilterType,
+    SelectionMode,
+    Settings,
+)
 from ._locations import resolve_cols_c
 from ._options import _is_height
 from ._tbl_data import SelectExpr, _get_column_kind
@@ -615,6 +623,88 @@ class GTI(GT):
 
         return self._set_interactive(view_filter=check_query(filter), view_sort=parse_sort(sort))
 
+    def i_export(
+        self,
+        formats: ExportFormat | list[ExportFormat] | tuple[ExportFormat, ...] | None = (
+            "csv",
+            "clipboard",
+        ),
+        *,
+        filename: str | None = None,
+    ) -> Self:
+        """
+        Let readers export the table's rows.
+
+        An export button in the control bar below the table opens a panel that copies the rows
+        (`"clipboard"`) or downloads them as a CSV file (`"csv"`). It exports the rows readers see:
+        every row the search and filters keep (on every page, not only the one shown), in the
+        order shown, with the columns' text as the table shows it (formatted, without footnote
+        marks). The column labels are the first row, each after its spanners' labels (as in
+        "Revenue – gross"), and with row groups, the group's label is a column before the others.
+        With [`i_selection()`](`great_tables.GTI.i_selection`), readers can export the rows they've
+        selected instead.
+
+        A copy has the rows both as a table, with the cells' styles (for pasting into a document
+        or a spreadsheet), and as text, with tabs between the cells. In a CSV file, a cell a
+        spreadsheet would read as a formula (one starting with `=`, `+`, `-` or `@`, but not a
+        number) starts with a `'`, so that it's read as text. Exporting is off by default.
+
+        Parameters
+        ----------
+        formats
+            How readers can export the rows: `"csv"`, `"clipboard"`, or a list of them (in the
+            order of their buttons in the panel). With `None` (or none at all), they can't.
+        filename
+            The name of the CSV file a download makes (`".csv"` is added to it). By default,
+            `"table"`.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of Ontario's municipalities that readers can filter, then download what's
+        left as a CSV file named `towny.csv`, or copy.
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_filter(columns="status")
+            .i_export(filename="towny")
+        )
+        ```
+        """
+        if formats is None:
+            formats = ()
+        elif isinstance(formats, str):
+            formats = (formats,)
+        chosen: list[ExportFormat] = []
+        for fmt in formats:
+            if fmt not in EXPORT_FORMATS:
+                raise ValueError(
+                    '`formats=` must be "csv", "clipboard", a list of them, or `None` (no '
+                    f"export), not one with {fmt!r}."
+                )
+            if fmt not in chosen:
+                chosen.append(fmt)
+
+        if filename is None:
+            filename = Settings().export_filename
+        if not isinstance(filename, str):
+            raise TypeError(f"`filename=` must be a string or `None`, not {filename!r}.")
+        # (The extension is added in the browser)
+        if filename.lower().endswith(".csv"):
+            filename = filename[:-4]
+        if filename.strip() == "":
+            raise ValueError("`filename=` must name the file, not be empty.")
+        return self._set_interactive(export_formats=tuple(chosen), export_filename=filename)
+
     # -----
     # A `GTI` table is only ever interactive HTML
 
@@ -681,7 +771,8 @@ class GTI(GT):
         raise TypeError(
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
-            "`i_selection()`, `i_scroll()`, `i_display()`, `i_cols_filter()`, and `i_view()`."
+            "`i_selection()`, `i_scroll()`, `i_display()`, `i_cols_filter()`, `i_view()`, and "
+            "`i_export()`."
         )
 
 

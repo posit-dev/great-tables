@@ -1143,6 +1143,12 @@ gt-table .gt-i-info select:focus-visible {
   outline-offset: 1px;
 }
 
+/* (The export panel's buttons, one per format) */
+gt-table .gt-i-export-actions {
+  display: flex;
+  gap: 0.5em;
+}
+
 gt-table .gt-i-info-shortcuts {
   padding-top: 0.5em;
   border-top: 1px solid rgba(128, 128, 128, 0.3);
