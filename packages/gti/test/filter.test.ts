@@ -69,6 +69,17 @@ describe("ColumnFilter", () => {
     expect(kept(filter, cells)).toEqual([0, 1, 2, 3, 4]);
   });
 
+  it("matches the texts of a column only for querying, which has no cells", () => {
+    const texts = ["Crème brûlée", "apple", "CREAM", "pie\ncream", ""];
+    const filter = new ColumnFilter({ column: "q", type: "text", values: null }, -1, [], texts);
+    filter.setText("CREME");
+    expect(kept(filter)).toEqual([0]);
+    // (What a cell wouldn't show, too)
+    filter.setText("cream");
+    expect(kept(filter, ["x", "x", "x", "x", "x"].map(cell))).toEqual([2, 3]);
+    expect(filter.clauses()).toEqual([{ col: "q", op: "contains", value: "cream" }]);
+  });
+
   it("clears", () => {
     const filter = x();
     filter.min = 1;
