@@ -41,6 +41,11 @@ export interface ColumnSpec {
   pin?: "start" | "end" | null;
   /** Whether readers can hide a data column. Without it, they can't. */
   hideable?: boolean;
+  /**
+   * Whether readers can move a data column: among the reorderable columns next to it, under the
+   * same spanners and pinned to the same side. Without it, they can't.
+   */
+  reorderable?: boolean;
 }
 
 export interface SpannerSpec {
@@ -317,12 +322,12 @@ export function parseSpec(text: string): Spec {
   const column = (raw.columns as unknown[]).findIndex(
     (column) =>
       !isObject(column) ||
-      !["sortable", "searchable", "resizable", "hideable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
+      !["sortable", "searchable", "resizable", "hideable", "reorderable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
       ![undefined, null, "start", "end"].includes(column.pin as string),
   );
   if (column >= 0) {
     throw new SpecError(
-      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable and hideable with \`true\` or \`false\`, and the side it's pinned to (\`"start"\` or \`"end"\`), if it does`,
+      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable and reorderable with \`true\` or \`false\`, and the side it's pinned to (\`"start"\` or \`"end"\`), if it does`,
     );
   }
   if (!isObject(raw.stub) || !isObject(raw.ranks)) {
