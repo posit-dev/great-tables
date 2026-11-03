@@ -5,7 +5,9 @@
 //
 // Each line in is a JSON object `{"html": ...}`: a `<gt-table>`, with its spec but not the
 // runtime. Each line out is `{"rows": [...], "state": ..., "warnings": [...]}`: the data rows
-// shown once the table is ready, in order, the element's state, and what it warned about.
+// shown once the table is ready, in order, the element's state, and what it warned about. With
+// `"code": true`, it has `"code"` too: the view's code for each library (`toCode()`), or the
+// error writing it.
 //
 // A line `{"parse": text}` reads a query's text (`GTI.parseQuery()`), giving `{"query": ...}` or
 // `{"syntaxError": message}`, and a line `{"format": query}` writes one (`GTI.formatQuery()`),
@@ -31,7 +33,7 @@ const GTI = window.eval(`${runtime}\nGTI;`);
 
 const tick = () => new Promise((resolve) => window.setTimeout(resolve, 0));
 
-async function run(html) {
+async function run(html, code) {
   warnings.length = 0;
   document.body.innerHTML = html;
   await tick();
@@ -43,7 +45,18 @@ async function run(html) {
       rows.push(row);
     }
   }
-  return { rows, state: el?.state ?? null, warnings: [...warnings] };
+  const result = { rows, state: el?.state ?? null, warnings: [...warnings] };
+  if (code) {
+    result.code = {};
+    for (const backend of ["polars", "pandas", "narwhals"]) {
+      try {
+        result.code[backend] = el.toCode(backend);
+      } catch (err) {
+        result.code[backend] = { error: String(err?.message ?? err) };
+      }
+    }
+  }
+  return result;
 }
 
 function parse(text) {
@@ -71,7 +84,7 @@ for await (const line of lines) {
     } else if ("format" in input) {
       result = { text: GTI.formatQuery(input.format) };
     } else {
-      result = await run(input.html);
+      result = await run(input.html, input.code === true);
     }
   } catch (err) {
     result = { error: String(err?.stack ?? err) };
