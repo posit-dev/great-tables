@@ -245,6 +245,21 @@ def state_html(table_id: str, url: bool = True, storage: bool = False) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def controls_html(table_id: str) -> str:
+    # A GTI table of exibble (8 rows, on one page) that can't be sorted by `num` (filtered by a
+    # range), whose search leaves out `char` (filtered by text), and that can't resize `currency`
+    gti = (
+        GTI(exibble[["num", "char", "fctr", "currency", "row"]], rowname_col="row", id=table_id)
+        .i_pagination(False)
+        .i_cols_filter(columns="num")
+        .i_cols_filter(columns="char", type="text")
+        .i_cols_controls(columns="num", sortable=False)
+        .i_cols_controls(columns="char", searchable=False)
+        .i_cols_controls(columns="currency", resizable=False)
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def export_html(table_id: str) -> str:
     # A GTI table of exibble three times over (24 rows, in two groups), with a spanner, 5 rows to a
     # page, whose rows can be selected and exported (as "exibble.csv")
@@ -552,6 +567,8 @@ def main() -> None:
         ),
         # Undo: a GTI table whose view isn't kept, but whose changes to it can be undone
         "undo.html": page(state_html("u", url=False) + "\n" + runtime_src, head=styles),
+        # Column controls: a GTI table with columns that can't be sorted, searched, or resized
+        "controls.html": page(controls_html("cc") + "\n" + runtime_src, head=styles),
         # Export: from a GTI table 5 rows to a page, whose rows can be selected
         "export.html": page(export_html("e") + "\n" + runtime_src, head=styles),
         # Export as code: from GTI tables of pandas data and of Polars data, the latter with a
