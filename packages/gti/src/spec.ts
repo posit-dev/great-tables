@@ -27,6 +27,13 @@ export interface ColumnSpec {
   align: string | null;
   /** The id of the column's label cell, if it has one. */
   header: string | null;
+  /**
+   * Whether readers can sort by the column, search it, and resize it, where the table lets them
+   * (`controls`). Without them, they can.
+   */
+  sortable?: boolean;
+  searchable?: boolean;
+  resizable?: boolean;
 }
 
 export interface SpannerSpec {
@@ -296,6 +303,14 @@ export function parseSpec(text: string): Spec {
     if (!Array.isArray(raw[key])) {
       throw new SpecError(`\`${key}\` must be an array`);
     }
+  }
+  const column = (raw.columns as unknown[]).findIndex(
+    (column) =>
+      !isObject(column) ||
+      !["sortable", "searchable", "resizable"].every((key) => column[key] === undefined || typeof column[key] === "boolean"),
+  );
+  if (column >= 0) {
+    throw new SpecError(`\`columns[${column}]\` must be an object, saying whether it's sortable, searchable and resizable with \`true\` or \`false\`, if it does`);
   }
   if (!isObject(raw.stub) || !isObject(raw.ranks)) {
     throw new SpecError("`stub` and `ranks` must be objects");
