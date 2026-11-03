@@ -14,7 +14,7 @@
 import { type Placed, placeCells, type Side, TableBorders } from "./borders";
 import { viewCode } from "./code";
 import { toCSV as csv, toTSV } from "./export";
-import { ColumnFilter, type FilterQuery, filterQuery, MISSING, setFilterQuery } from "./filter";
+import { ColumnFilter, dateKey, type FilterQuery, filterQuery, hasTime, MISSING, setFilterQuery } from "./filter";
 import { columnRuns, orderRuns } from "./order";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import {
@@ -357,6 +357,10 @@ const OP_SUGGESTIONS: Record<FilterType, Suggestion[]> = {
     { text: ">= …", detail: "at least", insert: ">= ", back: 0 },
     { text: "<= …", detail: "at most", insert: "<= ", back: 0 },
   ],
+  date: [
+    { text: '>= "…"', detail: "on or after", insert: '>= ""', back: 1 },
+    { text: '<= "…"', detail: "on or before", insert: '<= ""', back: 1 },
+  ],
 };
 
 /** A panel that a button in the bar opens above the bar (a disclosure). */
@@ -495,6 +499,37 @@ function withoutMarks(cell: Element): Element {
 const sameView = (a: View, b: View | undefined) => b !== undefined && viewParams(a, b).length === 0;
 
 const plural = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
+
+// A date bound (ISO 8601 text) as a date field has it (its date), or a date and time field (a date
+// as its midnight, and seconds cut to milliseconds)
+function dateField(text: string, clock: boolean): string {
+  if (!clock || text === "") {
+    return text.split("T")[0] as string;
+  }
+  return hasTime(text) ? text.replace(/(\.\d{3})\d+$/, "$1") : `${text}T00:00`;
+}
+
+// A date bound as a language writes it ("Jun 15, 2015", or with its time "Jun 15, 2015, 9:30 AM")
+function dateText(text: string, lang: string | undefined): string {
+  const key = dateKey(text);
+  if (key === null) {
+    return text;
+  }
+  const [year, month, day, hour, minute, second, nanos] = key.split(/[-T:.]/).map(Number) as number[];
+  const date = new Date(0);
+  // (Not `Date.UTC()`, which takes years before 100 to be 1900 and after)
+  date.setUTCFullYear(year as number, (month as number) - 1, day);
+  date.setUTCHours(hour as number, minute, second, Math.floor((nanos as number) / 1e6));
+  const options: Intl.DateTimeFormatOptions = { dateStyle: "medium", timeZone: "UTC" };
+  if (hasTime(text)) {
+    options.timeStyle = second === 0 && nanos === 0 ? "short" : "medium";
+  }
+  try {
+    return new Intl.DateTimeFormat(lang, options).format(date);
+  } catch {
+    return text;
+  }
+}
 
 const isPositiveInteger = (x: unknown): x is number => Number.isInteger(x) && (x as number) > 0;
 
@@ -848,10 +883,12 @@ export class GtTable extends HTMLElement {
 
   /**
    * The filters, as a query: `{and: [clauses]}`, with a clause `{col, op, value}` for each filter
-   * on a column (two for a range with both bounds), or `null` without any. Rows are shown that
-   * every clause, and the search, keep. A clause's `op` is "contains", for a text filter (`value`
-   * is the text, matched as the search matches it); "in", for a facet (`value` is the values to
-   * keep, `null` for a missing one); or "gte" or "lte", for a range (`value` is the bound).
+   * on a column (two for a range or date filter with both bounds), or `null` without any. Rows are
+   * shown that every clause, and the search, keep. A clause's `op` is "contains", for a text filter
+   * (`value` is the text, matched as the search matches it); "in", for a facet (`value` is the
+   * values to keep, `null` for a missing one); or "gte" or "lte", for a range (`value` is the
+   * bound) or a date filter (`value` is the bound as ISO 8601 text: a date, "2015-06-15", or for a
+   * column with times, either that, meaning its midnight, or a date and time, "2015-06-15T09:30").
    *
    * @throws {RangeError} for a query that isn't `{and: [...]}`, or with a clause on a column that
    *   isn't one of `filterableColumns`, or that the column's filter can't have (an "in" without
@@ -4043,7 +4080,7 @@ export class GtTable extends HTMLElement {
       }
       const th = header == null ? null : (cells.get(header) ?? null);
       const label = this.sortHeaders.get(id)?.label ?? ((th !== null && labelText(th)) || query?.label || id);
-      const filter = new ColumnFilter(filterSpec, index, spec.ranks[id] ?? [], query?.texts);
+      const filter = new ColumnFilter(filterSpec, index, spec.ranks[id] ?? [], query?.texts, spec.columns[index]?.kind ?? query?.kind);
       const control: FilterControl = {
         filter,
         label,
@@ -4090,7 +4127,8 @@ export class GtTable extends HTMLElement {
 
   /**
    * Make a filter's panel: the column's label and a Clear button, over a text field (a text
-   * filter), a checkbox for each value (a facet), or fields for the bounds (a range).
+   * filter), a checkbox for each value (a facet), or fields for the bounds (a range, or a date
+   * filter's date fields).
    */
   private makeFilterPanel(control: FilterControl): HTMLElement {
     const doc = this.ownerDocument;
@@ -4171,6 +4209,44 @@ export class GtTable extends HTMLElement {
       };
       control.min = bound("At least", numbers[0]);
       control.max = bound("At most", numbers[numbers.length - 1]);
+      panel.append(bounds);
+    } else if (filter.type === "date") {
+      // (Date fields, or for a column with times other than midnight, date and time ones; from the
+      // column's first date to its last, with seconds if any of its times has them)
+      const dates = (filter.spec.values ?? []).filter((value): value is string => typeof value === "string");
+      const keys = filter.times ? filter.dateKeys() : [];
+      const clock = keys.some((key) => key !== null && !key.endsWith("T00:00:00.000000000"));
+      const seconds = keys.some((key) => key !== null && !key.endsWith(":00.000000000"));
+      const bounds = doc.createElement("div");
+      // (Date and time fields, too wide to be side by side, one above the other)
+      bounds.className = clock ? "gt-i-filter-range gt-i-filter-range-stacked" : "gt-i-filter-range";
+      const bound = (text: string, which: "min" | "max") => {
+        const el = doc.createElement("label");
+        el.className = "gt-i-filter-bound";
+        const name = doc.createElement("span");
+        name.textContent = text;
+        const input = doc.createElement("input");
+        input.type = clock ? "datetime-local" : "date";
+        if (seconds) {
+          input.step = "1";
+        }
+        input.min = dateField(dates[0] ?? "", clock);
+        input.max = dateField(dates[dates.length - 1] ?? "", clock);
+        input.setAttribute("aria-label", `${label}, ${text.toLowerCase()}`);
+        input.setAttribute("enterkeyhint", "done");
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            this.flushFilter();
+          }
+        });
+        input.addEventListener("input", () => this.queueFilter(() => this.readDate(control, which)));
+        el.append(name, input);
+        bounds.append(el);
+        return input;
+      };
+      control.min = bound("From", "min");
+      control.max = bound("To", "max");
       panel.append(bounds);
     } else {
       const list = doc.createElement("div");
@@ -4266,8 +4342,29 @@ export class GtTable extends HTMLElement {
       return bad ? old : value;
     };
     const { filter } = control;
-    filter.min = read(control.min, filter.min);
-    filter.max = read(control.max, filter.max);
+    filter.min = read(control.min, filter.min as number | null);
+    filter.max = read(control.max, filter.max as number | null);
+  }
+
+  // A date filter's bound, from its field (which has a date, or nothing; and while one is part
+  // typed, nothing, but a bad input): a part-typed date is marked, and leaves the bound as it was
+  private readDate(control: FilterControl, which: "min" | "max"): void {
+    const input = control[which];
+    if (input === null) {
+      return;
+    }
+    const { filter } = control;
+    const value = input.value;
+    const bad = value === "" ? input.validity.badInput : !filter.isDateBound(value);
+    if (bad) {
+      input.setAttribute("aria-invalid", "true");
+    } else {
+      input.removeAttribute("aria-invalid");
+      // (Unless the field has the bound as it shows it, cut to milliseconds, or to its date)
+      if (dateKey(value) !== dateKey(dateField(String(filter[which] ?? ""), input.type === "datetime-local"))) {
+        filter[which] = value === "" ? null : value;
+      }
+    }
   }
 
   // Show a filter's state in its panel's fields
@@ -4281,7 +4378,8 @@ export class GtTable extends HTMLElement {
       [control.max, filter.max],
     ] as const) {
       if (input !== null) {
-        input.value = value === null ? "" : String(value);
+        input.value =
+          value === null ? "" : filter.type === "date" ? dateField(String(value), input.type === "datetime-local") : String(value);
         input.removeAttribute("aria-invalid");
       }
     }
@@ -4529,8 +4627,21 @@ export class GtTable extends HTMLElement {
       const chosen = names.filter(([key]) => filter.chosen.has(key)).map(([, name]) => name);
       return `${label}: ${chosen.length > 3 ? `${chosen.slice(0, 2).join(", ")} +${chosen.length - 2}` : chosen.join(", ")}`;
     }
-    // (A bound that's one of the column's values as the table shows it, or else as a number)
     const lang = this.closest("[lang]")?.getAttribute("lang") || undefined;
+    const { min, max } = filter;
+    if (filter.type === "date") {
+      // (A bound that's one of the column's dates as the table shows it, or else as the language
+      // has dates)
+      const bound = (value: string) => names[filter.dateRank(value) ?? -1]?.[1] ?? dateText(value, lang);
+      return `${label} ${
+        min === null
+          ? `≤ ${bound(max as string)}`
+          : max === null
+            ? `≥ ${bound(min as string)}`
+            : `${bound(min as string)} – ${bound(max as string)}`
+      }`;
+    }
+    // (A bound that's one of the column's values as the table shows it, or else as a number)
     const bound = (value: number) => {
       const name = names[filter.rankOf(value) ?? -1]?.[1];
       if (name !== undefined) {
@@ -4542,9 +4653,12 @@ export class GtTable extends HTMLElement {
         return String(value);
       }
     };
-    const { min, max } = filter;
     return `${label} ${
-      min === null ? `≤ ${bound(max as number)}` : max === null ? `≥ ${bound(min)}` : `${bound(min)}–${bound(max)}`
+      min === null
+        ? `≤ ${bound(max as number)}`
+        : max === null
+          ? `≥ ${bound(min as number)}`
+          : `${bound(min as number)}–${bound(max as number)}`
     }`;
   }
 
@@ -4862,7 +4976,8 @@ export class GtTable extends HTMLElement {
   }
 
   // What can go at the caret: columns (with a filter), ops (the column's filter's), values (a
-  // facet's, as the table shows them, but those already chosen) or `and`, as far as they match
+  // facet's, as the table shows them, but those already chosen), bounds (a date filter's first and
+  // last dates) or `and`, as far as they match
   // what's typed there (but not what's there already)
   private suggestions(box: QueryBox): Suggestion[] {
     const { input } = box;
@@ -4897,6 +5012,18 @@ export class GtTable extends HTMLElement {
           return { text: name, detail: literal === JSON.stringify(name) ? "" : literal, insert: literal, back: 0 };
         })
         .filter((item) => !chosen.has(item.insert) && fits(item.text, item.insert));
+    } else if (expect === "bound" && control?.filter.type === "date" && !(prefix.length > 1 && /^".*"$/s.test(prefix))) {
+      // (The column's first and last dates; but not once a date's typed, its string closed, so that
+      // Enter applies it)
+      const names = this.facetNames(control);
+      const values = control.filter.spec.values ?? [];
+      items = [0, values.length - 1]
+        .filter((key, i) => typeof values[key] === "string" && (i === 0 || key > 0))
+        .map((key) => {
+          const literal = formatValue(values[key] ?? null);
+          return { text: names[key]?.[1] ?? literal, detail: literal, insert: `${literal} `, back: 0 };
+        })
+        .filter((item) => fits(item.text, item.detail));
     } else if (expect === "and" && "and".startsWith(word) && (word !== "" || /\s/.test(text[caret - 1] ?? ""))) {
       items = [{ text: "and", detail: "", insert: "and ", back: 0 }];
     }
