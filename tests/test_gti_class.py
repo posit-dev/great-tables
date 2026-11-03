@@ -530,21 +530,33 @@ def test_i_export_code_has_python_values():
 
 
 def test_view_state_is_off_by_default():
-    assert spec_of(GTI(DF))["view_state"] == {"url": False, "storage": False, "key": None}
+    assert spec_of(GTI(DF))["view_state"] == {
+        "url": False,
+        "storage": False,
+        "key": None,
+        "undo": False,
+    }
     assert spec_of(GTI.from_gt(GT(DF, id="t").opt_interactive()))["view_state"] == {
         "url": False,
         "storage": False,
         "key": "t",
+        "undo": False,
     }
 
 
 def test_i_view_state_keeps_the_view_by_the_table_id():
     gti = GTI(DF, id="towny").i_view_state()
-    assert spec_of(gti)["view_state"] == {"url": True, "storage": False, "key": "towny"}
-    assert spec_of(gti.i_view_state(url=False, storage=True))["view_state"] == {
+    assert spec_of(gti)["view_state"] == {
+        "url": True,
+        "storage": False,
+        "key": "towny",
+        "undo": True,
+    }
+    assert spec_of(gti.i_view_state(url=False, storage=True, undo=False))["view_state"] == {
         "url": False,
         "storage": True,
         "key": "towny",
+        "undo": False,
     }
     # (Set with `with_id()`, before or after)
     assert spec_of(GTI(DF).i_view_state().with_id("t"))["view_state"]["key"] == "t"
@@ -560,8 +572,16 @@ def test_i_view_state_needs_a_table_id():
         spec_of(gti)
     with pytest.raises(ValueError, match=r"Give it one with `GTI\(id=\)`"):
         gti.as_raw_html()
-    # (Not when it's off)
-    assert spec_of(gti.i_view_state(url=False, storage=False))["view_state"]["key"] is None
+    # (Not when it's off, or for undo alone)
+    assert (
+        spec_of(gti.i_view_state(url=False, storage=False, undo=False))["view_state"]["key"] is None
+    )
+    assert spec_of(GTI(DF).i_view_state(url=False))["view_state"] == {
+        "url": False,
+        "storage": False,
+        "key": None,
+        "undo": True,
+    }
 
 
 def test_i_view_state_checks_its_arguments():
@@ -569,6 +589,8 @@ def test_i_view_state_checks_its_arguments():
         GTI(DF).i_view_state(url="yes")  # type: ignore[arg-type]
     with pytest.raises(TypeError, match="`storage=` must be `True` or `False`"):
         GTI(DF).i_view_state(storage=1)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="`undo=` must be `True` or `False`"):
+        GTI(DF).i_view_state(undo=None)  # type: ignore[arg-type]
 
 
 def test_i_export_keeps_room_for_the_bar():
