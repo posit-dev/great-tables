@@ -38,7 +38,6 @@ class Divergent(TypedDict, total=False):
 
 # `Divergent` reasons shared by several test modules
 ISSUES = "https://github.com/posit-dev/great-tables/issues"
-OBJECT_ALIGNED_RIGHT = f"{ISSUES}/1024"
 INT_UPCAST = "inherited from native data (pandas stores ints with a missing value as float64)"
 
 

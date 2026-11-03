@@ -15,7 +15,6 @@ from great_tables._tbl_data import DataFrameLike
 from great_tables.data import exibble
 from tests.utils import (
     INT_UPCAST,
-    OBJECT_ALIGNED_RIGHT,
     DataFrameConstructor,
     DataLike,
     Divergent,
@@ -28,10 +27,6 @@ from tests.utils import (
 
 T_CellStyle = TypeVar("T_CellStyle", bound=CellStyle)
 
-# plain and nullable pandas keep an all-missing column as `object`, which is right-aligned
-PANDAS_ALL_MISSING_ALIGNED_RIGHT = Divergent(
-    pandas_constructor=OBJECT_ALIGNED_RIGHT, pandas_nullable_constructor=OBJECT_ALIGNED_RIGHT
-)
 PANDAS_INT_UPCAST = Divergent(pandas_constructor=INT_UPCAST)
 
 EXIBBLE_DATA = exibble[["num", "char", "currency"]].head(4).to_dict("list")
@@ -334,7 +329,7 @@ def test_all_missing_from_multiple_rows(
     render = _data_color_renderer(
         {"x": [None, None], "y": [3, 6]}, columns="x", palette=["green", "blue"], na_color="red"
     )
-    assert_parity(snapshot, all_frame_constructors, render, PANDAS_ALL_MISSING_ALIGNED_RIGHT)
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
 # Single missing value from a single row; applies `na_color=` to the missing value
@@ -344,7 +339,7 @@ def test_single_value_and_missing(
     render = _data_color_renderer(
         {"x": [None], "y": [3]}, columns="x", palette=["green", "blue"], na_color="red"
     )
-    assert_parity(snapshot, all_frame_constructors, render, PANDAS_ALL_MISSING_ALIGNED_RIGHT)
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
 # Non-missing values have a domain range of 0; applies `na_color=` to the missing values

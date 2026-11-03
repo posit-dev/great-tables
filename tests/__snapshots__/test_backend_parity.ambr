@@ -325,54 +325,6 @@
   </tbody>
   '''
 # ---
-# name: test_fmt[fmt_nanoplot-list][pandas_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 2 values from −0.25 to 1.50, ending at −0.25, with 1 missing" viewBox="0 0 250 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-0-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,15.0 50.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path> <path class="area-closed" d="M 200.0,115.0 200.0,125 200.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path>
-  <path d="M 200.0,115.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="200.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">1.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">−0.25</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">1.50</text></g><g class="vert-line"><rect x="115.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="137.0" y="20" fill="transparent" stroke="transparent" font-size="30px">NA</text></g><g class="vert-line"><rect x="190.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="210.0" y="20" fill="transparent" stroke="transparent" font-size="30px">−0.25</text></g></svg></div></td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 1 value: 3.75" viewBox="0 0 150 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-2-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50,65.0 50,125 50,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-2-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50,65.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50" cy="65.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">4.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">3.00</text></g><g class="vert-line"><rect x="40" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60" y="20" fill="transparent" stroke="transparent" font-size="30px">3.75</text></g></svg></div></td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_fmt[fmt_nanoplot-list][pandas_nullable_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 2 values from −0.25 to 1.50, ending at −0.25, with 1 missing" viewBox="0 0 250 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-0-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,15.0 50.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path> <path class="area-closed" d="M 200.0,115.0 200.0,125 200.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path>
-  <path d="M 200.0,115.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="200.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">1.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">−0.25</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">1.50</text></g><g class="vert-line"><rect x="115.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="137.0" y="20" fill="transparent" stroke="transparent" font-size="30px">NA</text></g><g class="vert-line"><rect x="190.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="210.0" y="20" fill="transparent" stroke="transparent" font-size="30px">−0.25</text></g></svg></div></td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 1 value: 3.75" viewBox="0 0 150 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-2-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50,65.0 50,125 50,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-2-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50,65.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50" cy="65.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">4.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">3.00</text></g><g class="vert-line"><rect x="40" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60" y="20" fill="transparent" stroke="transparent" font-size="30px">3.75</text></g></svg></div></td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_fmt[fmt_nanoplot-list][pandas_pyarrow_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 2 values from −0.25 to 1.50, ending at −0.25, with 1 missing" viewBox="0 0 250 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-0-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50.0,15.0 50.0,125 50.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path> <path class="area-closed" d="M 200.0,115.0 200.0,125 200.0,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-0-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50.0,15.0" stroke="#4682B4" stroke-width="8" fill="none"></path>
-  <path d="M 200.0,115.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50.0" cy="15.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><circle cx="200.0" cy="115.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">1.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">−0.25</text></g><g class="vert-line"><rect x="40.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60.0" y="20" fill="transparent" stroke="transparent" font-size="30px">1.50</text></g><g class="vert-line"><rect x="115.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="137.0" y="20" fill="transparent" stroke="transparent" font-size="30px">NA</text></g><g class="vert-line"><rect x="190.0" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="210.0" y="20" fill="transparent" stroke="transparent" font-size="30px">−0.25</text></g></svg></div></td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right"><div><svg class="gt-nanoplot-88554c31" role="img" aria-label="Line plot of 1 value: 3.75" viewBox="0 0 150 130" style="height: 2em; margin-left: auto; margin-right: auto; font-size: inherit; overflow: visible; vertical-align: middle; position:relative;"><defs><pattern id="parity-x-2-area_pattern_4054a389" width="8" height="8" patternUnits="userSpaceOnUse"><path class="pattern-line" d="M 0,8 l 8,-8 M -1,1 l 4,-4 M 6,10 l 4,-4" stroke="#FF0000" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision"></path></pattern></defs><style> .gt-nanoplot-88554c31 text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; stroke-linejoin: round; cursor: default; } .gt-nanoplot-88554c31 .vert-line:hover rect { fill: #911EB4; fill-opacity: 40%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .vert-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .horizontal-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .ref-line:hover rect { stroke: #FFFFFF60; } .gt-nanoplot-88554c31 .ref-line:hover line { stroke: #FF0000; } .gt-nanoplot-88554c31 .ref-line:hover text { stroke: white; fill: #212427; } .gt-nanoplot-88554c31 .y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; color: red; } .gt-nanoplot-88554c31 .y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; } </style><path class="area-closed" d="M 50,65.0 50,125 50,125 Z" stroke="transparent" stroke-width="2" fill="url(#parity-x-2-area_pattern_4054a389)" fill-opacity="0.7"></path><path d="M 50,65.0" stroke="#4682B4" stroke-width="8" fill="none"></path><circle cx="50" cy="65.0" r="10" stroke="#FFFFFF" stroke-width="4" fill="#FF0000"></circle><g class="y-axis-line"><rect x="0" y="0" width="65" height="130" stroke="transparent" stroke-width="0" fill="transparent"></rect><text x="0" y="19.0" fill="transparent" stroke="transparent" font-size="25">4.50</text><text x="0" y="126.0" fill="transparent" stroke="transparent" font-size="25">3.00</text></g><g class="vert-line"><rect x="40" y="0" width="20" height="130" stroke="transparent" stroke-width="12" fill="transparent"></rect><text x="60" y="20" fill="transparent" stroke="transparent" font-size="30px">3.75</text></g></svg></div></td>
-    </tr>
-  </tbody>
-  '''
-# ---
 # name: test_fmt[fmt_number][all]
   '''
   <tbody class="gt_table_body">
@@ -433,21 +385,6 @@
   </tbody>
   '''
 # ---
-# name: test_fmt[fmt_tf][pandas_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">true</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">false</td>
-    </tr>
-  </tbody>
-  '''
-# ---
 # name: test_fmt[fmt_time][all]
   '''
   <tbody class="gt_table_body">
@@ -459,51 +396,6 @@
     </tr>
     <tr>
       <td headers="parity-x" class="gt_row gt_center">08:05:30</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_fmt[fmt_time][pandas_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">12:30:00</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">08:05:30</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_fmt[fmt_time][pandas_nullable_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">12:30:00</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">08:05:30</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_fmt[fmt_time][pandas_pyarrow_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">12:30:00</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">08:05:30</td>
     </tr>
   </tbody>
   '''
@@ -872,21 +764,6 @@
   </tbody>
   '''
 # ---
-# name: test_unformatted[bool][pandas_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">True</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">False</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-  </tbody>
-  '''
-# ---
 # name: test_unformatted[date][all]
   '''
   <tbody class="gt_table_body">
@@ -943,51 +820,6 @@
     </tr>
     <tr>
       <td headers="parity-x" class="gt_row gt_center">None</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_unformatted[decimal][pandas_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">1.50</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">-2.25</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_unformatted[decimal][pandas_nullable_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">1.50</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">-2.25</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_unformatted[decimal][pandas_pyarrow_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">1.50</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">-2.25</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
     </tr>
   </tbody>
   '''
@@ -1108,51 +940,6 @@
     </tr>
     <tr>
       <td headers="parity-x" class="gt_row gt_center">None</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_unformatted[list][pandas_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">[1, 2]</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">[3]</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_unformatted[list][pandas_nullable_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">[1, 2]</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">[3]</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_unformatted[list][pandas_pyarrow_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">[1, 2]</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">[3]</td>
-    </tr>
-    <tr>
-      <td headers="parity-x" class="gt_row gt_right">None</td>
     </tr>
   </tbody>
   '''
