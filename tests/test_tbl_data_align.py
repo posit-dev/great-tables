@@ -15,7 +15,7 @@ from great_tables._tbl_data_align import (
     is_number_like_column,
 )
 import great_tables as gt
-from tests.utils import DataFrameConstructor, native_backend
+from tests.utils import DataFrameConstructor
 
 pandas_ge_v3 = _re_version(pd.__version__) >= (3, 0, 0)
 
@@ -43,9 +43,8 @@ class TestClassifyDtype:
     def test_date_type(self, frame_constructor: DataFrameConstructor):
         df = frame_constructor({"col": [date(2024, 1, 1), date(2024, 1, 2)]})
 
-        # pandas keeps dates in object columns, which GT right-aligns because they hold no strings
-        expected = "string" if native_backend(df) == "pandas" else "numeric"
-        assert classify_dtype_for_alignment(df, "col") == expected
+        # pandas keeps dates in an object column, which is classified by its values (#1024)
+        assert classify_dtype_for_alignment(df, "col") == "numeric"
         assert [col.column_align for col in gt.GT(df)._boxhead._d] == ["right"]
 
     def test_datetime_type(self, frame_constructor: DataFrameConstructor):

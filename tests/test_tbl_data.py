@@ -340,9 +340,8 @@ def test_get_column_levels_pyarrow_chunked():
 def test_classify_dtype_for_alignment_dtype_matrix(
     matrix_df: DataFrameLike, snapshot: SnapshotAssertion
 ):
-    # GT also right-aligns text columns whose strings all look like numbers, and object columns
-    # without strings (#1024), so the final alignment is pinned too
-    # TODO(Unassigned): Update the snapshot once #1024 is fixed
+    # GT also right-aligns text columns whose strings all look like numbers, so the final
+    # alignment is pinned too
     result = {
         "classification": {
             col: classify_dtype_for_alignment(matrix_df, col) for col in MATRIX_COLUMNS

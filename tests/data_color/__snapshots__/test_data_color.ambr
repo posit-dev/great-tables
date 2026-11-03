@@ -13,34 +13,6 @@
   </tbody>
   '''
 # ---
-# name: test_all_missing_from_multiple_rows[pandas_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
-      <td headers="y" class="gt_row gt_right">3</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
-      <td headers="y" class="gt_row gt_right">6</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_all_missing_from_multiple_rows[pandas_nullable_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
-      <td headers="y" class="gt_row gt_right">3</td>
-    </tr>
-    <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
-      <td headers="y" class="gt_row gt_right">6</td>
-    </tr>
-  </tbody>
-  '''
-# ---
 # name: test_all_values_have_zero_range_domain[all]
   '''
   <tbody class="gt_table_body">
@@ -519,26 +491,6 @@
   <tbody class="gt_table_body">
     <tr>
       <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_center">None</td>
-      <td headers="y" class="gt_row gt_right">3</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_single_value_and_missing[pandas_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
-      <td headers="y" class="gt_row gt_right">3</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_single_value_and_missing[pandas_nullable_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td style="color: #FFFFFF; background-color: #FF0000;" headers="x" class="gt_row gt_right">None</td>
       <td headers="y" class="gt_row gt_right">3</td>
     </tr>
   </tbody>
