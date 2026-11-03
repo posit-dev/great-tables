@@ -6,6 +6,7 @@ from typing import Any, NoReturn
 
 from typing_extensions import Self
 
+from ._gt_data import ColInfoTypeEnum
 from ._gti._settings import (
     EXPORT_FORMATS,
     FILTER_TYPES,
@@ -548,9 +549,11 @@ class GTI(GT):
         resizable: bool | None = None,
         hideable: bool | None = None,
         reorderable: bool | None = None,
+        display: bool | None = None,
     ) -> Self:
         """
-        Choose which columns readers can sort by, search, resize, hide, and move.
+        Choose which columns readers can sort by, search, resize, hide, and move, and which are only
+        for querying.
 
         Where the table lets readers sort it ([`i_sorting()`](`great_tables.GTI.i_sorting`)),
         search it ([`i_search()`](`great_tables.GTI.i_search`)), and resize its columns
@@ -579,6 +582,17 @@ class GTI(GT):
         stub and the row group column can't be moved (naming them for `reorderable=` does
         nothing).
 
+        A column can also be left out of the table but kept for querying, with `display=False`.
+        It isn't shown (as with [`cols_hide()`](`great_tables.GT.cols_hide`), and readers can't
+        show it), but a filter on it ([`i_cols_filter()`](`great_tables.GTI.i_cols_filter`))
+        works, from the query bar, and the table can be sorted by it, as by an unsortable column
+        (with [`i_view()`](`great_tables.GTI.i_view`), or by a view kept in the URL). Its filter
+        goes by the text its cells would show (a facet lists its values with that text, too). The
+        search doesn't look in it, and exports leave it out, but the code copied for the view
+        filters and sorts by it. This is also how a column that `cols_hide()` hid can be kept for
+        querying. The stub and the row group column can't be left out (naming them for
+        `display=False` is an error), and neither can every column of a table without a stub.
+
         Each call sets what it's given for the columns it's given, so that some columns can be
         left out of one thing, and others another; a later call for a column replaces what an
         earlier one set.
@@ -592,6 +606,9 @@ class GTI(GT):
         sortable, searchable, resizable, hideable, reorderable
             Whether readers can sort by the columns, search them, resize them, hide them, and move
             them. With `None` (the default), the columns are left as they are.
+        display
+            Whether the columns are in the table (`True`), or left out of it and kept only for
+            querying (`False`). With `None` (the default), the columns are left as they are.
 
         Returns
         -------
@@ -638,9 +655,23 @@ class GTI(GT):
             .i_cols_controls(columns=years, reorderable=True)
         )
         ```
+
+        A table of the municipalities' names and populations that can be filtered by their status,
+        which it doesn't show (the filter is in the query bar, from the `<>` button in the control
+        bar):
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_controls(columns="status", display=False)
+            .i_cols_filter(columns="status")
+            .i_view(filter='status in ("single-tier")')
+        )
+        ```
         """
-        # (Each setting keeps the columns readers can't do it with, but `hideable` and
-        # `reorderable` keep those they can, so they're turned around)
+        # (Each setting keeps the columns readers can't do it with (and `query_only`, those not
+        # shown), but `hideable` and `reorderable` keep those they can, so they're turned around)
         hide = _optional_flag(hideable, "hideable")
         move = _optional_flag(reorderable, "reorderable")
         flags = {
@@ -649,7 +680,22 @@ class GTI(GT):
             "unresizable": _optional_flag(resizable, "resizable"),
             "hideable": None if hide is None else not hide,
             "reorderable": None if move is None else not move,
+            "query_only": _optional_flag(display, "display"),
         }
+        if display is False:
+            # (The stub and the row group column are what the rows are known by)
+            named = resolve_cols_c(self, columns, excl_stub=False, excl_group=False)
+            kept = [
+                column
+                for kind in (ColInfoTypeEnum.stub, ColInfoTypeEnum.row_group)
+                for column in self._boxhead.vars_from_type(kind)
+                if column in named
+            ]
+            if kept:
+                raise ValueError(
+                    f"The stub and the row group column can't be left out of the table, so "
+                    f"`display=False` can't be set for {', '.join(map(repr, kept))}."
+                )
         selected = resolve_cols_c(self, columns, excl_stub=False)
         changes: dict[str, Any] = {}
         for name, enabled in flags.items():
