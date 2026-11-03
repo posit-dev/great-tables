@@ -19,11 +19,12 @@ const BASE: View = {
   page: 1,
   pageSize: 10,
   hidden: [],
+  order: ["a", "b", "c", "d", "e f"],
 };
 
 const RANKS = { name: [0], status: [0], population_2021: [0], "-x": [0] };
 
-const LIMITS: ViewLimits = { ranks: RANKS, search: true, sizes: [10, 25, 50], hideable: ["status", "area", "a b&c"] };
+const LIMITS: ViewLimits = { ranks: RANKS, search: true, sizes: [10, 25, 50], hideable: ["status", "area", "a b&c"], runs: [["a", "b", "c"], ["d", "e f"]] };
 
 const FILTER: FilterQuery = {
   and: [
@@ -127,6 +128,7 @@ describe("readView", () => {
       page: 4,
       pageSize: 50,
       hidden: ["status", "a b&c"],
+      order: ["b", "a", "c", "e f", "d"],
     };
     const { query, view: read, warnings } = roundTrip(view);
     expect(query).toContain("towny.sort=status&towny.sort=-name");
@@ -168,6 +170,30 @@ describe("readView", () => {
     expect(warnings).toEqual(['the saved view\'s hidden column "name" is left out (it isn\'t one the reader can hide)']);
   });
 
+  it("reads the columns' order, each run in it in that order, with the columns it leaves out after", () => {
+    const { query, view } = roundTrip({ ...BASE, order: ["c", "a", "b", "e f", "d"] });
+    expect(query).toBe("?towny.order=c&towny.order=a&towny.order=b&towny.order=e+f&towny.order=d");
+    expect(view.order).toEqual(["c", "a", "b", "e f", "d"]);
+    // (Only when it isn't the author's)
+    expect(roundTrip(BASE).query).toBe("");
+    const order = (...ids: string[]) => readView(ids.map((id) => ["order", id]), BASE, LIMITS, () => {}).order;
+    expect(order("b")).toEqual(["b", "a", "c", "d", "e f"]);
+    expect(order("e f", "c", "b")).toEqual(["c", "b", "a", "e f", "d"]);
+    expect(order("c", "c", "a")).toEqual(["c", "a", "b", "d", "e f"]);
+  });
+
+  it("leaves out of the order a column readers can't move, with a warning", () => {
+    const warnings: string[] = [];
+    const params: ViewParams = [
+      ["order", "status"],
+      ["order", "c"],
+    ];
+    expect(readView(params, BASE, LIMITS, (message) => warnings.push(message)).order).toEqual(["c", "a", "b", "d", "e f"]);
+    expect(warnings).toEqual([
+      'the saved view\'s column "status" is left out of its order (it isn\'t one the reader can move)',
+    ]);
+  });
+
   it("reads a column that starts with - as sorted", () => {
     expect(roundTrip({ ...BASE, sort: [{ column: "-x", descending: true }] }).view.sort).toEqual([{ column: "-x", descending: true }]);
     expect(roundTrip({ ...BASE, sort: [{ column: "-x", descending: false }] }).view.sort).toEqual([{ column: "-x", descending: false }]);
@@ -197,7 +223,7 @@ describe("readView", () => {
   it("leaves out what the table doesn't let readers change", () => {
     const warnings: string[] = [];
     const params = readParams("sort=name&search=x&page=2&size=25") ?? [];
-    const view = readView(params, BASE, { ranks: null, search: false, sizes: [], hideable: [] }, (message) => warnings.push(message));
+    const view = readView(params, BASE, { ranks: null, search: false, sizes: [], hideable: [], runs: [] }, (message) => warnings.push(message));
     expect(view).toEqual(BASE);
     expect(warnings).toEqual([
       "the saved view's search is left out (the table can't be searched)",

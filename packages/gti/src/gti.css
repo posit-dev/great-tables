@@ -1336,6 +1336,96 @@ gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter
   opacity: 0.45;
 }
 
+/*
+ * A column's item in the columns panel: the handle to drag it by (if readers can move it), its
+ * checkbox (if they can hide it) and its name, and the buttons moving it
+ */
+gt-table .gt-i-column {
+  display: flex;
+  align-items: center;
+  gap: 0.125em;
+  border-radius: 4px;
+}
+
+gt-table .gt-i-column > .gt-i-filter-option {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+gt-table div.gt-i-filter-option {
+  cursor: default;
+}
+
+gt-table div.gt-i-filter-option:hover {
+  background: none;
+}
+
+gt-table .gt-i-column-grip {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  cursor: grab;
+  touch-action: none;
+}
+
+gt-table .gt-i-column-grip[data-gti-none] {
+  visibility: hidden;
+}
+
+gt-table .gt-i-column-grip .gt-i-icon {
+  width: 1em;
+  height: 1em;
+  stroke-width: 3;
+}
+
+gt-table .gt-i-column[data-gti-dragging] {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-column[data-gti-dragging] * {
+  cursor: grabbing;
+}
+
+gt-table .gt-i-column-move {
+  appearance: none;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.75em;
+  height: 1.75em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+gt-table .gt-i-column-move:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-column-move[aria-disabled="true"] {
+  background: none;
+  cursor: default;
+  opacity: 0.3;
+}
+
+gt-table .gt-i-column-move:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+gt-table .gt-i-column-move .gt-i-icon {
+  width: 1em;
+  height: 1em;
+}
+
 @media (forced-colors: active) {
   gt-table :is(.gt-i-info, .gt-i-filter) {
     border-color: CanvasText;
@@ -1434,6 +1524,11 @@ gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter
   gt-table .gt-i-filter-option input {
     width: 1.25em;
     height: 1.25em;
+  }
+
+  gt-table :is(.gt-i-column-grip, .gt-i-column-move) {
+    min-width: 44px;
+    min-height: 44px;
   }
 
   /* Below 16px, iOS zooms the page in on focus */
