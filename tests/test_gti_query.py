@@ -10,6 +10,7 @@ the package's dependencies (`npm ci` in packages/gti).
 from __future__ import annotations
 
 import ast
+import datetime as dt
 import json
 import math
 import shutil
@@ -60,8 +61,8 @@ def view_of(gt: GT) -> dict:
 
 
 # Frames of each backend, from columns of Python values: each is (kind, values), where the kind is
-# "int", "float", "str", "bool", or "cat" (a category, of the values' levels as given, or of the
-# values in order of appearance)
+# "int", "float", "str", "bool", "cat" (a category, of the values' levels as given, or of the
+# values in order of appearance), "date", or "datetime" (of dates and times, without a time zone)
 
 
 def frame(backend: str, columns: dict[str, tuple[str, list[Any]]]) -> Any:
@@ -86,6 +87,9 @@ def _pandas_column(kind: str, values: list[Any]) -> Any:
         return pd.array(values, dtype="boolean") if missing else np.array(values, dtype=bool)
     if kind == "cat":
         return pd.Categorical(values, categories=_levels(values))
+    if kind == "datetime":
+        return pd.Series(pd.to_datetime(values))
+    # (Dates as Python's: pandas has no dtype of its own for them)
     return pd.Series(values, dtype=object)
 
 
@@ -96,12 +100,21 @@ def _polars_column(name: str, kind: str, values: list[Any]) -> Any:
         "bool": pl.Boolean,
         "str": pl.String,
         "cat": pl.Categorical,
+        "date": pl.Date,
+        "datetime": pl.Datetime("us"),
     }
     return pl.Series(name, values, dtype=dtypes[kind])
 
 
 def _arrow_column(kind: str, values: list[Any]) -> Any:
-    types = {"int": pa.int64(), "float": pa.float64(), "bool": pa.bool_(), "str": pa.string()}
+    types = {
+        "int": pa.int64(),
+        "float": pa.float64(),
+        "bool": pa.bool_(),
+        "str": pa.string(),
+        "date": pa.date32(),
+        "datetime": pa.timestamp("us"),
+    }
     if kind == "cat":
         return pa.array(values, pa.string()).dictionary_encode()
     return pa.array(values, types[kind])
@@ -159,6 +172,53 @@ def test_check_query_rejects(bad: Any, message: str):
         check_query(bad)
 
 
+def test_check_query_takes_dates_as_iso_8601_text():
+    checked = check_query(
+        query(
+            ("d", "gte", dt.date(2015, 6, 5)),
+            ("d", "lte", "2015-06-15"),
+            ("t", "gte", dt.datetime(2015, 6, 5, 9, 30)),
+            ("t", "lte", pd.Timestamp("2015-06-05 09:30:00.000005")),
+            ("u", "gte", "2015-06-05T09:30:59.5"),
+            ("u", "lte", "2016-02-29T00:00"),
+        )
+    )
+    assert [clause["value"] for clause in checked["and"]] == [
+        "2015-06-05",
+        "2015-06-15",
+        "2015-06-05T09:30:00",
+        "2015-06-05T09:30:00.000005",
+        "2015-06-05T09:30:59.5",
+        "2016-02-29T00:00",
+    ]
+
+
+@pytest.mark.parametrize(
+    "bound",
+    [
+        "2015-6-5",
+        "2015-02-29",
+        "0000-01-01",
+        "2015-06-05 09:30",
+        "2015-06-05T24:00",
+        "2015-06-05T09:30:60",
+        "2015-06-05T09:30:00.0000001",
+        "2015-06-05T09:30Z",
+        "2015-06",
+        "x",
+    ],
+)
+def test_check_query_rejects_what_isnt_a_date(bound: str):
+    with pytest.raises(ValueError, match="needs a finite number, or a date: as ISO 8601 text"):
+        check_query(query(("d", "gte", bound)))
+
+
+def test_check_query_rejects_a_date_and_time_with_a_time_zone():
+    aware = dt.datetime(2015, 6, 5, tzinfo=dt.timezone.utc)
+    with pytest.raises(ValueError, match="which has a time zone"):
+        check_query(query(("t", "gte", aware)))
+
+
 def test_check_query_takes_a_range_with_both_bounds():
     both = query(("x", "gte", 1), ("x", "lte", 2))
     assert check_query(both) == both
@@ -203,6 +263,16 @@ def test_parse_query_reads_any_column_name_in_backticks():
     assert parse_query("in in (1)") == query(("in", "in", [1]))
 
 
+def test_parse_query_reads_dates_as_strings():
+    assert parse_query('d >= "2015-06-05" and t <= "2015-06-05T09:30"') == query(
+        ("d", "gte", "2015-06-05"), ("t", "lte", "2015-06-05T09:30")
+    )
+    # (Any string, which the view's checked for)
+    assert parse_query('d >= "x"') == query(("d", "gte", "x"))
+    with pytest.raises(ValueError, match="needs a finite number, or a date"):
+        check_query('d >= "x"')
+
+
 def test_parse_query_reads_strings_as_json_does():
     assert parse_query(r'a contains "q\"\\\/\b\f\n\r\té😀 Côté"') == query(
         ("a", "contains", 'q"\\/\b\f\n\r\té😀 Côté')
@@ -211,6 +281,7 @@ def test_parse_query_reads_strings_as_json_does():
 
 VALUE_EXPECTED = "expected a value: a string in double quotes, a number, true, false or null"
 UNENDED_STRING = "a string must end with a double quote (with escapes as in JSON)"
+BOUND_EXPECTED = "expected a number, or a date in double quotes"
 
 
 @pytest.mark.parametrize(
@@ -219,8 +290,8 @@ UNENDED_STRING = "a string must end with a double quote (with escapes as in JSON
         ("a", 'expected "contains", "in", ">=" or "<=", at the end'),
         ("a = 1", 'expected "contains", "in", ">=" or "<=", at character 3'),
         (">= 1", "expected a column name, at character 1"),
-        ("a >= x", "expected a number, at character 6"),
-        ('a >= "1"', "expected a number, at character 6"),
+        ("a >= x", f"{BOUND_EXPECTED}, at character 6"),
+        ("a >= (", f"{BOUND_EXPECTED}, at character 6"),
         ("a contains x", "expected a string in double quotes, at character 12"),
         ("a in 1", 'expected "(", at character 6'),
         ("a in ()", f"{VALUE_EXPECTED}, at character 7"),
@@ -233,7 +304,7 @@ UNENDED_STRING = "a string must end with a double quote (with escapes as in JSON
         ('a contains "x', f"{UNENDED_STRING}, at character 12"),
         ('a contains "\\x"', f"{UNENDED_STRING}, at character 12"),
         ("`a", "a column name in backticks must end with a backtick, at the end"),
-        ("a >= .5", "expected a number, at character 6"),
+        ("a >= .5", f"{BOUND_EXPECTED}, at character 6"),
         ("a >= 01", 'expected "and" or the end of the query, at character 7'),
         # (Characters, not UTF-16 code units)
         ('`😀` contains "😀" x', 'expected "and" or the end of the query, at character 18'),
@@ -285,6 +356,12 @@ def test_format_query_writes_strings_as_javascript_does():
     assert text == 'x contains "\\u0000\\u001f\x7f é\\ud800"'
 
 
+def test_format_query_writes_dates_as_strings():
+    q = query(("d", "gte", "2015-06-05"), ("t", "lte", "2015-06-05T09:30:00.5"))
+    assert format_query(q) == 'd >= "2015-06-05" and t <= "2015-06-05T09:30:00.5"'
+    assert parse_query(format_query(q)) == q
+
+
 def test_format_query_writes_what_parse_query_reads_back():
     queries = [
         query(("", "contains", "")),
@@ -304,7 +381,9 @@ def test_check_query_reads_text():
     with pytest.raises(ValueError) as err:
         check_query("y >= x")
     assert (
-        str(err.value) == "`filter=` can't be read as a query: expected a number, at character 6."
+        str(err.value)
+        == "`filter=` can't be read as a query: expected a number, or a date in double quotes, "
+        "at character 6."
     )
     # (And checks the query it reads)
     with pytest.raises(ValueError, match="more than one 'gte' clause on column 'y'"):
@@ -418,6 +497,38 @@ def test_a_facet_value_matches_as_javascript_matches_it():
 def test_views_are_checked_against_the_table(view: dict, message: str):
     with pytest.raises(ValueError, match=message):
         view_of(filtered().i_view(**view))
+
+
+DATES = pd.DataFrame(
+    {
+        "d": pd.Series([dt.date(2015, 6, 5), None, dt.date(2015, 6, 15), dt.date(1999, 12, 31)]),
+        "t": pd.to_datetime(
+            ["2015-06-05 09:30", "2015-06-05", None, "2015-06-04 23:59:59"], format="ISO8601"
+        ),
+        "num": [1.0, 2.0, 3.0, 4.0],
+    }
+)
+
+
+def dated() -> GTI:
+    return GTI(DATES).i_cols_filter(columns=["d", "t"], type="date").i_cols_filter(columns="num")
+
+
+@pytest.mark.parametrize(
+    "filter, message",
+    [
+        (
+            query(("num", "gte", "2015-06-05")),
+            "'2015-06-05' for its 'gte' clause on column 'num', ",
+        ),
+        (query(("d", "gte", 1)), r'which has a date filter \(for dates, as "2015-06-15"\)'),
+        (query(("d", "in", ["2015-06-05"])), r"which has a date filter \(for 'gte' or 'lte'"),
+        (query(("d", "lte", "2015-06-05T09:30")), r"without times \(give a date, as '2015-06-05'"),
+    ],
+)
+def test_date_views_are_checked_against_the_table(filter: dict, message: str):
+    with pytest.raises(ValueError, match=message):
+        view_of(dated().i_view(filter=filter))
 
 
 def test_a_view_can_sort_without_sorting():
@@ -537,6 +648,14 @@ def test_view_rows_of_a_table_with_merged_stub_cells():
     assert view_rows(gti) == [0, 1, 2]
 
 
+def test_view_rows_by_dates():
+    assert view_rows(dated().i_view(filter=query(("d", "gte", "2015-06-05")))) == [0, 2]
+    assert view_rows(dated().i_view(filter=query(("d", "lte", "2015-06-05")), sort="d")) == [3, 0]
+    # (A date as its midnight, in a column of dates and times)
+    assert view_rows(dated().i_view(filter=query(("t", "lte", "2015-06-05")))) == [1, 3]
+    assert view_rows(dated().i_view(filter=query(("t", "gte", "2015-06-05T09:30")))) == [0]
+
+
 # query_code() ----
 
 
@@ -576,6 +695,39 @@ def test_query_code():
         "    .to_native()\n"
         ")\n"
     )
+
+
+def test_query_code_of_dates():
+    gti = dated().i_view(
+        filter=query(
+            ("t", "lte", "2015-06-05T09:30:00.000005"),
+            ("d", "gte", "2015-06-05"),
+            ("t", "gte", "2015-06-05"),
+        )
+    )
+    # (A date as its midnight, in a column of dates and times)
+    assert query_code(gti, "polars") == (
+        "import datetime\nimport polars as pl\n\n"
+        "df.filter(\n"
+        '    pl.col("d") >= datetime.date(2015, 6, 5),\n'
+        '    pl.col("t") >= datetime.datetime(2015, 6, 5, 0, 0),\n'
+        '    pl.col("t") <= datetime.datetime(2015, 6, 5, 9, 30, 0, 5),\n'
+        ")\n"
+    )
+    assert query_code(gti, "pandas") == (
+        "import datetime\n\n"
+        "df[\n"
+        '    (df["d"] >= datetime.date(2015, 6, 5))\n'
+        '    & (df["t"] >= datetime.datetime(2015, 6, 5, 0, 0))\n'
+        '    & (df["t"] <= datetime.datetime(2015, 6, 5, 9, 30, 0, 5))\n'
+        "]\n"
+    )
+    for backend, data in [
+        ("polars", pl.from_pandas(DATES)),
+        ("pandas", DATES),
+        ("narwhals", DATES),
+    ]:
+        assert run_code(query_code(gti, backend), data) == [0]
 
 
 def test_query_code_by_columns_only_for_querying():
@@ -727,6 +879,21 @@ EDGE_COLUMNS: dict[str, tuple[str, list[Any]]] = {
     "s": ("str", ["École", "ecole", "ÉCOLES", None, "Straße", "SS", "σίσυφος", "a\xa0b"]),
     "b": ("bool", [True, False, None, True, None, False, True, False]),
     "c": ("cat", ["lo", "hi", None, "lo", "mid", "hi", None, "lo"]),
+    "d": (
+        "date",
+        [
+            *[dt.date(2015, 6, 5), None, dt.date(2015, 6, 15), dt.date(1999, 12, 31)],
+            *[dt.date(2015, 6, 5), dt.date(2015, 6, 4), None, dt.date(2016, 2, 29)],
+        ],
+    ),
+    "t": (
+        "datetime",
+        [
+            *[dt.datetime(2015, 6, 5), dt.datetime(2015, 6, 5, 9, 30), None],
+            *[dt.datetime(2015, 6, 4, 23, 59, 59, 999999), dt.datetime(2015, 6, 6)],
+            *[dt.datetime(2015, 6, 5, 9, 30, 0, 1), dt.datetime(2015, 6, 5, 9, 29, 59), None],
+        ],
+    ),
 }
 
 EDGE_VIEWS: list[tuple[str, dict, Any]] = [
@@ -755,6 +922,16 @@ EDGE_VIEWS: list[tuple[str, dict, Any]] = [
     ("sort floats", None, ["f", "-i"]),
     ("sort text", None, ["-s"]),
     ("sort booleans", None, ["b", "-c"]),
+    ("date range", query(("d", "gte", "2015-06-05"), ("d", "lte", "2015-06-15")), None),
+    ("date lower bound", query(("d", "gte", "2015-06-05")), "-d"),
+    ("date upper bound, a leap day", query(("d", "lte", "2016-02-29")), "d"),
+    ("dates and times from a date (its midnight)", query(("t", "gte", "2015-06-05")), None),
+    ("dates and times to a date (its midnight)", query(("t", "lte", "2015-06-05")), "t"),
+    ("dates and times to a time", query(("t", "lte", "2015-06-05T09:30")), None),
+    ("to a time, with seconds", query(("t", "lte", "2015-06-05T09:29:59")), "-t"),
+    ("from a time, to the microsecond", query(("t", "gte", "2015-06-05T09:30:00.000001")), None),
+    ("text of dates", query(("d", "contains", "2015-06")), None),
+    ("sort dates", None, ["d", "-t"]),
 ]
 
 
@@ -765,6 +942,7 @@ def edge_table(backend: str) -> GTI:
         .i_cols_filter(columns=["f", "i"], type="range")
         .i_cols_filter(columns="s", type="text")
         .i_cols_filter(columns=["b", "c"], type="facet")
+        .i_cols_filter(columns=["d", "t"], type="date")
     )
 
 
@@ -803,6 +981,9 @@ def test_edge_cases_keep_the_rows_expected(engine: Callable[[GT], dict], backend
     assert rows(query(("s", "contains", "ss"))) == [5]
     assert rows(query(("s", "contains", "ß"))) == [4]
     assert rows(query(("i", "in", [2, None])), "i") == [3, 4, 2, 5]
+    assert rows(query(("d", "gte", "2015-06-05"), ("d", "lte", "2015-06-15"))) == [0, 2, 4]
+    assert rows(query(("t", "lte", "2015-06-05"))) == [0, 3]
+    assert rows(query(("t", "gte", "2015-06-05"), ("t", "lte", "2015-06-05T09:30"))) == [0, 1, 6]
     # (Descending, NaN is first, as it's after every number, ascending; but not if it's missing)
     descending = rows(None, "-f")
     assert descending == ([5, 4, 0, 6, 7, 3, 1, 2] if nan_missing else [2, 5, 4, 0, 6, 7, 3, 1])
@@ -888,7 +1069,18 @@ VALUES: dict[str, list[Any]] = {
     "str": [*TEXTS, None],
     "bool": [True, False, None],
     "cat": ["lo", "hi", "mid", None],
+    "date": [dt.date(2015, 6, 5), dt.date(2015, 6, 15), dt.date(1999, 12, 31), None],
+    "datetime": [
+        *[dt.datetime(2015, 6, 5), dt.datetime(2015, 6, 5, 9, 30), None],
+        *[dt.datetime(2015, 6, 5, 23, 59, 59, 999999), dt.datetime(1999, 12, 31, 12)],
+    ],
 }
+# (A date filter's bounds, besides its values: dates, and dates and times, around the values')
+DATE_BOUNDS = [
+    *["2015-06-05", "2015-06-06", "2015-06-04", "1999-12-31", "2016-01-01", "0001-01-01"],
+    *["2015-06-05T09:30", "2015-06-05T09:29:59.999999", "2015-06-05T00:00:00.000001"],
+    *["1999-12-31T12:00:00", "2015-06-05T23:59:59.999999"],
+]
 
 
 # (Hypothesis draws what's first of a sample, and small numbers, more often than others: so these
@@ -937,6 +1129,8 @@ def tables(
             # (The filters the column's values can have: e.g., not a range of missing values)
             types = {
                 "number": ["range", "facet", "text"],
+                "date": ["date", "facet", "text"],
+                "datetime": ["date", "facet", "text"],
                 "other": ["text"],
             }.get(_get_column_kind(data, name), ["facet", "text"])
             gti = gti.i_cols_filter(columns=name, type=draw(st.sampled_from(types)))
@@ -947,6 +1141,7 @@ def tables(
 def views(draw: Any, spec: dict) -> tuple[dict | None, list[str]]:
     """A view of a table, of its spec's filters and sortable columns."""
     clauses = []
+    kinds = {c["id"]: c["kind"] for c in spec["columns"]}
     for f in some(draw, spec["filters"], 3):
         col = f["column"]
         if f["type"] == "text":
@@ -955,6 +1150,18 @@ def views(draw: Any, spec: dict) -> tuple[dict | None, list[str]]:
             choices = [value for value in f["values"] if value is not None] + [None]
             value = draw(st.lists(st.sampled_from(choices), min_size=1, max_size=3, unique=True))
             clauses.append({"col": col, "op": "in", "value": value})
+        elif f["type"] == "date":
+            # (A column of dates takes dates, without times)
+            times = kinds[col] == "datetime"
+            bounds = [b for b in DATE_BOUNDS if times or "T" not in b]
+            values = [value for value in f["values"] if value is not None]
+            bound = (
+                st.sampled_from(values) | st.sampled_from(bounds)
+                if values
+                else st.sampled_from(bounds)
+            )
+            for op in draw(st.lists(st.sampled_from(["gte", "lte"]), min_size=1, unique=True)):
+                clauses.append({"col": col, "op": op, "value": draw(bound)})
         else:
             numbers = [value for value in f["values"] if value is not None]
             bound = st.sampled_from(numbers) | st.floats(-3, 4) if numbers else st.floats(-3, 4)
@@ -1138,7 +1345,9 @@ def clauses(draw: Any) -> dict:
         values = st.text() | NUMBERS | st.booleans() | st.none()
         value = draw(st.lists(values, min_size=1, max_size=4))
     else:
-        value = draw(NUMBERS)
+        # (A date's a string: any string, as the text has it)
+        dates = st.dates().map(dt.date.isoformat) | st.datetimes().map(dt.datetime.isoformat)
+        value = draw(NUMBERS | dates | st.text())
     return {"col": draw(NAMES), "op": op, "value": value}
 
 
@@ -1149,6 +1358,7 @@ PIECES = [
     *["a", "B_2", "`x y`", "`a``b`", "``", "`", "😀", "and", "AND", "contains", "in", "IN"],
     *["true", "False", "null", "(", ")", ",", ">=", "<=", ">", "=", "-", " ", "\t", "\n", "\xa0"],
     *['"x"', '"é\\n"', '"\\u00e9"', '"\\x"', '"', "1", "-0", "1.5e3", "01", ".5", "1e999"],
+    *['"2015-06-05"', '"2015-06-05T09:30"', "2015-06-05"],
 ]
 
 
