@@ -10,12 +10,14 @@
  * `filter` is the filters' query as text (see `query.ts`), empty for none; `sort`, a column (with
  * `-` before it, for descending), once per sort key, or once empty for none; `search`, the search;
  * `page` and `size`, numbers; `hidden`, a hidden column, once per column, or once empty for none
- * (as `sort` is). In the URL, each is named after the table's key (`towny.`), so that
+ * (as `sort` is); and `order`, a column readers can move, once per column, in the order shown. In
+ * the URL, each is named after the table's key (`towny.`), so that
  * tables keep views of their own, and the page's other parameters are left as they are; in
  * storage, they're without the key.
  */
 
 import type { FilterQuery } from "./filter";
+import { orderRuns } from "./order";
 import { formatQuery, parseQuery } from "./query";
 import { normalizeSort, type SortKey } from "./sort";
 import type { Spec } from "./spec";
@@ -30,13 +32,15 @@ export interface View {
   pageSize: number | null;
   /** The columns hidden, in column order. */
   hidden: string[];
+  /** The columns readers can move, in the order shown. */
+  order: string[];
 }
 
-export type ViewPart = "filter" | "sort" | "search" | "page" | "size" | "hidden";
+export type ViewPart = "filter" | "sort" | "search" | "page" | "size" | "hidden" | "order";
 
-const PARTS: readonly string[] = ["filter", "sort", "search", "page", "size", "hidden"];
+const PARTS: readonly string[] = ["filter", "sort", "search", "page", "size", "hidden", "order"];
 
-/** A view as parameters: each part, and its text (`sort` once per sort key, `hidden` per column). */
+/** A view as parameters: each part, and its text (`sort` once per sort key, `hidden` and `order` per column). */
 export type ViewParams = [ViewPart, string][];
 
 /** What a table can have of a view kept for it. */
@@ -48,6 +52,8 @@ export interface ViewLimits {
   sizes: number[];
   /** The columns the reader can hide, in column order. */
   hideable: string[];
+  /** The runs of columns the reader can move (see `order.ts`), each in the author's order. */
+  runs: string[][];
 }
 
 const sortText = (key: SortKey) => (key.descending ? "-" : "") + key.column;
@@ -81,6 +87,9 @@ export function viewParams(view: View, base: View): ViewParams {
   }
   if (JSON.stringify(view.hidden) !== JSON.stringify(base.hidden)) {
     params.push(...repeated("hidden", view.hidden));
+  }
+  if (JSON.stringify(view.order) !== JSON.stringify(base.order)) {
+    params.push(...repeated("order", view.order));
   }
   return params;
 }
@@ -141,11 +150,12 @@ export function writeParams(query: string, key: string, params: ViewParams): str
  * the filter's query is read, but not checked against the table's filters.
  */
 export function readView(params: ViewParams, base: View, limits: ViewLimits, warn: (message: string) => void): View {
-  const view: View = { ...base, sort: base.sort.map((key) => ({ ...key })), hidden: [...base.hidden] };
+  const view: View = { ...base, sort: base.sort.map((key) => ({ ...key })), hidden: [...base.hidden], order: [...base.order] };
   const leftOut = (part: ViewPart, why: string) => warn(`the saved view's ${part} is left out (${why})`);
   const sort: string[] = [];
   let sorted = false;
   let hidden: Set<string> | null = null;
+  let order: string[] | null = null;
   for (const [part, text] of params) {
     if (part === "filter") {
       try {
@@ -168,6 +178,13 @@ export function readView(params: ViewParams, base: View, limits: ViewLimits, war
         hidden.add(text);
       } else if (text !== "") {
         warn(`the saved view's hidden column ${JSON.stringify(text)} is left out (it isn't one the reader can hide)`);
+      }
+    } else if (part === "order") {
+      order ??= [];
+      if (limits.runs.some((run) => run.includes(text))) {
+        order.push(text);
+      } else if (text !== "") {
+        warn(`the saved view's column ${JSON.stringify(text)} is left out of its order (it isn't one the reader can move)`);
       }
     } else if (part === "search") {
       if (limits.search) {
@@ -195,6 +212,9 @@ export function readView(params: ViewParams, base: View, limits: ViewLimits, war
   if (hidden !== null) {
     const kept = hidden;
     view.hidden = limits.hideable.filter((id) => kept.has(id));
+  }
+  if (order !== null) {
+    view.order = orderRuns(order, limits.runs);
   }
   if (sorted) {
     const ranks = limits.ranks;
