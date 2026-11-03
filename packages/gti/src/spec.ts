@@ -48,6 +48,22 @@ export interface ColumnSpec {
   reorderable?: boolean;
 }
 
+/**
+ * A column left out of the table but kept for querying: filtered (from the query bar) and sorted by
+ * (from code, or the URL), but not searched or exported.
+ */
+export interface QueryColumnSpec {
+  id: string;
+  kind: ColumnKind;
+  /** The text of its label. */
+  label: string;
+  /**
+   * Each data row's text, for a filter on the text it would show (what it's matched against: that
+   * text, then after a newline what it wouldn't show), or a facet (its value's label); or `null`.
+   */
+  texts: string[] | null;
+}
+
 export interface SpannerSpec {
   id: string;
   level: number;
@@ -245,6 +261,8 @@ export interface Spec {
   /** The number of data rows; data rows are numbered 0 to `nrows - 1`, by position in the data. */
   nrows: number;
   columns: ColumnSpec[];
+  /** The columns only for querying, in column order. Without it, none. */
+  query_columns?: QueryColumnSpec[];
   spanners: SpannerSpec[];
   stub: StubSpec;
   groups: GroupSpec[];
@@ -329,6 +347,23 @@ export function parseSpec(text: string): Spec {
     throw new SpecError(
       `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable and reorderable with \`true\` or \`false\`, and the side it's pinned to (\`"start"\` or \`"end"\`), if it does`,
     );
+  }
+  const queries = raw.query_columns;
+  if (
+    queries !== undefined &&
+    !(
+      Array.isArray(queries) &&
+      queries.every(
+        (query) =>
+          isObject(query) &&
+          typeof query.id === "string" &&
+          !(raw.columns as unknown[]).some((column) => (column as Record<string, unknown>).id === query.id) &&
+          typeof query.label === "string" &&
+          (query.texts === null || (Array.isArray(query.texts) && query.texts.length === nrows && query.texts.every((text) => typeof text === "string"))),
+      )
+    )
+  ) {
+    throw new SpecError("`query_columns` must be columns with an `id` (not one of `columns`), a `label`, and `texts` for every data row (or `null`), if given");
   }
   if (!isObject(raw.stub) || !isObject(raw.ranks)) {
     throw new SpecError("`stub` and `ranks` must be objects");
