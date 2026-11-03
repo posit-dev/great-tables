@@ -458,7 +458,9 @@ class GTI(GT):
         value, and at most another). The facets and ranges go by the column's values, not by how
         they're formatted. Rows are shown when they pass every filter, and the search; the info
         panel (from the (i) button in the control bar) says how many filters there are, and can
-        clear them. Filters are off by default.
+        clear them. The bar also shows the filters that are on, and its <> button opens them as
+        text, a query as [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit
+        (with suggestions as they type). Filters are off by default.
 
         Each call sets the filters of the columns it's given, so that some columns can be filtered
         one way, and others another; a later call for a column replaces what an earlier one set.

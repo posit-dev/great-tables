@@ -12,15 +12,26 @@
  *
  * Great Tables reads and writes the same language (`great_tables/_gti/_query.py`), with the same
  * errors.
+ *
+ * For a query being typed, `readQuery()` reads as much as it can of text that isn't (yet) a query,
+ * saying what each part is, for highlighting, and `queryContext()` what can go where the caret is,
+ * for suggestions.
  */
 
-import type { FilterClause, FilterQuery } from "./filter";
+import type { ColumnFilter, FilterClause, FilterQuery } from "./filter";
 import type { FilterValue } from "./spec";
 
+/** A query's text that isn't a query: what's wrong, and where (in UTF-16 code units, to mark it). */
+export interface QuerySyntaxError extends SyntaxError {
+  from: number;
+  to: number;
+}
+
 const NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
-const NAME_START = /[A-Za-z_]/y;
-const NAME_REST = /[A-Za-z0-9_]*/y;
-const STRING = /"(?:[^"\\\u0000-\u001f]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"/y;
+const WORD = /[A-Za-z_][A-Za-z0-9_]*/y;
+// (A string or a name in backticks can be left open, as it's typed)
+const QUOTED = /`(?:[^`]|``)*(`?)/y;
+const STRING = /"(?:[^"\\]|\\[^])*("?)/y;
 const NUMBER = /-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?/y;
 const SPACE = /[ \t\n\r]*/y;
 
@@ -37,6 +48,45 @@ const match = (re: RegExp, text: string, at: number): string | null => {
   return re.exec(text)?.[0] ?? null;
 };
 
+const json = (text: string): unknown => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+};
+
+// The text's part after a place (and any space), read loosely; `null` at the end
+function scan(text: string, at: number): Pick<QueryPart, "kind" | "text" | "from" | "to" | "open"> | null {
+  const from = at + (match(SPACE, text, at) as string).length;
+  const char = text[from];
+  if (char === undefined) {
+    return null;
+  }
+  let kind: QueryPart["kind"] = "symbol";
+  let open = false;
+  let piece = match(WORD, text, from);
+  if (piece !== null) {
+    kind = "name";
+  } else if (char === "`" || char === '"') {
+    const re = char === "`" ? QUOTED : STRING;
+    re.lastIndex = from;
+    const found = re.exec(text) as RegExpExecArray;
+    [piece] = found;
+    kind = char === "`" ? "quoted" : "string";
+    open = found[1] === "";
+  } else if ((piece = match(NUMBER, text, from)) !== null) {
+    kind = "number";
+  } else {
+    // (A whole character, to mark it)
+    piece =
+      text.startsWith(">=", from) || text.startsWith("<=", from)
+        ? text.slice(from, from + 2)
+        : String.fromCodePoint(text.codePointAt(from) as number);
+  }
+  return { kind, text: piece, from, to: from + piece.length, open };
+}
+
 /** Read a query's text into a query, or `null` for empty text. @throws {SyntaxError} */
 export function parseQuery(text: string): FilterQuery | null {
   let at = 0;
@@ -44,58 +94,41 @@ export function parseQuery(text: string): FilterQuery | null {
   function fail(message: string, where: Token = token): never {
     // (Counted in characters, not UTF-16 code units, as Python counts them)
     const place = where.kind === "end" ? "the end" : `character ${Array.from(text.slice(0, where.at)).length + 1}`;
-    throw new SyntaxError(`${message}, at ${place}`);
+    // (The current token ends where reading is; one made for the error, after its text)
+    const to = where === token ? at : where.at + (where.kind === "symbol" ? where.text.length : 0);
+    throw Object.assign(new SyntaxError(`${message}, at ${place}`), { from: where.at, to });
   }
 
   function next(): Token {
-    at += (match(SPACE, text, at) as string).length;
-    const start = at;
-    const char = text[at];
-    if (char === undefined) {
+    const part = scan(text, at);
+    if (part === null) {
+      at = text.length;
       return { kind: "end", at };
     }
-    if (match(NAME_START, text, at) !== null) {
-      const name = char + match(NAME_REST, text, at + 1);
-      at += name.length;
-      return { kind: "name", text: name, at: start };
-    }
-    if (char === "`") {
-      let name = "";
-      for (at++; ; at++) {
-        if (at >= text.length) {
-          fail("a column name in backticks must end with a backtick", { kind: "end", at });
-        }
-        if (text[at] === "`") {
-          if (text[at + 1] !== "`") {
-            break;
-          }
-          at++;
-        }
-        name += text[at];
+    const { kind, text: piece, from, open } = part;
+    at = part.to;
+    if (kind === "quoted") {
+      if (open) {
+        fail("a column name in backticks must end with a backtick", { kind: "end", at });
       }
-      at++;
-      return { kind: "quoted", text: name, at: start };
+      return { kind, text: piece.slice(1, -1).replace(/``/g, "`"), at: from };
     }
-    if (char === '"') {
-      const string = match(STRING, text, at);
-      if (string === null) {
-        fail('a string must end with a double quote (with escapes as in JSON)', { kind: "symbol", text: char, at });
+    if (kind === "string") {
+      // (As JSON has them: escapes, and no control characters)
+      const value = open ? null : json(piece);
+      if (typeof value !== "string") {
+        fail("a string must end with a double quote (with escapes as in JSON)", { kind: "symbol", text: '"', at: from });
       }
-      at += (string as string).length;
-      return { kind: "string", value: JSON.parse(string as string), at: start };
+      return { kind, value: value as string, at: from };
     }
-    const number = match(NUMBER, text, at);
-    if (number !== null) {
-      const value = Number(number);
+    if (kind === "number") {
+      const value = Number(piece);
       if (!Number.isFinite(value)) {
-        fail(`the number ${number} is too large`, { kind: "symbol", text: number, at });
+        fail(`the number ${piece} is too large`, { kind: "symbol", text: piece, at: from });
       }
-      at += number.length;
-      return { kind: "number", value, at: start };
+      return { kind, value, at: from };
     }
-    const symbol = text.startsWith(">=", at) || text.startsWith("<=", at) ? text.slice(at, at + 2) : char;
-    at += symbol.length;
-    return { kind: "symbol", text: symbol, at: start };
+    return { kind, text: piece, at: from };
   }
 
   const isWord = (word: string) => token.kind === "name" && token.text.toLowerCase() === word;
@@ -180,9 +213,12 @@ export function parseQuery(text: string): FilterQuery | null {
   return { and: clauses };
 }
 
-const formatColumn = (name: string) => (NAME.test(name) ? name : `\`${name.replace(/`/g, "``")}\``);
+/** A column's name as a query has it: in backticks, unless it's letters, digits and underscores. */
+export const formatColumn = (name: string) => (NAME.test(name) ? name : `\`${name.replace(/`/g, "``")}\``);
 
-const formatValue = (value: FilterValue) => (typeof value === "number" ? String(value) : JSON.stringify(value));
+/** A value as a query has it. */
+export const formatValue = (value: FilterValue) =>
+  typeof value === "number" ? String(value) : JSON.stringify(value);
 
 /** Write a query as text (`""` for `null`), which `parseQuery()` reads back as the same query. */
 export function formatQuery(query: FilterQuery | null): string {
@@ -199,4 +235,209 @@ export function formatQuery(query: FilterQuery | null): string {
       }
     })
     .join(" and ");
+}
+
+/** What a part of a query's text is (for highlighting it), or `null` where it doesn't fit. */
+export type QueryRole = "column" | "keyword" | "string" | "number" | "literal" | "punct";
+
+/**
+ * What goes next in a query: a column, an op, a string (after `contains`), `(` (after `in`), a
+ * value or `,` or `)` (in the parentheses), a number (after `>=` or `<=`), or `and`; `null` where
+ * the text doesn't fit.
+ */
+export type QueryExpect = "column" | "op" | "string" | "(" | "value" | ",)" | "number" | "and" | null;
+
+export interface QueryState {
+  expect: QueryExpect;
+  /** The clause's column, once it has one. */
+  col: string | null;
+  /** The values in the parentheses so far (after `in`). */
+  values: FilterValue[];
+}
+
+export interface QueryPart {
+  kind: "name" | "quoted" | "string" | "number" | "symbol";
+  text: string;
+  /** Where it is in the text (in UTF-16 code units). */
+  from: number;
+  to: number;
+  /** A string or a name in backticks without its closing quote. */
+  open: boolean;
+  role: QueryRole | null;
+  /** The state before it. */
+  state: QueryState;
+}
+
+export interface QueryReading {
+  parts: QueryPart[];
+  /** Where each whole clause is (in the clauses' order). */
+  clauses: [number, number][];
+  /** The state after the text. */
+  end: QueryState;
+}
+
+// A part as a value (`undefined` if it isn't one, or isn't finished)
+function partValue({ kind, text, open }: Pick<QueryPart, "kind" | "text" | "open">): FilterValue | undefined {
+  if (kind === "number") {
+    return Number(text);
+  }
+  if (kind === "string" && !open) {
+    return json(text) as FilterValue | undefined;
+  }
+  const word = kind === "name" ? text.toLowerCase() : "";
+  return word === "true" ? true : word === "false" ? false : word === "null" ? null : undefined;
+}
+
+// What a part can be after a state: the state after it, and its role (`null` if it doesn't fit)
+function step(
+  expect: QueryExpect,
+  { kind, text, open }: QueryPart,
+  word: string | null,
+  symbol: string | null,
+): [QueryExpect, QueryRole] | null {
+  switch (expect) {
+    case "column":
+      return kind === "name" || kind === "quoted" ? ["op", "column"] : null;
+    case "op":
+      return word === "contains"
+        ? ["string", "keyword"]
+        : word === "in"
+          ? ["(", "keyword"]
+          : symbol === ">=" || symbol === "<="
+            ? ["number", "keyword"]
+            : null;
+    case "string":
+      return kind === "string" ? ["and", "string"] : null;
+    case "(":
+      return symbol === "(" ? ["value", "punct"] : null;
+    case "value":
+      // (A string being typed is one, too)
+      return kind === "string" || kind === "number"
+        ? [",)", kind]
+        : partValue({ kind, text, open }) !== undefined
+          ? [",)", "literal"]
+          : null;
+    case ",)":
+      return symbol === "," ? ["value", "punct"] : symbol === ")" ? ["and", "punct"] : null;
+    case "number":
+      return kind === "number" ? ["and", "number"] : null;
+    case "and":
+      return word === "and" ? ["column", "keyword"] : null;
+    default:
+      return null;
+  }
+}
+
+/** Read text as far as it's a query, saying what each part is and where the clauses are. */
+export function readQuery(text: string): QueryReading {
+  const parts: QueryPart[] = [];
+  const clauses: [number, number][] = [];
+  let state: QueryState = { expect: "column", col: null, values: [] };
+  let start = 0;
+  for (let at = 0; ; ) {
+    const found = scan(text, at);
+    if (found === null) {
+      return { parts, clauses, end: state };
+    }
+    const { kind, text: piece, open } = found;
+    const part: QueryPart = { ...found, role: null, state };
+    at = part.to;
+    const word = kind === "name" ? piece.toLowerCase() : null;
+    const symbol = kind === "symbol" ? piece : null;
+    const value = partValue(part);
+    let { col, values } = state;
+    let [expect, role] = step(state.expect, part, word, symbol) ?? [null, null];
+    if (role === "column") {
+      col = kind === "name" ? piece : piece.slice(1, open ? undefined : -1).replace(/``/g, "`");
+      start = part.from;
+    } else if (state.expect === "(" && role !== null) {
+      values = [];
+    } else if (state.expect === "value" && value !== undefined) {
+      values = [...values, value];
+    }
+    // (Past what doesn't fit, reading picks up again at an `and`)
+    if (role === null && word === "and") {
+      [expect, role] = ["column", "keyword"];
+    }
+    if (expect === "and" && state.expect !== "and") {
+      clauses.push([start, part.to]);
+    }
+    part.role = role;
+    parts.push(part);
+    state = { expect, col: expect === null ? null : col, values };
+  }
+}
+
+/** What can go at the caret: a part to replace (from `from` to `to`) and its text so far, if any. */
+export interface QueryContext extends QueryState {
+  from: number;
+  to: number;
+  prefix: string;
+}
+
+/** What can go at a place in text being typed as a query (in UTF-16 code units). */
+export function queryContext(text: string, caret: number): QueryContext {
+  const { parts, end } = readQuery(text);
+  const at = (state: QueryState, from = caret, to = caret): QueryContext => ({
+    ...state,
+    from,
+    to,
+    prefix: text.slice(from, caret),
+  });
+  for (const part of parts) {
+    if (part.from >= caret) {
+      return at(part.state);
+    }
+    // (A word, a string or a partial `>=` or `<=` at the caret is replaced; inside anything else,
+    // nothing goes)
+    const word = part.kind === "name" || part.kind === "quoted" || part.kind === "string";
+    if (caret <= part.to && (word || part.text === ">" || part.text === "<")) {
+      return at(part.state, part.from, part.to);
+    }
+    if (caret < part.to) {
+      return at({ ...part.state, expect: null });
+    }
+  }
+  return at(end);
+}
+
+const OPS = { text: ["contains"], facet: ["in"], range: [">=", "<="] };
+
+/**
+ * The first clause of a query (by its index) that filters can't have, and why, in the query's
+ * terms; `null` if they can have them all.
+ */
+export function queryProblem(
+  filters: readonly ColumnFilter[],
+  query: FilterQuery | null,
+): { clause: number; message: string } | null {
+  const seen = new Set<string>();
+  const clauses = query?.and ?? [];
+  for (let i = 0; i < clauses.length; i++) {
+    const clause = clauses[i] as FilterClause;
+    const { col } = clause;
+    const op = clause.op === "gte" ? ">=" : clause.op === "lte" ? "<=" : clause.op;
+    const name = formatColumn(col);
+    const filter = filters.find((f) => f.column === col);
+    const key = JSON.stringify([col, op]);
+    const bad =
+      clause.op === "in" && filter !== undefined
+        ? clause.value.find((value) => value !== null && filter.rankOf(value) === undefined)
+        : undefined;
+    const message =
+      filter === undefined
+        ? `${name} isn't a column with a filter`
+        : !OPS[filter.type].includes(op)
+          ? `${name} has a ${filter.type} filter: use ${OPS[filter.type].join(" or ")}`
+          : seen.has(key)
+            ? `${name} has more than one ${op} clause`
+            : bad !== undefined
+              ? `${formatValue(bad)} isn't a value of ${name}`
+              : null;
+    if (message !== null) {
+      return { clause: i, message };
+    }
+    seen.add(key);
+  }
+  return null;
 }

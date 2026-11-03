@@ -2713,6 +2713,332 @@ describe("filter tokens", () => {
   });
 });
 
+describe("the query box", () => {
+  const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const toggle = (el: GtTable) => el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement;
+  const root = (el: GtTable) => el.querySelector(".gt-i-query") as HTMLElement;
+  const input = (el: GtTable) => root(el).querySelector("input") as HTMLInputElement;
+  const list = (el: GtTable) => root(el).querySelector('[role="listbox"]') as HTMLElement;
+  const error = (el: GtTable) => root(el).querySelector(".gt-i-query-error") as HTMLElement;
+  const options = (el: GtTable) =>
+    Array.from(list(el).querySelectorAll("li"), (li) => (li.firstChild as Text).data);
+  const press = (target: Element, key: string, init: KeyboardEventInit = {}) => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...init });
+    target.dispatchEvent(event);
+    return event;
+  };
+  // Type text at the end, as a reader does
+  const type = (el: GtTable, text: string) => {
+    const field = input(el);
+    field.value += text;
+    field.setSelectionRange(field.value.length, field.value.length);
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  const replace = (el: GtTable, text: string) => {
+    input(el).value = "";
+    type(el, text);
+  };
+
+  async function mountQuery(options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, {
+      filters: [RANGE, FACET],
+      ...options,
+      controls: { bar: true, ...options.controls },
+    });
+    const events: FilterEventDetail[] = [];
+    el.addEventListener(FILTER_EVENT, (event) => events.push((event as CustomEvent<FilterEventDetail>).detail));
+    return { el, events };
+  }
+
+  it("opens from the bar's button with the filters as text, in the tokens' place", async () => {
+    const { el } = await mountQuery();
+    const button = toggle(el);
+    expect(button.getAttribute("aria-label")).toBe("Edit the filters as text");
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(button.getAttribute("aria-controls")).toBe(root(el).id);
+    // (Before the info button)
+    expect(button.nextElementSibling?.getAttribute("data-gti-bar")).toBe("info");
+    expect(root(el).hidden).toBe(true);
+
+    el.filter = { and: [{ col: "y", op: "in", value: ["b"] }, { col: "x", op: "gte", value: 10 }] };
+    const tokens = el.querySelector(".gt-i-tokens") as HTMLElement;
+    expect(tokens.hidden).toBe(false);
+    button.click();
+    expect(root(el).hidden).toBe(false);
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(tokens.hidden).toBe(true);
+    expect(input(el).value).toBe('x >= 10 and y in ("b")');
+    expect(document.activeElement).toBe(input(el));
+    expect(input(el).selectionStart).toBe(input(el).value.length);
+    expect(list(el).hidden).toBe(true);
+
+    // A second click closes it, with the text as it was
+    button.click();
+    expect(root(el).hidden).toBe(true);
+    expect(tokens.hidden).toBe(false);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: 10 }, { col: "y", op: "in", value: ["b"] }] });
+  });
+
+  it("is a combobox, with an example in the first filter's column", async () => {
+    const { el } = await mountQuery();
+    const field = input(el);
+    expect(field.getAttribute("role")).toBe("combobox");
+    expect(field.getAttribute("aria-label")).toBe("Filters as text");
+    expect(field.getAttribute("aria-autocomplete")).toBe("list");
+    expect(field.getAttribute("aria-expanded")).toBe("false");
+    expect(field.getAttribute("aria-controls")).toBe(list(el).id);
+    expect(field.getAttribute("enterkeyhint")).toBe("go");
+    expect(field.getAttribute("spellcheck")).toBe("false");
+    expect(field.placeholder).toBe("x >= …");
+    expect(list(el).getAttribute("aria-label")).toBe("Suggestions");
+    expect(root(el).querySelector('[aria-label="Apply the filters"]')).not.toBeNull();
+  });
+
+  it("applies the text on Enter, as the reader's filter", async () => {
+    const { el, events } = await mountQuery();
+    toggle(el).click();
+    replace(el, 'y in ("a", "c") and x <= 10');
+    const event = press(input(el), "Enter");
+    expect(event.defaultPrevented).toBe(true);
+    expect(el.filter).toEqual({
+      and: [
+        { col: "x", op: "lte", value: 10 },
+        { col: "y", op: "in", value: ["a", "c"] },
+      ],
+    });
+    expect(events).toHaveLength(1);
+    expect(live(el)).toBe("Showing 2 of 5 rows");
+    expect(root(el).hidden).toBe(true);
+    expect(document.activeElement).toBe(toggle(el));
+    expect(Array.from(el.querySelectorAll(".gt-i-token-open"), (b) => b.textContent)).toEqual(["x ≤ 10", "y: a, c"]);
+
+    // (And empty text, none)
+    toggle(el).click();
+    replace(el, " ");
+    press(input(el), "Enter");
+    expect(el.filter).toBeNull();
+    expect(events).toHaveLength(2);
+  });
+
+  it("applies the text with its button, and leaves the filters with Cancel or Escape", async () => {
+    const { el, events } = await mountQuery();
+    toggle(el).click();
+    replace(el, "x >= 10");
+    (root(el).querySelector('[aria-label="Apply the filters"]') as HTMLButtonElement).click();
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: 10 }] });
+
+    toggle(el).click();
+    replace(el, "x >= 20");
+    (root(el).querySelector('[aria-label="Cancel"]') as HTMLButtonElement).click();
+    expect(root(el).hidden).toBe(true);
+    expect(document.activeElement).toBe(toggle(el));
+    toggle(el).click();
+    replace(el, "x >= 20");
+    const event = press(input(el), "Escape");
+    expect(event.defaultPrevented).toBe(true);
+    expect(root(el).hidden).toBe(true);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: 10 }] });
+    expect(events).toHaveLength(1);
+
+    // (Opened again, it has the filters as they are)
+    toggle(el).click();
+    expect(input(el).value).toBe("x >= 10");
+  });
+
+  it("says what's wrong with text that isn't a query, and where, without applying it", async () => {
+    const { el, events } = await mountQuery();
+    toggle(el).click();
+    replace(el, "x >= ten");
+    press(input(el), "Enter");
+    expect(error(el).hidden).toBe(false);
+    expect(error(el).textContent).toBe("Expected a number");
+    expect(input(el).getAttribute("aria-invalid")).toBe("true");
+    expect(input(el).getAttribute("aria-describedby")).toBe(error(el).id);
+    expect(live(el)).toBe("Expected a number");
+    expect(input(el).selectionStart).toBe(5);
+    expect(root(el).hidden).toBe(false);
+    expect(el.filter).toBeNull();
+    expect(events).toHaveLength(0);
+
+    // (Until it changes)
+    type(el, "x");
+    expect(error(el).hidden).toBe(true);
+    expect(input(el).hasAttribute("aria-invalid")).toBe(false);
+    expect(input(el).hasAttribute("aria-describedby")).toBe(false);
+
+    replace(el, "x >=");
+    press(input(el), "Enter");
+    expect(error(el).textContent).toBe("Expected a number");
+    replace(el, "x >= 1 or y in (1)");
+    press(input(el), "Enter");
+    expect(error(el).textContent).toBe('Expected "and" or the end of the query');
+  });
+
+  it("says why the table can't have a query's clause", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    const problem = (text: string) => {
+      replace(el, text);
+      press(input(el), "Enter");
+      return error(el).hidden ? null : error(el).textContent;
+    };
+    expect(problem('row contains "1"')).toBe("Row isn't a column with a filter");
+    expect(problem('x >= 5 and y contains "a"')).toBe("Y has a facet filter: use in");
+    expect(input(el).selectionStart).toBe(11);
+    expect(problem("x >= 5 and x >= 10")).toBe("X has more than one >= clause");
+    expect(problem('y in ("a", "d")')).toBe('"d" isn\'t a value of y');
+    expect(el.filter).toBeNull();
+    expect(problem('y in ("a", null)')).toBeNull();
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a", null] }] });
+  });
+
+  it("suggests columns, then their ops, then a facet's values, as text is typed", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    input(el).value = "";
+    // (Not as it opens; with ArrowDown)
+    expect(list(el).hidden).toBe(true);
+    press(input(el), "ArrowDown");
+    expect(list(el).hidden).toBe(false);
+    expect(options(el)).toEqual(["x", "y"]);
+    expect(input(el).getAttribute("aria-expanded")).toBe("true");
+    const first = list(el).querySelector("li") as HTMLElement;
+    expect(first.getAttribute("role")).toBe("option");
+    expect(first.getAttribute("aria-selected")).toBe("true");
+    expect(input(el).getAttribute("aria-activedescendant")).toBe(first.id);
+
+    press(input(el), "ArrowDown");
+    expect(input(el).getAttribute("aria-activedescendant")).toBe(list(el).children[1]?.id);
+    press(input(el), "ArrowDown");
+    expect(input(el).getAttribute("aria-activedescendant")).toBe(first.id);
+    press(input(el), "ArrowUp");
+    expect(press(input(el), "Enter").defaultPrevented).toBe(true);
+    expect(input(el).value).toBe("y ");
+    expect(options(el)).toEqual(["in (…)"]);
+    press(input(el), "Tab");
+    expect(input(el).value).toBe("y in (");
+    expect(options(el)).toEqual(["a", "b", "c"]);
+    type(el, '"b');
+    expect(options(el)).toEqual(["b"]);
+    press(input(el), "Tab");
+    expect(input(el).value).toBe('y in ("b"');
+    // (Not a value already chosen)
+    type(el, ", ");
+    expect(options(el)).toEqual(["a", "c"]);
+    type(el, '"c") ');
+    expect(options(el)).toEqual(["and"]);
+    press(input(el), "Enter");
+    expect(input(el).value).toBe('y in ("b", "c") and ');
+    expect(options(el)).toEqual(["x", "y"]);
+    type(el, "x ");
+    expect(options(el)).toEqual([">= …", "<= …"]);
+    type(el, "<");
+    expect(options(el)).toEqual(["<= …"]);
+    press(input(el), "Enter");
+    expect(input(el).value).toBe('y in ("b", "c") and x <= ');
+    expect(list(el).hidden).toBe(true);
+    expect(el.filter).toBeNull();
+  });
+
+  it("puts a column's label beside its name, and matches it", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind" });
+    toggle(el).click();
+    replace(el, "ki");
+    expect(options(el)).toEqual(["y"]);
+    expect(list(el).querySelector(".gt-i-query-detail")?.textContent).toBe("Kind");
+  });
+
+  it("doesn't suggest as text is deleted, or for none", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "x >= 1");
+    input(el).value = "x ";
+    input(el).dispatchEvent(new InputEvent("input", { inputType: "deleteContentBackward" }));
+    expect(list(el).hidden).toBe(true);
+    replace(el, "  ");
+    expect(list(el).hidden).toBe(true);
+    press(input(el), "ArrowDown");
+    expect(options(el)).toEqual(["x", "y"]);
+  });
+
+  it("doesn't suggest what's typed already, so Enter applies it", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "x >= 10");
+    expect(list(el).hidden).toBe(true);
+    press(input(el), "Enter");
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: 10 }] });
+    toggle(el).click();
+    replace(el, "x");
+    expect(options(el)).toEqual([]);
+  });
+
+  it("closes the suggestions on Escape, as the caret moves, and as focus leaves", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "x ");
+    expect(list(el).hidden).toBe(false);
+    press(input(el), "Escape");
+    expect(list(el).hidden).toBe(true);
+    expect(input(el).getAttribute("aria-expanded")).toBe("false");
+    expect(input(el).hasAttribute("aria-activedescendant")).toBe(false);
+    expect(root(el).hidden).toBe(false);
+    press(input(el), " ", { ctrlKey: true });
+    expect(list(el).hidden).toBe(false);
+    press(input(el), "ArrowLeft");
+    expect(list(el).hidden).toBe(true);
+    // (Enter, then, applies)
+    press(input(el), "Enter");
+    expect(error(el).textContent).toBe('Expected "contains", "in", ">=" or "<="');
+  });
+
+  it("takes a suggestion that's clicked, keeping focus", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "y in (");
+    const item = list(el).children[2] as HTMLElement;
+    const down = new Event("pointerdown", { bubbles: true, cancelable: true });
+    item.dispatchEvent(down);
+    expect(down.defaultPrevented).toBe(true);
+    item.click();
+    expect(input(el).value).toBe('y in ("c"');
+  });
+
+  it("closes as focus leaves it, unless its text changed", async () => {
+    const { el } = await mountQuery({ controls: { search: true } });
+    const elsewhere = el.querySelector('[data-gti-bar="info"]') as HTMLButtonElement;
+    toggle(el).click();
+    input(el).dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: elsewhere }));
+    expect(root(el).hidden).toBe(true);
+    toggle(el).click();
+    type(el, "x");
+    input(el).dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: elsewhere }));
+    expect(root(el).hidden).toBe(false);
+  });
+
+  it("closes a filter's panel as it opens", async () => {
+    const { el } = await mountQuery();
+    (header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement).click();
+    expect(el.querySelector(".gt-i-filter:not([hidden])")).not.toBeNull();
+    toggle(el).click();
+    expect(el.querySelector(".gt-i-filter:not([hidden])")).toBeNull();
+  });
+
+  it("is there only with filters and the bar", async () => {
+    expect((await mountQuery({ filters: [] })).el.querySelector(".gt-i-query")).toBeNull();
+    expect((await mountQuery({ controls: { bar: false } })).el.querySelector(".gt-i-query")).toBeNull();
+  });
+
+  it("goes when the table does", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    const box = root(el);
+    el.remove();
+    expect(box.isConnected).toBe(false);
+  });
+});
+
 describe("the spec's view", () => {
   const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
   const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };

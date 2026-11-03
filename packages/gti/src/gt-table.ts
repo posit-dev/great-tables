@@ -14,10 +14,22 @@
 import { placeCells, type Side, TableBorders } from "./borders";
 import { ColumnFilter, type FilterQuery, filterQuery, MISSING, setFilterQuery } from "./filter";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
-import { CellText, rowMatches, searchTerms } from "./search";
+import {
+  formatColumn,
+  formatQuery,
+  formatValue,
+  parseQuery,
+  type QueryContext,
+  type QuerySyntaxError,
+  queryContext,
+  queryProblem,
+  readQuery,
+} from "./query";
+import { CellText, fold, rowMatches, searchTerms } from "./search";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
 import {
   type BodyRow,
+  type FilterType,
   parseSpec,
   type ResponsiveMode,
   type SelectionMode,
@@ -48,6 +60,12 @@ export const SELECT_EVENT = "gt-table-select";
 
 /** The name of the search highlight, for styling with `::highlight(gt-i-search)`. */
 export const SEARCH_HIGHLIGHT = "gt-i-search";
+
+/**
+ * The prefix of the names of the query box's highlights, for styling them: `-keyword`, `-string`,
+ * `-number` (and `true`, `false` and `null`) and `-error` (the place of what's wrong).
+ */
+const QUERY_HIGHLIGHT = "gt-i-query";
 
 declare const __GTI_VERSION__: string;
 
@@ -247,7 +265,52 @@ interface Bar {
   /** The filters' tokens, in a row above the rest (with filters), and the button clearing them all. */
   tokens: HTMLElement | null;
   clearAll: HTMLElement | null;
+  /** The filters as text (with filters). */
+  query: QueryBox | null;
 }
+
+/**
+ * The query box: the filters as text, to edit, which opens from a button in the bar into the
+ * tokens' line (in their place). Its input is a combobox, whose list suggests what can go at the
+ * caret.
+ */
+interface QueryBox {
+  toggle: HTMLButtonElement;
+  root: HTMLElement;
+  input: HTMLInputElement;
+  /** The text again, behind the input (whose own text is see-through, where it's highlighted). */
+  mirror: HTMLElement;
+  list: HTMLElement;
+  error: HTMLElement;
+  /** The text it opened with. */
+  opened: string;
+  suggestions: Suggestion[];
+  active: number;
+  /** What the suggestions are for. */
+  context: QueryContext | null;
+  /** Its highlights' ranges, in the mirror's text, and the place of what's wrong in the text. */
+  ranges: [Highlight, Range][];
+  mark: [number, number] | null;
+}
+
+interface Suggestion {
+  text: string;
+  /** What else it is (a column's label, a value as the query has it), if it says more. */
+  detail: string;
+  insert: string;
+  /** How far before the end of what's inserted the caret goes. */
+  back: number;
+}
+
+// The ops each kind of filter has, as suggestions
+const OP_SUGGESTIONS: Record<FilterType, Suggestion[]> = {
+  text: [{ text: 'contains "…"', detail: "", insert: 'contains ""', back: 1 }],
+  facet: [{ text: "in (…)", detail: "", insert: "in (", back: 0 }],
+  range: [
+    { text: ">= …", detail: "at least", insert: ">= ", back: 0 },
+    { text: "<= …", detail: "at most", insert: "<= ", back: 0 },
+  ],
+};
 
 /**
  * The info panel, which the bar's (i) button opens above the bar: which rows are shown, the page
@@ -295,6 +358,8 @@ const ICONS = {
   clear: "M6 6l12 12M18 6 6 18",
   info: "M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0M12 11v5M12 7.5v.01",
   filter: "M4 5h16l-6 7.5V18l-4 2v-7.5z",
+  query: "M8 7l-5 5 5 5M16 7l5 5-5 5",
+  apply: "M5 12.5l4.5 4.5L19 7",
 };
 
 // What can have text typed into it, where `/` is a character rather than the search's key
@@ -355,6 +420,35 @@ function backdropColor(el: Element): string {
     }
   }
   return "Canvas";
+}
+
+// An element of a class, with attributes
+function element<K extends keyof HTMLElementTagNameMap>(
+  doc: Document,
+  tag: K,
+  className: string,
+  attributes: Record<string, string> = {},
+): HTMLElementTagNameMap[K] {
+  const el = doc.createElement(tag);
+  el.className = className;
+  for (const [name, value] of Object.entries(attributes)) {
+    el.setAttribute(name, value);
+  }
+  return el;
+}
+
+// The page's highlight of a name (shared by every table on the page), where the browser has them
+function pageHighlight(name: string): Highlight | undefined {
+  const registry = typeof CSS !== "undefined" ? CSS.highlights : undefined;
+  if (registry === undefined || typeof Highlight === "undefined") {
+    return undefined;
+  }
+  let highlight = registry.get(name);
+  if (highlight === undefined) {
+    highlight = new Highlight();
+    registry.set(name, highlight);
+  }
+  return highlight;
 }
 
 function icon(doc: Document, name: keyof typeof ICONS): SVGSVGElement {
@@ -2022,16 +2116,18 @@ export class GtTable extends HTMLElement {
       info,
       tokens: null,
       clearAll: null,
+      query: null,
     };
     this.bar = bar;
     if (this.filters.length > 0) {
       this.addTokens(bar, rtl);
+      this.addQuery(bar);
     }
     if (spec.controls.search) {
       this.addBarSearch(bar);
     }
     // (The panel follows its button, so that Tab goes from one into the other)
-    root.append(pages, info.button, info.panel);
+    root.append(pages, ...(bar.query === null ? [] : [bar.query.toggle]), info.button, info.panel);
 
     previous.addEventListener("click", () => {
       if (previous.getAttribute("aria-disabled") !== "true") {
@@ -2075,7 +2171,8 @@ export class GtTable extends HTMLElement {
         event.metaKey ||
         event.target instanceof HTMLInputElement ||
         info.panel.contains(event.target as Node) ||
-        bar.tokens?.contains(event.target as Node)
+        bar.tokens?.contains(event.target as Node) ||
+        bar.query?.root.contains(event.target as Node)
       ) {
         return;
       }
@@ -2897,7 +2994,8 @@ export class GtTable extends HTMLElement {
       at.remove();
       at = next;
     }
-    list.hidden = items.length === 0;
+    // (In the query box's place while it's open)
+    list.hidden = items.length === 0 || bar?.query?.root.hidden === false;
   }
 
   private makeToken(control: FilterControl): FilterToken {
@@ -2998,6 +3096,367 @@ export class GtTable extends HTMLElement {
     this.syncFilter(control);
     const tokens = Array.from(list.children).filter((el) => el !== this.bar?.clearAll);
     (tokens[Math.min(at, tokens.length - 1)]?.querySelector("button") ?? this.bar?.info.button)?.focus();
+  }
+
+  // The query box, on the tokens' line, whose text applies on Enter (or with its ✓ button), unless
+  // it isn't a query the table can have, which is said below it (and announced), with the place
+  // marked. The text is highlighted as it's typed, and a list suggests what can go at the caret:
+  // the arrow keys go through it, and Tab or Enter take a suggestion.
+  private addQuery(bar: Bar): void {
+    const doc = this.ownerDocument;
+    const id = `gt-i-query-${++infoCount}`;
+    const toggle = this.barButton("query", "Edit the filters as text", "Filters as text");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-controls", id);
+    // (Drawn by the input over its highlighted copy, where the browser has highlights)
+    const root = element(doc, "div", "gt-i-query", { id, hidden: "" });
+    root.toggleAttribute("data-gti-painted", pageHighlight(`${QUERY_HIGHLIGHT}-keyword`) !== undefined);
+    const field = element(doc, "div", "gt-i-query-field");
+    const text = element(doc, "span", "gt-i-query-text", { dir: "ltr" });
+    const mirror = element(doc, "span", "gt-i-query-mirror", { "aria-hidden": "true" });
+    // (An example, in the first filter's column)
+    const first = this.filters[0]?.filter as ColumnFilter;
+    const input = element(doc, "input", "", {
+      type: "text",
+      autocomplete: "off",
+      spellcheck: "false",
+      autocapitalize: "off",
+      enterkeyhint: "go",
+      placeholder: `${formatColumn(first.column)} ${OP_SUGGESTIONS[first.type][0]?.text}`,
+      role: "combobox",
+      "aria-label": "Filters as text",
+      "aria-autocomplete": "list",
+      "aria-expanded": "false",
+      "aria-controls": `${id}-list`,
+    });
+    const apply = this.barButton("apply", "Apply the filters", "Apply (Enter)");
+    const cancel = this.barButton("clear", "Cancel", "Cancel (Esc)");
+    const list = element(doc, "ul", "gt-i-query-list", {
+      id: `${id}-list`,
+      role: "listbox",
+      "aria-label": "Suggestions",
+      hidden: "",
+    });
+    const error = element(doc, "p", "gt-i-query-error", { id: `${id}-error`, hidden: "" });
+    text.append(mirror, input);
+    field.append(text, apply, cancel);
+    root.append(field, list, error);
+    bar.root.append(root);
+    const box: QueryBox = {
+      toggle,
+      root,
+      input,
+      mirror,
+      list,
+      error,
+      opened: "",
+      suggestions: [],
+      active: -1,
+      context: null,
+      ranges: [],
+      mark: null,
+    };
+    bar.query = box;
+
+    toggle.addEventListener("click", () => (root.hidden ? this.openQuery() : this.closeQuery(false)));
+    apply.addEventListener("click", () => this.applyQuery(box));
+    cancel.addEventListener("click", () => this.closeQuery(true));
+    // (Suggestions as text is typed, not deleted)
+    input.addEventListener("input", (event) =>
+      this.editQuery(box, !(event as InputEvent).inputType?.startsWith("delete") && input.value.trim() !== ""),
+    );
+    input.addEventListener("keydown", (event) => this.queryKey(box, event));
+    for (const type of ["input", "scroll", "keyup", "pointerup", "select"]) {
+      input.addEventListener(type, () => {
+        mirror.scrollLeft = input.scrollLeft;
+      });
+    }
+    input.addEventListener("blur", () => this.suggest(box, false));
+    // (A press on a suggestion leaves focus in the input)
+    list.addEventListener("pointerdown", (event) => event.preventDefault());
+    list.addEventListener("click", (event) => {
+      const item = (event.target as Element).closest("li");
+      this.takeSuggestion(box, Array.prototype.indexOf.call(list.children, item));
+    });
+    // Unchanged, it closes when focus leaves it (but not when the window loses it)
+    root.addEventListener("focusout", (event) => {
+      const to = event.relatedTarget as Node | null;
+      if (to !== null && to !== toggle && !root.contains(to) && input.value === box.opened) {
+        this.closeQuery(false);
+      }
+    });
+  }
+
+  private openQuery(): void {
+    const box = this.bar?.query;
+    if (box == null || !box.root.hidden) {
+      return;
+    }
+    this.closeFilter(false);
+    this.closeInfo(false);
+    const text = formatQuery(filterQuery(this.filters.map((control) => control.filter)));
+    box.opened = text;
+    box.input.value = text;
+    box.root.hidden = false;
+    box.toggle.setAttribute("aria-expanded", "true");
+    this.updateTokens();
+    // (Its highlights in colours for what's behind it, light or dark, as its text's is; the list, over
+    // the table, filled with it)
+    const [r = 0, g = 0, b = 0] = (getComputedStyle(box.root).color.match(/[\d.]+/g) ?? []).map(Number);
+    box.root.toggleAttribute("data-gti-dark", 0.2126 * r + 0.7152 * g + 0.0722 * b >= 128);
+    box.list.style.backgroundColor = backdropColor(this);
+    this.editQuery(box, false);
+    box.input.focus();
+    box.input.setSelectionRange(text.length, text.length);
+    box.mirror.scrollLeft = box.input.scrollLeft;
+  }
+
+  private closeQuery(focus: boolean): void {
+    const box = this.bar?.query;
+    if (box == null || box.root.hidden) {
+      return;
+    }
+    this.suggest(box, false);
+    box.mark = null;
+    box.input.value = "";
+    this.paintQuery(box);
+    box.root.hidden = true;
+    box.toggle.setAttribute("aria-expanded", "false");
+    this.updateTokens();
+    if (focus) {
+      box.toggle.focus();
+    }
+  }
+
+  // The text changed: what was wrong with it goes, and it's highlighted afresh (with suggestions,
+  // with `suggest`)
+  private editQuery(box: QueryBox, suggest: boolean): void {
+    box.mark = null;
+    box.error.hidden = true;
+    box.input.removeAttribute("aria-invalid");
+    box.input.removeAttribute("aria-describedby");
+    this.paintQuery(box);
+    this.suggest(box, suggest);
+  }
+
+  private queryKey(box: QueryBox, event: KeyboardEvent): void {
+    const count = box.suggestions.length;
+    const { key } = event;
+    if (event.altKey || event.metaKey || event.isComposing) {
+      return;
+    }
+    if (key === "ArrowDown" || key === "ArrowUp") {
+      event.preventDefault();
+      if (count === 0) {
+        this.suggest(box, true);
+      } else {
+        this.setSuggestion(box, (box.active + (key === "ArrowDown" ? 1 : count - 1)) % count);
+      }
+    } else if (key === " " && event.ctrlKey) {
+      event.preventDefault();
+      this.suggest(box, true);
+    } else if ((key === "Enter" || (key === "Tab" && !event.shiftKey)) && box.active >= 0) {
+      event.preventDefault();
+      this.takeSuggestion(box, box.active);
+    } else if (key === "Enter") {
+      // (And don't submit a form the table is in)
+      event.preventDefault();
+      this.applyQuery(box);
+    } else if (key === "Escape") {
+      // Close the suggestions, then the box (and don't, say, close a dialog the table is in)
+      event.preventDefault();
+      event.stopPropagation();
+      if (count > 0) {
+        this.suggest(box, false);
+      } else {
+        this.closeQuery(true);
+      }
+    } else if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(key)) {
+      this.suggest(box, false);
+    }
+  }
+
+  // Highlight each part of the text by what it is, and mark what's wrong, in the input's copy
+  private paintQuery(box: QueryBox): void {
+    for (const [highlight, range] of box.ranges) {
+      highlight.delete(range);
+    }
+    box.ranges = [];
+    const text = box.input.value;
+    // (A space after it, for the caret's room at the end)
+    box.mirror.textContent = `${text} `;
+    const node = box.mirror.firstChild as Text;
+    const mark = (name: string, from: number, to: number) => {
+      const highlight = pageHighlight(`${QUERY_HIGHLIGHT}-${name}`);
+      if (highlight !== undefined && from < to) {
+        const range = this.ownerDocument.createRange();
+        range.setStart(node, from);
+        range.setEnd(node, to);
+        highlight.add(range);
+        box.ranges.push([highlight, range]);
+      }
+    };
+    for (const { role, from, to } of readQuery(text).parts) {
+      if (role === "keyword" || role === "string" || role === "number" || role === "literal") {
+        mark(role === "literal" ? "number" : role, from, to);
+      }
+    }
+    // (One at the end, on the space after the text)
+    if (box.mark !== null) {
+      mark("error", box.mark[0], Math.max(box.mark[1], box.mark[0] + 1));
+    }
+  }
+
+  // Apply the text's query, or say what's wrong with it (and go to where it is)
+  private applyQuery(box: QueryBox): void {
+    const text = box.input.value;
+    const filters = this.filters.map((control) => control.filter);
+    let query: FilterQuery | null;
+    let problem: { message: string; mark: [number, number] | null } | null = null;
+    try {
+      query = parseQuery(text);
+      const found = queryProblem(filters, query);
+      if (found !== null) {
+        problem = { message: found.message, mark: readQuery(text).clauses[found.clause] ?? null };
+      }
+    } catch (err) {
+      const { message, from, to } = err as QuerySyntaxError;
+      // (The place is marked)
+      problem = { message: message.replace(/, at (character \d+|the end)$/, ""), mark: [from, to] };
+      query = null;
+    }
+    if (problem !== null) {
+      const message = problem.message.charAt(0).toUpperCase() + problem.message.slice(1);
+      box.error.textContent = message;
+      box.error.hidden = false;
+      box.input.setAttribute("aria-invalid", "true");
+      box.input.setAttribute("aria-describedby", box.error.id);
+      box.mark = problem.mark;
+      this.suggest(box, false);
+      this.paintQuery(box);
+      box.input.focus();
+      if (problem.mark !== null) {
+        box.input.setSelectionRange(problem.mark[0], problem.mark[0]);
+        box.mirror.scrollLeft = box.input.scrollLeft;
+      }
+      this.announce(message);
+      return;
+    }
+    this.closeQuery(true);
+    this.cancelFilterTimer();
+    this.userFilter(() => setFilterQuery(filters, query));
+    for (const control of this.filters) {
+      this.syncFilter(control);
+    }
+  }
+
+  // Show the suggestions for the caret's place (or none, without `open`), the first one active
+  private suggest(box: QueryBox, open: boolean): void {
+    const items = open ? this.suggestions(box) : [];
+    const { list, input } = box;
+    box.suggestions = items;
+    list.replaceChildren(
+      ...items.map((item, i) => {
+        const li = element(this.ownerDocument, "li", "", { id: `${list.id}-${i}`, role: "option" });
+        const detail = element(this.ownerDocument, "span", "gt-i-query-detail");
+        detail.textContent = item.detail;
+        li.append(item.text, detail);
+        return li;
+      }),
+    );
+    list.hidden = items.length === 0;
+    input.setAttribute("aria-expanded", String(items.length > 0));
+    this.setSuggestion(box, items.length > 0 ? 0 : -1);
+    if (items.length === 0 || box.context === null) {
+      return;
+    }
+    // (Above the text it's for, as far as the box's width allows)
+    const node = box.mirror.firstChild;
+    let left = 0;
+    if (node !== null) {
+      const range = this.ownerDocument.createRange();
+      range.setStart(node, box.context.from);
+      left = range.getBoundingClientRect().left - box.root.getBoundingClientRect().left;
+    }
+    list.style.left = `${Math.max(0, Math.min(left, box.root.clientWidth - list.offsetWidth))}px`;
+  }
+
+  private setSuggestion(box: QueryBox, active: number): void {
+    box.active = active;
+    Array.from(box.list.children).forEach((li, i) => li.setAttribute("aria-selected", String(i === active)));
+    const li = box.list.children[active];
+    if (li === undefined) {
+      box.input.removeAttribute("aria-activedescendant");
+    } else {
+      box.input.setAttribute("aria-activedescendant", li.id);
+      li.scrollIntoView?.({ block: "nearest" });
+    }
+  }
+
+  // What can go at the caret: columns (with a filter), ops (the column's filter's), values (a
+  // facet's, as the table shows them, but those already chosen) or `and`, as far as they match
+  // what's typed there (but not what's there already)
+  private suggestions(box: QueryBox): Suggestion[] {
+    const { input } = box;
+    const text = input.value;
+    const caret = input.selectionStart ?? text.length;
+    if (input.selectionEnd !== caret) {
+      return [];
+    }
+    const context = queryContext(text, caret);
+    box.context = context;
+    const { expect, prefix } = context;
+    const control = this.filters.find((c) => c.filter.column === context.col);
+    const needle = fold(prefix.replace(/^[`"]|[`"]$/g, ""));
+    const fits = (...texts: string[]) => texts.some((t) => fold(t).includes(needle));
+    const word = prefix.toLowerCase();
+    let items: Suggestion[] = [];
+    if (expect === "column") {
+      items = this.filters
+        .filter(({ filter, label }) => fits(filter.column, label))
+        .map(({ filter, label }) => {
+          const name = formatColumn(filter.column);
+          return { text: name, detail: label === filter.column ? "" : label, insert: `${name} `, back: 0 };
+        });
+    } else if (expect === "op" && control !== undefined) {
+      items = OP_SUGGESTIONS[control.filter.type].filter((item) => item.insert.startsWith(word));
+    } else if (expect === "value" && control?.filter.type === "facet") {
+      const values = control.filter.spec.values ?? [];
+      const chosen = new Set(context.values.map(formatValue));
+      items = this.facetNames(control)
+        .map(([key, name]) => {
+          const literal = key === MISSING ? "null" : formatValue(values[key] ?? null);
+          return { text: name, detail: literal === JSON.stringify(name) ? "" : literal, insert: literal, back: 0 };
+        })
+        .filter((item) => !chosen.has(item.insert) && fits(item.text, item.insert));
+    } else if (expect === "and" && "and".startsWith(word) && (word !== "" || /\s/.test(text[caret - 1] ?? ""))) {
+      items = [{ text: "and", detail: "", insert: "and ", back: 0 }];
+    }
+    // (Those starting with what's typed first)
+    const later = (item: Suggestion) => Number(!fold(item.text).startsWith(needle));
+    const there = text.slice(context.from, context.to);
+    return items
+      .filter((item) => item.insert.trimEnd() !== there)
+      .sort((a, b) => later(a) - later(b))
+      .slice(0, 50);
+  }
+
+  // Put a suggestion in place of what's typed at the caret (without a second space, before one),
+  // and suggest what can go after it
+  private takeSuggestion(box: QueryBox, index: number): void {
+    const item = box.suggestions[index];
+    const context = box.context;
+    if (item === undefined || context === null) {
+      return;
+    }
+    const { input } = box;
+    const text = input.value;
+    const insert = item.insert.endsWith(" ") && /^\s/.test(text.slice(context.to)) ? item.insert.trimEnd() : item.insert;
+    const caret = context.from + item.insert.length - item.back;
+    input.value = text.slice(0, context.from) + insert + text.slice(context.to);
+    input.setSelectionRange(caret, caret);
+    this.editQuery(box, true);
+    box.mirror.scrollLeft = input.scrollLeft;
   }
 
   // The open panel's Clear button, and a facet's counts: the rows with each value that the search
@@ -4167,15 +4626,10 @@ export class GtTable extends HTMLElement {
   }
 
   private highlight(shown: HTMLTableRowElement[]): void {
-    const registry = typeof CSS !== "undefined" ? CSS.highlights : undefined;
-    if (registry === undefined || typeof Highlight === "undefined") {
-      return;
-    }
-    let highlight = registry.get(SEARCH_HIGHLIGHT);
-    // Each table adds its ranges to the one highlight of the page
+    // (Each table adds its ranges to the one highlight of the page)
+    const highlight = pageHighlight(SEARCH_HIGHLIGHT);
     if (highlight === undefined) {
-      highlight = new Highlight();
-      registry.set(SEARCH_HIGHLIGHT, highlight);
+      return;
     }
     for (const range of this.ranges) {
       highlight.delete(range);
@@ -4289,6 +4743,7 @@ export class GtTable extends HTMLElement {
     this.toolbar?.remove();
     this.pager?.nav.remove();
     this.closeInfo(false);
+    this.closeQuery(false);
     this.bar?.root.remove();
     if (this.slashKey !== null) {
       this.removeEventListener("keydown", this.slashKey);
