@@ -164,6 +164,17 @@ export interface ViewSpec {
   sort: ViewSortSpec[];
 }
 
+/** How readers can export the rows: by copying them, or downloading them as CSV. */
+export type ExportFormat = "clipboard" | "csv";
+
+const EXPORT_FORMATS: readonly unknown[] = ["clipboard", "csv"];
+
+/** The export button in the control bar: what it offers, and the name of a download (without its extension). */
+export interface ExportSpec {
+  formats: ExportFormat[];
+  filename: string;
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -187,6 +198,8 @@ export interface Spec {
   filters?: FilterSpec[];
   /** How the table is shown to start with. Without it, unfiltered and in its rows' order. */
   view?: ViewSpec;
+  /** How readers can export the rows (from GTI's control bar). Without it (or any formats), they can't. */
+  export?: ExportSpec;
 }
 
 export class SpecError extends Error {
@@ -357,6 +370,19 @@ export function parseSpec(text: string): Spec {
         "`view` must have a `filter` (`{and: [...]}`, or `null`) and `sort` keys with a `column` and `descending`, if given",
       );
     }
+  }
+
+  const exports = raw.export;
+  if (
+    exports !== undefined &&
+    !(
+      isObject(exports) &&
+      Array.isArray(exports.formats) &&
+      exports.formats.every((format) => EXPORT_FORMATS.includes(format)) &&
+      typeof exports.filename === "string"
+    )
+  ) {
+    throw new SpecError("`export` must have known `formats` and a `filename`, if given");
   }
 
   return raw as unknown as Spec;
