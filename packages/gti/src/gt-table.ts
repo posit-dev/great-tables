@@ -12,6 +12,7 @@
  */
 
 import { placeCells, type Side, TableBorders } from "./borders";
+import { viewCode } from "./code";
 import { toCSV as csv, toTSV } from "./export";
 import { ColumnFilter, type FilterQuery, filterQuery, MISSING, setFilterQuery } from "./filter";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
@@ -30,6 +31,8 @@ import { CellText, fold, rowMatches, searchTerms } from "./search";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
 import {
   type BodyRow,
+  CODE_BACKENDS,
+  type CodeBackend,
   type ColumnSpec,
   type ExportFormat,
   type FilterType,
@@ -61,7 +64,10 @@ export const RESIZE_EVENT = "gt-table-resize";
 /** The event fired when the reader selects or deselects rows (not when `selection` is set). */
 export const SELECT_EVENT = "gt-table-select";
 
-/** The event fired when the reader exports rows, from the bar (not when `toCSV()` or `copyTable()` is called). */
+/**
+ * The event fired when the reader exports rows, or copies the code, from the bar (not when
+ * `toCSV()`, `copyTable()` or `toCode()` is called).
+ */
 export const EXPORT_EVENT = "gt-table-export";
 
 /** The name of the search highlight, for styling with `::highlight(gt-i-search)`. */
@@ -111,10 +117,13 @@ export interface SelectEventDetail {
 }
 
 export interface ExportEventDetail {
-  /** How the rows were exported: copied, or downloaded as CSV. */
+  /** How the rows were exported: copied, or downloaded as CSV; or "code", for the code copied. */
   format: ExportFormat;
-  /** The data rows exported (numbered by position in the data), in the order shown. */
+  /** The data rows exported (numbered by position in the data), in the order shown (none, for code). */
   rows: number[];
+  /** The code copied, and its library (for "code"). */
+  code?: string;
+  backend?: CodeBackend;
 }
 
 export interface PageEventDetail {
@@ -363,13 +372,16 @@ interface Info extends Popup {
 
 /**
  * The export panel: how many rows it exports, the choice of the selected rows only (with
- * selection), and a button for each format.
+ * selection), and a button for each format; with code, the choice of its library, and a note
+ * that it leaves out the search (while there is one).
  */
 interface Exporter extends Popup {
   rows: HTMLElement;
   /** The checkbox for exporting the selected rows only, and the item it's in. */
   selected: HTMLInputElement | null;
   selectedItem: HTMLElement | null;
+  backend: HTMLSelectElement | null;
+  note: HTMLElement | null;
 }
 
 /** The rows to export: the data rows, and the cells' text, the column labels' first; with the cells, but a group's label. */
@@ -885,6 +897,24 @@ export class GtTable extends HTMLElement {
    */
   copyTable({ selected = false }: { selected?: boolean } = {}): Promise<boolean> {
     return this.copyRows(selected).then((rows) => rows !== null);
+  }
+
+  /**
+   * The code for the view, as the export panel copies it: Python that filters and sorts the
+   * table's data (as `df`) as the filters and sort do (not the search, which is of the text
+   * shown), for Polars, pandas or Narwhals (by default, the data's library), with its imports.
+   * It's what Great Tables' `query_code()` writes. Empty until hydrated, and for a table without
+   * "code" among its export formats (whose spec has what the code needs).
+   *
+   * @throws {RangeError} for another library, or a filter whose values can't be written (durations).
+   */
+  toCode(backend?: CodeBackend): string {
+    const spec = this.spec;
+    const code = spec?.export?.code;
+    if (backend !== undefined && !CODE_BACKENDS.includes(backend)) {
+      throw new RangeError(`\`backend\` must be "polars", "pandas" or "narwhals", not ${JSON.stringify(backend)}`);
+    }
+    return spec == null || code == null ? "" : viewCode(this.filter, this.sortKeys, spec.filters ?? [], code, backend ?? code.backend);
   }
 
   private hydrate(): void {
@@ -2648,7 +2678,7 @@ export class GtTable extends HTMLElement {
     panel.classList.add("gt-i-export");
     const rows = element(doc, "p", "gt-i-info-rows");
     panel.append(rows);
-    const exporter: Exporter = { ...popup, rows, selected: null, selectedItem: null };
+    const exporter: Exporter = { ...popup, rows, selected: null, selectedItem: null, backend: null, note: null };
     if ((this.spec as Spec).controls.selection !== null) {
       const item = element(doc, "label", "gt-i-filter-option");
       const box = element(doc, "input", "", { type: "checkbox" });
@@ -2658,15 +2688,40 @@ export class GtTable extends HTMLElement {
       exporter.selected = box;
       exporter.selectedItem = item;
     }
+    const code = (this.spec as Spec).export?.code;
+    if (formats.includes("code") && code != null) {
+      const item = element(doc, "label", "gt-i-info-item");
+      const select = element(doc, "select", "");
+      for (const name of ["Polars", "pandas", "Narwhals"]) {
+        const option = element(doc, "option", "", { value: name.toLowerCase() });
+        option.textContent = name;
+        select.append(option);
+      }
+      select.value = code.backend;
+      const text = doc.createElement("span");
+      text.textContent = "Code for";
+      item.append(text, select);
+      panel.append(item);
+      exporter.backend = select;
+    }
     const actions = element(doc, "div", "gt-i-export-actions");
     for (const format of formats) {
+      if (format === "code" && exporter.backend === null) {
+        continue;
+      }
       const button = element(doc, "button", "gt-i-info-button", { type: "button" });
       button.dataset.gtiExport = format;
-      button.textContent = format === "csv" ? "Download CSV" : "Copy";
+      button.textContent = format === "csv" ? "Download CSV" : format === "code" ? "Copy code" : "Copy";
       button.addEventListener("click", () => this.userExport(exporter, format));
       actions.append(button);
     }
     panel.append(actions);
+    if (exporter.backend !== null) {
+      const note = element(doc, "p", "gt-i-export-note", { hidden: "" });
+      note.textContent = "The code leaves out the search.";
+      panel.append(note);
+      exporter.note = note;
+    }
     return exporter;
   }
 
@@ -2676,6 +2731,9 @@ export class GtTable extends HTMLElement {
     if (exporter.selected !== null && exporter.selectedItem !== null) {
       exporter.selectedItem.hidden = count === 0;
       exporter.selected.checked &&= count > 0;
+    }
+    if (exporter.note !== null) {
+      exporter.note.hidden = this.searchValue === "";
     }
     const total = this.matchCount;
     exporter.rows.textContent = exporter.selected?.checked === true
@@ -2687,24 +2745,35 @@ export class GtTable extends HTMLElement {
 
   private userExport(exporter: Exporter, format: ExportFormat): void {
     const selected = exporter.selected?.checked === true;
-    const done = (rows: number[] | null) => {
-      const text =
-        rows === null ? "Couldn't copy the rows" : `${format === "csv" ? "Downloaded" : "Copied"} ${plural(rows.length)}`;
+    const done = (text: string, detail: ExportEventDetail | null) => {
       exporter.rows.textContent = text;
       this.announce(text);
-      if (rows !== null) {
-        this.dispatchEvent(
-          new CustomEvent<ExportEventDetail>(EXPORT_EVENT, { bubbles: true, composed: true, detail: { format, rows } }),
-        );
+      if (detail !== null) {
+        this.dispatchEvent(new CustomEvent<ExportEventDetail>(EXPORT_EVENT, { bubbles: true, composed: true, detail }));
       }
     };
     if (format === "csv") {
       const exported = this.exported(selected) as Exported;
       this.download(csv(exported.text));
-      done(exported.rows);
+      done(`Downloaded ${plural(exported.rows.length)}`, { format, rows: exported.rows });
+    } else if (format === "code") {
+      // (Of the view, whichever rows are selected)
+      const backend = (exporter.backend as HTMLSelectElement).value as CodeBackend;
+      let code: string;
+      try {
+        code = this.toCode(backend);
+      } catch {
+        done("Couldn't write the code", null);
+        return;
+      }
+      void this.clip({ "text/plain": code }).then((ok) =>
+        ok ? done("Copied the code", { format, rows: [], code, backend }) : done("Couldn't copy the code", null),
+      );
     } else {
       // (Written in the click, while the page may still write to the clipboard)
-      void this.copyRows(selected).then(done);
+      void this.copyRows(selected).then((rows) =>
+        rows === null ? done("Couldn't copy the rows", null) : done(`Copied ${plural(rows.length)}`, { format, rows }),
+      );
     }
   }
 
@@ -2730,15 +2799,21 @@ export class GtTable extends HTMLElement {
     if (exported === null) {
       return Promise.resolve(null);
     }
-    const html = this.exportHTML(exported);
-    const text = toTSV(exported.text);
+    return this.clip({ "text/html": this.exportHTML(exported), "text/plain": toTSV(exported.text) }).then((ok) =>
+      ok ? exported.rows : null,
+    );
+  }
+
+  // Write to the clipboard (the text of each type), returning whether it was written
+  private clip(data: Record<string, string>): Promise<boolean> {
     const doc = this.ownerDocument;
     // Without the Clipboard API (or its permission), as a copy would
     const fallback = () => {
       const copy = (event: ClipboardEvent) => {
         event.preventDefault();
-        event.clipboardData?.setData("text/html", html);
-        event.clipboardData?.setData("text/plain", text);
+        for (const type in data) {
+          event.clipboardData?.setData(type, data[type] as string);
+        }
       };
       doc.addEventListener("copy", copy);
       try {
@@ -2749,20 +2824,15 @@ export class GtTable extends HTMLElement {
         doc.removeEventListener("copy", copy);
       }
     };
-    let written: Promise<boolean>;
-    try {
-      written = navigator.clipboard
-        .write([
-          new ClipboardItem({
-            "text/html": new Blob([html], { type: "text/html" }),
-            "text/plain": new Blob([text], { type: "text/plain" }),
-          }),
-        ])
-        .then(() => true, fallback);
-    } catch {
-      written = Promise.resolve(fallback());
+    const blobs: Record<string, Blob> = {};
+    for (const type in data) {
+      blobs[type] = new Blob([data[type] as string], { type });
     }
-    return written.then((ok) => (ok ? exported.rows : null));
+    try {
+      return navigator.clipboard.write([new ClipboardItem(blobs)]).then(() => true, fallback);
+    } catch {
+      return Promise.resolve(fallback());
+    }
   }
 
   // The rows as an HTML table: the column labels' text, then copies of the cells (keeping their
