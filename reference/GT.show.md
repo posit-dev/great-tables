@@ -4,7 +4,7 @@ Display the table in a notebook or a web browser.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L82-L138)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L70-L122)
 
 ``` python
 GT.show(target="auto")
