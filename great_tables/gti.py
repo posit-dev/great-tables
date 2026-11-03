@@ -649,11 +649,18 @@ class GTI(GT):
         spreadsheet would read as a formula (one starting with `=`, `+`, `-` or `@`, but not a
         number) starts with a `'`, so that it's read as text. Exporting is off by default.
 
+        With `"code"`, readers can also copy code that filters and sorts the table's data (as
+        `df`) as their view of it does, for Polars, pandas, or Narwhals (the library of the
+        data, at first). The code works on the data's values, so it leaves out the search, and
+        a `contains` match is of a column's values as text, ignoring case (not of the text the
+        table shows, nor ignoring accents); it doesn't keep rows within their row groups.
+
         Parameters
         ----------
         formats
-            How readers can export the rows: `"csv"`, `"clipboard"`, or a list of them (in the
-            order of their buttons in the panel). With `None` (or none at all), they can't.
+            How readers can export the rows: `"csv"`, `"clipboard"`, `"code"`, or a list of them
+            (in the order of their buttons in the panel). With `None` (or none at all), they
+            can't.
         filename
             The name of the CSV file a download makes (`".csv"` is added to it). By default,
             `"table"`.
@@ -666,7 +673,8 @@ class GTI(GT):
         Examples
         --------
         Here's a table of Ontario's municipalities that readers can filter, then download what's
-        left as a CSV file named `towny.csv`, or copy.
+        left as a CSV file named `towny.csv`, or copy, or copy the pandas code that filters the
+        data as they have.
 
         ```{python}
         from great_tables import GTI
@@ -675,8 +683,8 @@ class GTI(GT):
         (
             GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
             .fmt_integer(columns="population_2021")
-            .i_cols_filter(columns="status")
-            .i_export(filename="towny")
+            .i_cols_filter(columns=["status", "population_2021"])
+            .i_export(["csv", "clipboard", "code"], filename="towny")
         )
         ```
         """
@@ -688,8 +696,8 @@ class GTI(GT):
         for fmt in formats:
             if fmt not in EXPORT_FORMATS:
                 raise ValueError(
-                    '`formats=` must be "csv", "clipboard", a list of them, or `None` (no '
-                    f"export), not one with {fmt!r}."
+                    '`formats=` must be "csv", "clipboard", "code", a list of them, or `None` '
+                    f"(no export), not one with {fmt!r}."
                 )
             if fmt not in chosen:
                 chosen.append(fmt)
