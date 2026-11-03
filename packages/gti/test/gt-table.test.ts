@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   type BodyRow,
   type CodeSpec,
@@ -10,6 +10,7 @@ import {
   type ExportFormat,
   FILTER_EVENT,
   type FilterEventDetail,
+  type FilterQuery,
   type FilterSpec,
   GtTable,
   type LayoutSpec,
@@ -28,6 +29,8 @@ import {
   type SpannerSpec,
   type StripingSpec,
   TAG_NAME,
+  VIEW_EVENT,
+  type ViewEventDetail,
 } from "../src/index";
 
 // Let mutation observers run.
@@ -81,6 +84,8 @@ interface TableOptions {
   spanners?: SpannerSpec[];
   /** Export is off unless set. */
   export?: { formats: ExportFormat[]; filename?: string; code?: CodeSpec | null };
+  /** The view isn't kept unless set. */
+  viewState?: object;
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -177,6 +182,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     ...(options.filters === undefined ? {} : { filters: options.filters }),
     ...(options.view === undefined ? {} : { view: options.view }),
     ...(options.export === undefined ? {} : { export: { filename: "table", ...options.export } }),
+    ...(options.viewState === undefined ? {} : { view_state: options.viewState }),
   };
   return { html, spec };
 }
@@ -3675,6 +3681,235 @@ describe("the spec's view", () => {
     expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
     expect(el.sort).toEqual([]);
     expect(warn).not.toHaveBeenCalled();
+  });
+});
+
+describe("the view kept", () => {
+  const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
+  const FILTER: FilterQuery = { and: [{ col: "x", op: "gte", value: 10 }] };
+  const AUTHOR_SORT = [{ column: "y", descending: true }];
+  const STORED = "gti:/page#t1";
+  const at = (url: string) => history.replaceState(null, "", url);
+  const item = (el: GtTable) => el.querySelector('[data-gti-info="view"]') as HTMLElement | null;
+  const reset = (el: GtTable) => item(el)?.querySelector("button") as HTMLButtonElement;
+  const openInfo = (el: GtTable) => (el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement).click();
+
+  // Table `t1`, kept in the URL (unless set otherwise), with a search, a filter on `x`, pages of 2
+  // rows (or 4), and the author's view sorted by `y`, descending
+  async function mountKept(viewState: object = {}, options: TableOptions = {}) {
+    const dispatch = vi.spyOn(GtTable.prototype, "dispatchEvent");
+    const el = await mountTable(GROUPED, {
+      filters: [RANGE],
+      view: { filter: null, sort: AUTHOR_SORT },
+      viewState: { url: true, storage: false, key: "t1", ...viewState },
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, size_select: true, ...options.pagination },
+    });
+    const events = dispatch.mock.calls.map(([event]) => event.type).filter((type) => type.startsWith("gt-table-"));
+    return { el, events };
+  }
+
+  beforeEach(() => {
+    at("/page?other=a%20b");
+    localStorage.clear();
+  });
+  afterEach(() => {
+    at("/");
+    localStorage.clear();
+  });
+
+  it("keeps the view in the URL as it changes, with the page's other parameters", async () => {
+    const { el } = await mountKept();
+    const length = history.length;
+    expect(location.search).toBe("?other=a%20b");
+    click(el, "x");
+    expect(el.sort).toEqual([{ column: "x", descending: false }]);
+    expect(location.search).toBe("?other=a%20b&t1.sort=x");
+    // (However it changes)
+    el.page = 2;
+    el.filter = FILTER;
+    expect(location.search).toBe("?other=a%20b&t1.filter=x+%3E%3D+10&t1.sort=x");
+    el.search = "row";
+    el.pageSize = 4;
+    expect(location.search).toBe("?other=a%20b&t1.filter=x+%3E%3D+10&t1.sort=x&t1.search=row&t1.size=4");
+    // (The author's view has none)
+    el.filter = null;
+    el.sort = AUTHOR_SORT;
+    el.search = "";
+    el.pageSize = 2;
+    expect(location.search).toBe("?other=a%20b");
+    expect(location.pathname).toBe("/page");
+    // (Replacing the page's place in the history, not adding to it)
+    expect(history.length).toBe(length);
+  });
+
+  it("shows the view in the URL as it's made ready, without events", async () => {
+    at("/page?t1.filter=x+%3E%3D+10&t1.sort=x&t1.page=2&other=1");
+    const { el, events } = await mountKept();
+    expect(el.state).toBe("ready");
+    expect(el.filter).toEqual(FILTER);
+    expect(el.sort).toEqual([{ column: "x", descending: false }]);
+    expect(el.page).toBe(2);
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(true);
+    expect(events).toEqual([]);
+    // (As it was)
+    expect(location.search).toBe("?t1.filter=x+%3E%3D+10&t1.sort=x&t1.page=2&other=1");
+
+    at("/page?t1.search=row&t1.size=4&t1.sort=");
+    const { el: other } = await mountKept();
+    expect([other.search, other.pageSize, other.sort]).toEqual(["row", 4, []]);
+    expect((other.querySelector(".gt-i-search") as HTMLInputElement).value).toBe("row");
+    expect(other.querySelector(".gt-i-bar")?.hasAttribute("data-gti-searching")).toBe(true);
+  });
+
+  it("shows the view in the browser's storage, unless the URL has one", async () => {
+    localStorage.setItem(STORED, "sort=x&page=2");
+    const { el } = await mountKept({ storage: true });
+    expect([el.sort, el.page]).toEqual([[{ column: "x", descending: false }], 2]);
+    // (Which the URL has too, now)
+    expect(location.search).toBe("?other=a%20b&t1.sort=x&t1.page=2");
+    el.page = 1;
+    expect(localStorage.getItem(STORED)).toBe("sort=x");
+
+    at("/page?t1.sort=-x");
+    const { el: shared } = await mountKept({ storage: true });
+    expect([shared.sort, shared.page]).toEqual([[{ column: "x", descending: true }], 1]);
+    expect(localStorage.getItem(STORED)).toBe("sort=-x");
+  });
+
+  it("keeps the view in storage alone, with `url` off", async () => {
+    at("/page?t1.page=2");
+    localStorage.setItem(STORED, "search=row");
+    const { el } = await mountKept({ url: false, storage: true });
+    expect([el.page, el.search]).toEqual([1, "row"]);
+    click(el, "x");
+    expect(localStorage.getItem(STORED)).toBe("sort=x&search=row");
+    expect(location.search).toBe("?t1.page=2");
+    el.resetView();
+    expect(localStorage.getItem(STORED)).toBeNull();
+  });
+
+  it("leaves out a part of the view the table can't have, with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    at("/page?t1.filter=y+%3E%3D+1&t1.sort=w&t1.page=2&t1.size=3");
+    const { el } = await mountKept();
+    expect(el.state).toBe("ready");
+    expect([el.filter, el.sort, el.page, el.pageSize]).toEqual([null, AUTHOR_SORT, 2, 2]);
+    expect(warn.mock.calls.map(([message]) => message)).toEqual([
+      `<gt-table>: the saved view's size is left out ("3" isn't a page size the table has).`,
+      `<gt-table>: the saved view's sort is left out ("w" isn't a sortable column).`,
+      expect.stringMatching(/^<gt-table>: the saved view's filter is left out \(.+\)\.$/),
+    ]);
+    // (And from the URL)
+    expect(location.search).toBe("?t1.page=2");
+  });
+
+  it("resets the view from the info panel", async () => {
+    at("/page?other=1&t1.sort=x&t1.page=2");
+    const { el } = await mountKept({ storage: true });
+    const fired: ViewEventDetail[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => fired.push((event as CustomEvent<ViewEventDetail>).detail));
+    openInfo(el);
+    expect(item(el)?.textContent).toBe("View kept in the link and this browserReset");
+    expect(reset(el).getAttribute("aria-label")).toBe("Reset the view");
+    expect(reset(el).getAttribute("aria-disabled")).toBe("false");
+    expect(localStorage.getItem(STORED)).toBe("sort=x&page=2");
+
+    reset(el).click();
+    expect([el.sort, el.page]).toEqual([AUTHOR_SORT, 1]);
+    expect(location.search).toBe("?other=1");
+    expect(localStorage.getItem(STORED)).toBeNull();
+    expect(reset(el).getAttribute("aria-disabled")).toBe("true");
+    expect(el.querySelector(".gt-i-live")?.textContent).toMatch(/^The view is reset: /);
+    expect(fired).toEqual([{ filter: null, sort: AUTHOR_SORT, search: "", page: 1, pageSize: 2 }]);
+    // (Disabled, it does nothing)
+    reset(el).click();
+    expect(fired).toHaveLength(1);
+  });
+
+  it("says where the view is kept", async () => {
+    for (const [state, text] of [
+      [{}, "View kept in the link"],
+      [{ url: false, storage: true }, "View kept in this browser"],
+    ] as const) {
+      const { el } = await mountKept(state);
+      openInfo(el);
+      expect(item(el)?.firstElementChild?.textContent).toBe(text);
+    }
+    // (Not kept, it has no reset)
+    const { el } = await mountKept({ url: false, storage: false, key: null });
+    openInfo(el);
+    expect(item(el)).toBeNull();
+  });
+
+  it("fires an event as the reader changes the view, not when properties are set", async () => {
+    // (Kept or not)
+    const el = await mountTable(GROUPED, {
+      filters: [RANGE],
+      controls: { search: true, bar: true },
+      pagination: { enabled: true },
+    });
+    const fired: ViewEventDetail[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => fired.push((event as CustomEvent<ViewEventDetail>).detail));
+    click(el, "x");
+    (el.querySelector('.gt-i-bar [data-gti-bar="next"]') as HTMLButtonElement).click();
+    expect(fired).toEqual([
+      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 1, pageSize: 2 },
+      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 2, pageSize: 2 },
+    ]);
+    el.sort = [];
+    el.filter = FILTER;
+    el.page = 2;
+    el.resetView();
+    expect([el.filter, el.sort, el.page]).toEqual([null, [], 1]);
+    expect(fired).toHaveLength(2);
+    expect(location.search).toBe("?other=a%20b");
+  });
+
+  it("keeps the views of two tables apart", async () => {
+    const one = gtTable(GROUPED, { viewState: { url: true, storage: true, key: "t1" } });
+    const two = gtTable(GROUPED, { viewState: { url: true, storage: true, key: "t2" } });
+    at("/page?t2.sort=-x");
+    await mount(`<gt-table>${one.html}${specScript(one.spec)}</gt-table><gt-table>${two.html}${specScript(two.spec)}</gt-table>`);
+    const [first, second] = Array.from(document.querySelectorAll(TAG_NAME)) as GtTable[];
+    expect([first?.sort, second?.sort]).toEqual([[], [{ column: "x", descending: true }]]);
+    click(first as GtTable, "x");
+    expect(location.search).toBe("?t2.sort=-x&t1.sort=x");
+    click(second as GtTable, "y");
+    expect(location.search).toBe("?t1.sort=x&t2.sort=y");
+    expect([localStorage.getItem("gti:/page#t1"), localStorage.getItem("gti:/page#t2")]).toEqual(["sort=x", "sort=y"]);
+  });
+
+  it("keeps nothing of a table whose stub has merged cells", async () => {
+    at("/page?t1.sort=x");
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], { viewState: { url: true, storage: false, key: "t1" } });
+    const merged = html.replace(
+      `<th class="gt_row gt_left gt_stub">row_1</th>`,
+      `<th class="gt_row gt_left gt_stub" rowspan="2">row_1</th>`,
+    );
+    const el = await mount(`<gt-table>${merged}${specScript(spec)}</gt-table>`);
+    expect(el.sort).toEqual([]);
+    el.resetView();
+    expect(location.search).toBe("?t1.sort=x");
+  });
+
+  it("goes on without the URL or storage, where the page can't have them", async () => {
+    vi.spyOn(history, "replaceState").mockImplementation(() => {
+      throw new DOMException("denied", "SecurityError");
+    });
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("denied", "SecurityError");
+    });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("denied", "SecurityError");
+    });
+    const { el } = await mountKept({ storage: true });
+    click(el, "x");
+    expect(el.sort).toEqual([{ column: "x", descending: false }]);
+    expect(el.state).toBe("ready");
+    vi.restoreAllMocks();
   });
 });
 
