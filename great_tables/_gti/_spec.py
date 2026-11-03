@@ -7,7 +7,9 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   readers can sort by each, search it, and resize it, where `controls` lets them (producers that
   leave these out let them); the side a data column is pinned to (`pin`: `"start"`, the stub's,
   or `"end"`), when the table scrolls sideways (pinned columns are next to their side); and
-  whether readers can hide a data column (`hideable`; producers that leave it out don't let them)
+  whether readers can hide a data column (`hideable`), and move it (`reorderable`: among the
+  reorderable columns next to it, under the same spanners and pinned to the same side); producers
+  that leave these out let them do neither
 - `spanners`: the column spanners, with the visible columns under each
 - `stub`: the stub columns, and whether row groups are shown as a column of the stub
 - `groups`: the row groups, in display order, with their data rows
@@ -40,10 +42,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `export`: how readers can export the rows, from the bar: by copying them (`"clipboard"`) or
   downloading them as CSV (`"csv"`), and the name of a download, without its extension
   (`filename`). Producers that leave `export` out (or give no `formats`) have no export.
-- `view_state`: where the reader's view (filters, sort, search, page, page size and hidden
-  columns) is kept, so that it's there when the page is opened again: in the page's URL (`url`),
-  and in the browser's storage (`storage`), by a `key` (the table's ID) that names its URL
-  parameters; and whether the reader's changes to it can be undone (`undo`). Producers that
+- `view_state`: where the reader's view (filters, sort, search, page, page size, hidden columns
+  and column order) is kept, so that it's there when the page is opened again: in the page's URL
+  (`url`), and in the browser's storage (`storage`), by a `key` (the table's ID) that names its
+  URL parameters; and whether the reader's changes to it can be undone (`undo`). Producers that
   leave `view_state` out (or keep it in neither) don't keep it, and the changes can't be undone.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
@@ -89,6 +91,7 @@ class ColumnSpec(TypedDict):
     # always is, at the start
     pin: Literal["start", "end"] | None
     hideable: bool  # whether readers can hide it (a data column)
+    reorderable: bool  # whether readers can move it (a data column)
 
 
 class SpannerSpec(TypedDict):
@@ -257,6 +260,7 @@ def build_spec(data: GTData) -> Spec:
             resizable=id not in settings.unresizable,
             pin=None if side is None else "start" if side == "left" else "end",
             hideable=role == "data" and id in settings.hideable,
+            reorderable=role == "data" and id in settings.reorderable,
         )
 
     stub_columns = boxhead._get_stub_columns()
