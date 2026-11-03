@@ -547,9 +547,10 @@ class GTI(GT):
         searchable: bool | None = None,
         resizable: bool | None = None,
         hideable: bool | None = None,
+        reorderable: bool | None = None,
     ) -> Self:
         """
-        Choose which columns readers can sort by, search, resize, and hide.
+        Choose which columns readers can sort by, search, resize, hide, and move.
 
         Where the table lets readers sort it ([`i_sorting()`](`great_tables.GTI.i_sorting`)),
         search it ([`i_search()`](`great_tables.GTI.i_search`)), and resize its columns
@@ -567,6 +568,17 @@ class GTI(GT):
         `hideable=` does nothing), and neither can columns
         [`cols_hide()`](`great_tables.GT.cols_hide`) hid, which aren't in the table at all.
 
+        Nor can readers move any column, by default. Making some reorderable lists them in the
+        "Columns" panel too, in the order shown, where each can be dragged to another place, or
+        moved one place at a time with its arrow buttons (or Alt+↑ and Alt+↓). A column's cells
+        move in every row, and exports have the columns in the order shown. A column moves only
+        among the reorderable columns next to it with the same spanners over them (and pinned to
+        the same side, if pinned): it can't leave its spanner, or pass a column readers can't move.
+        The author's order (as [`cols_move()`](`great_tables.GT.cols_move`) and the like set it)
+        is the one the table is first shown in, and the one resetting the view goes back to. The
+        stub and the row group column can't be moved (naming them for `reorderable=` does
+        nothing).
+
         Each call sets what it's given for the columns it's given, so that some columns can be
         left out of one thing, and others another; a later call for a column replaces what an
         earlier one set.
@@ -577,9 +589,9 @@ class GTI(GT):
             The columns: a column name, a list of them, or a selector (e.g., Polars'
             `cs.numeric()`). With `None` (the default), every column but the stub (which can be
             named). The row group column can't be one of them.
-        sortable, searchable, resizable, hideable
-            Whether readers can sort by the columns, search them, resize them, and hide them. With
-            `None` (the default), the columns are left as they are.
+        sortable, searchable, resizable, hideable, reorderable
+            Whether readers can sort by the columns, search them, resize them, hide them, and move
+            them. With `None` (the default), the columns are left as they are.
 
         Returns
         -------
@@ -615,15 +627,28 @@ class GTI(GT):
             .i_cols_controls(columns=years, hideable=True)
         )
         ```
+
+        The same years, which readers can put in another order (but not the municipality's status,
+        which stays first):
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", *years]].head(10), rowname_col="name")
+            .fmt_integer(columns=years)
+            .i_cols_controls(columns=years, reorderable=True)
+        )
+        ```
         """
-        # (Each setting keeps the columns readers can't do it with, but `hideable` keeps those they
-        # can, so it's turned around)
+        # (Each setting keeps the columns readers can't do it with, but `hideable` and
+        # `reorderable` keep those they can, so they're turned around)
         hide = _optional_flag(hideable, "hideable")
+        move = _optional_flag(reorderable, "reorderable")
         flags = {
             "unsortable": _optional_flag(sortable, "sortable"),
             "unsearchable": _optional_flag(searchable, "searchable"),
             "unresizable": _optional_flag(resizable, "resizable"),
             "hideable": None if hide is None else not hide,
+            "reorderable": None if move is None else not move,
         }
         selected = resolve_cols_c(self, columns, excl_stub=False)
         changes: dict[str, Any] = {}
