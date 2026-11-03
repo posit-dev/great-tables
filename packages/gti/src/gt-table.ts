@@ -15,6 +15,7 @@ import { type Placed, placeCells, type Side, TableBorders } from "./borders";
 import { viewCode } from "./code";
 import { toCSV as csv, toTSV } from "./export";
 import { ColumnFilter, type FilterQuery, filterQuery, MISSING, setFilterQuery } from "./filter";
+import { columnRuns, orderRuns } from "./order";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import {
   formatColumn,
@@ -142,7 +143,7 @@ export interface PageEventDetail {
   pageCount: number;
 }
 
-/** The view: as the `filter`, `sort`, `search`, `page`, `pageSize` and `hiddenColumns` properties have it. */
+/** The view: as the `filter`, `sort`, `search`, `page`, `pageSize`, `hiddenColumns` and `columnOrder` properties have it. */
 export type ViewEventDetail = View;
 
 /** A row group, as far as showing and hiding its rows goes. */
@@ -412,10 +413,24 @@ interface Exporter extends Popup {
   note: HTMLElement | null;
 }
 
-/** The columns panel: a checkbox for each column readers can hide (by id), checked while it's shown, and a button showing them all. */
+/**
+ * The columns panel: an item for each column readers can hide or move (by id), in the order
+ * shown; and buttons showing them all (with columns to hide) and putting them back in the author's
+ * order (with columns to move).
+ */
 interface Columns extends Popup {
-  boxes: Map<string, HTMLInputElement>;
-  all: HTMLButtonElement;
+  list: HTMLElement;
+  items: Map<string, ColumnItem>;
+  all: HTMLButtonElement | null;
+  order: HTMLButtonElement | null;
+}
+
+/** A column's item in the columns panel: its checkbox, checked while it's shown (if it can be hidden), and its buttons moving it (if it can be moved). */
+interface ColumnItem {
+  root: HTMLElement;
+  box: HTMLInputElement | null;
+  earlier: HTMLButtonElement | null;
+  later: HTMLButtonElement | null;
 }
 
 /** The rows to export: the data rows, and the cells' text, the column labels' first; with the cells, but a group's label. */
@@ -447,6 +462,9 @@ const ICONS = {
   undo: "M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
   redo: "M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13",
   columns: "M4 5h16v14H4zM9.5 5v14M14.5 5v14",
+  earlier: "M12 19V5M6 11l6-6 6 6",
+  later: "M12 5v14M6 13l6 6 6-6",
+  grip: "M9 6v.01M15 6v.01M9 12v.01M15 12v.01M9 18v.01M15 18v.01",
 };
 
 // Whether the keys are a Mac's (⌘ rather than Ctrl)
@@ -537,6 +555,22 @@ function element<K extends keyof HTMLElementTagNameMap>(
     el.setAttribute(name, value);
   }
   return el;
+}
+
+// Put elements next to one another in this order (in `parent`, or where they are, around `keep`)
+// without moving `keep`, which may have focus or a pointer on it
+function arrange(elements: readonly Element[], keep: Element | undefined, parent?: Element): void {
+  const at = keep === undefined ? -1 : elements.indexOf(keep);
+  if (at < 0) {
+    parent?.append(...elements);
+    return;
+  }
+  for (const el of elements.slice(0, at)) {
+    (keep as Element).before(el);
+  }
+  for (const el of elements.slice(at + 1).reverse()) {
+    (keep as Element).after(el);
+  }
 }
 
 // The page's highlight of a name (shared by every table on the page), where the browser has them
@@ -752,6 +786,18 @@ export class GtTable extends HTMLElement {
   private columnCells: Placed[] = [];
   /** The width each column hidden was shown at (by grid column), for when every width is fixed. */
   private hiddenWidths = new Map<number, number>();
+  /** The runs of columns readers can move (by index in the spec; see `order.ts`). */
+  private runs: number[][] = [];
+  /**
+   * With runs, the spec's column at each place (by index in the spec), as shown, and the place of
+   * each (where its cells are on the grid, after the `lead`); empty without.
+   */
+  private columnAt: number[] = [];
+  private placeOf: number[] = [];
+  /** Per run, its cells in each row with a cell of its own in each of its columns (in the author's order), on hydration. */
+  private runCells: { run: number; cells: HTMLTableCellElement[] }[] = [];
+  /** The pointer dragging a column's item in the columns panel, and the item. */
+  private dragging: { pointer: number; id: string } | null = null;
 
   get state(): State | null {
     return this.getAttribute("data-gti-state") as State | null;
@@ -850,6 +896,39 @@ export class GtTable extends HTMLElement {
     }
     this.hideColumns(ids);
     this.matchRows();
+    this.render();
+    this.forget();
+  }
+
+  /**
+   * The columns readers can move (`reorderable` in the spec), in the author's order: each next to
+   * another it can move among (see `columnOrder`). Empty until hydrated.
+   */
+  get reorderableColumns(): string[] {
+    return this.runIds().flat();
+  }
+
+  /**
+   * The order the columns readers can move are shown in. Each moves only among the reorderable
+   * columns next to it (in the author's order), under the same spanners and pinned to the same side
+   * (if pinned), so it stays under its spanners and by its side. Setting it puts each such run of
+   * columns in the order they're given in, then those left out, in the author's order.
+   *
+   * @throws {RangeError} for a column that isn't one of `reorderableColumns`, or one given twice.
+   */
+  get columnOrder(): string[] {
+    return this.shownRuns().flat();
+  }
+
+  set columnOrder(ids: readonly string[]) {
+    const movable = this.reorderableColumns;
+    const bad = ids.find((id, i) => !movable.includes(id) || ids.indexOf(id) !== i);
+    if (bad !== undefined) {
+      throw new RangeError(
+        movable.includes(bad) ? `"${bad}" is given twice` : `"${bad}" isn't a column that can be moved`,
+      );
+    }
+    this.orderColumns(orderRuns(ids, this.runIds()));
     this.render();
     this.forget();
   }
@@ -1029,7 +1108,8 @@ export class GtTable extends HTMLElement {
 
   /**
    * Go back to the view the table is first shown with: the filters, sort and hidden columns of the
-   * author's view (`i_view()`), without a search, on the first page of the table's page size. The view kept in
+   * author's view (`i_view()`), and the author's column order, without a search, on the first page
+   * of the table's page size. The view kept in
    * the URL and the browser's storage (with `view_state`) is cleared, and the reader's changes
    * can't be undone (see `undo()`). Does nothing until hydrated.
    */
@@ -1134,6 +1214,7 @@ export class GtTable extends HTMLElement {
     if (this.hideable.length > 0) {
       this.mapColumns(table);
     }
+    this.mapRuns(table);
     if (this.pageSizeValue === undefined) {
       this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
     }
@@ -1143,6 +1224,7 @@ export class GtTable extends HTMLElement {
       ((spec.export?.formats.length ?? 0) > 0 ||
         this.undoable ||
         this.hideable.length > 0 ||
+        this.runs.length > 0 ||
         (this.movable && (spec.controls.search || this.filters.length > 0)))
     ) {
       this.addBar();
@@ -1164,12 +1246,13 @@ export class GtTable extends HTMLElement {
         page: 1,
         pageSize: spec.pagination.enabled ? spec.pagination.page_size : null,
         hidden: this.hiddenColumns,
+        order: this.columnOrder,
       };
       this.restoreView(spec, this.authorView);
     }
     // A search or page set before hydration applies now
     this.matchRows();
-    if (this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0) {
+    if (this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered()) {
       this.render();
     } else {
       // (Not rendered, so every row is shown, as it was)
@@ -1238,6 +1321,7 @@ export class GtTable extends HTMLElement {
         search: spec.controls.search,
         sizes: !spec.pagination.enabled ? [] : size_select ? [...page_sizes, page_size] : [page_size],
         hideable: this.hideable,
+        runs: this.runIds(),
       },
       warn,
     );
@@ -1256,8 +1340,10 @@ export class GtTable extends HTMLElement {
     this.setView(view);
   }
 
-  // Set the view's parts (the filters, sort, search, page, page size and hidden columns), to be shown
+  // Set the view's parts (the filters, sort, search, page, page size, hidden columns and column
+  // order), to be shown
   private setView(view: View): void {
+    this.orderColumns(view.order);
     this.hideColumns(view.hidden);
     this.cancelSearchTimer();
     this.cancelFilterTimer();
@@ -1284,6 +1370,7 @@ export class GtTable extends HTMLElement {
       page: this.page,
       pageSize: this.size,
       hidden: this.hiddenColumns,
+      order: this.columnOrder,
     };
   }
 
@@ -2493,7 +2580,8 @@ export class GtTable extends HTMLElement {
   }
 
   private dispatchResize(resizer: Resizer, width: number): void {
-    const column = (this.spec as Spec).columns[resizer.index - this.lead];
+    const place = resizer.index - this.lead;
+    const column = (this.spec as Spec).columns[this.columnAt[place] ?? place];
     this.dispatchEvent(
       new CustomEvent<ResizeEventDetail>(RESIZE_EVENT, {
         bubbles: true,
@@ -2578,8 +2666,7 @@ export class GtTable extends HTMLElement {
   // The cells in the columns readers can hide, and across them (from every row, on hydration)
   private mapColumns(table: HTMLTableElement): void {
     const spec = this.spec as Spec;
-    const lead = this.lead;
-    const grid = new Set(this.hideable.map((id) => lead + spec.columns.findIndex((column) => column.id === id)));
+    const grid = new Set(this.hideable.map((id) => this.gridOf(spec.columns.findIndex((column) => column.id === id))));
     const { placed, columns } = placeCells(Array.from(table.rows));
     this.gridColumns = columns;
     this.columnCells = placed.filter((p) => [...grid].some((c) => p.c0 <= c && c <= p.c1));
@@ -2596,8 +2683,7 @@ export class GtTable extends HTMLElement {
     if (spec === null || JSON.stringify(hidden) === JSON.stringify(this.hiddenIds)) {
       return;
     }
-    const lead = this.lead;
-    const grid = new Set(hidden.map((id) => lead + spec.columns.findIndex((column) => column.id === id)));
+    const grid = new Set(hidden.map((id) => this.gridOf(spec.columns.findIndex((column) => column.id === id))));
     // (The width each column hidden has, which it has again if the widths are fixed while it's hidden)
     for (const c of grid) {
       const width = (p: Placed) => p.cell.getBoundingClientRect().width;
@@ -2648,6 +2734,134 @@ export class GtTable extends HTMLElement {
         });
       }
     }
+  }
+
+  // The grid column of the spec's column `i`: after the `lead`, in its place
+  private gridOf(i: number): number {
+    return this.lead + (this.placeOf[i] ?? i);
+  }
+
+  // The runs' columns, by id
+  private runIds(): string[][] {
+    const spec = this.spec;
+    return spec === null ? [] : this.runs.map((run) => run.map((i) => spec.columns[i]?.id as string));
+  }
+
+  // The runs' columns, by id, in the order shown
+  private shownRuns(): string[][] {
+    const spec = this.spec;
+    return spec === null ? [] : this.runs.map((run) => run.map((i) => spec.columns[this.columnAt[i] as number]?.id as string));
+  }
+
+  // Whether the columns are in another order than the author's
+  private reordered(): boolean {
+    return this.columnAt.some((i, place) => i !== place);
+  }
+
+  // The runs of columns readers can move, and their cells in each row (from every row, with every
+  // cell shown, on hydration): in a row, a run has a cell of its own in each of its columns, or none
+  // (it's under a cell across the run, or one spanning the rows above)
+  private mapRuns(table: HTMLTableElement): void {
+    const spec = this.spec as Spec;
+    this.runs = columnRuns(spec);
+    this.runCells = [];
+    if (this.runs.length === 0) {
+      return;
+    }
+    this.columnAt = spec.columns.map((_, i) => i);
+    this.placeOf = [...this.columnAt];
+    const rows = Array.from(table.rows);
+    const { grid, columns } = placeCells(rows);
+    this.gridColumns = columns;
+    const lead = this.lead;
+    rows.forEach((tr, r) => {
+      const line = grid[r] ?? [];
+      this.runs.forEach((run, k) => {
+        const own = run.map((i) => line[lead + i]).filter((p): p is Placed => p !== undefined && p.r0 === r && p.c0 === p.c1);
+        if (own.length === run.length) {
+          this.runCells.push({ run: k, cells: own.map((p) => p.cell) });
+        }
+      });
+    });
+  }
+
+  /**
+   * Put the columns readers can move in the order `ids` (each run's columns, in the order they're
+   * shown in, as `orderRuns()` gives them): their cells in each row, and their `<col>`s, with the
+   * width each has, and with them whatever goes by a column's place on the grid.
+   */
+  private orderColumns(ids: readonly string[]): void {
+    const spec = this.spec;
+    const table = this.table;
+    if (spec === null || table === null || this.runs.length === 0 || JSON.stringify(ids) === JSON.stringify(this.columnOrder)) {
+      return;
+    }
+    const index = new Map(spec.columns.map((column, i) => [column.id, i]));
+    const columnAt = spec.columns.map((_, i) => i);
+    let k = 0;
+    for (const run of this.runs) {
+      const first = run[0] as number;
+      run.forEach((_, j) => {
+        columnAt[first + j] = index.get(ids[k++] as string) ?? first + j;
+      });
+    }
+    // Where each column that moves was on the grid, and is now
+    const lead = this.lead;
+    const moves = new Map<number, number>();
+    columnAt.forEach((i, place) => {
+      const was = this.placeOf[i] as number;
+      if (was !== place) {
+        moves.set(lead + was, lead + place);
+      }
+    });
+    this.columnAt = columnAt;
+    this.placeOf = columnAt.map((_, i) => columnAt.indexOf(i));
+
+    // (A run's cells in a row are next to one another, in any order: they're put after the last)
+    for (const { run, cells } of this.runCells) {
+      const first = (this.runs[run] as number[])[0] as number;
+      const shown = cells.map((_, j) => cells[(columnAt[first + j] as number) - first] as HTMLTableCellElement);
+      let last = cells[0] as Element;
+      while (last.nextElementSibling !== null && cells.includes(last.nextElementSibling as HTMLTableCellElement)) {
+        last = last.nextElementSibling;
+      }
+      const after = last.nextSibling;
+      for (const cell of shown) {
+        last.parentNode?.insertBefore(cell, after);
+      }
+    }
+    const moved = (c: number) => moves.get(c) ?? c;
+    for (const colgroup of new Set([...Array.from(table.querySelectorAll(":scope > colgroup")), ...(this.colgroup === null ? [] : [this.colgroup])])) {
+      const cols = Array.from(colgroup.children);
+      if (cols.length === this.gridColumns) {
+        const shown = [...cols];
+        cols.forEach((col, c) => {
+          shown[moved(c)] = col;
+        });
+        colgroup.append(...shown);
+      }
+    }
+    for (const p of this.columnCells) {
+      if (p.c0 === p.c1) {
+        p.c0 = p.c1 = moved(p.c0);
+      }
+    }
+    this.hiddenGrid = new Set(Array.from(this.hiddenGrid, moved));
+    this.hiddenWidths = new Map(Array.from(this.hiddenWidths, ([c, width]) => [moved(c), width]));
+    if (this.startWidths !== null) {
+      const widths = [...this.startWidths];
+      this.startWidths.forEach((width, c) => {
+        widths[moved(c)] = width;
+      });
+      this.startWidths = widths;
+    }
+    for (const resizer of this.resizers) {
+      resizer.index = moved(resizer.index);
+    }
+    // (Rows padding a page are made again, for the columns' places)
+    this.removeFillers();
+    this.fillers = [];
+    this.fillerCells = null;
   }
 
   private addSearchBox(table: HTMLTableElement): void {
@@ -2791,7 +3005,7 @@ export class GtTable extends HTMLElement {
     if (this.movable && spec.controls.search) {
       this.addBarSearch(bar);
     }
-    const columns = this.hideable.length > 0 ? this.makeColumns() : null;
+    const columns = this.hideable.length > 0 || this.runs.length > 0 ? this.makeColumns() : null;
     bar.columns = columns;
     // (A panel follows its button, so that Tab goes from one into the other)
     root.append(
@@ -3138,6 +3352,9 @@ export class GtTable extends HTMLElement {
     if (spec.controls.selection === "multiple") {
       key(["Shift"], "Select a range of rows", true);
     }
+    if (this.runs.length > 0) {
+      key([onMac() ? "⌥" : "Alt", "↑", "↓"], "Move a column, in the Columns panel");
+    }
     if (this.undoable) {
       const mac = onMac();
       key(mac ? ["⌘", "Z"] : ["Ctrl", "Z"], "Undo a change to the view");
@@ -3269,42 +3486,109 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  /** Make the columns panel (a checkbox per column readers can hide), and the bar's button that opens it. */
+  /**
+   * Make the columns panel, and the bar's button that opens it: an item per column readers can hide
+   * or move, in the order shown, with a checkbox for one they can hide, and for one they can move, a
+   * handle to drag it by and buttons moving it (as Alt+↑ and Alt+↓ do).
+   */
   private makeColumns(): Columns {
     const doc = this.ownerDocument;
-    const popup = this.makePanel("columns", "Show or hide columns", "Columns");
+    const spec = this.spec as Spec;
+    const hideable = this.hideable;
+    const movable = this.reorderableColumns;
+    const label =
+      movable.length === 0 ? "Show or hide columns" : hideable.length === 0 ? "Reorder columns" : "Show, hide or reorder columns";
+    const popup = this.makePanel("columns", label, "Columns");
     popup.panel.classList.add("gt-i-columns");
     const labels = labelCells(this.table as HTMLTableElement);
     const list = element(doc, "div", "gt-i-filter-options");
-    const columns: Columns = { ...popup, boxes: new Map(), all: element(doc, "button", "gt-i-info-button", { type: "button" }) };
-    for (const id of this.hideable) {
+    const columns: Columns = { ...popup, list, items: new Map(), all: null, order: null };
+    const alt = onMac() ? "⌥" : "Alt+";
+    for (const { id } of spec.columns) {
+      if (id === null || !(hideable.includes(id) || movable.includes(id))) {
+        continue;
+      }
       const title = this.columnTitle(id, labels);
-      const item = element(doc, "label", "gt-i-filter-option");
-      const box = element(doc, "input", "", { type: "checkbox" });
+      const root = element(doc, "div", "gt-i-column", { "data-gti-column": id });
+      const item: ColumnItem = { root, box: null, earlier: null, later: null };
       const name = element(doc, "span", "gt-i-filter-value");
       name.textContent = title;
-      box.addEventListener("change", () => {
-        const hidden = this.hiddenIds;
-        this.userColumns(box.checked ? hidden.filter((x) => x !== id) : [...hidden, id], `${title} ${box.checked ? "shown" : "hidden"}`);
-      });
-      item.append(box, name);
-      list.append(item);
-      columns.boxes.set(id, box);
+      if (hideable.includes(id)) {
+        const option = element(doc, "label", "gt-i-filter-option");
+        const box = element(doc, "input", "", { type: "checkbox" });
+        box.addEventListener("change", () => {
+          const hidden = this.hiddenIds;
+          this.userColumns(box.checked ? hidden.filter((x) => x !== id) : [...hidden, id], `${title} ${box.checked ? "shown" : "hidden"}`);
+        });
+        option.append(box, name);
+        root.append(option);
+        item.box = box;
+      } else {
+        const option = element(doc, "div", "gt-i-filter-option");
+        option.append(name);
+        root.append(option);
+      }
+      if (!movable.includes(id) && movable.length > 0) {
+        // (Where the handle is on the others, so that the names line up)
+        const spacer = element(doc, "span", "gt-i-column-grip", { "aria-hidden": "true", "data-gti-none": "" });
+        spacer.append(icon(doc, "grip"));
+        root.prepend(spacer);
+      }
+      if (movable.includes(id)) {
+        const grip = element(doc, "span", "gt-i-column-grip", { "aria-hidden": "true" });
+        grip.append(icon(doc, "grip"));
+        grip.addEventListener("pointerdown", (event) => this.startDrag(columns, id, event));
+        const move = (way: "earlier" | "later", step: -1 | 1, arrow: string) => {
+          const button = element(doc, "button", "gt-i-column-move", {
+            type: "button",
+            "aria-label": `Move ${title} ${way}`,
+            title: `Move ${way} (${alt}${arrow})`,
+            "aria-keyshortcuts": `Alt+Arrow${step < 0 ? "Up" : "Down"}`,
+          });
+          button.append(icon(doc, way));
+          button.addEventListener("click", () => this.userMove(id, step));
+          return button;
+        };
+        item.earlier = move("earlier", -1, "↑");
+        item.later = move("later", 1, "↓");
+        root.prepend(grip);
+        root.append(item.earlier, item.later);
+        root.addEventListener("keydown", (event) => {
+          if ((event.key === "ArrowUp" || event.key === "ArrowDown") && event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+            event.preventDefault();
+            this.userMove(id, event.key === "ArrowUp" ? -1 : 1);
+          }
+        });
+      }
+      list.append(root);
+      columns.items.set(id, item);
     }
     const actions = element(doc, "div", "gt-i-export-actions");
-    columns.all.textContent = "Show all";
-    columns.all.addEventListener("click", () => {
-      if (columns.all.getAttribute("aria-disabled") !== "true") {
-        this.userColumns([], "Every column shown");
-      }
-    });
-    actions.append(columns.all);
+    // (A button that's done what it does is disabled with ARIA, so that it keeps focus)
+    const action = (text: string, act: () => void) => {
+      const button = element(doc, "button", "gt-i-info-button", { type: "button" });
+      button.textContent = text;
+      button.addEventListener("click", () => {
+        if (button.getAttribute("aria-disabled") !== "true") {
+          act();
+        }
+      });
+      actions.append(button);
+      return button;
+    };
+    if (hideable.length > 0) {
+      columns.all = action("Show all", () => this.userColumns([], "Every column shown"));
+    }
+    if (movable.length > 0) {
+      columns.order = action("Reset order", () => this.userOrder(movable, "Column order reset"));
+    }
     popup.panel.append(list, actions);
     return columns;
   }
 
   // Each column's checkbox: checked if it's shown, and disabled if it's the only one shown (without a
-  // stub), so that there's always a column
+  // stub), so that there's always a column; and its buttons moving it, disabled where it can't move.
+  // The items are in the order the columns are shown in (but while one is dragged).
   private updateColumns(columns: Columns): void {
     const spec = this.spec as Spec;
     const hidden = this.hiddenIds;
@@ -3312,11 +3596,152 @@ export class GtTable extends HTMLElement {
       (column) => column.role === "stub" || (column.role === "data" && (column.id === null || !hidden.includes(column.id))),
     );
     const only = shown.length === 1 && !spec.stub.groups_as_column ? shown[0]?.id : undefined;
-    for (const [id, box] of columns.boxes) {
-      box.checked = !hidden.includes(id);
-      box.disabled = id === only;
+    for (const [id, { box, earlier, later }] of columns.items) {
+      if (box !== null) {
+        box.checked = !hidden.includes(id);
+        box.disabled = id === only;
+      }
+      earlier?.setAttribute("aria-disabled", String(this.moveOrder(id, -1) === null));
+      later?.setAttribute("aria-disabled", String(this.moveOrder(id, 1) === null));
     }
-    columns.all.setAttribute("aria-disabled", String(hidden.length === 0));
+    columns.all?.setAttribute("aria-disabled", String(hidden.length === 0));
+    columns.order?.setAttribute("aria-disabled", String(!this.reordered()));
+    if (this.dragging === null) {
+      const roots = spec.columns.flatMap((_, place) => {
+        const id = spec.columns[this.columnAt[place] ?? place]?.id;
+        return id == null ? [] : (columns.items.get(id)?.root ?? []);
+      });
+      if (roots.some((root, i) => columns.list.children[i] !== root)) {
+        const focused = (this.getRootNode() as Document | ShadowRoot).activeElement;
+        arrange(roots, roots.find((root) => root.contains(focused)), columns.list);
+      }
+    }
+  }
+
+  /**
+   * The order of the columns readers can move (as `columnOrder` has it) with `id` moved past the
+   * column shown before it (`step` -1) or after it (1) in its run, and its run's; `null` if there's
+   * none. (Columns hidden are passed over.)
+   */
+  private moveOrder(id: string, step: -1 | 1): { order: string[]; run: string[] } | null {
+    const runs = this.shownRuns();
+    const run = runs.find((ids) => ids.includes(id));
+    if (run === undefined) {
+      return null;
+    }
+    const hidden = this.hiddenIds;
+    const shown = run.filter((x) => x === id || !hidden.includes(x));
+    const past = shown[shown.indexOf(id) + step];
+    if (past === undefined) {
+      return null;
+    }
+    const moved = run.filter((x) => x !== id);
+    moved.splice(moved.indexOf(past) + (step > 0 ? 1 : 0), 0, id);
+    return { order: runs.flatMap((ids) => (ids === run ? moved : ids)), run: moved };
+  }
+
+  // What's said of a column moved in its run (in its new order): the column shown before it now,
+  // or else the one after it
+  private movedText(id: string, run: readonly string[]): string {
+    const labels = labelCells(this.table as HTMLTableElement);
+    const hidden = this.hiddenIds;
+    const shown = run.filter((x) => x === id || !hidden.includes(x));
+    const at = shown.indexOf(id);
+    const before = shown[at - 1];
+    const next = before ?? shown[at + 1];
+    const title = this.columnTitle(id, labels);
+    return next === undefined
+      ? `${title} moved`
+      : `${title} moved ${before === undefined ? "before" : "after"} ${this.columnTitle(next, labels, false)}`;
+  }
+
+  private userMove(id: string, step: -1 | 1): void {
+    const moved = this.moveOrder(id, step);
+    if (moved !== null) {
+      this.userOrder(moved.order, this.movedText(id, moved.run));
+    }
+  }
+
+  private userOrder(ids: readonly string[], text: string): void {
+    const order = this.columnOrder;
+    this.orderColumns(ids);
+    if (JSON.stringify(this.columnOrder) === JSON.stringify(order)) {
+      return;
+    }
+    this.render();
+    this.announce(text);
+    this.dispatchView(null);
+  }
+
+  /**
+   * Drag a column's item by its handle among its run's (the others make way for it, by where the
+   * pointer is on them); dropped, the column moves there, and Escape puts it back.
+   */
+  private startDrag(columns: Columns, id: string, event: PointerEvent): void {
+    if (event.button !== 0 || this.dragging !== null) {
+      return;
+    }
+    event.preventDefault();
+    const doc = this.ownerDocument;
+    const pointer = event.pointerId;
+    const root = (columns.items.get(id) as ColumnItem).root;
+    const k = this.runIds().findIndex((ids) => ids.includes(id));
+    const run = this.runIds()[k] as string[];
+    const items = () =>
+      Array.from(columns.list.children as HTMLCollectionOf<HTMLElement>).filter((item) => run.includes(item.dataset.gtiColumn as string));
+    this.dragging = { pointer, id };
+    root.toggleAttribute("data-gti-dragging", true);
+    const move = (event: PointerEvent) => {
+      if (event.pointerId !== pointer) {
+        return;
+      }
+      const others = items().filter((item) => item !== root);
+      const at = others.filter((item) => {
+        const box = item.getBoundingClientRect();
+        return event.clientY > box.top + box.height / 2;
+      }).length;
+      others.splice(at, 0, root);
+      arrange(others, root);
+    };
+    const end = (drop: boolean) => {
+      doc.removeEventListener("pointermove", move);
+      doc.removeEventListener("pointerup", up);
+      doc.removeEventListener("pointercancel", cancel);
+      doc.removeEventListener("keydown", escape, true);
+      root.removeAttribute("data-gti-dragging");
+      this.dragging = null;
+      if (drop) {
+        const order = items().map((item) => item.dataset.gtiColumn as string);
+        this.userOrder(
+          this.shownRuns().flatMap((ids, j) => (j === k ? order : ids)),
+          this.movedText(id, order),
+        );
+      }
+      this.updateColumns(columns);
+    };
+    const up = (event: PointerEvent) => {
+      if (event.pointerId === pointer) {
+        move(event);
+        end(true);
+      }
+    };
+    const cancel = (event: PointerEvent) => {
+      if (event.pointerId === pointer) {
+        end(false);
+      }
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        // (Only the drag is cancelled: the panel stays open)
+        event.preventDefault();
+        event.stopPropagation();
+        end(false);
+      }
+    };
+    doc.addEventListener("pointermove", move);
+    doc.addEventListener("pointerup", up);
+    doc.addEventListener("pointercancel", cancel);
+    doc.addEventListener("keydown", escape, true);
   }
 
   /** Make the export panel, and the bar's button that opens it. */
@@ -3571,23 +3996,26 @@ export class GtTable extends HTMLElement {
     return exported;
   }
 
-  // The columns exported (by index in the spec): each with an id, but those hidden
+  // The columns exported (by index in the spec), in the order shown: each with an id, but those
+  // hidden
   private exportedColumns(): number[] {
     const spec = this.spec as Spec;
-    return spec.columns.flatMap((column, c) =>
-      column.id === null || this.hiddenIds.includes(column.id) ? [] : [c],
-    );
+    return spec.columns.flatMap((_, place) => {
+      const c = this.columnAt[place] ?? place;
+      const id = spec.columns[c]?.id ?? null;
+      return id === null || this.hiddenIds.includes(id) ? [] : [c];
+    });
   }
 
   // A column's label, after its spanners' ("Revenue – gross"), or its id, without one
-  private columnTitle(id: string, labels: Map<string, HTMLTableCellElement>): string {
+  private columnTitle(id: string, labels: Map<string, HTMLTableCellElement>, spanned = true): string {
     const spec = this.spec as Spec;
     const label = (key: string | null) => {
       const th = key === null ? undefined : labels.get(key);
       return th === undefined ? "" : labelText(th);
     };
     const spanners = spec.spanners
-      .filter((spanner) => spanner.columns.includes(id))
+      .filter((spanner) => spanned && spanner.columns.includes(id))
       .sort((a, b) => b.level - a.level)
       .map((spanner) => label(spanner.header));
     const header = spec.columns.find((column) => column.id === id)?.header ?? null;
@@ -5027,16 +5455,24 @@ export class GtTable extends HTMLElement {
 
   // A data row's cells that the search looks in: not those of the columns hidden
   private searched(cells: CellText[]): CellText[] {
-    const { unsearched, hiddenGrid, lead } = this;
+    const { unsearched, hiddenGrid } = this;
     return unsearched.size === 0 && hiddenGrid.size === 0
       ? cells
-      : cells.filter((_, i) => !unsearched.has(i) && !hiddenGrid.has(lead + i));
+      : cells.filter((_, i) => !unsearched.has(i) && !hiddenGrid.has(this.gridOf(i)));
   }
 
-  // A data row's cells, one per column of the spec: not a group's label cell, which is on one of
-  // its rows only (so it isn't searched), nor the selection column's
+  // A data row's cells, one per column of the spec, in the spec's order: not a group's label cell,
+  // which is on one of its rows only (so it isn't searched), nor the selection column's
   private dataCells(tr: HTMLTableRowElement): Element[] {
-    return Array.from(tr.children).filter((cell) => !cell.matches(".gt_stub_row_group, .gt-i-select"));
+    const cells = Array.from(tr.children).filter((cell) => !cell.matches(".gt_stub_row_group, .gt-i-select"));
+    const places = this.placeOf;
+    if (places.length === 0) {
+      return cells;
+    }
+    // (A row without the stub's cells merged into the row above, in a hierarchical stub, has fewer;
+    // the stub's columns don't move)
+    const skip = places.length - cells.length;
+    return cells.map((cell, k) => cells[(places[k + skip] ?? k + skip) - skip] ?? cell);
   }
 
   /** Show the data rows for the current sort, search and page. */
@@ -5899,6 +6335,11 @@ export class GtTable extends HTMLElement {
     this.hiddenGrid = new Set();
     this.columnCells = [];
     this.hiddenWidths = new Map();
+    this.runs = [];
+    this.columnAt = [];
+    this.placeOf = [];
+    this.runCells = [];
+    this.dragging = null;
     this.view = { start: 0, end: 0, total: 0 };
     this.pager = null;
     this.bar = null;
