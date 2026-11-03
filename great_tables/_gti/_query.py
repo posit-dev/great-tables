@@ -30,12 +30,21 @@ import math
 import re
 import unicodedata
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 from html.parser import HTMLParser
 from typing import TYPE_CHECKING, Any, Literal, Union
 
-from ._spec import FilterSpec, Spec, ViewSpec, _json_value
+from ._spec import (
+    CodeBackend,
+    CodeColumnSpec,
+    CodeSpec,
+    ColumnSpec,
+    FilterSpec,
+    Spec,
+    ViewSpec,
+    _json_value,
+)
 
 if TYPE_CHECKING:
     import narwhals as nw
@@ -47,7 +56,7 @@ Query = dict[str, list[dict[str, Any]]]
 # A sort: column names, each with whether it's descending
 SortKeys = tuple[tuple[str, bool], ...]
 
-Backend = Literal["polars", "pandas", "narwhals"]
+Backend = CodeBackend
 
 # The filter type each op is for
 OP_TYPES = {"contains": "text", "in": "facet", "gte": "range", "lte": "range"}
@@ -859,14 +868,17 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     _, spec = render_parts(gt)
     frame = nw.from_native(gt._tbl_data, eager_only=True)
     schema = frame.schema
-    predicates = _plan(spec["view"]["filter"], spec, schema)
+    # (As the runtime has the query, so that its code is the runtime's, character for character)
+    predicates = [
+        replace(p, value=_whole(p.value)) if isinstance(p, _Compare) else p
+        for p in _plan(_canonical(spec["view"]["filter"], spec["filters"]), spec, schema)
+    ]
     sort = [(key["column"], key["descending"]) for key in spec["view"]["sort"]]
     imports: set[str] = set()
     if backend == "polars":
         code = _polars_code(predicates, sort, schema, imports)
     elif backend == "pandas":
-        native_dtypes = getattr(gt._tbl_data, "dtypes", None)
-        code = _pandas_code(predicates, sort, schema, native_dtypes, imports)
+        code = _pandas_code(predicates, sort, schema, gt._tbl_data, imports)
     else:
         code = _narwhals_code(predicates, sort, schema, imports)
     for predicate in predicates:
@@ -876,6 +888,101 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
             imports.add("import datetime")
     header = "\n".join(sorted(imports))
     return f"{header}\n\n{code}\n" if header else f"{code}\n"
+
+
+def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
+    """A query as the runtime has it (`filterQuery()` in packages/gti/src/filter.ts).
+
+    Its clauses are in the order of the filters, a range's lower bound first, and an "in"
+    clause's values are the facet's, in their order (a missing value last).
+    """
+    if query is None:
+        return None
+    order = {f["column"]: i for i, f in enumerate(filters)}
+    clauses = sorted(query["and"], key=lambda c: (order[c["col"]], c["op"] == "lte"))
+    canonical: list[dict[str, Any]] = []
+    for clause in clauses:
+        value = clause["value"]
+        if clause["op"] == "in":
+            values = filters[order[clause["col"]]]["values"] or []
+            ranks: dict[tuple[str, Any], int] = {}
+            for rank, item in enumerate(values):
+                if item is not None:
+                    ranks.setdefault(_value_key(item), rank)
+            chosen = sorted({ranks[_value_key(item)] for item in value if item is not None})
+            value = [values[rank] for rank in chosen] + ([None] if None in value else [])
+        canonical.append({**clause, "value": value})
+    return {"and": canonical}
+
+
+def _whole(value: int | float) -> int | float:
+    # (A bound as JavaScript holds it, a double: an integer if it's whole)
+    number = float(value)
+    return int(number) if number.is_integer() else number
+
+
+def _nullable(data: Any, name: str) -> bool:
+    """Whether a column of pandas data has a nullable dtype (which compares to `pd.NA`)."""
+    try:
+        dtype = data.dtypes[name]
+    except (AttributeError, KeyError, TypeError):
+        return False
+    return type(dtype).__module__.startswith("pandas") and not hasattr(dtype, "categories")
+
+
+def code_spec(
+    data: Any,
+    columns: list[ColumnSpec],
+    filters: list[FilterSpec],
+    ranks: Mapping[str, Any],
+) -> CodeSpec:
+    """What the runtime needs to write a view's code as `query_code()` does.
+
+    That's the library of the data, and for each column the view can filter or sort by, the
+    type that the code goes by and (for a facet) its values as Python, as the code writes them.
+    """
+    import narwhals as nw
+
+    frame = nw.from_native(data, eager_only=True)
+    schema = frame.schema
+    kinds = {column["id"]: column["kind"] for column in columns}
+    facets = {f["column"]: f["values"] or [] for f in filters if f["type"] == "facet"}
+    spec: dict[str, CodeColumnSpec] = {}
+    for name in [*(f["column"] for f in filters), *ranks]:
+        if name in spec:
+            continue
+        dtype = schema[name]
+        literals = None
+        if name in facets:
+            literals = []
+            for value in facets[name]:
+                try:
+                    literal = _literal(_from_json(value, kinds.get(name), dtype, name))
+                except ValueError:
+                    literal = None
+                literals.append(None if value is None else literal)
+        spec[name] = CodeColumnSpec(
+            dtype=(
+                "string"
+                if dtype == nw.String
+                else "float"
+                if dtype.is_float()
+                else "categorical"
+                if isinstance(dtype, (nw.Categorical, nw.Enum))
+                else "other"
+            ),
+            nullable=_nullable(data, name),
+            literals=literals,
+        )
+    implementation = frame.implementation
+    backend: Backend = (
+        "polars"
+        if implementation is nw.Implementation.POLARS
+        else "pandas"
+        if implementation is nw.Implementation.PANDAS
+        else "narwhals"
+    )
+    return CodeSpec(backend=backend, columns=spec)
 
 
 def _literal(value: Any) -> str:
@@ -929,15 +1036,10 @@ def _pandas_code(
     predicates: list[_Predicate],
     sort: list[tuple[str, bool]],
     schema: Any,
-    native_dtypes: Any,
+    data: Any,
     imports: set[str],
 ) -> str:
     import narwhals as nw
-
-    def nullable(name: str) -> bool:
-        # (pandas' nullable dtypes compare to `pd.NA`, which a mask can't have)
-        dtype = native_dtypes[name] if native_dtypes is not None else None
-        return type(dtype).__module__.startswith("pandas") and not hasattr(dtype, "categories")
 
     terms = []
     for p in predicates:
@@ -953,7 +1055,8 @@ def _pandas_code(
             if p.finite:
                 imports.add("import numpy as np")
                 term = f"({term}) & np.isfinite({col})"
-            terms.append(f"({term}).fillna(False)" if nullable(p.col) else term)
+            # (pandas' nullable dtypes compare to `pd.NA`, which a mask can't have)
+            terms.append(f"({term}).fillna(False)" if _nullable(data, p.col) else term)
         else:
             term = f"{col}.isin({_list(p.values)})" if p.values else f"{col}.isna()"
             terms.append(f"{term} | {col}.isna()" if p.missing and p.values else term)
