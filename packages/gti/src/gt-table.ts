@@ -2421,6 +2421,10 @@ export class GtTable extends HTMLElement {
       });
       this.sortHeaders.set(id, { th, icon, label });
     }
+    // (A column only for querying is sorted by as an unsortable one is: from code, or the URL)
+    for (const column of spec.query_columns ?? []) {
+      this.unsortedLabels.set(column.id, column.label);
+    }
 
     if (this.sortHeaders.size > 0) {
       this.addLiveRegion();
@@ -4031,13 +4035,15 @@ export class GtTable extends HTMLElement {
     for (const filterSpec of spec.filters ?? []) {
       const id = filterSpec.column;
       const index = spec.columns.findIndex((column) => column.id === id);
-      const column = spec.columns[index];
-      if (column === undefined || this.filters.some((control) => control.filter.column === id)) {
+      // (Or a column only for querying, which has no cells, nor a label cell)
+      const query = spec.query_columns?.find((column) => column.id === id);
+      const header = spec.columns[index]?.header;
+      if ((header === undefined && query === undefined) || this.filters.some((control) => control.filter.column === id)) {
         continue;
       }
-      const th = column.header === null ? null : (cells.get(column.header) ?? null);
-      const label = this.sortHeaders.get(id)?.label ?? ((th !== null && labelText(th)) || id);
-      const filter = new ColumnFilter(filterSpec, index, spec.ranks[id] ?? []);
+      const th = header == null ? null : (cells.get(header) ?? null);
+      const label = this.sortHeaders.get(id)?.label ?? ((th !== null && labelText(th)) || query?.label || id);
+      const filter = new ColumnFilter(filterSpec, index, spec.ranks[id] ?? [], query?.texts);
       const control: FilterControl = {
         filter,
         label,
@@ -4235,7 +4241,7 @@ export class GtTable extends HTMLElement {
         missing = true;
       } else if (!labels.has(key)) {
         const cell = this.dataCells(tr)[filter.index];
-        labels.set(key, (cell !== undefined && labelText(cell)) || String(values[key]));
+        labels.set(key, (cell !== undefined && labelText(cell)) || filter.texts?.[row] || String(values[key]));
       }
     });
     const entries = values.map((value, key): [number, string] => [key, labels.get(key) ?? String(value)]);
