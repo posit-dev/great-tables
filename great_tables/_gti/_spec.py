@@ -5,8 +5,9 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 
 - `columns`: the body columns, in the order of the body cells (stub columns first), and whether
   readers can sort by each, search it, and resize it, where `controls` lets them (producers that
-  leave these out let them); and the side a data column is pinned to (`pin`: `"start"`, the
-  stub's, or `"end"`), when the table scrolls sideways. Pinned columns are next to their side.
+  leave these out let them); the side a data column is pinned to (`pin`: `"start"`, the stub's,
+  or `"end"`), when the table scrolls sideways (pinned columns are next to their side); and
+  whether readers can hide a data column (`hideable`; producers that leave it out don't let them)
 - `spanners`: the column spanners, with the visible columns under each
 - `stub`: the stub columns, and whether row groups are shown as a column of the stub
 - `groups`: the row groups, in display order, with their data rows
@@ -33,16 +34,17 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   times as ISO 8601 strings), with `null` for values JSON can't hold (NaN). Producers that leave
   `filters` out have none.
 - `view`: how the table is first shown: filtered by a query (as `<gt-table>`'s `filter` property
-  takes, or `null`), and sorted by columns (as its `sort` property takes). The runtime applies it
-  without events. Producers that leave `view` out show the table as it is.
+  takes, or `null`), sorted by columns (as its `sort` property takes), and without the hideable
+  columns in `hidden` (in column order; producers that leave it out hide none). The runtime
+  applies it without events. Producers that leave `view` out show the table as it is.
 - `export`: how readers can export the rows, from the bar: by copying them (`"clipboard"`) or
   downloading them as CSV (`"csv"`), and the name of a download, without its extension
   (`filename`). Producers that leave `export` out (or give no `formats`) have no export.
-- `view_state`: where the reader's view (filters, sort, search, page and page size) is kept, so that
-  it's there when the page is opened again: in the page's URL (`url`), and in the browser's storage
-  (`storage`), by a `key` (the table's ID) that names its URL parameters; and whether the
-  reader's changes to it can be undone (`undo`). Producers that leave `view_state` out (or keep it
-  in neither) don't keep it, and the changes can't be undone.
+- `view_state`: where the reader's view (filters, sort, search, page, page size and hidden
+  columns) is kept, so that it's there when the page is opened again: in the page's URL (`url`),
+  and in the browser's storage (`storage`), by a `key` (the table's ID) that names its URL
+  parameters; and whether the reader's changes to it can be undone (`undo`). Producers that
+  leave `view_state` out (or keep it in neither) don't keep it, and the changes can't be undone.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -86,6 +88,7 @@ class ColumnSpec(TypedDict):
     # The side it's pinned to (in the column order: the stub's, or the other), if it is; the stub
     # always is, at the start
     pin: Literal["start", "end"] | None
+    hideable: bool  # whether readers can hide it (a data column)
 
 
 class SpannerSpec(TypedDict):
@@ -170,6 +173,7 @@ class ViewSortSpec(TypedDict):
 class ViewSpec(TypedDict):
     filter: dict[str, list[dict[str, Any]]] | None  # a query (see `_query.py`)
     sort: list[ViewSortSpec]
+    hidden: list[str]  # the columns hidden, in column order
 
 
 CodeBackend = Literal["polars", "pandas", "narwhals"]
@@ -252,6 +256,7 @@ def build_spec(data: GTData) -> Spec:
             searchable=id not in settings.unsearchable,
             resizable=id not in settings.unresizable,
             pin=None if side is None else "start" if side == "left" else "end",
+            hideable=role == "data" and id in settings.hideable,
         )
 
     stub_columns = boxhead._get_stub_columns()
@@ -331,7 +336,10 @@ def build_spec(data: GTData) -> Spec:
     # (Imported here, as `_query` imports from this module)
     from ._query import check_view, code_spec
 
-    view = check_view(settings.view_filter, settings.view_sort, filters, ranks)
+    hideable = [column["id"] for column in columns if column["hideable"] and column["id"]]
+    view = check_view(
+        settings.view_filter, settings.view_sort, filters, ranks, settings.view_hidden, hideable
+    )
     code = None
     if "code" in settings.export_formats:
         code = code_spec(tbl_data, columns, filters, ranks)

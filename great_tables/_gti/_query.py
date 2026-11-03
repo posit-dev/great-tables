@@ -29,7 +29,7 @@ import json
 import math
 import re
 import unicodedata
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from html.parser import HTMLParser
@@ -399,8 +399,13 @@ def check_view(
     sort: SortKeys,
     filters: list[FilterSpec],
     ranks: Mapping[str, Any],
+    hidden: Sequence[str] = (),
+    hideable: Sequence[str] = (),
 ) -> ViewSpec:
-    """Check a view against a table's filters and sortable columns, as the runtime does."""
+    """
+    Check a view against a table's filters, sortable columns, and the columns readers can hide
+    (in column order), as the runtime does.
+    """
     by_column = {f["column"]: f for f in filters}
     for clause in query["and"] if query is not None else []:
         col, op, value = clause["col"], clause["op"], clause["value"]
@@ -431,8 +436,17 @@ def check_view(
                 f"The view can't be sorted by column {column!r}: it isn't one the table can be "
                 "sorted by."
             )
+    for column in hidden:
+        if column not in hideable:
+            raise ValueError(
+                f"The view can't hide column {column!r}: it isn't one readers can hide. Make it "
+                "one with `i_cols_controls(hideable=True)` (the stub and the row group column "
+                "can't be)."
+            )
     return ViewSpec(
-        filter=query, sort=[{"column": column, "descending": desc} for column, desc in sort]
+        filter=query,
+        sort=[{"column": column, "descending": desc} for column, desc in sort],
+        hidden=[column for column in hideable if column in hidden],
     )
 
 
@@ -856,8 +870,8 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     """Code that filters and sorts a table's data (`df`) as its view does, with its imports.
 
     The code keeps and orders the data's rows, not the table's, so doesn't keep rows within their
-    row groups. A "contains" clause is a match, ignoring case, of the column's values as text
-    (not of the text the table shows, nor ignoring accents).
+    row groups; and drops the columns the view hides. A "contains" clause is a match, ignoring
+    case, of the column's values as text (not of the text the table shows, nor ignoring accents).
     """
     from ._render import render_parts
 
@@ -874,13 +888,14 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
         for p in _plan(_canonical(spec["view"]["filter"], spec["filters"]), spec, schema)
     ]
     sort = [(key["column"], key["descending"]) for key in spec["view"]["sort"]]
+    hidden = spec["view"]["hidden"]
     imports: set[str] = set()
     if backend == "polars":
-        code = _polars_code(predicates, sort, schema, imports)
+        code = _polars_code(predicates, sort, hidden, schema, imports)
     elif backend == "pandas":
-        code = _pandas_code(predicates, sort, schema, gt._tbl_data, imports)
+        code = _pandas_code(predicates, sort, hidden, schema, gt._tbl_data, imports)
     else:
-        code = _narwhals_code(predicates, sort, schema, imports)
+        code = _narwhals_code(predicates, sort, hidden, schema, imports)
     for predicate in predicates:
         if isinstance(predicate, _In) and any(
             isinstance(value, (dt.date, dt.time)) for value in predicate.values
@@ -1001,7 +1016,11 @@ def _col(name: str, prefix: str) -> str:
 
 
 def _polars_code(
-    predicates: list[_Predicate], sort: list[tuple[str, bool]], schema: Any, imports: set[str]
+    predicates: list[_Predicate],
+    sort: list[tuple[str, bool]],
+    hidden: list[str],
+    schema: Any,
+    imports: set[str],
 ) -> str:
     import narwhals as nw
 
@@ -1029,12 +1048,15 @@ def _polars_code(
         names = _list(tuple(column for column, _ in sort))
         flags = "[" + ", ".join(str(desc) for _, desc in sort) + "]"
         code += f".sort({names}, descending={flags}, nulls_last=True, maintain_order=True)"
+    if hidden:
+        code += f".drop({_list(tuple(hidden))})"
     return code
 
 
 def _pandas_code(
     predicates: list[_Predicate],
     sort: list[tuple[str, bool]],
+    hidden: list[str],
     schema: Any,
     data: Any,
     imports: set[str],
@@ -1068,11 +1090,17 @@ def _pandas_code(
         names = _list(tuple(column for column, _ in sort))
         ascending = "[" + ", ".join(str(not desc) for _, desc in sort) + "]"
         code += f'.sort_values({names}, ascending={ascending}, na_position="last", kind="stable")'
+    if hidden:
+        code += f".drop(columns={_list(tuple(hidden))})"
     return code
 
 
 def _narwhals_code(
-    predicates: list[_Predicate], sort: list[tuple[str, bool]], schema: Any, imports: set[str]
+    predicates: list[_Predicate],
+    sort: list[tuple[str, bool]],
+    hidden: list[str],
+    schema: Any,
+    imports: set[str],
 ) -> str:
     import narwhals as nw
 
@@ -1124,5 +1152,7 @@ def _narwhals_code(
             "nulls_last=True)"
         )
         lines.append(f".drop({_list(tuple(extra))})")
+    if hidden:
+        lines.append(f".drop({_list(tuple(hidden))})")
     lines.append(".to_native()")
     return "(\n    " + "\n    ".join(lines) + "\n)"
