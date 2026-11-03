@@ -33,8 +33,9 @@ Or browse the [`SKILL.md`](skill.md) file.
 ```` markdown
 ---
 name: great-tables
-description: >
-  Easily generate information-rich, publication-quality tables from Python. Use when writing Python code that uses the great_tables package.
+description: >-
+  Easily generate information-rich, publication-quality tables from Python. Use
+  when writing Python code that uses the great_tables package.
 license: MIT
 compatibility: Requires Python >=3.10.
 ---
