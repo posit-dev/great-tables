@@ -6,6 +6,8 @@
  * Python `TypedDict`s; fields may be added without a version change, so unknown ones are ignored.
  */
 
+import { dateKey } from "./filter";
+
 export const SPEC_VERSION = 1;
 
 export type ColumnKind =
@@ -166,10 +168,13 @@ export interface LayoutSpec {
 
 export type ResponsiveMode = "scroll";
 
-/** How a column is filtered: by the text it shows, a choice of its values, or a range of its numbers. */
-export type FilterType = "text" | "facet" | "range";
+/**
+ * How a column is filtered: by the text it shows, a choice of its values, a range of its numbers, or
+ * a range of its dates (or dates and times).
+ */
+export type FilterType = "text" | "facet" | "range" | "date";
 
-const FILTER_TYPES: readonly unknown[] = ["text", "facet", "range"];
+const FILTER_TYPES: readonly unknown[] = ["text", "facet", "range", "date"];
 
 /** A data value, as JSON holds it (dates and times as ISO 8601 text). */
 export type FilterValue = string | number | boolean | null;
@@ -178,8 +183,8 @@ export interface FilterSpec {
   column: string;
   type: FilterType;
   /**
-   * A facet or range column's distinct values, in the order of its ranks (a data row's value is
-   * `values[rank]`); `null` for a text filter.
+   * A facet, range or date filter column's distinct values, in the order of its ranks (a data row's
+   * value is `values[rank]`; a date filter's are ISO 8601 text); `null` for a text filter.
    */
   values: FilterValue[] | null;
 }
@@ -216,8 +221,8 @@ export const CODE_BACKENDS: readonly unknown[] = ["polars", "pandas", "narwhals"
 
 /** What the code goes by, of a column the view can filter or sort by. */
 export interface CodeColumnSpec {
-  /** Its type: of strings, of floats, of categories, or another. */
-  dtype: "string" | "float" | "categorical" | "other";
+  /** Its type: of strings, of floats, of categories, of dates, of dates and times, or another. */
+  dtype: "string" | "float" | "categorical" | "date" | "datetime" | "other";
   /** Whether it's of a pandas nullable dtype (whose comparisons can be missing). */
   nullable: boolean;
   /** A facet's values (as its filter's `values` are), as Python; `null` for one that can't be. */
@@ -457,11 +462,12 @@ export function parseSpec(text: string): Spec {
           ? values != null
           : !Array.isArray(values) ||
             !values.every(isFilterValue) ||
+            (filter.type === "date" && !values.every((value) => value === null || (typeof value === "string" && dateKey(value) !== null))) ||
             !Array.isArray(ranks) ||
             !ranks.every((rank) => rank === null || isIndex(rank, values.length)))
       ) {
         throw new SpecError(
-          `\`filters[${i}]\` must name a column and a known \`type\`, with \`values\` for every rank of a facet or range`,
+          `\`filters[${i}]\` must name a column and a known \`type\`, with \`values\` for every rank of a facet, range or date filter (a date filter's as ISO 8601 text)`,
         );
       }
     });
