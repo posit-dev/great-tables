@@ -10,6 +10,12 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   whether readers can hide a data column (`hideable`), and move it (`reorderable`: among the
   reorderable columns next to it, under the same spanners and pinned to the same side); producers
   that leave these out let them do neither
+- `query_columns`: the columns left out of the table but kept for querying, in column order: their
+  kind, their label's text, and (for a filter on the text they'd show, or a facet) each data row's
+  text. A text filter's is what it's matched against: the text the cell would show, then (after a
+  newline) what it wouldn't (an image's `alt` text, an SVG's `<title>`); a facet's is its value's
+  label, the text shown with its whitespace collapsed. They have ranks and filters as other columns
+  do, but aren't searched or exported. Producers that leave `query_columns` out have none.
 - `spanners`: the column spanners, with the visible columns under each
 - `stub`: the stub columns, and whether row groups are shown as a column of the stub
 - `groups`: the row groups, in display order, with their data rows
@@ -58,13 +64,18 @@ import math
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Literal, TypedDict, Union
 
+from .._gt_data import ColInfoTypeEnum
 from .._tbl_data import (
     ColumnKind,
+    _get_cell,
     _get_column_kind,
     _get_column_ranks,
     _get_column_values,
+    cast_frame_to_string,
     n_rows,
+    replace_null_frame,
 )
+from .._text import _process_text
 from .._utils_render_html import _get_header_ids
 from ._settings import ExportFormat, FilterType, PaginationType, SelectionMode, settings_of
 
@@ -92,6 +103,13 @@ class ColumnSpec(TypedDict):
     pin: Literal["start", "end"] | None
     hideable: bool  # whether readers can hide it (a data column)
     reorderable: bool  # whether readers can move it (a data column)
+
+
+class QueryColumnSpec(TypedDict):
+    id: str
+    kind: ColumnKind
+    label: str  # the text of its label
+    texts: list[str] | None  # each data row's, for a text filter or a facet
 
 
 class SpannerSpec(TypedDict):
@@ -211,6 +229,7 @@ class Spec(TypedDict):
     version: int
     nrows: int
     columns: list[ColumnSpec]
+    query_columns: list[QueryColumnSpec]
     spanners: list[SpannerSpec]
     stub: StubSpec
     groups: list[GroupSpec]
@@ -300,6 +319,14 @@ def build_spec(data: GTData) -> Spec:
 
     _check_pins([column for column in columns if column["role"] == "data"])
 
+    # The columns only for querying (`_leave_out()` in `_render.py` hid them)
+    query_infos = [
+        info
+        for info in boxhead
+        if info.type == ColInfoTypeEnum.hidden and info.var in settings.query_only
+    ]
+    kinds = {info.var: _get_column_kind(tbl_data, info.var) for info in query_infos}
+
     visible = {info.var for info in default_columns}
     spanners: list[SpannerSpec] = []
     for span in data._spanners:
@@ -315,30 +342,52 @@ def build_spec(data: GTData) -> Spec:
             )
 
     ranks: dict[str, list[int | None]] = {}
-    for column in columns:
-        if column["id"] is not None and column["kind"] != "other":
-            column_ranks = _get_column_ranks(tbl_data, column["id"])
+    for var, kind in [*((column["id"], column["kind"]) for column in columns), *kinds.items()]:
+        if var is not None and kind != "other":
+            column_ranks = _get_column_ranks(tbl_data, var)
             if column_ranks is not None:
-                ranks[column["id"]] = column_ranks
+                ranks[var] = column_ranks
 
     groups_as_column = "group_label" in stub_layout
     nrows = n_rows(tbl_data)
 
     chosen = dict(settings.filters)
     filters: list[FilterSpec] = []
-    for column in columns:
-        var = column["id"]
+    # (The table's columns, then those only for querying)
+    for var, kind in [*((column["id"], column["kind"]) for column in columns), *kinds.items()]:
         if var is None or var not in chosen:
             continue
         column_ranks = ranks.get(var)
-        filter_type = _filter_type(chosen[var], column["kind"], column_ranks, nrows)
+        filter_type = _filter_type(chosen[var], kind, column_ranks, nrows)
         values = None
         if filter_type != "text":
             values = _filter_values(tbl_data, var, column_ranks or [])
         filters.append(FilterSpec(column=var, type=filter_type, values=values))
 
     # (Imported here, as `_query` imports from this module)
-    from ._query import check_view, code_spec
+    from ._query import check_view, code_spec, label_text, match_text
+
+    query_columns: list[QueryColumnSpec] = []
+    if query_infos:
+        types = {f["column"]: f["type"] for f in filters}
+        # (The cells' HTML, as the body has it)
+        body = replace_null_frame(data._body.body, cast_frame_to_string(tbl_data))
+        for info in query_infos:
+            texts = None
+            if types.get(info.var) in ("text", "facet"):
+                cells = [str(_get_cell(body, row, info.var)) for row in range(nrows)]
+                texts = [
+                    match_text(cell) if types[info.var] == "text" else label_text(cell)
+                    for cell in cells
+                ]
+            query_columns.append(
+                QueryColumnSpec(
+                    id=info.var,
+                    kind=kinds[info.var],
+                    label=label_text(str(_process_text(info.column_label))) or info.var,
+                    texts=texts,
+                )
+            )
 
     hideable = [column["id"] for column in columns if column["hideable"] and column["id"]]
     view = check_view(
@@ -346,7 +395,9 @@ def build_spec(data: GTData) -> Spec:
     )
     code = None
     if "code" in settings.export_formats:
-        code = code_spec(tbl_data, columns, filters, ranks)
+        code = code_spec(
+            tbl_data, {**{c["id"]: c["kind"] for c in columns}, **kinds}, filters, ranks
+        )
     key = data._options.table_id.value
     if (settings.view_state_url or settings.view_state_storage) and not key:
         raise ValueError(
@@ -358,6 +409,7 @@ def build_spec(data: GTData) -> Spec:
         version=SPEC_VERSION,
         nrows=nrows,
         columns=columns,
+        query_columns=query_columns,
         spanners=spanners,
         stub=StubSpec(
             columns=[info.var for info in stub_columns], groups_as_column=groups_as_column
