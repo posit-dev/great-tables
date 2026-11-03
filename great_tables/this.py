@@ -155,6 +155,8 @@ def _zen_table(data: DataFrameLike) -> GT:
             table_border_left_color="#CCCCCC",
             table_border_right_style="solid",
             table_border_right_color="#CCCCCC",
+            # Quarto rewrites tables with pixel widths, as in the docs page that shows the zen
+            quarto_disable_processing=True,
         )
         # footer ----
         .tab_footnote("See?", locations=loc.body(columns="method", rows=[16]))  # XVII
