@@ -39,6 +39,8 @@ export interface ColumnSpec {
    * the other (`"end"`). Pinned columns are next to their side. Without it, it isn't pinned.
    */
   pin?: "start" | "end" | null;
+  /** Whether readers can hide a data column. Without it, they can't. */
+  hideable?: boolean;
 }
 
 export interface SpannerSpec {
@@ -168,12 +170,14 @@ export interface ViewSortSpec {
 }
 
 /**
- * How the table is shown to start with: its filter (a query, as the `filter` property takes) and
- * its sort keys. Applied as the table is made ready, without events.
+ * How the table is shown to start with: its filter (a query, as the `filter` property takes), its
+ * sort keys, and the hideable columns hidden (in column order; without them, none). Applied as the
+ * table is made ready, without events.
  */
 export interface ViewSpec {
   filter: { and: unknown[] } | null;
   sort: ViewSortSpec[];
+  hidden?: string[];
 }
 
 /**
@@ -216,9 +220,10 @@ export interface ExportSpec {
 }
 
 /**
- * Where the reader's view (filters, sort, search, page and page size) is kept, so that it's there
- * when the page is opened again: in the page's URL, as parameters named after `key` (the table's
- * ID), and in the browser's storage; and whether the reader's changes to it can be undone.
+ * Where the reader's view (filters, sort, search, page, page size and hidden columns) is kept, so
+ * that it's there when the page is opened again: in the page's URL, as parameters named after
+ * `key` (the table's ID), and in the browser's storage; and whether the reader's changes to it can
+ * be undone.
  */
 export interface ViewStateSpec {
   url: boolean;
@@ -312,12 +317,12 @@ export function parseSpec(text: string): Spec {
   const column = (raw.columns as unknown[]).findIndex(
     (column) =>
       !isObject(column) ||
-      !["sortable", "searchable", "resizable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
+      !["sortable", "searchable", "resizable", "hideable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
       ![undefined, null, "start", "end"].includes(column.pin as string),
   );
   if (column >= 0) {
     throw new SpecError(
-      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable and resizable with \`true\` or \`false\`, and the side it's pinned to (\`"start"\` or \`"end"\`), if it does`,
+      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable and hideable with \`true\` or \`false\`, and the side it's pinned to (\`"start"\` or \`"end"\`), if it does`,
     );
   }
   if (!isObject(raw.stub) || !isObject(raw.ranks)) {
@@ -429,10 +434,11 @@ export function parseSpec(text: string): Spec {
       !isObject(view) ||
       !(filter === null || (isObject(filter) && Array.isArray(filter.and))) ||
       !Array.isArray(view.sort) ||
-      !view.sort.every((key) => isObject(key) && typeof key.column === "string" && typeof key.descending === "boolean")
+      !view.sort.every((key) => isObject(key) && typeof key.column === "string" && typeof key.descending === "boolean") ||
+      !(view.hidden === undefined || (Array.isArray(view.hidden) && view.hidden.every((id) => typeof id === "string")))
     ) {
       throw new SpecError(
-        "`view` must have a `filter` (`{and: [...]}`, or `null`) and `sort` keys with a `column` and `descending`, if given",
+        "`view` must have a `filter` (`{and: [...]}`, or `null`), `sort` keys with a `column` and `descending`, and `hidden` column names, if given",
       );
     }
   }
