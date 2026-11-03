@@ -87,8 +87,8 @@ interface TableOptions {
   export?: { formats: ExportFormat[]; filename?: string; code?: CodeSpec | null };
   /** The view isn't kept unless set. */
   viewState?: object;
-  /** What readers can do with each column (by its id), if not everything. */
-  columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable">>;
+  /** What readers can do with each column (by its id), if not everything, and where it's pinned. */
+  columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin">>;
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -5105,9 +5105,10 @@ describe("a table wider than its container", () => {
   // (happy-dom has no layout: the table is as wide as `width`, in a container 300px wide, and every
   // cell is 100px wide)
   let width = 800;
+  let room = 300;
   const layout = () => {
     vi.spyOn(Element.prototype, "scrollWidth", "get").mockImplementation(() => width);
-    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => 300);
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => room);
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
   };
   const responsive = (options: TableOptions = {}) => {
@@ -5120,6 +5121,7 @@ describe("a table wider than its container", () => {
 
   afterEach(() => {
     width = 800;
+    room = 300;
   });
 
   it("pins the selection column and the stub, filled, drawing their borders", async () => {
@@ -5224,6 +5226,104 @@ describe("a table wider than its container", () => {
     expect(hint(el)?.hasAttribute("data-gti-shown")).toBe(false);
     expect(scroller(el).hasAttribute("role")).toBe(false);
     expect(scroller(el).hasAttribute("tabindex")).toBe(false);
+  });
+
+  describe("with data columns pinned", () => {
+    const end = (cell: Element | null) => (cell as HTMLElement).style.getPropertyValue("inset-inline-end");
+    const padding = (el: GtTable, side: string) => scroller(el).style.getPropertyValue(`scroll-padding-inline-${side}`);
+    const pinned = (cells: Iterable<Element>) =>
+      Array.from(cells, (cell) => (cell.classList.contains("gt-i-pinned") ? "pinned" : "") + (cell.classList.contains("gt-i-pin") ? "+pin" : ""));
+    const both = { x: { pin: "start" as const }, y: { pin: "end" as const } };
+    beforeEach(() => {
+      width = 2000;
+      room = 600;
+    });
+
+    it("pins them after the stub, and at the end", async () => {
+      const el = await responsive({ columns: both });
+      expect(pinned(el.querySelectorAll("thead th"))).toEqual(["pinned", "pinned+pin", "pinned+pin"]);
+      const row = el.querySelector("tbody tr:not(.gt_group_heading_row)") as HTMLTableRowElement;
+      expect(pinned(row.cells)).toEqual(["pinned", "pinned+pin", "pinned+pin"]);
+      expect(Array.from(row.cells, inset)).toEqual(["0px", "100px", ""]);
+      expect(Array.from(row.cells, end)).toEqual(["", "", "0px"]);
+      expect([padding(el, "start"), padding(el, "end")]).toEqual(["200px", "100px"]);
+      // (Not the group headings, across the table)
+      expect(el.querySelector(".gt_group_heading")?.classList.contains("gt-i-pinned")).toBe(false);
+    });
+
+    it("pins those at the end before the ones after them, with the stub alone at the start", async () => {
+      const el = await responsive({ columns: { x: { pin: "end" }, y: { pin: "end" } } });
+      const row = el.querySelector("tbody tr:not(.gt_group_heading_row)") as HTMLTableRowElement;
+      expect(pinned(row.cells)).toEqual(["pinned", "pinned+pin", "pinned+pin"]);
+      expect(Array.from(row.cells, end)).toEqual(["", "100px", "0px"]);
+      expect([padding(el, "start"), padding(el, "end")]).toEqual(["100px", "200px"]);
+    });
+
+    it("pins them after the selection column, the row group column, and the stub", async () => {
+      room = 1200;
+      const el = await responsive({ controls: { selection: "single" }, groupsAsColumn: true, columns: both });
+      const row = el.querySelector("tbody tr.gt_row_group_first") as HTMLTableRowElement;
+      expect(pinned(row.cells)).toEqual(["pinned", "pinned", "pinned", "pinned+pin", "pinned+pin"]);
+      expect(Array.from(row.cells, inset)).toEqual(["0px", "100px", "200px", "300px", ""]);
+      expect(end(row.cells[4] as Element)).toBe("0px");
+      // (A row in a group, without its label cell)
+      const next = row.nextElementSibling as HTMLTableRowElement;
+      expect(Array.from(next.cells, inset)).toEqual(["0px", "200px", "300px", ""]);
+    });
+
+    it("doesn't pin a spanner over columns on either side of a pinned edge", async () => {
+      const el = await responsive({
+        columns: { x: { pin: "start" } },
+        thead:
+          `<tr class="gt_col_spanners"><th class="gt_col_heading" rowspan="2"></th>` +
+          `<th class="gt_column_spanner_outer" colspan="2">both</th></tr>` +
+          `<tr class="gt_col_headings"><th class="gt_col_heading gt_right" id="t-x">x</th>` +
+          `<th class="gt_col_heading gt_left" id="t-y">y</th></tr>`,
+      });
+      expect(pinned(el.querySelectorAll("thead th"))).toEqual(["pinned", "", "pinned+pin", ""]);
+    });
+
+    it("shades the scrolling columns before the ones pinned at the end", async () => {
+      const el = await responsive({ columns: both });
+      const shade = el.querySelector('.gt-i-shade[data-gti-edge="right"]') as HTMLElement;
+      // (At the end column's inline start, which every cell's is in happy-dom, not the container's end)
+      expect(shade.style.left).toBe("0px");
+      const plain = await responsive();
+      expect((plain.querySelector('.gt-i-shade[data-gti-edge="right"]') as HTMLElement).style.left).toBe("600px");
+    });
+
+    it("pins only the stub while they'd take up more than half the container", async () => {
+      room = 300;
+      const el = await responsive({ columns: both });
+      const row = el.querySelector("tbody tr:not(.gt_group_heading_row)") as HTMLTableRowElement;
+      expect(pinned(row.cells)).toEqual(["pinned", "+pin", "+pin"]);
+      expect([padding(el, "start"), padding(el, "end")]).toEqual(["100px", "0px"]);
+      expect(el.hasAttribute("data-gti-wide")).toBe(true);
+
+      room = 600;
+      el.search = "2";
+      const shown = el.querySelector("tbody tr:not(.gt_group_heading_row):not([hidden])") as HTMLTableRowElement;
+      expect(pinned(shown.cells)).toEqual(["pinned", "pinned+pin", "pinned+pin"]);
+      expect(Array.from(shown.cells, end)).toEqual(["", "", "0px"]);
+      expect([padding(el, "start"), padding(el, "end")]).toEqual(["200px", "100px"]);
+    });
+
+    it("pins the filler rows' cells as the data rows'", async () => {
+      layout();
+      // (A body as tall as its rows shown, for the filler rows' height)
+      vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+        const rows = this.tagName === "TBODY" ? Array.from(this.children).filter((tr) => !(tr as HTMLElement).hidden).length : 1;
+        return new DOMRect(0, 0, 100, 20 * rows);
+      });
+      vi.spyOn(Element.prototype, "getClientRects").mockImplementation(() => [new DOMRect(0, 0, 100, 20)] as unknown as DOMRectList);
+      // (Pages of 2 rows, the last with 1)
+      const el = await mountTable([0, 1, 2, 3, 4], { layout: { responsive: "scroll" }, columns: both, pagination: { enabled: true } });
+      el.page = 3;
+      const filler = el.querySelector("tbody tr.gt-i-filler") as HTMLTableRowElement;
+      expect(filler).not.toBeNull();
+      expect(pinned(filler.cells)).toEqual(["pinned", "pinned+pin", "pinned+pin"]);
+      expect(end(filler.cells[2] as Element)).toBe("0px");
+    });
   });
 
   it("is GT's table without a responsive layout, and undoes it all when the table is replaced", async () => {
