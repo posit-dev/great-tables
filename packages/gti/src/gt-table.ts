@@ -12,6 +12,7 @@
  */
 
 import { placeCells, type Side, TableBorders } from "./borders";
+import { toCSV as csv, toTSV } from "./export";
 import { ColumnFilter, type FilterQuery, filterQuery, MISSING, setFilterQuery } from "./filter";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import {
@@ -29,6 +30,8 @@ import { CellText, fold, rowMatches, searchTerms } from "./search";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
 import {
   type BodyRow,
+  type ColumnSpec,
+  type ExportFormat,
   type FilterType,
   parseSpec,
   type ResponsiveMode,
@@ -57,6 +60,9 @@ export const RESIZE_EVENT = "gt-table-resize";
 
 /** The event fired when the reader selects or deselects rows (not when `selection` is set). */
 export const SELECT_EVENT = "gt-table-select";
+
+/** The event fired when the reader exports rows, from the bar (not when `toCSV()` or `copyTable()` is called). */
+export const EXPORT_EVENT = "gt-table-export";
 
 /** The name of the search highlight, for styling with `::highlight(gt-i-search)`. */
 export const SEARCH_HIGHLIGHT = "gt-i-search";
@@ -102,6 +108,13 @@ export interface ResizeEventDetail {
 export interface SelectEventDetail {
   /** The data rows selected (numbered by position in the data), in data order. */
   selection: number[];
+}
+
+export interface ExportEventDetail {
+  /** How the rows were exported: copied, or downloaded as CSV. */
+  format: ExportFormat;
+  /** The data rows exported (numbered by position in the data), in the order shown. */
+  rows: number[];
 }
 
 export interface PageEventDetail {
@@ -262,6 +275,8 @@ interface Bar {
   jumpInput: HTMLInputElement;
   jumpCount: HTMLElement;
   info: Info;
+  /** The export panel (with `export`). */
+  exporter: Exporter | null;
   /** The filters' tokens, in a row above the rest (with filters), and the button clearing them all. */
   tokens: HTMLElement | null;
   clearAll: HTMLElement | null;
@@ -312,14 +327,18 @@ const OP_SUGGESTIONS: Record<FilterType, Suggestion[]> = {
   ],
 };
 
-/**
- * The info panel, which the bar's (i) button opens above the bar: which rows are shown, the page
- * size, the sort and the selection (each with a way to change it, where the table has one), and
- * the keys the table answers to.
- */
-interface Info {
+/** A panel that a button in the bar opens above the bar (a disclosure). */
+interface Popup {
   button: HTMLButtonElement;
   panel: HTMLElement;
+}
+
+/**
+ * The info panel, which the bar's (i) button opens: which rows are shown, the page size, the sort
+ * and the selection (each with a way to change it, where the table has one), and the keys the
+ * table answers to.
+ */
+interface Info extends Popup {
   /** Which rows are shown ("21–30 of 118 rows"). */
   rows: HTMLElement;
   /** The page size select, and the item it's in (with `size_select`). */
@@ -342,6 +361,24 @@ interface Info {
   pageKeys: HTMLElement[];
 }
 
+/**
+ * The export panel: how many rows it exports, the choice of the selected rows only (with
+ * selection), and a button for each format.
+ */
+interface Exporter extends Popup {
+  rows: HTMLElement;
+  /** The checkbox for exporting the selected rows only, and the item it's in. */
+  selected: HTMLInputElement | null;
+  selectedItem: HTMLElement | null;
+}
+
+/** The rows to export: the data rows, and the cells' text, the column labels' first; with the cells, but a group's label. */
+interface Exported {
+  rows: number[];
+  text: string[][];
+  cells: (Element | null)[][];
+}
+
 // The bar is as wide as the table, but no narrower than this (where there's room)
 const BAR_MIN_WIDTH = 300;
 
@@ -360,18 +397,28 @@ const ICONS = {
   filter: "M4 5h16l-6 7.5V18l-4 2v-7.5z",
   query: "M8 7l-5 5 5 5M16 7l5 5-5 5",
   apply: "M5 12.5l4.5 4.5L19 7",
+  export: "M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14",
 };
 
 // What can have text typed into it, where `/` is a character rather than the search's key
 const TYPED = 'input:not([type="checkbox"]):not([type="radio"]), textarea, select, [contenteditable]';
 
-/** A cell's text, for announcements: without footnote marks. */
+/** A cell's text, for announcements and exports: without footnote marks. */
 function labelText(cell: Element): string {
-  const copy = cell.cloneNode(true) as Element;
-  for (const mark of copy.querySelectorAll(".gt_footnote_marks")) {
+  return (withoutMarks(cell).textContent ?? "").replace(/\s+/g, " ").trim();
+}
+
+// The table's column and spanner labels, by id
+const labelCells = (table: HTMLTableElement) =>
+  new Map(Array.from(table.querySelectorAll<HTMLTableCellElement>(":scope > thead th[id]"), (th) => [th.id, th]));
+
+// A copy of a cell, without its footnote marks
+function withoutMarks(cell: Element): Element {
+  const clone = cell.cloneNode(true) as Element;
+  for (const mark of clone.querySelectorAll(".gt_footnote_marks")) {
     mark.remove();
   }
-  return (copy.textContent ?? "").replace(/\s+/g, " ").trim();
+  return clone;
 }
 
 const plural = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
@@ -518,7 +565,9 @@ export class GtTable extends HTMLElement {
   private slashKey: ((event: KeyboardEvent) => void) | null = null;
   /** Whether the bar's readout is an input for the page to go to. */
   private jumping = false;
-  /** The page's handler for a press outside the open info panel, which closes it. */
+  /** The bar's panel that's open (see `Popup`). */
+  private popup: Popup | null = null;
+  /** The page's handler for a press outside the open panel, which closes it. */
   private outsidePress: ((event: PointerEvent) => void) | null = null;
   /**
    * The column widths of the table with every row shown, which hidden rows mustn't change: in our
@@ -798,7 +847,7 @@ export class GtTable extends HTMLElement {
   }
 
   disconnectedCallback(): void {
-    this.closeInfo(false);
+    this.closePanel(false);
     this.closeFilter(false);
     this.stopObserving();
     this.layout?.disconnect();
@@ -816,6 +865,26 @@ export class GtTable extends HTMLElement {
   /** What a body `<tr>` is: a data row's index, or a structural row. */
   bodyRow(tr: HTMLTableRowElement): BodyRow | null {
     return this.bodyRows.get(tr) ?? null;
+  }
+
+  /**
+   * The rows as CSV, as the export panel downloads them: the text each cell shows, under the
+   * column labels (after their spanners'), with a column of the rows' groups first (with groups);
+   * each data row the search and filters keep, in the order shown, on every page, or (with
+   * `selected`) each one selected. With `guard` (as by default), a cell a spreadsheet would read as
+   * a formula starts with a `'`. Empty until hydrated.
+   */
+  toCSV({ selected = false, guard = true }: { selected?: boolean; guard?: boolean } = {}): string {
+    const exported = this.exported(selected);
+    return exported === null ? "" : csv(exported.text, guard);
+  }
+
+  /**
+   * Copy the rows to the clipboard (as `toCSV()` has them), as an HTML table and as tab-separated
+   * text. Resolves to whether they were copied, which takes a click (or a key) the call is made in.
+   */
+  copyTable({ selected = false }: { selected?: boolean } = {}): Promise<boolean> {
+    return this.copyRows(selected).then((rows) => rows !== null);
   }
 
   private hydrate(): void {
@@ -887,7 +956,7 @@ export class GtTable extends HTMLElement {
       this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
     }
     // (With pages only, the bar comes with them)
-    if (this.movable && (spec.controls.search || this.filters.length > 0) && bar) {
+    if (bar && ((spec.export?.formats.length ?? 0) > 0 || (this.movable && (spec.controls.search || this.filters.length > 0)))) {
       this.addBar();
     }
     if (this.movable && spec.view !== undefined) {
@@ -1726,10 +1795,7 @@ export class GtTable extends HTMLElement {
   }
 
   private addSortHeaders(table: HTMLTableElement, spec: Spec): void {
-    const cells = new Map<string, HTMLTableCellElement>();
-    for (const th of table.querySelectorAll<HTMLTableCellElement>(":scope > thead th[id]")) {
-      cells.set(th.id, th);
-    }
+    const cells = labelCells(table);
 
     for (const column of spec.columns) {
       if (column.id === null || column.header === null || !(column.id in spec.ranks)) {
@@ -2099,6 +2165,8 @@ export class GtTable extends HTMLElement {
     box.append(readout, jump);
     pages.append(previous, box, next);
     const info = this.makeInfo();
+    const formats = spec.export?.formats ?? [];
+    const exporter = formats.length > 0 ? this.makeExporter(formats) : null;
 
     const bar: Bar = {
       root,
@@ -2114,6 +2182,7 @@ export class GtTable extends HTMLElement {
       jumpInput,
       jumpCount,
       info,
+      exporter,
       tokens: null,
       clearAll: null,
       query: null,
@@ -2123,11 +2192,17 @@ export class GtTable extends HTMLElement {
       this.addTokens(bar, rtl);
       this.addQuery(bar);
     }
-    if (spec.controls.search) {
+    if (this.movable && spec.controls.search) {
       this.addBarSearch(bar);
     }
-    // (The panel follows its button, so that Tab goes from one into the other)
-    root.append(pages, ...(bar.query === null ? [] : [bar.query.toggle]), info.button, info.panel);
+    // (A panel follows its button, so that Tab goes from one into the other)
+    root.append(
+      pages,
+      ...(bar.query === null ? [] : [bar.query.toggle]),
+      ...(exporter === null ? [] : [exporter.button, exporter.panel]),
+      info.button,
+      info.panel,
+    );
 
     previous.addEventListener("click", () => {
       if (previous.getAttribute("aria-disabled") !== "true") {
@@ -2153,15 +2228,14 @@ export class GtTable extends HTMLElement {
     });
     jumpInput.addEventListener("blur", () => this.endJump(true));
 
-    // In the bar (but not while typing in it, or in the info panel), the arrow keys and Page Up and
-    // Down go to the page before or after, and Home and End to the first or last; Escape closes the
-    // info panel
+    // In the bar (but not while typing in it, or in a panel), the arrow keys and Page Up and Down go
+    // to the page before or after, and Home and End to the first or last; Escape closes the panel
     root.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !info.panel.hidden) {
+      if (event.key === "Escape" && this.popup !== null) {
         // (And don't, say, close a dialog the table is in)
         event.preventDefault();
         event.stopPropagation();
-        this.closeInfo(true);
+        this.closePanel(true);
         return;
       }
       if (
@@ -2170,7 +2244,7 @@ export class GtTable extends HTMLElement {
         event.ctrlKey ||
         event.metaKey ||
         event.target instanceof HTMLInputElement ||
-        info.panel.contains(event.target as Node) ||
+        this.popup?.panel.contains(event.target as Node) ||
         bar.tokens?.contains(event.target as Node) ||
         bar.query?.root.contains(event.target as Node)
       ) {
@@ -2299,26 +2373,47 @@ export class GtTable extends HTMLElement {
     return button;
   }
 
-  /** Make the info panel, and the bar's button that opens it (a disclosure). */
-  private makeInfo(): Info {
-    const doc = this.ownerDocument;
-    const spec = this.spec as Spec;
-    const button = this.barButton("info", "Table info", "Table info");
-    const panel = doc.createElement("div");
-    panel.className = "gt-i-info";
-    panel.id = `gt-i-info-${++infoCount}`;
-    panel.setAttribute("role", "group");
-    panel.setAttribute("aria-label", "Table info");
+  /** Make a panel, and the bar's button that opens it (a disclosure). */
+  private makePanel(name: keyof typeof ICONS, label: string, title: string): Popup {
+    const button = this.barButton(name, label, title);
+    const panel = element(this.ownerDocument, "div", "gt-i-info", {
+      id: `gt-i-info-${++infoCount}`,
+      role: "group",
+      "aria-label": title,
+    });
     panel.hidden = true;
     button.setAttribute("aria-expanded", "false");
     button.setAttribute("aria-controls", panel.id);
+    const popup = { button, panel };
+    button.addEventListener("click", () => {
+      if (panel.hidden) {
+        this.openPanel(popup);
+      } else {
+        this.closePanel(false);
+      }
+    });
+    // The panel closes when focus goes elsewhere (but not when the window loses it)
+    const leave = (event: FocusEvent) => {
+      const to = event.relatedTarget as Node | null;
+      if (to !== null && to !== button && !panel.contains(to)) {
+        this.closePanel(false, popup);
+      }
+    };
+    button.addEventListener("focusout", leave);
+    panel.addEventListener("focusout", leave);
+    return popup;
+  }
 
-    const rows = doc.createElement("p");
-    rows.className = "gt-i-info-rows";
+  /** Make the info panel, and the bar's button that opens it. */
+  private makeInfo(): Info {
+    const doc = this.ownerDocument;
+    const spec = this.spec as Spec;
+    const popup = this.makePanel("info", "Table info", "Table info");
+    const panel = popup.panel;
+    const rows = element(doc, "p", "gt-i-info-rows");
     panel.append(rows);
     const info: Info = {
-      button,
-      panel,
+      ...popup,
       rows,
       size: null,
       select: null,
@@ -2412,7 +2507,7 @@ export class GtTable extends HTMLElement {
       keys.append(entry);
       return entry;
     };
-    if (spec.controls.search) {
+    if (this.movable && spec.controls.search) {
       key(["/"], "Search");
       key(["Esc"], "Clear the search, then close it");
     }
@@ -2434,43 +2529,28 @@ export class GtTable extends HTMLElement {
       info.keys.append(heading, keys);
       panel.append(info.keys);
     }
-
-    button.addEventListener("click", () => {
-      if (panel.hidden) {
-        this.openInfo();
-      } else {
-        this.closeInfo(false);
-      }
-    });
-    // The panel closes when focus goes elsewhere (but not when the window loses it)
-    const leave = (event: FocusEvent) => {
-      const to = event.relatedTarget as Node | null;
-      if (to !== null && to !== button && !panel.contains(to)) {
-        this.closeInfo(false);
-      }
-    };
-    button.addEventListener("focusout", leave);
-    panel.addEventListener("focusout", leave);
     return info;
   }
 
-  private openInfo(): void {
-    const info = this.bar?.info;
-    if (info === undefined || !info.panel.hidden) {
+  private openPanel(popup: Popup): void {
+    if (this.popup === popup) {
       return;
     }
+    this.closePanel(false);
     this.closeFilter(false);
     this.updateInfo();
+    const { button, panel } = popup;
     // (Over the table, so filled with what's behind it)
-    info.panel.style.backgroundColor = backdropColor(this);
-    info.panel.hidden = false;
-    info.button.setAttribute("aria-expanded", "true");
-    this.placeInfo(info);
+    panel.style.backgroundColor = backdropColor(this);
+    panel.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+    this.popup = popup;
+    this.placePanel(panel);
     // A press anywhere else closes it
     this.outsidePress = (event: PointerEvent) => {
       const path = event.composedPath();
-      if (!path.includes(info.panel) && !path.includes(info.button)) {
-        this.closeInfo(false);
+      if (!path.includes(panel) && !path.includes(button)) {
+        this.closePanel(false);
       }
     };
     this.ownerDocument.addEventListener("pointerdown", this.outsidePress);
@@ -2478,8 +2558,7 @@ export class GtTable extends HTMLElement {
 
   // Above the bar, or below it if there's more room in the view there than above, for a panel
   // that doesn't fit above; no taller than the room it has
-  private placeInfo(info: Info): void {
-    const panel = info.panel;
+  private placePanel(panel: HTMLElement): void {
     panel.removeAttribute("data-gti-below");
     panel.style.maxHeight = "";
     const bar = (this.bar as Bar).root.getBoundingClientRect();
@@ -2495,19 +2574,20 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  private closeInfo(focus: boolean): void {
+  // Close the open panel (if it's `popup`)
+  private closePanel(focus: boolean, popup = this.popup): void {
+    if (popup === null || popup !== this.popup) {
+      return;
+    }
+    this.popup = null;
     if (this.outsidePress !== null) {
       this.ownerDocument.removeEventListener("pointerdown", this.outsidePress);
       this.outsidePress = null;
     }
-    const info = this.bar?.info;
-    if (info === undefined || info.panel.hidden) {
-      return;
-    }
-    info.panel.hidden = true;
-    info.button.setAttribute("aria-expanded", "false");
+    popup.panel.hidden = true;
+    popup.button.setAttribute("aria-expanded", "false");
     if (focus) {
-      info.button.focus();
+      popup.button.focus();
     }
   }
 
@@ -2555,16 +2635,239 @@ export class GtTable extends HTMLElement {
     if (info.keys !== null) {
       info.keys.hidden = Array.from(info.keys.querySelectorAll<HTMLElement>("dl > div"), (entry) => entry.hidden).every(Boolean);
     }
+    if (bar.exporter !== null) {
+      this.updateExporter(bar.exporter);
+    }
+  }
+
+  /** Make the export panel, and the bar's button that opens it. */
+  private makeExporter(formats: readonly ExportFormat[]): Exporter {
+    const doc = this.ownerDocument;
+    const popup = this.makePanel("export", "Export the table", "Export");
+    const panel = popup.panel;
+    panel.classList.add("gt-i-export");
+    const rows = element(doc, "p", "gt-i-info-rows");
+    panel.append(rows);
+    const exporter: Exporter = { ...popup, rows, selected: null, selectedItem: null };
+    if ((this.spec as Spec).controls.selection !== null) {
+      const item = element(doc, "label", "gt-i-filter-option");
+      const box = element(doc, "input", "", { type: "checkbox" });
+      box.addEventListener("change", () => this.updateExporter(exporter));
+      item.append(box, "Selected rows only");
+      panel.append(item);
+      exporter.selected = box;
+      exporter.selectedItem = item;
+    }
+    const actions = element(doc, "div", "gt-i-export-actions");
+    for (const format of formats) {
+      const button = element(doc, "button", "gt-i-info-button", { type: "button" });
+      button.dataset.gtiExport = format;
+      button.textContent = format === "csv" ? "Download CSV" : "Copy";
+      button.addEventListener("click", () => this.userExport(exporter, format));
+      actions.append(button);
+    }
+    panel.append(actions);
+    return exporter;
+  }
+
+  // How many rows the panel exports: those the search and filters keep, or those selected
+  private updateExporter(exporter: Exporter): void {
+    const count = this.selected.size;
+    if (exporter.selected !== null && exporter.selectedItem !== null) {
+      exporter.selectedItem.hidden = count === 0;
+      exporter.selected.checked &&= count > 0;
+    }
+    const total = this.matchCount;
+    exporter.rows.textContent = exporter.selected?.checked === true
+      ? this.selectionText()
+      : this.matched === null
+        ? plural(total)
+        : `${plural(total)} (filtered from ${(this.spec as Spec).nrows})`;
+  }
+
+  private userExport(exporter: Exporter, format: ExportFormat): void {
+    const selected = exporter.selected?.checked === true;
+    const done = (rows: number[] | null) => {
+      const text =
+        rows === null ? "Couldn't copy the rows" : `${format === "csv" ? "Downloaded" : "Copied"} ${plural(rows.length)}`;
+      exporter.rows.textContent = text;
+      this.announce(text);
+      if (rows !== null) {
+        this.dispatchEvent(
+          new CustomEvent<ExportEventDetail>(EXPORT_EVENT, { bubbles: true, composed: true, detail: { format, rows } }),
+        );
+      }
+    };
+    if (format === "csv") {
+      const exported = this.exported(selected) as Exported;
+      this.download(csv(exported.text));
+      done(exported.rows);
+    } else {
+      // (Written in the click, while the page may still write to the clipboard)
+      void this.copyRows(selected).then(done);
+    }
+  }
+
+  // Download CSV, as a file named for the spec's `export.filename` (with a byte order mark, so that
+  // spreadsheets read it as UTF-8)
+  private download(text: string): void {
+    const url = URL.createObjectURL(new Blob(["\uFEFF", text], { type: "text/csv;charset=utf-8" }));
+    const link = element(this.ownerDocument, "a", "", {
+      href: url,
+      download: `${(this.spec as Spec).export?.filename}.csv`,
+    });
+    this.append(link);
+    link.click();
+    link.remove();
+    // (Once the download has surely started)
+    setTimeout(() => URL.revokeObjectURL(url), 4e4);
+  }
+
+  // Copy the rows to the clipboard, as an HTML table and as tab-separated text, returning the rows
+  // copied (or `null`, if they couldn't be)
+  private copyRows(selected: boolean): Promise<number[] | null> {
+    const exported = this.exported(selected);
+    if (exported === null) {
+      return Promise.resolve(null);
+    }
+    const html = this.exportHTML(exported);
+    const text = toTSV(exported.text);
+    const doc = this.ownerDocument;
+    // Without the Clipboard API (or its permission), as a copy would
+    const fallback = () => {
+      const copy = (event: ClipboardEvent) => {
+        event.preventDefault();
+        event.clipboardData?.setData("text/html", html);
+        event.clipboardData?.setData("text/plain", text);
+      };
+      doc.addEventListener("copy", copy);
+      try {
+        return doc.execCommand("copy");
+      } catch {
+        return false;
+      } finally {
+        doc.removeEventListener("copy", copy);
+      }
+    };
+    let written: Promise<boolean>;
+    try {
+      written = navigator.clipboard
+        .write([
+          new ClipboardItem({
+            "text/html": new Blob([html], { type: "text/html" }),
+            "text/plain": new Blob([text], { type: "text/plain" }),
+          }),
+        ])
+        .then(() => true, fallback);
+    } catch {
+      written = Promise.resolve(fallback());
+    }
+    return written.then((ok) => (ok ? exported.rows : null));
+  }
+
+  // The rows as an HTML table: the column labels' text, then copies of the cells (keeping their
+  // authored styles, but not ours), aligned as their columns are
+  private exportHTML({ text, cells }: Exported): string {
+    const doc = this.ownerDocument;
+    const spec = this.spec as Spec;
+    const aligns = [
+      ...(spec.groups.length > 0 ? [null] : []),
+      ...spec.columns.filter((column) => column.id !== null).map((column) => column.align),
+    ];
+    const table = doc.createElement("table");
+    const head = table.createTHead();
+    const body = table.createTBody();
+    text.forEach((row, i) => {
+      const tr = (i > 0 ? body : head).insertRow();
+      row.forEach((label, c) => {
+        const cell = cells[i - 1]?.[c];
+        const copy = (cell == null ? doc.createElement(i > 0 ? "td" : "th") : withoutMarks(cell)) as HTMLElement;
+        if (cell == null) {
+          copy.textContent = label;
+        }
+        for (const name of ["class", "id", "rowspan", "headers"]) {
+          copy.removeAttribute(name);
+        }
+        for (const property of Array.from(copy.style)) {
+          if (/^(--|top$|bottom$|inset)/.test(property)) {
+            copy.style.removeProperty(property);
+          }
+        }
+        // (Unless it has its own)
+        copy.style.textAlign ||= aligns[c] ?? "";
+        tr.append(copy);
+      });
+    });
+    return table.outerHTML;
+  }
+
+  // The rows to export: each data row the search and filters keep (or each one selected), in the
+  // order shown, on every page; with a cell for each column (but the stub's for summary rows'
+  // labels), after one for the row's group's label (with groups). The labels are the columns',
+  // after their spanners' ("Revenue – gross").
+  private exported(selected: boolean): Exported | null {
+    const spec = this.spec;
+    const table = this.table;
+    if (spec === null || table === null || this.tbody === null) {
+      return null;
+    }
+    const labels = labelCells(table);
+    const label = (id: string | null) => {
+      const th = id === null ? undefined : labels.get(id);
+      return th === undefined ? "" : labelText(th);
+    };
+    const kept = spec.columns.flatMap((column, c) => (column.id === null ? [] : [c]));
+    const grouped = spec.groups.length > 0;
+    const head = kept.map((c) => {
+      const { id, header } = spec.columns[c] as ColumnSpec & { id: string };
+      const spanners = spec.spanners
+        .filter((spanner) => spanner.columns.includes(id))
+        .sort((a, b) => b.level - a.level)
+        .map((spanner) => label(spanner.header));
+      return [...spanners, label(header) || id].filter(Boolean).join(" – ");
+    });
+    const exported: Exported = { rows: [], text: [[...(grouped ? [""] : []), ...head]], cells: [] };
+
+    // (A cell merged across rows, in a hierarchical stub, is each of its rows')
+    const spans: [Element | undefined, number][] = [];
+    for (const tr of Array.from(this.tbody.children) as HTMLTableRowElement[]) {
+      const row = this.bodyRow(tr);
+      if (typeof row !== "number") {
+        continue;
+      }
+      const own = this.dataCells(tr);
+      let k = 0;
+      const all = spec.columns.map((_, c) => {
+        const span = spans[c];
+        if (span !== undefined && span[1] > 0) {
+          span[1]--;
+          return span[0];
+        }
+        const cell = own[k++];
+        spans[c] = [cell, ((cell as HTMLTableCellElement | undefined)?.rowSpan ?? 1) - 1];
+        return cell;
+      });
+      if (selected ? !this.selected.has(row) : this.matched !== null && this.matched[row] !== 1) {
+        continue;
+      }
+      const group = this.rowGroups[row];
+      const heading = group?.headings[0] ?? group?.cell;
+      const cells = kept.map((c) => all[c] ?? null);
+      exported.rows.push(row);
+      exported.cells.push([...(grouped ? [null] : []), ...cells]);
+      exported.text.push([
+        ...(grouped ? [heading == null ? "" : labelText(heading)] : []),
+        ...cells.map((cell) => (cell === null ? "" : labelText(cell))),
+      ]);
+    }
+    return exported;
   }
 
   // A filter button in the label of each column that can be filtered (after its sort button), and
   // a filter for each, whether or not it has a label (and so a button)
   private addFilters(table: HTMLTableElement, spec: Spec): void {
     const doc = this.ownerDocument;
-    const cells = new Map<string, HTMLTableCellElement>();
-    for (const th of table.querySelectorAll<HTMLTableCellElement>(":scope > thead th[id]")) {
-      cells.set(th.id, th);
-    }
+    const cells = labelCells(table);
 
     for (const filterSpec of spec.filters ?? []) {
       const id = filterSpec.column;
@@ -2827,7 +3130,7 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.closeFilter(false);
-    this.closeInfo(false);
+    this.closePanel(false);
     const panel = control.panel ?? this.makeFilterPanel(control);
     // (Over the table, so filled with what's behind it; in the table's font)
     panel.style.backgroundColor = backdropColor(this);
@@ -3193,7 +3496,7 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.closeFilter(false);
-    this.closeInfo(false);
+    this.closePanel(false);
     const text = formatQuery(filterQuery(this.filters.map((control) => control.filter)));
     box.opened = text;
     box.input.value = text;
@@ -3615,8 +3918,8 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // The bar shows while it has a search or filters (whose info panel says how many rows they
-  // leave), or there are pages (or could be, in the page sizes the info panel offers); the page
+  // The bar shows while it has a search, filters (whose info panel says how many rows they leave)
+  // or an export, or there are pages (or could be, in the page sizes the info panel offers); the page
   // controls, while there are pages: while the table has more rows than fit on a page, whatever
   // the search
   private updateBar(bar: Bar): void {
@@ -3624,9 +3927,9 @@ export class GtTable extends HTMLElement {
     const size = this.size;
     const paged = size !== null && spec.nrows > size;
     bar.pages.hidden = !paged;
-    bar.root.hidden = !this.pagesOffered() && bar.field === null && this.filters.length === 0;
+    bar.root.hidden = !this.pagesOffered() && bar.field === null && this.filters.length === 0 && bar.exporter === null;
     if (bar.root.hidden) {
-      this.closeInfo(false);
+      this.closePanel(false);
     }
 
     // A table of every row, with no height to scroll in, keeps its bar in view as it's scrolled
@@ -4742,7 +5045,7 @@ export class GtTable extends HTMLElement {
     this.hint?.remove();
     this.toolbar?.remove();
     this.pager?.nav.remove();
-    this.closeInfo(false);
+    this.closePanel(false);
     this.closeQuery(false);
     this.bar?.root.remove();
     if (this.slashKey !== null) {
