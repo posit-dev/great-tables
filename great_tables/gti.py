@@ -623,9 +623,10 @@ class GTI(GT):
 
         return self._set_interactive(view_filter=check_query(filter), view_sort=parse_sort(sort))
 
-    def i_view_state(self, url: bool = True, storage: bool = False) -> Self:
+    def i_view_state(self, url: bool = True, storage: bool = False, undo: bool = True) -> Self:
         """
-        Keep the reader's view of the table, for when the page is opened again.
+        Keep the reader's view of the table, for when the page is opened again, and let them undo
+        their changes to it.
 
         The view is the table's filters, sort, search, page, and page size (not the rows selected,
         or the columns' widths). As the reader changes it, it can be kept in the page's URL
@@ -643,8 +644,15 @@ class GTI(GT):
         of the view the table can't have (say, a filter on a column that has none, after the table
         is changed) is left out, with a warning in the browser's console, and the rest kept.
 
+        With `undo=` (the default), the control bar has buttons that undo and redo the reader's
+        changes to the view, as do Ctrl+Z and Ctrl+Y (⌘Z and ⇧⌘Z on a Mac) in the table. Typing a
+        search, or changing one filter, a little at a time is one change; going to another page
+        isn't one, but is undone with the change after it. Resetting the view is a change too, so
+        it can be undone. The changes are kept while the page is open, not with the view.
+
         The view is kept by the table's ID, so the table needs one: set it with `GTI(id=)` (or
-        [`with_id()`](`great_tables.GT.with_id`)).
+        [`with_id()`](`great_tables.GT.with_id`)). Undo alone (`url=False, storage=False`)
+        doesn't need one.
 
         Parameters
         ----------
@@ -652,6 +660,8 @@ class GTI(GT):
             Whether to keep the view in the page's URL (the default).
         storage
             Whether to keep the view in the browser's storage (`localStorage`), for the page.
+        undo
+            Whether readers can undo and redo their changes to the view (the default).
 
         Returns
         -------
@@ -661,7 +671,8 @@ class GTI(GT):
         Examples
         --------
         Here's a table of Ontario's municipalities whose filters, sort, search and page are kept in
-        the page's URL as they're changed, so that a link to the page shows what the reader sees.
+        the page's URL as they're changed, so that a link to the page shows what the reader sees;
+        the undo and redo buttons in the control bar step back and forth through those changes.
 
         ```{python}
         from great_tables import GTI
@@ -676,7 +687,9 @@ class GTI(GT):
         ```
         """
         return self._set_interactive(
-            view_state_url=_flag(url, "url"), view_state_storage=_flag(storage, "storage")
+            view_state_url=_flag(url, "url"),
+            view_state_storage=_flag(storage, "storage"),
+            view_state_undo=_flag(undo, "undo"),
         )
 
     def i_export(

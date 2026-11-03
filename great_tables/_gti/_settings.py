@@ -70,9 +70,11 @@ class Settings:
     export_formats: tuple[ExportFormat, ...] = ()
     export_filename: str = "table"
     # (Where the reader's view is kept, so that it's there when the page is opened again: in the
-    # page's URL, and in the browser's storage; neither, by default)
+    # page's URL, and in the browser's storage; neither, by default. And whether the reader's
+    # changes to it can be undone)
     view_state_url: bool = False
     view_state_storage: bool = False
+    view_state_undo: bool = False
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:

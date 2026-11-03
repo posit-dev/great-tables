@@ -37,8 +37,9 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   (`filename`). Producers that leave `export` out (or give no `formats`) have no export.
 - `view_state`: where the reader's view (filters, sort, search, page and page size) is kept, so that
   it's there when the page is opened again: in the page's URL (`url`), and in the browser's storage
-  (`storage`), by a `key` (the table's ID) that names its URL parameters. Producers that leave
-  `view_state` out (or keep it in neither) don't keep it.
+  (`storage`), by a `key` (the table's ID) that names its URL parameters; and whether the
+  reader's changes to it can be undone (`undo`). Producers that leave `view_state` out (or keep it
+  in neither) don't keep it, and the changes can't be undone.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -187,6 +188,7 @@ class ViewStateSpec(TypedDict):
     url: bool
     storage: bool
     key: str | None  # the table's ID (needed for either)
+    undo: bool
 
 
 class Spec(TypedDict):
@@ -352,7 +354,10 @@ def build_spec(data: GTData) -> Spec:
             formats=list(settings.export_formats), filename=settings.export_filename, code=code
         ),
         view_state=ViewStateSpec(
-            url=settings.view_state_url, storage=settings.view_state_storage, key=key
+            url=settings.view_state_url,
+            storage=settings.view_state_storage,
+            key=key,
+            undo=settings.view_state_undo,
         ),
     )
 

@@ -231,7 +231,7 @@ def filter_html(table_id: str, view: str | None = None, **pagination) -> str:
 def state_html(table_id: str, url: bool = True, storage: bool = False) -> str:
     # A GTI table of exibble three times over (24 rows), 5 rows to a page, with a search: `num`
     # filtered by a range and `fctr` by a facet, first sorted by `num` (descending); whose view is
-    # kept in the URL, or storage, or both
+    # kept in the URL, or storage, or both (or neither), and can be undone
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     gti = (
@@ -550,6 +550,8 @@ def main() -> None:
             state_html("va", storage=True) + "\n" + state_html("vb") + "\n" + runtime_src,
             head=styles,
         ),
+        # Undo: a GTI table whose view isn't kept, but whose changes to it can be undone
+        "undo.html": page(state_html("u", url=False) + "\n" + runtime_src, head=styles),
         # Export: from a GTI table 5 rows to a page, whose rows can be selected
         "export.html": page(export_html("e") + "\n" + runtime_src, head=styles),
         # Export as code: from GTI tables of pandas data and of Polars data, the latter with a

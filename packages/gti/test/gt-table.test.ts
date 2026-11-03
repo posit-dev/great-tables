@@ -3701,7 +3701,7 @@ describe("the view kept", () => {
     const el = await mountTable(GROUPED, {
       filters: [RANGE],
       view: { filter: null, sort: AUTHOR_SORT },
-      viewState: { url: true, storage: false, key: "t1", ...viewState },
+      viewState: { url: true, storage: false, key: "t1", undo: false, ...viewState },
       ...options,
       controls: { search: true, bar: true, ...options.controls },
       pagination: { enabled: true, size_select: true, ...options.pagination },
@@ -3869,8 +3869,8 @@ describe("the view kept", () => {
   });
 
   it("keeps the views of two tables apart", async () => {
-    const one = gtTable(GROUPED, { viewState: { url: true, storage: true, key: "t1" } });
-    const two = gtTable(GROUPED, { viewState: { url: true, storage: true, key: "t2" } });
+    const one = gtTable(GROUPED, { viewState: { url: true, storage: true, key: "t1", undo: false } });
+    const two = gtTable(GROUPED, { viewState: { url: true, storage: true, key: "t2", undo: false } });
     at("/page?t2.sort=-x");
     await mount(`<gt-table>${one.html}${specScript(one.spec)}</gt-table><gt-table>${two.html}${specScript(two.spec)}</gt-table>`);
     const [first, second] = Array.from(document.querySelectorAll(TAG_NAME)) as GtTable[];
@@ -3884,7 +3884,7 @@ describe("the view kept", () => {
 
   it("keeps nothing of a table whose stub has merged cells", async () => {
     at("/page?t1.sort=x");
-    const { html, spec } = gtTable([0, 1, 2, 3, 4], { viewState: { url: true, storage: false, key: "t1" } });
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], { viewState: { url: true, storage: false, key: "t1", undo: false } });
     const merged = html.replace(
       `<th class="gt_row gt_left gt_stub">row_1</th>`,
       `<th class="gt_row gt_left gt_stub" rowspan="2">row_1</th>`,
@@ -3910,6 +3910,346 @@ describe("the view kept", () => {
     expect(el.sort).toEqual([{ column: "x", descending: false }]);
     expect(el.state).toBe("ready");
     vi.restoreAllMocks();
+  });
+});
+
+describe("undo", () => {
+  const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const X_UP = [{ column: "x", descending: false }];
+  // (How long after a change another is a change of its own, rather than part of the same)
+  const STEP_MS = 1000;
+  const barButton = (el: GtTable, name: string) =>
+    el.querySelector(`.gt-i-bar [data-gti-bar="${name}"]`) as HTMLButtonElement | null;
+  const disabled = (el: GtTable) => ["undo", "redo"].map((name) => barButton(el, name)?.getAttribute("aria-disabled"));
+  const facet = (el: GtTable, i: number) => {
+    const filter = header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement;
+    if (filter.getAttribute("aria-expanded") !== "true") {
+      filter.click();
+    }
+    const panel = el.querySelector(`#${filter.getAttribute("aria-controls")}`) as HTMLElement;
+    panel.querySelectorAll("input")[i]?.click();
+  };
+  const typeSearch = (el: GtTable, value: string) => {
+    const open = barButton(el, "search") as HTMLButtonElement;
+    if (!open.hidden) {
+      open.click();
+    }
+    const input = searchBox(el) as HTMLInputElement;
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    vi.advanceTimersByTime(150);
+  };
+  const press = (target: Element, key: string, init: KeyboardEventInit = {}) => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...init });
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  // A range on `x`, a facet on `y`, a search, and pages of 2 rows (or 4), whose changes can be undone
+  async function mountUndo(options: TableOptions = {}) {
+    vi.useRealTimers();
+    const el = await mountTable(GROUPED, {
+      filters: [RANGE, FACET],
+      ...options,
+      viewState: { url: false, storage: false, key: null, undo: true, ...options.viewState },
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, size_select: true, ...options.pagination },
+    });
+    const fired: ViewEventDetail[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => fired.push((event as CustomEvent<ViewEventDetail>).detail));
+    // (Once ready, as mounting waits for it)
+    vi.useFakeTimers();
+    return { el, views: () => fired };
+  }
+
+  afterEach(() => {
+    vi.useRealTimers();
+    history.replaceState(null, "", "/");
+    localStorage.clear();
+  });
+
+  it("puts buttons that undo and redo in the bar, before the info button, disabled until they can", async () => {
+    vi.spyOn(navigator, "platform", "get").mockReturnValue("Win32");
+    const { el } = await mountUndo();
+    const [undo, redo] = [barButton(el, "undo"), barButton(el, "redo")] as HTMLButtonElement[];
+    expect(undo?.nextElementSibling).toBe(redo);
+    expect(redo?.nextElementSibling).toBe(barButton(el, "info"));
+    expect([undo?.getAttribute("aria-label"), undo?.title, undo?.getAttribute("aria-keyshortcuts")]).toEqual([
+      "Undo",
+      "Undo (Ctrl+Z)",
+      "Control+Z Meta+Z",
+    ]);
+    expect([redo?.getAttribute("aria-label"), redo?.title]).toEqual(["Redo", "Redo (Ctrl+Y)"]);
+    expect(disabled(el)).toEqual(["true", "true"]);
+    // (Disabled, they do nothing)
+    undo?.click();
+    expect(live(el)).toBe("");
+    const keys = Array.from(el.querySelectorAll(".gt-i-info-keys > div"), (entry) => entry.textContent);
+    expect(keys).toContain("Ctrl ZUndo a change to the view");
+    expect(keys).toContain("Ctrl YRedo it");
+
+    // (With a Mac's keys)
+    vi.spyOn(navigator, "platform", "get").mockReturnValue("MacIntel");
+    const { el: mac } = await mountUndo();
+    expect([barButton(mac, "undo")?.title, barButton(mac, "redo")?.title]).toEqual(["Undo (⌘Z)", "Redo (⇧⌘Z)"]);
+    expect(Array.from(mac.querySelectorAll(".gt-i-info-keys dt"), (dt) => dt.textContent)).toContain("⇧ ⌘ Z");
+  });
+
+  it("has a bar for them alone, and no buttons without undo", async () => {
+    const { el } = await mountUndo({ filters: [], controls: { search: false }, pagination: { enabled: false } });
+    expect((el.querySelector(".gt-i-bar") as HTMLElement).hidden).toBe(false);
+    expect(barButton(el, "undo")).not.toBeNull();
+    const { el: without } = await mountUndo({ viewState: { undo: false } });
+    expect(barButton(without, "undo")).toBeNull();
+    expect(without.querySelector(".gt-i-info-keys")?.textContent ?? "").not.toContain("Undo");
+    click(without, "x");
+    expect(without.undo()).toBe(false);
+    expect(without.sort).toEqual(X_UP);
+  });
+
+  it("undoes and redoes the reader's changes, one by one", async () => {
+    const { el, views } = await mountUndo();
+    click(el, "x");
+    vi.advanceTimersByTime(STEP_MS);
+    facet(el, 0);
+    expect([el.filter, el.sort]).toEqual([{ and: [{ col: "y", op: "in", value: ["a"] }] }, X_UP]);
+    expect(disabled(el)).toEqual(["false", "true"]);
+
+    barButton(el, "undo")?.click();
+    expect([el.filter, el.sort]).toEqual([null, X_UP]);
+    expect(live(el)).toBe("Undone: 1–2 of 5 rows");
+    expect(disabled(el)).toEqual(["false", "false"]);
+    barButton(el, "undo")?.click();
+    expect([el.filter, el.sort]).toEqual([null, []]);
+    expect(disabled(el)).toEqual(["true", "false"]);
+    // (With nothing to undo)
+    barButton(el, "undo")?.click();
+    expect(views()).toHaveLength(4);
+
+    barButton(el, "redo")?.click();
+    expect(live(el)).toBe("Redone: 1–2 of 5 rows");
+    barButton(el, "redo")?.click();
+    expect([el.filter, el.sort]).toEqual([{ and: [{ col: "y", op: "in", value: ["a"] }] }, X_UP]);
+    expect(disabled(el)).toEqual(["false", "true"]);
+    // (Shown in the filter's panel, too)
+    expect(header(el, "y").hasAttribute("data-gti-filtered")).toBe(true);
+    expect(views()).toEqual([
+      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2 },
+      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2 },
+      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2 },
+      { filter: null, sort: [], search: "", page: 1, pageSize: 2 },
+      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2 },
+      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2 },
+    ]);
+
+    // A new change, after one is undone, can't be redone
+    el.undo();
+    click(el, "y");
+    expect(disabled(el)).toEqual(["false", "true"]);
+    expect(el.redo()).toBe(false);
+    expect(el.undo()).toBe(true);
+    expect([el.filter, el.sort]).toEqual([null, X_UP]);
+  });
+
+  it("counts a run of changes to the search, or to one filter, as one change", async () => {
+    const { el } = await mountUndo();
+    // (A run that ends where it began is none)
+    typeSearch(el, "r");
+    typeSearch(el, "");
+    expect(disabled(el)).toEqual(["true", "true"]);
+    typeSearch(el, "ro");
+    typeSearch(el, "row");
+    typeSearch(el, "row_");
+    vi.advanceTimersByTime(STEP_MS);
+    facet(el, 0);
+    facet(el, 1);
+    vi.advanceTimersByTime(STEP_MS);
+    facet(el, 2);
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a", "b", "c"] }] });
+
+    el.undo();
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a", "b"] }] });
+    el.undo();
+    expect(el.filter).toBeNull();
+    expect(el.search).toBe("row_");
+    el.undo();
+    expect(el.search).toBe("");
+    expect(searchBox(el)?.value).toBe("");
+    expect(el.undo()).toBe(false);
+
+    // (But not sorting, or another filter)
+    el.redo();
+    click(el, "x");
+    click(el, "x");
+    facet(el, 0);
+    el.filter = el.filter;
+    expect(el.undo()).toBe(true);
+    expect(el.sort).toEqual([{ column: "x", descending: true }]);
+    el.undo();
+    expect(el.sort).toEqual(X_UP);
+  });
+
+  it("undoes a change with the page it was on, but not going to another page", async () => {
+    const { el } = await mountUndo();
+    barButton(el, "next")?.click();
+    expect(el.page).toBe(2);
+    expect(disabled(el)).toEqual(["true", "true"]);
+    click(el, "x");
+    expect(el.page).toBe(1);
+    barButton(el, "next")?.click();
+    barButton(el, "next")?.click();
+    el.undo();
+    expect([el.sort, el.page]).toEqual([[], 2]);
+    el.redo();
+    expect([el.sort, el.page]).toEqual([X_UP, 3]);
+
+    // (And the page size)
+    const select = el.querySelector('[data-gti-info="size"] select') as HTMLSelectElement;
+    barButton(el, "info")?.click();
+    select.value = "4";
+    select.dispatchEvent(new Event("change"));
+    expect(el.pageSize).toBe(4);
+    el.undo();
+    expect([el.pageSize, el.page]).toEqual([2, 3]);
+  });
+
+  it("undoes a reset, and the info panel's resets", async () => {
+    const { el } = await mountUndo({ viewState: { url: false, storage: true, key: "t1" } });
+    click(el, "x");
+    vi.advanceTimersByTime(STEP_MS);
+    facet(el, 2);
+    barButton(el, "info")?.click();
+    (el.querySelector('[data-gti-info="view"] button') as HTMLButtonElement).click();
+    expect([el.filter, el.sort]).toEqual([null, []]);
+    expect(localStorage.getItem("gti:/#t1")).toBeNull();
+    el.undo();
+    expect([el.filter, el.sort]).toEqual([{ and: [{ col: "y", op: "in", value: ["c"] }] }, X_UP]);
+    expect(localStorage.getItem("gti:/#t1")).toMatch(/^filter=.+&sort=x$/);
+
+    (el.querySelector('[data-gti-info="sort"] button') as HTMLButtonElement).click();
+    (el.querySelector('[data-gti-info="filters"] button') as HTMLButtonElement).click();
+    expect([el.filter, el.sort]).toEqual([null, []]);
+    el.undo();
+    el.undo();
+    expect([el.filter, el.sort]).toEqual([{ and: [{ col: "y", op: "in", value: ["c"] }] }, X_UP]);
+  });
+
+  it("answers to Ctrl+Z and Ctrl+Y (or Ctrl+Shift+Z, or ⌘), but not in what's for typing", async () => {
+    const { el, views } = await mountUndo();
+    click(el, "x");
+    const target = button(el, "y");
+    expect(press(target, "z", { ctrlKey: true }).defaultPrevented).toBe(true);
+    expect(el.sort).toEqual([]);
+    expect(press(target, "y", { ctrlKey: true }).defaultPrevented).toBe(true);
+    expect(el.sort).toEqual(X_UP);
+    press(target, "z", { metaKey: true });
+    expect(el.sort).toEqual([]);
+    press(target, "Z", { ctrlKey: true, shiftKey: true });
+    expect(el.sort).toEqual(X_UP);
+    press(target, "z", { metaKey: true });
+    press(target, "z", { metaKey: true, shiftKey: true });
+    expect(el.sort).toEqual(X_UP);
+    expect(views()).toHaveLength(7);
+    expect(live(el)).toBe("Redone: 1–2 of 5 rows");
+
+    // (Not other keys, nor where the text has its own undo)
+    for (const [key, init] of [
+      ["z", {}],
+      ["z", { ctrlKey: true, altKey: true }],
+      ["y", { metaKey: true }],
+      ["y", { ctrlKey: true, shiftKey: true }],
+    ] as const) {
+      expect(press(target, key, init).defaultPrevented).toBe(false);
+    }
+    typeSearch(el, "row");
+    expect(press(searchBox(el) as HTMLInputElement, "z", { ctrlKey: true }).defaultPrevented).toBe(false);
+    expect(el.search).toBe("row");
+    expect(el.sort).toEqual(X_UP);
+  });
+
+  it("forgets the reader's changes when the view is set from code (but the page)", async () => {
+    const { el, views } = await mountUndo();
+    click(el, "x");
+    // (Set as it is, it's no change)
+    el.sort = el.sort;
+    el.search = "";
+    el.filter = el.filter;
+    el.pageSize = 2;
+    expect(disabled(el)).toEqual(["false", "true"]);
+    el.page = 2;
+    expect(el.undo()).toBe(true);
+    expect([el.sort, el.page]).toEqual([[], 1]);
+    expect(el.redo()).toBe(true);
+    expect([el.sort, el.page]).toEqual([X_UP, 2]);
+
+    el.search = "row";
+    expect(disabled(el)).toEqual(["true", "true"]);
+    expect(el.undo()).toBe(false);
+    for (const set of [
+      () => (el.sort = []),
+      () => (el.filter = { and: [{ col: "x", op: "gte", value: 10 }] }),
+      () => (el.pageSize = 4),
+      () => el.resetView(),
+    ]) {
+      vi.advanceTimersByTime(STEP_MS);
+      click(el, "y");
+      set();
+      expect(el.undo()).toBe(false);
+    }
+    // (Undone from code, without events)
+    expect(views()).toHaveLength(5);
+  });
+
+  it("undoes at most 50 changes", async () => {
+    const { el } = await mountUndo();
+    for (let i = 0; i < 60; i++) {
+      click(el, "x");
+    }
+    let undone = 0;
+    while (el.undo()) {
+      undone++;
+    }
+    expect(undone).toBe(50);
+  });
+
+  it("keeps what's undone in the URL", async () => {
+    history.replaceState(null, "", "/page");
+    const { el } = await mountUndo({ viewState: { url: true, key: "t1" } });
+    click(el, "x");
+    expect(location.search).toBe("?t1.sort=x");
+    el.undo();
+    expect(location.search).toBe("");
+    el.redo();
+    expect(location.search).toBe("?t1.sort=x");
+  });
+
+  it("forgets it all, and its keys, when the table is replaced", async () => {
+    const { el } = await mountUndo();
+    click(el, "x");
+    vi.useRealTimers();
+    const { html, spec } = gtTable(GROUPED, { controls: { bar: true } });
+    el.remove();
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+
+    expect(barButton(el, "undo")).toBeNull();
+    expect(el.undo()).toBe(false);
+    expect(press(button(el, "y"), "z", { ctrlKey: true }).defaultPrevented).toBe(false);
+    // (Nor are changes to the new table's view kept to be undone)
+    click(el, "y");
+    expect(el.undo()).toBe(false);
+  });
+
+  it("starts from the view kept, once ready", async () => {
+    history.replaceState(null, "", "/page?t1.sort=x");
+    const { el } = await mountUndo({ viewState: { url: true, key: "t1" } });
+    expect(disabled(el)).toEqual(["true", "true"]);
+    click(el, "y");
+    el.undo();
+    expect(el.sort).toEqual(X_UP);
+    expect(el.undo()).toBe(false);
   });
 });
 
