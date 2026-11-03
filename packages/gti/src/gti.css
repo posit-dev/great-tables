@@ -339,7 +339,8 @@ gt-table[data-gti-sticky] tr.gt-i-stuck-bottom > * {
 
 /*
  * A table wider than its container scrolls sideways (whatever the author set for the container),
- * with the selection column and the stub stuck at its inline start (where the runtime sets), over
+ * with the selection column and the stub stuck at its inline start (and any data columns pinned
+ * at either side, while they fit: the runtime marks them, and sets where they stick), over
  * the cells scrolling under them (and under the column resize handles), filled with what's behind
  * them if they're see-through. The contents of the cells across the table (its title, group
  * headings and notes) are as wide as the part in view, and stick in it.
