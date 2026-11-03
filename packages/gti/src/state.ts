@@ -9,7 +9,8 @@
  *
  * `filter` is the filters' query as text (see `query.ts`), empty for none; `sort`, a column (with
  * `-` before it, for descending), once per sort key, or once empty for none; `search`, the search;
- * `page` and `size`, numbers. In the URL, each is named after the table's key (`towny.`), so that
+ * `page` and `size`, numbers; `hidden`, a hidden column, once per column, or once empty for none
+ * (as `sort` is). In the URL, each is named after the table's key (`towny.`), so that
  * tables keep views of their own, and the page's other parameters are left as they are; in
  * storage, they're without the key.
  */
@@ -27,13 +28,15 @@ export interface View {
   page: number;
   /** The number of data rows on a page, or `null` for one page of every row. */
   pageSize: number | null;
+  /** The columns hidden, in column order. */
+  hidden: string[];
 }
 
-export type ViewPart = "filter" | "sort" | "search" | "page" | "size";
+export type ViewPart = "filter" | "sort" | "search" | "page" | "size" | "hidden";
 
-const PARTS: readonly string[] = ["filter", "sort", "search", "page", "size"];
+const PARTS: readonly string[] = ["filter", "sort", "search", "page", "size", "hidden"];
 
-/** A view as parameters: each part, and its text (`sort` once per sort key). */
+/** A view as parameters: each part, and its text (`sort` once per sort key, `hidden` per column). */
 export type ViewParams = [ViewPart, string][];
 
 /** What a table can have of a view kept for it. */
@@ -43,11 +46,17 @@ export interface ViewLimits {
   search: boolean;
   /** The page sizes the reader can choose from; none, without pages. */
   sizes: number[];
+  /** The columns the reader can hide, in column order. */
+  hideable: string[];
 }
 
 const sortText = (key: SortKey) => (key.descending ? "-" : "") + key.column;
 
 const encode = (text: string) => encodeURIComponent(text).replace(/%20/g, "+");
+
+// Texts as parameters of a part, once each, or once empty for none
+const repeated = (part: ViewPart, texts: string[]): ViewParams =>
+  (texts.length === 0 ? [""] : texts).map((text): [ViewPart, string] => [part, text]);
 
 /** The parts of `view` that differ from `base` (the author's view), as parameters. */
 export function viewParams(view: View, base: View): ViewParams {
@@ -58,7 +67,7 @@ export function viewParams(view: View, base: View): ViewParams {
   }
   const sort = view.sort.map(sortText);
   if (JSON.stringify(sort) !== JSON.stringify(base.sort.map(sortText))) {
-    params.push(...(sort.length === 0 ? [""] : sort).map((text): [ViewPart, string] => ["sort", text]));
+    params.push(...repeated("sort", sort));
   }
   if (view.search !== base.search) {
     params.push(["search", view.search]);
@@ -69,6 +78,9 @@ export function viewParams(view: View, base: View): ViewParams {
   // (Readers can't have every row on one page of a table with pages)
   if (view.pageSize !== base.pageSize && view.pageSize !== null) {
     params.push(["size", String(view.pageSize)]);
+  }
+  if (JSON.stringify(view.hidden) !== JSON.stringify(base.hidden)) {
+    params.push(...repeated("hidden", view.hidden));
   }
   return params;
 }
@@ -129,10 +141,11 @@ export function writeParams(query: string, key: string, params: ViewParams): str
  * the filter's query is read, but not checked against the table's filters.
  */
 export function readView(params: ViewParams, base: View, limits: ViewLimits, warn: (message: string) => void): View {
-  const view: View = { ...base, sort: base.sort.map((key) => ({ ...key })) };
+  const view: View = { ...base, sort: base.sort.map((key) => ({ ...key })), hidden: [...base.hidden] };
   const leftOut = (part: ViewPart, why: string) => warn(`the saved view's ${part} is left out (${why})`);
   const sort: string[] = [];
   let sorted = false;
+  let hidden: Set<string> | null = null;
   for (const [part, text] of params) {
     if (part === "filter") {
       try {
@@ -147,6 +160,14 @@ export function readView(params: ViewParams, base: View, limits: ViewLimits, war
       sorted = true;
       if (text !== "") {
         sort.push(text);
+      }
+    } else if (part === "hidden") {
+      // (Empty for none)
+      hidden ??= new Set();
+      if (limits.hideable.includes(text)) {
+        hidden.add(text);
+      } else if (text !== "") {
+        warn(`the saved view's hidden column ${JSON.stringify(text)} is left out (it isn't one the reader can hide)`);
       }
     } else if (part === "search") {
       if (limits.search) {
@@ -170,6 +191,10 @@ export function readView(params: ViewParams, base: View, limits: ViewLimits, war
         view.pageSize = n;
       }
     }
+  }
+  if (hidden !== null) {
+    const kept = hidden;
+    view.hidden = limits.hideable.filter((id) => kept.has(id));
   }
   if (sorted) {
     const ranks = limits.ranks;

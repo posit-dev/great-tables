@@ -546,9 +546,10 @@ class GTI(GT):
         sortable: bool | None = None,
         searchable: bool | None = None,
         resizable: bool | None = None,
+        hideable: bool | None = None,
     ) -> Self:
         """
-        Choose which columns readers can sort by, search, and resize.
+        Choose which columns readers can sort by, search, resize, and hide.
 
         Where the table lets readers sort it ([`i_sorting()`](`great_tables.GTI.i_sorting`)),
         search it ([`i_search()`](`great_tables.GTI.i_search`)), and resize its columns
@@ -557,6 +558,14 @@ class GTI(GT):
         (though the column can still be filtered, and [`i_view()`](`great_tables.GTI.i_view`)
         can still sort by it), the search doesn't look in (or highlight) an unsearchable column's
         cells (though its own filter does), and an unresizable column's label has no handle.
+
+        Readers can't hide any column, by default. Making some hideable puts a "Columns" button in
+        the control bar, whose panel has a checkbox for each of them, to hide it or show it again.
+        A hidden column's cells are hidden in every row (with a spanner over only hidden columns),
+        the search doesn't look in it, and exports leave it out, but a filter on it still keeps
+        the rows it keeps. The stub and the row group column can't be hidden (naming them for
+        `hideable=` does nothing), and neither can columns
+        [`cols_hide()`](`great_tables.GT.cols_hide`) hid, which aren't in the table at all.
 
         Each call sets what it's given for the columns it's given, so that some columns can be
         left out of one thing, and others another; a later call for a column replaces what an
@@ -568,9 +577,9 @@ class GTI(GT):
             The columns: a column name, a list of them, or a selector (e.g., Polars'
             `cs.numeric()`). With `None` (the default), every column but the stub (which can be
             named). The row group column can't be one of them.
-        sortable, searchable, resizable
-            Whether readers can sort by the columns, search them, and resize them. With `None`
-            (the default), the columns are left as they are.
+        sortable, searchable, resizable, hideable
+            Whether readers can sort by the columns, search them, resize them, and hide them. With
+            `None` (the default), the columns are left as they are.
 
         Returns
         -------
@@ -593,11 +602,28 @@ class GTI(GT):
             .i_cols_controls(columns="status", sortable=False)
         )
         ```
+
+        A wider table whose readers can hide any of its census years, from the "Columns" button
+        in the control bar:
+
+        ```{python}
+        years = [f"population_{year}" for year in range(1996, 2022, 5)]
+
+        (
+            GTI(towny[["name", *years]].head(10), rowname_col="name")
+            .fmt_integer(columns=years)
+            .i_cols_controls(columns=years, hideable=True)
+        )
+        ```
         """
+        # (Each setting keeps the columns readers can't do it with, but `hideable` keeps those they
+        # can, so it's turned around)
+        hide = _optional_flag(hideable, "hideable")
         flags = {
             "unsortable": _optional_flag(sortable, "sortable"),
             "unsearchable": _optional_flag(searchable, "searchable"),
             "unresizable": _optional_flag(resizable, "resizable"),
+            "hideable": None if hide is None else not hide,
         }
         selected = resolve_cols_c(self, columns, excl_stub=False)
         changes: dict[str, Any] = {}
@@ -682,15 +708,17 @@ class GTI(GT):
         self,
         filter: str | dict[str, Any] | None = None,
         sort: str | list[str] | None = None,
+        hidden: SelectExpr = None,
     ) -> Self:
         """
         Show the table filtered and sorted, as readers first see it.
 
         The table is first shown with the rows that `filter=` keeps, in the order `sort=` gives
-        them, which readers can then change (with the column filters and sort buttons) or clear.
-        Rows stay within their row groups, as they do when readers sort the table, and a table
-        whose stub has cells merged across rows is shown as it is. Without arguments, the table
-        is shown with all its rows, in order (the default).
+        them, and without the columns `hidden=` hides, which readers can then change (with the
+        column filters, sort buttons, and the bar's "Columns" panel) or clear. Rows stay within
+        their row groups, as they do when readers sort the table, and a table whose stub has cells
+        merged across rows is shown as it is. Without arguments, the table is shown with all its
+        rows and columns, in order (the default).
 
         Parameters
         ----------
@@ -718,6 +746,11 @@ class GTI(GT):
             ([`i_sorting(False)`](`great_tables.GTI.i_sorting`), or
             [`i_cols_controls(sortable=False)`](`great_tables.GTI.i_cols_controls`)). With `None`
             (the default), the rows keep their order.
+        hidden
+            The columns to hide, which readers can show again: a column name, a list of them, or a
+            selector (e.g., Polars' `cs.numeric()`). Readers have to be able to hide them (see
+            [`i_cols_controls(hideable=True)`](`great_tables.GTI.i_cols_controls`)). With `None`
+            (the default), none are hidden.
 
         Returns
         -------
@@ -763,24 +796,44 @@ class GTI(GT):
             )
         )
         ```
+
+        A table first shown with only the latest census year, whose readers can show the others
+        from the "Columns" button in the control bar:
+
+        ```{python}
+        years = [f"population_{year}" for year in range(1996, 2022, 5)]
+
+        (
+            GTI(towny[["name", *years]].head(10), rowname_col="name")
+            .fmt_integer(columns=years)
+            .i_cols_controls(columns=years, hideable=True)
+            .i_view(hidden=years[:-1])
+        )
+        ```
         """
         # (Imported here, as `_query` is only needed for a view)
         from ._gti._query import check_query, parse_sort
 
-        return self._set_interactive(view_filter=check_query(filter), view_sort=parse_sort(sort))
+        return self._set_interactive(
+            view_filter=check_query(filter),
+            view_sort=parse_sort(sort),
+            view_hidden=(
+                () if hidden is None else tuple(resolve_cols_c(self, hidden, excl_stub=False))
+            ),
+        )
 
     def i_view_state(self, url: bool = True, storage: bool = False, undo: bool = True) -> Self:
         """
         Keep the reader's view of the table, for when the page is opened again, and let them undo
         their changes to it.
 
-        The view is the table's filters, sort, search, page, and page size (not the rows selected,
-        or the columns' widths). As the reader changes it, it can be kept in the page's URL
-        (`url=`), so that reloading the page, or sharing its link, opens the table as it was; and
-        in the browser's storage (`storage=`), so that the reader finds it as they left it when
-        they come back to the page. The table's info panel then has a button that goes back to the
-        view the table is first shown with (see [`i_view()`](`great_tables.GTI.i_view`)), which is
-        also what's kept as no view at all.
+        The view is the table's filters, sort, search, page, page size, and hidden columns (not
+        the rows selected, or the columns' widths). As the reader changes it, it can be kept in
+        the page's URL (`url=`), so that reloading the page, or sharing its link, opens the table
+        as it was; and in the browser's storage (`storage=`), so that the reader finds it as they
+        left it when they come back to the page. The table's info panel then has a button that
+        goes back to the view the table is first shown with (see
+        [`i_view()`](`great_tables.GTI.i_view`)), which is also what's kept as no view at all.
 
         In the URL, the view is in the query string, with each part of it named after the table's
         ID (e.g., `?towny.filter=population_2021+%3E%3D+10000&towny.sort=-population_2021`, the

@@ -368,14 +368,19 @@ def test_i_view_goes_in_the_spec():
     assert view_of(gti) == {
         "filter": query(("few", "in", ["x", None]), ("num", "gte", 1), ("name", "contains", "A")),
         "sort": [{"column": "num", "descending": True}, {"column": "name", "descending": False}],
+        "hidden": [],
     }
 
 
 def test_the_default_view_is_the_table_as_it_is():
-    assert view_of(GTI(DF)) == {"filter": None, "sort": []}
-    assert view_of(filtered().i_view(sort="num").i_view()) == {"filter": None, "sort": []}
+    assert view_of(GTI(DF)) == {"filter": None, "sort": [], "hidden": []}
+    assert view_of(filtered().i_view(sort="num").i_view()) == {
+        "filter": None,
+        "sort": [],
+        "hidden": [],
+    }
     # (A `GT` table's too)
-    assert view_of(GT(DF).opt_interactive()) == {"filter": None, "sort": []}
+    assert view_of(GT(DF).opt_interactive()) == {"filter": None, "sort": [], "hidden": []}
 
 
 def test_i_view_checks_the_query_when_called():
@@ -575,6 +580,34 @@ def test_query_code_for_pandas_of_other_data():
     assert query_code(gti, "pandas") == (
         'import numpy as np\n\ndf[\n    (df["num"] >= 2.5) & np.isfinite(df["num"])\n]\n'
     )
+
+
+@pytest.mark.parametrize("backend", ["polars", "pandas", "pyarrow"])
+@pytest.mark.parametrize("code_backend", ["polars", "pandas", "narwhals"])
+def test_query_code_drops_the_hidden_columns(backend: str, code_backend: str):
+    if code_backend != "narwhals" and backend != code_backend:
+        pytest.skip("The code is for the data's own library")
+    data = {"pandas": DF, "polars": pl.from_pandas(DF), "pyarrow": pa.Table.from_pandas(DF)}
+    gti = (
+        GTI(data[backend])
+        .i_cols_filter(columns="few", type="facet")
+        .i_cols_controls(columns=["few", "flag"], hideable=True)
+        .i_view(filter=query(("few", "in", ["x"])), sort="-name", hidden=["flag", "few"])
+    )
+    code = query_code(gti, code_backend)
+    # (After the filter and sort, which can use them)
+    assert code.rstrip().endswith(
+        ('.drop(columns=["few", "flag"])', '.drop(["few", "flag"])', ".to_native()\n)")
+    )
+    *statements, last = ast.parse(code).body
+    scope: dict[str, Any] = {"df": data[backend]}
+    exec(compile(ast.Module(statements, type_ignores=[]), "<code>", "exec"), scope)
+    result = eval(compile(ast.Expression(last.value), "<code>", "eval"), scope)  # type: ignore[attr-defined]
+    assert list(result.columns if not isinstance(result, pa.Table) else result.column_names) == [
+        "name",
+        "num",
+    ]
+    assert len(result) == 2
 
 
 def test_query_code_needs_a_backend():
@@ -980,6 +1013,17 @@ def test_random_runtime_code(node_engine: Callable[[dict], dict], backend: str, 
     filter, sort = data.draw(views(render_parts(gti)[1]))
     gti = gti.i_view(filter=filter, sort=sort)
     assert runtime_code(node_engine, gti) == {lib: query_code(gti, lib) for lib in LIBRARIES}
+
+
+def test_runtime_code_drops_the_hidden_columns(node_engine: Callable[[dict], dict]):
+    gti = (
+        filtered()
+        .i_cols_controls(columns=["few", "flag", "name"], hideable=True)
+        .i_view(filter=query(("num", "gte", 2)), sort="name", hidden=["flag", "name"])
+    )
+    code = runtime_code(node_engine, gti)
+    assert code == {lib: query_code(gti, lib) for lib in LIBRARIES}
+    assert code["pandas"].endswith('.drop(columns=["name", "flag"])\n')
 
 
 def test_runtime_code_of_other_values(node_engine: Callable[[dict], dict]):

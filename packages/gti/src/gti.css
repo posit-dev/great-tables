@@ -214,8 +214,11 @@ gt-table th[data-gti-filtered] .gt-i-filter-button .gt-i-icon {
   }
 }
 
-/* Rows hidden by a search or paging stay hidden, whatever the page's styles say about table rows */
-gt-table tr[hidden] {
+/*
+ * Rows hidden by a search or paging, and the cells and columns of the columns the reader hides,
+ * stay hidden, whatever the page's styles say about them
+ */
+gt-table :is(tr, td, th, col)[hidden] {
   display: none !important;
 }
 
@@ -1301,6 +1304,13 @@ gt-table .gt-i-filter-option {
 
 gt-table .gt-i-filter-option:hover {
   background: rgba(128, 128, 128, 0.15);
+}
+
+/* (The last column shown, which can't be hidden) */
+gt-table .gt-i-filter-option:has(:disabled) {
+  background: none;
+  cursor: default;
+  opacity: 0.45;
 }
 
 gt-table .gt-i-filter-option input {

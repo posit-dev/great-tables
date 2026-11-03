@@ -11,7 +11,7 @@
  * unusable or doesn't match the table; see the console), or `ready`.
  */
 
-import { placeCells, type Side, TableBorders } from "./borders";
+import { type Placed, placeCells, type Side, TableBorders } from "./borders";
 import { viewCode } from "./code";
 import { toCSV as csv, toTSV } from "./export";
 import { ColumnFilter, type FilterQuery, filterQuery, MISSING, setFilterQuery } from "./filter";
@@ -142,7 +142,7 @@ export interface PageEventDetail {
   pageCount: number;
 }
 
-/** The view: as the `filter`, `sort`, `search`, `page` and `pageSize` properties have it. */
+/** The view: as the `filter`, `sort`, `search`, `page`, `pageSize` and `hiddenColumns` properties have it. */
 export type ViewEventDetail = View;
 
 /** A row group, as far as showing and hiding its rows goes. */
@@ -303,6 +303,8 @@ interface Bar {
   info: Info;
   /** The export panel (with `export`). */
   exporter: Exporter | null;
+  /** The columns panel (with columns readers can hide). */
+  columns: Columns | null;
   /** The filters' tokens, in a row above the rest (with filters), and the button clearing them all. */
   tokens: HTMLElement | null;
   clearAll: HTMLElement | null;
@@ -385,6 +387,9 @@ interface Info extends Popup {
   selection: HTMLElement | null;
   selectionText: HTMLElement | null;
   selectionClear: HTMLButtonElement | null;
+  /** The columns hidden, and the button that shows them (with columns readers can hide). */
+  columnsText: HTMLElement | null;
+  columnsShow: HTMLButtonElement | null;
   /** Where the view is kept, and the button that resets it (with `view_state`). */
   view: HTMLElement | null;
   viewReset: HTMLButtonElement | null;
@@ -405,6 +410,12 @@ interface Exporter extends Popup {
   selectedItem: HTMLElement | null;
   backend: HTMLSelectElement | null;
   note: HTMLElement | null;
+}
+
+/** The columns panel: a checkbox for each column readers can hide (by id), checked while it's shown, and a button showing them all. */
+interface Columns extends Popup {
+  boxes: Map<string, HTMLInputElement>;
+  all: HTMLButtonElement;
 }
 
 /** The rows to export: the data rows, and the cells' text, the column labels' first; with the cells, but a group's label. */
@@ -435,6 +446,7 @@ const ICONS = {
   export: "M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14",
   undo: "M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
   redo: "M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13",
+  columns: "M4 5h16v14H4zM9.5 5v14M14.5 5v14",
 };
 
 // Whether the keys are a Mac's (⌘ rather than Ctrl)
@@ -731,6 +743,15 @@ export class GtTable extends HTMLElement {
   private lastTime = 0;
   /** The element's handler for the keys that undo and redo. */
   private undoKey: ((event: KeyboardEvent) => void) | null = null;
+  /** The columns readers can hide, and those hidden (by id, in column order). */
+  private hideable: string[] = [];
+  private hiddenIds: string[] = [];
+  /** The columns hidden, on the table's grid (where the spec's columns come after the `lead`). */
+  private hiddenGrid = new Set<number>();
+  /** The cells in or across the columns readers can hide, placed on the grid with every cell shown. */
+  private columnCells: Placed[] = [];
+  /** The width each column hidden was shown at (by grid column), for when every width is fixed. */
+  private hiddenWidths = new Map<number, number>();
 
   get state(): State | null {
     return this.getAttribute("data-gti-state") as State | null;
@@ -804,6 +825,32 @@ export class GtTable extends HTMLElement {
       this.syncFilter(control);
     }
     this.applyFilters();
+    this.forget();
+  }
+
+  /** The columns readers can hide (`hideable` in the spec), in column order. Empty until hydrated. */
+  get hideableColumns(): string[] {
+    return [...this.hideable];
+  }
+
+  /**
+   * The columns hidden, in column order: their cells aren't shown, searched or exported (but their
+   * filters still keep rows). Setting it hides those and shows the rest.
+   *
+   * @throws {RangeError} for a column that isn't one of `hideableColumns`.
+   */
+  get hiddenColumns(): string[] {
+    return [...this.hiddenIds];
+  }
+
+  set hiddenColumns(ids: readonly string[]) {
+    const bad = ids.find((id) => !this.hideable.includes(id));
+    if (bad !== undefined) {
+      throw new RangeError(`"${bad}" isn't a column that can be hidden`);
+    }
+    this.hideColumns(ids);
+    this.matchRows();
+    this.render();
     this.forget();
   }
 
@@ -893,6 +940,12 @@ export class GtTable extends HTMLElement {
     return this.movable ? (this.pageSizeValue ?? null) : null;
   }
 
+  // The grid columns before the spec's: the selection column, and the group column when groups
+  // are a column of the stub
+  private get lead(): number {
+    return (this.selectColumn ? 1 : 0) + (this.spec?.stub.groups_as_column === true ? 1 : 0);
+  }
+
   connectedCallback(): void {
     if (this.table !== null) {
       // Moved: keep the hydrated table (and its view), unless its children were replaced
@@ -935,8 +988,9 @@ export class GtTable extends HTMLElement {
   }
 
   /**
-   * The rows as CSV, as the export panel downloads them: the text each cell shows, under the
-   * column labels (after their spanners'), with a column of the rows' groups first (with groups);
+   * The rows as CSV, as the export panel downloads them: the text each cell shows (in the columns
+   * shown), under the column labels (after their spanners'), with a column of the rows' groups
+   * first (with groups);
    * each data row the search and filters keep, in the order shown, on every page, or (with
    * `selected`) each one selected. With `guard` (as by default), a cell a spreadsheet would read as
    * a formula starts with a `'`. Empty until hydrated.
@@ -957,7 +1011,8 @@ export class GtTable extends HTMLElement {
   /**
    * The code for the view, as the export panel copies it: Python that filters and sorts the
    * table's data (as `df`) as the filters and sort do (not the search, which is of the text
-   * shown), for Polars, pandas or Narwhals (by default, the data's library), with its imports.
+   * shown), then drops the columns hidden, for Polars, pandas or Narwhals (by default, the data's
+   * library), with its imports.
    * It's what Great Tables' `query_code()` writes. Empty until hydrated, and for a table without
    * "code" among its export formats (whose spec has what the code needs).
    *
@@ -969,12 +1024,12 @@ export class GtTable extends HTMLElement {
     if (backend !== undefined && !CODE_BACKENDS.includes(backend)) {
       throw new RangeError(`\`backend\` must be "polars", "pandas" or "narwhals", not ${JSON.stringify(backend)}`);
     }
-    return spec == null || code == null ? "" : viewCode(this.filter, this.sortKeys, spec.filters ?? [], code, backend ?? code.backend);
+    return spec == null || code == null ? "" : viewCode(this.filter, this.sortKeys, this.hiddenIds, spec.filters ?? [], code, backend ?? code.backend);
   }
 
   /**
-   * Go back to the view the table is first shown with: the filters and sort of the author's view
-   * (`i_view()`), without a search, on the first page of the table's page size. The view kept in
+   * Go back to the view the table is first shown with: the filters, sort and hidden columns of the
+   * author's view (`i_view()`), without a search, on the first page of the table's page size. The view kept in
    * the URL and the browser's storage (with `view_state`) is cleared, and the reader's changes
    * can't be undone (see `undo()`). Does nothing until hydrated.
    */
@@ -1073,16 +1128,31 @@ export class GtTable extends HTMLElement {
     if (spec.controls.resizing) {
       this.addResizers(table, spec);
     }
+    this.hideable = spec.columns.flatMap((column) =>
+      column.role === "data" && column.hideable === true && column.id !== null ? [column.id] : [],
+    );
+    if (this.hideable.length > 0) {
+      this.mapColumns(table);
+    }
     if (this.pageSizeValue === undefined) {
       this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
     }
     // (With pages only, the bar comes with them)
     if (
       bar &&
-      ((spec.export?.formats.length ?? 0) > 0 || this.undoable || (this.movable && (spec.controls.search || this.filters.length > 0)))
+      ((spec.export?.formats.length ?? 0) > 0 ||
+        this.undoable ||
+        this.hideable.length > 0 ||
+        (this.movable && (spec.controls.search || this.filters.length > 0)))
     ) {
       this.addBar();
     }
+    // (Columns are hidden whether or not rows can be moved)
+    const hidden = spec.view?.hidden ?? [];
+    for (const id of hidden.filter((id) => !this.hideable.includes(id))) {
+      console.warn(`<gt-table>: the view's hidden column "${id}" is left out (it isn't one that can be hidden).`);
+    }
+    this.hideColumns(hidden);
     if (this.movable && spec.view !== undefined) {
       this.applySpecView(spec, spec.view);
     }
@@ -1093,12 +1163,13 @@ export class GtTable extends HTMLElement {
         search: "",
         page: 1,
         pageSize: spec.pagination.enabled ? spec.pagination.page_size : null,
+        hidden: this.hiddenColumns,
       };
       this.restoreView(spec, this.authorView);
     }
     // A search or page set before hydration applies now
     this.matchRows();
-    if (this.matched !== null || this.size !== null || this.sortKeys.length > 0) {
+    if (this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0) {
       this.render();
     } else {
       // (Not rendered, so every row is shown, as it was)
@@ -1166,6 +1237,7 @@ export class GtTable extends HTMLElement {
         ranks: spec.controls.sorting ? spec.ranks : null,
         search: spec.controls.search,
         sizes: !spec.pagination.enabled ? [] : size_select ? [...page_sizes, page_size] : [page_size],
+        hideable: this.hideable,
       },
       warn,
     );
@@ -1184,8 +1256,9 @@ export class GtTable extends HTMLElement {
     this.setView(view);
   }
 
-  // Set the view's parts (the filters, sort, search, page and page size), to be shown
+  // Set the view's parts (the filters, sort, search, page, page size and hidden columns), to be shown
   private setView(view: View): void {
+    this.hideColumns(view.hidden);
     this.cancelSearchTimer();
     this.cancelFilterTimer();
     setFilterQuery(
@@ -1204,7 +1277,14 @@ export class GtTable extends HTMLElement {
 
   // The view shown
   private currentView(): View {
-    return { filter: this.filter, sort: this.sort, search: this.searchValue, page: this.page, pageSize: this.size };
+    return {
+      filter: this.filter,
+      sort: this.sort,
+      search: this.searchValue,
+      page: this.page,
+      pageSize: this.size,
+      hidden: this.hiddenColumns,
+    };
   }
 
   // Whether the view is the one the table is first shown with
@@ -1694,7 +1774,12 @@ export class GtTable extends HTMLElement {
     const view = getComputedStyle(scroller);
     const padStart = parseFloat(view.paddingInlineStart) || 0;
     const padEnd = parseFloat(view.paddingInlineEnd) || 0;
-    const { pinColumns: columns, endColumns: ends, gridColumns: width } = this;
+    // (On the grid of the columns shown)
+    const { pinColumns, endColumns, gridColumns, hiddenGrid } = this;
+    const gone = (from: number, to: number) => [...hiddenGrid].filter((c) => from <= c && c < to).length;
+    const columns = pinColumns - gone(0, pinColumns);
+    const ends = endColumns - gone(gridColumns - endColumns, gridColumns);
+    const width = gridColumns - hiddenGrid.size;
     if (columns > 0 || ends > 0) {
       if (this.borders === null) {
         this.separateBorders().redraw();
@@ -2408,11 +2493,7 @@ export class GtTable extends HTMLElement {
   }
 
   private dispatchResize(resizer: Resizer, width: number): void {
-    const spec = this.spec as Spec;
-    // (Body cells start with the selection column, and the group column when groups are a column
-    // of the stub)
-    const lead = (this.selectColumn ? 1 : 0) + (spec.stub.groups_as_column ? 1 : 0);
-    const column = spec.columns[resizer.index - lead];
+    const column = (this.spec as Spec).columns[resizer.index - this.lead];
     this.dispatchEvent(
       new CustomEvent<ResizeEventDetail>(RESIZE_EVENT, {
         bubbles: true,
@@ -2447,8 +2528,13 @@ export class GtTable extends HTMLElement {
     if (cols.length !== widths.length || cols.some((col) => col.tagName !== "COL" || col.hasAttribute("span"))) {
       return false;
     }
-    // (Whole pixels, as the reader sets them; rounded up, so that no text is cut)
-    const whole = widths.map((width) => Math.ceil(width - 0.01));
+    // (Whole pixels, as the reader sets them; rounded up, so that no text is cut). A hidden column
+    // has the width it had when it was hidden, if it was shown, or else the columns' average.
+    const shown = widths.filter((_, c) => !this.hiddenGrid.has(c));
+    const average = shown.reduce((sum, width) => sum + width, 0) / Math.max(1, shown.length);
+    const whole = widths.map((width, c) =>
+      Math.ceil((this.hiddenGrid.has(c) ? (this.hiddenWidths.get(c) ?? average) : width) - 0.01),
+    );
     cols.forEach((col, i) => {
       col.style.width = `${whole[i]}px`;
     });
@@ -2462,6 +2548,7 @@ export class GtTable extends HTMLElement {
     this.fittedCols = [];
     this.widthsFixed = true;
     this.startWidths = whole;
+    this.hideCols();
     return true;
   }
 
@@ -2480,11 +2567,87 @@ export class GtTable extends HTMLElement {
         Array.from(tr.children).every((cell) => span(cell) === 1),
     );
     const label = (i: number) => this.resizers.find((resizer) => resizer.index === i)?.th;
+    // (A hidden column has none)
     const widths =
       full === undefined
-        ? Array.from({ length: columns }, (_, i) => label(i)?.getBoundingClientRect().width)
+        ? Array.from({ length: columns }, (_, i) => (this.hiddenGrid.has(i) ? 0 : label(i)?.getBoundingClientRect().width))
         : Array.from(full.children, (cell) => cell.getBoundingClientRect().width);
     return columns > 0 && widths.every((width) => width !== undefined) ? (widths as number[]) : null;
+  }
+
+  // The cells in the columns readers can hide, and across them (from every row, on hydration)
+  private mapColumns(table: HTMLTableElement): void {
+    const spec = this.spec as Spec;
+    const lead = this.lead;
+    const grid = new Set(this.hideable.map((id) => lead + spec.columns.findIndex((column) => column.id === id)));
+    const { placed, columns } = placeCells(Array.from(table.rows));
+    this.gridColumns = columns;
+    this.columnCells = placed.filter((p) => [...grid].some((c) => p.c0 <= c && c <= p.c1));
+  }
+
+  /**
+   * Hide the columns `ids` (of those readers can hide), and show the others: their cells are
+   * hidden, and the cells across them (spanners, headings, notes) span the columns shown, or are
+   * hidden too, over only hidden ones. The rows are shown again by `render()`.
+   */
+  private hideColumns(ids: readonly string[]): void {
+    const spec = this.spec;
+    const hidden = this.hideable.filter((id) => ids.includes(id));
+    if (spec === null || JSON.stringify(hidden) === JSON.stringify(this.hiddenIds)) {
+      return;
+    }
+    const lead = this.lead;
+    const grid = new Set(hidden.map((id) => lead + spec.columns.findIndex((column) => column.id === id)));
+    // (The width each column hidden has, which it has again if the widths are fixed while it's hidden)
+    for (const c of grid) {
+      const width = (p: Placed) => p.cell.getBoundingClientRect().width;
+      const shown = this.hiddenGrid.has(c)
+        ? undefined
+        : this.columnCells.find((p) => p.c0 === c && p.c1 === c && width(p) > 0);
+      if (shown !== undefined) {
+        this.hiddenWidths.set(c, width(shown));
+      }
+    }
+    this.hiddenIds = hidden;
+    this.hiddenGrid = grid;
+    for (const { cell, c0, c1 } of this.columnCells) {
+      let shown = 0;
+      for (let c = c0; c <= c1; c++) {
+        shown += grid.has(c) ? 0 : 1;
+      }
+      cell.hidden = shown === 0;
+      if (c1 > c0 && shown > 0) {
+        cell.colSpan = shown;
+      }
+    }
+    this.hideCols();
+    const empty = this.empty?.cells[0];
+    if (empty !== undefined) {
+      empty.colSpan = this.emptySpan();
+    }
+    // (Rows padding a page are made again, for the columns shown)
+    this.removeFillers();
+    this.fillers = [];
+    this.fillerCells = null;
+    // The columns fitted to their contents are measured again, but not the reader's widths
+    if (this.colgroup !== null && this.startWidths === null) {
+      this.remeasure();
+    }
+  }
+
+  // The `<col>`s of the columns hidden are hidden, so that the others are on the columns shown
+  private hideCols(): void {
+    const table = this.table;
+    if (table === null || this.hideable.length === 0) {
+      return;
+    }
+    for (const colgroup of Array.from(table.querySelectorAll(":scope > colgroup"))) {
+      if (colgroup.children.length === this.gridColumns) {
+        Array.from(colgroup.children as HTMLCollectionOf<HTMLElement>).forEach((col, c) => {
+          col.hidden = this.hiddenGrid.has(c);
+        });
+      }
+    }
   }
 
   private addSearchBox(table: HTMLTableElement): void {
@@ -2604,6 +2767,7 @@ export class GtTable extends HTMLElement {
       jumpCount,
       info,
       exporter,
+      columns: null,
       tokens: null,
       clearAll: null,
       query: null,
@@ -2627,10 +2791,13 @@ export class GtTable extends HTMLElement {
     if (this.movable && spec.controls.search) {
       this.addBarSearch(bar);
     }
+    const columns = this.hideable.length > 0 ? this.makeColumns() : null;
+    bar.columns = columns;
     // (A panel follows its button, so that Tab goes from one into the other)
     root.append(
       pages,
       ...(bar.query === null ? [] : [bar.query.toggle]),
+      ...(columns === null ? [] : [columns.button, columns.panel]),
       ...(exporter === null ? [] : [exporter.button, exporter.panel]),
       ...(bar.undo === null || bar.redo === null ? [] : [bar.undo, bar.redo]),
       info.button,
@@ -2859,6 +3026,8 @@ export class GtTable extends HTMLElement {
       selection: null,
       selectionText: null,
       selectionClear: null,
+      columnsText: null,
+      columnsShow: null,
       view: null,
       viewReset: null,
       keys: null,
@@ -2917,6 +3086,11 @@ export class GtTable extends HTMLElement {
       info.selectionText = span();
       info.selectionClear = action("Clear", "Clear the selection", () => this.userClearSelection());
       info.selection = item("selection", "div", info.selectionText, info.selectionClear);
+    }
+    if (this.hideable.length > 0) {
+      info.columnsText = span();
+      info.columnsShow = action("Show all", "Show every column", () => this.userColumns([], "Every column shown"));
+      item("columns", "div", info.columnsText, info.columnsShow);
     }
     const kept = this.keeper;
     if (kept !== null) {
@@ -3075,6 +3249,11 @@ export class GtTable extends HTMLElement {
       info.selectionText.textContent = this.selectionText();
       info.selectionClear.setAttribute("aria-disabled", String(this.selected.size === 0));
     }
+    if (info.columnsText !== null && info.columnsShow !== null) {
+      const n = this.hiddenIds.length;
+      info.columnsText.textContent = n === 0 ? "No columns hidden" : `${n} ${n === 1 ? "column" : "columns"} hidden`;
+      info.columnsShow.setAttribute("aria-disabled", String(n === 0));
+    }
     info.viewReset?.setAttribute("aria-disabled", String(this.isAuthorView()));
     for (const entry of info.pageKeys) {
       entry.hidden = bar.pages.hidden;
@@ -3085,6 +3264,59 @@ export class GtTable extends HTMLElement {
     if (bar.exporter !== null) {
       this.updateExporter(bar.exporter);
     }
+    if (bar.columns !== null) {
+      this.updateColumns(bar.columns);
+    }
+  }
+
+  /** Make the columns panel (a checkbox per column readers can hide), and the bar's button that opens it. */
+  private makeColumns(): Columns {
+    const doc = this.ownerDocument;
+    const popup = this.makePanel("columns", "Show or hide columns", "Columns");
+    popup.panel.classList.add("gt-i-columns");
+    const labels = labelCells(this.table as HTMLTableElement);
+    const list = element(doc, "div", "gt-i-filter-options");
+    const columns: Columns = { ...popup, boxes: new Map(), all: element(doc, "button", "gt-i-info-button", { type: "button" }) };
+    for (const id of this.hideable) {
+      const title = this.columnTitle(id, labels);
+      const item = element(doc, "label", "gt-i-filter-option");
+      const box = element(doc, "input", "", { type: "checkbox" });
+      const name = element(doc, "span", "gt-i-filter-value");
+      name.textContent = title;
+      box.addEventListener("change", () => {
+        const hidden = this.hiddenIds;
+        this.userColumns(box.checked ? hidden.filter((x) => x !== id) : [...hidden, id], `${title} ${box.checked ? "shown" : "hidden"}`);
+      });
+      item.append(box, name);
+      list.append(item);
+      columns.boxes.set(id, box);
+    }
+    const actions = element(doc, "div", "gt-i-export-actions");
+    columns.all.textContent = "Show all";
+    columns.all.addEventListener("click", () => {
+      if (columns.all.getAttribute("aria-disabled") !== "true") {
+        this.userColumns([], "Every column shown");
+      }
+    });
+    actions.append(columns.all);
+    popup.panel.append(list, actions);
+    return columns;
+  }
+
+  // Each column's checkbox: checked if it's shown, and disabled if it's the only one shown (without a
+  // stub), so that there's always a column
+  private updateColumns(columns: Columns): void {
+    const spec = this.spec as Spec;
+    const hidden = this.hiddenIds;
+    const shown = spec.columns.filter(
+      (column) => column.role === "stub" || (column.role === "data" && (column.id === null || !hidden.includes(column.id))),
+    );
+    const only = shown.length === 1 && !spec.stub.groups_as_column ? shown[0]?.id : undefined;
+    for (const [id, box] of columns.boxes) {
+      box.checked = !hidden.includes(id);
+      box.disabled = id === only;
+    }
+    columns.all.setAttribute("aria-disabled", String(hidden.length === 0));
   }
 
   /** Make the export panel, and the bar's button that opens it. */
@@ -3259,7 +3491,7 @@ export class GtTable extends HTMLElement {
     const spec = this.spec as Spec;
     const aligns = [
       ...(spec.groups.length > 0 ? [null] : []),
-      ...spec.columns.filter((column) => column.id !== null).map((column) => column.align),
+      ...this.exportedColumns().map((c) => spec.columns[c]?.align ?? null),
     ];
     const table = doc.createElement("table");
     const head = table.createTHead();
@@ -3289,9 +3521,9 @@ export class GtTable extends HTMLElement {
   }
 
   // The rows to export: each data row the search and filters keep (or each one selected), in the
-  // order shown, on every page; with a cell for each column (but the stub's for summary rows'
-  // labels), after one for the row's group's label (with groups). The labels are the columns',
-  // after their spanners' ("Revenue – gross").
+  // order shown, on every page; with a cell for each column but those hidden (and the stub's for
+  // summary rows' labels), after one for the row's group's label (with groups). The labels are the
+  // columns', after their spanners' ("Revenue – gross").
   private exported(selected: boolean): Exported | null {
     const spec = this.spec;
     const table = this.table;
@@ -3299,20 +3531,9 @@ export class GtTable extends HTMLElement {
       return null;
     }
     const labels = labelCells(table);
-    const label = (id: string | null) => {
-      const th = id === null ? undefined : labels.get(id);
-      return th === undefined ? "" : labelText(th);
-    };
-    const kept = spec.columns.flatMap((column, c) => (column.id === null ? [] : [c]));
+    const kept = this.exportedColumns();
     const grouped = spec.groups.length > 0;
-    const head = kept.map((c) => {
-      const { id, header } = spec.columns[c] as ColumnSpec & { id: string };
-      const spanners = spec.spanners
-        .filter((spanner) => spanner.columns.includes(id))
-        .sort((a, b) => b.level - a.level)
-        .map((spanner) => label(spanner.header));
-      return [...spanners, label(header) || id].filter(Boolean).join(" – ");
-    });
+    const head = kept.map((c) => this.columnTitle((spec.columns[c] as ColumnSpec & { id: string }).id, labels));
     const exported: Exported = { rows: [], text: [[...(grouped ? [""] : []), ...head]], cells: [] };
 
     // (A cell merged across rows, in a hierarchical stub, is each of its rows')
@@ -3348,6 +3569,29 @@ export class GtTable extends HTMLElement {
       ]);
     }
     return exported;
+  }
+
+  // The columns exported (by index in the spec): each with an id, but those hidden
+  private exportedColumns(): number[] {
+    const spec = this.spec as Spec;
+    return spec.columns.flatMap((column, c) =>
+      column.id === null || this.hiddenIds.includes(column.id) ? [] : [c],
+    );
+  }
+
+  // A column's label, after its spanners' ("Revenue – gross"), or its id, without one
+  private columnTitle(id: string, labels: Map<string, HTMLTableCellElement>): string {
+    const spec = this.spec as Spec;
+    const label = (key: string | null) => {
+      const th = key === null ? undefined : labels.get(key);
+      return th === undefined ? "" : labelText(th);
+    };
+    const spanners = spec.spanners
+      .filter((spanner) => spanner.columns.includes(id))
+      .sort((a, b) => b.level - a.level)
+      .map((spanner) => label(spanner.header));
+    const header = spec.columns.find((column) => column.id === id)?.header ?? null;
+    return [...spanners, label(header) || id].filter(Boolean).join(" – ");
   }
 
   // A filter button in the label of each column that can be filtered (after its sort button), and
@@ -4663,6 +4907,14 @@ export class GtTable extends HTMLElement {
     this.dispatchView(null);
   }
 
+  private userColumns(ids: string[], text: string): void {
+    this.hideColumns(ids);
+    this.matchRows();
+    this.render();
+    this.announce(text);
+    this.dispatchView(null);
+  }
+
   // (A reset is a change to undo)
   private userResetView(): void {
     this.showView(this.authorView as View);
@@ -4773,9 +5025,12 @@ export class GtTable extends HTMLElement {
     return texts;
   }
 
-  // A data row's cells that the search looks in
+  // A data row's cells that the search looks in: not those of the columns hidden
   private searched(cells: CellText[]): CellText[] {
-    return this.unsearched.size === 0 ? cells : cells.filter((_, i) => !this.unsearched.has(i));
+    const { unsearched, hiddenGrid, lead } = this;
+    return unsearched.size === 0 && hiddenGrid.size === 0
+      ? cells
+      : cells.filter((_, i) => !unsearched.has(i) && !hiddenGrid.has(lead + i));
   }
 
   // A data row's cells, one per column of the spec: not a group's label cell, which is on one of
@@ -4987,6 +5242,14 @@ export class GtTable extends HTMLElement {
       this.render();
       return;
     }
+    this.remeasure();
+    this.render();
+  }
+
+  // Measure the fitted widths again (leaving every row shown, for `render()`), or leave the columns
+  // as they are without a row to measure them by
+  private remeasure(): void {
+    const colgroup = this.colgroup as HTMLTableColElement;
     const widths = this.measureWidths();
     if (widths !== null && widths.columns.length === colgroup.children.length) {
       this.setWidths(widths);
@@ -4994,7 +5257,6 @@ export class GtTable extends HTMLElement {
       this.colgroup = null;
       this.fittedCols = [];
     }
-    this.render();
   }
 
   /**
@@ -5056,6 +5318,7 @@ export class GtTable extends HTMLElement {
       table.style.minWidth = `${widths.table}px`;
     }
     this.fittedWidth = this.clientWidth;
+    this.hideCols();
   }
 
   // Alternate shown data rows (counted through the page's body, as GT counts through the table's)
@@ -5085,20 +5348,11 @@ export class GtTable extends HTMLElement {
     const tbody = this.tbody as HTMLTableSectionElement;
     if (this.empty === null) {
       const doc = this.ownerDocument;
-      const width = Math.max(
-        1,
-        ...this.rowElements.map((tr) =>
-          Array.from(tr.children).reduce(
-            (sum, cell) => sum + Number(cell.getAttribute("colspan") ?? 1),
-            0,
-          ),
-        ),
-      );
       this.empty = doc.createElement("tr");
       this.empty.className = "gt-i-empty";
       const td = doc.createElement("td");
       td.className = "gt_row gt_center";
-      td.colSpan = width;
+      td.colSpan = this.emptySpan();
       td.textContent = "No matching rows";
       this.empty.append(td);
       // (Kept in view, like the rows across the table, once it's been wider than its container)
@@ -5107,6 +5361,17 @@ export class GtTable extends HTMLElement {
     if (this.empty.parentNode === null) {
       tbody.insertBefore(this.empty, this.grandBottom());
     }
+  }
+
+  // The columns the row saying that nothing matches spans: those shown
+  private emptySpan(): number {
+    const width = Math.max(
+      1,
+      ...this.rowElements.map((tr) =>
+        Array.from(tr.children).reduce((sum, cell) => sum + Number(cell.getAttribute("colspan") ?? 1), 0),
+      ),
+    );
+    return Math.max(1, width - this.hiddenGrid.size);
   }
 
   // The first of the grand summary rows at the bottom, which the rows we add to the body go before
@@ -5629,6 +5894,11 @@ export class GtTable extends HTMLElement {
     this.present = null;
     this.lastPart = null;
     this.undoKey = null;
+    this.hideable = [];
+    this.hiddenIds = [];
+    this.hiddenGrid = new Set();
+    this.columnCells = [];
+    this.hiddenWidths = new Map();
     this.view = { start: 0, end: 0, total: 0 };
     this.pager = null;
     this.bar = null;

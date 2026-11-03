@@ -421,11 +421,69 @@ def test_i_cols_controls_for_summary_labels_only():
     assert [column["sortable"] for column in spec["columns"][1:]] == [False, False]
 
 
-@pytest.mark.parametrize("name", ["sortable", "searchable", "resizable"])
+@pytest.mark.parametrize("name", ["sortable", "searchable", "resizable", "hideable"])
 @pytest.mark.parametrize("value", [1, "no", 0.0])
 def test_i_cols_controls_flags_must_be_bools(name: str, value):
     with pytest.raises(TypeError, match=f"`{name}=` must be `True`, `False`, or `None`"):
         GTI(DF).i_cols_controls(columns="y", **{name: value})
+
+
+def hideable_of(gt: GT) -> dict:
+    return {column["id"]: column["hideable"] for column in spec_of(gt)["columns"]}
+
+
+def test_i_cols_controls_hides_none_by_default():
+    gti = GTI(PIN_DF, rowname_col="id")
+    assert gti._interactive.hideable == ()
+    assert set(hideable_of(gti).values()) == {False}
+    assert spec_of(gti)["view"]["hidden"] == []
+
+
+def test_i_cols_controls_hideable():
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_controls(["e", "a", "b"], hideable=True)
+    assert gti._interactive.hideable == ("e", "a", "b")
+    assert hideable_of(gti) == {
+        "id": False,
+        "a": True,
+        "b": True,
+        "c": False,
+        "d": False,
+        "e": True,
+    }
+    # (`False` takes them back; the others are left as they are)
+    assert gti.i_cols_controls("a", hideable=False)._interactive.hideable == ("e", "b")
+    assert gti.i_cols_controls("a", sortable=False)._interactive.hideable == ("e", "a", "b")
+    every = GTI(PIN_DF, rowname_col="id").i_cols_controls(hideable=True)
+    assert every._interactive.hideable == ("a", "b", "c", "d", "e")
+    assert every.i_cols_controls(hideable=False)._interactive.hideable == ()
+
+
+def test_i_cols_controls_hideable_leaves_out_the_stub_and_row_group_column():
+    # (Naming the stub does nothing; the row group column can't be named)
+    gti = GTI(PIN_DF, rowname_col="id", groupname_col="b").i_cols_controls(
+        ["id", "b", "a"], hideable=True
+    )
+    assert hideable_of(gti) == {"id": False, "a": True, "c": False, "d": False, "e": False}
+    # (A column `cols_hide()` hid isn't in the spec)
+    assert "a" not in hideable_of(gti.cols_hide("a"))
+
+
+def test_i_view_hides_columns():
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_controls(["a", "b", "c"], hideable=True)
+    # (In column order, once each, in the spec)
+    view = gti.i_view(hidden=["c", "a", "c"])
+    assert view._interactive.view_hidden == ("c", "a", "c")
+    assert spec_of(view)["view"] == {"filter": None, "sort": [], "hidden": ["a", "c"]}
+    assert spec_of(gti.i_view(hidden="b"))["view"]["hidden"] == ["b"]
+    # (What's not given goes back to its default)
+    assert view.i_view(sort="a")._interactive.view_hidden == ()
+
+
+@pytest.mark.parametrize("column", ["d", "id"])
+def test_i_view_hides_only_columns_readers_can_hide(column: str):
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_controls(["a", "b"], hideable=True)
+    with pytest.raises(ValueError, match=f"The view can't hide column '{column}'"):
+        spec_of(gti.i_view(hidden=["a", column]))
 
 
 def pins_of(gt: GT) -> dict:
@@ -538,10 +596,11 @@ def test_i_view_sets_the_whole_view():
     assert spec_of(gti)["view"] == {
         "filter": query,
         "sort": [{"column": "num", "descending": True}],
+        "hidden": [],
     }
     # (What's not given goes back to its default)
     assert gti.i_view(sort="id")._interactive.view_filter is None
-    assert spec_of(gti.i_view())["view"] == {"filter": None, "sort": []}
+    assert spec_of(gti.i_view())["view"] == {"filter": None, "sort": [], "hidden": []}
 
 
 def test_i_view_takes_a_query_as_text():

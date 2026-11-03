@@ -33,8 +33,8 @@ const code = (
   query: FilterQuery | null,
   sort: SortKey[],
   backend: CodeBackend,
-  { filters = FILTERS, spec = SPEC }: { filters?: FilterSpec[]; spec?: CodeSpec } = {},
-) => viewCode(query, sort, filters, spec, backend);
+  { filters = FILTERS, spec = SPEC, hidden = [] }: { filters?: FilterSpec[]; spec?: CodeSpec; hidden?: string[] } = {},
+) => viewCode(query, sort, hidden, filters, spec, backend);
 
 describe("pyNumber", () => {
   it("writes whole numbers as integers", () => {
@@ -117,6 +117,30 @@ describe("viewCode", () => {
     expect(code(null, [], "polars")).toBe("import polars as pl\n\ndf\n");
     expect(code(null, [], "pandas")).toBe("df\n");
     expect(code({ and: [] }, [], "narwhals")).toBe("import narwhals as nw\n\n(\n    nw.from_native(df)\n    .to_native()\n)\n");
+  });
+
+  it("drops the columns hidden, after the filter and sort", () => {
+    const hidden = ["few", 'a"b'];
+    const one: FilterQuery = { and: [{ col: "num", op: "lte", value: 2 }] };
+    const by = [{ column: "name", descending: false }];
+    expect(code(one, by, "polars", { hidden })).toBe(
+      "import polars as pl\n\n" +
+        "df.filter(\n" +
+        '    (pl.col("num") <= 2) & pl.col("num").is_finite(),\n' +
+        ').sort(["name"], descending=[False], nulls_last=True, maintain_order=True).drop(["few", "a\\"b"])\n',
+    );
+    expect(code(null, [], "pandas", { hidden })).toBe('df.drop(columns=["few", "a\\"b"])\n');
+    expect(code(null, by, "narwhals", { hidden })).toBe(
+      "import narwhals as nw\n\n" +
+        "(\n" +
+        "    nw.from_native(df)\n" +
+        '    .with_row_index("_row")\n' +
+        '    .sort(["name", "_row"], descending=[False, False], nulls_last=True)\n' +
+        '    .drop(["_row"])\n' +
+        '    .drop(["few", "a\\"b"])\n' +
+        "    .to_native()\n" +
+        ")\n",
+    );
   });
 
   it("matches text as the column's values, folded, and missing values", () => {

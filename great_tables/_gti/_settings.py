@@ -69,14 +69,17 @@ class Settings:
     unsortable: tuple[str, ...] = ()
     unsearchable: tuple[str, ...] = ()
     unresizable: tuple[str, ...] = ()
+    # (The columns readers can hide, in the order they were set; none, by default)
+    hideable: tuple[str, ...] = ()
     # (The columns pinned to a side, as `i_cols_pin()` set them, in the order they were set)
     pins: tuple[tuple[str, PinSide], ...] = ()
     # (The columns readers can filter by, and how, in the order they were set)
     filters: tuple[tuple[str, FilterType], ...] = ()
     # (How the table is first shown: a query, checked as `i_view()` takes it, and sort keys,
-    # each a column and whether it's descending)
+    # each a column and whether it's descending; and the columns hidden)
     view_filter: dict[str, list[dict[str, Any]]] | None = None
     view_sort: tuple[tuple[str, bool], ...] = ()
+    view_hidden: tuple[str, ...] = ()
     # (How readers can export the rows, from the bar; none, by default. The name of a download,
     # without its extension)
     export_formats: tuple[ExportFormat, ...] = ()

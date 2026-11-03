@@ -1,6 +1,6 @@
 /**
  * The code for a view: Python that filters and sorts a table's data (`df`) as the view's filters
- * and sort do, for Polars, pandas, or Narwhals, as Great Tables' `query_code()` writes it
+ * and sort do (and drops the columns it hides), for Polars, pandas, or Narwhals, as Great Tables' `query_code()` writes it
  * (great_tables/_gti/_query.py), character for character.
  *
  * It goes by what the spec's `export.code` has of the columns: their types, as the code needs
@@ -28,14 +28,15 @@ export function pyNumber(value: number): string {
 }
 
 /**
- * The code for a view (its query, as the `filter` property has it, and its sort), with its
- * imports, for `backend`.
+ * The code for a view (its query, as the `filter` property has it, its sort, and the columns it
+ * hides, in column order), with its imports, for `backend`.
  *
  * @throws {RangeError} for a facet's value that can't be written as Python (a duration).
  */
 export function viewCode(
   query: FilterQuery | null,
   sort: readonly SortKey[],
+  hidden: readonly string[],
   filters: readonly FilterSpec[],
   spec: CodeSpec,
   backend: CodeBackend,
@@ -105,6 +106,7 @@ export function viewCode(
   }
 
   const names = sort.map((key) => str(key.column));
+  const drop = list(hidden.map(str));
   let code = "df";
   if (pandas) {
     if (terms.length > 0) {
@@ -113,12 +115,18 @@ export function viewCode(
     if (sort.length > 0) {
       code += `.sort_values(${list(names)}, ascending=${list(sort.map((key) => py(!key.descending)))}, na_position="last", kind="stable")`;
     }
+    if (hidden.length > 0) {
+      code += `.drop(columns=${drop})`;
+    }
   } else if (backend === "polars") {
     if (terms.length > 0) {
       code += `.filter(\n${terms.map((term) => `    ${term},\n`).join("")})`;
     }
     if (sort.length > 0) {
       code += `.sort(${list(names)}, descending=${list(sort.map((key) => py(key.descending)))}, nulls_last=True, maintain_order=True)`;
+    }
+    if (hidden.length > 0) {
+      code += `.drop(${drop})`;
     }
   } else {
     const lines = ["nw.from_native(df)"];
@@ -146,6 +154,9 @@ export function viewCode(
       });
       lines.push(`.sort(${list([...by, '"_row"'])}, descending=${list([...flags, false].map(py))}, nulls_last=True)`);
       lines.push(`.drop(${list(extra)})`);
+    }
+    if (hidden.length > 0) {
+      lines.push(`.drop(${drop})`);
     }
     lines.push(".to_native()");
     code = `(\n    ${lines.join("\n    ")}\n)`;
