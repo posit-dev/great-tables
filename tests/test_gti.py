@@ -254,7 +254,16 @@ def test_spec_stub_for_summary_labels_only():
     spec = spec_of(GT(DF).grand_summary_rows(fns=SUM))
     first = spec["columns"][0]
 
-    assert first == {"id": None, "role": "stub", "kind": "other", "align": "left", "header": None}
+    assert first == {
+        "id": None,
+        "role": "stub",
+        "kind": "other",
+        "align": "left",
+        "header": None,
+        "sortable": True,
+        "searchable": True,
+        "resizable": True,
+    }
     assert spec["stub"]["columns"] == []
     assert None not in spec["ranks"]
 
