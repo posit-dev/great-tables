@@ -18,6 +18,7 @@ from ._gti._settings import (
     SelectionMode,
     Settings,
 )
+from ._gti._spec import _has_time_zone
 from ._locations import resolve_cols_c
 from ._options import _is_height
 from ._tbl_data import SelectExpr, _get_column_kind
@@ -469,11 +470,12 @@ class GTI(GT):
         rows are filtered by the text they show (`"text"`: those with a cell containing what's
         typed, ignoring case and accents, as the search does), by a choice of the column's values
         (`"facet"`: a checklist of them, each with the number of rows that have it, given the
-        other filters and the search), or by a range of its numbers (`"range"`: at least one
-        value, and at most another). The facets and ranges go by the column's values, not by how
-        they're formatted. Rows are shown when they pass every filter, and the search; the info
-        panel (from the (i) button in the control bar) says how many filters there are, and can
-        clear them. The bar also shows the filters that are on, and its <> button opens them as
+        other filters and the search), by a range of its numbers (`"range"`: at least one value,
+        and at most another), or by a range of its dates (`"date"`: from one date, to another,
+        picked in date fields, or date and time fields for a column with times). The facets and
+        ranges go by the column's values, not by how they're formatted. Rows are shown when they
+        pass every filter, and the search; the info panel (from the (i) button in the control bar)
+        says how many filters there are, and can clear them. The bar also shows the filters that are on, and its <> button opens them as
         text, a query as [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit
         (with suggestions as they type). Filters are off by default.
 
@@ -487,10 +489,11 @@ class GTI(GT):
             `cs.numeric()`). With `None` (the default), every column but the stub (which can be
             named). The row group column can't be filtered.
         type
-            How the columns are filtered: `"text"`, `"facet"`, or `"range"` (for columns of
-            numbers), or `"auto"` to choose by the column: a range for numbers, a facet for
-            booleans and categories (and text columns with only a few values, each repeated),
-            and text otherwise. With `None`, the columns aren't filtered.
+            How the columns are filtered: `"text"`, `"facet"`, `"range"` (for columns of
+            numbers), or `"date"` (for columns of dates, or dates and times without a time zone),
+            or `"auto"` to choose by the column: a range for numbers, a date range for dates,
+            a facet for booleans and categories (and text columns with only a few values, each
+            repeated), and text otherwise. With `None`, the columns aren't filtered.
 
         Returns
         -------
@@ -512,11 +515,30 @@ class GTI(GT):
             .i_cols_filter(columns=["status", "population_2021"])
         )
         ```
+
+        A column of dates (here, made from the dataset's text) is filtered by a date range, from
+        one date to another.
+
+        ```{python}
+        import pandas as pd
+        from great_tables.data import sp500
+
+        sp500_2015 = sp500[sp500["date"] >= "2015-01-01"].assign(
+            date=lambda df: pd.to_datetime(df["date"])
+        )
+
+        (
+            GTI(sp500_2015[["date", "open", "close"]])
+            .fmt_date(columns="date", date_style="month_day_year")
+            .fmt_currency(columns=["open", "close"])
+            .i_cols_filter(columns="date")
+        )
+        ```
         """
         if type is not None and type not in FILTER_TYPES:
             raise ValueError(
-                '`type=` must be "auto", "text", "facet", "range", or `None` (no filter), not '
-                f"{type!r}."
+                '`type=` must be "auto", "text", "facet", "range", "date", or `None` (no filter), '
+                f"not {type!r}."
             )
         selected = resolve_cols_c(self, columns, excl_stub=False)
         for column in selected:
@@ -531,6 +553,17 @@ class GTI(GT):
                 raise ValueError(
                     f"Column {column!r} can't be filtered by a facet: its values can't be told "
                     'apart and ordered. Try `type="text"`.'
+                )
+            if type == "date" and kind not in ("date", "datetime"):
+                raise ValueError(
+                    f"Column {column!r} can't be filtered by a date range, which is for columns "
+                    f"of dates, or dates and times (its values are of the {kind!r} kind). Try "
+                    '`type="facet"` or `type="text"`, or make its values dates.'
+                )
+            if type == "date" and kind == "datetime" and _has_time_zone(self._tbl_data, column):
+                raise ValueError(
+                    f"Column {column!r} can't be filtered by a date range: its dates and times "
+                    'have a time zone, which a date range can\'t have yet. Try `type="text"`.'
                 )
 
         filters = dict(self._interactive.filters)

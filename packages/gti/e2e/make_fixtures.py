@@ -228,6 +228,23 @@ def filter_html(table_id: str, view: str | None = None, **pagination) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def date_html(table_id: str) -> str:
+    # A GTI table of exibble (8 rows, on one page) as Polars data, with `date` of dates (formatted)
+    # and `datetime` of dates and times, each filtered by a date range (as "auto" has them); whose
+    # view is kept in the URL
+    data = pl.from_pandas(exibble[["row", "date", "datetime", "num"]]).with_columns(
+        pl.col("date").str.to_date(), pl.col("datetime").str.to_datetime("%Y-%m-%d %H:%M")
+    )
+    gti = (
+        GTI(data, rowname_col="row", id=table_id)
+        .fmt_date(columns="date", date_style="day_m_year")
+        .i_pagination(False)
+        .i_cols_filter(columns=["date", "datetime"])
+        .i_view_state(url=True)
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def state_html(table_id: str, url: bool = True, storage: bool = False) -> str:
     # A GTI table of exibble three times over (24 rows), 5 rows to a page, with a search: `num`
     # filtered by a range and `fctr` by a facet, first sorted by `num` (descending); whose view is
@@ -697,6 +714,8 @@ def main() -> None:
         "tokens-late.html": page(
             filter_html("f", view=TOKENS_VIEW) + '\n<p id="after">After the table</p>', head=styles
         ),
+        # Date filters: of dates, and of dates and times
+        "dates.html": page(date_html("dt") + "\n" + runtime_src, head=styles),
         # View state: two GTI tables on a page, one kept in the URL and storage, one in the URL
         "state.html": page(
             state_html("va", storage=True) + "\n" + state_html("vb") + "\n" + runtime_src,

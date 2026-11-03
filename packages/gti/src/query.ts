@@ -3,9 +3,11 @@
  * writes it without loss.
  *
  *   status in ("single-tier", null) and population >= 10000 and `Name of town` contains "ville"
+ *   and founded <= "1900-12-31"
  *
  * A query is clauses joined by `and`; a clause is a column, then `contains` and a string, `in` and
- * values in parentheses, or `>=` or `<=` and a number. A column is a name of letters, digits and
+ * values in parentheses, or `>=` or `<=` and a number or a date (a string of ISO 8601 text, as
+ * `filter.ts` has it). A column is a name of letters, digits and
  * underscores (not starting with a digit), or any name in backticks (a backtick in it doubled).
  * Strings and numbers are written as in JSON; the other values are `true`, `false` and `null` (a
  * missing value). Keywords can be in any case. Empty text is no query.
@@ -189,8 +191,8 @@ export function parseQuery(text: string): FilterQuery | null {
       const op = (token as { text: string }).text === ">=" ? "gte" : "lte";
       token = next();
       const t = token;
-      if (t.kind !== "number") {
-        return fail("expected a number");
+      if (t.kind !== "number" && t.kind !== "string") {
+        return fail("expected a number, or a date in double quotes");
       }
       token = next();
       return { col, op, value: t.value };
@@ -242,10 +244,10 @@ export type QueryRole = "column" | "keyword" | "string" | "number" | "literal" |
 
 /**
  * What goes next in a query: a column, an op, a string (after `contains`), `(` (after `in`), a
- * value or `,` or `)` (in the parentheses), a number (after `>=` or `<=`), or `and`; `null` where
- * the text doesn't fit.
+ * value or `,` or `)` (in the parentheses), a bound (a number or a date, after `>=` or `<=`), or
+ * `and`; `null` where the text doesn't fit.
  */
-export type QueryExpect = "column" | "op" | "string" | "(" | "value" | ",)" | "number" | "and" | null;
+export type QueryExpect = "column" | "op" | "string" | "(" | "value" | ",)" | "bound" | "and" | null;
 
 export interface QueryState {
   expect: QueryExpect;
@@ -304,7 +306,7 @@ function step(
         : word === "in"
           ? ["(", "keyword"]
           : symbol === ">=" || symbol === "<="
-            ? ["number", "keyword"]
+            ? ["bound", "keyword"]
             : null;
     case "string":
       return kind === "string" ? ["and", "string"] : null;
@@ -319,8 +321,8 @@ function step(
           : null;
     case ",)":
       return symbol === "," ? ["value", "punct"] : symbol === ")" ? ["and", "punct"] : null;
-    case "number":
-      return kind === "number" ? ["and", "number"] : null;
+    case "bound":
+      return kind === "number" || kind === "string" ? ["and", kind] : null;
     case "and":
       return word === "and" ? ["column", "keyword"] : null;
     default:
@@ -401,7 +403,7 @@ export function queryContext(text: string, caret: number): QueryContext {
   return at(end);
 }
 
-const OPS = { text: ["contains"], facet: ["in"], range: [">=", "<="] };
+const OPS = { text: ["contains"], facet: ["in"], range: [">=", "<="], date: [">=", "<="] };
 
 /**
  * The first clause of a query (by its index) that filters can't have, and why, in the query's
@@ -424,6 +426,7 @@ export function queryProblem(
       clause.op === "in" && filter !== undefined
         ? clause.value.find((value) => value !== null && filter.rankOf(value) === undefined)
         : undefined;
+    const bound = clause.op === "gte" || clause.op === "lte" ? clause.value : undefined;
     const message =
       filter === undefined
         ? `${name} isn't a column with a filter`
@@ -433,7 +436,15 @@ export function queryProblem(
             ? `${name} has more than one ${op} clause`
             : bad !== undefined
               ? `${formatValue(bad)} isn't a value of ${name}`
-              : null;
+              : filter.type === "range" && typeof bound === "string"
+                ? `${name} has a range filter: give a number`
+                : filter.type === "date" && typeof bound === "number"
+                  ? `${name} has a date filter: give a date in double quotes ("YYYY-MM-DD")`
+                  : filter.type === "date" && typeof bound === "string" && !filter.isDateBound(bound)
+                    ? filter.times
+                      ? `${formatValue(bound)} isn't a date ("YYYY-MM-DD") or date and time ("YYYY-MM-DDTHH:MM:SS")`
+                      : `${formatValue(bound)} isn't a date ("YYYY-MM-DD"), and ${name} has dates without times`
+                    : null;
     if (message !== null) {
       return { clause: i, message };
     }

@@ -60,6 +60,15 @@ describe("parseQuery", () => {
     expect(parseQuery("in in (1)")).toEqual({ and: [{ col: "in", op: "in", value: [1] }] });
   });
 
+  it("reads dates as bounds, as strings", () => {
+    expect(parseQuery('d >= "2015-06-15" and d <= "2015-06-15T09:30"')).toEqual({
+      and: [
+        { col: "d", op: "gte", value: "2015-06-15" },
+        { col: "d", op: "lte", value: "2015-06-15T09:30" },
+      ],
+    });
+  });
+
   it("reads strings as JSON does", () => {
     expect(parseQuery(String.raw`a contains "q\"\\\/\b\f\n\r\té😀 Côté"`)).toEqual({
       and: [{ col: "a", op: "contains", value: 'q"\\/\b\f\n\r\té😀 Côté' }],
@@ -75,8 +84,8 @@ describe("parseQuery", () => {
     expect(error("a")).toBe('expected "contains", "in", ">=" or "<=", at the end');
     expect(error("a = 1")).toBe('expected "contains", "in", ">=" or "<=", at character 3');
     expect(error(">= 1")).toBe("expected a column name, at character 1");
-    expect(error("a >= x")).toBe("expected a number, at character 6");
-    expect(error('a >= "1"')).toBe("expected a number, at character 6");
+    expect(error("a >= x")).toBe("expected a number, or a date in double quotes, at character 6");
+    expect(error("a >= (")).toBe("expected a number, or a date in double quotes, at character 6");
     expect(error("a contains x")).toBe("expected a string in double quotes, at character 12");
     expect(error("a in 1")).toBe('expected "(", at character 6');
     expect(error("a in ()")).toBe(
@@ -96,7 +105,7 @@ describe("parseQuery", () => {
     );
     expect(error("`a")).toBe("a column name in backticks must end with a backtick, at the end");
     // (Numbers as JSON has them)
-    expect(error("a >= .5")).toBe("expected a number, at character 6");
+    expect(error("a >= .5")).toBe("expected a number, or a date in double quotes, at character 6");
     expect(error("a >= 01")).toBe('expected "and" or the end of the query, at character 7');
   });
 
@@ -128,6 +137,7 @@ describe("formatQuery", () => {
       { and: [{ col: "``", op: "in", value: ["\n", "\u0000", "é", 1e21, 5e-7] }] },
       { and: [{ col: "1a", op: "gte", value: -1 }, { col: "_", op: "lte", value: 0 }] },
       { and: [{ col: "and", op: "in", value: [false] }] },
+      { and: [{ col: "d", op: "gte", value: "2015-06-15" }, { col: "d", op: "lte", value: "2015-06-15T09:30:00.5" }] },
     ];
     for (const query of queries) {
       expect(parseQuery(formatQuery(query))).toEqual(query);
@@ -180,6 +190,11 @@ describe("readQuery", () => {
       ["contains", "keyword"],
       ['"y"', "string"],
     ]);
+    expect(roles('d >= "2015-06-15"')).toEqual([
+      ["d", "column"],
+      [">=", "keyword"],
+      ['"2015-06-15"', "string"],
+    ]);
   });
 
   it("reads strings and names in backticks being typed", () => {
@@ -230,7 +245,8 @@ describe("queryContext", () => {
     expect(at("pop |")).toMatchObject({ expect: "op", col: "pop", prefix: "" });
     expect(at("`a``b` co|")).toMatchObject({ expect: "op", col: "a`b", prefix: "co" });
     expect(at("pop >|")).toMatchObject({ expect: "op", col: "pop", prefix: ">" });
-    expect(at("pop >= |")).toMatchObject({ expect: "number" });
+    expect(at("pop >= |")).toMatchObject({ expect: "bound" });
+    expect(at('d >= "2015|"')).toMatchObject({ expect: "bound", col: "d", prefix: '"2015', from: 5, to: 11 });
     expect(at("s in |")).toMatchObject({ expect: "(" });
     expect(at("s in (|")).toMatchObject({ expect: "value", col: "s", values: [] });
     expect(at('s in ("a", nu|')).toMatchObject({ expect: "value", col: "s", values: ["a"], prefix: "nu" });
@@ -257,6 +273,8 @@ describe("queryProblem", () => {
     new ColumnFilter({ column: "x", type: "range", values: [5, 10, 20] }, 1, []),
     new ColumnFilter({ column: "y", type: "facet", values: ["a", "b", 1] }, 2, []),
     new ColumnFilter({ column: "z z", type: "text", values: null }, 3, []),
+    new ColumnFilter({ column: "d", type: "date", values: ["2015-06-15"] }, 4, [], null, "date"),
+    new ColumnFilter({ column: "t", type: "date", values: ["2015-06-15T09:30:00"] }, 5, [], null, "datetime"),
   ];
   const problem = (text: string) => queryProblem(filters, parseQuery(text));
 
@@ -269,5 +287,20 @@ describe("queryProblem", () => {
     expect(problem('y contains "a"')).toEqual({ clause: 0, message: "y has a facet filter: use in" });
     expect(problem("x >= 1 and x <= 2 and x >= 3")).toEqual({ clause: 2, message: "x has more than one >= clause" });
     expect(problem('y in ("a", "1")')).toEqual({ clause: 0, message: '"1" isn\'t a value of y' });
+  });
+
+  it("checks a range's bounds are numbers, and a date filter's dates", () => {
+    expect(problem('d >= "2015-01-01" and t <= "2016-01-01" and t >= "2015-01-01T09:30:00.123456"')).toBeNull();
+    expect(problem('x >= "5"')).toEqual({ clause: 0, message: "x has a range filter: give a number" });
+    expect(problem("d >= 2015")).toEqual({ clause: 0, message: 'd has a date filter: give a date in double quotes ("YYYY-MM-DD")' });
+    expect(problem('d in ("2015-06-15")')).toEqual({ clause: 0, message: "d has a date filter: use >= or <=" });
+    expect(problem('d <= "2015-06-15T09:30"')).toEqual({
+      clause: 0,
+      message: '"2015-06-15T09:30" isn\'t a date ("YYYY-MM-DD"), and d has dates without times',
+    });
+    expect(problem('t <= "June 15"')).toEqual({
+      clause: 0,
+      message: '"June 15" isn\'t a date ("YYYY-MM-DD") or date and time ("YYYY-MM-DDTHH:MM:SS")',
+    });
   });
 });

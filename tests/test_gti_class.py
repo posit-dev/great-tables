@@ -354,6 +354,61 @@ def test_i_cols_filter_unsortable_facet_is_text():
     assert filters_of(gti) == [{"column": "x", "type": "text", "values": None}]
 
 
+DATE_DF = pd.DataFrame(
+    {
+        "d": [dt.date(2024, 5, 1), None, dt.date(2023, 1, 2)],
+        "t": pd.to_datetime(["2024-05-01 09:30", None, "2024-05-01"], format="ISO8601"),
+        "tz": pd.to_datetime(["2024-05-01", "2024-05-02", None]).tz_localize("UTC"),
+    }
+)
+
+
+def test_i_cols_filter_auto_filters_dates_by_a_date_range():
+    # (Dates and times with a time zone by text: a date range can't have one yet)
+    assert filters_of(GTI(DATE_DF).i_cols_filter()) == [
+        {"column": "d", "type": "date", "values": ["2023-01-02", "2024-05-01"]},
+        {
+            "column": "t",
+            "type": "date",
+            "values": ["2024-05-01T00:00:00", "2024-05-01T09:30:00"],
+        },
+        {"column": "tz", "type": "text", "values": None},
+    ]
+    # (Of every backend)
+    for data in [pl.from_pandas(DATE_DF), pa.Table.from_pandas(DATE_DF)]:
+        types = [f["type"] for f in filters_of(GTI(data).i_cols_filter())]
+        assert types == ["date", "date", "text"]
+
+
+def test_i_cols_filter_date_needs_dates_without_a_time_zone():
+    with pytest.raises(ValueError, match="Column 'few' can't be filtered by a date range"):
+        GTI(FILTER_DF).i_cols_filter(columns="few", type="date")
+    with pytest.raises(ValueError, match="Column 'tz' can't be filtered by a date range: its"):
+        GTI(DATE_DF).i_cols_filter(columns="tz", type="date")
+    gti = GTI(DATE_DF).i_cols_filter(columns=["d", "t"], type="date")
+    assert [f["type"] for f in filters_of(gti)] == ["date", "date"]
+
+
+def test_i_view_takes_date_bounds():
+    gti = GTI(DATE_DF).i_cols_filter(columns=["d", "t"])
+    text = gti.i_view(filter='d >= "2024-01-01" and t <= "2024-05-01T09:00"')
+    query = {
+        "and": [
+            {"col": "d", "op": "gte", "value": dt.date(2024, 1, 1)},
+            {"col": "t", "op": "lte", "value": "2024-05-01T09:00"},
+        ]
+    }
+    assert spec_of(text) == spec_of(gti.i_view(filter=query))
+    # (Python's dates and times, as ISO 8601 text)
+    datetime = gti.i_view(
+        filter={"and": [{"col": "t", "op": "gte", "value": dt.datetime(2024, 5, 1, 9)}]}
+    )
+    assert spec_of(datetime)["view"]["filter"]["and"][0]["value"] == "2024-05-01T09:00:00"
+    with pytest.raises(ValueError, match="whose values are dates, without times"):
+        # (Checked against the table as it's rendered)
+        spec_of(gti.i_view(filter='d >= "2024-01-01T00:00"'))
+
+
 def controls_of(gt: GT) -> dict:
     return {
         column["id"]: (column["sortable"], column["searchable"], column["resizable"])
@@ -772,7 +827,7 @@ def test_i_view_takes_a_query_as_text():
     }
     assert spec_of(text) == spec_of(gti.i_view(filter=query))
     assert gti.i_view(filter=" ")._interactive.view_filter is None
-    with pytest.raises(ValueError, match=r"can't be read as a query: expected a number, at char"):
+    with pytest.raises(ValueError, match=r"can't be read as a query: expected a number, or a date"):
         gti.i_view(filter="num >= x")
 
 

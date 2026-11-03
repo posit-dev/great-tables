@@ -1272,6 +1272,10 @@ gt-table .gt-i-filter-range {
   gap: 0.5em;
 }
 
+gt-table .gt-i-filter-range-stacked {
+  grid-template-columns: 1fr;
+}
+
 gt-table .gt-i-filter-bound {
   display: flex;
   flex-direction: column;

@@ -36,8 +36,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   vertically (a CSS length; `null` to grow with its content), and what it does when it's wider
   than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table does)
 - `filters`: the columns readers can filter by, in column order, and how: by the text they show
-  (`"text"`), a choice of their values (`"facet"`), or a range of their numbers (`"range"`). A
-  facet or range column has its distinct values (`values`), in the order of its `ranks`, so that
+  (`"text"`), a choice of their values (`"facet"`), a range of their numbers (`"range"`), or a
+  range of their dates, or dates and times (`"date"`; whether they have times is the column's
+  `kind`). A facet, range or date filter column has its distinct values (`values`), in the order
+  of its `ranks`, so that
   a data row's value is `values[rank]`: as JSON values (numbers, strings, booleans; dates and
   times as ISO 8601 strings), with `null` for values JSON can't hold (NaN). Producers that leave
   `filters` out have none.
@@ -182,8 +184,8 @@ class LayoutSpec(TypedDict):
 
 class FilterSpec(TypedDict):
     column: str
-    type: Literal["text", "facet", "range"]
-    values: list[Any] | None  # a facet or range column's distinct values, by rank
+    type: Literal["text", "facet", "range", "date"]
+    values: list[Any] | None  # a facet, range or date filter column's distinct values, by rank
 
 
 class ViewSortSpec(TypedDict):
@@ -201,8 +203,9 @@ CodeBackend = Literal["polars", "pandas", "narwhals"]
 
 
 class CodeColumnSpec(TypedDict):
-    # (What the code goes by: a column of strings, of floats, of categories, or of another type)
-    dtype: Literal["string", "float", "categorical", "other"]
+    # (What the code goes by: a column of strings, of floats, of categories, of dates, of dates
+    # and times, or of another type)
+    dtype: Literal["string", "float", "categorical", "date", "datetime", "other"]
     nullable: bool  # a pandas nullable dtype, whose comparisons can be missing
     literals: list[str | None] | None  # a facet's values as Python (`None` where it can't be)
 
@@ -358,7 +361,8 @@ def build_spec(data: GTData) -> Spec:
         if var is None or var not in chosen:
             continue
         column_ranks = ranks.get(var)
-        filter_type = _filter_type(chosen[var], kind, column_ranks, nrows)
+        zoned = kind == "datetime" and _has_time_zone(tbl_data, var)
+        filter_type = _filter_type(chosen[var], kind, column_ranks, nrows, zoned)
         values = None
         if filter_type != "text":
             values = _filter_values(tbl_data, var, column_ranks or [])
@@ -390,14 +394,19 @@ def build_spec(data: GTData) -> Spec:
             )
 
     hideable = [column["id"] for column in columns if column["hideable"] and column["id"]]
+    all_kinds = {**{c["id"]: c["kind"] for c in columns}, **kinds}
     view = check_view(
-        settings.view_filter, settings.view_sort, filters, ranks, settings.view_hidden, hideable
+        settings.view_filter,
+        settings.view_sort,
+        filters,
+        ranks,
+        settings.view_hidden,
+        hideable,
+        all_kinds,
     )
     code = None
     if "code" in settings.export_formats:
-        code = code_spec(
-            tbl_data, {**{c["id"]: c["kind"] for c in columns}, **kinds}, filters, ranks
-        )
+        code = code_spec(tbl_data, all_kinds, filters, ranks)
     key = data._options.table_id.value
     if (settings.view_state_url or settings.view_state_storage) and not key:
         raise ValueError(
@@ -482,16 +491,26 @@ def _check_pins(columns: list[ColumnSpec]) -> None:
 
 
 def _filter_type(
-    chosen: FilterType, kind: ColumnKind, ranks: list[int | None] | None, nrows: int
-) -> Literal["text", "facet", "range"]:
-    """How a column is filtered: as chosen, or (for "auto") as its kind and values suggest."""
-    # (Facets and ranges go by the column's ranks, which a column the backend can't sort lacks)
+    chosen: FilterType,
+    kind: ColumnKind,
+    ranks: list[int | None] | None,
+    nrows: int,
+    zoned: bool = False,
+) -> Literal["text", "facet", "range", "date"]:
+    """How a column is filtered: as chosen, or (for "auto") as its kind and values suggest.
+
+    (A column of dates and times with a time zone, `zoned`, can't have a date filter yet.)
+    """
+    # (Facets, ranges and date filters go by the column's ranks, which a column the backend can't
+    # sort lacks)
     if ranks is None or chosen == "text":
         return "text"
     if chosen != "auto":
         return chosen
     if kind == "number":
         return "range"
+    if kind in ("date", "datetime") and not zoned:
+        return "date"
     if kind in ("boolean", "category"):
         return "facet"
     if kind == "string":
@@ -499,6 +518,13 @@ def _filter_type(
         if distinct <= FACET_MAX_VALUES and distinct * 2 <= nrows:
             return "facet"
     return "text"
+
+
+def _has_time_zone(data: Any, column: str) -> bool:
+    """Whether a column of dates and times has any with a time zone."""
+    return any(
+        getattr(value, "tzinfo", None) is not None for value in _get_column_values(data, column)
+    )
 
 
 def _filter_values(data: Any, column: str, ranks: list[int | None]) -> list[Any]:

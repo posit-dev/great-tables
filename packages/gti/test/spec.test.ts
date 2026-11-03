@@ -70,7 +70,14 @@ describe("parseSpec()", () => {
     ];
     expect(parse({ ...valid, filters: list }).filters).toEqual(list);
     expect(parse({ ...valid, filters: [{ column: "x", type: "facet", values: [true, "b"] }] }).filters).toHaveLength(1);
+    expect(parse({ ...valid, filters: [{ column: "x", type: "date", values: ["2015-06-15", "2015-06-15T09:30:00.123456789"] }] }).filters).toHaveLength(1);
     expect(parse(valid).filters).toBeUndefined();
+  });
+
+  it("rejects a date filter with values that aren't dates", () => {
+    for (const values of [[1, 2], ["2015-06-15", "June 15"], ["2015-02-30", null]]) {
+      expect(() => parse({ ...valid, filters: [{ column: "x", type: "date", values }] })).toThrow(SpecError);
+    }
   });
 
   it("takes the columns only for querying, or their absence", () => {

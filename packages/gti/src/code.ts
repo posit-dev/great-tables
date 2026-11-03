@@ -28,6 +28,30 @@ export function pyNumber(value: number): string {
 }
 
 /**
+ * A date bound (ISO 8601 text, as `filter.ts` has it), as Python's `repr()` writes it: a
+ * `datetime.date`, or for a column of dates and times, a `datetime.datetime` (a date as its
+ * midnight).
+ */
+export function pyDate(text: string, times: boolean): string {
+  const [date = "", time = ""] = text.split("T");
+  const [year, month, day] = date.split("-").map(Number);
+  if (!times) {
+    return `datetime.date(${year}, ${month}, ${day})`;
+  }
+  const [clock = "", fraction = ""] = time.split(".");
+  const [hour = 0, minute = 0, second = 0] = clock === "" ? [] : clock.split(":").map(Number);
+  const micro = Number(fraction.padEnd(6, "0"));
+  const parts = [year, month, day, hour, minute];
+  if (second !== 0 || micro !== 0) {
+    parts.push(second);
+  }
+  if (micro !== 0) {
+    parts.push(micro);
+  }
+  return `datetime.datetime(${parts.join(", ")})`;
+}
+
+/**
  * The code for a view (its query, as the `filter` property has it, its sort, and the columns it
  * hides, in column order), with its imports, for `backend`.
  *
@@ -92,6 +116,10 @@ export function viewCode(
         }
       }
       terms.push(term);
+    } else if (typeof clause.value === "string") {
+      imports.add("import datetime");
+      const term = `${col} ${clause.op === "gte" ? ">=" : "<="} ${pyDate(clause.value, column?.dtype === "datetime")}`;
+      terms.push(pandas && column?.nullable ? `(${term}).fillna(False)` : term);
     } else {
       let term = `${col} ${clause.op === "gte" ? ">=" : "<="} ${pyNumber(clause.value)}`;
       // (A float's NaN and infinities aren't kept)

@@ -12,7 +12,11 @@ Rows are kept when every clause keeps them. A clause's `op` is one of:
 - `"in"`, for a facet: keeps the rows with one of `value`'s values (a non-empty list of them, as
   JSON holds them, like the spec's `values`; `None` is a missing value).
 - `"gte"` and `"lte"`, for a range: keep the rows with a number that's at least (or at most)
-  `value`, a finite number. Missing values, NaN and infinities are never kept.
+  `value`, a finite number. Missing values, NaN and infinities are never kept. For a date filter:
+  the rows with a date (or date and time) on or after (or on or before) `value`, ISO 8601 text: a
+  date, `"2015-06-15"`, or for a column of dates and times, either that (its midnight) or a date
+  and time, `"2015-06-15T09:30"` (with seconds, and up to six digits of their fraction, if
+  wanted). Missing values are never kept.
 
 A column has at most one clause with each `op`. Queries are checked as the runtime checks them
 (`setFilterQuery()` in packages/gti/src/filter.ts), so that a view Python accepts is one
@@ -58,8 +62,19 @@ SortKeys = tuple[tuple[str, bool], ...]
 
 Backend = CodeBackend
 
-# The filter type each op is for
-OP_TYPES = {"contains": "text", "in": "facet", "gte": "range", "lte": "range"}
+# The filter types each op is for
+OP_TYPES = {
+    "contains": ("text",),
+    "in": ("facet",),
+    "gte": ("range", "date"),
+    "lte": ("range", "date"),
+}
+
+# A date, or a date and time, as ISO 8601 text (as the runtime's `dateKey()` reads it)
+_DATE_TEXT = re.compile(
+    r"([0-9]{4})-([0-9]{2})-([0-9]{2})"
+    r"(?:T([0-9]{2}):([0-9]{2})(?::([0-9]{2})(?:\.([0-9]{1,6}))?)?)?"
+)
 
 # What `String.prototype.trim()` removes (JavaScript's white space and line terminators), which
 # isn't what `str.strip()` does
@@ -154,15 +169,53 @@ def _facet_value(item: Any, col: str) -> Any:
     return value
 
 
-def _bound(value: Any, col: str, op: str) -> int | float:
+def _bound(value: Any, col: str, op: str) -> int | float | str:
     numpy_number = getattr(getattr(value, "dtype", None), "kind", None) in ("i", "u", "f")
     if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) or numpy_number:
         bound = _json_value(value)
         if bound is not None:
             return bound
+    if isinstance(value, dt.datetime):
+        if value.tzinfo is not None:
+            raise ValueError(
+                f"The filter's {op!r} clause on column {col!r} has {value!r}, which has a time "
+                "zone: give a date and time without one."
+            )
+        # (As Python's datetime has it, to the microsecond: a pandas `Timestamp` too)
+        return dt.datetime.isoformat(value)
+    if isinstance(value, dt.date):
+        return value.isoformat()
+    if isinstance(value, str) and parse_date(value) is not None:
+        return value
     raise ValueError(
-        f"The filter's {op!r} clause on column {col!r} needs a finite number, not {value!r}."
+        f"The filter's {op!r} clause on column {col!r} needs a finite number, or a date: as "
+        'ISO 8601 text ("2015-06-15", or with a time, "2015-06-15T09:30"), or a '
+        f"`datetime.date` or `datetime.datetime`; not {value!r}."
     )
+
+
+def parse_date(text: str) -> dt.date | dt.datetime | None:
+    """A date bound's ISO 8601 text (as `filter.ts` has it) as a date, or a date and time; or
+    `None` if it isn't one."""
+    found = _DATE_TEXT.fullmatch(text)
+    if found is None:
+        return None
+    year, month, day, hour, minute, second, fraction = found.groups()
+    try:
+        date = dt.date(int(year), int(month), int(day))
+        if hour is None:
+            return date
+        return dt.datetime(
+            date.year,
+            date.month,
+            date.day,
+            int(hour),
+            int(minute),
+            int(second or 0),
+            int((fraction or "").ljust(6, "0")),
+        )
+    except ValueError:
+        return None
 
 
 # Queries as text, as the runtime reads and writes them (packages/gti/src/query.ts) ----
@@ -170,10 +223,10 @@ def _bound(value: Any, col: str, op: str) -> int | float:
 #     status in ("single-tier", null) and population >= 10000 and `Name of town` contains "ville"
 #
 # Clauses joined by `and`; a clause is a column, then `contains` and a string, `in` and values in
-# parentheses, or `>=` or `<=` and a number. A column is a name of letters, digits and underscores
-# (not starting with a digit), or any name in backticks (a backtick in it doubled). Strings and
-# numbers are as in JSON; the other values are `true`, `false` and `null`. Keywords can be in any
-# case. Empty text is no query. Errors are the runtime's, word for word.
+# parentheses, or `>=` or `<=` and a number or a date (a string). A column is a name of letters,
+# digits and underscores (not starting with a digit), or any name in backticks (a backtick in it
+# doubled). Strings and numbers are as in JSON; the other values are `true`, `false` and `null`.
+# Keywords can be in any case. Empty text is no query. Errors are the runtime's, word for word.
 
 _NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _STRING = re.compile(r'"(?:[^"\\\x00-\x1f]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"')
@@ -296,8 +349,8 @@ class _QueryParser:
             return {"col": col, "op": "in", "value": values}
         if self.is_symbol(">=") or self.is_symbol("<="):
             op = "gte" if self.advance().value == ">=" else "lte"
-            if self.token.kind != "number":
-                self.fail("expected a number")
+            if self.token.kind not in ("number", "string"):
+                self.fail("expected a number, or a date in double quotes")
             return {"col": col, "op": op, "value": self.advance().value}
         return self.fail('expected "contains", "in", ">=" or "<="')
 
@@ -401,10 +454,12 @@ def check_view(
     ranks: Mapping[str, Any],
     hidden: Sequence[str] = (),
     hideable: Sequence[str] = (),
+    kinds: Mapping[str | None, ColumnKind] | None = None,
 ) -> ViewSpec:
     """
     Check a view against a table's filters, sortable columns, and the columns readers can hide
-    (in column order), as the runtime does.
+    (in column order), as the runtime does. (A date filter's bounds go by its column's kind: a
+    column of dates takes dates, without times.)
     """
     by_column = {f["column"]: f for f in filters}
     for clause in query["and"] if query is not None else []:
@@ -415,14 +470,31 @@ def check_view(
                 f"The view's filter has a clause on column {col!r}, which has no filter. Give it "
                 "one with `i_cols_filter()`."
             )
-        if OP_TYPES[op] != found["type"]:
+        if found["type"] not in OP_TYPES[op]:
             ops = " or ".join(
-                repr(name) for name, type in OP_TYPES.items() if type == found["type"]
+                repr(name) for name, types in OP_TYPES.items() if found["type"] in types
             )
             raise ValueError(
                 f"The view's filter has a {op!r} clause on column {col!r}, which has a "
                 f"{found['type']} filter (for {ops} clauses)."
             )
+        if found["type"] == "range" and isinstance(value, str):
+            raise ValueError(
+                f"The view's filter has {value!r} for its {op!r} clause on column {col!r}, which "
+                "has a range filter (for numbers)."
+            )
+        if found["type"] == "date":
+            if not isinstance(value, str):
+                raise ValueError(
+                    f"The view's filter has {value!r} for its {op!r} clause on column {col!r}, "
+                    'which has a date filter (for dates, as "2015-06-15").'
+                )
+            if "T" in value and (kinds or {}).get(col) != "datetime":
+                raise ValueError(
+                    f"The view's filter has {value!r} for its {op!r} clause on column {col!r}, "
+                    "whose values are dates, without times (give a date, as "
+                    f"{value.split('T')[0]!r})."
+                )
         if op == "in":
             keys = {_value_key(item) for item in found["values"] or [] if item is not None}
             for item in value:
@@ -664,7 +736,7 @@ class _In:
 class _Compare:
     col: str
     op: Literal["gte", "lte"]
-    value: int | float
+    value: int | float | dt.date  # (a date filter's as a date, or a datetime for one with times)
     finite: bool  # (a column of floats, whose NaN and infinities aren't kept)
 
 
@@ -698,10 +770,23 @@ def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_P
             # (The runtime has -0 as 0, as JavaScript's `Map` does)
             signed_zero = dtype.is_float() and 0 in values
             predicates.append(_In(col, values, None in value, as_text, signed_zero))
+        elif isinstance(value, str):
+            predicates.append(_Compare(col, op, _date_bound(value, kinds.get(col)), False))
         else:
             finite = isinstance(dtype, (nw.Float32, nw.Float64))
             predicates.append(_Compare(col, op, value, finite))
     return predicates
+
+
+def _date_bound(text: str, kind: str | None) -> dt.date:
+    """A date filter's bound as the column compares to it: a date, or for a column of dates and
+    times, a datetime (a date as its midnight)."""
+    value = parse_date(text)
+    if value is None:
+        raise ValueError(f"{text!r} isn't a date.")
+    if kind == "datetime" and not isinstance(value, dt.datetime):
+        return dt.datetime(value.year, value.month, value.day)
+    return value
 
 
 def _from_json(value: Any, kind: str | None, dtype: Any, col: str) -> Any:
@@ -910,7 +995,9 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     schema = frame.schema
     # (As the runtime has the query, so that its code is the runtime's, character for character)
     predicates = [
-        replace(p, value=_whole(p.value)) if isinstance(p, _Compare) else p
+        replace(p, value=_whole(p.value))
+        if isinstance(p, _Compare) and not isinstance(p.value, dt.date)
+        else p
         for p in _plan(_canonical(spec["view"]["filter"], spec["filters"]), spec, schema)
     ]
     sort = [(key["column"], key["descending"]) for key in spec["view"]["sort"]]
@@ -923,9 +1010,10 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     else:
         code = _narwhals_code(predicates, sort, hidden, schema, imports)
     for predicate in predicates:
-        if isinstance(predicate, _In) and any(
-            isinstance(value, (dt.date, dt.time)) for value in predicate.values
-        ):
+        values = predicate.values if isinstance(predicate, _In) else ()
+        if isinstance(predicate, _Compare):
+            values = (predicate.value,)
+        if any(isinstance(value, (dt.date, dt.time)) for value in values):
             imports.add("import datetime")
     header = "\n".join(sorted(imports))
     return f"{header}\n\n{code}\n" if header else f"{code}\n"
@@ -980,7 +1068,8 @@ def code_spec(
     """What the runtime needs to write a view's code as `query_code()` does.
 
     That's the library of the data, and for each column the view can filter or sort by, the
-    type that the code goes by and (for a facet) its values as Python, as the code writes them.
+    type that the code goes by (a date filter's bounds are dates, or datetimes for a column of
+    dates and times) and (for a facet) its values as Python, as the code writes them.
     """
     import narwhals as nw
 
@@ -1001,6 +1090,7 @@ def code_spec(
                 except ValueError:
                     literal = None
                 literals.append(None if value is None else literal)
+        kind = kinds.get(name)
         spec[name] = CodeColumnSpec(
             dtype=(
                 "string"
@@ -1009,6 +1099,10 @@ def code_spec(
                 if dtype.is_float()
                 else "categorical"
                 if isinstance(dtype, (nw.Categorical, nw.Enum))
+                else "date"
+                if kind == "date"
+                else "datetime"
+                if kind == "datetime"
                 else "other"
             ),
             nullable=_nullable(data, name),

@@ -1,11 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { ColumnFilter, filterQuery, MISSING, setFilterQuery } from "../src/filter";
+import { ColumnFilter, dateKey, filterQuery, MISSING, setFilterQuery } from "../src/filter";
 import { CellText } from "../src/search";
 
 // Five rows: `x` is 20, 5, 10, missing, 20; `y` is "b", "a", "c", "a", "a"; `z` is text
 const x = () => new ColumnFilter({ column: "x", type: "range", values: [5, 10, 20] }, 1, [2, 0, 1, null, 2]);
 const y = () => new ColumnFilter({ column: "y", type: "facet", values: ["a", "b", "c"] }, 2, [1, 0, 2, 0, 0]);
 const z = () => new ColumnFilter({ column: "z", type: "text", values: null }, 3, []);
+// `d` is 2015-06-15, 2015-01-01, missing, 2015-12-31, 2015-06-15; `t` is dates and times
+const d = () =>
+  new ColumnFilter(
+    { column: "d", type: "date", values: ["2015-01-01", "2015-06-15", "2015-12-31"] },
+    4,
+    [1, 0, null, 2, 1],
+    null,
+    "date",
+  );
+const t = () =>
+  new ColumnFilter(
+    { column: "t", type: "date", values: ["2015-06-14T23:59:59.999999999", "2015-06-15T00:00:00", "2015-06-15T09:30:00.5"] },
+    5,
+    [0, 1, 2, null, 2],
+    null,
+    "datetime",
+  );
 
 const cell = (text: string) => {
   const td = document.createElement("td");
@@ -85,6 +102,101 @@ describe("ColumnFilter", () => {
     filter.min = 1;
     filter.clear();
     expect(filter.active).toBe(false);
+  });
+});
+
+describe("dateKey()", () => {
+  it("makes dates and times into text that sorts as they do", () => {
+    expect(dateKey("2015-06-15")).toBe("2015-06-15T00:00:00.000000000");
+    expect(dateKey("2015-06-15T09:30")).toBe("2015-06-15T09:30:00.000000000");
+    expect(dateKey("2015-06-15T09:30:05.25")).toBe("2015-06-15T09:30:05.250000000");
+    expect(dateKey("0001-01-01T23:59:59.123456789")).toBe("0001-01-01T23:59:59.123456789");
+    expect(dateKey("2016-02-29")).not.toBeNull();
+    expect(dateKey("2000-02-29")).not.toBeNull();
+  });
+
+  it.each([
+    "",
+    "2015-6-15",
+    "2015-06-15 09:30",
+    "2015-06-15T09",
+    "2015-06-15T09:30Z",
+    "2015-06-15T09:30:00+00:00",
+    "2015-06-15T09:30:00.",
+    "0000-01-01",
+    "2015-00-01",
+    "2015-13-01",
+    "2015-04-31",
+    "2015-02-29",
+    "1900-02-29",
+    "2015-06-15T24:00",
+    "2015-06-15T09:60",
+    "2015-06-15T09:30:60",
+    "２０１５-06-15",
+  ])("isn't made of %j", (text) => {
+    expect(dateKey(text)).toBeNull();
+  });
+
+  it("takes as many digits of a second's fraction as asked", () => {
+    expect(dateKey("2015-06-15T09:30:00.1234567", 6)).toBeNull();
+    expect(dateKey("2015-06-15T09:30:00.123456", 6)).not.toBeNull();
+  });
+});
+
+describe("a date filter", () => {
+  it("keeps the rows within its bounds, either of which can be open", () => {
+    const filter = d();
+    expect(filter.active).toBe(false);
+    expect(kept(filter)).toEqual([0, 1, 2, 3, 4]);
+    filter.min = "2015-06-15";
+    expect(filter.active).toBe(true);
+    expect(kept(filter)).toEqual([0, 3, 4]);
+    expect(filter.clauses()).toEqual([{ col: "d", op: "gte", value: "2015-06-15" }]);
+    filter.max = "2015-06-15";
+    expect(kept(filter)).toEqual([0, 4]);
+    // (Never a missing value)
+    filter.min = null;
+    filter.max = "2016-01-01";
+    expect(kept(filter)).toEqual([0, 1, 3, 4]);
+  });
+
+  it("compares dates and times as times, a date as its midnight", () => {
+    const filter = t();
+    filter.min = "2015-06-15";
+    expect(kept(filter)).toEqual([1, 2, 4]);
+    filter.min = "2015-06-15T00:00:00.000001";
+    expect(kept(filter)).toEqual([2, 4]);
+    filter.min = null;
+    filter.max = "2015-06-15T09:30:00.5";
+    expect(kept(filter)).toEqual([0, 1, 2, 4]);
+    filter.max = "2015-06-15T09:30:00.499999";
+    expect(kept(filter)).toEqual([0, 1]);
+  });
+
+  it("takes bounds that are dates, or for a column with times, dates and times", () => {
+    expect(d().parse([{ col: "d", op: "gte", value: "2020-02-29" }]).min).toBe("2020-02-29");
+    expect(t().parse([{ col: "t", op: "lte", value: "2015-06-15" }]).max).toBe("2015-06-15");
+    expect(t().parse([{ col: "t", op: "lte", value: "2015-06-15T09:30:00.123456" }]).max).toBe(
+      "2015-06-15T09:30:00.123456",
+    );
+    expect(() => d().parse([{ col: "d", op: "gte", value: "2015-06-15T09:30" }])).toThrow(
+      '"2015-06-15T09:30" isn\'t a date ("YYYY-MM-DD"), for "d" (of dates, without times)',
+    );
+    expect(() => t().parse([{ col: "t", op: "gte", value: "2015-06-31" }])).toThrow(
+      '"2015-06-31" isn\'t a date ("YYYY-MM-DD") or date and time ("YYYY-MM-DDTHH:MM:SS"), for "t"',
+    );
+    // (Python's times have six digits of a second's fraction)
+    expect(() => t().parse([{ col: "t", op: "gte", value: "2015-06-15T09:30:00.1234567" }])).toThrow(RangeError);
+    expect(() => d().parse([{ col: "d", op: "gte", value: 2015 }])).toThrow('"d" has a date filter');
+    expect(() => d().parse([{ col: "d", op: "in", value: ["2015-06-15"] }])).toThrow('"d" has a date filter');
+  });
+
+  it("finds the value a bound is, as a date or time", () => {
+    expect(d().dateRank("2015-06-15")).toBe(1);
+    expect(d().dateRank("2015-06-16")).toBeUndefined();
+    expect(t().dateRank("2015-06-15T00:00")).toBe(1);
+    expect(t().dateRank("2015-06-15")).toBe(1);
+    expect(t().dateRank("2015-06-15T09:30:00.500")).toBe(2);
   });
 });
 

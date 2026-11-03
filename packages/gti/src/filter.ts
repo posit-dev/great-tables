@@ -3,22 +3,64 @@
  *
  * A text filter keeps the rows whose cell in its column has its text (ignoring case and accents,
  * as the search does); a facet, the rows with one of the values chosen; a range, the rows with a
- * number within its bounds. Facets and ranges go by the column's values (the spec's `values`, in
- * the order of the column's ranks), so the query is in the data's terms:
+ * number within its bounds; a date filter, the rows with a date (or date and time) within its
+ * bounds. Facets, ranges and date filters go by the column's values (the spec's `values`, in the
+ * order of the column's ranks), so the query is in the data's terms:
  *
  *   {"and": [{"col": "status", "op": "in", "value": ["single-tier", null]},
- *            {"col": "population", "op": "gte", "value": 10000}]}
+ *            {"col": "population", "op": "gte", "value": 10000},
+ *            {"col": "founded", "op": "lte", "value": "1900-12-31"}]}
  *
- * (In a facet's values, `null` is a missing value.)
+ * (In a facet's values, `null` is a missing value. A date filter's bounds are ISO 8601 text: a
+ * date, `"YYYY-MM-DD"`, or for a column of dates and times, either that, meaning its midnight, or a
+ * date and time, `"YYYY-MM-DDTHH:MM"`, with seconds and up to six digits of their fraction if
+ * wanted.)
  */
 
 import { type CellText, fold } from "./search";
-import type { FilterSpec, FilterValue } from "./spec";
+import type { ColumnKind, FilterSpec, FilterValue } from "./spec";
 
 export type FilterClause =
   | { col: string; op: "contains"; value: string }
   | { col: string; op: "in"; value: FilterValue[] }
-  | { col: string; op: "gte" | "lte"; value: number };
+  | { col: string; op: "gte" | "lte"; value: number | string };
+
+const DATE_TEXT = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?)?$/;
+
+/**
+ * A date (or date and time) as ISO 8601 text, as text that sorts as it does
+ * (`"YYYY-MM-DDTHH:MM:SS.fffffffff"`); or `null` if it isn't one. A bound can have up to six digits
+ * of a second's fraction (as Python's times do), a value up to nine (as pandas' do).
+ */
+export function dateKey(text: string, digits = 9): string | null {
+  const match = DATE_TEXT.exec(text);
+  if (match === null) {
+    return null;
+  }
+  const [, year, month, day, hour = "00", minute = "00", second = "00", fraction = ""] = match as unknown as string[];
+  const y = Number(year);
+  const m = Number(month);
+  const d = Number(day);
+  const leap = y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0);
+  const days = m === 2 ? (leap ? 29 : 28) : [4, 6, 9, 11].includes(m) ? 30 : 31;
+  if (
+    y < 1 ||
+    m < 1 ||
+    m > 12 ||
+    d < 1 ||
+    d > days ||
+    Number(hour) > 23 ||
+    Number(minute) > 59 ||
+    Number(second) > 59 ||
+    fraction.length > digits
+  ) {
+    return null;
+  }
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}.${fraction.padEnd(9, "0")}`;
+}
+
+/** Whether ISO 8601 text is a date and time (rather than a date). */
+export const hasTime = (text: string): boolean => text.includes("T");
 
 /** The filters on a table: rows are kept when every clause keeps them. */
 export interface FilterQuery {
@@ -31,8 +73,8 @@ export const MISSING = -1;
 interface FilterState {
   text: string;
   chosen: Set<number>;
-  min: number | null;
-  max: number | null;
+  min: number | string | null;
+  max: number | string | null;
 }
 
 /** The filter on one column, and the rows it keeps. */
@@ -51,18 +93,32 @@ export class ColumnFilter {
   needle = "";
   /** The values a facet keeps rows with: ranks, or `MISSING`. */
   chosen = new Set<number>();
-  /** A range's bounds (either can be open). */
-  min: number | null = null;
-  max: number | null = null;
+  /**
+   * A range's bounds, or a date filter's (as ISO 8601 text); either can be open. Set them with
+   * `setState()`, or valid ones.
+   */
+  min: number | string | null = null;
+  max: number | string | null = null;
+  /** Whether a date filter's column has times (a date bound is its midnight), not just dates. */
+  readonly times: boolean;
   private readonly ranks: readonly (number | null)[];
   private keys: Map<FilterValue, number> | null = null;
   private folded: string[] | null = null;
+  private dates: (string | null)[] | null = null;
+  private bounds: [unknown, string | null, unknown, string | null] = [null, null, null, null];
 
-  constructor(spec: FilterSpec, index: number, ranks: readonly (number | null)[], texts: readonly string[] | null = null) {
+  constructor(
+    spec: FilterSpec,
+    index: number,
+    ranks: readonly (number | null)[],
+    texts: readonly string[] | null = null,
+    kind: ColumnKind | null = null,
+  ) {
     this.spec = spec;
     this.index = index;
     this.ranks = ranks;
     this.texts = texts;
+    this.times = kind === "datetime";
   }
 
   get column(): string {
@@ -81,6 +137,7 @@ export class ColumnFilter {
       case "facet":
         return this.chosen.size > 0;
       case "range":
+      case "date":
         return this.min !== null || this.max !== null;
     }
   }
@@ -125,11 +182,54 @@ export class ColumnFilter {
         const value = this.value(row);
         return (
           typeof value === "number" &&
-          (this.min === null || value >= this.min) &&
-          (this.max === null || value <= this.max)
+          (this.min === null || value >= (this.min as number)) &&
+          (this.max === null || value <= (this.max as number))
         );
       }
+      case "date": {
+        if (this.min === null && this.max === null) {
+          return true;
+        }
+        const rank = this.ranks[row];
+        const key = rank == null ? null : this.dateKeys()[rank];
+        const [low, high] = this.boundKeys();
+        return key != null && (low === null || key >= low) && (high === null || key <= high);
+      }
     }
+  }
+
+  /** The keys (as `dateKey()` makes them) of a date filter's values, in the order of their ranks. */
+  dateKeys(): readonly (string | null)[] {
+    return (this.dates ??= (this.spec.values ?? []).map((value) => (typeof value === "string" ? dateKey(value) : null)));
+  }
+
+  /** The keys of a date filter's bounds (kept while the bounds are the same). */
+  private boundKeys(): [string | null, string | null] {
+    const bounds = this.bounds;
+    if (bounds[0] !== this.min) {
+      bounds[0] = this.min;
+      bounds[1] = typeof this.min === "string" ? dateKey(this.min) : null;
+    }
+    if (bounds[2] !== this.max) {
+      bounds[2] = this.max;
+      bounds[3] = typeof this.max === "string" ? dateKey(this.max) : null;
+    }
+    return [bounds[1], bounds[3]];
+  }
+
+  /**
+   * Whether text is a bound a date filter can have: a date, or for a column with times, a date and
+   * time.
+   */
+  isDateBound(text: string): boolean {
+    return dateKey(text, 6) !== null && (this.times || !hasTime(text));
+  }
+
+  /** The rank of the value that a date filter's bound is (as a date or time, not text), if one is. */
+  dateRank(text: string): number | undefined {
+    const key = dateKey(text);
+    const rank = key === null ? -1 : this.dateKeys().indexOf(key);
+    return rank < 0 ? undefined : rank;
   }
 
   /** The filter, as query clauses (none if it isn't active). */
@@ -146,7 +246,8 @@ export class ColumnFilter {
         const keys = Array.from(this.chosen).sort((a, b) => (a === MISSING ? 1 : b === MISSING ? -1 : a - b));
         return [{ col, op: "in", value: keys.map((key) => (key === MISSING ? null : this.valueOf(key))) }];
       }
-      case "range": {
+      case "range":
+      case "date": {
         const clauses: FilterClause[] = [];
         if (this.min !== null) {
           clauses.push({ col, op: "gte", value: this.min });
@@ -190,6 +291,15 @@ export class ColumnFilter {
         }
       } else if (this.spec.type === "range" && (op === "gte" || op === "lte") && Number.isFinite(value)) {
         state[op === "gte" ? "min" : "max"] = value as number;
+      } else if (this.spec.type === "date" && (op === "gte" || op === "lte") && typeof value === "string") {
+        if (!this.isDateBound(value)) {
+          throw new RangeError(
+            this.times
+              ? `${JSON.stringify(value)} isn't a date ("YYYY-MM-DD") or date and time ("YYYY-MM-DDTHH:MM:SS"), for ${col}`
+              : `${JSON.stringify(value)} isn't a date ("YYYY-MM-DD"), for ${col} (of dates, without times)`,
+          );
+        }
+        state[op === "gte" ? "min" : "max"] = value;
       } else {
         throw new RangeError(`${col} has a ${this.spec.type} filter, which can't be ${JSON.stringify(clause)}`);
       }
