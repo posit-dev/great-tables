@@ -88,7 +88,7 @@ interface TableOptions {
   /** The view isn't kept unless set. */
   viewState?: object;
   /** What readers can do with each column (by its id), if not everything, and where it's pinned. */
-  columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable">>;
+  columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable">>;
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -3826,7 +3826,7 @@ describe("the view kept", () => {
     expect(localStorage.getItem(STORED)).toBeNull();
     expect(reset(el).getAttribute("aria-disabled")).toBe("true");
     expect(el.querySelector(".gt-i-live")?.textContent).toMatch(/^The view is reset: /);
-    expect(fired).toEqual([{ filter: null, sort: AUTHOR_SORT, search: "", page: 1, pageSize: 2, hidden: [] }]);
+    expect(fired).toEqual([{ filter: null, sort: AUTHOR_SORT, search: "", page: 1, pageSize: 2, hidden: [], order: [] }]);
     // (Disabled, it does nothing)
     reset(el).click();
     expect(fired).toHaveLength(1);
@@ -3859,8 +3859,8 @@ describe("the view kept", () => {
     click(el, "x");
     (el.querySelector('.gt-i-bar [data-gti-bar="next"]') as HTMLButtonElement).click();
     expect(fired).toEqual([
-      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 1, pageSize: 2, hidden: [] },
-      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 2, pageSize: 2, hidden: [] },
+      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 1, pageSize: 2, hidden: [], order: [] },
+      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 2, pageSize: 2, hidden: [], order: [] },
     ]);
     el.sort = [];
     el.filter = FILTER;
@@ -4038,12 +4038,12 @@ describe("undo", () => {
     // (Shown in the filter's panel, too)
     expect(header(el, "y").hasAttribute("data-gti-filtered")).toBe(true);
     expect(views()).toEqual([
-      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
-      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
-      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
-      { filter: null, sort: [], search: "", page: 1, pageSize: 2, hidden: [] },
-      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
-      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
+      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [], order: [] },
+      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [], order: [] },
+      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [], order: [] },
+      { filter: null, sort: [], search: "", page: 1, pageSize: 2, hidden: [], order: [] },
+      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [], order: [] },
+      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [], order: [] },
     ]);
 
     // A new change, after one is undone, can't be redone
@@ -5592,5 +5592,248 @@ describe("hiding columns", () => {
       expect(el.hiddenColumns).toEqual(["x"]);
       expect(boxes(el).map((box) => box.checked)).toEqual([false, true]);
     });
+  });
+});
+
+describe("reordering columns", () => {
+  const BOTH = { x: { reorderable: true }, y: { reorderable: true } };
+  const toggle = (el: GtTable) => el.querySelector<HTMLButtonElement>('.gt-i-bar [data-gti-bar="columns"]');
+  const panel = (el: GtTable) => el.querySelector(".gt-i-columns") as HTMLElement;
+  const items = (el: GtTable) => Array.from(panel(el).querySelectorAll<HTMLElement>(".gt-i-column"));
+  const names = (el: GtTable) => items(el).map((item) => item.textContent);
+  const item = (el: GtTable, id: string) => panel(el).querySelector(`[data-gti-column="${id}"]`) as HTMLElement;
+  const earlier = (el: GtTable, id: string) => item(el, id).querySelectorAll<HTMLButtonElement>(".gt-i-column-move")[0] as HTMLButtonElement;
+  const later = (el: GtTable, id: string) => item(el, id).querySelectorAll<HTMLButtonElement>(".gt-i-column-move")[1] as HTMLButtonElement;
+  const resetOrder = (el: GtTable) =>
+    Array.from(panel(el).querySelectorAll<HTMLButtonElement>(".gt-i-info-button")).find((b) => b.textContent === "Reset order") as HTMLButtonElement;
+  const live = (el: GtTable) => el.querySelector(".gt-i-live")?.textContent;
+  const cells = (tr: HTMLTableRowElement | null) =>
+    Array.from((tr as HTMLTableRowElement).cells, (cell) => (cell.hidden ? null : cell.textContent)).filter((text) => text !== null);
+  const labels = (el: GtTable) => Array.from(el.querySelectorAll("thead th"), (th) => th.textContent);
+
+  // GROUPED, with a bar, `x` and `y` reorderable (unless set otherwise), and the view events fired
+  async function mountOrder(options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, { columns: BOTH, ...options, controls: { bar: true, ...options.controls } });
+    const views: ViewEventDetail[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent<ViewEventDetail>).detail));
+    return { el, views };
+  }
+
+  it("moves columns from a panel in the bar, keeping focus on the button", async () => {
+    const { el, views } = await mountOrder();
+    const button = toggle(el) as HTMLButtonElement;
+    expect(button.getAttribute("aria-label")).toBe("Reorder columns");
+    expect(panel(el).getAttribute("aria-label")).toBe("Columns");
+    expect(el.reorderableColumns).toEqual(["x", "y"]);
+    expect(el.columnOrder).toEqual(["x", "y"]);
+    button.click();
+    expect(names(el)).toEqual(["x", "y"]);
+    // (No checkboxes, for columns readers can't hide)
+    expect(panel(el).querySelector("input")).toBeNull();
+    expect(earlier(el, "x").getAttribute("aria-label")).toBe("Move x earlier");
+    expect(earlier(el, "x").getAttribute("aria-disabled")).toBe("true");
+    expect(later(el, "x").getAttribute("aria-disabled")).toBe("false");
+    expect(later(el, "y").getAttribute("aria-disabled")).toBe("true");
+    expect(resetOrder(el).getAttribute("aria-disabled")).toBe("true");
+
+    const move = later(el, "x");
+    move.focus();
+    move.click();
+    expect(el.columnOrder).toEqual(["y", "x"]);
+    expect(labels(el)).toEqual(["", "y", "x"]);
+    expect(cells(el.rowElement(0))).toEqual(["row_1", "b", "20"]);
+    expect(cells(el.querySelector<HTMLTableRowElement>(".gt_summary_row")?.closest("tr") ?? null)).toEqual(["Total", "-", "-"]);
+    expect(names(el)).toEqual(["y", "x"]);
+    expect(document.activeElement).toBe(move);
+    expect(move.getAttribute("aria-disabled")).toBe("true");
+    expect(live(el)).toBe("x moved after y");
+    expect(resetOrder(el).getAttribute("aria-disabled")).toBe("false");
+    // (Disabled, it does nothing)
+    move.click();
+    expect(views.map((view) => view.order)).toEqual([["y", "x"]]);
+
+    earlier(el, "x").click();
+    expect(el.columnOrder).toEqual(["x", "y"]);
+    expect(live(el)).toBe("x moved before y");
+    later(el, "x").click();
+    resetOrder(el).click();
+    expect(el.columnOrder).toEqual(["x", "y"]);
+    expect(cells(el.rowElement(0))).toEqual(["row_1", "20", "b"]);
+    expect(live(el)).toBe("Column order reset");
+    expect(views.map((view) => view.order)).toEqual([["y", "x"], ["x", "y"], ["y", "x"], ["x", "y"]]);
+  });
+
+  it("moves a column with Alt and the arrow keys", async () => {
+    const { el } = await mountOrder();
+    toggle(el)?.click();
+    const press = (target: Element, key: string, init: KeyboardEventInit = {}) => {
+      const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...init });
+      target.dispatchEvent(event);
+      return event;
+    };
+    expect(press(later(el, "y"), "ArrowUp", { altKey: true }).defaultPrevented).toBe(true);
+    expect(el.columnOrder).toEqual(["y", "x"]);
+    press(earlier(el, "y"), "ArrowDown");
+    expect(el.columnOrder).toEqual(["y", "x"]);
+    press(earlier(el, "y"), "ArrowDown", { altKey: true });
+    expect(el.columnOrder).toEqual(["x", "y"]);
+    expect(el.querySelector(".gt-i-info-shortcuts")?.textContent).toContain("Move a column, in the Columns panel");
+  });
+
+  it("moves a column dragged by its handle, or puts it back on Escape", async () => {
+    const { el, views } = await mountOrder();
+    toggle(el)?.click();
+    // (Each item 20px tall, in the order shown)
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const i = items(el).indexOf(this as HTMLElement);
+      return new DOMRect(0, Math.max(0, i) * 20, 100, 20);
+    });
+    const grip = (id: string) => item(el, id).querySelector(".gt-i-column-grip") as HTMLElement;
+    const pointer = (target: EventTarget, type: string, clientY: number) =>
+      target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 1, button: 0, clientY }));
+
+    pointer(grip("x"), "pointerdown", 10);
+    expect(item(el, "x").hasAttribute("data-gti-dragging")).toBe(true);
+    pointer(document, "pointermove", 35);
+    expect(names(el)).toEqual(["y", "x"]);
+    expect(el.columnOrder).toEqual(["x", "y"]);
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(names(el)).toEqual(["x", "y"]);
+    expect(item(el, "x").hasAttribute("data-gti-dragging")).toBe(false);
+    expect(panel(el).hidden).toBe(false);
+    expect(views).toEqual([]);
+
+    pointer(grip("y"), "pointerdown", 30);
+    pointer(document, "pointermove", 5);
+    pointer(document, "pointerup", 5);
+    expect(el.columnOrder).toEqual(["y", "x"]);
+    expect(live(el)).toBe("y moved before x");
+    expect(views.map((view) => view.order)).toEqual([["y", "x"]]);
+    // (Dropped where it was, it doesn't move)
+    pointer(grip("y"), "pointerdown", 5);
+    pointer(document, "pointerup", 5);
+    expect(views).toHaveLength(1);
+  });
+
+  it("sets the order from code, without events, but not of a column readers can't move", async () => {
+    const { el, views } = await mountOrder();
+    el.columnOrder = ["y"];
+    expect(el.columnOrder).toEqual(["y", "x"]);
+    expect(cells(el.rowElement(0))).toEqual(["row_1", "b", "20"]);
+    expect(() => {
+      el.columnOrder = ["row"];
+    }).toThrow('"row" isn\'t a column that can be moved');
+    expect(() => {
+      el.columnOrder = ["x", "x"];
+    }).toThrow('"x" is given twice');
+    el.columnOrder = [];
+    expect(el.columnOrder).toEqual(["x", "y"]);
+    expect(views).toEqual([]);
+  });
+
+  it("moves a column only among those next to it under the same spanners and on the same side", async () => {
+    const alone = await mountTable(GROUPED, { columns: { y: { reorderable: true } }, controls: { bar: true } });
+    expect(alone.reorderableColumns).toEqual([]);
+    expect(toggle(alone)).toBeNull();
+    const pinned = await mountTable(GROUPED, { columns: { x: { reorderable: true, pin: "start" }, y: { reorderable: true } } });
+    expect(pinned.reorderableColumns).toEqual([]);
+    const split = await mountTable(GROUPED, {
+      columns: BOTH,
+      thead:
+        `<tr class="gt_col_headings gt_spanner_row"><th class="gt_col_heading" rowspan="2"></th>` +
+        `<th class="gt_column_spanner_outer" id="t-s"><span class="gt_column_spanner">S</span></th>` +
+        `<th class="gt_column_spanner_outer"></th></tr>` +
+        `<tr class="gt_col_headings"><th class="gt_col_heading" id="t-x">x</th><th class="gt_col_heading" id="t-y">y</th></tr>`,
+      spanners: [{ id: "s", level: 1, columns: ["x"], header: "t-s" }],
+    });
+    expect(split.reorderableColumns).toEqual([]);
+  });
+
+  it("moves the cells under a spanner over the run, which stays", async () => {
+    const { el } = await mountOrder({
+      thead:
+        `<tr class="gt_col_headings gt_spanner_row"><th class="gt_col_heading" rowspan="2"></th>` +
+        `<th class="gt_column_spanner_outer" colspan="2" id="t-s"><span class="gt_column_spanner">Values</span></th></tr>` +
+        `<tr class="gt_col_headings"><th class="gt_col_heading" id="t-x">x</th><th class="gt_col_heading" id="t-y">y</th></tr>`,
+      spanners: [{ id: "s", level: 1, columns: ["x", "y"], header: "t-s" }],
+      columns: { x: { reorderable: true, hideable: true }, y: { reorderable: true, hideable: true } },
+    });
+    expect(toggle(el)?.getAttribute("aria-label")).toBe("Show, hide or reorder columns");
+    el.columnOrder = ["y", "x"];
+    expect(labels(el)).toEqual(["", "Values", "y", "x"]);
+    toggle(el)?.click();
+    expect(Array.from(panel(el).querySelectorAll("label"), (label) => label.textContent)).toEqual(["Values – y", "Values – x"]);
+    later(el, "y").click();
+    expect(live(el)).toBe("Values – y moved after x");
+    // (A column hidden is passed over, and can't be moved past)
+    el.hiddenColumns = ["x"];
+    expect([earlier(el, "y"), later(el, "y")].map((b) => b.getAttribute("aria-disabled"))).toEqual(["true", "true"]);
+    expect(cells(el.rowElement(0))).toEqual(["row_1", "b"]);
+    el.hiddenColumns = [];
+    expect(cells(el.rowElement(0))).toEqual(["row_1", "20", "b"]);
+    expect(header(el, "s").colSpan).toBe(2);
+  });
+
+  it("keeps the search, filters, sort and export on the columns as moved", async () => {
+    const { el } = await mountOrder({
+      controls: { search: true },
+      filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }],
+      export: { formats: ["csv"] },
+      columns: { x: { reorderable: true }, y: { reorderable: true, searchable: false } },
+    });
+    el.columnOrder = ["y", "x"];
+    el.search = "b";
+    expect(visible(el)).toEqual(["grand:Max"]);
+    el.search = "10";
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    el.search = "";
+    el.filter = { and: [{ col: "y", op: "in", value: ["c"] }] };
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    el.filter = null;
+    el.sort = [{ column: "x", descending: false }];
+    expect(cells(el.rowElement(1))).toEqual(["row_2", "a", "5"]);
+    expect(el.toCSV().split("\r\n")[0]).toBe(",row,y,x");
+    expect(el.toCSV().split("\r\n")[1]).toBe("b,row_1,b,20");
+  });
+
+  it("moves the cells with the groups as a column, and a selection column", async () => {
+    const body: BodyRow[] = [{ group: "b" }, 3, 0, { group: "a" }, 1, 2];
+    const el = await mountTable(body, {
+      columns: BOTH,
+      groupsAsColumn: true,
+      controls: { selection: "multiple" },
+      thead:
+        `<tr class="gt_col_headings"><th class="gt_col_heading" colspan="2"></th>` +
+        `<th class="gt_col_heading" id="t-x">x</th><th class="gt_col_heading" id="t-y">y</th></tr>`,
+    });
+    el.columnOrder = ["y", "x"];
+    const first = el.querySelector(".gt_row_group_first") as HTMLTableRowElement;
+    expect(cells(first).slice(1)).toEqual(["b", "row_4", "a", ""]);
+    expect(cells(el.rowElement(0)).slice(1)).toEqual(["row_1", "b", "20"]);
+    expect(labels(el).slice(-2)).toEqual(["y", "x"]);
+    el.sort = [{ column: "y", descending: false }];
+    expect(cells(el.querySelector(".gt_row_group_first")).slice(1)).toEqual(["b", "row_4", "a", ""]);
+  });
+
+  it("keeps the order in the view: reset, undone and restored from the URL", async () => {
+    history.replaceState(null, "", "/page?t1.order=y&t1.order=nope");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const el = await mountTable(GROUPED, {
+      columns: BOTH,
+      viewState: { url: true, storage: false, key: "t1", undo: true },
+      controls: { bar: true },
+    });
+    expect(el.columnOrder).toEqual(["y", "x"]);
+    expect(warn.mock.calls.map(([message]) => String(message)).join()).toContain('"nope" is left out of its order');
+    el.resetView();
+    expect(el.columnOrder).toEqual(["x", "y"]);
+    expect(location.search).toBe("");
+    toggle(el)?.click();
+    later(el, "x").click();
+    expect(location.search).toBe("?t1.order=y&t1.order=x");
+    (el.querySelector('.gt-i-bar [data-gti-bar="undo"]') as HTMLButtonElement).click();
+    expect(el.columnOrder).toEqual(["x", "y"]);
+    expect(location.search).toBe("");
+    history.replaceState(null, "", "/");
   });
 });
