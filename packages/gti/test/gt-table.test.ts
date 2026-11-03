@@ -88,7 +88,7 @@ interface TableOptions {
   /** The view isn't kept unless set. */
   viewState?: object;
   /** What readers can do with each column (by its id), if not everything, and where it's pinned. */
-  columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin">>;
+  columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable">>;
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -3826,7 +3826,7 @@ describe("the view kept", () => {
     expect(localStorage.getItem(STORED)).toBeNull();
     expect(reset(el).getAttribute("aria-disabled")).toBe("true");
     expect(el.querySelector(".gt-i-live")?.textContent).toMatch(/^The view is reset: /);
-    expect(fired).toEqual([{ filter: null, sort: AUTHOR_SORT, search: "", page: 1, pageSize: 2 }]);
+    expect(fired).toEqual([{ filter: null, sort: AUTHOR_SORT, search: "", page: 1, pageSize: 2, hidden: [] }]);
     // (Disabled, it does nothing)
     reset(el).click();
     expect(fired).toHaveLength(1);
@@ -3859,8 +3859,8 @@ describe("the view kept", () => {
     click(el, "x");
     (el.querySelector('.gt-i-bar [data-gti-bar="next"]') as HTMLButtonElement).click();
     expect(fired).toEqual([
-      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 1, pageSize: 2 },
-      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 2, pageSize: 2 },
+      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 1, pageSize: 2, hidden: [] },
+      { filter: null, sort: [{ column: "x", descending: false }], search: "", page: 2, pageSize: 2, hidden: [] },
     ]);
     el.sort = [];
     el.filter = FILTER;
@@ -4038,12 +4038,12 @@ describe("undo", () => {
     // (Shown in the filter's panel, too)
     expect(header(el, "y").hasAttribute("data-gti-filtered")).toBe(true);
     expect(views()).toEqual([
-      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2 },
-      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2 },
-      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2 },
-      { filter: null, sort: [], search: "", page: 1, pageSize: 2 },
-      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2 },
-      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2 },
+      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
+      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
+      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
+      { filter: null, sort: [], search: "", page: 1, pageSize: 2, hidden: [] },
+      { filter: null, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
+      { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: X_UP, search: "", page: 1, pageSize: 2, hidden: [] },
     ]);
 
     // A new change, after one is undone, can't be redone
@@ -5343,5 +5343,254 @@ describe("a table wider than its container", () => {
     await replace(plain);
     expect(el.hasAttribute("data-gti-wide")).toBe(false);
     expect(el.querySelector(".gt-i-shade, .gt-i-hint, .gt-i-pinned, .gt-i-inview, [role=region]")).toBeNull();
+  });
+});
+
+describe("hiding columns", () => {
+  const BOTH = { x: { hideable: true }, y: { hideable: true } };
+  const SPANNED =
+    `<tr class="gt_col_headings gt_spanner_row"><th class="gt_col_heading" rowspan="2"></th>` +
+    `<th class="gt_column_spanner_outer" colspan="2" id="t-s"><span class="gt_column_spanner">Values</span></th></tr>` +
+    `<tr class="gt_col_headings"><th class="gt_col_heading" id="t-x">x</th><th class="gt_col_heading" id="t-y">y</th></tr>`;
+  const toggle = (el: GtTable) => el.querySelector<HTMLButtonElement>('.gt-i-bar [data-gti-bar="columns"]');
+  const panel = (el: GtTable) => el.querySelector(".gt-i-columns") as HTMLElement;
+  const boxes = (el: GtTable) => Array.from(panel(el).querySelectorAll<HTMLInputElement>("input[type=checkbox]"));
+  const choose = (el: GtTable, i: number) => boxes(el)[i]?.click();
+  const showAll = (el: GtTable) => panel(el).querySelector(".gt-i-info-button") as HTMLButtonElement;
+  // The text of a row's cells shown
+  const cells = (tr: HTMLTableRowElement | null) =>
+    Array.from((tr as HTMLTableRowElement).cells, (cell) => (cell.hidden ? null : cell.textContent)).filter((text) => text !== null);
+
+  // GROUPED, with a bar, `x` and `y` hideable (unless set otherwise), and the view events fired
+  async function mountHide(options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, { columns: BOTH, ...options, controls: { bar: true, ...options.controls } });
+    const views: ViewEventDetail[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent<ViewEventDetail>).detail));
+    return { el, views };
+  }
+
+  it("hides and shows columns from a panel in the bar", async () => {
+    const { el, views } = await mountHide();
+    const button = toggle(el) as HTMLButtonElement;
+    expect(button.getAttribute("aria-label")).toBe("Show or hide columns");
+    expect(button.nextElementSibling).toBe(panel(el));
+    expect(panel(el).getAttribute("aria-label")).toBe("Columns");
+    expect(el.hideableColumns).toEqual(["x", "y"]);
+    button.click();
+    expect(panel(el).hidden).toBe(false);
+    expect(Array.from(panel(el).querySelectorAll("label"), (label) => label.textContent)).toEqual(["x", "y"]);
+    expect(boxes(el).map((box) => box.checked)).toEqual([true, true]);
+    expect(showAll(el).getAttribute("aria-disabled")).toBe("true");
+
+    choose(el, 0);
+    expect(el.hiddenColumns).toEqual(["x"]);
+    expect(header(el, "x").hidden).toBe(true);
+    expect(cells(el.rowElement(0))).toEqual(["row_1", "b"]);
+    expect(el.querySelector(".gt-i-live")?.textContent).toBe("x hidden");
+    choose(el, 1);
+    expect(cells(el.rowElement(0))).toEqual(["row_1"]);
+    // (With a stub, every column can be hidden)
+    expect(boxes(el).map((box) => [box.checked, box.disabled])).toEqual([
+      [false, false],
+      [false, false],
+    ]);
+
+    showAll(el).click();
+    expect(el.hiddenColumns).toEqual([]);
+    expect(cells(el.rowElement(0))).toEqual(["row_1", "20", "b"]);
+    expect(boxes(el).map((box) => box.checked)).toEqual([true, true]);
+    expect(showAll(el).getAttribute("aria-disabled")).toBe("true");
+    expect(el.querySelector(".gt-i-live")?.textContent).toBe("Every column shown");
+    expect(views.map((view) => view.hidden)).toEqual([["x"], ["x", "y"], []]);
+  });
+
+  it("has no panel without a column readers can hide, and a bar with one", async () => {
+    const plain = await mountTable(GROUPED, { controls: { bar: true, search: true } });
+    expect(toggle(plain)).toBeNull();
+    expect(plain.hideableColumns).toEqual([]);
+    expect(plain.querySelector('[data-gti-info="columns"]')).toBeNull();
+    const { el } = await mountHide({ columns: { y: { hideable: true } } });
+    expect(el.querySelector(".gt-i-bar")).not.toBeNull();
+    expect(boxes(el)).toHaveLength(1);
+  });
+
+  it("narrows the cells across the columns shown, and hides a spanner over none", async () => {
+    const { el } = await mountHide({
+      thead: SPANNED,
+      spanners: [{ id: "s", level: 1, columns: ["x", "y"], header: "t-s" }],
+    });
+    const spanner = header(el, "s");
+    const heading = el.querySelector(".gt_group_heading") as HTMLTableCellElement;
+    el.hiddenColumns = ["y"];
+    expect([spanner.colSpan, spanner.hidden, heading.colSpan]).toEqual([1, false, 2]);
+    el.hiddenColumns = ["x", "y"];
+    expect([spanner.hidden, heading.colSpan]).toEqual([true, 1]);
+    el.hiddenColumns = [];
+    expect([spanner.colSpan, spanner.hidden, heading.colSpan]).toEqual([2, false, 3]);
+    // (Each labelled after its spanners)
+    expect(Array.from(panel(el).querySelectorAll("label"), (label) => label.textContent)).toEqual([
+      "Values – x",
+      "Values – y",
+    ]);
+  });
+
+  it("hides columns set from code, without events, but not a column readers can't hide", async () => {
+    const { el, views } = await mountHide({ columns: { y: { hideable: true } } });
+    expect(el.hideableColumns).toEqual(["y"]);
+    expect(() => {
+      el.hiddenColumns = ["x"];
+    }).toThrow(RangeError);
+    expect(() => {
+      el.hiddenColumns = ["row"];
+    }).toThrow('"row" isn\'t a column that can be hidden');
+    el.hiddenColumns = ["y", "y"];
+    expect(el.hiddenColumns).toEqual(["y"]);
+    expect(boxes(el)[0]?.checked).toBe(false);
+    expect(views).toEqual([]);
+  });
+
+  it("leaves hidden columns out of the search, but keeps their filters", async () => {
+    const { el } = await mountHide({
+      controls: { search: true },
+      filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }],
+    });
+    el.search = "c";
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    el.hiddenColumns = ["y"];
+    expect(visible(el)).toEqual(["grand:Max"]);
+    // (The row saying that nothing matches spans the columns shown)
+    const empty = el.querySelector(".gt-i-empty td") as HTMLTableCellElement;
+    expect(empty.colSpan).toBe(2);
+    el.hiddenColumns = ["x", "y"];
+    expect(empty.colSpan).toBe(1);
+    el.search = "";
+    el.filter = { and: [{ col: "y", op: "in", value: ["c"] }] };
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+  });
+
+  it("says in the info panel how many are hidden", async () => {
+    const { el } = await mountHide();
+    const item = el.querySelector('[data-gti-info="columns"]') as HTMLElement;
+    const show = item.querySelector("button") as HTMLButtonElement;
+    const open = () => (el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement).click();
+    open();
+    expect(item.firstElementChild?.textContent).toBe("No columns hidden");
+    expect(show.getAttribute("aria-disabled")).toBe("true");
+    el.hiddenColumns = ["x"];
+    expect(item.firstElementChild?.textContent).toBe("1 column hidden");
+    el.hiddenColumns = ["x", "y"];
+    expect(item.firstElementChild?.textContent).toBe("2 columns hidden");
+    expect(show.getAttribute("aria-disabled")).toBe("false");
+    show.click();
+    expect(el.hiddenColumns).toEqual([]);
+    expect(item.firstElementChild?.textContent).toBe("No columns hidden");
+  });
+
+  it("exports the columns shown, with code that drops the others", async () => {
+    const { el } = await mountHide({
+      export: { formats: ["csv", "code"], code: { backend: "polars", columns: {} } },
+    });
+    el.hiddenColumns = ["x"];
+    expect(el.toCSV().split("\r\n").slice(0, 2)).toEqual([",row,y", "b,row_4,a"]);
+    expect(el.toCode()).toContain('df.drop(["x"])');
+    el.hiddenColumns = [];
+    expect(el.toCSV().split("\r\n")[0]).toBe(",row,x,y");
+  });
+
+  it("pins the columns shown", async () => {
+    vi.spyOn(Element.prototype, "scrollWidth", "get").mockReturnValue(2000);
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(600);
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
+    const { el } = await mountHide({
+      layout: { responsive: "scroll" },
+      columns: { x: { pin: "start", hideable: true }, y: { pin: "end", hideable: true } },
+    });
+    const scroller = el.querySelector(".gt-i-scroller") as HTMLElement;
+    const padding = () =>
+      ["start", "end"].map((side) => scroller.style.getPropertyValue(`scroll-padding-inline-${side}`));
+    expect(padding()).toEqual(["200px", "100px"]);
+    el.hiddenColumns = ["x"];
+    expect(padding()).toEqual(["100px", "100px"]);
+    const y = el.rowElement(0)?.cells[2] as HTMLElement;
+    expect(y.style.getPropertyValue("inset-inline-end")).toBe("0px");
+    el.hiddenColumns = ["y"];
+    expect(padding()).toEqual(["200px", "0px"]);
+  });
+
+  it("keeps a hidden column's width when the reader's widths are fixed", async () => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      return new DOMRect(0, 0, (this as HTMLElement).hidden ? 0 : 100, 20);
+    });
+    const { el } = await mountHide({ controls: { resizing: true } });
+    el.hiddenColumns = ["x"];
+    const handle = header(el, "y").querySelector(".gt-i-resizer") as HTMLElement;
+    handle.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }));
+    const cols = Array.from(el.querySelectorAll<HTMLElement>("colgroup > col"));
+    expect(cols.map((col) => [col.style.width, col.hidden])).toEqual([
+      ["100px", false],
+      ["100px", true],
+      ["110px", false],
+    ]);
+    el.hiddenColumns = [];
+    expect(cols.map((col) => [col.style.width, col.hidden])).toEqual([
+      ["100px", false],
+      ["100px", false],
+      ["110px", false],
+    ]);
+  });
+
+  describe("in the view", () => {
+    const at = (url: string) => history.replaceState(null, "", url);
+    beforeEach(() => at("/page"));
+    afterEach(() => at("/"));
+
+    it("starts with the columns the spec's view hides, which a reset shows again", async () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+      const { el } = await mountHide({
+        columns: { y: { hideable: true } },
+        view: { filter: null, sort: [], hidden: ["x", "y"] },
+      });
+      expect(el.hiddenColumns).toEqual(["y"]);
+      expect(header(el, "y").hidden).toBe(true);
+      expect(cells(el.rowElement(0))).toEqual(["row_1", "20"]);
+      expect(warn).toHaveBeenCalledWith(
+        '<gt-table>: the view\'s hidden column "x" is left out (it isn\'t one that can be hidden).',
+      );
+      el.hiddenColumns = [];
+      el.resetView();
+      expect(el.hiddenColumns).toEqual(["y"]);
+    });
+
+    it("keeps the columns hidden in the URL", async () => {
+      at("/page?t1.hidden=y");
+      const viewState = { url: true, storage: false, key: "t1", undo: false };
+      const { el } = await mountHide({ viewState });
+      expect(el.hiddenColumns).toEqual(["y"]);
+      expect(header(el, "y").hidden).toBe(true);
+      choose(el, 0);
+      expect(location.search).toBe("?t1.hidden=x&t1.hidden=y");
+      choose(el, 0);
+      choose(el, 1);
+      expect(location.search).toBe("");
+      // (Once empty, for none of the author's)
+      at("/page");
+      const { el: authored } = await mountHide({ viewState, view: { filter: null, sort: [], hidden: ["x"] } });
+      choose(authored, 0);
+      expect(location.search).toBe("?t1.hidden=");
+    });
+
+    it("undoes each change, one by one", async () => {
+      const { el } = await mountHide({ viewState: { url: false, storage: false, key: null, undo: true } });
+      choose(el, 0);
+      choose(el, 1);
+      expect(el.undo()).toBe(true);
+      expect(el.hiddenColumns).toEqual(["x"]);
+      expect(el.undo()).toBe(true);
+      expect(el.hiddenColumns).toEqual([]);
+      expect(el.undo()).toBe(false);
+      expect(el.redo()).toBe(true);
+      expect(el.hiddenColumns).toEqual(["x"]);
+      expect(boxes(el).map((box) => box.checked)).toEqual([false, true]);
+    });
   });
 });

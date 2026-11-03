@@ -18,11 +18,12 @@ const BASE: View = {
   search: "",
   page: 1,
   pageSize: 10,
+  hidden: [],
 };
 
 const RANKS = { name: [0], status: [0], population_2021: [0], "-x": [0] };
 
-const LIMITS: ViewLimits = { ranks: RANKS, search: true, sizes: [10, 25, 50] };
+const LIMITS: ViewLimits = { ranks: RANKS, search: true, sizes: [10, 25, 50], hideable: ["status", "area", "a b&c"] };
 
 const FILTER: FilterQuery = {
   and: [
@@ -59,6 +60,15 @@ describe("viewParams", () => {
   it("has no sort as one empty sort", () => {
     expect(viewParams({ ...BASE, sort: [] }, BASE)).toEqual([["sort", ""]]);
     expect(viewParams(BASE, { ...BASE, sort: [] })).toEqual([["sort", "-population_2021"]]);
+  });
+
+  it("has each hidden column, or no hidden column as one empty one", () => {
+    expect(viewParams({ ...BASE, hidden: ["status", "area"] }, BASE)).toEqual([
+      ["hidden", "status"],
+      ["hidden", "area"],
+    ]);
+    expect(viewParams(BASE, { ...BASE, hidden: ["area"] })).toEqual([["hidden", ""]]);
+    expect(viewParams({ ...BASE, hidden: ["area"] }, { ...BASE, hidden: ["area"] })).toEqual([]);
   });
 
   it("leaves out every row on one page", () => {
@@ -116,6 +126,7 @@ describe("readView", () => {
       search: "  Côte & co ",
       page: 4,
       pageSize: 50,
+      hidden: ["status", "a b&c"],
     };
     const { query, view: read, warnings } = roundTrip(view);
     expect(query).toContain("towny.sort=status&towny.sort=-name");
@@ -131,6 +142,30 @@ describe("readView", () => {
     expect(view).toEqual(BASE);
     expect(view.sort).not.toBe(BASE.sort);
     expect(readView([["page", "2"]], BASE, LIMITS, () => {})).toEqual({ ...BASE, page: 2 });
+  });
+
+  it("reads the hidden columns, in column order", () => {
+    const { query, view } = roundTrip({ ...BASE, hidden: ["status", "a b&c"] });
+    expect(query).toBe("?towny.hidden=status&towny.hidden=a+b%26c");
+    expect(readView([["hidden", "a b&c"], ["hidden", "status"]], BASE, LIMITS, () => {}).hidden).toEqual([
+      "status",
+      "a b&c",
+    ]);
+    // (Once empty, for none, over the author's)
+    const base = { ...BASE, hidden: ["area"] };
+    expect(roundTrip(BASE, { base }).view.hidden).toEqual([]);
+    expect(readView([["page", "2"]], base, LIMITS, () => {}).hidden).toEqual(["area"]);
+  });
+
+  it("leaves out a column it can't hide, with a warning, keeping the others", () => {
+    const warnings: string[] = [];
+    const params: ViewParams = [
+      ["hidden", "name"],
+      ["hidden", "area"],
+    ];
+    const view = readView(params, BASE, LIMITS, (message) => warnings.push(message));
+    expect(view).toEqual({ ...BASE, hidden: ["area"] });
+    expect(warnings).toEqual(['the saved view\'s hidden column "name" is left out (it isn\'t one the reader can hide)']);
   });
 
   it("reads a column that starts with - as sorted", () => {
@@ -162,7 +197,7 @@ describe("readView", () => {
   it("leaves out what the table doesn't let readers change", () => {
     const warnings: string[] = [];
     const params = readParams("sort=name&search=x&page=2&size=25") ?? [];
-    const view = readView(params, BASE, { ranks: null, search: false, sizes: [] }, (message) => warnings.push(message));
+    const view = readView(params, BASE, { ranks: null, search: false, sizes: [], hideable: [] }, (message) => warnings.push(message));
     expect(view).toEqual(BASE);
     expect(warnings).toEqual([
       "the saved view's search is left out (the table can't be searched)",
