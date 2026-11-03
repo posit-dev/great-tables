@@ -34,6 +34,11 @@ export interface ColumnSpec {
   sortable?: boolean;
   searchable?: boolean;
   resizable?: boolean;
+  /**
+   * The side a data column is pinned to, in the column order: the stub's (`"start"`, after it), or
+   * the other (`"end"`). Pinned columns are next to their side. Without it, it isn't pinned.
+   */
+  pin?: "start" | "end" | null;
 }
 
 export interface SpannerSpec {
@@ -307,10 +312,13 @@ export function parseSpec(text: string): Spec {
   const column = (raw.columns as unknown[]).findIndex(
     (column) =>
       !isObject(column) ||
-      !["sortable", "searchable", "resizable"].every((key) => column[key] === undefined || typeof column[key] === "boolean"),
+      !["sortable", "searchable", "resizable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
+      ![undefined, null, "start", "end"].includes(column.pin as string),
   );
   if (column >= 0) {
-    throw new SpecError(`\`columns[${column}]\` must be an object, saying whether it's sortable, searchable and resizable with \`true\` or \`false\`, if it does`);
+    throw new SpecError(
+      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable and resizable with \`true\` or \`false\`, and the side it's pinned to (\`"start"\` or \`"end"\`), if it does`,
+    );
   }
   if (!isObject(raw.stub) || !isObject(raw.ranks)) {
     throw new SpecError("`stub` and `ranks` must be objects");
