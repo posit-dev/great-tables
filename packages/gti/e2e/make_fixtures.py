@@ -7,12 +7,16 @@ root).
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pandas as pd
+import polars as pl
 
 from great_tables import GT, GTI, exibble, loc, md, style
 from great_tables._gti import render_gti_html
+from great_tables._gti._query import query_code
+from great_tables._gti._render import render_parts
 
 HERE = Path(__file__).parent
 OUT = HERE / ".fixtures"
@@ -237,6 +241,58 @@ def export_html(table_id: str) -> str:
         .i_export(filename="exibble")
     )
     return render_gti_html(gti, runtime="none")
+
+
+def code_gti(table_id: str, data, filter: str | None = None, sort: list[str] | None = None) -> GTI:
+    # A GTI table of exibble (8 rows, in two groups), with a search: `num` filtered by a range,
+    # `char` by text, and `fctr` and `date` by facets; exported as code (and as CSV, and copied)
+    gti = (
+        GTI(data, rowname_col="row", groupname_col="group", id=table_id)
+        .i_search()
+        .i_cols_filter(columns="num")
+        .i_cols_filter(columns="char", type="text")
+        .i_cols_filter(columns=["fctr", "date"], type="facet")
+        .i_export(["csv", "clipboard", "code"], filename="exibble")
+    )
+    return gti.i_view(filter=filter, sort=sort)
+
+
+# exibble, as pandas data (`fctr` of categories) and as Polars data (`date` of dates)
+CODE_DATA = {
+    "pandas": exibble[["num", "char", "fctr", "date", "row", "group"]].astype({"fctr": "category"}),
+    "polars": pl.from_pandas(exibble[["num", "char", "fctr", "date", "row", "group"]]).with_columns(
+        pl.col("date").str.to_date()
+    ),
+}
+
+# The views the code is of: a filter (as a query's text) and a sort
+CODE_VIEWS = [
+    (None, None),
+    ("num >= 2 and num <= 50000", ["-num"]),
+    ('char contains " Ap " and fctr in ("two", "one", null)', ["fctr", "-char"]),
+    ('num <= 0.5 and fctr in ("seven")', None),
+    (None, ["-num", "char"]),
+]
+CODE_DATES = ('date in ("2015-02-15", "2015-01-15")', ["date"])
+
+
+def code_cases() -> dict[str, list[dict]]:
+    # For each data, the view's filter and sort (as the spec has them, for the table's `filter`
+    # and `sort` properties) and its code for each library, as `query_code()` writes it
+    cases: dict[str, list[dict]] = {}
+    for name, data in CODE_DATA.items():
+        cases[name] = []
+        for filter, sort in CODE_VIEWS + ([CODE_DATES] if name == "polars" else []):
+            gti = code_gti("k", data, filter, sort)
+            view = render_parts(gti)[1]["view"]
+            cases[name].append(
+                {
+                    "filter": view["filter"],
+                    "sort": view["sort"],
+                    "code": {lib: query_code(gti, lib) for lib in ("polars", "pandas", "narwhals")},
+                }
+            )
+    return cases
 
 
 TOKENS_VIEW = 'num >= 1000 and char contains "a" and fctr in ("two", "seven", "one", "eight")'
@@ -474,9 +530,24 @@ def main() -> None:
         ),
         # Export: from a GTI table 5 rows to a page, whose rows can be selected
         "export.html": page(export_html("e") + "\n" + runtime_src, head=styles),
+        # Export as code: from GTI tables of pandas data and of Polars data, the latter with a
+        # view (of the code cases' second)
+        "code.html": page(
+            render_gti_html(code_gti("k", CODE_DATA["pandas"]), runtime="none")
+            + "\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "code-polars.html": page(
+            render_gti_html(code_gti("k", CODE_DATA["polars"], *CODE_VIEWS[1]), runtime="none")
+            + "\n"
+            + runtime_src,
+            head=styles,
+        ),
     }
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")
+    (OUT / "code-cases.json").write_text(json.dumps(code_cases(), indent=1), encoding="utf-8")
 
 
 if __name__ == "__main__":
