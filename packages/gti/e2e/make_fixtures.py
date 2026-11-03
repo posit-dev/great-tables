@@ -305,6 +305,35 @@ def pin_html(table_id: str, groups_as_column: bool = False, height: str | None =
     return render_gti_html(gti, runtime="none")
 
 
+def hide_html(table_id: str) -> str:
+    # The pinned columns' table (char pinned at the start, fctr at the end, under "Ends" with
+    # currency), whose data columns readers can hide, first shown without datetime; with set
+    # widths, a search, and CSV export, its view kept in the URL
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    columns = ["char", "num", "date", "time", "datetime", "currency", "fctr"]
+    gti = (
+        GTI(data, rowname_col="row", groupname_col="group", id=table_id)
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .cols_move_to_start("char")
+        .cols_move_to_end("fctr")
+        .cols_width({"row": "80px", "num": "140px", **{c: "100px" for c in columns if c != "num"}})
+        .row_group_order(["grp_b", "grp_a"])
+        .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
+        .tab_spanner(label="Ends", columns=["currency", "fctr"])
+        .i_pagination(enabled=False)
+        .i_search()
+        .i_export("csv", filename="hide")
+        .i_cols_pin("char")
+        .i_cols_pin("fctr", side="right")
+        .i_cols_controls(columns=columns, hideable=True)
+        .i_view(hidden="datetime")
+        .i_view_state()
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def code_gti(table_id: str, data, filter: str | None = None, sort: list[str] | None = None) -> GTI:
     # A GTI table of exibble (8 rows, in two groups), with a search: `num` filtered by a range,
     # `char` by text, and `fctr` and `date` by facets; exported as code (and as CSV, and copied)
@@ -615,6 +644,25 @@ def main() -> None:
         ),
         "pin-rtl.html": page(
             '<div dir="rtl" style="width: 480px">' + pin_html("pn") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        # Hiding columns: of the pinned columns' table, in a container 480px wide, and right to
+        # left; and of a table without a stub, whose last column shown can't be hidden
+        "hide.html": page(
+            '<div style="width: 480px">' + hide_html("h") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "hide-rtl.html": page(
+            '<div dir="rtl" style="width: 480px">' + hide_html("h") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "hide-nostub.html": page(
+            render_gti_html(
+                GTI(exibble[["num", "char"]], id="hn").i_cols_controls(hideable=True),
+                runtime="none",
+            )
+            + "\n"
+            + runtime_src,
             head=styles,
         ),
         # Export: from a GTI table 5 rows to a page, whose rows can be selected
