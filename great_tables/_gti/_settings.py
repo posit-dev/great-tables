@@ -29,10 +29,11 @@ FilterType = Literal["auto", "text", "facet", "range"]
 
 FILTER_TYPES: tuple[FilterType, ...] = ("auto", "text", "facet", "range")
 
-# How readers can export the rows: by copying them, or downloading them as CSV
-ExportFormat = Literal["csv", "clipboard"]
+# How readers can export the rows: by copying them, or downloading them as CSV; or copy the code
+# that filters and sorts the data as the view does
+ExportFormat = Literal["csv", "clipboard", "code"]
 
-EXPORT_FORMATS: tuple[ExportFormat, ...] = ("csv", "clipboard")
+EXPORT_FORMATS: tuple[ExportFormat, ...] = ("csv", "clipboard", "code")
 
 
 @dataclass(frozen=True)
