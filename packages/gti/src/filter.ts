@@ -38,8 +38,13 @@ interface FilterState {
 /** The filter on one column, and the rows it keeps. */
 export class ColumnFilter {
   readonly spec: FilterSpec;
-  /** The column's index in the spec's `columns` (and among a row's data cells). */
+  /**
+   * The column's index in the spec's `columns` (and among a row's data cells); -1 for a column
+   * only for querying.
+   */
   readonly index: number;
+  /** A column only for querying's texts (the spec's `query_columns`), each data row's; or `null`. */
+  readonly texts: readonly string[] | null;
   /** The text a text filter keeps rows with, as typed. */
   text = "";
   /** That text, trimmed and folded. */
@@ -51,11 +56,13 @@ export class ColumnFilter {
   max: number | null = null;
   private readonly ranks: readonly (number | null)[];
   private keys: Map<FilterValue, number> | null = null;
+  private folded: string[] | null = null;
 
-  constructor(spec: FilterSpec, index: number, ranks: readonly (number | null)[]) {
+  constructor(spec: FilterSpec, index: number, ranks: readonly (number | null)[], texts: readonly string[] | null = null) {
     this.spec = spec;
     this.index = index;
     this.ranks = ranks;
+    this.texts = texts;
   }
 
   get column(): string {
@@ -101,8 +108,14 @@ export class ColumnFilter {
   /** Whether the filter keeps a data row (whose cell in the column is `cell`). */
   keeps(row: number, cell: CellText | undefined): boolean {
     switch (this.spec.type) {
-      case "text":
-        return this.needle === "" || (cell?.folded.includes(this.needle) ?? false);
+      case "text": {
+        if (this.needle === "") {
+          return true;
+        }
+        const texts = this.texts;
+        const text = texts === null ? cell?.folded : (this.folded ??= texts.map(fold))[row];
+        return text?.includes(this.needle) ?? false;
+      }
       case "facet":
         return this.chosen.size === 0 || this.chosen.has(this.key(row));
       case "range": {

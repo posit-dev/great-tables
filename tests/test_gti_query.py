@@ -31,6 +31,8 @@ from great_tables._gti._query import (
     fold,
     format_query,
     js_trim,
+    label_text,
+    match_text,
     parse_query,
     parse_sort,
     query_code,
@@ -473,6 +475,29 @@ def test_cell_text(html: str, expected: str):
     assert cell_text(parsed_cell(html)) == expected
 
 
+@pytest.mark.parametrize(
+    "html, expected",
+    [
+        ("Plain  text", "Plain  text"),
+        ("a &amp;\nb", "a &\nb"),
+        ('<b>Ä</b><span class="gt_footnote_marks">1</span> <img alt=" Tree ">', "Ä \nTree"),
+    ],
+)
+def test_match_text(html: str, expected: str):
+    # (As `cell_text()` has it, but not folded)
+    assert match_text(html) == expected
+    assert fold(expected) == cell_text(parsed_cell(html))
+    # (Line breaks as an HTML parser has them)
+    assert match_text("a\r\nb\rc") == "a\nb\nc"
+
+
+def test_label_text():
+    assert label_text("  The\n kind ") == "The kind"
+    assert (
+        label_text('<b>A</b>&nbsp;b<span class="gt_footnote_marks">1</span><img alt="x">') == "A b"
+    )
+
+
 # view_rows() ----
 
 
@@ -489,6 +514,20 @@ def test_view_rows_keeps_rows_in_their_groups():
     assert view_rows(gti) == [0, 2, 3, 1]
     gti = gti.i_view(filter=query(("num", "lte", 2)), sort="-num")
     assert view_rows(gti) == [0, 1]
+
+
+def test_view_rows_by_columns_only_for_querying():
+    gti = (
+        filtered()
+        .fmt(columns="name", fns=lambda x: f"<b>{x.upper()}</b> item")
+        .i_cols_controls(["name", "few", "num"], display=False)
+    )
+    assert "few" not in [column["id"] for column in render_parts(gti)[1]["columns"]]
+    # (By the text its cells would show)
+    assert view_rows(gti.i_view(filter=query(("name", "contains", "B ITEM")))) == [1]
+    assert view_rows(gti.i_view(filter=query(("name", "contains", "a")))) == [0]
+    assert view_rows(gti.i_view(filter=query(("few", "in", ["x"])), sort="-num")) == [0, 2]
+    assert view_rows(gti.i_view(filter=query(("num", "gte", 2)), sort="-name")) == [3, 1]
 
 
 def test_view_rows_of_a_table_with_merged_stub_cells():
@@ -536,6 +575,17 @@ def test_query_code():
         '    .drop(["_row", "_nan_num"])\n'
         "    .to_native()\n"
         ")\n"
+    )
+
+
+def test_query_code_by_columns_only_for_querying():
+    gti = filtered().i_cols_controls(["few", "num"], display=False)
+    gti = gti.i_view(filter=query(("few", "in", ["y"])), sort="-num")
+    assert query_code(gti, "polars") == (
+        "import polars as pl\n\n"
+        "df.filter(\n"
+        '    pl.col("few").is_in(["y"]),\n'
+        ').sort(["num"], descending=[True], nulls_last=True, maintain_order=True)\n'
     )
 
 

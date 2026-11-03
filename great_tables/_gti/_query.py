@@ -39,7 +39,6 @@ from ._spec import (
     CodeBackend,
     CodeColumnSpec,
     CodeSpec,
-    ColumnSpec,
     FilterSpec,
     Spec,
     ViewSpec,
@@ -49,6 +48,7 @@ from ._spec import (
 if TYPE_CHECKING:
     import narwhals as nw
 
+    from .._tbl_data import ColumnKind
     from ..gt import GT
 
 Query = dict[str, list[dict[str, Any]]]
@@ -542,11 +542,7 @@ def _find(element: _Element, tag: str) -> _Element | None:
 
 def _body_trs(table_html: str) -> list[_Element]:
     """The `<tr>`s of a table's body (`tbody.gt_table_body`)."""
-    tree = _Tree()
-    # (As an HTML parser does, line breaks are `\n`)
-    tree.feed(table_html.replace("\r\n", "\n").replace("\r", "\n"))
-    tree.close()
-    table = _find(tree.root, "table")
+    table = _find(_parsed(table_html), "table")
     tbody = None
     if table is not None:
         tbody = next(
@@ -592,13 +588,38 @@ def cell_text(cell: _Element) -> str:
     The text it shows, then (after a newline) what isn't shown: an image's `alt` text, and an
     SVG's `<title>`.
     """
+    return fold(_text_of(cell)[0])
+
+
+def _text_of(element: _Element) -> tuple[str, str]:
+    # (The text matched, as `cell_text()` has it, unfolded; and the text shown)
     shown: list[str] = []
     extra: list[str] = []
-    _collect(cell, shown, extra)
-    folded = fold("".join(shown))
-    if extra:
-        folded += "\n" + fold("\n".join(extra))
-    return folded
+    _collect(element, shown, extra)
+    text = "".join(shown)
+    return (text + "\n" + "\n".join(extra) if extra else text), text
+
+
+def _parsed(html: str) -> _Element:
+    tree = _Tree()
+    # (As an HTML parser does, line breaks are `\n`)
+    tree.feed(html.replace("\r\n", "\n").replace("\r", "\n"))
+    tree.close()
+    return tree.root
+
+
+def match_text(html: str) -> str:
+    """The text a cell's HTML would be matched by, as `cell_text()` has it, but not folded."""
+    if not any(c in html for c in "<&\r"):
+        return html
+    return _text_of(_parsed(html))[0]
+
+
+def label_text(html: str) -> str:
+    """The text of a label's (or a cell's) HTML, as the runtime shows it (`labelText()`): without
+    footnote marks, its whitespace collapsed."""
+    text = html if not any(c in html for c in "<&") else _text_of(_parsed(html))[1]
+    return " ".join(text.split())
 
 
 def _collect(element: _Element, shown: list[str], extra: list[str]) -> None:
@@ -660,7 +681,7 @@ def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_P
     """A query's clauses as predicates on a frame with the table's data (of `schema`)."""
     import narwhals as nw
 
-    kinds = {column["id"]: column["kind"] for column in spec["columns"]}
+    kinds = {c["id"]: c["kind"] for c in [*spec["columns"], *spec.get("query_columns", [])]}
     predicates: list[_Predicate] = []
     for clause in query["and"] if query is not None else []:
         col, op, value = clause["col"], clause["op"], clause["value"]
@@ -808,14 +829,19 @@ def view_rows(gt: GT) -> list[int]:
     # The folded text of the cells of each column a "contains" clause is on
     texts: dict[str, str] = {}
     indices = {column["id"]: i for i, column in enumerate(spec["columns"])}
+    # (A column only for querying has its texts in the spec)
+    query_texts = {c["id"]: c["texts"] for c in spec["query_columns"]}
     for clause in query["and"] if query is not None else []:
         col = clause["col"]
         if clause["op"] == "contains" and col not in texts:
-            index = indices[col]
             values: list[str | None] = []
-            for row in range(spec["nrows"]):
-                cells = _data_cells(data_trs[row]) if row in data_trs else []
-                values.append(cell_text(cells[index]) if index < len(cells) else None)
+            if col in query_texts:
+                values = [fold(text) for text in query_texts[col] or []]
+            else:
+                index = indices[col]
+                for row in range(spec["nrows"]):
+                    cells = _data_cells(data_trs[row]) if row in data_trs else []
+                    values.append(cell_text(cells[index]) if index < len(cells) else None)
             texts[col] = add(f"__gti_text_{col}", values, nw.String)
 
     predicates = filter_exprs(query, spec, frame.schema, texts)
@@ -947,7 +973,7 @@ def _nullable(data: Any, name: str) -> bool:
 
 def code_spec(
     data: Any,
-    columns: list[ColumnSpec],
+    kinds: Mapping[str | None, ColumnKind],
     filters: list[FilterSpec],
     ranks: Mapping[str, Any],
 ) -> CodeSpec:
@@ -960,7 +986,6 @@ def code_spec(
 
     frame = nw.from_native(data, eager_only=True)
     schema = frame.schema
-    kinds = {column["id"]: column["kind"] for column in columns}
     facets = {f["column"]: f["values"] or [] for f in filters if f["type"] == "facet"}
     spec: dict[str, CodeColumnSpec] = {}
     for name in [*(f["column"] for f in filters), *ranks]:

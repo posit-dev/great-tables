@@ -25,6 +25,8 @@ const filters = (list: unknown) => JSON.stringify({ ...valid, filters: list });
 
 const view = (value: unknown) => JSON.stringify({ ...valid, view: value });
 
+const queries = (list: unknown) => JSON.stringify({ ...valid, query_columns: list });
+
 const exports = (value: unknown) => JSON.stringify({ ...valid, export: value });
 
 const viewState = (value: unknown) => JSON.stringify({ ...valid, view_state: value });
@@ -69,6 +71,15 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, filters: list }).filters).toEqual(list);
     expect(parse({ ...valid, filters: [{ column: "x", type: "facet", values: [true, "b"] }] }).filters).toHaveLength(1);
     expect(parse(valid).filters).toBeUndefined();
+  });
+
+  it("takes the columns only for querying, or their absence", () => {
+    const list = [
+      { id: "y", kind: "string", label: "Why", texts: ["a", "b\nalt"] },
+      { id: "z", kind: "number", label: "z", texts: null },
+    ];
+    expect(parse({ ...valid, query_columns: list }).query_columns).toEqual(list);
+    expect(parse(valid).query_columns).toBeUndefined();
   });
 
   it("takes a view, or its absence", () => {
@@ -177,6 +188,12 @@ describe("parseSpec()", () => {
     ["has a facet on a column without ranks", filters([{ column: "y", type: "facet", values: [1, 2] }]), /`filters\[0\]`/],
     ["has a range without a value for a rank", filters([{ column: "x", type: "range", values: [1] }]), /`filters\[0\]`/],
     ["has a facet with a value that isn't JSON's", filters([{ column: "x", type: "facet", values: [1, {}] }]), /`filters\[0\]`/],
+    ["has query columns that aren't an array", queries({ id: "y" }), /`query_columns`/],
+    ["has a query column without an id", queries([{ kind: "string", label: "y", texts: null }]), /`query_columns`/],
+    ["has a query column that's in the table", queries([{ id: "x", kind: "number", label: "x", texts: null }]), /`query_columns`/],
+    ["has a query column without a label", queries([{ id: "y", kind: "string", texts: null }]), /`query_columns`/],
+    ["has a query column with short texts", queries([{ id: "y", kind: "string", label: "y", texts: ["a"] }]), /`query_columns`/],
+    ["has a query column with a text that isn't one", queries([{ id: "y", kind: "string", label: "y", texts: ["a", 1] }]), /`query_columns`/],
     ["has a view that isn't an object", view([]), /`view`/],
     ["has a view without a filter", view({ sort: [] }), /`view`/],
     ["has a view with a filter that isn't a query", view({ filter: [], sort: [] }), /`view`/],

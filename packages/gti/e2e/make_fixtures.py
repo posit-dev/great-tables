@@ -15,7 +15,7 @@ import polars as pl
 
 from great_tables import GT, GTI, exibble, loc, md, style
 from great_tables._gti import render_gti_html
-from great_tables._gti._query import query_code
+from great_tables._gti._query import query_code, view_rows
 from great_tables._gti._render import render_parts
 
 HERE = Path(__file__).parent
@@ -361,6 +361,55 @@ def reorder_html(table_id: str) -> str:
         .i_view_state(undo=True)
     )
     return render_gti_html(gti, runtime="none")
+
+
+def query_only_gti(table_id: str, filter: str | None = None, sort: str | None = None) -> GTI:
+    # Exibble three times over (24 rows, in two groups), on one page, showing num and char; and
+    # left out for querying, fctr (as a facet, of its text in capitals), date (as text, by the
+    # text of its dates) and currency (as a range), each labelled. With a search, CSV and code
+    # export, and the view kept in the URL
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    gti = (
+        GTI(data, rowname_col="row", groupname_col="group", id=table_id)
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .fmt_date(columns="date", date_style="month_day_year")
+        .fmt(columns="fctr", fns=lambda x: x.upper())
+        .cols_label(fctr="Factor", date="Day", currency="Price")
+        .cols_hide(["time", "datetime"])
+        .i_pagination(enabled=False)
+        .i_search()
+        .i_export(["csv", "code"], filename="query-only")
+        .i_cols_filter(columns="num")
+        .i_cols_filter(columns="fctr", type="facet")
+        .i_cols_filter(columns="date", type="text")
+        .i_cols_filter(columns="currency", type="range")
+        .i_cols_controls(columns=["fctr", "date", "currency"], display=False)
+        .i_view_state()
+    )
+    return gti.i_view(filter=filter, sort=sort)
+
+
+QUERY_ONLY_VIEWS = [
+    ('date contains "may"', None),
+    ('fctr in ("one", "five") and currency >= 10', "-currency"),
+    (None, "-currency"),
+]
+
+
+def query_only_cases() -> list[dict]:
+    # For each view, its filter and sort (as the spec has them), the rows it shows, and its code
+    # for each library, as `view_rows()` and `query_code()` have them
+    cases = []
+    for filter, sort in QUERY_ONLY_VIEWS:
+        gti = query_only_gti("q", filter, sort)
+        view = render_parts(gti)[1]["view"]
+        code = {lib: query_code(gti, lib) for lib in ("polars", "pandas", "narwhals")}
+        cases.append(
+            {"filter": view["filter"], "sort": view["sort"], "rows": view_rows(gti), "code": code}
+        )
+    return cases
 
 
 def code_gti(table_id: str, data, filter: str | None = None, sort: list[str] | None = None) -> GTI:
@@ -720,10 +769,18 @@ def main() -> None:
             + runtime_src,
             head=styles,
         ),
+        # Columns only for querying: in a GTI table that shows two of exibble's columns
+        "query-only.html": page(
+            render_gti_html(query_only_gti("q"), runtime="none") + "\n" + runtime_src,
+            head=styles,
+        ),
     }
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")
     (OUT / "code-cases.json").write_text(json.dumps(code_cases(), indent=1), encoding="utf-8")
+    (OUT / "query-only-cases.json").write_text(
+        json.dumps(query_only_cases(), indent=1), encoding="utf-8"
+    )
 
 
 if __name__ == "__main__":

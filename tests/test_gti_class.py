@@ -9,16 +9,16 @@ import polars as pl
 import pyarrow as pa
 import pytest
 
-from great_tables import GT, GTI, exibble
-from great_tables._gti import build_spec
-from great_tables._gti._render import _load_runtime, render_gti_html
+from great_tables import GT, GTI, exibble, html
+from great_tables._gti._render import _load_runtime, render_gti_html, render_parts
 from great_tables._gti._spec import FACET_MAX_VALUES
 
 DF = pd.DataFrame({"id": [f"r{i}" for i in range(6)], "y": [10, 20, 30, 40, 50, 60]})
 
 
 def spec_of(gt: GT) -> dict:
-    return build_spec(gt._build_data(context="html"))
+    # (As the table is rendered, with the columns only for querying left out)
+    return render_parts(gt)[1]
 
 
 def interactive_of(gt: GT) -> dict:
@@ -421,7 +421,9 @@ def test_i_cols_controls_for_summary_labels_only():
     assert [column["sortable"] for column in spec["columns"][1:]] == [False, False]
 
 
-@pytest.mark.parametrize("name", ["sortable", "searchable", "resizable", "hideable", "reorderable"])
+@pytest.mark.parametrize(
+    "name", ["sortable", "searchable", "resizable", "hideable", "reorderable", "display"]
+)
 @pytest.mark.parametrize("value", [1, "no", 0.0])
 def test_i_cols_controls_flags_must_be_bools(name: str, value):
     with pytest.raises(TypeError, match=f"`{name}=` must be `True`, `False`, or `None`"):
@@ -503,6 +505,125 @@ def test_i_cols_controls_reorderable_leaves_out_the_stub_and_row_group_column():
         ["id", "b", "a"], reorderable=True
     )
     assert reorderable_of(gti) == {"id": False, "a": True, "c": False, "d": False, "e": False}
+
+
+QUERY_DF = pd.DataFrame(
+    {
+        "id": ["r0", "r1", "r2", "r3"],
+        "kind": ["pear", "apple", "pear", None],
+        "n": [3, 1, 2, 4],
+        "y": [1.5, 2.5, 3.5, 4.5],
+    }
+)
+
+
+def query_gti() -> GTI:
+    return GTI(QUERY_DF, rowname_col="id").i_cols_controls(["kind", "n"], display=False)
+
+
+def test_i_cols_controls_display():
+    gti = query_gti()
+    assert gti._interactive.query_only == ("kind", "n")
+    # (`True` puts a column back; `None` leaves it as it is)
+    assert gti.i_cols_controls("n", display=True)._interactive.query_only == ("kind",)
+    assert gti.i_cols_controls("n", sortable=False)._interactive.query_only == ("kind", "n")
+    assert GTI(QUERY_DF)._interactive.query_only == ()
+
+
+def test_i_cols_controls_display_false_leaves_a_column_out_for_querying():
+    gti = query_gti().i_cols_filter(columns="kind").i_cols_filter(columns="n", type="range")
+    html, spec = render_parts(gti)
+    assert [column["id"] for column in spec["columns"]] == ["id", "y"]
+    assert spec["query_columns"] == [
+        {
+            "id": "kind",
+            "kind": "string",
+            "label": "kind",
+            "texts": ["pear", "apple", "pear", "None"],
+        },
+        {"id": "n", "kind": "number", "label": "n", "texts": None},
+    ]
+    # (Its ranks, and its filter, after those of the table's columns)
+    assert spec["ranks"]["kind"] == [1, 0, 1, None]
+    assert spec["ranks"]["n"] == [2, 0, 1, 3]
+    assert [f["column"] for f in spec["filters"]] == ["kind", "n"]
+    assert spec["filters"][0] == {"column": "kind", "type": "facet", "values": ["apple", "pear"]}
+    # (It isn't in the table)
+    assert "pear" not in html
+    assert ">kind<" not in html
+    assert spec_of(GTI(QUERY_DF))["query_columns"] == []
+
+
+def test_i_cols_controls_display_false_ships_the_text_cells_would_show():
+    gti = (
+        query_gti()
+        .fmt_integer(columns="n", pattern="{x} <img src='a.png' alt='items'>")
+        .fmt(columns="kind", fns=lambda x: f"<b>{x}</b>  fruit")
+        .cols_label(kind="<b>The  kind</b>", n="Count")
+        .i_cols_filter(columns=["kind", "n"], type="text")
+    )
+    kind, n = spec_of(gti)["query_columns"]
+    assert n["label"] == "Count"
+    # (Shown, then what isn't)
+    assert n["texts"] == ["3 \nitems", "1 \nitems", "2 \nitems", "4 \nitems"]
+    assert kind["label"] == "<b>The kind</b>"
+    assert kind["texts"][0] == "pear  fruit"
+    # (A facet's, as its labels, with whitespace collapsed)
+    facet = spec_of(gti.i_cols_filter(columns="kind", type="facet"))["query_columns"][0]
+    assert facet["texts"][0] == "pear fruit"
+    # (A label of HTML)
+    labelled = spec_of(query_gti().cols_label(kind=html("<em>Fruit</em>  kind")))
+    assert labelled["query_columns"][0]["label"] == "Fruit kind"
+
+
+def test_i_cols_controls_display_false_keeps_a_hidden_column_for_querying():
+    gti = GTI(QUERY_DF, rowname_col="id").cols_hide("kind")
+    assert spec_of(gti)["query_columns"] == []
+    spec = spec_of(gti.i_cols_controls("kind", display=False))
+    assert [column["id"] for column in spec["query_columns"]] == ["kind"]
+    # (And `display=True` doesn't show it)
+    shown = spec_of(gti.i_cols_controls("kind", display=False).i_cols_controls(display=True))
+    assert "kind" not in [column["id"] for column in shown["columns"]]
+
+
+def test_i_cols_controls_display_false_columns_aren_t_hideable_reorderable_or_pinned():
+    gti = (
+        query_gti()
+        .i_cols_controls(hideable=True, reorderable=True)
+        .i_cols_pin(columns="n", side="right")
+    )
+    spec = spec_of(gti)
+    assert [column["id"] for column in spec["columns"]] == ["id", "y"]
+    assert [column["pin"] for column in spec["columns"]] == [None, None]
+    with pytest.raises(ValueError, match="The view can't hide column 'kind'"):
+        spec_of(gti.i_view(hidden="kind"))
+
+
+def test_i_cols_controls_display_false_columns_can_be_filtered_and_sorted_by():
+    gti = query_gti().i_cols_filter(columns="kind").i_view(filter='kind in ("pear")', sort="-n")
+    assert spec_of(gti)["view"]["filter"] == {
+        "and": [{"col": "kind", "op": "in", "value": ["pear"]}]
+    }
+    assert spec_of(gti)["view"]["sort"] == [{"column": "n", "descending": True}]
+
+
+@pytest.mark.parametrize("column", ["id", "g"])
+def test_i_cols_controls_display_false_leaves_in_the_stub_and_row_group_column(column: str):
+    df = QUERY_DF.assign(g=["a", "a", "b", "b"])
+    with pytest.raises(ValueError, match=f"can't be set for '{column}'"):
+        GTI(df, rowname_col="id", groupname_col="g").i_cols_controls([column, "y"], display=False)
+    # (Nor when they're set after)
+    gti = GTI(df).i_cols_controls(column, display=False)
+    with pytest.raises(ValueError, match=f"can't be set for '{column}'"):
+        render_parts(gti.tab_stub(rowname_col="id", groupname_col="g"))
+
+
+def test_i_cols_controls_display_false_leaves_in_a_column():
+    with pytest.raises(ValueError, match="every column left out"):
+        render_parts(GTI(QUERY_DF).i_cols_controls(display=False))
+    # (With a stub, the stub is left)
+    spec = spec_of(GTI(QUERY_DF, rowname_col="id").i_cols_controls(display=False))
+    assert [column["id"] for column in spec["columns"]] == ["id"]
 
 
 def test_i_view_hides_columns():
