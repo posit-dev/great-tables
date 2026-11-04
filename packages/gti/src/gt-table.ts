@@ -13,7 +13,7 @@
 
 import { type Placed, placeCells, type Side, TableBorders } from "./borders";
 import { viewCode } from "./code";
-import { toCSV as csv, toTSV } from "./export";
+import { toCSV as csv, recordsJSON, toRecords, toTSV } from "./export";
 import { ColumnFilter, dateKey, type FilterQuery, filterQuery, hasTime, MISSING, setFilterQuery } from "./filter";
 import { columnRuns, orderRuns } from "./order";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
@@ -69,7 +69,7 @@ export const SELECT_EVENT = "gt-table-select";
 
 /**
  * The event fired when the reader exports rows, or copies the code, from the bar (not when
- * `toCSV()`, `copyTable()` or `toCode()` is called).
+ * `toCSV()`, `toTSV()`, `toRecords()`, `copyTable()` or `toCode()` is called).
  */
 export const EXPORT_EVENT = "gt-table-export";
 
@@ -127,7 +127,7 @@ export interface SelectEventDetail {
 }
 
 export interface ExportEventDetail {
-  /** How the rows were exported: copied, or downloaded as CSV; or "code", for the code copied. */
+  /** How the rows were exported: copied, or downloaded as CSV, TSV or JSON; or "code", for the code copied. */
   format: ExportFormat;
   /** The data rows exported (numbered by position in the data), in the order shown (none, for code). */
   rows: number[];
@@ -447,6 +447,8 @@ interface ColumnItem {
 /** The rows to export: the data rows, and the cells' text, the column labels' first; with the cells, but a group's label. */
 interface Exported {
   rows: number[];
+  /** The keys of the cells in a row, as JSON has them: the group's, then the columns' ids. */
+  keys: string[];
   text: string[][];
   cells: (Element | null)[][];
 }
@@ -1123,6 +1125,27 @@ export class GtTable extends HTMLElement {
   toCSV({ selected = false, guard = true }: { selected?: boolean; guard?: boolean } = {}): string {
     const exported = this.exported(selected);
     return exported === null ? "" : csv(exported.text, guard);
+  }
+
+  /**
+   * The rows as tab-separated text, as the export panel downloads them: as `toCSV()` has them,
+   * with the cells' tabs and line breaks as spaces, and each line ending in a line feed. Empty
+   * until hydrated.
+   */
+  toTSV({ selected = false, guard = true }: { selected?: boolean; guard?: boolean } = {}): string {
+    const exported = this.exported(selected);
+    return exported === null ? "" : `${toTSV(exported.text, guard)}\n`;
+  }
+
+  /**
+   * The rows as records, as the export panel downloads them (as JSON): for each row `toCSV()`
+   * has, an object with the text of each cell under its column's id, and with groups, the group's
+   * label first, under `"group"` (or, while a column has that id, with a `_` before it). Empty
+   * until hydrated.
+   */
+  toRecords({ selected = false }: { selected?: boolean } = {}): Record<string, string>[] {
+    const exported = this.exported(selected);
+    return exported === null ? [] : toRecords(exported.keys, exported.text.slice(1));
   }
 
   /**
@@ -3835,7 +3858,8 @@ export class GtTable extends HTMLElement {
       }
       const button = element(doc, "button", "gt-i-info-button", { type: "button" });
       button.dataset.gtiExport = format;
-      button.textContent = format === "csv" ? "Download CSV" : format === "code" ? "Copy code" : "Copy";
+      button.textContent =
+        format === "clipboard" ? "Copy" : format === "code" ? "Copy code" : `Download ${format.toUpperCase()}`;
       button.addEventListener("click", () => this.userExport(exporter, format));
       actions.append(button);
     }
@@ -3876,9 +3900,16 @@ export class GtTable extends HTMLElement {
         this.dispatchEvent(new CustomEvent<ExportEventDetail>(EXPORT_EVENT, { bubbles: true, composed: true, detail }));
       }
     };
-    if (format === "csv") {
+    if (format === "csv" || format === "tsv" || format === "json") {
       const exported = this.exported(selected) as Exported;
-      this.download(csv(exported.text));
+      this.download(
+        format,
+        format === "csv"
+          ? csv(exported.text)
+          : format === "tsv"
+            ? `${toTSV(exported.text, true)}\n`
+            : recordsJSON(exported.keys, exported.text.slice(1)),
+      );
       done(`Downloaded ${plural(exported.rows.length)}`, { format, rows: exported.rows });
     } else if (format === "code") {
       // (Of the view, whichever rows are selected)
@@ -3901,13 +3932,15 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // Download CSV, as a file named for the spec's `export.filename` (with a byte order mark, so that
-  // spreadsheets read it as UTF-8)
-  private download(text: string): void {
-    const url = URL.createObjectURL(new Blob(["\uFEFF", text], { type: "text/csv;charset=utf-8" }));
+  // Download CSV, TSV or JSON, as a file named for the spec's `export.filename` (CSV and TSV with a
+  // byte order mark, so that spreadsheets read them as UTF-8; JSON can't have one)
+  private download(format: "csv" | "tsv" | "json", text: string): void {
+    const type = format === "csv" ? "text/csv" : format === "tsv" ? "text/tab-separated-values" : "application/json";
+    const parts = format === "json" ? [text] : ["\uFEFF", text];
+    const url = URL.createObjectURL(new Blob(parts, { type: `${type};charset=utf-8` }));
     const link = element(this.ownerDocument, "a", "", {
       href: url,
-      download: `${(this.spec as Spec).export?.filename}.csv`,
+      download: `${(this.spec as Spec).export?.filename}.${format}`,
     });
     this.append(link);
     link.click();
@@ -4009,7 +4042,18 @@ export class GtTable extends HTMLElement {
     const kept = this.exportedColumns();
     const grouped = spec.groups.length > 0;
     const head = kept.map((c) => this.columnTitle((spec.columns[c] as ColumnSpec & { id: string }).id, labels));
-    const exported: Exported = { rows: [], text: [[...(grouped ? [""] : []), ...head]], cells: [] };
+    const ids = kept.map((c) => (spec.columns[c] as ColumnSpec & { id: string }).id);
+    // (The group's key is "group", with a `_` before it while a column has that id)
+    let group = "group";
+    while (ids.includes(group)) {
+      group = `_${group}`;
+    }
+    const exported: Exported = {
+      rows: [],
+      keys: [...(grouped ? [group] : []), ...ids],
+      text: [[...(grouped ? [""] : []), ...head]],
+      cells: [],
+    };
 
     // (A cell merged across rows, in a hierarchical stub, is each of its rows')
     const spans: [Element | undefined, number][] = [];

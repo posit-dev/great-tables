@@ -29,11 +29,11 @@ FilterType = Literal["auto", "text", "facet", "range", "date", "bool"]
 
 FILTER_TYPES: tuple[FilterType, ...] = ("auto", "text", "facet", "range", "date", "bool")
 
-# How readers can export the rows: by copying them, or downloading them as CSV; or copy the code
-# that filters and sorts the data as the view does
-ExportFormat = Literal["csv", "clipboard", "code"]
+# How readers can export the rows: by copying them, or downloading them as CSV, TSV or JSON; or
+# copy the code that filters and sorts the data as the view does
+ExportFormat = Literal["csv", "tsv", "json", "clipboard", "code"]
 
-EXPORT_FORMATS: tuple[ExportFormat, ...] = ("csv", "clipboard", "code")
+EXPORT_FORMATS: tuple[ExportFormat, ...] = ("csv", "tsv", "json", "clipboard", "code")
 
 # The side of the table a column is pinned to: the stub's (the first columns), or the other one
 PinSide = Literal["left", "right"]

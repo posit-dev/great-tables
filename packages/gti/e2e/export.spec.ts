@@ -3,7 +3,8 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 import { ready } from "./helpers";
 
 // Export from a GTI table: exibble three times over (24 rows, in two groups), with a spanner over
-// `num` and `currency`, 5 rows to a page, whose rows can be selected; downloaded as "exibble.csv".
+// `num` and `currency`, 5 rows to a page, whose rows can be selected; exported in every format, and
+// downloaded as "exibble.csv" (or ".tsv", or ".json").
 
 const el = (page: Page) => page.locator("gt-table");
 const bar = (page: Page) => el(page).locator(".gt-i-bar");
@@ -27,14 +28,16 @@ async function events(page: Page) {
   return () => page.evaluate(() => (window as any).exports);
 }
 
-// The CSV downloaded by clicking the panel's button, and the file's name
-async function download(page: Page) {
+// The file downloaded by clicking the panel's button for a format (CSV, by default), its name, and
+// its lines (after a CSV's or TSV's byte order mark)
+async function download(page: Page, format = "CSV") {
   const [file] = await Promise.all([
     page.waitForEvent("download"),
-    panel(page).getByRole("button", { name: "Download CSV" }).click(),
+    panel(page).getByRole("button", { name: `Download ${format}` }).click(),
   ]);
   const bytes = await readFile(await file.path());
-  return { name: file.suggestedFilename(), bytes, lines: bytes.subarray(3).toString("utf-8").split("\r\n").slice(0, -1) };
+  const text = bytes.subarray(format === "JSON" ? 0 : 3).toString("utf-8");
+  return { name: file.suggestedFilename(), bytes, text, lines: text.split(format === "CSV" ? "\r\n" : "\n").slice(0, -1) };
 }
 
 // What the clipboard has, by type
@@ -103,12 +106,46 @@ test("downloads the rows sorted as shown, and those the search keeps", async ({ 
   expect(errors).toEqual([]);
 });
 
+test("downloads the rows as TSV, and as JSON records, of the rows the search keeps", async ({ page }) => {
+  const errors = await ready(page, "export.html");
+  const fired = await events(page);
+  await bar(page).getByRole("button", { name: "Search the table" }).click();
+  await page.keyboard.type("grape");
+  await expect(bar(page).locator(".gt-i-search-count")).toHaveText("3 rows");
+  await toggle(page).click();
+
+  const tsv = await download(page, "TSV");
+  expect(tsv.name).toBe("exibble.tsv");
+  expect(Array.from(tsv.bytes.subarray(0, 3))).toEqual([0xef, 0xbb, 0xbf]);
+  expect(tsv.lines).toEqual([
+    HEADER.replace(/,/g, "\t"),
+    "grp_b\trow_7\t777,000.00\tNone\tgrapefruit",
+    "grp_b\trow_15\t777,000.00\tNone\tgrapefruit",
+    "grp_b\trow_23\t777,000.00\tNone\tgrapefruit",
+  ]);
+  await expect(status(page)).toHaveText("Downloaded 3 rows");
+
+  // (Without a byte order mark; keyed by the columns' names in the data, the group's first)
+  const json = await download(page, "JSON");
+  expect(json.name).toBe("exibble.json");
+  expect(json.text.startsWith("[\n  {\n")).toBe(true);
+  const records = JSON.parse(json.text);
+  expect(records).toEqual(
+    [7, 15, 23].map((i) => ({ group: "grp_b", row: `row_${i}`, num: "777,000.00", currency: "None", char: "grapefruit" })),
+  );
+  expect(Object.keys(records[0])).toEqual(["group", "row", "num", "currency", "char"]);
+  expect(json.text).toBe(`${JSON.stringify(records, null, 2)}\n`);
+  expect(await el(page).evaluate((node) => (node as any).toRecords())).toEqual(records);
+  expect((await fired()).map((detail: { format: string }) => detail.format)).toEqual(["tsv", "json"]);
+  expect(errors).toEqual([]);
+});
+
 test("copies the rows as a table and as tab-separated text", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   const errors = await ready(page, "export.html");
   const fired = await events(page);
   await toggle(page).click();
-  await panel(page).getByRole("button", { name: "Copy" }).click();
+  await panel(page).getByRole("button", { name: "Copy", exact: true }).click();
   await expect(status(page)).toHaveText("Copied 24 rows");
 
   const copied = await clipboard(page);
@@ -149,13 +186,15 @@ test("exports the selected rows only, when asked", async ({ page, context }) => 
   await only.check();
   await expect(status(page)).toHaveText("2 rows selected");
 
-  await panel(page).getByRole("button", { name: "Copy" }).click();
+  await panel(page).getByRole("button", { name: "Copy", exact: true }).click();
   await expect(status(page)).toHaveText("Copied 2 rows");
   expect((await clipboard(page))["text/plain"]).toBe(
     `${HEADER.replace(/,/g, "\t")}\ngrp_b\trow_6\tNone\t$13.26\tfig\ngrp_b\trow_14\tNone\t$13.26\tfig`,
   );
   const { lines } = await download(page);
   expect(lines).toHaveLength(3);
+  const records = JSON.parse((await download(page, "JSON")).text);
+  expect(records.map((record: { row: string }) => record.row)).toEqual(["row_6", "row_14"]);
   expect(errors).toEqual([]);
 });
 
@@ -164,6 +203,8 @@ test("is gone into with Tab, and closes on Escape, with focus back on its button
   await toggle(page).focus();
   await page.keyboard.press("Enter");
   await expect(panel(page)).toBeVisible();
+  await page.keyboard.press("Tab");
+  await expect(panel(page).getByRole("combobox", { name: "Code for" })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(panel(page).getByRole("button", { name: "Download CSV" })).toBeFocused();
   await page.keyboard.press("Escape");
@@ -187,6 +228,14 @@ test("opens within the view, by the bar", async ({ page }) => {
   expect(shown.top).toBeGreaterThanOrEqual(0);
   expect(shown.bottom).toBeLessThanOrEqual(await page.evaluate(() => document.documentElement.clientHeight));
   expect(await panel(page).evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
+  // (With a button for each of the five formats, wrapping as they need to)
+  const buttons = panel(page).locator(".gt-i-export-actions button");
+  await expect(buttons).toHaveCount(5);
+  for (const button of await buttons.all()) {
+    const { left, right } = await box(button);
+    expect(left).toBeGreaterThanOrEqual(shown.left);
+    expect(right).toBeLessThanOrEqual(shown.right);
+  }
   expect(errors).toEqual([]);
 });
 
@@ -201,8 +250,9 @@ test.describe("on a touch screen", () => {
     for (const control of [
       toggle(page),
       panel(page).locator("label", { hasText: "Selected rows only" }),
-      panel(page).getByRole("button", { name: "Download CSV" }),
-      panel(page).getByRole("button", { name: "Copy" }),
+      ...["Download CSV", "Download TSV", "Download JSON", "Copy", "Copy code"].map((name) =>
+        panel(page).getByRole("button", { name, exact: true }),
+      ),
     ]) {
       expect((await box(control)).height).toBeGreaterThanOrEqual(44);
     }

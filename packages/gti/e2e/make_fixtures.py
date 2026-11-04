@@ -296,7 +296,7 @@ def controls_html(table_id: str) -> str:
 
 def export_html(table_id: str) -> str:
     # A GTI table of exibble three times over (24 rows, in two groups), with a spanner, 5 rows to a
-    # page, whose rows can be selected and exported (as "exibble.csv")
+    # page, whose rows can be selected and exported in every format (as "exibble.csv", and so on)
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     gt = sort_gt(table_id, data=data).tab_spanner(label="Numbers", columns=["num", "currency"])
@@ -304,7 +304,7 @@ def export_html(table_id: str) -> str:
         GTI.from_gt(gt)
         .i_selection("multiple")
         .i_pagination(page_size=5)
-        .i_export(filename="exibble")
+        .i_export(["csv", "tsv", "json", "clipboard", "code"], filename="exibble")
     )
     return render_gti_html(gti, runtime="none")
 

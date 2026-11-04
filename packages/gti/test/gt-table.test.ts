@@ -2207,6 +2207,13 @@ describe("export", () => {
     expect(Array.from(panel(one).querySelectorAll("button"), (button) => button.textContent)).toEqual([
       "Download CSV",
     ]);
+    const { el: all } = await mountExport({ export: { formats: ["json", "tsv", "csv", "clipboard"] } });
+    expect(Array.from(panel(all).querySelectorAll("button"), (button) => button.textContent)).toEqual([
+      "Download JSON",
+      "Download TSV",
+      "Download CSV",
+      "Copy",
+    ]);
   });
 
   it("isn't there without formats", async () => {
@@ -2363,6 +2370,66 @@ describe("export", () => {
     expect(status(el).textContent).toBe("Downloaded 1 row");
   });
 
+  it("downloads TSV, with a byte order mark, guarding formulas", async () => {
+    const { blobs, links } = catchDownload();
+    const { el, events } = await mountExport({ yLabel: "=y", export: { formats: ["tsv"], filename: "towny" } });
+    el.search = "a";
+    action(el, "tsv").click();
+    expect(links).toEqual([{ href: "blob:gti-1", download: "towny.tsv", connected: true }]);
+    const blob = blobs[0] as Blob;
+    expect(blob.type).toBe("text/tab-separated-values;charset=utf-8");
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    expect(Array.from(bytes.slice(0, 3))).toEqual([0xef, 0xbb, 0xbf]);
+    expect(new TextDecoder().decode(bytes.slice(3))).toBe("\trow\tx\t'=y\nb\trow_4\t\ta\nb\trow_5\t20\ta\na\trow_2\t5\ta\n");
+    expect(new TextDecoder().decode(bytes.slice(3))).toBe(el.toTSV());
+    expect(el.toTSV({ guard: false }).split("\n")[0]).toBe("\trow\tx\t=y");
+    expect(events).toEqual([{ format: "tsv", rows: [3, 4, 1] }]);
+    expect(status(el).textContent).toBe("Downloaded 3 rows");
+  });
+
+  it("downloads JSON, an object for each row, keyed by the columns' ids", async () => {
+    const { blobs, links } = catchDownload();
+    const { el, events } = await mountExport({
+      controls: { selection: "multiple" },
+      export: { formats: ["json"], filename: "towny" },
+    });
+    expect(el.toRecords()[0]).toEqual({ group: "b", row: "row_4", x: "", y: "a" });
+    el.selection = [2, 0];
+    check(el, true);
+    action(el, "json").click();
+    expect(links).toEqual([{ href: "blob:gti-1", download: "towny.json", connected: true }]);
+    const blob = blobs[0] as Blob;
+    expect(blob.type).toBe("application/json;charset=utf-8");
+    // (Without a byte order mark, which JSON can't have)
+    const text = new TextDecoder("utf-8", { ignoreBOM: true }).decode(await blob.arrayBuffer());
+    expect(text).toBe(
+      '[\n  {\n    "group": "b",\n    "row": "row_1",\n    "x": "20",\n    "y": "b"\n  },\n' +
+        '  {\n    "group": "a",\n    "row": "row_3",\n    "x": "10",\n    "y": "c"\n  }\n]\n',
+    );
+    expect(JSON.parse(text)).toEqual(el.toRecords({ selected: true }));
+    expect(events).toEqual([{ format: "json", rows: [0, 2] }]);
+    expect(status(el).textContent).toBe("Downloaded 2 rows");
+  });
+
+  it("keys a row's group apart from a column of that id, and leaves it out without groups", async () => {
+    const { html, spec } = gtTable(GROUPED, { controls: { bar: true }, export: { formats: ["json"] } });
+    // (`y` as "group", then "_group")
+    for (const id of ["group", "_group"]) {
+      const named = { ...spec, columns: spec.columns.map((c) => (c.id === "y" ? { ...c, id } : c)) };
+      const el = await mount(`<gt-table>${html}${specScript(named)}</gt-table>`);
+      expect(el.toRecords()[0]).toEqual({ [id === "group" ? "_group" : "group"]: "b", row: "row_4", x: "", [id]: "a" });
+    }
+    const flat = await mountTable([0, 1, 2, 3, 4], {
+      controls: { bar: true },
+      export: { formats: ["json"] },
+      columns: { x: { hideable: true } },
+    });
+    expect(flat.toRecords()[1]).toEqual({ row: "row_2", x: "5", y: "a" });
+    // (Nor any hidden column, in the order shown)
+    flat.hiddenColumns = ["x"];
+    expect(flat.toRecords()[1]).toEqual({ row: "row_2", y: "a" });
+  });
+
   it("copies the rows as an HTML table and as tab-separated text", async () => {
     const written = catchClipboard();
     const { el, events } = await mountExport();
@@ -2453,6 +2520,8 @@ describe("export", () => {
     await expect(el.copyTable({ selected: true })).resolves.toBe(true);
     expect(written[0]?.["text/plain"]).toBe("\trow\tx\ty\nb\trow_5\t20\ta");
     el.toCSV();
+    el.toTSV();
+    el.toRecords();
     expect(events).toEqual([]);
     // (Nor does it change the panel)
     expect(status(el).textContent).toBe("5 rows");
@@ -2461,6 +2530,8 @@ describe("export", () => {
   it("exports nothing before the table is ready", async () => {
     const el = await mount("<gt-table><table></table></gt-table>");
     expect(el.toCSV()).toBe("");
+    expect(el.toTSV()).toBe("");
+    expect(el.toRecords()).toEqual([]);
     await expect(el.copyTable()).resolves.toBe(false);
   });
 
