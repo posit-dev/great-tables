@@ -19,8 +19,10 @@
  * wanted.)
  *
  * A clause `{"col": "population", "op": "is_null"}`, on a column with any filter, keeps the rows
- * whose value is missing (the spec's `missing`: `null`, or NaN in a column of floats). No column's
- * filter has it: the table keeps it, as it does a group.
+ * whose value is missing (the spec's `missing`: `null`, or NaN in a column of floats). A clause
+ * `{"col": "name", "op": "matches", "value": "^st\\."}`, on a column with a text filter, keeps the
+ * rows whose cell's text (as a `contains` has it, but not folded) has a match of the pattern (see
+ * `pattern.ts`). No column's filter has either: the table keeps them, as it does a group.
  *
  * A part of the query can also be a group: `{"or": [...]}`, keeping the rows any of its parts
  * keeps; `{"and": [...]}`, those every one does; or `{"not": part}`, those its part doesn't (with a
@@ -28,11 +30,13 @@
  * the query's clauses that aren't in a group, and the table keeps its groups (`FilterGroup`s).
  */
 
+import { checkPattern, type PatternError, patternRegExp } from "./pattern";
 import { type CellText, fold } from "./search";
 import type { ColumnKind, FilterSpec, FilterValue } from "./spec";
 
 export type FilterClause =
   | { col: string; op: "contains"; value: string }
+  | { col: string; op: "matches"; value: string }
   | { col: string; op: "in"; value: FilterValue[] }
   | { col: string; op: "gte" | "lte"; value: number | string }
   | { col: string; op: "is_null" };
@@ -351,13 +355,28 @@ export class ColumnFilter {
    * A clause on this column as a group has it: an `in`'s values once each, in the order of the
    * column's values (with a missing one last).
    *
-   * @throws {RangeError} for a clause the filter can't have (as `parse()` does), or a `contains`
-   *   without text (which keeps every row, and so means nothing in a group).
+   * @throws {RangeError} for a clause the filter can't have (as `parse()` does), a `contains`
+   *   without text (which keeps every row, and so means nothing in a group), or a `matches` whose
+   *   pattern can't be read.
    */
   groupClause(clause: FilterClause): FilterClause {
     const col = this.column;
     if (clause.op === "is_null") {
       return { col, op: "is_null" };
+    }
+    if (clause.op === "matches") {
+      const { value } = clause as { value: unknown };
+      if (this.spec.type !== "text" || typeof value !== "string") {
+        throw new RangeError(`${JSON.stringify(col)} has a ${this.spec.type} filter, which can't be ${JSON.stringify(clause)}`);
+      }
+      try {
+        return { col, op: "matches", value: checkPattern(value) };
+      } catch (err) {
+        // (Counted in characters, as Python counts them)
+        const { at, message } = err as PatternError;
+        const place = at >= value.length ? "the end" : `character ${Array.from(value.slice(0, at)).length + 1}`;
+        throw new RangeError(`the pattern of the "matches" clause on ${JSON.stringify(col)} can't be read: ${message}, at ${place}`);
+      }
     }
     const state = this.parse([clause]);
     if (clause.op === "contains" && fold(state.text.trim()) === "") {
@@ -403,15 +422,18 @@ type RowTest = (row: number, cells: readonly (CellText | undefined)[]) => boolea
 type Find = (column: unknown) => ColumnFilter;
 
 /**
- * A part of a query that's a group (an `or`, or a `not`), or an `is_null` clause, which no one
- * column's filter has; the table keeps it, beside the filters.
+ * A part of a query that's a group (an `or`, or a `not`), or an `is_null` or `matches` clause,
+ * which no one column's filter has; the table keeps it, beside the filters.
  */
 export class FilterGroup {
   /** The group, as `setFilterQuery()` writes it. */
   readonly item: FilterItem;
   /** The filters of the columns it has clauses on, once each, in the order of its clauses. */
   readonly filters: readonly ColumnFilter[];
-  /** Whether it needs a row's cells' text (for a `contains` on one of the table's columns). */
+  /**
+   * Whether it needs a row's cells' text (for a `contains` or a `matches` on one of the table's
+   * columns).
+   */
   readonly texts: boolean;
   private readonly test: RowTest;
 
@@ -424,6 +446,15 @@ export class FilterGroup {
         filters.add(filter);
         if (part.op === "is_null") {
           return (row) => filter.isMissing(row);
+        }
+        if (part.op === "matches") {
+          const re = patternRegExp(part.value);
+          const own = filter.texts;
+          texts ||= own === null;
+          return (row, cells) => {
+            const text = own === null ? cells[filter.index]?.text : own[row];
+            return text !== undefined && re.test(text);
+          };
         }
         const keeps = filter.matcher(part);
         texts ||= part.op === "contains" && filter.texts === null;
@@ -503,16 +534,19 @@ function normalItem(item: unknown, find: Find): FilterItem {
   return items.length === 1 ? (items[0] as FilterItem) : ({ [kind]: items } as FilterItem);
 }
 
+// The clauses that no column's filter has
+const GROUPED: readonly unknown[] = ["is_null", "matches"];
+
 /**
  * Set filters from a query (`null` clears them), giving the query's groups (its `or` and `not`
- * parts, and its `is_null` clauses) for the table to keep. Its other clauses that aren't in a group
+ * parts, and its `is_null` and `matches` clauses) for the table to keep. Its other clauses that aren't in a group
  * (or are in an `and` that isn't in one) go to their columns' filters; its groups are as
  * `normalItem()` writes them, and in the order given. Nothing changes if the query is bad.
  *
  * @throws {RangeError} for a query that isn't `{and: [...]}`, a part that isn't a clause or a
  *   group, a group without parts, a clause on a column that can't be filtered, or that its
  *   column's filter can't have (or in a group, a `contains` without text), or a second `is_null`
- *   clause on a column.
+ *   (or `matches`) clause on a column.
  */
 export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQuery | null): FilterGroup[] {
   const items: unknown = query === null ? [] : (query as { and?: unknown } | undefined)?.and;
@@ -529,18 +563,20 @@ export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQu
   };
   const byColumn = new Map(filters.map((filter) => [filter, [] as FilterClause[]]));
   const groups: FilterItem[] = [];
-  const missing = new Set<string>();
+  // (The `is_null` and `matches` clauses not in a group, by their columns and ops)
+  const seen = new Set<string>();
   const add = (item: FilterItem): void => {
-    if (isClause(item) && item.op !== "is_null") {
+    if (isClause(item) && !GROUPED.includes(item.op)) {
       byColumn.get(find(item.col))?.push(item);
     } else if ("and" in item) {
       item.and.forEach(add);
     } else {
       if (isClause(item)) {
-        if (missing.has(item.col)) {
-          throw new RangeError(`${JSON.stringify(item.col)} has more than one "is_null" clause`);
+        const key = JSON.stringify([item.col, item.op]);
+        if (seen.has(key)) {
+          throw new RangeError(`${JSON.stringify(item.col)} has more than one ${JSON.stringify(item.op)} clause`);
         }
-        missing.add(item.col);
+        seen.add(key);
       }
       groups.push(item);
     }
@@ -549,7 +585,7 @@ export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQu
     const kind = groupKind(item);
     if (kind === "and") {
       groupParts(item, kind).forEach(visit);
-    } else if (kind !== null || (item as { op?: unknown } | null)?.op === "is_null") {
+    } else if (kind !== null || GROUPED.includes((item as { op?: unknown } | null)?.op)) {
       add(normalItem(item, find));
     } else {
       byColumn.get(find((item as { col?: unknown } | null)?.col))?.push(item as FilterClause);
