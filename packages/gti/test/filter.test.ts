@@ -200,6 +200,35 @@ describe("a date filter", () => {
   });
 });
 
+describe("a bool filter", () => {
+  // (`b` is true, false, missing, true, false)
+  const b = () => new ColumnFilter({ column: "b", type: "bool", values: [false, true] }, 6, [1, 0, null, 1, 0]);
+
+  it("keeps the rows with the value chosen, or a missing one", () => {
+    const filter = b();
+    expect(filter.active).toBe(false);
+    expect(filter.clauses()).toEqual([]);
+    filter.chosen = new Set([1]);
+    expect(filter.active).toBe(true);
+    expect(kept(filter)).toEqual([0, 3]);
+    expect(filter.clauses()).toEqual([{ col: "b", op: "in", value: [true] }]);
+    filter.chosen = new Set([MISSING]);
+    expect(kept(filter)).toEqual([2]);
+    expect(filter.clauses()).toEqual([{ col: "b", op: "in", value: [null] }]);
+  });
+
+  it("takes one value", () => {
+    expect(b().parse([{ col: "b", op: "in", value: [false] }]).chosen).toEqual(new Set([0]));
+    expect(b().parse([{ col: "b", op: "in", value: [null] }]).chosen).toEqual(new Set([MISSING]));
+    expect(() => b().parse([{ col: "b", op: "in", value: [true, null] }])).toThrow(
+      'the "in" clause on "b" (a bool filter) can have only one value',
+    );
+    expect(() => b().parse([{ col: "b", op: "in", value: [] }])).toThrow("needs at least one value");
+    expect(() => b().parse([{ col: "b", op: "in", value: [1] }])).toThrow('1 isn\'t a value of "b"');
+    expect(() => b().parse([{ col: "b", op: "gte", value: 1 }])).toThrow('"b" has a bool filter');
+  });
+});
+
 describe("filterQuery() and setFilterQuery()", () => {
   it("make and read the query of a set of filters", () => {
     const filters = [x(), y(), z()];

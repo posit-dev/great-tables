@@ -275,6 +275,7 @@ describe("queryProblem", () => {
     new ColumnFilter({ column: "z z", type: "text", values: null }, 3, []),
     new ColumnFilter({ column: "d", type: "date", values: ["2015-06-15"] }, 4, [], null, "date"),
     new ColumnFilter({ column: "t", type: "date", values: ["2015-06-15T09:30:00"] }, 5, [], null, "datetime"),
+    new ColumnFilter({ column: "b", type: "bool", values: [false, true] }, 6, []),
   ];
   const problem = (text: string) => queryProblem(filters, parseQuery(text));
 
@@ -302,5 +303,13 @@ describe("queryProblem", () => {
       clause: 0,
       message: '"June 15" isn\'t a date ("YYYY-MM-DD") or date and time ("YYYY-MM-DDTHH:MM:SS")',
     });
+  });
+
+  it("takes one value of a bool filter", () => {
+    expect(problem("b in (true) and x >= 1")).toBeNull();
+    expect(problem("b in (null)")).toBeNull();
+    expect(problem("b in (true, false)")).toEqual({ clause: 0, message: "b has a bool filter: give one value, true, false or null" });
+    expect(problem('b in ("true")')).toEqual({ clause: 0, message: '"true" isn\'t a value of b' });
+    expect(problem("b >= 1")).toEqual({ clause: 0, message: "b has a bool filter: use in" });
   });
 });

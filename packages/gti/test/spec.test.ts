@@ -80,6 +80,13 @@ describe("parseSpec()", () => {
     }
   });
 
+  it("takes a bool filter of booleans, and rejects one of other values", () => {
+    expect(parse({ ...valid, filters: [{ column: "x", type: "bool", values: [false, true] }] }).filters).toHaveLength(1);
+    for (const values of [[0, 1], ["false", "true"], [false, null]]) {
+      expect(() => parse({ ...valid, filters: [{ column: "x", type: "bool", values }] })).toThrow(SpecError);
+    }
+  });
+
   it("takes the columns only for querying, or their absence", () => {
     const list = [
       { id: "y", kind: "string", label: "Why", texts: ["a", "b\nalt"] },
