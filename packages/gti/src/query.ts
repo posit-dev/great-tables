@@ -10,12 +10,12 @@
  *
  *   region in ("east") and not (population >= 10000 or status in ("city"))
  *
- * A clause is a column, then `contains` and a string, `in` and values in parentheses, or `>=` or
- * `<=` and a number or a date (a string of ISO 8601 text, as `filter.ts` has it). A column is a
- * name of letters, digits and underscores (not starting with a digit), or any name in backticks (a
- * backtick in it doubled); `not` before an op is a column's name. Strings and numbers are written
- * as in JSON; the other values are `true`, `false` and `null` (a missing value). Keywords can be in
- * any case. Empty text is no query.
+ * A clause is a column, then `contains` and a string, `in` and values in parentheses, `>=` or
+ * `<=` and a number or a date (a string of ISO 8601 text, as `filter.ts` has it), or `is null`
+ * (`is not null` being `not` and that). A column is a name of letters, digits and underscores (not
+ * starting with a digit), or any name in backticks (a backtick in it doubled); `not` before an op
+ * is a column's name. Strings and numbers are written as in JSON; the other values are `true`,
+ * `false` and `null` (a missing value). Keywords can be in any case. Empty text is no query.
  *
  * Great Tables reads and writes the same language (`great_tables/_gti/_query.py`), with the same
  * errors.
@@ -36,6 +36,8 @@ export interface QuerySyntaxError extends SyntaxError {
 }
 
 const NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+// (The ops that are words)
+const OP_WORD = /^(?:in|contains|is)$/i;
 const WORD = /[A-Za-z_][A-Za-z0-9_]*/y;
 // (A string or a name in backticks can be left open, as it's typed)
 const QUOTED = /`(?:[^`]|``)*(`?)/y;
@@ -161,12 +163,25 @@ export function parseQuery(text: string): FilterQuery | null {
     return fail("expected a value: a string in double quotes, a number, true, false or null");
   }
 
-  function clause(): FilterClause {
+  function clause(): FilterItem {
     if (token.kind !== "name" && token.kind !== "quoted") {
       fail("expected a column name");
     }
     const col = (token as { text: string }).text;
     token = next();
+    if (isWord("is")) {
+      token = next();
+      const not = isWord("not");
+      if (not) {
+        token = next();
+      }
+      if (!isWord("null")) {
+        fail(not ? 'expected "null"' : 'expected "null" or "not null"');
+      }
+      token = next();
+      const clause: FilterClause = { col, op: "is_null" };
+      return not ? { not: clause } : clause;
+    }
     if (isWord("contains")) {
       token = next();
       const t = token;
@@ -203,7 +218,7 @@ export function parseQuery(text: string): FilterQuery | null {
       token = next();
       return { col, op, value: t.value };
     }
-    return fail('expected "contains", "in", ">=" or "<="');
+    return fail('expected "contains", "in", ">=", "<=" or "is"');
   }
 
   // Whether the token is the keyword `not` (rather than a column's name, before an op)
@@ -216,7 +231,7 @@ export function parseQuery(text: string): FilterQuery | null {
     at = was;
     const word = after.kind === "name" ? after.text.toLowerCase() : null;
     const symbol = after.kind === "symbol" ? after.text : null;
-    return word !== "contains" && word !== "in" && symbol !== ">=" && symbol !== "<=";
+    return !OP_WORD.test(word ?? "") && symbol !== ">=" && symbol !== "<=";
   }
 
   // Parts joined by `or` or `and` (one part on its own; and the parts of a group of the same kind
@@ -274,15 +289,12 @@ export function parseQuery(text: string): FilterQuery | null {
   return { and: "and" in item ? item.and : [item] };
 }
 
-// Names that are keywords after `not` (and so in backticks, as names)
-const KEYWORD = /^(?:in|contains)$/i;
-
 /**
  * A column's name as a query has it: in backticks, unless it's letters, digits and underscores
- * (and not `in` or `contains`).
+ * (and not `in`, `contains` or `is`, which are ops after `not`).
  */
 export const formatColumn = (name: string) =>
-  NAME.test(name) && !KEYWORD.test(name) ? name : `\`${name.replace(/`/g, "``")}\``;
+  NAME.test(name) && !OP_WORD.test(name) ? name : `\`${name.replace(/`/g, "``")}\``;
 
 /** A value as a query has it. */
 export const formatValue = (value: FilterValue) =>
@@ -295,6 +307,8 @@ function formatClause(clause: FilterClause): string {
       return `${col} contains ${JSON.stringify(clause.value)}`;
     case "in":
       return `${col} in (${clause.value.map(formatValue).join(", ")})`;
+    case "is_null":
+      return `${col} is null`;
     default:
       return `${col} ${clause.op === "gte" ? ">=" : "<="} ${formatValue(clause.value)}`;
   }
@@ -307,7 +321,10 @@ function formatItem(item: FilterItem, inside: "or" | "and" | "not" | null): stri
     return formatClause(item);
   }
   if ("not" in item) {
-    return `not ${formatItem(item.not, "not")}`;
+    const part = item.not;
+    return isClause(part) && part.op === "is_null"
+      ? `${formatColumn(part.col)} is not null`
+      : `not ${formatItem(part, "not")}`;
   }
   const kind = "or" in item ? "or" : "and";
   const text = ("or" in item ? item.or : item.and).map((part) => formatItem(part, kind)).join(` ${kind} `);
@@ -331,9 +348,10 @@ export type QueryRole = "column" | "keyword" | "string" | "number" | "literal" |
 /**
  * What goes next in a query: a column (or `not`, or `(`), an op, a string (after `contains`), `(`
  * (after `in`), a value or `,` or `)` (in the parentheses), a bound (a number or a date, after
- * `>=` or `<=`), or `and` (or `or`, or a `)` closing a group); `null` where the text doesn't fit.
+ * `>=` or `<=`), `null` or `not` (after `is`), `null` (after `is not`), or `and` (or `or`, or a `)`
+ * closing a group); `null` where the text doesn't fit.
  */
-export type QueryExpect = "column" | "op" | "string" | "(" | "value" | ",)" | "bound" | "and" | null;
+export type QueryExpect = "column" | "op" | "string" | "(" | "value" | ",)" | "bound" | "is" | "null" | "and" | null;
 
 export interface QueryState {
   expect: QueryExpect;
@@ -397,9 +415,14 @@ function step(
         ? ["string", "keyword"]
         : word === "in"
           ? ["(", "keyword"]
-          : symbol === ">=" || symbol === "<="
-            ? ["bound", "keyword"]
-            : null;
+          : word === "is"
+            ? ["is", "keyword"]
+            : symbol === ">=" || symbol === "<="
+              ? ["bound", "keyword"]
+              : null;
+    case "is":
+    case "null":
+      return word === "null" ? ["and", "literal"] : word === "not" && expect === "is" ? ["null", "keyword"] : null;
     case "string":
       return kind === "string" ? ["and", "string"] : null;
     case "(":
@@ -446,7 +469,7 @@ export function readQuery(text: string): QueryReading {
       state.expect === "column" &&
       last?.role === "keyword" &&
       last.text.toLowerCase() === "not" &&
-      (word === "contains" || word === "in" || [">=", "<=", ">", "<"].includes(symbol as string))
+      (OP_WORD.test(word ?? "") || [">=", "<=", ">", "<"].includes(symbol as string))
     ) {
       last.role = "column";
       start = last.from;
@@ -547,7 +570,7 @@ export function queryProblem(
   for (const [clause, seen, grouped] of leaves(query?.and ?? [], new Set(), false)) {
     i++;
     const { col } = clause;
-    const op = clause.op === "gte" ? ">=" : clause.op === "lte" ? "<=" : clause.op;
+    const op = clause.op === "gte" ? ">=" : clause.op === "lte" ? "<=" : clause.op === "is_null" ? "is null" : clause.op;
     const name = formatColumn(col);
     const filter = filters.find((f) => f.column === col);
     const key = JSON.stringify([col, op]);
@@ -559,7 +582,7 @@ export function queryProblem(
     const message =
       filter === undefined
         ? `${name} isn't a column with a filter`
-        : !OPS[filter.type].includes(op)
+        : op !== "is null" && !OPS[filter.type].includes(op)
           ? `${name} has a ${filter.type} filter: use ${OPS[filter.type].join(" or ")}`
           : seen.has(key)
             ? `${name} has more than one ${op} clause`
