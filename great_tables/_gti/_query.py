@@ -19,7 +19,16 @@ Rows are kept when every clause keeps them. A clause's `op` is one of:
   and time, `"2015-06-15T09:30"` (with seconds, and up to six digits of their fraction, if
   wanted). Missing values are never kept.
 
-A column has at most one clause with each `op`. Queries are checked as the runtime checks them
+A part of the query can also be a group: `{"or": [parts]}` keeps the rows any of its parts keeps,
+`{"and": [parts]}` the rows every one keeps, and `{"not": part}` the rows its part doesn't (so
+the rows whose value is missing, which a clause leaves out, are kept), nested as wanted:
+
+    {"and": [{"col": "status", "op": "in", "value": ["city"]},
+             {"or": [{"col": "population_2021", "op": "gte", "value": 10000},
+                     {"not": {"col": "name", "op": "contains", "value": "ville"}}]}]}
+
+A column has at most one clause with each `op` (in the query, and in each `and` of a group), and a
+"contains" clause in an "or" or a "not" needs text. Queries are checked as the runtime checks them
 (`setFilterQuery()` in packages/gti/src/filter.ts), so that a view Python accepts is one
 `<gt-table>` shows; and they're compiled, with a sort, to Narwhals expressions (`view_rows()`, the
 rows a table's view shows) and to code for Polars, pandas, or Narwhals (`query_code()`).
@@ -34,8 +43,8 @@ import json
 import math
 import re
 import unicodedata
-from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, replace
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from dataclasses import dataclass
 from decimal import Decimal
 from html.parser import HTMLParser
 from typing import TYPE_CHECKING, Any, Literal, Union
@@ -96,6 +105,10 @@ def check_query(query: Any) -> Query | None:
     This is what can be checked without the table: that the columns have filters, and of the
     right types, is checked when the table is built (`check_view()`). A query can be given as
     text (`parse_query()`).
+
+    Its groups are as the runtime writes them (`setFilterQuery()`): an `and` at the top, or in an
+    `and` (or an `or` in an `or`), is spliced into it, and a group of one part is that part. (So
+    the query's parts are clauses, `or` groups and `not` groups.)
     """
     if isinstance(query, str):
         try:
@@ -104,53 +117,147 @@ def check_query(query: Any) -> Query | None:
             raise ValueError(f"`filter=` can't be read as a query: {err}.") from None
     if query is None:
         return None
-    clauses = query.get("and") if isinstance(query, Mapping) else None
+    parts = query.get("and") if isinstance(query, Mapping) else None
     if (
         not isinstance(query, Mapping)
         or set(query) != {"and"}
-        or not isinstance(clauses, (list, tuple))
+        or not isinstance(parts, (list, tuple))
     ):
         raise ValueError(
-            '`filter=` must be a query, `{"and": [clauses]}`, or `None` (no filter), not '
+            '`filter=` must be a query, `{"and": [parts]}`, or `None` (no filter), not '
             f"{query!r}."
         )
 
     checked: list[dict[str, Any]] = []
     seen: set[tuple[str, str]] = set()
-    for i, clause in enumerate(clauses):
-        if (
-            not isinstance(clause, Mapping)
-            or set(clause) != {"col", "op", "value"}
-            or not isinstance(clause["col"], str)
-            or clause["op"] not in OP_TYPES
-        ):
-            raise ValueError(
-                f'The filter\'s clause {i} must be `{{"col": ..., "op": ..., "value": ...}}`, with a '
-                'column name and an op of "contains", "in", "gte", or "lte", not '
-                f"{clause!r}."
-            )
-        col, op, value = clause["col"], clause["op"], clause["value"]
+
+    # (A clause not in a group, as one of a column's filter's)
+    def add_clause(clause: dict[str, Any]) -> None:
+        col, op = clause["col"], clause["op"]
         if (col, op) in seen:
             raise ValueError(f"The filter has more than one {op!r} clause on column {col!r}.")
         seen.add((col, op))
+        checked.append(clause)
 
-        if op == "contains":
-            if not isinstance(value, str):
-                raise ValueError(
-                    f'The filter\'s "contains" clause on column {col!r} needs a string, not '
-                    f"{value!r}."
-                )
-        elif op == "in":
-            if not isinstance(value, (list, tuple)) or len(value) == 0:
-                raise ValueError(
-                    f'The filter\'s "in" clause on column {col!r} needs a list of at least one '
-                    f"value, not {value!r}."
-                )
-            value = [_facet_value(item, col) for item in value]
+    def add(item: dict[str, Any]) -> None:
+        if _is_clause(item):
+            add_clause(item)
+        elif "and" in item:
+            for part in item["and"]:
+                add(part)
         else:
-            value = _bound(value, col, op)
-        checked.append({"col": col, "op": op, "value": value})
+            checked.append(item)
+
+    def visit(item: Any, where: str) -> None:
+        kind = _group_kind(item)
+        if kind == "and":
+            for i, part in enumerate(_group_parts(item, kind)):
+                visit(part, f"part {i} of an 'and' group")
+        elif kind is not None:
+            add(_normal_item(item, where))
+        else:
+            add_clause(_check_clause(item, where))
+
+    for i, part in enumerate(parts):
+        visit(part, f"clause {i}")
     return {"and": checked}
+
+
+def _is_clause(item: Mapping[str, Any]) -> bool:
+    return "col" in item
+
+
+def _group_kind(item: Any) -> Literal["or", "and", "not"] | None:
+    """The kind of group a part of a query is, if it's one: a mapping with just an "or", "and" or
+    "not"."""
+    if isinstance(item, Mapping) and len(item) == 1:
+        (key,) = item
+        if key in ("or", "and", "not"):
+            return key
+    return None
+
+
+def _group_parts(item: Mapping[str, Any], kind: str) -> Sequence[Any]:
+    parts = item[kind]
+    if not isinstance(parts, (list, tuple)) or len(parts) == 0:
+        raise ValueError(
+            f"The filter's {kind!r} group needs a list of at least one part, not {parts!r}."
+        )
+    return parts
+
+
+def _normal_item(item: Any, where: str) -> dict[str, Any]:
+    """A part of a query in a group, checked, as the runtime writes it (`normalItem()`)."""
+    kind = _group_kind(item)
+    if kind == "not":
+        return {"not": _normal_item(item["not"], "part of a 'not' group")}
+    if kind is None:
+        clause = _check_clause(item, where)
+        if clause["op"] == "contains" and fold(js_trim(clause["value"])) == "":
+            raise ValueError(
+                f'The filter\'s "contains" clause on column {clause["col"]!r} needs text, in an '
+                '"or" or a "not" (blank text keeps every row).'
+            )
+        return clause
+    items: list[dict[str, Any]] = []
+    for i, part in enumerate(_group_parts(item, kind)):
+        normal = _normal_item(part, f"part {i} of an {kind!r} group")
+        items.extend(normal[kind] if kind in normal else [normal])
+    if kind == "and":
+        seen: set[tuple[str, str]] = set()
+        for part in items:
+            if _is_clause(part):
+                col, op = part["col"], part["op"]
+                if (col, op) in seen:
+                    raise ValueError(
+                        f"The filter has more than one {op!r} clause on column {col!r}, in an "
+                        "'and' group."
+                    )
+                seen.add((col, op))
+    return items[0] if len(items) == 1 else {kind: items}
+
+
+def _check_clause(clause: Any, where: str) -> dict[str, Any]:
+    if (
+        not isinstance(clause, Mapping)
+        or set(clause) != {"col", "op", "value"}
+        or not isinstance(clause["col"], str)
+        or clause["op"] not in OP_TYPES
+    ):
+        raise ValueError(
+            f'The filter\'s {where} must be `{{"col": ..., "op": ..., "value": ...}}`, with a '
+            'column name and an op of "contains", "in", "gte", or "lte"; or a group, '
+            '`{"or": [parts]}`, `{"and": [parts]}`, or `{"not": part}`; not '
+            f"{clause!r}."
+        )
+    col, op, value = clause["col"], clause["op"], clause["value"]
+    if op == "contains":
+        if not isinstance(value, str):
+            raise ValueError(
+                f'The filter\'s "contains" clause on column {col!r} needs a string, not '
+                f"{value!r}."
+            )
+    elif op == "in":
+        if not isinstance(value, (list, tuple)) or len(value) == 0:
+            raise ValueError(
+                f'The filter\'s "in" clause on column {col!r} needs a list of at least one '
+                f"value, not {value!r}."
+            )
+        value = [_facet_value(item, col) for item in value]
+    else:
+        value = _bound(value, col, op)
+    return {"col": col, "op": op, "value": value}
+
+
+def _leaves(items: Sequence[Mapping[str, Any]]) -> Iterator[Mapping[str, Any]]:
+    """A (checked) query's clauses, those in its groups too, in order."""
+    for item in items:
+        if _is_clause(item):
+            yield item
+        elif "not" in item:
+            yield from _leaves([item["not"]])
+        else:
+            yield from _leaves(item["or"] if "or" in item else item["and"])
 
 
 def _facet_value(item: Any, col: str) -> Any:
@@ -223,10 +330,12 @@ def parse_date(text: str) -> dt.date | dt.datetime | None:
 #
 #     status in ("single-tier", null) and population >= 10000 and `Name of town` contains "ville"
 #
-# Clauses joined by `and`; a clause is a column, then `contains` and a string, `in` and values in
-# parentheses, or `>=` or `<=` and a number or a date (a string). A column is a name of letters,
-# digits and underscores (not starting with a digit), or any name in backticks (a backtick in it
-# doubled). Strings and numbers are as in JSON; the other values are `true`, `false` and `null`.
+# Clauses joined by `and` and `or`, each after `not` if wanted, and grouped in parentheses as
+# wanted (`not` binding tighter than `and`, and `and` tighter than `or`); a clause is a column,
+# then `contains` and a string, `in` and values in parentheses, or `>=` or `<=` and a number or a
+# date (a string). A column is a name of letters, digits and underscores (not starting with a
+# digit), or any name in backticks (a backtick in it doubled); `not` before an op is a column's
+# name. Strings and numbers are as in JSON; the other values are `true`, `false` and `null`.
 # Keywords can be in any case. Empty text is no query. Errors are the runtime's, word for word.
 
 _NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
@@ -355,16 +464,59 @@ class _QueryParser:
             return {"col": col, "op": op, "value": self.advance().value}
         return self.fail('expected "contains", "in", ">=" or "<="')
 
+    def is_not(self) -> bool:
+        """Whether the token is the keyword `not` (rather than a column's name, before an op)."""
+        if not self.is_word("not"):
+            return False
+        at = self.at
+        after = self._next()
+        self.at = at
+        word = after.value.lower() if after.kind == "name" else None
+        symbol = after.value if after.kind == "symbol" else None
+        return word not in ("contains", "in") and symbol not in (">=", "<=")
+
+    def unary(self) -> dict[str, Any]:
+        if self.is_not():
+            self.advance()
+            return {"not": self.unary()}
+        if self.is_symbol("("):
+            self.advance()
+            item = self.or_()
+            if not self.is_symbol(")"):
+                self.fail('expected "and", "or" or ")"')
+            self.advance()
+            return item
+        return self.clause()
+
+    def and_(self) -> dict[str, Any]:
+        items = [self.unary()]
+        while self.is_word("and"):
+            self.advance()
+            items.append(self.unary())
+        return _joined("and", items)
+
+    def or_(self) -> dict[str, Any]:
+        items = [self.and_()]
+        while self.is_word("or"):
+            self.advance()
+            items.append(self.and_())
+        return _joined("or", items)
+
     def query(self) -> Query | None:
         if self.token.kind == "end":
             return None
-        clauses = [self.clause()]
-        while self.token.kind != "end":
-            if not self.is_word("and"):
-                self.fail('expected "and" or the end of the query')
-            self.advance()
-            clauses.append(self.clause())
-        return {"and": clauses}
+        item = self.or_()
+        if self.token.kind != "end":
+            self.fail('expected "and", "or" or the end of the query')
+        return {"and": item["and"] if "and" in item else [item]}
+
+
+def _joined(kind: str, items: list[dict[str, Any]]) -> dict[str, Any]:
+    # Parts joined by `or` or `and` (one part on its own; and the parts of a group of the same
+    # kind spliced in)
+    if len(items) == 1:
+        return items[0]
+    return {kind: [part for item in items for part in (item[kind] if kind in item else [item])]}
 
 
 def parse_query(text: str) -> Query | None:
@@ -378,14 +530,36 @@ def parse_query(text: str) -> Query | None:
 def format_query(query: Query | None) -> str:
     """Write a (checked) query as text, as the runtime's `formatQuery()` does.
 
-    `parse_query()` reads the text back as the same query.
+    `parse_query()` reads the text back as the same query (as `check_query()` writes it: with no
+    `and` in an `and`, or `or` in an `or`, nor groups of one).
     """
-    return " and ".join(_format_clause(clause) for clause in (query or {"and": []})["and"])
+    items = (query or {"and": []})["and"]
+    if len(items) == 1:
+        return _format_item(items[0], None)
+    return " and ".join(_format_item(item, "and") for item in items)
+
+
+def _format_item(item: Mapping[str, Any], inside: str | None) -> str:
+    # A part of a query as text, in what it's a part of (`None` for the whole query): in
+    # parentheses only where it needs them (`not` binding tighter than `and`, and `and` tighter
+    # than `or`)
+    if _is_clause(item):
+        return _format_clause(item)
+    if "not" in item:
+        return f"not {_format_item(item['not'], 'not')}"
+    kind = "or" if "or" in item else "and"
+    text = f" {kind} ".join(_format_item(part, kind) for part in item[kind])
+    return text if inside is None or (kind == "and" and inside == "or") else f"({text})"
+
+
+# Names that are keywords after `not` (and so in backticks, as names)
+_KEYWORD = re.compile(r"in|contains", re.IGNORECASE)
 
 
 def _format_clause(clause: Mapping[str, Any]) -> str:
     col, op, value = clause["col"], clause["op"], clause["value"]
-    name = col if _NAME.fullmatch(col) else "`" + col.replace("`", "``") + "`"
+    plain = _NAME.fullmatch(col) and not _KEYWORD.fullmatch(col)
+    name = col if plain else "`" + col.replace("`", "``") + "`"
     if op == "contains":
         return f"{name} contains {_format_value(value)}"
     if op == "in":
@@ -463,7 +637,7 @@ def check_view(
     column of dates takes dates, without times.)
     """
     by_column = {f["column"]: f for f in filters}
-    for clause in query["and"] if query is not None else []:
+    for clause in _leaves(query["and"] if query is not None else []):
         col, op, value = clause["col"], clause["op"], clause["value"]
         found = by_column.get(col)
         if found is None:
@@ -752,36 +926,68 @@ class _Contains:
     needle: str  # (trimmed and folded)
 
 
-_Predicate = Union[_In, _Compare, _Contains]
+_Clause = Union[_In, _Compare, _Contains]
+
+
+@dataclass(frozen=True)
+class _Group:
+    kind: Literal["or", "and"]
+    parts: tuple[_Predicate, ...]
+
+
+@dataclass(frozen=True)
+class _Not:
+    part: _Predicate
+
+
+_Predicate = Union[_In, _Compare, _Contains, _Group, _Not]
 
 
 def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_Predicate]:
-    """A query's clauses as predicates on a frame with the table's data (of `schema`)."""
+    """A query's parts as predicates on a frame with the table's data (of `schema`)."""
     import narwhals as nw
 
     kinds = {c["id"]: c["kind"] for c in [*spec["columns"], *spec.get("query_columns", [])]}
-    predicates: list[_Predicate] = []
-    for clause in query["and"] if query is not None else []:
+
+    def clause_predicate(clause: Mapping[str, Any]) -> _Clause:
         col, op, value = clause["col"], clause["op"], clause["value"]
         dtype = schema[col]
         if op == "contains":
-            needle = fold(js_trim(value))
-            if needle != "":
-                predicates.append(_Contains(col, needle))
-        elif op == "in":
+            return _Contains(col, fold(js_trim(value)))
+        if op == "in":
             present = [item for item in value if item is not None]
             categorical = isinstance(dtype, (nw.Categorical, nw.Enum))
             as_text = categorical and all(isinstance(item, str) for item in present)
             values = tuple(_from_json(item, kinds.get(col), dtype, col) for item in present)
             # (The runtime has -0 as 0, as JavaScript's `Map` does)
             signed_zero = dtype.is_float() and 0 in values
-            predicates.append(_In(col, values, None in value, as_text, signed_zero))
-        elif isinstance(value, str):
-            predicates.append(_Compare(col, op, _date_bound(value, kinds.get(col)), False))
+            return _In(col, values, None in value, as_text, signed_zero)
+        if isinstance(value, str):
+            return _Compare(col, op, _date_bound(value, kinds.get(col)), False)
+        return _Compare(col, op, value, isinstance(dtype, (nw.Float32, nw.Float64)))
+
+    def predicate(item: Mapping[str, Any]) -> _Predicate:
+        if _is_clause(item):
+            return clause_predicate(item)
+        if "not" in item:
+            return _Not(predicate(item["not"]))
+        kind = "or" if "or" in item else "and"
+        return _Group(kind, tuple(predicate(part) for part in item[kind]))
+
+    predicates = [predicate(item) for item in (query["and"] if query is not None else [])]
+    # (Blank text, not in a group, keeps every row)
+    return [p for p in predicates if not (isinstance(p, _Contains) and p.needle == "")]
+
+
+def _clauses(predicates: Sequence[_Predicate]) -> Iterator[_Clause]:
+    """The clauses of predicates, those in groups too."""
+    for p in predicates:
+        if isinstance(p, _Not):
+            yield from _clauses([p.part])
+        elif isinstance(p, _Group):
+            yield from _clauses(p.parts)
         else:
-            finite = isinstance(dtype, (nw.Float32, nw.Float64))
-            predicates.append(_Compare(col, op, value, finite))
-    return predicates
+            yield p
 
 
 def _date_bound(text: str, kind: str | None) -> dt.date:
@@ -822,6 +1028,15 @@ def _from_json(value: Any, kind: str | None, dtype: Any, col: str) -> Any:
 def _expr(predicate: _Predicate, texts: Mapping[str, str]) -> nw.Expr:
     import narwhals as nw
 
+    if isinstance(predicate, _Not):
+        # (A clause leaves out a row with a missing value, which its expression is missing for)
+        return ~_expr(predicate.part, texts).fill_null(False)
+    if isinstance(predicate, _Group):
+        exprs = [_expr(part, texts) for part in predicate.parts]
+        joined = exprs[0]
+        for expr in exprs[1:]:
+            joined = joined | expr if predicate.kind == "or" else joined & expr
+        return joined
     if isinstance(predicate, _Contains):
         return nw.col(texts[predicate.col]).str.contains(predicate.needle, literal=True)
     col = nw.col(predicate.col)
@@ -848,7 +1063,7 @@ def filter_exprs(
     no expression.
     """
     predicates = _plan(query, spec, schema)
-    needed = {p.col for p in predicates if isinstance(p, _Contains)} - set(texts or {})
+    needed = {p.col for p in _clauses(predicates) if isinstance(p, _Contains)} - set(texts or {})
     if needed:
         raise ValueError(f'A "contains" clause needs a column of cell text, for {sorted(needed)}.')
     return [_expr(predicate, texts or {}) for predicate in predicates]
@@ -922,7 +1137,7 @@ def view_rows(gt: GT) -> list[int]:
     indices = {column["id"]: i for i, column in enumerate(spec["columns"])}
     # (A column only for querying has its texts in the spec)
     query_texts = {c["id"]: c["texts"] for c in spec["query_columns"]}
-    for clause in query["and"] if query is not None else []:
+    for clause in _leaves(query["and"] if query is not None else []):
         col = clause["col"]
         if clause["op"] == "contains" and col not in texts:
             values: list[str | None] = []
@@ -1000,12 +1215,7 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     frame = nw.from_native(gt._tbl_data, eager_only=True)
     schema = frame.schema
     # (As the runtime has the query, so that its code is the runtime's, character for character)
-    predicates = [
-        replace(p, value=_whole(p.value))
-        if isinstance(p, _Compare) and not isinstance(p.value, dt.date)
-        else p
-        for p in _plan(_canonical(spec["view"]["filter"], spec["filters"]), spec, schema)
-    ]
+    predicates = _plan(_canonical(spec["view"]["filter"], spec["filters"]), spec, schema)
     sort = [(key["column"], key["descending"]) for key in spec["view"]["sort"]]
     hidden = spec["view"]["hidden"]
     imports: set[str] = set()
@@ -1015,7 +1225,7 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
         code = _pandas_code(predicates, sort, hidden, schema, gt._tbl_data, imports)
     else:
         code = _narwhals_code(predicates, sort, hidden, schema, imports)
-    for predicate in predicates:
+    for predicate in _clauses(predicates):
         values = predicate.values if isinstance(predicate, _In) else ()
         if isinstance(predicate, _Compare):
             values = (predicate.value,)
@@ -1026,17 +1236,17 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
 
 
 def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
-    """A query as the runtime has it (`filterQuery()` in packages/gti/src/filter.ts).
+    """A (checked) query as the runtime has it (`filterQuery()` in packages/gti/src/filter.ts).
 
-    Its clauses are in the order of the filters, a range's lower bound first, and an "in"
-    clause's values are the facet's, in their order (a missing value last).
+    Its clauses are in the order of the filters, a range's lower bound first, then its groups, in
+    their order. An "in" clause's values are the facet's, in their order (a missing value last),
+    and a bound that's a number is as JavaScript holds it.
     """
     if query is None:
         return None
     order = {f["column"]: i for i, f in enumerate(filters)}
-    clauses = sorted(query["and"], key=lambda c: (order[c["col"]], c["op"] == "lte"))
-    canonical: list[dict[str, Any]] = []
-    for clause in clauses:
+
+    def clause_of(clause: Mapping[str, Any]) -> dict[str, Any]:
         value = clause["value"]
         if clause["op"] == "in":
             values = filters[order[clause["col"]]]["values"] or []
@@ -1046,8 +1256,24 @@ def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
                     ranks.setdefault(_value_key(item), rank)
             chosen = sorted({ranks[_value_key(item)] for item in value if item is not None})
             value = [values[rank] for rank in chosen] + ([None] if None in value else [])
-        canonical.append({**clause, "value": value})
-    return {"and": canonical}
+        elif clause["op"] != "contains" and not isinstance(value, str):
+            value = _whole(value)
+        return {**clause, "value": value}
+
+    def item_of(item: Mapping[str, Any]) -> dict[str, Any]:
+        if _is_clause(item):
+            return clause_of(item)
+        if "not" in item:
+            return {"not": item_of(item["not"])}
+        kind = "or" if "or" in item else "and"
+        return {kind: [item_of(part) for part in item[kind]]}
+
+    clauses = sorted(
+        (item for item in query["and"] if _is_clause(item)),
+        key=lambda c: (order[c["col"]], c["op"] == "lte"),
+    )
+    groups = [item for item in query["and"] if not _is_clause(item)]
+    return {"and": [*map(clause_of, clauses), *map(item_of, groups)]}
 
 
 def _whole(value: int | float) -> int | float:
@@ -1141,6 +1367,37 @@ def _col(name: str, prefix: str) -> str:
     return f"{prefix}({_literal(name)})"
 
 
+# A term of the code's filter, and how tightly it binds, as Python's operators do: a comparison, an
+# `|`, an `&`, a `~`, or an atom (a call, or in parentheses), as `Term` in packages/gti/src/code.ts
+_COMPARE, _OR, _AND, _NOT, _ATOM = range(5)
+_Term = tuple[str, int]
+
+
+def _terms(
+    predicates: list[_Predicate], leaf: Callable[[_Clause], _Term], pandas: bool
+) -> list[str]:
+    """The terms of predicates' code, a group's parts joined by `|` or `&` (each in parentheses
+    unless it's an atom, a `~`, or of the same kind); and a `not`'s part after `~`, a clause that
+    leaves out a row with a missing value keeping it (as pandas' terms do already, filling them).
+    """
+
+    def term(p: _Predicate) -> _Term:
+        if isinstance(p, _Not):
+            code, rank = term(p.part)
+            if pandas:
+                return f"~{code if rank >= _NOT else f'({code})'}", _NOT
+            return f"~{code if rank == _ATOM else f'({code})'}.fill_null(False)", _NOT
+        if isinstance(p, _Group):
+            rank, joint = (_OR, " | ") if p.kind == "or" else (_AND, " & ")
+            codes = [
+                code if r >= _NOT or r == rank else f"({code})" for code, r in map(term, p.parts)
+            ]
+            return joint.join(codes), rank
+        return leaf(p)
+
+    return [term(p)[0] for p in predicates]
+
+
 def _polars_code(
     predicates: list[_Predicate],
     sort: list[tuple[str, bool]],
@@ -1151,22 +1408,26 @@ def _polars_code(
     import narwhals as nw
 
     imports.add("import polars as pl")
-    terms = []
-    for p in predicates:
+
+    def leaf(p: _Clause) -> _Term:
         col = _col(p.col, "pl.col")
         if isinstance(p, _Contains):
             text = col if schema[p.col] == nw.String else f"{col}.cast(pl.String)"
-            terms.append(
-                f"{text}.str.to_lowercase().str.contains({_literal(p.needle)}, literal=True)"
+            return (
+                f"{text}.str.to_lowercase().str.contains({_literal(p.needle)}, literal=True)",
+                _ATOM,
             )
-        elif isinstance(p, _Compare):
+        if isinstance(p, _Compare):
             op = ">=" if p.op == "gte" else "<="
             term = f"{col} {op} {_literal(p.value)}"
-            terms.append(f"({term}) & {col}.is_finite()" if p.finite else term)
-        else:
-            keys = f"{col}.cast(pl.String)" if p.as_text else col
-            term = f"{keys}.is_in({_list(p.values)})" if p.values else f"{col}.is_null()"
-            terms.append(f"{term} | {col}.is_null()" if p.missing and p.values else term)
+            return (f"({term}) & {col}.is_finite()", _AND) if p.finite else (term, _COMPARE)
+        keys = f"{col}.cast(pl.String)" if p.as_text else col
+        if not p.values:
+            return f"{col}.is_null()", _ATOM
+        term = f"{keys}.is_in({_list(p.values)})"
+        return (f"{term} | {col}.is_null()", _OR) if p.missing else (term, _ATOM)
+
+    terms = _terms(predicates, leaf, pandas=False)
     code = "df"
     if terms:
         code += ".filter(\n" + "".join(f"    {term},\n" for term in terms) + ")"
@@ -1189,25 +1450,28 @@ def _pandas_code(
 ) -> str:
     import narwhals as nw
 
-    terms = []
-    for p in predicates:
+    def leaf(p: _Clause) -> _Term:
         col = f"df[{_literal(p.col)}]"
         if isinstance(p, _Contains):
             text = col if schema[p.col] == nw.String else f"{col}.astype(str)"
-            terms.append(
-                f"{text}.str.contains({_literal(p.needle)}, case=False, regex=False, na=False)"
+            return (
+                f"{text}.str.contains({_literal(p.needle)}, case=False, regex=False, na=False)",
+                _ATOM,
             )
-        elif isinstance(p, _Compare):
+        if isinstance(p, _Compare):
             op = ">=" if p.op == "gte" else "<="
-            term = f"{col} {op} {_literal(p.value)}"
+            term: _Term = (f"{col} {op} {_literal(p.value)}", _COMPARE)
             if p.finite:
                 imports.add("import numpy as np")
-                term = f"({term}) & np.isfinite({col})"
+                term = (f"({term[0]}) & np.isfinite({col})", _AND)
             # (pandas' nullable dtypes compare to `pd.NA`, which a mask can't have)
-            terms.append(f"({term}).fillna(False)" if _nullable(data, p.col) else term)
-        else:
-            term = f"{col}.isin({_list(p.values)})" if p.values else f"{col}.isna()"
-            terms.append(f"{term} | {col}.isna()" if p.missing and p.values else term)
+            return (f"({term[0]}).fillna(False)", _ATOM) if _nullable(data, p.col) else term
+        if not p.values:
+            return f"{col}.isna()", _ATOM
+        term_ = f"{col}.isin({_list(p.values)})"
+        return (f"{term_} | {col}.isna()", _OR) if p.missing else (term_, _ATOM)
+
+    terms = _terms(predicates, leaf, pandas=True)
     code = "df"
     if terms:
         mask = "\n    & ".join(f"({term})" if len(terms) > 1 else term for term in terms)
@@ -1231,22 +1495,26 @@ def _narwhals_code(
     import narwhals as nw
 
     imports.add("import narwhals as nw")
-    terms = []
-    for p in predicates:
+
+    def leaf(p: _Clause) -> _Term:
         col = _col(p.col, "nw.col")
         if isinstance(p, _Contains):
             text = col if schema[p.col] == nw.String else f"{col}.cast(nw.String)"
-            terms.append(
-                f"{text}.str.to_lowercase().str.contains({_literal(p.needle)}, literal=True)"
+            return (
+                f"{text}.str.to_lowercase().str.contains({_literal(p.needle)}, literal=True)",
+                _ATOM,
             )
-        elif isinstance(p, _Compare):
+        if isinstance(p, _Compare):
             op = ">=" if p.op == "gte" else "<="
             term = f"{col} {op} {_literal(p.value)}"
-            terms.append(f"({term}) & {col}.is_finite()" if p.finite else term)
-        else:
-            keys = f"{col}.cast(nw.String)" if p.as_text else col
-            term = f"{keys}.is_in({_list(tuple(p.keys()))})" if p.values else f"{col}.is_null()"
-            terms.append(f"{term} | {col}.is_null()" if p.missing and p.values else term)
+            return (f"({term}) & {col}.is_finite()", _AND) if p.finite else (term, _COMPARE)
+        keys = f"{col}.cast(nw.String)" if p.as_text else col
+        if not p.values:
+            return f"{col}.is_null()", _ATOM
+        term = f"{keys}.is_in({_list(tuple(p.keys()))})"
+        return (f"{term} | {col}.is_null()", _OR) if p.missing else (term, _ATOM)
+
+    terms = _terms(predicates, leaf, pandas=False)
 
     lines = ["nw.from_native(df)"]
     if terms:
