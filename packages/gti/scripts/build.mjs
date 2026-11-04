@@ -11,6 +11,7 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import * as esbuild from "esbuild";
+import { mangledNames } from "./mangle.mjs";
 
 // Budget for the core runtime (JS and CSS together), minified and gzipped.
 const BUDGET_BYTES = 50 * 1024;
@@ -35,16 +36,21 @@ async function buildOne(options) {
   return text.endsWith("\n") ? text : text + "\n";
 }
 
+const js = {
+  ...shared,
+  entryPoints: ["src/index.ts"],
+  outfile: "gti.js",
+  format: "iife",
+  globalName: "GTI",
+  target: "es2020",
+  define: { __GTI_VERSION__: JSON.stringify(pkg.version) },
+  banner: { js: banner },
+};
+// (Private members' names, shortened: see scripts/mangle.mjs)
+const mangled = await mangledNames(pkgDir, js);
+
 const outputs = {
-  "gti.js": await buildOne({
-    entryPoints: ["src/index.ts"],
-    outfile: "gti.js",
-    format: "iife",
-    globalName: "GTI",
-    target: "es2020",
-    define: { __GTI_VERSION__: JSON.stringify(pkg.version) },
-    banner: { js: banner },
-  }),
+  "gti.js": await buildOne({ ...js, mangleProps: new RegExp(`^(?:${mangled.join("|")})$`) }),
   "gti.css": await buildOne({
     entryPoints: ["src/gti.css"],
     outfile: "gti.css",
