@@ -362,10 +362,11 @@ def parse_date(text: str) -> dt.date | dt.datetime | None:
 # wanted (`not` binding tighter than `and`, and `and` tighter than `or`); a clause is a column,
 # then `contains` and a string, `matches` and a pattern (between slashes, with the flag `i` to
 # ignore case, as in `/^st\./i`), `in` and values in parentheses, `>=` or `<=` and a number or a
-# date (a string), or `is null` (`is not null` being `not` and that). A column is a name of
-# letters, digits and underscores (not starting with a digit), or any name in backticks (a backtick
-# in it doubled); `not` before an op is a column's name. Strings and numbers are as in JSON; the other values are `true`, `false` and `null`.
-# Keywords can be in any case. Empty text is no query. Errors are the runtime's, word for word.
+# date (a string), or `is null`; `x not in (...)`, `x not contains "..."`, `x not matches /.../` and
+# `x is not null` are `not` and those. A column is a name of letters, digits and underscores (not
+# starting with a digit), or any name in backticks (a backtick in it doubled); `not` before an op is
+# a column's name. Strings and numbers are as in JSON; the other values are `true`, `false` and
+# `null`. Keywords can be in any case. Empty text is no query. Errors are the runtime's, word for word.
 
 _NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _STRING = re.compile(r'"(?:[^"\\\x00-\x1f]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"')
@@ -378,6 +379,8 @@ _PATTERN = re.compile(
 _WORDS = {"true": True, "false": False, "null": None}
 # (The ops that are words)
 _OP_WORDS = ("in", "contains", "matches", "is")
+# (The ops that can be after `not`, as in `x not in (...)`)
+_NEGATED = ("contains", "matches", "in")
 _VALUE_EXPECTED = "expected a value: a string in double quotes, a number, true, false or null"
 
 
@@ -500,6 +503,16 @@ class _QueryParser:
             self.advance()
             clause = {"col": col, "op": "is_null"}
             return {"not": clause} if negated else clause
+        # (`not` before `contains`, `matches` or `in` is a `not` of the clause)
+        if self.is_word("not"):
+            self.advance()
+            if not any(self.is_word(op) for op in _NEGATED):
+                self.fail('expected "contains", "matches" or "in"')
+            return {"not": self.op_clause(col)}
+        return self.op_clause(col)
+
+    def op_clause(self, col: str) -> dict[str, Any]:
+        """A clause's op and what's after it."""
         if self.is_word("contains"):
             self.advance()
             if self.token.kind != "string":
@@ -528,7 +541,7 @@ class _QueryParser:
             if self.token.kind not in ("number", "string"):
                 self.fail("expected a number, or a date in double quotes")
             return {"col": col, "op": op, "value": self.advance().value}
-        return self.fail('expected "contains", "matches", "in", ">=", "<=" or "is"')
+        return self.fail('expected "contains", "matches", "in", "not", ">=", "<=" or "is"')
 
     def is_not(self) -> bool:
         """Whether the token is the keyword `not` (rather than a column's name, before an op)."""
@@ -610,11 +623,13 @@ def _format_item(item: Mapping[str, Any], inside: str | None) -> str:
     # parentheses only where it needs them (`not` binding tighter than `and`, and `and` tighter
     # than `or`)
     if _is_clause(item):
-        return _format_clause(item)
+        return f"{_format_column(item['col'])} {_format_op(item)}"
     if "not" in item:
         part = item["not"]
         if _is_clause(part) and part["op"] == "is_null":
             return f"{_format_column(part['col'])} is not null"
+        if _is_clause(part) and part["op"] in _NEGATED:
+            return f"{_format_column(part['col'])} not {_format_op(part)}"
         return f"not {_format_item(part, 'not')}"
     kind = "or" if "or" in item else "and"
     text = f" {kind} ".join(_format_item(part, kind) for part in item[kind])
@@ -627,18 +642,18 @@ def _format_column(col: str) -> str:
     return col if plain else "`" + col.replace("`", "``") + "`"
 
 
-def _format_clause(clause: Mapping[str, Any]) -> str:
-    col, op, value = clause["col"], clause["op"], clause.get("value")
-    name = _format_column(col)
+def _format_op(clause: Mapping[str, Any]) -> str:
+    # A clause's op and what's after it, as text
+    op, value = clause["op"], clause.get("value")
     if op == "is_null":
-        return f"{name} is null"
+        return "is null"
     if op == "contains":
-        return f"{name} contains {_format_value(value)}"
+        return f"contains {_format_value(value)}"
     if op == "matches":
-        return f"{name} matches {format_pattern(value)}"
+        return f"matches {format_pattern(value)}"
     if op == "in":
-        return f"{name} in ({', '.join(_format_value(item) for item in value)})"
-    return f"{name} {'>=' if op == 'gte' else '<='} {_format_value(value)}"
+        return f"in ({', '.join(_format_value(item) for item in value)})"
+    return f"{'>=' if op == 'gte' else '<='} {_format_value(value)}"
 
 
 def _format_value(value: Any) -> str:
