@@ -1034,18 +1034,22 @@ class GTI(GT):
         Let readers export the table's rows.
 
         An export button in the control bar below the table opens a panel that copies the rows
-        (`"clipboard"`) or downloads them as a CSV file (`"csv"`). It exports the rows readers see:
-        every row the search and filters keep (on every page, not only the one shown), in the
-        order shown, with the columns' text as the table shows it (formatted, without footnote
-        marks). The column labels are the first row, each after its spanners' labels (as in
-        "Revenue – gross"), and with row groups, the group's label is a column before the others.
-        With [`i_selection()`](`great_tables.GTI.i_selection`), readers can export the rows they've
-        selected instead.
+        (`"clipboard"`) or downloads them as a CSV, TSV or JSON file (`"csv"`, `"tsv"`, `"json"`).
+        It exports the rows readers see: every row the search and filters keep (on every page, not
+        only the one shown), in the order shown, with the columns' text as the table shows it
+        (formatted, without footnote marks). The column labels are the first row, each after its
+        spanners' labels (as in "Revenue – gross"), and with row groups, the group's label is a
+        column before the others. With [`i_selection()`](`great_tables.GTI.i_selection`), readers
+        can export the rows they've selected instead.
 
         A copy has the rows both as a table, with the cells' styles (for pasting into a document
-        or a spreadsheet), and as text, with tabs between the cells. In a CSV file, a cell a
+        or a spreadsheet), and as text, with tabs between the cells; a TSV file has them as that
+        text does, with a cell's tabs and line breaks as spaces. In a CSV or TSV file, a cell a
         spreadsheet would read as a formula (one starting with `=`, `+`, `-` or `@`, but not a
-        number) starts with a `'`, so that it's read as text. Exporting is off by default.
+        number) starts with a `'`, so that it's read as text. A JSON file has an object for each
+        row instead of the labels, with each cell's text under its column's name in the data, and
+        the row's group label first, under `"group"` (with a `_` before it if a column has that
+        name). Exporting is off by default.
 
         With `"code"`, readers can also copy code that filters and sorts the table's data (as
         `df`) as their view of it does, for Polars, pandas, or Narwhals (the library of the
@@ -1056,12 +1060,12 @@ class GTI(GT):
         Parameters
         ----------
         formats
-            How readers can export the rows: `"csv"`, `"clipboard"`, `"code"`, or a list of them
-            (in the order of their buttons in the panel). With `None` (or none at all), they
-            can't.
+            How readers can export the rows: `"csv"`, `"tsv"`, `"json"`, `"clipboard"`, `"code"`,
+            or a list of them (in the order of their buttons in the panel). With `None` (or none
+            at all), they can't.
         filename
-            The name of the CSV file a download makes (`".csv"` is added to it). By default,
-            `"table"`.
+            The name of the file a download makes (`".csv"`, `".tsv"` or `".json"` is added to
+            it). By default, `"table"`.
 
         Returns
         -------
@@ -1071,8 +1075,8 @@ class GTI(GT):
         Examples
         --------
         Here's a table of Ontario's municipalities that readers can filter, then download what's
-        left as a CSV file named `towny.csv`, or copy, or copy the pandas code that filters the
-        data as they have.
+        left as a CSV or JSON file (`towny.csv` or `towny.json`), or copy, or copy the pandas code
+        that filters the data as they have.
 
         ```{python}
         from great_tables import GTI
@@ -1082,7 +1086,7 @@ class GTI(GT):
             GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
             .fmt_integer(columns="population_2021")
             .i_cols_filter(columns=["status", "population_2021"])
-            .i_export(["csv", "clipboard", "code"], filename="towny")
+            .i_export(["csv", "json", "clipboard", "code"], filename="towny")
         )
         ```
         """
@@ -1094,8 +1098,8 @@ class GTI(GT):
         for fmt in formats:
             if fmt not in EXPORT_FORMATS:
                 raise ValueError(
-                    '`formats=` must be "csv", "clipboard", "code", a list of them, or `None` '
-                    f"(no export), not one with {fmt!r}."
+                    '`formats=` must be "csv", "tsv", "json", "clipboard", "code", a list of '
+                    f"them, or `None` (no export), not one with {fmt!r}."
                 )
             if fmt not in chosen:
                 chosen.append(fmt)
@@ -1105,8 +1109,10 @@ class GTI(GT):
         if not isinstance(filename, str):
             raise TypeError(f"`filename=` must be a string or `None`, not {filename!r}.")
         # (The extension is added in the browser)
-        if filename.lower().endswith(".csv"):
-            filename = filename[:-4]
+        for extension in (".csv", ".tsv", ".json"):
+            if filename.lower().endswith(extension):
+                filename = filename[: -len(extension)]
+                break
         if filename.strip() == "":
             raise ValueError("`filename=` must name the file, not be empty.")
         return self._set_interactive(export_formats=tuple(chosen), export_filename=filename)
