@@ -31,6 +31,7 @@ import {
   formatColumn,
   formatQuery,
   formatValue,
+  NEGATED,
   parseQuery,
   type QueryContext,
   type QuerySyntaxError,
@@ -5187,8 +5188,14 @@ export class GtTable extends HTMLElement {
       if (word !== "" && "not".startsWith(word)) {
         items.push({ text: "not", detail: "", insert: "not ", back: 0 });
       }
-    } else if (expect === "op" && control !== undefined) {
-      items = [...OP_SUGGESTIONS[control.filter.type], ...NULL_SUGGESTIONS].filter((item) => item.insert.startsWith(word));
+    } else if ((expect === "op" || expect === "negated") && control !== undefined) {
+      // (And those that can be after `not`, with it, or after it)
+      const ops = OP_SUGGESTIONS[control.filter.type];
+      const negatable = ops.filter((item) => NEGATED.some((op) => item.insert.startsWith(`${op} `)));
+      const not = (item: Suggestion) => ({ ...item, text: `not ${item.text}`, insert: `not ${item.insert}` });
+      items = (expect === "op" ? [...ops, ...negatable.map(not), ...NULL_SUGGESTIONS] : negatable).filter((item) =>
+        item.insert.startsWith(word),
+      );
     } else if (expect === "is" || expect === "null") {
       // (What's after `is`, or after `is not`)
       const after = expect === "is" ? 3 : 7;
