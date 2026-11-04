@@ -169,12 +169,12 @@ export interface LayoutSpec {
 export type ResponsiveMode = "scroll";
 
 /**
- * How a column is filtered: by the text it shows, a choice of its values, a range of its numbers, or
- * a range of its dates (or dates and times).
+ * How a column is filtered: by the text it shows, a choice of its values, a range of its numbers, a
+ * range of its dates (or dates and times), or one of its booleans (or a missing value).
  */
-export type FilterType = "text" | "facet" | "range" | "date";
+export type FilterType = "text" | "facet" | "range" | "date" | "bool";
 
-const FILTER_TYPES: readonly unknown[] = ["text", "facet", "range", "date"];
+const FILTER_TYPES: readonly unknown[] = ["text", "facet", "range", "date", "bool"];
 
 /** A data value, as JSON holds it (dates and times as ISO 8601 text). */
 export type FilterValue = string | number | boolean | null;
@@ -183,8 +183,9 @@ export interface FilterSpec {
   column: string;
   type: FilterType;
   /**
-   * A facet, range or date filter column's distinct values, in the order of its ranks (a data row's
-   * value is `values[rank]`; a date filter's are ISO 8601 text); `null` for a text filter.
+   * A facet, range, date or bool filter column's distinct values, in the order of its ranks (a data
+   * row's value is `values[rank]`; a date filter's are ISO 8601 text, a bool filter's booleans);
+   * `null` for a text filter.
    */
   values: FilterValue[] | null;
 }
@@ -463,11 +464,12 @@ export function parseSpec(text: string): Spec {
           : !Array.isArray(values) ||
             !values.every(isFilterValue) ||
             (filter.type === "date" && !values.every((value) => value === null || (typeof value === "string" && dateKey(value) !== null))) ||
+            (filter.type === "bool" && !values.every((value) => typeof value === "boolean")) ||
             !Array.isArray(ranks) ||
             !ranks.every((rank) => rank === null || isIndex(rank, values.length)))
       ) {
         throw new SpecError(
-          `\`filters[${i}]\` must name a column and a known \`type\`, with \`values\` for every rank of a facet, range or date filter (a date filter's as ISO 8601 text)`,
+          `\`filters[${i}]\` must name a column and a known \`type\`, with \`values\` for every rank of a facet, range, date or bool filter (a date filter's as ISO 8601 text, a bool filter's booleans)`,
         );
       }
     });
