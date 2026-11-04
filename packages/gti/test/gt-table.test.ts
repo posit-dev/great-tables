@@ -3499,7 +3499,7 @@ describe("date filters", () => {
     input.value = "x ";
     input.setSelectionRange(2, 2);
     input.dispatchEvent(new Event("input", { bubbles: true }));
-    expect(options()).toEqual(['>= "…"', '<= "…"']);
+    expect(options()).toEqual(['>= "…"', '<= "…"', "is null", "is not null"]);
     press("Enter");
     expect(input.value).toBe('x >= ""');
     expect(input.selectionStart).toBe(6);
@@ -3640,7 +3640,7 @@ describe("bool filters", () => {
     const press = (key: string) =>
       input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
     type("y ");
-    expect(suggestions()).toEqual(["in (…)"]);
+    expect(suggestions()).toEqual(["in (…)", "is null", "is not null"]);
     type("y in (");
     expect(suggestions()).toEqual(["b", "a", "(Missing)"]);
     press("ArrowDown");
@@ -3864,7 +3864,7 @@ describe("the query box", () => {
     press(input(el), "ArrowUp");
     expect(press(input(el), "Enter").defaultPrevented).toBe(true);
     expect(input(el).value).toBe("y ");
-    expect(options(el)).toEqual(["in (…)"]);
+    expect(options(el)).toEqual(["in (…)", "is null", "is not null"]);
     press(input(el), "Tab");
     expect(input(el).value).toBe("y in (");
     expect(options(el)).toEqual(["a", "b", "c"]);
@@ -3881,13 +3881,31 @@ describe("the query box", () => {
     expect(input(el).value).toBe('y in ("b", "c") and ');
     expect(options(el)).toEqual(["x", "y"]);
     type(el, "x ");
-    expect(options(el)).toEqual([">= …", "<= …"]);
+    expect(options(el)).toEqual([">= …", "<= …", "is null", "is not null"]);
     type(el, "<");
     expect(options(el)).toEqual(["<= …"]);
     press(input(el), "Enter");
     expect(input(el).value).toBe('y in ("b", "c") and x <= ');
     expect(list(el).hidden).toBe(true);
     expect(el.filter).toBeNull();
+  });
+
+  it("suggests `null` and `not null` after `is`, and `null` after `is not`", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "x is");
+    expect(options(el)).toEqual(["is null", "is not null"]);
+    replace(el, "x is ");
+    expect(options(el)).toEqual(["null", "not null"]);
+    type(el, "no");
+    expect(options(el)).toEqual(["not null"]);
+    press(input(el), "Tab");
+    expect(input(el).value).toBe("x is not null ");
+    expect(options(el)).toEqual(["and", "or"]);
+    replace(el, "x is not ");
+    expect(options(el)).toEqual(["null"]);
+    press(input(el), "Enter");
+    expect(input(el).value).toBe("x is not null ");
   });
 
   it("puts a column's label beside its name, and matches it", async () => {
@@ -3939,7 +3957,7 @@ describe("the query box", () => {
     expect(list(el).hidden).toBe(true);
     // (Enter, then, applies)
     press(input(el), "Enter");
-    expect(error(el).textContent).toBe('Expected "contains", "in", ">=" or "<="');
+    expect(error(el).textContent).toBe('Expected "contains", "in", ">=", "<=" or "is"');
   });
 
   it("takes a suggestion that's clicked, keeping focus", async () => {
@@ -4098,6 +4116,25 @@ describe("the query's groups", () => {
     expect(remove(el, 1).getAttribute("aria-label")).toBe("Remove the filter x >= 20 or x <= 5");
     el.filter = { and: [{ not: { col: "y", op: "in", value: ["c"] } }] };
     expect(tokens(el)).toEqual(['not y in ("c")']);
+  });
+
+  it("include `is_null` clauses, whose tokens say the column is missing", async () => {
+    const { el } = await mountGroups({ filters: [{ ...RANGE, missing: [3] }, FACET], yLabel: "Kind" });
+    el.filter = { and: [{ col: "y", op: "is_null" }, { not: { col: "x", op: "is_null" } }] };
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "is_null" }, { not: { col: "x", op: "is_null" } }] });
+    expect(visible(el)).toEqual(["grand:Max"]);
+    el.filter = { and: [{ not: { col: "x", op: "is_null" } }, { col: "y", op: "in", value: ["a"] }] };
+    // (Row 3's "a", but its x is missing)
+    expect(visible(el)).toEqual(["group:b", 4, "summary:Total", "group:a", 1, "grand:Max"]);
+    expect(tokens(el)).toEqual(["Kind: a", "x is not missing", "Clear all"]);
+    expect(token(el, 1).parentElement?.hasAttribute("data-gti-group")).toBe(true);
+    expect(token(el, 1).title).toBe("x is not null (edit as text)");
+    expect(remove(el, 1).getAttribute("aria-label")).toBe("Remove the filter x is not missing");
+    el.filter = { and: [{ col: "x", op: "is_null" }] };
+    expect(visible(el)).toEqual(["group:b", 3, "summary:Total", "grand:Max"]);
+    expect(tokens(el)).toEqual(["x is missing"]);
+    el.filter = { and: [{ col: "y", op: "is_null" }] };
+    expect(tokens(el)).toEqual(["Kind is missing"]);
   });
 
   it("open the query box from a token, with its text selected", async () => {
