@@ -41,8 +41,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   `kind`), or one of their booleans (`"bool"`). A facet, range, date or bool filter column has its
   distinct values (`values`), in the order of its `ranks`, so that a data row's value is
   `values[rank]`: as JSON values (numbers, strings, booleans; dates and times as ISO 8601
-  strings), with `null` for values JSON can't hold (NaN). Producers that leave `filters` out have
-  none.
+  strings), with `null` for values JSON can't hold (NaN). Each filter has the data rows whose
+  value is missing (`missing`, in order: `null`, or NaN in a column of floats), which an `is_null`
+  clause keeps; without it, the runtime has them as the rows without a rank. Producers that leave
+  `filters` out have none.
 - `view`: how the table is first shown: filtered by a query (as `<gt-table>`'s `filter` property
   takes, or `null`), sorted by columns (as its `sort` property takes), and without the hideable
   columns in `hidden` (in column order; producers that leave it out hide none). The runtime
@@ -72,6 +74,7 @@ from .._tbl_data import (
     ColumnKind,
     _get_cell,
     _get_column_kind,
+    _get_column_missing,
     _get_column_ranks,
     _get_column_values,
     cast_frame_to_string,
@@ -188,6 +191,8 @@ class FilterSpec(TypedDict):
     type: Literal["text", "facet", "range", "date", "bool"]
     # A facet, range, date or bool filter column's distinct values, by rank
     values: list[Any] | None
+    # The data rows whose value is missing (for an "is_null" clause)
+    missing: list[int]
 
 
 class ViewSortSpec(TypedDict):
@@ -368,7 +373,8 @@ def build_spec(data: GTData) -> Spec:
         values = None
         if filter_type != "text":
             values = _filter_values(tbl_data, var, column_ranks or [])
-        filters.append(FilterSpec(column=var, type=filter_type, values=values))
+        missing = _get_column_missing(tbl_data, var)
+        filters.append(FilterSpec(column=var, type=filter_type, values=values, missing=missing))
 
     # (Imported here, as `_query` imports from this module)
     from ._query import check_view, code_spec, label_text, match_text
