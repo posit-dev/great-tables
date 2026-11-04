@@ -109,13 +109,14 @@ def _has_bar(spec: Spec) -> bool:
 
 
 def _has_tokens(spec: Spec) -> bool:
-    """Whether the bar starts with a line of tokens: for a view with a filter that's on.
+    """Whether the bar starts with a line of tokens: for a view with a filter that's on, or a
+    group of its query's.
 
     (A filter is off with blank text, which the runtime trims as JavaScript does.)
     """
     view = spec.get("view")
-    clauses = (view["filter"] or {"and": []})["and"] if view is not None else []
-    return any(c["op"] != "contains" or js_trim(c["value"]) != "" for c in clauses)
+    items = (view["filter"] or {"and": []})["and"] if view is not None else []
+    return any("col" not in c or c["op"] != "contains" or js_trim(c["value"]) != "" for c in items)
 
 
 def _leave_out(gt: GT, columns: tuple[str, ...]) -> GT:
