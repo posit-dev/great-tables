@@ -839,6 +839,10 @@ def test_i_view_keeps_room_for_the_filter_tokens():
     # (Not for no filter, or one that's off)
     assert gt_table_tag(gti.i_view(sort="few")) == "<gt-table data-gti-bar>"
     assert gt_table_tag(gti.i_view(filter='id contains " \\u00a0"')) == "<gt-table data-gti-bar>"
+    # (A group of the query's has a token)
+    assert gt_table_tag(gti.i_view(filter='not id contains "x"')) == (
+        "<gt-table data-gti-bar data-gti-tokens>"
+    )
 
 
 def test_i_cols_filter_keeps_room_for_the_bar():
