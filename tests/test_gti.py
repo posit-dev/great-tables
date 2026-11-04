@@ -722,6 +722,15 @@ def test_filter_values_nan(frame_constructor):
     assert split_gti_html(html)[0]["filters"] == spec["filters"]
 
 
+def test_filter_missing_rows(frame_constructor):
+    # (Missing values, and a float's NaN, of every backend: of every type of filter)
+    df = frame_constructor(
+        {"x": [1.0, NAN, 0.0, None], "s": ["a", None, "b", "a"], "n": [1, 2, 3, 4]}
+    )
+    gti = GTI(df).i_cols_filter(columns="x").i_cols_filter(columns=["s", "n"], type="text")
+    assert [f["missing"] for f in spec_of(gti)["filters"]] == [[1, 3], [1], []]
+
+
 # rendering ----
 
 
