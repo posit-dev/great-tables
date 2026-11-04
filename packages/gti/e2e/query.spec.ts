@@ -87,6 +87,44 @@ test("shows a group of the text as a token, edited as text and removed", async (
   expect(errors).toEqual([]);
 });
 
+test("shows an is-null clause as a token saying the column's missing, edited as text and removed", async ({ page }) => {
+  const errors = await ready(page, "tokens.html");
+  await toggle(page).click();
+  await query(page).fill("");
+  await page.keyboard.type("char is n");
+  await expect(options(page)).toHaveText(["nullmissing", "not nullnot missing"]);
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toHaveValue("char is not null ");
+  await page.keyboard.type("and num is null");
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toBeHidden();
+  // (Of each copy of exibble, `num` is NaN in one row, whose `char` isn't missing)
+  expect(await matched(page)).toBe(3);
+  expect(await el(page).evaluate((node) => (node as any).filter)).toEqual({
+    and: [{ not: { col: "char", op: "is_null" } }, { col: "num", op: "is_null" }],
+  });
+  const groups = tokens(page).locator("li.gt-i-token[data-gti-group]");
+  await expect(groups.locator(".gt-i-token-open")).toHaveText(["char is not missing", "num is missing"]);
+  await expect(groups.first()).toHaveCSS("outline-style", "dashed");
+
+  // (Opened in the query box with its text selected)
+  await groups.nth(1).locator(".gt-i-token-open").click();
+  await expect(query(page)).toBeFocused();
+  const value = "char is not null and num is null";
+  await expect(query(page)).toHaveValue(value);
+  expect(
+    await query(page).evaluate((node: HTMLInputElement) => [node.selectionStart, node.selectionEnd]),
+  ).toEqual([value.indexOf("num"), value.length]);
+  await page.keyboard.press("Escape");
+
+  await tokens(page).getByRole("button", { name: "Remove the filter num is missing", exact: true }).click();
+  await expect(groups).toHaveCount(1);
+  // (Of each copy, `char` is missing in one row)
+  expect(await matched(page)).toBe(21);
+  expect(errors).toEqual([]);
+});
+
 test("highlights the text by what each part is, over the input's own", async ({ page }) => {
   const errors = await ready(page, "tokens.html");
   await toggle(page).click();
@@ -157,7 +195,8 @@ test("suggests what can go at the caret, above it, taken with Tab or Enter", asy
   await page.keyboard.press("Tab");
   await expect(query(page)).toHaveValue("fctr ");
   await expect(query(page)).toBeFocused();
-  await expect(options(page)).toHaveText(["in (…)"]);
+  // (Each with what it means, if it says)
+  await expect(options(page)).toHaveText(["in (…)", "is nullmissing", "is not nullnot missing"]);
   await page.keyboard.press("Enter");
   await expect(query(page)).toHaveValue("fctr in (");
   await expect(options(page).first()).toHaveText("eight");
