@@ -48,8 +48,9 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   columns in `hidden` (in column order; producers that leave it out hide none). The runtime
   applies it without events. Producers that leave `view` out show the table as it is.
 - `export`: how readers can export the rows, from the bar: by copying them (`"clipboard"`) or
-  downloading them as CSV (`"csv"`), and the name of a download, without its extension
-  (`filename`). Producers that leave `export` out (or give no `formats`) have no export.
+  downloading them as CSV (`"csv"`), TSV (`"tsv"`) or JSON (`"json"`), and the name of a
+  download, without its extension (`filename`). Producers that leave `export` out (or give no
+  `formats`) have no export.
 - `view_state`: where the reader's view (filters, sort, search, page, page size, hidden columns
   and column order) is kept, so that it's there when the page is opened again: in the page's URL
   (`url`), and in the browser's storage (`storage`), by a `key` (the table's ID) that names its
