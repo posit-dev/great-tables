@@ -81,8 +81,8 @@ describe("parseQuery", () => {
   });
 
   it("says what's wrong, and where", () => {
-    expect(error("a")).toBe('expected "contains", "matches", "in", ">=", "<=" or "is", at the end');
-    expect(error("a = 1")).toBe('expected "contains", "matches", "in", ">=", "<=" or "is", at character 3');
+    expect(error("a")).toBe('expected "contains", "matches", "in", "not", ">=", "<=" or "is", at the end');
+    expect(error("a = 1")).toBe('expected "contains", "matches", "in", "not", ">=", "<=" or "is", at character 3');
     expect(error(">= 1")).toBe("expected a column name, at character 1");
     expect(error("a >= x")).toBe("expected a number, or a date in double quotes, at character 6");
     expect(error("a >= (")).toBe("expected a number, or a date in double quotes, at character 6");
@@ -592,7 +592,7 @@ describe("matches", () => {
       { and: [{ col: "matches", op: "matches", value: "(?i)a/b[/]\\\\" }, { not: { col: "b", op: "matches", value: "/" } }] },
       { and: [{ or: [{ col: "a", op: "matches", value: "x" }, { col: "a", op: "contains", value: "/" }] }] },
     ];
-    expect(formatQuery(queries[1] as FilterQuery)).toBe("`matches` matches /a\\/b[\\/]\\\\/i and not b matches /\\//");
+    expect(formatQuery(queries[1] as FilterQuery)).toBe("`matches` matches /a\\/b[\\/]\\\\/i and b not matches /\\//");
     for (const query of queries) {
       expect(parseQuery(formatQuery(query))).toEqual(query);
     }
@@ -636,5 +636,89 @@ describe("matches", () => {
     expect(problem("w matches /a/")).toEqual({ clause: 0, message: "w isn't a column with a filter" });
     expect(problem("y matches /a/ and y matches /b/i")).toEqual({ clause: 1, message: "y has more than one matches clause" });
     expect(problem("y matches /a/ or y matches /b/")).toBeNull();
+  });
+});
+
+describe("not in, not contains and not matches", () => {
+  const x: FilterClause = { col: "x", op: "in", value: [1, null] };
+  const y: FilterClause = { col: "y", op: "contains", value: "a" };
+  const z: FilterClause = { col: "z", op: "matches", value: "(?i)^b" };
+
+  it("reads them as not and the clause", () => {
+    expect(parseQuery('x not in (1, null) and y NOT contains "a" or z Not Matches /^b/i')).toEqual({
+      and: [{ or: [{ and: [{ not: x }, { not: y }] }, { not: z }] }],
+    });
+    expect(parseQuery("not x not in (1, null)")).toEqual({ and: [{ not: { not: x } }] });
+    expect(parseQuery('`a b` not contains "a"')).toEqual({ and: [{ not: { ...y, col: "a b" } }] });
+    // (`not` where a column goes, before an op, is still a column's name, and so are the ops)
+    expect(parseQuery("not not in (1)")).toEqual({ and: [{ not: { col: "not", op: "in", value: [1] } }] });
+    expect(parseQuery("in not in (1)")).toEqual({ and: [{ not: { col: "in", op: "in", value: [1] } }] });
+  });
+
+  it("says what's wrong, and where", () => {
+    expect(error("x not")).toBe('expected "contains", "matches" or "in", at the end');
+    expect(error("x not >= 1")).toBe('expected "contains", "matches" or "in", at character 7');
+    expect(error("x not is null")).toBe('expected "contains", "matches" or "in", at character 7');
+    expect(error("x not not in (1)")).toBe('expected "contains", "matches" or "in", at character 7');
+    expect(error("x not in 1")).toBe('expected "(", at character 10');
+    expect(error("x not contains /a/")).toBe("expected a string in double quotes, at character 16");
+  });
+
+  it("writes not and one of those clauses with not after the column, which parseQuery reads back", () => {
+    expect(formatQuery({ and: [{ not: x }, { not: y }] })).toBe('x not in (1, null) and y not contains "a"');
+    expect(formatQuery({ and: [{ or: [{ not: z }, { not: { not: x } }] }] })).toBe("z not matches /^b/i or not x not in (1, null)");
+    expect(formatQuery({ and: [{ not: { col: "in", op: "in", value: [1] } }] })).toBe("`in` not in (1)");
+    // (Not the others, or a group)
+    expect(formatQuery({ and: [{ not: { col: "x", op: "gte", value: 1 } }, { not: { and: [x, y] } }] })).toBe(
+      'not x >= 1 and not (x in (1, null) and y contains "a")',
+    );
+    const queries: FilterQuery[] = [
+      { and: [{ not: x }, { not: { not: y } }, { or: [{ not: z }, { not: { col: "not", op: "in", value: [true] } }] }] },
+      { and: [{ not: { col: "not", op: "contains", value: "x" } }, { not: { col: "is", op: "matches", value: "a" } }] },
+    ];
+    for (const query of queries) {
+      expect(parseQuery(formatQuery(query))).toEqual(query);
+    }
+  });
+
+  it("says what each part is, where the clauses are, and what goes at the caret", () => {
+    const roles = (text: string) => readQuery(text).parts.map((part) => [part.text, part.role]);
+    expect(roles('x not in (1) and not y not contains "a"')).toEqual([
+      ["x", "column"],
+      ["not", "keyword"],
+      ["in", "keyword"],
+      ["(", "punct"],
+      ["1", "number"],
+      [")", "punct"],
+      ["and", "keyword"],
+      ["not", "keyword"],
+      ["y", "column"],
+      ["not", "keyword"],
+      ["contains", "keyword"],
+      ['"a"', "string"],
+    ]);
+    expect(roles("x not >= 1").map(([, role]) => role)).toEqual(["column", "keyword", null, null]);
+    expect(roles("x not not in (1)").map(([, role]) => role)).toEqual(["column", "keyword", null, null, null, null, null]);
+    const text = "x not in (1) or y not matches /a/";
+    expect(readQuery(text).clauses.map(([from, to]) => text.slice(from, to))).toEqual(["x not in (1)", "y not matches /a/"]);
+    const at = (typed: string) => queryContext(typed.replace("|", ""), typed.indexOf("|"));
+    expect(at("x n|")).toMatchObject({ expect: "op", col: "x", prefix: "n" });
+    expect(at("x not |")).toMatchObject({ expect: "negated", col: "x", prefix: "" });
+    expect(at("x not c|")).toMatchObject({ expect: "negated", col: "x", prefix: "c" });
+    expect(at("x not in (|")).toMatchObject({ expect: "value", col: "x", values: [] });
+    expect(at('x not contains "a" |')).toMatchObject({ expect: "and" });
+  });
+
+  it("is a problem as the clause would be, in a not", () => {
+    const filters = [
+      new ColumnFilter({ column: "x", type: "range", values: [5] }, 1, []),
+      new ColumnFilter({ column: "y", type: "facet", values: ["a", "b"] }, 2, []),
+      new ColumnFilter({ column: "z", type: "text", values: null }, 3, []),
+    ];
+    const problem = (text: string) => queryProblem(filters, parseQuery(text));
+    expect(problem('y not in ("a", null) and z not contains "q" and z not matches /r/ and y in ("b")')).toBeNull();
+    expect(problem("x not in (5)")).toEqual({ clause: 0, message: "x has a range filter: use >= or <=" });
+    expect(problem('y not in ("c")')).toEqual({ clause: 0, message: '"c" isn\'t a value of y' });
+    expect(problem('z not contains " "')).toEqual({ clause: 0, message: 'z needs text to look for, in an "or" or a "not"' });
   });
 });

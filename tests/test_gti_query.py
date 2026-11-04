@@ -465,8 +465,11 @@ REPEAT_TOO_LARGE = "a repeat can be at most 1000, and its first number no more t
 @pytest.mark.parametrize(
     "text, message",
     [
-        ("a", 'expected "contains", "matches", "in", ">=", "<=" or "is", at the end'),
-        ("a = 1", 'expected "contains", "matches", "in", ">=", "<=" or "is", at character 3'),
+        ("a", 'expected "contains", "matches", "in", "not", ">=", "<=" or "is", at the end'),
+        (
+            "a = 1",
+            'expected "contains", "matches", "in", "not", ">=", "<=" or "is", at character 3',
+        ),
         (">= 1", "expected a column name, at character 1"),
         ("a >= x", f"{BOUND_EXPECTED}, at character 6"),
         ("a >= (", f"{BOUND_EXPECTED}, at character 6"),
@@ -568,6 +571,56 @@ def test_parse_query_reads_a_pattern_between_slashes_with_the_flag_i_as_its_pref
     assert parse_query("(a matches /\\)/ )") == query(("a", "matches", "\\)"))
     assert parse_query("not matches /x/") == query(("not", "matches", "x"))
     assert parse_query("not a matches /x/") == {"and": [not_(clause("a", "matches", "x"))]}
+
+
+def test_parse_query_reads_not_in_not_contains_and_not_matches_as_not_and_the_clause():
+    x, y = clause("x", "in", [1, None]), clause("y", "contains", "a")
+    z = clause("z", "matches", "(?i)^b")
+    assert parse_query('x not in (1, null) and y NOT contains "a" or z Not Matches /^b/i') == {
+        "and": [or_(and_(not_(x), not_(y)), not_(z))]
+    }
+    assert parse_query("not x not in (1, null)") == {"and": [not_(not_(x))]}
+    assert parse_query('`a b` not contains "a"') == {"and": [not_(clause("a b", "contains", "a"))]}
+    # (`not` where a column goes, before an op, is still a column's name, and so are the ops)
+    assert parse_query("not not in (1)") == {"and": [not_(clause("not", "in", [1]))]}
+    assert parse_query("in not in (1)") == {"and": [not_(clause("in", "in", [1]))]}
+
+
+@pytest.mark.parametrize(
+    "text, message",
+    [
+        ("x not", 'expected "contains", "matches" or "in", at the end'),
+        ("x not >= 1", 'expected "contains", "matches" or "in", at character 7'),
+        ("x not is null", 'expected "contains", "matches" or "in", at character 7'),
+        ("x not not in (1)", 'expected "contains", "matches" or "in", at character 7'),
+        ("x not in 1", 'expected "(", at character 10'),
+        ("x not contains /a/", "expected a string in double quotes, at character 16"),
+    ],
+)
+def test_parse_query_says_whats_wrong_after_not(text: str, message: str):
+    with pytest.raises(ValueError) as err:
+        parse_query(text)
+    assert str(err.value) == message
+
+
+def test_format_query_writes_not_and_one_of_those_clauses_with_not_after_the_column():
+    x, y = clause("x", "in", [1, None]), clause("y", "contains", "a")
+    z = clause("z", "matches", "(?i)^b")
+    assert format_query({"and": [not_(x), not_(y)]}) == 'x not in (1, null) and y not contains "a"'
+    assert format_query({"and": [or_(not_(z), not_(not_(x)))]}) == (
+        "z not matches /^b/i or not x not in (1, null)"
+    )
+    assert format_query({"and": [not_(clause("in", "in", [1]))]}) == "`in` not in (1)"
+    # (Not the others, or a group)
+    assert format_query({"and": [not_(clause("x", "gte", 1)), not_(and_(x, y))]}) == (
+        'not x >= 1 and not (x in (1, null) and y contains "a")'
+    )
+    queries = [
+        {"and": [not_(x), not_(not_(y)), or_(not_(z), not_(clause("not", "in", [True])))]},
+        {"and": [not_(clause("not", "contains", "x")), not_(clause("is", "matches", "a"))]},
+    ]
+    for q in queries:
+        assert parse_query(format_query(q)) == q
 
 
 def test_format_query_writes_a_query_as_text():
@@ -679,7 +732,7 @@ def test_format_query_writes_a_pattern_between_slashes():
             not_(clause("b", "matches", "/")),
         ]
     }
-    assert format_query(q) == "`matches` matches /a\\/b[\\/]\\\\/i and not b matches /\\//"
+    assert format_query(q) == "`matches` matches /a\\/b[\\/]\\\\/i and b not matches /\\//"
     assert parse_query(format_query(q)) == q
     # (A line break, which the text can't have in a pattern, as its escape)
     assert format_query(query(("a", "matches", "a\n[\r]"))) == "a matches /a\\n[\\r]/"
@@ -966,6 +1019,13 @@ def test_view_rows_by_a_querys_groups():
     assert rows('not few in ("x")') == [1, 3]
     assert rows("not not num >= 2") == [1, 3]
     assert rows('not (num >= 2 or name contains "a")') == [2]
+    # (`few not in (...)` is `not few in (...)`, and so are `not contains` and `not matches`)
+    assert rows('few not in ("x")') == [1, 3]
+    assert rows('name not contains "a"') == rows('not name contains "a"')
+    assert rows("name not matches /^[AB]/") == rows("not name matches /^[AB]/")
+    assert view_of(filtered().i_view(filter='few not in ("x")'))["filter"] == {
+        "and": [not_(clause("few", "in", ["x"]))]
+    }
 
 
 def test_view_rows_by_is_null_clauses():
@@ -2158,6 +2218,7 @@ PIECES = [
     *['"2015-06-05"', '"2015-06-05T09:30"', "2015-06-05"],
     *["or", "OR", "not", "Not", "not ", " or ", "(a >= 1 or b in (2))", "not a >= 1"],
     *["is", "IS", " is ", "is null", "is not null", "Is Not", "not is null", "`is`"],
+    *[" not ", "not in", " NOT IN ", "not contains", "Not Matches", "x not", "not not"],
     *["matches", "MATCHES", " matches ", "/a/", "/[a-z]+/i", "/", "/(/", "/a\\/b/", "/x/g", "[/]"],
     *["/i", "\\", "(?i)", "{2}", "/^st\\./"],
 ]
