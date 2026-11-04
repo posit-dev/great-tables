@@ -8,6 +8,7 @@
  */
 
 import { type FilterClause, type FilterItem, type FilterQuery, isClause } from "./filter";
+import { patternCode } from "./pattern";
 import { fold } from "./search";
 import type { SortKey } from "./sort";
 import type { CodeBackend, CodeSpec, FilterSpec } from "./spec";
@@ -85,12 +86,16 @@ export function viewCode(
     const name = str(clause.col);
     const column = spec.columns[clause.col];
     const col = pandas ? `df[${name}]` : `${ns}.col(${name})`;
+    const text = column?.dtype === "string" ? col : pandas ? `${col}.astype(str)` : `${col}.cast(${ns}.String)`;
+    if (clause.op === "matches") {
+      const pattern = str(patternCode(clause.value));
+      return [pandas ? `${text}.str.contains(${pattern}, regex=True, na=False)` : `${text}.str.contains(${pattern})`, ATOM];
+    }
     if (clause.op === "contains") {
       const needle = str(fold(clause.value.trim()));
       if (needle === '""') {
         return null;
       }
-      const text = column?.dtype === "string" ? col : pandas ? `${col}.astype(str)` : `${col}.cast(${ns}.String)`;
       return [
         pandas
           ? `${text}.str.contains(${needle}, case=False, regex=False, na=False)`
