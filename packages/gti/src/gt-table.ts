@@ -21,6 +21,7 @@ import {
   type FilterQuery,
   filterQuery,
   hasTime,
+  isClause,
   MISSING,
   setFilterQuery,
 } from "./filter";
@@ -378,6 +379,12 @@ const OP_SUGGESTIONS: Record<FilterType, Suggestion[]> = {
   ],
   bool: [{ text: "in (…)", detail: "", insert: "in (", back: 0 }],
 };
+
+// (For any filter, after its ops)
+const NULL_SUGGESTIONS: Suggestion[] = [
+  { text: "is null", detail: "missing", insert: "is null ", back: 0 },
+  { text: "is not null", detail: "not missing", insert: "is not null ", back: 0 },
+];
 
 /** A panel that a button in the bar opens above the bar (a disclosure). */
 interface Popup {
@@ -4720,22 +4727,27 @@ export class GtTable extends HTMLElement {
     return control.token;
   }
 
-  // A group's token: its query text, which opens the query box with it selected
+  // A group's token: its query text (or for an `is_null` clause, "Population is missing"), which
+  // opens the query box with the text selected
   private makeGroupToken(group: FilterGroup): FilterToken {
     const doc = this.ownerDocument;
     const text = formatQuery({ and: [group.item] });
+    const part = group.item;
+    const clause = "not" in part ? part.not : part;
+    const label = this.filters.find((control) => control.filter === group.filters[0])?.label;
+    const shown = isClause(clause) && clause.op === "is_null" ? `${label} is ${clause === part ? "" : "not "}missing` : text;
     const item = doc.createElement("li");
     item.className = "gt-i-token";
     item.toggleAttribute("data-gti-group", true);
     const open = doc.createElement("button");
     open.type = "button";
     open.className = "gt-i-token-open";
-    open.textContent = text;
+    open.textContent = shown;
     open.title = `${text} (edit as text)`;
     const remove = doc.createElement("button");
     remove.type = "button";
     remove.className = "gt-i-token-remove";
-    remove.setAttribute("aria-label", `Remove the filter ${text}`);
+    remove.setAttribute("aria-label", `Remove the filter ${shown}`);
     remove.title = "Remove (Delete)";
     remove.append(icon(doc, "clear"));
     item.append(open, remove);
@@ -5173,7 +5185,13 @@ export class GtTable extends HTMLElement {
         items.push({ text: "not", detail: "", insert: "not ", back: 0 });
       }
     } else if (expect === "op" && control !== undefined) {
-      items = OP_SUGGESTIONS[control.filter.type].filter((item) => item.insert.startsWith(word));
+      items = [...OP_SUGGESTIONS[control.filter.type], ...NULL_SUGGESTIONS].filter((item) => item.insert.startsWith(word));
+    } else if (expect === "is" || expect === "null") {
+      // (What's after `is`, or after `is not`)
+      const after = expect === "is" ? 3 : 7;
+      items = NULL_SUGGESTIONS.slice(expect === "is" ? 0 : 1)
+        .map(({ insert, detail }) => ({ text: insert.slice(after, -1), detail, insert: insert.slice(after), back: 0 }))
+        .filter((item) => item.insert.startsWith(word));
     } else if (
       expect === "value" &&
       (control?.filter.type === "facet" || (control?.filter.type === "bool" && context.values.length === 0))
