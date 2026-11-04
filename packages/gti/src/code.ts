@@ -7,7 +7,7 @@
  * them, and a facet's values as Python (the code's values are the data's, not the text shown).
  */
 
-import type { FilterQuery } from "./filter";
+import { type FilterClause, type FilterItem, type FilterQuery, isClause } from "./filter";
 import { fold } from "./search";
 import type { SortKey } from "./sort";
 import type { CodeBackend, CodeSpec, FilterSpec } from "./spec";
@@ -16,6 +16,15 @@ import type { CodeBackend, CodeSpec, FilterSpec } from "./spec";
 const str = (text: string) => JSON.stringify(text);
 const list = (items: readonly string[]) => `[${items.join(", ")}]`;
 const py = (flag: boolean) => (flag ? "True" : "False");
+
+// A term of the code's filter, and how tightly it binds, as Python's operators do: a comparison,
+// an `|`, an `&`, a `~`, or an atom (a call, or in parentheses)
+type Term = [string, number];
+const COMPARE = 0;
+const OR = 1;
+const AND = 2;
+const NOT = 3;
+const ATOM = 4;
 
 /** A bound, as Python writes it: an integer if it's whole, or else as `repr()` writes a float. */
 export function pyNumber(value: number): string {
@@ -71,23 +80,25 @@ export function viewCode(
   if (!pandas) {
     imports.add(`import ${backend} as ${ns}`);
   }
-  const terms: string[] = [];
-  for (const clause of query?.and ?? []) {
+  // A clause's term (`null` for a `contains` without text, which keeps every row)
+  const clauseTerm = (clause: FilterClause): Term | null => {
     const name = str(clause.col);
     const column = spec.columns[clause.col];
     const col = pandas ? `df[${name}]` : `${ns}.col(${name})`;
     if (clause.op === "contains") {
       const needle = str(fold(clause.value.trim()));
       if (needle === '""') {
-        continue;
+        return null;
       }
       const text = column?.dtype === "string" ? col : pandas ? `${col}.astype(str)` : `${col}.cast(${ns}.String)`;
-      terms.push(
+      return [
         pandas
           ? `${text}.str.contains(${needle}, case=False, regex=False, na=False)`
           : `${text}.str.to_lowercase().str.contains(${needle}, literal=True)`,
-      );
-    } else if (clause.op === "in") {
+        ATOM,
+      ];
+    }
+    if (clause.op === "in") {
       const values = filters.find((filter) => filter.column === clause.col)?.values ?? [];
       const present = clause.value.filter((value) => value !== null);
       const literals = present.map((value) => {
@@ -101,37 +112,57 @@ export function viewCode(
         return literal;
       });
       const missing = pandas ? `${col}.isna()` : `${col}.is_null()`;
-      let term = missing;
-      if (present.length > 0) {
-        // (A category as its text; and with Narwhals, both zeros of floats, which PyArrow tells apart)
-        const keys =
-          !pandas && column?.dtype === "categorical" && present.every((value) => typeof value === "string")
-            ? `${col}.cast(${ns}.String)`
-            : col;
-        const zeros = backend === "narwhals" && column?.dtype === "float" && present.includes(0);
-        const items = zeros ? [...literals.filter((_, i) => present[i] !== 0), "-0.0", "0.0"] : literals;
-        term = `${keys}.${pandas ? "isin" : "is_in"}(${list(items)})`;
-        if (present.length < clause.value.length) {
-          term += ` | ${missing}`;
-        }
+      if (present.length === 0) {
+        return [missing, ATOM];
       }
-      terms.push(term);
-    } else if (typeof clause.value === "string") {
+      // (A category as its text; and with Narwhals, both zeros of floats, which PyArrow tells apart)
+      const keys =
+        !pandas && column?.dtype === "categorical" && present.every((value) => typeof value === "string")
+          ? `${col}.cast(${ns}.String)`
+          : col;
+      const zeros = backend === "narwhals" && column?.dtype === "float" && present.includes(0);
+      const items = zeros ? [...literals.filter((_, i) => present[i] !== 0), "-0.0", "0.0"] : literals;
+      const term = `${keys}.${pandas ? "isin" : "is_in"}(${list(items)})`;
+      return present.length < clause.value.length ? [`${term} | ${missing}`, OR] : [term, ATOM];
+    }
+    let term: Term;
+    if (typeof clause.value === "string") {
       imports.add("import datetime");
-      const term = `${col} ${clause.op === "gte" ? ">=" : "<="} ${pyDate(clause.value, column?.dtype === "datetime")}`;
-      terms.push(pandas && column?.nullable ? `(${term}).fillna(False)` : term);
+      term = [`${col} ${clause.op === "gte" ? ">=" : "<="} ${pyDate(clause.value, column?.dtype === "datetime")}`, COMPARE];
     } else {
-      let term = `${col} ${clause.op === "gte" ? ">=" : "<="} ${pyNumber(clause.value)}`;
+      term = [`${col} ${clause.op === "gte" ? ">=" : "<="} ${pyNumber(clause.value)}`, COMPARE];
       // (A float's NaN and infinities aren't kept)
       if (column?.dtype === "float") {
         if (pandas) {
           imports.add("import numpy as np");
         }
-        term = `(${term}) & ${pandas ? `np.isfinite(${col})` : `${col}.is_finite()`}`;
+        term = [`(${term[0]}) & ${pandas ? `np.isfinite(${col})` : `${col}.is_finite()`}`, AND];
       }
-      terms.push(pandas && column?.nullable ? `(${term}).fillna(False)` : term);
     }
-  }
+    return pandas && column?.nullable ? [`(${term[0]}).fillna(False)`, ATOM] : term;
+  };
+
+  // A part of the query's term: a group's parts joined by `|` or `&` (each in parentheses unless
+  // it's an atom, a `~`, or of the same kind); and a `not`'s part after `~`, a clause that leaves
+  // out a row with a missing value keeping it (as pandas' terms do already, filling them)
+  const itemTerm = (item: FilterItem): Term => {
+    if (isClause(item)) {
+      return clauseTerm(item) as Term;
+    }
+    if ("not" in item) {
+      const [code, rank] = itemTerm(item.not);
+      return pandas
+        ? [`~${rank >= NOT ? code : `(${code})`}`, NOT]
+        : [`~${rank === ATOM ? code : `(${code})`}.fill_null(False)`, NOT];
+    }
+    const [parts, rank, joint] = "or" in item ? [item.or, OR, " | "] : [item.and, AND, " & "];
+    const codes = parts.map(itemTerm).map(([code, r]) => (r >= NOT || r === rank ? code : `(${code})`));
+    return [codes.join(joint), rank];
+  };
+  const terms = (query?.and ?? []).flatMap((item) => {
+    const found = isClause(item) ? clauseTerm(item) : itemTerm(item);
+    return found === null ? [] : [found[0]];
+  });
 
   const names = sort.map((key) => str(key.column));
   const drop = list(hidden.map(str));
