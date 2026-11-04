@@ -872,8 +872,16 @@ def test_i_export_sets_the_formats_and_filename():
         "filename": "towny",
         "code": None,
     }
-    # (Without the extension, which the runtime adds)
-    assert gti.i_export(filename="Towny 2021.CSV")._interactive.export_filename == "Towny 2021"
+    assert spec_of(gti.i_export(["json", "tsv", "csv"]))["export"]["formats"] == [
+        "json",
+        "tsv",
+        "csv",
+    ]
+    # (Without the extension, which the runtime adds; one of them)
+    for name in ["Towny 2021.CSV", "Towny 2021.tsv", "Towny 2021.Json"]:
+        assert gti.i_export(filename=name)._interactive.export_filename == "Towny 2021"
+    assert gti.i_export(filename="a.json.csv")._interactive.export_filename == "a.json"
+    assert gti.i_export(filename="a.xlsx")._interactive.export_filename == "a.xlsx"
     # (What's not given goes back to its default)
     assert gti.i_export(filename="x").i_export()._interactive.export_filename == "table"
 
@@ -885,13 +893,15 @@ def test_i_export_turns_off():
 
 
 def test_i_export_checks_its_arguments():
-    with pytest.raises(ValueError, match='`formats=` must be "csv", "clipboard", "code"'):
+    with pytest.raises(
+        ValueError, match='`formats=` must be "csv", "tsv", "json", "clipboard", "code"'
+    ):
         GTI(DF).i_export("xlsx")
-    with pytest.raises(ValueError, match="not one with 'json'"):
-        GTI(DF).i_export(["csv", "json"])
+    with pytest.raises(ValueError, match="not one with 'xml'"):
+        GTI(DF).i_export(["csv", "xml"])  # type: ignore[list-item]
     with pytest.raises(TypeError, match="`filename=` must be a string"):
         GTI(DF).i_export(filename=1)  # type: ignore[arg-type]
-    for empty in ["", " ", ".csv"]:
+    for empty in ["", " ", ".csv", ".JSON"]:
         with pytest.raises(ValueError, match="`filename=` must name the file"):
             GTI(DF).i_export(filename=empty)
 
