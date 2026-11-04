@@ -188,6 +188,11 @@ export interface FilterSpec {
    * `null` for a text filter.
    */
   values: FilterValue[] | null;
+  /**
+   * The data rows whose value is missing, in order: `null`, or NaN in a column of floats (as an
+   * `is_null` clause has them). Without it, the rows whose rank is `null`.
+   */
+  missing?: number[];
 }
 
 /** A column to sort by, as a spec's view has it. */
@@ -471,6 +476,10 @@ export function parseSpec(text: string): Spec {
         throw new SpecError(
           `\`filters[${i}]\` must name a column and a known \`type\`, with \`values\` for every rank of a facet, range, date or bool filter (a date filter's as ISO 8601 text, a bool filter's booleans)`,
         );
+      }
+      const { missing } = filter;
+      if (missing !== undefined && !(Array.isArray(missing) && missing.every((row) => isIndex(row, nrows as number)))) {
+        throw new SpecError(`\`filters[${i}].missing\` must be data rows' indexes, if given`);
       }
     });
   }
