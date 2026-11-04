@@ -471,9 +471,11 @@ class GTI(GT):
         typed, ignoring case and accents, as the search does), by a choice of the column's values
         (`"facet"`: a checklist of them, each with the number of rows that have it, given the
         other filters and the search), by a range of its numbers (`"range"`: at least one value,
-        and at most another), or by a range of its dates (`"date"`: from one date, to another,
-        picked in date fields, or date and time fields for a column with times). The facets and
-        ranges go by the column's values, not by how they're formatted. Rows are shown when they
+        and at most another), by a range of its dates (`"date"`: from one date, to another,
+        picked in date fields, or date and time fields for a column with times), or by one of its
+        booleans (`"bool"`: any value, true, false, or missing, with the number of rows that have
+        each, and their text as the table shows it). The facets, ranges, date ranges and booleans
+        go by the column's values, not by how they're formatted. Rows are shown when they
         pass every filter, and the search; the info panel (from the (i) button in the control bar)
         says how many filters there are, and can clear them. The bar also shows the filters that are on, and its <> button opens them as
         text, a query as [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit
@@ -490,10 +492,11 @@ class GTI(GT):
             named). The row group column can't be filtered.
         type
             How the columns are filtered: `"text"`, `"facet"`, `"range"` (for columns of
-            numbers), or `"date"` (for columns of dates, or dates and times without a time zone),
-            or `"auto"` to choose by the column: a range for numbers, a date range for dates,
-            a facet for booleans and categories (and text columns with only a few values, each
-            repeated), and text otherwise. With `None`, the columns aren't filtered.
+            numbers), `"date"` (for columns of dates, or dates and times without a time zone), or
+            `"bool"` (for columns of booleans), or `"auto"` to choose by the column: a range for
+            numbers, a date range for dates, a bool filter for booleans, a facet for categories
+            (and text columns with only a few values, each repeated), and text otherwise. With
+            `None`, the columns aren't filtered.
 
         Returns
         -------
@@ -534,11 +537,28 @@ class GTI(GT):
             .i_cols_filter(columns="date")
         )
         ```
+
+        A column of booleans (here, whether a nuclide is stable) is filtered by one of its values,
+        shown as the table shows them.
+
+        ```{python}
+        from great_tables.data import nuclides
+
+        nuclides_mini = nuclides[["nuclide", "z", "n", "is_stable"]].head(20).assign(
+            is_stable=lambda df: df["is_stable"] == "TRUE"
+        )
+
+        (
+            GTI(nuclides_mini)
+            .fmt_tf(columns="is_stable", tf_style="yes-no")
+            .i_cols_filter(columns="is_stable")
+        )
+        ```
         """
         if type is not None and type not in FILTER_TYPES:
             raise ValueError(
-                '`type=` must be "auto", "text", "facet", "range", "date", or `None` (no filter), '
-                f"not {type!r}."
+                '`type=` must be "auto", "text", "facet", "range", "date", "bool", or `None` (no '
+                f"filter), not {type!r}."
             )
         selected = resolve_cols_c(self, columns, excl_stub=False)
         for column in selected:
@@ -559,6 +579,12 @@ class GTI(GT):
                     f"Column {column!r} can't be filtered by a date range, which is for columns "
                     f"of dates, or dates and times (its values are of the {kind!r} kind). Try "
                     '`type="facet"` or `type="text"`, or make its values dates.'
+                )
+            if type == "bool" and kind != "boolean":
+                raise ValueError(
+                    f"Column {column!r} can't be filtered by a bool filter, which is for columns "
+                    f"of booleans (its values are of the {kind!r} kind). Try "
+                    '`type="facet"` or `type="text"`.'
                 )
             if type == "date" and kind == "datetime" and _has_time_zone(self._tbl_data, column):
                 raise ValueError(
