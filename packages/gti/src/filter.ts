@@ -4,14 +4,16 @@
  * A text filter keeps the rows whose cell in its column has its text (ignoring case and accents,
  * as the search does); a facet, the rows with one of the values chosen; a range, the rows with a
  * number within its bounds; a date filter, the rows with a date (or date and time) within its
- * bounds. Facets, ranges and date filters go by the column's values (the spec's `values`, in the
+ * bounds; a bool filter, the rows with the one value chosen (true, false, or a missing one).
+ * Facets, ranges, date and bool filters go by the column's values (the spec's `values`, in the
  * order of the column's ranks), so the query is in the data's terms:
  *
  *   {"and": [{"col": "status", "op": "in", "value": ["single-tier", null]},
+ *            {"col": "is_city", "op": "in", "value": [true]},
  *            {"col": "population", "op": "gte", "value": 10000},
  *            {"col": "founded", "op": "lte", "value": "1900-12-31"}]}
  *
- * (In a facet's values, `null` is a missing value. A date filter's bounds are ISO 8601 text: a
+ * (In a facet's values, and a bool filter's one value, `null` is a missing value. A date filter's bounds are ISO 8601 text: a
  * date, `"YYYY-MM-DD"`, or for a column of dates and times, either that, meaning its midnight, or a
  * date and time, `"YYYY-MM-DDTHH:MM"`, with seconds and up to six digits of their fraction if
  * wanted.)
@@ -91,7 +93,7 @@ export class ColumnFilter {
   text = "";
   /** That text, trimmed and folded. */
   needle = "";
-  /** The values a facet keeps rows with: ranks, or `MISSING`. */
+  /** The values a facet keeps rows with (a bool filter's, at most one): ranks, or `MISSING`. */
   chosen = new Set<number>();
   /**
    * A range's bounds, or a date filter's (as ISO 8601 text); either can be open. Set them with
@@ -135,6 +137,7 @@ export class ColumnFilter {
       case "text":
         return this.needle !== "";
       case "facet":
+      case "bool":
         return this.chosen.size > 0;
       case "range":
       case "date":
@@ -174,6 +177,7 @@ export class ColumnFilter {
         return text?.includes(this.needle) ?? false;
       }
       case "facet":
+      case "bool":
         return this.chosen.size === 0 || this.chosen.has(this.key(row));
       case "range": {
         if (this.min === null && this.max === null) {
@@ -238,7 +242,8 @@ export class ColumnFilter {
     switch (this.spec.type) {
       case "text":
         return this.needle === "" ? [] : [{ col, op: "contains", value: this.text.trim() }];
-      case "facet": {
+      case "facet":
+      case "bool": {
         if (this.chosen.size === 0) {
           return [];
         }
@@ -263,8 +268,8 @@ export class ColumnFilter {
   /**
    * The state that query clauses (all on this column) give the filter.
    *
-   * @throws {RangeError} for a clause this kind of filter can't have, an `in` without values, or
-   *   a second clause with the same `op`.
+   * @throws {RangeError} for a clause this kind of filter can't have, an `in` without values (or a
+   *   bool filter's with more than one), or a second clause with the same `op`.
    */
   parse(clauses: readonly FilterClause[]): FilterState {
     const state: FilterState = { text: "", chosen: new Set(), min: null, max: null };
@@ -278,9 +283,12 @@ export class ColumnFilter {
       ops.add(op);
       if (this.spec.type === "text" && op === "contains" && typeof value === "string") {
         state.text = value;
-      } else if (this.spec.type === "facet" && op === "in" && Array.isArray(value)) {
+      } else if ((this.spec.type === "facet" || this.spec.type === "bool") && op === "in" && Array.isArray(value)) {
         if (value.length === 0) {
           throw new RangeError(`the "in" clause on ${col} needs at least one value`);
+        }
+        if (this.spec.type === "bool" && value.length > 1) {
+          throw new RangeError(`the "in" clause on ${col} (a bool filter) can have only one value`);
         }
         for (const item of value) {
           const key = item === null ? MISSING : this.rankOf(item);

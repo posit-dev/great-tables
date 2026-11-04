@@ -3463,6 +3463,134 @@ describe("date filters", () => {
   });
 });
 
+describe("bool filters", () => {
+  // (On `y`, as booleans: rows 0 and 4 true, shown as "b"; 1 and 3 false, as "a"; and 2 missing)
+  const BOOL: FilterSpec = { column: "y", type: "bool", values: [false, true] };
+  const filterButton = (el: GtTable) => header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement;
+  const panel = (el: GtTable) => el.querySelector(`#${filterButton(el).getAttribute("aria-controls")}`) as HTMLElement;
+  const radios = (el: GtTable) => Array.from(panel(el).querySelectorAll<HTMLInputElement>("input"));
+  const options = (el: GtTable) =>
+    Array.from(
+      panel(el).querySelectorAll(".gt-i-filter-option"),
+      (item) =>
+        `${item.querySelector(".gt-i-filter-value")?.textContent} ${item.querySelector(".gt-i-filter-count")?.textContent}`,
+    );
+  const checked = (el: GtTable) => radios(el).map((radio) => radio.checked);
+  const tokens = (el: GtTable) => Array.from(el.querySelectorAll(".gt-i-token-open"), (b) => b.textContent);
+  const mountBool = (options: TableOptions = {}) =>
+    mountTable(GROUPED, {
+      filters: [BOOL],
+      columns: { y: { kind: "boolean" } as never },
+      queryRanks: { y: [1, 0, null, 0, 1] },
+      ...options,
+      controls: { bar: true, ...options.controls },
+    });
+
+  it("chooses any value, true, false or a missing one, from radio buttons", async () => {
+    const el = await mountBool();
+    const events: FilterEventDetail[] = [];
+    el.addEventListener(FILTER_EVENT, (event) => events.push((event as CustomEvent<FilterEventDetail>).detail));
+    filterButton(el).click();
+    expect(panel(el).dataset.gtiFilter).toBe("bool");
+    const group = panel(el).querySelector('[role="radiogroup"]') as HTMLElement;
+    expect(group.getAttribute("aria-label")).toBe("y");
+    // (As the table shows the values, true first, with the rows with each; and any, all of them)
+    expect(options(el)).toEqual(["Any 5", "b 2", "a 2", "(Missing) 1"]);
+    expect(radios(el).every((radio) => radio.type === "radio" && radio.name === panel(el).id)).toBe(true);
+    expect(checked(el)).toEqual([true, false, false, false]);
+    expect(document.activeElement).toBe(radios(el)[0]);
+
+    radios(el)[1]?.click();
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: [true] }] });
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+    expect(events).toEqual([{ filter: { and: [{ col: "y", op: "in", value: [true] }] }, count: 2 }]);
+    expect(checked(el)).toEqual([false, true, false, false]);
+    // (Its own values keep their counts)
+    expect(options(el)).toEqual(["Any 5", "b 2", "a 2", "(Missing) 1"]);
+    expect(tokens(el)).toEqual(["y: b"]);
+
+    radios(el)[3]?.click();
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: [null] }] });
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    expect(tokens(el)).toEqual(["y: (Missing)"]);
+    radios(el)[0]?.click();
+    expect(el.filter).toBeNull();
+    expect(events[events.length - 1]).toEqual({ filter: null, count: 5 });
+  });
+
+  it("shows a filter set otherwise, focusing its value on opening", async () => {
+    const el = await mountBool({ controls: { search: true } });
+    el.filter = { and: [{ col: "y", op: "in", value: [false] }] };
+    expect(visible(el)).toEqual(["group:b", 3, "summary:Total", "group:a", 1, "grand:Max"]);
+    filterButton(el).click();
+    expect(checked(el)).toEqual([false, false, true, false]);
+    expect(document.activeElement).toBe(radios(el)[2]);
+    // (Counted within the search)
+    el.search = "row_1";
+    expect(options(el)).toEqual(["Any 1", "b 1", "a 0", "(Missing) 0"]);
+    el.filter = null;
+    expect(checked(el)).toEqual([true, false, false, false]);
+    expect(() => {
+      el.filter = { and: [{ col: "y", op: "in", value: [true, false] }] };
+    }).toThrow('the "in" clause on "y" (a bool filter) can have only one value');
+  });
+
+  it("has no missing value to choose in a column without one", async () => {
+    const el = await mountBool({ queryRanks: { y: [1, 0, 1, 0, 1] } });
+    filterButton(el).click();
+    expect(options(el)).toEqual(["Any 5", "b 3", "a 2"]);
+  });
+
+  it("tabs out of the panel from the radio button checked", async () => {
+    const el = await mountBool();
+    el.filter = { and: [{ col: "y", op: "in", value: [true] }] };
+    filterButton(el).click();
+    const tab = (target: Element | undefined, shiftKey = false) => {
+      const event = new KeyboardEvent("keydown", { key: "Tab", shiftKey, bubbles: true, cancelable: true });
+      target?.dispatchEvent(event);
+      return event;
+    };
+    // (The others aren't stops)
+    expect(tab(radios(el)[1]).defaultPrevented).toBe(true);
+    expect(panel(el).hidden).toBe(true);
+  });
+
+  it("suggests in, then its values, true first, in the query box", async () => {
+    const el = await mountBool();
+    (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
+    const input = el.querySelector(".gt-i-query input") as HTMLInputElement;
+    const suggestions = () =>
+      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => (li.firstChild as Text).data);
+    const type = (text: string) => {
+      input.value = text;
+      input.setSelectionRange(text.length, text.length);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    const press = (key: string) =>
+      input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+    type("y ");
+    expect(suggestions()).toEqual(["in (…)"]);
+    type("y in (");
+    expect(suggestions()).toEqual(["b", "a", "(Missing)"]);
+    press("ArrowDown");
+    press("Enter");
+    expect(input.value).toBe("y in (false");
+    // (One value only)
+    type("y in (false, ");
+    expect(suggestions()).toEqual([]);
+    type("y in (false)");
+    press("Enter");
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: [false] }] });
+
+    (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
+    type("y in (true, false)");
+    press("Enter");
+    expect(el.querySelector(".gt-i-query-error")?.textContent).toBe(
+      "Y has a bool filter: give one value, true, false or null",
+    );
+  });
+});
+
 describe("the query box", () => {
   const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
   const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };

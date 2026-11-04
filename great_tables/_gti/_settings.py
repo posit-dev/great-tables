@@ -24,10 +24,10 @@ PAGINATION_TYPES: tuple[PaginationType, ...] = ("numbers", "simple", "full", "ju
 PAGE_SIZES = (10, 25, 50, 100)
 
 # A column's filter: as its kind suggests ("auto"), or the text it shows, a choice of its values,
-# a range of its numbers, or a range of its dates
-FilterType = Literal["auto", "text", "facet", "range", "date"]
+# a range of its numbers, a range of its dates, or one of its booleans
+FilterType = Literal["auto", "text", "facet", "range", "date", "bool"]
 
-FILTER_TYPES: tuple[FilterType, ...] = ("auto", "text", "facet", "range", "date")
+FILTER_TYPES: tuple[FilterType, ...] = ("auto", "text", "facet", "range", "date", "bool")
 
 # How readers can export the rows: by copying them, or downloading them as CSV; or copy the code
 # that filters and sorts the data as the view does

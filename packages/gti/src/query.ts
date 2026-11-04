@@ -403,7 +403,7 @@ export function queryContext(text: string, caret: number): QueryContext {
   return at(end);
 }
 
-const OPS = { text: ["contains"], facet: ["in"], range: [">=", "<="], date: [">=", "<="] };
+const OPS = { text: ["contains"], facet: ["in"], range: [">=", "<="], date: [">=", "<="], bool: ["in"] };
 
 /**
  * The first clause of a query (by its index) that filters can't have, and why, in the query's
@@ -444,7 +444,9 @@ export function queryProblem(
                     ? filter.times
                       ? `${formatValue(bound)} isn't a date ("YYYY-MM-DD") or date and time ("YYYY-MM-DDTHH:MM:SS")`
                       : `${formatValue(bound)} isn't a date ("YYYY-MM-DD"), and ${name} has dates without times`
-                    : null;
+                    : filter.type === "bool" && clause.op === "in" && clause.value.length > 1
+                      ? `${name} has a bool filter: give one value, true, false or null`
+                      : null;
     if (message !== null) {
       return { clause: i, message };
     }

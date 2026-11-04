@@ -10,7 +10,8 @@ Rows are kept when every clause keeps them. A clause's `op` is one of:
 - `"contains"`, for a column with a text filter: keeps the rows whose cell shows `value` (a string,
   trimmed), ignoring case and accents, as the search does. Blank text keeps every row.
 - `"in"`, for a facet: keeps the rows with one of `value`'s values (a non-empty list of them, as
-  JSON holds them, like the spec's `values`; `None` is a missing value).
+  JSON holds them, like the spec's `values`; `None` is a missing value). For a bool filter: the
+  rows with `value`'s one value (`[True]`, `[False]`, or `[None]`).
 - `"gte"` and `"lte"`, for a range: keep the rows with a number that's at least (or at most)
   `value`, a finite number. Missing values, NaN and infinities are never kept. For a date filter:
   the rows with a date (or date and time) on or after (or on or before) `value`, ISO 8601 text: a
@@ -65,7 +66,7 @@ Backend = CodeBackend
 # The filter types each op is for
 OP_TYPES = {
     "contains": ("text",),
-    "in": ("facet",),
+    "in": ("facet", "bool"),
     "gte": ("range", "date"),
     "lte": ("range", "date"),
 }
@@ -496,6 +497,11 @@ def check_view(
                     f"{value.split('T')[0]!r})."
                 )
         if op == "in":
+            if found["type"] == "bool" and len(value) > 1:
+                raise ValueError(
+                    f"The view's filter has {value!r} for its 'in' clause on column {col!r}, "
+                    "which has a bool filter (for one value: `[True]`, `[False]`, or `[None]`)."
+                )
             keys = {_value_key(item) for item in found["values"] or [] if item is not None}
             for item in value:
                 if item is not None and _value_key(item) not in keys:
@@ -1069,13 +1075,14 @@ def code_spec(
 
     That's the library of the data, and for each column the view can filter or sort by, the
     type that the code goes by (a date filter's bounds are dates, or datetimes for a column of
-    dates and times) and (for a facet) its values as Python, as the code writes them.
+    dates and times) and (for a facet or a bool filter) its values as Python, as the code writes
+    them.
     """
     import narwhals as nw
 
     frame = nw.from_native(data, eager_only=True)
     schema = frame.schema
-    facets = {f["column"]: f["values"] or [] for f in filters if f["type"] == "facet"}
+    facets = {f["column"]: f["values"] or [] for f in filters if f["type"] in ("facet", "bool")}
     spec: dict[str, CodeColumnSpec] = {}
     for name in [*(f["column"] for f in filters), *ranks]:
         if name in spec:

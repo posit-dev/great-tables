@@ -270,7 +270,7 @@ def test_i_cols_filter_auto():
     # order)
     assert filters_of(gti) == [
         {"column": "num", "type": "range", "values": [1.0, 2.0, 3.5]},
-        {"column": "flag", "type": "facet", "values": [False, True]},
+        {"column": "flag", "type": "bool", "values": [False, True]},
         {"column": "cat", "type": "facet", "values": ["lo", "hi"]},
         {"column": "few", "type": "facet", "values": ["a", "b"]},
         {"column": "many", "type": "text", "values": None},

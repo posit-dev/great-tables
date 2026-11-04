@@ -109,6 +109,14 @@ describe("viewCode", () => {
     expect(code({ and: [{ col: "flag", op: "in", value: [true] }] }, [], "pandas")).toBe(
       'df[\n    df["flag"].isin([True])\n]\n',
     );
+    // (A bool filter's as a facet's)
+    const filters = FILTERS.map((filter) => (filter.column === "flag" ? { ...filter, type: "bool" as const } : filter));
+    expect(code({ and: [{ col: "flag", op: "in", value: [false] }] }, [], "pandas", { filters })).toBe(
+      'df[\n    df["flag"].isin([False])\n]\n',
+    );
+    expect(code({ and: [{ col: "flag", op: "in", value: [null] }] }, [], "pandas", { filters })).toBe(
+      'df[\n    df["flag"].isna()\n]\n',
+    );
   });
 
   it("writes Narwhals code", () => {
