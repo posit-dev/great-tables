@@ -367,7 +367,10 @@ interface Suggestion {
 
 // The ops each kind of filter has, as suggestions
 const OP_SUGGESTIONS: Record<FilterType, Suggestion[]> = {
-  text: [{ text: 'contains "…"', detail: "", insert: 'contains ""', back: 1 }],
+  text: [
+    { text: 'contains "…"', detail: "", insert: 'contains ""', back: 1 },
+    { text: "matches /…/", detail: "pattern", insert: "matches //", back: 1 },
+  ],
   facet: [{ text: "in (…)", detail: "", insert: "in (", back: 0 }],
   range: [
     { text: ">= …", detail: "at least", insert: ">= ", back: 0 },
