@@ -679,6 +679,38 @@ def _(data: PyArrowTable, column: str) -> list[Any]:
     return data.column(column).to_pylist()
 
 
+# _get_column_missing ----
+
+
+@singledispatch
+def _get_column_missing(data: DataFrameLike, column: str) -> list[int]:
+    """Get the rows whose value in a column is missing: null, or NaN in a column of floats (as
+    pandas has NaN already)."""
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_missing.register
+def _(data: PdDataFrame, column: str) -> list[int]:
+    missing = data[column].isna().to_list()
+    return [i for i, is_missing in enumerate(missing) if is_missing]
+
+
+@_get_column_missing.register
+def _(data: PlDataFrame, column: str) -> list[int]:
+    ser = data[column]
+    missing = ser.is_null() | ser.is_nan() if ser.dtype.is_float() else ser.is_null()
+    return [i for i, is_missing in enumerate(missing.to_list()) if is_missing]
+
+
+@_get_column_missing.register
+def _(data: PyArrowTable, column: str) -> list[int]:
+    import pyarrow.compute as pc
+
+    # (`nan_is_null=` is for a column of floats)
+    missing = pc.is_null(data.column(column), nan_is_null=True).to_pylist()
+    return [i for i, is_missing in enumerate(missing) if is_missing]
+
+
 # reorder ----
 
 
