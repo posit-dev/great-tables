@@ -11,10 +11,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   reorderable columns next to it, under the same spanners and pinned to the same side); producers
   that leave these out let them do neither
 - `query_columns`: the columns left out of the table but kept for querying, in column order: their
-  kind, their label's text, and (for a filter on the text they'd show, or a facet) each data row's
-  text. A text filter's is what it's matched against: the text the cell would show, then (after a
-  newline) what it wouldn't (an image's `alt` text, an SVG's `<title>`); a facet's is its value's
-  label, the text shown with its whitespace collapsed. They have ranks and filters as other columns
+  kind, their label's text, and (for a filter on the text they'd show, a facet, or a bool filter)
+  each data row's text. A text filter's is what it's matched against: the text the cell would
+  show, then (after a newline) what it wouldn't (an image's `alt` text, an SVG's `<title>`); a
+  facet's or a bool filter's is its value's label, the text shown with its whitespace collapsed. They have ranks and filters as other columns
   do, but aren't searched or exported. Producers that leave `query_columns` out have none.
 - `spanners`: the column spanners, with the visible columns under each
 - `stub`: the stub columns, and whether row groups are shown as a column of the stub
@@ -36,13 +36,13 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   vertically (a CSS length; `null` to grow with its content), and what it does when it's wider
   than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table does)
 - `filters`: the columns readers can filter by, in column order, and how: by the text they show
-  (`"text"`), a choice of their values (`"facet"`), a range of their numbers (`"range"`), or a
+  (`"text"`), a choice of their values (`"facet"`), a range of their numbers (`"range"`), a
   range of their dates, or dates and times (`"date"`; whether they have times is the column's
-  `kind`). A facet, range or date filter column has its distinct values (`values`), in the order
-  of its `ranks`, so that
-  a data row's value is `values[rank]`: as JSON values (numbers, strings, booleans; dates and
-  times as ISO 8601 strings), with `null` for values JSON can't hold (NaN). Producers that leave
-  `filters` out have none.
+  `kind`), or one of their booleans (`"bool"`). A facet, range, date or bool filter column has its
+  distinct values (`values`), in the order of its `ranks`, so that a data row's value is
+  `values[rank]`: as JSON values (numbers, strings, booleans; dates and times as ISO 8601
+  strings), with `null` for values JSON can't hold (NaN). Producers that leave `filters` out have
+  none.
 - `view`: how the table is first shown: filtered by a query (as `<gt-table>`'s `filter` property
   takes, or `null`), sorted by columns (as its `sort` property takes), and without the hideable
   columns in `hidden` (in column order; producers that leave it out hide none). The runtime
@@ -111,7 +111,7 @@ class QueryColumnSpec(TypedDict):
     id: str
     kind: ColumnKind
     label: str  # the text of its label
-    texts: list[str] | None  # each data row's, for a text filter or a facet
+    texts: list[str] | None  # each data row's, for a text filter, a facet or a bool filter
 
 
 class SpannerSpec(TypedDict):
@@ -184,8 +184,9 @@ class LayoutSpec(TypedDict):
 
 class FilterSpec(TypedDict):
     column: str
-    type: Literal["text", "facet", "range", "date"]
-    values: list[Any] | None  # a facet, range or date filter column's distinct values, by rank
+    type: Literal["text", "facet", "range", "date", "bool"]
+    # A facet, range, date or bool filter column's distinct values, by rank
+    values: list[Any] | None
 
 
 class ViewSortSpec(TypedDict):
@@ -378,7 +379,7 @@ def build_spec(data: GTData) -> Spec:
         body = replace_null_frame(data._body.body, cast_frame_to_string(tbl_data))
         for info in query_infos:
             texts = None
-            if types.get(info.var) in ("text", "facet"):
+            if types.get(info.var) in ("text", "facet", "bool"):
                 cells = [str(_get_cell(body, row, info.var)) for row in range(nrows)]
                 texts = [
                     match_text(cell) if types[info.var] == "text" else label_text(cell)
@@ -496,13 +497,13 @@ def _filter_type(
     ranks: list[int | None] | None,
     nrows: int,
     zoned: bool = False,
-) -> Literal["text", "facet", "range", "date"]:
+) -> Literal["text", "facet", "range", "date", "bool"]:
     """How a column is filtered: as chosen, or (for "auto") as its kind and values suggest.
 
     (A column of dates and times with a time zone, `zoned`, can't have a date filter yet.)
     """
-    # (Facets, ranges and date filters go by the column's ranks, which a column the backend can't
-    # sort lacks)
+    # (Facets, ranges, date and bool filters go by the column's ranks, which a column the backend
+    # can't sort lacks)
     if ranks is None or chosen == "text":
         return "text"
     if chosen != "auto":
@@ -511,7 +512,9 @@ def _filter_type(
         return "range"
     if kind in ("date", "datetime") and not zoned:
         return "date"
-    if kind in ("boolean", "category"):
+    if kind == "boolean":
+        return "bool"
+    if kind == "category":
         return "facet"
     if kind == "string":
         distinct = max((rank for rank in ranks if rank is not None), default=-1) + 1
