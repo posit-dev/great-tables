@@ -98,6 +98,14 @@ export function viewCode(
         ATOM,
       ];
     }
+    if (clause.op === "is_null") {
+      // (A float's NaN is missing too, as pandas has it already)
+      return pandas
+        ? [`${col}.isna()`, ATOM]
+        : column?.dtype === "float"
+          ? [`${col}.is_null() | ${col}.is_nan()`, OR]
+          : [`${col}.is_null()`, ATOM];
+    }
     if (clause.op === "in") {
       const values = filters.find((filter) => filter.column === clause.col)?.values ?? [];
       const present = clause.value.filter((value) => value !== null);
