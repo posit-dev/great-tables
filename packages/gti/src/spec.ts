@@ -208,12 +208,12 @@ export interface ViewSpec {
 }
 
 /**
- * How readers can export the rows: by copying them, or downloading them as CSV; or copy the code
- * that filters and sorts the data as the view does.
+ * How readers can export the rows: by copying them, or downloading them as CSV, TSV or JSON; or
+ * copy the code that filters and sorts the data as the view does.
  */
-export type ExportFormat = "clipboard" | "csv" | "code";
+export type ExportFormat = "clipboard" | "csv" | "tsv" | "json" | "code";
 
-const EXPORT_FORMATS: readonly unknown[] = ["clipboard", "csv", "code"];
+const EXPORT_FORMATS: readonly unknown[] = ["clipboard", "csv", "tsv", "json", "code"];
 
 /** The library code is for. */
 export type CodeBackend = "polars" | "pandas" | "narwhals";
