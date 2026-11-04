@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ColumnFilter, dateKey, filterQuery, MISSING, setFilterQuery } from "../src/filter";
+import { ColumnFilter, dateKey, type FilterGroup, type FilterQuery, filterQuery, MISSING, setFilterQuery } from "../src/filter";
 import { CellText } from "../src/search";
 
 // Five rows: `x` is 20, 5, 10, missing, 20; `y` is "b", "a", "c", "a", "a"; `z` is text
@@ -280,8 +280,8 @@ describe("filterQuery() and setFilterQuery()", () => {
   // (Each after a good clause, which mustn't apply either)
   const good = { col: "y", op: "in", value: ["a"] };
   it.each([
-    ["isn't an object", 3, /`\{and: \[\.\.\.clauses\]\}`/],
-    ["has no clauses", {}, /`\{and: \[\.\.\.clauses\]\}`/],
+    ["isn't an object", 3, /`\{and: \[\.\.\.parts\]\}`/],
+    ["has no clauses", {}, /`\{and: \[\.\.\.parts\]\}`/],
     ["is on a column without a filter", { and: [good, { col: "w", op: "contains", value: "a" }] }, /"w" isn't a column/],
     ["has a clause that isn't one", { and: [good, null] }, /isn't a column/],
     ["has an op its filter can't have", { and: [good, { col: "x", op: "in", value: [5] }] }, /"x" has a range filter/],
@@ -298,5 +298,111 @@ describe("filterQuery() and setFilterQuery()", () => {
     expect(() => setFilterQuery(filters, query as never)).toThrow(RangeError);
     expect(() => setFilterQuery(filters, query as never)).toThrow(message);
     expect(filterQuery(filters)).toEqual({ and: [{ col: "x", op: "gte", value: 1 }] });
+  });
+});
+
+describe("a query's groups", () => {
+  // (Rows' cells by the columns' indexes: `z` is "Fig", "apple", "", "fig jam", missing)
+  const cells = ["Fig", "apple", "", "fig jam", null].map((text) => {
+    const row: (CellText | undefined)[] = [];
+    row[3] = text === null ? undefined : cell(text);
+    return row;
+  });
+  const keptBy = (groups: FilterGroup[]) =>
+    [0, 1, 2, 3, 4].filter((row) => groups.every((group) => group.keeps(row, cells[row] ?? [])));
+  const set = (query: FilterQuery) => {
+    const filters = [x(), y(), z()];
+    return { filters, groups: setFilterQuery(filters, query) };
+  };
+
+  it("are kept apart from the filters' clauses, which come first", () => {
+    const { filters, groups } = set({
+      and: [
+        { or: [{ col: "x", op: "gte", value: 20 }, { col: "y", op: "in", value: ["c"] }] },
+        { col: "y", op: "in", value: ["a", "b"] },
+        { not: { col: "z", op: "contains", value: "jam" } },
+      ],
+    });
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "y", op: "in", value: ["a", "b"] }] });
+    expect(groups.map((group) => group.item)).toEqual([
+      { or: [{ col: "x", op: "gte", value: 20 }, { col: "y", op: "in", value: ["c"] }] },
+      { not: { col: "z", op: "contains", value: "jam" } },
+    ]);
+    expect(filterQuery(filters, groups)).toEqual({
+      and: [
+        { col: "y", op: "in", value: ["a", "b"] },
+        { or: [{ col: "x", op: "gte", value: 20 }, { col: "y", op: "in", value: ["c"] }] },
+        { not: { col: "z", op: "contains", value: "jam" } },
+      ],
+    });
+    expect(groups.map((group) => [group.filters.map((filter) => filter.column), group.texts])).toEqual([
+      [["x", "y"], false],
+      [["z"], true],
+    ]);
+  });
+
+  it("keep the rows any part, or every part, keeps; or that a part doesn't", () => {
+    const or = set({ and: [{ or: [{ col: "x", op: "gte", value: 20 }, { col: "y", op: "in", value: ["c"] }] }] });
+    expect(keptBy(or.groups)).toEqual([0, 2, 4]);
+    const and = set({
+      and: [{ or: [{ and: [{ col: "x", op: "lte", value: 10 }, { col: "y", op: "in", value: ["a"] }] }, { col: "z", op: "contains", value: "FIG" }] }],
+    });
+    expect(keptBy(and.groups)).toEqual([0, 1, 3]);
+    // (A row whose value is missing, which a clause leaves out, is kept by `not`)
+    const not = set({ and: [{ not: { col: "x", op: "gte", value: 10 } }] });
+    expect(keptBy(not.groups)).toEqual([1, 3]);
+    const notText = set({ and: [{ not: { col: "z", op: "contains", value: "fig" } }] });
+    expect(keptBy(notText.groups)).toEqual([1, 2, 4]);
+    const twice = set({ and: [{ not: { not: { col: "x", op: "gte", value: 10 } } }] });
+    expect(keptBy(twice.groups)).toEqual([0, 2, 4]);
+  });
+
+  it("are written as the table has them: groups of one part as the part, and like groups spliced in", () => {
+    const { filters, groups } = set({
+      and: [
+        { and: [{ col: "x", op: "gte", value: 5 }] },
+        { or: [{ and: [{ col: "z", op: "contains", value: "fig" }] }] },
+        { or: [{ col: "y", op: "in", value: [null, "c", "a", "c"] }, { or: [{ col: "x", op: "lte", value: 5 }, { or: [{ col: "x", op: "gte", value: 20 }] }] }] },
+        { not: { and: [{ col: "x", op: "lte", value: 5 }, { and: [{ col: "y", op: "in", value: ["a"] }] }] } },
+      ],
+    });
+    expect(filterQuery(filters, groups)).toEqual({
+      and: [
+        { col: "x", op: "gte", value: 5 },
+        { col: "z", op: "contains", value: "fig" },
+        {
+          or: [
+            { col: "y", op: "in", value: ["a", "c", null] },
+            { col: "x", op: "lte", value: 5 },
+            { col: "x", op: "gte", value: 20 },
+          ],
+        },
+        { not: { and: [{ col: "x", op: "lte", value: 5 }, { col: "y", op: "in", value: ["a"] }] } },
+      ],
+    });
+  });
+
+  it.each([
+    ["has an empty group", { and: [{ or: [] }] }, /"or" group needs a list of at least one part/],
+    ["has a group that isn't a list", { and: [{ and: { col: "x" } }] }, /"and" group needs a list/],
+    ["has a clause in a group on a column without a filter", { and: [{ not: { col: "w", op: "contains", value: "a" } }] }, /"w" isn't a column/],
+    ["has a group with another key", { and: [{ or: [], and: [] }] }, /isn't a column/],
+    ["has blank text in a group", { and: [{ not: { col: "z", op: "contains", value: " " } }] }, /"contains" clause on "z" needs text, in an "or" or a "not"/],
+    ["has two clauses with an op in one and", { and: [{ or: [{ and: [{ col: "x", op: "gte", value: 1 }, { col: "x", op: "gte", value: 2 }] }, { col: "y", op: "in", value: ["a"] }] }] }, /"x" has more than one "gte" clause/],
+    ["has two at the top, one in an and", { and: [{ col: "x", op: "gte", value: 1 }, { and: [{ col: "x", op: "gte", value: 2 }] }] }, /"x" has more than one "gte" clause/],
+    ["has a bad value in a group", { and: [{ not: { col: "y", op: "in", value: ["d"] } }] }, /"d" isn't a value of "y"/],
+  ])("reject a query that %s, changing nothing", (_, query, message) => {
+    const filters = [x(), y(), z()];
+    setFilterQuery(filters, { and: [{ col: "x", op: "gte", value: 1 }] });
+    expect(() => setFilterQuery(filters, query as never)).toThrow(RangeError);
+    expect(() => setFilterQuery(filters, query as never)).toThrow(message);
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "x", op: "gte", value: 1 }] });
+  });
+
+  it("can have the same clause in different parts", () => {
+    const { groups } = set({
+      and: [{ col: "x", op: "gte", value: 5 }, { or: [{ col: "x", op: "gte", value: 20 }, { not: { col: "x", op: "gte", value: 10 } }] }],
+    });
+    expect(keptBy(groups)).toEqual([0, 1, 3, 4]);
   });
 });

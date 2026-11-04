@@ -862,12 +862,22 @@ class GTI(GT):
             and `"gte"` (at least) and `"lte"` (at most) for a range (a number). A column can have
             one clause of each operation. With `None` (the default), the rows aren't filtered.
 
+            A part of the query can be a group instead of a clause: `{"or": [parts]}` keeps the
+            rows that any of its parts keeps, `{"and": [parts]}` those that all of them keep, and
+            `{"not": part}` those that its part doesn't keep (a row whose value is missing, which
+            a clause doesn't keep, is kept by `"not"`). Groups can be in groups, and a column can
+            have one clause of each operation in each `"and"`. The column filters show the
+            query's clauses, and the bar below the table shows each group, which readers can
+            edit as text, or remove.
+
             The query can be written as text instead: clauses joined by `and`, each a column name
             and then `contains` and a string, `in` and values in parentheses, or `>=` or `<=` and
             a number (e.g., `'status in ("single-tier") and population_2021 >= 10000'`). Strings
             are in double quotes, and values are written as in JSON (`null` for a missing value,
             `true` and `false`). A column name that isn't letters, digits and underscores goes in
-            backticks (`` `Name of town` ``).
+            backticks (`` `Name of town` ``). Groups are written with `or`, `not` and parentheses,
+            `not` binding tighter than `and`, and `and` tighter than `or` (e.g.,
+            `'population_2021 >= 10000 and (status in ("lower-tier") or not name contains "ton")'`).
         sort
             The columns to sort by: a column name, or a list of them (the first sorts the rows,
             the next sorts the rows that tie, and so on), each in ascending order, or descending
@@ -922,6 +932,25 @@ class GTI(GT):
             .i_cols_filter(columns=["status", "population_2021"])
             .i_view(
                 filter='status in ("single-tier") and population_2021 >= 10000',
+                sort="-population_2021",
+            )
+        )
+        ```
+
+        The single-tier municipalities with at least 100,000 people, and the lower-tier ones with
+        at least 50,000, with an `or` group (which the bar shows, as it isn't one column's
+        filter):
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_filter(columns=["status", "population_2021"])
+            .i_view(
+                filter=(
+                    'status in ("single-tier") and population_2021 >= 100000 '
+                    'or status in ("lower-tier") and population_2021 >= 50000'
+                ),
                 sort="-population_2021",
             )
         )

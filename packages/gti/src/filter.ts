@@ -17,6 +17,11 @@
  * date, `"YYYY-MM-DD"`, or for a column of dates and times, either that, meaning its midnight, or a
  * date and time, `"YYYY-MM-DDTHH:MM"`, with seconds and up to six digits of their fraction if
  * wanted.)
+ *
+ * A part of the query can also be a group: `{"or": [...]}`, keeping the rows any of its parts
+ * keeps; `{"and": [...]}`, those every one does; or `{"not": part}`, those its part doesn't (with a
+ * clause leaving out a row whose value is missing, `not` keeps it). Groups nest; the filters keep
+ * the query's clauses that aren't in a group, and the table keeps its groups (`FilterGroup`s).
  */
 
 import { type CellText, fold } from "./search";
@@ -64,10 +69,19 @@ export function dateKey(text: string, digits = 9): string | null {
 /** Whether ISO 8601 text is a date and time (rather than a date). */
 export const hasTime = (text: string): boolean => text.includes("T");
 
-/** The filters on a table: rows are kept when every clause keeps them. */
+/**
+ * A part of a query: a clause; or a group of parts, keeping the rows any of them keeps (`or`),
+ * every one of them does (`and`), or the one part doesn't (`not`).
+ */
+export type FilterItem = FilterClause | { or: FilterItem[] } | { and: FilterItem[] } | { not: FilterItem };
+
+/** The filters on a table: rows are kept when every part keeps them. */
 export interface FilterQuery {
-  and: FilterClause[];
+  and: FilterItem[];
 }
+
+/** Whether a part of a query is a clause (rather than a group). */
+export const isClause = (item: FilterItem): item is FilterClause => "col" in item;
 
 /** A missing value, among the values of a facet (whose others are ranks). */
 export const MISSING = -1;
@@ -247,9 +261,7 @@ export class ColumnFilter {
         if (this.chosen.size === 0) {
           return [];
         }
-        // (In the order of the values, with missing ones last)
-        const keys = Array.from(this.chosen).sort((a, b) => (a === MISSING ? 1 : b === MISSING ? -1 : a - b));
-        return [{ col, op: "in", value: keys.map((key) => (key === MISSING ? null : this.valueOf(key))) }];
+        return [{ col, op: "in", value: this.values(this.chosen) }];
       }
       case "range":
       case "date": {
@@ -322,6 +334,37 @@ export class ColumnFilter {
     this.max = state.max;
   }
 
+  /**
+   * A clause on this column as a group has it: an `in`'s values once each, in the order of the
+   * column's values (with a missing one last).
+   *
+   * @throws {RangeError} for a clause the filter can't have (as `parse()` does), or a `contains`
+   *   without text (which keeps every row, and so means nothing in a group).
+   */
+  groupClause(clause: FilterClause): FilterClause {
+    const state = this.parse([clause]);
+    const col = this.column;
+    if (clause.op === "contains" && fold(state.text.trim()) === "") {
+      throw new RangeError(`the "contains" clause on ${JSON.stringify(col)} needs text, in an "or" or a "not"`);
+    }
+    return clause.op === "in"
+      ? { col, op: "in", value: this.values(state.chosen) }
+      : ({ col, op: clause.op, value: clause.value } as FilterClause);
+  }
+
+  /** Whether a clause on this column (one `groupClause()` gives) keeps a data row, whose cell in the column is `cell`. */
+  matcher(clause: FilterClause): (row: number, cell: CellText | undefined) => boolean {
+    const filter = new ColumnFilter(this.spec, this.index, this.ranks, this.texts, this.times ? "datetime" : null);
+    filter.setState(this.parse([clause]));
+    return (row, cell) => filter.keeps(row, cell);
+  }
+
+  // A facet's values (ranks, or `MISSING`) as the data has them, in their order, with a missing one last
+  private values(keys: Set<number>): FilterValue[] {
+    const sorted = Array.from(keys).sort((a, b) => (a === MISSING ? 1 : b === MISSING ? -1 : a - b));
+    return sorted.map((key) => (key === MISSING ? null : this.valueOf(key)));
+  }
+
   private valueOf(rank: number): FilterValue {
     return this.spec.values?.[rank] ?? null;
   }
@@ -340,32 +383,154 @@ export class ColumnFilter {
   }
 }
 
-/** The query that filters make, or `null` if none is active. */
-export function filterQuery(filters: readonly ColumnFilter[]): FilterQuery | null {
-  const clauses = filters.flatMap((filter) => filter.clauses());
-  return clauses.length === 0 ? null : { and: clauses };
+type RowTest = (row: number, cells: readonly (CellText | undefined)[]) => boolean;
+type Find = (column: unknown) => ColumnFilter;
+
+/**
+ * A part of a query that's a group (an `or`, or a `not`), which no one column's filter has; the
+ * table keeps it, beside the filters.
+ */
+export class FilterGroup {
+  /** The group, as `setFilterQuery()` writes it. */
+  readonly item: FilterItem;
+  /** The filters of the columns it has clauses on, once each, in the order of its clauses. */
+  readonly filters: readonly ColumnFilter[];
+  /** Whether it needs a row's cells' text (for a `contains` on one of the table's columns). */
+  readonly texts: boolean;
+  private readonly test: RowTest;
+
+  constructor(item: FilterItem, find: Find) {
+    const filters = new Set<ColumnFilter>();
+    let texts = false;
+    const make = (part: FilterItem): RowTest => {
+      if (isClause(part)) {
+        const filter = find(part.col);
+        const keeps = filter.matcher(part);
+        filters.add(filter);
+        texts ||= part.op === "contains" && filter.texts === null;
+        return (row, cells) => keeps(row, cells[filter.index]);
+      }
+      if ("not" in part) {
+        const test = make(part.not);
+        return (row, cells) => !test(row, cells);
+      }
+      const tests = ("or" in part ? part.or : part.and).map(make);
+      return "or" in part
+        ? (row, cells) => tests.some((test) => test(row, cells))
+        : (row, cells) => tests.every((test) => test(row, cells));
+    };
+    this.item = item;
+    this.test = make(item);
+    this.filters = Array.from(filters);
+    this.texts = texts;
+  }
+
+  /** Whether the group keeps a data row, whose cells are `cells` (by the columns' indexes). */
+  keeps(row: number, cells: readonly (CellText | undefined)[]): boolean {
+    return this.test(row, cells);
+  }
+}
+
+/** The query that filters (and groups) make, or `null` if none is active. */
+export function filterQuery(filters: readonly ColumnFilter[], groups: readonly FilterGroup[] = []): FilterQuery | null {
+  const items: FilterItem[] = [...filters.flatMap((filter) => filter.clauses()), ...groups.map((group) => group.item)];
+  return items.length === 0 ? null : { and: items };
+}
+
+// The kind of group a part of a query is, if it's one: an object with just an "or", "and" or "not"
+function groupKind(item: unknown): "or" | "and" | "not" | null {
+  if (item === null || typeof item !== "object" || Array.isArray(item)) {
+    return null;
+  }
+  const keys = Object.keys(item);
+  const [key] = keys;
+  return keys.length === 1 && (key === "or" || key === "and" || key === "not") ? key : null;
+}
+
+// A group's parts
+function groupParts(item: unknown, kind: "or" | "and"): unknown[] {
+  const parts = (item as Record<string, unknown>)[kind];
+  if (!Array.isArray(parts) || parts.length === 0) {
+    throw new RangeError(`an "${kind}" group needs a list of at least one part`);
+  }
+  return parts;
+}
+
+// A part of a query in a group, checked, as the table writes it: an "and" in an "and" (or an "or"
+// in an "or") is spliced into it, a group of one part is that part, and a clause is as
+// `groupClause()` gives it
+function normalItem(item: unknown, find: Find): FilterItem {
+  const kind = groupKind(item);
+  if (kind === "not") {
+    return { not: normalItem((item as { not: unknown }).not, find) };
+  }
+  if (kind === null) {
+    return find((item as { col?: unknown } | null)?.col).groupClause(item as FilterClause);
+  }
+  const items = groupParts(item, kind).flatMap((part) => {
+    const normal = normalItem(part, find);
+    return kind in normal ? ((normal as Record<string, FilterItem[]>)[kind] as FilterItem[]) : [normal];
+  });
+  if (kind === "and") {
+    const seen = new Set<string>();
+    for (const part of items.filter(isClause)) {
+      const key = JSON.stringify([part.col, part.op]);
+      if (seen.has(key)) {
+        throw new RangeError(`${JSON.stringify(part.col)} has more than one ${JSON.stringify(part.op)} clause`);
+      }
+      seen.add(key);
+    }
+  }
+  return items.length === 1 ? (items[0] as FilterItem) : ({ [kind]: items } as FilterItem);
 }
 
 /**
- * Set filters from a query (`null` clears them). Nothing changes if the query is bad.
+ * Set filters from a query (`null` clears them), giving the query's groups (its `or` and `not`
+ * parts) for the table to keep. Its clauses that aren't in a group (or are in an `and` that isn't
+ * in one) go to their columns' filters; its groups are as `normalItem()` writes them, and in the
+ * order given. Nothing changes if the query is bad.
  *
- * @throws {RangeError} for a query that isn't `{and: [...]}`, or a clause on a column that can't
- *   be filtered, or that its column's filter can't have.
+ * @throws {RangeError} for a query that isn't `{and: [...]}`, a part that isn't a clause or a
+ *   group, a group without parts, a clause on a column that can't be filtered, or that its
+ *   column's filter can't have (or in a group, a `contains` without text).
  */
-export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQuery | null): void {
-  const clauses: unknown = query === null ? [] : (query as { and?: unknown } | undefined)?.and;
-  if (!Array.isArray(clauses)) {
-    throw new RangeError("a filter must be `{and: [...clauses]}`, or `null`");
+export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQuery | null): FilterGroup[] {
+  const items: unknown = query === null ? [] : (query as { and?: unknown } | undefined)?.and;
+  if (!Array.isArray(items)) {
+    throw new RangeError("a filter must be `{and: [...parts]}`, or `null`");
   }
-  const byColumn = new Map(filters.map((filter) => [filter.column, [] as FilterClause[]]));
-  for (const clause of clauses as unknown[]) {
-    const column = (clause as { col?: unknown } | null)?.col;
-    const list = typeof column === "string" ? byColumn.get(column) : undefined;
-    if (list === undefined) {
+  const byName = new Map(filters.map((filter) => [filter.column, filter]));
+  const find: Find = (column) => {
+    const filter = typeof column === "string" ? byName.get(column) : undefined;
+    if (filter === undefined) {
       throw new RangeError(`${JSON.stringify(column)} isn't a column that can be filtered`);
     }
-    list.push(clause as FilterClause);
-  }
-  const states = filters.map((filter) => filter.parse(byColumn.get(filter.column) ?? []));
+    return filter;
+  };
+  const byColumn = new Map(filters.map((filter) => [filter, [] as FilterClause[]]));
+  const groups: FilterItem[] = [];
+  const add = (item: FilterItem): void => {
+    if (isClause(item)) {
+      byColumn.get(find(item.col))?.push(item);
+    } else if ("and" in item) {
+      item.and.forEach(add);
+    } else {
+      groups.push(item);
+    }
+  };
+  const visit = (item: unknown): void => {
+    const kind = groupKind(item);
+    if (kind === "and") {
+      groupParts(item, kind).forEach(visit);
+    } else if (kind !== null) {
+      add(normalItem(item, find));
+    } else {
+      byColumn.get(find((item as { col?: unknown } | null)?.col))?.push(item as FilterClause);
+    }
+  };
+  items.forEach(visit);
+  const states = filters.map((filter) => filter.parse(byColumn.get(filter) ?? []));
+  const made = groups.map((item) => new FilterGroup(item, find));
   filters.forEach((filter, i) => filter.setState(states[i] as FilterState));
+  return made;
 }

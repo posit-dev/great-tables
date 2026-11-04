@@ -54,6 +54,39 @@ test("edits the filters as text, applied on Enter", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test("shows a group of the text as a token, edited as text and removed", async ({ page }) => {
+  const errors = await ready(page, "tokens.html");
+  await toggle(page).click();
+  await query(page).fill('fctr in ("four", "one", "three", "two") and (num >= 100 OR not char contains "a")');
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toBeHidden();
+  // (Of each copy of exibble, "three" has no "a" and "four" is at least 100)
+  expect(await matched(page)).toBe(6);
+  const group = tokens(page).locator("li.gt-i-token[data-gti-group]");
+  const text = 'num >= 100 or not char contains "a"';
+  await expect(group.locator(".gt-i-token-open")).toHaveText(text);
+  await expect(group).toHaveCSS("outline-style", "dashed");
+
+  // (Opened in the query box with its text selected)
+  await group.locator(".gt-i-token-open").click();
+  await expect(query(page)).toBeFocused();
+  const value = `fctr in ("four", "one", "three", "two") and (${text})`;
+  await expect(query(page)).toHaveValue(value);
+  expect(
+    await query(page).evaluate((node: HTMLInputElement) => [node.selectionStart, node.selectionEnd]),
+  ).toEqual([value.indexOf(text), value.indexOf(text) + text.length]);
+  await page.keyboard.press("Escape");
+  await expect(query(page)).toBeHidden();
+
+  await tokens(page).getByRole("button", { name: `Remove the filter ${text}`, exact: true }).click();
+  await expect(group).toHaveCount(0);
+  expect(await matched(page)).toBe(12);
+  expect(await el(page).evaluate((node) => (node as any).filter.and.map((item: any) => item.col))).toEqual([
+    "fctr",
+  ]);
+  expect(errors).toEqual([]);
+});
+
 test("highlights the text by what each part is, over the input's own", async ({ page }) => {
   const errors = await ready(page, "tokens.html");
   await toggle(page).click();

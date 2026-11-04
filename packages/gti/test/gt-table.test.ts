@@ -3819,9 +3819,9 @@ describe("the query box", () => {
     replace(el, "x >=");
     press(input(el), "Enter");
     expect(error(el).textContent).toBe("Expected a number, or a date in double quotes");
-    replace(el, "x >= 1 or y in (1)");
+    replace(el, "x >= 1 y in (1)");
     press(input(el), "Enter");
-    expect(error(el).textContent).toBe('Expected "and" or the end of the query');
+    expect(error(el).textContent).toBe('Expected "and", "or" or the end of the query');
   });
 
   it("says why the table can't have a query's clause", async () => {
@@ -3876,7 +3876,7 @@ describe("the query box", () => {
     type(el, ", ");
     expect(options(el)).toEqual(["a", "c"]);
     type(el, '"c") ');
-    expect(options(el)).toEqual(["and"]);
+    expect(options(el)).toEqual(["and", "or"]);
     press(input(el), "Enter");
     expect(input(el).value).toBe('y in ("b", "c") and ');
     expect(options(el)).toEqual(["x", "y"]);
@@ -3985,6 +3985,171 @@ describe("the query box", () => {
     const box = root(el);
     el.remove();
     expect(box.isConnected).toBe(false);
+  });
+
+  it("applies or, not and parentheses", async () => {
+    const { el, events } = await mountQuery();
+    toggle(el).click();
+    replace(el, 'y in ("a", "b") AND (x >= 20 Or not x >= 10)');
+    press(input(el), "Enter");
+    expect(error(el).hidden).toBe(true);
+    const filter = {
+      and: [
+        { col: "y", op: "in", value: ["a", "b"] },
+        { or: [{ col: "x", op: "gte", value: 20 }, { not: { col: "x", op: "gte", value: 10 } }] },
+      ],
+    };
+    expect(el.filter).toEqual(filter);
+    expect(events).toEqual([{ filter, count: 4 }]);
+    expect(visible(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "group:a", 1, "grand:Max"]);
+    // (Written back with only the parentheses needed)
+    toggle(el).click();
+    expect(input(el).value).toBe('y in ("a", "b") and (x >= 20 or not x >= 10)');
+  });
+
+  it("says what's wrong with a group", async () => {
+    const { el } = await mountQuery({ filters: [RANGE, FACET, { column: "row", type: "text", values: null }] });
+    toggle(el).click();
+    const problem = (text: string) => {
+      replace(el, text);
+      press(input(el), "Enter");
+      return error(el).hidden ? null : error(el).textContent;
+    };
+    expect(problem("(x >= 5 or y in (\"a\")")).toBe('Expected "and", "or" or ")"');
+    expect(problem('x >= 5 or y in ("d")')).toBe('"d" isn\'t a value of y');
+    expect(problem("(x >= 5 and x >= 10) or x <= 5")).toBe("X has more than one >= clause");
+    expect(problem('not row contains " "')).toBe('Row needs text to look for, in an "or" or a "not"');
+    expect(el.filter).toBeNull();
+    // (The same clause in two parts is fine)
+    expect(problem("x >= 5 and (x >= 5 or y in (\"a\"))")).toBeNull();
+  });
+
+  it("suggests or, not and a closing parenthesis", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "n");
+    expect(options(el)).toEqual(["not"]);
+    replace(el, "(not x >= 5 ");
+    expect(options(el)).toEqual(["and", "or", ")"]);
+    type(el, "o");
+    expect(options(el)).toEqual(["or"]);
+    press(input(el), "Enter");
+    expect(input(el).value).toBe("(not x >= 5 or ");
+    expect(options(el)).toEqual(["x", "y"]);
+    replace(el, "x >= 5 ");
+    expect(options(el)).toEqual(["and", "or"]);
+  });
+});
+
+describe("the query's groups", () => {
+  const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const row = (el: GtTable) => el.querySelector(".gt-i-tokens") as HTMLElement;
+  const tokens = (el: GtTable) =>
+    Array.from(row(el).querySelectorAll(".gt-i-token-open, .gt-i-token-clear"), (b) => b.textContent);
+  const token = (el: GtTable, i: number) => row(el).querySelectorAll<HTMLButtonElement>(".gt-i-token-open")[i] as HTMLButtonElement;
+  const remove = (el: GtTable, i: number) =>
+    row(el).querySelectorAll<HTMLButtonElement>(".gt-i-token-remove")[i] as HTMLButtonElement;
+  const press = (target: Element | null | undefined, key: string) => {
+    const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+    target?.dispatchEvent(event);
+    return event;
+  };
+  const counts = (el: GtTable) =>
+    Array.from(
+      el.querySelectorAll(".gt-i-filter:not([hidden]) .gt-i-filter-option"),
+      (item) => `${item.querySelector(".gt-i-filter-value")?.textContent} ${item.querySelector(".gt-i-filter-count")?.textContent}`,
+    );
+  const GROUP = { or: [{ col: "x", op: "gte" as const, value: 20 }, { col: "x", op: "lte" as const, value: 5 }] };
+  const QUERY = { and: [{ col: "y", op: "in" as const, value: ["a", "b"] }, GROUP] };
+
+  async function mountGroups(options: TableOptions = {}) {
+    const el = await mountTable(GROUPED, {
+      filters: [RANGE, FACET],
+      ...options,
+      controls: { bar: true, ...options.controls },
+    });
+    const events: FilterEventDetail[] = [];
+    el.addEventListener(FILTER_EVENT, (event) => events.push((event as CustomEvent<FilterEventDetail>).detail));
+    return { el, events };
+  }
+
+  it("filter the rows, as the `filter` property has them, after the filters' clauses", async () => {
+    const { el } = await mountGroups();
+    el.filter = { and: [GROUP, { col: "y", op: "in", value: ["a", "b"] }] };
+    expect(el.filter).toEqual(QUERY);
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "group:a", 1, "grand:Max"]);
+    // (A group's columns aren't marked as filtered, as their filters aren't on)
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(false);
+    expect(header(el, "y").hasAttribute("data-gti-filtered")).toBe(true);
+    el.filter = null;
+    expect(el.filter).toBeNull();
+    expect(visible(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "group:a", 1, 2, "grand:Max"]);
+  });
+
+  it("each have a token, of their text", async () => {
+    const { el } = await mountGroups();
+    el.filter = QUERY;
+    expect(tokens(el)).toEqual(["y: a, b", "x >= 20 or x <= 5", "Clear all"]);
+    const item = token(el, 1).parentElement as HTMLElement;
+    expect(item.hasAttribute("data-gti-group")).toBe(true);
+    expect(token(el, 1).title).toBe("x >= 20 or x <= 5 (edit as text)");
+    expect(token(el, 1).hasAttribute("aria-expanded")).toBe(false);
+    expect(remove(el, 1).getAttribute("aria-label")).toBe("Remove the filter x >= 20 or x <= 5");
+    el.filter = { and: [{ not: { col: "y", op: "in", value: ["c"] } }] };
+    expect(tokens(el)).toEqual(['not y in ("c")']);
+  });
+
+  it("open the query box from a token, with its text selected", async () => {
+    const { el } = await mountGroups();
+    el.filter = QUERY;
+    token(el, 1).click();
+    const input = el.querySelector(".gt-i-query input") as HTMLInputElement;
+    expect(row(el).hidden).toBe(true);
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe('y in ("a", "b") and (x >= 20 or x <= 5)');
+    expect(input.value.slice(input.selectionStart ?? 0, input.selectionEnd ?? 0)).toBe("x >= 20 or x <= 5");
+  });
+
+  it("are removed from their tokens, with focus on the token before", async () => {
+    const { el, events } = await mountGroups();
+    el.filter = { and: [...QUERY.and, { not: { col: "y", op: "in", value: ["a"] } }] };
+    remove(el, 1).click();
+    expect(el.filter).toEqual({ and: [QUERY.and[0], { not: { col: "y", op: "in", value: ["a"] } }] });
+    expect(events).toEqual([{ filter: el.filter, count: 1 }]);
+    expect(live(el)).toBe("Showing 1 of 5 rows");
+    expect(document.activeElement).toBe(token(el, 1));
+    press(token(el, 1), "Backspace");
+    expect(el.filter).toEqual({ and: [QUERY.and[0]] });
+    expect(document.activeElement).toBe(token(el, 0));
+    // (And with Clear all, with the filters)
+    el.filter = QUERY;
+    (row(el).querySelector(".gt-i-token-clear") as HTMLButtonElement).click();
+    expect(el.filter).toBeNull();
+    expect(row(el).hidden).toBe(true);
+  });
+
+  it("are left as the filters change, and count in their facets' counts", async () => {
+    const { el } = await mountGroups();
+    el.filter = { and: [{ not: { col: "x", op: "gte", value: 10 } }] };
+    (header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement).click();
+    expect(counts(el)).toEqual(["a 2", "b 0", "c 0"]);
+    (el.querySelectorAll<HTMLInputElement>(".gt-i-filter:not([hidden]) input")[0] as HTMLInputElement).click();
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a"] }, { not: { col: "x", op: "gte", value: 10 } }] });
+    expect(visible(el)).toEqual(["group:b", 3, "summary:Total", "group:a", 1, "grand:Max"]);
+  });
+
+  it("are in the info panel's filters, which clear them", async () => {
+    const { el, events } = await mountGroups();
+    const item = el.querySelector('[data-gti-info="filters"]') as HTMLElement;
+    const clear = item.querySelector("button") as HTMLButtonElement;
+    el.filter = { and: [{ not: { col: "x", op: "gte", value: 10 } }] };
+    expect(item.firstElementChild?.textContent).toBe("Filtered by x");
+    expect(clear.getAttribute("aria-disabled")).toBe("false");
+    clear.click();
+    expect(el.filter).toBeNull();
+    expect(events).toEqual([{ filter: null, count: 5 }]);
+    expect(item.firstElementChild?.textContent).toBe("Not filtered");
   });
 });
 
@@ -4379,6 +4544,17 @@ describe("undo", () => {
     click(without, "x");
     expect(without.undo()).toBe(false);
     expect(without.sort).toEqual(X_UP);
+  });
+
+  it("undoes the removal of a query's group", async () => {
+    const { el } = await mountUndo();
+    const query: FilterQuery = { and: [{ col: "y", op: "in", value: ["a"] }, { not: { col: "x", op: "gte", value: 10 } }] };
+    el.filter = query;
+    (el.querySelectorAll<HTMLButtonElement>(".gt-i-token-remove")[1] as HTMLButtonElement).click();
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a"] }] });
+    barButton(el, "undo")?.click();
+    expect(el.filter).toEqual(query);
+    expect(Array.from(el.querySelectorAll(".gt-i-token-open"), (b) => b.textContent)).toEqual(["y: a", "not x >= 10"]);
   });
 
   it("undoes and redoes the reader's changes, one by one", async () => {

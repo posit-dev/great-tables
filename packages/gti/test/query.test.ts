@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ColumnFilter, type FilterQuery } from "../src/filter";
+import { ColumnFilter, type FilterClause, type FilterQuery } from "../src/filter";
 import {
   formatQuery,
   parseQuery,
@@ -95,9 +95,8 @@ describe("parseQuery", () => {
     expect(error("a in (1,")).toBe(
       "expected a value: a string in double quotes, a number, true, false or null, at the end",
     );
-    expect(error("a >= 1 b")).toBe('expected "and" or the end of the query, at character 8');
+    expect(error("a >= 1 b")).toBe('expected "and", "or" or the end of the query, at character 8');
     expect(error("a >= 1 and")).toBe("expected a column name, at the end");
-    expect(error("a >= 1 or b >= 2")).toBe('expected "and" or the end of the query, at character 8');
     expect(error("a >= 1e999")).toBe("the number 1e999 is too large, at character 6");
     expect(error('a contains "x')).toBe("a string must end with a double quote (with escapes as in JSON), at character 12");
     expect(error('a contains "\\x"')).toBe(
@@ -106,11 +105,57 @@ describe("parseQuery", () => {
     expect(error("`a")).toBe("a column name in backticks must end with a backtick, at the end");
     // (Numbers as JSON has them)
     expect(error("a >= .5")).toBe("expected a number, or a date in double quotes, at character 6");
-    expect(error("a >= 01")).toBe('expected "and" or the end of the query, at character 7');
+    expect(error("a >= 01")).toBe('expected "and", "or" or the end of the query, at character 7');
   });
 
   it("counts characters, not UTF-16 code units", () => {
-    expect(error('`😀` contains "😀" x')).toBe('expected "and" or the end of the query, at character 18');
+    expect(error('`😀` contains "😀" x')).toBe('expected "and", "or" or the end of the query, at character 18');
+  });
+});
+
+describe("parseQuery, with or, not and parentheses", () => {
+  const a = { col: "a", op: "gte", value: 1 } as const;
+  const b = { col: "b", op: "gte", value: 2 } as const;
+  const c = { col: "c", op: "contains", value: "x" } as const;
+
+  it("binds not tighter than and, and and tighter than or", () => {
+    expect(parseQuery('a >= 1 or b >= 2 and not c contains "x"')).toEqual({
+      and: [{ or: [a, { and: [b, { not: c }] }] }],
+    });
+    expect(parseQuery('not a >= 1 and b >= 2 OR c contains "x"')).toEqual({
+      and: [{ or: [{ and: [{ not: a }, b] }, c] }],
+    });
+  });
+
+  it("groups in parentheses, splicing a group into one of its kind", () => {
+    expect(parseQuery('(a >= 1 or b >= 2) and c contains "x"')).toEqual({ and: [{ or: [a, b] }, c] });
+    expect(parseQuery('a >= 1 or (b >= 2 or c contains "x")')).toEqual({ and: [{ or: [a, b, c] }] });
+    expect(parseQuery('(a >= 1 and b >= 2) and (c contains "x")')).toEqual({ and: [a, b, c] });
+    expect(parseQuery("((a >= 1))")).toEqual({ and: [a] });
+    expect(parseQuery("not (a >= 1 and b >= 2)")).toEqual({ and: [{ not: { and: [a, b] } }] });
+    expect(parseQuery("not not a >= 1")).toEqual({ and: [{ not: { not: a } }] });
+  });
+
+  it("reads not before an op as a column's name", () => {
+    expect(parseQuery("not >= 1")).toEqual({ and: [{ col: "not", op: "gte", value: 1 }] });
+    expect(parseQuery('NOT contains "x" or not in (1)')).toEqual({
+      and: [{ or: [{ col: "NOT", op: "contains", value: "x" }, { col: "not", op: "in", value: [1] }] }],
+    });
+    expect(parseQuery("not not <= 1")).toEqual({ and: [{ not: { col: "not", op: "lte", value: 1 } }] });
+    expect(parseQuery("or >= 1 or and >= 2")).toEqual({
+      and: [{ or: [{ col: "or", op: "gte", value: 1 }, { col: "and", op: "gte", value: 2 }] }],
+    });
+  });
+
+  it("says what's wrong, and where", () => {
+    expect(error("(a >= 1")).toBe('expected "and", "or" or ")", at the end');
+    expect(error("(a >= 1 b")).toBe('expected "and", "or" or ")", at character 9');
+    expect(error("a >= 1)")).toBe('expected "and", "or" or the end of the query, at character 7');
+    expect(error("()")).toBe("expected a column name, at character 2");
+    expect(error("not")).toBe("expected a column name, at the end");
+    expect(error("a >= 1 or")).toBe("expected a column name, at the end");
+    expect(error("a >= 1 or not")).toBe("expected a column name, at the end");
+    expect(error('not "x')).toBe("a string must end with a double quote (with escapes as in JSON), at character 5");
   });
 });
 
@@ -131,6 +176,21 @@ describe("formatQuery", () => {
     expect(formatQuery(null)).toBe("");
   });
 
+  it("writes groups with the parentheses they need", () => {
+    const a: FilterClause = { col: "a", op: "gte", value: 1 };
+    const b: FilterClause = { col: "b", op: "in", value: [2] };
+    const c: FilterClause = { col: "c", op: "contains", value: "x" };
+    expect(formatQuery({ and: [{ or: [a, { and: [b, c] }] }] })).toBe('a >= 1 or b in (2) and c contains "x"');
+    expect(formatQuery({ and: [a, { or: [b, c] }] })).toBe('a >= 1 and (b in (2) or c contains "x")');
+    expect(formatQuery({ and: [{ not: { or: [a, b] } }] })).toBe("not (a >= 1 or b in (2))");
+    expect(formatQuery({ and: [{ not: { and: [a, b] } }, c] })).toBe('not (a >= 1 and b in (2)) and c contains "x"');
+    expect(formatQuery({ and: [{ not: { not: a } }] })).toBe("not not a >= 1");
+    // (A column named as a keyword that goes after a column, in backticks)
+    expect(formatQuery({ and: [{ col: "in", op: "in", value: [1] }, { col: "Contains", op: "gte", value: 1 }] })).toBe(
+      "`in` in (1) and `Contains` >= 1",
+    );
+  });
+
   it("writes what parseQuery reads back", () => {
     const queries: FilterQuery[] = [
       { and: [{ col: "", op: "contains", value: "" }] },
@@ -138,6 +198,16 @@ describe("formatQuery", () => {
       { and: [{ col: "1a", op: "gte", value: -1 }, { col: "_", op: "lte", value: 0 }] },
       { and: [{ col: "and", op: "in", value: [false] }] },
       { and: [{ col: "d", op: "gte", value: "2015-06-15" }, { col: "d", op: "lte", value: "2015-06-15T09:30:00.5" }] },
+      { and: [{ col: "in", op: "in", value: [1] }, { not: { col: "contains", op: "contains", value: "x" } }] },
+      { and: [{ not: { col: "not", op: "gte", value: 1 } }, { or: [{ col: "or", op: "lte", value: 1 }, { col: "and", op: "in", value: [null] }] }] },
+      {
+        and: [
+          { col: "a", op: "gte", value: 1 },
+          { or: [{ and: [{ col: "b", op: "in", value: [1] }, { not: { or: [{ col: "c", op: "lte", value: 2 }, { not: { col: "d", op: "contains", value: "y" } }] } }] }, { col: "e", op: "gte", value: 3 }] },
+          { not: { and: [{ col: "f", op: "gte", value: 0 }, { col: "g", op: "lte", value: 0 }] } },
+        ],
+      },
+      { and: [{ or: [{ col: "a", op: "gte", value: 1 }, { col: "b", op: "gte", value: 2 }] }] },
     ];
     for (const query of queries) {
       expect(parseQuery(formatQuery(query))).toEqual(query);
@@ -159,7 +229,8 @@ describe("syntax errors", () => {
   it("say where the token that's wrong is, to mark it", () => {
     expect(where("a >= x")).toBe("x");
     expect(where("a in (1, ) ")).toBe(")");
-    expect(where('a contains "x" or b')).toBe("or");
+    expect(where('a contains "x" b')).toBe("b");
+    expect(where('(a contains "x" b')).toBe("b");
     expect(where('a contains "x')).toBe('"');
     expect(where("a >= 1e999")).toBe("1e999");
     expect(where("😀 >= 1")).toBe("😀");
@@ -227,14 +298,61 @@ describe("readQuery", () => {
       "c <= 3",
     ]);
   });
+
+  it("reads groups, and not before an op as a column", () => {
+    expect(roles("not (a >= 1 or b in (2)) and c >= 3")).toEqual([
+      ["not", "keyword"],
+      ["(", "punct"],
+      ["a", "column"],
+      [">=", "keyword"],
+      ["1", "number"],
+      ["or", "keyword"],
+      ["b", "column"],
+      ["in", "keyword"],
+      ["(", "punct"],
+      ["2", "number"],
+      [")", "punct"],
+      [")", "punct"],
+      ["and", "keyword"],
+      ["c", "column"],
+      [">=", "keyword"],
+      ["3", "number"],
+    ]);
+    expect(roles("not not in (1)")).toEqual([
+      ["not", "keyword"],
+      ["not", "column"],
+      ["in", "keyword"],
+      ["(", "punct"],
+      ["1", "number"],
+      [")", "punct"],
+    ]);
+    // (A ")" without a group to close doesn't fit)
+    expect(roles("a >= 1)")).toEqual([
+      ["a", "column"],
+      [">=", "keyword"],
+      ["1", "number"],
+      [")", null],
+    ]);
+  });
+
+  it("reads on from an or, past what doesn't fit, and says where each clause in a group is", () => {
+    expect(roles("a >= x or b >= 1").map(([, role]) => role)).toEqual(["column", "keyword", null, "keyword", "column", "keyword", "number"]);
+    const text = '(a in (1) or not b <= 2) and c contains "or"';
+    expect(readQuery(text).clauses.map(([from, to]) => text.slice(from, to))).toEqual([
+      "a in (1)",
+      "b <= 2",
+      'c contains "or"',
+    ]);
+    expect(readQuery("not >= 1").clauses).toEqual([[0, 8]]);
+  });
 });
 
 describe("queryContext", () => {
   // (The caret at the `|`)
   const at = (text: string) => {
     const caret = text.indexOf("|");
-    const { expect, col, values, prefix, from, to } = queryContext(text.replace("|", ""), caret);
-    return { expect, col, values, prefix, from, to };
+    const { expect, col, values, prefix, from, to, depth } = queryContext(text.replace("|", ""), caret);
+    return { expect, col, values, prefix, from, to, depth };
   };
 
   it("says what goes at the caret", () => {
@@ -265,6 +383,17 @@ describe("queryContext", () => {
     expect(at("pop >= 10|").expect).toBe("and");
     expect(at("pop = |").expect).toBeNull();
     expect(at("pop = 1 and |").expect).toBe("column");
+  });
+
+  it("says what goes in and after a group", () => {
+    expect(at("(|")).toMatchObject({ expect: "column", depth: 1 });
+    expect(at("not |")).toMatchObject({ expect: "column", depth: 0 });
+    expect(at("not (not |")).toMatchObject({ expect: "column", depth: 1 });
+    expect(at("not >|")).toMatchObject({ expect: "op", col: "not", prefix: ">" });
+    expect(at("(a >= 1 |")).toMatchObject({ expect: "and", depth: 1 });
+    expect(at("(a >= 1) |")).toMatchObject({ expect: "and", depth: 0 });
+    expect(at("a >= 1 o|")).toMatchObject({ expect: "and", prefix: "o" });
+    expect(at("a >= 1 or |")).toMatchObject({ expect: "column" });
   });
 });
 
@@ -311,5 +440,22 @@ describe("queryProblem", () => {
     expect(problem("b in (true, false)")).toEqual({ clause: 0, message: "b has a bool filter: give one value, true, false or null" });
     expect(problem('b in ("true")')).toEqual({ clause: 0, message: '"true" isn\'t a value of b' });
     expect(problem("b >= 1")).toEqual({ clause: 0, message: "b has a bool filter: use in" });
+  });
+  it("checks the clauses in groups, each and on its own", () => {
+    expect(problem('x >= 1 or w contains "a"')).toEqual({ clause: 1, message: "w isn't a column with a filter" });
+    expect(problem('(x >= 1 and x >= 2) or y in ("a")')).toEqual({ clause: 1, message: "x has more than one >= clause" });
+    expect(problem("x >= 1 or x >= 2")).toBeNull();
+    expect(problem('x >= 1 and (x >= 2 or y in ("a"))')).toBeNull();
+    expect(problem("x >= 1 and not x >= 2")).toBeNull();
+    // (An and in parentheses at the top is the query's)
+    expect(problem("x >= 1 and (x <= 5 and x >= 2)")).toEqual({ clause: 2, message: "x has more than one >= clause" });
+    expect(problem('not y in ("c")')).toEqual({ clause: 0, message: '"c" isn\'t a value of y' });
+    expect(problem("not b in (true, false)")).toEqual({ clause: 0, message: "b has a bool filter: give one value, true, false or null" });
+  });
+
+  it("takes blank text only outside a group (where it keeps every row)", () => {
+    expect(problem('`z z` contains " "')).toBeNull();
+    expect(problem('x >= 1 or `z z` contains ""')).toEqual({ clause: 1, message: '`z z` needs text to look for, in an "or" or a "not"' });
+    expect(problem('not `z z` contains " "')).toEqual({ clause: 0, message: '`z z` needs text to look for, in an "or" or a "not"' });
   });
 });

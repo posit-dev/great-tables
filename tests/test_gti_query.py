@@ -56,6 +56,27 @@ def query(*clauses: tuple[str, str, Any]) -> dict:
     return {"and": [{"col": col, "op": op, "value": value} for col, op, value in clauses]}
 
 
+def clause(col: str, op: str, value: Any) -> dict:
+    return {"col": col, "op": op, "value": value}
+
+
+def or_(*parts: dict) -> dict:
+    return {"or": list(parts)}
+
+
+def and_(*parts: dict) -> dict:
+    return {"and": list(parts)}
+
+
+def not_(part: dict) -> dict:
+    return {"not": part}
+
+
+A = clause("a", "gte", 1)
+B = clause("b", "gte", 2)
+C = clause("c", "contains", "x")
+
+
 def view_of(gt: GT) -> dict:
     return render_parts(gt)[1]["view"]
 
@@ -168,6 +189,67 @@ def test_check_query_normalizes_values():
     ],
 )
 def test_check_query_rejects(bad: Any, message: str):
+    with pytest.raises(ValueError, match=message):
+        check_query(bad)
+
+
+def test_check_query_takes_groups_as_the_runtime_has_them():
+    # (Groups of one part as the part, and like groups spliced in; in the order given)
+    checked = check_query(
+        {
+            "and": [
+                and_(clause("x", "gte", 5)),
+                or_(and_(clause("z", "contains", "fig"))),
+                or_(clause("y", "in", ("a",)), or_(clause("x", "lte", 5), or_(B))),
+                not_(and_(clause("x", "lte", 5), and_(clause("y", "in", ["a"])))),
+            ]
+        }
+    )
+    assert checked == {
+        "and": [
+            clause("x", "gte", 5),
+            clause("z", "contains", "fig"),
+            or_(clause("y", "in", ["a"]), clause("x", "lte", 5), B),
+            not_(and_(clause("x", "lte", 5), clause("y", "in", ["a"]))),
+        ]
+    }
+    # (Blank text keeps every row, but not in a group)
+    assert check_query(query(("z", "contains", " "))) == query(("z", "contains", " "))
+    # (The same clause in different parts)
+    same = {
+        "and": [clause("x", "gte", 5), or_(clause("x", "gte", 20), not_(clause("x", "gte", 5)))]
+    }
+    assert check_query(same) == same
+    # (As text)
+    assert check_query('x >= 5 and (y in ("a") or not z contains "q")') == {
+        "and": [
+            clause("x", "gte", 5),
+            or_(clause("y", "in", ["a"]), not_(clause("z", "contains", "q"))),
+        ]
+    }
+
+
+@pytest.mark.parametrize(
+    "bad, message",
+    [
+        ({"and": [or_()]}, r"'or' group needs a list of at least one part, not \[\]"),
+        ({"and": [{"and": {"col": "x"}}]}, "'and' group needs a list"),
+        ({"and": [{"or": [], "and": []}]}, "clause 0 must be"),
+        ({"and": [not_(1)]}, "part of a 'not' group must be"),
+        ({"and": [and_(A, 1)]}, "part 1 of an 'and' group must be"),
+        ({"and": [not_(clause("z", "contains", " "))]}, 'needs text, in an "or" or a "not"'),
+        (
+            {"and": [or_(and_(clause("x", "gte", 1), clause("x", "gte", 2)), A)]},
+            "more than one 'gte' clause on column 'x', in an 'and' group",
+        ),
+        (
+            {"and": [clause("x", "gte", 1), and_(clause("x", "gte", 2))]},
+            "more than one 'gte' clause on column 'x'",
+        ),
+        ({"and": [not_(clause("x", "in", []))]}, "at least one value"),
+    ],
+)
+def test_check_query_rejects_groups(bad: Any, message: str):
     with pytest.raises(ValueError, match=message):
         check_query(bad)
 
@@ -297,23 +379,61 @@ BOUND_EXPECTED = "expected a number, or a date in double quotes"
         ("a in ()", f"{VALUE_EXPECTED}, at character 7"),
         ("a in (1 2)", 'expected "," or ")", at character 9'),
         ("a in (1,", f"{VALUE_EXPECTED}, at the end"),
-        ("a >= 1 b", 'expected "and" or the end of the query, at character 8'),
+        ("a >= 1 b", 'expected "and", "or" or the end of the query, at character 8'),
         ("a >= 1 and", "expected a column name, at the end"),
-        ("a >= 1 or b >= 2", 'expected "and" or the end of the query, at character 8'),
         ("a >= 1e999", "the number 1e999 is too large, at character 6"),
         ('a contains "x', f"{UNENDED_STRING}, at character 12"),
         ('a contains "\\x"', f"{UNENDED_STRING}, at character 12"),
         ("`a", "a column name in backticks must end with a backtick, at the end"),
         ("a >= .5", f"{BOUND_EXPECTED}, at character 6"),
-        ("a >= 01", 'expected "and" or the end of the query, at character 7'),
+        ("a >= 01", 'expected "and", "or" or the end of the query, at character 7'),
         # (Characters, not UTF-16 code units)
-        ('`😀` contains "😀" x', 'expected "and" or the end of the query, at character 18'),
+        ('`😀` contains "😀" x', 'expected "and", "or" or the end of the query, at character 18'),
+        # (Of groups)
+        ("(a >= 1", 'expected "and", "or" or ")", at the end'),
+        ("(a >= 1 b", 'expected "and", "or" or ")", at character 9'),
+        ('(x >= 5 or y in ("a")', 'expected "and", "or" or ")", at the end'),
+        ("a >= 1)", 'expected "and", "or" or the end of the query, at character 7'),
+        ("()", "expected a column name, at character 2"),
+        ("not", "expected a column name, at the end"),
+        ("a >= 1 or", "expected a column name, at the end"),
+        ("a >= 1 or not", "expected a column name, at the end"),
+        ('not "x', f"{UNENDED_STRING}, at character 5"),
     ],
 )
 def test_parse_query_says_whats_wrong_and_where(text: str, message: str):
     with pytest.raises(ValueError) as err:
         parse_query(text)
     assert str(err.value) == message
+
+
+def test_parse_query_binds_not_tighter_than_and_and_and_tighter_than_or():
+    assert parse_query('a >= 1 or b >= 2 and not c contains "x"') == {
+        "and": [or_(A, and_(B, not_(C)))]
+    }
+    assert parse_query('not a >= 1 and b >= 2 OR c contains "x"') == {
+        "and": [or_(and_(not_(A), B), C)]
+    }
+
+
+def test_parse_query_groups_in_parentheses_splicing_a_group_into_one_of_its_kind():
+    assert parse_query('(a >= 1 or b >= 2) and c contains "x"') == {"and": [or_(A, B), C]}
+    assert parse_query('a >= 1 or (b >= 2 or c contains "x")') == {"and": [or_(A, B, C)]}
+    assert parse_query('(a >= 1 and b >= 2) and (c contains "x")') == {"and": [A, B, C]}
+    assert parse_query("((a >= 1))") == {"and": [A]}
+    assert parse_query("not (a >= 1 and b >= 2)") == {"and": [not_(and_(A, B))]}
+    assert parse_query("not not a >= 1") == {"and": [not_(not_(A))]}
+
+
+def test_parse_query_reads_not_before_an_op_as_a_columns_name():
+    assert parse_query("not >= 1") == query(("not", "gte", 1))
+    assert parse_query('NOT contains "x" or not in (1)') == {
+        "and": [or_(clause("NOT", "contains", "x"), clause("not", "in", [1]))]
+    }
+    assert parse_query("not not <= 1") == {"and": [not_(clause("not", "lte", 1))]}
+    assert parse_query("or >= 1 or and >= 2") == {
+        "and": [or_(clause("or", "gte", 1), clause("and", "gte", 2))]
+    }
 
 
 def test_format_query_writes_a_query_as_text():
@@ -329,6 +449,21 @@ def test_format_query_writes_a_query_as_text():
         '`Name of town` contains "a \\"b\\"" and `a``b` <= -0.25'
     )
     assert format_query(None) == ""
+
+
+def test_format_query_writes_groups_with_the_parentheses_they_need():
+    b = clause("b", "in", [2])
+    assert format_query({"and": [or_(A, and_(b, C))]}) == 'a >= 1 or b in (2) and c contains "x"'
+    assert format_query({"and": [A, or_(b, C)]}) == 'a >= 1 and (b in (2) or c contains "x")'
+    assert format_query({"and": [not_(or_(A, b))]}) == "not (a >= 1 or b in (2))"
+    assert format_query({"and": [not_(and_(A, b)), C]}) == (
+        'not (a >= 1 and b in (2)) and c contains "x"'
+    )
+    assert format_query({"and": [not_(not_(A))]}) == "not not a >= 1"
+    # (A column named as a keyword that goes after a column, in backticks)
+    assert format_query(query(("in", "in", [1]), ("Contains", "gte", 1))) == (
+        "`in` in (1) and `Contains` >= 1"
+    )
 
 
 @pytest.mark.parametrize(
@@ -368,6 +503,21 @@ def test_format_query_writes_what_parse_query_reads_back():
         query(("``", "in", ["\n", " ", "é", 1e21, 5e-7])),
         query(("1a", "gte", -1), ("_", "lte", 0)),
         query(("and", "in", [False])),
+        {"and": [clause("in", "in", [1]), not_(clause("contains", "contains", "x"))]},
+        {
+            "and": [
+                not_(clause("not", "gte", 1)),
+                or_(clause("or", "lte", 1), clause("and", "in", [None])),
+            ]
+        },
+        {
+            "and": [
+                A,
+                or_(and_(clause("b", "in", [1]), not_(or_(B, not_(C)))), clause("e", "gte", 3)),
+                not_(and_(clause("f", "gte", 0), clause("g", "lte", 0))),
+            ]
+        },
+        {"and": [or_(A, B)]},
     ]
     for q in queries:
         assert parse_query(format_query(q)) == q
@@ -531,6 +681,22 @@ def test_date_views_are_checked_against_the_table(filter: dict, message: str):
         view_of(dated().i_view(filter=filter))
 
 
+@pytest.mark.parametrize(
+    "filter, message",
+    [
+        ({"and": [not_(clause("few", "in", ["z"]))]}, "isn't a value of column 'few'"),
+        (
+            {"and": [or_(clause("num", "gte", 1), clause("num", "in", [1.5]))]},
+            "'in' clause on column 'num'",
+        ),
+        ({"and": [or_(clause("num", "gte", 2), not_(clause("nope", "gte", 1)))]}, "no filter"),
+    ],
+)
+def test_groups_are_checked_against_the_table(filter: dict, message: str):
+    with pytest.raises(ValueError, match=message):
+        view_of(filtered().i_view(filter=filter))
+
+
 def test_a_view_can_sort_without_sorting():
     gti = filtered().i_sorting(False).i_view(sort="-num")
     assert view_of(gti)["sort"] == [{"column": "num", "descending": True}]
@@ -617,6 +783,20 @@ def test_view_rows_filters_and_sorts():
     assert view_rows(gti) == [2, 0]
     assert view_rows(filtered()) == [0, 1, 2, 3]
     assert view_rows(filtered().i_view(sort="-num")) == [3, 1, 0, 2]
+
+
+def test_view_rows_by_a_querys_groups():
+    # (`num` is 1.5, 2.0, missing, 3.0; `few` is "x", "y", "x", missing)
+    def rows(filter: str) -> list[int]:
+        return view_rows(filtered().i_view(filter=filter))
+
+    assert rows('num >= 3 or few in ("y")') == [1, 3]
+    assert rows('flag in (true) and (num <= 1.5 or name contains "C")') == [0, 2]
+    # (A row whose value is missing, which a clause leaves out, is kept by `not`)
+    assert rows("not num >= 2") == [0, 2]
+    assert rows('not few in ("x")') == [1, 3]
+    assert rows("not not num >= 2") == [1, 3]
+    assert rows('not (num >= 2 or name contains "a")') == [2]
 
 
 def test_view_rows_keeps_rows_in_their_groups():
@@ -819,6 +999,79 @@ def test_query_code_has_the_query_as_the_runtime_does():
     )
 
 
+GROUPS = {
+    "and": [
+        clause("few", "in", ["x"]),
+        or_(clause("num", "gte", 2), clause("name", "contains", "Ab")),
+        not_(clause("flag", "in", [True, None])),
+        not_(not_(clause("num", "lte", 3))),
+        or_(
+            and_(clause("few", "in", ["y"]), clause("num", "lte", 1.5)),
+            not_(or_(clause("name", "contains", "q"), clause("flag", "in", [None]))),
+        ),
+    ]
+}
+
+
+def group_terms(ns: str) -> list[str]:
+    # (As packages/gti/test/code.test.ts has them)
+    return [
+        f'{ns}.col("few").is_in(["x"])',
+        f'(({ns}.col("num") >= 2) & {ns}.col("num").is_finite()) | '
+        f'{ns}.col("name").str.to_lowercase().str.contains("ab", literal=True)',
+        f'~({ns}.col("flag").is_in([True]) | {ns}.col("flag").is_null()).fill_null(False)',
+        f'~(~(({ns}.col("num") <= 3) & {ns}.col("num").is_finite()).fill_null(False))'
+        ".fill_null(False)",
+        f'({ns}.col("few").is_in(["y"]) & ({ns}.col("num") <= 1.5) & {ns}.col("num").is_finite())'
+        f' | ~({ns}.col("name").str.to_lowercase().str.contains("q", literal=True) | '
+        f'{ns}.col("flag").is_null()).fill_null(False)',
+    ]
+
+
+def test_query_code_of_groups():
+    gti = filtered().i_view(filter=GROUPS)
+    terms = "".join(f"    {term},\n" for term in group_terms("pl"))
+    assert query_code(gti, "polars") == f"import polars as pl\n\ndf.filter(\n{terms})\n"
+    terms = "".join(f"        {term},\n" for term in group_terms("nw"))
+    assert query_code(gti, "narwhals") == (
+        "import narwhals as nw\n\n(\n    nw.from_native(df)\n    .filter(\n"
+        f"{terms}    )\n    .to_native()\n)\n"
+    )
+    # (pandas' terms are never missing)
+    assert query_code(gti, "pandas") == (
+        "import numpy as np\n\ndf[\n"
+        '    (df["few"].isin(["x"]))\n'
+        '    & (((df["num"] >= 2) & np.isfinite(df["num"])) | '
+        'df["name"].str.contains("ab", case=False, regex=False, na=False))\n'
+        '    & (~(df["flag"].isin([True]) | df["flag"].isna()))\n'
+        '    & (~~((df["num"] <= 3) & np.isfinite(df["num"])))\n'
+        '    & ((df["few"].isin(["y"]) & (df["num"] <= 1.5) & np.isfinite(df["num"])) | '
+        '~(df["name"].str.contains("q", case=False, regex=False, na=False) | df["flag"].isna()))\n'
+        "]\n"
+    )
+    # (A nullable comparison, filled, is an atom)
+    nullable = DF.assign(num=pd.array([1, 2, None, 3], dtype="Int64"))
+    gti = GTI(nullable).i_cols_filter(columns="num").i_view(filter="not num >= 2")
+    assert query_code(gti, "pandas") == 'df[\n    ~(df["num"] >= 2).fillna(False)\n]\n'
+
+
+def test_query_code_of_groups_keeps_the_rows_of_the_view():
+    for filter in [
+        "not num >= 2",
+        'not few in ("x") or num <= 1.5',
+        'not (num >= 2 or few in ("y", null)) and flag in (true)',
+        "not not num >= 2",
+    ]:
+        for backend, data in [
+            ("polars", pl.from_pandas(DF)),
+            ("pandas", DF),
+            ("narwhals", DF),
+            ("narwhals", pa.Table.from_pandas(DF)),
+        ]:
+            gti = filtered().i_view(filter=filter)
+            assert run_code(query_code(gti, backend), data) == view_rows(gti), (filter, backend)
+
+
 def test_query_code_for_pandas_of_other_data():
     gti = (
         GTI(pl.from_pandas(DF))
@@ -981,6 +1234,38 @@ EDGE_VIEWS: list[tuple[str, dict, Any]] = [
     ("from a time, to the microsecond", query(("t", "gte", "2015-06-05T09:30:00.000001")), None),
     ("text of dates", query(("d", "contains", "2015-06")), None),
     ("sort dates", None, ["d", "-t"]),
+    ("not a range, keeping missing values and NaN", {"and": [not_(clause("f", "gte", 1.5))]}, None),
+    ("not a facet with a missing value", {"and": [not_(clause("i", "in", [2, None]))]}, "-i"),
+    ("not a bool filter", {"and": [not_(clause("b", "in", [True]))]}, None),
+    ("not a category", {"and": [not_(clause("c", "in", ["lo"]))]}, None),
+    ("not text, keeping missing values", {"and": [not_(clause("s", "contains", "ecole"))]}, None),
+    ("not a date", {"and": [not_(clause("d", "lte", "2015-06-05"))]}, "d"),
+    ("not dates and times", {"and": [not_(clause("t", "gte", "2015-06-05T09:30"))]}, None),
+    ("or of ranges", {"and": [or_(clause("f", "lte", 0), clause("i", "gte", 3))]}, None),
+    (
+        "not an or",
+        {
+            "and": [
+                clause("i", "gte", 1),
+                not_(or_(clause("b", "in", [True]), clause("c", "in", ["lo"]))),
+            ]
+        },
+        "-f",
+    ),
+    ("not not", {"and": [not_(not_(clause("f", "gte", 1.5)))]}, None),
+    (
+        "and in an or",
+        {
+            "and": [
+                or_(
+                    and_(clause("i", "gte", 2), clause("c", "in", ["lo", None])),
+                    clause("d", "gte", "2015-06-15"),
+                    not_(clause("s", "contains", "s")),
+                )
+            ]
+        },
+        "s",
+    ),
 ]
 
 
@@ -996,13 +1281,26 @@ def edge_table(backend: str) -> GTI:
     )
 
 
+def leaves(items: list[dict]) -> list[dict]:
+    """The clauses of a query's parts, those in groups too."""
+    found = []
+    for item in items:
+        if "col" in item:
+            found.append(item)
+        elif "not" in item:
+            found.extend(leaves([item["not"]]))
+        else:
+            found.extend(leaves(next(iter(item.values()))))
+    return found
+
+
 def edge_table_for(backend: str, filter: dict | None) -> GTI:
     gti = edge_table(backend)
     # (A clause's column gets the filter that has its op: for "in", a facet, but for one value of
     # the booleans, their bool filter)
-    for clause in filter["and"] if filter is not None else []:
-        col, op = clause["col"], clause["op"]
-        if op == "in" and (col != "b" or len(clause["value"]) > 1):
+    for leaf in leaves(filter["and"] if filter is not None else []):
+        col, op = leaf["col"], leaf["op"]
+        if op == "in" and (col != "b" or len(leaf["value"]) > 1):
             gti = gti.i_cols_filter(columns=col, type="facet")
         elif op == "contains":
             gti = gti.i_cols_filter(columns=col, type="text")
@@ -1042,6 +1340,14 @@ def test_edge_cases_keep_the_rows_expected(engine: Callable[[GT], dict], backend
     descending = rows(None, "-f")
     assert descending == ([5, 4, 0, 6, 7, 3, 1, 2] if nan_missing else [2, 5, 4, 0, 6, 7, 3, 1])
     assert rows(None, "f") == [3, 7, 0, 6, 4, 5] + ([1, 2] if nan_missing else [2, 1])
+    # (A row whose value is missing, or NaN or infinite, which a clause leaves out, is kept by `not`)
+    assert rows({"and": [not_(clause("f", "gte", 1.5))]}) == [1, 2, 3, 5, 7]
+    assert rows({"and": [not_(clause("i", "in", [2, None]))]}) == [0, 1, 6, 7]
+    assert rows({"and": [not_(clause("b", "in", [None]))]}) == [0, 1, 3, 5, 6, 7]
+    assert rows({"and": [not_(clause("s", "contains", "ecole"))]}) == [3, 4, 5, 6, 7]
+    assert rows({"and": [not_(clause("d", "lte", "2015-06-05"))]}) == [1, 2, 6, 7]
+    assert rows({"and": [or_(clause("f", "lte", 0), clause("i", "gte", 3))]}) == [0, 7]
+    assert rows({"and": [not_(not_(clause("f", "gte", 1.5)))]}) == [0, 4, 6]
 
 
 @pytest.mark.parametrize("backend", BACKENDS)
@@ -1192,38 +1498,69 @@ def tables(
     return gti, columns
 
 
+def filter_clauses(draw: Any, f: dict, kinds: dict, blank: bool = True) -> list[dict]:
+    """Clauses of a filter: its text (or blank text, which isn't in a group), a facet's values, or
+    a range's bounds (one or both)."""
+    col = f["column"]
+    if f["type"] == "text":
+        needles = [needle for needle in NEEDLES if blank or js_trim(needle) != ""]
+        return [{"col": col, "op": "contains", "value": draw(st.sampled_from(needles))}]
+    if f["type"] in ("facet", "bool"):
+        # (A bool filter's one value)
+        choices = [value for value in f["values"] if value is not None] + [None]
+        most = 1 if f["type"] == "bool" else 3
+        value = draw(st.lists(st.sampled_from(choices), min_size=1, max_size=most, unique=True))
+        return [{"col": col, "op": "in", "value": value}]
+    if f["type"] == "date":
+        # (A column of dates takes dates, without times)
+        times = kinds[col] == "datetime"
+        bounds = [b for b in DATE_BOUNDS if times or "T" not in b]
+        values = [value for value in f["values"] if value is not None]
+        bound = (
+            st.sampled_from(values) | st.sampled_from(bounds) if values else st.sampled_from(bounds)
+        )
+    else:
+        numbers = [value for value in f["values"] if value is not None]
+        bound = st.sampled_from(numbers) | st.floats(-3, 4) if numbers else st.floats(-3, 4)
+    ops = draw(st.lists(st.sampled_from(["gte", "lte"]), min_size=1, unique=True))
+    return [{"col": col, "op": op, "value": draw(bound)} for op in ops]
+
+
+def group_part(
+    draw: Any, spec: dict, kinds: dict, depth: int, outer: str | None, kind: str | None = None
+) -> dict:
+    """A part of a query's group: a clause, or a group (not of the kind it's in)."""
+    if kind is None:
+        options = ["clause", "not", "or", "and"] if depth < 3 else ["clause"]
+        kind = draw(st.sampled_from([option for option in options if option != outer]))
+    if kind == "clause":
+        f = draw(st.sampled_from(spec["filters"]))
+        return draw(st.sampled_from(filter_clauses(draw, f, kinds, blank=False)))
+    if kind == "not":
+        return {"not": group_part(draw, spec, kinds, depth + 1, None)}
+    parts = [
+        group_part(draw, spec, kinds, depth + 1, kind) for _ in range(draw(st.sampled_from([2, 3])))
+    ]
+    if kind == "and":
+        # (A column has one clause with each op in an `and`: which, of one part, is that part)
+        ops = [(part["col"], part["op"]) if "col" in part else i for i, part in enumerate(parts)]
+        parts = [part for i, part in enumerate(parts) if ops[i] not in ops[:i]]
+    return {kind: parts} if len(parts) > 1 else parts[0]
+
+
 @st.composite
 def views(draw: Any, spec: dict) -> tuple[dict | None, list[str]]:
-    """A view of a table, of its spec's filters and sortable columns."""
-    clauses = []
+    """A view of a table, of its spec's filters and sortable columns: its query's clauses, with
+    a group or two (of `or`, `and`, and `not`) at times."""
     kinds = {c["id"]: c["kind"] for c in spec["columns"]}
-    for f in some(draw, spec["filters"], 3):
-        col = f["column"]
-        if f["type"] == "text":
-            clauses.append({"col": col, "op": "contains", "value": draw(st.sampled_from(NEEDLES))})
-        elif f["type"] in ("facet", "bool"):
-            # (A bool filter's one value)
-            choices = [value for value in f["values"] if value is not None] + [None]
-            most = 1 if f["type"] == "bool" else 3
-            value = draw(st.lists(st.sampled_from(choices), min_size=1, max_size=most, unique=True))
-            clauses.append({"col": col, "op": "in", "value": value})
-        elif f["type"] == "date":
-            # (A column of dates takes dates, without times)
-            times = kinds[col] == "datetime"
-            bounds = [b for b in DATE_BOUNDS if times or "T" not in b]
-            values = [value for value in f["values"] if value is not None]
-            bound = (
-                st.sampled_from(values) | st.sampled_from(bounds)
-                if values
-                else st.sampled_from(bounds)
-            )
-            for op in draw(st.lists(st.sampled_from(["gte", "lte"]), min_size=1, unique=True)):
-                clauses.append({"col": col, "op": op, "value": draw(bound)})
-        else:
-            numbers = [value for value in f["values"] if value is not None]
-            bound = st.sampled_from(numbers) | st.floats(-3, 4) if numbers else st.floats(-3, 4)
-            for op in draw(st.lists(st.sampled_from(["gte", "lte"]), min_size=1, unique=True)):
-                clauses.append({"col": col, "op": op, "value": draw(bound)})
+    clauses = [
+        clause for f in some(draw, spec["filters"], 3) for clause in filter_clauses(draw, f, kinds)
+    ]
+    if spec["filters"]:
+        for _ in range(draw(st.sampled_from([0, 1, 0, 2]))):
+            # (Not an `and`, whose clauses would be the query's)
+            kind = draw(st.sampled_from(["or", "not"]))
+            clauses.append(group_part(draw, spec, kinds, 0, None, kind))
     sort = [
         ("-" if draw(st.booleans()) else "") + column
         for column in some(draw, sorted(spec["ranks"]), 3)
@@ -1284,7 +1621,13 @@ def test_random_query_code(code_backend: str, backend: str, data: Any):
     filter, sort = data.draw(views(render_parts(gti)[1]))
     # (Text is matched as the column's values, not as the table shows them)
     if filter is not None:
-        filter = {"and": [c for c in filter["and"] if c["op"] != "contains"]}
+        filter = {
+            "and": [
+                item
+                for item in filter["and"]
+                if all(leaf["op"] != "contains" for leaf in leaves([item]))
+            ]
+        }
     gti = gti.i_view(filter=filter, sort=sort)
     if backend == "pyarrow":
         # (Narwhals can't sort PyArrow's dictionaries)
@@ -1390,7 +1733,10 @@ def test_runtime_code_of_durations(node_engine: Callable[[dict], dict]):
 
 # (Numbers as JavaScript holds them: doubles, and the integers it holds exactly)
 NUMBERS = st.floats(allow_nan=False, allow_infinity=False) | st.integers(-(2**53), 2**53)
-NAMES = st.sampled_from(["a", "x_1", "and", "IN", "Name of town", "a`b", "", "1a", "é"]) | st.text()
+NAMES = (
+    st.sampled_from(["a", "x_1", "and", "IN", "Name of town", "a`b", "", "1a", "é", "not", "Or"])
+    | st.text()
+)
 
 
 @st.composite
@@ -1408,7 +1754,20 @@ def clauses(draw: Any) -> dict:
     return {"col": draw(NAMES), "op": op, "value": value}
 
 
-QUERIES = st.lists(clauses(), min_size=1, max_size=4).map(lambda clauses: {"and": clauses})
+@st.composite
+def parts(draw: Any, depth: int = 0, outer: str | None = None) -> dict:
+    """A part of a query, as `parse_query()` makes it: a clause, or a group of a kind that's not
+    the one it's in, of more than one part (or of one, a `not`)."""
+    options = ["clause", "not", "or", "and"] if depth < 3 else ["clause"]
+    kind = draw(st.sampled_from([option for option in options if option != outer]))
+    if kind == "clause":
+        return draw(clauses())
+    if kind == "not":
+        return {"not": draw(parts(depth + 1))}
+    return {kind: draw(st.lists(parts(depth + 1, kind), min_size=2, max_size=3))}
+
+
+QUERIES = st.lists(parts(outer="and"), min_size=1, max_size=4).map(lambda items: {"and": items})
 
 # Pieces of queries, right and wrong, for texts that are nearly queries
 PIECES = [
@@ -1416,6 +1775,7 @@ PIECES = [
     *["true", "False", "null", "(", ")", ",", ">=", "<=", ">", "=", "-", " ", "\t", "\n", "\xa0"],
     *['"x"', '"é\\n"', '"\\u00e9"', '"\\x"', '"', "1", "-0", "1.5e3", "01", ".5", "1e999"],
     *['"2015-06-05"', '"2015-06-05T09:30"', "2015-06-05"],
+    *["or", "OR", "not", "Not", "not ", " or ", "(a >= 1 or b in (2))", "not a >= 1"],
 ]
 
 

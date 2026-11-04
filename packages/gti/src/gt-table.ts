@@ -14,7 +14,16 @@
 import { type Placed, placeCells, type Side, TableBorders } from "./borders";
 import { viewCode } from "./code";
 import { toCSV as csv, recordsJSON, toRecords, toTSV } from "./export";
-import { ColumnFilter, dateKey, type FilterQuery, filterQuery, hasTime, MISSING, setFilterQuery } from "./filter";
+import {
+  ColumnFilter,
+  dateKey,
+  type FilterGroup,
+  type FilterQuery,
+  filterQuery,
+  hasTime,
+  MISSING,
+  setFilterQuery,
+} from "./filter";
 import { columnRuns, orderRuns } from "./order";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import {
@@ -680,6 +689,10 @@ export class GtTable extends HTMLElement {
   private matchCount = 0;
   /** The columns' filters, in column order. */
   private filters: FilterControl[] = [];
+  /** The query's groups (its `or` and `not` parts), which no one column's filter has, in order. */
+  private filterGroups: FilterGroup[] = [];
+  /** The groups' tokens, in the bar. */
+  private groupTokens = new Map<FilterGroup, FilterToken>();
   /** The filter whose panel is open, and the page's handlers for a press outside it and for scrolling. */
   private openFilter: FilterControl | null = null;
   /** What opened it (its column's button, or its token), which it's placed by and focus goes back to. */
@@ -900,26 +913,46 @@ export class GtTable extends HTMLElement {
    * bound) or a date filter (`value` is the bound as ISO 8601 text: a date, "2015-06-15", or for a
    * column with times, either that, meaning its midnight, or a date and time, "2015-06-15T09:30").
    *
-   * @throws {RangeError} for a query that isn't `{and: [...]}`, or with a clause on a column that
-   *   isn't one of `filterableColumns`, or that the column's filter can't have (an "in" without
-   *   values, or a bool filter's with more than one, or a second clause with the same `op` on a
-   *   column, too).
+   * A part of the query can also be a group of clauses: `{or: [...]}` (rows that any part keeps),
+   * `{and: [...]}` (that every one does), or `{not: part}` (that the part doesn't, so rows whose
+   * value is missing, which a clause leaves out, are kept), nested as wanted. The column filters
+   * have the clauses that aren't in an `or` or a `not`, and the query has them first, in the
+   * filters' order, then the groups, in the order given (an `and` in an `and`, or an `or` in an
+   * `or`, spliced in, and a group of one part as the part).
+   *
+   * @throws {RangeError} for a query that isn't `{and: [...]}`, a group without parts, or a clause
+   *   on a column that isn't one of `filterableColumns`, or that the column's filter can't have (an
+   *   "in" without values, or a bool filter's with more than one, or a second clause with the same
+   *   `op` in an `and`, or in a group, a "contains" without text, too).
    */
   get filter(): FilterQuery | null {
-    return filterQuery(this.filters.map((control) => control.filter));
+    return this.query();
   }
 
   set filter(query: FilterQuery | null) {
     this.cancelFilterTimer();
-    setFilterQuery(
-      this.filters.map((control) => control.filter),
-      query,
-    );
+    this.setQuery(query);
     for (const control of this.filters) {
       this.syncFilter(control);
     }
     this.applyFilters();
     this.forget();
+  }
+
+  // The query the filters and groups make
+  private query(): FilterQuery | null {
+    return filterQuery(
+      this.filters.map((control) => control.filter),
+      this.filterGroups,
+    );
+  }
+
+  // Set the filters and groups from a query (nothing changes if it's bad; see `filter`)
+  private setQuery(query: FilterQuery | null): void {
+    this.filterGroups = setFilterQuery(
+      this.filters.map((control) => control.filter),
+      query,
+    );
   }
 
   /** The columns readers can hide (`hideable` in the spec), in column order. Empty until hydrated. */
@@ -1351,10 +1384,7 @@ export class GtTable extends HTMLElement {
       console.warn(`<gt-table>: the view's sort is left out (${err.message}).`);
     }
     try {
-      setFilterQuery(
-        this.filters.map((control) => control.filter),
-        view.filter as FilterQuery | null,
-      );
+      this.setQuery(view.filter as FilterQuery | null);
     } catch (err) {
       if (!(err instanceof RangeError)) {
         throw err;
@@ -1395,10 +1425,7 @@ export class GtTable extends HTMLElement {
       warn,
     );
     try {
-      setFilterQuery(
-        this.filters.map((control) => control.filter),
-        view.filter,
-      );
+      this.setQuery(view.filter);
     } catch (err) {
       if (!(err instanceof RangeError)) {
         throw err;
@@ -1416,10 +1443,7 @@ export class GtTable extends HTMLElement {
     this.hideColumns(view.hidden);
     this.cancelSearchTimer();
     this.cancelFilterTimer();
-    setFilterQuery(
-      this.filters.map((control) => control.filter),
-      view.filter,
-    );
+    this.setQuery(view.filter);
     for (const control of this.filters) {
       this.syncFilter(control);
     }
@@ -3533,7 +3557,10 @@ export class GtTable extends HTMLElement {
     }
     if (info.filtersText !== null && info.filtersClear !== null) {
       info.filtersText.textContent = this.filtersText();
-      info.filtersClear.setAttribute("aria-disabled", String(this.activeFilters().length === 0));
+      info.filtersClear.setAttribute(
+        "aria-disabled",
+        String(this.activeFilters().length === 0 && this.filterGroups.length === 0),
+      );
     }
     if (info.selectionText !== null && info.selectionClear !== null) {
       info.selectionText.textContent = this.selectionText();
@@ -4596,6 +4623,7 @@ export class GtTable extends HTMLElement {
       const items = Array.from(list.children);
       const at = items.findIndex((item) => item.contains(event.target as Node));
       const control = this.filters.find((c) => c.token?.item === items[at]);
+      const group = Array.from(this.groupTokens).find(([, token]) => token.item === items[at])?.[0];
       const targets: Record<string, number> = {
         ArrowLeft: rtl ? at + 1 : at - 1,
         ArrowRight: rtl ? at - 1 : at + 1,
@@ -4603,9 +4631,13 @@ export class GtTable extends HTMLElement {
         End: items.length - 1,
       };
       const target = items[targets[event.key] ?? -1];
-      if ((event.key === "Backspace" || event.key === "Delete") && control !== undefined) {
+      if ((event.key === "Backspace" || event.key === "Delete") && (control ?? group) !== undefined) {
         event.preventDefault();
-        this.removeToken(control);
+        if (control !== undefined) {
+          this.removeToken(control);
+        } else {
+          this.removeGroup(group as FilterGroup);
+        }
       } else if (target !== undefined) {
         event.preventDefault();
         target.querySelector("button")?.focus();
@@ -4613,9 +4645,9 @@ export class GtTable extends HTMLElement {
     });
   }
 
-  // A token for each filter that's on (and one whose panel is open from it), in column order, and
-  // a button clearing them all when there's more than one. Tokens that stay are kept in the row,
-  // so that they keep focus.
+  // A token for each filter that's on (and one whose panel is open from it), in column order, then
+  // one for each of the query's groups, and a button clearing them all when there's more than one.
+  // Tokens that stay are kept in the row, so that they keep focus.
   private updateTokens(): void {
     const bar = this.bar;
     const list = bar?.tokens;
@@ -4632,6 +4664,13 @@ export class GtTable extends HTMLElement {
         items.push(token.item);
       }
     }
+    const tokens = new Map<FilterGroup, FilterToken>();
+    for (const group of this.filterGroups) {
+      const token = this.groupTokens.get(group) ?? this.makeGroupToken(group);
+      tokens.set(group, token);
+      items.push(token.item);
+    }
+    this.groupTokens = tokens;
     if (items.length > 1) {
       items.push(bar?.clearAll ?? this.makeClearAll(bar as Bar));
     }
@@ -4679,6 +4718,30 @@ export class GtTable extends HTMLElement {
     remove.addEventListener("click", () => this.removeToken(control));
     control.token = { item, open, remove };
     return control.token;
+  }
+
+  // A group's token: its query text, which opens the query box with it selected
+  private makeGroupToken(group: FilterGroup): FilterToken {
+    const doc = this.ownerDocument;
+    const text = formatQuery({ and: [group.item] });
+    const item = doc.createElement("li");
+    item.className = "gt-i-token";
+    item.toggleAttribute("data-gti-group", true);
+    const open = doc.createElement("button");
+    open.type = "button";
+    open.className = "gt-i-token-open";
+    open.textContent = text;
+    open.title = `${text} (edit as text)`;
+    const remove = doc.createElement("button");
+    remove.type = "button";
+    remove.className = "gt-i-token-remove";
+    remove.setAttribute("aria-label", `Remove the filter ${text}`);
+    remove.title = "Remove (Delete)";
+    remove.append(icon(doc, "clear"));
+    item.append(open, remove);
+    open.addEventListener("click", () => this.openQuery(text));
+    remove.addEventListener("click", () => this.removeGroup(group));
+    return { item, open, remove };
   }
 
   private makeClearAll(bar: Bar): HTMLElement {
@@ -4750,20 +4813,35 @@ export class GtTable extends HTMLElement {
     }`;
   }
 
-  // Turn a filter off from its token, with focus on the token after it (or before it, or the info
-  // button, without one)
+  // Turn a filter off from its token
   private removeToken(control: FilterControl): void {
+    this.dropToken(control.token?.item, () => {
+      if (this.openFilter === control) {
+        this.closeFilter(false);
+      }
+      this.userFilter(() => control.filter.clear());
+      this.syncFilter(control);
+    });
+  }
+
+  // Take a group out of the query, from its token
+  private removeGroup(group: FilterGroup): void {
+    this.dropToken(this.groupTokens.get(group)?.item, () =>
+      this.userFilter(() => {
+        this.filterGroups = this.filterGroups.filter((other) => other !== group);
+      }),
+    );
+  }
+
+  // Remove a token's filter (with `remove`), with focus on the token after it (or before it, or the
+  // info button, without one)
+  private dropToken(item: Element | undefined, remove: () => void): void {
     const list = this.bar?.tokens;
-    const item = control.token?.item;
     if (list == null || item === undefined) {
       return;
     }
     const at = Array.from(list.children).indexOf(item);
-    if (this.openFilter === control) {
-      this.closeFilter(false);
-    }
-    this.userFilter(() => control.filter.clear());
-    this.syncFilter(control);
+    remove();
     const tokens = Array.from(list.children).filter((el) => el !== this.bar?.clearAll);
     (tokens[Math.min(at, tokens.length - 1)]?.querySelector("button") ?? this.bar?.info.button)?.focus();
   }
@@ -4857,14 +4935,15 @@ export class GtTable extends HTMLElement {
     });
   }
 
-  private openQuery(): void {
+  // (With a part of its text selected, if it's there)
+  private openQuery(select = ""): void {
     const box = this.bar?.query;
     if (box == null || !box.root.hidden) {
       return;
     }
     this.closeFilter(false);
     this.closePanel(false);
-    const text = formatQuery(filterQuery(this.filters.map((control) => control.filter)));
+    const text = formatQuery(this.query());
     box.opened = text;
     box.input.value = text;
     box.root.hidden = false;
@@ -4877,7 +4956,8 @@ export class GtTable extends HTMLElement {
     box.list.style.backgroundColor = backdropColor(this);
     this.editQuery(box, false);
     box.input.focus();
-    box.input.setSelectionRange(text.length, text.length);
+    const from = select === "" ? -1 : text.indexOf(select);
+    box.input.setSelectionRange(from < 0 ? text.length : from, from < 0 ? text.length : from + select.length);
     box.mirror.scrollLeft = box.input.scrollLeft;
   }
 
@@ -5014,7 +5094,7 @@ export class GtTable extends HTMLElement {
     }
     this.closeQuery(true);
     this.cancelFilterTimer();
-    this.userFilter(() => setFilterQuery(filters, query));
+    this.userFilter(() => this.setQuery(query));
     for (const control of this.filters) {
       this.syncFilter(control);
     }
@@ -5066,7 +5146,7 @@ export class GtTable extends HTMLElement {
   // What can go at the caret: columns (with a filter), ops (the column's filter's), values (a
   // facet's, as the table shows them, but those already chosen), bounds (a date filter's first and
   // last dates) or `and`, as far as they match
-  // what's typed there (but not what's there already)
+  // what's typed there (but not what's there already); and `not`, `or` and a group's `)`
   private suggestions(box: QueryBox): Suggestion[] {
     const { input } = box;
     const text = input.value;
@@ -5089,6 +5169,9 @@ export class GtTable extends HTMLElement {
           const name = formatColumn(filter.column);
           return { text: name, detail: label === filter.column ? "" : label, insert: `${name} `, back: 0 };
         });
+      if (word !== "" && "not".startsWith(word)) {
+        items.push({ text: "not", detail: "", insert: "not ", back: 0 });
+      }
     } else if (expect === "op" && control !== undefined) {
       items = OP_SUGGESTIONS[control.filter.type].filter((item) => item.insert.startsWith(word));
     } else if (
@@ -5115,8 +5198,13 @@ export class GtTable extends HTMLElement {
           return { text: names[key]?.[1] ?? literal, detail: literal, insert: `${literal} `, back: 0 };
         })
         .filter((item) => fits(item.text, item.detail));
-    } else if (expect === "and" && "and".startsWith(word) && (word !== "" || /\s/.test(text[caret - 1] ?? ""))) {
-      items = [{ text: "and", detail: "", insert: "and ", back: 0 }];
+    } else if (expect === "and" && (word !== "" || /\s/.test(text[caret - 1] ?? ""))) {
+      items = ["and", "or"]
+        .filter((keyword) => keyword.startsWith(word))
+        .map((keyword) => ({ text: keyword, detail: "", insert: `${keyword} `, back: 0 }));
+      if (word === "" && context.depth > 0) {
+        items.push({ text: ")", detail: "", insert: ") ", back: 0 });
+      }
     }
     // (Those starting with what's typed first)
     const later = (item: Suggestion) => Number(!fold(item.text).startsWith(needle));
@@ -5145,8 +5233,9 @@ export class GtTable extends HTMLElement {
     box.mirror.scrollLeft = input.scrollLeft;
   }
 
-  // The open panel's Clear button, and a facet's counts: the rows with each value that the search
-  // and the other filters keep (so a value with none can still be chosen, but is dimmed)
+  // The open panel's Clear button, and a facet's counts: the rows with each value that the search,
+  // the other filters and the query's groups keep (so a value with none can still be chosen, but
+  // is dimmed)
   private updateFilterPanel(): void {
     const control = this.openFilter;
     if (control === null) {
@@ -5177,14 +5266,19 @@ export class GtTable extends HTMLElement {
   }
 
   private clearFilters(): void {
+    this.filterGroups = [];
     for (const control of this.filters) {
       control.filter.clear();
       this.syncFilter(control);
     }
   }
 
+  // (With the columns of the query's groups, too)
   private filtersText(): string {
-    const labels = this.filters.filter((control) => control.filter.active).map((control) => control.label);
+    const grouped = new Set(this.filterGroups.flatMap((group) => group.filters));
+    const labels = this.filters
+      .filter((control) => control.filter.active || grouped.has(control.filter))
+      .map((control) => control.label);
     return labels.length === 0 ? "Not filtered" : `Filtered by ${labels.join(", ")}`;
   }
 
@@ -5203,10 +5297,14 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // Change the filters as the reader asked, and filter the rows by them, if they changed
+  // Change the filters (or the query's groups) as the reader asked, and filter the rows by them,
+  // if they changed
   private userFilter(change: () => void): void {
     const filters = this.filters.map((control) => control.filter);
-    const texts = () => filters.map((filter) => JSON.stringify(filterQuery([filter])));
+    const texts = () => [
+      ...filters.map((filter) => JSON.stringify(filterQuery([filter]))),
+      JSON.stringify(this.filterGroups.map((group) => group.item)),
+    ];
     const before = texts();
     change();
     const changed = texts().flatMap((text, i) => (text === before[i] ? [] : [i]));
@@ -5214,7 +5312,7 @@ export class GtTable extends HTMLElement {
       this.updateFilters();
       return;
     }
-    const query = filterQuery(filters);
+    const query = this.query();
     this.applyFilters();
     const count = this.matchCount;
     const total = this.spec.nrows;
@@ -5637,7 +5735,11 @@ export class GtTable extends HTMLElement {
     this.matched = null;
     this.matchCount = spec?.nrows ?? 0;
     const filters = this.activeFilters();
-    if (spec === null || !this.movable || (this.terms.length === 0 && filters.length === 0)) {
+    if (
+      spec === null ||
+      !this.movable ||
+      (this.terms.length === 0 && filters.length === 0 && this.filterGroups.length === 0)
+    ) {
       return;
     }
 
@@ -5651,18 +5753,20 @@ export class GtTable extends HTMLElement {
     this.matchCount = count;
   }
 
-  // Call `each` with each data row that matches the search and `filters`
+  // Call `each` with each data row that matches the search, `filters` and the query's groups
   private eachKept(filters: readonly ColumnFilter[], each: (row: number) => void): void {
     const nrows = (this.spec as Spec).nrows;
+    const groups = this.filterGroups;
     const texts =
-      this.terms.length > 0 || filters.some((filter) => filter.type === "text")
+      this.terms.length > 0 || filters.some((filter) => filter.type === "text") || groups.some((group) => group.texts)
         ? (this.cellTexts ?? this.makeCellTexts(nrows))
         : null;
     for (let row = 0; row < nrows; row++) {
       const cells = texts?.[row] ?? [];
       if (
         (this.terms.length === 0 || rowMatches(this.searched(cells), this.terms)) &&
-        filters.every((filter) => filter.keeps(row, cells[filter.index]))
+        filters.every((filter) => filter.keeps(row, cells[filter.index])) &&
+        groups.every((group) => group.keeps(row, cells))
       ) {
         each(row);
       }
@@ -6545,6 +6649,8 @@ export class GtTable extends HTMLElement {
     this.matched = null;
     this.matchCount = 0;
     this.filters = [];
+    this.filterGroups = [];
+    this.groupTokens = new Map();
     this.pageValue = 1;
     this.pageSizeValue = undefined;
     this.authorView = null;

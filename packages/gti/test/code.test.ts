@@ -281,6 +281,60 @@ describe("viewCode", () => {
     );
   });
 
+  describe("of groups", () => {
+    const query: FilterQuery = {
+      and: [
+        { col: "few", op: "in", value: ["x"] },
+        { or: [{ col: "num", op: "gte", value: 2 }, { col: "name", op: "contains", value: "Ab" }] },
+        { not: { col: "flag", op: "in", value: [true, null] } },
+        { not: { not: { col: "num", op: "lte", value: 3 } } },
+        {
+          or: [
+            { and: [{ col: "few", op: "in", value: ["y"] }, { col: "num", op: "lte", value: 1.5 }] },
+            { not: { or: [{ col: "name", op: "contains", value: "q" }, { col: "flag", op: "in", value: [null] }] } },
+          ],
+        },
+      ],
+    };
+    const terms = (ns: string) => [
+      `${ns}.col("few").is_in(["x"])`,
+      `((${ns}.col("num") >= 2) & ${ns}.col("num").is_finite()) | ${ns}.col("name").str.to_lowercase().str.contains("ab", literal=True)`,
+      `~(${ns}.col("flag").is_in([True]) | ${ns}.col("flag").is_null()).fill_null(False)`,
+      `~(~((${ns}.col("num") <= 3) & ${ns}.col("num").is_finite()).fill_null(False)).fill_null(False)`,
+      `(${ns}.col("few").is_in(["y"]) & (${ns}.col("num") <= 1.5) & ${ns}.col("num").is_finite()) | ` +
+        `~(${ns}.col("name").str.to_lowercase().str.contains("q", literal=True) | ${ns}.col("flag").is_null()).fill_null(False)`,
+    ];
+
+    it("writes them with `|`, `&` and `~`, a `not` keeping missing values, for Polars and Narwhals", () => {
+      expect(code(query, [], "polars")).toBe(
+        `import polars as pl\n\ndf.filter(\n${terms("pl").map((term) => `    ${term},\n`).join("")})\n`,
+      );
+      expect(code(query, [], "narwhals")).toBe(
+        "import narwhals as nw\n\n(\n    nw.from_native(df)\n    .filter(\n" +
+          terms("nw").map((term) => `        ${term},\n`).join("") +
+          "    )\n    .to_native()\n)\n",
+      );
+    });
+
+    it("writes them for pandas, whose terms are never missing", () => {
+      expect(code(query, [], "pandas")).toBe(
+        "import numpy as np\n\ndf[\n" +
+          '    (df["few"].isin(["x"]))\n' +
+          '    & (((df["num"] >= 2) & np.isfinite(df["num"])) | df["name"].str.contains("ab", case=False, regex=False, na=False))\n' +
+          '    & (~(df["flag"].isin([True]) | df["flag"].isna()))\n' +
+          '    & (~~((df["num"] <= 3) & np.isfinite(df["num"])))\n' +
+          '    & ((df["few"].isin(["y"]) & (df["num"] <= 1.5) & np.isfinite(df["num"])) | ' +
+          '~(df["name"].str.contains("q", case=False, regex=False, na=False) | df["flag"].isna()))\n' +
+          "]\n",
+      );
+      // (A nullable comparison, filled, is an atom)
+      const spec = { ...SPEC, columns: { ...SPEC.columns, num: column("other", null, true) } };
+      expect(code({ and: [{ not: { col: "num", op: "gte", value: 2 } }] }, [], "pandas", { spec })).toBe(
+        'df[\n    ~(df["num"] >= 2).fillna(False)\n]\n',
+      );
+    });
+  });
+
   it("writes column names as Python strings", () => {
     const filters: FilterSpec[] = [{ column: 'Name "of" town', type: "text", values: null }];
     const spec: CodeSpec = { backend: "polars", columns: { 'Name "of" town': column("string") } };
