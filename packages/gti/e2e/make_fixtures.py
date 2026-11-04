@@ -245,6 +245,23 @@ def date_html(table_id: str) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def bool_html(table_id: str) -> str:
+    # A GTI table of exibble (8 rows, on one page) with `big`, whether `num` is over 100 (shown as
+    # "yes" or "no"; missing, as "unknown", where `num` is), filtered by a bool filter (as "auto"
+    # has it); whose view is kept in the URL
+    data = exibble[["row", "num"]].assign(
+        big=pd.array([None if pd.isna(x) else x > 100 for x in exibble["num"]], dtype="boolean")
+    )
+    gti = (
+        GTI(data, rowname_col="row", id=table_id)
+        .fmt_tf(columns="big", tf_style="yes-no", na_val="unknown")
+        .i_pagination(False)
+        .i_cols_filter(columns="big")
+        .i_view_state(url=True)
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def state_html(table_id: str, url: bool = True, storage: bool = False) -> str:
     # A GTI table of exibble three times over (24 rows), 5 rows to a page, with a search: `num`
     # filtered by a range and `fctr` by a facet, first sorted by `num` (descending); whose view is
@@ -716,6 +733,8 @@ def main() -> None:
         ),
         # Date filters: of dates, and of dates and times
         "dates.html": page(date_html("dt") + "\n" + runtime_src, head=styles),
+        # A bool filter, of a column with a missing value
+        "bools.html": page(bool_html("bl") + "\n" + runtime_src, head=styles),
         # View state: two GTI tables on a page, one kept in the URL and storage, one in the URL
         "state.html": page(
             state_html("va", storage=True) + "\n" + state_html("vb") + "\n" + runtime_src,
