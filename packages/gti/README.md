@@ -30,6 +30,11 @@ npx playwright install chromium   # for the browser tests
 After changing anything in `src/`, run `npm run build` and commit the rebuilt
 `great_tables/js/gti.*` along with the source; CI runs `npm run check`.
 
+The build shortens the names of `private` members (TypeScript's `private` is gone in the bundle,
+so minifying alone keeps them), where that can't break anything: see `scripts/mangle.mjs`. A
+private member that the browser tests read, as `(node as any).name`, keeps its name; one read any
+other way from outside the bundle (by a host page, say) should be made public instead.
+
 The browser tests write their pages with `e2e/make_fixtures.py`, which needs a Python with
 `great_tables` installed. They use `$PYTHON` if set, otherwise the repo's `.venv`, otherwise
 `python3`.
@@ -44,8 +49,8 @@ skipped without it).
 src/        TypeScript source (index.ts is the bundle entry) and gti.css
 test/       Vitest unit tests
 e2e/        Playwright tests, and the script that writes their fixture pages
-scripts/    build.mjs (build, staleness check, size budget), engine.mjs (the runtime under Node,
-            for Python's differential tests)
+scripts/    build.mjs (build, staleness check, size budget), mangle.mjs (the private names it
+            shortens), engine.mjs (the runtime under Node, for Python's differential tests)
 ```
 
 The npm package name is undecided, so the package is marked private for now.
