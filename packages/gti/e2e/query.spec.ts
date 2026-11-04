@@ -125,6 +125,45 @@ test("shows an is-null clause as a token saying the column's missing, edited as 
   expect(errors).toEqual([]);
 });
 
+test("applies a matches clause, typed between the slashes it suggests, as a token of its text", async ({ page }) => {
+  const errors = await ready(page, "tokens.html");
+  await toggle(page).click();
+  await query(page).fill("");
+  await page.keyboard.type("char m");
+  await expect(options(page)).toHaveText(["matches /…/pattern"]);
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toHaveValue("char matches //");
+  // (With the caret between the slashes)
+  await page.keyboard.type("^[a-d](");
+  await page.keyboard.press("Enter");
+  await expect(error(page)).toHaveText('Expected ")"');
+  expect((await highlighted(page)).error).toEqual(["/"]);
+  await page.keyboard.press("Backspace");
+  await expect(query(page)).toHaveValue("char matches /^[a-d]/");
+  expect((await highlighted(page)).string).toEqual(["/^[a-d]/"]);
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toBeHidden();
+  // (Of each copy of exibble: apricot, banana, coconut and durian)
+  expect(await matched(page)).toBe(12);
+  expect(await el(page).evaluate((node) => (node as any).filter)).toEqual({
+    and: [{ col: "char", op: "matches", value: "^[a-d]" }],
+  });
+  const group = tokens(page).locator("li.gt-i-token[data-gti-group]");
+  await expect(group.locator(".gt-i-token-open")).toHaveText("char matches /^[a-d]/");
+  await expect(group).toHaveCSS("outline-style", "dashed");
+
+  await group.locator(".gt-i-token-open").click();
+  await expect(query(page)).toBeFocused();
+  // (The same rows, ignoring case)
+  await query(page).fill("char matches /^[A-D]/i");
+  await page.keyboard.press("Enter");
+  expect(await matched(page)).toBe(12);
+  await tokens(page).getByRole("button", { name: "Remove the filter char matches /^[A-D]/i", exact: true }).click();
+  await expect(group).toHaveCount(0);
+  expect(await matched(page)).toBe(24);
+  expect(errors).toEqual([]);
+});
+
 test("highlights the text by what each part is, over the input's own", async ({ page }) => {
   const errors = await ready(page, "tokens.html");
   await toggle(page).click();

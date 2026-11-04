@@ -3957,7 +3957,7 @@ describe("the query box", () => {
     expect(list(el).hidden).toBe(true);
     // (Enter, then, applies)
     press(input(el), "Enter");
-    expect(error(el).textContent).toBe('Expected "contains", "in", ">=", "<=" or "is"');
+    expect(error(el).textContent).toBe('Expected "contains", "matches", "in", ">=", "<=" or "is"');
   });
 
   it("takes a suggestion that's clicked, keeping focus", async () => {
@@ -4057,6 +4057,40 @@ describe("the query box", () => {
     replace(el, "x >= 5 ");
     expect(options(el)).toEqual(["and", "or"]);
   });
+
+  it("suggests and applies matches, saying what's wrong with a pattern", async () => {
+    const { el } = await mountQuery({ filters: [RANGE, { column: "y", type: "text", values: null }] });
+    toggle(el).click();
+    replace(el, "y ");
+    expect(options(el)).toEqual(['contains "…"', "matches /…/", "is null", "is not null"]);
+    type(el, "ma");
+    expect(options(el)).toEqual(["matches /…/"]);
+    press(input(el), "Enter");
+    expect(input(el).value).toBe("y matches //");
+    expect(input(el).selectionStart).toBe(11);
+    // (Nothing's suggested in a pattern)
+    type(el, "x");
+    expect(list(el).hidden).toBe(true);
+
+    replace(el, "y matches /^A/i or x >= 20");
+    press(input(el), "Enter");
+    expect(error(el).hidden).toBe(true);
+    expect(el.filter).toEqual({
+      and: [{ or: [{ col: "y", op: "matches", value: "(?i)^A" }, { col: "x", op: "gte", value: 20 }] }],
+    });
+    expect(visible(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "group:a", 1, "grand:Max"]);
+    toggle(el).click();
+    expect(input(el).value).toBe("y matches /^A/i or x >= 20");
+    const problem = (text: string) => {
+      replace(el, text);
+      press(input(el), "Enter");
+      return error(el).hidden ? null : error(el).textContent;
+    };
+    expect(problem("y matches /(/")).toBe('Expected ")"');
+    expect(problem("y matches /a/g")).toBe('A pattern can have only the flag "i"');
+    expect(problem("x matches /a/")).toBe("X has a range filter: use >= or <=");
+    expect(problem("y matches /a/ and y matches /b/")).toBe("Y has more than one matches clause");
+  });
 });
 
 describe("the query's groups", () => {
@@ -4135,6 +4169,21 @@ describe("the query's groups", () => {
     expect(tokens(el)).toEqual(["x is missing"]);
     el.filter = { and: [{ col: "y", op: "is_null" }] };
     expect(tokens(el)).toEqual(["Kind is missing"]);
+  });
+
+  it("include `matches` clauses, whose tokens are their text", async () => {
+    const { el } = await mountGroups({ filters: [RANGE, { column: "y", type: "text", values: null }] });
+    el.filter = { and: [{ col: "y", op: "matches", value: "(?i)^[A-B]$" }] };
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "matches", value: "(?i)^[A-B]$" }] });
+    expect(visible(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "group:a", 1, "grand:Max"]);
+    expect(tokens(el)).toEqual(["y matches /^[A-B]$/i"]);
+    expect(token(el, 0).parentElement?.hasAttribute("data-gti-group")).toBe(true);
+    expect(token(el, 0).title).toBe("y matches /^[A-B]$/i (edit as text)");
+    el.filter = { and: [{ not: { col: "y", op: "matches", value: "a/b" } }] };
+    expect(tokens(el)).toEqual(["not y matches /a\\/b/"]);
+    expect(() => {
+      el.filter = { and: [{ col: "x", op: "matches", value: "1" }] };
+    }).toThrow(RangeError);
   });
 
   it("open the query box from a token, with its text selected", async () => {

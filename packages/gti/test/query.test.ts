@@ -81,8 +81,8 @@ describe("parseQuery", () => {
   });
 
   it("says what's wrong, and where", () => {
-    expect(error("a")).toBe('expected "contains", "in", ">=", "<=" or "is", at the end');
-    expect(error("a = 1")).toBe('expected "contains", "in", ">=", "<=" or "is", at character 3');
+    expect(error("a")).toBe('expected "contains", "matches", "in", ">=", "<=" or "is", at the end');
+    expect(error("a = 1")).toBe('expected "contains", "matches", "in", ">=", "<=" or "is", at character 3');
     expect(error(">= 1")).toBe("expected a column name, at character 1");
     expect(error("a >= x")).toBe("expected a number, or a date in double quotes, at character 6");
     expect(error("a >= (")).toBe("expected a number, or a date in double quotes, at character 6");
@@ -413,7 +413,7 @@ describe("queryProblem", () => {
     expect(problem("")).toBeNull();
     expect(problem('x >= 1 and w contains "a"')).toEqual({ clause: 1, message: "w isn't a column with a filter" });
     expect(problem("x in (1)")).toEqual({ clause: 0, message: "x has a range filter: use >= or <=" });
-    expect(problem("`z z` >= 1")).toEqual({ clause: 0, message: "`z z` has a text filter: use contains" });
+    expect(problem("`z z` >= 1")).toEqual({ clause: 0, message: "`z z` has a text filter: use contains or matches" });
     expect(problem('y contains "a"')).toEqual({ clause: 0, message: "y has a facet filter: use in" });
     expect(problem("x >= 1 and x <= 2 and x >= 3")).toEqual({ clause: 2, message: "x has more than one >= clause" });
     expect(problem('y in ("a", "1")')).toEqual({ clause: 0, message: '"1" isn\'t a value of y' });
@@ -535,5 +535,106 @@ describe("is null", () => {
     expect(problem("w is null")).toEqual({ clause: 0, message: "w isn't a column with a filter" });
     expect(problem("y is null and x >= 1 and y is null")).toEqual({ clause: 2, message: "y has more than one is null clause" });
     expect(problem("y is null or y is null")).toBeNull();
+  });
+});
+
+describe("matches", () => {
+  const where = (text: string) => {
+    try {
+      parseQuery(text);
+    } catch (err) {
+      const { from, to } = err as QuerySyntaxError;
+      return text.slice(from, to);
+    }
+    throw new Error(`${JSON.stringify(text)} parsed`);
+  };
+
+  it("reads a pattern between slashes, with the flag i as (?i)", () => {
+    expect(parseQuery("name matches /^st\\./ and `a b` MATCHES /x/i")).toEqual({
+      and: [
+        { col: "name", op: "matches", value: "^st\\." },
+        { col: "a b", op: "matches", value: "(?i)x" },
+      ],
+    });
+    // (A slash in a class needn't be escaped, and an escaped one is the slash)
+    expect(parseQuery("a matches /[/]\\/\\\\/")).toEqual({ and: [{ col: "a", op: "matches", value: "[/]/\\\\" }] });
+    expect(parseQuery("(a matches /\\)/ )")).toEqual({ and: [{ col: "a", op: "matches", value: "\\)" }] });
+    expect(parseQuery("not matches /x/")).toEqual({ and: [{ col: "not", op: "matches", value: "x" }] });
+    expect(parseQuery("not a matches /x/")).toEqual({ and: [{ not: { col: "a", op: "matches", value: "x" } }] });
+  });
+
+  it("says what's wrong, and where", () => {
+    expect(error("a matches")).toBe("expected a pattern between slashes, as in /^st\\./, at the end");
+    expect(error('a matches "x"')).toBe("expected a pattern between slashes, as in /^st\\./, at character 11");
+    expect(error("a matches /x")).toBe("a pattern must end with a slash, at character 11");
+    expect(error("a matches /x\ny/")).toBe("a pattern must end with a slash, at character 11");
+    expect(error("a matches /x/g")).toBe('a pattern can have only the flag "i", at character 14');
+    expect(error("a matches /x/ii")).toBe('a pattern can have only the flag "i", at character 14');
+    expect(error("a matches //")).toBe("expected a pattern, at character 12");
+    expect(error("a matches /(/")).toBe('expected ")", at character 13');
+    expect(error("`😀` matches /😀)/")).toBe('")" must close a "(" (or be escaped: "\\)"), at character 15');
+    expect(error("a matches /(?i)x/")).toBe(
+      '"(?" must be "(?:" (a pattern can\'t have lookarounds, named groups or flags), at character 12',
+    );
+    // (A pattern is read wherever it is)
+    expect(error("a >= 1/2")).toBe("a pattern must end with a slash, at character 7");
+    expect(error("a contains /x/")).toBe("expected a string in double quotes, at character 12");
+    expect(where("a matches /x")).toBe("/");
+    expect(where("a matches /x/gi")).toBe("gi");
+    expect(where("a matches /a{2,1}/")).toBe("{");
+    expect(where("a matches /(/")).toBe("/");
+    expect(where('a matches "x"')).toBe('"x"');
+  });
+
+  it("writes a pattern between slashes, which parseQuery reads back", () => {
+    const queries: FilterQuery[] = [
+      { and: [{ col: "a", op: "matches", value: "^st\\." }] },
+      { and: [{ col: "matches", op: "matches", value: "(?i)a/b[/]\\\\" }, { not: { col: "b", op: "matches", value: "/" } }] },
+      { and: [{ or: [{ col: "a", op: "matches", value: "x" }, { col: "a", op: "contains", value: "/" }] }] },
+    ];
+    expect(formatQuery(queries[1] as FilterQuery)).toBe("`matches` matches /a\\/b[\\/]\\\\/i and not b matches /\\//");
+    for (const query of queries) {
+      expect(parseQuery(formatQuery(query))).toEqual(query);
+    }
+    // (A line break, which the text can't have in a pattern, as its escape)
+    const lines: FilterQuery = { and: [{ col: "a", op: "matches", value: "a\n[\r]" }] };
+    expect(formatQuery(lines)).toBe("a matches /a\\n[\\r]/");
+    expect(parseQuery(formatQuery(lines))).toEqual({ and: [{ col: "a", op: "matches", value: "a\\n[\\r]" }] });
+  });
+
+  it("says what each part is, where the clauses are, and what goes at the caret", () => {
+    const roles = (text: string) => readQuery(text).parts.map((part) => [part.text, part.role, part.open]);
+    expect(roles("a matches /[/]x/i and not b matches /x")).toEqual([
+      ["a", "column", false],
+      ["matches", "keyword", false],
+      ["/[/]x/i", "string", false],
+      ["and", "keyword", false],
+      ["not", "keyword", false],
+      ["b", "column", false],
+      ["matches", "keyword", false],
+      ["/x", "string", true],
+    ]);
+    expect(roles("a matches x").map(([, role]) => role)).toEqual(["column", "keyword", null]);
+    expect(roles("a contains /x/").map(([, role]) => role)).toEqual(["column", "keyword", null]);
+    const text = "a matches /x/ or b matches /y/";
+    expect(readQuery(text).clauses.map(([from, to]) => text.slice(from, to))).toEqual(["a matches /x/", "b matches /y/"]);
+    const at = (typed: string) => queryContext(typed.replace("|", ""), typed.indexOf("|"));
+    expect(at("a mat|")).toMatchObject({ expect: "op", prefix: "mat" });
+    expect(at("a matches |")).toMatchObject({ expect: "pattern", col: "a" });
+    expect(at("a matches /x|/")).toMatchObject({ expect: "pattern", prefix: "/x", from: 10, to: 13 });
+    expect(at("a matches /x/ |")).toMatchObject({ expect: "and" });
+  });
+
+  it("is a problem off a text filter, or twice in an and", () => {
+    const filters = [
+      new ColumnFilter({ column: "x", type: "range", values: [5] }, 1, []),
+      new ColumnFilter({ column: "y", type: "text", values: null }, 2, []),
+    ];
+    const problem = (text: string) => queryProblem(filters, parseQuery(text));
+    expect(problem('y matches /a/ and y contains "b" and not y matches /c/')).toBeNull();
+    expect(problem("x matches /a/")).toEqual({ clause: 0, message: "x has a range filter: use >= or <=" });
+    expect(problem("w matches /a/")).toEqual({ clause: 0, message: "w isn't a column with a filter" });
+    expect(problem("y matches /a/ and y matches /b/i")).toEqual({ clause: 1, message: "y has more than one matches clause" });
+    expect(problem("y matches /a/ or y matches /b/")).toBeNull();
   });
 });

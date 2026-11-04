@@ -25,6 +25,7 @@ import pandas as pd
 import pytest
 
 from great_tables import GT, GTI, loc, style
+from great_tables._gti._pattern import PatternError, check_pattern
 from great_tables._gti._query import (
     _Tree,
     cell_text,
@@ -228,6 +229,48 @@ def test_check_query_rejects_is_null_clauses(bad: Any, message: str):
         check_query(bad)
 
 
+def test_check_query_takes_matches_clauses_as_the_runtime_has_them():
+    # (Without escapes before a slash)
+    matches = clause("x", "matches", "(?i)^a\\/b[\\/]\\\\")
+    checked = clause("x", "matches", "(?i)^a/b[/]\\\\")
+    assert check_query({"and": [matches, not_(matches), or_(matches, A)]}) == {
+        "and": [checked, not_(checked), or_(checked, A)]
+    }
+    assert check_query("x matches /^a\\/b[\\/]\\\\/i") == {"and": [checked]}
+
+
+@pytest.mark.parametrize(
+    "bad, message",
+    [
+        (query(("x", "matches", 1)), "\"matches\" clause on column 'x' needs a string"),
+        (
+            query(("x", "matches", "a(")),
+            "The pattern of the filter's \"matches\" clause on column 'x' can't be read: "
+            'expected "\\)", at the end',
+        ),
+        (query(("x", "matches", "")), "can't be read: expected a pattern, at the end"),
+        (query(("x", "matches", "(?i)")), "expected a pattern, at the end"),
+        (query(("x", "matches", "(?i)😀(?=a)")), 'must be "\\(\\?:".*, at character 6'),
+        (query(("x", "matches", "[z-a]")), 'the range "z-a" is out of order, at character 2'),
+        (
+            query(("x", "matches", "a"), ("x", "matches", "b")),
+            "more than one 'matches' clause on column 'x'",
+        ),
+        (
+            {"and": [clause("x", "matches", "a"), or_(clause("x", "matches", "b"))]},
+            "more than one 'matches' clause on column 'x'",
+        ),
+        (
+            {"and": [or_(and_(clause("x", "matches", "a"), clause("x", "matches", "b")), A)]},
+            "more than one 'matches' clause on column 'x', in an 'and' group",
+        ),
+    ],
+)
+def test_check_query_rejects_matches_clauses(bad: Any, message: str):
+    with pytest.raises(ValueError, match=message):
+        check_query(bad)
+
+
 def test_check_query_takes_groups_as_the_runtime_has_them():
     # (Groups of one part as the part, and like groups spliced in; in the order given)
     checked = check_query(
@@ -415,13 +458,15 @@ def test_parse_query_reads_strings_as_json_does():
 VALUE_EXPECTED = "expected a value: a string in double quotes, a number, true, false or null"
 UNENDED_STRING = "a string must end with a double quote (with escapes as in JSON)"
 BOUND_EXPECTED = "expected a number, or a date in double quotes"
+PATTERN_EXPECTED = "expected a pattern between slashes, as in /^st\\./"
+REPEAT_TOO_LARGE = "a repeat can be at most 1000, and its first number no more than its second"
 
 
 @pytest.mark.parametrize(
     "text, message",
     [
-        ("a", 'expected "contains", "in", ">=", "<=" or "is", at the end'),
-        ("a = 1", 'expected "contains", "in", ">=", "<=" or "is", at character 3'),
+        ("a", 'expected "contains", "matches", "in", ">=", "<=" or "is", at the end'),
+        ("a = 1", 'expected "contains", "matches", "in", ">=", "<=" or "is", at character 3'),
         (">= 1", "expected a column name, at character 1"),
         ("a >= x", f"{BOUND_EXPECTED}, at character 6"),
         ("a >= (", f"{BOUND_EXPECTED}, at character 6"),
@@ -457,6 +502,26 @@ BOUND_EXPECTED = "expected a number, or a date in double quotes"
         ("a is not not null", 'expected "null", at character 10'),
         ("a is null null", 'expected "and", "or" or the end of the query, at character 11'),
         ("a is (null)", 'expected "null" or "not null", at character 6'),
+        # (Of `matches`)
+        ("a matches", f"{PATTERN_EXPECTED}, at the end"),
+        ('a matches "x"', f"{PATTERN_EXPECTED}, at character 11"),
+        ("a matches 1", f"{PATTERN_EXPECTED}, at character 11"),
+        ("a matches /x", "a pattern must end with a slash, at character 11"),
+        ("a matches /x\ny/", "a pattern must end with a slash, at character 11"),
+        ("a matches /x/g", 'a pattern can have only the flag "i", at character 14'),
+        ("a matches /x/ii", 'a pattern can have only the flag "i", at character 14'),
+        ("a matches //", "expected a pattern, at character 12"),
+        ("a matches /(/", 'expected ")", at character 13'),
+        ("a matches /a{2,1}/", f"{REPEAT_TOO_LARGE}, at character 13"),
+        ("`😀` matches /😀)/", '")" must close a "(" (or be escaped: "\\)"), at character 15'),
+        (
+            "a matches /(?i)x/",
+            '"(?" must be "(?:" (a pattern can\'t have lookarounds, named groups or flags), '
+            "at character 12",
+        ),
+        # (A pattern is read wherever it is)
+        ("a >= 1/2", "a pattern must end with a slash, at character 7"),
+        ("a contains /x/", "expected a string in double quotes, at character 12"),
     ],
 )
 def test_parse_query_says_whats_wrong_and_where(text: str, message: str):
@@ -492,6 +557,17 @@ def test_parse_query_reads_not_before_an_op_as_a_columns_name():
     assert parse_query("or >= 1 or and >= 2") == {
         "and": [or_(clause("or", "gte", 1), clause("and", "gte", 2))]
     }
+
+
+def test_parse_query_reads_a_pattern_between_slashes_with_the_flag_i_as_its_prefix():
+    assert parse_query("name matches /^st\\./ and `a b` MATCHES /x/i") == query(
+        ("name", "matches", "^st\\."), ("a b", "matches", "(?i)x")
+    )
+    # (A slash in a class needn't be escaped, and an escaped one is the slash)
+    assert parse_query("a matches /[/]\\/\\\\/") == query(("a", "matches", "[/]/\\\\"))
+    assert parse_query("(a matches /\\)/ )") == query(("a", "matches", "\\)"))
+    assert parse_query("not matches /x/") == query(("not", "matches", "x"))
+    assert parse_query("not a matches /x/") == {"and": [not_(clause("a", "matches", "x"))]}
 
 
 def test_format_query_writes_a_query_as_text():
@@ -589,9 +665,25 @@ def test_format_query_writes_what_parse_query_reads_back():
         {"and": [or_(A, B)]},
         {"and": [{"col": "not", "op": "is_null"}, not_({"col": "is", "op": "is_null"})]},
         {"and": [not_(not_({"col": "null", "op": "is_null"}))]},
+        query(("a", "matches", "^st\\.")),
+        {"and": [or_(clause("a", "matches", "x"), clause("a", "contains", "/"))]},
     ]
     for q in queries:
         assert parse_query(format_query(q)) == q
+
+
+def test_format_query_writes_a_pattern_between_slashes():
+    q = {
+        "and": [
+            clause("matches", "matches", "(?i)a/b[/]\\\\"),
+            not_(clause("b", "matches", "/")),
+        ]
+    }
+    assert format_query(q) == "`matches` matches /a\\/b[\\/]\\\\/i and not b matches /\\//"
+    assert parse_query(format_query(q)) == q
+    # (A line break, which the text can't have in a pattern, as its escape)
+    assert format_query(query(("a", "matches", "a\n[\r]"))) == "a matches /a\\n[\\r]/"
+    assert parse_query("a matches /a\\n[\\r]/") == query(("a", "matches", "a\\n[\\r]"))
 
 
 def test_check_query_reads_text():
@@ -707,8 +799,13 @@ def test_a_facet_value_matches_as_javascript_matches_it():
     [
         ({"filter": query(("num", "in", [1.5]))}, "'in' clause on column 'num', which has a range"),
         ({"filter": query(("few", "gte", 1))}, r"which has a facet filter \(for 'in' clauses\)"),
-        ({"filter": query(("name", "in", ["a"]))}, "which has a text filter"),
+        (
+            {"filter": query(("name", "in", ["a"]))},
+            r"which has a text filter \(for 'contains' or 'matches' clauses\)",
+        ),
         ({"filter": query(("few", "contains", "x"))}, "which has a facet filter"),
+        ({"filter": query(("num", "matches", "x"))}, "'matches' clause on column 'num', which has"),
+        ({"filter": "few matches /x/"}, "'matches' clause on column 'few', which has a facet"),
         ({"filter": query(("flag", "in", ["True"]))}, "'True', which isn't a value of column"),
         ({"filter": query(("few", "in", ["z"]))}, "isn't a value of column 'few'"),
         ({"filter": query(("nope", "in", ["z"]))}, r"which has no filter.*`i_cols_filter\(\)`"),
@@ -892,6 +989,36 @@ def test_view_rows_by_is_null_clauses():
     assert rows("few is null", hidden) == [3]
 
 
+def test_view_rows_by_matches_clauses():
+    df = pd.DataFrame({"s": ["Straße", "st. Ives", None, "ÉCOLE", "x\n", "Iİı"]})
+    gti = GTI(df).i_cols_filter(type="text")
+
+    def rows(filter: str) -> list[int]:
+        return view_rows(gti.i_view(filter=filter))
+
+    # (Of the text unfolded: case-sensitive, and with its accents, unless the flag i ignores case)
+    assert rows("s matches /^St/") == [0]
+    assert rows("s matches /^st/i") == [0, 1]
+    assert rows("s matches /^st\\./") == [1]
+    assert rows("s matches /É/") == [3]
+    # (A missing value's cell shows "None", which is text like any other)
+    assert rows("s matches /e/i") == [0, 1, 2, 3]
+    assert rows("s matches /ß$/") == []
+    assert rows("s matches /e$/") == [0, 2]
+    # (`$` is the end of the text, not before a line break at its end, and `.` isn't a line break)
+    assert rows("s matches /x$/") == []
+    assert rows("s matches /x./") == []
+    assert rows("s matches /x\\n$/") == [4]
+    # (Ignoring case, İ and ı are only themselves, as the runtime has them)
+    assert rows("s matches /^ii/i") == []
+    assert rows("s matches /İ/i") == [5]
+    assert rows("s matches /[h-j]{3}/i") == []
+    assert rows("s matches /I[^a-z]ı/i") == [5]
+    assert rows("not s matches /e/i") == [4, 5]
+    assert rows("s matches /\\S/ or s is null") == [0, 1, 2, 3, 4, 5]
+    assert rows('s matches /^s/i and s contains "ives"') == [1]
+
+
 def test_view_rows_keeps_rows_in_their_groups():
     gti = GTI(DF, groupname_col="flag").i_cols_filter(columns="num").i_view(sort="-num")
     # (The groups, in the order they're first seen: True, then False)
@@ -910,6 +1037,7 @@ def test_view_rows_by_columns_only_for_querying():
     # (By the text its cells would show)
     assert view_rows(gti.i_view(filter=query(("name", "contains", "B ITEM")))) == [1]
     assert view_rows(gti.i_view(filter=query(("name", "contains", "a")))) == [0]
+    assert view_rows(gti.i_view(filter=query(("name", "matches", "^[A-C] item$")))) == [0, 1, 2]
     assert view_rows(gti.i_view(filter=query(("few", "in", ["x"])), sort="-num")) == [0, 2]
     assert view_rows(gti.i_view(filter=query(("num", "gte", 2)), sort="-name")) == [3, 1]
 
@@ -1110,6 +1238,62 @@ def test_query_code_of_is_null_clauses():
         '    & (df["name"].isna())\n'
         "]\n"
     )
+
+
+def test_query_code_of_matches_clauses():
+    gti = (
+        GTI(DF)
+        .i_cols_filter(columns=["name", "few", "flag"], type="text")
+        .i_cols_filter(columns="num", type="range")
+        .i_view(
+            filter='name matches /^a.\\d\\/"/i and not few matches /[x&]/ and '
+            "(flag matches /^T/ or num is null)"
+        )
+    )
+
+    # (As packages/gti/test/code.test.ts has them: the pattern as the code reads it)
+    def terms(ns: str) -> list[str]:
+        return [
+            f'{ns}.col("name").str.contains("(?i)^a.[0-9]/\\"")',
+            f'~{ns}.col("few").str.contains("[x\\\\&]").fill_null(False)',
+            f'{ns}.col("flag").cast({ns}.String).str.contains("^T") | {ns}.col("num").is_null() | '
+            f'{ns}.col("num").is_nan()',
+        ]
+
+    polars = "".join(f"    {term},\n" for term in terms("pl"))
+    assert query_code(gti, "polars") == f"import polars as pl\n\ndf.filter(\n{polars})\n"
+    narwhals = "".join(f"        {term},\n" for term in terms("nw"))
+    assert query_code(gti, "narwhals") == (
+        "import narwhals as nw\n\n(\n    nw.from_native(df)\n    .filter(\n"
+        f"{narwhals}    )\n    .to_native()\n)\n"
+    )
+    assert query_code(gti, "pandas") == (
+        "df[\n"
+        '    (df["name"].str.contains("(?i)^a.[0-9]/\\"", regex=True, na=False))\n'
+        '    & (~df["few"].str.contains("[x\\\\&]", regex=True, na=False))\n'
+        '    & (df["flag"].astype(str).str.contains("^T", regex=True, na=False) | df["num"].isna())\n'
+        "]\n"
+    )
+
+
+@pytest.mark.parametrize("pattern", ["^[a-c]$", "(?i)^[B-D]", "x|y$", "(?i)^X$", "[^x]"])
+def test_query_code_of_matches_clauses_keeps_the_rows_of_the_view(pattern: str):
+    # (Of columns of strings, whose values are the text the table shows, a missing value none)
+    gti = GTI(DF).sub_missing(missing_text="").i_cols_filter(columns=["name", "few"], type="text")
+    for filter in [
+        query(("name", "matches", pattern)),
+        {"and": [not_(clause("few", "matches", pattern))]},
+        {"and": [or_(clause("name", "matches", pattern), clause("few", "matches", pattern))]},
+    ]:
+        for backend, data in [
+            ("polars", pl.from_pandas(DF)),
+            ("pandas", DF),
+            ("narwhals", DF),
+            ("narwhals", pl.from_pandas(DF)),
+            ("narwhals", pa.Table.from_pandas(DF)),
+        ]:
+            view = gti.i_view(filter=filter)
+            assert run_code(query_code(view, backend), data) == view_rows(view), (filter, backend)
 
 
 def test_query_code_has_the_query_as_the_runtime_does():
@@ -1400,6 +1584,22 @@ EDGE_VIEWS: list[tuple[str, dict, Any]] = [
     ("is null of every kind", {"and": [or_(*map(is_null, "isbcdt"))]}, ["c", "-t"]),
     ("is null and a facet", {"and": [clause("c", "in", ["lo", None]), not_(is_null("c"))]}, None),
     ("is null in an and", {"and": [or_(and_(is_null("i"), is_null("d")), is_null("b"))]}, None),
+    ("pattern with accents", query(("s", "matches", "^É")), None),
+    ("pattern ignoring case", query(("s", "matches", "(?i)école")), "s"),
+    ("pattern at the end", query(("s", "matches", "S$")), None),
+    ("pattern, a sharp s", query(("s", "matches", "(?i)ss|ß")), None),
+    ("pattern, a sigma", query(("s", "matches", "(?i)^Σ.Σ")), None),
+    ("pattern, a no-break space", query(("s", "matches", "a\\sb|a\\Wb")), None),
+    ("pattern of a word", query(("s", "matches", "^\\w+$")), None),
+    ("pattern of numbers", query(("f", "matches", "^-?\\d\\.\\d$")), "-f"),
+    ("pattern of a missing value's text", query(("i", "matches", "(?i)^<?na")), None),
+    ("pattern of dates", query(("d", "matches", "-0?6-(?:05|15)$")), None),
+    ("not a pattern, keeping missing values", {"and": [not_(clause("s", "matches", "e"))]}, None),
+    (
+        "a pattern in an or",
+        {"and": [or_(clause("s", "matches", "(?i)^s"), clause("s", "contains", "ecole"))]},
+        "s",
+    ),
 ]
 
 
@@ -1436,7 +1636,7 @@ def edge_table_for(backend: str, filter: dict | None) -> GTI:
         col, op = leaf["col"], leaf["op"]
         if op == "in" and (col != "b" or len(leaf["value"]) > 1):
             gti = gti.i_cols_filter(columns=col, type="facet")
-        elif op == "contains":
+        elif op in ("contains", "matches"):
             gti = gti.i_cols_filter(columns=col, type="text")
     return gti
 
@@ -1463,6 +1663,11 @@ def test_edge_cases_keep_the_rows_expected(engine: Callable[[GT], dict], backend
     assert rows(query(("s", "contains", "ECOLE"))) == [0, 1, 2]
     assert rows(query(("s", "contains", "ss"))) == [5]
     assert rows(query(("s", "contains", "ß"))) == [4]
+    # (A pattern doesn't fold accents, and ignores only case; its \s and \W are ASCII's)
+    assert rows(query(("s", "matches", "(?i)école"))) == [0, 2]
+    assert rows(query(("s", "matches", "S$"))) == [2, 5]
+    assert rows(query(("s", "matches", "a\\sb"))) == []
+    assert rows(query(("s", "matches", "a\\Wb"))) == [7]
     assert rows(query(("i", "in", [2, None])), "i") == [3, 4, 2, 5]
     assert rows(query(("b", "in", [True]))) == [0, 3, 6]
     assert rows(query(("b", "in", [False])), "-i") == [7, 1, 5]
@@ -1513,6 +1718,11 @@ def test_views_of_formatted_text(engine: Callable[[GT], dict], backend: str):
         # (Not the footnote's mark)
         (query(("m", "contains", "plain1")), []),
         (query(("m", "contains", "plain")), [2]),
+        (query(("n", "matches", "^1,2")), [0]),
+        (query(("m", "matches", "^ tree\nÁrbol$")), [0]),
+        (query(("m", "matches", "(?i)árbol$")), [0]),
+        (query(("m", "matches", "plain$")), [2]),
+        (query(("m", "matches", "\\*")), []),
     ]:
         assert assert_same_rows(engine, gti.i_view(filter=filter)) == expected
 
@@ -1562,6 +1772,10 @@ TEXTS = [
 NEEDLES = [
     "a", "É", "e", "ss", "ß", "İ", "i̇", "σ", "Σ", "ς", " a ", "\xa0b", "1", ".", "true", "NA",
     "lo", "ab", "x y", "zzz", " ",
+]  # fmt: skip
+PATTERNS = [
+    "^a", "(?i)^a", "É", "(?i)école", "[a-z]+$", "\\d", "s{2}", "(?i)ss", "^.{3}$", "x y|lo", "\\.",
+    "\\W", "(?i)σ", "(?i)i", "(?i)İ", "^\\S+$", "ß", "(?i)[^a-z]", "^$", "(?i)^(?:true|na)",
 ]  # fmt: skip
 VALUES: dict[str, list[Any]] = {
     "int": [-2, 0, 1, 3, None],
@@ -1639,13 +1853,15 @@ def tables(
 
 
 def filter_clauses(draw: Any, f: dict, kinds: dict, blank: bool = True) -> list[dict]:
-    """Clauses of a filter: its text (or blank text, which isn't in a group), a facet's values, a
-    range's bounds (one or both), or that it's missing."""
+    """Clauses of a filter: its text (or blank text, which isn't in a group) or a pattern, a facet's
+    values, a range's bounds (one or both), or that it's missing."""
     col = f["column"]
     if draw(st.sampled_from([False, False, False, True])):
         # (A column with any filter can be missing)
         return [is_null(col)]
     if f["type"] == "text":
+        if draw(st.sampled_from([False, True, False])):
+            return [{"col": col, "op": "matches", "value": draw(st.sampled_from(PATTERNS))}]
         needles = [needle for needle in NEEDLES if blank or js_trim(needle) != ""]
         return [{"col": col, "op": "contains", "value": draw(st.sampled_from(needles))}]
     if f["type"] in ("facet", "bool"):
@@ -1768,7 +1984,7 @@ def test_random_query_code(code_backend: str, backend: str, data: Any):
             "and": [
                 item
                 for item in filter["and"]
-                if all(leaf["op"] != "contains" for leaf in leaves([item]))
+                if all(leaf["op"] not in ("contains", "matches") for leaf in leaves([item]))
             ]
         }
     gti = gti.i_view(filter=filter, sort=sort)
@@ -1884,12 +2100,30 @@ NAMES = (
 )
 
 
+def is_pattern(value: str) -> bool:
+    """Whether a value is a pattern, as a query has it."""
+    try:
+        return check_pattern(value) == value
+    except PatternError:
+        return False
+
+
+# (Without line breaks, which the text has as their escapes)
+PATTERN_VALUES = st.sampled_from(PATTERNS) | st.builds(
+    str.__add__,
+    st.sampled_from(["", "(?i)"]),
+    st.text("abcxy/\\.^$*+?()[]{}|-:,1dsW é😀", min_size=1, max_size=8),
+).filter(is_pattern)
+
+
 @st.composite
 def clauses(draw: Any) -> dict:
-    op = draw(st.sampled_from(["contains", "in", "gte", "lte", "is_null"]))
+    op = draw(st.sampled_from(["contains", "in", "gte", "lte", "is_null", "matches"]))
     if op == "is_null":
         return {"col": draw(NAMES), "op": op}
-    if op == "contains":
+    if op == "matches":
+        value = draw(PATTERN_VALUES)
+    elif op == "contains":
         value = draw(st.text())
     elif op == "in":
         values = st.text() | NUMBERS | st.booleans() | st.none()
@@ -1924,6 +2158,8 @@ PIECES = [
     *['"2015-06-05"', '"2015-06-05T09:30"', "2015-06-05"],
     *["or", "OR", "not", "Not", "not ", " or ", "(a >= 1 or b in (2))", "not a >= 1"],
     *["is", "IS", " is ", "is null", "is not null", "Is Not", "not is null", "`is`"],
+    *["matches", "MATCHES", " matches ", "/a/", "/[a-z]+/i", "/", "/(/", "/a\\/b/", "/x/g", "[/]"],
+    *["/i", "\\", "(?i)", "{2}", "/^st\\./"],
 ]
 
 

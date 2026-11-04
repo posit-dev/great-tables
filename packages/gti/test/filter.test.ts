@@ -460,3 +460,70 @@ describe("an is_null clause", () => {
     expect(groups).toHaveLength(2);
   });
 });
+
+describe("a matches clause", () => {
+  // (`z` shows "St. Denis", "st. denis", "Côte", an image of a flag, and nothing; `q` is a column
+  // only for querying)
+  const cells = [cell("St. Denis"), cell("st. <b>denis</b>"), cell("Côte"), cell('Flag <img alt="Canada">'), cell("")];
+  const q = () => new ColumnFilter({ column: "q", type: "text", values: null }, -1, [], ["ab", "AB", "", "a\nb", "b"]);
+  const set = (query: FilterQuery) => {
+    const filters = [x(), y(), z(), q()];
+    return { filters, groups: setFilterQuery(filters, query) };
+  };
+  const keptBy = (groups: FilterGroup[]) =>
+    [0, 1, 2, 3, 4].filter((row) => groups.every((group) => group.keeps(row, [undefined, undefined, undefined, cells[row]])));
+  const matching = (value: string, col = "z") => keptBy(set({ and: [{ col, op: "matches", value }] }).groups);
+
+  it("keeps the rows whose text has a match, with case, unless it has (?i)", () => {
+    expect(matching("^St\\.")).toEqual([0]);
+    expect(matching("(?i)^St\\.")).toEqual([0, 1]);
+    expect(matching("Côte")).toEqual([2]);
+    expect(matching("Cote")).toEqual([]);
+    expect(matching("^$")).toEqual([4]);
+  });
+
+  it("matches the text that isn't shown after a line break, as a contains does", () => {
+    expect(matching("^Flag \\nCanada$")).toEqual([3]);
+    expect(matching("Canada")).toEqual([3]);
+  });
+
+  it("matches a column only for querying's texts", () => {
+    expect(matching("^a", "q")).toEqual([0, 3]);
+    expect(matching("(?i)^a.$", "q")).toEqual([0, 1]);
+    expect(keptBy(set({ and: [{ not: { col: "q", op: "matches", value: "b$" } }] }).groups)).toEqual([1, 2]);
+  });
+
+  it("is kept as a group is, its pattern as checkPattern() writes it", () => {
+    const { filters, groups } = set({
+      and: [
+        { col: "z", op: "matches", value: "a\\/b" },
+        { col: "z", op: "contains", value: "x" },
+        { or: [{ col: "q", op: "matches", value: "a" }, { col: "z", op: "is_null" }] },
+      ],
+    });
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "z", op: "contains", value: "x" }] });
+    expect(groups.map((group) => [group.item, group.texts])).toEqual([
+      [{ col: "z", op: "matches", value: "a/b" }, true],
+      [{ or: [{ col: "q", op: "matches", value: "a" }, { col: "z", op: "is_null" }] }, false],
+    ]);
+  });
+
+  it.each([
+    ["has two at the top", { and: [{ col: "z", op: "matches", value: "a" }, { and: [{ col: "z", op: "matches", value: "b" }] }] }, /"z" has more than one "matches" clause/],
+    ["has two in an and", { and: [{ not: { and: [{ col: "z", op: "matches", value: "a" }, { col: "z", op: "matches", value: "b" }] } }] }, /"z" has more than one "matches" clause/],
+    ["is on a column without a text filter", { and: [{ col: "x", op: "matches", value: "1" }] }, /"x" has a range filter, which can't be/],
+    ["has a pattern that isn't a string", { and: [{ col: "z", op: "matches", value: 1 }] }, /"z" has a text filter, which can't be/],
+    ["has a pattern that can't be read", { and: [{ col: "z", op: "matches", value: "(?i)a(" }] }, 'the pattern of the "matches" clause on "z" can\'t be read: expected ")", at the end'],
+    ["has a pattern that can't be read, in a group", { and: [{ not: { col: "z", op: "matches", value: "😀*)" } }] }, 'the pattern of the "matches" clause on "z" can\'t be read: ")" must close a "(" (or be escaped: "\\)"), at character 3'],
+  ])("makes a query that %s bad, changing nothing", (_, query, message) => {
+    const filters = [x(), y(), z()];
+    setFilterQuery(filters, { and: [{ col: "x", op: "gte", value: 1 }] });
+    expect(() => setFilterQuery(filters, query as never)).toThrow(RangeError);
+    expect(() => setFilterQuery(filters, query as never)).toThrow(message);
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "x", op: "gte", value: 1 }] });
+  });
+
+  it("can be beside a matches clause in another part", () => {
+    expect(set({ and: [{ col: "z", op: "matches", value: "a" }, { not: { col: "z", op: "matches", value: "a" } }] }).groups).toHaveLength(2);
+  });
+});

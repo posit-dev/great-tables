@@ -10,9 +10,10 @@
  *
  *   region in ("east") and not (population >= 10000 or status in ("city"))
  *
- * A clause is a column, then `contains` and a string, `in` and values in parentheses, `>=` or
- * `<=` and a number or a date (a string of ISO 8601 text, as `filter.ts` has it), or `is null`
- * (`is not null` being `not` and that). A column is a name of letters, digits and underscores (not
+ * A clause is a column, then `contains` and a string, `matches` and a pattern (a regular
+ * expression between slashes, with the flag `i` to ignore case, as in `/^st\./i`; see
+ * `pattern.ts`), `in` and values in parentheses, `>=` or `<=` and a number or a date (a string of
+ * ISO 8601 text, as `filter.ts` has it), or `is null` (`is not null` being `not` and that). A column is a name of letters, digits and underscores (not
  * starting with a digit), or any name in backticks (a backtick in it doubled); `not` before an op
  * is a column's name. Strings and numbers are written as in JSON; the other values are `true`,
  * `false` and `null` (a missing value). Keywords can be in any case. Empty text is no query.
@@ -26,6 +27,7 @@
  */
 
 import { type ColumnFilter, type FilterClause, type FilterItem, type FilterQuery, isClause } from "./filter";
+import { formatPattern, type PatternError, readPattern } from "./pattern";
 import { fold } from "./search";
 import type { FilterValue } from "./spec";
 
@@ -37,11 +39,13 @@ export interface QuerySyntaxError extends SyntaxError {
 
 const NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 // (The ops that are words)
-const OP_WORD = /^(?:in|contains|is)$/i;
+const OP_WORD = /^(?:in|contains|matches|is)$/i;
 const WORD = /[A-Za-z_][A-Za-z0-9_]*/y;
 // (A string or a name in backticks can be left open, as it's typed)
 const QUOTED = /`(?:[^`]|``)*(`?)/y;
 const STRING = /"(?:[^"\\]|\\[^])*("?)/y;
+// (A pattern, on one line: escapes, and classes, where a slash needn't be escaped; then its flags)
+const PATTERN = /\/(?:[^\\/[\n\r]|\\[^\n\r]|\[(?:[^\\\]\n\r]|\\[^\n\r])*\]?)*(\/?)([A-Za-z0-9_]*)/y;
 const NUMBER = /-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?/y;
 const SPACE = /[ \t\n\r]*/y;
 
@@ -49,6 +53,7 @@ type Token =
   | { kind: "name"; text: string; at: number }
   | { kind: "quoted"; text: string; at: number }
   | { kind: "string"; value: string; at: number }
+  | { kind: "regex"; value: string; at: number }
   | { kind: "number"; value: number; at: number }
   | { kind: "symbol"; text: string; at: number }
   | { kind: "end"; at: number };
@@ -78,12 +83,12 @@ function scan(text: string, at: number): Pick<QueryPart, "kind" | "text" | "from
   let piece = match(WORD, text, from);
   if (piece !== null) {
     kind = "name";
-  } else if (char === "`" || char === '"') {
-    const re = char === "`" ? QUOTED : STRING;
+  } else if (char === "`" || char === '"' || char === "/") {
+    const re = char === "`" ? QUOTED : char === '"' ? STRING : PATTERN;
     re.lastIndex = from;
     const found = re.exec(text) as RegExpExecArray;
     [piece] = found;
-    kind = char === "`" ? "quoted" : "string";
+    kind = char === "`" ? "quoted" : char === '"' ? "string" : "regex";
     open = found[1] === "";
   } else if ((piece = match(NUMBER, text, from)) !== null) {
     kind = "number";
@@ -130,6 +135,23 @@ export function parseQuery(text: string): FilterQuery | null {
         fail("a string must end with a double quote (with escapes as in JSON)", { kind: "symbol", text: '"', at: from });
       }
       return { kind, value: value as string, at: from };
+    }
+    if (kind === "regex") {
+      if (open) {
+        fail("a pattern must end with a slash", { kind: "symbol", text: "/", at: from });
+      }
+      const flags = (/[A-Za-z0-9_]*$/.exec(piece) as RegExpExecArray)[0];
+      // (Where its closing slash is)
+      const end = at - flags.length - 1;
+      if (flags !== "" && flags !== "i") {
+        fail('a pattern can have only the flag "i"', { kind: "symbol", text: flags, at: end + 1 });
+      }
+      try {
+        return { kind, value: readPattern(text.slice(from + 1, end), flags === "i"), at: from };
+      } catch (err) {
+        const where = from + 1 + (err as PatternError).at;
+        fail((err as Error).message, { kind: "symbol", text: String.fromCodePoint(text.codePointAt(where) as number), at: where });
+      }
     }
     if (kind === "number") {
       const value = Number(piece);
@@ -191,6 +213,15 @@ export function parseQuery(text: string): FilterQuery | null {
       token = next();
       return { col, op: "contains", value: t.value };
     }
+    if (isWord("matches")) {
+      token = next();
+      const t = token;
+      if (t.kind !== "regex") {
+        return fail("expected a pattern between slashes, as in /^st\\./");
+      }
+      token = next();
+      return { col, op: "matches", value: t.value };
+    }
     if (isWord("in")) {
       token = next();
       if (!isSymbol("(")) {
@@ -218,7 +249,7 @@ export function parseQuery(text: string): FilterQuery | null {
       token = next();
       return { col, op, value: t.value };
     }
-    return fail('expected "contains", "in", ">=", "<=" or "is"');
+    return fail('expected "contains", "matches", "in", ">=", "<=" or "is"');
   }
 
   // Whether the token is the keyword `not` (rather than a column's name, before an op)
@@ -291,7 +322,7 @@ export function parseQuery(text: string): FilterQuery | null {
 
 /**
  * A column's name as a query has it: in backticks, unless it's letters, digits and underscores
- * (and not `in`, `contains` or `is`, which are ops after `not`).
+ * (and not `in`, `contains`, `matches` or `is`, which are ops after `not`).
  */
 export const formatColumn = (name: string) =>
   NAME.test(name) && !OP_WORD.test(name) ? name : `\`${name.replace(/`/g, "``")}\``;
@@ -305,6 +336,8 @@ function formatClause(clause: FilterClause): string {
   switch (clause.op) {
     case "contains":
       return `${col} contains ${JSON.stringify(clause.value)}`;
+    case "matches":
+      return `${col} matches ${formatPattern(clause.value)}`;
     case "in":
       return `${col} in (${clause.value.map(formatValue).join(", ")})`;
     case "is_null":
@@ -346,12 +379,12 @@ export function formatQuery(query: FilterQuery | null): string {
 export type QueryRole = "column" | "keyword" | "string" | "number" | "literal" | "punct";
 
 /**
- * What goes next in a query: a column (or `not`, or `(`), an op, a string (after `contains`), `(`
- * (after `in`), a value or `,` or `)` (in the parentheses), a bound (a number or a date, after
+ * What goes next in a query: a column (or `not`, or `(`), an op, a string (after `contains`), a
+ * pattern (after `matches`), `(` (after `in`), a value or `,` or `)` (in the parentheses), a bound (a number or a date, after
  * `>=` or `<=`), `null` or `not` (after `is`), `null` (after `is not`), or `and` (or `or`, or a `)`
  * closing a group); `null` where the text doesn't fit.
  */
-export type QueryExpect = "column" | "op" | "string" | "(" | "value" | ",)" | "bound" | "is" | "null" | "and" | null;
+export type QueryExpect = "column" | "op" | "string" | "pattern" | "(" | "value" | ",)" | "bound" | "is" | "null" | "and" | null;
 
 export interface QueryState {
   expect: QueryExpect;
@@ -364,12 +397,12 @@ export interface QueryState {
 }
 
 export interface QueryPart {
-  kind: "name" | "quoted" | "string" | "number" | "symbol";
+  kind: "name" | "quoted" | "string" | "regex" | "number" | "symbol";
   text: string;
   /** Where it is in the text (in UTF-16 code units). */
   from: number;
   to: number;
-  /** A string or a name in backticks without its closing quote. */
+  /** A string, a pattern or a name in backticks without its closing quote (or slash). */
   open: boolean;
   role: QueryRole | null;
   /** The state before it. */
@@ -413,7 +446,9 @@ function step(
     case "op":
       return word === "contains"
         ? ["string", "keyword"]
-        : word === "in"
+        : word === "matches"
+          ? ["pattern", "keyword"]
+          : word === "in"
           ? ["(", "keyword"]
           : word === "is"
             ? ["is", "keyword"]
@@ -425,6 +460,8 @@ function step(
       return word === "null" ? ["and", "literal"] : word === "not" && expect === "is" ? ["null", "keyword"] : null;
     case "string":
       return kind === "string" ? ["and", "string"] : null;
+    case "pattern":
+      return kind === "regex" ? ["and", "string"] : null;
     case "(":
       return symbol === "(" ? ["value", "punct"] : null;
     case "value":
@@ -523,9 +560,9 @@ export function queryContext(text: string, caret: number): QueryContext {
     if (part.from >= caret) {
       return at(part.state);
     }
-    // (A word, a string or a partial `>=` or `<=` at the caret is replaced; inside anything else,
-    // nothing goes)
-    const word = part.kind === "name" || part.kind === "quoted" || part.kind === "string";
+    // (A word, a string, a pattern or a partial `>=` or `<=` at the caret is replaced; inside
+    // anything else, nothing goes)
+    const word = part.kind === "name" || part.kind === "quoted" || part.kind === "string" || part.kind === "regex";
     if (caret <= part.to && (word || part.text === ">" || part.text === "<")) {
       return at(part.state, part.from, part.to);
     }
@@ -536,7 +573,7 @@ export function queryContext(text: string, caret: number): QueryContext {
   return at(end);
 }
 
-const OPS = { text: ["contains"], facet: ["in"], range: [">=", "<="], date: [">=", "<="], bool: ["in"] };
+const OPS = { text: ["contains", "matches"], facet: ["in"], range: [">=", "<="], date: [">=", "<="], bool: ["in"] };
 
 // A query's clauses, in their order (as the text has them), each with the clauses before it in
 // the same `and` (none for one in an `or` or a `not` on its own), and whether it's in a group

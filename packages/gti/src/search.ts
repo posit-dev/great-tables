@@ -61,6 +61,8 @@ export class CellText {
   /** For text that isn't ASCII: where each folded character starts and ends in the shown text. */
   private readonly starts: number[] | null;
   private readonly ends: number[] | null;
+  /** The text that isn't shown (unfolded), each part after a newline; or `""`. */
+  private readonly extra: string;
 
   constructor(cell: Element) {
     const nodes: Text[] = [];
@@ -88,9 +90,15 @@ export class CellText {
       this.shownLength = mapped.folded.length;
       this.folded = mapped.folded;
     }
+    this.extra = extra.length > 0 ? `\n${extra.join("\n")}` : "";
     if (extra.length > 0) {
       this.folded += `\n${fold(extra.join("\n"))}`;
     }
+  }
+
+  /** The text as `folded` has it, unfolded (for a `matches` clause's pattern). */
+  get text(): string {
+    return this.nodes.map((node) => node.data).join("") + this.extra;
   }
 
   /** Where `terms` are in the shown text (not in text that isn't shown). */

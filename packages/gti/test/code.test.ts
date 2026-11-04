@@ -371,6 +371,42 @@ describe("viewCode", () => {
     });
   });
 
+  describe("of matches clauses", () => {
+    const query: FilterQuery = {
+      and: [
+        { col: "name", op: "matches", value: '(?i)^a.\\d/"' },
+        { not: { col: "few", op: "matches", value: "[x&]" } },
+        { or: [{ col: "flag", op: "matches", value: "^T" }, { col: "num", op: "is_null" }] },
+      ],
+    };
+
+    it("writes `str.contains()` of the pattern as the code reads it, for Polars and Narwhals", () => {
+      const terms = (ns: string) => [
+        `${ns}.col("name").str.contains("(?i)^a.[0-9]/\\"")`,
+        `~${ns}.col("few").str.contains("[x\\\\&]").fill_null(False)`,
+        `${ns}.col("flag").cast(${ns}.String).str.contains("^T") | ${ns}.col("num").is_null() | ${ns}.col("num").is_nan()`,
+      ];
+      expect(code(query, [], "polars")).toBe(
+        `import polars as pl\n\ndf.filter(\n${terms("pl").map((term) => `    ${term},\n`).join("")})\n`,
+      );
+      expect(code(query, [], "narwhals")).toBe(
+        "import narwhals as nw\n\n(\n    nw.from_native(df)\n    .filter(\n" +
+          terms("nw").map((term) => `        ${term},\n`).join("") +
+          "    )\n    .to_native()\n)\n",
+      );
+    });
+
+    it("writes `str.contains()` with `regex=True`, a missing value not matching, for pandas", () => {
+      expect(code(query, [], "pandas")).toBe(
+        "df[\n" +
+          '    (df["name"].str.contains("(?i)^a.[0-9]/\\"", regex=True, na=False))\n' +
+          '    & (~df["few"].str.contains("[x\\\\&]", regex=True, na=False))\n' +
+          '    & (df["flag"].astype(str).str.contains("^T", regex=True, na=False) | df["num"].isna())\n' +
+          "]\n",
+      );
+    });
+  });
+
   it("writes column names as Python strings", () => {
     const filters: FilterSpec[] = [{ column: 'Name "of" town', type: "text", values: null }];
     const spec: CodeSpec = { backend: "polars", columns: { 'Name "of" town': column("string") } };

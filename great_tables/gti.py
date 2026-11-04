@@ -858,8 +858,15 @@ class GTI(GT):
             that it's true of. A clause's column needs a filter (see
             [`i_cols_filter()`](`great_tables.GTI.i_cols_filter`)) of a type that has its
             operation: `"contains"` for a text filter (the value is the text, matched as readers'
-            typing is), `"in"` for a facet (a list of values, with `None` for a missing value),
-            and `"gte"` (at least) and `"lte"` (at most) for a range (a number). A clause
+            typing is), or `"matches"` (the value is a regular expression, which has a match in
+            the text a cell shows, as it is: with its case and accents), `"in"` for a facet (a
+            list of values, with `None` for a missing value), and `"gte"` (at least) and `"lte"`
+            (at most) for a range (a number). A `"matches"` pattern is in the part of regular
+            expressions' syntax that the browser, Polars, pandas and PyArrow read alike:
+            characters (`\\` before punctuation for the character itself), `.`, `^` and `$` (the
+            start and end of the text), classes as `[a-z]` and `[^0-9]`, `\\d`, `\\w` and `\\s`
+            (ASCII's), groups (`(...)` or `(?:...)`) and `|`, and repeats (`*`, `+`, `?`, and
+            `{n,m}`); a pattern starting with `(?i)` ignores case. A clause
             `{"col": ..., "op": "is_null"}`, without a value, keeps the rows whose value is missing
             (`None`, or NaN in a column of floats), in a column with any type of filter. A column
             can have one clause of each operation. With `None` (the default), the rows aren't
@@ -874,11 +881,13 @@ class GTI(GT):
             clause), which readers can edit as text, or remove.
 
             The query can be written as text instead: clauses joined by `and`, each a column name
-            and then `contains` and a string, `in` and values in parentheses, `>=` or `<=` and a
-            number, or `is null` (e.g., `'status in ("single-tier") and population_2021 >= 10000'`,
+            and then `contains` and a string, `matches` and a pattern between slashes, `in` and
+            values in parentheses, `>=` or `<=` and a number, or `is null` (e.g.,
+            `'status in ("single-tier") and population_2021 >= 10000'`, `"name matches /^st\\./i"`,
             or `"population_2016 is null"`; `is not null` is `not` and `is null`). Strings
             are in double quotes, and values are written as in JSON (`null` for a missing value,
-            `true` and `false`). A column name that isn't letters, digits and underscores goes in
+            `true` and `false`). A pattern's flag `i` is its `(?i)`, and a `/` in it is escaped
+            (`\\/`) but in a class. A column name that isn't letters, digits and underscores goes in
             backticks (`` `Name of town` ``). Groups are written with `or`, `not` and parentheses,
             `not` binding tighter than `and`, and `and` tighter than `or` (e.g.,
             `'population_2021 >= 10000 and (status in ("lower-tier") or not name contains "ton")'`).
@@ -1087,8 +1096,9 @@ class GTI(GT):
         With `"code"`, readers can also copy code that filters and sorts the table's data (as
         `df`) as their view of it does, for Polars, pandas, or Narwhals (the library of the
         data, at first). The code works on the data's values, so it leaves out the search, and
-        a `contains` match is of a column's values as text, ignoring case (not of the text the
-        table shows, nor ignoring accents); it doesn't keep rows within their row groups.
+        a `contains` or `matches` match is of a column's values as text (not of the text the
+        table shows; and `contains` ignores case, but not accents); it doesn't keep rows within
+        their row groups.
 
         Parameters
         ----------
