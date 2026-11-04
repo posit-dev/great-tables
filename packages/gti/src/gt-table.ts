@@ -208,7 +208,10 @@ interface FilterControl {
   text: HTMLInputElement | null;
   min: HTMLInputElement | null;
   max: HTMLInputElement | null;
-  /** A facet's values: their checkboxes, and the number of rows each would have. */
+  /**
+   * A facet's values: their checkboxes, and the number of rows each would have; or a bool filter's,
+   * radio buttons, after one for any value.
+   */
   options: FacetOption[];
   /** Its token in the bar, made when the filter is first on. */
   token: FilterToken | null;
@@ -229,6 +232,9 @@ interface FacetOption {
   box: HTMLInputElement;
   count: HTMLElement;
 }
+
+/** A bool filter's option for any value (whose other options' keys are ranks, or `MISSING`). */
+const ANY = -2;
 
 // Header content that can't go inside a <button>
 const INTERACTIVE = "a[href], button, input, select, textarea, details, [tabindex]";
@@ -361,6 +367,7 @@ const OP_SUGGESTIONS: Record<FilterType, Suggestion[]> = {
     { text: '>= "…"', detail: "on or after", insert: '>= ""', back: 1 },
     { text: '<= "…"', detail: "on or before", insert: '<= ""', back: 1 },
   ],
+  bool: [{ text: "in (…)", detail: "", insert: "in (", back: 0 }],
 };
 
 /** A panel that a button in the bar opens above the bar (a disclosure). */
@@ -886,13 +893,15 @@ export class GtTable extends HTMLElement {
    * on a column (two for a range or date filter with both bounds), or `null` without any. Rows are
    * shown that every clause, and the search, keep. A clause's `op` is "contains", for a text filter
    * (`value` is the text, matched as the search matches it); "in", for a facet (`value` is the
-   * values to keep, `null` for a missing one); or "gte" or "lte", for a range (`value` is the
+   * values to keep, `null` for a missing one) or a bool filter (`value` is the one value to keep:
+   * `[true]`, `[false]` or `[null]`); or "gte" or "lte", for a range (`value` is the
    * bound) or a date filter (`value` is the bound as ISO 8601 text: a date, "2015-06-15", or for a
    * column with times, either that, meaning its midnight, or a date and time, "2015-06-15T09:30").
    *
    * @throws {RangeError} for a query that isn't `{and: [...]}`, or with a clause on a column that
    *   isn't one of `filterableColumns`, or that the column's filter can't have (an "in" without
-   *   values, or a second clause with the same `op` on a column, too).
+   *   values, or a bool filter's with more than one, or a second clause with the same `op` on a
+   *   column, too).
    */
   get filter(): FilterQuery | null {
     return filterQuery(this.filters.map((control) => control.filter));
@@ -4127,8 +4136,8 @@ export class GtTable extends HTMLElement {
 
   /**
    * Make a filter's panel: the column's label and a Clear button, over a text field (a text
-   * filter), a checkbox for each value (a facet), or fields for the bounds (a range, or a date
-   * filter's date fields).
+   * filter), a checkbox for each value (a facet), fields for the bounds (a range, or a date
+   * filter's date fields), or a radio button for each value and one for any (a bool filter).
    */
   private makeFilterPanel(control: FilterControl): HTMLElement {
     const doc = this.ownerDocument;
@@ -4248,6 +4257,33 @@ export class GtTable extends HTMLElement {
       control.min = bound("From", "min");
       control.max = bound("To", "max");
       panel.append(bounds);
+    } else if (filter.type === "bool") {
+      // (Any value, then true, false and a missing one, as the table shows them)
+      const list = doc.createElement("div");
+      list.className = "gt-i-filter-options";
+      list.setAttribute("role", "radiogroup");
+      list.setAttribute("aria-label", label);
+      for (const [key, text] of [[ANY, "Any"] as [number, string], ...this.boolNames(control)]) {
+        const item = doc.createElement("label");
+        item.className = "gt-i-filter-option";
+        const box = doc.createElement("input");
+        box.type = "radio";
+        box.name = panel.id;
+        const name = doc.createElement("span");
+        name.className = "gt-i-filter-value";
+        name.textContent = text;
+        const count = doc.createElement("span");
+        count.className = "gt-i-filter-count";
+        item.append(box, name, count);
+        list.append(item);
+        box.addEventListener("change", () =>
+          this.userFilter(() => {
+            filter.chosen = key === ANY ? new Set() : new Set([key]);
+          }),
+        );
+        control.options.push({ key, item, box, count });
+      }
+      panel.append(list);
     } else {
       const list = doc.createElement("div");
       list.className = "gt-i-filter-options";
@@ -4286,7 +4322,8 @@ export class GtTable extends HTMLElement {
         event.stopPropagation();
         this.closeFilter(true);
       } else if (event.key === "Tab") {
-        const controls = Array.from(panel.querySelectorAll<HTMLElement>("button, input"));
+        // (Of a bool filter's radio buttons, only the one checked is a stop)
+        const controls = Array.from(panel.querySelectorAll<HTMLElement>('button, input:not([type="radio"]), input:checked'));
         if (event.target === (event.shiftKey ? controls[0] : controls[controls.length - 1])) {
           event.preventDefault();
           this.closeFilter(true);
@@ -4326,6 +4363,13 @@ export class GtTable extends HTMLElement {
     }
     control.names = entries;
     return entries;
+  }
+
+  // A bool filter's values, as `facetNames()` has them, but true first, then false, then missing
+  private boolNames(control: FilterControl): [number, string][] {
+    const values = control.filter.spec.values ?? [];
+    const order = (key: number) => (key === MISSING ? 2 : values[key] === true ? 0 : 1);
+    return [...this.facetNames(control)].sort(([a], [b]) => order(a) - order(b));
   }
 
   // A range's bounds, from its fields: a bound that isn't a number is marked, and left as it was
@@ -4384,7 +4428,7 @@ export class GtTable extends HTMLElement {
       }
     }
     for (const option of control.options) {
-      option.box.checked = filter.chosen.has(option.key);
+      option.box.checked = option.key === ANY ? filter.chosen.size === 0 : filter.chosen.has(option.key);
     }
   }
 
@@ -4415,7 +4459,7 @@ export class GtTable extends HTMLElement {
     this.filterScroll = () => this.placeFilter();
     doc.addEventListener("pointerdown", this.filterPress);
     doc.addEventListener("scroll", this.filterScroll, { capture: true, passive: true });
-    panel.querySelector<HTMLElement>("input")?.focus();
+    (panel.querySelector<HTMLElement>('input[type="radio"]:checked') ?? panel.querySelector<HTMLElement>("input"))?.focus();
   }
 
   // The open panel closes when focus goes elsewhere (but not when the window loses it)
@@ -4623,7 +4667,7 @@ export class GtTable extends HTMLElement {
       return `${label} contains “${filter.text.trim()}”`;
     }
     const names = this.facetNames(control);
-    if (filter.type === "facet") {
+    if (filter.type === "facet" || filter.type === "bool") {
       const chosen = names.filter(([key]) => filter.chosen.has(key)).map(([, name]) => name);
       return `${label}: ${chosen.length > 3 ? `${chosen.slice(0, 2).join(", ")} +${chosen.length - 2}` : chosen.join(", ")}`;
     }
@@ -5003,10 +5047,13 @@ export class GtTable extends HTMLElement {
         });
     } else if (expect === "op" && control !== undefined) {
       items = OP_SUGGESTIONS[control.filter.type].filter((item) => item.insert.startsWith(word));
-    } else if (expect === "value" && control?.filter.type === "facet") {
+    } else if (
+      expect === "value" &&
+      (control?.filter.type === "facet" || (control?.filter.type === "bool" && context.values.length === 0))
+    ) {
       const values = control.filter.spec.values ?? [];
       const chosen = new Set(context.values.map(formatValue));
-      items = this.facetNames(control)
+      items = (control.filter.type === "bool" ? this.boolNames(control) : this.facetNames(control))
         .map(([key, name]) => {
           const literal = key === MISSING ? "null" : formatValue(values[key] ?? null);
           return { text: name, detail: literal === JSON.stringify(name) ? "" : literal, insert: literal, back: 0 };
@@ -5070,8 +5117,10 @@ export class GtTable extends HTMLElement {
         const key = filter.key(row);
         counts.set(key, (counts.get(key) ?? 0) + 1);
       });
+      let total = 0;
+      counts.forEach((count) => (total += count));
       for (const option of control.options) {
-        const count = counts.get(option.key) ?? 0;
+        const count = option.key === ANY ? total : (counts.get(option.key) ?? 0);
         option.count.textContent = String(count);
         option.item.toggleAttribute("data-gti-none", count === 0);
       }
