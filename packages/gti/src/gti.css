@@ -1244,7 +1244,7 @@ gt-table .gt-i-filter-title {
   white-space: nowrap;
 }
 
-gt-table .gt-i-filter input:not([type="checkbox"]) {
+gt-table .gt-i-filter input:not([type="checkbox"]):not([type="radio"]) {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -1519,7 +1519,7 @@ gt-table .gt-i-column-move .gt-i-icon {
     min-height: 44px;
   }
 
-  gt-table .gt-i-filter input:not([type="checkbox"]),
+  gt-table .gt-i-filter input:not([type="checkbox"]):not([type="radio"]),
   gt-table .gt-i-filter-option,
   gt-table .gt-i-query-list > li {
     min-height: 44px;
