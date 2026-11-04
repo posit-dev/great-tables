@@ -335,6 +335,42 @@ describe("viewCode", () => {
     });
   });
 
+  describe("of is_null clauses", () => {
+    const query: FilterQuery = {
+      and: [
+        { col: "num", op: "is_null" },
+        { not: { col: "name", op: "is_null" } },
+        { or: [{ col: "few", op: "is_null" }, { not: { col: "num", op: "is_null" } }] },
+      ],
+    };
+
+    it("writes `is_null()`, and `is_nan()` for a float's, for Polars and Narwhals", () => {
+      const terms = (ns: string) => [
+        `${ns}.col("num").is_null() | ${ns}.col("num").is_nan()`,
+        `~${ns}.col("name").is_null().fill_null(False)`,
+        `${ns}.col("few").is_null() | ~(${ns}.col("num").is_null() | ${ns}.col("num").is_nan()).fill_null(False)`,
+      ];
+      expect(code(query, [], "polars")).toBe(
+        `import polars as pl\n\ndf.filter(\n${terms("pl").map((term) => `    ${term},\n`).join("")})\n`,
+      );
+      expect(code(query, [], "narwhals")).toBe(
+        "import narwhals as nw\n\n(\n    nw.from_native(df)\n    .filter(\n" +
+          terms("nw").map((term) => `        ${term},\n`).join("") +
+          "    )\n    .to_native()\n)\n",
+      );
+    });
+
+    it("writes `isna()`, which has a float's NaN already, for pandas", () => {
+      expect(code(query, [], "pandas")).toBe(
+        "df[\n" +
+          '    (df["num"].isna())\n' +
+          '    & (~df["name"].isna())\n' +
+          '    & (df["few"].isna() | ~df["num"].isna())\n' +
+          "]\n",
+      );
+    });
+  });
+
   it("writes column names as Python strings", () => {
     const filters: FilterSpec[] = [{ column: 'Name "of" town', type: "text", values: null }];
     const spec: CodeSpec = { backend: "polars", columns: { 'Name "of" town': column("string") } };

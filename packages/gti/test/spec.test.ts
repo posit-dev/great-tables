@@ -69,6 +69,9 @@ describe("parseSpec()", () => {
       { column: "y", type: "text", values: null },
     ];
     expect(parse({ ...valid, filters: list }).filters).toEqual(list);
+    // (And the rows whose value is missing)
+    const missing = [{ column: "y", type: "text", values: null, missing: [1] }];
+    expect(parse({ ...valid, filters: missing }).filters).toEqual(missing);
     expect(parse({ ...valid, filters: [{ column: "x", type: "facet", values: [true, "b"] }] }).filters).toHaveLength(1);
     expect(parse({ ...valid, filters: [{ column: "x", type: "date", values: ["2015-06-15", "2015-06-15T09:30:00.123456789"] }] }).filters).toHaveLength(1);
     expect(parse(valid).filters).toBeUndefined();
@@ -202,6 +205,8 @@ describe("parseSpec()", () => {
     ["has a facet on a column without ranks", filters([{ column: "y", type: "facet", values: [1, 2] }]), /`filters\[0\]`/],
     ["has a range without a value for a rank", filters([{ column: "x", type: "range", values: [1] }]), /`filters\[0\]`/],
     ["has a facet with a value that isn't JSON's", filters([{ column: "x", type: "facet", values: [1, {}] }]), /`filters\[0\]`/],
+    ["has a filter's missing rows that aren't an array", filters([{ column: "y", type: "text", values: null, missing: 1 }]), /`filters\[0\]\.missing`/],
+    ["has a filter's missing row that isn't a data row", filters([{ column: "y", type: "text", values: null, missing: [0, 2] }]), /`filters\[0\]\.missing`/],
     ["has query columns that aren't an array", queries({ id: "y" }), /`query_columns`/],
     ["has a query column without an id", queries([{ kind: "string", label: "y", texts: null }]), /`query_columns`/],
     ["has a query column that's in the table", queries([{ id: "x", kind: "number", label: "x", texts: null }]), /`query_columns`/],

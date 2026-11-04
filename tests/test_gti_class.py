@@ -269,12 +269,12 @@ def test_i_cols_filter_auto():
     # (Every column but the stub, in column order, with the facets' and ranges' values in rank
     # order)
     assert filters_of(gti) == [
-        {"column": "num", "type": "range", "values": [1.0, 2.0, 3.5]},
-        {"column": "flag", "type": "bool", "values": [False, True]},
-        {"column": "cat", "type": "facet", "values": ["lo", "hi"]},
-        {"column": "few", "type": "facet", "values": ["a", "b"]},
-        {"column": "many", "type": "text", "values": None},
-        {"column": "mixed", "type": "text", "values": None},
+        {"column": "num", "type": "range", "values": [1.0, 2.0, 3.5], "missing": [2]},
+        {"column": "flag", "type": "bool", "values": [False, True], "missing": []},
+        {"column": "cat", "type": "facet", "values": ["lo", "hi"], "missing": [3]},
+        {"column": "few", "type": "facet", "values": ["a", "b"], "missing": []},
+        {"column": "many", "type": "text", "values": None, "missing": []},
+        {"column": "mixed", "type": "text", "values": None, "missing": []},
     ]
 
 
@@ -302,10 +302,10 @@ def test_i_cols_filter_types():
     )
     # (The stub, when named; in column order)
     assert filters_of(gti) == [
-        {"column": "id", "type": "text", "values": None},
-        {"column": "num", "type": "facet", "values": [1.0, 2.0, 3.5]},
-        {"column": "flag", "type": "text", "values": None},
-        {"column": "few", "type": "text", "values": None},
+        {"column": "id", "type": "text", "values": None, "missing": []},
+        {"column": "num", "type": "facet", "values": [1.0, 2.0, 3.5], "missing": [2]},
+        {"column": "flag", "type": "text", "values": None, "missing": []},
+        {"column": "few", "type": "text", "values": None, "missing": []},
     ]
 
 
@@ -341,7 +341,7 @@ def test_i_cols_filter_facet_needs_comparable_values():
         GTI(FILTER_DF).i_cols_filter(columns="mixed", type="facet")
     # (But by text)
     gti = GTI(FILTER_DF).i_cols_filter(columns="mixed", type="text")
-    assert filters_of(gti) == [{"column": "mixed", "type": "text", "values": None}]
+    assert filters_of(gti) == [{"column": "mixed", "type": "text", "values": None, "missing": []}]
 
 
 def test_i_cols_filter_unsortable_facet_is_text():
@@ -351,7 +351,7 @@ def test_i_cols_filter_unsortable_facet_is_text():
         {"x": [dt.datetime(2024, 1, 1), dt.datetime(2024, 1, 2, tzinfo=dt.timezone.utc)]}
     )
     gti = GTI(df).i_cols_filter(columns="x", type="facet")
-    assert filters_of(gti) == [{"column": "x", "type": "text", "values": None}]
+    assert filters_of(gti) == [{"column": "x", "type": "text", "values": None, "missing": []}]
 
 
 DATE_DF = pd.DataFrame(
@@ -366,13 +366,14 @@ DATE_DF = pd.DataFrame(
 def test_i_cols_filter_auto_filters_dates_by_a_date_range():
     # (Dates and times with a time zone by text: a date range can't have one yet)
     assert filters_of(GTI(DATE_DF).i_cols_filter()) == [
-        {"column": "d", "type": "date", "values": ["2023-01-02", "2024-05-01"]},
+        {"column": "d", "type": "date", "values": ["2023-01-02", "2024-05-01"], "missing": [1]},
         {
             "column": "t",
             "type": "date",
             "values": ["2024-05-01T00:00:00", "2024-05-01T09:30:00"],
+            "missing": [1],
         },
-        {"column": "tz", "type": "text", "values": None},
+        {"column": "tz", "type": "text", "values": None, "missing": [2]},
     ]
     # (Of every backend)
     for data in [pl.from_pandas(DATE_DF), pa.Table.from_pandas(DATE_DF)]:
@@ -602,7 +603,12 @@ def test_i_cols_controls_display_false_leaves_a_column_out_for_querying():
     assert spec["ranks"]["kind"] == [1, 0, 1, None]
     assert spec["ranks"]["n"] == [2, 0, 1, 3]
     assert [f["column"] for f in spec["filters"]] == ["kind", "n"]
-    assert spec["filters"][0] == {"column": "kind", "type": "facet", "values": ["apple", "pear"]}
+    assert spec["filters"][0] == {
+        "column": "kind",
+        "type": "facet",
+        "values": ["apple", "pear"],
+        "missing": [3],
+    }
     # (It isn't in the table)
     assert "pear" not in html
     assert ">kind<" not in html

@@ -859,20 +859,24 @@ class GTI(GT):
             [`i_cols_filter()`](`great_tables.GTI.i_cols_filter`)) of a type that has its
             operation: `"contains"` for a text filter (the value is the text, matched as readers'
             typing is), `"in"` for a facet (a list of values, with `None` for a missing value),
-            and `"gte"` (at least) and `"lte"` (at most) for a range (a number). A column can have
-            one clause of each operation. With `None` (the default), the rows aren't filtered.
+            and `"gte"` (at least) and `"lte"` (at most) for a range (a number). A clause
+            `{"col": ..., "op": "is_null"}`, without a value, keeps the rows whose value is missing
+            (`None`, or NaN in a column of floats), in a column with any type of filter. A column
+            can have one clause of each operation. With `None` (the default), the rows aren't
+            filtered.
 
             A part of the query can be a group instead of a clause: `{"or": [parts]}` keeps the
             rows that any of its parts keeps, `{"and": [parts]}` those that all of them keep, and
             `{"not": part}` those that its part doesn't keep (a row whose value is missing, which
             a clause doesn't keep, is kept by `"not"`). Groups can be in groups, and a column can
             have one clause of each operation in each `"and"`. The column filters show the
-            query's clauses, and the bar below the table shows each group, which readers can
-            edit as text, or remove.
+            query's clauses, and the bar below the table shows each group (and each `"is_null"`
+            clause), which readers can edit as text, or remove.
 
             The query can be written as text instead: clauses joined by `and`, each a column name
-            and then `contains` and a string, `in` and values in parentheses, or `>=` or `<=` and
-            a number (e.g., `'status in ("single-tier") and population_2021 >= 10000'`). Strings
+            and then `contains` and a string, `in` and values in parentheses, `>=` or `<=` and a
+            number, or `is null` (e.g., `'status in ("single-tier") and population_2021 >= 10000'`,
+            or `"population_2016 is null"`; `is not null` is `not` and `is null`). Strings
             are in double quotes, and values are written as in JSON (`null` for a missing value,
             `true` and `false`). A column name that isn't letters, digits and underscores goes in
             backticks (`` `Name of town` ``). Groups are written with `or`, `not` and parentheses,

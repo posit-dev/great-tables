@@ -18,6 +18,10 @@
  * date and time, `"YYYY-MM-DDTHH:MM"`, with seconds and up to six digits of their fraction if
  * wanted.)
  *
+ * A clause `{"col": "population", "op": "is_null"}`, on a column with any filter, keeps the rows
+ * whose value is missing (the spec's `missing`: `null`, or NaN in a column of floats). No column's
+ * filter has it: the table keeps it, as it does a group.
+ *
  * A part of the query can also be a group: `{"or": [...]}`, keeping the rows any of its parts
  * keeps; `{"and": [...]}`, those every one does; or `{"not": part}`, those its part doesn't (with a
  * clause leaving out a row whose value is missing, `not` keeps it). Groups nest; the filters keep
@@ -30,7 +34,8 @@ import type { ColumnKind, FilterSpec, FilterValue } from "./spec";
 export type FilterClause =
   | { col: string; op: "contains"; value: string }
   | { col: string; op: "in"; value: FilterValue[] }
-  | { col: string; op: "gte" | "lte"; value: number | string };
+  | { col: string; op: "gte" | "lte"; value: number | string }
+  | { col: string; op: "is_null" };
 
 const DATE_TEXT = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?)?$/;
 
@@ -122,6 +127,7 @@ export class ColumnFilter {
   private folded: string[] | null = null;
   private dates: (string | null)[] | null = null;
   private bounds: [unknown, string | null, unknown, string | null] = [null, null, null, null];
+  private gaps: Set<number> | null = null;
 
   constructor(
     spec: FilterSpec,
@@ -171,6 +177,13 @@ export class ColumnFilter {
   /** A data row's value, for a facet: its rank, or `MISSING`. */
   key(row: number): number {
     return this.ranks[row] ?? MISSING;
+  }
+
+  /** Whether a data row's value is missing (as an `is_null` clause has it). */
+  isMissing(row: number): boolean {
+    // (Without the spec's `missing`, the rows without a rank)
+    this.gaps ??= new Set(this.spec.missing ?? this.ranks.flatMap((rank, i) => (rank == null ? [i] : [])));
+    return this.gaps.has(row);
   }
 
   /** A data row's value, as the data has it. */
@@ -342,8 +355,11 @@ export class ColumnFilter {
    *   without text (which keeps every row, and so means nothing in a group).
    */
   groupClause(clause: FilterClause): FilterClause {
-    const state = this.parse([clause]);
     const col = this.column;
+    if (clause.op === "is_null") {
+      return { col, op: "is_null" };
+    }
+    const state = this.parse([clause]);
     if (clause.op === "contains" && fold(state.text.trim()) === "") {
       throw new RangeError(`the "contains" clause on ${JSON.stringify(col)} needs text, in an "or" or a "not"`);
     }
@@ -387,8 +403,8 @@ type RowTest = (row: number, cells: readonly (CellText | undefined)[]) => boolea
 type Find = (column: unknown) => ColumnFilter;
 
 /**
- * A part of a query that's a group (an `or`, or a `not`), which no one column's filter has; the
- * table keeps it, beside the filters.
+ * A part of a query that's a group (an `or`, or a `not`), or an `is_null` clause, which no one
+ * column's filter has; the table keeps it, beside the filters.
  */
 export class FilterGroup {
   /** The group, as `setFilterQuery()` writes it. */
@@ -405,8 +421,11 @@ export class FilterGroup {
     const make = (part: FilterItem): RowTest => {
       if (isClause(part)) {
         const filter = find(part.col);
-        const keeps = filter.matcher(part);
         filters.add(filter);
+        if (part.op === "is_null") {
+          return (row) => filter.isMissing(row);
+        }
+        const keeps = filter.matcher(part);
         texts ||= part.op === "contains" && filter.texts === null;
         return (row, cells) => keeps(row, cells[filter.index]);
       }
@@ -486,13 +505,14 @@ function normalItem(item: unknown, find: Find): FilterItem {
 
 /**
  * Set filters from a query (`null` clears them), giving the query's groups (its `or` and `not`
- * parts) for the table to keep. Its clauses that aren't in a group (or are in an `and` that isn't
- * in one) go to their columns' filters; its groups are as `normalItem()` writes them, and in the
- * order given. Nothing changes if the query is bad.
+ * parts, and its `is_null` clauses) for the table to keep. Its other clauses that aren't in a group
+ * (or are in an `and` that isn't in one) go to their columns' filters; its groups are as
+ * `normalItem()` writes them, and in the order given. Nothing changes if the query is bad.
  *
  * @throws {RangeError} for a query that isn't `{and: [...]}`, a part that isn't a clause or a
  *   group, a group without parts, a clause on a column that can't be filtered, or that its
- *   column's filter can't have (or in a group, a `contains` without text).
+ *   column's filter can't have (or in a group, a `contains` without text), or a second `is_null`
+ *   clause on a column.
  */
 export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQuery | null): FilterGroup[] {
   const items: unknown = query === null ? [] : (query as { and?: unknown } | undefined)?.and;
@@ -509,12 +529,19 @@ export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQu
   };
   const byColumn = new Map(filters.map((filter) => [filter, [] as FilterClause[]]));
   const groups: FilterItem[] = [];
+  const missing = new Set<string>();
   const add = (item: FilterItem): void => {
-    if (isClause(item)) {
+    if (isClause(item) && item.op !== "is_null") {
       byColumn.get(find(item.col))?.push(item);
     } else if ("and" in item) {
       item.and.forEach(add);
     } else {
+      if (isClause(item)) {
+        if (missing.has(item.col)) {
+          throw new RangeError(`${JSON.stringify(item.col)} has more than one "is_null" clause`);
+        }
+        missing.add(item.col);
+      }
       groups.push(item);
     }
   };
@@ -522,7 +549,7 @@ export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQu
     const kind = groupKind(item);
     if (kind === "and") {
       groupParts(item, kind).forEach(visit);
-    } else if (kind !== null) {
+    } else if (kind !== null || (item as { op?: unknown } | null)?.op === "is_null") {
       add(normalItem(item, find));
     } else {
       byColumn.get(find((item as { col?: unknown } | null)?.col))?.push(item as FilterClause);

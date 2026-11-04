@@ -81,8 +81,8 @@ describe("parseQuery", () => {
   });
 
   it("says what's wrong, and where", () => {
-    expect(error("a")).toBe('expected "contains", "in", ">=" or "<=", at the end');
-    expect(error("a = 1")).toBe('expected "contains", "in", ">=" or "<=", at character 3');
+    expect(error("a")).toBe('expected "contains", "in", ">=", "<=" or "is", at the end');
+    expect(error("a = 1")).toBe('expected "contains", "in", ">=", "<=" or "is", at character 3');
     expect(error(">= 1")).toBe("expected a column name, at character 1");
     expect(error("a >= x")).toBe("expected a number, or a date in double quotes, at character 6");
     expect(error("a >= (")).toBe("expected a number, or a date in double quotes, at character 6");
@@ -457,5 +457,83 @@ describe("queryProblem", () => {
     expect(problem('`z z` contains " "')).toBeNull();
     expect(problem('x >= 1 or `z z` contains ""')).toEqual({ clause: 1, message: '`z z` needs text to look for, in an "or" or a "not"' });
     expect(problem('not `z z` contains " "')).toEqual({ clause: 0, message: '`z z` needs text to look for, in an "or" or a "not"' });
+  });
+});
+
+describe("is null", () => {
+  const x = { col: "x", op: "is_null" } as const;
+
+  it("reads is null, and is not null as not and that", () => {
+    expect(parseQuery("x is null")).toEqual({ and: [x] });
+    expect(parseQuery("x IS NOT NULL and `a b` is null")).toEqual({ and: [{ not: x }, { col: "a b", op: "is_null" }] });
+    expect(parseQuery("not x is null")).toEqual({ and: [{ not: x }] });
+    expect(parseQuery("not x is not null or y >= 1")).toEqual({
+      and: [{ or: [{ not: { not: x } }, { col: "y", op: "gte", value: 1 }] }],
+    });
+    // (`not` before `is` is a column's name, and `is` where a column goes is one)
+    expect(parseQuery("not is null")).toEqual({ and: [{ col: "not", op: "is_null" }] });
+    expect(parseQuery("is is not null")).toEqual({ and: [{ not: { col: "is", op: "is_null" } }] });
+    expect(parseQuery("null is null")).toEqual({ and: [{ col: "null", op: "is_null" }] });
+  });
+
+  it("says what's wrong, and where", () => {
+    expect(error("x is")).toBe('expected "null" or "not null", at the end');
+    expect(error("x is nul")).toBe('expected "null" or "not null", at character 6');
+    expect(error("x is not")).toBe('expected "null", at the end');
+    expect(error("x is not not null")).toBe('expected "null", at character 10');
+    expect(error("x is null null")).toBe('expected "and", "or" or the end of the query, at character 11');
+  });
+
+  it("writes is not null for not and an is null clause", () => {
+    expect(formatQuery({ and: [x] })).toBe("x is null");
+    expect(formatQuery({ and: [{ not: x }, { col: "y", op: "gte", value: 1 }] })).toBe("x is not null and y >= 1");
+    expect(formatQuery({ and: [{ or: [{ not: x }, { not: { not: x } }] }] })).toBe("x is not null or not x is not null");
+    expect(formatQuery({ and: [{ not: { or: [x, { col: "is", op: "is_null" }] } }] })).toBe("not (x is null or `is` is null)");
+    const queries: FilterQuery[] = [
+      { and: [x, { not: x }] },
+      { and: [{ col: "is", op: "is_null" }, { not: { col: "not", op: "is_null" } }] },
+      { and: [{ or: [{ and: [x, { col: "y", op: "in", value: [null] }] }, { not: { not: x } }] }] },
+    ];
+    for (const query of queries) {
+      expect(parseQuery(formatQuery(query))).toEqual(query);
+    }
+  });
+
+  it("says what each part is, where the clauses are, and what goes at the caret", () => {
+    const roles = (text: string) => readQuery(text).parts.map((part) => [part.text, part.role]);
+    expect(roles("x is not null and not is null")).toEqual([
+      ["x", "column"],
+      ["is", "keyword"],
+      ["not", "keyword"],
+      ["null", "literal"],
+      ["and", "keyword"],
+      ["not", "column"],
+      ["is", "keyword"],
+      ["null", "literal"],
+    ]);
+    expect(roles("x is true").map(([, role]) => role)).toEqual(["column", "keyword", null]);
+    expect(roles("x is not not").map(([, role]) => role)).toEqual(["column", "keyword", "keyword", null]);
+    const text = "x is null or y is not null";
+    expect(readQuery(text).clauses.map(([from, to]) => text.slice(from, to))).toEqual(["x is null", "y is not null"]);
+    const at = (typed: string) => queryContext(typed.replace("|", ""), typed.indexOf("|"));
+    expect(at("x is |")).toMatchObject({ expect: "is", col: "x" });
+    expect(at("x is n|")).toMatchObject({ expect: "is", prefix: "n" });
+    expect(at("x is not |")).toMatchObject({ expect: "null", col: "x" });
+    expect(at("x is null |")).toMatchObject({ expect: "and" });
+    expect(at("not i|")).toMatchObject({ expect: "column", prefix: "i" });
+  });
+
+  it("is a problem only off a column with a filter, or twice in an and", () => {
+    const filters = [
+      new ColumnFilter({ column: "x", type: "range", values: [5] }, 1, []),
+      new ColumnFilter({ column: "y", type: "text", values: null }, 2, []),
+      new ColumnFilter({ column: "b", type: "bool", values: [true] }, 3, []),
+    ];
+    const problem = (text: string) => queryProblem(filters, parseQuery(text));
+    expect(problem("x is null and y is not null and b is null and x >= 5")).toBeNull();
+    expect(problem("x is not null and x is not null")).toBeNull();
+    expect(problem("w is null")).toEqual({ clause: 0, message: "w isn't a column with a filter" });
+    expect(problem("y is null and x >= 1 and y is null")).toEqual({ clause: 2, message: "y has more than one is null clause" });
+    expect(problem("y is null or y is null")).toBeNull();
   });
 });

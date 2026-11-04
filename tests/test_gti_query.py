@@ -68,6 +68,10 @@ def and_(*parts: dict) -> dict:
     return {"and": list(parts)}
 
 
+def is_null(col: str) -> dict:
+    return {"col": col, "op": "is_null"}
+
+
 def not_(part: dict) -> dict:
     return {"not": part}
 
@@ -189,6 +193,37 @@ def test_check_query_normalizes_values():
     ],
 )
 def test_check_query_rejects(bad: Any, message: str):
+    with pytest.raises(ValueError, match=message):
+        check_query(bad)
+
+
+def test_check_query_takes_is_null_clauses():
+    is_null = {"col": "x", "op": "is_null"}
+    assert check_query({"and": [is_null, not_(is_null), or_(is_null, A)]}) == {
+        "and": [is_null, not_(is_null), or_(is_null, A)]
+    }
+    assert check_query("x is null and y is not null") == {
+        "and": [is_null, not_({"col": "y", "op": "is_null"})]
+    }
+
+
+@pytest.mark.parametrize(
+    "bad, message",
+    [
+        ({"and": [{"col": "x", "op": "is_null", "value": None}]}, "clause 0 must be"),
+        ({"and": [{"col": "x", "op": "is_null", "value": True}]}, "clause 0 must be"),
+        ({"and": [not_({"op": "is_null"})]}, "part of a 'not' group must be"),
+        (
+            {"and": [{"col": "x", "op": "is_null"}, and_({"col": "x", "op": "is_null"})]},
+            "more than one 'is_null' clause on column 'x'",
+        ),
+        (
+            {"and": [or_(and_({"col": "x", "op": "is_null"}, {"col": "x", "op": "is_null"}), A)]},
+            "more than one 'is_null' clause on column 'x', in an 'and' group",
+        ),
+    ],
+)
+def test_check_query_rejects_is_null_clauses(bad: Any, message: str):
     with pytest.raises(ValueError, match=message):
         check_query(bad)
 
@@ -345,6 +380,22 @@ def test_parse_query_reads_any_column_name_in_backticks():
     assert parse_query("in in (1)") == query(("in", "in", [1]))
 
 
+def test_parse_query_reads_is_null_and_is_not_null():
+    is_null = {"col": "a", "op": "is_null"}
+    assert parse_query("a is null") == {"and": [is_null]}
+    # (`is not null` is `not` and `is null`)
+    assert parse_query("a IS NOT NULL") == {"and": [not_(is_null)]}
+    assert parse_query("not a is not null") == {"and": [not_(not_(is_null))]}
+    assert parse_query("a is null or b >= 2 and a is not null") == {
+        "and": [or_(is_null, and_(B, not_(is_null)))]
+    }
+    # (Before `is`, `not` is a column's name; and `is` and `null` are names where a column goes)
+    assert parse_query("not is null") == {"and": [{"col": "not", "op": "is_null"}]}
+    assert parse_query("is is not null and null is null") == {
+        "and": [not_({"col": "is", "op": "is_null"}), {"col": "null", "op": "is_null"}]
+    }
+
+
 def test_parse_query_reads_dates_as_strings():
     assert parse_query('d >= "2015-06-05" and t <= "2015-06-05T09:30"') == query(
         ("d", "gte", "2015-06-05"), ("t", "lte", "2015-06-05T09:30")
@@ -369,8 +420,8 @@ BOUND_EXPECTED = "expected a number, or a date in double quotes"
 @pytest.mark.parametrize(
     "text, message",
     [
-        ("a", 'expected "contains", "in", ">=" or "<=", at the end'),
-        ("a = 1", 'expected "contains", "in", ">=" or "<=", at character 3'),
+        ("a", 'expected "contains", "in", ">=", "<=" or "is", at the end'),
+        ("a = 1", 'expected "contains", "in", ">=", "<=" or "is", at character 3'),
         (">= 1", "expected a column name, at character 1"),
         ("a >= x", f"{BOUND_EXPECTED}, at character 6"),
         ("a >= (", f"{BOUND_EXPECTED}, at character 6"),
@@ -399,6 +450,13 @@ BOUND_EXPECTED = "expected a number, or a date in double quotes"
         ("a >= 1 or", "expected a column name, at the end"),
         ("a >= 1 or not", "expected a column name, at the end"),
         ('not "x', f"{UNENDED_STRING}, at character 5"),
+        # (Of `is null`)
+        ("a is", 'expected "null" or "not null", at the end'),
+        ("a is nul", 'expected "null" or "not null", at character 6'),
+        ("a is not", 'expected "null", at the end'),
+        ("a is not not null", 'expected "null", at character 10'),
+        ("a is null null", 'expected "and", "or" or the end of the query, at character 11'),
+        ("a is (null)", 'expected "null" or "not null", at character 6'),
     ],
 )
 def test_parse_query_says_whats_wrong_and_where(text: str, message: str):
@@ -464,6 +522,17 @@ def test_format_query_writes_groups_with_the_parentheses_they_need():
     assert format_query(query(("in", "in", [1]), ("Contains", "gte", 1))) == (
         "`in` in (1) and `Contains` >= 1"
     )
+    assert format_query({"and": [{"col": "Is", "op": "is_null"}]}) == "`Is` is null"
+
+
+def test_format_query_writes_is_null_and_is_not_null():
+    is_null = {"col": "a b", "op": "is_null"}
+    assert format_query({"and": [is_null]}) == "`a b` is null"
+    assert format_query({"and": [not_(is_null), A]}) == "`a b` is not null and a >= 1"
+    assert format_query({"and": [not_(not_(is_null))]}) == "not `a b` is not null"
+    assert format_query({"and": [or_(is_null, not_(and_(is_null, A)))]}) == (
+        "`a b` is null or not (`a b` is null and a >= 1)"
+    )
 
 
 @pytest.mark.parametrize(
@@ -518,6 +587,8 @@ def test_format_query_writes_what_parse_query_reads_back():
             ]
         },
         {"and": [or_(A, B)]},
+        {"and": [{"col": "not", "op": "is_null"}, not_({"col": "is", "op": "is_null"})]},
+        {"and": [not_(not_({"col": "null", "op": "is_null"}))]},
     ]
     for q in queries:
         assert parse_query(format_query(q)) == q
@@ -641,6 +712,7 @@ def test_a_facet_value_matches_as_javascript_matches_it():
         ({"filter": query(("flag", "in", ["True"]))}, "'True', which isn't a value of column"),
         ({"filter": query(("few", "in", ["z"]))}, "isn't a value of column 'few'"),
         ({"filter": query(("nope", "in", ["z"]))}, r"which has no filter.*`i_cols_filter\(\)`"),
+        ({"filter": "nope is not null"}, r"column 'nope', which has no filter"),
         ({"sort": "nope"}, "can't be sorted by column 'nope'"),
     ],
 )
@@ -799,6 +871,27 @@ def test_view_rows_by_a_querys_groups():
     assert rows('not (num >= 2 or name contains "a")') == [2]
 
 
+def test_view_rows_by_is_null_clauses():
+    # (`num` is 1.5, 2.0, missing, 3.0; `few` is "x", "y", "x", missing)
+    def rows(filter: str, gti: GTI | None = None) -> list[int]:
+        return view_rows((gti or filtered()).i_view(filter=filter))
+
+    assert rows("num is null") == [2]
+    assert rows("num is not null") == [0, 1, 3]
+    assert rows("few is null or num is null") == [2, 3]
+    assert rows('few is not null and few in ("x")') == [0, 2]
+    assert rows("name is null") == []
+    # (A float's NaN is missing too, with every backend)
+    nan = {"n": ("float", [1.0, math.nan, None, 0.0])}
+    for backend in BACKENDS:
+        gti = GTI(frame(backend, nan)).i_cols_filter(type="range")
+        assert rows("n is null", gti) == [1, 2]
+        assert rows("not n is null", gti) == [0, 3]
+    # (And of a column only for querying)
+    hidden = filtered().i_cols_controls("few", display=False)
+    assert rows("few is null", hidden) == [3]
+
+
 def test_view_rows_keeps_rows_in_their_groups():
     gti = GTI(DF, groupname_col="flag").i_cols_filter(columns="num").i_view(sort="-num")
     # (The groups, in the order they're first seen: True, then False)
@@ -920,7 +1013,7 @@ def flagged() -> GTI:
 
 def test_bool_views_are_checked_against_the_table():
     assert render_parts(flagged())[1]["filters"] == [
-        {"column": "on", "type": "bool", "values": [False, True]}
+        {"column": "on", "type": "bool", "values": [False, True], "missing": [1]}
     ]
     with pytest.raises(ValueError, match=r"which has a bool filter \(for one value: `\[True\]`"):
         render_parts(flagged().i_view(filter=query(("on", "in", [True, None]))))
@@ -980,6 +1073,42 @@ def test_query_code_of_text_and_missing_values():
         '    pl.col("name").str.to_lowercase().str.contains("e", literal=True),\n'
         '    pl.col("few").is_null(),\n'
         ")\n"
+    )
+
+
+def test_query_code_of_is_null_clauses():
+    gti = filtered().i_view(
+        filter="num is null and not few is null and (name is null or flag in (true))"
+    )
+    assert query_code(gti, "polars") == (
+        "import polars as pl\n\n"
+        "df.filter(\n"
+        '    pl.col("num").is_null() | pl.col("num").is_nan(),\n'
+        '    ~pl.col("few").is_null().fill_null(False),\n'
+        '    pl.col("name").is_null() | pl.col("flag").is_in([True]),\n'
+        ")\n"
+    )
+    assert query_code(gti, "pandas") == (
+        "df[\n"
+        '    (df["num"].isna())\n'
+        '    & (~df["few"].isna())\n'
+        '    & (df["name"].isna() | df["flag"].isin([True]))\n'
+        "]\n"
+    )
+    assert query_code(gti, "narwhals").splitlines()[5:8] == [
+        '        nw.col("num").is_null() | nw.col("num").is_nan(),',
+        '        ~nw.col("few").is_null().fill_null(False),',
+        '        nw.col("name").is_null() | nw.col("flag").is_in([True]),',
+    ]
+    # (After the filters' clauses, as the runtime has it, in their order)
+    gti = filtered().i_view(filter="few is null and num >= 2 and name is null")
+    assert query_code(gti, "pandas") == (
+        "import numpy as np\n\n"
+        "df[\n"
+        '    ((df["num"] >= 2) & np.isfinite(df["num"]))\n'
+        '    & (df["few"].isna())\n'
+        '    & (df["name"].isna())\n'
+        "]\n"
     )
 
 
@@ -1266,6 +1395,11 @@ EDGE_VIEWS: list[tuple[str, dict, Any]] = [
         },
         "s",
     ),
+    ("float is null, NaN too", {"and": [is_null("f")]}, None),
+    ("float is not null", {"and": [not_(is_null("f"))]}, "-f"),
+    ("is null of every kind", {"and": [or_(*map(is_null, "isbcdt"))]}, ["c", "-t"]),
+    ("is null and a facet", {"and": [clause("c", "in", ["lo", None]), not_(is_null("c"))]}, None),
+    ("is null in an and", {"and": [or_(and_(is_null("i"), is_null("d")), is_null("b"))]}, None),
 ]
 
 
@@ -1348,6 +1482,12 @@ def test_edge_cases_keep_the_rows_expected(engine: Callable[[GT], dict], backend
     assert rows({"and": [not_(clause("d", "lte", "2015-06-05"))]}) == [1, 2, 6, 7]
     assert rows({"and": [or_(clause("f", "lte", 0), clause("i", "gte", 3))]}) == [0, 7]
     assert rows({"and": [not_(not_(clause("f", "gte", 1.5)))]}) == [0, 4, 6]
+    # (A float's NaN is missing, as pandas has it, with every backend)
+    assert rows({"and": [is_null("f")]}) == [1, 2]
+    assert rows({"and": [not_(is_null("f"))]}, "-f") == [5, 4, 0, 6, 7, 3]
+    assert rows({"and": [is_null("i")]}) == [2, 5]
+    assert rows({"and": [is_null("s"), not_(is_null("b"))]}) == [3]
+    assert rows({"and": [or_(is_null("d"), is_null("t"))]}) == [1, 2, 6, 7]
 
 
 @pytest.mark.parametrize("backend", BACKENDS)
@@ -1499,9 +1639,12 @@ def tables(
 
 
 def filter_clauses(draw: Any, f: dict, kinds: dict, blank: bool = True) -> list[dict]:
-    """Clauses of a filter: its text (or blank text, which isn't in a group), a facet's values, or
-    a range's bounds (one or both)."""
+    """Clauses of a filter: its text (or blank text, which isn't in a group), a facet's values, a
+    range's bounds (one or both), or that it's missing."""
     col = f["column"]
+    if draw(st.sampled_from([False, False, False, True])):
+        # (A column with any filter can be missing)
+        return [is_null(col)]
     if f["type"] == "text":
         needles = [needle for needle in NEEDLES if blank or js_trim(needle) != ""]
         return [{"col": col, "op": "contains", "value": draw(st.sampled_from(needles))}]
@@ -1734,14 +1877,18 @@ def test_runtime_code_of_durations(node_engine: Callable[[dict], dict]):
 # (Numbers as JavaScript holds them: doubles, and the integers it holds exactly)
 NUMBERS = st.floats(allow_nan=False, allow_infinity=False) | st.integers(-(2**53), 2**53)
 NAMES = (
-    st.sampled_from(["a", "x_1", "and", "IN", "Name of town", "a`b", "", "1a", "é", "not", "Or"])
+    st.sampled_from(
+        ["a", "x_1", "and", "IN", "Name of town", "a`b", "", "1a", "é", "not", "Or", "is", "null"]
+    )
     | st.text()
 )
 
 
 @st.composite
 def clauses(draw: Any) -> dict:
-    op = draw(st.sampled_from(["contains", "in", "gte", "lte"]))
+    op = draw(st.sampled_from(["contains", "in", "gte", "lte", "is_null"]))
+    if op == "is_null":
+        return {"col": draw(NAMES), "op": op}
     if op == "contains":
         value = draw(st.text())
     elif op == "in":
@@ -1776,6 +1923,7 @@ PIECES = [
     *['"x"', '"é\\n"', '"\\u00e9"', '"\\x"', '"', "1", "-0", "1.5e3", "01", ".5", "1e999"],
     *['"2015-06-05"', '"2015-06-05T09:30"', "2015-06-05"],
     *["or", "OR", "not", "Not", "not ", " or ", "(a >= 1 or b in (2))", "not a >= 1"],
+    *["is", "IS", " is ", "is null", "is not null", "Is Not", "not is null", "`is`"],
 ]
 
 

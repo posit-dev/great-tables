@@ -406,3 +406,57 @@ describe("a query's groups", () => {
     expect(keptBy(groups)).toEqual([0, 1, 3, 4]);
   });
 });
+
+describe("an is_null clause", () => {
+  const keptBy = (groups: FilterGroup[]) => [0, 1, 2, 3, 4].filter((row) => groups.every((group) => group.keeps(row, [])));
+  // (`n` is a float column's: 1, NaN, missing, 1, missing; NaN has a rank, as Polars has it)
+  const n = () => new ColumnFilter({ column: "n", type: "range", values: [1, null], missing: [1, 2, 4] }, 4, [0, 1, null, 0, null]);
+  const set = (query: FilterQuery) => {
+    const filters = [x(), y(), z(), n()];
+    return { filters, groups: setFilterQuery(filters, query) };
+  };
+
+  it("keeps the rows whose value is missing, as the spec has them", () => {
+    expect(keptBy(set({ and: [{ col: "n", op: "is_null" }] }).groups)).toEqual([1, 2, 4]);
+    expect(keptBy(set({ and: [{ not: { col: "n", op: "is_null" } }] }).groups)).toEqual([0, 3]);
+    // (Without them, the rows without a rank)
+    expect(keptBy(set({ and: [{ col: "x", op: "is_null" }] }).groups)).toEqual([3]);
+    expect(keptBy(set({ and: [{ col: "y", op: "is_null" }] }).groups)).toEqual([]);
+    expect(keptBy(set({ and: [{ col: "z", op: "is_null" }] }).groups)).toEqual([]);
+    expect(keptBy(set({ and: [{ or: [{ col: "x", op: "is_null" }, { col: "n", op: "is_null" }] }] }).groups)).toEqual([1, 2, 3, 4]);
+  });
+
+  it("is kept as a group is, in the query's order, after the filters' clauses", () => {
+    const { filters, groups } = set({
+      and: [
+        { col: "n", op: "is_null", value: "ignored" } as never,
+        { not: { col: "x", op: "is_null" } },
+        { col: "x", op: "gte", value: 5 },
+        { and: [{ col: "y", op: "is_null" }] },
+      ],
+    });
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "x", op: "gte", value: 5 }] });
+    expect(groups.map((group) => [group.item, group.filters.map((filter) => filter.column), group.texts])).toEqual([
+      [{ col: "n", op: "is_null" }, ["n"], false],
+      [{ not: { col: "x", op: "is_null" } }, ["x"], false],
+      [{ col: "y", op: "is_null" }, ["y"], false],
+    ]);
+    expect(filterQuery(filters, groups)?.and).toHaveLength(4);
+  });
+
+  it.each([
+    ["has two at the top", { and: [{ col: "x", op: "is_null" }, { and: [{ col: "x", op: "is_null" }] }] }, /"x" has more than one "is_null" clause/],
+    ["has two in an and", { and: [{ not: { and: [{ col: "x", op: "is_null" }, { col: "x", op: "is_null" }] } }] }, /"x" has more than one "is_null" clause/],
+    ["is on a column without a filter", { and: [{ col: "w", op: "is_null" }] }, /"w" isn't a column/],
+  ])("makes a query that %s bad, changing nothing", (_, query, message) => {
+    const filters = [x(), y(), z()];
+    setFilterQuery(filters, { and: [{ col: "x", op: "gte", value: 1 }] });
+    expect(() => setFilterQuery(filters, query as never)).toThrow(message);
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "x", op: "gte", value: 1 }] });
+  });
+
+  it("can be beside other clauses on its column", () => {
+    const { groups } = set({ and: [{ not: { col: "x", op: "is_null" } }, { not: { col: "x", op: "is_null" } }, { col: "x", op: "lte", value: 5 }] });
+    expect(groups).toHaveLength(2);
+  });
+});
