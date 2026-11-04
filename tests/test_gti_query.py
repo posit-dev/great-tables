@@ -730,6 +730,52 @@ def test_query_code_of_dates():
         assert run_code(query_code(gti, backend), data) == [0]
 
 
+# (Booleans, one of them missing: pandas' nullable ones)
+FLAGS = pd.DataFrame({"on": pd.array([True, None, False, True], dtype="boolean")})
+
+
+def flagged() -> GTI:
+    return GTI(FLAGS).i_cols_filter(columns="on")
+
+
+def test_bool_views_are_checked_against_the_table():
+    assert render_parts(flagged())[1]["filters"] == [
+        {"column": "on", "type": "bool", "values": [False, True]}
+    ]
+    with pytest.raises(ValueError, match=r"which has a bool filter \(for one value: `\[True\]`"):
+        render_parts(flagged().i_view(filter=query(("on", "in", [True, None]))))
+    with pytest.raises(ValueError, match=r"which has a bool filter \(for one value"):
+        render_parts(flagged().i_view(filter="on in (false, true)"))
+    # (A value the column hasn't, as for a facet)
+    all_on = GTI(pd.DataFrame({"on": [True, True]})).i_cols_filter()
+    with pytest.raises(ValueError, match="False, which isn't a value of column 'on'"):
+        render_parts(all_on.i_view(filter=query(("on", "in", [False]))))
+    with pytest.raises(ValueError, match="'gte' clause on column 'on', which has a bool filter"):
+        render_parts(flagged().i_view(filter=query(("on", "gte", 1))))
+
+
+def test_view_rows_by_a_bool_filter():
+    assert view_rows(flagged().i_view(filter=query(("on", "in", [True])))) == [0, 3]
+    assert view_rows(flagged().i_view(filter=query(("on", "in", [False])))) == [2]
+    assert view_rows(flagged().i_view(filter="on in (null)")) == [1]
+
+
+def test_query_code_of_a_bool_filter():
+    gti = flagged().i_view(filter=query(("on", "in", [True])))
+    assert query_code(gti, "polars") == (
+        'import polars as pl\n\ndf.filter(\n    pl.col("on").is_in([True]),\n)\n'
+    )
+    assert query_code(gti, "pandas") == 'df[\n    df["on"].isin([True])\n]\n'
+    for value, expected in [(True, [0, 3]), (False, [2]), (None, [1])]:
+        gti = flagged().i_view(filter=query(("on", "in", [value])))
+        for backend, data in [
+            ("polars", pl.from_pandas(FLAGS)),
+            ("pandas", FLAGS),
+            ("narwhals", FLAGS),
+        ]:
+            assert run_code(query_code(gti, backend), data) == expected
+
+
 def test_query_code_by_columns_only_for_querying():
     gti = filtered().i_cols_controls(["few", "num"], display=False)
     gti = gti.i_view(filter=query(("few", "in", ["y"])), sort="-num")
@@ -902,6 +948,9 @@ EDGE_VIEWS: list[tuple[str, dict, Any]] = [
     ("float facet", query(("f", "in", [1.5, 0])), None),
     ("float missing (not NaN)", query(("f", "in", [None])), None),
     ("bool facet", query(("b", "in", [False, None])), "-i"),
+    ("bool filter, true", query(("b", "in", [True])), None),
+    ("bool filter, false", query(("b", "in", [False])), "-i"),
+    ("bool filter, missing", query(("b", "in", [None])), None),
     ("category facet", query(("c", "in", ["mid", "lo"])), "-c"),
     ("category missing", query(("c", "in", [None])), None),
     ("range edges", query(("f", "gte", 1.5), ("f", "lte", 2)), None),
@@ -941,17 +990,19 @@ def edge_table(backend: str) -> GTI:
         .i_pagination(False)
         .i_cols_filter(columns=["f", "i"], type="range")
         .i_cols_filter(columns="s", type="text")
-        .i_cols_filter(columns=["b", "c"], type="facet")
+        .i_cols_filter(columns="b", type="bool")
+        .i_cols_filter(columns="c", type="facet")
         .i_cols_filter(columns=["d", "t"], type="date")
     )
 
 
 def edge_table_for(backend: str, filter: dict | None) -> GTI:
     gti = edge_table(backend)
-    # (A clause's column gets the filter that has its op)
+    # (A clause's column gets the filter that has its op: for "in", a facet, but for one value of
+    # the booleans, their bool filter)
     for clause in filter["and"] if filter is not None else []:
         col, op = clause["col"], clause["op"]
-        if op == "in":
+        if op == "in" and (col != "b" or len(clause["value"]) > 1):
             gti = gti.i_cols_filter(columns=col, type="facet")
         elif op == "contains":
             gti = gti.i_cols_filter(columns=col, type="text")
@@ -981,6 +1032,9 @@ def test_edge_cases_keep_the_rows_expected(engine: Callable[[GT], dict], backend
     assert rows(query(("s", "contains", "ss"))) == [5]
     assert rows(query(("s", "contains", "ß"))) == [4]
     assert rows(query(("i", "in", [2, None])), "i") == [3, 4, 2, 5]
+    assert rows(query(("b", "in", [True]))) == [0, 3, 6]
+    assert rows(query(("b", "in", [False])), "-i") == [7, 1, 5]
+    assert rows(query(("b", "in", [None]))) == [2, 4]
     assert rows(query(("d", "gte", "2015-06-05"), ("d", "lte", "2015-06-15"))) == [0, 2, 4]
     assert rows(query(("t", "lte", "2015-06-05"))) == [0, 3]
     assert rows(query(("t", "gte", "2015-06-05"), ("t", "lte", "2015-06-05T09:30"))) == [0, 1, 6]
@@ -1131,6 +1185,7 @@ def tables(
                 "number": ["range", "facet", "text"],
                 "date": ["date", "facet", "text"],
                 "datetime": ["date", "facet", "text"],
+                "boolean": ["bool", "facet", "text"],
                 "other": ["text"],
             }.get(_get_column_kind(data, name), ["facet", "text"])
             gti = gti.i_cols_filter(columns=name, type=draw(st.sampled_from(types)))
@@ -1146,9 +1201,11 @@ def views(draw: Any, spec: dict) -> tuple[dict | None, list[str]]:
         col = f["column"]
         if f["type"] == "text":
             clauses.append({"col": col, "op": "contains", "value": draw(st.sampled_from(NEEDLES))})
-        elif f["type"] == "facet":
+        elif f["type"] in ("facet", "bool"):
+            # (A bool filter's one value)
             choices = [value for value in f["values"] if value is not None] + [None]
-            value = draw(st.lists(st.sampled_from(choices), min_size=1, max_size=3, unique=True))
+            most = 1 if f["type"] == "bool" else 3
+            value = draw(st.lists(st.sampled_from(choices), min_size=1, max_size=most, unique=True))
             clauses.append({"col": col, "op": "in", "value": value})
         elif f["type"] == "date":
             # (A column of dates takes dates, without times)
