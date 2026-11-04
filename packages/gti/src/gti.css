@@ -857,6 +857,11 @@ gt-table .gt-i-tokens .gt-i-token {
   outline-offset: -1px;
 }
 
+/* (A group of the query's, as text, dashed) */
+gt-table .gt-i-tokens .gt-i-token[data-gti-group] {
+  outline-style: dashed;
+}
+
 gt-table .gt-i-tokens button {
   appearance: none;
   margin: 0;
