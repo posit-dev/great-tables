@@ -3640,7 +3640,7 @@ describe("bool filters", () => {
     const press = (key: string) =>
       input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
     type("y ");
-    expect(suggestions()).toEqual(["in (…)", "is null", "is not null"]);
+    expect(suggestions()).toEqual(["in (…)", "not in (…)", "is null", "is not null"]);
     type("y in (");
     expect(suggestions()).toEqual(["b", "a", "(Missing)"]);
     press("ArrowDown");
@@ -3864,7 +3864,7 @@ describe("the query box", () => {
     press(input(el), "ArrowUp");
     expect(press(input(el), "Enter").defaultPrevented).toBe(true);
     expect(input(el).value).toBe("y ");
-    expect(options(el)).toEqual(["in (…)", "is null", "is not null"]);
+    expect(options(el)).toEqual(["in (…)", "not in (…)", "is null", "is not null"]);
     press(input(el), "Tab");
     expect(input(el).value).toBe("y in (");
     expect(options(el)).toEqual(["a", "b", "c"]);
@@ -3957,7 +3957,7 @@ describe("the query box", () => {
     expect(list(el).hidden).toBe(true);
     // (Enter, then, applies)
     press(input(el), "Enter");
-    expect(error(el).textContent).toBe('Expected "contains", "matches", "in", ">=", "<=" or "is"');
+    expect(error(el).textContent).toBe('Expected "contains", "matches", "in", "not", ">=", "<=" or "is"');
   });
 
   it("takes a suggestion that's clicked, keeping focus", async () => {
@@ -4062,7 +4062,14 @@ describe("the query box", () => {
     const { el } = await mountQuery({ filters: [RANGE, { column: "y", type: "text", values: null }] });
     toggle(el).click();
     replace(el, "y ");
-    expect(options(el)).toEqual(['contains "…"', "matches /…/", "is null", "is not null"]);
+    expect(options(el)).toEqual([
+      'contains "…"',
+      "matches /…/",
+      'not contains "…"',
+      "not matches /…/",
+      "is null",
+      "is not null",
+    ]);
     type(el, "ma");
     expect(options(el)).toEqual(["matches /…/"]);
     press(input(el), "Enter");
@@ -4090,6 +4097,47 @@ describe("the query box", () => {
     expect(problem("y matches /a/g")).toBe('A pattern can have only the flag "i"');
     expect(problem("x matches /a/")).toBe("X has a range filter: use >= or <=");
     expect(problem("y matches /a/ and y matches /b/")).toBe("Y has more than one matches clause");
+  });
+
+  it("suggests the ops that can be after not, and applies them as not and the clause", async () => {
+    const { el: text } = await mountQuery({ filters: [RANGE, { column: "y", type: "text", values: null }] });
+    toggle(text).click();
+    replace(text, "y n");
+    expect(options(text)).toEqual(['not contains "…"', "not matches /…/"]);
+    replace(text, "y not ");
+    expect(options(text)).toEqual(['contains "…"', "matches /…/"]);
+    press(input(text), "ArrowDown");
+    press(input(text), "Enter");
+    expect(input(text).value).toBe("y not matches //");
+    expect(input(text).selectionStart).toBe(15);
+    // (None for a range)
+    replace(text, "x n");
+    expect(list(text).hidden).toBe(true);
+    replace(text, "x not >= 5");
+    press(input(text), "Enter");
+    expect(error(text).textContent).toBe('Expected "contains", "matches" or "in"');
+    replace(text, "x not in (5)");
+    press(input(text), "Enter");
+    expect(error(text).textContent).toBe("X has a range filter: use >= or <=");
+
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "y not ");
+    expect(options(el)).toEqual(["in (…)"]);
+    press(input(el), "Enter");
+    expect(input(el).value).toBe("y not in (");
+    expect(options(el)).toEqual(["a", "b", "c"]);
+    replace(el, 'y not in ("a")');
+    press(input(el), "Enter");
+    expect(error(el).hidden).toBe(true);
+    expect(el.filter).toEqual({ and: [{ not: { col: "y", op: "in", value: ["a"] } }] });
+    toggle(el).click();
+    expect(input(el).value).toBe('y not in ("a")');
+    // (Written so, however it's typed)
+    replace(el, 'not y in ("b")');
+    press(input(el), "Enter");
+    toggle(el).click();
+    expect(input(el).value).toBe('y not in ("b")');
   });
 });
 
@@ -4149,7 +4197,7 @@ describe("the query's groups", () => {
     expect(token(el, 1).hasAttribute("aria-expanded")).toBe(false);
     expect(remove(el, 1).getAttribute("aria-label")).toBe("Remove the filter x >= 20 or x <= 5");
     el.filter = { and: [{ not: { col: "y", op: "in", value: ["c"] } }] };
-    expect(tokens(el)).toEqual(['not y in ("c")']);
+    expect(tokens(el)).toEqual(['y not in ("c")']);
   });
 
   it("include `is_null` clauses, whose tokens say the column is missing", async () => {
@@ -4180,7 +4228,7 @@ describe("the query's groups", () => {
     expect(token(el, 0).parentElement?.hasAttribute("data-gti-group")).toBe(true);
     expect(token(el, 0).title).toBe("y matches /^[A-B]$/i (edit as text)");
     el.filter = { and: [{ not: { col: "y", op: "matches", value: "a/b" } }] };
-    expect(tokens(el)).toEqual(["not y matches /a\\/b/"]);
+    expect(tokens(el)).toEqual(["y not matches /a\\/b/"]);
     expect(() => {
       el.filter = { and: [{ col: "x", op: "matches", value: "1" }] };
     }).toThrow(RangeError);
