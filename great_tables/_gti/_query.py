@@ -9,6 +9,10 @@ Rows are kept when every clause keeps them. A clause's `op` is one of:
 
 - `"contains"`, for a column with a text filter: keeps the rows whose cell shows `value` (a string,
   trimmed), ignoring case and accents, as the search does. Blank text keeps every row.
+- `"matches"`, for a column with a text filter: keeps the rows whose cell's text (as "contains"
+  matches it, but with its case and accents) has a match of `value` anywhere in it: a pattern,
+  a regular expression in the part of their syntax that `_pattern.py` has (where `^` and `$`
+  are the text's start and end), with case unless it starts with `(?i)`.
 - `"in"`, for a facet: keeps the rows with one of `value`'s values (a non-empty list of them, as
   JSON holds them, like the spec's `values`; `None` is a missing value). For a bool filter: the
   rows with `value`'s one value (`[True]`, `[False]`, or `[None]`).
@@ -51,6 +55,14 @@ from decimal import Decimal
 from html.parser import HTMLParser
 from typing import TYPE_CHECKING, Any, Literal, Union
 
+from ._pattern import (
+    PatternError,
+    check_pattern,
+    format_pattern,
+    pattern_code,
+    pattern_search,
+    read_pattern,
+)
 from ._spec import (
     CodeBackend,
     CodeColumnSpec,
@@ -77,6 +89,7 @@ Backend = CodeBackend
 # The filter types each op is for
 OP_TYPES = {
     "contains": ("text",),
+    "matches": ("text",),
     "in": ("facet", "bool"),
     "gte": ("range", "date"),
     "lte": ("range", "date"),
@@ -230,7 +243,7 @@ def _check_clause(clause: Any, where: str) -> dict[str, Any]:
     ):
         raise ValueError(
             f'The filter\'s {where} must be `{{"col": ..., "op": ..., "value": ...}}`, with a '
-            'column name and an op of "contains", "in", "gte", or "lte"; or '
+            'column name and an op of "contains", "matches", "in", "gte", or "lte"; or '
             '`{"col": ..., "op": "is_null"}`; or a group, `{"or": [parts]}`, '
             f'`{{"and": [parts]}}`, or `{{"not": part}}`; not {clause!r}.'
         )
@@ -238,12 +251,20 @@ def _check_clause(clause: Any, where: str) -> dict[str, Any]:
     if op == "is_null":
         return {"col": col, "op": op}
     value = clause["value"]
-    if op == "contains":
+    if op in ("contains", "matches"):
         if not isinstance(value, str):
             raise ValueError(
-                f'The filter\'s "contains" clause on column {col!r} needs a string, not '
-                f"{value!r}."
+                f'The filter\'s "{op}" clause on column {col!r} needs a string, not {value!r}.'
             )
+        if op == "matches":
+            try:
+                value = check_pattern(value)
+            except PatternError as err:
+                place = "the end" if err.at >= len(value) else f"character {err.at + 1}"
+                raise ValueError(
+                    f"The pattern of the filter's \"matches\" clause on column {col!r} can't be "
+                    f"read: {err}, at {place}."
+                ) from None
     elif op == "in":
         if not isinstance(value, (list, tuple)) or len(value) == 0:
             raise ValueError(
@@ -339,7 +360,8 @@ def parse_date(text: str) -> dt.date | dt.datetime | None:
 #
 # Clauses joined by `and` and `or`, each after `not` if wanted, and grouped in parentheses as
 # wanted (`not` binding tighter than `and`, and `and` tighter than `or`); a clause is a column,
-# then `contains` and a string, `in` and values in parentheses, `>=` or `<=` and a number or a
+# then `contains` and a string, `matches` and a pattern (between slashes, with the flag `i` to
+# ignore case, as in `/^st\./i`), `in` and values in parentheses, `>=` or `<=` and a number or a
 # date (a string), or `is null` (`is not null` being `not` and that). A column is a name of
 # letters, digits and underscores (not starting with a digit), or any name in backticks (a backtick
 # in it doubled); `not` before an op is a column's name. Strings and numbers are as in JSON; the other values are `true`, `false` and `null`.
@@ -349,16 +371,20 @@ _NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _STRING = re.compile(r'"(?:[^"\\\x00-\x1f]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"')
 _NUMBER = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?")
 _SPACE = re.compile(r"[ \t\n\r]*")
+# (A pattern, on one line: escapes, and classes, where a slash needn't be escaped; then its flags)
+_PATTERN = re.compile(
+    r"/(?:[^\\/\[\n\r]|\\[^\n\r]|\[(?:[^\\\]\n\r]|\\[^\n\r])*\]?)*(/?)([A-Za-z0-9_]*)"
+)
 _WORDS = {"true": True, "false": False, "null": None}
 # (The ops that are words)
-_OP_WORDS = ("in", "contains", "is")
+_OP_WORDS = ("in", "contains", "matches", "is")
 _VALUE_EXPECTED = "expected a value: a string in double quotes, a number, true, false or null"
 
 
 @dataclass
 class _Token:
-    kind: Literal["name", "quoted", "string", "number", "symbol", "end"]
-    # The text of a name or symbol, or a string's or number's value
+    kind: Literal["name", "quoted", "string", "regex", "number", "symbol", "end"]
+    # The text of a name or symbol, or a string's, pattern's or number's value
     value: Any
     at: int
 
@@ -410,6 +436,22 @@ class _QueryParser:
                 )
             self.at = string.end()  # type: ignore[union-attr]
             return _Token("string", json.loads(string.group()), start)  # type: ignore[union-attr]
+        if char == "/":
+            pattern = _PATTERN.match(text, start)
+            assert pattern is not None
+            self.at = pattern.end()
+            if pattern.group(1) == "":
+                self.fail("a pattern must end with a slash", _Token("symbol", char, start))
+            flags = pattern.group(2)
+            # (Where its closing slash is)
+            end = pattern.start(1)
+            if flags not in ("", "i"):
+                self.fail('a pattern can have only the flag "i"', _Token("symbol", flags, end + 1))
+            try:
+                return _Token("regex", read_pattern(text[start + 1 : end], flags == "i"), start)
+            except PatternError as err:
+                where = start + 1 + err.at
+                self.fail(str(err), _Token("symbol", text[where], where))
         if number := _NUMBER.match(text, start):
             literal = number.group()
             # (As JavaScript reads it: a double, even for an integer)
@@ -463,6 +505,11 @@ class _QueryParser:
             if self.token.kind != "string":
                 self.fail("expected a string in double quotes")
             return {"col": col, "op": "contains", "value": self.advance().value}
+        if self.is_word("matches"):
+            self.advance()
+            if self.token.kind != "regex":
+                self.fail("expected a pattern between slashes, as in /^st\\./")
+            return {"col": col, "op": "matches", "value": self.advance().value}
         if self.is_word("in"):
             self.advance()
             if not self.is_symbol("("):
@@ -481,7 +528,7 @@ class _QueryParser:
             if self.token.kind not in ("number", "string"):
                 self.fail("expected a number, or a date in double quotes")
             return {"col": col, "op": op, "value": self.advance().value}
-        return self.fail('expected "contains", "in", ">=", "<=" or "is"')
+        return self.fail('expected "contains", "matches", "in", ">=", "<=" or "is"')
 
     def is_not(self) -> bool:
         """Whether the token is the keyword `not` (rather than a column's name, before an op)."""
@@ -587,6 +634,8 @@ def _format_clause(clause: Mapping[str, Any]) -> str:
         return f"{name} is null"
     if op == "contains":
         return f"{name} contains {_format_value(value)}"
+    if op == "matches":
+        return f"{name} matches {format_pattern(value)}"
     if op == "in":
         return f"{name} in ({', '.join(_format_value(item) for item in value)})"
     return f"{name} {'>=' if op == 'gte' else '<='} {_format_value(value)}"
@@ -680,7 +729,7 @@ def check_view(
                 f"The view's filter has a {op!r} clause on column {col!r}, which has a "
                 f"{found['type']} filter (for {ops} clauses)."
             )
-        if op == "is_null":
+        if op in ("is_null", "matches"):
             continue
         if found["type"] == "range" and isinstance(value, str):
             raise ValueError(
@@ -956,12 +1005,18 @@ class _Contains:
 
 
 @dataclass(frozen=True)
+class _Matches:
+    col: str
+    pattern: str  # (checked, as the query has it)
+
+
+@dataclass(frozen=True)
 class _IsNull:
     col: str
     nan: bool  # (a column of floats, whose NaN is missing too)
 
 
-_Clause = Union[_In, _Compare, _Contains, _IsNull]
+_Clause = Union[_In, _Compare, _Contains, _Matches, _IsNull]
 
 
 @dataclass(frozen=True)
@@ -975,7 +1030,7 @@ class _Not:
     part: _Predicate
 
 
-_Predicate = Union[_In, _Compare, _Contains, _IsNull, _Group, _Not]
+_Predicate = Union[_In, _Compare, _Contains, _Matches, _IsNull, _Group, _Not]
 
 
 def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_Predicate]:
@@ -991,6 +1046,8 @@ def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_P
             return _IsNull(col, dtype.is_float())
         if op == "contains":
             return _Contains(col, fold(js_trim(value)))
+        if op == "matches":
+            return _Matches(col, value)
         if op == "in":
             present = [item for item in value if item is not None]
             categorical = isinstance(dtype, (nw.Categorical, nw.Enum))
@@ -1062,20 +1119,24 @@ def _from_json(value: Any, kind: str | None, dtype: Any, col: str) -> Any:
     return value
 
 
-def _expr(predicate: _Predicate, texts: Mapping[str, str]) -> nw.Expr:
+def _expr(
+    predicate: _Predicate, texts: Mapping[str, str], matched: Mapping[tuple[str, str], str]
+) -> nw.Expr:
     import narwhals as nw
 
     if isinstance(predicate, _Not):
         # (A clause leaves out a row with a missing value, which its expression is missing for)
-        return ~_expr(predicate.part, texts).fill_null(False)
+        return ~_expr(predicate.part, texts, matched).fill_null(False)
     if isinstance(predicate, _Group):
-        exprs = [_expr(part, texts) for part in predicate.parts]
+        exprs = [_expr(part, texts, matched) for part in predicate.parts]
         joined = exprs[0]
         for expr in exprs[1:]:
             joined = joined | expr if predicate.kind == "or" else joined & expr
         return joined
     if isinstance(predicate, _Contains):
         return nw.col(texts[predicate.col]).str.contains(predicate.needle, literal=True)
+    if isinstance(predicate, _Matches):
+        return nw.col(matched[predicate.col, predicate.pattern])
     col = nw.col(predicate.col)
     if isinstance(predicate, _IsNull):
         return col.is_null() | col.is_nan() if predicate.nan else col.is_null()
@@ -1094,18 +1155,28 @@ def filter_exprs(
     spec: Spec,
     schema: Mapping[str, Any],
     texts: Mapping[str, str] | None = None,
+    matched: Mapping[tuple[str, str], str] | None = None,
 ) -> list[nw.Expr]:
     """A query as Narwhals expressions, on a frame with the table's data (of `schema`).
 
     A "contains" clause matches the folded text of a column's cells, which the frame needs as a
     column of its own: `texts` names them (by the data column). Blank text keeps every row, so has
-    no expression.
+    no expression. A "matches" clause's matches are a column of bools: `matched` names them (by
+    the data column and the pattern, as the query has it).
     """
     predicates = _plan(query, spec, schema)
-    needed = {p.col for p in _clauses(predicates) if isinstance(p, _Contains)} - set(texts or {})
+    clauses = list(_clauses(predicates))
+    needed = {p.col for p in clauses if isinstance(p, _Contains)} - set(texts or {})
     if needed:
         raise ValueError(f'A "contains" clause needs a column of cell text, for {sorted(needed)}.')
-    return [_expr(predicate, texts or {}) for predicate in predicates]
+    unmatched = {(p.col, p.pattern) for p in clauses if isinstance(p, _Matches)} - set(
+        matched or {}
+    )
+    if unmatched:
+        raise ValueError(
+            f'A "matches" clause needs a column of its matches, for {sorted(unmatched)}.'
+        )
+    return [_expr(predicate, texts or {}, matched or {}) for predicate in predicates]
 
 
 def _free_name(base: str, taken: Any) -> str:
@@ -1171,25 +1242,40 @@ def view_rows(gt: GT) -> list[int]:
     block_col = add("__gti_block", blocks, nw.Int64)
     place_col = add("__gti_place", places, nw.Int64)
 
-    # The folded text of the cells of each column a "contains" clause is on
-    texts: dict[str, str] = {}
+    # The text of the cells of each column a "contains" or "matches" clause is on (unfolded)
     indices = {column["id"]: i for i, column in enumerate(spec["columns"])}
     # (A column only for querying has its texts in the spec)
     query_texts = {c["id"]: c["texts"] for c in spec["query_columns"]}
-    for clause in _leaves(query["and"] if query is not None else []):
-        col = clause["col"]
-        if clause["op"] == "contains" and col not in texts:
+    unfolded: dict[str, list[str | None]] = {}
+
+    def text_of(col: str) -> list[str | None]:
+        if col not in unfolded:
             values: list[str | None] = []
             if col in query_texts:
-                values = [fold(text) for text in query_texts[col] or []]
+                values = list(query_texts[col] or [])
             else:
                 index = indices[col]
                 for row in range(spec["nrows"]):
                     cells = _data_cells(data_trs[row]) if row in data_trs else []
-                    values.append(cell_text(cells[index]) if index < len(cells) else None)
-            texts[col] = add(f"__gti_text_{col}", values, nw.String)
+                    values.append(_text_of(cells[index])[0] if index < len(cells) else None)
+            unfolded[col] = values
+        return unfolded[col]
 
-    predicates = filter_exprs(query, spec, frame.schema, texts)
+    # The folded text of a "contains" clause's column, and a "matches" clause's matches (with
+    # Python's `re`, as the runtime matches them, rather than the data's library)
+    texts: dict[str, str] = {}
+    matched: dict[tuple[str, str], str] = {}
+    for clause in _leaves(query["and"] if query is not None else []):
+        col, op = clause["col"], clause["op"]
+        if op == "contains" and col not in texts:
+            folded = [None if text is None else fold(text) for text in text_of(col)]
+            texts[col] = add(f"__gti_text_{col}", folded, nw.String)
+        elif op == "matches" and (col, clause["value"]) not in matched:
+            search = pattern_search(clause["value"])
+            found = [text is not None and search(text) for text in text_of(col)]
+            matched[col, clause["value"]] = add(f"__gti_matches_{col}", found, nw.Boolean)
+
+    predicates = filter_exprs(query, spec, frame.schema, texts, matched)
     if len(shown) < spec["nrows"]:
         # (Only the rows in the table's body are shown)
         predicates.append(nw.col(row_col).is_in(shown))
@@ -1242,7 +1328,10 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
 
     The code keeps and orders the data's rows, not the table's, so doesn't keep rows within their
     row groups; and drops the columns the view hides. A "contains" clause is a match, ignoring
-    case, of the column's values as text (not of the text the table shows, nor ignoring accents).
+    case, of the column's values as text (not of the text the table shows, nor ignoring accents);
+    and a "matches" clause, a search of them with its pattern, translated for the library's
+    regexes. (With pandas, a column that isn't of PyArrow's strings is searched with Python's
+    `re`, whose `$` also matches before a line break at the end of the text.)
     """
     from ._render import render_parts
 
@@ -1278,15 +1367,16 @@ def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
     """A (checked) query as the runtime has it (`filterQuery()` in packages/gti/src/filter.ts).
 
     Its clauses are in the order of the filters, a range's lower bound first, then its groups and
-    its "is_null" clauses (which no filter has), in their order. An "in" clause's values are the facet's, in their order (a missing value last),
-    and a bound that's a number is as JavaScript holds it.
+    its "is_null" and "matches" clauses (which no filter has), in their order. An "in" clause's
+    values are the facet's, in their order (a missing value last), and a bound that's a number is
+    as JavaScript holds it.
     """
     if query is None:
         return None
     order = {f["column"]: i for i, f in enumerate(filters)}
 
     def clause_of(clause: Mapping[str, Any]) -> dict[str, Any]:
-        if clause["op"] == "is_null":
+        if clause["op"] in ("is_null", "matches"):
             return dict(clause)
         value = clause["value"]
         if clause["op"] == "in":
@@ -1311,7 +1401,7 @@ def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
 
     def kept(item: Mapping[str, Any]) -> bool:
         # (As a filter keeps it)
-        return _is_clause(item) and item["op"] != "is_null"
+        return _is_clause(item) and item["op"] not in ("is_null", "matches")
 
     clauses = sorted(
         (item for item in query["and"] if kept(item)),
@@ -1460,6 +1550,9 @@ def _polars_code(
             return (
                 (f"{col}.is_null() | {col}.is_nan()", _OR) if p.nan else (f"{col}.is_null()", _ATOM)
             )
+        if isinstance(p, _Matches):
+            text = col if schema[p.col] == nw.String else f"{col}.cast(pl.String)"
+            return f"{text}.str.contains({_literal(pattern_code(p.pattern))})", _ATOM
         if isinstance(p, _Contains):
             text = col if schema[p.col] == nw.String else f"{col}.cast(pl.String)"
             return (
@@ -1504,6 +1597,10 @@ def _pandas_code(
         if isinstance(p, _IsNull):
             # (A float's NaN is missing too, as pandas has it already)
             return f"{col}.isna()", _ATOM
+        if isinstance(p, _Matches):
+            text = col if schema[p.col] == nw.String else f"{col}.astype(str)"
+            pattern = _literal(pattern_code(p.pattern))
+            return f"{text}.str.contains({pattern}, regex=True, na=False)", _ATOM
         if isinstance(p, _Contains):
             text = col if schema[p.col] == nw.String else f"{col}.astype(str)"
             return (
@@ -1554,6 +1651,9 @@ def _narwhals_code(
             return (
                 (f"{col}.is_null() | {col}.is_nan()", _OR) if p.nan else (f"{col}.is_null()", _ATOM)
             )
+        if isinstance(p, _Matches):
+            text = col if schema[p.col] == nw.String else f"{col}.cast(nw.String)"
+            return f"{text}.str.contains({_literal(pattern_code(p.pattern))})", _ATOM
         if isinstance(p, _Contains):
             text = col if schema[p.col] == nw.String else f"{col}.cast(nw.String)"
             return (
