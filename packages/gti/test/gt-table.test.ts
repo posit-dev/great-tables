@@ -3499,7 +3499,7 @@ describe("date filters", () => {
     input.value = "x ";
     input.setSelectionRange(2, 2);
     input.dispatchEvent(new Event("input", { bubbles: true }));
-    expect(options()).toEqual(['>= "…"', '<= "…"', '> "…"', '< "…"', "is null", "is not null"]);
+    expect(options()).toEqual(['>= "…"', '<= "…"', '> "…"', '< "…"', "top …", "bottom …", "is null", "is not null"]);
     press("Enter");
     expect(input.value).toBe('x >= ""');
     expect(input.selectionStart).toBe(6);
@@ -3892,7 +3892,7 @@ describe("the query box", () => {
     expect(input(el).value).toBe('y in ("b", "c") and ');
     expect(options(el)).toEqual(["x", "y"]);
     type(el, "x ");
-    expect(options(el)).toEqual([">= …", "<= …", "> …", "< …", "is null", "is not null"]);
+    expect(options(el)).toEqual([">= …", "<= …", "> …", "< …", "top …", "bottom …", "is null", "is not null"]);
     type(el, "<");
     expect(options(el)).toEqual(["<= …"]);
     press(input(el), "Enter");
@@ -3968,7 +3968,7 @@ describe("the query box", () => {
     expect(list(el).hidden).toBe(true);
     // (Enter, then, applies)
     press(input(el), "Enter");
-    expect(error(el).textContent).toBe('Expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is"');
+    expect(error(el).textContent).toBe('Expected "contains", "matches", "in", "not", ">=", "<=", ">", "<", "top", "bottom" or "is"');
   });
 
   it("takes a suggestion that's clicked, keeping focus", async () => {
@@ -4106,7 +4106,7 @@ describe("the query box", () => {
     };
     expect(problem("y matches /(/")).toBe('Expected ")"');
     expect(problem("y matches /a/g")).toBe('A pattern can have only the flag "i"');
-    expect(problem("x matches /a/")).toBe("X has a range filter: use >=, <=, > or <");
+    expect(problem("x matches /a/")).toBe("X has a range filter: use >=, <=, >, <, top or bottom");
     expect(problem("y matches /a/ and y matches /b/")).toBe("Y has more than one matches clause");
   });
 
@@ -4129,7 +4129,7 @@ describe("the query box", () => {
     expect(error(text).textContent).toBe('Expected "contains", "matches" or "in"');
     replace(text, "x not in (5)");
     press(input(text), "Enter");
-    expect(error(text).textContent).toBe("X has a range filter: use >=, <=, > or <");
+    expect(error(text).textContent).toBe("X has a range filter: use >=, <=, >, <, top or bottom");
 
     const { el } = await mountQuery();
     toggle(el).click();
@@ -4184,6 +4184,37 @@ describe("the query box", () => {
     expect(problem('x < "5"')).toBe("X has a range filter: give a number");
     expect(problem('y > "a"')).toBe("Y has a facet filter: use in");
     expect(problem("x > = 5")).toBe("Expected a number, or a date in double quotes");
+  });
+
+  it("suggests and applies top and bottom, saying what's wrong with them", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "x ");
+    for (let i = 0; i < 5; i++) {
+      press(input(el), "ArrowDown");
+    }
+    press(input(el), "Enter");
+    expect(input(el).value).toBe("x bottom ");
+    expect(list(el).hidden).toBe(true);
+    type(el, "2");
+    press(input(el), "Enter");
+    expect(error(el).hidden).toBe(true);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "bottom_n", value: 2 }] });
+    expect(visible(el)).toEqual(["group:a", 1, 2, "grand:Max"]);
+    toggle(el).click();
+    expect(input(el).value).toBe("x bottom 2");
+    const problem = (text: string) => {
+      replace(el, text);
+      press(input(el), "Enter");
+      return error(el).hidden ? null : error(el).textContent;
+    };
+    // (Ties with the n-th are kept)
+    expect(problem("x TOP 1")).toBeNull();
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "top_n", value: 1 }] });
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+    expect(problem("x top 1 and x top 2")).toBe("X has more than one top clause");
+    expect(problem("y bottom 1")).toBe("Y has a facet filter: use in");
+    expect(problem("x top 0")).toBe("Expected a whole number (at least 1)");
   });
 });
 
@@ -4299,6 +4330,30 @@ describe("the query's groups", () => {
     expect(tokens(el)).toEqual(["not x < 20"]);
     expect(() => {
       el.filter = { and: [{ col: "y", op: "gt", value: 1 }] };
+    }).toThrow(RangeError);
+  });
+
+  it("include `top_n` and `bottom_n` clauses, whose tokens are their text, ranking all the rows", async () => {
+    const { el } = await mountGroups();
+    el.filter = { and: [{ col: "x", op: "top_n", value: 1 }] };
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "top_n", value: 1 }] });
+    // (Both of the largest, which tie)
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+    expect(tokens(el)).toEqual(["x top 1"]);
+    expect(token(el, 0).parentElement?.hasAttribute("data-gti-group")).toBe(true);
+    expect(token(el, 0).title).toBe("x top 1 (edit as text)");
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(false);
+    // (Of all the rows, not those the facet keeps)
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }, { col: "x", op: "top_n", value: 1 }] };
+    expect(visible(el)).toEqual(["group:b", 4, "summary:Total", "grand:Max"]);
+    el.filter = { and: [{ not: { col: "x", op: "bottom_n", value: 2 } }] };
+    expect(tokens(el)).toEqual(["not x bottom 2"]);
+    expect(visible(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "grand:Max"]);
+    expect(() => {
+      el.filter = { and: [{ col: "y", op: "top_n", value: 1 }] };
+    }).toThrow(RangeError);
+    expect(() => {
+      el.filter = { and: [{ col: "x", op: "top_n", value: 0 }] };
     }).toThrow(RangeError);
   });
 
