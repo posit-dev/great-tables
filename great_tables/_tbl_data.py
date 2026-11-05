@@ -461,6 +461,14 @@ ColumnKind: TypeAlias = Literal[
 ]
 
 
+def _is_arrow_string_view(dtype: pa.DataType) -> bool:
+    import pyarrow as pa
+
+    # PyArrow 16 added `is_string_view()` along with the type
+    is_string_view = getattr(pa.types, "is_string_view", None)
+    return is_string_view is not None and is_string_view(dtype)
+
+
 def _arrow_type_kind(dtype: Any) -> ColumnKind:
     import pyarrow as pa
 
@@ -478,7 +486,7 @@ def _arrow_type_kind(dtype: Any) -> ColumnKind:
         return "duration"
     if pa.types.is_string(dtype) or pa.types.is_large_string(dtype):
         return "string"
-    if getattr(pa.types, "is_string_view", lambda _: False)(dtype):
+    if _is_arrow_string_view(dtype):
         return "string"
     if pa.types.is_dictionary(dtype):
         return "category"
@@ -648,7 +656,13 @@ def _(data: PyArrowTable, column: str) -> list[int | None] | None:
                 key=lambda i: position[values[i]],
             )
             return _dense_ranks(order, [position.get(v) for v in values], is_null)
+        if _is_arrow_string_view(col.type.value_type):
+            # PyArrow can't decode a dictionary of string_view
+            col = col.cast(pa.dictionary(col.type.index_type, pa.large_string()))
         col = col.cast(col.type.value_type)
+    if _is_arrow_string_view(col.type):
+        # PyArrow can't sort string_view
+        col = col.cast(pa.large_string())
 
     # (nulls sort last by default; `null_placement=` is deprecated as of PyArrow 25)
     order = pc.sort_indices(col).to_pylist()
