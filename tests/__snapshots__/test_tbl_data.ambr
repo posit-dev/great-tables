@@ -1120,8 +1120,8 @@
 # name: test_is_numeric_dtype_dtype_matrix[pyarrow_table_constructor]
   dict({
     'bool': False,
-    'categorical': True,
-    'categorical_ordered': True,
+    'categorical': False,
+    'categorical_ordered': False,
     'date': False,
     'datetime': False,
     'datetime_tz': False,
