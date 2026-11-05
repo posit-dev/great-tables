@@ -364,10 +364,25 @@ def test_cols_align_decimal_skips_list_columns(frame_constructor: DataFrameConst
             lambda: pa.table({"x": pc.run_end_encode(pa.array(["a", "a", "b"]))}),
             id="pyarrow-run_end_encoded",
         ),
+        pytest.param(
+            lambda: pa.table({"x": pa.array(["low", "high", "low"]).dictionary_encode()}),
+            id="pyarrow-dictionary",
+        ),
+        pytest.param(
+            lambda: pd.DataFrame(
+                {
+                    "x": pd.Series(
+                        ["low", "high", "low"],
+                        dtype=pd.ArrowDtype(pa.dictionary(pa.int32(), pa.string())),
+                    )
+                }
+            ),
+            id="pandas-arrow-dictionary",
+        ),
     ],
 )
 def test_cols_align_decimal_skips_parameterized_dtypes(make_frame):
-    # These dtypes name their parameters, so they used to count as numeric (#1045)
+    # A numeric type in a dtype's parameters used to make it numeric (#1045, #1028)
     gt = GT(make_frame())
     res = gt.cols_align_decimal()
 
