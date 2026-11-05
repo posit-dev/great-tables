@@ -24,6 +24,7 @@ from ._tbl_data import (
     eval_select,
     eval_transform,
     get_column_names,
+    is_na,
     to_list,
 )
 from ._text import _process_text
@@ -1218,13 +1219,15 @@ def resolve_rows_i(
         return [(row_names[ii], ii) for ii in result["__row_number__"]]
 
     elif callable(expr):
-        res: list[bool] = eval_transform(data._tbl_data, expr)
-        if not all(map(lambda x: isinstance(x, bool), res)):
+        tbl_data = data._tbl_data
+        mask = eval_transform(tbl_data, expr)
+        # a missing value leaves its row unselected, as polars' `filter` does
+        if not all(isinstance(val, bool) or is_na(tbl_data, val) for val in mask):
             raise ValueError(
                 "If you select rows using a callable, it must take a DataFrame, "
                 "and return a boolean Series."
             )
-        return [(row_names[ii], ii) for ii, val in enumerate(res) if val]
+        return [(row_names[ii], ii) for ii, val in enumerate(mask) if val is True]
 
     # TODO: identify filter-like selectors using some backend check
     # e.g. if it's a siuba expression vs tidyselect expression, etc..

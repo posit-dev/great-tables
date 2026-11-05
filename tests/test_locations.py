@@ -112,6 +112,13 @@ def test_resolve_rows_i_func_expr_polars_returning_expr():
     assert resolve_rows_i(gt, lambda D: pl.col("x").is_in(["a", "b"])) == [("a", 0), ("b", 1)]
 
 
+@pytest.mark.parametrize("missing", [None, float("nan"), pd.NA], ids=["none", "nan", "pd-na"])
+def test_resolve_rows_i_func_expr_pandas_object_mask_with_missing(missing: object):
+    gt = GT(pd.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
+    mask = pd.Series([True, missing, False], dtype=object)
+    assert resolve_rows_i(gt, lambda D: mask) == [("a", 0)]
+
+
 def test_tab_style_rows_native_selector(frame_constructor: DataFrameConstructor):
     from great_tables import loc, style
 
@@ -136,13 +143,23 @@ def test_tab_style_rows_native_selector(frame_constructor: DataFrameConstructor)
     assert gt.as_raw_html().count("background-color: red;") == 2
 
 
-def test_resolve_rows_i_func_expr_return_non_bool_series(frame_constructor: DataFrameConstructor):
+@pytest.mark.parametrize(
+    "values",
+    [
+        pytest.param([4, 5, 6], id="ints"),
+        pytest.param([4, None, 6], id="ints-with-null"),
+        pytest.param([1.5, float("nan"), 3.5], id="floats-with-nan"),
+    ],
+)
+def test_resolve_rows_i_func_expr_return_non_bool_series(
+    frame_constructor: DataFrameConstructor, values: list[float | None]
+):
     df = frame_constructor({"x": ["a", "b", "c"]})
     rows = by_backend(
         df,
-        pandas=lambda D: pd.Series([4, 5, 6]),
-        polars=lambda D: pl.Series([4, 5, 6]),
-        pyarrow=lambda D: pa.array([4, 5, 6]),
+        pandas=lambda D: pd.Series(values),
+        polars=lambda D: pl.Series(values),
+        pyarrow=lambda D: pa.array(values),
     )
     with pytest.raises(ValueError) as exc_info:
         resolve_rows_i(GT(df, rowname_col="x"), rows)
