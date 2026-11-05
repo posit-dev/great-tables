@@ -22,7 +22,10 @@
  * whose value is missing (the spec's `missing`: `null`, or NaN in a column of floats). A clause
  * `{"col": "name", "op": "matches", "value": "^st\\."}`, on a column with a text filter, keeps the
  * rows whose cell's text (as a `contains` has it, but not folded) has a match of the pattern (see
- * `pattern.ts`). No column's filter has either: the table keeps them, as it does a group.
+ * `pattern.ts`). A clause `{"col": "population", "op": "gt", "value": 10000}` (or `"lt"`), on a
+ * column with a range or a date filter, keeps the rows whose value is more than (or less than) its
+ * bound, as `"gte"` (or `"lte"`) does but for the bound itself. No column's filter has any of these:
+ * the table keeps them, as it does a group.
  *
  * A part of the query can also be a group: `{"or": [...]}`, keeping the rows any of its parts
  * keeps; `{"and": [...]}`, those every one does; or `{"not": part}`, those its part doesn't (with a
@@ -38,7 +41,7 @@ export type FilterClause =
   | { col: string; op: "contains"; value: string }
   | { col: string; op: "matches"; value: string }
   | { col: string; op: "in"; value: FilterValue[] }
-  | { col: string; op: "gte" | "lte"; value: number | string }
+  | { col: string; op: "gte" | "lte" | "gt" | "lt"; value: number | string }
   | { col: string; op: "is_null" };
 
 const DATE_TEXT = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?)?$/;
@@ -326,22 +329,42 @@ export class ColumnFilter {
           }
           state.chosen.add(key);
         }
-      } else if (this.spec.type === "range" && (op === "gte" || op === "lte") && Number.isFinite(value)) {
-        state[op === "gte" ? "min" : "max"] = value as number;
-      } else if (this.spec.type === "date" && (op === "gte" || op === "lte") && typeof value === "string") {
-        if (!this.isDateBound(value)) {
-          throw new RangeError(
-            this.times
-              ? `${JSON.stringify(value)} isn't a date ("YYYY-MM-DD") or date and time ("YYYY-MM-DDTHH:MM:SS"), for ${col}`
-              : `${JSON.stringify(value)} isn't a date ("YYYY-MM-DD"), for ${col} (of dates, without times)`,
-          );
-        }
-        state[op === "gte" ? "min" : "max"] = value;
+      } else if ((op === "gte" || op === "lte") && this.bound(value) !== undefined) {
+        state[op === "gte" ? "min" : "max"] = value as number | string;
       } else {
-        throw new RangeError(`${col} has a ${this.spec.type} filter, which can't be ${JSON.stringify(clause)}`);
+        throw this.cantBe(clause);
       }
     }
     return state;
+  }
+
+  /**
+   * A clause's value, if it's a bound this filter can have: a range's finite number, or a date
+   * filter's date (`undefined` otherwise).
+   *
+   * @throws {RangeError} for a date filter's text that isn't a date (or a date and time, for a
+   *   column with times).
+   */
+  private bound(value: unknown): number | string | undefined {
+    if (this.spec.type === "range" && Number.isFinite(value)) {
+      return value as number;
+    }
+    if (this.spec.type !== "date" || typeof value !== "string") {
+      return undefined;
+    }
+    if (!this.isDateBound(value)) {
+      const col = JSON.stringify(this.column);
+      throw new RangeError(
+        this.times
+          ? `${JSON.stringify(value)} isn't a date ("YYYY-MM-DD") or date and time ("YYYY-MM-DDTHH:MM:SS"), for ${col}`
+          : `${JSON.stringify(value)} isn't a date ("YYYY-MM-DD"), for ${col} (of dates, without times)`,
+      );
+    }
+    return value;
+  }
+
+  private cantBe(clause: FilterClause): RangeError {
+    return new RangeError(`${JSON.stringify(this.column)} has a ${this.spec.type} filter, which can't be ${JSON.stringify(clause)}`);
   }
 
   setState(state: FilterState): void {
@@ -364,10 +387,17 @@ export class ColumnFilter {
     if (clause.op === "is_null") {
       return { col, op: "is_null" };
     }
+    if (clause.op === "gt" || clause.op === "lt") {
+      const value = this.bound((clause as { value: unknown }).value);
+      if (value === undefined) {
+        throw this.cantBe(clause);
+      }
+      return { col, op: clause.op, value };
+    }
     if (clause.op === "matches") {
       const { value } = clause as { value: unknown };
       if (this.spec.type !== "text" || typeof value !== "string") {
-        throw new RangeError(`${JSON.stringify(col)} has a ${this.spec.type} filter, which can't be ${JSON.stringify(clause)}`);
+        throw this.cantBe(clause);
       }
       try {
         return { col, op: "matches", value: checkPattern(value) };
@@ -389,6 +419,24 @@ export class ColumnFilter {
 
   /** Whether a clause on this column (one `groupClause()` gives) keeps a data row, whose cell in the column is `cell`. */
   matcher(clause: FilterClause): (row: number, cell: CellText | undefined) => boolean {
+    if (clause.op === "gt" || clause.op === "lt") {
+      // (As a bound does, but not keeping the bound itself)
+      const above = clause.op === "gt";
+      if (this.spec.type === "range") {
+        const bound = clause.value as number;
+        return (row) => {
+          const value = this.value(row);
+          return typeof value === "number" && (above ? value > bound : value < bound);
+        };
+      }
+      const bound = dateKey(clause.value as string) as string;
+      const keys = this.dateKeys();
+      return (row) => {
+        const rank = this.ranks[row];
+        const key = rank == null ? null : keys[rank];
+        return key != null && (above ? key > bound : key < bound);
+      };
+    }
     const filter = new ColumnFilter(this.spec, this.index, this.ranks, this.texts, this.times ? "datetime" : null);
     filter.setState(this.parse([clause]));
     return (row, cell) => filter.keeps(row, cell);
@@ -422,8 +470,8 @@ type RowTest = (row: number, cells: readonly (CellText | undefined)[]) => boolea
 type Find = (column: unknown) => ColumnFilter;
 
 /**
- * A part of a query that's a group (an `or`, or a `not`), or an `is_null` or `matches` clause,
- * which no one column's filter has; the table keeps it, beside the filters.
+ * A part of a query that's a group (an `or`, or a `not`), or an `is_null`, `matches`, `gt` or `lt`
+ * clause, which no one column's filter has; the table keeps it, beside the filters.
  */
 export class FilterGroup {
   /** The group, as `setFilterQuery()` writes it. */
@@ -535,18 +583,18 @@ function normalItem(item: unknown, find: Find): FilterItem {
 }
 
 // The clauses that no column's filter has
-const GROUPED: readonly unknown[] = ["is_null", "matches"];
+const GROUPED: readonly unknown[] = ["is_null", "matches", "gt", "lt"];
 
 /**
  * Set filters from a query (`null` clears them), giving the query's groups (its `or` and `not`
- * parts, and its `is_null` and `matches` clauses) for the table to keep. Its other clauses that aren't in a group
+ * parts, and its `is_null`, `matches`, `gt` and `lt` clauses) for the table to keep. Its other clauses that aren't in a group
  * (or are in an `and` that isn't in one) go to their columns' filters; its groups are as
  * `normalItem()` writes them, and in the order given. Nothing changes if the query is bad.
  *
  * @throws {RangeError} for a query that isn't `{and: [...]}`, a part that isn't a clause or a
  *   group, a group without parts, a clause on a column that can't be filtered, or that its
  *   column's filter can't have (or in a group, a `contains` without text), or a second `is_null`
- *   (or `matches`) clause on a column.
+ *   (or `matches`, `gt` or `lt`) clause on a column.
  */
 export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQuery | null): FilterGroup[] {
   const items: unknown = query === null ? [] : (query as { and?: unknown } | undefined)?.and;
@@ -563,7 +611,7 @@ export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQu
   };
   const byColumn = new Map(filters.map((filter) => [filter, [] as FilterClause[]]));
   const groups: FilterItem[] = [];
-  // (The `is_null` and `matches` clauses not in a group, by their columns and ops)
+  // (The clauses no filter has that aren't in a group, by their columns and ops)
   const seen = new Set<string>();
   const add = (item: FilterItem): void => {
     if (isClause(item) && !GROUPED.includes(item.op)) {
