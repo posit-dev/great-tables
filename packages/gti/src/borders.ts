@@ -137,7 +137,7 @@ export function placeCells(rows: readonly HTMLTableRowElement[]): {
  */
 export class TableBorders {
   private readonly table: HTMLTableElement;
-  private readonly own = new WeakMap<Element, Borders>();
+  private own = new WeakMap<Element, Borders>();
   // A cell's inline border declarations, before it was drawn
   private readonly authored = new WeakMap<HTMLTableCellElement, [string, string][]>();
   private readonly drawn = new WeakMap<HTMLTableCellElement, Record<Side, Border | null>>();
@@ -187,6 +187,19 @@ export class TableBorders {
       this.authored.delete(cell);
       this.drawn.delete(cell);
       this.own.delete(cell);
+    }
+  }
+
+  /** The cells' borders changed (say, as the table was stacked): read them all again. */
+  reset(): void {
+    for (const tr of Array.from(this.table.rows)) {
+      this.forget(tr);
+    }
+    // (The table's own borders were read before they were taken off it)
+    const table = this.own.get(this.table);
+    this.own = new WeakMap();
+    if (table !== undefined) {
+      this.own.set(this.table, table);
     }
   }
 
