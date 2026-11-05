@@ -472,10 +472,11 @@ def test_render_nowrap_marks_the_element():
 
 
 def test_spec_layout_default():
-    assert spec_of(GT(DF))["layout"] == {"height": None, "responsive": "scroll"}
+    assert spec_of(GT(DF))["layout"] == {"height": None, "responsive": "scroll", "stack_below": 420}
     assert spec_of(GT(DF).opt_interactive(height="auto"))["layout"] == {
         "height": None,
         "responsive": "scroll",
+        "stack_below": 420,
     }
 
 
@@ -492,7 +493,7 @@ def test_spec_layout_default():
     ],
 )
 def test_spec_layout_height(height, expected: str):
-    layout = {"height": expected, "responsive": "scroll"}
+    layout = {"height": expected, "responsive": "scroll", "stack_below": 420}
     assert spec_of(GT(DF).opt_interactive(height=height))["layout"] == layout
     assert spec_of(GT(DF).tab_options(ihtml_height=height))["layout"] == layout
 
