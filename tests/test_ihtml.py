@@ -660,10 +660,44 @@ class TestNumericSorting:
                     reason="pyarrow < 26 can't cast run-end-encoded arrays to string",
                 ),
             ),
+            pytest.param(
+                lambda: pa.table({"x": pa.array(["low", "high", "low"]).dictionary_encode()}),
+                ["low", "high", "low"],
+                id="pyarrow-dictionary",
+            ),
+            pytest.param(
+                lambda: pa.table({"x": pa.array([10, 9, 10]).dictionary_encode()}),
+                ["10", "9", "10"],
+                id="pyarrow-dictionary-numbers",
+            ),
+            pytest.param(
+                lambda: pd.DataFrame(
+                    {
+                        "x": pd.Series(
+                            ["low", "high", "low"],
+                            dtype=pd.ArrowDtype(pa.dictionary(pa.int32(), pa.string())),
+                        )
+                    }
+                ),
+                ["low", "high", "low"],
+                id="pandas-arrow-dictionary",
+            ),
+            pytest.param(
+                lambda: pa.table(
+                    {
+                        "x": pa.UnionArray.from_sparse(
+                            pa.array([0, 1, 0], pa.int8()),
+                            [pa.array([1, 0, 3]), pa.array(["", "y", ""])],
+                        )
+                    }
+                ),
+                ["1", "y", "3"],
+                id="pyarrow-sparse_union",
+            ),
         ],
     )
     def test_parameterized_dtypes_are_not_numeric(self, make_frame, expected):
-        # These dtypes name their parameters, so their values used to go through `float()` (#1045)
+        # A numeric type in a dtype's parameters sent the values through `float()` (#1045, #1028)
         props = _extract_props(GT(make_frame()).opt_interactive().as_raw_html())
         col_map = {c["id"]: c for c in props["columns"]}
 
