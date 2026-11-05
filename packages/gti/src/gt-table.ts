@@ -260,6 +260,9 @@ const onOwnControl = (target: Element, tr: HTMLTableRowElement) => {
 // The classes of a data row's cells that the cells of the rows padding a page take
 const FILLER_CLASSES = ["gt_stub", "gt_stub_row_group", "gt-i-select", "gt-i-pinned", "gt-i-pin"];
 
+// The most data columns an "auto" table shows and is still stacked (as Python has it too)
+const STACK_COLUMNS = 6;
+
 // How far a resize handle's arrow keys move it, in px (and with Shift)
 const RESIZE_STEP = 10;
 const RESIZE_STEP_LARGE = 50;
@@ -670,6 +673,21 @@ function icon(doc: Document, name: keyof typeof ICONS): SVGSVGElement {
   return svg;
 }
 
+// A row's role, and its cells', as a table's elements have them: a header cell's by its scope (or,
+// without one, by where it is)
+function addRowRoles(tr: HTMLTableRowElement): void {
+  tr.setAttribute("role", "row");
+  for (const cell of Array.from(tr.cells)) {
+    let role = "cell";
+    if (cell.tagName === "TH") {
+      const scope = cell.getAttribute("scope");
+      const row = scope === null ? tr.parentElement?.tagName !== "THEAD" : scope === "row" || scope === "rowgroup";
+      role = row ? "rowheader" : "columnheader";
+    }
+    cell.setAttribute("role", role);
+  }
+}
+
 // Wrap a cell's contents in the box that keeps them in view as the table scrolls sideways
 function keepInView(cell: HTMLTableCellElement): HTMLElement {
   const div = cell.ownerDocument.createElement("div");
@@ -814,6 +832,11 @@ export class GtTable extends HTMLElement {
   private shadeFrame = 0;
   /** What the table does when it's wider than its container (`layout.responsive`). */
   private responsive: ResponsiveMode | null = null;
+  /**
+   * Whether the table is stacked, its rows as cards (by its own CSS, in a container narrower than
+   * its stacking width), which its column widths and page padding aren't measured in.
+   */
+  private stacked = false;
   /** The number of columns pinned at the table's inline start: the selection column and the stub (`stubColumns`), and the data columns pinned there. */
   private pinColumns = 0;
   private stubColumns = 0;
@@ -1747,8 +1770,67 @@ export class GtTable extends HTMLElement {
     if (height !== null) {
       this.addScroll(table);
     }
+    if (responsive === "stack" || responsive === "auto") {
+      this.addRoles(table);
+      this.orderChips();
+      this.syncStack();
+    }
     this.drawBorders();
     this.observeLayout();
+  }
+
+  /**
+   * A table that can be stacked keeps its rows' and cells' roles (which a table, its rows and its
+   * cells laid out as blocks would lose, in some browsers), from its elements.
+   */
+  private addRoles(table: HTMLTableElement): void {
+    table.setAttribute("role", "table");
+    for (const section of Array.from(table.querySelectorAll(":scope > :is(thead, tbody, tfoot)"))) {
+      section.setAttribute("role", "rowgroup");
+    }
+    for (const tr of Array.from(table.rows)) {
+      addRowRoles(tr);
+    }
+  }
+
+  /**
+   * Whether the table is stacked now (`data-gti-stacked`): by its CSS, which says so with
+   * `--gt-i-stacked`, while it isn't stacked whatever its width (`data-gti-stack-off`, for an
+   * "auto" table showing more than a few data columns). Whether that changed: once it isn't, the
+   * cells' borders are read again (for the borders drawn on them).
+   */
+  private syncStack(): boolean {
+    const { table, spec, responsive } = this;
+    if (table === null || spec === null || (responsive !== "stack" && responsive !== "auto")) {
+      return false;
+    }
+    if (responsive === "auto") {
+      const shown = spec.columns.filter((column) => column.role === "data").length - this.hiddenIds.length;
+      this.toggleAttribute("data-gti-stack-off", shown > STACK_COLUMNS);
+    }
+    const stacked = getComputedStyle(table).getPropertyValue("--gt-i-stacked").trim() === "1";
+    if (stacked === this.stacked) {
+      return false;
+    }
+    this.stacked = stacked;
+    this.toggleAttribute("data-gti-stacked", stacked);
+    if (!stacked) {
+      this.borders?.reset();
+    }
+    return true;
+  }
+
+  // The column labels, as chips above the cards of a stacked table, are in their columns' order
+  // (the labels under spanners being in another row; `order` doesn't change a table's layout)
+  private orderChips(): void {
+    const thead = this.table?.tHead;
+    if (thead == null) {
+      return;
+    }
+    const rows = Array.from(thead.querySelectorAll<HTMLTableRowElement>(":scope > tr.gt_col_headings"));
+    for (const { cell, c0 } of placeCells(rows).placed) {
+      cell.style.order = String(c0);
+    }
   }
 
   // The container the table scrolls in: GT's `<div>` around the table (or ours, without one)
@@ -1951,7 +2033,8 @@ export class GtTable extends HTMLElement {
     if (this.responsive === null || scroller === null || table === null) {
       return;
     }
-    const wide = scroller.scrollWidth > scroller.clientWidth + 1;
+    // (A stacked table's cards fit its container)
+    const wide = !this.stacked && scroller.scrollWidth > scroller.clientWidth + 1;
     this.toggleAttribute("data-gti-wide", wide);
     if (!wide) {
       this.hint?.removeAttribute("data-gti-shown");
@@ -2836,6 +2919,10 @@ export class GtTable extends HTMLElement {
     this.removeFillers();
     this.fillers = [];
     this.fillerCells = null;
+    // (An "auto" table showing fewer columns can be stacked, or one showing more not)
+    if (this.syncStack()) {
+      this.drawBorders();
+    }
     // The columns fitted to their contents are measured again, but not the reader's widths
     if (this.colgroup !== null && this.startWidths === null) {
       this.remeasure();
@@ -2983,6 +3070,9 @@ export class GtTable extends HTMLElement {
     this.removeFillers();
     this.fillers = [];
     this.fillerCells = null;
+    if (this.responsive === "stack" || this.responsive === "auto") {
+      this.orderChips();
+    }
   }
 
   private addSearchBox(table: HTMLTableElement): void {
@@ -5569,6 +5659,9 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.layout = new ResizeObserver(() => {
+      if (this.syncStack()) {
+        this.drawBorders();
+      }
       this.alignBars();
       this.placeFilter();
       this.stick();
@@ -5856,7 +5949,8 @@ export class GtTable extends HTMLElement {
     if (!this.widthsFixed && this.needsWidths()) {
       this.fixWidths();
     }
-    const pads = size !== null && this.spec.nrows > size;
+    // (Not a stacked table's, whose cards are as tall as their contents)
+    const pads = size !== null && this.spec.nrows > size && !this.stacked;
     if (pads) {
       this.measurePage(size);
     }
@@ -6000,8 +6094,8 @@ export class GtTable extends HTMLElement {
   // Fix the column widths (those the author didn't set with `cols_width()`)
   private fixWidths(): void {
     const table = this.table as HTMLTableElement;
-    if (table.getClientRects().length === 0) {
-      // Not laid out (say, in a hidden tab): try again once it is
+    if (table.getClientRects().length === 0 || this.stacked) {
+      // Not laid out (say, in a hidden tab), or not as a table: try again once it is
       return;
     }
     this.widthsFixed = true;
@@ -6056,6 +6150,10 @@ export class GtTable extends HTMLElement {
   // Measure the fitted widths again (leaving every row shown, for `render()`), or leave the columns
   // as they are without a row to measure them by
   private remeasure(): void {
+    if (this.stacked) {
+      // (Measured again once the table isn't stacked, as its width changes)
+      return;
+    }
     const colgroup = this.colgroup as HTMLTableColElement;
     const widths = this.measureWidths();
     if (widths !== null && widths.columns.length === colgroup.children.length) {
@@ -6162,6 +6260,9 @@ export class GtTable extends HTMLElement {
       td.colSpan = this.emptySpan();
       td.textContent = "No matching rows";
       this.empty.append(td);
+      if (this.table?.hasAttribute("role")) {
+        addRowRoles(this.empty);
+      }
       // (Kept in view, like the rows across the table, once it's been wider than its container)
       this.inView?.push(keepInView(td));
     }
@@ -6207,6 +6308,7 @@ export class GtTable extends HTMLElement {
     return (
       size !== null &&
       (this.spec?.nrows ?? 0) > size &&
+      !this.stacked &&
       this.padKey !== this.padKeyNow(size) &&
       !this.hasAttribute("data-gti-resizing")
     );
@@ -6755,6 +6857,7 @@ export class GtTable extends HTMLElement {
     this.scrollsDown = false;
     this.shades = {};
     this.responsive = null;
+    this.stacked = false;
     this.pinColumns = 0;
     this.stubColumns = 0;
     this.endColumns = 0;
@@ -6772,6 +6875,7 @@ export class GtTable extends HTMLElement {
     this.removeAttribute("data-gti-scroll");
     this.removeAttribute("data-gti-sticky");
     this.removeAttribute("data-gti-wide");
+    this.removeAttribute("data-gti-stacked");
     this.style.removeProperty("--gt-i-height");
     this.style.removeProperty("--gt-i-head");
     this.style.removeProperty("--gt-i-pad");

@@ -34,7 +34,11 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   in the table's CSS, as smaller row padding), and whether cell text wraps
 - `layout`: how the table fits its space: the most it can take up before its body scrolls
   vertically (a CSS length; `null` to grow with its content), and what it does when it's wider
-  than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table does)
+  than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table
+  does), or narrower than `stack_below` px (`"stack"`: its rows become cards; `"auto"`: they do if
+  it shows no more than six data columns, and it scrolls otherwise). The table's own CSS stacks it
+  (so that it's stacked without the runtime), at the width `stack_below` gives, which producers
+  keep the same; producers that leave `stack_below` out have 420.
 - `filters`: the columns readers can filter by, in column order, and how: by the text they show
   (`"text"`), a choice of their values (`"facet"`), a range of their numbers (`"range"`), a
   range of their dates, or dates and times (`"date"`; whether they have times is the column's
@@ -183,7 +187,9 @@ class DisplaySpec(TypedDict):
 
 class LayoutSpec(TypedDict):
     height: str | None
-    responsive: Literal["scroll"] | None
+    responsive: Literal["scroll", "stack", "auto"] | None
+    # (The container width, in px, below which a "stack" or "auto" table is stacked)
+    stack_below: int | float
 
 
 class FilterSpec(TypedDict):
@@ -459,8 +465,11 @@ def build_spec(data: GTData) -> Spec:
         display=DisplaySpec(
             highlight=settings.highlight, compact=settings.compact, wrap=settings.wrap
         ),
-        # (Responsive layouts are GTI's own, and "scroll" is the only one so far)
-        layout=LayoutSpec(height=settings.height, responsive="scroll"),
+        layout=LayoutSpec(
+            height=settings.height,
+            responsive=settings.responsive,
+            stack_below=settings.stack_below,
+        ),
         filters=filters,
         view=view,
         export=ExportSpec(

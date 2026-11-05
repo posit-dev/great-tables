@@ -40,6 +40,12 @@ PinSide = Literal["left", "right"]
 
 PIN_SIDES: tuple[PinSide, ...] = ("left", "right")
 
+# How the table fits a narrow container: by scrolling sideways (with the stub pinned), as cards
+# (one per row) below a width, or as cards there only if it has few columns
+ResponsiveMode = Literal["scroll", "stack", "auto"]
+
+RESPONSIVE_MODES: tuple[ResponsiveMode, ...] = ("scroll", "stack", "auto")
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -58,6 +64,9 @@ class Settings:
     pagination_type: PaginationType = "jump"
     # (A CSS length; `None` to grow with the content)
     height: str | None = None
+    # (How the table fits a narrow container, and the width (in px) below which it's stacked)
+    responsive: ResponsiveMode = "scroll"
+    stack_below: int | float = 420
     highlight: bool = True
     compact: bool = False
     wrap: bool = True

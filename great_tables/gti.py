@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+import numbers
 import operator
 from dataclasses import replace
 from typing import Any, NoReturn
@@ -11,10 +13,12 @@ from ._gti._settings import (
     EXPORT_FORMATS,
     FILTER_TYPES,
     PIN_SIDES,
+    RESPONSIVE_MODES,
     SELECTION_MODES,
     ExportFormat,
     FilterType,
     PinSide,
+    ResponsiveMode,
     SelectionMode,
     Settings,
 )
@@ -423,6 +427,63 @@ class GTI(GT):
             )
         # (A number is of pixels, as with `tab_options()`)
         return self._set_interactive(height=height if isinstance(height, str) else f"{height}px")
+
+    def i_responsive(
+        self, mode: ResponsiveMode = "scroll", *, stack_below: int | float = 420
+    ) -> Self:
+        """
+        Set how the table fits a narrow container.
+
+        A table wider than its container scrolls sideways, with its stub (and any pinned columns)
+        staying in view (`"scroll"`, the default). Or, in a container narrower than `stack_below`
+        pixels (on a phone, say), it can be stacked: each row becomes a card, titled by its stub,
+        with each column's label next to its value (labels under a spanner are prefixed with it).
+        Row groups become headings between the cards, and summary rows become cards of their own.
+        The table is stacked by its CSS alone, so it's stacked before its script runs (or without
+        it); once it runs, the column labels are shown above the cards as chips, which readers
+        can sort and filter by as with the labels themselves.
+
+        With `"stack"`, the table is stacked in any narrow container; with `"auto"`, only if it
+        shows no more than six columns (not counting the stub), so that wider tables scroll. In a
+        container as wide as `stack_below` or wider, either is as `"scroll"`.
+
+        Parameters
+        ----------
+        mode
+            How the table fits a narrow container: `"scroll"`, `"stack"`, or `"auto"`.
+        stack_below
+            The container width (in pixels) below which the table is stacked, with `"stack"` or
+            `"auto"`.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table that's stacked in a container narrower than 420 pixels (narrow the window
+        to see its cards).
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        towny_mini = towny[["name", "status", "population_2021", "density_2021"]]
+
+        GTI(towny_mini, rowname_col="name").i_responsive("stack")
+        ```
+        """
+        if mode == "collapse":
+            raise ValueError(
+                'The "collapse" layout (hiding columns by priority) isn\'t available yet; use '
+                '`mode="scroll"`, `"stack"`, or `"auto"`.'
+            )
+        if mode not in RESPONSIVE_MODES:
+            raise ValueError(f'`mode=` must be "scroll", "stack", or "auto", not {mode!r}.')
+        return self._set_interactive(
+            responsive=mode, stack_below=_width(stack_below, "stack_below")
+        )
 
     def i_display(
         self, *, highlight: bool = True, compact: bool = False, wrap: bool = True
@@ -1236,7 +1297,7 @@ class GTI(GT):
         raise TypeError(
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
-            "`i_selection()`, `i_scroll()`, `i_display()`, `i_cols_filter()`, "
+            "`i_selection()`, `i_scroll()`, `i_responsive()`, `i_display()`, `i_cols_filter()`, "
             "`i_cols_controls()`, `i_cols_pin()`, `i_view()`, `i_view_state()`, and `i_export()`."
         )
 
@@ -1258,6 +1319,15 @@ def _optional_flag(value: object, name: str) -> bool | None:
     if not (value is None or isinstance(value, bool)):
         raise TypeError(f"`{name}=` must be `True`, `False`, or `None`, not {value!r}.")
     return value
+
+
+def _width(value: Any, name: str) -> int | float:
+    # (A positive number of pixels, e.g. NumPy's, but not a bool; kept whole where it is)
+    if isinstance(value, numbers.Real) and not isinstance(value, bool):
+        width = float(value)
+        if math.isfinite(width) and width > 0:
+            return int(width) if width.is_integer() else width
+    raise ValueError(f"`{name}=` must be a positive number of pixels, not {value!r}.")
 
 
 def _page_size(value: Any, name: str) -> int:
