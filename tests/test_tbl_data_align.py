@@ -147,8 +147,6 @@ class TestNumberLikeDetection:
             pytest.param(["2024-01-15", "2024-02-20", "2024-03-25"], True, id="dates"),
             pytest.param(["10:30:00", "14:45:30", "23:59:59"], True, id="times"),
             pytest.param(["123", "456", "789"], True, id="numbers"),
-            # NOTE: Empty strings match the current pattern (^[0-9 -/:\\.]*$)
-            # This documents current behavior
             pytest.param(["", "", ""], True, id="empty strings"),
             pytest.param(["1.5", None], True, id="missing value"),
             pytest.param(["abc", "123", "def"], False, id="mixed text"),

@@ -1,9 +1,4 @@
-"""Type classification for auto-alignment.
-
-This module provides backend-specific dtype classification for determining
-column text alignment. The approach uses singledispatch to handle pandas,
-polars, and pyarrow backends with their native type APIs.
-"""
+"""Column classification for auto-alignment."""
 
 from __future__ import annotations
 
@@ -15,8 +10,6 @@ from typing import TYPE_CHECKING, Literal
 
 from ._tbl_data import (
     PdDataFrame,
-    PlDataFrame,
-    PyArrowTable,
     _get_column_dtype,
     is_na,
     to_list,
@@ -36,17 +29,20 @@ ALIGNMENT_MAP: dict[AlignmentClass, Literal["right", "left", "center"]] = {
 # Used with re.match, so it anchors at the start: "timestamp[us]" is numeric, "list(int64)" isn't
 NUMERIC_DTYPE_PATTERN = re.compile(r"int|uint|float|date|double|timestamp")
 
-# String dtypes that should be left-aligned
-# Includes "str" for pandas 3.x compatibility (pandas 2.x uses "object")
-STRING_DTYPES = {"object", "utf8", "string", "str", "large_string", "string_view"}
+# "object" is pandas 2 text, "str" pandas 3 text, and "[pyarrow]" names come from pandas ArrowDtype
+STRING_DTYPES = {
+    "object",
+    "str",
+    "utf8",
+    "string",
+    "large_string",
+    "string_view",
+    "string[pyarrow]",
+    "large_string[pyarrow]",
+    "string_view[pyarrow]",
+}
 
-# pandas ArrowDtype string columns report their backend in the dtype name
-PANDAS_ARROW_STRING_DTYPES = {"string[pyarrow]", "large_string[pyarrow]", "string_view[pyarrow]"}
-
-# Pattern for "number-like" strings (dates, times, formatted numbers)
-# NOTE: Preserves original behavior including the character class quirk
-# The original pattern [0-9 -/:\\.] has " -/" which is technically a range from space to /
-# We keep this for now to match existing behavior exactly
+# Dates, times and formatted numbers. The ` -/` range admits every character from space to `/`
 NUMBER_LIKE_PATTERN = re.compile(r"^[0-9 -/:\\.]*$")
 
 
@@ -58,14 +54,7 @@ def is_number_like_column(data: DataFrameLike, column: str) -> bool:
 
 @singledispatch
 def classify_dtype_for_alignment(data: DataFrameLike, column: str) -> AlignmentClass:
-    """Classify a column's dtype for alignment purposes.
-
-    Returns:
-        "numeric" -> right-aligned (numbers, dates, times)
-        "string" -> left-aligned (text)
-        "other" -> center-aligned (boolean, etc.)
-    """
-    # Fallback: use string-based pattern matching (matches original behavior)
+    """Classify a column by its dtype: "numeric" (right), "string" (left) or "other" (center)."""
     dtype = str(_get_column_dtype(data, column)).lower()
 
     if NUMERIC_DTYPE_PATTERN.match(dtype):
@@ -80,7 +69,6 @@ def classify_dtype_for_alignment(data: DataFrameLike, column: str) -> AlignmentC
 def _classify_pandas(data: PdDataFrame, column: str) -> AlignmentClass:
     dtype = str(data[column].dtype).lower()
 
-    # Match original behavior: pattern-based detection
     if NUMERIC_DTYPE_PATTERN.match(dtype):
         return "numeric"
     elif dtype == "object":
@@ -95,32 +83,6 @@ def _classify_pandas(data: PdDataFrame, column: str) -> AlignmentClass:
                 return "numeric"
             return "other"
         return "string"
-    elif dtype in STRING_DTYPES or dtype in PANDAS_ARROW_STRING_DTYPES:
-        return "string"
-    else:
-        return "other"
-
-
-@classify_dtype_for_alignment.register(PlDataFrame)
-def _classify_polars(data: PlDataFrame, column: str) -> AlignmentClass:
-    dtype = str(data[column].dtype).lower()
-
-    # Match original behavior: pattern-based detection
-    if NUMERIC_DTYPE_PATTERN.match(dtype):
-        return "numeric"
-    elif dtype in STRING_DTYPES:
-        return "string"
-    else:
-        return "other"
-
-
-@classify_dtype_for_alignment.register(PyArrowTable)
-def _classify_pyarrow(data: PyArrowTable, column: str) -> AlignmentClass:
-    dtype = str(data.column(column).type).lower()
-
-    # Match original behavior: pattern-based detection
-    if NUMERIC_DTYPE_PATTERN.match(dtype):
-        return "numeric"
     elif dtype in STRING_DTYPES:
         return "string"
     else:
