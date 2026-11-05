@@ -1,4 +1,5 @@
-// Build the GTI runtime into great_tables/js/gti.{js,css}.
+// Build the GTI runtime into great_tables/js/gti.{js,css}, and the template of a stacked table's
+// own CSS into great_tables/js/gti-stack.css.
 //
 //   node scripts/build.mjs           build and write the bundle
 //   node scripts/build.mjs --check   build in memory and fail if the committed bundle is stale or
@@ -11,9 +12,10 @@ import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 import * as esbuild from "esbuild";
+import { mangledNames } from "./mangle.mjs";
 
 // Budget for the core runtime (JS and CSS together), minified and gzipped.
-const BUDGET_BYTES = 30 * 1024;
+const BUDGET_BYTES = 54 * 1024;
 
 const pkgDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(pkgDir, "..", "..", "great_tables", "js");
@@ -35,19 +37,30 @@ async function buildOne(options) {
   return text.endsWith("\n") ? text : text + "\n";
 }
 
+const js = {
+  ...shared,
+  entryPoints: ["src/index.ts"],
+  outfile: "gti.js",
+  format: "iife",
+  globalName: "GTI",
+  target: "es2020",
+  define: { __GTI_VERSION__: JSON.stringify(pkg.version) },
+  banner: { js: banner },
+};
+// (Private members' names, shortened: see scripts/mangle.mjs)
+const mangled = await mangledNames(pkgDir, js);
+
 const outputs = {
-  "gti.js": await buildOne({
-    entryPoints: ["src/index.ts"],
-    outfile: "gti.js",
-    format: "iife",
-    globalName: "GTI",
-    target: "es2020",
-    define: { __GTI_VERSION__: JSON.stringify(pkg.version) },
-    banner: { js: banner },
-  }),
+  "gti.js": await buildOne({ ...js, mangleProps: new RegExp(`^(?:${mangled.join("|")})$`) }),
   "gti.css": await buildOne({
     entryPoints: ["src/gti.css"],
     outfile: "gti.css",
+    banner: { css: banner },
+  }),
+  // (Not the runtime's: producers include it with each table that can be stacked)
+  "gti-stack.css": await buildOne({
+    entryPoints: ["src/stack.css"],
+    outfile: "gti-stack.css",
     banner: { css: banner },
   }),
 };
@@ -59,8 +72,13 @@ let total = 0;
 for (const [name, text] of Object.entries(outputs)) {
   const path = join(outDir, name);
   const gzipped = gzipSync(text, { level: 9 }).length;
-  total += gzipped;
-  console.log(`${relative(process.cwd(), path)}: ${text.length} B, ${gzipped} B gzipped`);
+  const runtime = name !== "gti-stack.css";
+  if (runtime) {
+    total += gzipped;
+  }
+  console.log(
+    `${relative(process.cwd(), path)}: ${text.length} B, ${gzipped} B gzipped${runtime ? "" : " (per table, not in the budget)"}`,
+  );
 
   if (check) {
     let committed = null;

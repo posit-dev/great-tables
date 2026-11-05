@@ -43,6 +43,11 @@ jobs:
         run: npm run check
       - name: Unit tests
         run: npm test
+      - name: Query tests (Python's filters and sorts against the runtime's)
+        working-directory: .
+        run: |
+          pip install narwhals hypothesis polars pyarrow pytest pytest-cov
+          pytest tests/test_gti_query.py --no-cov
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser tests

@@ -533,6 +533,26 @@ class GT(
 
         return rendered
 
+    # (Not seen by type checkers, which can still tell when an attribute is misspelled)
+    if not TYPE_CHECKING:
+
+        def __getattr__(self, name: str) -> Any:
+            # The `i_` methods are those of `GTI` tables
+            if name.startswith("i_"):
+                from .gti import GTI
+
+                if hasattr(GTI, name):
+                    raise AttributeError(
+                        f"`{name}()` is a method of interactive tables, made with `GTI()` in place "
+                        "of `GT()` (or from a `GT` table, with `GTI.from_gt()`).",
+                        name=name,
+                        obj=self,
+                    )
+            # (With `name=` and `obj=`, Python can suggest a name that's close)
+            raise AttributeError(
+                f"{type(self).__name__!r} object has no attribute {name!r}", name=name, obj=self
+            )
+
     def _render_formats(self, context: str) -> Self:
         new_body = self._body.copy()
 

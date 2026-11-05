@@ -1,5 +1,7 @@
 gt-table {
   display: block;
+  /* (For the shadows and the hint over the table) */
+  position: relative;
 }
 
 /* Sortable column labels: the label is a button that looks like the label */
@@ -148,8 +150,75 @@ gt-table[data-gti-resizing] * {
   }
 }
 
-/* Rows hidden by a search or paging stay hidden, whatever the page's styles say about table rows */
-gt-table tr[hidden] {
+/*
+ * Column filters: a button after the label (over the resize handle), faint until the column is
+ * filtered, when its funnel is filled
+ */
+gt-table .gt-i-filter-button {
+  appearance: none;
+  display: inline-flex;
+  position: relative;
+  z-index: 2;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  margin-inline-start: 0.25em;
+  padding: 0.125em;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+  opacity: 0.45;
+}
+
+gt-table .gt-i-filter-button .gt-i-icon {
+  width: 0.875em;
+  height: 0.875em;
+}
+
+gt-table .gt-i-filter-button:hover,
+gt-table .gt-i-filter-button:focus-visible,
+gt-table .gt-i-filter-button[aria-expanded="true"],
+gt-table th[data-gti-filtered] .gt-i-filter-button {
+  opacity: 1;
+}
+
+gt-table .gt-i-filter-button:hover,
+gt-table .gt-i-filter-button[aria-expanded="true"] {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-filter-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table th[data-gti-filtered] .gt-i-filter-button .gt-i-icon {
+  fill: currentColor;
+}
+
+/* On touch screens, a target of at least 44 x 44 px, without changing the layout */
+@media (pointer: coarse) {
+  gt-table .gt-i-filter-button::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/*
+ * Rows hidden by a search or paging, and the cells and columns of the columns the reader hides,
+ * stay hidden, whatever the page's styles say about them
+ */
+gt-table :is(tr, td, th, col)[hidden] {
   display: none !important;
 }
 
@@ -258,31 +327,75 @@ gt-table[data-gti-scroll] .gt-i-scroller {
  * below them (set by the runtime, as their height changes), and the grand summary rows at the
  * bottom to the bottom. The table's borders are drawn on its cells by then, so they stick too.
  */
-gt-table[data-gti-sticky] {
-  position: relative;
-}
-
 gt-table[data-gti-sticky] thead {
   position: sticky;
   /* (Over the container's padding) */
   top: calc(0px - var(--gt-i-pad, 0px));
-  z-index: 2;
+  z-index: 5;
 }
 
 gt-table[data-gti-sticky] tr.gt_group_heading_row > *,
 gt-table[data-gti-sticky] tr.gt-i-stuck-bottom > * {
   position: sticky;
-  z-index: 1;
+  z-index: 3;
+}
+
+/*
+ * A table wider than its container scrolls sideways (whatever the author set for the container),
+ * with the selection column and the stub stuck at its inline start (and any data columns pinned
+ * at either side, while they fit: the runtime marks them, and sets where they stick), over
+ * the cells scrolling under them (and under the column resize handles), filled with what's behind
+ * them if they're see-through. The contents of the cells across the table (its title, group
+ * headings and notes) are as wide as the part in view, and stick in it.
+ */
+gt-table[data-gti-wide] .gt-i-scroller {
+  overflow-x: auto !important;
+}
+
+gt-table[data-gti-wide] .gt-i-pinned {
+  position: sticky;
+  z-index: 2;
+}
+
+gt-table[data-gti-wide] tr.gt-i-stuck-bottom > .gt-i-pinned {
+  z-index: 4;
+}
+
+gt-table[data-gti-wide] .gt-i-filled {
+  background-image: var(--gt-i-fill);
+}
+
+gt-table[data-gti-wide] .gt-i-inview {
+  position: sticky;
+  max-width: var(--gt-i-room, none);
+}
+
+/* (GT's cells hide what overflows them, by id, which would keep their contents from sticking) */
+gt-table[data-gti-wide] :is(td, th):has(> .gt-i-inview) {
+  overflow: visible !important;
+}
+
+/* A container that scrolls can have focus, to scroll with the keyboard */
+gt-table .gt-i-scroller:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
 }
 
 /* The shadows over the scrolling body's edges, while there's more of it past them */
 gt-table .gt-i-shade {
   position: absolute;
-  z-index: 3;
-  height: 6px;
+  z-index: 6;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s;
+}
+
+gt-table .gt-i-shade:is([data-gti-edge="top"], [data-gti-edge="bottom"]) {
+  height: 6px;
+}
+
+gt-table .gt-i-shade:is([data-gti-edge="left"], [data-gti-edge="right"]) {
+  width: 6px;
 }
 
 gt-table .gt-i-shade[data-gti-edge="top"] {
@@ -294,12 +407,43 @@ gt-table .gt-i-shade[data-gti-edge="bottom"] {
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.15));
 }
 
+gt-table .gt-i-shade[data-gti-edge="left"] {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.15), transparent);
+}
+
+gt-table .gt-i-shade[data-gti-edge="right"] {
+  transform: translateX(-100%);
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.15), transparent);
+}
+
 gt-table .gt-i-shade[data-gti-shown] {
   opacity: 1;
 }
 
+/* The hint that the table scrolls sideways, until it first does */
+gt-table .gt-i-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  padding: 0.25em 0.75em;
+  border-radius: 1em;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 0.8125em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.15s;
+}
+
+gt-table .gt-i-hint[data-gti-shown] {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  gt-table .gt-i-shade {
+  gt-table :is(.gt-i-shade, .gt-i-hint) {
     transition: none;
   }
 }
@@ -307,6 +451,12 @@ gt-table .gt-i-shade[data-gti-shown] {
 @media (forced-colors: active) {
   gt-table .gt-i-shade {
     display: none;
+  }
+
+  gt-table .gt-i-hint {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
   }
 }
 
@@ -464,10 +614,952 @@ gt-table .gt-i-page-jump input {
   }
 }
 
+/*
+ * The control bar below the table (GTI's): a line of a fixed height, with the search on the
+ * inline start and the page arrows and readout on the inline end, under a line of the filters'
+ * tokens (while any filter is on). Its room is kept from the start (`data-gti-bar`, and
+ * `data-gti-tokens` for a view with a filter, from the producer), so that what's below the table
+ * doesn't move when it comes.
+ */
+gt-table[data-gti-bar]:is(:not(:defined), [data-gti-state="pending"]) {
+  padding-bottom: 2.5em;
+}
+
+gt-table[data-gti-bar][data-gti-tokens]:is(:not(:defined), [data-gti-state="pending"]) {
+  padding-bottom: 4.875em;
+}
+
+gt-table .gt-i-bar {
+  --gt-i-line: 2em;
+  display: flex;
+  flex-wrap: wrap;
+  /* (For the info panel) */
+  position: relative;
+  align-items: center;
+  gap: 0.375em 0.5em;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: var(--gt-i-line);
+  margin-top: 0.5em;
+  white-space: nowrap;
+  /* (So the readout doesn't shift as the numbers change) */
+  font-variant-numeric: tabular-nums;
+  container-type: inline-size;
+}
+
+gt-table .gt-i-bar[hidden],
+gt-table .gt-i-bar [hidden] {
+  display: none;
+}
+
+/* A table of every row keeps its bar in view as it's scrolled past (the runtime fills it) */
+gt-table .gt-i-bar[data-gti-stick] {
+  position: sticky;
+  bottom: 0;
+  z-index: 7;
+}
+
+gt-table .gt-i-bar-button,
+gt-table .gt-i-readout {
+  appearance: none;
+  box-sizing: border-box;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+gt-table .gt-i-bar-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  padding: 0;
+}
+
+gt-table .gt-i-icon {
+  width: 1.125em;
+  height: 1.125em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+gt-table .gt-i-bar:dir(rtl) :is([data-gti-bar="previous"], [data-gti-bar="next"]) .gt-i-icon {
+  transform: scaleX(-1);
+}
+
+gt-table :is(.gt-i-bar-button, .gt-i-readout):hover,
+gt-table .gt-i-bar-button[aria-expanded="true"] {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table :is(.gt-i-bar-button, .gt-i-readout):focus-visible,
+gt-table .gt-i-readout-jump input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-bar-button[aria-disabled="true"] {
+  background: none;
+  cursor: default;
+  opacity: 0.4;
+}
+
+/* The search: a button, which opens a field growing toward the page controls */
+gt-table .gt-i-bar-search {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  min-width: 0;
+  height: var(--gt-i-line);
+}
+
+gt-table .gt-i-search-field {
+  display: flex;
+  flex: 0 1 20em;
+  align-items: center;
+  gap: 0.375em;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 100%;
+  padding-inline-start: 0.5em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+
+gt-table .gt-i-search-field:focus-within {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-search-field > .gt-i-icon {
+  flex: none;
+  opacity: 0.6;
+}
+
+gt-table .gt-i-search-field .gt-i-search {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 3em;
+  min-height: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  font-size: inherit;
+}
+
+/* (The field has its own clear button) */
+gt-table .gt-i-search-field .gt-i-search::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+gt-table .gt-i-search-count {
+  flex: none;
+  opacity: 0.7;
+}
+
+gt-table .gt-i-search-field .gt-i-bar-button {
+  height: 100%;
+  border: 0;
+}
+
+/* The page controls: arrows either side of the page and page count */
+gt-table .gt-i-bar-pages {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.125em;
+  height: var(--gt-i-line);
+  margin-inline-start: auto;
+}
+
+/* As wide as the readout can get, which a click makes an input for the page to go to */
+gt-table .gt-i-readout-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: calc(var(--gt-i-digits, 1) * 2ch + 2.5em);
+  height: 100%;
+  font-size: 0.875em;
+}
+
+gt-table .gt-i-readout {
+  width: 100%;
+  height: 100%;
+  padding: 0 0.25em;
+}
+
+gt-table .gt-i-of {
+  margin-inline: 0.25em;
+  opacity: 0.7;
+}
+
+gt-table .gt-i-readout-jump {
+  display: inline-flex;
+  align-items: center;
+}
+
+gt-table .gt-i-readout-jump input {
+  box-sizing: content-box;
+  width: calc(var(--gt-i-digits, 1) * 1ch);
+  margin: 0;
+  padding: 0.125em 0.375em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+}
+
+/*
+ * The filters' tokens: a line of them above the rest of the bar, which scrolls sideways when
+ * they don't fit (each cut short with an ellipsis, past a width)
+ */
+gt-table .gt-i-tokens {
+  display: flex;
+  flex: 0 0 100%;
+  order: -1;
+  align-items: center;
+  gap: 0.375em;
+  box-sizing: border-box;
+  height: var(--gt-i-line);
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+gt-table .gt-i-tokens > li {
+  display: flex;
+  flex: none;
+  box-sizing: border-box;
+  max-width: 18em;
+  height: 100%;
+  font-size: 0.875em;
+}
+
+/* (An outline, inside it, so that its buttons fill the line: on a touch screen, a target's height) */
+gt-table .gt-i-tokens .gt-i-token {
+  border-radius: 999px;
+  outline: 1px solid rgba(128, 128, 128, 0.6);
+  outline-offset: -1px;
+}
+
+/* (A group of the query's, as text, dashed) */
+gt-table .gt-i-tokens .gt-i-token[data-gti-group] {
+  outline-style: dashed;
+}
+
+gt-table .gt-i-tokens button {
+  appearance: none;
+  margin: 0;
+  padding: 0 0.375em;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+gt-table .gt-i-tokens .gt-i-token-open {
+  min-width: 0;
+  overflow: hidden;
+  padding-inline-start: 0.75em;
+  text-overflow: ellipsis;
+}
+
+gt-table .gt-i-tokens .gt-i-token-open[aria-expanded="true"] {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-tokens .gt-i-token-remove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  padding-inline-end: 0.5em;
+  opacity: 0.7;
+}
+
+gt-table .gt-i-token-remove .gt-i-icon {
+  width: 1em;
+  height: 1em;
+}
+
+gt-table .gt-i-token-clear {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+/* (Inside the button: the line cuts off what's outside it) */
+gt-table .gt-i-tokens button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+/*
+ * The query box: on the tokens' line (in their place), a field of the filters as text, which is
+ * drawn over a copy of it for its highlights (where the browser has them), with suggestions above
+ * it and what's wrong with it below (in colours for a light background, or a dark one)
+ */
+gt-table .gt-i-query {
+  --gt-i-keyword: #8250df;
+  --gt-i-string: #1a7f37;
+  --gt-i-number: #0550ae;
+  --gt-i-error: #c62828;
+  flex: 0 0 100%;
+  order: -1;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+gt-table .gt-i-query[data-gti-dark] {
+  --gt-i-keyword: #d2a8ff;
+  --gt-i-string: #7ee787;
+  --gt-i-number: #79c0ff;
+  --gt-i-error: #ff7b72;
+}
+
+gt-table .gt-i-query-field {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--gt-i-line);
+  padding-inline-start: 0.5em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+
+gt-table .gt-i-query-field:focus-within {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-query-field:has([aria-invalid="true"]) {
+  border-color: var(--gt-i-error);
+}
+
+gt-table .gt-i-query-text {
+  flex: 1 1 auto;
+  position: relative;
+  min-width: 3em;
+  height: 100%;
+}
+
+gt-table .gt-i-query-text > * {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  white-space: pre;
+}
+
+gt-table .gt-i-query-mirror {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: transparent;
+  pointer-events: none;
+}
+
+gt-table .gt-i-query-text input {
+  background: transparent;
+  color: inherit;
+  caret-color: currentColor;
+  outline: none;
+}
+
+/* (Where it's highlighted, the copy's text shows, through the input's) */
+gt-table .gt-i-query[data-gti-painted] .gt-i-query-mirror {
+  color: inherit;
+}
+
+gt-table .gt-i-query[data-gti-painted] input:not(:placeholder-shown) {
+  -webkit-text-fill-color: transparent;
+}
+
+gt-table .gt-i-query-field .gt-i-bar-button {
+  height: 100%;
+  border: 0;
+}
+
+gt-table .gt-i-query-list {
+  position: absolute;
+  bottom: calc(100% + 0.25em);
+  z-index: 10;
+  box-sizing: border-box;
+  min-width: min(12em, 100%);
+  max-width: 100%;
+  max-height: min(15em, 50vh);
+  margin: 0;
+  padding: 0.25em 0;
+  overflow-y: auto;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  font-size: 0.875em;
+}
+
+gt-table .gt-i-query-list > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.25em 0.75em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+gt-table .gt-i-query-list > li[aria-selected="true"] {
+  background: rgba(128, 128, 128, 0.2);
+}
+
+gt-table .gt-i-query-detail {
+  opacity: 0.7;
+}
+
+gt-table .gt-i-query-error {
+  margin: 0.25em 0 0;
+  color: var(--gt-i-error);
+  font-size: 0.875em;
+  white-space: normal;
+}
+
+/* The query's highlights (shared by every table on the page) */
+gt-table .gt-i-query-mirror::highlight(gt-i-query-keyword) {
+  color: var(--gt-i-keyword);
+}
+
+gt-table .gt-i-query-mirror::highlight(gt-i-query-string) {
+  color: var(--gt-i-string);
+}
+
+gt-table .gt-i-query-mirror::highlight(gt-i-query-number) {
+  color: var(--gt-i-number);
+}
+
+gt-table .gt-i-query-mirror::highlight(gt-i-query-error) {
+  text-decoration: underline wavy var(--gt-i-error);
+  text-decoration-skip-ink: none;
+}
+
+/*
+ * The info panel: over the table, above the bar's inline end (where its button is), or below it
+ * where there's more room there (as the runtime sets), and no wider than the bar
+ */
+gt-table .gt-i-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  position: absolute;
+  bottom: calc(100% + 0.375em);
+  inset-inline-end: 0;
+  z-index: 10;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: min(16em, 100%);
+  max-width: 100%;
+  max-height: min(30em, 80vh);
+  overflow-y: auto;
+  padding: 0.75em;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 0.875em;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: start;
+}
+
+gt-table .gt-i-info[data-gti-below] {
+  top: calc(100% + 0.375em);
+  bottom: auto;
+}
+
+gt-table .gt-i-info p,
+gt-table .gt-i-info dl,
+gt-table .gt-i-info dd {
+  margin: 0;
+}
+
+gt-table .gt-i-info-rows {
+  font-weight: bold;
+}
+
+gt-table .gt-i-info-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+gt-table .gt-i-info-button,
+gt-table .gt-i-info select {
+  appearance: none;
+  box-sizing: border-box;
+  flex: none;
+  min-height: 2em;
+  margin: 0;
+  padding: 0.125em 0.625em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+gt-table .gt-i-info select {
+  appearance: auto;
+  padding-inline: 0.25em;
+}
+
+gt-table .gt-i-info-button:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-info-button[aria-disabled="true"] {
+  background: none;
+  cursor: default;
+  opacity: 0.4;
+}
+
+gt-table .gt-i-info-button:focus-visible,
+gt-table .gt-i-info select:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+/* (The export panel's buttons, one per format) */
+gt-table .gt-i-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+
+/* (That the code leaves out the search) */
+gt-table .gt-i-export-note {
+  font-size: 0.875em;
+  opacity: 0.7;
+}
+
+gt-table .gt-i-info-shortcuts {
+  padding-top: 0.5em;
+  border-top: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+gt-table .gt-i-info-heading {
+  margin-bottom: 0.25em;
+  font-size: 0.875em;
+  opacity: 0.7;
+}
+
+/* (A grid of the keys and what they do) */
+gt-table .gt-i-info-keys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.25em 0.75em;
+}
+
+gt-table .gt-i-info-keys > div {
+  display: contents;
+}
+
+gt-table .gt-i-info-keys dt {
+  white-space: nowrap;
+}
+
+gt-table .gt-i-info-keys dd {
+  opacity: 0.85;
+}
+
+gt-table .gt-i-info kbd {
+  display: inline-block;
+  min-width: 1.25em;
+  padding: 0 0.3em;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 3px;
+  font: inherit;
+  font-size: 0.875em;
+  text-align: center;
+}
+
+/*
+ * A filter's panel: over the table, below its button (where the runtime puts it), and no wider
+ * than the element
+ */
+gt-table .gt-i-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  position: absolute;
+  z-index: 10;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: min(14em, 100%);
+  max-width: min(24em, 100%);
+  padding: 0.625em 0.75em 0.75em;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 0.875em;
+  font-weight: normal;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: start;
+}
+
+gt-table .gt-i-filter[hidden] {
+  display: none;
+}
+
+gt-table .gt-i-filter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+gt-table .gt-i-filter-title {
+  overflow: hidden;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+gt-table .gt-i-filter input:not([type="checkbox"]):not([type="radio"]) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0.25em 0.5em;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+gt-table .gt-i-filter input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+gt-table .gt-i-filter input[aria-invalid="true"] {
+  border-color: #c62828;
+}
+
+gt-table .gt-i-filter-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em;
+}
+
+gt-table .gt-i-filter-range-stacked {
+  grid-template-columns: 1fr;
+}
+
+gt-table .gt-i-filter-bound {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125em;
+  min-width: 0;
+}
+
+gt-table .gt-i-filter-bound > span {
+  font-size: 0.875em;
+  opacity: 0.7;
+}
+
+/* A facet's values, which scroll when there are many */
+gt-table .gt-i-filter-options {
+  display: flex;
+  flex-direction: column;
+  max-height: 16em;
+  margin-inline: -0.25em;
+  overflow-y: auto;
+}
+
+gt-table .gt-i-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.125em 0.25em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+gt-table .gt-i-filter-option:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+/* (The last column shown, which can't be hidden) */
+gt-table .gt-i-filter-option:has(:disabled) {
+  background: none;
+  cursor: default;
+  opacity: 0.45;
+}
+
+gt-table .gt-i-filter-option input {
+  flex: none;
+  margin: 0;
+  accent-color: currentColor;
+}
+
+gt-table .gt-i-filter-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+gt-table .gt-i-filter-count {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+/* (A value no row the search and the other filters keep has, which can still be chosen) */
+gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter-count) {
+  opacity: 0.45;
+}
+
+/*
+ * A column's item in the columns panel: the handle to drag it by (if readers can move it), its
+ * checkbox (if they can hide it) and its name, and the buttons moving it
+ */
+gt-table .gt-i-column {
+  display: flex;
+  align-items: center;
+  gap: 0.125em;
+  border-radius: 4px;
+}
+
+gt-table .gt-i-column > .gt-i-filter-option {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+gt-table div.gt-i-filter-option {
+  cursor: default;
+}
+
+gt-table div.gt-i-filter-option:hover {
+  background: none;
+}
+
+gt-table .gt-i-column-grip {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  cursor: grab;
+  touch-action: none;
+}
+
+gt-table .gt-i-column-grip[data-gti-none] {
+  visibility: hidden;
+}
+
+gt-table .gt-i-column-grip .gt-i-icon {
+  width: 1em;
+  height: 1em;
+  stroke-width: 3;
+}
+
+gt-table .gt-i-column[data-gti-dragging] {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-column[data-gti-dragging] * {
+  cursor: grabbing;
+}
+
+gt-table .gt-i-column-move {
+  appearance: none;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.75em;
+  height: 1.75em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+gt-table .gt-i-column-move:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+gt-table .gt-i-column-move[aria-disabled="true"] {
+  background: none;
+  cursor: default;
+  opacity: 0.3;
+}
+
+gt-table .gt-i-column-move:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+gt-table .gt-i-column-move .gt-i-icon {
+  width: 1em;
+  height: 1em;
+}
+
+@media (forced-colors: active) {
+  gt-table :is(.gt-i-info, .gt-i-filter) {
+    border-color: CanvasText;
+  }
+
+  gt-table .gt-i-tokens .gt-i-token {
+    outline-color: CanvasText;
+  }
+
+  /* (The input's own text, without highlights) */
+  gt-table .gt-i-query-mirror {
+    display: none;
+  }
+
+  gt-table .gt-i-query[data-gti-painted] input:not(:placeholder-shown) {
+    -webkit-text-fill-color: initial;
+  }
+
+  gt-table .gt-i-query {
+    --gt-i-error: CanvasText;
+  }
+
+  gt-table .gt-i-query-list {
+    border-color: CanvasText;
+  }
+
+  gt-table .gt-i-query-list > li[aria-selected="true"] {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+
+  gt-table .gt-i-tokens .gt-i-token-open[aria-expanded="true"] {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  gt-table .gt-i-filter-button {
+    opacity: 1;
+  }
+
+  gt-table th[data-gti-filtered] .gt-i-filter-button .gt-i-icon {
+    fill: CanvasText;
+  }
+}
+
+/* In a narrow bar, the readout tightens up, and the open search takes the page controls' room */
+@container (max-width: 20em) {
+  gt-table .gt-i-of {
+    margin-inline: 0;
+  }
+
+  gt-table .gt-i-bar[data-gti-searching] .gt-i-search-field {
+    flex: 1 1 auto;
+  }
+
+  gt-table .gt-i-bar[data-gti-searching] .gt-i-bar-pages {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  gt-table[data-gti-bar]:is(:not(:defined), [data-gti-state="pending"]) {
+    padding-bottom: calc(0.5em + 44px);
+  }
+
+  gt-table[data-gti-bar][data-gti-tokens]:is(:not(:defined), [data-gti-state="pending"]) {
+    padding-bottom: calc(0.875em + 88px);
+  }
+
+  gt-table .gt-i-bar {
+    --gt-i-line: 44px;
+  }
+
+  gt-table .gt-i-tokens button {
+    min-width: 44px;
+  }
+
+  gt-table .gt-i-bar-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  gt-table .gt-i-info-button,
+  gt-table .gt-i-info select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  gt-table .gt-i-filter input:not([type="checkbox"]):not([type="radio"]),
+  gt-table .gt-i-filter-option,
+  gt-table .gt-i-query-list > li {
+    min-height: 44px;
+  }
+
+  gt-table .gt-i-filter-option input {
+    width: 1.25em;
+    height: 1.25em;
+  }
+
+  gt-table :is(.gt-i-column-grip, .gt-i-column-move) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Below 16px, iOS zooms the page in on focus */
+  gt-table :is(.gt-i-search-field, .gt-i-query-field, .gt-i-query-list, .gt-i-readout-box, .gt-i-info select, .gt-i-filter input) {
+    font-size: max(0.875em, 16px);
+  }
+}
+
 gt-table tr.gt-i-empty td {
   padding: 1em;
   font-style: italic;
   opacity: 0.75;
+}
+
+/*
+ * The empty rows that keep a short page as tall as a full one (as tall as the runtime sets, which
+ * their cells' padding mustn't add to), which aren't data rows to select
+ */
+gt-table tr.gt-i-filler > * {
+  padding-block: 0 !important;
+  cursor: default;
 }
 
 /* Announcements and labels for screen readers only */

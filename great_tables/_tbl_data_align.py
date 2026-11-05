@@ -8,7 +8,9 @@ polars, and pyarrow backends with their native type APIs.
 from __future__ import annotations
 
 import re
+from datetime import date
 from functools import singledispatch
+from numbers import Real
 from typing import TYPE_CHECKING, Literal
 
 from ._tbl_data import (
@@ -16,6 +18,7 @@ from ._tbl_data import (
     PlDataFrame,
     PyArrowTable,
     _get_column_dtype,
+    is_na,
     to_list,
 )
 
@@ -91,6 +94,18 @@ def _classify_pandas(data: PdDataFrame, column: str) -> AlignmentClass:
     # Match original behavior: pattern-based detection
     if NUMERIC_DTYPE_PATTERN.match(dtype):
         return "numeric"
+    elif dtype == "object":
+        values = [v for v in to_list(data[column]) if not is_na(data, v)]
+        # An object column without strings is classified by what it holds, as the typed columns
+        # of the other backends are: dates and numbers are numeric, anything else (booleans with
+        # a missing value, times, decimals, lists, only missing values) is "other"
+        if not any(isinstance(v, str) for v in values):
+            if values and all(isinstance(v, date) for v in values):
+                return "numeric"
+            if values and all(isinstance(v, Real) and not isinstance(v, bool) for v in values):
+                return "numeric"
+            return "other"
+        return "string"
     elif dtype in STRING_DTYPES or dtype in PANDAS_ARROW_STRING_DTYPES:
         return "string"
     else:

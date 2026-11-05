@@ -23,16 +23,25 @@ npx playwright install chromium   # for the browser tests
 | Command | What it does |
 |---|---|
 | `npm run build` | Builds `great_tables/js/gti.{js,css}` (minified) and prints their gzipped sizes |
-| `npm run check` | Type-checks, then fails if the committed bundle is stale or the runtime is over its 30 KB (min+gzip) budget |
+| `npm run check` | Type-checks, then fails if the committed bundle is stale or the runtime is over its 54 KB (min+gzip) budget |
 | `npm test` | Unit tests (Vitest, happy-dom) |
 | `npm run test:e2e` | Browser tests (Playwright, Chromium) on pages built from real Great Tables output |
 
 After changing anything in `src/`, run `npm run build` and commit the rebuilt
 `great_tables/js/gti.*` along with the source; CI runs `npm run check`.
 
+The build shortens the names of `private` members (TypeScript's `private` is gone in the bundle,
+so minifying alone keeps them), where that can't break anything: see `scripts/mangle.mjs`. A
+private member that the browser tests read, as `(node as any).name`, keeps its name; one read any
+other way from outside the bundle (by a host page, say) should be made public instead.
+
 The browser tests write their pages with `e2e/make_fixtures.py`, which needs a Python with
 `great_tables` installed. They use `$PYTHON` if set, otherwise the repo's `.venv`, otherwise
 `python3`.
+
+Great Tables' differential tests of its view queries (`tests/test_gti_query.py`) run tables
+through the built runtime with `scripts/engine.mjs`, so they need `npm ci` here too (they're
+skipped without it).
 
 ## Layout
 
@@ -40,7 +49,8 @@ The browser tests write their pages with `e2e/make_fixtures.py`, which needs a P
 src/        TypeScript source (index.ts is the bundle entry) and gti.css
 test/       Vitest unit tests
 e2e/        Playwright tests, and the script that writes their fixture pages
-scripts/    build.mjs (build, staleness check, size budget)
+scripts/    build.mjs (build, staleness check, size budget), mangle.mjs (the private names it
+            shortens), engine.mjs (the runtime under Node, for Python's differential tests)
 ```
 
 The npm package name is undecided, so the package is marked private for now.

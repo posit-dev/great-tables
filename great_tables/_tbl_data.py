@@ -4,6 +4,7 @@ import math
 import numbers
 import re
 import warnings
+from contextlib import suppress
 from collections.abc import Callable
 from datetime import datetime, time
 from decimal import Decimal
@@ -652,6 +653,62 @@ def _(data: PyArrowTable, column: str) -> list[int | None] | None:
     # (nulls sort last by default; `null_placement=` is deprecated as of PyArrow 25)
     order = pc.sort_indices(col).to_pylist()
     return _dense_ranks(order, col.to_pylist(), is_null)
+
+
+# _get_column_values ----
+
+
+@singledispatch
+def _get_column_values(data: DataFrameLike, column: str) -> list[Any]:
+    """Get a column's values, as a list (missing values as the backend has them)."""
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_values.register
+def _(data: PdDataFrame, column: str) -> list[Any]:
+    return data[column].to_list()
+
+
+@_get_column_values.register
+def _(data: PlDataFrame, column: str) -> list[Any]:
+    return data[column].to_list()
+
+
+@_get_column_values.register
+def _(data: PyArrowTable, column: str) -> list[Any]:
+    return data.column(column).to_pylist()
+
+
+# _get_column_missing ----
+
+
+@singledispatch
+def _get_column_missing(data: DataFrameLike, column: str) -> list[int]:
+    """Get the rows whose value in a column is missing: null, or NaN in a column of floats (as
+    pandas has NaN already)."""
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_missing.register
+def _(data: PdDataFrame, column: str) -> list[int]:
+    missing = data[column].isna().to_list()
+    return [i for i, is_missing in enumerate(missing) if is_missing]
+
+
+@_get_column_missing.register
+def _(data: PlDataFrame, column: str) -> list[int]:
+    ser = data[column]
+    missing = ser.is_null() | ser.is_nan() if ser.dtype.is_float() else ser.is_null()
+    return [i for i, is_missing in enumerate(missing.to_list()) if is_missing]
+
+
+@_get_column_missing.register
+def _(data: PyArrowTable, column: str) -> list[int]:
+    import pyarrow.compute as pc
+
+    # (`nan_is_null=` is for a column of floats)
+    missing = pc.is_null(data.column(column), nan_is_null=True).to_pylist()
+    return [i for i, is_missing in enumerate(missing) if is_missing]
 
 
 # reorder ----
@@ -1319,6 +1376,28 @@ def _is_same_values(given: list[Any], stored: list[Any]) -> bool:
     """Whether a column kept every value of the list it was made from."""
 
     return len(given) == len(stored) and all(map(_is_same_value, given, stored))
+
+
+def frame_from_dict(data: dict[str, list[Any]]) -> DataFrameLike:
+    """Make a DataFrame from columns of values, with the first library installed: polars, pandas,
+    then pyarrow."""
+
+    with suppress(ImportError):
+        import polars as pl
+
+        return pl.DataFrame(data)
+
+    with suppress(ImportError):
+        import pandas as pd
+
+        return pd.DataFrame(data)
+
+    with suppress(ImportError):
+        import pyarrow as pa
+
+        return pa.table(data)
+
+    raise ImportError("Making a DataFrame requires polars, pandas, or pyarrow to be installed.")
 
 
 @singledispatch

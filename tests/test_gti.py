@@ -10,7 +10,7 @@ import polars as pl
 import pyarrow as pa
 import pytest
 
-from great_tables import GT, exibble, loc, style
+from great_tables import GT, GTI, exibble, loc, style
 from great_tables._gti import SPEC_VERSION, build_spec, render_gti_html, spec_to_script_json
 from great_tables._gti._render import _load_runtime
 from great_tables._tbl_data import _get_column_kind, _get_column_ranks
@@ -254,7 +254,19 @@ def test_spec_stub_for_summary_labels_only():
     spec = spec_of(GT(DF).grand_summary_rows(fns=SUM))
     first = spec["columns"][0]
 
-    assert first == {"id": None, "role": "stub", "kind": "other", "align": "left", "header": None}
+    assert first == {
+        "id": None,
+        "role": "stub",
+        "kind": "other",
+        "align": "left",
+        "header": None,
+        "sortable": True,
+        "searchable": True,
+        "resizable": True,
+        "pin": None,
+        "hideable": False,
+        "reorderable": False,
+    }
     assert spec["stub"]["columns"] == []
     assert None not in spec["ranks"]
 
@@ -335,6 +347,7 @@ def test_spec_controls_default():
         "search": False,
         "resizing": False,
         "selection": None,
+        "bar": False,
     }
 
 
@@ -352,6 +365,7 @@ def test_spec_controls_from_opt_interactive(
         "search": use_search,
         "resizing": use_resizers,
         "selection": None,
+        "bar": False,
     }
 
 
@@ -458,8 +472,12 @@ def test_render_nowrap_marks_the_element():
 
 
 def test_spec_layout_default():
-    assert spec_of(GT(DF))["layout"] == {"height": None}
-    assert spec_of(GT(DF).opt_interactive(height="auto"))["layout"] == {"height": None}
+    assert spec_of(GT(DF))["layout"] == {"height": None, "responsive": "scroll", "stack_below": 420}
+    assert spec_of(GT(DF).opt_interactive(height="auto"))["layout"] == {
+        "height": None,
+        "responsive": "scroll",
+        "stack_below": 420,
+    }
 
 
 @pytest.mark.parametrize(
@@ -475,8 +493,9 @@ def test_spec_layout_default():
     ],
 )
 def test_spec_layout_height(height, expected: str):
-    assert spec_of(GT(DF).opt_interactive(height=height))["layout"] == {"height": expected}
-    assert spec_of(GT(DF).tab_options(ihtml_height=height))["layout"] == {"height": expected}
+    layout = {"height": expected, "responsive": "scroll", "stack_below": 420}
+    assert spec_of(GT(DF).opt_interactive(height=height))["layout"] == layout
+    assert spec_of(GT(DF).tab_options(ihtml_height=height))["layout"] == layout
 
 
 @pytest.mark.parametrize("height", ["400", "-5px", "red", "", "400px;color:red", True, -1])
@@ -659,6 +678,58 @@ def test_arrow_string_kind_and_ranks(arrow_type: str):
 
     assert _get_column_kind(df, "x") == "string"
     assert _get_column_ranks(df, "x") == [1, None, 0, 1]
+
+
+# filters ----
+
+
+def test_filter_values(frame_constructor):
+    df = frame_constructor(
+        {
+            "num": [2.5, None, -1.0, 2.5],
+            "int": [3, 1, 3, 2],
+            "str": ["b", None, "a", "b"],
+            "bool": [True, False, True, True],
+            "date": [dt.date(2024, 1, 2), dt.date(2023, 5, 1), None, dt.date(2024, 1, 2)],
+        }
+    )
+    spec = spec_of(GTI(df).i_cols_filter(type="facet"))
+
+    # A facet's values, in the order of the column's ranks (so that `values[rank]` is a row's)
+    assert {f["column"]: f["values"] for f in spec["filters"]} == {
+        "num": [-1.0, 2.5],
+        "int": [1, 2, 3],
+        "str": ["a", "b"],
+        "bool": [False, True],
+        "date": ["2023-05-01", "2024-01-02"],
+    }
+    for f in spec["filters"]:
+        ranks = spec["ranks"][f["column"]]
+        assert len(f["values"]) == max(rank for rank in ranks if rank is not None) + 1
+    assert all(type(value) is int for value in spec["filters"][1]["values"])
+
+
+def test_filter_values_nan(frame_constructor):
+    df = frame_constructor({"x": [1.0, NAN, 0.0, None]})
+    spec = spec_of(GTI(df).i_cols_filter())
+    html = render_gti_html(GTI(df).i_cols_filter(), runtime="none")
+
+    if is_pandas(frame_constructor):
+        # pandas counts NaN as missing
+        assert spec["filters"][0]["values"] == [0.0, 1.0]
+    else:
+        # Polars and PyArrow rank NaN (after all numbers), which JSON holds as null
+        assert spec["filters"][0]["values"] == [0.0, 1.0, None]
+    assert split_gti_html(html)[0]["filters"] == spec["filters"]
+
+
+def test_filter_missing_rows(frame_constructor):
+    # (Missing values, and a float's NaN, of every backend: of every type of filter)
+    df = frame_constructor(
+        {"x": [1.0, NAN, 0.0, None], "s": ["a", None, "b", "a"], "n": [1, 2, 3, 4]}
+    )
+    gti = GTI(df).i_cols_filter(columns="x").i_cols_filter(columns=["s", "n"], type="text")
+    assert [f["missing"] for f in spec_of(gti)["filters"]] == [[1, 3], [1], []]
 
 
 # rendering ----

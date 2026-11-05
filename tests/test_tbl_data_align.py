@@ -1,6 +1,7 @@
 """Tests for dtype classification and auto-alignment."""
 
-from datetime import date, datetime
+from datetime import date, datetime, time
+from decimal import Decimal
 from typing import Any
 
 import pandas as pd
@@ -15,7 +16,7 @@ from great_tables._tbl_data_align import (
     is_number_like_column,
 )
 import great_tables as gt
-from tests.utils import DataFrameConstructor, native_backend
+from tests.utils import DataFrameConstructor
 
 pandas_ge_v3 = _re_version(pd.__version__) >= (3, 0, 0)
 
@@ -43,9 +44,8 @@ class TestClassifyDtype:
     def test_date_type(self, frame_constructor: DataFrameConstructor):
         df = frame_constructor({"col": [date(2024, 1, 1), date(2024, 1, 2)]})
 
-        # pandas keeps dates in object columns, which GT right-aligns because they hold no strings
-        expected = "string" if native_backend(df) == "pandas" else "numeric"
-        assert classify_dtype_for_alignment(df, "col") == expected
+        # pandas keeps dates in an object column, which is classified by its values (#1024)
+        assert classify_dtype_for_alignment(df, "col") == "numeric"
         assert [col.column_align for col in gt.GT(df)._boxhead._d] == ["right"]
 
     def test_datetime_type(self, frame_constructor: DataFrameConstructor):
@@ -70,6 +70,28 @@ class TestClassifyDtypePandas:
     )
     def test_numeric_types(self, dtype, expected):
         df = pd.DataFrame({"col": pd.array([1, 2, 3], dtype=dtype)})
+        assert classify_dtype_for_alignment(df, "col") == expected
+
+    @pytest.mark.parametrize(
+        "values, expected",
+        [
+            pytest.param([True, None], "other", id="bool-with-missing"),
+            pytest.param([time(12, 30), None], "other", id="time"),
+            pytest.param([Decimal("1.5"), None], "other", id="decimal"),
+            pytest.param([[1, 2], [3]], "other", id="list"),
+            pytest.param([None, None], "other", id="all-missing"),
+            pytest.param([date(2024, 1, 1), None], "numeric", id="date"),
+            pytest.param([datetime(2024, 1, 1, 12, 30), None], "numeric", id="datetime"),
+            pytest.param([1, 2.5, None], "numeric", id="numbers"),
+            pytest.param(["1.5", None], "string", id="number-like-str"),
+            pytest.param(["a", 1], "string", id="mixed-with-str"),
+        ],
+    )
+    def test_object_column_classified_by_values(self, values: list[Any], expected: str):
+        # polars and pyarrow type these columns; pandas keeps them as `object`, so they are
+        # classified by their values to align the same way (#1024)
+        df = pd.DataFrame({"col": pd.Series(values, dtype=object)})
+        assert str(df["col"].dtype) == "object"
         assert classify_dtype_for_alignment(df, "col") == expected
 
 

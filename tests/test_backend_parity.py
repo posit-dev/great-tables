@@ -19,7 +19,6 @@ from great_tables._tbl_data import DataFrameLike
 from tests.utils import (
     INT_UPCAST,
     ISSUES,
-    OBJECT_ALIGNED_RIGHT,
     DataFrameConstructor,
     DataLike,
     Divergent,
@@ -33,13 +32,6 @@ from tests.utils import (
 NUMBER_LIKE_TEXT = f"{ISSUES}/1023"
 NULL_IN_ROW_MASK = f"{ISSUES}/1047"
 DURATION_SPELLING = f"inherited from native data (pd.Timedelta spelling), {ISSUES}/1048"
-
-# every pandas constructor keeps times, decimals and lists in object columns
-PANDAS_OBJECT_ALIGNED_RIGHT = Divergent(
-    pandas_constructor=OBJECT_ALIGNED_RIGHT,
-    pandas_nullable_constructor=OBJECT_ALIGNED_RIGHT,
-    pandas_pyarrow_constructor=OBJECT_ALIGNED_RIGHT,
-)
 
 # every column has a missing value, and floats are non-integral because the pandas nullable and
 # pyarrow-backed constructors turn whole floats into ints
@@ -68,7 +60,7 @@ def _body_renderer(
         pytest.param(
             [time(12, 30), None, time(8, 5, 30)],
             GT.fmt_time,
-            PANDAS_OBJECT_ALIGNED_RIGHT,
+            {},
             id="fmt_time",
         ),
         pytest.param(
@@ -86,7 +78,7 @@ def _body_renderer(
         pytest.param(
             [True, None, False],
             GT.fmt_tf,
-            Divergent(pandas_constructor=OBJECT_ALIGNED_RIGHT),
+            {},
             id="fmt_tf",
         ),
         pytest.param(["**bold**", None, "*italic*"], GT.fmt_markdown, {}, id="fmt_markdown"),
@@ -94,7 +86,7 @@ def _body_renderer(
         pytest.param(
             [[1.5, None, -0.25], None, [3.75]],
             GT.fmt_nanoplot,
-            PANDAS_OBJECT_ALIGNED_RIGHT,
+            {},
             id="fmt_nanoplot-list",
         ),
     ],
@@ -119,9 +111,7 @@ def test_fmt(
         pytest.param([1, 2, None], Divergent(pandas_constructor=INT_UPCAST), id="int"),
         pytest.param([1.5, -0.25, None], {}, id="float"),
         pytest.param(["a", "b", None], {}, id="str"),
-        pytest.param(
-            [True, False, None], Divergent(pandas_constructor=OBJECT_ALIGNED_RIGHT), id="bool"
-        ),
+        pytest.param([True, False, None], {}, id="bool"),
         pytest.param([date(2024, 1, 1), date(2024, 2, 29), None], {}, id="date"),
         pytest.param(
             [datetime(2024, 1, 1, 12, 30), datetime(2024, 2, 29), None], {}, id="datetime"
@@ -144,10 +134,8 @@ def test_fmt(
             ),
             id="duration",
         ),
-        pytest.param(
-            [Decimal("1.50"), Decimal("-2.25"), None], PANDAS_OBJECT_ALIGNED_RIGHT, id="decimal"
-        ),
-        pytest.param([[1, 2], [3], None], PANDAS_OBJECT_ALIGNED_RIGHT, id="list"),
+        pytest.param([Decimal("1.50"), Decimal("-2.25"), None], {}, id="decimal"),
+        pytest.param([[1, 2], [3], None], {}, id="list"),
     ],
 )
 def test_unformatted(
