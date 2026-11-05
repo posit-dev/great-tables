@@ -469,6 +469,17 @@ def _is_arrow_string_view(dtype: pa.DataType) -> bool:
     return is_string_view is not None and is_string_view(dtype)
 
 
+def _decode_arrow_dictionary(col: pa.ChunkedArray[Any]) -> pa.ChunkedArray[Any]:
+    import pyarrow as pa
+
+    value_type = col.type.value_type
+    if _is_arrow_string_view(value_type):
+        # PyArrow can't decode a dictionary of string_view
+        value_type = pa.large_string()
+        col = col.cast(pa.dictionary(col.type.index_type, value_type))
+    return col.cast(value_type)
+
+
 def _arrow_type_kind(dtype: Any) -> ColumnKind:
     import pyarrow as pa
 
@@ -656,10 +667,7 @@ def _(data: PyArrowTable, column: str) -> list[int | None] | None:
                 key=lambda i: position[values[i]],
             )
             return _dense_ranks(order, [position.get(v) for v in values], is_null)
-        if _is_arrow_string_view(col.type.value_type):
-            # PyArrow can't decode a dictionary of string_view
-            col = col.cast(pa.dictionary(col.type.index_type, pa.large_string()))
-        col = col.cast(col.type.value_type)
+        col = _decode_arrow_dictionary(col)
     if _is_arrow_string_view(col.type):
         # PyArrow can't sort string_view
         col = col.cast(pa.large_string())
@@ -800,7 +808,7 @@ def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
     if pa.types.is_dictionary(dtype):
         # NOTE: If a column is already dictionary-typed, dictionary_encode() returns it unchanged and
         # ignores null_encoding so its nulls would stay null indices and their rows would be dropped
-        group_col = group_col.cast(dtype.value_type)
+        group_col = _decode_arrow_dictionary(group_col)
 
     # The default null_encoding="mask" drops the rows with a null key; polars groups them under None
     encoded = group_col.dictionary_encode(null_encoding="encode").combine_chunks()
@@ -1078,6 +1086,9 @@ def _(df: PyArrowTable):
             return pa.array(
                 [None if v is None else str(v) for v in column.to_pylist()], pa.string()
             )
+
+        if pa.types.is_dictionary(column.type):
+            column = _decode_arrow_dictionary(column)
 
         return pa.array(column.cast(pa.string()))
 

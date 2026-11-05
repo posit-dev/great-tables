@@ -654,6 +654,21 @@ def test_render_null_group_keys_pandas_arrow_dictionary():
     assert html == html_pl
 
 
+@pytest.mark.skipif(not hasattr(pa, "string_view"), reason="requires pyarrow>=16")
+@pytest.mark.parametrize("groupname_col", [None, "g"])
+def test_render_pyarrow_string_view_dictionary(groupname_col: str | None):
+    # Polars exports an unordered categorical this way at its newest compat level
+    keys = ["b", None, "a", None, "b"]
+    x = [1, 2, 3, 4, 5]
+    df_view = pa.table({"g": pa.array(keys, pa.string_view()).dictionary_encode(), "x": x})
+    df_string = pa.table({"g": pa.array(keys, pa.string()).dictionary_encode(), "x": x})
+
+    html_view = GT(df_view, groupname_col=groupname_col, id="t").as_raw_html()
+    html_string = GT(df_string, groupname_col=groupname_col, id="t").as_raw_html()
+
+    assert html_view == html_string
+
+
 def test_group_splits_offset_index(offset_index_df: pd.DataFrame):
     # Rows are positions, not index labels
     assert group_splits(offset_index_df, "col2") == {"a": [0], "b": [1], "c": [2]}
