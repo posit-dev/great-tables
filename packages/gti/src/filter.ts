@@ -24,7 +24,11 @@
  * rows whose cell's text (as a `contains` has it, but not folded) has a match of the pattern (see
  * `pattern.ts`). A clause `{"col": "population", "op": "gt", "value": 10000}` (or `"lt"`), on a
  * column with a range or a date filter, keeps the rows whose value is more than (or less than) its
- * bound, as `"gte"` (or `"lte"`) does but for the bound itself. No column's filter has any of these:
+ * bound, as `"gte"` (or `"lte"`) does but for the bound itself. A clause
+ * `{"col": "population", "op": "top_n", "value": 10}` (or `"bottom_n"`), on a column with a range or
+ * a date filter, keeps the rows with the 10 largest (or smallest) values among all the data rows,
+ * and those tied with the 10th, so maybe more than 10 (`value` is a whole number, at least 1);
+ * missing values, NaN and infinities aren't counted, nor kept. No column's filter has any of these:
  * the table keeps them, as it does a group.
  *
  * A part of the query can also be a group: `{"or": [...]}`, keeping the rows any of its parts
@@ -42,6 +46,7 @@ export type FilterClause =
   | { col: string; op: "matches"; value: string }
   | { col: string; op: "in"; value: FilterValue[] }
   | { col: string; op: "gte" | "lte" | "gt" | "lt"; value: number | string }
+  | { col: string; op: "top_n" | "bottom_n"; value: number }
   | { col: string; op: "is_null" };
 
 const DATE_TEXT = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?)?$/;
@@ -379,13 +384,23 @@ export class ColumnFilter {
    * column's values (with a missing one last).
    *
    * @throws {RangeError} for a clause the filter can't have (as `parse()` does), a `contains`
-   *   without text (which keeps every row, and so means nothing in a group), or a `matches` whose
-   *   pattern can't be read.
+   *   without text (which keeps every row, and so means nothing in a group), a `matches` whose
+   *   pattern can't be read, or a `top_n` or `bottom_n` without a whole number (at least 1).
    */
   groupClause(clause: FilterClause): FilterClause {
     const col = this.column;
     if (clause.op === "is_null") {
       return { col, op: "is_null" };
+    }
+    if (clause.op === "top_n" || clause.op === "bottom_n") {
+      const { value } = clause as { value: unknown };
+      if (this.spec.type !== "range" && this.spec.type !== "date") {
+        throw this.cantBe(clause);
+      }
+      if (!Number.isSafeInteger(value) || (value as number) < 1) {
+        throw new RangeError(`the "${clause.op}" clause on ${JSON.stringify(col)} needs a whole number, at least 1`);
+      }
+      return { col, op: clause.op, value: value as number };
     }
     if (clause.op === "gt" || clause.op === "lt") {
       const value = this.bound((clause as { value: unknown }).value);
@@ -437,9 +452,51 @@ export class ColumnFilter {
         return key != null && (above ? key > bound : key < bound);
       };
     }
+    if (clause.op === "top_n" || clause.op === "bottom_n") {
+      const kept = this.extremes(clause.op === "top_n", clause.value);
+      return (row) => {
+        const rank = this.ranks[row];
+        return rank != null && kept.has(rank);
+      };
+    }
     const filter = new ColumnFilter(this.spec, this.index, this.ranks, this.texts, this.times ? "datetime" : null);
     filter.setState(this.parse([clause]));
     return (row, cell) => filter.keeps(row, cell);
+  }
+
+  // The ranks of a range's (or a date filter's) values that are among the `n` largest (`top`) or
+  // smallest of all the data rows' (counting each row's, but not a missing value, NaN or an
+  // infinity): those with fewer than `n` rows' values beyond them, so ties with the n-th are kept
+  private extremes(top: boolean, n: number): Set<number> {
+    const keys: readonly (number | string | null)[] =
+      this.spec.type === "date"
+        ? this.dateKeys()
+        : (this.spec.values ?? []).map((value) => (typeof value === "number" && Number.isFinite(value) ? value : null));
+    // (The rows with each key: a key, not a rank, as two zeros are the same number)
+    const counts = new Map<number | string, number>();
+    for (const rank of this.ranks) {
+      const key = rank == null ? null : keys[rank];
+      if (key != null) {
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      }
+    }
+    const order = Array.from(counts.keys()).sort((a, b) => (a < b ? 1 : a > b ? -1 : 0) * (top ? 1 : -1));
+    const kept = new Set<number | string>();
+    let beyond = 0;
+    for (const key of order) {
+      if (beyond >= n) {
+        break;
+      }
+      kept.add(key);
+      beyond += counts.get(key) as number;
+    }
+    const ranks = new Set<number>();
+    keys.forEach((key, rank) => {
+      if (key !== null && kept.has(key)) {
+        ranks.add(rank);
+      }
+    });
+    return ranks;
   }
 
   // A facet's values (ranks, or `MISSING`) as the data has them, in their order, with a missing one last
@@ -470,8 +527,9 @@ type RowTest = (row: number, cells: readonly (CellText | undefined)[]) => boolea
 type Find = (column: unknown) => ColumnFilter;
 
 /**
- * A part of a query that's a group (an `or`, or a `not`), or an `is_null`, `matches`, `gt` or `lt`
- * clause, which no one column's filter has; the table keeps it, beside the filters.
+ * A part of a query that's a group (an `or`, or a `not`), or an `is_null`, `matches`, `gt`, `lt`,
+ * `top_n` or `bottom_n` clause, which no one column's filter has; the table keeps it, beside the
+ * filters.
  */
 export class FilterGroup {
   /** The group, as `setFilterQuery()` writes it. */
@@ -583,18 +641,19 @@ function normalItem(item: unknown, find: Find): FilterItem {
 }
 
 // The clauses that no column's filter has
-const GROUPED: readonly unknown[] = ["is_null", "matches", "gt", "lt"];
+const GROUPED: readonly unknown[] = ["is_null", "matches", "gt", "lt", "top_n", "bottom_n"];
 
 /**
  * Set filters from a query (`null` clears them), giving the query's groups (its `or` and `not`
- * parts, and its `is_null`, `matches`, `gt` and `lt` clauses) for the table to keep. Its other clauses that aren't in a group
- * (or are in an `and` that isn't in one) go to their columns' filters; its groups are as
- * `normalItem()` writes them, and in the order given. Nothing changes if the query is bad.
+ * parts, and its `is_null`, `matches`, `gt`, `lt`, `top_n` and `bottom_n` clauses) for the table to
+ * keep. Its other clauses that aren't in a group (or are in an `and` that isn't in one) go to their
+ * columns' filters; its groups are as `normalItem()` writes them, and in the order given. Nothing
+ * changes if the query is bad.
  *
  * @throws {RangeError} for a query that isn't `{and: [...]}`, a part that isn't a clause or a
  *   group, a group without parts, a clause on a column that can't be filtered, or that its
  *   column's filter can't have (or in a group, a `contains` without text), or a second `is_null`
- *   (or `matches`, `gt` or `lt`) clause on a column.
+ *   (or `matches`, `gt`, `lt`, `top_n` or `bottom_n`) clause on a column.
  */
 export function setFilterQuery(filters: readonly ColumnFilter[], query: FilterQuery | null): FilterGroup[] {
   const items: unknown = query === null ? [] : (query as { and?: unknown } | undefined)?.and;

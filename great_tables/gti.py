@@ -863,7 +863,12 @@ class GTI(GT):
             list of values, with `None` for a missing value), and `"gte"` (at least), `"lte"` (at
             most), `"gt"` (more than) and `"lt"` (less than) for a range (a number) or a date
             filter (a date, as `"2015-06-15"`: for a column of dates and times, its midnight, so
-            `"gt"` keeps 09:30 that day). A `"matches"` pattern is in the part of regular
+            `"gt"` keeps 09:30 that day). A range or date filter has `"top_n"` and `"bottom_n"`
+            too, whose value is a whole number, n, at least 1: they keep the rows with the n
+            largest (or smallest) values of all the table's rows, and those tied with the n-th
+            (so `{"col": "population_2021", "op": "top_n", "value": 10}` keeps the ten most
+            populous, and any tied with the tenth), but not a missing value, NaN or an infinity.
+            A `"matches"` pattern is in the part of regular
             expressions' syntax that the browser, Polars, pandas and PyArrow read alike:
             characters (`\\` before punctuation for the character itself), `.`, `^` and `$` (the
             start and end of the text), classes as `[a-z]` and `[^0-9]`, `\\d`, `\\w` and `\\s`
@@ -880,14 +885,15 @@ class GTI(GT):
             a clause doesn't keep, is kept by `"not"`). Groups can be in groups, and a column can
             have one clause of each operation in each `"and"`. The column filters show the
             query's clauses, and the bar below the table shows each group (and each `"is_null"`,
-            `"matches"`, `"gt"` and `"lt"` clause), which readers can edit as text, or remove.
+            `"matches"`, `"gt"`, `"lt"`, `"top_n"` and `"bottom_n"` clause), which readers can
+            edit as text, or remove.
 
             The query can be written as text instead: clauses joined by `and`, each a column name
             and then `contains` and a string, `matches` and a pattern between slashes, `in` and
             values in parentheses, `>=`, `<=`, `>` or `<` and a number (or a date in double
-            quotes), or `is null` (e.g.,
+            quotes), `top` or `bottom` and a whole number, or `is null` (e.g.,
             `'status in ("single-tier") and population_2021 >= 10000'`, `"name matches /^st\\./i"`,
-            or `"population_2016 is null"`; `is not null` is `not` and `is null`, and so are
+            `"population_2021 top 10"`, or `"population_2016 is null"`; `is not null` is `not` and `is null`, and so are
             `not in`, `not contains` and `not matches`, as in `'status not in ("city")'`). Strings
             are in double quotes, and values are written as in JSON (`null` for a missing value,
             `true` and `false`). A pattern's flag `i` is its `(?i)`, and a `/` in it is escaped

@@ -140,6 +140,22 @@ export function viewCode(
       const term = `${keys}.${pandas ? "isin" : "is_in"}(${list(items)})`;
       return present.length < clause.value.length ? [`${term} | ${missing}`, OR] : [term, ATOM];
     }
+    if (clause.op === "top_n" || clause.op === "bottom_n") {
+      // (Ranked among all the rows, ties with the n-th kept; a float's NaN and infinities aren't
+      // ranked)
+      const top = clause.op === "top_n";
+      let ranked = col;
+      if (column?.dtype === "float") {
+        if (pandas) {
+          imports.add("import numpy as np");
+        }
+        ranked = pandas ? `${col}.where(np.isfinite(${col}))` : `${ns}.when(${col}.is_finite()).then(${col})`;
+      }
+      const rank = pandas
+        ? `${ranked}.rank(method="min"${top ? ", ascending=False" : ""})`
+        : `${ranked}.rank("min"${top ? ", descending=True" : ""})`;
+      return [`${rank} <= ${clause.value}`, COMPARE];
+    }
     let term: Term;
     const op = OPERATORS[clause.op];
     if (typeof clause.value === "string") {

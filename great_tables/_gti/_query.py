@@ -25,6 +25,10 @@ Rows are kept when every clause keeps them. A clause's `op` is one of:
 - `"gt"` and `"lt"`, as `"gte"` and `"lte"`, but keeping the rows with a number more than (or less
   than) `value`, or a date (or date and time) after (or before) it: for a column of dates and
   times, a date is its midnight, so `"gt"` and `"2015-06-15"` keeps 09:30 that day.
+- `"top_n"` and `"bottom_n"`, for a range or a date filter: keep the rows with the `value` largest
+  (or smallest) numbers or dates among all the data's rows (not just those the rest of the query
+  keeps), and those tied with the last of them, so maybe more than `value` rows; `value` is a
+  whole number, at least 1. Missing values, NaN and infinities are never counted, nor kept.
 - `"is_null"`, for a column with any filter, and without a `value`: keeps the rows whose value is
   missing (`None`, or NaN in a column of floats), as the spec's `missing` has them.
 
@@ -99,6 +103,8 @@ OP_TYPES = {
     "lte": ("range", "date"),
     "gt": ("range", "date"),
     "lt": ("range", "date"),
+    "top_n": ("range", "date"),
+    "bottom_n": ("range", "date"),
     "is_null": ("text", "facet", "bool", "range", "date"),
 }
 
@@ -107,7 +113,15 @@ _SYMBOLS = {"gte": ">=", "lte": "<=", "gt": ">", "lt": "<"}
 _COMPARISONS = {symbol: op for op, symbol in _SYMBOLS.items()}
 
 # The ops no filter has, whose clauses the runtime keeps with the groups
-_GROUPED = ("is_null", "matches", "gt", "lt")
+_GROUPED = ("is_null", "matches", "gt", "lt", "top_n", "bottom_n")
+
+# The ops that keep the rows with a column's largest (or smallest) values, by their words in a
+# query's text
+_EXTREMES = {"top_n": "top", "bottom_n": "bottom"}
+
+# The largest count of rows they can have (as the runtime holds it, a double: an integer that's
+# exact)
+_MAX_COUNT = 2**53 - 1
 
 # A date, or a date and time, as ISO 8601 text (as the runtime's `dateKey()` reads it)
 _DATE_TEXT = re.compile(
@@ -256,7 +270,8 @@ def _check_clause(clause: Any, where: str) -> dict[str, Any]:
     ):
         raise ValueError(
             f'The filter\'s {where} must be `{{"col": ..., "op": ..., "value": ...}}`, with a '
-            'column name and an op of "contains", "matches", "in", "gte", "lte", "gt", or "lt"; or '
+            'column name and an op of "contains", "matches", "in", "gte", "lte", "gt", "lt", '
+            '"top_n", or "bottom_n"; or '
             '`{"col": ..., "op": "is_null"}`; or a group, `{"or": [parts]}`, '
             f'`{{"and": [parts]}}`, or `{{"not": part}}`; not {clause!r}.'
         )
@@ -285,6 +300,8 @@ def _check_clause(clause: Any, where: str) -> dict[str, Any]:
                 f"value, not {value!r}."
             )
         value = [_facet_value(item, col) for item in value]
+    elif op in _EXTREMES:
+        value = _count(value, col, op)
     else:
         value = _bound(value, col, op)
     return {"col": col, "op": op, "value": value}
@@ -316,6 +333,19 @@ def _facet_value(item: Any, col: str) -> Any:
             "(use `None` for a missing value)."
         )
     return value
+
+
+def _count(value: Any, col: str, op: str) -> int:
+    # (A whole number, as JSON has it: so 10.0 is 10, as the runtime has it)
+    numpy_number = getattr(getattr(value, "dtype", None), "kind", None) in ("i", "u", "f")
+    if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) or numpy_number:
+        number = _json_value(value)
+        if number is not None and float(number).is_integer() and 1 <= number <= _MAX_COUNT:
+            return int(number)
+    raise ValueError(
+        f"The filter's {op!r} clause on column {col!r} needs a whole number, at least 1, not "
+        f"{value!r}."
+    )
 
 
 def _bound(value: Any, col: str, op: str) -> int | float | str:
@@ -375,7 +405,8 @@ def parse_date(text: str) -> dt.date | dt.datetime | None:
 # wanted (`not` binding tighter than `and`, and `and` tighter than `or`); a clause is a column,
 # then `contains` and a string, `matches` and a pattern (between slashes, with the flag `i` to
 # ignore case, as in `/^st\./i`), `in` and values in parentheses, `>=`, `<=`, `>` or `<` and a
-# number or a date (a string), or `is null`; `x not in (...)`, `x not contains "..."`, `x not matches /.../` and
+# number or a date (a string), `top` or `bottom` and a whole number (digits, at least 1), or
+# `is null`; `x not in (...)`, `x not contains "..."`, `x not matches /.../` and
 # `x is not null` are `not` and those. A column is a name of letters, digits and underscores (not
 # starting with a digit), or any name in backticks (a backtick in it doubled); `not` before an op is
 # a column's name. Strings and numbers are as in JSON; the other values are `true`, `false` and
@@ -391,7 +422,7 @@ _PATTERN = re.compile(
 )
 _WORDS = {"true": True, "false": False, "null": None}
 # (The ops that are words)
-_OP_WORDS = ("in", "contains", "matches", "is")
+_OP_WORDS = ("in", "contains", "matches", "is", "top", "bottom")
 # (The ops that can be after `not`, as in `x not in (...)`)
 _NEGATED = ("contains", "matches", "in")
 _VALUE_EXPECTED = "expected a value: a string in double quotes, a number, true, false or null"
@@ -554,8 +585,20 @@ class _QueryParser:
             if self.token.kind not in ("number", "string"):
                 self.fail("expected a number, or a date in double quotes")
             return {"col": col, "op": op, "value": self.advance().value}
+        if self.is_word("top") or self.is_word("bottom"):
+            op = "top_n" if self.is_word("top") else "bottom_n"
+            self.advance()
+            # (Digits, as typed: not a fraction, an exponent or a sign)
+            literal = self.text[self.token.at : self.at]
+            whole = self.token.kind == "number" and literal.isascii() and literal.isdigit()
+            if not whole or self.token.value < 1:
+                self.fail("expected a whole number (at least 1)")
+            if self.token.value > _MAX_COUNT:
+                self.fail(f"the number {literal} is too large")
+            return {"col": col, "op": op, "value": self.advance().value}
         return self.fail(
-            'expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is"'
+            'expected "contains", "matches", "in", "not", ">=", "<=", ">", "<", "top", "bottom" '
+            'or "is"'
         )
 
     def is_not(self) -> bool:
@@ -668,6 +711,8 @@ def _format_op(clause: Mapping[str, Any]) -> str:
         return f"matches {format_pattern(value)}"
     if op == "in":
         return f"in ({', '.join(_format_value(item) for item in value)})"
+    if op in _EXTREMES:
+        return f"{_EXTREMES[op]} {_format_value(value)}"
     return f"{_SYMBOLS[op]} {_format_value(value)}"
 
 
@@ -760,7 +805,7 @@ def check_view(
                 f"The view's filter has a {op!r} clause on column {col!r}, which has a "
                 f"{found['type']} filter (for {ops} clauses)."
             )
-        if op in ("is_null", "matches"):
+        if op in ("is_null", "matches", *_EXTREMES):
             continue
         if found["type"] == "range" and isinstance(value, str):
             raise ValueError(
@@ -1033,6 +1078,14 @@ _COMPARE_EXPRS = {"gte": operator.ge, "lte": operator.le, "gt": operator.gt, "lt
 
 
 @dataclass(frozen=True)
+class _Extreme:
+    col: str
+    op: Literal["top_n", "bottom_n"]
+    n: int
+    finite: bool  # (a column of floats, whose NaN and infinities aren't ranked)
+
+
+@dataclass(frozen=True)
 class _Contains:
     col: str
     needle: str  # (trimmed and folded)
@@ -1050,7 +1103,7 @@ class _IsNull:
     nan: bool  # (a column of floats, whose NaN is missing too)
 
 
-_Clause = Union[_In, _Compare, _Contains, _Matches, _IsNull]
+_Clause = Union[_In, _Compare, _Extreme, _Contains, _Matches, _IsNull]
 
 
 @dataclass(frozen=True)
@@ -1064,7 +1117,7 @@ class _Not:
     part: _Predicate
 
 
-_Predicate = Union[_In, _Compare, _Contains, _Matches, _IsNull, _Group, _Not]
+_Predicate = Union[_In, _Compare, _Extreme, _Contains, _Matches, _IsNull, _Group, _Not]
 
 
 def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_Predicate]:
@@ -1090,9 +1143,12 @@ def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_P
             # (The runtime has -0 as 0, as JavaScript's `Map` does)
             signed_zero = dtype.is_float() and 0 in values
             return _In(col, values, None in value, as_text, signed_zero)
+        finite = isinstance(dtype, (nw.Float32, nw.Float64))
+        if op in _EXTREMES:
+            return _Extreme(col, op, value, finite)
         if isinstance(value, str):
             return _Compare(col, op, _date_bound(value, kinds.get(col)), False)
-        return _Compare(col, op, value, isinstance(dtype, (nw.Float32, nw.Float64)))
+        return _Compare(col, op, value, finite)
 
     def predicate(item: Mapping[str, Any]) -> _Predicate:
         if _is_clause(item):
@@ -1177,6 +1233,11 @@ def _expr(
     if isinstance(predicate, _Compare):
         expr = _COMPARE_EXPRS[predicate.op](col, predicate.value)
         return expr & col.is_finite() if predicate.finite else expr
+    if isinstance(predicate, _Extreme):
+        # (Ranked among all the frame's rows, as `filter()` has them: ties with the n-th have its
+        # rank, so are kept)
+        ranked = nw.when(col.is_finite()).then(col) if predicate.finite else col
+        return ranked.rank("min", descending=predicate.op == "top_n") <= predicate.n
     keys = col.cast(nw.String) if predicate.as_text else col
     if not predicate.values:
         return col.is_null()
@@ -1401,9 +1462,9 @@ def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
     """A (checked) query as the runtime has it (`filterQuery()` in packages/gti/src/filter.ts).
 
     Its clauses are in the order of the filters, a range's lower bound first, then its groups and
-    its "is_null", "matches", "gt" and "lt" clauses (which no filter has), in their order. An "in" clause's
-    values are the facet's, in their order (a missing value last), and a bound that's a number is
-    as JavaScript holds it.
+    its "is_null", "matches", "gt", "lt", "top_n" and "bottom_n" clauses (which no filter has), in
+    their order. An "in" clause's values are the facet's, in their order (a missing value last),
+    and a bound that's a number is as JavaScript holds it.
     """
     if query is None:
         return None
@@ -1536,6 +1597,13 @@ def _col(name: str, prefix: str) -> str:
     return f"{prefix}({_literal(name)})"
 
 
+def _rank_args(p: _Extreme, pandas: bool) -> str:
+    # (Ranked among all the rows, ties with the n-th kept)
+    if pandas:
+        return 'method="min", ascending=False' if p.op == "top_n" else 'method="min"'
+    return '"min", descending=True' if p.op == "top_n" else '"min"'
+
+
 # A term of the code's filter, and how tightly it binds, as Python's operators do: a comparison, an
 # `|`, an `&`, a `~`, or an atom (a call, or in parentheses), as `Term` in packages/gti/src/code.ts
 _COMPARE, _OR, _AND, _NOT, _ATOM = range(5)
@@ -1597,6 +1665,9 @@ def _polars_code(
             op = _SYMBOLS[p.op]
             term = f"{col} {op} {_literal(p.value)}"
             return (f"({term}) & {col}.is_finite()", _AND) if p.finite else (term, _COMPARE)
+        if isinstance(p, _Extreme):
+            ranked = f"pl.when({col}.is_finite()).then({col})" if p.finite else col
+            return f"{ranked}.rank({_rank_args(p, pandas=False)}) <= {p.n}", _COMPARE
         keys = f"{col}.cast(pl.String)" if p.as_text else col
         if not p.values:
             return f"{col}.is_null()", _ATOM
@@ -1649,6 +1720,12 @@ def _pandas_code(
                 term = (f"({term[0]}) & np.isfinite({col})", _AND)
             # (pandas' nullable dtypes compare to `pd.NA`, which a mask can't have)
             return (f"({term[0]}).fillna(False)", _ATOM) if _nullable(data, p.col) else term
+        if isinstance(p, _Extreme):
+            ranked = col
+            if p.finite:
+                imports.add("import numpy as np")
+                ranked = f"{col}.where(np.isfinite({col}))"
+            return f"{ranked}.rank({_rank_args(p, pandas=True)}) <= {p.n}", _COMPARE
         if not p.values:
             return f"{col}.isna()", _ATOM
         term_ = f"{col}.isin({_list(p.values)})"
@@ -1698,6 +1775,9 @@ def _narwhals_code(
             op = _SYMBOLS[p.op]
             term = f"{col} {op} {_literal(p.value)}"
             return (f"({term}) & {col}.is_finite()", _AND) if p.finite else (term, _COMPARE)
+        if isinstance(p, _Extreme):
+            ranked = f"nw.when({col}.is_finite()).then({col})" if p.finite else col
+            return f"{ranked}.rank({_rank_args(p, pandas=False)}) <= {p.n}", _COMPARE
         keys = f"{col}.cast(nw.String)" if p.as_text else col
         if not p.values:
             return f"{col}.is_null()", _ATOM

@@ -598,3 +598,88 @@ describe("a gt or lt clause", () => {
     expect(keeping({ col: "x", op: "gt", value: 10 }, { col: "x", op: "gte", value: 10 }, { not: { col: "x", op: "gt", value: 10 } })).toEqual([]);
   });
 });
+
+describe("a top_n or bottom_n clause", () => {
+  const keptBy = (groups: FilterGroup[]) => [0, 1, 2, 3, 4].filter((row) => groups.every((group) => group.keeps(row, [])));
+  // (`n` is a float column's: 1, NaN, missing, 1, missing)
+  const n = () => new ColumnFilter({ column: "n", type: "range", values: [1, null], missing: [1, 2, 4] }, 6, [0, 1, null, 0, null]);
+  // (`w` is 0, -0, 2, missing, -Infinity)
+  const w = () => new ColumnFilter({ column: "w", type: "range", values: [Number.NEGATIVE_INFINITY, -0, 0, 2] }, 7, [2, 1, 3, null, 0]);
+  const set = (query: FilterQuery) => {
+    const filters = [x(), y(), z(), d(), t(), n(), w()];
+    return { filters, groups: setFilterQuery(filters, query) };
+  };
+  // (The rows the filters keep, and the groups)
+  const keeping = (...and: FilterQuery["and"]) => {
+    const { filters, groups } = set({ and });
+    return keptBy(groups).filter((row) => filters.every((filter) => filter.keeps(row, undefined)));
+  };
+
+  it("keeps the rows of the n largest or smallest values, and those tied with the n-th", () => {
+    expect(keeping({ col: "x", op: "top_n", value: 1 })).toEqual([0, 4]);
+    expect(keeping({ col: "x", op: "top_n", value: 2 })).toEqual([0, 4]);
+    expect(keeping({ col: "x", op: "top_n", value: 3 })).toEqual([0, 2, 4]);
+    expect(keeping({ col: "x", op: "bottom_n", value: 1 })).toEqual([1]);
+    expect(keeping({ col: "x", op: "bottom_n", value: 2 })).toEqual([1, 2]);
+    expect(keeping({ col: "x", op: "bottom_n", value: 3 })).toEqual([0, 1, 2, 4]);
+    // (Never a missing value, NaN or an infinity, unless in a not; and the two zeros tie)
+    expect(keeping({ col: "x", op: "top_n", value: 9 })).toEqual([0, 1, 2, 4]);
+    expect(keeping({ col: "n", op: "top_n", value: 1 })).toEqual([0, 3]);
+    expect(keeping({ col: "n", op: "bottom_n", value: 5 })).toEqual([0, 3]);
+    expect(keeping({ col: "w", op: "bottom_n", value: 1 })).toEqual([0, 1]);
+    expect(keeping({ col: "w", op: "top_n", value: 2 })).toEqual([0, 1, 2]);
+    expect(keeping({ not: { col: "x", op: "top_n", value: 1 } })).toEqual([1, 2, 3]);
+  });
+
+  it("ranks dates, and dates and times", () => {
+    expect(keeping({ col: "d", op: "top_n", value: 1 })).toEqual([3]);
+    expect(keeping({ col: "d", op: "top_n", value: 2 })).toEqual([0, 3, 4]);
+    expect(keeping({ col: "d", op: "bottom_n", value: 1 })).toEqual([1]);
+    expect(keeping({ col: "t", op: "top_n", value: 1 })).toEqual([2, 4]);
+    expect(keeping({ col: "t", op: "bottom_n", value: 2 })).toEqual([0, 1]);
+  });
+
+  it("ranks all the data rows, not those the rest of the query keeps", () => {
+    expect(keeping({ col: "y", op: "in", value: ["a"] }, { col: "x", op: "top_n", value: 1 })).toEqual([4]);
+    expect(keeping({ col: "y", op: "in", value: ["c"] }, { col: "x", op: "top_n", value: 1 })).toEqual([]);
+    expect(keeping({ col: "x", op: "top_n", value: 1 }, { col: "x", op: "bottom_n", value: 3 })).toEqual([0, 4]);
+    expect(keeping({ or: [{ col: "x", op: "bottom_n", value: 1 }, { col: "d", op: "top_n", value: 1 }] })).toEqual([1, 3]);
+  });
+
+  it("is kept as a group is, in the query's order, after the filters' clauses", () => {
+    const { filters, groups } = set({
+      and: [
+        { col: "x", op: "top_n", value: 2 },
+        { col: "x", op: "gte", value: 10 },
+        { not: { col: "d", op: "bottom_n", value: 1 } },
+      ],
+    });
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "x", op: "gte", value: 10 }] });
+    expect(groups.map((group) => [group.item, group.filters.map((filter) => filter.column), group.texts])).toEqual([
+      [{ col: "x", op: "top_n", value: 2 }, ["x"], false],
+      [{ not: { col: "d", op: "bottom_n", value: 1 } }, ["d"], false],
+    ]);
+    expect(filterQuery(filters, groups)?.and).toHaveLength(3);
+  });
+
+  it.each([
+    ["has two at the top", { and: [{ col: "x", op: "top_n", value: 1 }, { and: [{ col: "x", op: "top_n", value: 2 }] }] }, /"x" has more than one "top_n" clause/],
+    ["has two in an and", { and: [{ not: { and: [{ col: "d", op: "bottom_n", value: 1 }, { col: "d", op: "bottom_n", value: 2 }] } }] }, /"d" has more than one "bottom_n" clause/],
+    ["is on a text filter", { and: [{ col: "z", op: "top_n", value: 1 }] }, /"z" has a text filter, which can't be/],
+    ["is on a facet filter", { and: [{ col: "y", op: "bottom_n", value: 1 }] }, /"y" has a facet filter, which can't be/],
+    ["has a count of 0", { and: [{ col: "x", op: "top_n", value: 0 }] }, 'the "top_n" clause on "x" needs a whole number, at least 1'],
+    ["has a count that isn't whole", { and: [{ or: [{ col: "d", op: "bottom_n", value: 1.5 }] }] }, 'the "bottom_n" clause on "d" needs a whole number, at least 1'],
+    ["has a count that's a string", { and: [{ col: "x", op: "top_n", value: "3" }] }, 'the "top_n" clause on "x" needs a whole number, at least 1'],
+    ["has a count too large", { and: [{ col: "x", op: "top_n", value: 2 ** 53 }] }, 'the "top_n" clause on "x" needs a whole number, at least 1'],
+  ])("makes a query that %s bad, changing nothing", (_, query, message) => {
+    const filters = [x(), y(), z(), d()];
+    setFilterQuery(filters, { and: [{ col: "x", op: "gte", value: 1 }] });
+    expect(() => setFilterQuery(filters, query as never)).toThrow(RangeError);
+    expect(() => setFilterQuery(filters, query as never)).toThrow(message);
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "x", op: "gte", value: 1 }] });
+  });
+
+  it("can be beside the other, or the same clause in another part", () => {
+    expect(keeping({ col: "x", op: "top_n", value: 1 }, { not: { col: "x", op: "top_n", value: 1 } })).toEqual([]);
+  });
+});
