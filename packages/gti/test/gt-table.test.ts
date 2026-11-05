@@ -3499,7 +3499,7 @@ describe("date filters", () => {
     input.value = "x ";
     input.setSelectionRange(2, 2);
     input.dispatchEvent(new Event("input", { bubbles: true }));
-    expect(options()).toEqual(['>= "…"', '<= "…"', "is null", "is not null"]);
+    expect(options()).toEqual(['>= "…"', '<= "…"', '> "…"', '< "…"', "is null", "is not null"]);
     press("Enter");
     expect(input.value).toBe('x >= ""');
     expect(input.selectionStart).toBe(6);
@@ -3523,6 +3523,17 @@ describe("date filters", () => {
     input.dispatchEvent(new Event("input", { bubbles: true }));
     press("Enter");
     expect(el.filter).toEqual({ and: [{ col: "x", op: "lte", value: "2015-01-10" }] });
+
+    // (The dates after `>` and `<` too, which are kept apart from the filter's bounds)
+    (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
+    input.value = 'x < "';
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    expect(options()).toEqual(["5", "20"]);
+    press("Enter");
+    expect(input.value).toBe('x < "2015-01-05" ');
+    press("Escape");
+    press("Enter");
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "lt", value: "2015-01-05" }] });
 
     (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
     input.value = "x >= 5";
@@ -3881,7 +3892,7 @@ describe("the query box", () => {
     expect(input(el).value).toBe('y in ("b", "c") and ');
     expect(options(el)).toEqual(["x", "y"]);
     type(el, "x ");
-    expect(options(el)).toEqual([">= …", "<= …", "is null", "is not null"]);
+    expect(options(el)).toEqual([">= …", "<= …", "> …", "< …", "is null", "is not null"]);
     type(el, "<");
     expect(options(el)).toEqual(["<= …"]);
     press(input(el), "Enter");
@@ -3957,7 +3968,7 @@ describe("the query box", () => {
     expect(list(el).hidden).toBe(true);
     // (Enter, then, applies)
     press(input(el), "Enter");
-    expect(error(el).textContent).toBe('Expected "contains", "matches", "in", "not", ">=", "<=" or "is"');
+    expect(error(el).textContent).toBe('Expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is"');
   });
 
   it("takes a suggestion that's clicked, keeping focus", async () => {
@@ -4095,7 +4106,7 @@ describe("the query box", () => {
     };
     expect(problem("y matches /(/")).toBe('Expected ")"');
     expect(problem("y matches /a/g")).toBe('A pattern can have only the flag "i"');
-    expect(problem("x matches /a/")).toBe("X has a range filter: use >= or <=");
+    expect(problem("x matches /a/")).toBe("X has a range filter: use >=, <=, > or <");
     expect(problem("y matches /a/ and y matches /b/")).toBe("Y has more than one matches clause");
   });
 
@@ -4118,7 +4129,7 @@ describe("the query box", () => {
     expect(error(text).textContent).toBe('Expected "contains", "matches" or "in"');
     replace(text, "x not in (5)");
     press(input(text), "Enter");
-    expect(error(text).textContent).toBe("X has a range filter: use >= or <=");
+    expect(error(text).textContent).toBe("X has a range filter: use >=, <=, > or <");
 
     const { el } = await mountQuery();
     toggle(el).click();
@@ -4138,6 +4149,41 @@ describe("the query box", () => {
     press(input(el), "Enter");
     toggle(el).click();
     expect(input(el).value).toBe('y not in ("b")');
+  });
+
+  it("suggests and applies > and <, saying what's wrong with them", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "x ");
+    press(input(el), "ArrowDown");
+    press(input(el), "ArrowDown");
+    press(input(el), "Enter");
+    expect(input(el).value).toBe("x > ");
+    expect(list(el).hidden).toBe(true);
+    type(el, "5");
+    press(input(el), "Enter");
+    expect(error(el).hidden).toBe(true);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gt", value: 5 }] });
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "group:a", 2, "grand:Max"]);
+    toggle(el).click();
+    expect(input(el).value).toBe("x > 5");
+    const problem = (text: string) => {
+      replace(el, text);
+      press(input(el), "Enter");
+      return error(el).hidden ? null : error(el).textContent;
+    };
+    expect(problem("x > 5 and x >= 5 and x < 20")).toBeNull();
+    expect(el.filter).toEqual({
+      and: [
+        { col: "x", op: "gte", value: 5 },
+        { col: "x", op: "gt", value: 5 },
+        { col: "x", op: "lt", value: 20 },
+      ],
+    });
+    expect(problem("x > 5 and x > 10")).toBe("X has more than one > clause");
+    expect(problem('x < "5"')).toBe("X has a range filter: give a number");
+    expect(problem('y > "a"')).toBe("Y has a facet filter: use in");
+    expect(problem("x > = 5")).toBe("Expected a number, or a date in double quotes");
   });
 });
 
@@ -4231,6 +4277,28 @@ describe("the query's groups", () => {
     expect(tokens(el)).toEqual(["y not matches /a\\/b/"]);
     expect(() => {
       el.filter = { and: [{ col: "x", op: "matches", value: "1" }] };
+    }).toThrow(RangeError);
+  });
+
+  it("include `gt` and `lt` clauses, whose tokens are their text, beside the range's bounds", async () => {
+    const { el } = await mountGroups();
+    el.filter = { and: [{ col: "x", op: "gt", value: 5 }] };
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gt", value: 5 }] });
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "group:a", 2, "grand:Max"]);
+    expect(tokens(el)).toEqual(["x > 5"]);
+    expect(token(el, 0).parentElement?.hasAttribute("data-gti-group")).toBe(true);
+    expect(token(el, 0).title).toBe("x > 5 (edit as text)");
+    // (Not the range's bounds, which the filter has, after them)
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(false);
+    el.filter = { and: [{ col: "x", op: "lt", value: 20 }, { col: "x", op: "gte", value: 10 }] };
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "gte", value: 10 }, { col: "x", op: "lt", value: 20 }] });
+    expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+    expect(tokens(el)).toEqual(["x ≥ 10", "x < 20", "Clear all"]);
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(true);
+    el.filter = { and: [{ not: { col: "x", op: "lt", value: 20 } }] };
+    expect(tokens(el)).toEqual(["not x < 20"]);
+    expect(() => {
+      el.filter = { and: [{ col: "y", op: "gt", value: 1 }] };
     }).toThrow(RangeError);
   });
 

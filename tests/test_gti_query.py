@@ -175,7 +175,7 @@ def test_check_query_normalizes_values():
         ({"and": [], "or": []}, "must be a query"),
         ({"and": "x"}, "must be a query"),
         ({"and": [1]}, "clause 0 must be"),
-        ({"and": [{"col": "x", "op": "gt", "value": 1}]}, "clause 0 must be"),
+        ({"and": [{"col": "x", "op": "ne", "value": 1}]}, "clause 0 must be"),
         ({"and": [{"col": 1, "op": "in", "value": [1]}]}, "clause 0 must be"),
         ({"and": [{"col": "x", "op": "in"}]}, "clause 0 must be"),
         ({"and": [{"col": "x", "op": "in", "value": [1], "not": True}]}, "clause 0 must be"),
@@ -189,6 +189,9 @@ def test_check_query_normalizes_values():
         (query(("x", "gte", True)), "needs a finite number"),
         (query(("x", "lte", math.inf)), "needs a finite number"),
         (query(("x", "lte", None)), "needs a finite number"),
+        (query(("x", "gt", math.nan)), "'gt' clause on column 'x' needs a finite number"),
+        (query(("x", "lt", "2015-13-01")), "'lt' clause on column 'x' needs a finite number"),
+        (query(("x", "gt", 1), ("x", "gt", 2)), "more than one 'gt' clause on column 'x'"),
         (query(("x", "gte", 1), ("x", "gte", 2)), "more than one 'gte' clause on column 'x'"),
         (query(("x", "in", [1]), ("x", "in", [2])), "more than one 'in' clause"),
     ],
@@ -403,6 +406,23 @@ def test_parse_query_reads_every_kind_of_clause():
     assert [type(value) for value in values] == [int, float, float]
 
 
+def test_parse_query_reads_strict_bounds():
+    text = 'x > 1 and x < 1e1 and d > "2015-06-05" and t<"2015-06-05T09:30"'
+    assert parse_query(text) == query(
+        ("x", "gt", 1),
+        ("x", "lt", 10.0),
+        ("d", "gt", "2015-06-05"),
+        ("t", "lt", "2015-06-05T09:30"),
+    )
+    # (`>=` is one symbol, and a column can have a bound and a strict bound)
+    assert parse_query("x>=1 and x<2") == query(("x", "gte", 1), ("x", "lt", 2))
+    assert check_query("x >= 1 and x > 1") == query(("x", "gte", 1), ("x", "gt", 1))
+    # (Before `>` and `<`, `not` is a column's name)
+    assert parse_query("not > 1 or not not < 2") == {
+        "and": [or_(clause("not", "gt", 1), not_(clause("not", "lt", 2)))]
+    }
+
+
 def test_parse_query_reads_no_query_from_empty_text():
     assert parse_query("") is None
     assert parse_query(" \t\n ") is None
@@ -465,10 +485,13 @@ REPEAT_TOO_LARGE = "a repeat can be at most 1000, and its first number no more t
 @pytest.mark.parametrize(
     "text, message",
     [
-        ("a", 'expected "contains", "matches", "in", "not", ">=", "<=" or "is", at the end'),
+        (
+            "a",
+            'expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is", at the end',
+        ),
         (
             "a = 1",
-            'expected "contains", "matches", "in", "not", ">=", "<=" or "is", at character 3',
+            'expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is", at character 3',
         ),
         (">= 1", "expected a column name, at character 1"),
         ("a >= x", f"{BOUND_EXPECTED}, at character 6"),
@@ -485,6 +508,13 @@ REPEAT_TOO_LARGE = "a repeat can be at most 1000, and its first number no more t
         ('a contains "\\x"', f"{UNENDED_STRING}, at character 12"),
         ("`a", "a column name in backticks must end with a backtick, at the end"),
         ("a >= .5", f"{BOUND_EXPECTED}, at character 6"),
+        # (Of strict bounds)
+        ("a >", f"{BOUND_EXPECTED}, at the end"),
+        ("a > x", f"{BOUND_EXPECTED}, at character 5"),
+        ("a > = 1", f"{BOUND_EXPECTED}, at character 5"),
+        ("a <> 1", f"{BOUND_EXPECTED}, at character 4"),
+        ("a < 1 < 2", 'expected "and", "or" or the end of the query, at character 7'),
+        ("> 1", "expected a column name, at character 1"),
         ("a >= 01", 'expected "and", "or" or the end of the query, at character 7'),
         # (Characters, not UTF-16 code units)
         ('`😀` contains "😀" x', 'expected "and", "or" or the end of the query, at character 18'),
@@ -591,6 +621,7 @@ def test_parse_query_reads_not_in_not_contains_and_not_matches_as_not_and_the_cl
     [
         ("x not", 'expected "contains", "matches" or "in", at the end'),
         ("x not >= 1", 'expected "contains", "matches" or "in", at character 7'),
+        ("x not > 1", 'expected "contains", "matches" or "in", at character 7'),
         ("x not is null", 'expected "contains", "matches" or "in", at character 7'),
         ("x not not in (1)", 'expected "contains", "matches" or "in", at character 7'),
         ("x not in 1", 'expected "(", at character 10'),
@@ -636,6 +667,18 @@ def test_format_query_writes_a_query_as_text():
         '`Name of town` contains "a \\"b\\"" and `a``b` <= -0.25'
     )
     assert format_query(None) == ""
+
+
+def test_format_query_writes_strict_bounds():
+    q = {
+        "and": [
+            clause("x", "gt", 1.5),
+            not_(clause("d", "lt", "2015-06-05")),
+            or_(clause("x", "lt", -0.25), clause("not", "gt", 2)),
+        ]
+    }
+    assert format_query(q) == 'x > 1.5 and not d < "2015-06-05" and (x < -0.25 or not > 2)'
+    assert parse_query(format_query(q)) == q
 
 
 def test_format_query_writes_groups_with_the_parentheses_they_need():
@@ -852,6 +895,7 @@ def test_a_facet_value_matches_as_javascript_matches_it():
     [
         ({"filter": query(("num", "in", [1.5]))}, "'in' clause on column 'num', which has a range"),
         ({"filter": query(("few", "gte", 1))}, r"which has a facet filter \(for 'in' clauses\)"),
+        ({"filter": "name > 1"}, r"'gt' clause on column 'name', which has a text filter"),
         (
             {"filter": query(("name", "in", ["a"]))},
             r"which has a text filter \(for 'contains' or 'matches' clauses\)",
@@ -894,8 +938,13 @@ def dated() -> GTI:
             "'2015-06-05' for its 'gte' clause on column 'num', ",
         ),
         (query(("d", "gte", 1)), r'which has a date filter \(for dates, as "2015-06-15"\)'),
-        (query(("d", "in", ["2015-06-05"])), r"which has a date filter \(for 'gte' or 'lte'"),
+        (
+            query(("d", "in", ["2015-06-05"])),
+            r"which has a date filter \(for 'gte', 'lte', 'gt' or 'lt'",
+        ),
         (query(("d", "lte", "2015-06-05T09:30")), r"without times \(give a date, as '2015-06-05'"),
+        ('d > "2015-06-05T09:30"', r"'gt' clause on column 'd', whose values are dates, without"),
+        ('num < "2015-06-05"', "'2015-06-05' for its 'lt' clause on column 'num', "),
     ],
 )
 def test_date_views_are_checked_against_the_table(filter: dict, message: str):
@@ -1115,6 +1164,11 @@ def test_view_rows_by_dates():
     # (A date as its midnight, in a column of dates and times)
     assert view_rows(dated().i_view(filter=query(("t", "lte", "2015-06-05")))) == [1, 3]
     assert view_rows(dated().i_view(filter=query(("t", "gte", "2015-06-05T09:30")))) == [0]
+    # (A strict bound leaves out the bound: a date's midnight, for dates and times)
+    assert view_rows(dated().i_view(filter=query(("d", "gt", "2015-06-05")))) == [2]
+    assert view_rows(dated().i_view(filter=query(("d", "lt", "2015-06-05")))) == [3]
+    assert view_rows(dated().i_view(filter=query(("t", "gt", "2015-06-05")))) == [0]
+    assert view_rows(dated().i_view(filter=query(("t", "lt", "2015-06-05")))) == [3]
 
 
 # query_code() ----
@@ -1189,6 +1243,34 @@ def test_query_code_of_dates():
         ("narwhals", DATES),
     ]:
         assert run_code(query_code(gti, backend), data) == [0]
+
+
+def test_query_code_of_strict_bounds():
+    # (A bound first, as the filter has it, then the strict bounds, which no filter has)
+    gti = dated().i_view(filter='num < 4 and num >= 2 and t < "2015-06-05T09:30"')
+    assert query_code(gti, "polars") == (
+        "import datetime\nimport polars as pl\n\n"
+        "df.filter(\n"
+        '    (pl.col("num") >= 2) & pl.col("num").is_finite(),\n'
+        '    (pl.col("num") < 4) & pl.col("num").is_finite(),\n'
+        '    pl.col("t") < datetime.datetime(2015, 6, 5, 9, 30),\n'
+        ")\n"
+    )
+    assert query_code(gti, "pandas") == (
+        "import datetime\nimport numpy as np\n\n"
+        "df[\n"
+        '    ((df["num"] >= 2) & np.isfinite(df["num"]))\n'
+        '    & ((df["num"] < 4) & np.isfinite(df["num"]))\n'
+        '    & (df["t"] < datetime.datetime(2015, 6, 5, 9, 30))\n'
+        "]\n"
+    )
+    assert view_rows(gti) == [1]
+    for backend, data in [
+        ("polars", pl.from_pandas(DATES)),
+        ("pandas", DATES),
+        ("narwhals", DATES),
+    ]:
+        assert run_code(query_code(gti, backend), data) == [1]
 
 
 # (Booleans, one of them missing: pandas' nullable ones)
@@ -1583,6 +1665,11 @@ EDGE_VIEWS: list[tuple[str, dict, Any]] = [
     ("range of ints", query(("i", "gte", 1.5)), "-i"),
     ("range without NaN or infinities", query(("f", "gte", -1e308)), None),
     ("upper bound", query(("f", "lte", 0)), None),
+    ("strict range", query(("f", "gt", 0), ("f", "lt", 2)), None),
+    ("strict range of ints", query(("i", "gt", 1.5)), "-i"),
+    ("strict range without NaN or infinities", query(("f", "gt", -1e308)), None),
+    ("strict upper bound", query(("f", "lt", 1.5)), "f"),
+    ("a bound and a strict bound", query(("f", "gte", 1.5), ("f", "lt", 2)), None),
     ("text ignoring case and accents", query(("s", "contains", "ECOLE")), None),
     ("text, trimmed", query(("s", "contains", "\xa0 ÉCOLES　")), None),
     ("text with a no-break space", query(("s", "contains", "a\xa0b")), None),
@@ -1605,6 +1692,11 @@ EDGE_VIEWS: list[tuple[str, dict, Any]] = [
     ("dates and times to a time", query(("t", "lte", "2015-06-05T09:30")), None),
     ("to a time, with seconds", query(("t", "lte", "2015-06-05T09:29:59")), "-t"),
     ("from a time, to the microsecond", query(("t", "gte", "2015-06-05T09:30:00.000001")), None),
+    ("after a date", query(("d", "gt", "2015-06-05")), "-d"),
+    ("before a date", query(("d", "lt", "2015-06-05")), None),
+    ("dates and times after a date (its midnight)", query(("t", "gt", "2015-06-05")), None),
+    ("dates and times before a time", query(("t", "lt", "2015-06-05T09:30")), "t"),
+    ("after a time, to the microsecond", query(("t", "gt", "2015-06-05T09:30")), None),
     ("text of dates", query(("d", "contains", "2015-06")), None),
     ("sort dates", None, ["d", "-t"]),
     ("not a range, keeping missing values and NaN", {"and": [not_(clause("f", "gte", 1.5))]}, None),
@@ -1615,6 +1707,12 @@ EDGE_VIEWS: list[tuple[str, dict, Any]] = [
     ("not a date", {"and": [not_(clause("d", "lte", "2015-06-05"))]}, "d"),
     ("not dates and times", {"and": [not_(clause("t", "gte", "2015-06-05T09:30"))]}, None),
     ("or of ranges", {"and": [or_(clause("f", "lte", 0), clause("i", "gte", 3))]}, None),
+    ("not a strict range, keeping missing values", {"and": [not_(clause("f", "gt", 1.5))]}, None),
+    (
+        "strict bounds in an or",
+        {"and": [or_(clause("i", "lt", 2), clause("d", "gt", "2015-06-05"))]},
+        "-i",
+    ),
     (
         "not an or",
         {
@@ -1735,6 +1833,17 @@ def test_edge_cases_keep_the_rows_expected(engine: Callable[[GT], dict], backend
     assert rows(query(("d", "gte", "2015-06-05"), ("d", "lte", "2015-06-15"))) == [0, 2, 4]
     assert rows(query(("t", "lte", "2015-06-05"))) == [0, 3]
     assert rows(query(("t", "gte", "2015-06-05"), ("t", "lte", "2015-06-05T09:30"))) == [0, 1, 6]
+    # (A strict bound leaves out the bound itself, and NaN and infinities, as a bound does)
+    assert rows(query(("f", "gt", 1.5))) == [4]
+    assert rows(query(("f", "lt", 1.5))) == [7]
+    assert rows(query(("f", "gt", 0), ("f", "lt", 2))) == [0, 6]
+    assert rows(query(("i", "lt", 2))) == [1, 6]
+    assert rows(query(("d", "gt", "2015-06-05"))) == [2, 7]
+    assert rows(query(("d", "lt", "2015-06-05"))) == [3, 5]
+    # (A date is its midnight, so after it is that day's times but midnight)
+    assert rows(query(("t", "gt", "2015-06-05"))) == [1, 4, 5, 6]
+    assert rows(query(("t", "lt", "2015-06-05T09:30"))) == [0, 3, 6]
+    assert rows({"and": [not_(clause("f", "gt", 1.5))]}) == [0, 1, 2, 3, 5, 6, 7]
     # (Descending, NaN is first, as it's after every number, ascending; but not if it's missing)
     descending = rows(None, "-f")
     assert descending == ([5, 4, 0, 6, 7, 3, 1, 2] if nan_missing else [2, 5, 4, 0, 6, 7, 3, 1])
@@ -1941,7 +2050,7 @@ def filter_clauses(draw: Any, f: dict, kinds: dict, blank: bool = True) -> list[
     else:
         numbers = [value for value in f["values"] if value is not None]
         bound = st.sampled_from(numbers) | st.floats(-3, 4) if numbers else st.floats(-3, 4)
-    ops = draw(st.lists(st.sampled_from(["gte", "lte"]), min_size=1, unique=True))
+    ops = draw(st.lists(st.sampled_from(["gte", "lte", "gt", "lt"]), min_size=1, unique=True))
     return [{"col": col, "op": op, "value": draw(bound)} for op in ops]
 
 
@@ -2178,7 +2287,7 @@ PATTERN_VALUES = st.sampled_from(PATTERNS) | st.builds(
 
 @st.composite
 def clauses(draw: Any) -> dict:
-    op = draw(st.sampled_from(["contains", "in", "gte", "lte", "is_null", "matches"]))
+    op = draw(st.sampled_from(["contains", "in", "gte", "lte", "is_null", "matches", "gt", "lt"]))
     if op == "is_null":
         return {"col": draw(NAMES), "op": op}
     if op == "matches":
@@ -2221,6 +2330,7 @@ PIECES = [
     *[" not ", "not in", " NOT IN ", "not contains", "Not Matches", "x not", "not not"],
     *["matches", "MATCHES", " matches ", "/a/", "/[a-z]+/i", "/", "/(/", "/a\\/b/", "/x/g", "[/]"],
     *["/i", "\\", "(?i)", "{2}", "/^st\\./"],
+    *["<", " > ", "> =", "a > 1", 'd < "2015-06-05"', "not > 1", "x not >", ">>", "<>"],
 ]
 
 

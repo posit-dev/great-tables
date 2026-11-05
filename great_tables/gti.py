@@ -860,8 +860,10 @@ class GTI(GT):
             operation: `"contains"` for a text filter (the value is the text, matched as readers'
             typing is), or `"matches"` (the value is a regular expression, which has a match in
             the text a cell shows, as it is: with its case and accents), `"in"` for a facet (a
-            list of values, with `None` for a missing value), and `"gte"` (at least) and `"lte"`
-            (at most) for a range (a number). A `"matches"` pattern is in the part of regular
+            list of values, with `None` for a missing value), and `"gte"` (at least), `"lte"` (at
+            most), `"gt"` (more than) and `"lt"` (less than) for a range (a number) or a date
+            filter (a date, as `"2015-06-15"`: for a column of dates and times, its midnight, so
+            `"gt"` keeps 09:30 that day). A `"matches"` pattern is in the part of regular
             expressions' syntax that the browser, Polars, pandas and PyArrow read alike:
             characters (`\\` before punctuation for the character itself), `.`, `^` and `$` (the
             start and end of the text), classes as `[a-z]` and `[^0-9]`, `\\d`, `\\w` and `\\s`
@@ -877,12 +879,13 @@ class GTI(GT):
             `{"not": part}` those that its part doesn't keep (a row whose value is missing, which
             a clause doesn't keep, is kept by `"not"`). Groups can be in groups, and a column can
             have one clause of each operation in each `"and"`. The column filters show the
-            query's clauses, and the bar below the table shows each group (and each `"is_null"`
-            clause), which readers can edit as text, or remove.
+            query's clauses, and the bar below the table shows each group (and each `"is_null"`,
+            `"matches"`, `"gt"` and `"lt"` clause), which readers can edit as text, or remove.
 
             The query can be written as text instead: clauses joined by `and`, each a column name
             and then `contains` and a string, `matches` and a pattern between slashes, `in` and
-            values in parentheses, `>=` or `<=` and a number, or `is null` (e.g.,
+            values in parentheses, `>=`, `<=`, `>` or `<` and a number (or a date in double
+            quotes), or `is null` (e.g.,
             `'status in ("single-tier") and population_2021 >= 10000'`, `"name matches /^st\\./i"`,
             or `"population_2016 is null"`; `is not null` is `not` and `is null`, and so are
             `not in`, `not contains` and `not matches`, as in `'status not in ("city")'`). Strings

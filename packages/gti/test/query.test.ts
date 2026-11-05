@@ -81,8 +81,8 @@ describe("parseQuery", () => {
   });
 
   it("says what's wrong, and where", () => {
-    expect(error("a")).toBe('expected "contains", "matches", "in", "not", ">=", "<=" or "is", at the end');
-    expect(error("a = 1")).toBe('expected "contains", "matches", "in", "not", ">=", "<=" or "is", at character 3');
+    expect(error("a")).toBe('expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is", at the end');
+    expect(error("a = 1")).toBe('expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is", at character 3');
     expect(error(">= 1")).toBe("expected a column name, at character 1");
     expect(error("a >= x")).toBe("expected a number, or a date in double quotes, at character 6");
     expect(error("a >= (")).toBe("expected a number, or a date in double quotes, at character 6");
@@ -412,7 +412,7 @@ describe("queryProblem", () => {
     expect(problem('x >= 1 and y in ("a", null, 1) and `z z` contains "q"')).toBeNull();
     expect(problem("")).toBeNull();
     expect(problem('x >= 1 and w contains "a"')).toEqual({ clause: 1, message: "w isn't a column with a filter" });
-    expect(problem("x in (1)")).toEqual({ clause: 0, message: "x has a range filter: use >= or <=" });
+    expect(problem("x in (1)")).toEqual({ clause: 0, message: "x has a range filter: use >=, <=, > or <" });
     expect(problem("`z z` >= 1")).toEqual({ clause: 0, message: "`z z` has a text filter: use contains or matches" });
     expect(problem('y contains "a"')).toEqual({ clause: 0, message: "y has a facet filter: use in" });
     expect(problem("x >= 1 and x <= 2 and x >= 3")).toEqual({ clause: 2, message: "x has more than one >= clause" });
@@ -423,7 +423,7 @@ describe("queryProblem", () => {
     expect(problem('d >= "2015-01-01" and t <= "2016-01-01" and t >= "2015-01-01T09:30:00.123456"')).toBeNull();
     expect(problem('x >= "5"')).toEqual({ clause: 0, message: "x has a range filter: give a number" });
     expect(problem("d >= 2015")).toEqual({ clause: 0, message: 'd has a date filter: give a date in double quotes ("YYYY-MM-DD")' });
-    expect(problem('d in ("2015-06-15")')).toEqual({ clause: 0, message: "d has a date filter: use >= or <=" });
+    expect(problem('d in ("2015-06-15")')).toEqual({ clause: 0, message: "d has a date filter: use >=, <=, > or <" });
     expect(problem('d <= "2015-06-15T09:30"')).toEqual({
       clause: 0,
       message: '"2015-06-15T09:30" isn\'t a date ("YYYY-MM-DD"), and d has dates without times',
@@ -632,7 +632,7 @@ describe("matches", () => {
     ];
     const problem = (text: string) => queryProblem(filters, parseQuery(text));
     expect(problem('y matches /a/ and y contains "b" and not y matches /c/')).toBeNull();
-    expect(problem("x matches /a/")).toEqual({ clause: 0, message: "x has a range filter: use >= or <=" });
+    expect(problem("x matches /a/")).toEqual({ clause: 0, message: "x has a range filter: use >=, <=, > or <" });
     expect(problem("w matches /a/")).toEqual({ clause: 0, message: "w isn't a column with a filter" });
     expect(problem("y matches /a/ and y matches /b/i")).toEqual({ clause: 1, message: "y has more than one matches clause" });
     expect(problem("y matches /a/ or y matches /b/")).toBeNull();
@@ -717,8 +717,96 @@ describe("not in, not contains and not matches", () => {
     ];
     const problem = (text: string) => queryProblem(filters, parseQuery(text));
     expect(problem('y not in ("a", null) and z not contains "q" and z not matches /r/ and y in ("b")')).toBeNull();
-    expect(problem("x not in (5)")).toEqual({ clause: 0, message: "x has a range filter: use >= or <=" });
+    expect(problem("x not in (5)")).toEqual({ clause: 0, message: "x has a range filter: use >=, <=, > or <" });
     expect(problem('y not in ("c")')).toEqual({ clause: 0, message: '"c" isn\'t a value of y' });
     expect(problem('z not contains " "')).toEqual({ clause: 0, message: 'z needs text to look for, in an "or" or a "not"' });
+  });
+});
+
+describe("> and <", () => {
+  it("reads them as the strict bounds gt and lt", () => {
+    expect(parseQuery('x > 1 and x < 1e1 and d > "2015-06-05" and t<"2015-06-05T09:30"')).toEqual({
+      and: [
+        { col: "x", op: "gt", value: 1 },
+        { col: "x", op: "lt", value: 10 },
+        { col: "d", op: "gt", value: "2015-06-05" },
+        { col: "t", op: "lt", value: "2015-06-05T09:30" },
+      ],
+    });
+    // (`>=` is one symbol)
+    expect(parseQuery("x>=1 and x<2")).toEqual({
+      and: [
+        { col: "x", op: "gte", value: 1 },
+        { col: "x", op: "lt", value: 2 },
+      ],
+    });
+    // (Before `>` and `<`, `not` is a column's name)
+    expect(parseQuery("not > 1 or not not < 2")).toEqual({
+      and: [{ or: [{ col: "not", op: "gt", value: 1 }, { not: { col: "not", op: "lt", value: 2 } }] }],
+    });
+  });
+
+  it("says what's wrong, and where", () => {
+    const bound = "expected a number, or a date in double quotes";
+    expect(error("a >")).toBe(`${bound}, at the end`);
+    expect(error("a > x")).toBe(`${bound}, at character 5`);
+    expect(error("a > = 1")).toBe(`${bound}, at character 5`);
+    expect(error("a <> 1")).toBe(`${bound}, at character 4`);
+    expect(error("a < 1 < 2")).toBe('expected "and", "or" or the end of the query, at character 7');
+    expect(error("> 1")).toBe("expected a column name, at character 1");
+    expect(error("x not > 1")).toBe('expected "contains", "matches" or "in", at character 7');
+  });
+
+  it("writes them as > and <, which parseQuery reads back", () => {
+    const query: FilterQuery = {
+      and: [
+        { col: "x", op: "gt", value: 1.5 },
+        { not: { col: "d", op: "lt", value: "2015-06-05" } },
+        { or: [{ col: "x", op: "lt", value: -0.25 }, { not: { col: "not", op: "gt", value: 2 } }] },
+      ],
+    };
+    expect(formatQuery(query)).toBe('x > 1.5 and not d < "2015-06-05" and (x < -0.25 or not not > 2)');
+    expect(parseQuery(formatQuery(query))).toEqual(query);
+  });
+
+  it("says what each part is, where the clauses are, and what goes at the caret", () => {
+    const roles = (text: string) => readQuery(text).parts.map((part) => [part.text, part.role]);
+    expect(roles('x > 1 and not > "2015-06-05"')).toEqual([
+      ["x", "column"],
+      [">", "keyword"],
+      ["1", "number"],
+      ["and", "keyword"],
+      ["not", "column"],
+      [">", "keyword"],
+      ['"2015-06-05"', "string"],
+    ]);
+    expect(roles("x not > 1").map(([, role]) => role)).toEqual(["column", "keyword", null, null]);
+    const text = "x > 1 or y < 2";
+    expect(readQuery(text).clauses.map(([from, to]) => text.slice(from, to))).toEqual(["x > 1", "y < 2"]);
+    const at = (typed: string) => queryContext(typed.replace("|", ""), typed.indexOf("|"));
+    expect(at("x <|")).toMatchObject({ expect: "op", col: "x", prefix: "<" });
+    expect(at("x > |")).toMatchObject({ expect: "bound", col: "x" });
+    expect(at('d < "2015|"')).toMatchObject({ expect: "bound", col: "d", prefix: '"2015', from: 4, to: 10 });
+    expect(at("x < 1 |")).toMatchObject({ expect: "and" });
+  });
+
+  it("is a problem as >= and <= are, and once each in an and", () => {
+    const filters = [
+      new ColumnFilter({ column: "x", type: "range", values: [5] }, 1, []),
+      new ColumnFilter({ column: "y", type: "text", values: null }, 2, []),
+      new ColumnFilter({ column: "d", type: "date", values: ["2015-06-15"] }, 3, [], null, "date"),
+    ];
+    const problem = (text: string) => queryProblem(filters, parseQuery(text));
+    expect(problem('x >= 1 and x > 1 and x < 9 and d > "2015-01-01" and not d < "2015-02-01"')).toBeNull();
+    expect(problem("x > 1 or x > 2")).toBeNull();
+    expect(problem("x > 1 and x > 2")).toEqual({ clause: 1, message: "x has more than one > clause" });
+    expect(problem("x < 1 and (x <= 2 and x < 3)")).toEqual({ clause: 2, message: "x has more than one < clause" });
+    expect(problem('x > "5"')).toEqual({ clause: 0, message: "x has a range filter: give a number" });
+    expect(problem("y < 1")).toEqual({ clause: 0, message: "y has a text filter: use contains or matches" });
+    expect(problem("d > 2015")).toEqual({ clause: 0, message: 'd has a date filter: give a date in double quotes ("YYYY-MM-DD")' });
+    expect(problem('d < "2015-06-15T09:30"')).toEqual({
+      clause: 0,
+      message: '"2015-06-15T09:30" isn\'t a date ("YYYY-MM-DD"), and d has dates without times',
+    });
   });
 });

@@ -22,6 +22,9 @@ Rows are kept when every clause keeps them. A clause's `op` is one of:
   date, `"2015-06-15"`, or for a column of dates and times, either that (its midnight) or a date
   and time, `"2015-06-15T09:30"` (with seconds, and up to six digits of their fraction, if
   wanted). Missing values are never kept.
+- `"gt"` and `"lt"`, as `"gte"` and `"lte"`, but keeping the rows with a number more than (or less
+  than) `value`, or a date (or date and time) after (or before) it: for a column of dates and
+  times, a date is its midnight, so `"gt"` and `"2015-06-15"` keeps 09:30 that day.
 - `"is_null"`, for a column with any filter, and without a `value`: keeps the rows whose value is
   missing (`None`, or NaN in a column of floats), as the spec's `missing` has them.
 
@@ -47,6 +50,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import math
+import operator
 import re
 import unicodedata
 from collections.abc import Callable, Iterator, Mapping, Sequence
@@ -93,8 +97,17 @@ OP_TYPES = {
     "in": ("facet", "bool"),
     "gte": ("range", "date"),
     "lte": ("range", "date"),
+    "gt": ("range", "date"),
+    "lt": ("range", "date"),
     "is_null": ("text", "facet", "bool", "range", "date"),
 }
+
+# The ops that compare to a bound, by their symbols in a query's text (and code's)
+_SYMBOLS = {"gte": ">=", "lte": "<=", "gt": ">", "lt": "<"}
+_COMPARISONS = {symbol: op for op, symbol in _SYMBOLS.items()}
+
+# The ops no filter has, whose clauses the runtime keeps with the groups
+_GROUPED = ("is_null", "matches", "gt", "lt")
 
 # A date, or a date and time, as ISO 8601 text (as the runtime's `dateKey()` reads it)
 _DATE_TEXT = re.compile(
@@ -243,7 +256,7 @@ def _check_clause(clause: Any, where: str) -> dict[str, Any]:
     ):
         raise ValueError(
             f'The filter\'s {where} must be `{{"col": ..., "op": ..., "value": ...}}`, with a '
-            'column name and an op of "contains", "matches", "in", "gte", or "lte"; or '
+            'column name and an op of "contains", "matches", "in", "gte", "lte", "gt", or "lt"; or '
             '`{"col": ..., "op": "is_null"}`; or a group, `{"or": [parts]}`, '
             f'`{{"and": [parts]}}`, or `{{"not": part}}`; not {clause!r}.'
         )
@@ -361,8 +374,8 @@ def parse_date(text: str) -> dt.date | dt.datetime | None:
 # Clauses joined by `and` and `or`, each after `not` if wanted, and grouped in parentheses as
 # wanted (`not` binding tighter than `and`, and `and` tighter than `or`); a clause is a column,
 # then `contains` and a string, `matches` and a pattern (between slashes, with the flag `i` to
-# ignore case, as in `/^st\./i`), `in` and values in parentheses, `>=` or `<=` and a number or a
-# date (a string), or `is null`; `x not in (...)`, `x not contains "..."`, `x not matches /.../` and
+# ignore case, as in `/^st\./i`), `in` and values in parentheses, `>=`, `<=`, `>` or `<` and a
+# number or a date (a string), or `is null`; `x not in (...)`, `x not contains "..."`, `x not matches /.../` and
 # `x is not null` are `not` and those. A column is a name of letters, digits and underscores (not
 # starting with a digit), or any name in backticks (a backtick in it doubled); `not` before an op is
 # a column's name. Strings and numbers are as in JSON; the other values are `true`, `false` and
@@ -536,12 +549,14 @@ class _QueryParser:
                 values.append(self.value())
             self.advance()
             return {"col": col, "op": "in", "value": values}
-        if self.is_symbol(">=") or self.is_symbol("<="):
-            op = "gte" if self.advance().value == ">=" else "lte"
+        if self.token.kind == "symbol" and self.token.value in _COMPARISONS:
+            op = _COMPARISONS[self.advance().value]
             if self.token.kind not in ("number", "string"):
                 self.fail("expected a number, or a date in double quotes")
             return {"col": col, "op": op, "value": self.advance().value}
-        return self.fail('expected "contains", "matches", "in", "not", ">=", "<=" or "is"')
+        return self.fail(
+            'expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is"'
+        )
 
     def is_not(self) -> bool:
         """Whether the token is the keyword `not` (rather than a column's name, before an op)."""
@@ -552,7 +567,7 @@ class _QueryParser:
         self.at = at
         word = after.value.lower() if after.kind == "name" else None
         symbol = after.value if after.kind == "symbol" else None
-        return word not in _OP_WORDS and symbol not in (">=", "<=")
+        return word not in _OP_WORDS and symbol not in _COMPARISONS
 
     def unary(self) -> dict[str, Any]:
         if self.is_not():
@@ -653,7 +668,7 @@ def _format_op(clause: Mapping[str, Any]) -> str:
         return f"matches {format_pattern(value)}"
     if op == "in":
         return f"in ({', '.join(_format_value(item) for item in value)})"
-    return f"{'>=' if op == 'gte' else '<='} {_format_value(value)}"
+    return f"{_SYMBOLS[op]} {_format_value(value)}"
 
 
 def _format_value(value: Any) -> str:
@@ -735,11 +750,12 @@ def check_view(
                 "one with `i_cols_filter()`."
             )
         if found["type"] not in OP_TYPES[op]:
-            ops = " or ".join(
+            names = [
                 repr(name)
                 for name, types in OP_TYPES.items()
                 if found["type"] in types and name != "is_null"
-            )
+            ]
+            ops = " or ".join([", ".join(names[:-1]), names[-1]] if len(names) > 1 else names)
             raise ValueError(
                 f"The view's filter has a {op!r} clause on column {col!r}, which has a "
                 f"{found['type']} filter (for {ops} clauses)."
@@ -1008,9 +1024,12 @@ class _In:
 @dataclass(frozen=True)
 class _Compare:
     col: str
-    op: Literal["gte", "lte"]
+    op: Literal["gte", "lte", "gt", "lt"]
     value: int | float | dt.date  # (a date filter's as a date, or a datetime for one with times)
     finite: bool  # (a column of floats, whose NaN and infinities aren't kept)
+
+
+_COMPARE_EXPRS = {"gte": operator.ge, "lte": operator.le, "gt": operator.gt, "lt": operator.lt}
 
 
 @dataclass(frozen=True)
@@ -1156,7 +1175,7 @@ def _expr(
     if isinstance(predicate, _IsNull):
         return col.is_null() | col.is_nan() if predicate.nan else col.is_null()
     if isinstance(predicate, _Compare):
-        expr = col >= predicate.value if predicate.op == "gte" else col <= predicate.value
+        expr = _COMPARE_EXPRS[predicate.op](col, predicate.value)
         return expr & col.is_finite() if predicate.finite else expr
     keys = col.cast(nw.String) if predicate.as_text else col
     if not predicate.values:
@@ -1382,7 +1401,7 @@ def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
     """A (checked) query as the runtime has it (`filterQuery()` in packages/gti/src/filter.ts).
 
     Its clauses are in the order of the filters, a range's lower bound first, then its groups and
-    its "is_null" and "matches" clauses (which no filter has), in their order. An "in" clause's
+    its "is_null", "matches", "gt" and "lt" clauses (which no filter has), in their order. An "in" clause's
     values are the facet's, in their order (a missing value last), and a bound that's a number is
     as JavaScript holds it.
     """
@@ -1416,7 +1435,7 @@ def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
 
     def kept(item: Mapping[str, Any]) -> bool:
         # (As a filter keeps it)
-        return _is_clause(item) and item["op"] not in ("is_null", "matches")
+        return _is_clause(item) and item["op"] not in _GROUPED
 
     clauses = sorted(
         (item for item in query["and"] if kept(item)),
@@ -1575,7 +1594,7 @@ def _polars_code(
                 _ATOM,
             )
         if isinstance(p, _Compare):
-            op = ">=" if p.op == "gte" else "<="
+            op = _SYMBOLS[p.op]
             term = f"{col} {op} {_literal(p.value)}"
             return (f"({term}) & {col}.is_finite()", _AND) if p.finite else (term, _COMPARE)
         keys = f"{col}.cast(pl.String)" if p.as_text else col
@@ -1623,7 +1642,7 @@ def _pandas_code(
                 _ATOM,
             )
         if isinstance(p, _Compare):
-            op = ">=" if p.op == "gte" else "<="
+            op = _SYMBOLS[p.op]
             term: _Term = (f"{col} {op} {_literal(p.value)}", _COMPARE)
             if p.finite:
                 imports.add("import numpy as np")
@@ -1676,7 +1695,7 @@ def _narwhals_code(
                 _ATOM,
             )
         if isinstance(p, _Compare):
-            op = ">=" if p.op == "gte" else "<="
+            op = _SYMBOLS[p.op]
             term = f"{col} {op} {_literal(p.value)}"
             return (f"({term}) & {col}.is_finite()", _AND) if p.finite else (term, _COMPARE)
         keys = f"{col}.cast(nw.String)" if p.as_text else col

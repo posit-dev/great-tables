@@ -407,6 +407,48 @@ describe("viewCode", () => {
     });
   });
 
+  describe("of gt and lt clauses", () => {
+    const filters: FilterSpec[] = [...FILTERS, { column: "t", type: "date", values: ["2015-06-05T09:30:00"] }];
+    const spec: CodeSpec = { ...SPEC, columns: { ...SPEC.columns, t: column("datetime") } };
+    const query: FilterQuery = {
+      and: [
+        { col: "num", op: "gte", value: 2 },
+        { col: "num", op: "lt", value: 4 },
+        { col: "t", op: "lt", value: "2015-06-05T09:30" },
+        { or: [{ col: "t", op: "gt", value: "2015-06-05" }, { not: { col: "num", op: "gt", value: 1.5 } }] },
+      ],
+    };
+
+    it("writes `>` and `<`, a float's finite, for Polars and Narwhals", () => {
+      const terms = (ns: string) => [
+        `(${ns}.col("num") >= 2) & ${ns}.col("num").is_finite()`,
+        `(${ns}.col("num") < 4) & ${ns}.col("num").is_finite()`,
+        `${ns}.col("t") < datetime.datetime(2015, 6, 5, 9, 30)`,
+        `(${ns}.col("t") > datetime.datetime(2015, 6, 5, 0, 0)) | ` +
+          `~((${ns}.col("num") > 1.5) & ${ns}.col("num").is_finite()).fill_null(False)`,
+      ];
+      expect(code(query, [], "polars", { filters, spec })).toBe(
+        `import datetime\nimport polars as pl\n\ndf.filter(\n${terms("pl").map((term) => `    ${term},\n`).join("")})\n`,
+      );
+      expect(code(query, [], "narwhals", { filters, spec })).toBe(
+        "import datetime\nimport narwhals as nw\n\n(\n    nw.from_native(df)\n    .filter(\n" +
+          terms("nw").map((term) => `        ${term},\n`).join("") +
+          "    )\n    .to_native()\n)\n",
+      );
+    });
+
+    it("writes `>` and `<`, a float's finite, for pandas", () => {
+      expect(code(query, [], "pandas", { filters, spec })).toBe(
+        "import datetime\nimport numpy as np\n\ndf[\n" +
+          '    ((df["num"] >= 2) & np.isfinite(df["num"]))\n' +
+          '    & ((df["num"] < 4) & np.isfinite(df["num"]))\n' +
+          '    & (df["t"] < datetime.datetime(2015, 6, 5, 9, 30))\n' +
+          '    & ((df["t"] > datetime.datetime(2015, 6, 5, 0, 0)) | ~((df["num"] > 1.5) & np.isfinite(df["num"])))\n' +
+          "]\n",
+      );
+    });
+  });
+
   it("writes column names as Python strings", () => {
     const filters: FilterSpec[] = [{ column: 'Name "of" town', type: "text", values: null }];
     const spec: CodeSpec = { backend: "polars", columns: { 'Name "of" town': column("string") } };
