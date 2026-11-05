@@ -17,6 +17,8 @@ import type { CodeBackend, CodeSpec, FilterSpec } from "./spec";
 const str = (text: string) => JSON.stringify(text);
 const list = (items: readonly string[]) => `[${items.join(", ")}]`;
 const py = (flag: boolean) => (flag ? "True" : "False");
+// (The comparisons' operators)
+const OPERATORS = { gte: ">=", lte: "<=", gt: ">", lt: "<" };
 
 // A term of the code's filter, and how tightly it binds, as Python's operators do: a comparison,
 // an `|`, an `&`, a `~`, or an atom (a call, or in parentheses)
@@ -139,11 +141,12 @@ export function viewCode(
       return present.length < clause.value.length ? [`${term} | ${missing}`, OR] : [term, ATOM];
     }
     let term: Term;
+    const op = OPERATORS[clause.op];
     if (typeof clause.value === "string") {
       imports.add("import datetime");
-      term = [`${col} ${clause.op === "gte" ? ">=" : "<="} ${pyDate(clause.value, column?.dtype === "datetime")}`, COMPARE];
+      term = [`${col} ${op} ${pyDate(clause.value, column?.dtype === "datetime")}`, COMPARE];
     } else {
-      term = [`${col} ${clause.op === "gte" ? ">=" : "<="} ${pyNumber(clause.value)}`, COMPARE];
+      term = [`${col} ${op} ${pyNumber(clause.value)}`, COMPARE];
       // (A float's NaN and infinities aren't kept)
       if (column?.dtype === "float") {
         if (pandas) {
