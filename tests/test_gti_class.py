@@ -10,7 +10,16 @@ import pyarrow as pa
 import pytest
 
 from great_tables import GT, GTI, exibble, html
-from great_tables._gti._render import _load_runtime, render_gti_html, render_parts
+from great_tables._gti._render import (
+    STACK_ROOT,
+    STACK_WIDTH,
+    _css_id,
+    _css_string,
+    _load_runtime,
+    _load_stack_css,
+    render_gti_html,
+    render_parts,
+)
 from great_tables._gti._spec import FACET_MAX_VALUES
 
 DF = pd.DataFrame({"id": [f"r{i}" for i in range(6)], "y": [10, 20, 30, 40, 50, 60]})
@@ -43,7 +52,7 @@ GTI_DEFAULTS = {
         "type": "jump",
     },
     "display": {"highlight": True, "compact": False, "wrap": True},
-    "layout": {"height": None, "responsive": "scroll"},
+    "layout": {"height": None, "responsive": "scroll", "stack_below": 420},
 }
 
 
@@ -211,6 +220,156 @@ def test_i_scroll_off(height):
 def test_i_scroll_height_must_be_a_length(height):
     with pytest.raises(ValueError, match="`height=` must be a CSS length"):
         GTI(DF).i_scroll(height)
+
+
+def stack_style(gt: GT) -> str:
+    """A stacked table's own `<style>` (after GT's `<div>`, in the `<gt-table>`)."""
+    found = re.search(r"</div>\n<style>\n(.*?)</style>\n<script", render_gti_html(gt, "none"), re.S)
+    assert found is not None
+    return found.group(1)
+
+
+@pytest.mark.parametrize("mode", ["scroll", "stack", "auto"])
+def test_i_responsive(mode: str):
+    gti = GTI(DF).i_responsive(mode)
+    assert interactive_of(gti) == with_changes(layout={"responsive": mode})
+
+
+@pytest.mark.parametrize(
+    "stack_below, expected", [(600, 600), (520.5, 520.5), (600.0, 600), (np.int64(500), 500)]
+)
+def test_i_responsive_stack_below(stack_below, expected):
+    gti = GTI(DF).i_responsive("stack", stack_below=stack_below)
+    layout = interactive_of(gti)["layout"]
+    assert layout["stack_below"] == expected and type(layout["stack_below"]) is type(expected)
+    assert f"@container gt-i-stack (width < {expected}px)" in stack_style(gti)
+
+
+@pytest.mark.parametrize("mode", ["Stack", "cards", None, ""])
+def test_i_responsive_mode_must_be_known(mode):
+    with pytest.raises(ValueError, match='`mode=` must be "scroll", "stack", or "auto"'):
+        GTI(DF).i_responsive(mode)
+
+
+def test_i_responsive_collapse_is_not_available_yet():
+    with pytest.raises(ValueError, match='The "collapse" layout'):
+        GTI(DF).i_responsive("collapse")  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("stack_below", [0, -1, float("inf"), float("nan"), True, "420", None])
+def test_i_responsive_stack_below_must_be_a_width(stack_below):
+    with pytest.raises(ValueError, match="`stack_below=` must be a positive number of pixels"):
+        GTI(DF).i_responsive("stack", stack_below=stack_below)
+
+
+def test_i_responsive_scroll_has_no_stack_css():
+    html = render_gti_html(GTI(DF).i_responsive("scroll"), "none")
+    assert html.startswith("<gt-table data-gti-bar>")
+    assert "gt-i-stack" not in html and "<style>" not in html.split("</div>")[-1]
+
+
+def test_opt_interactive_tables_are_not_stacked():
+    html = GT(DF).opt_interactive().as_raw_html()
+    assert "data-gti-stack" not in html
+
+
+@pytest.mark.parametrize(
+    "mode, columns, attrs",
+    [
+        ("stack", 2, " data-gti-stack"),
+        ("stack", 8, " data-gti-stack"),
+        ("auto", 6, " data-gti-stack"),
+        ("auto", 7, " data-gti-stack data-gti-stack-off"),
+    ],
+)
+def test_i_responsive_attributes(mode: str, columns: int, attrs: str):
+    df = pd.DataFrame({f"c{i}": [i] for i in range(columns)} | {"id": ["a"]})
+    html = render_gti_html(GTI(df, rowname_col="id").i_responsive(mode), "none")
+    assert html.startswith(f"<gt-table data-gti-bar{attrs}>")
+
+
+def test_i_responsive_auto_counts_the_columns_shown():
+    df = pd.DataFrame({f"c{i}": [i] for i in range(8)})
+    gti = GTI(df).i_responsive("auto")
+    assert "data-gti-stack-off" in render_gti_html(gti, "none")
+    shown = gti.i_cols_controls(hideable=True).i_view(hidden=["c0", "c1"])
+    assert render_gti_html(shown, "none").startswith("<gt-table data-gti-bar data-gti-stack>")
+
+
+def test_i_responsive_stack_css_is_the_tables():
+    template = _load_stack_css()
+    assert template.count(STACK_WIDTH) == 1 and STACK_ROOT in template
+    css = stack_style(GTI(DF, id="t").i_responsive("stack", stack_below=500))
+    assert STACK_ROOT not in css and STACK_WIDTH not in css
+    assert "@container gt-i-stack (width < 500px)" in css
+    assert "gt-table:not([data-gti-stack-off]) #t table{" in css
+
+
+def test_i_responsive_stack_css_has_a_random_id():
+    html = render_gti_html(GTI(DF).i_responsive("stack"), "none")
+    found = re.search(r'<div id="([^"]*)"', html)
+    assert found is not None
+    assert f"#{found.group(1)} table{{" in html
+
+
+@pytest.mark.parametrize(
+    "id, root", [("1a", "#\\31 a"), ("a.b", "#a\\.b"), ("-1", "#-\\31 "), ("a b", "#a\\ b")]
+)
+def test_i_responsive_stack_css_escapes_the_id(id: str, root: str):
+    gti = GTI(DF, id=id).i_responsive("stack")
+    css = stack_style(gti)
+    assert f"{root} table{{" in css
+    # (The cells' header IDs are quoted, as they are)
+    header = re.search(r'<td [^>]*headers="([^"]*)"', render_gti_html(gti, "none"))
+    assert header is not None
+    assert f'{root} [headers~="{header.group(1)}"]' in css
+
+
+def test_i_responsive_stack_css_labels_the_cells():
+    gti = (
+        GTI(exibble[["num", "char", "fctr", "row"]], rowname_col="row", id="t")
+        .cols_label(char="Text")
+        .tab_spanner("Sp", columns=["num", "char"])
+        .tab_spanner("Top", spanners="Sp")
+        .i_responsive("stack")
+    )
+    css = stack_style(gti)
+    assert '#t [headers~="t-num"]{--gt-i-label:"Top · Sp · num"}' in css
+    assert '#t th[id="t-num"]{--gt-i-spanner:"Top · Sp · "}' in css
+    assert '#t [headers~="t-char"]{--gt-i-label:"Top · Sp · Text"}' in css
+    assert '#t [headers~="t-fctr"]{--gt-i-label:"fctr"}' in css
+    # (No spanner, no prefix for its chip)
+    assert 'th[id="t-fctr"]' not in css
+
+
+def test_i_responsive_stack_css_labels_are_text():
+    gti = GTI(DF, id="t").cols_label(y=html("<b>Big</b> &amp; y")).i_responsive("stack")
+    assert '#t [headers~="t-y"]{--gt-i-label:"Big & y"}' in stack_style(gti)
+
+
+@pytest.mark.parametrize(
+    "label, css",
+    [
+        ('say "hi"', '"say \\"hi\\""'),
+        ("a\\b", '"a\\\\b"'),
+        ("a\x07b", '"a\\7 b"'),
+        ("</style><b>", '"\\3c /style>\\3c b>"'),
+    ],
+)
+def test_i_responsive_stack_css_escapes_the_labels(label: str, css: str):
+    gti = GTI(DF, id="t").cols_label(y=label).i_responsive("stack")
+    assert f'#t [headers~="t-y"]{{--gt-i-label:{css}}}' in stack_style(gti)
+
+
+def test_css_string_and_id():
+    assert _css_string('a"b\\c\x7f<') == '"a\\"b\\\\c\\7f \\3c "'
+    assert _css_id("-") == "\\-" and _css_id("a\x00") == "a�" and _css_id("_x-1") == "_x-1"
+
+
+def test_i_responsive_stack_css_without_column_labels():
+    gti = GTI(DF, id="t").tab_options(column_labels_hidden=True).i_responsive("stack")
+    css = stack_style(gti)
+    assert "#t table{" in css and "[headers~=" not in css
 
 
 def test_i_display():
