@@ -149,6 +149,7 @@ class TestNumberLikeDetection:
             pytest.param(["123", "456", "789"], True, id="numbers"),
             pytest.param(["", "", ""], True, id="empty strings"),
             pytest.param(["1.5", None], True, id="missing value"),
+            pytest.param(["12\n"], False, id="trailing newline"),
             pytest.param(["abc", "123", "def"], False, id="mixed text"),
             pytest.param(["hello", "world", "test"], False, id="text"),
             pytest.param([True, None], False, id="no strings"),
@@ -277,17 +278,19 @@ class TestAutoAlignIntegration:
             ),
         ],
     )
-    def test_pyarrow_string_types_left_aligned(self, arrow_str):
+    def test_pyarrow_string_types_auto_align(self, arrow_str):
+        arrow_type = getattr(pa, arrow_str)()
         table = pa.table(
             {
                 "num": pa.array([1, 2], type=pa.int64()),
-                "text": pa.array(["a", "b"], type=getattr(pa, arrow_str)()),
+                "text": pa.array(["a", "b"], type=arrow_type),
+                "number_like": pa.array(["1.5", None], type=arrow_type),
             }
         )
         assert classify_dtype_for_alignment(table, "text") == "string"
         gt_tbl = gt.GT(table)
         aligns = [col.column_align for col in gt_tbl._boxhead._d]
-        assert aligns == ["right", "left"]
+        assert aligns == ["right", "left", "right"]
 
     def test_pandas_pyarrow_string_matches_object(self):
         df = pd.DataFrame(

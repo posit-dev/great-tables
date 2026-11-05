@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Literal
 
 from ._tbl_data import (
     PdDataFrame,
+    PlDataFrame,
+    PyArrowTable,
     _get_column_dtype,
     is_na,
     to_list,
@@ -46,10 +48,37 @@ STRING_DTYPES = {
 NUMBER_LIKE_PATTERN = re.compile(r"^[0-9 -/:\\.]*$")
 
 
+@singledispatch
 def is_number_like_column(data: DataFrameLike, column: str) -> bool:
     """True when the column holds at least one string and every string looks like a number."""
     strings = [val for val in to_list(data[column]) if isinstance(val, str)]
-    return bool(strings) and all(NUMBER_LIKE_PATTERN.match(val) for val in strings)
+    # `match` lets `$` match before a trailing newline, which polars and pyarrow reject
+    return bool(strings) and all(NUMBER_LIKE_PATTERN.fullmatch(val) for val in strings)
+
+
+@is_number_like_column.register(PlDataFrame)
+def _(data: PlDataFrame, column: str) -> bool:
+    import polars as pl
+
+    values = data[column]
+    return (
+        values.dtype == pl.String
+        and values.null_count() < values.len()
+        and values.str.contains(NUMBER_LIKE_PATTERN.pattern).all()
+    )
+
+
+@is_number_like_column.register(PyArrowTable)
+def _(data: PyArrowTable, column: str) -> bool:
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    values = data.column(column)
+    if str(values.type) not in STRING_DTYPES or values.null_count == len(values):
+        return False
+    # pyarrow compute has no `string_view` kernels
+    matches = pc.match_substring_regex(values.cast(pa.large_string()), NUMBER_LIKE_PATTERN.pattern)
+    return pc.all(matches).as_py()
 
 
 @singledispatch
