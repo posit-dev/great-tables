@@ -194,6 +194,49 @@ test("applies a matches clause, typed between the slashes it suggests, as a toke
   expect(errors).toEqual([]);
 });
 
+test("applies > and <, from the ops it suggests after a range's column, as tokens of their text", async ({ page }) => {
+  const errors = await ready(page, "tokens.html");
+  await toggle(page).click();
+  await query(page).fill("");
+  await page.keyboard.type("num ");
+  await expect(options(page)).toHaveText([
+    ">= …at least",
+    "<= …at most",
+    "> …more than",
+    "< …less than",
+    "is nullmissing",
+    "is not nullnot missing",
+  ]);
+  await page.keyboard.type(">");
+  await expect(options(page)).toHaveText([">= …at least"]);
+  await page.keyboard.type(" 33.33 and num < 777000");
+  expect(await highlighted(page)).toEqual({
+    keyword: [">", "and", "<"],
+    string: [],
+    number: ["33.33", "777000"],
+    error: [],
+  });
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toBeHidden();
+  // (Of each copy of exibble, 444.4 and 5550: not the bounds themselves)
+  expect(await matched(page)).toBe(6);
+  expect(await el(page).evaluate((node) => (node as any).filter)).toEqual({
+    and: [
+      { col: "num", op: "gt", value: 33.33 },
+      { col: "num", op: "lt", value: 777000 },
+    ],
+  });
+  const groups = tokens(page).locator("li.gt-i-token[data-gti-group]");
+  await expect(groups.locator(".gt-i-token-open")).toHaveText(["num > 33.33", "num < 777000"]);
+  await expect(groups.first()).toHaveCSS("outline-style", "dashed");
+
+  await tokens(page).getByRole("button", { name: "Remove the filter num > 33.33", exact: true }).click();
+  await expect(groups).toHaveCount(1);
+  // (Of each copy, the five values under 777000, but not NaN)
+  expect(await matched(page)).toBe(15);
+  expect(errors).toEqual([]);
+});
+
 test("highlights the text by what each part is, over the input's own", async ({ page }) => {
   const errors = await ready(page, "tokens.html");
   await toggle(page).click();
