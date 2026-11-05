@@ -527,3 +527,74 @@ describe("a matches clause", () => {
     expect(set({ and: [{ col: "z", op: "matches", value: "a" }, { not: { col: "z", op: "matches", value: "a" } }] }).groups).toHaveLength(2);
   });
 });
+
+describe("a gt or lt clause", () => {
+  const keptBy = (groups: FilterGroup[]) => [0, 1, 2, 3, 4].filter((row) => groups.every((group) => group.keeps(row, [])));
+  // (`n` is a float column's: 1, NaN, missing, 1, missing; NaN has a rank, as Polars has it)
+  const n = () => new ColumnFilter({ column: "n", type: "range", values: [1, null], missing: [1, 2, 4] }, 6, [0, 1, null, 0, null]);
+  const set = (query: FilterQuery) => {
+    const filters = [x(), y(), z(), d(), t(), n()];
+    return { filters, groups: setFilterQuery(filters, query) };
+  };
+  // (The rows the filters keep, and the groups)
+  const keeping = (...and: FilterQuery["and"]) => {
+    const { filters, groups } = set({ and });
+    return keptBy(groups).filter((row) => filters.every((filter) => filter.keeps(row, undefined)));
+  };
+
+  it("keeps the rows past its bound, but not the bound itself", () => {
+    expect(keeping({ col: "x", op: "gt", value: 10 })).toEqual([0, 4]);
+    expect(keeping({ col: "x", op: "lt", value: 10 })).toEqual([1]);
+    expect(keeping({ col: "x", op: "gt", value: 5 }, { col: "x", op: "lt", value: 20 })).toEqual([2]);
+    expect(keeping({ col: "x", op: "gte", value: 10 }, { col: "x", op: "lt", value: 20 })).toEqual([2]);
+    // (Never a missing value, or NaN, unless in a not)
+    expect(keeping({ col: "n", op: "gt", value: 0 })).toEqual([0, 3]);
+    expect(keeping({ col: "n", op: "lt", value: 2 })).toEqual([0, 3]);
+    expect(keeping({ not: { col: "x", op: "gt", value: 10 } })).toEqual([1, 2, 3]);
+  });
+
+  it("compares dates, and dates and times as times, a date as its midnight", () => {
+    expect(keeping({ col: "d", op: "gt", value: "2015-06-15" })).toEqual([3]);
+    expect(keeping({ col: "d", op: "lt", value: "2015-06-15" })).toEqual([1]);
+    expect(keeping({ col: "t", op: "gt", value: "2015-06-15" })).toEqual([2, 4]);
+    expect(keeping({ col: "t", op: "lt", value: "2015-06-15" })).toEqual([0]);
+    expect(keeping({ col: "t", op: "lt", value: "2015-06-15T09:30:00.5" })).toEqual([0, 1]);
+    expect(keeping({ col: "t", op: "gt", value: "2015-06-14T23:59:59.999999" })).toEqual([0, 1, 2, 4]);
+  });
+
+  it("is kept as a group is, in the query's order, after the filters' clauses", () => {
+    const { filters, groups } = set({
+      and: [
+        { col: "x", op: "lt", value: 20 },
+        { col: "x", op: "gte", value: 10 },
+        { and: [{ col: "d", op: "gt", value: "2015-01-01" }] },
+      ],
+    });
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "x", op: "gte", value: 10 }] });
+    expect(filters[0]?.max).toBeNull();
+    expect(groups.map((group) => [group.item, group.filters.map((filter) => filter.column), group.texts])).toEqual([
+      [{ col: "x", op: "lt", value: 20 }, ["x"], false],
+      [{ col: "d", op: "gt", value: "2015-01-01" }, ["d"], false],
+    ]);
+    expect(filterQuery(filters, groups)?.and).toHaveLength(3);
+  });
+
+  it.each([
+    ["has two at the top", { and: [{ col: "x", op: "gt", value: 1 }, { and: [{ col: "x", op: "gt", value: 2 }] }] }, /"x" has more than one "gt" clause/],
+    ["has two in an and", { and: [{ not: { and: [{ col: "x", op: "lt", value: 1 }, { col: "x", op: "lt", value: 2 }] } }] }, /"x" has more than one "lt" clause/],
+    ["is on a text filter", { and: [{ col: "z", op: "gt", value: 1 }] }, /"z" has a text filter, which can't be/],
+    ["has a range's bound that isn't a number", { and: [{ col: "x", op: "lt", value: "5" }] }, /"x" has a range filter, which can't be/],
+    ["has a date filter's bound that isn't a date", { and: [{ or: [{ col: "d", op: "gt", value: "2015-06-15T09:30" }] }] }, /isn't a date \("YYYY-MM-DD"\), for "d"/],
+    ["has a date filter's bound that's a number", { and: [{ col: "d", op: "gt", value: 2015 }] }, /"d" has a date filter, which can't be/],
+  ])("makes a query that %s bad, changing nothing", (_, query, message) => {
+    const filters = [x(), y(), z(), d()];
+    setFilterQuery(filters, { and: [{ col: "x", op: "gte", value: 1 }] });
+    expect(() => setFilterQuery(filters, query as never)).toThrow(RangeError);
+    expect(() => setFilterQuery(filters, query as never)).toThrow(message);
+    expect(filterQuery(filters)).toEqual({ and: [{ col: "x", op: "gte", value: 1 }] });
+  });
+
+  it("can be beside a bound, or the same clause in another part", () => {
+    expect(keeping({ col: "x", op: "gt", value: 10 }, { col: "x", op: "gte", value: 10 }, { not: { col: "x", op: "gt", value: 10 } })).toEqual([]);
+  });
+});
