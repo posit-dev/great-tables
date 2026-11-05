@@ -31,7 +31,7 @@ from ._text import _process_text
 
 if TYPE_CHECKING:
     from ._gt_data import TblData
-    from ._tbl_data import SelectExpr
+    from ._tbl_data import SelectExpr, SeriesLike
     from ._text import Text
 
 
@@ -70,7 +70,9 @@ def footnotes_split_style_list(
 # Misc Types ===========================================================================
 
 PlacementOptions: TypeAlias = Literal["auto", "left", "right"]
-RowSelectExpr: TypeAlias = 'bool | list[int] | int | PlExpr | Callable[["TblData"], bool] | None'
+RowSelectExpr: TypeAlias = (
+    "bool | list[int] | int | PlExpr | Callable[[TblData], SeriesLike | PlExpr] | None"
+)
 
 # Locations ============================================================================
 # TODO: these are called cells_* in gt. I prefixed them with Loc just to keep things
