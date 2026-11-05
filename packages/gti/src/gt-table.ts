@@ -376,10 +376,14 @@ const OP_SUGGESTIONS: Record<FilterType, Suggestion[]> = {
   range: [
     { text: ">= …", detail: "at least", insert: ">= ", back: 0 },
     { text: "<= …", detail: "at most", insert: "<= ", back: 0 },
+    { text: "> …", detail: "more than", insert: "> ", back: 0 },
+    { text: "< …", detail: "less than", insert: "< ", back: 0 },
   ],
   date: [
     { text: '>= "…"', detail: "on or after", insert: '>= ""', back: 1 },
     { text: '<= "…"', detail: "on or before", insert: '<= ""', back: 1 },
+    { text: '> "…"', detail: "after", insert: '> ""', back: 1 },
+    { text: '< "…"', detail: "before", insert: '< ""', back: 1 },
   ],
   bool: [{ text: "in (…)", detail: "", insert: "in (", back: 0 }],
 };
@@ -923,6 +927,10 @@ export class GtTable extends HTMLElement {
    * `[true]`, `[false]` or `[null]`); or "gte" or "lte", for a range (`value` is the
    * bound) or a date filter (`value` is the bound as ISO 8601 text: a date, "2015-06-15", or for a
    * column with times, either that, meaning its midnight, or a date and time, "2015-06-15T09:30").
+   * A clause can also be one the filters don't have, which the query has with the groups: "gt" or
+   * "lt", for a range or a date filter (rows more than, or less than, the bound), "matches", for a
+   * text filter (rows whose text has a match of a pattern), or "is_null" (rows whose value is
+   * missing).
    *
    * A part of the query can also be a group of clauses: `{or: [...]}` (rows that any part keeps),
    * `{and: [...]}` (that every one does), or `{not: part}` (that the part doesn't, so rows whose
