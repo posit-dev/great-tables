@@ -449,6 +449,49 @@ describe("viewCode", () => {
     });
   });
 
+  describe("of top_n and bottom_n clauses", () => {
+    const filters: FilterSpec[] = [
+      ...FILTERS,
+      { column: "t", type: "date", values: ["2015-06-05T09:30:00"] },
+      { column: "i", type: "range", values: [1, 2] },
+    ];
+    const spec: CodeSpec = { ...SPEC, columns: { ...SPEC.columns, t: column("datetime"), i: column("other", null, true) } };
+    const query: FilterQuery = {
+      and: [
+        { col: "num", op: "top_n", value: 3 },
+        { col: "t", op: "bottom_n", value: 1 },
+        { or: [{ col: "i", op: "top_n", value: 2 }, { not: { col: "num", op: "bottom_n", value: 10 } }] },
+      ],
+    };
+
+    it("writes a rank, a float's NaN and infinities not ranked, for Polars and Narwhals", () => {
+      const terms = (ns: string) => [
+        `${ns}.when(${ns}.col("num").is_finite()).then(${ns}.col("num")).rank("min", descending=True) <= 3`,
+        `${ns}.col("t").rank("min") <= 1`,
+        `(${ns}.col("i").rank("min", descending=True) <= 2) | ` +
+          `~(${ns}.when(${ns}.col("num").is_finite()).then(${ns}.col("num")).rank("min") <= 10).fill_null(False)`,
+      ];
+      expect(code(query, [], "polars", { filters, spec })).toBe(
+        `import polars as pl\n\ndf.filter(\n${terms("pl").map((term) => `    ${term},\n`).join("")})\n`,
+      );
+      expect(code(query, [], "narwhals", { filters, spec })).toBe(
+        "import narwhals as nw\n\n(\n    nw.from_native(df)\n    .filter(\n" +
+          terms("nw").map((term) => `        ${term},\n`).join("") +
+          "    )\n    .to_native()\n)\n",
+      );
+    });
+
+    it("writes a rank, a float's NaN and infinities not ranked, for pandas", () => {
+      expect(code(query, [], "pandas", { filters, spec })).toBe(
+        "import numpy as np\n\ndf[\n" +
+          '    (df["num"].where(np.isfinite(df["num"])).rank(method="min", ascending=False) <= 3)\n' +
+          '    & (df["t"].rank(method="min") <= 1)\n' +
+          '    & ((df["i"].rank(method="min", ascending=False) <= 2) | ~(df["num"].where(np.isfinite(df["num"])).rank(method="min") <= 10))\n' +
+          "]\n",
+      );
+    });
+  });
+
   it("writes column names as Python strings", () => {
     const filters: FilterSpec[] = [{ column: 'Name "of" town', type: "text", values: null }];
     const spec: CodeSpec = { backend: "polars", columns: { 'Name "of" town': column("string") } };
