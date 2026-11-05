@@ -1,0 +1,168 @@
+/*
+ * A stacked table (`layout.responsive` "stack" or "auto"): in a container narrower than its
+ * stacking width, each body row is a card, titled by its stub, with each column's label (from
+ * `--gt-i-label`, which the producer sets for the cells under each column label, by their
+ * `headers`) next to its value. Group headings are headings between the cards. It's stacked by
+ * this CSS alone, before the runtime runs (or without it); once hydrated, the column labels are
+ * chips above the cards (in the order of their columns, which the runtime sets), to sort and
+ * filter by.
+ *
+ * This is a template, which the producer includes with each table that can be stacked: with the
+ * ID of GT's `<div>` for `#gt-i-table`, and the table's stacking width for the 420px below (which
+ * the spec's `layout.stack_below` has too). The table's `<gt-table>` has `data-gti-stack`, and
+ * `data-gti-stack-off` while it isn't stacked whatever its width (an "auto" table showing many
+ * columns). The ID beats GT's own rules for the table, which go by it too; borders the runtime
+ * draws on cells (inline) are beaten with `!important`.
+ */
+
+gt-table[data-gti-stack] {
+  container: gt-i-stack / inline-size;
+}
+
+@container gt-i-stack (width < 420px) {
+  gt-table:not([data-gti-stack-off]) #gt-i-table :is(table, thead, tbody, tfoot, tr) {
+    display: block;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table table {
+    /* (The runtime reads this to know the table is stacked) */
+    --gt-i-stacked: 1;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table :is(td, th) {
+    display: block;
+    box-sizing: border-box;
+    /* (GT gives the cells margins, which only count once they're not table cells) */
+    margin: 0;
+    border-left: 0 none !important;
+    border-right: 0 none !important;
+  }
+
+  /* Each data row (and summary row) is a card, its stub the title, then a line per column */
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr:not(.gt_group_heading_row) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 8px 0;
+    border: 1px solid rgba(128, 128, 128, 0.4);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > :is(td, th) {
+    flex: 0 0 100%;
+    min-width: 0;
+    border-top: 0 none !important;
+    border-bottom: 0 none !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    text-align: start;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > th.gt_stub {
+    flex: 1 1 0;
+    font-weight: bold;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > th.gt_stub_row_group {
+    order: -1;
+    font-weight: bold;
+  }
+
+  /* (A summary row's is blank) */
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt-i-select {
+    flex: none;
+    width: auto;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt-i-select:empty {
+    display: none;
+  }
+
+  /* A column's label, then its value, side by side */
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt_row:not(.gt-i-select) {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > :is(th, td) ~ td.gt_row:not(.gt-i-select) {
+    border-top: 1px solid rgba(128, 128, 128, 0.2) !important;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt-i-select + td.gt_row {
+    border-top: 0 none !important;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt_row:not(.gt-i-select)::before {
+    content: var(--gt-i-label);
+    display: table-cell;
+    width: 40%;
+    padding-inline-end: 12px;
+    font-weight: 600;
+    opacity: 0.75;
+    overflow-wrap: anywhere;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt_group_heading_row {
+    margin-top: 16px;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-filler,
+  gt-table:not([data-gti-stack-off]) #gt-i-table .gt-i-resizer {
+    display: none !important;
+  }
+
+  /* Before hydration, the column labels are left out (the cards have them) */
+  gt-table:not([data-gti-state="ready"]):not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings {
+    display: none;
+  }
+
+  /*
+   * Once hydrated, the column labels are chips, to sort and filter by (and, read out with the
+   * table's roles, the labels' text is the headers')
+   */
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt_row:not(.gt-i-select)::before {
+    content: var(--gt-i-label) / "";
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table thead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 6px;
+    background-color: inherit;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table thead > tr.gt_heading {
+    flex: 0 0 100%;
+    order: -1;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table thead > tr.gt_col_headings {
+    display: contents;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings > th {
+    flex: none;
+    width: auto !important;
+    padding: 4px 10px;
+    border: 1px solid rgba(128, 128, 128, 0.4) !important;
+    border-radius: 999px;
+    max-width: 100%;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings > th::before {
+    content: var(--gt-i-spanner);
+  }
+
+  /* (Not the spanners, which prefix their columns' labels, nor a stubhead without a label) */
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings > :is(th[scope="colgroup"], th:not([id], .gt-i-select)) {
+    display: none;
+  }
+}
