@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 AlignmentClass = Literal["numeric", "string", "other"]
 
-ALIGNMENT_MAP: dict[AlignmentClass, str] = {
+ALIGNMENT_MAP: dict[AlignmentClass, Literal["right", "left", "center"]] = {
     "numeric": "right",
     "string": "left",
     "other": "center",
@@ -51,20 +51,9 @@ NUMBER_LIKE_PATTERN = re.compile(r"^[0-9 -/:\\.]*$")
 
 
 def is_number_like_column(data: DataFrameLike, column: str) -> bool:
-    """Check if an object/string column contains only number-like strings.
-
-    Used to right-align object columns that contain formatted dates/numbers.
-
-    Note: This preserves the original regex behavior exactly. See Phase 3 for bug fixes.
-    """
-    col_vals = to_list(data[column])
-
-    # Match original behavior: only check string values, skip non-strings
-    # If all string values match pattern (or there are no strings), return True
-    number_like_matches = (
-        NUMBER_LIKE_PATTERN.match(val) for val in col_vals if isinstance(val, str)
-    )
-    return all(number_like_matches)
+    """True when the column holds at least one string and every string looks like a number."""
+    strings = [val for val in to_list(data[column]) if isinstance(val, str)]
+    return bool(strings) and all(NUMBER_LIKE_PATTERN.match(val) for val in strings)
 
 
 @singledispatch

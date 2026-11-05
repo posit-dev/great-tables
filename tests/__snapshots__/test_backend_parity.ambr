@@ -34,36 +34,6 @@
   '''
   <tbody class="gt_table_body">
     <tr>
-      <td headers="parity-s" class="gt_row gt_left">1.5</td>
-    </tr>
-    <tr>
-      <td headers="parity-s" class="gt_row gt_left">None</td>
-    </tr>
-    <tr>
-      <td headers="parity-s" class="gt_row gt_left">2024-01-01</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_cols_align_number_like_text[pandas_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
-      <td headers="parity-s" class="gt_row gt_right">1.5</td>
-    </tr>
-    <tr>
-      <td headers="parity-s" class="gt_row gt_right">None</td>
-    </tr>
-    <tr>
-      <td headers="parity-s" class="gt_row gt_right">2024-01-01</td>
-    </tr>
-  </tbody>
-  '''
-# ---
-# name: test_cols_align_number_like_text[pandas_pyarrow_constructor]
-  '''
-  <tbody class="gt_table_body">
-    <tr>
       <td headers="parity-s" class="gt_row gt_right">1.5</td>
     </tr>
     <tr>
