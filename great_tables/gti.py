@@ -884,7 +884,8 @@ class GTI(GT):
             and then `contains` and a string, `matches` and a pattern between slashes, `in` and
             values in parentheses, `>=` or `<=` and a number, or `is null` (e.g.,
             `'status in ("single-tier") and population_2021 >= 10000'`, `"name matches /^st\\./i"`,
-            or `"population_2016 is null"`; `is not null` is `not` and `is null`). Strings
+            or `"population_2016 is null"`; `is not null` is `not` and `is null`, and so are
+            `not in`, `not contains` and `not matches`, as in `'status not in ("city")'`). Strings
             are in double quotes, and values are written as in JSON (`null` for a missing value,
             `true` and `false`). A pattern's flag `i` is its `(?i)`, and a `/` in it is escaped
             (`\\/`) but in a class. A column name that isn't letters, digits and underscores goes in

@@ -63,7 +63,8 @@ test("shows a group of the text as a token, edited as text and removed", async (
   // (Of each copy of exibble, "three" has no "a" and "four" is at least 100)
   expect(await matched(page)).toBe(6);
   const group = tokens(page).locator("li.gt-i-token[data-gti-group]");
-  const text = 'num >= 100 or not char contains "a"';
+  // (Written with `not` after the column)
+  const text = 'num >= 100 or char not contains "a"';
   await expect(group.locator(".gt-i-token-open")).toHaveText(text);
   await expect(group).toHaveCSS("outline-style", "dashed");
 
@@ -122,6 +123,35 @@ test("shows an is-null clause as a token saying the column's missing, edited as 
   await expect(groups).toHaveCount(1);
   // (Of each copy, `char` is missing in one row)
   expect(await matched(page)).toBe(21);
+  expect(errors).toEqual([]);
+});
+
+test("applies a not-in clause, from the ops it suggests after a column, as a token of its text", async ({ page }) => {
+  const errors = await ready(page, "tokens.html");
+  await toggle(page).click();
+  await query(page).fill("");
+  await page.keyboard.type("fctr n");
+  await expect(options(page)).toHaveText(["not in (…)"]);
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toHaveValue("fctr not in (");
+  await page.keyboard.type("on");
+  await expect(options(page)).toHaveText(["one"]);
+  await page.keyboard.press("Enter");
+  await page.keyboard.type(")");
+  await expect(query(page)).toHaveValue('fctr not in ("one")');
+  expect(await highlighted(page)).toEqual({ keyword: ["not", "in"], string: ['"one"'], number: [], error: [] });
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toBeHidden();
+  // (Of each copy of exibble, all but "one")
+  expect(await matched(page)).toBe(21);
+  expect(await el(page).evaluate((node) => (node as any).filter)).toEqual({
+    and: [{ not: { col: "fctr", op: "in", value: ["one"] } }],
+  });
+  const group = tokens(page).locator("li.gt-i-token[data-gti-group]");
+  await expect(group.locator(".gt-i-token-open")).toHaveText('fctr not in ("one")');
+  await tokens(page).getByRole("button", { name: 'Remove the filter fctr not in ("one")', exact: true }).click();
+  await expect(group).toHaveCount(0);
+  expect(await matched(page)).toBe(24);
   expect(errors).toEqual([]);
 });
 
@@ -235,7 +265,7 @@ test("suggests what can go at the caret, above it, taken with Tab or Enter", asy
   await expect(query(page)).toHaveValue("fctr ");
   await expect(query(page)).toBeFocused();
   // (Each with what it means, if it says)
-  await expect(options(page)).toHaveText(["in (…)", "is nullmissing", "is not nullnot missing"]);
+  await expect(options(page)).toHaveText(["in (…)", "not in (…)", "is nullmissing", "is not nullnot missing"]);
   await page.keyboard.press("Enter");
   await expect(query(page)).toHaveValue("fctr in (");
   await expect(options(page).first()).toHaveText("eight");
