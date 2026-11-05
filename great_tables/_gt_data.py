@@ -1151,13 +1151,13 @@ class SummaryRowInfo:
     values_latex: dict[str, str] | None = None
 
 
-# TODO: refactor into a collection/dataclass wrapping the list part
-#       put most of the methods for filtering, adding, replacing there.
-#       Make immutable to avoid potential bugs.
 # "no group given" (grand summary rows); None is a valid group key
 _NO_GROUP: Any = object()
 
 
+# TODO: refactor into a collection/dataclass wrapping the list part
+#       put most of the methods for filtering, adding, replacing there.
+#       Make immutable to avoid potential bugs.
 class SummaryRows(Mapping[Any, list[SummaryRowInfo]]):
     """A sequence of summary rows
 

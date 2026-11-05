@@ -358,8 +358,7 @@ def test_summary_rows_snap(snapshot, all_frame_constructors: list[DataFrameConst
 def test_summary_rows_every_group_key_snap(
     snapshot, all_frame_constructors: list[DataFrameConstructor], groups: list
 ):
-    # Every group gets its summary row, whatever its key: "", 0 and False are falsy, None also
-    # meant "no group" (grand summary rows), and other types aren't valid keyword names (#1049)
+    # Every group gets its summary row, whatever its key (#1049)
     def render(constructor: DataFrameConstructor) -> str:
         df = constructor({"g": groups, "x": [1, 2, 3]})
         fns = by_backend(
