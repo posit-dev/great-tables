@@ -34,6 +34,7 @@ import {
   VIEW_EVENT,
   type ViewEventDetail,
 } from "../src/index";
+import { TableBorders } from "../src/borders";
 
 // Let mutation observers run.
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -3499,7 +3500,7 @@ describe("date filters", () => {
     input.value = "x ";
     input.setSelectionRange(2, 2);
     input.dispatchEvent(new Event("input", { bubbles: true }));
-    expect(options()).toEqual(['>= "…"', '<= "…"', '> "…"', '< "…"', "is null", "is not null"]);
+    expect(options()).toEqual(['>= "…"', '<= "…"', '> "…"', '< "…"', "top …", "bottom …", "is null", "is not null"]);
     press("Enter");
     expect(input.value).toBe('x >= ""');
     expect(input.selectionStart).toBe(6);
@@ -3892,7 +3893,7 @@ describe("the query box", () => {
     expect(input(el).value).toBe('y in ("b", "c") and ');
     expect(options(el)).toEqual(["x", "y"]);
     type(el, "x ");
-    expect(options(el)).toEqual([">= …", "<= …", "> …", "< …", "is null", "is not null"]);
+    expect(options(el)).toEqual([">= …", "<= …", "> …", "< …", "top …", "bottom …", "is null", "is not null"]);
     type(el, "<");
     expect(options(el)).toEqual(["<= …"]);
     press(input(el), "Enter");
@@ -3968,7 +3969,7 @@ describe("the query box", () => {
     expect(list(el).hidden).toBe(true);
     // (Enter, then, applies)
     press(input(el), "Enter");
-    expect(error(el).textContent).toBe('Expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is"');
+    expect(error(el).textContent).toBe('Expected "contains", "matches", "in", "not", ">=", "<=", ">", "<", "top", "bottom" or "is"');
   });
 
   it("takes a suggestion that's clicked, keeping focus", async () => {
@@ -4106,7 +4107,7 @@ describe("the query box", () => {
     };
     expect(problem("y matches /(/")).toBe('Expected ")"');
     expect(problem("y matches /a/g")).toBe('A pattern can have only the flag "i"');
-    expect(problem("x matches /a/")).toBe("X has a range filter: use >=, <=, > or <");
+    expect(problem("x matches /a/")).toBe("X has a range filter: use >=, <=, >, <, top or bottom");
     expect(problem("y matches /a/ and y matches /b/")).toBe("Y has more than one matches clause");
   });
 
@@ -4129,7 +4130,7 @@ describe("the query box", () => {
     expect(error(text).textContent).toBe('Expected "contains", "matches" or "in"');
     replace(text, "x not in (5)");
     press(input(text), "Enter");
-    expect(error(text).textContent).toBe("X has a range filter: use >=, <=, > or <");
+    expect(error(text).textContent).toBe("X has a range filter: use >=, <=, >, <, top or bottom");
 
     const { el } = await mountQuery();
     toggle(el).click();
@@ -4184,6 +4185,37 @@ describe("the query box", () => {
     expect(problem('x < "5"')).toBe("X has a range filter: give a number");
     expect(problem('y > "a"')).toBe("Y has a facet filter: use in");
     expect(problem("x > = 5")).toBe("Expected a number, or a date in double quotes");
+  });
+
+  it("suggests and applies top and bottom, saying what's wrong with them", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    replace(el, "x ");
+    for (let i = 0; i < 5; i++) {
+      press(input(el), "ArrowDown");
+    }
+    press(input(el), "Enter");
+    expect(input(el).value).toBe("x bottom ");
+    expect(list(el).hidden).toBe(true);
+    type(el, "2");
+    press(input(el), "Enter");
+    expect(error(el).hidden).toBe(true);
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "bottom_n", value: 2 }] });
+    expect(visible(el)).toEqual(["group:a", 1, 2, "grand:Max"]);
+    toggle(el).click();
+    expect(input(el).value).toBe("x bottom 2");
+    const problem = (text: string) => {
+      replace(el, text);
+      press(input(el), "Enter");
+      return error(el).hidden ? null : error(el).textContent;
+    };
+    // (Ties with the n-th are kept)
+    expect(problem("x TOP 1")).toBeNull();
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "top_n", value: 1 }] });
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+    expect(problem("x top 1 and x top 2")).toBe("X has more than one top clause");
+    expect(problem("y bottom 1")).toBe("Y has a facet filter: use in");
+    expect(problem("x top 0")).toBe("Expected a whole number (at least 1)");
   });
 });
 
@@ -4299,6 +4331,30 @@ describe("the query's groups", () => {
     expect(tokens(el)).toEqual(["not x < 20"]);
     expect(() => {
       el.filter = { and: [{ col: "y", op: "gt", value: 1 }] };
+    }).toThrow(RangeError);
+  });
+
+  it("include `top_n` and `bottom_n` clauses, whose tokens are their text, ranking all the rows", async () => {
+    const { el } = await mountGroups();
+    el.filter = { and: [{ col: "x", op: "top_n", value: 1 }] };
+    expect(el.filter).toEqual({ and: [{ col: "x", op: "top_n", value: 1 }] });
+    // (Both of the largest, which tie)
+    expect(visible(el)).toEqual(["group:b", 0, 4, "summary:Total", "grand:Max"]);
+    expect(tokens(el)).toEqual(["x top 1"]);
+    expect(token(el, 0).parentElement?.hasAttribute("data-gti-group")).toBe(true);
+    expect(token(el, 0).title).toBe("x top 1 (edit as text)");
+    expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(false);
+    // (Of all the rows, not those the facet keeps)
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }, { col: "x", op: "top_n", value: 1 }] };
+    expect(visible(el)).toEqual(["group:b", 4, "summary:Total", "grand:Max"]);
+    el.filter = { and: [{ not: { col: "x", op: "bottom_n", value: 2 } }] };
+    expect(tokens(el)).toEqual(["not x bottom 2"]);
+    expect(visible(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "grand:Max"]);
+    expect(() => {
+      el.filter = { and: [{ col: "y", op: "top_n", value: 1 }] };
+    }).toThrow(RangeError);
+    expect(() => {
+      el.filter = { and: [{ col: "x", op: "top_n", value: 0 }] };
     }).toThrow(RangeError);
   });
 
@@ -6136,6 +6192,141 @@ describe("a table wider than its container", () => {
     await replace(plain);
     expect(el.hasAttribute("data-gti-wide")).toBe(false);
     expect(el.querySelector(".gt-i-shade, .gt-i-hint, .gt-i-pinned, .gt-i-inview, [role=region]")).toBeNull();
+  });
+});
+
+describe("a table that can be stacked", () => {
+  // (happy-dom has no container queries: this says the table is stacked, as its CSS does in a
+  // container narrower than its stacking width)
+  const STACKED = `<style id="stacked">gt-table:not([data-gti-stack-off]) #t table { --gt-i-stacked: 1 }</style>`;
+  const SPANNED =
+    `<tr class="gt_col_headings gt_spanner_row"><th class="gt_col_heading" rowspan="2" scope="col"></th>` +
+    `<th class="gt_column_spanner_outer" colspan="2" scope="colgroup" id="t-s"><span class="gt_column_spanner">Values</span></th></tr>` +
+    `<tr class="gt_col_headings"><th class="gt_col_heading" scope="col" id="t-x">x</th><th class="gt_col_heading" scope="col" id="t-y">y</th></tr>`;
+  // (And no layout: the table is 800px wide, in a container 300px wide; and resizing is told)
+  let observed: ResizeObserverCallback[] = [];
+  beforeEach(() => {
+    observed = [];
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: ResizeObserverCallback) {
+          observed.push(callback);
+        }
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    vi.spyOn(Element.prototype, "scrollWidth", "get").mockImplementation(() => 800);
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => 300);
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+  const resize = () => {
+    for (const callback of observed) {
+      callback([], {} as ResizeObserver);
+    }
+  };
+  const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+  const stackable = (options: TableOptions = {}, { stacked = true, attributes = " data-gti-stack" } = {}) => {
+    const { html, spec } = gtTable(GROUPED, { ...options, layout: { responsive: "stack", ...options.layout } });
+    return mount(`${stacked ? STACKED : ""}<gt-table${attributes}>${html}${specScript(spec)}</gt-table>`);
+  };
+  const unstack = () => {
+    for (const style of Array.from(document.querySelectorAll("#stacked"))) {
+      style.remove();
+    }
+    resize();
+  };
+  const restack = () => {
+    document.body.insertAdjacentHTML("afterbegin", STACKED);
+    resize();
+  };
+
+  it("has its elements' roles, as a table's", async () => {
+    const el = await stackable({ controls: { search: true }, thead: SPANNED }, { stacked: false });
+    const table = el.table as HTMLTableElement;
+    expect(table.getAttribute("role")).toBe("table");
+    expect(Array.from(table.querySelectorAll("thead, tbody"), (section) => section.getAttribute("role"))).toEqual([
+      "rowgroup",
+      "rowgroup",
+    ]);
+    expect(Array.from(table.rows).every((tr) => tr.getAttribute("role") === "row")).toBe(true);
+    expect(Array.from(table.querySelectorAll("thead th"), (th) => th.getAttribute("role"))).toEqual([
+      "columnheader",
+      "columnheader",
+      "columnheader",
+      "columnheader",
+    ]);
+    const row = table.querySelector("tbody tr:not(.gt_group_heading_row)") as HTMLTableRowElement;
+    expect(Array.from(row.cells, (cell) => cell.getAttribute("role"))).toEqual(["rowheader", "cell", "cell"]);
+    // (A group heading without a scope is the heading of its rows)
+    expect(table.querySelector(".gt_group_heading")?.getAttribute("role")).toBe("rowheader");
+    // And the row saying that nothing matches
+    el.search = "zzz";
+    const empty = el.querySelector("tr.gt-i-empty") as HTMLTableRowElement;
+    expect([empty.getAttribute("role"), empty.cells[0]?.getAttribute("role")]).toEqual(["row", "cell"]);
+
+    // (A table that scrolls has them from its elements alone)
+    const scrolls = await mountTable(GROUPED, { layout: { responsive: "scroll" } });
+    expect(scrolls.querySelector("[role]:not(.gt-i-scroller)")).toBeNull();
+  });
+
+  it("is stacked as its CSS says, and isn't pinned while it is", async () => {
+    const reset = vi.spyOn(TableBorders.prototype, "reset");
+    const el = await stackable({ layout: { height: "300px" } });
+    expect(el.hasAttribute("data-gti-stacked")).toBe(true);
+    expect(el.hasAttribute("data-gti-wide")).toBe(false);
+    expect(el.querySelector(".gt-i-hint")).toBeNull();
+
+    unstack();
+    expect(el.hasAttribute("data-gti-stacked")).toBe(false);
+    expect(el.hasAttribute("data-gti-wide")).toBe(true);
+    // (Its cells' borders are read again, for those drawn on them)
+    expect(reset).toHaveBeenCalledTimes(1);
+
+    restack();
+    expect(el.hasAttribute("data-gti-stacked")).toBe(true);
+    expect(el.hasAttribute("data-gti-wide")).toBe(false);
+    expect(reset).toHaveBeenCalledTimes(1);
+  });
+
+  it("puts the column labels in their columns' order, as chips", async () => {
+    const el = await stackable({ thead: SPANNED, columns: { x: { reorderable: true }, y: { reorderable: true } } });
+    const order = () => Array.from(el.querySelectorAll<HTMLElement>("thead th"), (th) => th.style.order);
+    expect(order()).toEqual(["0", "1", "1", "2"]);
+    el.columnOrder = ["y", "x"];
+    expect(Array.from(el.querySelectorAll("thead th[id]"), (th) => th.id)).toEqual(["t-s", "t-y", "t-x"]);
+    expect(order()).toEqual(["0", "1", "1", "2"]);
+    expect((header(el, "y") as HTMLElement).style.order).toBe("1");
+  });
+
+  it("is stacked, if it can be, by its columns shown (when it's auto)", async () => {
+    // (Python says an auto table showing many columns isn't stacked; the runtime counts them)
+    const el = await stackable({ layout: { responsive: "auto" } }, { attributes: " data-gti-stack data-gti-stack-off" });
+    expect(el.hasAttribute("data-gti-stack-off")).toBe(false);
+    expect(el.hasAttribute("data-gti-stacked")).toBe(true);
+    // (A stacked table's own isn't changed)
+    const stacks = await stackable({}, { attributes: " data-gti-stack data-gti-stack-off" });
+    expect(stacks.hasAttribute("data-gti-stack-off")).toBe(true);
+    expect(stacks.hasAttribute("data-gti-stacked")).toBe(false);
+  });
+
+  it("doesn't pad its pages while stacked", async () => {
+    vi.spyOn(Element.prototype, "getClientRects").mockImplementation(() => [new DOMRect(0, 0, 100, 20)] as unknown as DOMRectList);
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const rows = this.tagName === "TBODY" ? Array.from(this.children).filter((tr) => !(tr as HTMLElement).hidden).length : 1;
+      return new DOMRect(0, 0, 100, 20 * rows);
+    });
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], { layout: { responsive: "stack" }, pagination: { enabled: true } });
+    const el = await mount(`${STACKED}<gt-table data-gti-stack>${html}${specScript(spec)}</gt-table>`);
+    el.page = 3;
+    expect(el.querySelector("tbody tr.gt-i-filler")).toBeNull();
+    unstack();
+    await frame();
+    expect(el.querySelector("tbody tr.gt-i-filler")).not.toBeNull();
   });
 });
 

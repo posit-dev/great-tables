@@ -201,6 +201,29 @@ def test_check_query_rejects(bad: Any, message: str):
         check_query(bad)
 
 
+def test_check_query_takes_top_and_bottom_clauses():
+    checked = check_query(
+        query(("x", "top_n", np.int64(3)), ("x", "bottom_n", 10.0), ("y", "top_n", Decimal(2)))
+    )
+    # (A whole number as an int, as JavaScript has it)
+    assert checked == query(("x", "top_n", 3), ("x", "bottom_n", 10), ("y", "top_n", 2))
+    assert [type(c["value"]) for c in checked["and"]] == [int, int, int]
+    assert check_query("x top 1 and x bottom 1") == query(("x", "top_n", 1), ("x", "bottom_n", 1))
+
+
+@pytest.mark.parametrize("value", [0, -1, 1.5, True, "3", 2**53, math.nan, math.inf, None, [1]])
+def test_check_query_rejects_a_top_or_bottom_clause_without_a_whole_number(value: Any):
+    with pytest.raises(ValueError, match="'top_n' clause on column 'x' needs a whole number"):
+        check_query(query(("x", "top_n", value)))
+
+
+def test_check_query_rejects_two_top_clauses_on_a_column():
+    with pytest.raises(ValueError, match="more than one 'top_n' clause on column 'x'"):
+        check_query("x top 1 and x top 2")
+    with pytest.raises(ValueError, match="more than one 'bottom_n' clause on column 'x'"):
+        check_query("(x bottom 1 and x bottom 2) or x top 1")
+
+
 def test_check_query_takes_is_null_clauses():
     is_null = {"col": "x", "op": "is_null"}
     assert check_query({"and": [is_null, not_(is_null), or_(is_null, A)]}) == {
@@ -423,6 +446,18 @@ def test_parse_query_reads_strict_bounds():
     }
 
 
+def test_parse_query_reads_top_and_bottom():
+    assert parse_query("x top 10 and d BOTTOM 3 and `a b` Top 1") == query(
+        ("x", "top_n", 10), ("d", "bottom_n", 3), ("a b", "top_n", 1)
+    )
+    # (Before `top` and `bottom`, `not` is a column's name)
+    assert parse_query("not top 1 or not not bottom 2") == {
+        "and": [or_(clause("not", "top_n", 1), not_(clause("not", "bottom_n", 2)))]
+    }
+    assert parse_query("top top 2") == query(("top", "top_n", 2))
+    assert type(parse_query("x top 10")["and"][0]["value"]) is int
+
+
 def test_parse_query_reads_no_query_from_empty_text():
     assert parse_query("") is None
     assert parse_query(" \t\n ") is None
@@ -480,19 +515,17 @@ UNENDED_STRING = "a string must end with a double quote (with escapes as in JSON
 BOUND_EXPECTED = "expected a number, or a date in double quotes"
 PATTERN_EXPECTED = "expected a pattern between slashes, as in /^st\\./"
 REPEAT_TOO_LARGE = "a repeat can be at most 1000, and its first number no more than its second"
+OP_EXPECTED = (
+    'expected "contains", "matches", "in", "not", ">=", "<=", ">", "<", "top", "bottom" or "is"'
+)
+COUNT_EXPECTED = "expected a whole number (at least 1)"
 
 
 @pytest.mark.parametrize(
     "text, message",
     [
-        (
-            "a",
-            'expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is", at the end',
-        ),
-        (
-            "a = 1",
-            'expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is", at character 3',
-        ),
+        ("a", f"{OP_EXPECTED}, at the end"),
+        ("a = 1", f"{OP_EXPECTED}, at character 3"),
         (">= 1", "expected a column name, at character 1"),
         ("a >= x", f"{BOUND_EXPECTED}, at character 6"),
         ("a >= (", f"{BOUND_EXPECTED}, at character 6"),
@@ -516,6 +549,16 @@ REPEAT_TOO_LARGE = "a repeat can be at most 1000, and its first number no more t
         ("a < 1 < 2", 'expected "and", "or" or the end of the query, at character 7'),
         ("> 1", "expected a column name, at character 1"),
         ("a >= 01", 'expected "and", "or" or the end of the query, at character 7'),
+        # (Of `top` and `bottom`)
+        ("x top", f"{COUNT_EXPECTED}, at the end"),
+        ("x top 0", f"{COUNT_EXPECTED}, at character 7"),
+        ("x top 1.5", f"{COUNT_EXPECTED}, at character 7"),
+        ("x top -1", f"{COUNT_EXPECTED}, at character 7"),
+        ("x top 1e3", f"{COUNT_EXPECTED}, at character 7"),
+        ("x bottom x", f"{COUNT_EXPECTED}, at character 10"),
+        ('x top "3"', f"{COUNT_EXPECTED}, at character 7"),
+        ("x top 9007199254740992", "the number 9007199254740992 is too large, at character 7"),
+        ("x top 3 4", 'expected "and", "or" or the end of the query, at character 9'),
         # (Characters, not UTF-16 code units)
         ('`😀` contains "😀" x', 'expected "and", "or" or the end of the query, at character 18'),
         # (Of groups)
@@ -623,6 +666,7 @@ def test_parse_query_reads_not_in_not_contains_and_not_matches_as_not_and_the_cl
         ("x not >= 1", 'expected "contains", "matches" or "in", at character 7'),
         ("x not > 1", 'expected "contains", "matches" or "in", at character 7'),
         ("x not is null", 'expected "contains", "matches" or "in", at character 7'),
+        ("x not top 3", 'expected "contains", "matches" or "in", at character 7'),
         ("x not not in (1)", 'expected "contains", "matches" or "in", at character 7'),
         ("x not in 1", 'expected "(", at character 10'),
         ("x not contains /a/", "expected a string in double quotes, at character 16"),
@@ -679,6 +723,20 @@ def test_format_query_writes_strict_bounds():
     }
     assert format_query(q) == 'x > 1.5 and not d < "2015-06-05" and (x < -0.25 or not > 2)'
     assert parse_query(format_query(q)) == q
+
+
+def test_format_query_writes_top_and_bottom():
+    q = {
+        "and": [
+            clause("x", "top_n", 10),
+            not_(clause("d", "bottom_n", 1)),
+            or_(clause("top", "top_n", 2), clause("Bottom", "bottom_n", 3)),
+        ]
+    }
+    # (A column named `top` or `bottom` in backticks, as they're ops after `not`)
+    assert format_query(q) == "x top 10 and not d bottom 1 and (`top` top 2 or `Bottom` bottom 3)"
+    assert parse_query(format_query(q)) == q
+    assert format_query({"and": [not_(clause("not", "top_n", 1))]}) == "not not top 1"
 
 
 def test_format_query_writes_groups_with_the_parentheses_they_need():
@@ -903,6 +961,9 @@ def test_a_facet_value_matches_as_javascript_matches_it():
         ({"filter": query(("few", "contains", "x"))}, "which has a facet filter"),
         ({"filter": query(("num", "matches", "x"))}, "'matches' clause on column 'num', which has"),
         ({"filter": "few matches /x/"}, "'matches' clause on column 'few', which has a facet"),
+        ({"filter": "name top 1"}, "'top_n' clause on column 'name', which has a text filter"),
+        ({"filter": "few bottom 2"}, "'bottom_n' clause on column 'few', which has a facet"),
+        ({"filter": "nope top 2"}, "column 'nope', which has no filter"),
         ({"filter": query(("flag", "in", ["True"]))}, "'True', which isn't a value of column"),
         ({"filter": query(("few", "in", ["z"]))}, "isn't a value of column 'few'"),
         ({"filter": query(("nope", "in", ["z"]))}, r"which has no filter.*`i_cols_filter\(\)`"),
@@ -940,7 +1001,7 @@ def dated() -> GTI:
         (query(("d", "gte", 1)), r'which has a date filter \(for dates, as "2015-06-15"\)'),
         (
             query(("d", "in", ["2015-06-05"])),
-            r"which has a date filter \(for 'gte', 'lte', 'gt' or 'lt'",
+            r"which has a date filter \(for 'gte', 'lte', 'gt', 'lt', 'top_n' or 'bottom_n'",
         ),
         (query(("d", "lte", "2015-06-05T09:30")), r"without times \(give a date, as '2015-06-05'"),
         ('d > "2015-06-05T09:30"', r"'gt' clause on column 'd', whose values are dates, without"),
@@ -1171,6 +1232,44 @@ def test_view_rows_by_dates():
     assert view_rows(dated().i_view(filter=query(("t", "lt", "2015-06-05")))) == [3]
 
 
+def test_view_rows_by_top_and_bottom():
+    # (`num` is 1.5, 2.0, missing, 3.0; `d` is 2015-06-05, missing, 2015-06-15, 1999-12-31; `t`
+    # is 2015-06-05 09:30, 2015-06-05, missing, 2015-06-04 23:59:59)
+    def rows(filter: str, gti: GTI | None = None) -> list[int]:
+        return view_rows((gti or filtered()).i_view(filter=filter))
+
+    assert rows("num top 1") == [3]
+    assert rows("num top 2") == [1, 3]
+    assert rows("num bottom 1") == [0]
+    # (Not a missing value, however many are asked for)
+    assert rows("num top 100") == [0, 1, 3]
+    assert rows("not num top 1") == [0, 1, 2]
+    assert rows("num top 2 and num bottom 2") == [1]
+    assert rows("num top 1 or num bottom 1") == [0, 3]
+    assert rows("d top 1", dated()) == [2]
+    assert rows("d bottom 2", dated()) == [0, 3]
+    assert rows("t top 1", dated()) == [0]
+    assert rows("t bottom 2", dated()) == [1, 3]
+    # (Ranked among all the table's rows, not those the rest of the query keeps)
+    assert rows('num top 1 and few in ("x")') == []
+    assert rows('few in ("x") and num top 2') == []
+    assert rows("num bottom 2 and flag in (true)") == [0]
+    # (Ties with the n-th value are all kept)
+    ties = pd.DataFrame({"n": [2, 3, 3, 1, 2, None]})
+    tied = GTI(ties).i_cols_filter(type="range")
+    assert rows("n top 1", tied) == [1, 2]
+    assert rows("n top 2", tied) == [1, 2]
+    assert rows("n top 3", tied) == [0, 1, 2, 4]
+    assert rows("n bottom 2", tied) == [0, 3, 4]
+    # (A float's NaN and infinities aren't ranked, with every backend; and the two zeros tie)
+    floats = {"f": ("float", [1.0, math.nan, math.inf, -0.0, -math.inf, 0.0, None])}
+    for backend in BACKENDS:
+        gti = GTI(frame(backend, floats)).i_cols_filter(type="range")
+        assert rows("f top 1", gti) == [0]
+        assert rows("f bottom 1", gti) == [3, 5]
+        assert rows("f top 9", gti) == [0, 3, 5]
+
+
 # query_code() ----
 
 
@@ -1271,6 +1370,35 @@ def test_query_code_of_strict_bounds():
         ("narwhals", DATES),
     ]:
         assert run_code(query_code(gti, backend), data) == [1]
+
+
+def test_query_code_of_top_and_bottom():
+    # (Ranked among all the rows, as the filter's terms are of the data's rows; a float's NaN and
+    # infinities not ranked)
+    gti = dated().i_view(filter="num bottom 2 and not d bottom 1 and t top 1")
+    assert query_code(gti, "polars") == (
+        "import polars as pl\n\n"
+        "df.filter(\n"
+        '    pl.when(pl.col("num").is_finite()).then(pl.col("num")).rank("min") <= 2,\n'
+        '    ~(pl.col("d").rank("min") <= 1).fill_null(False),\n'
+        '    pl.col("t").rank("min", descending=True) <= 1,\n'
+        ")\n"
+    )
+    assert query_code(gti, "pandas") == (
+        "import numpy as np\n\n"
+        "df[\n"
+        '    (df["num"].where(np.isfinite(df["num"])).rank(method="min") <= 2)\n'
+        '    & (~(df["d"].rank(method="min") <= 1))\n'
+        '    & (df["t"].rank(method="min", ascending=False) <= 1)\n'
+        "]\n"
+    )
+    assert view_rows(gti) == [0]
+    for backend, data in [
+        ("polars", pl.from_pandas(DATES)),
+        ("pandas", DATES),
+        ("narwhals", DATES),
+    ]:
+        assert run_code(query_code(gti, backend), data) == [0]
 
 
 # (Booleans, one of them missing: pandas' nullable ones)
@@ -1758,6 +1886,23 @@ EDGE_VIEWS: list[tuple[str, dict, Any]] = [
         {"and": [or_(clause("s", "matches", "(?i)^s"), clause("s", "contains", "ecole"))]},
         "s",
     ),
+    ("top floats, without NaN or infinities", query(("f", "top_n", 2)), None),
+    ("bottom floats, ties kept", query(("f", "bottom_n", 2)), "-f"),
+    ("top ints, ties kept", query(("i", "top_n", 3)), "i"),
+    ("bottom ints", query(("i", "bottom_n", 1)), None),
+    ("more than there are", query(("i", "top_n", 100)), None),
+    ("top dates", query(("d", "top_n", 3)), "-d"),
+    ("bottom dates", query(("d", "bottom_n", 2)), None),
+    ("top dates and times", query(("t", "top_n", 2)), "t"),
+    ("bottom dates and times", query(("t", "bottom_n", 1)), None),
+    ("not top", {"and": [not_(clause("f", "top_n", 1))]}, None),
+    ("top of the whole table", query(("f", "gte", 1.5), ("d", "top_n", 1)), None),
+    ("top and bottom", query(("i", "top_n", 3), ("i", "bottom_n", 3)), None),
+    (
+        "top or bottom in groups",
+        {"and": [or_(clause("f", "top_n", 1), and_(clause("t", "bottom_n", 3), is_null("i")))]},
+        "-t",
+    ),
 ]
 
 
@@ -1862,6 +2007,28 @@ def test_edge_cases_keep_the_rows_expected(engine: Callable[[GT], dict], backend
     assert rows({"and": [is_null("i")]}) == [2, 5]
     assert rows({"and": [is_null("s"), not_(is_null("b"))]}) == [3]
     assert rows({"and": [or_(is_null("d"), is_null("t"))]}) == [1, 2, 6, 7]
+    # (Top and bottom: the rows tied with the n-th kept, but not missing values, NaN or
+    # infinities, and ranked among all the table's rows)
+    assert rows(query(("f", "top_n", 1))) == [4]
+    assert rows(query(("f", "top_n", 2))) == [0, 4, 6]
+    assert rows(query(("f", "top_n", 3))) == [0, 4, 6]
+    assert rows(query(("f", "top_n", 4))) == [0, 4, 6, 7]
+    assert rows(query(("f", "top_n", 100))) == [0, 4, 6, 7]
+    assert rows(query(("f", "bottom_n", 1))) == [7]
+    assert rows(query(("f", "bottom_n", 2))) == [0, 6, 7]
+    assert rows(query(("i", "top_n", 1))) == [0, 7]
+    assert rows(query(("i", "top_n", 2))) == [0, 7]
+    assert rows(query(("i", "top_n", 3))) == [0, 3, 4, 7]
+    assert rows(query(("i", "bottom_n", 1))) == [1, 6]
+    assert rows(query(("d", "top_n", 1))) == [7]
+    assert rows(query(("d", "top_n", 2))) == [2, 7]
+    assert rows(query(("d", "top_n", 3))) == [0, 2, 4, 7]
+    assert rows(query(("d", "bottom_n", 1))) == [3]
+    assert rows(query(("d", "bottom_n", 2))) == [3, 5]
+    assert rows(query(("t", "top_n", 2))) == [4, 5]
+    assert rows(query(("t", "bottom_n", 1))) == [3]
+    assert rows({"and": [not_(clause("f", "top_n", 1))]}) == [0, 1, 2, 3, 5, 6, 7]
+    assert rows(query(("f", "gte", 1.5), ("d", "top_n", 1))) == []
 
 
 @pytest.mark.parametrize("backend", BACKENDS)
@@ -2050,8 +2217,13 @@ def filter_clauses(draw: Any, f: dict, kinds: dict, blank: bool = True) -> list[
     else:
         numbers = [value for value in f["values"] if value is not None]
         bound = st.sampled_from(numbers) | st.floats(-3, 4) if numbers else st.floats(-3, 4)
-    ops = draw(st.lists(st.sampled_from(["gte", "lte", "gt", "lt"]), min_size=1, unique=True))
-    return [{"col": col, "op": op, "value": draw(bound)} for op in ops]
+    ops = ["gte", "lte", "gt", "lt", "top_n", "bottom_n"]
+    ops = draw(st.lists(st.sampled_from(ops), min_size=1, unique=True))
+    # (A top or bottom's count: often fewer than the rows, but sometimes more)
+    count = st.sampled_from([1, 2, 3, 4, 9])
+    return [
+        {"col": col, "op": op, "value": draw(count if op.endswith("_n") else bound)} for op in ops
+    ]
 
 
 def group_part(
@@ -2263,7 +2435,10 @@ def test_runtime_code_of_durations(node_engine: Callable[[dict], dict]):
 NUMBERS = st.floats(allow_nan=False, allow_infinity=False) | st.integers(-(2**53), 2**53)
 NAMES = (
     st.sampled_from(
-        ["a", "x_1", "and", "IN", "Name of town", "a`b", "", "1a", "é", "not", "Or", "is", "null"]
+        [
+            *["a", "x_1", "and", "IN", "Name of town", "a`b", "", "1a", "é", "not", "Or", "is"],
+            *["null", "top", "Bottom"],
+        ]
     )
     | st.text()
 )
@@ -2287,10 +2462,13 @@ PATTERN_VALUES = st.sampled_from(PATTERNS) | st.builds(
 
 @st.composite
 def clauses(draw: Any) -> dict:
-    op = draw(st.sampled_from(["contains", "in", "gte", "lte", "is_null", "matches", "gt", "lt"]))
+    ops = ["contains", "in", "gte", "lte", "is_null", "matches", "gt", "lt", "top_n", "bottom_n"]
+    op = draw(st.sampled_from(ops))
     if op == "is_null":
         return {"col": draw(NAMES), "op": op}
-    if op == "matches":
+    if op in ("top_n", "bottom_n"):
+        value = draw(st.integers(1, 2**53 - 1))
+    elif op == "matches":
         value = draw(PATTERN_VALUES)
     elif op == "contains":
         value = draw(st.text())
@@ -2331,6 +2509,8 @@ PIECES = [
     *["matches", "MATCHES", " matches ", "/a/", "/[a-z]+/i", "/", "/(/", "/a\\/b/", "/x/g", "[/]"],
     *["/i", "\\", "(?i)", "{2}", "/^st\\./"],
     *["<", " > ", "> =", "a > 1", 'd < "2015-06-05"', "not > 1", "x not >", ">>", "<>"],
+    *["top", "TOP", " bottom ", "top 3", "bottom 1", "x top 0", "top -1", "top 1.5"],
+    *["9007199254740993", "not top 1", "x not top"],
 ]
 
 

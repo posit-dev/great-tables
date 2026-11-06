@@ -204,6 +204,8 @@ test("applies > and <, from the ops it suggests after a range's column, as token
     "<= …at most",
     "> …more than",
     "< …less than",
+    "top …largest",
+    "bottom …smallest",
     "is nullmissing",
     "is not nullnot missing",
   ]);
@@ -234,6 +236,45 @@ test("applies > and <, from the ops it suggests after a range's column, as token
   await expect(groups).toHaveCount(1);
   // (Of each copy, the five values under 777000, but not NaN)
   expect(await matched(page)).toBe(15);
+  expect(errors).toEqual([]);
+});
+
+test("applies top and bottom, from the ops it suggests after a range's column, ranking every row", async ({ page }) => {
+  const errors = await ready(page, "tokens.html");
+  await toggle(page).click();
+  await query(page).fill("");
+  await page.keyboard.type("num t");
+  await expect(options(page)).toHaveText(["top …largest"]);
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toHaveValue("num top ");
+  await page.keyboard.type("4");
+  expect(await highlighted(page)).toEqual({ keyword: ["top"], string: [], number: ["4"], error: [] });
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toBeHidden();
+  // (Of the three copies of exibble, the four largest are 8880000's three rows and 777000's
+  // three: the rows tied with the fourth are kept)
+  expect(await matched(page)).toBe(6);
+  expect(await el(page).evaluate((node) => (node as any).filter)).toEqual({
+    and: [{ col: "num", op: "top_n", value: 4 }],
+  });
+  const group = tokens(page).locator("li.gt-i-token[data-gti-group]");
+  await expect(group.locator(".gt-i-token-open")).toHaveText("num top 4");
+  await expect(group).toHaveCSS("outline-style", "dashed");
+
+  await group.locator(".gt-i-token-open").click();
+  await expect(query(page)).toBeFocused();
+  // (Not NaN, which a not keeps)
+  await query(page).fill("not num bottom 3");
+  await page.keyboard.press("Enter");
+  expect(await matched(page)).toBe(21);
+  await toggle(page).click();
+  await query(page).fill("num top 0");
+  await page.keyboard.press("Enter");
+  await expect(error(page)).toHaveText("Expected a whole number (at least 1)");
+  await page.keyboard.press("Escape");
+  await tokens(page).getByRole("button", { name: "Remove the filter not num bottom 3", exact: true }).click();
+  await expect(group).toHaveCount(0);
+  expect(await matched(page)).toBe(24);
   expect(errors).toEqual([]);
 });
 

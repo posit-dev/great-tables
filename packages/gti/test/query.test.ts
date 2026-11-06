@@ -81,8 +81,8 @@ describe("parseQuery", () => {
   });
 
   it("says what's wrong, and where", () => {
-    expect(error("a")).toBe('expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is", at the end');
-    expect(error("a = 1")).toBe('expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is", at character 3');
+    expect(error("a")).toBe('expected "contains", "matches", "in", "not", ">=", "<=", ">", "<", "top", "bottom" or "is", at the end');
+    expect(error("a = 1")).toBe('expected "contains", "matches", "in", "not", ">=", "<=", ">", "<", "top", "bottom" or "is", at character 3');
     expect(error(">= 1")).toBe("expected a column name, at character 1");
     expect(error("a >= x")).toBe("expected a number, or a date in double quotes, at character 6");
     expect(error("a >= (")).toBe("expected a number, or a date in double quotes, at character 6");
@@ -412,7 +412,7 @@ describe("queryProblem", () => {
     expect(problem('x >= 1 and y in ("a", null, 1) and `z z` contains "q"')).toBeNull();
     expect(problem("")).toBeNull();
     expect(problem('x >= 1 and w contains "a"')).toEqual({ clause: 1, message: "w isn't a column with a filter" });
-    expect(problem("x in (1)")).toEqual({ clause: 0, message: "x has a range filter: use >=, <=, > or <" });
+    expect(problem("x in (1)")).toEqual({ clause: 0, message: "x has a range filter: use >=, <=, >, <, top or bottom" });
     expect(problem("`z z` >= 1")).toEqual({ clause: 0, message: "`z z` has a text filter: use contains or matches" });
     expect(problem('y contains "a"')).toEqual({ clause: 0, message: "y has a facet filter: use in" });
     expect(problem("x >= 1 and x <= 2 and x >= 3")).toEqual({ clause: 2, message: "x has more than one >= clause" });
@@ -423,7 +423,7 @@ describe("queryProblem", () => {
     expect(problem('d >= "2015-01-01" and t <= "2016-01-01" and t >= "2015-01-01T09:30:00.123456"')).toBeNull();
     expect(problem('x >= "5"')).toEqual({ clause: 0, message: "x has a range filter: give a number" });
     expect(problem("d >= 2015")).toEqual({ clause: 0, message: 'd has a date filter: give a date in double quotes ("YYYY-MM-DD")' });
-    expect(problem('d in ("2015-06-15")')).toEqual({ clause: 0, message: "d has a date filter: use >=, <=, > or <" });
+    expect(problem('d in ("2015-06-15")')).toEqual({ clause: 0, message: "d has a date filter: use >=, <=, >, <, top or bottom" });
     expect(problem('d <= "2015-06-15T09:30"')).toEqual({
       clause: 0,
       message: '"2015-06-15T09:30" isn\'t a date ("YYYY-MM-DD"), and d has dates without times',
@@ -632,7 +632,7 @@ describe("matches", () => {
     ];
     const problem = (text: string) => queryProblem(filters, parseQuery(text));
     expect(problem('y matches /a/ and y contains "b" and not y matches /c/')).toBeNull();
-    expect(problem("x matches /a/")).toEqual({ clause: 0, message: "x has a range filter: use >=, <=, > or <" });
+    expect(problem("x matches /a/")).toEqual({ clause: 0, message: "x has a range filter: use >=, <=, >, <, top or bottom" });
     expect(problem("w matches /a/")).toEqual({ clause: 0, message: "w isn't a column with a filter" });
     expect(problem("y matches /a/ and y matches /b/i")).toEqual({ clause: 1, message: "y has more than one matches clause" });
     expect(problem("y matches /a/ or y matches /b/")).toBeNull();
@@ -717,7 +717,7 @@ describe("not in, not contains and not matches", () => {
     ];
     const problem = (text: string) => queryProblem(filters, parseQuery(text));
     expect(problem('y not in ("a", null) and z not contains "q" and z not matches /r/ and y in ("b")')).toBeNull();
-    expect(problem("x not in (5)")).toEqual({ clause: 0, message: "x has a range filter: use >=, <=, > or <" });
+    expect(problem("x not in (5)")).toEqual({ clause: 0, message: "x has a range filter: use >=, <=, >, <, top or bottom" });
     expect(problem('y not in ("c")')).toEqual({ clause: 0, message: '"c" isn\'t a value of y' });
     expect(problem('z not contains " "')).toEqual({ clause: 0, message: 'z needs text to look for, in an "or" or a "not"' });
   });
@@ -808,5 +808,88 @@ describe("> and <", () => {
       clause: 0,
       message: '"2015-06-15T09:30" isn\'t a date ("YYYY-MM-DD"), and d has dates without times',
     });
+  });
+});
+
+describe("top and bottom", () => {
+  it("reads them as the clauses top_n and bottom_n, of a whole number", () => {
+    expect(parseQuery("x top 10 and d BOTTOM 3 and `a b` Top 1")).toEqual({
+      and: [
+        { col: "x", op: "top_n", value: 10 },
+        { col: "d", op: "bottom_n", value: 3 },
+        { col: "a b", op: "top_n", value: 1 },
+      ],
+    });
+    // (Before `top` and `bottom`, `not` is a column's name; and so are they, where a column goes)
+    expect(parseQuery("not top 1 or not not bottom 2")).toEqual({
+      and: [{ or: [{ col: "not", op: "top_n", value: 1 }, { not: { col: "not", op: "bottom_n", value: 2 } }] }],
+    });
+    expect(parseQuery("top top 2")).toEqual({ and: [{ col: "top", op: "top_n", value: 2 }] });
+  });
+
+  it("says what's wrong, and where", () => {
+    const count = "expected a whole number (at least 1)";
+    expect(error("x top")).toBe(`${count}, at the end`);
+    expect(error("x top 0")).toBe(`${count}, at character 7`);
+    expect(error("x top 1.5")).toBe(`${count}, at character 7`);
+    expect(error("x top -1")).toBe(`${count}, at character 7`);
+    expect(error("x top 1e3")).toBe(`${count}, at character 7`);
+    expect(error("x bottom x")).toBe(`${count}, at character 10`);
+    expect(error('x top "3"')).toBe(`${count}, at character 7`);
+    expect(error("x top 9007199254740992")).toBe("the number 9007199254740992 is too large, at character 7");
+    expect(error("x top 3 4")).toBe('expected "and", "or" or the end of the query, at character 9');
+    expect(error("x not top 3")).toBe('expected "contains", "matches" or "in", at character 7');
+  });
+
+  it("writes them as top and bottom, which parseQuery reads back", () => {
+    const query: FilterQuery = {
+      and: [
+        { col: "x", op: "top_n", value: 10 },
+        { not: { col: "d", op: "bottom_n", value: 1 } },
+        { or: [{ col: "top", op: "top_n", value: 2 }, { col: "Bottom", op: "bottom_n", value: 3 }] },
+      ],
+    };
+    // (A column named `top` or `bottom` in backticks, as they're ops after `not`)
+    expect(formatQuery(query)).toBe("x top 10 and not d bottom 1 and (`top` top 2 or `Bottom` bottom 3)");
+    expect(parseQuery(formatQuery(query))).toEqual(query);
+    expect(formatQuery({ and: [{ not: { col: "not", op: "top_n", value: 1 } }] })).toBe("not not top 1");
+  });
+
+  it("says what each part is, where the clauses are, and what goes at the caret", () => {
+    const roles = (text: string) => readQuery(text).parts.map((part) => [part.text, part.role]);
+    expect(roles("x top 3 and top BOTTOM 1")).toEqual([
+      ["x", "column"],
+      ["top", "keyword"],
+      ["3", "number"],
+      ["and", "keyword"],
+      ["top", "column"],
+      ["BOTTOM", "keyword"],
+      ["1", "number"],
+    ]);
+    expect(roles("x top 0").map(([, role]) => role)).toEqual(["column", "keyword", null]);
+    expect(roles("x top 1.5").map(([, role]) => role)).toEqual(["column", "keyword", null]);
+    const text = "x top 3 or y bottom 2";
+    expect(readQuery(text).clauses.map(([from, to]) => text.slice(from, to))).toEqual(["x top 3", "y bottom 2"]);
+    const at = (typed: string) => queryContext(typed.replace("|", ""), typed.indexOf("|"));
+    expect(at("x to|")).toMatchObject({ expect: "op", col: "x", prefix: "to" });
+    expect(at("x top |")).toMatchObject({ expect: "count", col: "x" });
+    expect(at("x BOTTOM |")).toMatchObject({ expect: "count", col: "x" });
+    expect(at("x top 3 |")).toMatchObject({ expect: "and" });
+  });
+
+  it("is a problem on a filter that isn't a range or a date's, and once each in an and", () => {
+    const filters = [
+      new ColumnFilter({ column: "x", type: "range", values: [5] }, 1, []),
+      new ColumnFilter({ column: "y", type: "text", values: null }, 2, []),
+      new ColumnFilter({ column: "d", type: "date", values: ["2015-06-15"] }, 3, [], null, "date"),
+      new ColumnFilter({ column: "f", type: "facet", values: ["a"] }, 4, []),
+    ];
+    const problem = (text: string) => queryProblem(filters, parseQuery(text));
+    expect(problem("x top 1 and x bottom 2 and x > 1 and d top 3 and not d bottom 1")).toBeNull();
+    expect(problem("x top 1 or x top 2")).toBeNull();
+    expect(problem("x top 1 and x top 2")).toEqual({ clause: 1, message: "x has more than one top clause" });
+    expect(problem("y top 1")).toEqual({ clause: 0, message: "y has a text filter: use contains or matches" });
+    expect(problem("f bottom 1")).toEqual({ clause: 0, message: "f has a facet filter: use in" });
+    expect(problem("q top 1")).toEqual({ clause: 0, message: "q isn't a column with a filter" });
   });
 });

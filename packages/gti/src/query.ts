@@ -13,7 +13,8 @@
  * A clause is a column, then `contains` and a string, `matches` and a pattern (a regular
  * expression between slashes, with the flag `i` to ignore case, as in `/^st\./i`; see
  * `pattern.ts`), `in` and values in parentheses, `>=`, `<=`, `>` or `<` and a number or a date (a
- * string of ISO 8601 text, as `filter.ts` has it), or `is null`; `x not in (...)`, `x not contains "..."`,
+ * string of ISO 8601 text, as `filter.ts` has it), `top` or `bottom` and a whole number (digits, at
+ * least 1), or `is null`; `x not in (...)`, `x not contains "..."`,
  * `x not matches /.../` and `x is not null` are `not` and those. A column is a name of letters,
  * digits and underscores (not starting with a digit), or any name in backticks (a backtick in it
  * doubled); `not` before an op is a column's name. Strings and numbers are written as in JSON; the other values are `true`,
@@ -40,7 +41,7 @@ export interface QuerySyntaxError extends SyntaxError {
 
 const NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 // (The ops that are words)
-const OP_WORD = /^(?:in|contains|matches|is)$/i;
+const OP_WORD = /^(?:in|contains|matches|is|top|bottom)$/i;
 /** The ops that can be after `not`, as in `x not in (...)`. */
 export const NEGATED = ["contains", "matches", "in"];
 type Comparison = "gte" | "lte" | "gt" | "lt";
@@ -274,7 +275,21 @@ export function parseQuery(text: string): FilterQuery | null {
       token = next();
       return { col, op, value: t.value };
     }
-    return fail('expected "contains", "matches", "in", "not", ">=", "<=", ">", "<" or "is"');
+    if (isWord("top") || isWord("bottom")) {
+      const op = isWord("top") ? "top_n" : "bottom_n";
+      token = next();
+      const t = token;
+      // (Digits, as typed: not a fraction, an exponent or a sign)
+      if (t.kind !== "number" || !/^[0-9]+$/.test(text.slice(t.at, at)) || t.value < 1) {
+        return fail("expected a whole number (at least 1)");
+      }
+      if (!Number.isSafeInteger(t.value)) {
+        fail(`the number ${text.slice(t.at, at)} is too large`);
+      }
+      token = next();
+      return { col, op, value: t.value };
+    }
+    return fail('expected "contains", "matches", "in", "not", ">=", "<=", ">", "<", "top", "bottom" or "is"');
   }
 
   // Whether the token is the keyword `not` (rather than a column's name, before an op)
@@ -347,7 +362,7 @@ export function parseQuery(text: string): FilterQuery | null {
 
 /**
  * A column's name as a query has it: in backticks, unless it's letters, digits and underscores
- * (and not `in`, `contains`, `matches` or `is`, which are ops after `not`).
+ * (and not `in`, `contains`, `matches`, `is`, `top` or `bottom`, which are ops after `not`).
  */
 export const formatColumn = (name: string) =>
   NAME.test(name) && !OP_WORD.test(name) ? name : `\`${name.replace(/`/g, "``")}\``;
@@ -367,6 +382,10 @@ function formatOp(clause: FilterClause): string {
       return `in (${clause.value.map(formatValue).join(", ")})`;
     case "is_null":
       return "is null";
+    case "top_n":
+      return `top ${formatValue(clause.value)}`;
+    case "bottom_n":
+      return `bottom ${formatValue(clause.value)}`;
     default:
       return `${SYMBOLS[clause.op]} ${formatValue(clause.value)}`;
   }
@@ -409,8 +428,9 @@ export type QueryRole = "column" | "keyword" | "string" | "number" | "literal" |
  * What goes next in a query: a column (or `not`, or `(`), an op, an op that can be after `not`
  * (after a column and `not`), a string (after `contains`), a pattern (after `matches`), `(` (after
  * `in`), a value or `,` or `)` (in the parentheses), a bound (a number or a date, after `>=`,
- * `<=`, `>` or `<`), `null` or `not` (after `is`), `null` (after `is not`), or `and` (or `or`, or a `)` closing
- * a group); `null` where the text doesn't fit.
+ * `<=`, `>` or `<`), a count (a whole number, after `top` or `bottom`), `null` or `not` (after
+ * `is`), `null` (after `is not`), or `and` (or `or`, or a `)` closing a group); `null` where the
+ * text doesn't fit.
  */
 export type QueryExpect =
   | "column"
@@ -422,6 +442,7 @@ export type QueryExpect =
   | "value"
   | ",)"
   | "bound"
+  | "count"
   | "is"
   | "null"
   | "and"
@@ -500,7 +521,9 @@ function step(
                   ? ["is", "keyword"]
                   : COMPARISONS.has(symbol)
                     ? ["bound", "keyword"]
-                    : null;
+                    : word === "top" || word === "bottom"
+                      ? ["count", "keyword"]
+                      : null;
     case "is":
     case "null":
       return word === "null" ? ["and", "literal"] : word === "not" && expect === "is" ? ["null", "keyword"] : null;
@@ -521,6 +544,10 @@ function step(
       return symbol === "," ? ["value", "punct"] : symbol === ")" ? ["and", "punct"] : null;
     case "bound":
       return kind === "number" || kind === "string" ? ["and", kind] : null;
+    case "count":
+      return kind === "number" && /^[0-9]+$/.test(text) && Number(text) >= 1 && Number.isSafeInteger(Number(text))
+        ? ["and", "number"]
+        : null;
     case "and":
       return word === "and" || word === "or"
         ? ["column", "keyword"]
@@ -619,10 +646,10 @@ export function queryContext(text: string, caret: number): QueryContext {
   return at(end);
 }
 
-const BOUNDS = [">=", "<=", ">", "<"];
+const BOUNDS = [">=", "<=", ">", "<", "top", "bottom"];
 const OPS = { text: ["contains", "matches"], facet: ["in"], range: BOUNDS, date: BOUNDS, bool: ["in"] };
 
-// Ops as a list, as in "contains or matches" or ">=, <=, > or <"
+// Ops as a list, as in "contains or matches" or ">=, <=, >, <, top or bottom"
 const opList = (ops: readonly string[]) => `${ops.slice(0, -1).join(", ")}${ops.length > 1 ? " or " : ""}${ops[ops.length - 1]}`;
 
 // A query's clauses, in their order (as the text has them), each with the clauses before it in
@@ -659,7 +686,15 @@ export function queryProblem(
     const { col } = clause;
     const compares = clause.op === "gte" || clause.op === "lte" || clause.op === "gt" || clause.op === "lt";
     const bound = compares ? clause.value : undefined;
-    const op = compares ? SYMBOLS[clause.op] : clause.op === "is_null" ? "is null" : clause.op;
+    const op = compares
+      ? SYMBOLS[clause.op]
+      : clause.op === "is_null"
+        ? "is null"
+        : clause.op === "top_n"
+          ? "top"
+          : clause.op === "bottom_n"
+            ? "bottom"
+            : clause.op;
     const name = formatColumn(col);
     const filter = filters.find((f) => f.column === col);
     const key = JSON.stringify([col, op]);

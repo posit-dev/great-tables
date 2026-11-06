@@ -161,6 +161,28 @@ describe("TableBorders", () => {
     expect(b.style.getPropertyValue("border-bottom-style")).toBe("");
     expect(borders.drawnBorder(b, "top")).toBeNull();
   });
+
+  it("reads every element's borders again when reset, but the table's", () => {
+    document.body.innerHTML =
+      `<style>.thick td { border-top: 4px solid blue } table.wide { border-top: 6px solid green }</style>` +
+      `<table style="border-top: 1px solid black"><tbody><tr><td>a</td></tr><tr><td style="border-top: 2px solid red">b</td></tr></tbody></table>`;
+    const table = document.querySelector("table") as HTMLTableElement;
+    const borders = new TableBorders(table, () => false);
+    borders.redraw();
+    const [a, b] = cells(table) as [HTMLTableCellElement, HTMLTableCellElement];
+    expect(borders.drawnBorder(a, "top")).toEqual({ width: 1, style: "solid", color: "black" });
+    // (A row's, from a class: as its cells' borders change when a table is stacked, or isn't)
+    (table.rows[0] as HTMLTableRowElement).className = "thick";
+    table.className = "wide";
+    borders.redraw();
+    expect(borders.drawnBorder(a, "top")?.width).toBe(1);
+    borders.reset();
+    expect(b.style.getPropertyValue("border-top-width")).toBe("2px");
+    borders.redraw();
+    // (Not the table's 6px border, which was taken off it)
+    expect(borders.drawnBorder(a, "top")).toEqual({ width: 4, style: "solid", color: "blue" });
+    expect(borders.drawnBorder(b, "top")).toEqual({ width: 2, style: "solid", color: "red" });
+  });
 });
 
 describe("placeCells()", () => {
