@@ -375,34 +375,17 @@ def _(data: PyArrowTable, column: str) -> Any:
     return data.column(column).type
 
 
+# Anchored: nested dtypes name numeric types in their parameters ("dictionary<indices=int32, ...>")
+_NUMERIC_DTYPE_PREFIX = re.compile(r"(?:sparse\[)?(?:u?int\d|(?:half)?float|double|decimal)")
+
+
 def _is_numeric_dtype(data: DataFrameLike, column: str) -> bool:
     """Check whether a column in the original data has a numeric dtype."""
     try:
         dtype = _get_column_dtype(data, column)
     except Exception:
         return False
-    dtype_str = str(dtype).lower()
-    # These dtypes name their parameters (element types, categories, interval subtypes, run-end
-    # types), and a parameter can contain a numeric token. Their cells aren't scalar numbers,
-    # except in a run-end-encoded column of numbers, which is skipped too to keep the rule simple.
-    if dtype_str.startswith(
-        (
-            "list",
-            "large_list",
-            "fixed_size_list",
-            "array",
-            "struct",
-            "map",
-            "enum",
-            "interval",
-            "run_end_encoded",
-        )
-    ):
-        return False
-    for token in ("int", "float", "decimal", "double", "numeric", "number"):
-        if token in dtype_str:
-            return True
-    return False
+    return _NUMERIC_DTYPE_PREFIX.match(str(dtype).lower()) is not None
 
 
 # _get_column_levels ----

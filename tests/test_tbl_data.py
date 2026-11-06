@@ -227,20 +227,10 @@ def test_get_column_dtypes(df: DataFrameLike):
 def test_is_numeric_dtype_dtype_matrix(matrix_df: DataFrameLike, snapshot: SnapshotAssertion):
     # `opt_interactive()` passes the values of numeric columns to `float()`, and
     # `cols_align_decimal()` aligns only numeric columns
-    # TODO(Unassigned): Update the snapshot once #1028 is fixed
     assert snapshot == {col: _is_numeric_dtype(matrix_df, col) for col in MATRIX_COLUMNS}
 
 
-def test_is_numeric_dtype_categorical(matrix_df: DataFrameLike, request: pytest.FixtureRequest):
-    # The dictionary dtype names its index type, so it still matches "int" (#1028).
-    if native_backend(matrix_df) == "pyarrow":
-        request.applymarker(
-            pytest.mark.xfail(
-                strict=True,
-                raises=AssertionError,
-                reason="https://github.com/posit-dev/great-tables/issues/1028",
-            )
-        )
+def test_is_numeric_dtype_categorical(matrix_df: DataFrameLike):
     assert not _is_numeric_dtype(matrix_df, "categorical")
 
 
@@ -298,13 +288,59 @@ def test_is_numeric_dtype_pyarrow_containers(dtype, pandas_backed: bool):
             ),
             id="pandas-arrow-run_end_encoded",
         ),
+        pytest.param(
+            lambda: pa.table({"x": pa.array([1, 2, 1]).dictionary_encode()}),
+            id="pyarrow-dictionary-numbers",
+        ),
+        pytest.param(
+            lambda: pd.DataFrame(
+                {
+                    "x": pd.Series(
+                        ["a", "b"], dtype=pd.ArrowDtype(pa.dictionary(pa.int32(), pa.string()))
+                    )
+                }
+            ),
+            id="pandas-arrow-dictionary",
+        ),
+        pytest.param(
+            lambda: pa.table(
+                {
+                    "x": pa.UnionArray.from_sparse(
+                        pa.array([0, 1], pa.int8()), [pa.array([1, 0]), pa.array(["", "y"])]
+                    )
+                }
+            ),
+            id="pyarrow-sparse_union",
+        ),
+        pytest.param(
+            lambda: pa.table({"x": pa.nulls(1, pa.month_day_nano_interval())}),
+            id="pyarrow-month_day_nano_interval",
+        ),
     ],
 )
 def test_is_numeric_dtype_parameterized_dtypes(make_frame: Callable[[], DataFrameLike]):
-    # These dtypes name their parameters: an Enum its categories ("point" contains "int"), an
-    # interval its subtype and a run-end-encoded array its run-end type (#1045). A run-end-encoded
-    # column of numbers is skipped too, to keep the rule simple
+    # Each name has "int" past its start ("point", "interval", "indices=int32"). Like a pandas
+    # Categorical, dictionary and run-end-encoded columns of numbers aren't numeric (#1045, #1028)
     assert not _is_numeric_dtype(make_frame(), "x")
+
+
+@pytest.mark.parametrize(
+    "make_frame",
+    [
+        pytest.param(lambda: pa.table({"x": pa.array([1], pa.uint8())}), id="pyarrow-uint8"),
+        pytest.param(
+            lambda: pa.table({"x": pa.array([1.5], pa.float16())}), id="pyarrow-halffloat"
+        ),
+        pytest.param(lambda: pl.DataFrame({"x": [1]}, schema={"x": pl.UInt64}), id="polars-uint64"),
+        pytest.param(lambda: pd.DataFrame({"x": [1.5]}, dtype="float32"), id="pandas-float32"),
+        pytest.param(
+            lambda: pd.DataFrame({"x": pd.Series([1.5, 0.0], dtype=pd.SparseDtype("float64"))}),
+            id="pandas-sparse",
+        ),
+    ],
+)
+def test_is_numeric_dtype_numeric_dtypes(make_frame: Callable[[], DataFrameLike]):
+    assert _is_numeric_dtype(make_frame(), "x")
 
 
 def test_is_numeric_dtype_missing_column(df: DataFrameLike):
