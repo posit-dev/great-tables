@@ -725,7 +725,7 @@ class TestColsMergeRange:
 
         gt = GT(df).cols_merge_range(col_begin="low", col_end="high").sub_missing()
 
-        assert _body_cells(gt) == ["1.5\u20132.5", "2.5", "&mdash;", "3.5"]
+        assert body_cells(gt) == ["1.5\u20132.5", "2.5", "&mdash;", "3.5"]
 
     def test_custom_sep(self):
         """Test custom separator."""
