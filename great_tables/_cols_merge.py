@@ -386,8 +386,9 @@ def _get_display_value(body: Body, tbl_data: TblData, row_idx: int, col_name: st
     """Get the value of a cell to use in a merge, or None if the cell is truly missing.
 
     The formatted (body) value is preferred, falling back to the original value. A cell
-    is only considered missing if BOTH are NA, so sub_missing() replacements (e.g., "--")
-    are not treated as missing, matching R's gt behavior.
+    is only considered missing if BOTH are NA, so cols_merge() keeps sub_missing()
+    replacements (e.g., "--") as values. The uncertainty, range and n/pct merges check
+    the original data for missing values before calling this.
     """
     formatted_value = _get_cell(body.body, row_idx, col_name)
     if not is_na(body.body, formatted_value):
