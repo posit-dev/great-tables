@@ -4,7 +4,7 @@ Target the grand summary stub.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L611-L666)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L614-L669)
 
 ``` python
 loc.grand_summary_stub(rows=None)

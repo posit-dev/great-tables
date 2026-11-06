@@ -4,7 +4,7 @@ Target data cells in the table body.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L669-L734)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L672-L737)
 
 ``` python
 loc.body(

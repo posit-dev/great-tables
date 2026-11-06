@@ -4,7 +4,7 @@ Target the table stub.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L417-L491)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L420-L494)
 
 ``` python
 loc.stub(

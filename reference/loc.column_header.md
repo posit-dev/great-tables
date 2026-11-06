@@ -4,7 +4,7 @@ Target column spanners and column labels.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L266-L314)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L269-L317)
 
 ``` python
 loc.column_header()

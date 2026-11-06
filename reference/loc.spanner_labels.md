@@ -4,7 +4,7 @@ Target spanner labels.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L361-L414)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L364-L417)
 
 ``` python
 loc.spanner_labels(ids=None)

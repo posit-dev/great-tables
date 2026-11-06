@@ -4,7 +4,7 @@ Target the data cells in grand summary rows.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L803-L863)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L806-L866)
 
 ``` python
 loc.grand_summary(

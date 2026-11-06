@@ -4,7 +4,7 @@ Target column labels.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L317-L358)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L320-L361)
 
 ``` python
 loc.column_labels(columns=None)

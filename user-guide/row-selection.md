@@ -101,7 +101,7 @@ Expression-based row selection is especially powerful for conditional formatting
 
 ## Using a function
 
-Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a function for selecting rows. The function should take a DataFrame and return a boolean series.
+Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a function for selecting rows. The function should take a DataFrame and return a boolean series. A missing value in that series leaves its row unselected, as it does with a polars expression.
 
 Here's the same example as the previous polars section, but with pandas data, and a lambda for selecting rows.
 

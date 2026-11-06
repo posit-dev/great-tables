@@ -4,7 +4,7 @@ Target row groups.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L494-L545)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L497-L548)
 
 ``` python
 loc.row_groups(rows=None)
