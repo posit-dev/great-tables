@@ -189,14 +189,16 @@ def tab_style_body(
         indices or names, or a row selection expression. By default, all rows are considered.
     values
         A list of specific values to match against. A body cell whose value equals any element
-        in this list will be styled. Ignored when `pattern` or `fn` is supplied.
+        in this list will be styled. Include `None` in the list to match missing cells. Ignored
+        when `pattern` or `fn` is supplied.
     pattern
         A regex pattern string. Body cells whose *string representation* matches this pattern
-        will be styled. Takes precedence over `values`; ignored when `fn` is supplied.
+        will be styled. Missing cells are never matched. Takes precedence over `values`; ignored
+        when `fn` is supplied.
     fn
-        A function that receives a cell's raw value and returns `True` (style the cell) or
-        `False` (skip). This is the most flexible matching option and takes the highest
-        precedence.
+        A function that receives a cell's value and returns `True` (style the cell) or `False`
+        (skip). A missing value arrives as `None` (`NaN`, `NaT`, and `pd.NA` are converted). This
+        is the most flexible matching option and takes the highest precedence.
     targets
         How to expand matched cells. `"cell"` (the default) styles only matched cells;
         `"row"` styles the entire row of each match; `"column"` styles the entire column. A
@@ -295,7 +297,7 @@ def tab_style_body(
     """
     from ._gt_data import ColInfoTypeEnum
     from ._locations import LocBody, LocStub, resolve_cols_i, resolve_rows_i
-    from ._tbl_data import _get_cell
+    from ._tbl_data import _get_cell, is_na
 
     if fn is None and pattern is None and values is None:
         raise ValueError(
@@ -312,6 +314,10 @@ def tab_style_body(
     cols = resolve_cols_i(data=self, expr=columns, excl_stub=False)
     resolved_rows = resolve_rows_i(data=self, expr=rows)
 
+    def _none_if_missing(val: Any) -> Any:
+        # Every backend's missing value (NaN, NaT, `pd.NA`) becomes None, so `x is None` finds it
+        return None if is_na(data, val) else val
+
     # Determine the matching function (precedence: fn > pattern > values)
     if fn is not None:
         match_fn = fn
@@ -324,25 +330,17 @@ def tab_style_body(
             return compiled.search(str(x)) is not None
 
     else:
-        has_none = None in values
-        values_set = set(v for v in values if v is not None)
+        # Normalized like the cells, so `pd.NA` or NaN in `values` matches a missing cell
+        values_set = {_none_if_missing(v) for v in values}
 
         def match_fn(x: Any) -> bool:
-            if x is None:
-                return has_none
             return x in values_set
-
-    def _normalize_cell_value(val: Any) -> Any:
-        # Normalize NaN (pandas/numpy) to None so that `x is None` works uniformly
-        if isinstance(val, float) and val != val:
-            return None
-        return val
 
     # Find all matching (column_name, row_index) pairs
     matched_cells: list[tuple[str, int]] = []
     for col_name, _col_idx in cols:
         for _row_name, row_idx in resolved_rows:
-            cell_value = _normalize_cell_value(_get_cell(data, row_idx, col_name))
+            cell_value = _none_if_missing(_get_cell(data, row_idx, col_name))
             try:
                 is_match = match_fn(cell_value)
             except Exception:

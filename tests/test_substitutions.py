@@ -699,8 +699,8 @@ class TestSubValues:
         num_body = [x for x in to_list(result._body.body["num"])]
         lett_body = [x for x in to_list(result._body.body["lett"])]
         # Only the negative number is replaced; letters are unaffected. Plain and nullable pandas
-        # pass `fn` NumPy ints, which fail `isinstance(x, int)`, so `-1` stays (summary.md open
-        # question 11)
+        # pass `fn` NumPy ints, which fail `isinstance(x, int)`, so `-1` stays; whether every
+        # backend should pass Python scalars is undecided
         passes_numpy_ints = frame_constructor.__name__ in (
             "pandas_constructor",
             "pandas_nullable_constructor",

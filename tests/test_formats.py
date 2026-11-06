@@ -47,7 +47,7 @@ from great_tables._formats import (
 )
 from great_tables.data import exibble
 from great_tables.gt import _get_column_of_values
-from tests.utils import assert_rendered_body
+from tests.utils import DataFrameConstructor, assert_rendered_body, body_cells, by_backend
 
 
 def assert_repr_html(snapshot, gt):
@@ -1073,10 +1073,9 @@ def test_format_number_fixed_decimals(value: Union[int, float], x_out: str):
     assert x == x_out
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_large_integers_keep_all_digits(frame):
+def test_large_integers_keep_all_digits(frame_constructor: DataFrameConstructor):
     # Integers above 2^53 can't be stored exactly as floats
-    df = frame({"x": [1234567890123456789, -9007199254740993]})
+    df = frame_constructor({"x": [1234567890123456789, -9007199254740993]})
 
     gt = GT(df).fmt_integer(columns="x")
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -1091,11 +1090,10 @@ def test_large_integers_keep_all_digits(frame):
     assert x == ["$1,234,567,890,123,456,789", "−$9,007,199,254,740,993"]
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
 @pytest.mark.parametrize("scale_by", [1000, np.int64(1000)])
-def test_large_integers_scale_by_doesnt_overflow(frame, scale_by):
+def test_large_integers_scale_by_doesnt_overflow(frame_constructor: DataFrameConstructor, scale_by):
     # A pandas `int64` cell is a NumPy integer, which would overflow and wrap around when scaled
-    df = frame({"x": [1234567890123456789, -9007199254740993]})
+    df = frame_constructor({"x": [1234567890123456789, -9007199254740993]})
 
     gt = GT(df).fmt_integer(columns="x", scale_by=scale_by)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -1110,9 +1108,10 @@ def test_large_integers_scale_by_doesnt_overflow(frame, scale_by):
     assert x == ["$1,234,567,890,123,456,789,000", "−$9,007,199,254,740,993,000"]
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_large_integers_percent_and_partsper_keep_all_digits(frame):
-    df = frame({"x": [12345678901234567]})
+def test_large_integers_percent_and_partsper_keep_all_digits(
+    frame_constructor: DataFrameConstructor,
+):
+    df = frame_constructor({"x": [12345678901234567]})
 
     gt = GT(df).fmt_percent(columns="x", decimals=0)
     assert _get_column_of_values(gt, column_name="x", context="html") == [
@@ -1131,11 +1130,9 @@ def test_large_integers_percent_and_partsper_keep_all_digits(frame):
     assert _get_column_of_values(gt, column_name="x", context="html") == ["12,345,678,901,234,567‰"]
 
 
-def test_fmt_percent_and_partsper_decimal_column():
-    from decimal import Decimal
-
+def test_fmt_percent_and_partsper_decimal_column(frame_constructor: DataFrameConstructor):
     # The scale factors are integers, so `Decimal` values can be scaled (`Decimal * float` raises)
-    df = pl.DataFrame({"x": [Decimal("0.125"), Decimal("1.5")]}, schema={"x": pl.Decimal(10, 3)})
+    df = frame_constructor({"x": [Decimal("0.125"), Decimal("1.5")]})
 
     gt = GT(df).fmt_percent(columns="x", decimals=1)
     assert _get_column_of_values(gt, column_name="x", context="html") == ["12.5%", "150.0%"]
@@ -1147,9 +1144,9 @@ def test_fmt_percent_and_partsper_decimal_column():
 @pytest.mark.parametrize(
     "scale_by", [2.5, np.float64(2.5), Decimal("2.5")], ids=["float", "np.float64", "Decimal"]
 )
-def test_decimal_column_float_scale_by(scale_by):
+def test_decimal_column_float_scale_by(frame_constructor: DataFrameConstructor, scale_by):
     # `Decimal * float` raises, so a float factor is turned into a `Decimal` (2.5 stays exact)
-    df = pl.DataFrame({"x": [Decimal("0.125"), Decimal("1.5")]}, schema={"x": pl.Decimal(10, 3)})
+    df = frame_constructor({"x": [Decimal("0.125"), Decimal("1.5")]})
 
     gt = GT(df).fmt_number(columns="x", decimals=4, scale_by=scale_by)
     assert _get_column_of_values(gt, column_name="x", context="html") == ["0.3125", "3.7500"]
@@ -1158,9 +1155,11 @@ def test_decimal_column_float_scale_by(scale_by):
     assert _get_column_of_values(gt, column_name="x", context="html") == ["$0.31", "$3.75"]
 
 
-def test_float_column_decimal_scale_by():
+# `convert_dtypes()` warns when it checks whether `inf` is a whole number
+@pytest.mark.filterwarnings("ignore:invalid value encountered:RuntimeWarning")
+def test_float_column_decimal_scale_by(frame_constructor: DataFrameConstructor):
     # A `Decimal` factor for floats is turned into a float, so non-finite values stay floats
-    df = pl.DataFrame({"x": [0.125, 1.5, float("inf")]})
+    df = frame_constructor({"x": [0.125, 1.5, float("inf")]})
 
     gt = GT(df).fmt_number(columns="x", decimals=4, scale_by=Decimal("2.5"))
     assert _get_column_of_values(gt, column_name="x", context="html") == ["0.3125", "3.7500", "inf"]
@@ -1209,9 +1208,10 @@ def test_si_and_compact_round_once_from_stored_value(fn, x: float, x_out: str):
     assert fn(x) == [x_out]
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_large_integers_engineering_si_compact_keep_all_digits(frame):
-    df = frame({"x": [1234567890123456789]})
+def test_large_integers_engineering_si_compact_keep_all_digits(
+    frame_constructor: DataFrameConstructor,
+):
+    df = frame_constructor({"x": [1234567890123456789]})
 
     gt = GT(df).fmt_engineering(columns="x", n_sigfig=19, exp_style="E")
     assert _get_column_of_values(gt, column_name="x", context="html") == ["1.234567890123456789E18"]
@@ -1223,8 +1223,8 @@ def test_large_integers_engineering_si_compact_keep_all_digits(frame):
     assert _get_column_of_values(gt, column_name="x", context="html") == ["1.234567890123456789 E"]
 
 
-def test_decimal_column_engineering_and_si():
-    df = pl.DataFrame({"x": [Decimal("0.125"), Decimal("1500")]}, schema={"x": pl.Decimal(10, 3)})
+def test_decimal_column_engineering_and_si(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [Decimal("0.125"), Decimal("1500")]})
 
     gt = GT(df).fmt_engineering(columns="x", exp_style="E")
     assert _get_column_of_values(gt, column_name="x", context="html") == ["125.00E−03", "1.50E03"]
@@ -1273,9 +1273,8 @@ def test_decimal_exponent(x, exponent: int):
     assert _decimal_exponent(x) == exponent
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_large_integers_n_sigfig_keep_all_digits(frame):
-    df = frame({"x": [1234567890123456789, -9007199254740993]})
+def test_large_integers_n_sigfig_keep_all_digits(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1234567890123456789, -9007199254740993]})
 
     gt = GT(df).fmt_number(columns="x", n_sigfig=19)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -1736,13 +1735,20 @@ def test_fmt_engineering_case(
     assert x == x_out
 
 
-def test_fmt_engineering_with_missing_values():
-    df = pd.DataFrame({"x": [1234.5, None, float("nan"), 0.000123]})
+def test_fmt_engineering_with_missing_values(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1234.5, None, float("nan"), 0.000123]})
     gt = GT(df).fmt_engineering(columns="x", decimals=2)
-    x = _get_column_of_values(gt, column_name="x", context="html")
 
-    assert x[1] == "<NA>"
-    assert x[2] == "<NA>"
+    # Undecided: how a float NaN should render. Formatters skip it as missing on every backend,
+    # and `sub_missing()` replaces it, but polars and pyarrow keep NaN apart from null, so left as
+    # is it renders `NaN` there and `None` on pandas, where NaN is the missing value
+    nan_cell = by_backend(df, pandas="None", polars="NaN", pyarrow="NaN")
+    assert body_cells(gt) == [
+        "1.23&nbsp;×&nbsp;10<sup style='font-size: 65%;'>3</sup>",
+        "None",
+        nan_cell,
+        "123.00&nbsp;×&nbsp;10<sup style='font-size: 65%;'>−6</sup>",
+    ]
 
 
 def test_fmt_engineering_exp_style_force_sign():
@@ -1955,15 +1961,17 @@ def test_fmt_time_datetime_strings():
     assert x == ["10:59:59", "13:23:59", "23:15:00"]
 
 
-def test_fmt_time_datetime_values():
+def test_fmt_time_datetime_values(frame_constructor: DataFrameConstructor):
     # `datetime` values use their time part, as datetime strings do (and missing values pass)
-    df_pd = pd.DataFrame({"x": pd.to_datetime(["2024-01-05 10:59:59", None])})
-    gt = GT(df_pd).fmt_time(columns="x", time_style="iso")
-    assert _get_column_of_values(gt, column_name="x", context="html") == ["10:59:59", "<NA>"]
+    df = frame_constructor(
+        {"x": [datetime(2024, 1, 5, 10, 59, 59), None, datetime(2024, 1, 5, 13, 23, 59)]}
+    )
 
-    df_pl = pl.DataFrame({"x": [datetime(2024, 1, 5, 13, 23, 59)]})
-    gt = GT(df_pl).fmt_time(columns="x", time_style="h_m_p")
-    assert _get_column_of_values(gt, column_name="x", context="html") == ["1:23 PM"]
+    gt = GT(df).fmt_time(columns="x", time_style="iso")
+    assert body_cells(gt) == ["10:59:59", "None", "13:23:59"]
+
+    gt = GT(df).fmt_time(columns="x", time_style="h_m_p")
+    assert body_cells(gt) == ["10:59 AM", "None", "1:23 PM"]
 
 
 def test_fmt_time_date_string_raises():
@@ -2254,9 +2262,11 @@ def test_time_style_docstring_tables_match_output(method):
 
 
 @pytest.mark.parametrize("time_style", ["EHm", "EHms", "Ehm", "Ehms", "EBhms", "EBhm"])
-def test_fmt_time_weekday_style_needs_a_date(time_style: str):
+def test_fmt_time_weekday_style_needs_a_date(
+    frame_constructor: DataFrameConstructor, time_style: str
+):
     # Datetimes (and datetime strings) show their own weekday: 2024-01-05 is a Friday
-    df = pl.DataFrame({"x": [datetime(2024, 1, 5, 14, 35)]})
+    df = frame_constructor({"x": [datetime(2024, 1, 5, 14, 35)]})
     x = _get_column_of_values(
         GT(df).fmt_time(columns="x", time_style=time_style), column_name="x", context="html"
     )
@@ -2267,7 +2277,7 @@ def test_fmt_time_weekday_style_needs_a_date(time_style: str):
     with pytest.raises(ValueError, match="has no date"):
         vals.fmt_time(["14:35"], time_style=time_style)
 
-    df_time = pl.DataFrame({"x": [time(14, 35)]})
+    df_time = frame_constructor({"x": [time(14, 35)]})
     with pytest.raises(ValueError, match="has no date"):
         _get_column_of_values(
             GT(df_time).fmt_time(columns="x", time_style=time_style),
@@ -2304,8 +2314,8 @@ def test_fmt_time_zone_styles(tzinfo, expected: str):
     assert _get_column_of_values(gt, column_name="x", context="html") == [f"2000-02-29, {expected}"]
 
 
-def test_fmt_time_zone_style_on_time_values():
-    df = pl.DataFrame({"x": [time(14, 35)]})
+def test_fmt_time_zone_style_on_time_values(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [time(14, 35)]})
     gt = GT(df).fmt_time(columns="x", time_style="Hmsv")
     assert _get_column_of_values(gt, column_name="x", context="html") == ["14:35:00 UTC"]
 
@@ -2564,11 +2574,12 @@ FMT_TF_CASES: list[tuple[dict[str, Any], list[str]]] = [
 
 
 @pytest.mark.parametrize("fmt_tf_kwargs,x_out", FMT_TF_CASES)
-def test_fmt_tf_case(fmt_tf_kwargs: dict[str, Any], x_out: list[str]):
-    df = pl.DataFrame({"x": [True, False, None]})
+def test_fmt_tf_case(
+    frame_constructor: DataFrameConstructor, fmt_tf_kwargs: dict[str, Any], x_out: list[str]
+):
+    df = frame_constructor({"x": [True, False, None]})
     gt = GT(df).fmt_tf(columns="x", **fmt_tf_kwargs)
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == x_out
+    assert body_cells(gt) == x_out
 
 
 @pytest.mark.parametrize(
@@ -2587,15 +2598,13 @@ def test_fmt_tf_pandas_bool_dtypes(x_in: list[Any], dtype: str, x_out: list[str]
     assert x == x_out
 
 
-def test_fmt_tf_column_invalid_type():
-    df = pl.DataFrame({"x": [0, 1, 2]})
+def test_fmt_tf_column_invalid_type(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [0, 1, 2]})
     gt = GT(df).fmt_tf(columns="x")
 
-    with pytest.raises(ValueError) as exc_info:
-        # This triggers the actual formatting by accessing the formatted values
+    # The message ends with the cell's type: `numpy.int64` on plain and nullable pandas, else `int`
+    with pytest.raises(ValueError, match="Expected boolean value or NA, but got"):
         _get_column_of_values(gt, column_name="x", context="html")
-
-    assert "Expected boolean value or NA, but got" in exc_info.value.args[0]
 
 
 def test_fmt_tf_invalid_na_val_type():
@@ -2747,10 +2756,9 @@ def test_fmt_bytes_agrees_with_fmt_number_si():
             ) == vals.fmt_number_si(x, decimals=decimals, unit="B")
 
 
-@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
-def test_fmt_bytes_large_integers_keep_all_digits(frame):
+def test_fmt_bytes_large_integers_keep_all_digits(frame_constructor: DataFrameConstructor):
     # Integers above 2^53 can't be stored exactly as floats
-    df = frame({"x": [1234567890123456789, -9007199254740993]})
+    df = frame_constructor({"x": [1234567890123456789, -9007199254740993]})
 
     gt = GT(df).fmt_bytes(columns="x", decimals=18)
     x = _get_column_of_values(gt, column_name="x", context="html")
@@ -3120,15 +3128,15 @@ def test_fmt_flag_one_per_cell():
         assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", val))
 
 
-def test_fmt_flag_na_values():
-    df = pd.DataFrame({"x": ["FR", pd.NA]})
+def test_fmt_flag_na_values(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": ["FR", None]})
 
     gt = GT(df).fmt_flag(columns="x")
 
-    column_vals = _get_column_of_values(gt, column_name="x", context="html")
+    cells = body_cells(gt)
 
-    assert bool(re.search("^<span style.*?<svg.*?>.*?</svg></span>$", column_vals[0]))
-    assert column_vals[1] == "<NA>"
+    assert re.search("^<span style.*?<svg.*?>.*?</svg></span>$", cells[0])
+    assert cells[1] == "None"
 
 
 def test_fmt_flag_two_per_cell():
@@ -4300,25 +4308,33 @@ def test_fmt_bytes_n_sigfig():
     assert "B" in x[0] or "b" in x[0].lower()
 
 
-def test_fmt_bytes_na_value():
-    df = pd.DataFrame({"x": [None]})
+def test_fmt_bytes_na_value(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [1536, None]})
     gt = GT(df).fmt_bytes(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == "None" or isinstance(x[0], type(None)) or x[0] == x[0]
+    assert body_cells(gt) == ["1.5 kB", "None"]
 
 
-def test_fmt_partsper_na_value():
-    df = pd.DataFrame({"x": [None]})
+def test_fmt_partsper_na_value(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [0.0015, None]})
     gt = GT(df).fmt_partsper(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == "None" or x[0] == x[0]
+    assert body_cells(gt) == ["1.50‰", "None"]
 
 
-def test_fmt_roman_na_value():
-    df = pd.DataFrame({"x": [None]})
+def test_fmt_roman_na_value(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [4, None]})
     gt = GT(df).fmt_roman(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == x[0]
+    assert body_cells(gt) == ["IV", "None"]
+
+
+@pytest.mark.parametrize(
+    "fmt_method", ["fmt_bytes", "fmt_partsper", "fmt_roman", "fmt_date", "fmt_datetime"]
+)
+def test_fmt_all_missing_column(frame_constructor: DataFrameConstructor, fmt_method: str):
+    # A column of only missing values has its own dtype: pandas `object`, polars `Null`, pyarrow
+    # `null`
+    df = frame_constructor({"x": [None]})
+    gt = getattr(GT(df), fmt_method)(columns="x")
+    assert body_cells(gt) == ["None"]
 
 
 def test_get_duration_patterns_hyphen_locale():
@@ -4489,20 +4505,6 @@ def test_fmt_tf_invalid_tf_style_raises():
     df = pl.DataFrame({"x": [True, False]})
     with pytest.raises(ValueError, match="Invalid `tf_style`"):
         GT(df).fmt_tf(columns="x", tf_style="invalid-style").as_raw_html()
-
-
-def test_fmt_datetime_na_value():
-    df = pd.DataFrame({"x": [None]})
-    gt = GT(df).fmt_datetime(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == "None" or x[0] == x[0]
-
-
-def test_fmt_date_na_value():
-    df = pd.DataFrame({"x": [None]})
-    gt = GT(df).fmt_date(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x[0] is None or x[0] == x[0]
 
 
 def test_fmt_image_get_mime_type_svg():
@@ -4769,14 +4771,13 @@ def test_fmt_time_invalid_time_style_raises():
         GT(df).fmt_time(columns="x", time_style="invalid_style").as_raw_html()
 
 
-def test_fmt_units_na_value_returns_na():
-    # fmt_units returns NA value unchanged when cell is NA
-    df = pl.DataFrame({"units": ["m^2", None]})
+def test_fmt_units_na_value_returns_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"units": ["m^2", None]})
     gt = GT(df).fmt_units(columns="units")
-    result = _get_column_of_values(gt, column_name="units", context="html")
-    # First row has a formatted unit, second row is NA (returns None or 'None')
-    assert "m" in result[0]
-    assert result[1] is None or str(result[1]) in ("None", "null")
+    assert body_cells(gt) == [
+        'm<span style="white-space:nowrap;"><sup style="line-height:0;">2</sup></span>',
+        "None",
+    ]
 
 
 def test_fmt_units_custom_pattern():
@@ -4811,22 +4812,22 @@ def test_fmt_units_as_latex_has_no_html():
     assert "\nkg m\\textsuperscript{\\ensuremath{-}3} \\\\" in latex
 
 
-def test_fmt_date_invalid_date_object_raises():
+def test_fmt_date_invalid_date_object_raises(frame_constructor: DataFrameConstructor):
     # ValueError when cell value is not a string or date object
     with pytest.raises(ValueError, match="Invalid date object"):
-        GT(pd.DataFrame({"d": [42]})).fmt_date(columns="d").as_raw_html()
+        GT(frame_constructor({"d": [42]})).fmt_date(columns="d").as_raw_html()
 
 
-def test_fmt_time_invalid_time_object_raises():
+def test_fmt_time_invalid_time_object_raises(frame_constructor: DataFrameConstructor):
     # ValueError when cell value is not a string or time object
     with pytest.raises(ValueError, match="Invalid time object"):
-        GT(pd.DataFrame({"t": [42]})).fmt_time(columns="t").as_raw_html()
+        GT(frame_constructor({"t": [42]})).fmt_time(columns="t").as_raw_html()
 
 
-def test_fmt_datetime_invalid_datetime_object_raises():
+def test_fmt_datetime_invalid_datetime_object_raises(frame_constructor: DataFrameConstructor):
     # ValueError when cell value is not a string or datetime object
     with pytest.raises(ValueError, match="Invalid datetime object"):
-        GT(pd.DataFrame({"dt": [42]})).fmt_datetime(columns="dt").as_raw_html()
+        GT(frame_constructor({"dt": [42]})).fmt_datetime(columns="dt").as_raw_html()
 
 
 def test_format_number_fixed_decimals_string_value():
@@ -4861,13 +4862,10 @@ def test_fmt_image_polars_expr_raises():
         GT(df).fmt_image(columns="path", height=pl.lit("2em")).as_raw_html()
 
 
-def test_fmt_time_na_value_returns_na():
-    # return x when is_na in fmt_time_context
-    df = pl.DataFrame({"t": ["10:30:00", None]})
+def test_fmt_time_na_value_returns_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"t": ["10:30:00", None]})
     gt = GT(df).fmt_time(columns="t")
-    result = _get_column_of_values(gt, column_name="t", context="html")
-    assert "10" in result[0]
-    assert result[1] is None or str(result[1]) in ("None", "null", "")
+    assert body_cells(gt) == ["10:30:00", "None"]
 
 
 def test_fmt_datetime_format_str_and_locale_raises():
@@ -5001,13 +4999,12 @@ def test_validate_currency_invalid_raises():
         _validate_currency("INVALID_CURRENCY_CODE")
 
 
-def test_fmt_icon_na_value_returns_na():
-    # FmtIcon.to_html returns val unchanged when is_na
-    df = pl.DataFrame({"icon": ["star", None]})
+def test_fmt_icon_na_value_returns_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"icon": ["star", None]})
     gt = GT(df).fmt_icon(columns="icon")
-    result = _get_column_of_values(gt, column_name="icon", context="html")
-    assert "svg" in result[0].lower()
-    assert result[1] is None or str(result[1]) in ("None", "null", "")
+    cells = body_cells(gt)
+    assert re.search("^<span style.*?<svg.*?>.*?</svg></span>$", cells[0])
+    assert cells[1] == "None"
 
 
 def test_fmt_flag_unrecognized_codes_kept_as_text():
@@ -5136,12 +5133,10 @@ def test_fmt_fraction_pattern():
     assert x == ["~1/2~"]
 
 
-def test_fmt_fraction_na():
-    df = pd.DataFrame({"x": [float("nan")]})
+def test_fmt_fraction_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [0.5, 1.25, 3.75, None]})
     gt = GT(df).fmt_fraction(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    # pandas NA values pass through the is_na check and are not formatted
-    assert len(x) == 1
+    assert body_cells(gt) == ["1/2", "1 1/4", "3 3/4", "None"]
 
 
 def test_fmt_fraction_inf():
@@ -5150,13 +5145,6 @@ def test_fmt_fraction_inf():
     x = _get_column_of_values(gt, column_name="x", context="html")
     # The minus sign is the same as for finite negative fractions (and for other formatters)
     assert x == ["inf", "−inf"]
-
-
-def test_fmt_fraction_polars():
-    df = pl.DataFrame({"x": [0.5, 1.25, 3.75]})
-    gt = GT(df).fmt_fraction(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-    assert x == ["1/2", "1 1/4", "3 3/4"]
 
 
 @pytest.mark.parametrize(
@@ -5374,21 +5362,12 @@ def test_fmt_chem_full_reaction():
     assert "<sub" in x[0]
 
 
-def test_fmt_chem_na():
-    df = pd.DataFrame({"x": [float("nan")]})
+def test_fmt_chem_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": ["H2O", "CO2", None]})
     gt = GT(df).fmt_chem(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
+    subscript_2 = '<span style="white-space:nowrap;"><sub style="line-height:0;">2</sub></span>'
 
-    assert len(x) == 1
-
-
-def test_fmt_chem_polars():
-    df = pl.DataFrame({"x": ["H2O", "CO2"]})
-    gt = GT(df).fmt_chem(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-
-    assert "<sub" in x[0]
-    assert "<sub" in x[1]
+    assert body_cells(gt) == [f"H{subscript_2}O", f"CO{subscript_2}", "None"]
 
 
 def test_fmt_chem_rows_subset():
@@ -5527,12 +5506,11 @@ def test_round_rhu(x: float, digits: int, expected: float):
     assert math.copysign(1, result) == math.copysign(1, expected)
 
 
-def test_fmt_index_na():
-    df = pd.DataFrame({"x": [float("nan"), 1.0]})
+def test_fmt_index_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": [None, 1, 2, 3]})
     gt = GT(df).fmt_index(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
 
-    assert x[1] == "A"
+    assert body_cells(gt) == ["None", "A", "B", "C"]
 
 
 def test_fmt_index_float_rounds():
@@ -5570,16 +5548,6 @@ def test_fmt_index_float32():
     x = _get_column_of_values(gt, column_name="x", context="html")
 
     assert x == ["A", "C", "AA"]
-
-
-def test_fmt_index_polars():
-    df = pl.DataFrame({"x": [1, 2, 3]})
-    gt = GT(df).fmt_index(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-
-    assert x[0] == "A"
-    assert x[1] == "B"
-    assert x[2] == "C"
 
 
 def test_fmt_index_rows_subset():
@@ -5704,20 +5672,13 @@ def test_fmt_url_target_none():
     assert "target=" not in x[0]
 
 
-def test_fmt_url_na():
-    df = pd.DataFrame({"x": [float("nan")]})
+def test_fmt_url_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": ["https://example.com", None]})
     gt = GT(df).fmt_url(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
+    cells = body_cells(gt)
 
-    assert len(x) == 1
-
-
-def test_fmt_url_polars():
-    df = pl.DataFrame({"x": ["https://example.com"]})
-    gt = GT(df).fmt_url(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-
-    assert 'href="https://example.com"' in x[0]
+    assert 'href="https://example.com"' in cells[0]
+    assert cells[1] == "None"
 
 
 def test_fmt_url_rows_subset():
@@ -5818,20 +5779,13 @@ def test_fmt_email_custom_color():
     assert 'href="mailto:user@example.com"' in x[0]
 
 
-def test_fmt_email_na():
-    df = pd.DataFrame({"x": [float("nan")]})
+def test_fmt_email_na(frame_constructor: DataFrameConstructor):
+    df = frame_constructor({"x": ["test@test.com", None]})
     gt = GT(df).fmt_email(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
+    cells = body_cells(gt)
 
-    assert len(x) == 1
-
-
-def test_fmt_email_polars():
-    df = pl.DataFrame({"x": ["test@test.com"]})
-    gt = GT(df).fmt_email(columns="x")
-    x = _get_column_of_values(gt, column_name="x", context="html")
-
-    assert 'href="mailto:test@test.com"' in x[0]
+    assert 'href="mailto:test@test.com"' in cells[0]
+    assert cells[1] == "None"
 
 
 def test_fmt_email_rows_subset():
@@ -6099,10 +6053,10 @@ def test_fmt_duration_iso_minus_in_latex():
 # Accessible markup of cell graphics ----------------------------------------------------------
 
 
-def test_fmt_image_alt_text():
+def test_fmt_image_alt_text(frame_constructor: DataFrameConstructor):
     from great_tables import from_column
 
-    df = pl.DataFrame(
+    df = frame_constructor(
         {"img": ["https://e.x/a.png", "https://e.x/b.png, https://e.x/c.png"], "d": ["A & B", None]}
     )
 
@@ -6154,10 +6108,10 @@ def test_svg_ids_in_cells_are_unique():
     assert "t-c-0-a" in ids and "t-c-2-a" in ids
 
 
-def test_fmt_nanoplot_accessible_name():
+def test_fmt_nanoplot_accessible_name(frame_constructor: DataFrameConstructor):
     from great_tables import from_column
 
-    df = pl.DataFrame({"n": ["12,30,47,20,30", "1,2,3"], "d": ["Sales", None]})
+    df = frame_constructor({"n": ["12,30,47,20,30", "1,2,3"], "d": ["Sales", None]})
 
     def labels(gt: GT) -> list[str]:
         return re.findall(r'aria-label="([^"]*)"', gt.as_raw_html())

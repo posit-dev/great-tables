@@ -16,30 +16,22 @@ from syrupy.assertion import SnapshotAssertion
 
 from great_tables import GT, col_bin, loc, style
 from great_tables._tbl_data import DataFrameLike
-from great_tables._utils_render_html import create_body_component_h
 from tests.utils import (
+    INT_UPCAST,
+    ISSUES,
     DataFrameConstructor,
     DataLike,
     Divergent,
     Render,
     assert_parity,
+    body_html,
     by_backend,
     cast_to_categorical,
 )
 
-ISSUES = "https://github.com/posit-dev/great-tables/issues"
 NUMBER_LIKE_TEXT = f"{ISSUES}/1023"
-OBJECT_ALIGNED_RIGHT = f"{ISSUES}/1024"
 NULL_IN_ROW_MASK = f"{ISSUES}/1047"
 DURATION_SPELLING = f"inherited from native data (pd.Timedelta spelling), {ISSUES}/1048"
-INT_UPCAST = "inherited from native data (pandas stores ints with a missing value as float64)"
-
-# every pandas constructor keeps times, decimals and lists in object columns
-PANDAS_OBJECT_ALIGNED_RIGHT = Divergent(
-    pandas_constructor=OBJECT_ALIGNED_RIGHT,
-    pandas_nullable_constructor=OBJECT_ALIGNED_RIGHT,
-    pandas_pyarrow_constructor=OBJECT_ALIGNED_RIGHT,
-)
 
 # every column has a missing value, and floats are non-integral because the pandas nullable and
 # pyarrow-backed constructors turn whole floats into ints
@@ -47,14 +39,10 @@ FLOATS = [1234.5678, None, -0.25]
 TEXT = ["apple", None, "cherry"]
 
 
-def _body_html(gt: GT) -> str:
-    return create_body_component_h(gt._build_data("html"))
-
-
 def _body_renderer(
     data: DataLike, build: Callable[[GT], GT] = lambda gt: gt, **gt_kwargs: Any
 ) -> Render:
-    return lambda constructor: _body_html(build(GT(constructor(data), id="parity", **gt_kwargs)))
+    return lambda constructor: body_html(build(GT(constructor(data), id="parity", **gt_kwargs)))
 
 
 # Formatting ------------------------------------------------------------------------------------
@@ -72,7 +60,7 @@ def _body_renderer(
         pytest.param(
             [time(12, 30), None, time(8, 5, 30)],
             GT.fmt_time,
-            PANDAS_OBJECT_ALIGNED_RIGHT,
+            {},
             id="fmt_time",
         ),
         pytest.param(
@@ -90,7 +78,7 @@ def _body_renderer(
         pytest.param(
             [True, None, False],
             GT.fmt_tf,
-            Divergent(pandas_constructor=OBJECT_ALIGNED_RIGHT),
+            {},
             id="fmt_tf",
         ),
         pytest.param(["**bold**", None, "*italic*"], GT.fmt_markdown, {}, id="fmt_markdown"),
@@ -98,7 +86,7 @@ def _body_renderer(
         pytest.param(
             [[1.5, None, -0.25], None, [3.75]],
             GT.fmt_nanoplot,
-            PANDAS_OBJECT_ALIGNED_RIGHT,
+            {},
             id="fmt_nanoplot-list",
         ),
     ],
@@ -123,9 +111,7 @@ def test_fmt(
         pytest.param([1, 2, None], Divergent(pandas_constructor=INT_UPCAST), id="int"),
         pytest.param([1.5, -0.25, None], {}, id="float"),
         pytest.param(["a", "b", None], {}, id="str"),
-        pytest.param(
-            [True, False, None], Divergent(pandas_constructor=OBJECT_ALIGNED_RIGHT), id="bool"
-        ),
+        pytest.param([True, False, None], {}, id="bool"),
         pytest.param([date(2024, 1, 1), date(2024, 2, 29), None], {}, id="date"),
         pytest.param(
             [datetime(2024, 1, 1, 12, 30), datetime(2024, 2, 29), None], {}, id="datetime"
@@ -148,10 +134,8 @@ def test_fmt(
             ),
             id="duration",
         ),
-        pytest.param(
-            [Decimal("1.50"), Decimal("-2.25"), None], PANDAS_OBJECT_ALIGNED_RIGHT, id="decimal"
-        ),
-        pytest.param([[1, 2], [3], None], PANDAS_OBJECT_ALIGNED_RIGHT, id="list"),
+        pytest.param([Decimal("1.50"), Decimal("-2.25"), None], {}, id="decimal"),
+        pytest.param([[1, 2], [3], None], {}, id="list"),
     ],
 )
 def test_unformatted(
@@ -252,7 +236,7 @@ def test_data_color_ordered_levels(
 
     def render(constructor: DataFrameConstructor) -> str:
         df = cast_to_categorical(constructor(data), "s", ordered=True)
-        return _body_html(GT(df, id="parity").data_color(palette=["white", "orange", "red"]))
+        return body_html(GT(df, id="parity").data_color(palette=["white", "orange", "red"]))
 
     assert_parity(snapshot, all_frame_constructors, render)
 
@@ -417,7 +401,7 @@ def test_rows_by_mask(
             polars=polars_rows,
             pyarrow=lambda tbl: pc.greater(tbl["x"], 2),
         )
-        return _body_html(GT(df, id="parity").pipe(_highlight_rows(rows)))
+        return body_html(GT(df, id="parity").pipe(_highlight_rows(rows)))
 
     assert_parity(snapshot, all_frame_constructors, render, divergent)
 
@@ -442,7 +426,7 @@ def test_grand_summary_rows(
 ):
     def render(constructor: DataFrameConstructor) -> str:
         df = constructor({"x": FLOATS})
-        return _body_html(GT(df, id="parity").grand_summary_rows(fns=_sum_and_max_fns(df)))
+        return body_html(GT(df, id="parity").grand_summary_rows(fns=_sum_and_max_fns(df)))
 
     assert_parity(snapshot, all_frame_constructors, render)
 
@@ -450,13 +434,12 @@ def test_grand_summary_rows(
 def test_summary_rows(
     snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
 ):
-    # no missing group key: summary_rows() raises on it on every backend (#1049)
     data = {"g": ["b", "a", "b", "a"], "x": [*FLOATS, 2.5]}
 
     def render(constructor: DataFrameConstructor) -> str:
         df = constructor(data)
         gt = GT(df, groupname_col="g", id="parity")
-        return _body_html(gt.summary_rows(fns=_sum_and_max_fns(df)))
+        return body_html(gt.summary_rows(fns=_sum_and_max_fns(df)))
 
     assert_parity(snapshot, all_frame_constructors, render)
 

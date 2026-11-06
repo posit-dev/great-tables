@@ -4,11 +4,12 @@ import math
 import numbers
 import re
 import warnings
+from contextlib import suppress
 from collections.abc import Callable
 from datetime import datetime, time
 from decimal import Decimal
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias, Union
 
 from ._databackend import AbstractBackend
 
@@ -451,6 +452,265 @@ def _(data: PyArrowTable, column: str) -> list[Any] | None:
     return None
 
 
+# _get_column_kind ----
+
+# The kinds of columns that interactive tables can sort (and, later, filter), named independently
+# of any backend. Anything else (lists, structs, objects, mixed types) is "other".
+ColumnKind: TypeAlias = Literal[
+    "number", "string", "boolean", "date", "datetime", "time", "duration", "category", "other"
+]
+
+
+def _arrow_type_kind(dtype: Any) -> ColumnKind:
+    import pyarrow as pa
+
+    if pa.types.is_boolean(dtype):
+        return "boolean"
+    if pa.types.is_integer(dtype) or pa.types.is_floating(dtype) or pa.types.is_decimal(dtype):
+        return "number"
+    if pa.types.is_date(dtype):
+        return "date"
+    if pa.types.is_timestamp(dtype):
+        return "datetime"
+    if pa.types.is_time(dtype):
+        return "time"
+    if pa.types.is_duration(dtype):
+        return "duration"
+    if pa.types.is_string(dtype) or pa.types.is_large_string(dtype):
+        return "string"
+    if getattr(pa.types, "is_string_view", lambda _: False)(dtype):
+        return "string"
+    if pa.types.is_dictionary(dtype):
+        return "category"
+    return "other"
+
+
+@singledispatch
+def _get_column_kind(data: DataFrameLike, column: str) -> ColumnKind:
+    """Get the backend-independent kind of a column (see `ColumnKind`)"""
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_kind.register
+def _(data: PdDataFrame, column: str) -> ColumnKind:
+    import pandas as pd
+    from pandas.api import types
+
+    ser = data[column]
+    dtype = ser.dtype
+
+    if isinstance(dtype, pd.CategoricalDtype):
+        return "category"
+    if isinstance(dtype, pd.ArrowDtype):
+        return _arrow_type_kind(dtype.pyarrow_dtype)
+    if types.is_bool_dtype(dtype):
+        return "boolean"
+    if types.is_numeric_dtype(dtype):
+        return "number"
+    if types.is_datetime64_any_dtype(dtype):
+        return "datetime"
+    if types.is_timedelta64_dtype(dtype):
+        return "duration"
+    if isinstance(dtype, pd.StringDtype):
+        return "string"
+    if types.is_object_dtype(dtype):
+        # An object column's kind is that of its values, if they're all of one kind
+        inferred = types.infer_dtype(ser, skipna=True)
+        return {
+            "string": "string",
+            "boolean": "boolean",
+            "integer": "number",
+            "floating": "number",
+            "mixed-integer-float": "number",
+            "decimal": "number",
+            "date": "date",
+            "datetime": "datetime",
+            "time": "time",
+            "timedelta": "duration",
+        }.get(inferred, "other")
+    return "other"
+
+
+@_get_column_kind.register
+def _(data: PlDataFrame, column: str) -> ColumnKind:
+    import polars as pl
+
+    dtype = data[column].dtype
+    base = dtype.base_type()
+
+    if base == pl.Boolean:
+        return "boolean"
+    if dtype.is_numeric():
+        return "number"
+    if base == pl.Date:
+        return "date"
+    if base == pl.Datetime:
+        return "datetime"
+    if base == pl.Time:
+        return "time"
+    if base == pl.Duration:
+        return "duration"
+    if base == pl.String:
+        return "string"
+    if base in (pl.Categorical, pl.Enum):
+        return "category"
+    return "other"
+
+
+@_get_column_kind.register
+def _(data: PyArrowTable, column: str) -> ColumnKind:
+    return _arrow_type_kind(data.column(column).type)
+
+
+# _get_column_ranks ----
+
+
+def _same_sort_value(a: Any, b: Any) -> bool:
+    # NaN isn't equal to itself, but NaNs sort together
+    if isinstance(a, float) and isinstance(b, float) and math.isnan(a) and math.isnan(b):
+        return True
+    return bool(a == b)
+
+
+def _dense_ranks(order: list[int], values: list[Any], is_null: list[bool]) -> list[int | None]:
+    """Number the distinct values in sort order `order` (0, 1, ...); missing values get `None`."""
+    ranks: list[int | None] = [None] * len(values)
+    rank = -1
+    prev: Any = None
+    for i in order:
+        if is_null[i]:
+            continue
+        value = values[i]
+        if rank < 0 or not _same_sort_value(value, prev):
+            rank += 1
+        ranks[i] = rank
+        prev = value
+    return ranks
+
+
+@singledispatch
+def _get_column_ranks(data: DataFrameLike, column: str) -> list[int | None] | None:
+    """Get the dense sort rank of each row's value in a column, in the backend's own ordering.
+
+    Sorting the rows by rank (ascending, with ties in either order) gives the same order as sorting
+    the frame by the column with the backend; missing values get `None` (pandas counts `NaN` as
+    missing, Polars and PyArrow sort it after all numbers). Returns `None` for a column that can't
+    be sorted: one of the `"other"` kind (see `_get_column_kind()`), or one the backend can't sort
+    (e.g. an object column of mixed types).
+    """
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_ranks.register
+def _(data: PdDataFrame, column: str) -> list[int | None] | None:
+    if _get_column_kind(data, column) == "other":
+        return None
+
+    ser = data[column].reset_index(drop=True)
+    try:
+        order = ser.sort_values(kind="stable", na_position="last").index.to_list()
+    except TypeError:
+        return None
+    return _dense_ranks(order, ser.to_list(), ser.isna().to_list())
+
+
+@_get_column_ranks.register
+def _(data: PlDataFrame, column: str) -> list[int | None] | None:
+    # Checked first: Polars panics (rather than raises) when sorting some dtypes, e.g. objects
+    if _get_column_kind(data, column) == "other":
+        return None
+
+    ser = data[column]
+    order = ser.arg_sort(nulls_last=True).to_list()
+    return _dense_ranks(order, ser.to_list(), ser.is_null().to_list())
+
+
+@_get_column_ranks.register
+def _(data: PyArrowTable, column: str) -> list[int | None] | None:
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    if _get_column_kind(data, column) == "other":
+        return None
+
+    col = data.column(column)
+    is_null = pc.is_null(col).to_pylist()
+
+    if pa.types.is_dictionary(col.type):
+        # PyArrow can't sort dictionary columns, so rank the levels of an ordered one in order,
+        # and the values of an unordered one as text (as Polars sorts a categorical column)
+        levels = _get_column_levels(data, column)
+        if levels is not None:
+            values = col.to_pylist()
+            position = {level: i for i, level in enumerate(levels)}
+            order = sorted(
+                (i for i, v in enumerate(values) if not is_null[i]),
+                key=lambda i: position[values[i]],
+            )
+            return _dense_ranks(order, [position.get(v) for v in values], is_null)
+        col = col.cast(col.type.value_type)
+
+    # (nulls sort last by default; `null_placement=` is deprecated as of PyArrow 25)
+    order = pc.sort_indices(col).to_pylist()
+    return _dense_ranks(order, col.to_pylist(), is_null)
+
+
+# _get_column_values ----
+
+
+@singledispatch
+def _get_column_values(data: DataFrameLike, column: str) -> list[Any]:
+    """Get a column's values, as a list (missing values as the backend has them)."""
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_values.register
+def _(data: PdDataFrame, column: str) -> list[Any]:
+    return data[column].to_list()
+
+
+@_get_column_values.register
+def _(data: PlDataFrame, column: str) -> list[Any]:
+    return data[column].to_list()
+
+
+@_get_column_values.register
+def _(data: PyArrowTable, column: str) -> list[Any]:
+    return data.column(column).to_pylist()
+
+
+# _get_column_missing ----
+
+
+@singledispatch
+def _get_column_missing(data: DataFrameLike, column: str) -> list[int]:
+    """Get the rows whose value in a column is missing: null, or NaN in a column of floats (as
+    pandas has NaN already)."""
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_missing.register
+def _(data: PdDataFrame, column: str) -> list[int]:
+    missing = data[column].isna().to_list()
+    return [i for i, is_missing in enumerate(missing) if is_missing]
+
+
+@_get_column_missing.register
+def _(data: PlDataFrame, column: str) -> list[int]:
+    ser = data[column]
+    missing = ser.is_null() | ser.is_nan() if ser.dtype.is_float() else ser.is_null()
+    return [i for i, is_missing in enumerate(missing.to_list()) if is_missing]
+
+
+@_get_column_missing.register
+def _(data: PyArrowTable, column: str) -> list[int]:
+    import pyarrow.compute as pc
+
+    # (`nan_is_null=` is for a column of floats)
+    missing = pc.is_null(data.column(column), nan_is_null=True).to_pylist()
+    return [i for i, is_missing in enumerate(missing) if is_missing]
+
+
 # reorder ----
 
 
@@ -505,9 +765,9 @@ def _(data: PlDataFrame, group_key: str) -> dict[Any, list[int]]:
     # TODO: should ensure row count name isn't already in data
     import polars as pl
 
-    # with_row_index supersedes with_row_count
+    # polars 0.20.4 renamed with_row_count to with_row_index
     meth_row_number = getattr(data, "with_row_index", None)
-    if not meth_row_number:
+    if not meth_row_number:  # pragma: no cover
         meth_row_number = data.with_row_count
 
     groups = meth_row_number("__row_count__").group_by(group_key).agg(pl.col("__row_count__"))
@@ -997,10 +1257,10 @@ def _(df: PlDataFrame, x: Any) -> bool:
 
 @is_na.register
 def _(df: PyArrowTable, x: Any) -> bool:
-    import pyarrow as pa
+    from math import isnan
 
-    arr = pa.array([x])
-    return arr.is_null(nan_is_null=True).to_pylist()[0]
+    # Cells leave a pyarrow table as Python values (`as_py()`), where a null is None
+    return x is None or (isinstance(x, float) and isnan(x))
 
 
 @singledispatch
@@ -1116,6 +1376,28 @@ def _is_same_values(given: list[Any], stored: list[Any]) -> bool:
     """Whether a column kept every value of the list it was made from."""
 
     return len(given) == len(stored) and all(map(_is_same_value, given, stored))
+
+
+def frame_from_dict(data: dict[str, list[Any]]) -> DataFrameLike:
+    """Make a DataFrame from columns of values, with the first library installed: polars, pandas,
+    then pyarrow."""
+
+    with suppress(ImportError):
+        import polars as pl
+
+        return pl.DataFrame(data)
+
+    with suppress(ImportError):
+        import pandas as pd
+
+        return pd.DataFrame(data)
+
+    with suppress(ImportError):
+        import pyarrow as pa
+
+        return pa.table(data)
+
+    raise ImportError("Making a DataFrame requires polars, pandas, or pyarrow to be installed.")
 
 
 @singledispatch
