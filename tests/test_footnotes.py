@@ -377,6 +377,47 @@ def test_tab_footnote_multilevel_spanner_id_differs_from_label():
     assert "Outer note" in html
 
 
+@pytest.mark.parametrize(
+    "ids, marks, expected",
+    [
+        (["Left", "Right"], "letters", ["a", "b"]),
+        (["left_id", "right_id"], "numbers", ["1", "2"]),
+        (["left_id", "right_id"], "letters", ["a", "b"]),
+    ],
+)
+def test_tab_footnote_spanner_marks_follow_column_order(ids, marks, expected):
+    # Footnotes are added right to left, but marks and the footer should still follow the
+    # visual reading order (left spanner first), including when the spanner `id` differs
+    # from its `label`
+    df = pl.DataFrame({"a": [1], "b": [2], "c": [3], "d": [4]})
+    gt_table = (
+        GT(df)
+        .tab_spanner(label="Left", id=ids[0], columns=["a", "b"])
+        .tab_spanner(label="Right", id=ids[1], columns=["c", "d"])
+        .tab_footnote(footnote="Right note", locations=loc.spanner_labels(ids=[ids[1]]))
+        .tab_footnote(footnote="Left note", locations=loc.spanner_labels(ids=[ids[0]]))
+        .opt_footnote_marks(marks)
+    )
+
+    html = gt_table.as_raw_html()
+
+    left_mark = re.search(r"Left<span[^>]*gt_footnote_marks[^>]*>([^<]*)<", html)
+    right_mark = re.search(r"Right<span[^>]*gt_footnote_marks[^>]*>([^<]*)<", html)
+    assert left_mark is not None and right_mark is not None
+    assert [left_mark.group(1), right_mark.group(1)] == expected
+
+    footer = [" ".join(re.sub(r"<[^>]+>", "", cell).split()) for cell in _footnote_cells(html)]
+    assert footer == [f"{expected[0]} Left note", f"{expected[1]} Right note"]
+
+
+def test_get_spanner_leftmost_column_index_uses_spanner_id():
+    df = pl.DataFrame({"a": [1], "b": [2], "c": [3]})
+    gt_table = GT(df).tab_spanner(label="Shown Label", id="spanner_id", columns=["b", "c"])
+    data = gt_table._build_data("test")
+
+    assert _get_spanner_leftmost_column_index(data, "spanner_id") == 1
+
+
 def test_tab_footnote_with_text_object():
     # Test a footnote with the Text object
     gt_table = _create_base_gt().tab_footnote(
@@ -1479,16 +1520,19 @@ def test_footnote_ordering_body_before_summary():
     assert marks[1][1].strip() == "Summary note"
 
 
-def test_footnote_ordering_consistent_with_side():
+@pytest.mark.parametrize("group", ["A", None])
+def test_footnote_ordering_consistent_with_side(group):
     """Footnote ordering reflects visual position: top summaries before body, bottom after."""
-    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+    df = pd.DataFrame({"group": [group, group], "row": ["r1", "r2"], "x": [1, 2]})
 
     def _get_marks(side):
         gt = (
             GT(df, rowname_col="row", groupname_col="group")
             .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)}, side=side)
             .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
-            .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+            .tab_footnote(
+                "Summary note", locations=loc.summary(columns="x", groups=[group], rows=[0])
+            )
         )
         html_str = gt.as_raw_html()
         tfoot_match = re.search(r"<tfoot.*?</tfoot>", html_str, re.DOTALL)

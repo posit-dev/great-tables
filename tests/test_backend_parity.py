@@ -30,7 +30,6 @@ from tests.utils import (
 )
 
 NUMBER_LIKE_TEXT = f"{ISSUES}/1023"
-NULL_IN_ROW_MASK = f"{ISSUES}/1047"
 DURATION_SPELLING = f"inherited from native data (pd.Timedelta spelling), {ISSUES}/1048"
 
 # every column has a missing value, and floats are non-integral because the pandas nullable and
@@ -360,30 +359,11 @@ def test_rows_by_index(
 
 
 @pytest.mark.parametrize(
-    "values, polars_rows, divergent",
+    "values, polars_rows",
     [
-        pytest.param([1.5, 0.5, 3.5], pl.col("x") > 2, {}, id="no-nulls"),
-        pytest.param(
-            [1.5, None, 3.5],
-            pl.col("x") > 2,
-            Divergent(
-                pandas_nullable_constructor=NULL_IN_ROW_MASK,
-                pandas_pyarrow_constructor=NULL_IN_ROW_MASK,
-                pyarrow_table_constructor=NULL_IN_ROW_MASK,
-            ),
-            id="nulls-polars-expr",
-        ),
-        pytest.param(
-            [1.5, None, 3.5],
-            lambda df: df["x"] > 2,
-            Divergent(
-                pandas_nullable_constructor=NULL_IN_ROW_MASK,
-                pandas_pyarrow_constructor=NULL_IN_ROW_MASK,
-                polars_constructor=NULL_IN_ROW_MASK,
-                pyarrow_table_constructor=NULL_IN_ROW_MASK,
-            ),
-            id="nulls-polars-callable",
-        ),
+        pytest.param([1.5, 0.5, 3.5], pl.col("x") > 2, id="no-nulls"),
+        pytest.param([1.5, None, 3.5], pl.col("x") > 2, id="nulls-polars-expr"),
+        pytest.param([1.5, None, 3.5], lambda df: df["x"] > 2, id="nulls-polars-callable"),
     ],
 )
 def test_rows_by_mask(
@@ -391,7 +371,6 @@ def test_rows_by_mask(
     all_frame_constructors: list[DataFrameConstructor],
     values: list[Any],
     polars_rows: Any,
-    divergent: Divergent,
 ):
     def render(constructor: DataFrameConstructor) -> str:
         df = constructor({"x": values})
@@ -403,7 +382,7 @@ def test_rows_by_mask(
         )
         return body_html(GT(df, id="parity").pipe(_highlight_rows(rows)))
 
-    assert_parity(snapshot, all_frame_constructors, render, divergent)
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
 # Summary rows ----------------------------------------------------------------------------------
@@ -434,7 +413,6 @@ def test_grand_summary_rows(
 def test_summary_rows(
     snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
 ):
-    # no missing group key: summary_rows() raises on it on every backend (#1049)
     data = {"g": ["b", "a", "b", "a"], "x": [*FLOATS, 2.5]}
 
     def render(constructor: DataFrameConstructor) -> str:

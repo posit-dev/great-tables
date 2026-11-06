@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from . import _locations as loc
 from ._gt_data import (
+    _NO_GROUP,
     ColInfo,
     ColInfoTypeEnum,
     FootnoteInfo,
@@ -72,9 +73,6 @@ def _get_summary_locnum(data: GTData, fn_info: FootnoteInfo) -> int | float:
     if isinstance(fn_info.locname, (loc.LocSummaryStub, loc.LocSummary)):
         # Group summary: check the side of the targeted summary row
         group_id = fn_info.grpname
-        if group_id is None:
-            return locnum
-
         summary_rows = data._summary_rows.get_summary_rows(group_id=group_id)
         if not summary_rows:
             return locnum
@@ -99,10 +97,9 @@ def _get_summary_locnum(data: GTData, fn_info: FootnoteInfo) -> int | float:
         # their group. When the group has top summary rows, the row group label
         # is on the same row as the first top summary row.
         group_id = fn_info.grpname
-        if group_id is not None:
-            summary_rows = data._summary_rows.get_summary_rows(group_id=group_id)
-            if summary_rows and summary_rows[0].side == "top":
-                return 5.6  # Same tier as group summary top (colnum -2 sorts left)
+        summary_rows = data._summary_rows.get_summary_rows(group_id=group_id)
+        if summary_rows and summary_rows[0].side == "top":
+            return 5.6  # Same tier as group summary top (colnum -2 sorts left)
 
     return locnum
 
@@ -1232,7 +1229,7 @@ def _create_row_component_h(
     tbl_data: TblData | None = None,
     css_class: str | None = None,
     data: GTData | None = None,  # For footnote handling
-    summary_group_id: str | None = None,  # For group summary rows (distinguishes from grand)
+    summary_group_id: Any = _NO_GROUP,  # For group summary rows; any key, None included
     row_class: str | None = None,  # CSS class for the <tr> element
     stub_col_rowspans: list[int] | None = None,  # Rowspan values for stub cols (multi-col stub)
     stub_col_rows: list[list[int]] | None = None,  # Data rows covered by each stub cell
@@ -1241,7 +1238,7 @@ def _create_row_component_h(
     """Create a single table row (either data row or summary row)"""
 
     is_summary_row = summary_row is not None
-    is_group_summary = summary_group_id is not None
+    is_group_summary = summary_group_id is not _NO_GROUP
     summary_css_class = "gt_summary_row" if is_group_summary else "gt_grand_summary_row"
     body_cells: list[str] = []
 
@@ -1741,6 +1738,8 @@ def _process_footnotes_for_display(
         ):
             # Stub appears before data columns but after row group column
             colnum = _get_stub_footnote_colnum(data, fn_info)
+        elif isinstance(fn_info.locname, loc.LocSpannerLabels):
+            colnum = _get_spanner_leftmost_column_index(data, fn_info.grpname)
         else:
             colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
         rownum = (
@@ -2027,9 +2026,9 @@ def _get_spanner_leftmost_column_index(data: GTData, spanner_grpname: str | None
     if not spanner_grpname:
         return 0
 
-    # Find the spanner with this group name
+    # Find the spanner with this group name (spanner footnotes store the spanner ID, not its label)
     for spanner in data._spanners:
-        if spanner.spanner_label == spanner_grpname:
+        if spanner.spanner_id == spanner_grpname:
             # Get the column indices for all columns in this spanner
             column_indices = []
             for col_var in spanner.vars:
