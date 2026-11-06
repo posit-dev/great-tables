@@ -1,6 +1,6 @@
 # Authors and Citation
 
-To cite this package in publications, please use the following citation.
+To cite great-tables in publications, please use the following citation.
 
 ## Authors
 
