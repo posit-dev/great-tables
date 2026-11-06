@@ -208,8 +208,9 @@ def test_fmt_nanoplot_ref_keywords_first_last(plot_type: str, keyword: str, dst:
 @pytest.mark.parametrize("plot_type", ["line", "bar"])
 def test_fmt_nanoplot_bracketed_number_stream(plot_type: str):
     def render(vals: list[str]) -> str:
-        gt = GT(pl.DataFrame({"v": vals}), id="t").fmt_nanoplot(columns="v", plot_type=plot_type)
-        return gt.as_raw_html()
+        # Only the bare stream is number-like and right-aligns, so compare with alignment off
+        gt = GT(pl.DataFrame({"v": vals}), id="t", auto_align=False)
+        return gt.fmt_nanoplot(columns="v", plot_type=plot_type).as_raw_html()
 
     assert render(["[1, 5, 3]", "[2; 4]"]) == render(["1 5 3", "2 4"])
 

@@ -29,7 +29,6 @@ from tests.utils import (
     cast_to_categorical,
 )
 
-NUMBER_LIKE_TEXT = f"{ISSUES}/1023"
 DURATION_SPELLING = f"inherited from native data (pd.Timedelta spelling), {ISSUES}/1048"
 
 # every column has a missing value, and floats are non-integral because the pandas nullable and
@@ -338,10 +337,7 @@ def test_cols_align_number_like_text(
     snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
 ):
     render = _body_renderer({"s": ["1.5", None, "2024-01-01"]})
-    divergent = Divergent(
-        pandas_constructor=NUMBER_LIKE_TEXT, pandas_pyarrow_constructor=NUMBER_LIKE_TEXT
-    )
-    assert_parity(snapshot, all_frame_constructors, render, divergent)
+    assert_parity(snapshot, all_frame_constructors, render)
 
 
 # Selection -------------------------------------------------------------------------------------

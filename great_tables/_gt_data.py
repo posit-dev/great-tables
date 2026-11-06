@@ -19,7 +19,6 @@ from ._tbl_data import (
     DataFrameLike,
     TblData,
     _get_cell,
-    _get_column_dtype,
     _set_cells,
     copy_data,
     create_empty_frame,
@@ -31,7 +30,6 @@ from ._tbl_data import (
 )
 from ._tbl_data_align import (
     ALIGNMENT_MAP,
-    PANDAS_ARROW_STRING_DTYPES,
     classify_dtype_for_alignment,
     is_number_like_column,
 )
@@ -440,24 +438,16 @@ class Boxhead(_Sequence[ColInfo]):
         ):
             raise ValueError("Column names must match between data and Boxhead")
 
-        # Classify each column and map to alignment
-        align: list[str] = []
+        alignments: list[ColumnAlignment] = []
         for col in get_column_names(data):
             classification = classify_dtype_for_alignment(data, col)
+            if classification == "string" and is_number_like_column(data, col):
+                classification = "numeric"
+            alignments.append(ALIGNMENT_MAP[classification])
 
-            # Special case: string columns with number-like content -> right-align
-            # This handles "object" (pandas 2.x), "str" (pandas 3.x) and pyarrow-backed dtypes
-            if classification == "string":
-                dtype = str(_get_column_dtype(data, col)).lower()
-                checks_number_like = dtype in {"object", "str", *PANDAS_ARROW_STRING_DTYPES}
-                if checks_number_like and is_number_like_column(data, col):
-                    classification = "numeric"
-
-            align.append(ALIGNMENT_MAP[classification])
-
-        # Set the alignment for each column in the boxhead
         new_cols: list[ColInfo] = [
-            replace(col_info, column_align=alignment) for col_info, alignment in zip(self._d, align)
+            replace(col_info, column_align=alignment)
+            for col_info, alignment in zip(self._d, alignments)
         ]
 
         return self.__class__(new_cols)

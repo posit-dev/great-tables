@@ -1,9 +1,4 @@
-"""Type classification for auto-alignment.
-
-This module provides backend-specific dtype classification for determining
-column text alignment. The approach uses singledispatch to handle pandas,
-polars, and pyarrow backends with their native type APIs.
-"""
+"""Column classification for auto-alignment."""
 
 from __future__ import annotations
 
@@ -27,7 +22,7 @@ if TYPE_CHECKING:
 
 AlignmentClass = Literal["numeric", "string", "other"]
 
-ALIGNMENT_MAP: dict[AlignmentClass, str] = {
+ALIGNMENT_MAP: dict[AlignmentClass, Literal["right", "left", "center"]] = {
     "numeric": "right",
     "string": "left",
     "other": "center",
@@ -36,47 +31,59 @@ ALIGNMENT_MAP: dict[AlignmentClass, str] = {
 # Used with re.match, so it anchors at the start: "timestamp[us]" is numeric, "list(int64)" isn't
 NUMERIC_DTYPE_PATTERN = re.compile(r"int|uint|float|date|double|timestamp")
 
-# String dtypes that should be left-aligned
-# Includes "str" for pandas 3.x compatibility (pandas 2.x uses "object")
-STRING_DTYPES = {"object", "utf8", "string", "str", "large_string", "string_view"}
+# "object" is pandas 2 text, "str" pandas 3 text, and "[pyarrow]" names come from pandas ArrowDtype
+STRING_DTYPES = {
+    "object",
+    "str",
+    "utf8",
+    "string",
+    "large_string",
+    "string_view",
+    "string[pyarrow]",
+    "large_string[pyarrow]",
+    "string_view[pyarrow]",
+}
 
-# pandas ArrowDtype string columns report their backend in the dtype name
-PANDAS_ARROW_STRING_DTYPES = {"string[pyarrow]", "large_string[pyarrow]", "string_view[pyarrow]"}
-
-# Pattern for "number-like" strings (dates, times, formatted numbers)
-# NOTE: Preserves original behavior including the character class quirk
-# The original pattern [0-9 -/:\\.] has " -/" which is technically a range from space to /
-# We keep this for now to match existing behavior exactly
+# Dates, times and formatted numbers. The ` -/` range admits every character from space to `/`
 NUMBER_LIKE_PATTERN = re.compile(r"^[0-9 -/:\\.]*$")
 
 
+@singledispatch
 def is_number_like_column(data: DataFrameLike, column: str) -> bool:
-    """Check if an object/string column contains only number-like strings.
+    """True when the column holds at least one string and every string looks like a number."""
+    strings = [val for val in to_list(data[column]) if isinstance(val, str)]
+    # `match` lets `$` match before a trailing newline, which polars and pyarrow reject
+    return bool(strings) and all(NUMBER_LIKE_PATTERN.fullmatch(val) for val in strings)
 
-    Used to right-align object columns that contain formatted dates/numbers.
 
-    Note: This preserves the original regex behavior exactly. See Phase 3 for bug fixes.
-    """
-    col_vals = to_list(data[column])
+@is_number_like_column.register(PlDataFrame)
+def _(data: PlDataFrame, column: str) -> bool:
+    import polars as pl
 
-    # Match original behavior: only check string values, skip non-strings
-    # If all string values match pattern (or there are no strings), return True
-    number_like_matches = (
-        NUMBER_LIKE_PATTERN.match(val) for val in col_vals if isinstance(val, str)
+    values = data[column]
+    return (
+        values.dtype == pl.String
+        and values.null_count() < values.len()
+        and values.str.contains(NUMBER_LIKE_PATTERN.pattern).all()
     )
-    return all(number_like_matches)
+
+
+@is_number_like_column.register(PyArrowTable)
+def _(data: PyArrowTable, column: str) -> bool:
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    values = data.column(column)
+    if str(values.type) not in STRING_DTYPES or values.null_count == len(values):
+        return False
+    # pyarrow compute has no `string_view` kernels
+    matches = pc.match_substring_regex(values.cast(pa.large_string()), NUMBER_LIKE_PATTERN.pattern)
+    return pc.all(matches).as_py()
 
 
 @singledispatch
 def classify_dtype_for_alignment(data: DataFrameLike, column: str) -> AlignmentClass:
-    """Classify a column's dtype for alignment purposes.
-
-    Returns:
-        "numeric" -> right-aligned (numbers, dates, times)
-        "string" -> left-aligned (text)
-        "other" -> center-aligned (boolean, etc.)
-    """
-    # Fallback: use string-based pattern matching (matches original behavior)
+    """Classify a column by its dtype: "numeric" (right), "string" (left) or "other" (center)."""
     dtype = str(_get_column_dtype(data, column)).lower()
 
     if NUMERIC_DTYPE_PATTERN.match(dtype):
@@ -91,7 +98,6 @@ def classify_dtype_for_alignment(data: DataFrameLike, column: str) -> AlignmentC
 def _classify_pandas(data: PdDataFrame, column: str) -> AlignmentClass:
     dtype = str(data[column].dtype).lower()
 
-    # Match original behavior: pattern-based detection
     if NUMERIC_DTYPE_PATTERN.match(dtype):
         return "numeric"
     elif dtype == "object":
@@ -106,32 +112,6 @@ def _classify_pandas(data: PdDataFrame, column: str) -> AlignmentClass:
                 return "numeric"
             return "other"
         return "string"
-    elif dtype in STRING_DTYPES or dtype in PANDAS_ARROW_STRING_DTYPES:
-        return "string"
-    else:
-        return "other"
-
-
-@classify_dtype_for_alignment.register(PlDataFrame)
-def _classify_polars(data: PlDataFrame, column: str) -> AlignmentClass:
-    dtype = str(data[column].dtype).lower()
-
-    # Match original behavior: pattern-based detection
-    if NUMERIC_DTYPE_PATTERN.match(dtype):
-        return "numeric"
-    elif dtype in STRING_DTYPES:
-        return "string"
-    else:
-        return "other"
-
-
-@classify_dtype_for_alignment.register(PyArrowTable)
-def _classify_pyarrow(data: PyArrowTable, column: str) -> AlignmentClass:
-    dtype = str(data.column(column).type).lower()
-
-    # Match original behavior: pattern-based detection
-    if NUMERIC_DTYPE_PATTERN.match(dtype):
-        return "numeric"
     elif dtype in STRING_DTYPES:
         return "string"
     else:
