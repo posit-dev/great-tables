@@ -525,18 +525,6 @@
   </tbody>
   '''
 # ---
-# name: test_rows_by_mask[nulls-polars-callable][pandas_nullable_constructor]
-  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
-# ---
-# name: test_rows_by_mask[nulls-polars-callable][pandas_pyarrow_constructor]
-  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
-# ---
-# name: test_rows_by_mask[nulls-polars-callable][polars_constructor]
-  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
-# ---
-# name: test_rows_by_mask[nulls-polars-callable][pyarrow_table_constructor]
-  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
-# ---
 # name: test_rows_by_mask[nulls-polars-expr][all]
   '''
   <tbody class="gt_table_body">
@@ -551,15 +539,6 @@
     </tr>
   </tbody>
   '''
-# ---
-# name: test_rows_by_mask[nulls-polars-expr][pandas_nullable_constructor]
-  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
-# ---
-# name: test_rows_by_mask[nulls-polars-expr][pandas_pyarrow_constructor]
-  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
-# ---
-# name: test_rows_by_mask[nulls-polars-expr][pyarrow_table_constructor]
-  '<raised ValueError: If you select rows using a callable, it must take a DataFrame, and return a boolean Series.>'
 # ---
 # name: test_sub_missing[all]
   '''

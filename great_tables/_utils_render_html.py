@@ -1738,6 +1738,8 @@ def _process_footnotes_for_display(
         ):
             # Stub appears before data columns but after row group column
             colnum = _get_stub_footnote_colnum(data, fn_info)
+        elif isinstance(fn_info.locname, loc.LocSpannerLabels):
+            colnum = _get_spanner_leftmost_column_index(data, fn_info.grpname)
         else:
             colnum = _get_column_index(data, fn_info.colname) if fn_info.colname else 0
         rownum = (
@@ -2024,9 +2026,9 @@ def _get_spanner_leftmost_column_index(data: GTData, spanner_grpname: str | None
     if not spanner_grpname:
         return 0
 
-    # Find the spanner with this group name
+    # Find the spanner with this group name (spanner footnotes store the spanner ID, not its label)
     for spanner in data._spanners:
-        if spanner.spanner_label == spanner_grpname:
+        if spanner.spanner_id == spanner_grpname:
             # Get the column indices for all columns in this spanner
             column_indices = []
             for col_var in spanner.vars:
