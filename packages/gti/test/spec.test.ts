@@ -41,6 +41,12 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, layout }).layout.height).toBe("min(60vh, 600px)");
   });
 
+  it.each(["stack", "auto"])("takes a %s layout, with a stacking width or without one", (responsive) => {
+    expect(parse({ ...valid, layout: { height: null, responsive } }).layout.responsive).toBe(responsive);
+    const layout = { height: null, responsive, stack_below: 520.5 };
+    expect(parse({ ...valid, layout }).layout).toEqual(layout);
+  });
+
   it("takes no responsive layout", () => {
     expect(parse({ ...valid, layout: { height: null, responsive: null } }).layout.responsive).toBeNull();
   });
@@ -196,7 +202,12 @@ describe("parseSpec()", () => {
     ["has a height that isn't a string", JSON.stringify({ ...valid, layout: { height: 400, responsive: null } }), /`layout`/],
     ["has an empty height", JSON.stringify({ ...valid, layout: { height: " ", responsive: null } }), /`layout`/],
     ["has no responsive layout", JSON.stringify({ ...valid, layout: { height: null } }), /`layout.responsive`/],
-    ["has an unknown responsive layout", JSON.stringify({ ...valid, layout: { height: null, responsive: "stack" } }), /`layout.responsive`/],
+    ["has an unknown responsive layout", JSON.stringify({ ...valid, layout: { height: null, responsive: "collapse" } }), /`layout.responsive`/],
+    ...[0, -10, "420", null, true].map((below): [string, string, RegExp] => [
+      `has a stacking width of ${JSON.stringify(below)}`,
+      JSON.stringify({ ...valid, layout: { height: null, responsive: "stack", stack_below: below } }),
+      /`layout.stack_below`/,
+    ]),
     ["has filters that aren't an array", filters({ column: "x" }), /`filters`/],
     ["has a filter without a column", filters([{ type: "text", values: null }]), /`filters\[0\]`/],
     ["has a filter of an unknown type", filters([{ column: "x", type: "date", values: null }]), /`filters\[0\]`/],

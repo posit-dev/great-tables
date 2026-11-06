@@ -1479,16 +1479,19 @@ def test_footnote_ordering_body_before_summary():
     assert marks[1][1].strip() == "Summary note"
 
 
-def test_footnote_ordering_consistent_with_side():
+@pytest.mark.parametrize("group", ["A", None])
+def test_footnote_ordering_consistent_with_side(group):
     """Footnote ordering reflects visual position: top summaries before body, bottom after."""
-    df = pd.DataFrame({"group": ["A", "A"], "row": ["r1", "r2"], "x": [1, 2]})
+    df = pd.DataFrame({"group": [group, group], "row": ["r1", "r2"], "x": [1, 2]})
 
     def _get_marks(side):
         gt = (
             GT(df, rowname_col="row", groupname_col="group")
             .summary_rows(fns={"Sum": lambda df: df.sum(numeric_only=True)}, side=side)
             .tab_footnote("Body note", locations=loc.body(columns="x", rows=[0]))
-            .tab_footnote("Summary note", locations=loc.summary(columns="x", groups="A", rows=[0]))
+            .tab_footnote(
+                "Summary note", locations=loc.summary(columns="x", groups=[group], rows=[0])
+            )
         )
         html_str = gt.as_raw_html()
         tfoot_match = re.search(r"<tfoot.*?</tfoot>", html_str, re.DOTALL)

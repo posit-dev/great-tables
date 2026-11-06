@@ -413,7 +413,6 @@ def test_grand_summary_rows(
 def test_summary_rows(
     snapshot: SnapshotAssertion, all_frame_constructors: list[DataFrameConstructor]
 ):
-    # no missing group key: summary_rows() raises on it on every backend (#1049)
     data = {"g": ["b", "a", "b", "a"], "x": [*FLOATS, 2.5]}
 
     def render(constructor: DataFrameConstructor) -> str:

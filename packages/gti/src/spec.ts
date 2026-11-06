@@ -164,9 +164,18 @@ export interface LayoutSpec {
    * pinned (and the title and notes kept in view); `null` to scroll sideways as GT's table does.
    */
   responsive: ResponsiveMode | null;
+  /**
+   * The container width (in px) below which a `"stack"` or `"auto"` table is stacked, its rows
+   * becoming cards (by the table's own CSS, which has the same width); 420 if left out.
+   */
+  stack_below?: number;
 }
 
-export type ResponsiveMode = "scroll";
+/**
+ * How the table fits its container: by scrolling sideways (`"scroll"`), or, in a narrow one, as
+ * cards (`"stack"`), or as cards if it shows only a few data columns (`"auto"`).
+ */
+export type ResponsiveMode = "scroll" | "stack" | "auto";
 
 /**
  * How a column is filtered: by the text it shows, a choice of its values, a range of its numbers, a
@@ -431,8 +440,15 @@ export function parseSpec(text: string): Spec {
   ) {
     throw new SpecError("`layout` must have a `height`: a CSS length, or `null`");
   }
-  if (!(layout.responsive === null || layout.responsive === "scroll")) {
-    throw new SpecError('`layout.responsive` must be "scroll" or `null`');
+  if (!(layout.responsive === null || ["scroll", "stack", "auto"].includes(layout.responsive as string))) {
+    throw new SpecError('`layout.responsive` must be "scroll", "stack", "auto", or `null`');
+  }
+  const below = layout.stack_below;
+  if (
+    below !== undefined &&
+    !(typeof below === "number" && Number.isFinite(below) && below > 0)
+  ) {
+    throw new SpecError("`layout.stack_below` must be a positive number of pixels");
   }
 
   const body = raw.body as unknown[];

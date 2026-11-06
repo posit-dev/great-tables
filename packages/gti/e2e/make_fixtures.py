@@ -397,6 +397,45 @@ def reorder_html(table_id: str) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def stack_html(
+    table_id: str, mode: str = "stack", columns: list[str] | None = None, dark: bool = False
+) -> str:
+    # exibble (8 rows, grp_b then grp_a, each with a summary row, then a grand summary row), with
+    # a title, a spanner, a stub, a filter on fctr and selectable rows, 5 to a page: shown as
+    # cards in a container narrower than 420px. Its columns can be hidden; with `dark=True`, it's
+    # light text on a dark background.
+    columns = columns or ["num", "char", "fctr", "currency"]
+    gti = (
+        GTI(
+            exibble[[*columns, "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+            id=table_id,
+        )
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .row_group_order(["grp_b", "grp_a"])
+        .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
+        .grand_summary_rows(fns={"Max": lambda df: df[["num", "currency"]].max()})
+        .tab_header(title="exibble")
+        .tab_spanner(label="Numbers", columns=["num", "currency"])
+        .i_cols_filter("fctr")
+        .i_cols_controls(hideable=True)
+        .i_selection()
+        .i_pagination(page_size=5, page_sizes=None)
+        .i_responsive(mode)  # type: ignore[arg-type]
+    )
+    if dark:
+        gti = gti.tab_options(
+            table_background_color="#1e1e1e",
+            table_font_color="#eeeeee",
+            heading_background_color="#1e1e1e",
+            column_labels_background_color="#1e1e1e",
+            row_group_background_color="#2a2a2a",
+        )
+    return render_gti_html(gti, runtime="none")
+
+
 def query_only_gti(table_id: str, filter: str | None = None, sort: str | None = None) -> GTI:
     # Exibble three times over (24 rows, in two groups), on one page, showing num and char; and
     # left out for querying, fctr (as a facet, of its text in capitals), date (as text, by the
@@ -810,6 +849,46 @@ def main() -> None:
         # Columns only for querying: in a GTI table that shows two of exibble's columns
         "query-only.html": page(
             render_gti_html(query_only_gti("q"), runtime="none") + "\n" + runtime_src,
+            head=styles,
+        ),
+        # Stacked tables (as cards): in a container 360px wide; in one 800px wide (not stacked);
+        # in a page as narrow as a phone's; with light text on a dark background; and "auto"
+        # ones, with 7 of exibble's columns (not stacked until enough of them are hidden) and
+        # with 3 of them
+        **{
+            f"stack{suffix}.html": page(
+                f'<div style="width: {width}">'
+                + stack_html("k", dark=dark)
+                + "</div>\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix, width, dark in [
+                ("", "360px", False),
+                ("-wide", "800px", False),
+                ("-dark", "360px", True),
+            ]
+        },
+        "stack-phone.html": page(
+            stack_html("k") + "\n" + runtime_src,
+            head='<meta name="viewport" content="width=device-width, initial-scale=1">\n' + styles,
+        ),
+        "stack-auto.html": page(
+            '<div style="width: 360px">'
+            + stack_html(
+                "k",
+                mode="auto",
+                columns=["num", "char", "fctr", "date", "time", "datetime", "currency"],
+            )
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "stack-auto-few.html": page(
+            '<div style="width: 360px">'
+            + stack_html("k", mode="auto", columns=["num", "fctr", "currency"])
+            + "</div>\n"
+            + runtime_src,
             head=styles,
         ),
     }
