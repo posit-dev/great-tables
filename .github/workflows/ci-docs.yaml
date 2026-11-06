@@ -24,7 +24,7 @@ jobs:
         uses: quarto-dev/quarto-actions/setup@v2
       - name: Build docs
         run: |
-          great-docs build
+          great-docs build --jobs auto
       - name: Save docs artifact
         uses: actions/upload-artifact@v4
         with:
