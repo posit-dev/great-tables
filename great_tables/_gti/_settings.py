@@ -41,10 +41,12 @@ PinSide = Literal["left", "right"]
 PIN_SIDES: tuple[PinSide, ...] = ("left", "right")
 
 # How the table fits a narrow container: by scrolling sideways (with the stub pinned), as cards
-# (one per row) below a width, or as cards there only if it has few columns
-ResponsiveMode = Literal["scroll", "stack", "auto"]
+# (one per row) below a width, by dropping its least important columns (shown under each row on
+# demand), or as fits the table: dropping columns if they have priorities, else as cards there only
+# if it has few columns
+ResponsiveMode = Literal["scroll", "stack", "collapse", "auto"]
 
-RESPONSIVE_MODES: tuple[ResponsiveMode, ...] = ("scroll", "stack", "auto")
+RESPONSIVE_MODES: tuple[ResponsiveMode, ...] = ("scroll", "stack", "collapse", "auto")
 
 
 @dataclass(frozen=True)
@@ -65,8 +67,12 @@ class Settings:
     # (A CSS length; `None` to grow with the content)
     height: str | None = None
     # (How the table fits a narrow container, and the width (in px) below which it's stacked)
-    responsive: ResponsiveMode = "scroll"
+    responsive: ResponsiveMode = "auto"
     stack_below: int | float = 420
+    # (The columns' priorities, as `i_cols_priority()` set them, in the order they were set: when
+    # the table drops columns, those without one go first, then those with the highest; those with
+    # 1 never go)
+    priorities: tuple[tuple[str, int], ...] = ()
     highlight: bool = True
     compact: bool = False
     wrap: bool = True
@@ -130,6 +136,8 @@ class Settings:
             highlight=bool(options.ihtml_use_highlight.value),
             compact=bool(options.ihtml_use_compact_mode.value),
             wrap=bool(options.ihtml_use_text_wrapping.value),
+            # (As the reactable renderer's tables do)
+            responsive="scroll",
             bar=False,
         )
 
