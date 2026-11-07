@@ -450,6 +450,8 @@ def collapse_html(
     # a page: dropping columns to fit a narrow container ("auto", as its columns have priorities).
     # num has priority 1 (never dropped), char 2 and currency 3; fctr and date have none (and go
     # first, from the last). Optionally with groups as a column, a body that scrolls, and widths.
+    # In a monospace font, whose letters are as wide on any system, so what's dropped at a width
+    # is the same in CI as locally.
     gti = (
         GTI(
             exibble[["num", "currency", "char", "fctr", "date", "row", "group"]],
@@ -463,6 +465,7 @@ def collapse_html(
         .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
         .tab_spanner(label="Numbers", columns=["num", "currency"])
         .tab_options(row_group_as_column=groups_as_column)
+        .opt_table_font(font="monospace", add=False)
         .i_search()
         .i_export("csv", filename="collapse")
         .i_cols_controls(hideable=True)
@@ -983,6 +986,7 @@ def main() -> None:
             '<div style="width: 240px">'
             + render_gti_html(
                 GTI(exibble[["char", "num", "fctr", "date"]], id="c")
+                .opt_table_font(font="monospace", add=False)
                 .i_cols_priority("char")
                 .i_responsive("collapse"),
                 runtime="none",
