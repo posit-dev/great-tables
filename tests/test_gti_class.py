@@ -52,7 +52,7 @@ GTI_DEFAULTS = {
         "type": "jump",
     },
     "display": {"highlight": True, "compact": False, "wrap": True},
-    "layout": {"height": None, "responsive": "scroll", "stack_below": 420},
+    "layout": {"height": None, "responsive": "auto", "stack_below": 420},
 }
 
 
@@ -207,7 +207,7 @@ def test_i_scroll(height, expected: str):
     gti = GTI(DF).i_scroll(height)
     assert interactive_of(gti) == with_changes(layout={"height": expected})
     assert gti.as_raw_html().startswith(
-        f'<gt-table data-gti-bar data-gti-scroll style="--gt-i-height: {expected}">'
+        f'<gt-table data-gti-bar data-gti-stack data-gti-scroll style="--gt-i-height: {expected}">'
     )
 
 
@@ -229,7 +229,7 @@ def stack_style(gt: GT) -> str:
     return found.group(1)
 
 
-@pytest.mark.parametrize("mode", ["scroll", "stack", "auto"])
+@pytest.mark.parametrize("mode", ["scroll", "stack", "collapse", "auto"])
 def test_i_responsive(mode: str):
     gti = GTI(DF).i_responsive(mode)
     assert interactive_of(gti) == with_changes(layout={"responsive": mode})
@@ -247,13 +247,37 @@ def test_i_responsive_stack_below(stack_below, expected):
 
 @pytest.mark.parametrize("mode", ["Stack", "cards", None, ""])
 def test_i_responsive_mode_must_be_known(mode):
-    with pytest.raises(ValueError, match='`mode=` must be "scroll", "stack", or "auto"'):
+    with pytest.raises(
+        ValueError, match='`mode=` must be "scroll", "stack", "collapse", or "auto"'
+    ):
         GTI(DF).i_responsive(mode)
 
 
-def test_i_responsive_collapse_is_not_available_yet():
-    with pytest.raises(ValueError, match='The "collapse" layout'):
-        GTI(DF).i_responsive("collapse")  # type: ignore[arg-type]
+def test_i_responsive_collapse_has_no_stack_css():
+    gti = GTI(DF).i_responsive("collapse")
+    assert interactive_of(gti) == with_changes(layout={"responsive": "collapse"})
+    html = render_gti_html(gti, "none")
+    assert html.startswith("<gt-table data-gti-bar>")
+    assert "gt-i-stack" not in html and "<style>" not in html.split("</div>")[-1]
+
+
+@pytest.mark.parametrize("columns", [2, 8])
+def test_i_responsive_auto_collapses_a_table_with_priorities(columns: int):
+    df = pd.DataFrame({f"c{i}": [i] for i in range(columns)} | {"id": ["a"]})
+    gti = GTI(df, rowname_col="id").i_cols_priority("c0")
+    # (Which the spec leaves to the runtime, as "auto")
+    assert interactive_of(gti)["layout"]["responsive"] == "auto"
+    html = render_gti_html(gti, "none")
+    assert html.startswith("<gt-table data-gti-bar>")
+    assert "gt-i-stack" not in html
+    # (But not once they're all unset)
+    unset = render_gti_html(gti.i_cols_priority("c0", priority=None), "none")
+    assert "data-gti-stack" in unset
+
+
+def test_i_responsive_stack_ignores_priorities():
+    gti = GTI(DF).i_cols_priority("y").i_responsive("stack")
+    assert render_gti_html(gti, "none").startswith("<gt-table data-gti-bar data-gti-stack>")
 
 
 @pytest.mark.parametrize("stack_below", [0, -1, float("inf"), float("nan"), True, "420", None])
@@ -271,6 +295,9 @@ def test_i_responsive_scroll_has_no_stack_css():
 def test_opt_interactive_tables_are_not_stacked():
     html = GT(DF).opt_interactive().as_raw_html()
     assert "data-gti-stack" not in html
+    assert spec_of(GT(DF).opt_interactive())["layout"]["responsive"] == "scroll"
+    # (A GTI made from one fits a narrow container as GTI's own tables do)
+    assert interactive_of(GTI.from_gt(GT(DF).opt_interactive()))["layout"]["responsive"] == "auto"
 
 
 @pytest.mark.parametrize(
@@ -377,7 +404,7 @@ def test_i_display():
     assert interactive_of(gti) == with_changes(
         display={"highlight": False, "compact": True, "wrap": False}
     )
-    assert gti.as_raw_html().startswith("<gt-table data-gti-bar data-gti-nowrap>")
+    assert gti.as_raw_html().startswith("<gt-table data-gti-bar data-gti-nowrap data-gti-stack>")
 
 
 def test_i_display_compact_halves_row_padding():
@@ -949,6 +976,61 @@ def test_i_cols_pin_side_must_be_a_side(side):
         GTI(PIN_DF).i_cols_pin("a", side=side)
 
 
+# column priorities ----
+
+
+def priorities_of(gt: GT) -> dict:
+    return {column["id"]: column["priority"] for column in spec_of(gt)["columns"]}
+
+
+def test_i_cols_priority_none_by_default():
+    gti = GTI(PIN_DF, rowname_col="id")
+    assert gti._interactive.priorities == ()
+    assert set(priorities_of(gti).values()) == {None}
+
+
+def test_i_cols_priority():
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_priority(["a", "b"]).i_cols_priority("e", 3)
+    assert gti._interactive.priorities == (("a", 1), ("b", 1), ("e", 3))
+    assert priorities_of(gti) == {"id": None, "a": 1, "b": 1, "c": None, "d": None, "e": 3}
+    # (NumPy's integers are integers)
+    assert gti.i_cols_priority("c", np.int64(2))._interactive.priorities[-1] == ("c", 2)
+    assert type(gti.i_cols_priority("c", np.int64(2))._interactive.priorities[-1][1]) is int
+
+
+def test_i_cols_priority_replaces_and_unsets():
+    gti = GTI(PIN_DF).i_cols_priority(["id", "a"]).i_cols_priority("a", priority=2)
+    assert gti._interactive.priorities == (("id", 1), ("a", 2))
+    assert gti.i_cols_priority("a", priority=None)._interactive.priorities == (("id", 1),)
+    assert gti.i_cols_priority(priority=None)._interactive.priorities == ()
+    # (Every column but the stub)
+    every = GTI(PIN_DF, rowname_col="id").i_cols_priority(priority=4)
+    assert [column for column, _ in every._interactive.priorities] == ["a", "b", "c", "d", "e"]
+    assert set(priorities_of(every).values()) == {None, 4}
+
+
+def test_i_cols_priority_leaves_out_the_stub_and_row_group_column():
+    # (They're never dropped)
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_priority(["id", "a"], priority=2)
+    assert priorities_of(gti) == {"id": None, "a": 2, "b": None, "c": None, "d": None, "e": None}
+    grouped = GTI(PIN_DF, groupname_col="b").i_cols_priority(["b", "id"])
+    assert grouped._interactive.priorities == (("id", 1),)
+
+
+def test_i_cols_priority_skips_hidden_columns():
+    gti = GTI(PIN_DF).i_cols_priority(["a", "c"]).cols_hide("c")
+    assert priorities_of(gti) == {"id": None, "a": 1, "b": None, "d": None, "e": None}
+    # (But not those readers hide)
+    shown = GTI(PIN_DF).i_cols_controls(hideable=True).i_cols_priority("c").i_view(hidden="c")
+    assert priorities_of(shown)["c"] == 1
+
+
+@pytest.mark.parametrize("priority", [0, -1, 1.5, 1.0, True, "1"])
+def test_i_cols_priority_must_be_a_positive_integer(priority):
+    with pytest.raises(ValueError, match="`priority=` must be a positive integer, or `None`"):
+        GTI(PIN_DF).i_cols_priority("a", priority=priority)
+
+
 def test_i_cols_filter_values_are_json():
     df = pd.DataFrame(
         {
@@ -1213,7 +1295,10 @@ def test_i_export_keeps_room_for_the_bar():
 
 
 def gt_table_tag(gt: GT) -> str:
-    return gt.as_raw_html().split("\n", 1)[0]
+    """A table's `<gt-table>` tag, without those of its attributes that stack it (see
+    `test_i_responsive_attributes()`)."""
+    tag = gt.as_raw_html().split("\n", 1)[0]
+    return re.sub(r" data-gti-stack(-off)?", "", tag)
 
 
 def test_control_bar_room_is_kept_for_a_search_or_pages():
@@ -1297,7 +1382,7 @@ def test_from_gt_needs_a_gt():
 def test_as_raw_html_is_interactive():
     html = GTI(DF).as_raw_html()
     js, css = _load_runtime()
-    assert html.startswith("<gt-table data-gti-bar>\n")
+    assert html.startswith("<gt-table data-gti-bar data-gti-stack>\n")
     assert css in html and js in html
 
 
@@ -1305,7 +1390,7 @@ def test_as_raw_html_make_page():
     html = GTI(DF).as_raw_html(make_page=True)
     assert html.startswith('<!DOCTYPE html>\n<html lang="en">\n<head>\n')
     assert '<meta name="viewport" content="width=device-width, initial-scale=1"/>' in html
-    assert "<body>\n<gt-table data-gti-bar>\n" in html
+    assert "<body>\n<gt-table data-gti-bar data-gti-stack>\n" in html
     assert html.endswith("</body>\n</html>\n")
 
 
@@ -1321,14 +1406,16 @@ def test_as_raw_html_inline_css_is_not_available():
 
 
 def test_repr_html_is_interactive():
-    assert "<gt-table data-gti-bar>" in GTI(DF)._repr_html_()
+    assert "<gt-table data-gti-bar data-gti-stack>" in GTI(DF)._repr_html_()
 
 
 def test_write_raw_html(tmp_path):
     GTI(DF).write_raw_html(tmp_path / "gti.html", make_page=True)
     GT(DF).write_raw_html(tmp_path / "gt.html")
 
-    assert "<gt-table data-gti-bar>" in (tmp_path / "gti.html").read_text(encoding="utf-8")
+    assert "<gt-table data-gti-bar data-gti-stack>" in (tmp_path / "gti.html").read_text(
+        encoding="utf-8"
+    )
     assert "<gt-table" not in (tmp_path / "gt.html").read_text(encoding="utf-8")
 
 
