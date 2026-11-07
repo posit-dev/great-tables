@@ -7,7 +7,8 @@ import { groupCells, ready } from "./helpers";
 // page, dropping columns to fit its container: num has priority 1 (never dropped), char 2 and
 // currency 3, and fctr and date none (so date goes first, then fctr, currency and char). In a
 // container 360px wide; in one 1000px wide; right to left; with groups as a column, in a body that
-// scrolls; with column widths; without a stub; and in a container too narrow for what's left.
+// scrolls; with column widths; without a stub; and in a container too narrow for what's left. All
+// in a monospace font, so the same columns are dropped at a width on any system.
 
 const DROPS = ["date", "fctr", "currency", "char"];
 
@@ -152,9 +153,10 @@ test.describe("a table that drops columns", () => {
     const errors = await ready(page, "collapse.html");
     await button(page, "row_5").click();
     await button(page, "row_6").click();
-    await setWidth(page, "600px");
+    await setWidth(page, "520px");
     await expect.poll(async () => (await gone(page)).length).toBeLessThan(4);
     const dropped = await gone(page);
+    expect(dropped.length).toBeGreaterThan(0);
     for (const label of ["row_5", "row_6"]) {
       await expect(details(page, label).locator("dt")).toHaveCount(dropped.length);
     }
