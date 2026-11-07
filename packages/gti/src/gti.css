@@ -304,6 +304,82 @@ gt-table[data-gti-highlight] tr.gt-i-marked.gt-i-selected > :not(.gt_stub_row_gr
   }
 }
 
+/*
+ * A table that drops columns to fit: each row's button (in its first cell) that shows the columns
+ * dropped from it, under it, as labels and values; no buttons while none are dropped
+ */
+/* (In the room the cell's first line leaves before its text, so that it never wraps apart from it) */
+gt-table[data-gti-dropped] .gt-i-expands {
+  position: relative;
+  text-indent: 1.75em;
+}
+
+gt-table[data-gti-dropped] .gt-i-expands > * {
+  text-indent: 0;
+}
+
+gt-table .gt-i-expand {
+  display: inline-flex;
+  position: absolute;
+  margin: -0.125em 0 0;
+  margin-inline-start: -1.75em;
+  padding: 0.125em;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: inherit;
+  vertical-align: middle;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+gt-table:not([data-gti-dropped]) .gt-i-expand {
+  display: none;
+}
+
+gt-table .gt-i-expand:hover {
+  background: rgba(128, 128, 128, 0.15);
+  opacity: 1;
+}
+
+gt-table .gt-i-expand:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+  opacity: 1;
+}
+
+/* (On touch screens, a target of 44 x 44 px, as the sort buttons have) */
+@media (pointer: coarse) {
+  gt-table .gt-i-expand::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+gt-table .gt-i-expand[aria-expanded="true"] .gt-i-icon {
+  transform: rotate(180deg);
+}
+
+gt-table .gt-i-details-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25em 1em;
+  margin: 0;
+}
+
+gt-table .gt-i-details-list dt {
+  font-weight: 600;
+}
+
+gt-table .gt-i-details-list dd {
+  margin: 0;
+}
+
 /* Without text wrapping, cell text stays on one line; GT's cells already hide what overflows */
 gt-table[data-gti-nowrap] :is(.gt_row, .gt_col_heading, .gt_column_spanner) {
   white-space: nowrap;
@@ -355,6 +431,12 @@ gt-table[data-gti-wide] .gt-i-scroller {
 gt-table[data-gti-wide] .gt-i-pinned {
   position: sticky;
   z-index: 2;
+}
+
+/* (A pinned cell placed relative to itself, as a column label is, isn't moved where it would stick
+   until it does) */
+gt-table:not([data-gti-wide]) .gt-i-pinned {
+  inset-inline: auto !important;
 }
 
 gt-table[data-gti-wide] tr.gt-i-stuck-bottom > .gt-i-pinned {

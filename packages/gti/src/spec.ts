@@ -48,6 +48,12 @@ export interface ColumnSpec {
    * same spanners and pinned to the same side. Without it, they can't.
    */
   reorderable?: boolean;
+  /**
+   * A data column's priority, for a table that drops columns to fit its container: those without
+   * one drop first (from the last), then those with the highest (from the last, among equals);
+   * those with 1 never do. Without it, it has none.
+   */
+  priority?: number | null;
 }
 
 /**
@@ -161,7 +167,8 @@ export interface LayoutSpec {
   height: string | null;
   /**
    * What the table does when it's wider than its container: `"scroll"` sideways, with the stub
-   * pinned (and the title and notes kept in view); `null` to scroll sideways as GT's table does.
+   * pinned (and the title and notes kept in view); `null` to scroll sideways as GT's table does;
+   * or drop columns until it fits (`"collapse"`, or `"auto"` with priorities), then scroll.
    */
   responsive: ResponsiveMode | null;
   /**
@@ -173,9 +180,11 @@ export interface LayoutSpec {
 
 /**
  * How the table fits its container: by scrolling sideways (`"scroll"`), or, in a narrow one, as
- * cards (`"stack"`), or as cards if it shows only a few data columns (`"auto"`).
+ * cards (`"stack"`), by dropping columns by their priority (`"collapse"`, each row showing those
+ * dropped from it on demand), or (`"auto"`) as `"collapse"` if any column has a priority, else as
+ * cards if it shows only a few data columns.
  */
-export type ResponsiveMode = "scroll" | "stack" | "auto";
+export type ResponsiveMode = "scroll" | "stack" | "collapse" | "auto";
 
 /**
  * How a column is filtered: by the text it shows, a choice of its values, a range of its numbers, a
@@ -361,11 +370,12 @@ export function parseSpec(text: string): Spec {
     (column) =>
       !isObject(column) ||
       !["sortable", "searchable", "resizable", "hideable", "reorderable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
-      ![undefined, null, "start", "end"].includes(column.pin as string),
+      ![undefined, null, "start", "end"].includes(column.pin as string) ||
+      !(column.priority == null || (Number.isInteger(column.priority) && (column.priority as number) > 0)),
   );
   if (column >= 0) {
     throw new SpecError(
-      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable and reorderable with \`true\` or \`false\`, and the side it's pinned to (\`"start"\` or \`"end"\`), if it does`,
+      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable and reorderable with \`true\` or \`false\`, the side it's pinned to (\`"start"\` or \`"end"\`), if it is, and its priority (a positive integer), if it has one`,
     );
   }
   const queries = raw.query_columns;
@@ -440,8 +450,8 @@ export function parseSpec(text: string): Spec {
   ) {
     throw new SpecError("`layout` must have a `height`: a CSS length, or `null`");
   }
-  if (!(layout.responsive === null || ["scroll", "stack", "auto"].includes(layout.responsive as string))) {
-    throw new SpecError('`layout.responsive` must be "scroll", "stack", "auto", or `null`');
+  if (!(layout.responsive === null || ["scroll", "stack", "collapse", "auto"].includes(layout.responsive as string))) {
+    throw new SpecError('`layout.responsive` must be "scroll", "stack", "collapse", "auto", or `null`');
   }
   const below = layout.stack_below;
   if (

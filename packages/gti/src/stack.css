@@ -11,11 +11,13 @@
  * ID of GT's `<div>` for `#gt-i-table`, and the table's stacking width for the 420px below (which
  * the spec's `layout.stack_below` has too). The table's `<gt-table>` has `data-gti-stack`, and
  * `data-gti-stack-off` while it isn't stacked whatever its width (an "auto" table showing many
- * columns). The ID beats GT's own rules for the table, which go by it too; borders the runtime
+ * columns, or, as the runtime finds, one in a container as wide as what's in it, as a table's cell
+ * or an inline block is: as the container its width is queried in, the table would have no width
+ * of its own, so it's only that while it can be stacked). The ID beats GT's own rules for the table, which go by it too; borders the runtime
  * draws on cells (inline) are beaten with `!important`.
  */
 
-gt-table[data-gti-stack] {
+gt-table[data-gti-stack]:not([data-gti-stack-off]) {
   container: gt-i-stack / inline-size;
 }
 

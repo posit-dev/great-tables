@@ -508,6 +508,7 @@ const ICONS = {
   columns: "M4 5h16v14H4zM9.5 5v14M14.5 5v14",
   earlier: "M12 19V5M6 11l6-6 6 6",
   later: "M12 5v14M6 13l6 6 6-6",
+  expand: "M6 9l6 6 6-6",
   grip: "M9 6v.01M15 6v.01M9 12v.01M15 12v.01M9 18v.01M15 18v.01",
 };
 
@@ -526,10 +527,10 @@ function labelText(cell: Element): string {
 const labelCells = (table: HTMLTableElement) =>
   new Map(Array.from(table.querySelectorAll<HTMLTableCellElement>(":scope > thead th[id]"), (th) => [th.id, th]));
 
-// A copy of a cell, without its footnote marks
+// A copy of a cell, without its footnote marks (or the button showing a row's dropped columns)
 function withoutMarks(cell: Element): Element {
   const clone = cell.cloneNode(true) as Element;
-  for (const mark of clone.querySelectorAll(".gt_footnote_marks")) {
+  for (const mark of clone.querySelectorAll(".gt_footnote_marks, .gt-i-expand")) {
     mark.remove();
   }
   return clone;
@@ -837,6 +838,8 @@ export class GtTable extends HTMLElement {
    * its stacking width), which its column widths and page padding aren't measured in.
    */
   private stacked = false;
+  /** Whether the table's container is as wide as what's in it, which it isn't stacked in (`fitsContent()`). */
+  private fitted: boolean | null = null;
   /** The number of columns pinned at the table's inline start: the selection column and the stub (`stubColumns`), and the data columns pinned there. */
   private pinColumns = 0;
   private stubColumns = 0;
@@ -885,6 +888,19 @@ export class GtTable extends HTMLElement {
   private columnCells: Placed[] = [];
   /** The width each column hidden was shown at (by grid column), for when every width is fixed. */
   private hiddenWidths = new Map<number, number>();
+  /**
+   * A table that drops columns to fit (`layout.responsive` "collapse"): the columns it can drop
+   * (by id, in the order it drops them), and those dropped, in that order, with the width the
+   * table had before each went (which it has room for again once its container is that wide),
+   * and the container's width it was fitted to.
+   */
+  private drops: string[] = [];
+  private dropped: string[] = [];
+  private dropNeeds: number[] = [];
+  private fitRoom = -1;
+  /** With columns dropped, each row's button that shows them, and the rows showing them, under it. */
+  private expanders = new Map<HTMLTableRowElement, HTMLButtonElement>();
+  private details = new Map<HTMLTableRowElement, HTMLTableRowElement>();
   /** The runs of columns readers can move (by index in the spec; see `order.ts`). */
   private runs: number[][] = [];
   /**
@@ -1360,7 +1376,7 @@ export class GtTable extends HTMLElement {
     this.hideable = spec.columns.flatMap((column) =>
       column.role === "data" && column.hideable === true && column.id !== null ? [column.id] : [],
     );
-    if (this.hideable.length > 0) {
+    if (this.hideable.length > 0 || this.drops.length > 0) {
       this.mapColumns(table);
     }
     this.mapRuns(table);
@@ -1401,7 +1417,7 @@ export class GtTable extends HTMLElement {
     }
     // A search or page set before hydration applies now
     this.matchRows();
-    if (this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered()) {
+    if (this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered()) {
       this.render();
     } else {
       // (Not rendered, so every row is shown, as it was)
@@ -1753,7 +1769,12 @@ export class GtTable extends HTMLElement {
   // A body that scrolls within a height (which gti.css applies by the element's attribute), and a
   // table wider than its container that scrolls sideways with its stub pinned
   private setLayout(table: HTMLTableElement, spec: Spec): void {
-    const { height, responsive } = spec.layout;
+    const { height } = spec.layout;
+    let { responsive } = spec.layout;
+    // (An "auto" table whose columns have priorities drops them, rather than being stacked)
+    if (responsive === "auto" && spec.columns.some((column) => column.priority != null)) {
+      responsive = "collapse";
+    }
     this.toggleAttribute("data-gti-scroll", height !== null);
     if (height === null) {
       this.style.removeProperty("--gt-i-height");
@@ -1775,8 +1796,174 @@ export class GtTable extends HTMLElement {
       this.orderChips();
       this.syncStack();
     }
+    if (responsive === "collapse") {
+      this.addDrops(spec);
+    }
     this.drawBorders();
     this.observeLayout();
+  }
+
+  // The columns a table can drop, in the order it drops them: those without a priority (from the
+  // last), then those with the highest (from the last, among equals); not those with 1
+  private addDrops(spec: Spec): void {
+    const rank = (priority: number | null | undefined) => priority ?? Infinity;
+    this.drops = spec.columns
+      .flatMap((column, i) => (column.role === "data" && column.id !== null && column.priority !== 1 ? [{ id: column.id, i, rank: rank(column.priority) }] : []))
+      .sort((a, b) => (a.rank === b.rank ? b.i - a.i : b.rank - a.rank))
+      .map((column) => column.id);
+    // A row's button shows its dropped columns (and isn't a click on the row)
+    this.tbody?.addEventListener("click", (event) => {
+      const button = (event.target as Element).closest?.(".gt-i-expand");
+      const tr = button?.closest("tr");
+      if (tr != null) {
+        this.expand(tr, !this.details.has(tr));
+        this.render();
+        // (Which moves the rows, and so the focus from it)
+        (button as HTMLElement).focus({ preventScroll: true });
+      }
+    });
+  }
+
+  /**
+   * Drop columns while the table is wider than its container (and it has more it can drop), or
+   * have the last dropped back while there's room for them again: with the columns fitted to
+   * their contents measured for the container first. Whether the table is to be rendered again,
+   * for that (with every row shown) or the columns shown.
+   */
+  private fit(): boolean {
+    const { scroller, table } = this;
+    if (scroller === null || table === null || this.drops.length === 0 || table.getClientRects().length === 0) {
+      return false;
+    }
+    const room = scroller.clientWidth;
+    this.fitRoom = room;
+    const { dropped, dropNeeds } = this;
+    const back = dropped.length;
+    while (dropped.length > 0 && (dropNeeds[dropped.length - 1] as number) <= room + 1) {
+      dropped.pop();
+      dropNeeds.pop();
+    }
+    let changed = dropped.length < back;
+    if (changed) {
+      this.showColumns();
+    } else if (this.colgroup !== null && this.startWidths === null) {
+      this.remeasure();
+      changed = true;
+    }
+    while (scroller.scrollWidth > room + 1) {
+      const id = this.drops.find((id) => !dropped.includes(id) && !this.hiddenIds.includes(id));
+      if (id === undefined) {
+        break;
+      }
+      dropNeeds.push(scroller.scrollWidth);
+      dropped.push(id);
+      changed = true;
+      this.showColumns();
+    }
+    return changed;
+  }
+
+  // Each row's button (in its first cell shown) that shows the columns dropped from it, and the rows
+  // showing them, again for the columns dropped (or gone, with none)
+  private syncDropped(): void {
+    const { tbody, spec } = this;
+    if (tbody === null || spec === null || this.drops.length === 0) {
+      return;
+    }
+    const some = this.dropped.length > 0;
+    this.toggleAttribute("data-gti-dropped", some);
+    if (some && this.expanders.size === 0) {
+      // (Data rows and summary rows)
+      for (const tr of Array.from(tbody.rows)) {
+        const row = this.bodyRows.get(tr);
+        if (row !== undefined && (typeof row === "number" || !("group" in row) || "summary" in row)) {
+          const label = this.rowLabel(tr);
+          const button = element(this.ownerDocument, "button", "gt-i-expand", {
+            type: "button",
+            "aria-expanded": "false",
+            "aria-label": label === "" ? "Show more of the row" : `Show more of ${label}`,
+          });
+          button.append(icon(this.ownerDocument, "expand"));
+          this.expanders.set(tr, button);
+        }
+      }
+    }
+    for (const [tr, button] of this.expanders) {
+      const cell = Array.from(tr.cells).find((cell) => !cell.hidden && !cell.matches(".gt-i-select, .gt_stub_row_group"));
+      if (cell !== undefined && button.parentElement !== cell) {
+        button.parentElement?.classList.remove("gt-i-expands");
+        cell.classList.add("gt-i-expands");
+        cell.prepend(button);
+      }
+    }
+    for (const tr of [...this.details.keys()]) {
+      this.expand(tr, false);
+      if (some) {
+        this.expand(tr, true);
+      }
+    }
+  }
+
+  // Show the columns dropped from a row under it, as their labels and values (or not)
+  private expand(tr: HTMLTableRowElement, open: boolean): void {
+    const spec = this.spec as Spec;
+    const doc = this.ownerDocument;
+    this.details.get(tr)?.remove();
+    this.details.delete(tr);
+    this.expanders.get(tr)?.setAttribute("aria-expanded", String(open));
+    if (!open) {
+      return;
+    }
+    const labels = labelCells(this.table as HTMLTableElement);
+    const cells = this.dataCells(tr);
+    // (A row with stub cells merged into the row above has fewer)
+    const skip = spec.columns.length - cells.length;
+    // (Kept in view, as the cells across the table)
+    const list = element(doc, "dl", "gt-i-details-list gt-i-inview");
+    spec.columns.forEach((_, place) => {
+      const c = this.columnAt[place] ?? place;
+      const id = spec.columns[c]?.id;
+      const cell = cells[c - skip];
+      if (id != null && cell !== undefined && this.dropped.includes(id)) {
+        const value = element(doc, "dd", "");
+        value.append(...Array.from(withoutMarks(cell).childNodes));
+        const term = element(doc, "dt", "");
+        term.textContent = this.columnTitle(id, labels);
+        list.append(term, value);
+      }
+    });
+    const details = element(doc, "tr", "gt-i-details");
+    const td = element(doc, "td", "gt_row gt_left");
+    td.append(list);
+    details.append(td);
+    this.details.set(tr, details);
+  }
+
+  // The rows showing columns dropped go under their rows (spanned by their group's label cell, as
+  // a column), spanning the columns shown
+  private placeDetails(): void {
+    for (const [tr, details] of this.details) {
+      tr.after(details);
+      details.hidden = tr.hidden;
+      const row = this.bodyRows.get(tr);
+      const group = typeof row === "number" ? this.rowGroups[row] : this.groups.find((group) => group.top.includes(tr) || group.bottom.includes(tr));
+      const cell = group?.cell;
+      const spanned = cell != null && !details.hidden && cell.parentElement !== null;
+      if (spanned) {
+        cell.rowSpan++;
+      }
+      // (With a cell of its own in the selection column, when that's before the label cell)
+      const first = details.cells[0] as HTMLTableCellElement;
+      const lead = spanned && tr.cells[0]?.classList.contains("gt-i-select") === true;
+      if (lead !== first.classList.contains("gt-i-select")) {
+        if (lead) {
+          details.prepend(element(this.ownerDocument, "td", "gt_row gt-i-select"));
+        } else {
+          first.remove();
+        }
+      }
+      (details.lastElementChild as HTMLTableCellElement).colSpan = this.emptySpan() - (spanned ? 1 : 0) - (lead ? 1 : 0);
+    }
   }
 
   /**
@@ -1796,7 +1983,8 @@ export class GtTable extends HTMLElement {
   /**
    * Whether the table is stacked now (`data-gti-stacked`): by its CSS, which says so with
    * `--gt-i-stacked`, while it isn't stacked whatever its width (`data-gti-stack-off`, for an
-   * "auto" table showing more than a few data columns). Whether that changed: once it isn't, the
+   * "auto" table showing more than a few data columns, or one in a container as wide as what's in
+   * it). Whether that changed: once it isn't, the
    * cells' borders are read again (for the borders drawn on them).
    */
   private syncStack(): boolean {
@@ -1804,10 +1992,14 @@ export class GtTable extends HTMLElement {
     if (table === null || spec === null || (responsive !== "stack" && responsive !== "auto")) {
       return false;
     }
-    if (responsive === "auto") {
-      const shown = spec.columns.filter((column) => column.role === "data").length - this.hiddenIds.length;
-      this.toggleAttribute("data-gti-stack-off", shown > STACK_COLUMNS);
+    const shown = spec.columns.filter((column) => column.role === "data").length - this.hiddenIds.length;
+    let off = responsive === "auto" && shown > STACK_COLUMNS;
+    if (!off) {
+      this.removeAttribute("data-gti-stack-off");
+      this.fitted ??= this.fitsContent();
+      off = this.fitted === true;
     }
+    this.toggleAttribute("data-gti-stack-off", off);
     const stacked = getComputedStyle(table).getPropertyValue("--gt-i-stacked").trim() === "1";
     if (stacked === this.stacked) {
       return false;
@@ -1818,6 +2010,23 @@ export class GtTable extends HTMLElement {
       this.borders?.reset();
     }
     return true;
+  }
+
+  /**
+   * Whether the table's container is as wide as what's in it (as a table's cell, a float or an
+   * inline block is), which it can't be stacked in: as the container its width is queried in, the
+   * table would have no width of its own. Measured as that container, by whether a width for
+   * what's in it widens it; `null` while it isn't shown.
+   */
+  private fitsContent(): boolean | null {
+    if (this.getClientRects().length === 0) {
+      return null;
+    }
+    const width = this.offsetWidth;
+    this.style.setProperty("contain-intrinsic-inline-size", "9999px");
+    const fits = this.offsetWidth > width;
+    this.style.removeProperty("contain-intrinsic-inline-size");
+    return fits;
   }
 
   // The column labels, as chips above the cards of a stacked table, are in their columns' order
@@ -2123,7 +2332,8 @@ export class GtTable extends HTMLElement {
     }
 
     // The contents of the cells across the table are as wide as the part in view, and stick in it
-    for (const div of this.inView) {
+    // (and the columns dropped from a row, under it)
+    for (const div of [...this.inView, ...Array.from(this.details.values(), (tr) => tr.lastElementChild?.firstElementChild as HTMLElement)]) {
       const cell = div.parentElement;
       if (cell === null || !div.isConnected || (cell.parentElement as HTMLTableRowElement).hidden) {
         continue;
@@ -2867,10 +3077,11 @@ export class GtTable extends HTMLElement {
     return columns > 0 && widths.every((width) => width !== undefined) ? (widths as number[]) : null;
   }
 
-  // The cells in the columns readers can hide, and across them (from every row, on hydration)
+  // The cells in the columns readers can hide (or the table can drop), and across them (from every
+  // row, on hydration)
   private mapColumns(table: HTMLTableElement): void {
     const spec = this.spec as Spec;
-    const grid = new Set(this.hideable.map((id) => this.gridOf(spec.columns.findIndex((column) => column.id === id))));
+    const grid = new Set([...this.hideable, ...this.drops].map((id) => this.gridOf(spec.columns.findIndex((column) => column.id === id))));
     const { placed, columns } = placeCells(Array.from(table.rows));
     this.gridColumns = columns;
     this.columnCells = placed.filter((p) => [...grid].some((c) => p.c0 <= c && c <= p.c1));
@@ -2882,12 +3093,27 @@ export class GtTable extends HTMLElement {
    * hidden too, over only hidden ones. The rows are shown again by `render()`.
    */
   private hideColumns(ids: readonly string[]): void {
-    const spec = this.spec;
     const hidden = this.hideable.filter((id) => ids.includes(id));
-    if (spec === null || JSON.stringify(hidden) === JSON.stringify(this.hiddenIds)) {
+    if (this.spec === null || JSON.stringify(hidden) === JSON.stringify(this.hiddenIds)) {
       return;
     }
-    const grid = new Set(hidden.map((id) => this.gridOf(spec.columns.findIndex((column) => column.id === id))));
+    this.hiddenIds = hidden;
+    // (A table that drops columns fits again, from all of them, with the rows showing them open
+    // again if some still are)
+    const open = [...this.details.keys()];
+    this.dropped = [];
+    this.dropNeeds = [];
+    this.showColumns();
+    this.fit();
+    if (this.dropped.length > 0) {
+      open.forEach((tr) => this.expand(tr, true));
+    }
+  }
+
+  // Show the columns but those hidden and dropped (see `hideColumns()`)
+  private showColumns(): void {
+    const spec = this.spec as Spec;
+    const grid = new Set([...this.hiddenIds, ...this.dropped].map((id) => this.gridOf(spec.columns.findIndex((column) => column.id === id))));
     // (The width each column hidden has, which it has again if the widths are fixed while it's hidden)
     for (const c of grid) {
       const width = (p: Placed) => p.cell.getBoundingClientRect().width;
@@ -2898,7 +3124,6 @@ export class GtTable extends HTMLElement {
         this.hiddenWidths.set(c, width(shown));
       }
     }
-    this.hiddenIds = hidden;
     this.hiddenGrid = grid;
     for (const { cell, c0, c1 } of this.columnCells) {
       let shown = 0;
@@ -2923,16 +3148,20 @@ export class GtTable extends HTMLElement {
     if (this.syncStack()) {
       this.drawBorders();
     }
+    this.syncDropped();
     // The columns fitted to their contents are measured again, but not the reader's widths
     if (this.colgroup !== null && this.startWidths === null) {
       this.remeasure();
     }
+    // (The bars follow the table's new width now, rather than as it's observed: a bar that wraps
+    // then would resize the element as it's observed, which is a loop)
+    this.alignBars();
   }
 
   // The `<col>`s of the columns hidden are hidden, so that the others are on the columns shown
   private hideCols(): void {
     const table = this.table;
-    if (table === null || this.hideable.length === 0) {
+    if (table === null || this.columnCells.length === 0) {
       return;
     }
     for (const colgroup of Array.from(table.querySelectorAll(":scope > colgroup"))) {
@@ -5667,7 +5896,9 @@ export class GtTable extends HTMLElement {
       this.stick();
       // (In the next frame, like the column widths below)
       this.queuePin();
-      const resized = this.colgroup !== null && this.clientWidth !== this.fittedWidth;
+      const resized =
+        (this.colgroup !== null && this.clientWidth !== this.fittedWidth) ||
+        (this.drops.length > 0 && this.scroller?.clientWidth !== this.fitRoom);
       const unmeasured = !this.widthsFixed && this.needsWidths();
       if ((resized || unmeasured || this.padStale()) && this.refitFrame === 0) {
         // (In the next frame: changing the layout while it's being observed is a loop)
@@ -5917,12 +6148,13 @@ export class GtTable extends HTMLElement {
     return texts;
   }
 
-  // A data row's cells that the search looks in: not those of the columns hidden
+  // A data row's cells that the search looks in: not those of the columns hidden (but those dropped)
   private searched(cells: CellText[]): CellText[] {
-    const { unsearched, hiddenGrid } = this;
-    return unsearched.size === 0 && hiddenGrid.size === 0
+    const { unsearched, hiddenIds } = this;
+    const columns = (this.spec as Spec).columns;
+    return unsearched.size === 0 && hiddenIds.length === 0
       ? cells
-      : cells.filter((_, i) => !unsearched.has(i) && !hiddenGrid.has(this.gridOf(i)));
+      : cells.filter((_, i) => !unsearched.has(i) && !hiddenIds.includes(columns[i]?.id as string));
   }
 
   // A data row's cells, one per column of the spec, in the spec's order: not a group's label cell,
@@ -6050,6 +6282,7 @@ export class GtTable extends HTMLElement {
       }
       this.placeGroupCell(group, span);
     }
+    this.placeDetails();
     return { shown, page, start, total: order.length };
   }
 
@@ -6133,14 +6366,18 @@ export class GtTable extends HTMLElement {
   // Measure the column widths again (for a new element width, or once fonts have loaded)
   private refit(): void {
     const colgroup = this.colgroup;
-    if (this.startWidths !== null) {
+    // (A table that drops columns measures the widths again as it fits)
+    if (this.fit() || this.startWidths !== null) {
       // The reader's widths stay
       this.render();
       return;
     }
     if (colgroup === null || this.table === null) {
-      // Widths not measured yet are measured on rendering
-      this.render();
+      // Widths not measured yet are measured on rendering (but a table that drops columns may have
+      // none to measure)
+      if (this.drops.length === 0 || (!this.widthsFixed && this.needsWidths()) || this.padStale()) {
+        this.render();
+      }
       return;
     }
     this.remeasure();
@@ -6810,6 +7047,12 @@ export class GtTable extends HTMLElement {
     this.hiddenGrid = new Set();
     this.columnCells = [];
     this.hiddenWidths = new Map();
+    this.drops = [];
+    this.dropped = [];
+    this.dropNeeds = [];
+    this.fitRoom = -1;
+    this.expanders = new Map();
+    this.details = new Map();
     this.runs = [];
     this.columnAt = [];
     this.placeOf = [];
@@ -6876,6 +7119,7 @@ export class GtTable extends HTMLElement {
     this.removeAttribute("data-gti-sticky");
     this.removeAttribute("data-gti-wide");
     this.removeAttribute("data-gti-stacked");
+    this.removeAttribute("data-gti-dropped");
     this.style.removeProperty("--gt-i-height");
     this.style.removeProperty("--gt-i-head");
     this.style.removeProperty("--gt-i-pad");
