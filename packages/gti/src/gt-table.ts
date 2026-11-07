@@ -270,6 +270,10 @@ const RESIZE_STEP_LARGE = 50;
 // How long typing pauses before the search runs
 const SEARCH_DELAY_MS = 150;
 
+// How long a touch on a column's label is held to open its sheet, and how far it can move
+const PRESS_MS = 500;
+const PRESS_SLOP = 10;
+
 // The most changes to the view that can be undone, and how soon after a change to the search, or
 // to one filter, another is part of the same change
 const UNDO_STEPS = 50;
@@ -334,6 +338,12 @@ interface Bar {
   /** The buttons that undo and redo the reader's changes to the view (with `view_state.undo`). */
   undo: HTMLButtonElement | null;
   redo: HTMLButtonElement | null;
+  /**
+   * The button opening the "Filter & sort" sheet (with filters, or columns readers can hide or
+   * move), which on a touch screen the search, the filters as text and the columns fold into when
+   * the bar is narrow.
+   */
+  sheet: HTMLButtonElement | null;
 }
 
 /**
@@ -755,6 +765,15 @@ export class GtTable extends HTMLElement {
   private popup: Popup | null = null;
   /** The page's handler for a press outside the open panel, which closes it. */
   private outsidePress: ((event: PointerEvent) => void) | null = null;
+  /**
+   * The "Filter & sort" sheet (see `openSheet()`), with the bar; while it's open, what brings it up
+   * to date, and what puts back what it took (the columns panel's items, the live region).
+   */
+  private sheet: HTMLDialogElement | null = null;
+  private sheetSync: (() => void) | null = null;
+  private sheetDone: (() => void) | null = null;
+  /** Whether a long press on a column's label opened its sheet (so the press isn't a click). */
+  private pressed = false;
   /**
    * The column widths of the table with every row shown, which hidden rows mustn't change: in our
    * `<colgroup>`, or in the author's for the columns without a width (`cols_width()`).
@@ -3329,8 +3348,9 @@ export class GtTable extends HTMLElement {
     this.observeLayout();
   }
 
-  // The search field, which searches once typing pauses, or at once on Enter
-  private searchInput(): HTMLInputElement {
+  // The search field, which searches once typing pauses, or at once on Enter (and, unless it's the
+  // sheet's, the one a search set elsewhere shows in)
+  private searchInput(own = true): HTMLInputElement {
     const input = this.ownerDocument.createElement("input");
     input.type = "search";
     input.className = "gt-i-search";
@@ -3354,7 +3374,9 @@ export class GtTable extends HTMLElement {
         this.userSearch(input.value);
       }
     });
-    this.searchBox = input;
+    if (own) {
+      this.searchBox = input;
+    }
     return input;
   }
 
@@ -3427,6 +3449,7 @@ export class GtTable extends HTMLElement {
       query: null,
       undo: null,
       redo: null,
+      sheet: null,
     };
     if (this.undoable) {
       const mac = onMac();
@@ -3447,6 +3470,19 @@ export class GtTable extends HTMLElement {
     }
     const columns = this.hideable.length > 0 || this.runs.length > 0 ? this.makeColumns() : null;
     bar.columns = columns;
+    if (this.filters.length > 0 || columns !== null) {
+      // (Shown, with its name, only in a folded bar: see gti.css)
+      const sheet = this.barButton("filter", "Filter & sort", "Filter & sort");
+      sheet.dataset.gtiBar = "sheet";
+      sheet.setAttribute("aria-haspopup", "dialog");
+      const name = element(this.ownerDocument, "span", "gt-i-sheet-name");
+      name.textContent = "Filter & sort";
+      sheet.append(name);
+      sheet.addEventListener("click", () => this.openSheet(null, sheet));
+      bar.sheet = sheet;
+      root.append(sheet);
+      this.addPress(table);
+    }
     // (A panel follows its button, so that Tab goes from one into the other)
     root.append(
       pages,
@@ -3658,6 +3694,285 @@ export class GtTable extends HTMLElement {
     return popup;
   }
 
+  /**
+   * Open the "Filter & sort" sheet, a modal dialog at the foot of the window: for the table (`id`
+   * `null`), with the search, the sort, the filters and the columns panel's items; or for a column
+   * (from a long press on its label), with its sort and filter, and a button hiding it. Focus goes
+   * back to `button` when it closes.
+   */
+  private openSheet(id: string | null, button: HTMLButtonElement): void {
+    const bar = this.bar;
+    if (bar === null) {
+      return;
+    }
+    this.closePanel(false);
+    this.closeFilter(false);
+    const doc = this.ownerDocument;
+    const dialog = this.sheet ?? this.makeSheet();
+    const header = id === null ? undefined : this.sortHeaders.get(id);
+    const controls = id === null ? this.filters : this.filters.filter((control) => control.filter.spec.column === id);
+    const title = id === null ? "Filter & sort" : (header?.label ?? controls[0]?.label ?? id);
+    // What brings it up to date, as the view changes; and what puts back what it took
+    const syncs: (() => void)[] = [];
+    const undos: (() => void)[] = [];
+    const action = (text: string, act: () => void) => {
+      const el = element(doc, "button", "gt-i-info-button", { type: "button" });
+      el.textContent = text;
+      // (Disabled with ARIA, so that it keeps focus)
+      el.addEventListener("click", () => {
+        if (el.getAttribute("aria-disabled") !== "true") {
+          act();
+        }
+      });
+      return el;
+    };
+
+    const body = element(doc, "div", "gt-i-sheet-body");
+    const head = element(doc, "div", "gt-i-filter-head");
+    const name = element(doc, "span", "gt-i-filter-title");
+    name.textContent = title;
+    head.append(name, action("Done", () => this.closePanel(true)));
+    const rows = element(doc, "p", "gt-i-info-rows");
+    syncs.push(() => (rows.textContent = this.rowsText()));
+    body.append(head, rows);
+    const section = (text: string) => {
+      const heading = element(doc, "p", "gt-i-info-heading", { id: `gt-i-sheet-${++infoCount}` });
+      heading.textContent = text;
+      const el = element(doc, "div", "gt-i-sheet-section", { role: "group", "aria-labelledby": heading.id });
+      el.append(heading);
+      body.append(el);
+      return el;
+    };
+
+    // The bar's search (whose field shows the search once the sheet closes)
+    if (id === null && bar.field !== null) {
+      const input = this.searchInput(false);
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          // (Which would clear it, not close the sheet)
+          event.preventDefault();
+          this.closePanel(true);
+        }
+      });
+      section("Search").append(input);
+      syncs.push(() => {
+        if (doc.activeElement !== input) {
+          input.value = this.searchValue;
+        }
+      });
+      undos.push(() => {
+        // (A search waiting on the typing to pause)
+        if (this.searchTimer !== null) {
+          this.cancelSearchTimer();
+          this.userSearch(input.value);
+        }
+      });
+    }
+
+    // The sort: for the table, by a column (the first it's sorted by), then either way; for a column,
+    // either way. The way it's sorted is pressed, and pressing it again unsorts it
+    if (id === null ? this.sortHeaders.size > 0 : header !== undefined) {
+      const part = section("Sort");
+      let select: HTMLSelectElement | null = null;
+      if (id === null) {
+        const choice = element(doc, "select", "", { "aria-label": "Sort by" });
+        select = choice;
+        for (const [key, label] of [["", "Not sorted"], ...Array.from(this.sortHeaders, ([key, { label }]) => [key, label])]) {
+          const option = doc.createElement("option");
+          option.value = key as string;
+          option.textContent = label as string;
+          choice.append(option);
+        }
+        choice.addEventListener("change", () => this.userSort(choice.value === "" ? [] : [{ column: choice.value, descending: false }]));
+        part.append(choice);
+        syncs.push(() => {
+          const first = this.sortKeys[0]?.column;
+          choice.value = first !== undefined && this.sortHeaders.has(first) ? first : "";
+        });
+      }
+      const column = () => id ?? (select?.value || null);
+      const ways = element(doc, "div", "gt-i-sheet-ways");
+      for (const [text, descending] of [["Ascending", false], ["Descending", true]] as const) {
+        const way = action(text, () => {
+          const at = column() as string;
+          this.userSort(way.getAttribute("aria-pressed") === "true" ? this.sortKeys.filter((key) => key.column !== at) : [{ column: at, descending }]);
+        });
+        ways.append(way);
+        syncs.push(() => {
+          const at = column();
+          const key = this.sortKeys.find((key) => key.column === at);
+          way.setAttribute("aria-pressed", String(key?.descending === descending));
+          way.setAttribute("aria-disabled", String(at === null));
+        });
+      }
+      part.append(ways);
+    }
+
+    // The filters: a button for each, saying what it keeps, which opens its panel below it; and for
+    // the table, the filters as text
+    if (controls.length > 0) {
+      const part = section(id === null ? "Filters" : "Filter");
+      for (const control of controls) {
+        const open = element(doc, "button", "gt-i-info-button gt-i-sheet-filter", { type: "button", "aria-expanded": "false" });
+        open.addEventListener("click", () => {
+          if (this.openFilter === control && this.filterAnchor === open) {
+            this.closeFilter(false);
+          } else {
+            this.openFilterPanel(control, open);
+            open.setAttribute("aria-controls", control.panel?.id ?? "");
+          }
+        });
+        open.addEventListener("focusout", (event) => this.leaveFilter(control, event));
+        part.append(open);
+        syncs.push(() => {
+          open.textContent = this.tokenText(control);
+          open.toggleAttribute("data-gti-on", control.filter.active);
+        });
+      }
+      const query = bar.query;
+      if (id === null && query !== null) {
+        part.append(
+          action("Filters as text", () => {
+            this.closePanel(false);
+            this.openQuery();
+          }),
+        );
+      }
+      undos.push(() => {
+        for (const control of controls) {
+          if (control.panel !== null && body.contains(control.panel)) {
+            this.append(control.panel);
+          }
+        }
+      });
+    }
+
+    // The columns panel's items, for the table; a button hiding the column, for one
+    const columns = bar.columns;
+    if (id === null && columns !== null) {
+      const items = Array.from(columns.panel.children);
+      section("Columns").append(...items);
+      undos.push(() => columns.panel.append(...items));
+    } else if (id !== null && columns !== null && this.hideable.includes(id)) {
+      const hide = action("Hide column", () => {
+        this.closePanel(false);
+        this.userColumns([...this.hiddenIds, id], `${title} hidden`);
+        // (Its label, which focus would go back to, is hidden)
+        bar.info.button.focus({ preventScroll: true });
+      });
+      section("Column").append(hide);
+      syncs.push(() => hide.setAttribute("aria-disabled", String(columns.items.get(id)?.box?.disabled === true)));
+    }
+
+    // (The live region, outside the modal sheet, would be inert)
+    const live = this.live;
+    if (live !== null) {
+      body.append(live);
+      undos.push(() => {
+        if (live.parentNode === body) {
+          this.append(live);
+        }
+      });
+    }
+    dialog.setAttribute("aria-label", title);
+    dialog.replaceChildren(body);
+    this.sheetSync = () => syncs.forEach((sync) => sync());
+    this.sheetDone = () => {
+      undos.forEach((undo) => undo());
+      this.showSearch();
+    };
+    this.openPanel({ button, panel: dialog });
+  }
+
+  // The sheet, which closes on Escape, or a press on its backdrop (one that began there)
+  private makeSheet(): HTMLDialogElement {
+    const dialog = element(this.ownerDocument, "dialog", "gt-i-sheet");
+    let down = false;
+    dialog.addEventListener("pointerdown", (event) => (down = event.target === dialog));
+    dialog.addEventListener("click", (event) => {
+      if (down && event.target === dialog) {
+        this.closePanel(true);
+      }
+      down = false;
+    });
+    dialog.addEventListener("close", () => {
+      if (this.popup?.panel === dialog) {
+        this.closePanel(true);
+      }
+    });
+    this.append(dialog);
+    this.sheet = dialog;
+    return dialog;
+  }
+
+  // On a touch screen, a long press on a column's label opens the column's sheet; the click the
+  // press ends with doesn't sort by it
+  private addPress(table: HTMLTableElement): void {
+    const thead = table.tHead;
+    if (thead === null) {
+      return;
+    }
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let open: (() => void) | null = null;
+    let x = 0;
+    let y = 0;
+    const cancel = () => {
+      if (timer !== null) {
+        clearTimeout(timer);
+      }
+      timer = open = null;
+    };
+    thead.addEventListener("pointerdown", (event) => {
+      cancel();
+      this.pressed = false;
+      const target = event.target as Element;
+      const th = target.closest("th");
+      if (event.pointerType === "mouse" || th === null || target.closest(".gt-i-resizer") !== null) {
+        return;
+      }
+      const id =
+        Array.from(this.sortHeaders).find(([, header]) => header.th === th)?.[0] ??
+        this.filters.find((control) => control.th === th)?.filter.spec.column;
+      const anchor = target.closest("button") ?? th.querySelector("button");
+      if (id === undefined || anchor === null) {
+        return;
+      }
+      x = event.clientX;
+      y = event.clientY;
+      open = () => {
+        cancel();
+        this.pressed = true;
+        this.openSheet(id, anchor);
+      };
+      timer = setTimeout(open, PRESS_MS);
+    });
+    thead.addEventListener("pointermove", (event) => {
+      if (Math.hypot(event.clientX - x, event.clientY - y) > PRESS_SLOP) {
+        cancel();
+      }
+    });
+    thead.addEventListener("pointerup", cancel);
+    thead.addEventListener("pointercancel", cancel);
+    // (Android's long press is a context menu, which the sheet is instead)
+    thead.addEventListener("contextmenu", (event) => {
+      if (open !== null || this.pressed) {
+        event.preventDefault();
+        open?.();
+      }
+    });
+    thead.addEventListener(
+      "click",
+      (event) => {
+        if (this.pressed) {
+          this.pressed = false;
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      },
+      true,
+    );
+  }
+
   /** Make the info panel, and the bar's button that opens it. */
   private makeInfo(): Info {
     const doc = this.ownerDocument;
@@ -3819,6 +4134,13 @@ export class GtTable extends HTMLElement {
     const { button, panel } = popup;
     // (Over the table, so filled with what's behind it)
     panel.style.backgroundColor = backdropColor(this);
+    if (panel === this.sheet) {
+      // (A modal dialog, in the window's top layer: in the table's font, and closed by itself)
+      panel.style.fontFamily = getComputedStyle(this.table as HTMLTableElement).fontFamily;
+      this.popup = popup;
+      this.sheet.showModal();
+      return;
+    }
     panel.hidden = false;
     button.setAttribute("aria-expanded", "true");
     this.popup = popup;
@@ -3861,8 +4183,16 @@ export class GtTable extends HTMLElement {
       this.ownerDocument.removeEventListener("pointerdown", this.outsidePress);
       this.outsidePress = null;
     }
-    popup.panel.hidden = true;
-    popup.button.setAttribute("aria-expanded", "false");
+    if (popup.panel === this.sheet) {
+      // (The sheet's filter panel closes with it, and what it took goes back)
+      this.closeFilter(false);
+      this.sheetDone?.();
+      this.sheetSync = this.sheetDone = null;
+      this.sheet.close();
+    } else {
+      popup.panel.hidden = true;
+      popup.button.setAttribute("aria-expanded", "false");
+    }
     if (focus) {
       popup.button.focus();
     }
@@ -3927,6 +4257,7 @@ export class GtTable extends HTMLElement {
     if (bar.columns !== null) {
       this.updateColumns(bar.columns);
     }
+    this.sheetSync?.();
   }
 
   /**
@@ -4850,9 +5181,18 @@ export class GtTable extends HTMLElement {
     if (button === null) {
       return;
     }
+    // (A filter's panel in the sheet opens below its button there, the sheet staying open)
+    const sheet = this.sheet?.contains(button) === true;
     this.closeFilter(false);
-    this.closePanel(false);
+    if (!sheet) {
+      this.closePanel(false);
+    }
     const panel = control.panel ?? this.makeFilterPanel(control);
+    if (sheet) {
+      button.after(panel);
+    } else if (panel.parentNode !== this) {
+      this.append(panel);
+    }
     // (Over the table, so filled with what's behind it; in the table's font)
     panel.style.backgroundColor = backdropColor(this);
     panel.style.fontFamily = getComputedStyle(this.table as HTMLTableElement).fontFamily;
@@ -4919,7 +5259,7 @@ export class GtTable extends HTMLElement {
   private placeFilter(): void {
     const panel = this.openFilter?.panel;
     const anchor = this.filterAnchor;
-    if (anchor === null || panel == null) {
+    if (anchor === null || panel == null || this.sheet?.contains(panel)) {
       return;
     }
     const host = this.getBoundingClientRect();
@@ -5322,7 +5662,7 @@ export class GtTable extends HTMLElement {
     box.toggle.setAttribute("aria-expanded", "false");
     this.updateTokens();
     if (focus) {
-      box.toggle.focus();
+      this.orSheet(box.toggle).focus();
     }
   }
 
@@ -5743,8 +6083,14 @@ export class GtTable extends HTMLElement {
     bar.toggle.hidden = false;
     bar.root.removeAttribute("data-gti-searching");
     if (focus) {
-      bar.toggle.focus();
+      this.orSheet(bar.toggle).focus();
     }
+  }
+
+  // A button in the bar, or the sheet's, if the bar is folded into that (and the button isn't shown)
+  private orSheet(button: HTMLElement): HTMLElement {
+    const sheet = this.bar?.sheet;
+    return sheet != null && button.offsetWidth === 0 && sheet.offsetWidth > 0 ? sheet : button;
   }
 
   private startJump(): void {
@@ -7006,6 +7352,8 @@ export class GtTable extends HTMLElement {
     this.closePanel(false);
     this.closeQuery(false);
     this.bar?.root.remove();
+    this.sheet?.remove();
+    this.sheet = null;
     if (this.slashKey !== null) {
       this.removeEventListener("keydown", this.slashKey);
     }
