@@ -1198,7 +1198,7 @@ gt-table .gt-i-info-item {
 }
 
 gt-table .gt-i-info-button,
-gt-table .gt-i-info select {
+gt-table :is(.gt-i-info, .gt-i-sheet) select {
   appearance: none;
   box-sizing: border-box;
   flex: none;
@@ -1213,7 +1213,7 @@ gt-table .gt-i-info select {
   cursor: pointer;
 }
 
-gt-table .gt-i-info select {
+gt-table :is(.gt-i-info, .gt-i-sheet) select {
   appearance: auto;
   padding-inline: 0.25em;
 }
@@ -1229,7 +1229,7 @@ gt-table .gt-i-info-button[aria-disabled="true"] {
 }
 
 gt-table .gt-i-info-button:focus-visible,
-gt-table .gt-i-info select:focus-visible {
+gt-table :is(.gt-i-info, .gt-i-sheet) select:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 1px;
 }
@@ -1287,6 +1287,98 @@ gt-table .gt-i-info kbd {
   font: inherit;
   font-size: 0.875em;
   text-align: center;
+}
+
+/*
+ * The "Filter & sort" sheet: a modal dialog at the foot of the window (as wide as it, up to 40em),
+ * over the page dimmed; what's in it scrolls
+ */
+gt-table .gt-i-sheet {
+  inset: auto 0 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(40em, 100%);
+  max-height: 85vh;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  color: inherit;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 0.875em;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: start;
+}
+
+gt-table .gt-i-sheet::backdrop {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+gt-table .gt-i-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  box-sizing: border-box;
+  max-height: 85vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1em 1em max(1em, env(safe-area-inset-bottom));
+}
+
+gt-table .gt-i-sheet p {
+  margin: 0;
+}
+
+gt-table .gt-i-sheet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+gt-table .gt-i-sheet .gt-i-search {
+  width: 100%;
+}
+
+/* (Ascending and descending, side by side; the way it's sorted, pressed) */
+gt-table .gt-i-sheet-ways {
+  display: flex;
+  gap: 0.5em;
+}
+
+gt-table .gt-i-sheet-ways > * {
+  flex: 1 1 0;
+}
+
+gt-table .gt-i-sheet .gt-i-info-button[aria-pressed="true"] {
+  border-color: currentColor;
+  background: rgba(128, 128, 128, 0.2);
+  font-weight: bold;
+}
+
+/* (A filter's button, saying what it keeps; bold while it's on) */
+gt-table .gt-i-sheet-filter {
+  overflow-wrap: anywhere;
+  text-align: start;
+}
+
+gt-table .gt-i-sheet-filter[data-gti-on] {
+  font-weight: bold;
+}
+
+/* (A filter's panel, below its button, and the lists, in the sheet's scrolling) */
+gt-table .gt-i-sheet .gt-i-filter {
+  position: static;
+  width: auto;
+  max-width: none;
+  box-shadow: none;
+  font-size: inherit;
+}
+
+gt-table .gt-i-sheet .gt-i-filter-options {
+  max-height: none;
 }
 
 /*
@@ -1564,6 +1656,11 @@ gt-table .gt-i-column-move .gt-i-icon {
   }
 }
 
+/* The sheet's button, in a folded bar only (below) */
+gt-table .gt-i-bar [data-gti-bar="sheet"] {
+  display: none;
+}
+
 /* In a narrow bar, the readout tightens up, and the open search takes the page controls' room */
 @container (max-width: 20em) {
   gt-table .gt-i-of {
@@ -1602,7 +1699,7 @@ gt-table .gt-i-column-move .gt-i-icon {
   }
 
   gt-table .gt-i-info-button,
-  gt-table .gt-i-info select {
+  gt-table :is(.gt-i-info, .gt-i-sheet) select {
     min-width: 44px;
     min-height: 44px;
   }
@@ -1623,8 +1720,45 @@ gt-table .gt-i-column-move .gt-i-icon {
     min-height: 44px;
   }
 
+  /* (A long press on a column's label opens its sheet, rather than selecting its text) */
+  gt-table:has(.gt-i-bar [data-gti-bar="sheet"]) thead :is(.gt-i-sort, .gt-i-filter-button) {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+
+  /*
+   * A narrow bar folds the search (unless there's one), the filters as text and the columns into
+   * the "Filter & sort" sheet's button
+   */
+  @container (max-width: 30em) {
+    gt-table .gt-i-bar [data-gti-bar="sheet"] {
+      display: inline-flex;
+      gap: 0.375em;
+      width: auto;
+      padding-inline: 0.625em;
+      border-color: rgba(128, 128, 128, 0.6);
+    }
+
+    gt-table .gt-i-bar :is([data-gti-bar="query"], [data-gti-bar="columns"]),
+    gt-table .gt-i-bar:has([data-gti-bar="sheet"]):not([data-gti-searching]) .gt-i-bar-search {
+      display: none;
+    }
+  }
+
+  /* (Narrower, the button is only its icon, so that the bar stays one line) */
+  @container (max-width: 22.5em) {
+    gt-table .gt-i-bar [data-gti-bar="sheet"] {
+      width: 44px;
+      padding-inline: 0;
+    }
+
+    gt-table .gt-i-sheet-name {
+      display: none;
+    }
+  }
+
   /* Below 16px, iOS zooms the page in on focus */
-  gt-table :is(.gt-i-search-field, .gt-i-query-field, .gt-i-query-list, .gt-i-readout-box, .gt-i-info select, .gt-i-filter input) {
+  gt-table :is(.gt-i-search-field, .gt-i-query-field, .gt-i-query-list, .gt-i-readout-box, .gt-i-info select, .gt-i-sheet select, .gt-i-filter input) {
     font-size: max(0.875em, 16px);
   }
 }
