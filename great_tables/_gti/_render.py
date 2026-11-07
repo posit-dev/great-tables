@@ -83,10 +83,14 @@ def render_gti_html(
     if not spec["display"]["wrap"]:
         attrs += " data-gti-nowrap"
     height = spec["layout"]["height"]
-    if spec["layout"]["responsive"] in ("stack", "auto"):
+    responsive = spec["layout"]["responsive"]
+    # (An "auto" table whose columns have priorities drops them, rather than being stacked)
+    if responsive == "auto" and any(column["priority"] for column in spec["columns"]):
+        responsive = "collapse"
+    if responsive in ("stack", "auto"):
         attrs += " data-gti-stack"
         # (Until the runtime counts the columns shown, as the reader hides them)
-        if spec["layout"]["responsive"] == "auto" and _shown_columns(spec) > STACK_COLUMNS:
+        if responsive == "auto" and _shown_columns(spec) > STACK_COLUMNS:
             attrs += " data-gti-stack-off"
         table_html += f"<style>\n{stack_css(built, spec, table_html)}</style>\n"
     if height is not None:

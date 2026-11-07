@@ -193,4 +193,15 @@ test.describe("pinned columns", () => {
     );
     expect(errors).toEqual([]);
   });
+
+  test("leave their column labels over their columns once the table fits", async ({ page }) => {
+    const errors = await ready(page, "pin.html");
+    await setWidth(page, "2400px");
+    await expect(el(page)).not.toHaveAttribute("data-gti-wide");
+    // (Not moved where they stuck, as the labels placed relative to themselves would be)
+    for (const column of ["char", "fctr"]) {
+      expect((await rect(label(page, column))).left).toBeCloseTo((await rect(cell(page, "row_5", column))).left, 0);
+    }
+    expect(errors).toEqual([]);
+  });
 });

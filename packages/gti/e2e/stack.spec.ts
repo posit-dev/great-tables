@@ -4,7 +4,8 @@ import { borderLines, dataRows, open, ready, visible } from "./helpers";
 // exibble (8 rows, grp_b then grp_a, each with a summary row, then a grand summary row), with a
 // title, a spanner over num and currency, a stub, a filter on fctr and selectable rows, 5 to a
 // page, stacked below 420px: in a container 360px wide; in one 800px wide; in a page as narrow as
-// a phone's; with light text on a dark background; and "auto" tables, of 7 columns and of 3.
+// a phone's; with light text on a dark background; "auto" tables, of 7 columns and of 3; and, of 3,
+// in containers as wide as what's in them (a table's cell, and inline blocks, one hidden at first).
 
 const el = (page: Page) => page.locator("gt-table");
 const table = (page: Page) => el(page).locator("table");
@@ -238,6 +239,49 @@ test.describe('an "auto" table', () => {
     const errors = await ready(page, "stack-auto-few.html");
     await expect(el(page)).not.toHaveAttribute("data-gti-stack-off");
     await expect(el(page)).toHaveAttribute("data-gti-stacked", "");
+    expect(errors).toEqual([]);
+  });
+});
+
+test.describe("a table that could be stacked, in a container as wide as what's in it", () => {
+  // (Which, as the container its width is queried in, would have no width of its own)
+  const fits = async (page: Page) => {
+    await expect(el(page)).toHaveAttribute("data-gti-stack-off", "");
+    await expect(el(page)).not.toHaveAttribute("data-gti-stacked");
+    await expect(card(page, "row_5")).toHaveCSS("display", "table-row");
+    // (As wide as the table, or its bar)
+    await expect
+      .poll(() =>
+        el(page).evaluate((node) => {
+          const inner = (node.querySelector("table") as HTMLElement).offsetWidth;
+          return (node as HTMLElement).offsetWidth >= inner && inner > 300;
+        }),
+      )
+      .toBe(true);
+  };
+
+  test("isn't stacked, in a table's cell or an inline block", async ({ page }) => {
+    for (const name of ["stack-fit.html", "stack-fit-inline.html"]) {
+      const errors = await ready(page, name);
+      await fits(page);
+      expect(errors).toEqual([]);
+    }
+  });
+
+  test("isn't stacked as it shows fewer columns", async ({ page }) => {
+    const errors = await ready(page, "stack-fit.html");
+    await el(page).evaluate((node) => {
+      (node as any).hiddenColumns = ["fctr"];
+    });
+    await expect(el(page).locator("thead th#k-fctr")).toBeHidden();
+    await fits(page);
+    expect(errors).toEqual([]);
+  });
+
+  test("isn't stacked once it's shown", async ({ page }) => {
+    const errors = await ready(page, "stack-fit-hidden.html");
+    await page.locator("body > div").evaluate((div) => div.removeAttribute("hidden"));
+    await fits(page);
     expect(errors).toEqual([]);
   });
 });

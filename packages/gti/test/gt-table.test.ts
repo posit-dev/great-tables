@@ -6308,10 +6308,30 @@ describe("a table that can be stacked", () => {
     const el = await stackable({ layout: { responsive: "auto" } }, { attributes: " data-gti-stack data-gti-stack-off" });
     expect(el.hasAttribute("data-gti-stack-off")).toBe(false);
     expect(el.hasAttribute("data-gti-stacked")).toBe(true);
-    // (A stacked table's own isn't changed)
+    // (Nor a stacked one, whatever it says)
     const stacks = await stackable({}, { attributes: " data-gti-stack data-gti-stack-off" });
-    expect(stacks.hasAttribute("data-gti-stack-off")).toBe(true);
-    expect(stacks.hasAttribute("data-gti-stacked")).toBe(false);
+    expect(stacks.hasAttribute("data-gti-stack-off")).toBe(false);
+    expect(stacks.hasAttribute("data-gti-stacked")).toBe(true);
+  });
+
+  it("isn't stacked in a container as wide as what's in it", async () => {
+    // (Shown, and widened by a width for what's in it, as it would be in a table's cell)
+    vi.spyOn(HTMLElement.prototype, "getClientRects").mockImplementation(() => [{}] as unknown as DOMRectList);
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function (this: HTMLElement) {
+      return this.style.getPropertyValue("contain-intrinsic-inline-size") === "" ? 0 : 400;
+    });
+    for (const responsive of ["stack", "auto"] as const) {
+      const el = await stackable({ layout: { responsive }, columns: { y: { hideable: true } } });
+      expect(el.hasAttribute("data-gti-stack-off")).toBe(true);
+      expect(el.hasAttribute("data-gti-stacked")).toBe(false);
+      expect(el.style.getPropertyValue("contain-intrinsic-inline-size")).toBe("");
+      // (And still not, as it shows fewer columns)
+      el.hiddenColumns = ["y"];
+      expect(el.hasAttribute("data-gti-stack-off")).toBe(true);
+    }
+    // (But stacked in one that isn't)
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(() => 300);
+    expect((await stackable()).hasAttribute("data-gti-stacked")).toBe(true);
   });
 
   it("doesn't pad its pages while stacked", async () => {
