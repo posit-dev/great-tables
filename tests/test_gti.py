@@ -683,6 +683,40 @@ def test_arrow_string_view_dictionary_ranks():
     assert _get_column_ranks(df, "x") == [1, None, 0, 1]
 
 
+@pytest.mark.parametrize("ordered", [False, True])
+@pytest.mark.parametrize(
+    "value_type",
+    [
+        "string",
+        pytest.param(
+            "string_view",
+            marks=pytest.mark.skipif(not hasattr(pa, "string_view"), reason="requires pyarrow>=16"),
+        ),
+    ],
+)
+def test_pandas_arrow_dictionary_ranks(value_type: str, ordered: bool):
+    # pandas sorts these with PyArrow, which has no sort kernel for dictionaries
+    values = pa.array(["lo", "hi", None, "mid", "hi"], type=getattr(pa, value_type)())
+    values = values.dictionary_encode()
+    values = pa.DictionaryArray.from_arrays(values.indices, values.dictionary, ordered=ordered)
+    df = pd.DataFrame({"x": pd.array(values, dtype=pd.ArrowDtype(values.type))})
+
+    ranks = _get_column_ranks(df, "x")
+
+    assert ranks == _get_column_ranks(pa.table({"x": values}), "x")
+    assert ranks == ([0, 1, None, 2, 1] if ordered else [1, 0, None, 2, 0])
+
+
+def test_pandas_arrow_dictionary_renders():
+    dtype = pd.ArrowDtype(pa.dictionary(pa.int32(), pa.string()))
+    df = pd.DataFrame({"x": pd.array(["b", "a", None], dtype=dtype)})
+
+    spec, trs = split_gti_html(GTI(df).as_raw_html())
+
+    assert len(trs) == 3
+    assert spec["ranks"] == {"x": [1, 0, None]}
+
+
 # filters ----
 
 

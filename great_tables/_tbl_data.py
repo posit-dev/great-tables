@@ -605,10 +605,18 @@ def _get_column_ranks(data: DataFrameLike, column: str) -> list[int | None] | No
 
 @_get_column_ranks.register
 def _(data: PdDataFrame, column: str) -> list[int | None] | None:
+    import pandas as pd
+
     if _get_column_kind(data, column) == "other":
         return None
 
     ser = data[column].reset_index(drop=True)
+    if isinstance(ser.dtype, pd.ArrowDtype):
+        import pyarrow as pa
+
+        if pa.types.is_dictionary(ser.dtype.pyarrow_dtype):
+            # pandas sorts with PyArrow, which can't sort dictionaries; rank as the PyArrow table does
+            return _get_column_ranks(pa.table({column: ser.array}), column)
     try:
         order = ser.sort_values(kind="stable", na_position="last").index.to_list()
     except TypeError:
