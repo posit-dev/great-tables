@@ -23,9 +23,9 @@ npx playwright install chromium   # for the browser tests
 | Command | What it does |
 |---|---|
 | `npm run build` | Builds `great_tables/js/gti.{js,css}` (minified) and prints their gzipped sizes |
-| `npm run check` | Type-checks, then fails if the committed bundle is stale or the runtime is over its 54 KB (min+gzip) budget |
+| `npm run check` | Type-checks, then fails if the committed bundle is stale or the runtime is over its 58 KB (min+gzip) budget |
 | `npm test` | Unit tests (Vitest, happy-dom) |
-| `npm run test:e2e` | Browser tests (Playwright, Chromium) on pages built from real Great Tables output |
+| `npm run test:e2e` | Browser tests (Playwright, Chromium) on pages built from real Great Tables output, on a desktop and on emulated phones and a tablet (`e2e/mobile.spec.ts`) |
 
 After changing anything in `src/`, run `npm run build` and commit the rebuilt
 `great_tables/js/gti.*` along with the source; CI runs `npm run check`.

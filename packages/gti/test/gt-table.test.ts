@@ -6841,3 +6841,260 @@ describe("reordering columns", () => {
     history.replaceState(null, "", "/");
   });
 });
+
+describe("the filter & sort sheet", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const RANGE: FilterSpec = { column: "x", type: "range", values: [5, 10, 20] };
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const opener = (el: GtTable) => el.querySelector<HTMLButtonElement>('.gt-i-bar [data-gti-bar="sheet"]');
+  const sheet = (el: GtTable) => el.querySelector("dialog.gt-i-sheet") as HTMLDialogElement;
+  const section = (el: GtTable, name: string) =>
+    Array.from(sheet(el).querySelectorAll<HTMLElement>(".gt-i-sheet-section")).find(
+      (part) => part.querySelector(".gt-i-info-heading")?.textContent === name,
+    ) as HTMLElement;
+  const named = (root: Element, text: string) =>
+    Array.from(root.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent === text) as HTMLButtonElement;
+  const headings = (el: GtTable) => Array.from(sheet(el).querySelectorAll(".gt-i-info-heading"), (p) => p.textContent);
+  const filterButtons = (el: GtTable) =>
+    Array.from(sheet(el).querySelectorAll<HTMLButtonElement>(".gt-i-sheet-filter"));
+  const pointer = (target: Element, type: string, init: PointerEventInit = {}) =>
+    target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerType: "touch", ...init }));
+
+  // GROUPED, with a bar, the search, a range on x, a facet on y, and x and y hideable
+  async function mountSheet(options: TableOptions = {}) {
+    return mountTable(GROUPED, {
+      filters: [RANGE, FACET],
+      columns: { x: { hideable: true }, y: { hideable: true } },
+      ...options,
+      controls: { bar: true, search: true, ...options.controls },
+    });
+  }
+
+  it("has a button in the bar, with filters or columns readers can hide, which opens it", async () => {
+    const el = await mountSheet();
+    const button = opener(el) as HTMLButtonElement;
+    expect(button.textContent).toBe("Filter & sort");
+    expect(button.getAttribute("aria-haspopup")).toBe("dialog");
+    // (Before the page controls)
+    expect(button.nextElementSibling?.classList.contains("gt-i-bar-pages")).toBe(true);
+    expect(el.querySelector("dialog")).toBeNull();
+
+    button.click();
+    expect(sheet(el).open).toBe(true);
+    expect(sheet(el).parentElement).toBe(el);
+    expect(sheet(el).getAttribute("aria-label")).toBe("Filter & sort");
+    expect(sheet(el).querySelector(".gt-i-filter-title")?.textContent).toBe("Filter & sort");
+    expect(sheet(el).querySelector(".gt-i-info-rows")?.textContent).toBe("5 rows");
+    expect(headings(el)).toEqual(["Search", "Sort", "Filters", "Columns"]);
+    // (Each section a group, named by its heading)
+    const part = section(el, "Sort");
+    expect(part.getAttribute("role")).toBe("group");
+    expect(el.querySelector(`#${part.getAttribute("aria-labelledby")}`)?.textContent).toBe("Sort");
+
+    expect(opener(await mountTable(GROUPED, { controls: { bar: true, search: true } }))).toBeNull();
+    expect(opener(await mountSheet({ columns: {} }))).not.toBeNull();
+    expect(opener(await mountSheet({ filters: [] }))).not.toBeNull();
+  });
+
+  it("closes on Done, giving focus back to its button", async () => {
+    const el = await mountSheet();
+    const button = opener(el) as HTMLButtonElement;
+    button.click();
+    named(sheet(el), "Done").click();
+    expect(sheet(el).open).toBe(false);
+    expect(document.activeElement).toBe(button);
+    // (And when the dialog closes itself, as on Escape)
+    button.click();
+    sheet(el).close();
+    sheet(el).dispatchEvent(new Event("close"));
+    expect(document.activeElement).toBe(button);
+  });
+
+  it("closes on a press on its backdrop, but not one that began inside it", async () => {
+    const el = await mountSheet();
+    opener(el)?.click();
+    const inner = sheet(el).querySelector(".gt-i-sheet-body") as HTMLElement;
+    pointer(inner, "pointerdown");
+    sheet(el).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(sheet(el).open).toBe(true);
+    pointer(sheet(el), "pointerdown");
+    sheet(el).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(sheet(el).open).toBe(false);
+  });
+
+  it("searches, and shows the search in the bar once it closes", async () => {
+    const el = await mountSheet();
+    vi.useFakeTimers();
+    opener(el)?.click();
+    const input = section(el, "Search").querySelector("input") as HTMLInputElement;
+    input.value = "a";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    vi.advanceTimersByTime(200);
+    expect(el.search).toBe("a");
+    expect(sheet(el).querySelector(".gt-i-info-rows")?.textContent).toBe("3 rows (filtered from 5)");
+    // (A search waiting on the typing to pause runs as it closes)
+    input.value = "ab";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    expect(sheet(el).open).toBe(false);
+    expect(el.search).toBe("ab");
+    expect((el.querySelector(".gt-i-bar-search .gt-i-search") as HTMLInputElement).value).toBe("ab");
+    expect(el.querySelector(".gt-i-search-field")?.hasAttribute("hidden")).toBe(false);
+  });
+
+  it("sorts by a column, either way, and unsorts", async () => {
+    const el = await mountSheet();
+    opener(el)?.click();
+    const part = section(el, "Sort");
+    const select = part.querySelector("select") as HTMLSelectElement;
+    const up = named(part, "Ascending");
+    const down = named(part, "Descending");
+    expect(Array.from(select.options, (option) => option.textContent)).toEqual(["Not sorted", "x", "y"]);
+    expect(select.value).toBe("");
+    expect(up.getAttribute("aria-disabled")).toBe("true");
+
+    select.value = "x";
+    select.dispatchEvent(new Event("change"));
+    expect(el.sort).toEqual([{ column: "x", descending: false }]);
+    expect(up.getAttribute("aria-pressed")).toBe("true");
+    expect(down.getAttribute("aria-pressed")).toBe("false");
+    down.click();
+    expect(el.sort).toEqual([{ column: "x", descending: true }]);
+    expect([up, down].map((b) => b.getAttribute("aria-pressed"))).toEqual(["false", "true"]);
+    down.click();
+    expect(el.sort).toEqual([]);
+    expect(select.value).toBe("");
+
+    // (Sorted elsewhere, by its first column)
+    el.sort = [{ column: "y", descending: true }, { column: "x", descending: false }];
+    expect(select.value).toBe("y");
+    expect(down.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("opens a filter's panel below its button there, and keeps it open", async () => {
+    const el = await mountSheet();
+    opener(el)?.click();
+    const [x, y] = filterButtons(el) as [HTMLButtonElement, HTMLButtonElement];
+    expect(filterButtons(el).map((b) => b.textContent)).toEqual(["x: any", "y: any"]);
+    expect(named(section(el, "Filters"), "Filters as text")).toBeDefined();
+
+    y.click();
+    const panel = y.nextElementSibling as HTMLElement;
+    expect(panel.classList.contains("gt-i-filter")).toBe(true);
+    expect(panel.hidden).toBe(false);
+    expect(y.getAttribute("aria-expanded")).toBe("true");
+    expect(y.getAttribute("aria-controls")).toBe(panel.id);
+    expect(sheet(el).open).toBe(true);
+    (panel.querySelector('input[type="checkbox"]') as HTMLInputElement).click();
+    expect(el.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a"] }] });
+    expect(y.textContent).toBe("y: a");
+    expect(y.hasAttribute("data-gti-on")).toBe(true);
+    expect(x.hasAttribute("data-gti-on")).toBe(false);
+    y.click();
+    expect(panel.hidden).toBe(true);
+
+    // (Back in the element once the sheet closes, and from a column's button, where it was)
+    y.click();
+    named(sheet(el), "Done").click();
+    expect(panel.parentElement).toBe(el);
+    expect(panel.hidden).toBe(true);
+    (header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement).click();
+    expect(panel.hidden).toBe(false);
+    expect(panel.parentElement).toBe(el);
+  });
+
+  it("opens the filters as text, closing", async () => {
+    const el = await mountSheet();
+    opener(el)?.click();
+    named(section(el, "Filters"), "Filters as text").click();
+    expect(sheet(el).open).toBe(false);
+    expect((el.querySelector(".gt-i-query") as HTMLElement).hidden).toBe(false);
+  });
+
+  it("has the columns panel's items while it's open", async () => {
+    const el = await mountSheet();
+    const panel = el.querySelector(".gt-i-columns") as HTMLElement;
+    const items = Array.from(panel.children);
+    opener(el)?.click();
+    const part = section(el, "Columns");
+    expect(items.every((item) => part.contains(item))).toBe(true);
+    expect(panel.childElementCount).toBe(0);
+    (part.querySelector('input[type="checkbox"]') as HTMLInputElement).click();
+    expect(el.hiddenColumns).toEqual(["x"]);
+    expect(sheet(el).querySelector(".gt-i-live")?.textContent).toBe("x hidden");
+    named(sheet(el), "Done").click();
+    expect(Array.from(panel.children)).toEqual(items);
+    expect(el.querySelector(":scope > .gt-i-live")).not.toBeNull();
+  });
+
+  it("opens for a column on a long press of its label, which doesn't sort by it", async () => {
+    const el = await mountSheet();
+    vi.useFakeTimers();
+    const label = button(el, "y");
+    pointer(label, "pointerdown", { clientX: 10, clientY: 10 });
+    vi.advanceTimersByTime(499);
+    expect(el.querySelector("dialog")).toBeNull();
+    vi.advanceTimersByTime(1);
+    expect(sheet(el).open).toBe(true);
+    expect(sheet(el).getAttribute("aria-label")).toBe("y");
+    expect(headings(el)).toEqual(["Sort", "Filter", "Column"]);
+    expect(filterButtons(el).map((b) => b.textContent)).toEqual(["y: any"]);
+    pointer(label, "pointerup");
+    label.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    expect(el.sort).toEqual([]);
+
+    named(section(el, "Sort"), "Descending").click();
+    expect(el.sort).toEqual([{ column: "y", descending: true }]);
+    named(section(el, "Column"), "Hide column").click();
+    expect(sheet(el).open).toBe(false);
+    expect(el.hiddenColumns).toEqual(["y"]);
+    expect(el.querySelector(".gt-i-live")?.textContent).toBe("y hidden");
+
+    // (Then a tap sorts)
+    click(el, "x");
+    expect(el.sort).toEqual([{ column: "x", descending: false }]);
+  });
+
+  it("doesn't open on a press that moves, ends early, or is a mouse's", async () => {
+    const el = await mountSheet();
+    vi.useFakeTimers();
+    const label = button(el, "x");
+    pointer(label, "pointerdown", { clientX: 10, clientY: 10 });
+    pointer(label, "pointermove", { clientX: 10, clientY: 30 });
+    vi.advanceTimersByTime(600);
+    pointer(label, "pointerdown");
+    pointer(label, "pointerup");
+    vi.advanceTimersByTime(600);
+    pointer(label, "pointerdown", { pointerType: "mouse" });
+    vi.advanceTimersByTime(600);
+    expect(el.querySelector("dialog")).toBeNull();
+    // (But at once on a context menu, as Android's long press is)
+    pointer(label, "pointerdown");
+    const menu = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
+    label.dispatchEvent(menu);
+    expect(menu.defaultPrevented).toBe(true);
+    expect(sheet(el).open).toBe(true);
+  });
+
+  it("can't hide a column that's the only one shown", async () => {
+    const el = await mountSheet({ columns: { x: { hideable: true } } });
+    vi.useFakeTimers();
+    pointer(button(el, "y"), "pointerdown");
+    vi.advanceTimersByTime(500);
+    expect(headings(el)).toEqual(["Sort", "Filter"]);
+    named(sheet(el), "Done").click();
+    pointer(button(el, "x"), "pointerdown");
+    vi.advanceTimersByTime(500);
+    expect(named(section(el, "Column"), "Hide column").getAttribute("aria-disabled")).toBe("false");
+  });
+
+  it("closes when the element leaves the page", async () => {
+    const el = await mountSheet();
+    opener(el)?.click();
+    el.remove();
+    expect(sheet(el).open).toBe(false);
+  });
+});

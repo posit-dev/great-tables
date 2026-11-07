@@ -461,6 +461,12 @@ class GTI(GT):
         it (a table's cell, or an inline block), once its script runs: before that, such a table
         has no width.
 
+        Whatever the mode, on a touch screen, a control bar narrower than 30em (480 pixels, at 16px text) folds
+        its search, its filters as text and its "Columns" button into one "Filter & sort" button,
+        which opens a sheet from the foot of the window with all of them, and the table's sort and
+        filters. A long press on a column's label opens a sheet for that column (to sort it, filter
+        it, or hide it), while a tap still sorts by it.
+
         Parameters
         ----------
         mode
