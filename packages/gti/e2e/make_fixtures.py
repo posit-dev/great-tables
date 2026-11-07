@@ -208,7 +208,8 @@ def bar_html(
 def filter_html(table_id: str, view: str | None = None, **pagination) -> str:
     # A GTI table of exibble three times over (24 rows, in two groups), 5 rows to a page, whose
     # rows can be selected: `num` filtered by a range, `char` by text, and `fctr` by a facet; with
-    # the view's filter, as text, if given.
+    # the view's filter, as text, if given. It scrolls sideways in a narrow container (rather than
+    # being stacked).
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     gti = (
@@ -224,6 +225,7 @@ def filter_html(table_id: str, view: str | None = None, **pagination) -> str:
         .i_cols_filter(columns="char", type="text")
         .i_cols_filter(columns="fctr", type="facet")
         .i_view(filter=view)
+        .i_responsive("scroll")
     )
     return render_gti_html(gti, runtime="none")
 
@@ -432,6 +434,49 @@ def stack_html(
             heading_background_color="#1e1e1e",
             column_labels_background_color="#1e1e1e",
             row_group_background_color="#2a2a2a",
+        )
+    return render_gti_html(gti, runtime="none")
+
+
+def collapse_html(
+    table_id: str,
+    groups_as_column: bool = False,
+    height: str | None = None,
+    widths: bool = False,
+    mode: str = "auto",
+) -> str:
+    # exibble (8 rows, grp_b then grp_a, each with a summary row), with a spanner over num and
+    # currency, a stub, selectable rows, a search, CSV export and columns that can be hidden, 5 to
+    # a page: dropping columns to fit a narrow container ("auto", as its columns have priorities).
+    # num has priority 1 (never dropped), char 2 and currency 3; fctr and date have none (and go
+    # first, from the last). Optionally with groups as a column, a body that scrolls, and widths.
+    gti = (
+        GTI(
+            exibble[["num", "currency", "char", "fctr", "date", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+            id=table_id,
+        )
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .row_group_order(["grp_b", "grp_a"])
+        .summary_rows(fns={"Total": lambda df: df[["num", "currency"]].sum()})
+        .tab_spanner(label="Numbers", columns=["num", "currency"])
+        .tab_options(row_group_as_column=groups_as_column)
+        .i_search()
+        .i_export("csv", filename="collapse")
+        .i_cols_controls(hideable=True)
+        .i_selection("multiple")
+        .i_pagination(page_size=5, page_sizes=None)
+        .i_scroll(height)
+        .i_cols_priority("num")
+        .i_cols_priority("char", priority=2)
+        .i_cols_priority("currency", priority=3)
+        .i_responsive(mode)  # type: ignore[arg-type]
+    )
+    if widths:
+        gti = gti.cols_width(
+            {"row": "80px", "num": "120px", **{c: "100px" for c in ["currency", "char", "fctr"]}}
         )
     return render_gti_html(gti, runtime="none")
 
@@ -887,6 +932,61 @@ def main() -> None:
         "stack-auto-few.html": page(
             '<div style="width: 360px">'
             + stack_html("k", mode="auto", columns=["num", "fctr", "currency"])
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
+        # Tables that could be stacked, in containers as wide as what's in them (not stacked): an
+        # "auto" one in a table's cell; one that's stacked in an inline block; and an "auto" one in
+        # an inline block, hidden until it's shown
+        **{
+            f"stack-fit{suffix}.html": page(
+                start
+                + stack_html("k", mode=mode, columns=["num", "fctr", "currency"])
+                + end
+                + runtime_src,
+                head=styles,
+            )
+            for suffix, mode, start, end in [
+                ("", "auto", "<table><tr><td>", "</td></tr></table>\n"),
+                ("-inline", "stack", '<div style="display: inline-block">', "</div>\n"),
+                (
+                    "-hidden",
+                    "auto",
+                    '<div hidden><div style="display: inline-block">',
+                    "</div></div>\n",
+                ),
+            ]
+        },
+        # Tables that drop columns: in a container 360px wide; in one 1000px wide (none dropped);
+        # right to left; with groups as a column, in a body that scrolls; with column widths; one
+        # without a stub (of four of exibble's columns, char with priority 1); and one so narrow
+        # that it scrolls with only the columns that can't be dropped
+        **{
+            f"collapse{suffix}.html": page(
+                f'<div{attrs} style="width: {width}">'
+                + collapse_html("c", **options)
+                + "</div>\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix, attrs, width, options in [
+                ("", "", "360px", {}),
+                ("-wide", "", "1000px", {}),
+                ("-rtl", ' dir="rtl"', "360px", {}),
+                ("-column", "", "420px", {"groups_as_column": True, "height": "300px"}),
+                ("-widths", "", "360px", {"widths": True}),
+                ("-narrow", "", "160px", {}),
+            ]
+        },
+        "collapse-nostub.html": page(
+            '<div style="width: 240px">'
+            + render_gti_html(
+                GTI(exibble[["char", "num", "fctr", "date"]], id="c")
+                .i_cols_priority("char")
+                .i_responsive("collapse"),
+                runtime="none",
+            )
             + "</div>\n"
             + runtime_src,
             head=styles,
