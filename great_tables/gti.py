@@ -137,7 +137,8 @@ class GTI(GT):
         The new `GTI` table has everything the `GT` table has (its data, formats, styles, and
         options). Readers can do with it what they can with any new `GTI` table, unless
         [`opt_interactive()`](`great_tables.GT.opt_interactive`) was used on the `GT` table: then
-        they can do what it set (sorting, searching, and so on), with `GTI`'s page controls.
+        they can do what it set (sorting, searching, and so on), with `GTI`'s page controls and
+        its way of fitting a narrow container.
 
         Parameters
         ----------
@@ -174,6 +175,7 @@ class GTI(GT):
                 Settings.from_options(gt._options),
                 pagination_type=Settings().pagination_type,
                 bar=True,
+                responsive=Settings().responsive,
                 filters=tuple((column, "auto") for column in resolve_cols_c(gt, None))
                 if filters
                 else (),
@@ -429,28 +431,41 @@ class GTI(GT):
         return self._set_interactive(height=height if isinstance(height, str) else f"{height}px")
 
     def i_responsive(
-        self, mode: ResponsiveMode = "scroll", *, stack_below: int | float = 420
+        self, mode: ResponsiveMode = "auto", *, stack_below: int | float = 420
     ) -> Self:
         """
         Set how the table fits a narrow container.
 
-        A table wider than its container scrolls sideways, with its stub (and any pinned columns)
-        staying in view (`"scroll"`, the default). Or, in a container narrower than `stack_below`
-        pixels (on a phone, say), it can be stacked: each row becomes a card, titled by its stub,
-        with each column's label next to its value (labels under a spanner are prefixed with it).
-        Row groups become headings between the cards, and summary rows become cards of their own.
-        The table is stacked by its CSS alone, so it's stacked before its script runs (or without
-        it); once it runs, the column labels are shown above the cards as chips, which readers
-        can sort and filter by as with the labels themselves.
+        A table wider than its container can scroll sideways, with its stub (and any pinned
+        columns) staying in view (`"scroll"`). Or, in a container narrower than `stack_below`
+        pixels (on a phone, say), it can be stacked (`"stack"`): each row becomes a card, titled by
+        its stub, with each column's label next to its value (labels under a spanner are prefixed
+        with it). Row groups become headings between the cards, and summary rows become cards of
+        their own. The table is stacked by its CSS alone, so it's stacked before its script runs
+        (or without it); once it runs, the column labels are shown above the cards as chips, which
+        readers can sort and filter by as with the labels themselves.
 
-        With `"stack"`, the table is stacked in any narrow container; with `"auto"`, only if it
-        shows no more than six columns (not counting the stub), so that wider tables scroll. In a
-        container as wide as `stack_below` or wider, either is as `"scroll"`.
+        Or it can drop columns until it fits (`"collapse"`): those without a priority first (from
+        the last), then those with the highest numbers, as
+        [`i_cols_priority()`](`great_tables.GTI.i_cols_priority`) set them. Each row then has a
+        button by its first cell that shows the columns dropped from it, under it, as labels and
+        values. Columns come back as the container widens. A column is never dropped if it has
+        priority 1, nor the stub (or the row group column); with only those left, the table
+        scrolls. Dropped columns are still searched, filtered and exported, and they're dropped by
+        the table's script, so without it the table scrolls.
+
+        With `"auto"` (the default), the table drops columns if any have a priority; otherwise
+        it's stacked if it shows no more than six columns (not counting the stub), and scrolls if
+        it shows more. With `"stack"` or `"auto"`, a table in a container as wide as `stack_below`
+        or wider is as with `"scroll"`. So is one in a container that's only as wide as what's in
+        it (a table's cell, or an inline block), once its script runs: before that, such a table
+        has no width.
 
         Parameters
         ----------
         mode
-            How the table fits a narrow container: `"scroll"`, `"stack"`, or `"auto"`.
+            How the table fits a narrow container: `"scroll"`, `"stack"`, `"collapse"`, or
+            `"auto"`.
         stack_below
             The container width (in pixels) below which the table is stacked, with `"stack"` or
             `"auto"`.
@@ -473,14 +488,25 @@ class GTI(GT):
 
         GTI(towny_mini, rowname_col="name").i_responsive("stack")
         ```
+
+        And a wider one that drops its columns from the last as the window narrows, keeping the
+        latest population (narrow the window, then use a row's button to see what it dropped).
+
+        ```{python}
+        years = [f"population_{year}" for year in (1996, 2001, 2006, 2011, 2016, 2021)]
+
+        (
+            GTI(towny[["name", "status", *years]].head(10), rowname_col="name")
+            .fmt_integer(columns=years)
+            .i_cols_priority(columns="population_2021")
+            .i_responsive("collapse")
+        )
+        ```
         """
-        if mode == "collapse":
-            raise ValueError(
-                'The "collapse" layout (hiding columns by priority) isn\'t available yet; use '
-                '`mode="scroll"`, `"stack"`, or `"auto"`.'
-            )
         if mode not in RESPONSIVE_MODES:
-            raise ValueError(f'`mode=` must be "scroll", "stack", or "auto", not {mode!r}.')
+            raise ValueError(
+                f'`mode=` must be "scroll", "stack", "collapse", or "auto", not {mode!r}.'
+            )
         return self._set_interactive(
             responsive=mode, stack_below=_width(stack_below, "stack_below")
         )
@@ -895,6 +921,66 @@ class GTI(GT):
                 pins[column] = side
         return self._set_interactive(pins=tuple(pins.items()))
 
+    def i_cols_priority(self, columns: SelectExpr = None, priority: int | None = 1) -> Self:
+        """
+        Give columns a priority, for when the table drops columns to fit its container.
+
+        A table that drops columns to fit a narrow container (with
+        [`i_responsive("collapse")`](`great_tables.GTI.i_responsive`), or `"auto"`, the default,
+        once any column has a priority) drops those without a priority first, from the last; then
+        those with the highest numbers (from the last, among those with the same). A column with
+        priority 1 is never dropped, and neither are the stub and the row group column. Readers
+        can see the columns dropped from a row with the button by its first cell.
+
+        Each call sets (or unsets) the priority of the columns it's given; a later call for a
+        column replaces what an earlier one set.
+
+        Parameters
+        ----------
+        columns
+            The columns to give the priority: a column name, a list of them, or a selector (e.g.,
+            Polars' `cs.numeric()`). With `None` (the default), every column but the stub. The stub
+            and the row group column are never dropped (naming them does nothing).
+        priority
+            The columns' priority: a positive integer, where 1 (the default) keeps them, and higher
+            numbers drop sooner. With `None`, the columns have none, and drop first.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of Ontario's municipalities that keeps each one's latest population, and
+        drops its land area before its status (narrow the window to see them go).
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        (
+            GTI(
+                towny[["name", "status", "land_area_km2", "population_2021"]].head(10),
+                rowname_col="name",
+            )
+            .fmt_integer(columns="population_2021")
+            .i_cols_priority(columns="population_2021")
+            .i_cols_priority(columns="status", priority=2)
+            .i_cols_priority(columns="land_area_km2", priority=3)
+        )
+        ```
+        """
+        if priority is not None:
+            priority = _priority(priority)
+        selected = resolve_cols_c(self, columns, excl_stub=False)
+        priorities = dict(self._interactive.priorities)
+        for column in selected:
+            priorities.pop(column, None)
+            if priority is not None:
+                priorities[column] = priority
+        return self._set_interactive(priorities=tuple(priorities.items()))
+
     def i_view(
         self,
         filter: str | dict[str, Any] | None = None,
@@ -1298,7 +1384,8 @@ class GTI(GT):
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
             "`i_selection()`, `i_scroll()`, `i_responsive()`, `i_display()`, `i_cols_filter()`, "
-            "`i_cols_controls()`, `i_cols_pin()`, `i_view()`, `i_view_state()`, and `i_export()`."
+            "`i_cols_controls()`, `i_cols_pin()`, `i_cols_priority()`, `i_view()`, "
+            "`i_view_state()`, and `i_export()`."
         )
 
 
@@ -1340,3 +1427,17 @@ def _page_size(value: Any, name: str) -> int:
         if size >= 1:
             return size
     raise ValueError(f"`{name}=` must be a whole number of rows (at least 1), not {value!r}.")
+
+
+def _priority(value: Any) -> int:
+    # (Any integer, e.g. NumPy's, but not a bool or a float)
+    if not isinstance(value, bool):
+        try:
+            priority = operator.index(value)
+        except TypeError:
+            priority = 0
+        if priority >= 1:
+            return priority
+    raise ValueError(
+        f"`priority=` must be a positive integer, or `None` (no priority), not {value!r}."
+    )
