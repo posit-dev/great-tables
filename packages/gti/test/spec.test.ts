@@ -47,6 +47,10 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, layout }).layout).toEqual(layout);
   });
 
+  it("takes a collapse layout", () => {
+    expect(parse({ ...valid, layout: { height: null, responsive: "collapse" } }).layout.responsive).toBe("collapse");
+  });
+
   it("takes no responsive layout", () => {
     expect(parse({ ...valid, layout: { height: null, responsive: null } }).layout.responsive).toBeNull();
   });
@@ -62,6 +66,13 @@ describe("parseSpec()", () => {
       expect(parse({ ...valid, columns: [{ ...valid.columns[0], pin }] }).columns[0]?.pin).toBe(pin);
     }
     expect(parse(valid).columns[0]?.pin).toBeUndefined();
+  });
+
+  it("takes a column's priority, or its absence", () => {
+    for (const priority of [1, 3, null]) {
+      expect(parse({ ...valid, columns: [{ ...valid.columns[0], priority }] }).columns[0]?.priority).toBe(priority);
+    }
+    expect(parse(valid).columns[0]?.priority).toBeUndefined();
   });
 
   it("takes the control bar, or its absence", () => {
@@ -202,7 +213,7 @@ describe("parseSpec()", () => {
     ["has a height that isn't a string", JSON.stringify({ ...valid, layout: { height: 400, responsive: null } }), /`layout`/],
     ["has an empty height", JSON.stringify({ ...valid, layout: { height: " ", responsive: null } }), /`layout`/],
     ["has no responsive layout", JSON.stringify({ ...valid, layout: { height: null } }), /`layout.responsive`/],
-    ["has an unknown responsive layout", JSON.stringify({ ...valid, layout: { height: null, responsive: "collapse" } }), /`layout.responsive`/],
+    ["has an unknown responsive layout", JSON.stringify({ ...valid, layout: { height: null, responsive: "fold" } }), /`layout.responsive`/],
     ...[0, -10, "420", null, true].map((below): [string, string, RegExp] => [
       `has a stacking width of ${JSON.stringify(below)}`,
       JSON.stringify({ ...valid, layout: { height: null, responsive: "stack", stack_below: below } }),
@@ -261,6 +272,11 @@ describe("parseSpec()", () => {
       JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], pin: "left" }] }),
       /`columns\[0\]`.*pinned/,
     ],
+    ...[0, 1.5, "1", true].map((priority): [string, string, RegExp] => [
+      `has a column with priority ${JSON.stringify(priority)}`,
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], priority }] }),
+      /`columns\[0\]`.*priority/,
+    ]),
     [
       "has a column pinned with a boolean",
       JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], pin: true }] }),
