@@ -147,3 +147,20 @@ export async function borderLines(page: Page, table: Locator, at: { x?: number; 
     return runs.filter(([colour, n]) => n <= 8 && colour !== "255,255,255").map(([colour, n]) => `${colour} x${n}`);
   }, png);
 }
+
+/**
+ * A long press with a finger at the middle of `locator` (Chromium's touch events, through the
+ * DevTools protocol, as Playwright's touchscreen only taps).
+ */
+export async function longPress(page: Page, locator: Locator, ms = 700): Promise<void> {
+  const box = await locator.boundingBox();
+  if (box === null) {
+    throw new Error("nothing to press");
+  }
+  const point = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point] });
+  await page.waitForTimeout(ms);
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await cdp.detach();
+}

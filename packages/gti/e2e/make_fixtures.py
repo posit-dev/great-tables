@@ -230,6 +230,32 @@ def filter_html(table_id: str, view: str | None = None, **pagination) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def sheet_html(table_id: str) -> str:
+    # The filters' table (24 rows, in two groups, 5 to a page; num filtered by a range, char by
+    # text and fctr by a facet), with a search and columns readers can hide, as wide as its
+    # container: on a touch screen, its bar folds into the "Filter & sort" sheet's button where
+    # it's narrow
+    data = pd.concat([exibble] * 3, ignore_index=True)
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    gti = (
+        GTI(
+            data[["num", "char", "fctr", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+            id=table_id,
+        )
+        .i_pagination(page_size=5)
+        .i_search()
+        .i_cols_filter(columns="num")
+        .i_cols_filter(columns="char", type="text")
+        .i_cols_filter(columns="fctr", type="facet")
+        .i_cols_controls(hideable=True)
+        .i_responsive("scroll")
+        .tab_options(table_width="100%")
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def date_html(table_id: str) -> str:
     # A GTI table of exibble (8 rows, on one page) as Polars data, with `date` of dates (formatted)
     # and `datetime` of dates and times, each filtered by a date range (as "auto" has them); whose
@@ -917,6 +943,15 @@ def main() -> None:
                 ("-dark", "360px", True),
             ]
         },
+        # The "Filter & sort" sheet: in a container 360px wide, and in a page as narrow as a phone's
+        "sheet.html": page(
+            '<div style="width: 360px">' + sheet_html("fs") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "sheet-phone.html": page(
+            sheet_html("fs") + "\n" + runtime_src,
+            head='<meta name="viewport" content="width=device-width, initial-scale=1">\n' + styles,
+        ),
         "stack-phone.html": page(
             stack_html("k") + "\n" + runtime_src,
             head='<meta name="viewport" content="width=device-width, initial-scale=1">\n' + styles,

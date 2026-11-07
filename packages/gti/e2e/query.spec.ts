@@ -471,10 +471,12 @@ test.describe("on a touch screen", () => {
 
   test("has controls big enough to tap, and text big enough not to zoom", async ({ page }) => {
     const errors = await ready(page, "tokens.html");
-    await toggle(page).tap();
+    // (The table's bar is narrow enough to fold: the filters as text are in the sheet)
+    await expect(toggle(page)).toBeHidden();
+    await el(page).getByRole("button", { name: "Filter & sort" }).tap();
+    await page.getByRole("dialog").getByRole("button", { name: "Filters as text" }).tap();
     await expect(query(page)).toBeVisible();
     // (The field's buttons fill its height)
-    expect((await box(toggle(page))).height).toBeGreaterThanOrEqual(44);
     expect((await box(el(page).locator(".gt-i-query-field"))).height).toBeGreaterThanOrEqual(44);
     for (const name of ["Apply the filters", "Cancel"]) {
       expect((await box(el(page).getByRole("button", { name }))).width).toBeGreaterThanOrEqual(44);
