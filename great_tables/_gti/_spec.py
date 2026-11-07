@@ -9,7 +9,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   or `"end"`), when the table scrolls sideways (pinned columns are next to their side); and
   whether readers can hide a data column (`hideable`), and move it (`reorderable`: among the
   reorderable columns next to it, under the same spanners and pinned to the same side); producers
-  that leave these out let them do neither
+  that leave these out let them do neither. And a data column's priority (`priority`: a positive
+  integer, or `null`), for a table that drops columns to fit its container: those without one drop
+  first (from the last), then those with the highest (from the last, among equals); those with 1
+  (and the stub) never do. Producers that leave it out have none.
 - `query_columns`: the columns left out of the table but kept for querying, in column order: their
   kind, their label's text, and (for a filter on the text they'd show, a facet, or a bool filter)
   each data row's text. A text filter's is what it's matched against: the text the cell would
@@ -35,10 +38,13 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `layout`: how the table fits its space: the most it can take up before its body scrolls
   vertically (a CSS length; `null` to grow with its content), and what it does when it's wider
   than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table
-  does), or narrower than `stack_below` px (`"stack"`: its rows become cards; `"auto"`: they do if
-  it shows no more than six data columns, and it scrolls otherwise). The table's own CSS stacks it
-  (so that it's stacked without the runtime), at the width `stack_below` gives, which producers
-  keep the same; producers that leave `stack_below` out have 420.
+  does; `"collapse"`: drop columns by their `priority` until it fits, each row with a button that
+  shows those dropped from it, and scroll if it still doesn't), or narrower than `stack_below` px
+  (`"stack"`: its rows become cards; `"auto"`: as `"collapse"` if any column has a priority, else
+  its rows become cards if it shows no more than six data columns, and it scrolls otherwise). The
+  table's own CSS stacks it (so that it's stacked without the runtime), at the width `stack_below`
+  gives, which producers keep the same; producers that leave `stack_below` out have 420. The
+  runtime drops columns (without it, a `"collapse"` table scrolls).
 - `filters`: the columns readers can filter by, in column order, and how: by the text they show
   (`"text"`), a choice of their values (`"facet"`), a range of their numbers (`"range"`), a
   range of their dates, or dates and times (`"date"`; whether they have times is the column's
@@ -113,6 +119,9 @@ class ColumnSpec(TypedDict):
     pin: Literal["start", "end"] | None
     hideable: bool  # whether readers can hide it (a data column)
     reorderable: bool  # whether readers can move it (a data column)
+    # (A data column's priority, for a table that drops columns to fit: 1 is never dropped, and
+    # higher numbers drop sooner; those without one drop first)
+    priority: int | None
 
 
 class QueryColumnSpec(TypedDict):
@@ -187,7 +196,7 @@ class DisplaySpec(TypedDict):
 
 class LayoutSpec(TypedDict):
     height: str | None
-    responsive: Literal["scroll", "stack", "auto"] | None
+    responsive: Literal["scroll", "stack", "collapse", "auto"] | None
     # (The container width, in px, below which a "stack" or "auto" table is stacked)
     stack_below: int | float
 
@@ -275,6 +284,7 @@ def build_spec(data: GTData) -> Spec:
     # (A `GTI`'s own settings, or those `opt_interactive()` set)
     settings = settings_of(data)
     pins = dict(settings.pins)
+    priorities = dict(settings.priorities)
 
     def column_spec(
         id: str | None,
@@ -296,6 +306,7 @@ def build_spec(data: GTData) -> Spec:
             pin=None if side is None else "start" if side == "left" else "end",
             hideable=role == "data" and id in settings.hideable,
             reorderable=role == "data" and id in settings.reorderable,
+            priority=priorities.get(id) if role == "data" and id is not None else None,
         )
 
     stub_columns = boxhead._get_stub_columns()
