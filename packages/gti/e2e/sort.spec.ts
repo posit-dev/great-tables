@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { dataRows, groupCells, ready, shown, striping } from "./helpers";
+import { dataRows, groupCells, ready, shown, striping, tab } from "./helpers";
 
 // exibble, shown as group grp_b (rows 4-7) then grp_a (rows 0-3), each with a summary row, then a
 // grand summary row. `num` is missing in row 5 and `char` in row 4.
@@ -73,7 +73,7 @@ test("sorts from the keyboard", async ({ page }) => {
   await expect(page.locator("th#s-num")).toHaveAttribute("aria-sort", "descending");
 
   // The next column label is the next stop, and Shift extends the sort from the keyboard too
-  await page.keyboard.press("Tab");
+  await tab(page);
   await expect(sortButton(page, "char")).toBeFocused();
   await page.keyboard.press("Shift+Enter");
   const sort = await page.locator("gt-table").evaluate((node) => (node as any).sort);
