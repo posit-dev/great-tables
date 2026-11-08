@@ -54,11 +54,16 @@ tests, with `polars` too). Each page is one table, saved as `GTI.save()` saves i
 For each table they time how long it takes to be ready once the page is parsed, then sorting,
 searching, filtering and changing the page (each until the next frame is drawn), and note its
 size (raw and gzipped), its JS heap and its DOM nodes. The phone is a Pixel 7's viewport with the
-CPU slowed four times. `--quick` runs fewer tables (as CI does), `--reps N` sets how many times
-each thing is timed (the median is reported), `--only TEXT` keeps the pages whose names contain
-`TEXT` (`plain5-1000-` rather than `plain5-1000`, which matches the 10,000-row pages too), and
-`--device desktop|phone` runs one device: `npm run bench -- --quick --device desktop`. CI runs
-them in a job of their own that never fails the build, and shows the results in its summary.
+CPU slowed four times. `--quick` runs fewer tables, `--reps N` sets how many times each thing is
+timed (the median is reported), `--only TEXT` keeps the pages whose names contain `TEXT`
+(`plain5-1000-` rather than `plain5-1000`, which matches the 10,000-row pages too), and
+`--device desktop|phone` runs one device: `npm run bench -- --quick --device desktop`.
+
+CI doesn't run them: they take a long time, and a shared runner's times vary too much to compare
+from one run to the next. Run them by hand on one machine, before and after a change that could
+affect them (moving or hiding rows, the CSS, hydration), and when choosing the full-DOM row
+threshold. Keep the machine awake during the run, since a laptop that sleeps partway through
+skews the times.
 
 Great Tables' differential tests of its view queries (`tests/test_gti_query.py`) run tables
 through the built runtime with `scripts/engine.mjs`, so they need `npm ci` here too (they're

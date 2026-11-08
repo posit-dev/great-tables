@@ -3,15 +3,15 @@
 // the next frame is drawn. On a desktop and on a mid-range phone (a phone's viewport and touch,
 // its CPU slowed four times, as Lighthouse's mobile runs are). The pages come from
 // bench/make_pages.py; the results go to bench/results/ (results.json, and results.md, also
-// printed, and added to the job summary on GitHub).
+// printed). They're run by hand, not in CI: a shared runner's times vary too much to compare.
 //
 //   node bench/run.mjs [--quick] [--reps N] [--only TEXT] [--device desktop|phone]
 //
-// --quick: fewer tables (as CI runs it); --reps: times each thing is timed (the median is kept;
-// 5 by default); --only: just the pages whose name has TEXT; --device: just the one.
+// --quick: fewer tables; --reps: times each thing is timed (the median is kept; 5 by default);
+// --only: just the pages whose name has TEXT; --device: just the one.
 
 import { spawnSync } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
@@ -208,7 +208,7 @@ function markdown(results) {
   return `${lines.join("\n")}\n`;
 }
 
-// (After each table, so a run stopped part of the way, as by CI's time limit, keeps the rest)
+// (After each table, so a run stopped part of the way keeps the rest)
 function save(results) {
   mkdirSync(resultsDir, { recursive: true });
   writeFileSync(join(resultsDir, "results.json"), `${JSON.stringify(results, null, 1)}\n`);
@@ -231,8 +231,4 @@ for (const deviceName of Object.keys(DEVICES)) {
 }
 await browser.close();
 
-const report = save(results);
-process.stdout.write(report);
-if (process.env.GITHUB_STEP_SUMMARY) {
-  appendFileSync(process.env.GITHUB_STEP_SUMMARY, report);
-}
+process.stdout.write(save(results));
