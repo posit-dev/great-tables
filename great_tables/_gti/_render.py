@@ -110,6 +110,15 @@ def render_gti_html(
     return html
 
 
+def page_html(fragment: str) -> str:
+    """A whole page, with a table's HTML (as `render_gti_html()` makes it) as its body."""
+    return (
+        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8"/>\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1"/>\n'
+        f"</head>\n<body>\n{fragment}</body>\n</html>\n"
+    )
+
+
 def render_parts(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
     """A table's static HTML (its `<div>`) and its spec."""
     built = _build(gt)
