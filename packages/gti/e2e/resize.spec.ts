@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { ready } from "./helpers";
+import { CHROMIUM_TOUCH, ready, tab } from "./helpers";
 
 // exibble's num, currency (under a "Numbers" spanner) and char, with group headings (or groups as
 // a column), searchable, 3 rows to a page, with resize handles; and the table of display.spec.ts
@@ -162,7 +162,7 @@ test.describe("resizing by keyboard", () => {
     const events = await resizes(page);
     const num = (await widths(page))[1] as number;
     await label(page, "num").getByRole("button").focus();
-    await page.keyboard.press("Tab");
+    await tab(page);
     const target = page.getByRole("separator", { name: "Resize num" });
     await expect(target).toBeFocused();
     // A focus ring, as for the sort buttons
@@ -188,7 +188,8 @@ test.describe("resizing by keyboard", () => {
 test.describe("resizing by touch", () => {
   test.use({ hasTouch: true, viewport: { width: 360, height: 700 } });
 
-  test("drags a handle a finger can hit, without scrolling", async ({ page }) => {
+  test("drags a handle a finger can hit, without scrolling", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", CHROMIUM_TOUCH);
     const errors = await ready(page, "resize.html");
     const target = handle(page, "num");
     expect((await target.boundingBox())?.width).toBe(24);
