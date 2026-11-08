@@ -444,11 +444,9 @@ def test_opt_interactive(
     data = {"x": FLOATS, "s": TEXT}
 
     def render(constructor: DataFrameConstructor) -> str:
-        html = GT(constructor(data), id="parity").opt_interactive().as_raw_html()
-        # the rest of the page is the bundled reactable JavaScript (about 400 kB)
-        props = re.search(r"const _props = (\{.*?\});\n", html, re.DOTALL)
-        assert props, "no props JSON in the interactive HTML"
-        return props.group(1)
+        html = GT(constructor(data), id="parity").opt_interactive(use_filters=True).as_raw_html()
+        # the `<gt-table>` element (its table and spec); the rest is the bundled runtime
+        return html.split("</gt-table>\n")[0]
 
     assert_parity(snapshot, all_frame_constructors, render)
 

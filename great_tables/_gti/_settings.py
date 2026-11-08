@@ -7,7 +7,7 @@ them. The spec (see `_spec.py`) is made from either.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
@@ -117,7 +117,7 @@ class Settings:
         height = options.ihtml_height.value
         # (`tab_options()` takes only these)
         selection = options.ihtml_selection_mode.value
-        # (`opt_interactive()` doesn't check the type; the reactable renderer falls back the same way)
+        # (`opt_interactive()` doesn't check the type, so an unknown one falls back to "numbers")
         pagination_type = options.ihtml_pagination_type.value
         return cls(
             sorting=bool(options.ihtml_use_sorting.value),
@@ -136,7 +136,8 @@ class Settings:
             highlight=bool(options.ihtml_use_highlight.value),
             compact=bool(options.ihtml_use_compact_mode.value),
             wrap=bool(options.ihtml_use_text_wrapping.value),
-            # (As the reactable renderer's tables do)
+            # (A published table keeps its columns, scrolling sideways in a narrow container, as
+            # R gt's interactive tables do)
             responsive="scroll",
             bar=False,
         )
@@ -145,4 +146,13 @@ class Settings:
 def settings_of(data: GTData) -> Settings:
     """A table's settings: a `GTI`'s own, or those in a `GT`'s options."""
     settings = getattr(data, "_interactive", None)
-    return settings if isinstance(settings, Settings) else Settings.from_options(data._options)
+    if isinstance(settings, Settings):
+        return settings
+    settings = Settings.from_options(data._options)
+    # (`use_filters=True` filters every column, as its type suggests)
+    if data._options.ihtml_use_filters.value:
+        from .._locations import resolve_cols_c
+
+        filters = tuple((column, "auto") for column in resolve_cols_c(data, None))
+        settings = replace(settings, filters=filters)  # type: ignore[arg-type]
+    return settings

@@ -293,8 +293,7 @@ def test_i_responsive_scroll_has_no_stack_css():
 
 
 def test_opt_interactive_tables_are_not_stacked():
-    html = GT(DF).opt_interactive().as_raw_html()
-    assert "data-gti-stack" not in html
+    assert GT(DF).opt_interactive().as_raw_html().startswith("<gt-table>\n")
     assert spec_of(GT(DF).opt_interactive())["layout"]["responsive"] == "scroll"
     # (A GTI made from one fits a narrow container as GTI's own tables do)
     assert interactive_of(GTI.from_gt(GT(DF).opt_interactive()))["layout"]["responsive"] == "auto"
@@ -1359,8 +1358,8 @@ def test_from_gt_with_opt_interactive():
 
 def test_from_gt_with_use_filters():
     gt = GT(FILTER_DF[["id", "num", "few"]], rowname_col="id").opt_interactive(use_filters=True)
-    # (A GT table's own filters are reactable's, which `<gt-table>` doesn't have)
-    assert filters_of(gt) == []
+    # (Every column is filtered, as its type suggests, as in the GTI made from it)
+    assert [f["type"] for f in filters_of(gt)] == ["range", "facet"]
     assert GTI.from_gt(gt)._interactive.filters == (("num", "auto"), ("few", "auto"))
     assert [f["type"] for f in filters_of(GTI.from_gt(gt))] == ["range", "facet"]
     assert GTI.from_gt(gt.opt_interactive())._interactive.filters == ()

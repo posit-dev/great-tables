@@ -168,7 +168,9 @@ def as_raw_html(
     inline_css
         If `True`, all CSS styles are inlined into the HTML elements as `style` attributes.
         This is essential for email clients, which often strip out `<style>` blocks but preserve
-        inline styles.
+        inline styles. It doesn't apply to an interactive table (one made with
+        [`opt_interactive()`](`great_tables.GT.opt_interactive`)), which needs its `<style>` block
+        and its script.
     make_page
         If `True`, the table will be wrapped in a complete HTML page with proper `<html>`, `<head>`,
         and `<body>` tags. This is useful when you want to display the table in a web browser or
@@ -243,16 +245,13 @@ def as_raw_html(
     ```
     """
 
+    # An interactive table (from `opt_interactive()`) is a `<gt-table>` element, whose CSS can't be
+    # inlined: `inline_css=` doesn't apply to it
     if self._options.ihtml_active.value:
-        from ._ihtml import render_as_ihtml
+        from ._gti import page_html, render_gti_html
 
-        fragment = render_as_ihtml(self)
-        if make_page:
-            return (
-                '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
-                '<meta charset="utf-8"/>\n</head>\n<body>\n' + fragment + "\n</body>\n</html>\n"
-            )
-        return fragment
+        fragment = render_gti_html(self, all_important=all_important)
+        return page_html(fragment) if make_page else fragment
 
     built_table = self._build_data(context="html")
 
