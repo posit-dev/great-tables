@@ -69,3 +69,42 @@ jobs:
             packages/gti/test-results/
             packages/gti/playwright-report/
           if-no-files-found: ignore
+
+  # The benchmarks (bench/run.mjs, fewer tables), reported in the job's summary and as an artifact.
+  # They don't fail the build: a shared runner's times vary too much to hold them to limits.
+  bench:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: packages/gti
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: packages/gti/package-lock.json
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.13"
+          activate-environment: true
+      - name: Install great_tables (for the benchmark pages)
+        working-directory: .
+        run: uv pip install -e . polars
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Benchmarks
+        run: npm run bench -- --quick --reps 3
+        env:
+          PYTHON: python
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gti-benchmarks
+          path: packages/gti/bench/results/
+          if-no-files-found: ignore
