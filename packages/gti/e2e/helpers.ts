@@ -1,8 +1,29 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import { type BrowserContext, expect, type Locator, type Page } from "@playwright/test";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const fixtures = join(dirname(fileURLToPath(import.meta.url)), ".fixtures");
+
+/**
+ * Let the page read and write the clipboard, as each browser takes it: Chromium asks for both,
+ * WebKit only to read (writing is allowed), and Firefox for neither.
+ */
+export async function allowClipboard(context: BrowserContext, browserName: string): Promise<void> {
+  const permissions: Record<string, string[]> = {
+    chromium: ["clipboard-read", "clipboard-write"],
+    webkit: ["clipboard-read"],
+  };
+  await context.grantPermissions(permissions[browserName] ?? []);
+}
+
+/**
+ * Press Tab (or Shift+Tab) to go to the next control (or the one before): with Option in WebKit
+ * on a Mac, whose Tab skips buttons and boxes (as Safari's does, without Full Keyboard Access).
+ */
+export async function tab(page: Page, back = false): Promise<void> {
+  const option = process.platform === "darwin" && page.context().browser()?.browserType().name() === "webkit";
+  await page.keyboard.press(`${back ? "Shift+" : ""}${option ? "Alt+" : ""}Tab`);
+}
 
 /** Open a fixture page, returning the errors it logs (filled in as they happen). */
 export async function open(page: Page, name: string): Promise<string[]> {
@@ -103,8 +124,8 @@ export function groupCells(page: Page) {
 /**
  * The lines drawn across a table, along a line through it (down at `x` px from the page's left, or
  * across from the table's left at `y` as a fraction of its height, `width` px long): runs of up to
- * 8px in a colour other than white, with the cells' contents hidden. The table is shot as it shows
- * on the page.
+ * 8px in a colour other than (nearly) white, with the cells' contents hidden. The table is shot as
+ * it shows on the page. (Nearly white: WebKit draws faint seams between rows, and dithers gradients)
  */
 export async function borderLines(page: Page, table: Locator, at: { x?: number; y?: number; width?: number }): Promise<string[]> {
   await table.evaluate((node) => {
@@ -136,7 +157,8 @@ export async function borderLines(page: Page, table: Locator, at: { x?: number; 
     const pixels = ctx.getImageData(0, 0, img.width, img.height).data;
     const runs: [string, number][] = [];
     for (let i = 0; i < pixels.length; i += 4) {
-      const colour = `${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`;
+      const light = Math.min(pixels[i] as number, pixels[i + 1] as number, pixels[i + 2] as number) >= 240;
+      const colour = light ? "255,255,255" : `${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`;
       const last = runs[runs.length - 1];
       if (last !== undefined && last[0] === colour) {
         last[1]++;
@@ -147,6 +169,9 @@ export async function borderLines(page: Page, table: Locator, at: { x?: number; 
     return runs.filter(([colour, n]) => n <= 8 && colour !== "255,255,255").map(([colour, n]) => `${colour} x${n}`);
   }, png);
 }
+
+/** Why a test of a real touch gesture runs only in Chromium (as `longPress()` does). */
+export const CHROMIUM_TOUCH = "a touch gesture goes through Chromium's DevTools protocol (Playwright's touchscreen only taps)";
 
 /**
  * A long press with a finger at the middle of `locator` (Chromium's touch events, through the
