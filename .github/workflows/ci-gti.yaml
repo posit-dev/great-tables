@@ -50,8 +50,13 @@ jobs:
         run: |
           uv pip install narwhals hypothesis polars pyarrow pytest pytest-cov
           pytest tests/test_gti_query.py --no-cov
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install the browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Install the hosts (for the host tests)
+        working-directory: .
+        run: uv pip install nbconvert ipykernel jupyterlab shiny marimo
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
       - name: Browser tests
         run: npm run test:e2e
         env:
