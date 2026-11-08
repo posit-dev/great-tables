@@ -736,6 +736,8 @@ def main() -> None:
         ),
         # The same tables (selectable, with groups shown as headings or as a column) as GT draws
         # them, and with a body that scrolls, taller than they are: their borders should match.
+        # (With rows a whole number of pixels high, whatever the fonts: Firefox rounds separated
+        # borders that fall between pixels unlike collapsed ones, drawing 2px lines 1px wide)
         **{
             f"scroll-borders{suffix}.html": page(
                 "\n".join(
@@ -750,7 +752,8 @@ def main() -> None:
                 )
                 + "\n"
                 + runtime_src,
-                head=styles,
+                head=styles
+                + "<style>gt-table :is(th, td) { line-height: 20px !important; }</style>\n",
             )
             for suffix in ["", "-column"]
         },
