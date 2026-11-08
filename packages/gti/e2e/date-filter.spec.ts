@@ -74,7 +74,8 @@ test("filters by dates and times, from date and time fields", async ({ page }) =
   await from.fill("2018-03-03T03:45");
   await from.press("Enter");
   expect(dataRows(await visible(page))).toEqual([3, 4, 5, 6]);
-  await expect(tokens(page)).toHaveText(["datetime ≥ Mar 3, 2018, 3:45 AM"]);
+  // (As the browser's Intl writes it: Safari's has "at" between the date and the time)
+  await expect(tokens(page)).toHaveText([/^datetime ≥ Mar 3, 2018(,| at) 3:45\sAM$/]);
   expect(errors).toEqual([]);
 });
 
