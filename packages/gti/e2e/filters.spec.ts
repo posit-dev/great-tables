@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { dataRows, ready, visible } from "./helpers";
+import { dataRows, ready, tab, visible } from "./helpers";
 
 // Column filters on a GTI table: exibble three times over (24 rows, in two groups), 5 rows to a
 // page, `num` filtered by a range, `char` by text and `fctr` by a facet; and the same in a
@@ -121,14 +121,14 @@ test("is opened from the keyboard, and closes on Escape or Tab, with focus back 
 
   // Tab out of its end
   await page.keyboard.press("Enter");
-  await page.keyboard.press("Tab");
+  await tab(page);
   await expect(panel(page, "char")).toBeHidden();
   await expect(filterButton(page, "char")).toBeFocused();
   // Shift + Tab out of its start (its Clear button)
   await page.keyboard.press("Enter");
-  await page.keyboard.press("Shift+Tab");
+  await tab(page, true);
   await expect(panel(page, "char").getByRole("button", { name: "Clear the filter on char" })).toBeFocused();
-  await page.keyboard.press("Shift+Tab");
+  await tab(page, true);
   await expect(panel(page, "char")).toBeHidden();
   await expect(filterButton(page, "char")).toBeFocused();
   expect(errors).toEqual([]);
