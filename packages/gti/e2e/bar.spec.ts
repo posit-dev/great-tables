@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { dataRows, open, ready, visible } from "./helpers";
+import { dataRows, open, ready, tab, visible } from "./helpers";
 
 // GTI tables, with the control bar below them: exibble three times over (24 rows, in two groups),
 // 2 rows to a page (12 pages), with a search; as narrow as one column; in a container 300px wide;
@@ -71,7 +71,7 @@ test("opens the search on `/` from within the table, and closes an empty one on 
   await expect(search(page)).toBeFocused();
   await expect(search(page)).toHaveValue("");
 
-  await page.keyboard.press("Shift+Tab");
+  await tab(page, true);
   await expect(field(page)).toBeHidden();
 
   // A search in force stays shown
@@ -175,7 +175,8 @@ test("sticks to the bottom of the view for a table of every row", async ({ page 
   expect(await bar(page).evaluate((node) => getComputedStyle(node).backgroundColor)).not.toBe("rgba(0, 0, 0, 0)");
 
   // And, scrolled past the table, below it
-  await page.mouse.wheel(0, 3000);
+  // (Firefox scrolls by a wheel slowly, a line at a time)
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await expect
     .poll(async () => (await box(bar(page))).top - (await box(el(page).locator("table"))).bottom)
     .toBeGreaterThanOrEqual(-1);
