@@ -1864,9 +1864,21 @@ def opt_interactive(
     """
     Option to enable an interactive table.
 
-    With `opt_interactive()`, a GT table can be transformed to an interactive HTML table.
-    Interactive tables allow users to sort columns, search/filter rows, paginate through data,
-    and more. All interactivity is handled in the browser with no server required.
+    With `opt_interactive()`, a GT table becomes one that readers can browse in the browser: they
+    can sort it by its columns, search and filter its rows, and page through them. Everything else
+    about the table stays as it is: its formatting, styles, header and footer, stub, row groups,
+    spanners and summary rows are all kept, as they'd be in the static table. The interactivity is
+    added to the table's own HTML by a small script that comes with it, so no server, internet
+    connection, or other library is needed, and the table can be read before (or without) the
+    script running. The table is interactive wherever its HTML is shown: in notebooks, in Quarto
+    documents, and in HTML files written with
+    [`write_raw_html()`](`great_tables.GT.write_raw_html`).
+
+    The options here are those of R gt's `opt_interactive()`, so that a published table can be
+    made browsable without changing what it is. For a table that's more of an interface (with
+    filters chosen column by column, exports, views that can be saved and shared, pinned and
+    hideable columns, and a control bar that brings these together), use `GTI`, or turn a
+    finished table into one with `GTI.from_gt()`. Both render the table with the same engine.
 
     Parameters
     ----------
@@ -1876,13 +1888,20 @@ def opt_interactive(
     use_pagination
         Whether to paginate rows. Enabled by default.
     use_pagination_info
-        Whether to show the pagination info text (e.g., "Showing 1 to 10 of 100 entries").
+        Whether to show which rows are on the page, next to the page controls (e.g., "1–10 of 100
+        rows").
     use_sorting
-        Whether to enable column sorting by clicking headers.
+        Whether to enable column sorting by clicking the column labels. Columns are sorted by their
+        values, not by how they're formatted.
     use_search
-        Whether to add a global search box above the table.
+        Whether to add a global search box above the table. It searches the text shown in the
+        cells.
     use_filters
-        Whether to add per-column filter inputs below the column headers.
+        Whether readers can filter the rows by each column, with a filter button on its column
+        label (the stub and the row group column don't have one). The filter is suited to the
+        column's type: a range of numbers or dates, a choice of values for a column with only a few
+        of them (or a categorical one), true or false for a boolean column, and text to match for
+        the rest.
     use_resizers
         Whether to allow columns to be resized by dragging their edges.
     use_highlight
@@ -1890,7 +1909,8 @@ def opt_interactive(
     use_compact_mode
         Whether to use compact row padding to fit more rows on screen.
     use_text_wrapping
-        Whether to allow cell text to wrap. When `False`, cells clip to a single line.
+        Whether to allow cell text to wrap. When `False`, cell text stays on one line, ending with
+        an ellipsis where it doesn't fit.
     use_page_size_select
         Whether to show a dropdown for the user to change the number of rows per page.
     page_size_default
@@ -1900,12 +1920,13 @@ def opt_interactive(
         `[10, 25, 50, 100]`.
     pagination_type
         The pagination control style. One of `"numbers"` (page number buttons),
-        `"simple"` (previous/next only), or `"full"` (first/previous/next/last).
+        `"simple"` (previous/next only), `"full"` (first/previous/next/last, with the page
+        number), or `"jump"` (previous/next, with a box to type the page number in).
     height
-        The height of the table's scrollable body. Use `"auto"` (the default) to let the
-        table grow with its content, or supply a CSS length (e.g., `"400px"` or `"60vh"`) or a
-        number of pixels to limit the height and enable vertical scrolling, with the column
-        labels staying in view.
+        The most the table can be in height. Use `"auto"` (the default) to let the table grow with
+        its content, or supply a CSS length (e.g., `"400px"` or `"60vh"`) or a number of pixels to
+        limit the height and have the table scroll within it, with its header and column labels
+        staying in view.
     selection_mode
         Row selection mode. One of `"single"`, `"multiple"`, or `None` (the default,
         which disables row selection). Rows are selected by clicking them or their checkboxes.
