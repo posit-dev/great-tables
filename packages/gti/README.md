@@ -25,7 +25,7 @@ npx playwright install chromium   # for the browser tests
 | `npm run build` | Builds `great_tables/js/gti.{js,css}` (minified) and prints their gzipped sizes |
 | `npm run check` | Type-checks, then fails if the committed bundle is stale or the runtime is over its 58 KB (min+gzip) budget |
 | `npm test` | Unit tests (Vitest, happy-dom) |
-| `npm run test:e2e` | Browser tests (Playwright, Chromium) on pages built from real Great Tables output, on a desktop and on emulated phones and a tablet (`e2e/mobile.spec.ts`) |
+| `npm run test:e2e` | Browser tests (Playwright) on pages built from real Great Tables output: in desktop Chromium, Firefox and WebKit, on emulated phones and a tablet (`e2e/mobile.spec.ts`), and in the hosts that show the tables (`e2e/hosts.spec.ts`) |
 
 After changing anything in `src/`, run `npm run build` and commit the rebuilt
 `great_tables/js/gti.*` along with the source; CI runs `npm run check`.
@@ -37,7 +37,15 @@ other way from outside the bundle (by a host page, say) should be made public in
 
 The browser tests write their pages with `e2e/make_fixtures.py`, which needs a Python with
 `great_tables` installed. They use `$PYTHON` if set, otherwise the repo's `.venv`, otherwise
-`python3`.
+`python3`. `npx playwright install chromium firefox webkit` installs the browsers.
+
+The host tests (the `hosts` project) run the same three tables, written by `e2e/make_hosts.py`,
+in each host: a notebook converted with nbconvert, and run (twice) in JupyterLab; a Quarto
+document; a Shiny app, its tables rendered again as an input changes; a marimo app exported to
+HTML; and VS Code's notebook output, emulated in a sandboxed frame. A host test is skipped when
+its host isn't installed: `nbconvert`, `ipykernel`, `jupyterlab`, `shiny` and `marimo` in that
+Python, and `quarto` on the `PATH`. The marimo export loads marimo's frontend from a CDN. In VS
+Code itself, they have to be checked by hand.
 
 Great Tables' differential tests of its view queries (`tests/test_gti_query.py`) run tables
 through the built runtime with `scripts/engine.mjs`, so they need `npm ci` here too (they're
