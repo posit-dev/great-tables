@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { borderLines, open, ready } from "./helpers";
+import { borderLines, CHROMIUM_TOUCH, open, ready } from "./helpers";
 
 // exibble three times over with every column (24 rows, grp_b then grp_a, each with a summary row,
 // then a grand summary row), striped, with a title, a spanner, a footnote and a source note, in a
@@ -149,7 +149,8 @@ test.describe("a table wider than its container", () => {
     await expect(hint).toHaveCount(0);
   });
 
-  test("is a region that scrolls with the keyboard", async ({ page }) => {
+  test("is a region that scrolls with the keyboard", async ({ page, browserName }) => {
+    test.skip(browserName === "webkit", "Playwright's WebKit doesn't scroll on arrow keys (not even the page)");
     await ready(page, "wide.html");
     const region = page.getByRole("region", { name: "exibble" });
     await expect(region).toHaveAttribute("tabindex", "0");
@@ -160,7 +161,7 @@ test.describe("a table wider than its container", () => {
     await expect(el(page).locator('.gt-i-shade[data-gti-edge="left"]')).toHaveAttribute("data-gti-shown");
   });
 
-  test("draws the table's borders as GT does", async ({ page }) => {
+  test("draws the table's borders as GT does", async ({ page, browserName }) => {
     await page.setViewportSize({ width: 1280, height: 4100 });
     for (const name of ["wide-borders.html", "wide-borders-column.html"]) {
       await open(page, name);
@@ -183,7 +184,10 @@ test.describe("a table wider than its container", () => {
         await tables.nth(1).locator(".gt-i-scroller").evaluate((div, left) => (div.scrollLeft = left), shift);
         await page.waitForTimeout(50);
         // Through the pinned columns, along their edge, and through the columns scrolled under them
-        for (const x of [5, 30, edge - 1, edge + 20, width - 30]) {
+        // (but for Firefox and WebKit, which draw a faint corner where the edge meets the double
+        // line above the grand summary rows)
+        const along = browserName === "chromium" ? [edge - 1] : [];
+        for (const x of [5, 30, ...along, edge + 20, width - 30]) {
           const into = x < edge ? x : x + shift;
           const lines = await borderLines(page, gt, { x: start + into });
           expect(lines.length).toBeGreaterThan(0);
@@ -228,7 +232,8 @@ test.describe("a table wider than a phone", () => {
   // (Not `isMobile`, which lays the page out wider and zooms it out, away from the points touched)
   test.use({ hasTouch: true, viewport: { width: 390, height: 700 } });
 
-  test("fits the page, and scrolls sideways on a swipe with the stub pinned", async ({ page }) => {
+  test("fits the page, and scrolls sideways on a swipe with the stub pinned", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", CHROMIUM_TOUCH);
     const errors = await ready(page, "wide-phone.html");
     await expect(el(page)).toHaveAttribute("data-gti-wide", "");
     // The page doesn't scroll sideways; the table does

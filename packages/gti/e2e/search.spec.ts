@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { groupCells, ready, shown, striping, visible } from "./helpers";
+import { groupCells, ready, shown, striping, tab, visible } from "./helpers";
 
 // exibble, shown as group grp_b (rows 4-7) then grp_a (rows 0-3), each with a summary row, then a
 // grand summary row. Row 0's `char` ("apricot") has a footnote mark, and row 3's is "Crème
@@ -121,7 +121,7 @@ test("searches from the keyboard", async ({ page }) => {
   const search = () => page.locator("gt-table").evaluate((node) => (node as any).search);
 
   // The search box comes before the column labels
-  await page.keyboard.press("Tab");
+  await tab(page);
   await expect(searchBox(page)).toBeFocused();
   await page.keyboard.type("fig");
   // Enter searches without waiting for typing to pause
@@ -143,7 +143,7 @@ test("searches from the keyboard", async ({ page }) => {
     { search: "", count: 8 },
   ]);
 
-  await page.keyboard.press("Tab");
+  await tab(page);
   await expect(page.locator("th#q-num > button.gt-i-sort")).toBeFocused();
   expect(errors).toEqual([]);
 });

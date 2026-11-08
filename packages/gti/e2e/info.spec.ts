@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { dataRows, ready, visible } from "./helpers";
+import { dataRows, ready, tab, visible } from "./helpers";
 
 // The info panel of a GTI table: exibble three times over (24 rows, in two groups), 2 rows to a
 // page (or 5), whose rows can be selected; and the same in a container 300px wide.
@@ -57,7 +57,7 @@ test("is gone into with Tab, and closes on Escape, with focus back on its button
   await toggle(page).focus();
   await page.keyboard.press("Enter");
   await expect(panel(page)).toBeVisible();
-  await page.keyboard.press("Tab");
+  await tab(page);
   await expect(panel(page).getByRole("combobox", { name: "Rows per page" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(panel(page)).toBeHidden();
@@ -65,7 +65,7 @@ test("is gone into with Tab, and closes on Escape, with focus back on its button
 
   // Focus going elsewhere closes it
   await page.keyboard.press("Enter");
-  await page.keyboard.press("Shift+Tab");
+  await tab(page, true);
   await expect(bar(page).getByRole("button", { name: "Next page" })).toBeFocused();
   await expect(panel(page)).toBeHidden();
   expect(errors).toEqual([]);

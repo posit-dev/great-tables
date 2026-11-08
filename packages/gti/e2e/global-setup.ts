@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 
 // $PYTHON if set, else the repo's .venv, else python3 on PATH.
-function python(): string {
+export function python(): string {
   if (process.env.PYTHON) {
     return process.env.PYTHON;
   }
@@ -16,10 +16,12 @@ function python(): string {
 
 export default function globalSetup(): void {
   const exe = python();
-  const result = spawnSync(exe, [join(here, "make_fixtures.py")], { stdio: "inherit" });
-  if (result.error !== undefined || result.status !== 0) {
-    throw new Error(
-      `Couldn't write the e2e fixtures with ${exe} (set $PYTHON to a Python with great_tables installed)`,
-    );
+  for (const script of ["make_fixtures.py", "make_hosts.py"]) {
+    const result = spawnSync(exe, [join(here, script)], { stdio: "inherit" });
+    if (result.error !== undefined || result.status !== 0) {
+      throw new Error(
+        `Couldn't write the e2e fixtures with ${exe} (set $PYTHON to a Python with great_tables installed)`,
+      );
+    }
   }
 }

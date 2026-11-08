@@ -329,6 +329,14 @@ describe("<gt-table> with a spec", () => {
     expect(el.bodyRow(el.querySelector("thead tr") as HTMLTableRowElement)).toBeNull();
   });
 
+  it("reads its spec while the script's type is changed (as jQuery does as it adds it)", async () => {
+    const { html, spec } = gtTable(GROUPED);
+    const script = specScript(spec).replace("application/json", "true/application/json");
+    const el = await mount(`<gt-table>${html}${script}</gt-table>`);
+    expect(el.state).toBe("ready");
+    expect(el.spec).toEqual(spec);
+  });
+
   it("only reads its own spec", async () => {
     // A nested <gt-table>'s spec isn't this one's.
     const { html, spec } = gtTable(GROUPED);
@@ -456,6 +464,23 @@ describe("sorting", () => {
     click(el, "x", true);
     expect(el.sort).toEqual([{ column: "y", descending: false }]);
     expect(index("y")).toBeNull();
+  });
+
+  it("sorts by several columns with Shift and Enter, from the key held", async () => {
+    const el = await mountTable();
+    click(el, "y");
+    // (Firefox's click from Enter doesn't say whether Shift is held)
+    const key = (type: string) =>
+      button(el, "x").dispatchEvent(new KeyboardEvent(type, { key: "Shift", shiftKey: type === "keydown", bubbles: true }));
+    key("keydown");
+    click(el, "x");
+    key("keyup");
+    expect(el.sort).toEqual([
+      { column: "y", descending: false },
+      { column: "x", descending: false },
+    ]);
+    click(el, "x");
+    expect(el.sort).toEqual([{ column: "x", descending: false }]);
   });
 
   it("announces the sort, and fires an event, on clicks", async () => {
@@ -2048,6 +2073,7 @@ describe("the info panel", () => {
     expect(panel(el).hidden).toBe(true);
 
     toggle(el).click();
+    action(el, "sort").focus();
     const leave = (from: Element, to: Element | null) =>
       from.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: to }));
     leave(toggle(el), action(el, "sort"));
@@ -3080,8 +3106,10 @@ describe("filters", () => {
     filterButton(el, "y").click();
     leave(filterButton(el, "y"), inputs(el, "y")[0] as Element);
     leave(inputs(el, "y")[0] as Element, filterButton(el, "y"));
-    // (Not when the window loses focus)
+    // (Not when the window loses focus, nor when it goes to what the panel is in, as a press in it
+    // on what can't have focus sends it)
     leave(inputs(el, "y")[0] as Element, null);
+    leave(inputs(el, "y")[0] as Element, panel(el, "y").parentElement);
     expect(panel(el, "y").hidden).toBe(false);
     leave(inputs(el, "y")[0] as Element, outside);
     expect(panel(el, "y").hidden).toBe(true);
@@ -3977,7 +4005,7 @@ describe("the query box", () => {
     toggle(el).click();
     replace(el, "y in (");
     const item = list(el).children[2] as HTMLElement;
-    const down = new Event("pointerdown", { bubbles: true, cancelable: true });
+    const down = new Event("mousedown", { bubbles: true, cancelable: true });
     item.dispatchEvent(down);
     expect(down.defaultPrevented).toBe(true);
     item.click();
@@ -5185,7 +5213,7 @@ describe("column resizing", () => {
     expect(table.firstElementChild?.matches("colgroup.gt-i-widths")).toBe(true);
     expect(widths(el)).toEqual(["100px", "110px", "100px"]);
     expect(table.style.tableLayout).toBe("fixed");
-    expect(table.style.width).toBe("fit-content");
+    expect(table.style.width).toBe("0px");
     expect(handle.getAttribute("aria-valuenow")).toBe("110");
 
     press(handle, "ArrowRight", true);

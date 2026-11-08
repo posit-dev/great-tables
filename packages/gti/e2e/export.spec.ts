@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { ready } from "./helpers";
+import { allowClipboard, ready, tab } from "./helpers";
 
 // Export from a GTI table: exibble three times over (24 rows, in two groups), with a spanner over
 // `num` and `currency`, 5 rows to a page, whose rows can be selected; exported in every format, and
@@ -140,8 +140,8 @@ test("downloads the rows as TSV, and as JSON records, of the rows the search kee
   expect(errors).toEqual([]);
 });
 
-test("copies the rows as a table and as tab-separated text", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+test("copies the rows as a table and as tab-separated text", async ({ page, context, browserName }) => {
+  await allowClipboard(context, browserName);
   const errors = await ready(page, "export.html");
   const fired = await events(page);
   await toggle(page).click();
@@ -169,8 +169,8 @@ test("copies the rows as a table and as tab-separated text", async ({ page, cont
   expect(errors).toEqual([]);
 });
 
-test("exports the selected rows only, when asked", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+test("exports the selected rows only, when asked", async ({ page, context, browserName }) => {
+  await allowClipboard(context, browserName);
   const errors = await ready(page, "export.html");
   await toggle(page).click();
   const only = panel(page).getByRole("checkbox", { name: "Selected rows only" });
@@ -203,9 +203,9 @@ test("is gone into with Tab, and closes on Escape, with focus back on its button
   await toggle(page).focus();
   await page.keyboard.press("Enter");
   await expect(panel(page)).toBeVisible();
-  await page.keyboard.press("Tab");
+  await tab(page);
   await expect(panel(page).getByRole("combobox", { name: "Code for" })).toBeFocused();
-  await page.keyboard.press("Tab");
+  await tab(page);
   await expect(panel(page).getByRole("button", { name: "Download CSV" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(panel(page)).toBeHidden();

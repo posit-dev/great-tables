@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { open, ready } from "./helpers";
+import { CHROMIUM_TOUCH, open, ready } from "./helpers";
 
 // exibble three times over (24 rows, grp_b then grp_a, each with a summary row, then a grand
 // summary row), with a title, a spanner, a footnote and a source note, in a body 300px high:
@@ -79,7 +79,19 @@ test.describe("a body that scrolls", () => {
       await expect(tables.nth(0)).toHaveAttribute("data-gti-state", "ready");
       await expect(tables.nth(1)).toHaveAttribute("data-gti-state", "ready");
       await expect(tables.nth(1)).toHaveAttribute("data-gti-sticky", "");
-      for (const at of [{ x: 0.01 }, { x: 0.12 }, { x: 0.5 }, { x: 0.99 }, { y: 0.3 }, { y: 0.95 }]) {
+      // (Across the middles of a body row and the grand summary row, as fractions of the height)
+      const across = (row: Locator) =>
+        row.evaluate((tr) => {
+          const box = (tr.closest("table") as HTMLElement).getBoundingClientRect();
+          const { top, bottom } = tr.getBoundingClientRect();
+          return ((top + bottom) / 2 - box.top) / (box.height - 1);
+        });
+      const body = tables.nth(0).locator("tbody");
+      const ys = [
+        await across(body.locator("tr:has(> td.gt_row):not(:has(> .gt_summary_row, > .gt_grand_summary_row))").nth(6)),
+        await across(body.locator("tr:has(> .gt_grand_summary_row)")),
+      ];
+      for (const at of [{ x: 0.01 }, { x: 0.12 }, { x: 0.5 }, { x: 0.99 }, ...ys.map((y) => ({ y }))]) {
         const lines = await borderLines(page, tables.nth(0).locator("table"), at);
         expect(lines.length).toBeGreaterThan(0);
         expect(await borderLines(page, tables.nth(1).locator("table"), at), `${name} at ${JSON.stringify(at)}`).toEqual(
@@ -158,7 +170,8 @@ test.describe("a body that scrolls, by touch", () => {
   // (Not `isMobile`, which lays the page out wider and zooms it out, away from the points touched)
   test.use({ hasTouch: true, viewport: { width: 390, height: 700 } });
 
-  test("scrolls on a swipe, under the column labels", async ({ page }) => {
+  test("scrolls on a swipe, under the column labels", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", CHROMIUM_TOUCH);
     const errors = await ready(page, "scroll-column.html");
     const view = await port(page);
     const x = Math.round((view.left + view.right) / 2);
@@ -181,7 +194,8 @@ test.describe("a body that scrolls, by touch", () => {
 
 /**
  * The lines drawn across a table, along a line through it (`x` or `y`, as a fraction of its width
- * or height): runs of up to 8px in a colour other than white, with the cells' contents hidden.
+ * or height): runs of up to 8px in a colour other than (nearly) white, with the cells' contents
+ * hidden. (Nearly white: WebKit draws faint seams between rows)
  */
 async function borderLines(page: Page, table: Locator, at: { x?: number; y?: number }): Promise<string[]> {
   await table.evaluate((node) => {
@@ -209,7 +223,8 @@ async function borderLines(page: Page, table: Locator, at: { x?: number; y?: num
           : ctx.getImageData(0, Math.round((at.y as number) * (img.height - 1)), img.width, 1).data;
       const runs: [string, number][] = [];
       for (let i = 0; i < pixels.length; i += 4) {
-        const colour = `${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`;
+        const light = Math.min(pixels[i] as number, pixels[i + 1] as number, pixels[i + 2] as number) >= 240;
+        const colour = light ? "255,255,255" : `${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`;
         const last = runs[runs.length - 1];
         if (last !== undefined && last[0] === colour) {
           last[1]++;

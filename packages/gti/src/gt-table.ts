@@ -898,6 +898,8 @@ export class GtTable extends HTMLElement {
   private lastTime = 0;
   /** The element's handler for the keys that undo and redo. */
   private undoKey: ((event: KeyboardEvent) => void) | null = null;
+  // (Whether Shift is held, as the last key pressed or let go in the table says)
+  private shiftHeld = false;
   /** The columns readers can hide, and those hidden (by id, in column order). */
   private hideable: string[] = [];
   private hiddenIds: string[] = [];
@@ -1188,6 +1190,34 @@ export class GtTable extends HTMLElement {
     return (this.selectColumn ? 1 : 0) + (this.spec?.stub.groups_as_column === true ? 1 : 0);
   }
 
+  constructor() {
+    super();
+    // (Firefox's click from Enter or Space doesn't say whether Shift is held)
+    const shift = (event: KeyboardEvent) => {
+      this.shiftHeld = event.shiftKey;
+    };
+    this.addEventListener("keydown", shift, true);
+    this.addEventListener("keyup", shift, true);
+    // A button or box clicked has focus, as in Chromium, before what the click does: Safari (and
+    // Firefox on a Mac) leaves it on the page, out of reach of the table's keys
+    this.addEventListener(
+      "click",
+      (event) => {
+        const target = (event.target as Element).closest("button, input[type=checkbox], input[type=radio], label");
+        const control = target instanceof HTMLLabelElement ? target.control : target;
+        if (control instanceof HTMLElement && this.ownerDocument.activeElement !== control) {
+          control.focus({ preventScroll: true });
+        }
+      },
+      true,
+    );
+  }
+
+  // Whether Shift was held for a click (with the mouse, or from a key)
+  private shifted(event: MouseEvent): boolean {
+    return event.shiftKey || (event.detail === 0 && this.shiftHeld);
+  }
+
   connectedCallback(): void {
     if (this.table !== null) {
       // Moved: keep the hydrated table (and its view), unless its children were replaced
@@ -1336,9 +1366,9 @@ export class GtTable extends HTMLElement {
     this.stopObserving();
     this.table = table;
 
-    const script = this.querySelector<HTMLScriptElement>(
-      ':scope > script[type="application/json"][data-gti-spec]',
-    );
+    // (Whatever its type: jQuery, with which Shiny shows HTML, changes the types of the scripts it
+    // adds until they're all in)
+    const script = this.querySelector<HTMLScriptElement>(":scope > script[data-gti-spec]");
     if (script === null) {
       this.setState("static");
       return;
@@ -2640,7 +2670,7 @@ export class GtTable extends HTMLElement {
       const entry = this.bodyRow(tr);
       if (typeof entry === "number") {
         const box = this.checkbox(`Select ${this.rowLabel(tr) || `row ${entry + 1}`}`);
-        box.addEventListener("click", (event) => this.userSelect(entry, event.shiftKey));
+        box.addEventListener("click", (event) => this.userSelect(entry, this.shifted(event)));
         cell(tr).append(box);
         this.selectBoxes[entry] = box;
       } else if (entry !== null && ("summary" in entry || "grand_summary" in entry)) {
@@ -2846,7 +2876,7 @@ export class GtTable extends HTMLElement {
         }
       });
       button.addEventListener("click", (event) => {
-        this.userSort(toggleSort(this.sortKeys, id, event.shiftKey));
+        this.userSort(toggleSort(this.sortKeys, id, this.shifted(event)));
       });
       this.sortHeaders.set(id, { th, icon, label });
     }
@@ -3064,7 +3094,9 @@ export class GtTable extends HTMLElement {
     }
     table.style.removeProperty("min-width");
     table.style.tableLayout = "fixed";
-    table.style.width = "fit-content";
+    // (A table with a fixed layout is as wide as its columns, or its width if that's wider; Firefox
+    // stretches one `fit-content` wide to fill its container)
+    table.style.width = "0";
     this.colgroup = colgroup;
     this.fittedCols = [];
     this.widthsFixed = true;
@@ -5216,10 +5248,17 @@ export class GtTable extends HTMLElement {
     (panel.querySelector<HTMLElement>('input[type="radio"]:checked') ?? panel.querySelector<HTMLElement>("input"))?.focus();
   }
 
-  // The open panel closes when focus goes elsewhere (but not when the window loses it)
+  // The open panel closes when focus goes elsewhere (but not when the window loses it, nor to what
+  // it's in, as a press in it that focuses nothing in it sends it: a press outside it closes it)
   private leaveFilter(control: FilterControl, event: FocusEvent): void {
     const to = event.relatedTarget as Node | null;
-    if (this.openFilter === control && to !== null && to !== this.filterAnchor && !control.panel?.contains(to)) {
+    const { panel } = control;
+    if (
+      this.openFilter === control &&
+      to !== null &&
+      to !== this.filterAnchor &&
+      !(panel !== null && (panel.contains(to) || to.contains(panel)))
+    ) {
       this.closeFilter(false);
     }
   }
@@ -5342,8 +5381,11 @@ export class GtTable extends HTMLElement {
       if (control.filter.active || (control.token !== null && control.token.open === this.filterAnchor)) {
         const token = control.token ?? this.makeToken(control);
         const text = this.tokenText(control);
-        token.open.textContent = text;
-        token.open.title = text;
+        // (Text set again, as it is, scrolls the line back to its start in WebKit)
+        if (token.open.textContent !== text) {
+          token.open.textContent = text;
+          token.open.title = text;
+        }
         items.push(token.item);
       }
     }
@@ -5608,8 +5650,9 @@ export class GtTable extends HTMLElement {
       });
     }
     input.addEventListener("blur", () => this.suggest(box, false));
-    // (A press on a suggestion leaves focus in the input)
-    list.addEventListener("pointerdown", (event) => event.preventDefault());
+    // (A press on a suggestion leaves focus in the input: on the mouse's press, as WebKit makes
+    // no click of a tap whose pointer press is prevented)
+    list.addEventListener("mousedown", (event) => event.preventDefault());
     list.addEventListener("click", (event) => {
       const item = (event.target as Element).closest("li");
       this.takeSuggestion(box, Array.prototype.indexOf.call(list.children, item));
@@ -5646,6 +5689,10 @@ export class GtTable extends HTMLElement {
     box.input.focus();
     const from = select === "" ? -1 : text.indexOf(select);
     box.input.setSelectionRange(from < 0 ? text.length : from, from < 0 ? text.length : from + select.length);
+    if (from < 0) {
+      // (WebKit doesn't scroll the text to its caret)
+      box.input.scrollLeft = box.input.scrollWidth;
+    }
     box.mirror.scrollLeft = box.input.scrollLeft;
   }
 
@@ -6276,6 +6323,14 @@ export class GtTable extends HTMLElement {
     if (bars.length === 0 && this.bar === null) {
       return;
     }
+    // (Measured without the widths and offsets they were given: in a container as wide as what's in
+    // it, those would keep the element wider than the table, narrowing a frame at a time, each a
+    // loop of the observer)
+    for (const bar of [...bars, this.bar?.root]) {
+      if (bar != null) {
+        bar.style.marginLeft = bar.style.width = "";
+      }
+    }
     const outer = this.getBoundingClientRect();
     const table = this.table.getBoundingClientRect();
     const left = Math.max(0, table.left - outer.left);
@@ -6799,7 +6854,8 @@ export class GtTable extends HTMLElement {
         (widths.columns[i] ?? 0) > authoredWidth(col as HTMLElement, widths.table) + 1,
     );
     if (this.cutsText && overrun) {
-      table.style.width = "fit-content";
+      // (As wide as its columns, as in `freezeWidths()`)
+      table.style.width = "0";
       this.tableFitted = true;
     } else {
       // Column widths alone let a table that overflows its container shrink to fit it

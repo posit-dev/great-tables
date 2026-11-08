@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, type Page, test } from "@playwright/test";
-import { ready } from "./helpers";
+import { allowClipboard, ready } from "./helpers";
 
 // Export as code, from GTI tables of exibble (8 rows, in two groups), with a search, filters on
 // `num`, `char`, `fctr` and `date`: of pandas data (code.html), and of Polars data with a view
@@ -56,8 +56,8 @@ for (const [data, fixture] of [
   });
 }
 
-test("copies the code of the view, for the library chosen", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+test("copies the code of the view, for the library chosen", async ({ page, context, browserName }) => {
+  await allowClipboard(context, browserName);
   const errors = await ready(page, "code-polars.html");
   await el(page).evaluate((node) => {
     (window as any).exports = [];
@@ -80,8 +80,8 @@ test("copies the code of the view, for the library chosen", async ({ page, conte
   expect(errors).toEqual([]);
 });
 
-test("copies the code of the filters chosen, leaving out the search", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+test("copies the code of the filters chosen, leaving out the search", async ({ page, context, browserName }) => {
+  await allowClipboard(context, browserName);
   const errors = await ready(page, "code.html");
   // `fctr` in ("seven"), with the column's filter, after `num` <= 0.5 (the fourth case's view)
   await el(page).evaluate((node) => {

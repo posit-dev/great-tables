@@ -259,10 +259,12 @@ gt-table .gt-i-select {
   cursor: pointer;
 }
 
+/* (Sized by the cell's text: a box's own is smaller in Safari than in other browsers) */
 gt-table .gt-i-select input {
-  width: 1.1em;
-  height: 1.1em;
+  width: 0.9em;
+  height: 0.9em;
   margin: 0;
+  font-size: inherit;
   vertical-align: middle;
   cursor: pointer;
 }
@@ -274,8 +276,8 @@ gt-table .gt-i-select input:disabled {
 /* On touch screens, the whole cell is a finger-sized target already; the box gets a little bigger */
 @media (pointer: coarse) {
   gt-table .gt-i-select input {
-    width: 1.3em;
-    height: 1.3em;
+    width: 1.1em;
+    height: 1.1em;
   }
 }
 
@@ -676,6 +678,11 @@ gt-table .gt-i-pager input {
   font: inherit;
 }
 
+/* (Safari's menus take a height, not a least one) */
+gt-table .gt-i-pager select {
+  height: 2em;
+}
+
 gt-table .gt-i-page-jump input {
   width: 3.5em;
   text-align: center;
@@ -687,6 +694,10 @@ gt-table .gt-i-page-jump input {
   gt-table .gt-i-pager input {
     min-width: 44px;
     min-height: 44px;
+  }
+
+  gt-table .gt-i-pager select {
+    height: 44px;
   }
 
   /* Below 16px, iOS zooms the page in on focus */
@@ -1215,6 +1226,7 @@ gt-table :is(.gt-i-info, .gt-i-sheet) select {
 
 gt-table :is(.gt-i-info, .gt-i-sheet) select {
   appearance: auto;
+  height: 2em;
   padding-inline: 0.25em;
 }
 
@@ -1702,6 +1714,10 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
   gt-table :is(.gt-i-info, .gt-i-sheet) select {
     min-width: 44px;
     min-height: 44px;
+  }
+
+  gt-table :is(.gt-i-info, .gt-i-sheet) select {
+    height: 44px;
   }
 
   gt-table .gt-i-filter input:not([type="checkbox"]):not([type="radio"]),
