@@ -138,7 +138,9 @@ flags_df = pl.DataFrame(
 
 ## Other kinds of output
 
-Everything above applies to the static HTML that **Great Tables** renders in notebooks, Quarto documents and web pages. Interactive tables made with `opt_interactive()` are built by a separate widget with its own markup. LaTeX output and images saved with [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) have no equivalent markup, so when you place a table image in a document, describe the table in that image's alternative text or in the text around it.
+Everything above applies to the static HTML that **Great Tables** renders in notebooks, Quarto documents and web pages, and to interactive tables made with `opt_interactive()` too: the interactivity is added to the same table markup, so its header, stub, column labels and spanners are kept as they are. Its controls are labelled buttons and inputs that can be used with the keyboard, a sorted column's label says how it's sorted, and the changes readers make (sorting, searching, filtering, or turning the page) are announced to screen readers.
+
+LaTeX output and images saved with [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) have no equivalent markup, so when you place a table image in a document, describe the table in that image's alternative text or in the text around it.
 
 ## A short checklist
 
