@@ -160,8 +160,10 @@ test.describe("pinned columns", () => {
     await expect.poll(async () => (await rect(cell(page, "row_5", "stub"))).right).toBeLessThan(before.right - 10);
     await scrollTo(page, 100);
     await expect.poll(() => scrollLeft(page)).toBe(100);
-    const stub = await rect(cell(page, "row_5", "stub"));
-    await expect.poll(async () => (await rect(cell(page, "row_5", "char"))).left).toBeCloseTo(stub.right, 0);
+    // (Both measured as they settle)
+    await expect
+      .poll(async () => (await rect(cell(page, "row_5", "char"))).left - (await rect(cell(page, "row_5", "stub"))).right)
+      .toBeCloseTo(0, 0);
     expect((await rect(el(page).locator('.gt-i-shade[data-gti-edge="left"]'))).left).toBeCloseTo(
       (await rect(cell(page, "row_5", "char"))).right,
       0,
