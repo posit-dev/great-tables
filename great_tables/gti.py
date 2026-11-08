@@ -21,6 +21,7 @@ from ._gti._settings import (
     ResponsiveMode,
     SelectionMode,
     Settings,
+    settings_of,
 )
 from ._gti._spec import _has_time_zone
 from ._locations import resolve_cols_c
@@ -46,6 +47,12 @@ class GTI(GT):
     table, inside a `<gt-table>` element that adds the controls. The element needs no other
     libraries, and the table can be read before (or without) its script running. A `GTI` table
     can't be saved as an image or a PDF, or rendered as LaTeX; for those, use a `GT` table.
+
+    To make a published `GT` table browsable (sortable, searchable, filterable, and paged), with the
+    options R gt has for that, [`opt_interactive()`](`great_tables.GT.opt_interactive`) may be all
+    that's needed; it renders the table with the same engine. `GTI` is for a table that's an
+    interface, one readers work with, and [`GTI.from_gt()`](`great_tables.GTI.from_gt`) turns a
+    `GT` table into one.
 
     :::{.callout-warning}
     `GTI()` is experimental: its methods, and what they do, may change.
@@ -137,8 +144,8 @@ class GTI(GT):
         The new `GTI` table has everything the `GT` table has (its data, formats, styles, and
         options). Readers can do with it what they can with any new `GTI` table, unless
         [`opt_interactive()`](`great_tables.GT.opt_interactive`) was used on the `GT` table: then
-        they can do what it set (sorting, searching, and so on), with `GTI`'s page controls and
-        its way of fitting a narrow container.
+        they can do what it set (sorting, searching, filtering, and so on), with `GTI`'s control
+        bar, page controls and way of fitting a narrow container.
 
         Parameters
         ----------
@@ -169,16 +176,12 @@ class GTI(GT):
             raise TypeError(f"`GTI.from_gt()` needs a `GT` table, not {type(gt).__name__!r}.")
 
         if gt._options.ihtml_active.value:
-            # (`use_filters=True` filters every column, with GTI's filters)
-            filters = gt._options.ihtml_use_filters.value
+            # (With GTI's control bar, page controls and responsive layout)
             settings = replace(
-                Settings.from_options(gt._options),
+                settings_of(gt),
                 pagination_type=Settings().pagination_type,
                 bar=True,
                 responsive=Settings().responsive,
-                filters=tuple((column, "auto") for column in resolve_cols_c(gt, None))
-                if filters
-                else (),
             )
         else:
             settings = Settings()
@@ -1355,7 +1358,7 @@ class GTI(GT):
         str
             An HTML string containing the table.
         """
-        from ._gti import render_gti_html
+        from ._gti import page_html, render_gti_html
 
         if inline_css:
             raise ValueError(
@@ -1364,13 +1367,7 @@ class GTI(GT):
             )
 
         fragment = render_gti_html(self, all_important=all_important)
-        if make_page:
-            return (
-                '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8"/>\n'
-                '<meta name="viewport" content="width=device-width, initial-scale=1"/>\n'
-                f"</head>\n<body>\n{fragment}</body>\n</html>\n"
-            )
-        return fragment
+        return page_html(fragment) if make_page else fragment
 
     def save(self, *args: Any, **kwargs: Any) -> NoReturn:
         """Not available for a GTI table, which is interactive HTML only."""
