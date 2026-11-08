@@ -79,7 +79,19 @@ test.describe("a body that scrolls", () => {
       await expect(tables.nth(0)).toHaveAttribute("data-gti-state", "ready");
       await expect(tables.nth(1)).toHaveAttribute("data-gti-state", "ready");
       await expect(tables.nth(1)).toHaveAttribute("data-gti-sticky", "");
-      for (const at of [{ x: 0.01 }, { x: 0.12 }, { x: 0.5 }, { x: 0.99 }, { y: 0.3 }, { y: 0.95 }]) {
+      // (Across the middles of a body row and the grand summary row, as fractions of the height)
+      const across = (row: Locator) =>
+        row.evaluate((tr) => {
+          const box = (tr.closest("table") as HTMLElement).getBoundingClientRect();
+          const { top, bottom } = tr.getBoundingClientRect();
+          return ((top + bottom) / 2 - box.top) / (box.height - 1);
+        });
+      const body = tables.nth(0).locator("tbody");
+      const ys = [
+        await across(body.locator("tr:has(> td.gt_row):not(:has(> .gt_summary_row, > .gt_grand_summary_row))").nth(6)),
+        await across(body.locator("tr:has(> .gt_grand_summary_row)")),
+      ];
+      for (const at of [{ x: 0.01 }, { x: 0.12 }, { x: 0.5 }, { x: 0.99 }, ...ys.map((y) => ({ y }))]) {
         const lines = await borderLines(page, tables.nth(0).locator("table"), at);
         expect(lines.length).toBeGreaterThan(0);
         expect(await borderLines(page, tables.nth(1).locator("table"), at), `${name} at ${JSON.stringify(at)}`).toEqual(
