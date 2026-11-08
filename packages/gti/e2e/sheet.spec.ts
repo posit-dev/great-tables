@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { dataRows, longPress, ready, visible } from "./helpers";
+import { CHROMIUM_TOUCH, dataRows, longPress, ready, visible } from "./helpers";
 
 // The filters' table (exibble three times over: 24 rows, in two groups, 5 to a page; num filtered
 // by a range, char by text and fctr by a facet), with a search and columns readers can hide, in a
@@ -17,7 +17,9 @@ const widen = (page: Page, width: string) =>
   }, width);
 
 test.describe("on a touch screen", () => {
-  test.use({ hasTouch: true, isMobile: true, viewport: { width: 800, height: 700 } });
+  // (Not `isMobile`, with which Safari lays the page out wider and zooms it out, away from the
+  // points touched)
+  test.use({ hasTouch: true, viewport: { width: 800, height: 700 } });
 
   test("a narrow bar folds the search and the columns into the sheet's button", async ({ page }) => {
     const errors = await ready(page, "sheet.html");
@@ -89,7 +91,7 @@ test.describe("on a touch screen", () => {
     await expect(filters.getByRole("button", { name: "fctr: one" })).toBeVisible();
     await expect.poll(async () => dataRows(await visible(page))).toEqual([0, 8, 16]);
 
-    await sheet(page).getByRole("group", { name: "Columns" }).getByRole("checkbox", { name: "char" }).uncheck();
+    await sheet(page).getByRole("group", { name: "Columns" }).getByRole("checkbox", { name: "char" }).tap();
     await expect(el(page).locator("thead th#fs-char")).toBeHidden();
     await page.keyboard.press("Escape");
     await expect(sheet(page)).toBeHidden();
@@ -114,7 +116,8 @@ test.describe("on a touch screen", () => {
     expect(errors).toEqual([]);
   });
 
-  test("a long press on a column's label opens its sheet, and doesn't sort", async ({ page }) => {
+  test("a long press on a column's label opens its sheet, and doesn't sort", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", CHROMIUM_TOUCH);
     const errors = await ready(page, "sheet.html");
     await longPress(page, label(page, "fctr"));
     await expect(sheet(page)).toBeVisible();
