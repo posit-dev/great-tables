@@ -450,9 +450,11 @@ test("fits a narrow container, with long text scrolled under the input's", async
   const [input, mirror] = await scroll();
   expect(input).toBeGreaterThan(0);
   expect(mirror).toBe(input);
-  await page.keyboard.press("Home");
+  // (On a Mac, Home and End move the text's caret only in Chromium)
+  const mac = process.platform === "darwin";
+  await page.keyboard.press(mac ? "Meta+ArrowLeft" : "Home");
   expect(await scroll()).toEqual([0, 0]);
-  await page.keyboard.press("End");
+  await page.keyboard.press(mac ? "Meta+ArrowRight" : "End");
   await page.keyboard.type(" and ");
   const [after, copy] = await scroll();
   expect(after).toBeGreaterThan(input);
