@@ -282,6 +282,8 @@ test.describe("a table that could be stacked, in a container as wide as what's i
     const errors = await ready(page, "stack-fit-hidden.html");
     await page.locator("body > div").evaluate((div) => div.removeAttribute("hidden"));
     await fits(page);
-    expect(errors).toEqual([]);
+    // (It's measured, and unstacked, as it's first laid out, which the observer doing so reports as
+    // a loop: Safari logs it)
+    expect(errors.filter((error) => !error.startsWith("ResizeObserver loop"))).toEqual([]);
   });
 });
