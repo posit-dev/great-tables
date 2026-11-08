@@ -9,7 +9,8 @@
     "build": "node scripts/build.mjs",
     "check": "tsc --noEmit && node scripts/build.mjs --check",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "bench": "node bench/run.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
