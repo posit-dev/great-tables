@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { dataRows, ready, shown, visible } from "./helpers";
+import { dataRows, ready, shown, tab, visible } from "./helpers";
 
 // exibble's num, char and currency, with group headings (grp_b, rows 4-7, then grp_a, rows 0-3),
 // summary rows, a title and a source note: rows to select several at a time, searchable, 3 rows
@@ -198,7 +198,7 @@ test.describe("selecting rows by keyboard", () => {
     await page.keyboard.press("Shift+Space");
     expect(await selection(page)).toEqual([4, 5, 6]);
     // Tab moves through the checkboxes
-    await page.keyboard.press("Shift+Tab");
+    await tab(page, true);
     await expect(box(page, 5)).toBeFocused();
     expect(await events()).toEqual([[4], [4, 5, 6]]);
     expect(errors).toEqual([]);
