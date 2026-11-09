@@ -86,7 +86,7 @@ gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", 
 | Rolls-Royce                     | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
 | Rolls-Royce                     | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
 
-Click on any column label to sort, and again to reverse the order. Columns are sorted by their values, not by how they're formatted, so the `MSRP` column sorts as numbers. The table is paginated by default with 10 rows per page.
+Click the arrows under any column label to sort (or the label itself), and again to reverse the order. Columns are sorted by their values, not by how they're formatted, so the `MSRP` column sorts as numbers. The table is paginated by default with 10 rows per page.
 
 You don't need to rebuild your table or learn a separate API. Instead, just append `.opt_interactive()` to the end of your method chain. Every part of the table is kept: the header, the stub and row groups, spanners, footnotes, source notes, and summary rows. When the rows are sorted, they're sorted within their groups.
 
