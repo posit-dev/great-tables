@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 import re
+import warnings
 from html import escape, unescape
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from .._gt_data import ColInfoTypeEnum, Options
+from .._render_checks import RenderWarning
 from .._text import _process_text
 from .._utils_render_html import _get_header_ids
 from ._query import js_trim, label_text
@@ -34,6 +36,17 @@ STACK_COLUMNS = 6
 # What a stacked table's CSS template (gti-stack.css) has for the table's ID and stacking width
 STACK_ROOT = "#gt-i-table"
 STACK_WIDTH = "(width < 420px)"
+
+# The most data rows, bytes of HTML (the `<gt-table>` element's), and rows shown at once (on a
+# page, or all of them, on one) a table has before it's warned about, as it may be slow in the
+# browser (see the Phase 1 benchmarks, in packages/gti/bench)
+MAX_ROWS = 3_000
+MAX_BYTES = 10 * 2**20
+MAX_SHOWN = 1_000
+
+
+class GTISizeWarning(RenderWarning):
+    """A warning that an interactive table may be slow in the browser, for its size."""
 
 
 @lru_cache(maxsize=None)
@@ -100,6 +113,7 @@ def render_gti_html(
         f'<script type="application/json" data-gti-spec>{spec_json}</script>\n'
         "</gt-table>\n"
     )
+    _warn_size(gt, spec, html)
 
     if runtime == "inline":
         js, css = _load_runtime()
@@ -117,6 +131,58 @@ def page_html(fragment: str) -> str:
         '<meta name="viewport" content="width=device-width, initial-scale=1"/>\n'
         f"</head>\n<body>\n{fragment}</body>\n</html>\n"
     )
+
+
+def _warn_size(gt: GT, spec: Spec, html: str) -> None:
+    """Warn if the table may be slow in the browser: with more data rows than `MAX_ROWS` or more
+    bytes of HTML (its `<gt-table>` element's) than `MAX_BYTES`, as it's slow to load, or with
+    more rows shown at once than `MAX_SHOWN`, as each is laid out again when the rows are sorted,
+    searched or filtered.
+    """
+    from ..gti import GTI
+
+    nrows, pagination = spec["nrows"], spec["pagination"]
+    shown = min(nrows, pagination["page_size"]) if pagination["enabled"] else nrows
+    size = len(html.encode("utf-8"))
+
+    reasons: list[str] = []
+    if nrows > MAX_ROWS:
+        reasons.append(f"has {nrows:,} rows (more than {MAX_ROWS:,})")
+    if size > MAX_BYTES:
+        reasons.append(f"has {size / 2**20:.1f} MB of HTML (more than {MAX_BYTES / 2**20:g} MB)")
+    if shown > MAX_SHOWN:
+        if pagination["enabled"]:
+            shows = f"shows {shown:,} rows on a page"
+        else:
+            shows = "shows them all" if nrows > MAX_ROWS else f"shows all {nrows:,} rows"
+            shows += " on one page"
+        reasons.append(f"{shows} (more than {MAX_SHOWN:,})")
+    if not reasons:
+        return
+
+    reason = reasons[-1] if len(reasons) == 1 else f"{', '.join(reasons[:-1])}, and {reasons[-1]}"
+    message = (
+        f"This interactive table may be slow in the browser, especially on phones: it {reason}."
+    )
+    if nrows > MAX_ROWS or size > MAX_BYTES:
+        message += (
+            " It's quicker to load with fewer rows, or fewer columns (or less in them), e.g., by "
+            "filtering the data first."
+        )
+    if shown > MAX_SHOWN:
+        if isinstance(gt, GTI):
+            how = "`i_pagination()`"
+            if pagination["enabled"]:
+                how = f"a smaller `page_size=` in {how}"
+        elif pagination["enabled"]:
+            how = "a smaller `page_size_default=` in `opt_interactive()`"
+        else:
+            how = "`opt_interactive(use_pagination=True)`"
+        message += (
+            f" Sorting, searching and filtering are quicker with fewer rows on a page ({how})."
+        )
+    # (For the caller of `render_gti_html()`)
+    warnings.warn(message, GTISizeWarning, stacklevel=3)
 
 
 def render_parts(gt: GT, all_important: bool = False) -> tuple[str, Spec]:

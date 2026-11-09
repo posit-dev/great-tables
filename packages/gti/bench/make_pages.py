@@ -13,13 +13,14 @@ import datetime as dt
 import gzip
 import json
 import sys
+import warnings
 from pathlib import Path
 
 import polars as pl
 
 from great_tables import GTI
 from great_tables._gti import render_gti_html
-from great_tables._gti._render import page_html
+from great_tables._gti._render import GTISizeWarning, page_html
 
 HERE = Path(__file__).parent
 OUT = HERE / ".pages"
@@ -84,6 +85,8 @@ def main() -> None:
     for old in OUT.glob("*.html"):
         old.unlink()
     (OUT / "dot.svg").write_text(DOT)
+    # (Many of the tables are past the sizes that are warned about, on purpose)
+    warnings.simplefilter("ignore", GTISizeWarning)
 
     pages = []
     for kind, counts in [
