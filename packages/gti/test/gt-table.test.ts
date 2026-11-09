@@ -1034,6 +1034,80 @@ describe("pagination", () => {
     expect(shown(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "group:a", 1, 2, "grand:Max"]);
   });
 
+  it("moves no rows for a change of page or a search, and only those of the blocks a sort reorders", async () => {
+    const el = await paged({ controls: { search: true } });
+    const tbody = el.querySelector("tbody") as HTMLTableSectionElement;
+    // (The data rows taken out of the body, or put in it; not the filler rows)
+    const observer = new MutationObserver(() => {});
+    observer.observe(tbody, { childList: true });
+    const moved = () => [
+      ...new Set(
+        observer
+          .takeRecords()
+          .flatMap((record) => [...record.addedNodes, ...record.removedNodes])
+          .map((node) => el.bodyRow(node as HTMLTableRowElement))
+          .filter((row) => typeof row === "number"),
+      ),
+    ];
+    // (But those shown with hidden rows after them, then a heading, a summary row or none, which
+    // are put back where they are, for WebKit)
+    const edges = () => {
+      const trs = Array.from(tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr"));
+      return trs.flatMap((tr, i) => {
+        const row = el.bodyRow(tr);
+        const next = trs.slice(i + 1).find((other) => !other.hidden);
+        const ends = next === undefined || typeof el.bodyRow(next) !== "number";
+        return !tr.hidden && typeof row === "number" && trs[i + 1]?.hidden === true && ends ? [row] : [];
+      });
+    };
+    const hides = vi.spyOn(HTMLElement.prototype, "hidden", "set");
+    for (const change of [() => (el.page = 2), () => (el.page = 3), () => (el.search = "row_2"), () => (el.search = "")]) {
+      change();
+      expect(moved()).toEqual(edges());
+    }
+    expect(edges()).toEqual([0]);
+    // (Of the body's rows, only those whose `hidden` changes, on going to page 2: rows 3 and 0
+    // hidden, and row 4, group b's summary, group a's heading and row 1 shown)
+    hides.mockClear();
+    el.page = 2;
+    const rows = hides.mock.contexts.filter((node) => el.bodyRow(node as HTMLTableRowElement) !== null);
+    expect(rows).toHaveLength(6);
+    el.page = 1;
+    moved();
+
+    // A sort by y moves group b's rows (3, 0, 4 to 3, 4, 0), not a's (1, 2)
+    click(el, "y");
+    expect(moved().sort()).toEqual([0, 3, 4]);
+    expect(shown(el)).toEqual(["group:b", 3, 4, 0, "summary:Total", "group:a", 1, 2, "grand:Max"]);
+    observer.disconnect();
+  });
+
+  it("leaves a row shown before hidden ones where it is while what has the focus is in it", async () => {
+    const el = await paged({ controls: { search: true } });
+    const tbody = el.querySelector("tbody") as HTMLTableSectionElement;
+    const tr = Array.from(tbody.querySelectorAll("tr")).find((row) => el.bodyRow(row) === 0) as HTMLTableRowElement;
+    const cell = tr.querySelector("td") as HTMLTableCellElement;
+    cell.tabIndex = -1;
+    cell.focus();
+    const observer = new MutationObserver(() => {});
+    observer.observe(tbody, { childList: true });
+    el.search = "row";
+    expect(visible(el)).toEqual(["group:b", 3, 0, "grand:Max"]);
+    expect(observer.takeRecords()).toEqual([]);
+    expect(document.activeElement).toBe(cell);
+    observer.disconnect();
+  });
+
+  it("keeps the blocks in place as a sort reorders one before another (with groups as a column)", async () => {
+    const body: BodyRow[] = [{ group: "b" }, 3, 0, 4, { group: "a" }, 1, 2, { grand_summary: "Max", side: "bottom" }];
+    const el = await mountTable(body, { groupsAsColumn: true });
+    click(el, "y");
+    expect(shown(el)).toEqual([3, 4, 0, 1, 2, "grand:Max"]);
+    click(el, "y");
+    expect(shown(el)).toEqual([0, 3, 4, 2, 1, "grand:Max"]);
+    expect(el.querySelector(".gt_stub_row_group")?.parentElement).toBe(el.querySelector("tbody > tr"));
+  });
+
   it("repeats a group's heading on each of its pages, and the grand summary rows on every page", async () => {
     const el = await paged();
     el.page = 2;
