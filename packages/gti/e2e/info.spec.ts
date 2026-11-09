@@ -96,7 +96,7 @@ test("changes the page size", async ({ page }) => {
 test("puts the table back in its own order", async ({ page }) => {
   const errors = await ready(page, "info.html");
   const before = await visible(page);
-  await el(page).locator("button.gt-i-sort", { hasText: "num" }).click();
+  await el(page).getByRole("button", { name: "Sort by num", exact: true }).click();
   expect(await visible(page)).not.toEqual(before);
 
   await toggle(page).click();

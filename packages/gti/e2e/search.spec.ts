@@ -65,7 +65,7 @@ test("highlights the matches", async ({ page }) => {
   expect(await highlights(page)).toEqual(["Crème", "brûlée"]);
 
   // Still on the matches after sorting moves their rows
-  await page.locator("th#q-char > button.gt-i-sort").click();
+  await page.locator("th#q-char button.gt-i-sort").click();
   expect(await highlights(page)).toEqual(["Crème", "brûlée"]);
 
   await searchBox(page).fill("");
@@ -144,7 +144,7 @@ test("searches from the keyboard", async ({ page }) => {
   ]);
 
   await tab(page);
-  await expect(page.locator("th#q-num > button.gt-i-sort")).toBeFocused();
+  await expect(page.locator("th#q-num button.gt-i-sort")).toBeFocused();
   expect(errors).toEqual([]);
 });
 

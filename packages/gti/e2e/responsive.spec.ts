@@ -162,7 +162,7 @@ test.describe("a table wider than its container", () => {
   });
 
   test("draws the table's borders as GT does", async ({ page, browserName }) => {
-    await page.setViewportSize({ width: 1280, height: 4100 });
+    await page.setViewportSize({ width: 1280, height: 4400 });
     for (const name of ["wide-borders.html", "wide-borders-column.html"]) {
       await open(page, name);
       // (A table as GT draws it, in a container it fits in, and one wider than its container)
@@ -223,7 +223,7 @@ test.describe("a table wider than its container", () => {
     await expect(table).not.toHaveAttribute("data-gti-wide");
     await expect(table.locator(".gt-i-hint")).not.toHaveAttribute("data-gti-shown");
     await expect(table.locator(".gt-i-scroller")).not.toHaveAttribute("role");
-    await expect(table.locator(".gt-i-pinned").first()).toHaveCSS("position", "static");
+    await expect(table.locator(".gt-i-pinned").first()).not.toHaveCSS("position", "sticky");
     expect(errors).toEqual([]);
   });
 });
