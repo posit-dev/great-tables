@@ -353,6 +353,8 @@ Set `use_pagination=False` to display the full table without paging. This is use
 | Rolls-Royce        | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
 | Rolls-Royce        | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
 
+A table with thousands of rows is quicker to sort, search and filter with pagination, as only a page of its rows is shown at a time. In Chrome and Edge, sorting a long table also takes longer if the page it's on has CSS rules of its own that use the `:has()` selector, as these make moving rows slower in those browsers.
+
 ## Styling with [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style)
 
 Styles set with [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) are part of the table's cells, so they follow the data when you sort or filter.

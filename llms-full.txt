@@ -18395,6 +18395,11 @@ its header and column labels in view.
 )
 ```
 
+A table with thousands of rows is quicker to sort, search and filter with pagination, as only a
+page of its rows is shown at a time. In Chrome and Edge, sorting a long table also takes longer if
+the page it's on has CSS rules of its own that use the `:has()` selector, as these make moving
+rows slower in those browsers.
+
 ## Styling with `tab_style()`
 
 Styles set with `tab_style()` are part of the table's cells, so they follow the data when you sort
