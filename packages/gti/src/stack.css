@@ -83,6 +83,11 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     display: none;
   }
 
+  /* (On the stub's line, as its text is) */
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt-i-select input {
+    display: inline-block;
+  }
+
   /* A column's label, then its value, side by side */
   gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt_row:not(.gt-i-select) {
     display: table;
@@ -115,7 +120,7 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
   }
 
   gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-filler,
-  gt-table:not([data-gti-stack-off]) #gt-i-table .gt-i-resizer {
+  gt-table:not([data-gti-stack-off]) #gt-i-table :is(.gt-i-resizer, .gt-i-resizer-start) {
     display: none !important;
   }
 
