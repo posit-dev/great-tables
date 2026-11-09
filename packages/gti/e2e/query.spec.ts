@@ -456,9 +456,9 @@ test("fits a narrow container, with long text scrolled under the input's", async
   expect(await scroll()).toEqual([0, 0]);
   await page.keyboard.press(mac ? "Meta+ArrowRight" : "End");
   await page.keyboard.type(" and ");
-  const [after, copy] = await scroll();
-  expect(after).toBeGreaterThan(input);
-  expect(copy).toBe(after);
+  // (Once the input has scrolled to the caret, which Firefox can do a frame or more later)
+  await expect.poll(async () => (await scroll())[0]).toBeGreaterThan(input);
+  await expect.poll(async () => new Set(await scroll()).size).toBe(1);
 
   // (The suggestions too, as wide as they need)
   await expect(list(page)).toBeVisible();
