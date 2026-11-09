@@ -163,6 +163,22 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     content: var(--gt-i-spanner);
   }
 
+  /* (A chip's controls follow its label, without the line under the labels; and an empty row goes) */
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table .gt-i-head-controls {
+    display: inline;
+    margin: 0;
+    margin-inline-start: 0.3em;
+    padding: 0;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table .gt-i-head-controls::before {
+    content: none;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table .gt-i-head-controls:empty {
+    display: none;
+  }
+
   /* (Not the spanners, which prefix their columns' labels, nor a stubhead without a label) */
   gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings > :is(th[scope="colgroup"], th:not([id], .gt-i-select)) {
     display: none;
