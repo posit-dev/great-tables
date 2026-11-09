@@ -117,7 +117,7 @@ export type SelectionMode = "single" | "multiple";
 const SELECTION_MODES: readonly unknown[] = ["single", "multiple", null];
 
 export interface ControlsSpec {
-  /** Whether column labels are buttons that sort by their column. */
+  /** Whether column labels have a button that sorts by their column (and sort on a click). */
   sorting: boolean;
   /** Whether there's a search box. */
   search: boolean;
