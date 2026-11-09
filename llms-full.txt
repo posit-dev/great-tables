@@ -18400,6 +18400,14 @@ page of its rows is shown at a time. In Chrome and Edge, sorting a long table al
 the page it's on has CSS rules of its own that use the `:has()` selector, as these make moving
 rows slower in those browsers.
 
+An interactive table has all of its rows in its HTML, so a very large one can be slow to load,
+especially on phones. You'll get a warning when a table has more than 3,000 rows or more than 10 MB
+of HTML, as it's quicker to load with fewer rows (e.g., by filtering the data first) or fewer
+columns. You'll also get one when a table shows more than 1,000 rows at once, all on one page or on
+a page of that size, as every row shown is laid out again when the rows are sorted, searched or
+filtered. To turn the warning off, use
+`warnings.filterwarnings("ignore", message="This interactive table may be slow")`.
+
 ## Styling with `tab_style()`
 
 Styles set with `tab_style()` are part of the table's cells, so they follow the data when you sort
