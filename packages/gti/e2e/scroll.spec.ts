@@ -139,6 +139,21 @@ test.describe("a body that scrolls", () => {
     expect(errors).toEqual([]);
   });
 
+  test("draws the guide along a column down to the bottom of the part in view", async ({ page }) => {
+    await ready(page, "scroll-pages.html");
+    await scrollTo(page, 60);
+    await expect.poll(() => scrollTop(page)).toBe(60);
+    const th = el(page).locator("thead th.gt-i-resizable").nth(1);
+    const box = await rect(th);
+    await page.mouse.move((box.left + box.right) / 2, box.bottom - 4);
+    const guide = el(page).locator(".gt-i-guide");
+    await expect(guide).toBeVisible();
+    const view = await port(page);
+    // (From the label, in the column labels stuck at the top)
+    expect((await rect(guide)).top).toBeCloseTo((await rect(th)).top, 0);
+    expect((await rect(guide)).bottom).toBeCloseTo(view.bottom, 0);
+  });
+
   test("keeps the select-all checkbox in view, and what has focus clear of the sticky rows", async ({ page }) => {
     await ready(page, "scroll.html");
     await scrollTo(page, 400);

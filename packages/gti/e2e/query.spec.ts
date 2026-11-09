@@ -453,10 +453,11 @@ test("fits a narrow container, with long text scrolled under the input's", async
   // (On a Mac, Home and End move the text's caret only in Chromium)
   const mac = process.platform === "darwin";
   await page.keyboard.press(mac ? "Meta+ArrowLeft" : "Home");
-  expect(await scroll()).toEqual([0, 0]);
+  // (Once the input has scrolled, which Firefox can do a frame or more later)
+  await expect.poll(scroll).toEqual([0, 0]);
   await page.keyboard.press(mac ? "Meta+ArrowRight" : "End");
   await page.keyboard.type(" and ");
-  // (Once the input has scrolled to the caret, which Firefox can do a frame or more later)
+  // (Back to the caret)
   await expect.poll(async () => (await scroll())[0]).toBeGreaterThan(input);
   await expect.poll(async () => new Set(await scroll()).size).toBe(1);
 

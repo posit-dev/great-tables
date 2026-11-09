@@ -317,15 +317,21 @@ interface Bar {
   count: HTMLElement | null;
   /** The button that clears the search, or closes the field when there's none. */
   clear: HTMLButtonElement | null;
+  /** The keyboard shortcuts' panel (with keys to list), whose button follows the search's. */
+  keys: Keys | null;
   pages: HTMLElement;
+  first: HTMLButtonElement;
   previous: HTMLButtonElement;
   next: HTMLButtonElement;
+  last: HTMLButtonElement;
   /** The page and page count ("3/12"), which a click makes an input for the page to go to. */
   readout: HTMLButtonElement;
   jump: HTMLElement;
   jumpInput: HTMLInputElement;
   jumpCount: HTMLElement;
   info: Info;
+  /** The button putting the author's view back, shown while the view is another (but its page or search). */
+  reset: HTMLButtonElement | null;
   /** The export panel (with `export`). */
   exporter: Exporter | null;
   /** The columns panel (with columns readers can hide). */
@@ -418,9 +424,9 @@ interface Popup {
 }
 
 /**
- * The info panel, which the bar's (i) button opens: which rows are shown, the page size, the sort
- * and the selection (each with a way to change it, where the table has one), where the view is
- * kept (with a way to reset it), and the keys the table answers to.
+ * The info panel, which the bar's (i) button opens: which rows are shown, the page size (to
+ * change, with `size_select`), the sort, the filters, the selection (with a button clearing it),
+ * the columns hidden, and where the view is kept. (The bar's reset button puts the view back.)
  */
 interface Info extends Popup {
   /** Which rows are shown ("21–30 of 118 rows"). */
@@ -428,27 +434,25 @@ interface Info extends Popup {
   /** The page size select, and the item it's in (with `size_select`). */
   size: HTMLElement | null;
   select: HTMLSelectElement | null;
-  /** The sort, and the button that resets it (with sorting). */
-  sort: HTMLElement | null;
+  /** The sort (with sorting). */
   sortText: HTMLElement | null;
-  sortReset: HTMLButtonElement | null;
-  /** The filters, and the button that clears them (with filters). */
-  filters: HTMLElement | null;
+  /** The filters (with filters). */
   filtersText: HTMLElement | null;
-  filtersClear: HTMLButtonElement | null;
   /** The selection, and the button that clears it (with selection). */
   selection: HTMLElement | null;
   selectionText: HTMLElement | null;
   selectionClear: HTMLButtonElement | null;
-  /** The columns hidden, and the button that shows them (with columns readers can hide). */
+  /** The columns hidden (with columns readers can hide). */
   columnsText: HTMLElement | null;
-  columnsShow: HTMLButtonElement | null;
-  /** Where the view is kept, and the button that resets it (with `view_state`). */
+  /** Where the view is kept (with `view_state`). */
   view: HTMLElement | null;
-  viewReset: HTMLButtonElement | null;
-  /** The keys the table answers to, of which those for paging are listed while there are pages. */
-  keys: HTMLElement | null;
+}
+
+/** The keyboard shortcuts' panel: the keys the table answers to, of which those for paging are listed while there are pages. */
+interface Keys extends Popup {
   pageKeys: HTMLElement[];
+  // (The info panel's button opening it, in a narrow bar)
+  open: HTMLElement;
 }
 
 /**
@@ -494,6 +498,10 @@ interface Exported {
   cells: (Element | null)[][];
 }
 
+// How long the mouse is on a bar's button before its tooltip shows, and how far from it that is
+const TIP_DELAY_MS = 500;
+const TIP_GAP = 6;
+
 // The bar is as wide as the table, but no narrower than this (where there's room)
 const BAR_MIN_WIDTH = 300;
 
@@ -507,10 +515,14 @@ const ICONS = {
   search: "M4 10.5a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0-13 0M15.5 15.5 20 20",
   previous: "M15 5l-7 7 7 7",
   next: "M9 5l7 7-7 7",
+  first: "M17 5l-7 7 7 7M7 5v14",
+  last: "M7 5l7 7-7 7M17 5v14",
   clear: "M6 6l12 12M18 6 6 18",
   info: "M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0M12 11v5M12 7.5v.01",
   filter: "M4 5h16l-6 7.5V18l-4 2v-7.5z",
-  query: "M8 7l-5 5 5 5M16 7l5 5-5 5",
+  query: "M8 4H7a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1M16 4h1a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-1",
+  keys: "M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM6 9h.01M10 9h.01M14 9h.01M18 9h.01M8 12.5h.01M12 12.5h.01M16 12.5h.01M7.5 16h9",
+  reset: "M3 12a9 9 0 1 0 2.64-6.36L3 8.3M3 3v5.3h5.3",
   apply: "M5 12.5l4.5 4.5L19 7",
   export: "M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14",
   undo: "M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
@@ -769,6 +781,8 @@ export class GtTable extends HTMLElement {
   private bar: Bar | null = null;
   /** The element's handler for `/`, which opens the bar's search. */
   private slashKey: ((event: KeyboardEvent) => void) | null = null;
+  /** Whether the element has the `tabindex` it was given for its keys (see `addBar()`). */
+  private ownTabIndex = false;
   /** Whether the bar's readout is an input for the page to go to. */
   private jumping = false;
   /** The bar's panel that's open (see `Popup`). */
@@ -822,6 +836,13 @@ export class GtTable extends HTMLElement {
   private rowHeight = 0;
   private live: HTMLElement | null = null;
   private resizers: Resizer[] = [];
+  /**
+   * The lines along the column whose label the mouse is over (`addGuide()`); that label; and the
+   * column before it, if that one is resized from the label's inline start.
+   */
+  private guide: HTMLElement | null = null;
+  private guideTh: HTMLTableCellElement | null = null;
+  private guideBefore: Resizer | null = null;
   /**
    * The column widths when the reader first resized one, which a reset goes back to; `null`
    * before. From then on, every column has a fixed width.
@@ -1433,6 +1454,7 @@ export class GtTable extends HTMLElement {
     if (spec.controls.resizing) {
       this.addResizers(table, spec);
     }
+    this.addGuide(table);
     this.hideable = spec.columns.flatMap((column) =>
       column.role === "data" && column.hideable === true && column.id !== null ? [column.id] : [],
     );
@@ -1590,9 +1612,10 @@ export class GtTable extends HTMLElement {
     };
   }
 
-  // Whether the view is the one the table is first shown with
+  // Whether the view is the one the table is first shown with, but for its page and search (which
+  // the reset button, shown otherwise, puts back too)
   private isAuthorView(): boolean {
-    return this.authorView === null || sameView(this.currentView(), this.authorView);
+    return this.authorView === null || sameView({ ...this.currentView(), page: 1, search: "" }, this.authorView);
   }
 
   // Show a view
@@ -2474,6 +2497,7 @@ export class GtTable extends HTMLElement {
       this.shadeFrame = requestAnimationFrame(() => {
         this.shadeFrame = 0;
         this.placeShades();
+        this.placeGuide();
       });
     }
   }
@@ -2885,7 +2909,7 @@ export class GtTable extends HTMLElement {
         const target = event.target as Element;
         const selection = doc.getSelection();
         if (
-          target.closest(`${INTERACTIVE}, .gt-i-head-controls, .gt-i-resizer`) === null &&
+          target.closest(`${INTERACTIVE}, .gt-i-head-controls, .gt-i-resizer, .gt-i-resizer-start`) === null &&
           !(selection !== null && !selection.isCollapsed && th.contains(selection.anchorNode))
         ) {
           sort(event);
@@ -2974,42 +2998,7 @@ export class GtTable extends HTMLElement {
     th.append(handle);
     this.resizers.push(resizer);
 
-    handle.addEventListener("pointerdown", (event) => {
-      const start = event.button === 0 ? this.columnWidth(resizer) : null;
-      if (start === null) {
-        return;
-      }
-      // (No text selection, and no scrolling by touch)
-      event.preventDefault();
-      const x = event.clientX;
-      const direction = this.isRtl() ? -1 : 1;
-      let width = start;
-      const move = (event: PointerEvent) => {
-        width = this.setColumnWidth(resizer, start + (event.clientX - x) * direction);
-      };
-      const end = () => {
-        handle.removeEventListener("pointermove", move);
-        handle.removeEventListener("pointerup", end);
-        handle.removeEventListener("pointercancel", end);
-        handle.removeEventListener("lostpointercapture", end);
-        this.removeAttribute("data-gti-resizing");
-        handle.removeAttribute("data-gti-active");
-        if (width !== start) {
-          // (Short pages are padded to the new height of a full one)
-          if (this.padStale()) {
-            this.render();
-          }
-          this.dispatchResize(resizer, width);
-        }
-      };
-      handle.setPointerCapture?.(event.pointerId);
-      this.setAttribute("data-gti-resizing", "");
-      handle.setAttribute("data-gti-active", "");
-      handle.addEventListener("pointermove", move);
-      handle.addEventListener("pointerup", end);
-      handle.addEventListener("pointercancel", end);
-      handle.addEventListener("lostpointercapture", end);
-    });
+    handle.addEventListener("pointerdown", (event) => this.dragWidth(resizer, handle, event));
     handle.addEventListener("keydown", (event) => {
       const step = (event.shiftKey ? RESIZE_STEP_LARGE : RESIZE_STEP) * (this.isRtl() ? -1 : 1);
       const steps: Record<string, number> = { ArrowRight: step, ArrowLeft: -step };
@@ -3028,11 +3017,203 @@ export class GtTable extends HTMLElement {
       }
       // (Home is the narrowest)
       const next = this.setColumnWidth(resizer, key === "Home" ? 0 : width + (steps[key] ?? 0));
+      this.placeGuide();
       if (next !== width) {
         this.dispatchResize(resizer, next);
       }
     });
     handle.addEventListener("dblclick", () => this.userResetWidth(resizer));
+  }
+
+  // Drag a column's edge, from a press on a handle along it (`grip`: the column's own, or the
+  // one at the inline start of the label after it)
+  private dragWidth(resizer: Resizer, grip: HTMLElement, event: PointerEvent): void {
+    const start = event.button === 0 ? this.columnWidth(resizer) : null;
+    if (start === null) {
+      return;
+    }
+    // (No text selection, and no scrolling by touch)
+    event.preventDefault();
+    const x = event.clientX;
+    const direction = this.isRtl() ? -1 : 1;
+    let width = start;
+    const move = (event: PointerEvent) => {
+      width = this.setColumnWidth(resizer, start + (event.clientX - x) * direction);
+      this.placeGuide();
+    };
+    const end = () => {
+      grip.removeEventListener("pointermove", move);
+      grip.removeEventListener("pointerup", end);
+      grip.removeEventListener("pointercancel", end);
+      grip.removeEventListener("lostpointercapture", end);
+      this.removeAttribute("data-gti-resizing");
+      resizer.handle.removeAttribute("data-gti-active");
+      if (width !== start) {
+        // (Short pages are padded to the new height of a full one)
+        if (this.padStale()) {
+          this.render();
+        }
+        this.placeGuide();
+        this.dispatchResize(resizer, width);
+      }
+    };
+    grip.setPointerCapture?.(event.pointerId);
+    this.setAttribute("data-gti-resizing", "");
+    resizer.handle.setAttribute("data-gti-active", "");
+    grip.addEventListener("pointermove", move);
+    grip.addEventListener("pointerup", end);
+    grip.addEventListener("pointercancel", end);
+    grip.addEventListener("lostpointercapture", end);
+  }
+
+  /**
+   * Lines along the column whose label the mouse is over (in the label's cell, its row of controls
+   * too), from the label to the end of the body, in the part in view: thicker along the label
+   * where its edges can be dragged to resize a column (the label's own at its inline end, the one
+   * before it at its inline start, by a handle there while the mouse is over the label). Not
+   * while the table is stacked.
+   */
+  private addGuide(table: HTMLTableElement): void {
+    const thead = table.tHead;
+    if (thead === null || thead.querySelector("th.gt-i-head, th.gt-i-resizable") === null) {
+      return;
+    }
+    const doc = this.ownerDocument;
+    const guide = element(doc, "div", "gt-i-guide", { "aria-hidden": "true" });
+    for (const side of ["left", "right"]) {
+      guide.append(element(doc, "span", "gt-i-guide-line", { "data-gti-side": side }));
+    }
+    this.append(guide);
+    this.guide = guide;
+    // (By a mouse or a pen; and not while a column is dragged, by the handle that has the pointer)
+    thead.addEventListener("pointerover", (event) => {
+      if (event.pointerType !== "touch" && !this.hasAttribute("data-gti-resizing")) {
+        const th = (event.target as Element).closest("th");
+        this.showGuide(th?.matches(".gt-i-head, .gt-i-resizable") ? th : null);
+      }
+    });
+    thead.addEventListener("pointerleave", (event) => {
+      if (event.pointerType !== "touch" && !this.hasAttribute("data-gti-resizing")) {
+        this.showGuide(null);
+      }
+    });
+  }
+
+  private showGuide(th: HTMLTableCellElement | null): void {
+    if (th === this.guideTh) {
+      return;
+    }
+    this.guideTh?.removeAttribute("data-gti-resize-start");
+    this.guideTh = th;
+    this.guideBefore = th === null ? null : this.resizerBefore(th);
+    if (th !== null && this.guideBefore !== null) {
+      this.startGrip(th);
+      th.setAttribute("data-gti-resize-start", "");
+    }
+    this.placeGuide();
+  }
+
+  // The resizable column whose label ends where a label starts: the one before it (as the columns
+  // are shown, moved and hidden), in the same row
+  private resizerBefore(th: HTMLTableCellElement): Resizer | null {
+    const rtl = this.isRtl();
+    const box = th.getBoundingClientRect();
+    const at = rtl ? box.right : box.left;
+    return (
+      this.resizers.find((resizer) => {
+        const other = resizer.th === th ? null : resizer.th.getBoundingClientRect();
+        return (
+          other != null &&
+          other.width > 0 &&
+          Math.abs((rtl ? other.left : other.right) - at) < 1 &&
+          other.top < box.bottom &&
+          other.bottom > box.top
+        );
+      }) ?? null
+    );
+  }
+
+  // The handle at a label's inline start, which drags the end of the column before it (by the
+  // mouse only: that column's own handle is the one for the keyboard and touch)
+  private startGrip(th: HTMLTableCellElement): void {
+    if (th.querySelector(":scope > .gt-i-resizer-start") !== null) {
+      return;
+    }
+    const grip = element(this.ownerDocument, "span", "gt-i-resizer-start", { "aria-hidden": "true" });
+    grip.addEventListener("pointerdown", (event) => {
+      if (this.guideTh === th && this.guideBefore !== null) {
+        this.dragWidth(this.guideBefore, grip, event);
+      }
+    });
+    grip.addEventListener("dblclick", () => {
+      if (this.guideTh === th && this.guideBefore !== null) {
+        this.userResetWidth(this.guideBefore);
+      }
+    });
+    th.append(grip);
+  }
+
+  // Place the guide along its column, in the part of the table in view (past the pinned columns,
+  // for one that scrolls under them), with its edges thick along the label where they're dragged
+  private placeGuide(): void {
+    const { guide, guideTh: th } = this;
+    if (guide === null) {
+      return;
+    }
+    const shown = th !== null && th.isConnected && !this.stacked && th.getClientRects().length > 0;
+    guide.toggleAttribute("data-gti-shown", shown);
+    if (!shown) {
+      return;
+    }
+    const box = th.getBoundingClientRect();
+    let [left, right, top, bottom] = [-Infinity, Infinity, -Infinity, Infinity];
+    const scroller = this.scroller;
+    if (scroller !== null) {
+      const port = scroller.getBoundingClientRect();
+      left = port.left + scroller.clientLeft;
+      right = left + scroller.clientWidth;
+      top = port.top + scroller.clientTop;
+      bottom = top + scroller.clientHeight;
+    }
+    const rtl = this.isRtl();
+    if (this.hasAttribute("data-gti-wide") && !th.classList.contains("gt-i-pinned")) {
+      const edge = this.edgeCell?.isConnected ? this.edgeCell.getBoundingClientRect() : null;
+      const endEdge = this.endEdge?.isConnected ? this.endEdge.getBoundingClientRect() : null;
+      if (rtl) {
+        right = Math.min(right, edge?.left ?? right);
+        left = Math.max(left, endEdge?.right ?? left);
+      } else {
+        left = Math.max(left, edge?.right ?? left);
+        right = Math.min(right, endEdge?.left ?? right);
+      }
+    }
+    const x0 = Math.max(box.left, left);
+    const x1 = Math.min(box.right, right);
+    const y0 = Math.max(box.top, top);
+    const y1 = Math.min(Math.max(box.bottom, this.tbody?.getBoundingClientRect().bottom ?? box.bottom), bottom);
+    if (x1 - x0 < 1 || y1 - y0 < 1) {
+      guide.removeAttribute("data-gti-shown");
+      return;
+    }
+    const outer = this.getBoundingClientRect();
+    setStyle(guide, "left", `${x0 - outer.left - this.clientLeft}px`);
+    setStyle(guide, "top", `${y0 - outer.top - this.clientTop}px`);
+    setStyle(guide, "width", `${x1 - x0}px`);
+    setStyle(guide, "height", `${y1 - y0}px`);
+    setStyle(guide, "--gt-i-guide-head", `${Math.max(0, box.bottom - y0)}px`);
+    // (An edge out of view isn't drawn)
+    const end = th.classList.contains("gt-i-resizable");
+    const before = this.guideBefore !== null;
+    const [leftLine, rightLine] = Array.from(guide.children) as HTMLElement[];
+    for (const [line, at, grip] of [
+      [leftLine, box.left >= left - 0.5, rtl ? end : before],
+      [rightLine, box.right <= right + 0.5, rtl ? before : end],
+    ] as const) {
+      if (line !== undefined) {
+        line.hidden = !at;
+        line.toggleAttribute("data-gti-grip", grip);
+      }
+    }
   }
 
   private isRtl(): boolean {
@@ -3074,6 +3255,7 @@ export class GtTable extends HTMLElement {
     }
     col.style.width = `${width}px`;
     this.showWidth(resizer, width);
+    this.placeGuide();
     this.dispatchResize(resizer, width);
   }
 
@@ -3471,11 +3653,14 @@ export class GtTable extends HTMLElement {
     pages.className = "gt-i-bar-pages";
     pages.setAttribute("aria-label", "Table pages");
     pages.hidden = true;
+    const first = this.barButton("first", "First page", "First page (Home)");
     const previous = this.barButton("previous", "Previous page", `Previous page (${back})`);
     const next = this.barButton("next", "Next page", `Next page (${ahead})`);
+    const last = this.barButton("last", "Last page", "Last page (End)");
     const readout = doc.createElement("button");
     readout.type = "button";
     readout.className = "gt-i-readout";
+    readout.dataset.gtiTip = "Go to a page";
     const jump = doc.createElement("label");
     jump.className = "gt-i-readout-jump";
     jump.hidden = true;
@@ -3490,7 +3675,7 @@ export class GtTable extends HTMLElement {
     const box = doc.createElement("span");
     box.className = "gt-i-readout-box";
     box.append(readout, jump);
-    pages.append(previous, box, next);
+    pages.append(first, previous, box, next, last);
     const info = this.makeInfo();
     const formats = spec.export?.formats ?? [];
     const exporter = formats.length > 0 ? this.makeExporter(formats) : null;
@@ -3501,14 +3686,18 @@ export class GtTable extends HTMLElement {
       field: null,
       count: null,
       clear: null,
+      keys: null,
       pages,
+      first,
       previous,
       next,
+      last,
       readout,
       jump,
       jumpInput,
       jumpCount,
       info,
+      reset: null,
       exporter,
       columns: null,
       tokens: null,
@@ -3535,6 +3724,17 @@ export class GtTable extends HTMLElement {
     if (this.movable && spec.controls.search) {
       this.addBarSearch(bar);
     }
+    // (After the search's button, which its field covers; or at the start)
+    const keys = this.makeKeys(info);
+    if (keys !== null) {
+      bar.keys = keys;
+      (bar.field?.parentElement ?? root).append(keys.button, keys.panel);
+      // (So that a click in the table puts focus in it, for its keys)
+      if (!this.hasAttribute("tabindex")) {
+        this.tabIndex = -1;
+        this.ownTabIndex = true;
+      }
+    }
     const columns = this.hideable.length > 0 || this.runs.length > 0 ? this.makeColumns() : null;
     bar.columns = columns;
     if (this.filters.length > 0 || columns !== null) {
@@ -3542,13 +3742,30 @@ export class GtTable extends HTMLElement {
       const sheet = this.barButton("filter", "Filter & sort", "Filter & sort");
       sheet.dataset.gtiBar = "sheet";
       sheet.setAttribute("aria-haspopup", "dialog");
-      const name = element(this.ownerDocument, "span", "gt-i-sheet-name");
+      const name = element(this.ownerDocument, "span", "gt-i-bar-name");
       name.textContent = "Filter & sort";
       sheet.append(name);
       sheet.addEventListener("click", () => this.openSheet(null, sheet));
       bar.sheet = sheet;
       root.append(sheet);
       this.addPress(table);
+    }
+    if (this.movable) {
+      const reset = this.barButton("reset", "Reset the view", "Reset the view");
+      // (Only its icon in a narrow bar: see gti.css)
+      const name = element(doc, "span", "gt-i-bar-name");
+      name.textContent = "Reset";
+      reset.append(name);
+      reset.hidden = true;
+      reset.addEventListener("click", () => {
+        // (Focus, on the button going, goes on to the next)
+        const focused = reset.contains(doc.activeElement);
+        this.userResetView();
+        if (focused) {
+          info.button.focus();
+        }
+      });
+      bar.reset = reset;
     }
     // (A panel follows its button, so that Tab goes from one into the other)
     root.append(
@@ -3557,9 +3774,21 @@ export class GtTable extends HTMLElement {
       ...(columns === null ? [] : [columns.button, columns.panel]),
       ...(exporter === null ? [] : [exporter.button, exporter.panel]),
       ...(bar.undo === null || bar.redo === null ? [] : [bar.undo, bar.redo]),
+      ...(bar.reset === null ? [] : [bar.reset]),
       info.button,
       info.panel,
     );
+
+    first.addEventListener("click", () => {
+      if (first.getAttribute("aria-disabled") !== "true") {
+        this.userPage(1);
+      }
+    });
+    last.addEventListener("click", () => {
+      if (last.getAttribute("aria-disabled") !== "true") {
+        this.userPage(this.pageCount);
+      }
+    });
 
     previous.addEventListener("click", () => {
       if (previous.getAttribute("aria-disabled") !== "true") {
@@ -3625,6 +3854,7 @@ export class GtTable extends HTMLElement {
       }
     });
 
+    this.addTips(root);
     // Below the table, outside its scrolling container, in the table's font
     this.placeBelow(root);
     root.style.fontFamily = getComputedStyle(table).fontFamily;
@@ -3661,7 +3891,7 @@ export class GtTable extends HTMLElement {
     const updateClear = () => {
       const close = input.value === "";
       clear.setAttribute("aria-label", close ? "Close the search" : "Clear the search");
-      clear.title = close ? "Close (Esc)" : "Clear (Esc)";
+      clear.dataset.gtiTip = close ? "Close (Esc)" : "Clear (Esc)";
     };
     toggle.addEventListener("click", () => this.openSearch(true));
     input.addEventListener("input", updateClear);
@@ -3725,9 +3955,90 @@ export class GtTable extends HTMLElement {
     button.className = "gt-i-bar-button";
     button.dataset.gtiBar = name;
     button.setAttribute("aria-label", label);
-    button.title = title;
+    button.dataset.gtiTip = title;
     button.append(icon(this.ownerDocument, name));
     return button;
+  }
+
+  /**
+   * The bar's tooltips: what a button (with `data-gti-tip`) does, and its key, over it (or under,
+   * without room above), a moment after the mouse goes onto it (at once, just after another),
+   * or when it's focused from the keyboard; described by it while it's shown
+   */
+  private addTips(root: HTMLElement): void {
+    const doc = this.ownerDocument;
+    const tip = element(doc, "div", "gt-i-tip", { role: "tooltip", id: `gt-i-tip-${++infoCount}` });
+    tip.hidden = true;
+    root.append(tip);
+    let shown: HTMLElement | null = null;
+    let next: HTMLElement | null = null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let left = 0;
+    // (Escape hides it, wherever focus is)
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        hide();
+      }
+    };
+    const hide = () => {
+      clearTimeout(timer);
+      next = null;
+      doc.removeEventListener("keydown", escape, true);
+      if (shown !== null) {
+        shown.removeAttribute("aria-describedby");
+        shown = null;
+        tip.hidden = true;
+        left = Date.now();
+      }
+    };
+    const show = (target: HTMLElement) => {
+      hide();
+      // (Not over its open panel)
+      if (!target.isConnected || target.getAttribute("aria-expanded") === "true") {
+        return;
+      }
+      shown = target;
+      target.setAttribute("aria-describedby", tip.id);
+      tip.textContent = target.dataset.gtiTip as string;
+      tip.hidden = false;
+      doc.addEventListener("keydown", escape, true);
+      const bar = root.getBoundingClientRect();
+      const box = target.getBoundingClientRect();
+      const { width, height } = tip.getBoundingClientRect();
+      const top = box.top - height - TIP_GAP;
+      tip.style.left = `${Math.max(Math.min(box.left + (box.width - width) / 2, bar.right - width), bar.left) - bar.left}px`;
+      tip.style.top = `${(top < 0 ? box.bottom + TIP_GAP : top) - bar.top}px`;
+    };
+    const target = (event: Event) => (event.target as Element).closest<HTMLElement>("[data-gti-tip]");
+    root.addEventListener("pointerover", (event) => {
+      const el = target(event);
+      if (el === null || el === shown || el === next || event.pointerType === "touch") {
+        return;
+      }
+      if (shown !== null || Date.now() - left < TIP_DELAY_MS) {
+        show(el);
+      } else {
+        clearTimeout(timer);
+        next = el;
+        timer = setTimeout(() => show(el), TIP_DELAY_MS);
+      }
+    });
+    root.addEventListener("pointerout", (event) => {
+      const el = target(event);
+      if (el !== null && !el.contains(event.relatedTarget as Node | null)) {
+        hide();
+      }
+    });
+    root.addEventListener("focusin", (event) => {
+      const el = target(event);
+      if (el?.matches(":focus-visible")) {
+        show(el);
+      }
+    });
+    // (And on a click from the keyboard, which may open a panel over it)
+    for (const type of ["focusout", "pointerdown", "click"]) {
+      root.addEventListener(type, hide);
+    }
   }
 
   /** Make a panel, and the bar's button that opens it (a disclosure). */
@@ -3749,10 +4060,11 @@ export class GtTable extends HTMLElement {
         this.closePanel(false);
       }
     });
-    // The panel closes when focus goes elsewhere (but not when the window loses it)
+    // The panel closes when focus goes elsewhere (but not when the window loses it, nor to what
+    // it's in, as a press in it that focuses nothing in it sends it: a press outside it closes it)
     const leave = (event: FocusEvent) => {
       const to = event.relatedTarget as Node | null;
-      if (to !== null && to !== button && !panel.contains(to)) {
+      if (to !== null && to !== button && !panel.contains(to) && !to.contains(panel)) {
         this.closePanel(false, popup);
       }
     };
@@ -4053,49 +4365,27 @@ export class GtTable extends HTMLElement {
       rows,
       size: null,
       select: null,
-      sort: null,
       sortText: null,
-      sortReset: null,
-      filters: null,
       filtersText: null,
-      filtersClear: null,
       selection: null,
       selectionText: null,
       selectionClear: null,
       columnsText: null,
-      columnsShow: null,
       view: null,
-      viewReset: null,
-      keys: null,
-      pageKeys: [],
     };
 
-    // An item: what it's about, then the control that changes it
-    const item = (name: string, tag: "div" | "label", text: HTMLElement, control: HTMLElement) => {
+    // An item: what it's about, then the control that changes it (if there's one)
+    const item = (name: string, tag: "div" | "label", text: HTMLElement, control?: HTMLElement) => {
       const el = doc.createElement(tag);
       el.className = "gt-i-info-item";
       el.dataset.gtiInfo = name;
-      el.append(text, control);
+      el.append(text, ...(control === undefined ? [] : [control]));
       panel.append(el);
       return el;
     };
     const span = (text = "") => {
       const el = doc.createElement("span");
       el.textContent = text;
-      return el;
-    };
-    const action = (text: string, label: string, act: () => void) => {
-      const el = doc.createElement("button");
-      el.type = "button";
-      el.className = "gt-i-info-button";
-      el.textContent = text;
-      el.setAttribute("aria-label", label);
-      // (Disabled with ARIA, so that it keeps focus once it has done what it does)
-      el.addEventListener("click", () => {
-        if (el.getAttribute("aria-disabled") !== "true") {
-          act();
-        }
-      });
       return el;
     };
 
@@ -4107,38 +4397,47 @@ export class GtTable extends HTMLElement {
     }
     if (this.sortHeaders.size > 0) {
       info.sortText = span();
-      info.sortReset = action("Reset", "Reset the sort", () => this.userSort([]));
-      info.sort = item("sort", "div", info.sortText, info.sortReset);
+      item("sort", "div", info.sortText);
     }
     if (this.filters.length > 0) {
       info.filtersText = span();
-      info.filtersClear = action("Clear", "Clear the filters", () => {
-        this.cancelFilterTimer();
-        this.userFilter(() => this.clearFilters());
-      });
-      info.filters = item("filters", "div", info.filtersText, info.filtersClear);
+      item("filters", "div", info.filtersText);
     }
     if (spec.controls.selection !== null) {
+      const clear = doc.createElement("button");
+      clear.type = "button";
+      clear.className = "gt-i-info-button";
+      clear.textContent = "Clear";
+      clear.setAttribute("aria-label", "Clear the selection");
+      // (Disabled with ARIA, so that it keeps focus once it has done what it does)
+      clear.addEventListener("click", () => {
+        if (clear.getAttribute("aria-disabled") !== "true") {
+          this.userClearSelection();
+        }
+      });
       info.selectionText = span();
-      info.selectionClear = action("Clear", "Clear the selection", () => this.userClearSelection());
-      info.selection = item("selection", "div", info.selectionText, info.selectionClear);
+      info.selectionClear = clear;
+      info.selection = item("selection", "div", info.selectionText, clear);
     }
     if (this.hideable.length > 0) {
       info.columnsText = span();
-      info.columnsShow = action("Show all", "Show every column", () => this.userColumns([], "Every column shown"));
-      item("columns", "div", info.columnsText, info.columnsShow);
+      item("columns", "div", info.columnsText);
     }
     const kept = this.keeper;
     if (kept !== null) {
       const where = kept.url ? (kept.storage ? "the link and this browser" : "the link") : "this browser";
-      info.viewReset = action("Reset", "Reset the view", () => this.userResetView());
-      info.view = item("view", "div", span(`View kept in ${where}`), info.viewReset);
+      info.view = item("view", "div", span(`View kept in ${where}`));
     }
+    return info;
+  }
 
-    // The keys the table answers to, and the clicks with Shift
-    const heading = doc.createElement("p");
-    heading.className = "gt-i-info-heading";
-    heading.textContent = "Shortcuts";
+  /**
+   * Make the keyboard shortcuts' panel, and the bar's button that opens it: the keys the table
+   * answers to (with focus in it), and the clicks with Shift. `null` if there are none.
+   */
+  private makeKeys(info: Info): Keys | null {
+    const doc = this.ownerDocument;
+    const spec = this.spec as Spec;
     const keys = doc.createElement("dl");
     keys.className = "gt-i-info-keys";
     const key = (names: string[], text: string, click = false) => {
@@ -4162,12 +4461,9 @@ export class GtTable extends HTMLElement {
       key(["/"], "Search");
       key(["Esc"], "Clear the search, then close it");
     }
-    if (spec.pagination.enabled) {
-      info.pageKeys = [
-        key(["←", "→"], "Previous or next page, in the bar"),
-        key(["Home", "End"], "First or last page, in the bar"),
-      ];
-    }
+    const pageKeys = spec.pagination.enabled
+      ? [key(["←", "→"], "Previous or next page, in the bar"), key(["Home", "End"], "First or last page, in the bar")]
+      : [];
     if (this.sortHeaders.size > 0) {
       key(["Shift"], "Sort by more than one column", true);
     }
@@ -4182,13 +4478,27 @@ export class GtTable extends HTMLElement {
       key(mac ? ["⌘", "Z"] : ["Ctrl", "Z"], "Undo a change to the view");
       key(mac ? ["⇧", "⌘", "Z"] : ["Ctrl", "Y"], "Redo it");
     }
-    if (keys.childElementCount > 0) {
-      info.keys = doc.createElement("div");
-      info.keys.className = "gt-i-info-shortcuts";
-      info.keys.append(heading, keys);
-      panel.append(info.keys);
+    if (keys.childElementCount === 0) {
+      return null;
     }
-    return info;
+    const popup = this.makePanel("keys", "Keyboard shortcuts", "Keyboard shortcuts");
+    const heading = element(doc, "p", "gt-i-info-heading");
+    heading.textContent = "Keyboard shortcuts";
+    const note = element(doc, "p", "gt-i-export-note");
+    note.textContent = "With the table clicked, or focus in it";
+    // (Opening from the bar's start)
+    popup.panel.setAttribute("data-gti-start", "");
+    popup.panel.append(heading, keys, note);
+    // In a narrow bar, without room for its button, it's opened from the info panel's (see gti.css)
+    const open = element(doc, "button", "gt-i-info-button", { type: "button", "data-gti-info": "keys" });
+    open.textContent = "Keyboard shortcuts";
+    open.addEventListener("click", () => {
+      this.openPanel({ ...popup, button: info.button });
+      info.button.focus();
+    });
+    info.panel.append(open);
+    // (The popup its button opens, which `closePanel()` knows it by)
+    return Object.assign(popup, { pageKeys, open });
   }
 
   private openPanel(popup: Popup): void {
@@ -4291,32 +4601,19 @@ export class GtTable extends HTMLElement {
         info.select.value = String(size);
       }
     }
-    if (info.sortText !== null && info.sortReset !== null) {
+    if (info.sortText !== null) {
       info.sortText.textContent = this.sortText();
-      info.sortReset.setAttribute("aria-disabled", String(this.sortKeys.length === 0));
     }
-    if (info.filtersText !== null && info.filtersClear !== null) {
+    if (info.filtersText !== null) {
       info.filtersText.textContent = this.filtersText();
-      info.filtersClear.setAttribute(
-        "aria-disabled",
-        String(this.activeFilters().length === 0 && this.filterGroups.length === 0),
-      );
     }
     if (info.selectionText !== null && info.selectionClear !== null) {
       info.selectionText.textContent = this.selectionText();
       info.selectionClear.setAttribute("aria-disabled", String(this.selected.size === 0));
     }
-    if (info.columnsText !== null && info.columnsShow !== null) {
+    if (info.columnsText !== null) {
       const n = this.hiddenIds.length;
       info.columnsText.textContent = n === 0 ? "No columns hidden" : `${n} ${n === 1 ? "column" : "columns"} hidden`;
-      info.columnsShow.setAttribute("aria-disabled", String(n === 0));
-    }
-    info.viewReset?.setAttribute("aria-disabled", String(this.isAuthorView()));
-    for (const entry of info.pageKeys) {
-      entry.hidden = bar.pages.hidden;
-    }
-    if (info.keys !== null) {
-      info.keys.hidden = Array.from(info.keys.querySelectorAll<HTMLElement>("dl > div"), (entry) => entry.hidden).every(Boolean);
     }
     if (bar.exporter !== null) {
       this.updateExporter(bar.exporter);
@@ -5692,10 +5989,11 @@ export class GtTable extends HTMLElement {
       const item = (event.target as Element).closest("li");
       this.takeSuggestion(box, Array.prototype.indexOf.call(list.children, item));
     });
-    // Unchanged, it closes when focus leaves it (but not when the window loses it)
+    // Unchanged, it closes when focus leaves it (but not when the window loses it, nor to what
+    // it's in, as a press in it that focuses nothing in it sends it)
     root.addEventListener("focusout", (event) => {
       const to = event.relatedTarget as Node | null;
-      if (to !== null && to !== toggle && !root.contains(to) && input.value === box.opened) {
+      if (to !== null && to !== toggle && !root.contains(to) && !to.contains(root) && input.value === box.opened) {
         this.closeQuery(false);
       }
     });
@@ -6146,6 +6444,10 @@ export class GtTable extends HTMLElement {
     bar.field.hidden = false;
     bar.toggle.hidden = true;
     bar.root.setAttribute("data-gti-searching", "");
+    // (The field covers the shortcuts' button)
+    if (bar.keys !== null) {
+      this.closePanel(false, bar.keys);
+    }
     if (focus) {
       this.searchBox?.focus();
     }
@@ -6236,6 +6538,21 @@ export class GtTable extends HTMLElement {
       bar.count.hidden = !searching;
       bar.count.textContent = searching ? plural(this.matchCount) : "";
     }
+    if (bar.keys !== null) {
+      for (const entry of bar.keys.pageKeys) {
+        entry.hidden = !paged;
+      }
+      bar.keys.button.hidden = bar.keys.open.hidden = Array.from(
+        bar.keys.panel.querySelectorAll<HTMLElement>("dl > div"),
+        (entry) => entry.hidden,
+      ).every(Boolean);
+      if (bar.keys.button.hidden) {
+        this.closePanel(false, bar.keys);
+      }
+    }
+    if (bar.reset !== null) {
+      bar.reset.hidden = this.isAuthorView();
+    }
     this.updateInfo();
     if (!paged) {
       return;
@@ -6243,11 +6560,12 @@ export class GtTable extends HTMLElement {
 
     const page = this.page;
     const count = this.pageCount;
+    bar.first.setAttribute("aria-disabled", String(page === 1));
     bar.previous.setAttribute("aria-disabled", String(page === 1));
     bar.next.setAttribute("aria-disabled", String(page === count));
+    bar.last.setAttribute("aria-disabled", String(page === count));
     bar.readout.replaceChildren(String(page), this.slash(), String(count));
     bar.readout.setAttribute("aria-label", `Page ${page} of ${count}`);
-    bar.readout.title = "Go to a page";
     bar.jumpCount.replaceChildren(this.slash(), String(count));
     bar.jumpInput.setAttribute("aria-label", `Go to page (of ${count})`);
     // (Room for the most pages the rows can have, unsearched)
@@ -6643,6 +6961,7 @@ export class GtTable extends HTMLElement {
     this.highlight(shown);
     this.updatePager();
     this.updateFilters();
+    this.placeGuide();
     this.saveView();
   }
 
@@ -7437,6 +7756,7 @@ export class GtTable extends HTMLElement {
     for (const shade of Object.values(this.shades)) {
       shade.remove();
     }
+    this.guide?.remove();
     this.hint?.remove();
     this.toolbar?.remove();
     this.pager?.nav.remove();
@@ -7501,6 +7821,10 @@ export class GtTable extends HTMLElement {
     this.pager = null;
     this.bar = null;
     this.slashKey = null;
+    if (this.ownTabIndex) {
+      this.removeAttribute("tabindex");
+      this.ownTabIndex = false;
+    }
     this.jumping = false;
     this.colgroup = null;
     this.fittedCols = [];
@@ -7509,6 +7833,9 @@ export class GtTable extends HTMLElement {
     this.tableFitted = false;
     this.fittedWidth = 0;
     this.resizers = [];
+    this.guide = null;
+    this.guideTh = null;
+    this.guideBefore = null;
     this.startWidths = null;
     this.cellTexts = null;
     this.unsearched = new Set();

@@ -1554,9 +1554,20 @@ describe("the control bar", () => {
     expect(nav.tagName).toBe("NAV");
     expect(nav.getAttribute("aria-label")).toBe("Table pages");
     expect(part(el, "search").getAttribute("aria-label")).toBe("Search the table");
-    expect(part(el, "search").title).toBe("Search (/)");
-    expect(part(el, "previous").title).toBe("Previous page (←)");
-    expect(part(el, "next").title).toBe("Next page (→)");
+    // (Their tooltips, which aren't the browser's)
+    expect(part(el, "search").dataset.gtiTip).toBe("Search (/)");
+    expect(part(el, "search").hasAttribute("title")).toBe(false);
+    expect(part(el, "first").dataset.gtiTip).toBe("First page (Home)");
+    expect(part(el, "previous").dataset.gtiTip).toBe("Previous page (←)");
+    expect(part(el, "next").dataset.gtiTip).toBe("Next page (→)");
+    expect(part(el, "last").dataset.gtiTip).toBe("Last page (End)");
+    expect(Array.from(nav.children, (child) => (child as HTMLElement).dataset.gtiBar ?? child.className)).toEqual([
+      "first",
+      "previous",
+      "gt-i-readout-box",
+      "next",
+      "last",
+    ]);
     expect(part(el, "search").querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
   });
 
@@ -1605,14 +1616,14 @@ describe("the control bar", () => {
     type(input, "a");
     press(input, "Enter");
     expect(part(el, "clear").getAttribute("aria-label")).toBe("Clear the search");
-    expect(part(el, "clear").title).toBe("Clear (Esc)");
+    expect(part(el, "clear").dataset.gtiTip).toBe("Clear (Esc)");
 
     expect(press(input, "Escape").defaultPrevented).toBe(true);
     expect([input.value, el.search]).toEqual(["", ""]);
     expect(field(el).hidden).toBe(false);
     expect(count(el).hidden).toBe(true);
     expect(part(el, "clear").getAttribute("aria-label")).toBe("Close the search");
-    expect(part(el, "clear").title).toBe("Close (Esc)");
+    expect(part(el, "clear").dataset.gtiTip).toBe("Close (Esc)");
 
     expect(press(input, "Escape").defaultPrevented).toBe(true);
     expect(field(el).hidden).toBe(true);
@@ -1718,7 +1729,7 @@ describe("the control bar", () => {
     const { el } = await mountBar();
     expect(readout(el).textContent).toBe("1/3");
     expect(readout(el).getAttribute("aria-label")).toBe("Page 1 of 3");
-    expect(readout(el).title).toBe("Go to a page");
+    expect(readout(el).dataset.gtiTip).toBe("Go to a page");
     expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.style.getPropertyValue("--gt-i-digits")).toBe("1");
 
     el.search = "a";
@@ -1743,6 +1754,26 @@ describe("the control bar", () => {
     expect(events).toHaveLength(2);
     part(el, "previous").click();
     expect(el.page).toBe(2);
+  });
+
+  it("goes to the first and last pages with their buttons, disabled there", async () => {
+    const { el, events } = await mountBar();
+    expect(part(el, "first").getAttribute("aria-label")).toBe("First page");
+    expect(part(el, "last").getAttribute("aria-label")).toBe("Last page");
+    expect(part(el, "first").getAttribute("aria-disabled")).toBe("true");
+    part(el, "first").click();
+    expect(events).toEqual([]);
+
+    part(el, "last").click();
+    expect(el.page).toBe(3);
+    expect(live(el)).toBe("Page 3 of 3");
+    expect(part(el, "last").getAttribute("aria-disabled")).toBe("true");
+    expect(part(el, "first").getAttribute("aria-disabled")).toBe("false");
+    part(el, "last").click();
+    expect(events).toHaveLength(1);
+    part(el, "first").click();
+    expect(el.page).toBe(1);
+    expect(events.map((event) => (event as PageEventDetail).page)).toEqual([3, 1]);
   });
 
   it("pages with the arrow keys, Page Up and Down, and Home and End", async () => {
@@ -1905,7 +1936,8 @@ describe("the control bar", () => {
 describe("the info panel", () => {
   const bar = (el: GtTable) => el.querySelector(".gt-i-bar") as HTMLElement;
   const toggle = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
-  const panel = (el: GtTable) => el.querySelector(".gt-i-info") as HTMLElement;
+  const panel = (el: GtTable) => el.querySelector(`#${toggle(el).getAttribute("aria-controls")}`) as HTMLElement;
+  const keysButton = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="keys"]') as HTMLButtonElement | null;
   const rows = (el: GtTable) => el.querySelector(".gt-i-info-rows") as HTMLElement;
   const item = (el: GtTable, name: string) => el.querySelector(`[data-gti-info="${name}"]`) as HTMLElement | null;
   const action = (el: GtTable, name: string) => item(el, name)?.querySelector("button") as HTMLButtonElement;
@@ -1939,8 +1971,12 @@ describe("the info panel", () => {
     const button = toggle(el);
     expect(button.getAttribute("aria-label")).toBe("Table info");
     expect(button.getAttribute("aria-expanded")).toBe("false");
-    expect(button.getAttribute("aria-controls")).toBe(panel(el).id);
-    expect(button.previousElementSibling).toBe(el.querySelector(".gt-i-bar-pages"));
+    expect(panel(el).classList.contains("gt-i-info")).toBe(true);
+    // (After the reset, which is hidden while the view is the author's)
+    const reset = button.previousElementSibling as HTMLElement;
+    expect(reset.dataset.gtiBar).toBe("reset");
+    expect(reset.hidden).toBe(true);
+    expect(reset.previousElementSibling).toBe(el.querySelector(".gt-i-bar-pages"));
     // (Next to its button, so that Tab goes from one into the other)
     expect(button.nextElementSibling).toBe(panel(el));
     expect(panel(el).getAttribute("role")).toBe("group");
@@ -2037,24 +2073,13 @@ describe("the info panel", () => {
     ]);
   });
 
-  it("says how the table is sorted, and puts it back in its own order", async () => {
-    const { el, events } = await mountInfo();
-    expect(item(el, "sort")?.textContent).toBe("Not sortedReset");
-    expect(action(el, "sort").getAttribute("aria-label")).toBe("Reset the sort");
-    expect(action(el, "sort").getAttribute("aria-disabled")).toBe("true");
-    action(el, "sort").click();
-    expect(events).toEqual([]);
-
+  it("says how the table is sorted", async () => {
+    const { el } = await mountInfo();
+    expect(item(el, "sort")?.textContent).toBe("Not sorted");
+    // (The bar's reset puts it back: see "the reset")
+    expect(item(el, "sort")?.querySelector("button")).toBeNull();
     el.sort = [{ column: "x", descending: true }, { column: "y" }];
-    expect(item(el, "sort")?.firstElementChild?.textContent).toBe("Sorted by x, descending, then y, ascending");
-    expect(action(el, "sort").getAttribute("aria-disabled")).toBe("false");
-    el.page = 2;
-    action(el, "sort").click();
-    expect(el.sort).toEqual([]);
-    expect(el.page).toBe(1);
-    expect(events).toEqual([{ sort: [] }]);
-    expect(live(el)).toBe("Not sorted");
-    expect(action(el, "sort").getAttribute("aria-disabled")).toBe("true");
+    expect(item(el, "sort")?.textContent).toBe("Sorted by x, descending, then y, ascending");
   });
 
   it("has no sort without sorting", async () => {
@@ -2103,14 +2128,25 @@ describe("the info panel", () => {
       controls: { search: false, sorting: false },
       pagination: { page_size: 5, page_sizes: [2], size_select: true },
     });
-    expect(el.querySelector<HTMLElement>(".gt-i-info-shortcuts")?.hidden).toBe(true);
+    // (Only the keys for paging, without pages)
+    expect(keysButton(el)?.hidden).toBe(true);
+    el.pageSize = 2;
+    expect(keysButton(el)?.hidden).toBe(false);
+    keysButton(el)?.click();
+    el.pageSize = 5;
+    expect(keysButton(el)?.hidden).toBe(true);
+    expect(keysButton(el)?.getAttribute("aria-expanded")).toBe("false");
+
+    const none = await mountInfo({ controls: { search: false, sorting: false }, pagination: { enabled: false } });
+    expect(keysButton(none.el)).toBeNull();
+    expect(none.el.hasAttribute("tabindex")).toBe(false);
   });
 
   it("closes on Escape, giving focus back to its button", async () => {
-    const { el } = await mountInfo();
+    const { el } = await mountInfo({ controls: { selection: "multiple" } });
     toggle(el).click();
-    action(el, "sort").focus();
-    expect(press(action(el, "sort"), "Escape").defaultPrevented).toBe(true);
+    action(el, "selection").focus();
+    expect(press(action(el, "selection"), "Escape").defaultPrevented).toBe(true);
     expect(panel(el).hidden).toBe(true);
     expect(document.activeElement).toBe(toggle(el));
     // (Escape is the table's only while the panel is open)
@@ -2118,7 +2154,7 @@ describe("the info panel", () => {
   });
 
   it("closes on a press outside it, or when focus goes elsewhere", async () => {
-    const { el } = await mountInfo();
+    const { el } = await mountInfo({ controls: { selection: "multiple" } });
     const outside = el.querySelector("tbody td") as HTMLElement;
     toggle(el).click();
     panel(el).dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
@@ -2127,24 +2163,24 @@ describe("the info panel", () => {
     expect(panel(el).hidden).toBe(true);
 
     toggle(el).click();
-    action(el, "sort").focus();
+    action(el, "selection").focus();
     const leave = (from: Element, to: Element | null) =>
       from.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: to }));
-    leave(toggle(el), action(el, "sort"));
-    leave(action(el, "sort"), toggle(el));
+    leave(toggle(el), action(el, "selection"));
+    leave(action(el, "selection"), toggle(el));
     // (Not when the window loses focus)
-    leave(action(el, "sort"), null);
+    leave(action(el, "selection"), null);
     expect(panel(el).hidden).toBe(false);
-    leave(action(el, "sort"), outside);
+    leave(action(el, "selection"), outside);
     expect(panel(el).hidden).toBe(true);
     expect(document.activeElement).not.toBe(toggle(el));
   });
 
   it("doesn't page with the keys pressed in it", async () => {
-    const { el } = await mountInfo();
+    const { el } = await mountInfo({ controls: { selection: "multiple" } });
     toggle(el).click();
-    expect(press(action(el, "sort"), "ArrowRight").defaultPrevented).toBe(false);
-    expect(press(action(el, "sort"), "End").defaultPrevented).toBe(false);
+    expect(press(action(el, "selection"), "ArrowRight").defaultPrevented).toBe(false);
+    expect(press(action(el, "selection"), "End").defaultPrevented).toBe(false);
     expect(el.page).toBe(1);
     // (But does on its button, in the bar)
     expect(press(toggle(el), "ArrowRight").defaultPrevented).toBe(true);
@@ -2163,6 +2199,218 @@ describe("the info panel", () => {
     el.remove();
     expect(panel(el).hidden).toBe(true);
     expect((el as unknown as { outsidePress: unknown }).outsidePress).toBeNull();
+  });
+});
+
+describe("the bar's reset, shortcuts and tooltips", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const part = (el: GtTable, name: string) =>
+    el.querySelector(`.gt-i-bar [data-gti-bar="${name}"]`) as HTMLButtonElement;
+  const panelOf = (el: GtTable, name: string) =>
+    el.querySelector(`#${part(el, name).getAttribute("aria-controls")}`) as HTMLElement;
+  const tip = (el: GtTable) => el.querySelector(".gt-i-bar .gt-i-tip") as HTMLElement;
+  const pointer = (target: Element, type: string, init: PointerEventInit = {}) =>
+    target.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: "mouse", ...init }));
+
+  // A search, sorting, a facet on `y` and pages of 2 rows
+  const mountBar = (options: TableOptions = {}) =>
+    mountTable(GROUPED, {
+      filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }],
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, ...options.pagination },
+    });
+
+  it("shows the reset while the view isn't the author's, but for its page and search", async () => {
+    const el = await mountBar();
+    const reset = part(el, "reset");
+    expect(reset.getAttribute("aria-label")).toBe("Reset the view");
+    expect(reset.dataset.gtiTip).toBe("Reset the view");
+    expect(reset.querySelector(".gt-i-bar-name")?.textContent).toBe("Reset");
+    expect(reset.nextElementSibling).toBe(part(el, "info"));
+    expect(reset.hidden).toBe(true);
+
+    el.page = 2;
+    el.search = "a";
+    expect(reset.hidden).toBe(true);
+    el.sort = [{ column: "x", descending: true }];
+    expect(reset.hidden).toBe(false);
+    el.sort = [];
+    expect(reset.hidden).toBe(true);
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }] };
+    expect(reset.hidden).toBe(false);
+  });
+
+  it("puts back the author's view, with focus going on to the info button", async () => {
+    const el = await mountBar();
+    const views: unknown[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent).detail));
+    el.sort = [{ column: "x", descending: true }];
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }] };
+    el.search = "c";
+    el.page = 2;
+    part(el, "reset").focus();
+    part(el, "reset").click();
+
+    expect(el.sort).toEqual([]);
+    expect(el.filter).toBeNull();
+    expect(el.search).toBe("");
+    expect(el.page).toBe(1);
+    expect(live(el)).toBe("The view is reset: 1–2 of 5 rows");
+    expect(views).toHaveLength(1);
+    expect(part(el, "reset").hidden).toBe(true);
+    expect(document.activeElement).toBe(part(el, "info"));
+  });
+
+  it("lists the shortcuts in a panel of their own, from a button after the search's", async () => {
+    const el = await mountBar();
+    const keys = part(el, "keys");
+    expect(keys.getAttribute("aria-label")).toBe("Keyboard shortcuts");
+    expect(keys.dataset.gtiTip).toBe("Keyboard shortcuts");
+    expect(keys.parentElement).toBe(el.querySelector(".gt-i-bar-search"));
+    expect(keys.previousElementSibling).toBe(el.querySelector(".gt-i-search-field"));
+    const panel = panelOf(el, "keys");
+    expect(keys.nextElementSibling).toBe(panel);
+    expect(panel.getAttribute("aria-label")).toBe("Keyboard shortcuts");
+    expect(panel.hasAttribute("data-gti-start")).toBe(true);
+    expect(panel.querySelector(".gt-i-info-keys")).not.toBeNull();
+    // (Not in the info panel)
+    expect(panelOf(el, "info").querySelector(".gt-i-info-keys")).toBeNull();
+
+    // One panel open at a time, and none while searching
+    keys.click();
+    expect(panel.hidden).toBe(false);
+    part(el, "info").click();
+    expect(panel.hidden).toBe(true);
+    expect(keys.getAttribute("aria-expanded")).toBe("false");
+    keys.click();
+    part(el, "search").click();
+    expect(panel.hidden).toBe(true);
+    expect(el.querySelector(".gt-i-bar")?.hasAttribute("data-gti-searching")).toBe(true);
+  });
+
+  it("opens the shortcuts from the info panel too, for a bar without room for their button", async () => {
+    const el = await mountBar();
+    const info = part(el, "info");
+    const open = panelOf(el, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement;
+    expect(open.textContent).toBe("Keyboard shortcuts");
+    info.click();
+    open.focus();
+    open.click();
+    const panel = panelOf(el, "keys");
+    expect(panel.hidden).toBe(false);
+    expect(panelOf(el, "info").hidden).toBe(true);
+    // (From the info button, which focus goes back to)
+    expect(info.getAttribute("aria-expanded")).toBe("true");
+    expect(document.activeElement).toBe(info);
+    info.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    expect(panel.hidden).toBe(true);
+    expect(info.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(info);
+
+    // (Gone with the shortcuts, as their button is)
+    const paged = await mountTable(GROUPED, {
+      controls: { search: false, sorting: false, bar: true },
+      pagination: { enabled: true },
+    });
+    const pagedOpen = panelOf(paged, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement;
+    expect(pagedOpen.hidden).toBe(false);
+    paged.pageSize = 10;
+    expect(part(paged, "keys").hidden).toBe(true);
+    expect(pagedOpen.hidden).toBe(true);
+  });
+
+  it("keeps a panel open as a press in it that focuses nothing there focuses the table", async () => {
+    const el = await mountBar();
+    const info = part(el, "info");
+    info.focus();
+    info.click();
+    el.focus();
+    expect(document.activeElement).toBe(el);
+    expect(panelOf(el, "info").hidden).toBe(false);
+    // (But not as focus goes elsewhere)
+    const outside = document.body.appendChild(document.createElement("button"));
+    info.focus();
+    outside.focus();
+    expect(panelOf(el, "info").hidden).toBe(true);
+  });
+
+  it("can be focused by a click in it, for its shortcuts, unless it has a tabindex of its own", async () => {
+    const el = await mountBar();
+    expect(el.getAttribute("tabindex")).toBe("-1");
+    // (Gone with the shortcuts)
+    const { html, spec } = gtTable(GROUPED, { controls: { search: false, sorting: false } });
+    el.remove();
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+    expect(el.hasAttribute("tabindex")).toBe(false);
+
+    const { html: own, spec: ownSpec } = gtTable(GROUPED, { controls: { search: true, bar: true } });
+    document.body.innerHTML = `<gt-table tabindex="0">${own}${specScript(ownSpec)}</gt-table>`;
+    await tick();
+    const other = document.querySelector(TAG_NAME) as GtTable;
+    expect(other.getAttribute("tabindex")).toBe("0");
+    other.remove();
+    other.innerHTML = html + specScript(spec);
+    document.body.append(other);
+    await tick();
+    expect(other.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("shows a button's tooltip a moment after the mouse goes onto it, and hides it when it leaves", async () => {
+    const el = await mountBar();
+    vi.useFakeTimers();
+    const next = part(el, "next");
+    expect(tip(el).getAttribute("role")).toBe("tooltip");
+    expect(tip(el).hidden).toBe(true);
+
+    pointer(next, "pointerover");
+    vi.advanceTimersByTime(400);
+    expect(tip(el).hidden).toBe(true);
+    vi.advanceTimersByTime(100);
+    expect(tip(el).hidden).toBe(false);
+    expect(tip(el).textContent).toBe("Next page (→)");
+    expect(next.getAttribute("aria-describedby")).toBe(tip(el).id);
+
+    // At once on the next button, just after
+    pointer(next, "pointerout", { relatedTarget: el.querySelector(".gt-i-bar") });
+    expect(tip(el).hidden).toBe(true);
+    expect(next.hasAttribute("aria-describedby")).toBe(false);
+    pointer(part(el, "last"), "pointerover");
+    expect(tip(el).hidden).toBe(false);
+    expect(tip(el).textContent).toBe("Last page (End)");
+
+    // Gone on a press, and on Escape
+    pointer(part(el, "last"), "pointerdown");
+    expect(tip(el).hidden).toBe(true);
+    pointer(next, "pointerover");
+    expect(tip(el).hidden).toBe(false);
+    next.click();
+    expect(tip(el).hidden).toBe(true);
+    pointer(part(el, "last"), "pointerout");
+    vi.advanceTimersByTime(1000);
+    pointer(next, "pointerover");
+    vi.advanceTimersByTime(500);
+    expect(tip(el).hidden).toBe(false);
+    next.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(tip(el).hidden).toBe(true);
+  });
+
+  it("shows no tooltip for a touch, nor over an open panel, nor after a click", async () => {
+    const el = await mountBar();
+    vi.useFakeTimers();
+    pointer(part(el, "next"), "pointerover", { pointerType: "touch" });
+    vi.advanceTimersByTime(1000);
+    expect(tip(el).hidden).toBe(true);
+
+    part(el, "info").click();
+    pointer(part(el, "info"), "pointerover");
+    vi.advanceTimersByTime(1000);
+    expect(tip(el).hidden).toBe(true);
   });
 });
 
@@ -2267,10 +2515,12 @@ describe("export", () => {
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(button.getAttribute("aria-controls")).toBe(panel(el).id);
     expect(button.nextElementSibling).toBe(panel(el));
-    expect(panel(el).nextElementSibling).toBe(el.querySelector('.gt-i-bar [data-gti-bar="info"]'));
+    // (Then the reset, hidden, and the info button)
+    const reset = panel(el).nextElementSibling as HTMLElement;
+    expect(reset.dataset.gtiBar).toBe("reset");
+    expect(reset.nextElementSibling).toBe(el.querySelector('.gt-i-bar [data-gti-bar="info"]'));
     expect(panel(el).getAttribute("role")).toBe("group");
     expect(panel(el).getAttribute("aria-label")).toBe("Export");
-    expect(panel(el).id).not.toBe(el.querySelector(".gt-i-info:not(.gt-i-export)")?.id);
     expect(panel(el).hidden).toBe(true);
 
     button.click();
@@ -2308,7 +2558,7 @@ describe("export", () => {
   it("is one panel open at a time with the info panel", async () => {
     const { el } = await mountExport();
     const info = el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
-    const infoPanel = el.querySelector(".gt-i-info:not(.gt-i-export)") as HTMLElement;
+    const infoPanel = el.querySelector(`#${info.getAttribute("aria-controls")}`) as HTMLElement;
     toggle(el).click();
     info.click();
     expect(panel(el).hidden).toBe(true);
@@ -3183,8 +3433,8 @@ describe("filters", () => {
 
   it("closes the info panel when it opens, and the other way round", async () => {
     const { el } = await mountFilters();
-    const info = el.querySelector(".gt-i-info") as HTMLElement;
     const toggle = el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
+    const info = el.querySelector(`#${toggle.getAttribute("aria-controls")}`) as HTMLElement;
     toggle.click();
     filterButton(el, "y").click();
     expect(info.hidden).toBe(true);
@@ -3195,15 +3445,12 @@ describe("filters", () => {
   });
 
   it("shows the bar for filters alone, whose info panel says how the table is filtered", async () => {
-    const { el, events } = await mountFilters();
+    const { el } = await mountFilters();
     const bar = el.querySelector(".gt-i-bar") as HTMLElement;
     const item = el.querySelector('[data-gti-info="filters"]') as HTMLElement;
-    const clear = item.querySelector("button") as HTMLButtonElement;
     const rows = el.querySelector(".gt-i-info-rows") as HTMLElement;
     expect(bar.hidden).toBe(false);
-    expect(item.firstElementChild?.textContent).toBe("Not filtered");
-    expect(clear.getAttribute("aria-label")).toBe("Clear the filters");
-    expect(clear.getAttribute("aria-disabled")).toBe("true");
+    expect(item.textContent).toBe("Not filtered");
     // (Before the selection's and after the sort's)
     expect(item.previousElementSibling?.getAttribute("data-gti-info")).toBe("sort");
 
@@ -3213,14 +3460,10 @@ describe("filters", () => {
         { col: "y", op: "in", value: ["a"] },
       ],
     };
-    expect(item.firstElementChild?.textContent).toBe("Filtered by x, y");
+    expect(item.textContent).toBe("Filtered by x, y");
     expect(rows.textContent).toBe("1 row (filtered from 5)");
-    expect(clear.getAttribute("aria-disabled")).toBe("false");
-    clear.click();
-    expect(el.filter).toBeNull();
-    expect(events).toEqual([{ filter: null, count: 5 }]);
-    expect(live(el)).toBe("Showing all 5 rows");
-    expect(item.firstElementChild?.textContent).toBe("Not filtered");
+    el.filter = null;
+    expect(item.textContent).toBe("Not filtered");
     expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(false);
   });
 
@@ -3385,7 +3628,7 @@ describe("filter tokens", () => {
     // The last one goes to the info button
     press(token(el, 0), "Backspace");
     expect(el.filter).toBeNull();
-    expect(document.activeElement).toBe(el.querySelector(".gt-i-bar [aria-controls^='gt-i-info']"));
+    expect(document.activeElement).toBe(el.querySelector('.gt-i-bar [data-gti-bar="info"]'));
   });
 
   it("goes from token to token with the arrow keys, and removes one with Delete", async () => {
@@ -3423,7 +3666,7 @@ describe("filter tokens", () => {
     expect(panel(el)).toBeNull();
     expect(row(el).hidden).toBe(true);
     expect(clearAll(el)).toBeNull();
-    expect(document.activeElement).toBe(el.querySelector(".gt-i-bar [aria-controls^='gt-i-info']"));
+    expect(document.activeElement).toBe(el.querySelector('.gt-i-bar [data-gti-bar="info"]'));
   });
 
   it("shows the spec's view's filter", async () => {
@@ -3800,8 +4043,9 @@ describe("the query box", () => {
     expect(button.getAttribute("aria-label")).toBe("Edit the filters as text");
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(button.getAttribute("aria-controls")).toBe(root(el).id);
-    // (Before the info button)
-    expect(button.nextElementSibling?.getAttribute("data-gti-bar")).toBe("info");
+    // (Before the reset and the info button)
+    expect(button.nextElementSibling?.getAttribute("data-gti-bar")).toBe("reset");
+    expect(button.nextElementSibling?.nextElementSibling?.getAttribute("data-gti-bar")).toBe("info");
     expect(root(el).hidden).toBe(true);
 
     el.filter = { and: [{ col: "y", op: "in", value: ["b"] }, { col: "x", op: "gte", value: 10 }] };
@@ -4479,16 +4723,17 @@ describe("the query's groups", () => {
     expect(visible(el)).toEqual(["group:b", 3, "summary:Total", "group:a", 1, "grand:Max"]);
   });
 
-  it("are in the info panel's filters, which clear them", async () => {
+  it("are in the info panel's filters, and go with the bar's reset", async () => {
     const { el, events } = await mountGroups();
     const item = el.querySelector('[data-gti-info="filters"]') as HTMLElement;
-    const clear = item.querySelector("button") as HTMLButtonElement;
+    const reset = el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement;
     el.filter = { and: [{ not: { col: "x", op: "gte", value: 10 } }] };
     expect(item.firstElementChild?.textContent).toBe("Filtered by x");
-    expect(clear.getAttribute("aria-disabled")).toBe("false");
-    clear.click();
+    expect(reset.hidden).toBe(false);
+    reset.click();
     expect(el.filter).toBeNull();
-    expect(events).toEqual([{ filter: null, count: 5 }]);
+    // (A change to the view, rather than to the filters)
+    expect(events).toEqual([]);
     expect(item.firstElementChild?.textContent).toBe("Not filtered");
   });
 });
@@ -4569,7 +4814,7 @@ describe("the view kept", () => {
   const STORED = "gti:/page#t1";
   const at = (url: string) => history.replaceState(null, "", url);
   const item = (el: GtTable) => el.querySelector('[data-gti-info="view"]') as HTMLElement | null;
-  const reset = (el: GtTable) => item(el)?.querySelector("button") as HTMLButtonElement;
+  const reset = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement;
   const openInfo = (el: GtTable) => (el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement).click();
 
   // Table `t1`, kept in the URL (unless set otherwise), with a search, a filter on `x`, pages of 2
@@ -4684,27 +4929,23 @@ describe("the view kept", () => {
     expect(location.search).toBe("?t1.page=2");
   });
 
-  it("resets the view from the info panel", async () => {
+  it("resets the view from the bar, forgetting what was kept", async () => {
     at("/page?other=1&t1.sort=x&t1.page=2");
     const { el } = await mountKept({ storage: true });
     const fired: ViewEventDetail[] = [];
     el.addEventListener(VIEW_EVENT, (event) => fired.push((event as CustomEvent<ViewEventDetail>).detail));
     openInfo(el);
-    expect(item(el)?.textContent).toBe("View kept in the link and this browserReset");
-    expect(reset(el).getAttribute("aria-label")).toBe("Reset the view");
-    expect(reset(el).getAttribute("aria-disabled")).toBe("false");
+    expect(item(el)?.textContent).toBe("View kept in the link and this browser");
+    expect(reset(el).hidden).toBe(false);
     expect(localStorage.getItem(STORED)).toBe("sort=x&page=2");
 
     reset(el).click();
     expect([el.sort, el.page]).toEqual([AUTHOR_SORT, 1]);
     expect(location.search).toBe("?other=1");
     expect(localStorage.getItem(STORED)).toBeNull();
-    expect(reset(el).getAttribute("aria-disabled")).toBe("true");
+    expect(reset(el).hidden).toBe(true);
     expect(el.querySelector(".gt-i-live")?.textContent).toMatch(/^The view is reset: /);
     expect(fired).toEqual([{ filter: null, sort: AUTHOR_SORT, search: "", page: 1, pageSize: 2, hidden: [], order: [] }]);
-    // (Disabled, it does nothing)
-    reset(el).click();
-    expect(fired).toHaveLength(1);
   });
 
   it("says where the view is kept", async () => {
@@ -4852,13 +5093,13 @@ describe("undo", () => {
     const { el } = await mountUndo();
     const [undo, redo] = [barButton(el, "undo"), barButton(el, "redo")] as HTMLButtonElement[];
     expect(undo?.nextElementSibling).toBe(redo);
-    expect(redo?.nextElementSibling).toBe(barButton(el, "info"));
-    expect([undo?.getAttribute("aria-label"), undo?.title, undo?.getAttribute("aria-keyshortcuts")]).toEqual([
+    expect(redo?.nextElementSibling).toBe(barButton(el, "reset"));
+    expect([undo?.getAttribute("aria-label"), undo?.dataset.gtiTip, undo?.getAttribute("aria-keyshortcuts")]).toEqual([
       "Undo",
       "Undo (Ctrl+Z)",
       "Control+Z Meta+Z",
     ]);
-    expect([redo?.getAttribute("aria-label"), redo?.title]).toEqual(["Redo", "Redo (Ctrl+Y)"]);
+    expect([redo?.getAttribute("aria-label"), redo?.dataset.gtiTip]).toEqual(["Redo", "Redo (Ctrl+Y)"]);
     expect(disabled(el)).toEqual(["true", "true"]);
     // (Disabled, they do nothing)
     undo?.click();
@@ -4870,7 +5111,10 @@ describe("undo", () => {
     // (With a Mac's keys)
     vi.spyOn(navigator, "platform", "get").mockReturnValue("MacIntel");
     const { el: mac } = await mountUndo();
-    expect([barButton(mac, "undo")?.title, barButton(mac, "redo")?.title]).toEqual(["Undo (⌘Z)", "Redo (⇧⌘Z)"]);
+    expect([barButton(mac, "undo")?.dataset.gtiTip, barButton(mac, "redo")?.dataset.gtiTip]).toEqual([
+      "Undo (⌘Z)",
+      "Redo (⇧⌘Z)",
+    ]);
     expect(Array.from(mac.querySelectorAll(".gt-i-info-keys dt"), (dt) => dt.textContent)).toContain("⇧ ⌘ Z");
   });
 
@@ -5003,25 +5247,19 @@ describe("undo", () => {
     expect([el.pageSize, el.page]).toEqual([2, 3]);
   });
 
-  it("undoes a reset, and the info panel's resets", async () => {
+  it("undoes the bar's reset", async () => {
     const { el } = await mountUndo({ viewState: { url: false, storage: true, key: "t1" } });
     click(el, "x");
     vi.advanceTimersByTime(STEP_MS);
     facet(el, 2);
-    barButton(el, "info")?.click();
-    (el.querySelector('[data-gti-info="view"] button') as HTMLButtonElement).click();
+    barButton(el, "reset")?.click();
     expect([el.filter, el.sort]).toEqual([null, []]);
     expect(localStorage.getItem("gti:/#t1")).toBeNull();
+    expect(barButton(el, "reset")?.hidden).toBe(true);
     el.undo();
     expect([el.filter, el.sort]).toEqual([{ and: [{ col: "y", op: "in", value: ["c"] }] }, X_UP]);
     expect(localStorage.getItem("gti:/#t1")).toMatch(/^filter=.+&sort=x$/);
-
-    (el.querySelector('[data-gti-info="sort"] button') as HTMLButtonElement).click();
-    (el.querySelector('[data-gti-info="filters"] button') as HTMLButtonElement).click();
-    expect([el.filter, el.sort]).toEqual([null, []]);
-    el.undo();
-    el.undo();
-    expect([el.filter, el.sort]).toEqual([{ and: [{ col: "y", op: "in", value: ["c"] }] }, X_UP]);
+    expect(barButton(el, "reset")?.hidden).toBe(false);
   });
 
   it("answers to Ctrl+Z and Ctrl+Y (or Ctrl+Shift+Z, or ⌘), but not in what's for typing", async () => {
@@ -6557,19 +6795,17 @@ describe("hiding columns", () => {
   it("says in the info panel how many are hidden", async () => {
     const { el } = await mountHide();
     const item = el.querySelector('[data-gti-info="columns"]') as HTMLElement;
-    const show = item.querySelector("button") as HTMLButtonElement;
     const open = () => (el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement).click();
     open();
-    expect(item.firstElementChild?.textContent).toBe("No columns hidden");
-    expect(show.getAttribute("aria-disabled")).toBe("true");
+    expect(item.textContent).toBe("No columns hidden");
     el.hiddenColumns = ["x"];
-    expect(item.firstElementChild?.textContent).toBe("1 column hidden");
+    expect(item.textContent).toBe("1 column hidden");
     el.hiddenColumns = ["x", "y"];
-    expect(item.firstElementChild?.textContent).toBe("2 columns hidden");
-    expect(show.getAttribute("aria-disabled")).toBe("false");
-    show.click();
+    expect(item.textContent).toBe("2 columns hidden");
+    // (The bar's reset shows them)
+    (el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement).click();
     expect(el.hiddenColumns).toEqual([]);
-    expect(item.firstElementChild?.textContent).toBe("No columns hidden");
+    expect(item.textContent).toBe("No columns hidden");
   });
 
   it("exports the columns shown, with code that drops the others", async () => {
@@ -6763,7 +6999,7 @@ describe("reordering columns", () => {
     expect(el.columnOrder).toEqual(["y", "x"]);
     press(earlier(el, "y"), "ArrowDown", { altKey: true });
     expect(el.columnOrder).toEqual(["x", "y"]);
-    expect(el.querySelector(".gt-i-info-shortcuts")?.textContent).toContain("Move a column, in the Columns panel");
+    expect(el.querySelector(".gt-i-info-keys")?.textContent).toContain("Move a column, in the Columns panel");
   });
 
   it("moves a column dragged by its handle, or puts it back on Escape", async () => {

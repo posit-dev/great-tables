@@ -96,18 +96,17 @@ test("keeps the views of two tables apart", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test("resets the view from the info panel", async ({ page }) => {
+test("resets the view from the bar", async ({ page }) => {
   const errors = await openState(page, "?ref=mail&va.sort=char&va.page=3");
   await barButton(page, "va", "Table info").click();
-  const item = el(page, "va").locator('[data-gti-info="view"]');
-  await expect(item).toContainText("View kept in the link and this browser");
-  const reset = item.getByRole("button", { name: "Reset the view" });
-  await expect(reset).toHaveAttribute("aria-disabled", "false");
+  await expect(el(page, "va").locator('[data-gti-info="view"]')).toContainText("View kept in the link and this browser");
+  const reset = barButton(page, "va", "Reset the view");
   await reset.click();
   expect(await view(page, "va")).toEqual(AUTHOR);
   expect(search(page)).toBe("?ref=mail");
-  await expect(reset).toHaveAttribute("aria-disabled", "true");
-  await expect(reset).toBeFocused();
+  // (Gone, with nothing to reset, and focus on the info button after it)
+  await expect(reset).toBeHidden();
+  await expect(barButton(page, "va", "Table info")).toBeFocused();
 
   await page.reload();
   await expect(el(page, "va")).toHaveAttribute("data-gti-state", "ready");

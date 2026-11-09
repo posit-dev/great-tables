@@ -97,10 +97,13 @@ test("leaves Ctrl+Z in the search box to undo its text", async ({ page }) => {
   expect((await view(page)).sort).toEqual(BY_CHAR);
 });
 
-test("says its keys in the info panel", async ({ page }) => {
+test("says its keys in the shortcuts panel, opened from the info panel in a narrow bar", async ({ page }) => {
   await openUndo(page);
+  await expect(barButton(page, "Keyboard shortcuts")).toBeHidden();
   await barButton(page, "Table info").click();
+  await barButton(page, "Keyboard shortcuts").click();
   const keys = el(page).locator(".gt-i-info-keys");
+  await expect(keys).toBeVisible();
   await expect(keys).toContainText("Undo a change to the view");
   await expect(keys).toContainText("Redo it");
   // (Its view is kept nowhere, to be reset)
