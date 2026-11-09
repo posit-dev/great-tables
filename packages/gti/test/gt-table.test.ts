@@ -2414,6 +2414,270 @@ describe("the bar's reset, shortcuts and tooltips", () => {
   });
 });
 
+describe("the handle under the rows", () => {
+  const handle = (el: GtTable) => el.querySelector(".gt-i-rows") as HTMLElement | null;
+  const reset = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement;
+  const press = (target: Element, key: string) =>
+    target.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+  const pointer = (target: Element, type: string, init: PointerEventInit = {}) =>
+    target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerType: "mouse", ...init }));
+
+  // Pages of 2 rows (or 4), the size the reader's to choose, with a search
+  const mountRows = (options: TableOptions = {}, body: BodyRow[] = GROUPED) =>
+    mountTable(body, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, size_select: true, ...options.pagination },
+    });
+
+  it("is a separator after the table, before the bar, for the page's size", async () => {
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    expect(rows.getAttribute("role")).toBe("separator");
+    expect(rows.getAttribute("aria-orientation")).toBe("horizontal");
+    expect(rows.getAttribute("aria-label")).toBe("Rows per page");
+    expect(rows.tabIndex).toBe(0);
+    expect([rows.getAttribute("aria-valuemin"), rows.getAttribute("aria-valuemax")]).toEqual(["1", "5"]);
+    expect(rows.getAttribute("aria-valuenow")).toBe("2");
+    expect(rows.getAttribute("aria-valuetext")).toBe("2 rows per page");
+    expect(rows.parentElement).toBe(el);
+    expect(rows.previousElementSibling?.contains(el.querySelector("table"))).toBe(true);
+    expect(rows.nextElementSibling).toBe(el.querySelector(".gt-i-bar"));
+  });
+
+  it("isn't there for a table without rows, a size the reader can't change, a body that scrolls, or no bar", async () => {
+    const { html, spec } = gtTable([{ grand_summary: "Max", side: "bottom" }], {
+      controls: { search: true, bar: true },
+      pagination: { enabled: true, size_select: true },
+      queryRanks: { row: [], x: [], y: [] },
+    });
+    const empty = await mount(`<gt-table>${html}${specScript({ ...spec, nrows: 0 })}</gt-table>`);
+    expect(empty.state).toBe("ready");
+    expect(handle(empty)).toBeNull();
+    expect(handle(await mountRows({ pagination: { size_select: false } }))).toBeNull();
+    expect(handle(await mountRows({ pagination: { enabled: false } }))).toBeNull();
+    expect(handle(await mountRows({ layout: { height: "300px" } }))).toBeNull();
+    expect(handle(await mountRows({ controls: { bar: false } }))).toBeNull();
+  });
+
+  it("takes a row more or fewer by the arrows, or ten by Page Down and Up, from 1 to every row", async () => {
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    const fired: number[] = [];
+    el.addEventListener("gt-table-page", (event) => fired.push((event as CustomEvent).detail.pageSize));
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(3);
+    expect(visible(el).filter((row) => typeof row === "number")).toEqual([3, 0, 4]);
+    expect(rows.getAttribute("aria-valuenow")).toBe("3");
+    expect(live(el)).toBe("3 rows per page, page 1 of 2");
+    press(rows, "PageDown");
+    expect(el.pageSize).toBe(5);
+    expect(el.querySelector(".gt-i-bar .gt-i-bar-pages")?.closest("[hidden]")).not.toBeNull();
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(5);
+    press(rows, "PageUp");
+    expect(el.pageSize).toBe(1);
+    press(rows, "ArrowUp");
+    expect(el.pageSize).toBe(1);
+    expect(fired).toEqual([3, 5, 1]);
+  });
+
+  it("goes back to the table's own size on Enter or a double click, as the reset does", async () => {
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    expect(reset(el).hidden).toBe(true);
+    press(rows, "ArrowDown");
+    expect(reset(el).hidden).toBe(false);
+    press(rows, "Enter");
+    expect(el.pageSize).toBe(2);
+    expect(reset(el).hidden).toBe(true);
+    press(rows, "ArrowUp");
+    rows.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(el.pageSize).toBe(2);
+
+    press(rows, "PageDown");
+    reset(el).click();
+    expect(el.pageSize).toBe(2);
+    expect(rows.getAttribute("aria-valuenow")).toBe("2");
+  });
+
+  it("is dragged a row for each row's height, keeping the page's first row, and changes the view once", async () => {
+    const el = await mountRows({ viewState: { url: false, storage: false, key: null, undo: true } });
+    const rows = handle(el) as HTMLElement;
+    const views: unknown[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent).detail));
+    el.page = 2;
+    views.length = 0;
+    // (Rows of no height, in jsdom, count as 24px)
+    pointer(rows, "pointerdown", { clientY: 100 });
+    expect(el.getAttribute("data-gti-resizing")).toBe("rows");
+    expect(rows.hasAttribute("data-gti-active")).toBe(true);
+    pointer(rows, "pointermove", { clientY: 130 });
+    expect(el.pageSize).toBe(3);
+    // (Row 2 of 5, its first, on the page of 3 it's in)
+    expect(el.page).toBe(1);
+    pointer(rows, "pointermove", { clientY: 1000 });
+    expect(el.pageSize).toBe(5);
+    pointer(rows, "pointermove", { clientY: -1000 });
+    expect(el.pageSize).toBe(1);
+    expect(el.page).toBe(3);
+    expect(views).toEqual([]);
+    pointer(rows, "pointerup", { clientY: -1000 });
+    expect(el.hasAttribute("data-gti-resizing")).toBe(false);
+    expect(rows.hasAttribute("data-gti-active")).toBe(false);
+    expect(views).toHaveLength(1);
+    expect(live(el)).toBe("1 row per page, page 3 of 5");
+    expect(el.undo()).toBe(true);
+    expect([el.pageSize, el.page]).toEqual([2, 2]);
+
+    // (Back where it started, no change)
+    const before = views.length;
+    pointer(rows, "pointerdown", { clientY: 100 });
+    pointer(rows, "pointermove", { clientY: 150 });
+    pointer(rows, "pointermove", { clientY: 100 });
+    pointer(rows, "pointerup", { clientY: 100 });
+    expect(views).toHaveLength(before);
+    expect(el.pageSize).toBe(2);
+  });
+
+  it("works on a search's rows, up to every row of the table", async () => {
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    el.search = "row_1";
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(3);
+    press(rows, "PageDown");
+    expect(el.pageSize).toBe(5);
+  });
+
+  it("is a size a kept view can have", async () => {
+    history.replaceState(null, "", "/page?t1.size=3");
+    try {
+      const el = await mountRows({ viewState: { url: true, storage: false, key: "t1", undo: false } });
+      expect(el.pageSize).toBe(3);
+      expect(handle(el)?.getAttribute("aria-valuenow")).toBe("3");
+    } finally {
+      history.replaceState(null, "", "/");
+    }
+  });
+
+  it("goes with the table it's for, as the table's replaced", async () => {
+    const el = await mountRows();
+    const { html, spec } = gtTable(GROUPED, { pagination: { enabled: true } });
+    el.remove();
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+    expect(el.state).toBe("ready");
+    expect(handle(el)).toBeNull();
+  });
+});
+
+describe("the handle under a body that scrolls", () => {
+  const handle = (el: GtTable) => el.querySelector(".gt-i-height") as HTMLElement | null;
+  const reset = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement;
+  const press = (target: Element, key: string) =>
+    target.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+  const height = (el: GtTable) => el.style.getPropertyValue("--gt-i-height");
+
+  // Every row, in a body that scrolls within 300px, with a search
+  const mountScroll = (options: TableOptions = {}) =>
+    mountTable(GROUPED, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: false, ...options.pagination },
+      layout: { height: "300px", ...options.layout },
+    });
+
+  // (jsdom lays nothing out: the body as 300px tall, of 1000px of rows)
+  const laidOut = (el: GtTable) => {
+    const scroller = el.querySelector(".gt-i-scroller") as HTMLElement;
+    Object.defineProperty(scroller, "scrollHeight", { configurable: true, value: 1000 });
+    scroller.getBoundingClientRect = () => ({ height: 300 }) as DOMRect;
+  };
+
+  it("is a separator after the table, before the bar, for the body's height", async () => {
+    const el = await mountScroll();
+    const foot = handle(el) as HTMLElement;
+    expect(foot.getAttribute("role")).toBe("separator");
+    expect(foot.getAttribute("aria-label")).toBe("Table height");
+    expect(foot.hasAttribute("aria-valuemax")).toBe(false);
+    expect(foot.querySelector(".gt-i-rows-count")).toBeNull();
+    expect(foot.nextElementSibling).toBe(el.querySelector(".gt-i-bar"));
+    expect(el.querySelector(".gt-i-rows")).toBeNull();
+    expect(el.bodyMaxHeight).toBeNull();
+    expect(height(el)).toBe("300px");
+  });
+
+  it("is the one handle with pages too, and isn't there without the bar or a height", async () => {
+    const paged = await mountScroll({ pagination: { enabled: true, size_select: true } });
+    expect(handle(paged)).not.toBeNull();
+    expect(paged.querySelector(".gt-i-rows")).toBeNull();
+    expect(handle(await mountScroll({ controls: { bar: false } }))).toBeNull();
+    expect(handle(await mountScroll({ layout: { height: null } }))).toBeNull();
+  });
+
+  it("takes a row's height more or less by the arrows, or ten by Page Down and Up, and Enter puts it back", async () => {
+    const el = await mountScroll({ viewState: { url: false, storage: false, key: null, undo: true } });
+    laidOut(el);
+    const foot = handle(el) as HTMLElement;
+    const views: unknown[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent).detail.height));
+    expect(reset(el).hidden).toBe(true);
+    // (Rows of no height, in jsdom, count as 24px)
+    press(foot, "ArrowDown");
+    expect(el.bodyMaxHeight).toBe(324);
+    expect(height(el)).toBe("324px");
+    expect(reset(el).hidden).toBe(false);
+    press(foot, "PageUp");
+    expect(el.bodyMaxHeight).toBe(60);
+    press(foot, "Enter");
+    expect(el.bodyMaxHeight).toBeNull();
+    expect(height(el)).toBe("300px");
+    expect(reset(el).hidden).toBe(true);
+    expect(views).toEqual([324, 60, null]);
+
+    expect(el.undo()).toBe(true);
+    expect(el.bodyMaxHeight).toBe(60);
+    press(foot, "PageDown");
+    foot.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(el.bodyMaxHeight).toBeNull();
+  });
+
+  it("is set by `bodyMaxHeight`, which the reset puts back", async () => {
+    const el = await mountScroll();
+    el.bodyMaxHeight = 200;
+    expect(height(el)).toBe("200px");
+    expect(reset(el).hidden).toBe(false);
+    el.resetView();
+    expect(el.bodyMaxHeight).toBeNull();
+    expect(height(el)).toBe("300px");
+    expect(() => (el.bodyMaxHeight = 0)).toThrow(RangeError);
+    expect(() => (el.bodyMaxHeight = Number.NaN)).toThrow(RangeError);
+
+    // (Nothing, for a body that doesn't scroll)
+    const rows = await mountScroll({ layout: { height: null } });
+    rows.bodyMaxHeight = 200;
+    expect(rows.bodyMaxHeight).toBeNull();
+  });
+
+  it("is a height a kept view can have, and a view has, for a body that scrolls", async () => {
+    history.replaceState(null, "", "/page?t1.height=200");
+    try {
+      const el = await mountScroll({ viewState: { url: true, storage: false, key: "t1", undo: false } });
+      expect(el.bodyMaxHeight).toBe(200);
+      expect(height(el)).toBe("200px");
+      expect(reset(el).hidden).toBe(false);
+      el.bodyMaxHeight = 250;
+      expect(location.search).toBe("?t1.height=250");
+      el.resetView();
+      expect(location.search).toBe("");
+    } finally {
+      history.replaceState(null, "", "/");
+    }
+  });
+});
+
 describe("export", () => {
   const toggle = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="export"]') as HTMLButtonElement;
   const panel = (el: GtTable) => el.querySelector(".gt-i-export") as HTMLElement;
@@ -4916,12 +5180,12 @@ describe("the view kept", () => {
 
   it("leaves out a part of the view the table can't have, with a warning", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    at("/page?t1.filter=y+%3E%3D+1&t1.sort=w&t1.page=2&t1.size=3");
+    at("/page?t1.filter=y+%3E%3D+1&t1.sort=w&t1.page=2&t1.size=6");
     const { el } = await mountKept();
     expect(el.state).toBe("ready");
     expect([el.filter, el.sort, el.page, el.pageSize]).toEqual([null, AUTHOR_SORT, 2, 2]);
     expect(warn.mock.calls.map(([message]) => message)).toEqual([
-      `<gt-table>: the saved view's size is left out ("3" isn't a page size the table has).`,
+      `<gt-table>: the saved view's size is left out ("6" isn't a page size the table has).`,
       `<gt-table>: the saved view's sort is left out ("w" isn't a sortable column).`,
       expect.stringMatching(/^<gt-table>: the saved view's filter is left out \(.+\)\.$/),
     ]);
