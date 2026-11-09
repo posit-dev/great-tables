@@ -18,7 +18,8 @@ gt-table .gt-i-head-controls {
   /* (As tall as its buttons, so that an empty row is as tall as one with them) */
   min-height: calc(1em + 4px);
   margin-top: 5px;
-  padding-top: 3px;
+  /* (As far below the line as GT's padding for the cell is under them) */
+  padding-top: 5px;
   font-size: 0.75em;
   font-weight: normal;
   line-height: 1;
@@ -29,7 +30,7 @@ gt-table .gt-i-head-controls::before {
   content: "";
   position: absolute;
   inset-inline: 0;
-  margin-top: -3px;
+  margin-top: -5px;
   border-top: 1px dotted currentColor;
   opacity: 0.45;
 }
@@ -136,10 +137,28 @@ gt-table .gt-i-sort-icon[data-gti-sort-index]::after {
 
 /*
  * Column resizing: a handle along the inline end of each column label (inside it, since GT's
- * labels hide what overflows), drawn as a faint line on hover and focus, and while dragged
+ * labels hide what overflows), drawn as a line on focus (and, on touch screens, always: by the
+ * mouse, the guide below shows where it is). While the mouse is over a label, a narrower one at
+ * its inline start drags the end of the column before it, if that's resizable.
  */
 gt-table th.gt-i-resizable {
   position: relative;
+}
+
+gt-table .gt-i-resizer-start {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  z-index: 1;
+  width: 5px;
+  cursor: col-resize;
+  user-select: none;
+}
+
+gt-table th[data-gti-resize-start] > .gt-i-resizer-start {
+  display: block;
 }
 
 gt-table .gt-i-resizer {
@@ -166,13 +185,7 @@ gt-table .gt-i-resizer::after {
   opacity: 0;
 }
 
-gt-table th.gt-i-resizable:hover .gt-i-resizer::after {
-  opacity: 0.25;
-}
-
-gt-table .gt-i-resizer:hover::after,
-gt-table .gt-i-resizer:focus-visible::after,
-gt-table .gt-i-resizer[data-gti-active]::after {
+gt-table .gt-i-resizer:focus-visible::after {
   opacity: 0.6;
 }
 
@@ -197,6 +210,91 @@ gt-table[data-gti-resizing] * {
 
   gt-table .gt-i-resizer::after {
     opacity: 0.25;
+  }
+
+  gt-table .gt-i-resizer[data-gti-active]::after {
+    opacity: 0.6;
+  }
+}
+
+/*
+ * The guide along the column whose label the mouse is over, from the label to the end of the
+ * body: faint lines along its edges, thicker and stronger along the label where they can be
+ * dragged (the runtime places it, in the part of the table in view). In `--gt-i-guide-color`.
+ */
+gt-table .gt-i-guide {
+  display: none;
+  position: absolute;
+  z-index: 6;
+  color: var(--gt-i-guide-color, #00b4ff);
+  pointer-events: none;
+}
+
+gt-table .gt-i-guide[data-gti-shown] {
+  display: block;
+}
+
+gt-table .gt-i-guide-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+gt-table .gt-i-guide-line[data-gti-side="left"] {
+  left: 0;
+}
+
+gt-table .gt-i-guide-line[data-gti-side="right"] {
+  right: 0;
+}
+
+gt-table .gt-i-guide-line::before,
+gt-table .gt-i-guide-line[data-gti-grip]::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+/* (Just inside the column) */
+gt-table .gt-i-guide-line::before {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  opacity: 0.35;
+}
+
+gt-table .gt-i-guide-line[data-gti-side="left"]::before {
+  left: 0;
+}
+
+gt-table .gt-i-guide-line[data-gti-side="right"]::before {
+  right: 0;
+}
+
+/* (Over the edge) */
+gt-table .gt-i-guide-line[data-gti-grip]::after {
+  top: 0;
+  height: var(--gt-i-guide-head, 0px);
+  width: 3px;
+  border-radius: 1.5px;
+  opacity: 0.7;
+}
+
+gt-table .gt-i-guide-line[data-gti-side="left"][data-gti-grip]::after {
+  left: -1px;
+}
+
+gt-table .gt-i-guide-line[data-gti-side="right"][data-gti-grip]::after {
+  right: -1px;
+}
+
+gt-table[data-gti-resizing] .gt-i-guide-line[data-gti-grip]::after {
+  opacity: 0.9;
+}
+
+@media (forced-colors: active) {
+  gt-table .gt-i-guide {
+    color: Highlight;
   }
 }
 
@@ -316,6 +414,12 @@ gt-table .gt-i-select input {
   font-size: inherit;
   vertical-align: middle;
   cursor: pointer;
+}
+
+/* (A row's box is in the middle of the row, not of the cell's line of text, which is lower) */
+gt-table td.gt-i-select input {
+  display: block;
+  margin-inline: auto;
 }
 
 gt-table .gt-i-select input:disabled {
@@ -794,6 +898,78 @@ gt-table .gt-i-bar [hidden] {
   display: none;
 }
 
+/*
+ * The line of controls (the bar's last, under any tokens or query) has a faint outline, its ends
+ * rounded around the buttons there, which are round: the search's (or without it, the keyboard
+ * shortcuts') and the info's
+ */
+gt-table .gt-i-bar::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  height: var(--gt-i-line);
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: calc(var(--gt-i-line) / 2);
+  pointer-events: none;
+}
+
+gt-table .gt-i-bar :is([data-gti-bar="search"], [data-gti-bar="info"]),
+gt-table .gt-i-bar > [data-gti-bar="keys"] {
+  border-radius: 50%;
+}
+
+/* (The open search's field covers the shortcuts' button) */
+gt-table .gt-i-bar[data-gti-searching] [data-gti-bar="keys"] {
+  display: none;
+}
+
+/*
+ * The reset, while the view isn't the author's: a pill in an accent colour (`--gt-i-accent`),
+ * shorter than the line
+ */
+gt-table .gt-i-bar [data-gti-bar="reset"] {
+  position: relative;
+  z-index: 0;
+  gap: 0.25em;
+  width: auto;
+  padding-inline: 0.5em 0.625em;
+  border-radius: 999px;
+  color: #fff;
+}
+
+gt-table .gt-i-bar [data-gti-bar="reset"]::before {
+  content: "";
+  position: absolute;
+  inset: calc(50% - 0.8125em) 0;
+  z-index: -1;
+  border-radius: 999px;
+  background: var(--gt-i-accent, #1f6feb);
+}
+
+gt-table .gt-i-bar [data-gti-bar="reset"]:hover {
+  background: none;
+}
+
+gt-table .gt-i-bar [data-gti-bar="reset"]:hover::before {
+  filter: brightness(0.85);
+}
+
+/* A button's tooltip (see `addTips()`) */
+gt-table .gt-i-tip {
+  position: absolute;
+  z-index: 11;
+  padding: 0.25em 0.5em;
+  border-radius: 4px;
+  background: rgba(24, 24, 24, 0.92);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-size: 0.75em;
+  line-height: 1.3;
+  pointer-events: none;
+}
+
 /* A table of every row keeps its bar in view as it's scrolled past (the runtime fills it) */
 gt-table .gt-i-bar[data-gti-stick] {
   position: sticky;
@@ -834,7 +1010,7 @@ gt-table .gt-i-icon {
   stroke-linejoin: round;
 }
 
-gt-table .gt-i-bar:dir(rtl) :is([data-gti-bar="previous"], [data-gti-bar="next"]) .gt-i-icon {
+gt-table .gt-i-bar:dir(rtl) :is([data-gti-bar="first"], [data-gti-bar="previous"], [data-gti-bar="next"], [data-gti-bar="last"]) .gt-i-icon {
   transform: scaleX(-1);
 }
 
@@ -864,6 +1040,11 @@ gt-table .gt-i-bar-search {
   height: var(--gt-i-line);
 }
 
+/* (Its buttons, closed, stay clear of the page controls) */
+gt-table .gt-i-bar:not([data-gti-searching]) .gt-i-bar-search {
+  min-width: auto;
+}
+
 gt-table .gt-i-search-field {
   display: flex;
   flex: 0 1 20em;
@@ -874,7 +1055,8 @@ gt-table .gt-i-search-field {
   height: 100%;
   padding-inline-start: 0.5em;
   border: 1px solid rgba(128, 128, 128, 0.6);
-  border-radius: 4px;
+  /* (Rounded as the bar's outline is, at its end) */
+  border-radius: 999px;
   font-size: 0.875em;
 }
 
@@ -1235,6 +1417,11 @@ gt-table .gt-i-info {
   text-align: start;
 }
 
+/* (The shortcuts' panel, from the start) */
+gt-table .gt-i-info[data-gti-start] {
+  inset-inline: 0 auto;
+}
+
 gt-table .gt-i-info[data-gti-below] {
   top: calc(100% + 0.375em);
   bottom: auto;
@@ -1279,6 +1466,11 @@ gt-table :is(.gt-i-info, .gt-i-sheet) select {
   padding-inline: 0.25em;
 }
 
+/* (The shortcuts' button, in the info panel of a narrow bar only: below) */
+gt-table .gt-i-info > [data-gti-info="keys"] {
+  display: none;
+}
+
 gt-table .gt-i-info-button:hover {
   background: rgba(128, 128, 128, 0.15);
 }
@@ -1306,11 +1498,6 @@ gt-table .gt-i-export-actions {
 gt-table .gt-i-export-note {
   font-size: 0.875em;
   opacity: 0.7;
-}
-
-gt-table .gt-i-info-shortcuts {
-  padding-top: 0.5em;
-  border-top: 1px solid rgba(128, 128, 128, 0.3);
 }
 
 gt-table .gt-i-info-heading {
@@ -1676,6 +1863,10 @@ gt-table .gt-i-column-move .gt-i-icon {
     border-color: CanvasText;
   }
 
+  gt-table .gt-i-tip {
+    border: 1px solid CanvasText;
+  }
+
   gt-table .gt-i-tokens .gt-i-token {
     outline-color: CanvasText;
   }
@@ -1732,8 +1923,39 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
     flex: 1 1 auto;
   }
 
-  gt-table .gt-i-bar[data-gti-searching] .gt-i-bar-pages {
+  gt-table .gt-i-bar[data-gti-searching] .gt-i-bar-pages,
+  gt-table .gt-i-bar [data-gti-bar="keys"] {
     display: none;
+  }
+
+  gt-table .gt-i-info > [data-gti-info="keys"]:not([hidden]) {
+    display: block;
+  }
+}
+
+/* (Home and End go to the first and last pages; the reset and the sheet's button are only their icons) */
+@container (max-width: 22.5em) {
+  gt-table .gt-i-bar :is([data-gti-bar="first"], [data-gti-bar="last"]),
+  gt-table .gt-i-bar-name {
+    display: none;
+  }
+
+  gt-table .gt-i-bar [data-gti-bar="reset"] {
+    width: var(--gt-i-line);
+    padding: 0;
+  }
+
+  gt-table .gt-i-bar [data-gti-bar="reset"]::before {
+    inset: calc(50% - 0.8125em);
+  }
+
+  /* (Tighter, so that a phone's bar, with the reset, stays one line) */
+  gt-table .gt-i-bar {
+    column-gap: 4px;
+  }
+
+  gt-table .gt-i-readout-box {
+    min-width: max(var(--gt-i-line), calc(var(--gt-i-digits, 1) * 2ch + 1em));
   }
 }
 
@@ -1802,23 +2024,21 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
       width: auto;
       padding-inline: 0.625em;
       border-color: rgba(128, 128, 128, 0.6);
+      /* (At the bar's start, rounded as its outline is, until the search is open) */
+      border-radius: 999px;
     }
 
-    gt-table .gt-i-bar :is([data-gti-bar="query"], [data-gti-bar="columns"]),
+    gt-table .gt-i-bar :is([data-gti-bar="query"], [data-gti-bar="columns"], [data-gti-bar="keys"], [data-gti-bar="first"], [data-gti-bar="last"]),
     gt-table .gt-i-bar:has([data-gti-bar="sheet"]):not([data-gti-searching]) .gt-i-bar-search {
       display: none;
     }
   }
 
-  /* (Narrower, the button is only its icon, so that the bar stays one line) */
+  /* (Narrower, the button is only its icon, as the reset is: see above) */
   @container (max-width: 22.5em) {
     gt-table .gt-i-bar [data-gti-bar="sheet"] {
       width: 44px;
       padding-inline: 0;
-    }
-
-    gt-table .gt-i-sheet-name {
-      display: none;
     }
   }
 
