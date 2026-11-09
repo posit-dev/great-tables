@@ -190,6 +190,8 @@ interface Block {
   /** The structural `<tr>` after the block, which stays put, or `null` at the end of the body. */
   anchor: HTMLTableRowElement | null;
   group: Group | null;
+  /** The block's data rows, in the order they're in in the body. */
+  placed: number[];
 }
 
 /** A column label's resize handle. */
@@ -599,6 +601,13 @@ function dateText(text: string, lang: string | undefined): string {
 
 const isPositiveInteger = (x: unknown): x is number => Number.isInteger(x) && (x as number) > 0;
 
+// Show or hide an element, leaving it be if it's as it should be (which costs a style recalc, with many)
+const setHidden = (el: HTMLElement, hidden: boolean) => {
+  if (el.hidden !== hidden) {
+    el.hidden = hidden;
+  }
+};
+
 /** A `<col>`'s width (`cols_width()`) in px, in a table `table` px wide; `NaN` for other units. */
 function authoredWidth(col: HTMLElement, table: number): number {
   const width = col.style.width;
@@ -720,6 +729,7 @@ function keepInView(cell: HTMLTableCellElement): HTMLElement {
   div.className = "gt-i-inview";
   div.append(...Array.from(cell.childNodes));
   cell.append(div);
+  cell.classList.add("gt-i-inview-cell");
   return div;
 }
 
@@ -1869,11 +1879,12 @@ export class GtTable extends HTMLElement {
       // the group changes
       let block = open[open.length - 1];
       if (block === undefined || block.group !== group) {
-        block = { rows: [], anchor: null, group };
+        block = { rows: [], anchor: null, group, placed: [] };
         blocks.push(block);
         open.push(block);
       }
       block.rows.push(entry);
+      block.placed.push(entry);
       const cell = groupCell(tr);
       if (cell !== null && group !== null) {
         group.cell = cell;
@@ -2055,7 +2066,7 @@ export class GtTable extends HTMLElement {
       }
     });
     const details = element(doc, "tr", "gt-i-details");
-    const td = element(doc, "td", "gt_row gt_left");
+    const td = element(doc, "td", "gt_row gt_left gt-i-inview-cell");
     td.append(list);
     details.append(td);
     this.details.set(tr, details);
@@ -2065,8 +2076,10 @@ export class GtTable extends HTMLElement {
   // a column), spanning the columns shown
   private placeDetails(): void {
     for (const [tr, details] of this.details) {
-      tr.after(details);
-      details.hidden = tr.hidden;
+      if (tr.nextSibling !== details) {
+        tr.after(details);
+      }
+      setHidden(details, tr.hidden === true);
       const row = this.bodyRows.get(tr);
       const group = typeof row === "number" ? this.rowGroups[row] : this.groups.find((group) => group.top.includes(tr) || group.bottom.includes(tr));
       const cell = group?.cell;
@@ -4013,6 +4026,7 @@ export class GtTable extends HTMLElement {
       // (Shown, with its name, only in a folded bar: see gti.css)
       const sheet = this.barButton("filter", "Filter & sort", "Filter & sort");
       sheet.dataset.gtiBar = "sheet";
+      this.setAttribute("data-gti-sheet", "");
       sheet.setAttribute("aria-haspopup", "dialog");
       const name = element(this.ownerDocument, "span", "gt-i-bar-name");
       name.textContent = "Filter & sort";
@@ -5010,6 +5024,7 @@ export class GtTable extends HTMLElement {
       if (box !== null) {
         box.checked = !hidden.includes(id);
         box.disabled = id === only;
+        box.parentElement?.toggleAttribute("data-gti-disabled", box.disabled);
       }
       earlier?.setAttribute("aria-disabled", String(this.moveOrder(id, -1) === null));
       later?.setAttribute("aria-disabled", String(this.moveOrder(id, 1) === null));
@@ -6324,6 +6339,7 @@ export class GtTable extends HTMLElement {
     box.mark = null;
     box.error.hidden = true;
     box.input.removeAttribute("aria-invalid");
+    box.input.closest(".gt-i-query-field")?.removeAttribute("data-gti-invalid");
     box.input.removeAttribute("aria-describedby");
     this.paintQuery(box);
     this.suggest(box, suggest);
@@ -6420,6 +6436,8 @@ export class GtTable extends HTMLElement {
       box.error.textContent = message;
       box.error.hidden = false;
       box.input.setAttribute("aria-invalid", "true");
+      // (For gti.css, which has no `:has()`, as it makes moving rows slow in Chromium)
+      box.input.closest(".gt-i-query-field")?.setAttribute("data-gti-invalid", "");
       box.input.setAttribute("aria-describedby", box.error.id);
       box.mark = problem.mark;
       this.suggest(box, false);
@@ -7258,17 +7276,20 @@ export class GtTable extends HTMLElement {
     const tbody = this.tbody as HTMLTableSectionElement;
 
     // Each block is sorted on its own, so rows stay in their group, and group headings and
-    // summary rows stay where they are
+    // summary rows stay where they are. Its rows are moved only when its order changes (moving
+    // rows is slow in some browsers, with many of them), and then taken out in one go
     const order: number[] = [];
     for (const block of this.blocks) {
-      const fragment = this.ownerDocument.createDocumentFragment();
-      for (const row of sortRows(block.rows, this.sortKeys, spec.ranks)) {
-        fragment.append(this.rowElements[row] as HTMLTableRowElement);
+      const sorted = sortRows(block.rows, this.sortKeys, spec.ranks);
+      if (sorted.some((row, i) => row !== block.placed[i])) {
+        this.moveRows(tbody, block.placed, sorted);
+        block.placed = sorted;
+      }
+      for (const row of sorted) {
         if (matches === null || matches[row] === 1) {
           order.push(row);
         }
       }
-      tbody.insertBefore(fragment, block.anchor);
     }
 
     this.order = order;
@@ -7301,23 +7322,77 @@ export class GtTable extends HTMLElement {
     }
 
     this.rowElements.forEach((tr, row) => {
-      tr.hidden = onPage[row] !== 1;
+      setHidden(tr, onPage[row] !== 1);
     });
     for (const group of this.groups) {
       const span = spans.get(group);
       for (const tr of group.headings) {
-        tr.hidden = span === undefined;
+        setHidden(tr, span === undefined);
       }
       for (const tr of group.top) {
-        tr.hidden = span?.starts !== true;
+        setHidden(tr, span?.starts !== true);
       }
       for (const tr of group.bottom) {
-        tr.hidden = span?.ends !== true;
+        setHidden(tr, span?.ends !== true);
       }
       this.placeGroupCell(group, span);
     }
     this.placeDetails();
+    this.reinsertEdges(tbody);
     return { shown, page, start, total: order.length };
+  }
+
+  // Put each data row shown that hidden rows part from the next row shown, if that isn't a data
+  // row (a group's heading or a summary row), or from the end of the body, back where it is:
+  // WebKit lays out a row's collapsed borders again as it's put in, but not as the rows after it
+  // are hidden or shown (so the last row on a page could be without its share of the body's
+  // bottom border, and the table half a px shorter than on another page). Not those followed by
+  // other data rows, whose borders are the same (as putting back many rows, one by one, is slow
+  // in Chromium), nor one with what has the focus in it, which putting it back would take the
+  // focus from
+  private reinsertEdges(tbody: HTMLTableSectionElement): void {
+    const edges: HTMLTableRowElement[] = [];
+    let last: HTMLTableRowElement | null = null;
+    let gap = false;
+    for (let tr = tbody.firstElementChild as HTMLTableRowElement | null; ; ) {
+      if (tr === null || !tr.hidden) {
+        if (last !== null && gap && (tr === null || typeof this.bodyRows.get(tr) !== "number")) {
+          edges.push(last);
+        }
+        if (tr === null) {
+          break;
+        }
+        last = typeof this.bodyRows.get(tr) === "number" ? tr : null;
+        gap = false;
+      } else {
+        gap = true;
+      }
+      tr = tr.nextElementSibling as HTMLTableRowElement | null;
+    }
+    const focused = this.ownerDocument.activeElement;
+    for (const tr of edges) {
+      if (!tr.contains(focused)) {
+        tbody.insertBefore(tr, tr.nextSibling);
+      }
+    }
+  }
+
+  // Put a block's rows (in the body in the order `placed`) in the order `sorted`: taken out
+  // together, in a range from the first to the last (with any rows of dropped columns between them,
+  // which go under their rows again after), put in order out of the body, and put back
+  private moveRows(tbody: HTMLTableSectionElement, placed: number[], sorted: number[]): void {
+    const rows = this.rowElements;
+    const last = rows[placed[placed.length - 1] as number] as HTMLTableRowElement;
+    const next = last.nextSibling;
+    const range = this.ownerDocument.createRange();
+    range.setStartBefore(rows[placed[0] as number] as HTMLTableRowElement);
+    range.setEndAfter(last);
+    range.deleteContents();
+    const fragment = this.ownerDocument.createDocumentFragment();
+    for (const row of sorted) {
+      fragment.append(rows[row] as HTMLTableRowElement);
+    }
+    tbody.insertBefore(fragment, next);
   }
 
   // The label cell of a group shown as a column goes on the group's first shown row, and spans
@@ -8164,6 +8239,7 @@ export class GtTable extends HTMLElement {
     this.removeAttribute("data-gti-nowrap");
     this.removeAttribute("data-gti-resizing");
     this.removeAttribute("data-gti-scroll");
+    this.removeAttribute("data-gti-sheet");
     this.removeAttribute("data-gti-sticky");
     this.removeAttribute("data-gti-wide");
     this.removeAttribute("data-gti-stacked");
