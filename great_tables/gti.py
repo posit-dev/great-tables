@@ -314,8 +314,11 @@ class GTI(GT):
         and End, in the bar). Between the arrows is the page and the number of pages, which can be
         clicked to type the page to go to. Each page is as tall as a full one, so the controls stay
         in place. The (i) button at the end of the bar opens the table's info panel, which says
-        which rows are shown and has the choice of page size. Pagination is on by default, with ten
-        rows to a page.
+        which rows are shown and has the choice of page size. Readers can also drag the foot of
+        the page's rows (the line between the last row and the grand summary rows or footer) down
+        or up, for a row more or fewer on each page, from one row to all of them, or focus it and
+        use the arrow keys; Enter or a double click on it goes back to `page_size`, as does the
+        bar's reset. Pagination is on by default, with ten rows to a page.
 
         Parameters
         ----------
@@ -325,7 +328,8 @@ class GTI(GT):
             How many rows are on a page, to begin with.
         page_sizes
             The page sizes readers can choose from, in the info panel (as well as `page_size`).
-            With `None` (or none at all), readers can't change the page size.
+            With `None` (or none at all), readers can't change the page size (and there's no
+            handle to drag at the foot of the rows).
         info
             Whether the info panel says which rows are shown (as in "21–30 of 215 rows").
 
@@ -401,6 +405,12 @@ class GTI(GT):
 
         The table takes up no more than `height`, and its body scrolls within it, with the column
         labels (and the table's header) staying in view. By default, a table grows with its rows.
+
+        With the control bar, readers can drag the foot of the body down or up (or use the arrow
+        keys and Page Up and Page Down on it) for a taller or shorter one: from a row's height to
+        all of the rows. Double-clicking it (or pressing Enter) puts `height` back, as resetting
+        the view does; the height is kept with the view (see
+        [`i_view_state()`](`great_tables.GTI.i_view_state`)).
 
         Parameters
         ----------
@@ -1166,8 +1176,9 @@ class GTI(GT):
         Keep the reader's view of the table, for when the page is opened again, and let them undo
         their changes to it.
 
-        The view is the table's filters, sort, search, page, page size, and hidden columns (not
-        the rows selected, or the columns' widths). As the reader changes it, it can be kept in
+        The view is the table's filters, sort, search, page, page size, and hidden columns, and
+        the height of a body that scrolls (see [`i_scroll()`](`great_tables.GTI.i_scroll`)) as the
+        reader drags it (not the rows selected, or the columns' widths). As the reader changes it, it can be kept in
         the page's URL (`url=`), so that reloading the page, or sharing its link, opens the table
         as it was; and in the browser's storage (`storage=`), so that the reader finds it as they
         left it when they come back to the page. The table's info panel then has a button that
