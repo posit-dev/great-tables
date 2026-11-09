@@ -44,6 +44,12 @@ test("opens above the end of the bar, over the table, filled", async ({ page }) 
 
 test("opens below the bar when there's more room for it there", async ({ page }) => {
   const errors = await ready(page, "bar.html");
+  // (With the bar near the top of the view, the page scrolled down past what's over it)
+  await page.evaluate(() => {
+    document.body.append(Object.assign(document.createElement("div"), { style: "height: 2000px" }));
+    const bar = document.querySelector(".gt-i-bar") as HTMLElement;
+    window.scrollBy(0, bar.getBoundingClientRect().top - 40);
+  });
   await toggle(page).click();
   const shown = await box(panel(page));
   const under = await box(bar(page));
@@ -66,7 +72,7 @@ test("is gone into with Tab, and closes on Escape, with focus back on its button
   // Focus going elsewhere closes it
   await page.keyboard.press("Enter");
   await tab(page, true);
-  await expect(bar(page).getByRole("button", { name: "Next page" })).toBeFocused();
+  await expect(bar(page).getByRole("button", { name: "Last page" })).toBeFocused();
   await expect(panel(page)).toBeHidden();
   expect(errors).toEqual([]);
 });
@@ -93,18 +99,11 @@ test("changes the page size", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test("puts the table back in its own order", async ({ page }) => {
+test("says how the table is sorted", async ({ page }) => {
   const errors = await ready(page, "info.html");
-  const before = await visible(page);
   await el(page).getByRole("button", { name: "Sort by num", exact: true }).click();
-  expect(await visible(page)).not.toEqual(before);
-
   await toggle(page).click();
   await expect(panel(page)).toContainText("Sorted by num, ascending");
-  await panel(page).getByRole("button", { name: "Reset the sort" }).click();
-  expect(await visible(page)).toEqual(before);
-  await expect(panel(page)).toContainText("Not sorted");
-  await expect(panel(page).getByRole("button", { name: "Reset the sort" })).toBeFocused();
   expect(errors).toEqual([]);
 });
 
@@ -143,7 +142,6 @@ test.describe("on a touch screen", () => {
     await expect(panel(page)).toBeVisible();
     for (const control of [
       panel(page).getByRole("combobox", { name: "Rows per page" }),
-      panel(page).getByRole("button", { name: "Reset the sort" }),
       panel(page).getByRole("button", { name: "Clear the selection" }),
     ]) {
       expect((await box(control)).height).toBeGreaterThanOrEqual(44);

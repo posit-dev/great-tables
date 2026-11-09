@@ -103,6 +103,104 @@ test("pages with its arrows, and with the keys in the bar", async ({ page }) => 
   expect(errors).toEqual([]);
 });
 
+test("goes to the first and last pages, from buttons outside its arrows", async ({ page }) => {
+  const errors = await ready(page, "bar.html");
+  const [first, last] = [barButton(page, "First page"), barButton(page, "Last page")];
+  expect((await box(first)).right).toBeLessThanOrEqual((await box(barButton(page, "Previous page"))).left);
+  expect((await box(last)).left).toBeGreaterThanOrEqual((await box(barButton(page, "Next page"))).right);
+  await expect(first).toHaveAttribute("aria-disabled", "true");
+  await last.click();
+  await expect(readout(page)).toHaveText("12/12");
+  await expect(last).toHaveAttribute("aria-disabled", "true");
+  await expect(first).toHaveAttribute("aria-disabled", "false");
+  await first.click();
+  expect(await pageOf(page)).toBe(1);
+  expect(errors).toEqual([]);
+});
+
+test("lists its shortcuts from a button after the search's, which the open search covers", async ({ page }) => {
+  const errors = await ready(page, "bar.html");
+  const keys = barButton(page, "Keyboard shortcuts");
+  const at = await box(keys);
+  expect(at.left).toBeGreaterThanOrEqual((await box(barButton(page, "Search the table"))).right);
+  await keys.click();
+  const panel = bar(page).getByRole("group", { name: "Keyboard shortcuts" });
+  await expect(panel).toBeVisible();
+  await expect(panel.locator(".gt-i-info-keys")).toContainText("First or last page, in the bar");
+  expect((await box(panel)).bottom).toBeLessThanOrEqual((await box(bar(page))).top);
+
+  await barButton(page, "Search the table").click();
+  await expect(panel).toBeHidden();
+  await expect(keys).toBeHidden();
+  expect((await box(field(page))).right).toBeGreaterThanOrEqual(at.right);
+  expect(errors).toEqual([]);
+});
+
+test("takes its shortcuts after a click in the table", async ({ page }) => {
+  const errors = await ready(page, "bar.html");
+  await el(page).locator("tbody td.gt_row").first().click();
+  expect(await page.evaluate(() => document.activeElement?.tagName)).toBe("GT-TABLE");
+  // (Without a ring around it)
+  await expect(el(page)).toHaveCSS("outline-style", "none");
+  await page.keyboard.press("/");
+  await expect(search(page)).toBeFocused();
+  expect(errors).toEqual([]);
+});
+
+test("resets the view from a button that shows while there's something to reset", async ({ page }) => {
+  const errors = await ready(page, "bar.html");
+  const reset = barButton(page, "Reset the view");
+  await expect(reset).toBeHidden();
+  const before = await visible(page);
+  await el(page).locator("button.gt-i-sort").first().click();
+  await expect(reset).toBeVisible();
+  await expect(reset).toHaveText("Reset");
+  // (Just before the info button, in the accent colour)
+  expect((await box(reset)).right).toBeLessThanOrEqual((await box(barButton(page, "Table info"))).left);
+  expect(await reset.evaluate((node) => getComputedStyle(node, "::before").backgroundColor)).toBe("rgb(31, 111, 235)");
+
+  await reset.click();
+  await expect(reset).toBeHidden();
+  expect(await visible(page)).toEqual(before);
+  await expect(barButton(page, "Table info")).toBeFocused();
+  expect(errors).toEqual([]);
+});
+
+test("names its buttons with tooltips of its own, a moment after the mouse goes onto them", async ({ page }) => {
+  const errors = await ready(page, "bar.html");
+  const next = barButton(page, "Next page");
+  expect(await next.getAttribute("title")).toBeNull();
+  const tip = bar(page).getByRole("tooltip");
+  await next.hover();
+  await expect(tip).toBeVisible();
+  await expect(tip).toHaveText("Next page (→)");
+  // (Above it, and centred on it)
+  const [shown, under] = [await box(tip), await box(next)];
+  expect(shown.bottom).toBeLessThanOrEqual(under.top);
+  expect((shown.left + shown.right) / 2).toBeCloseTo((under.left + under.right) / 2, 0);
+
+  await page.mouse.move(2, 2);
+  await expect(tip).toBeHidden();
+  await barButton(page, "Last page").hover();
+  await expect(tip).toHaveText("Last page (End)");
+  await page.keyboard.press("Escape");
+  await expect(tip).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test.describe("on a touch screen", () => {
+  test.use({ hasTouch: true });
+
+  test("shows no tooltips for a tap", async ({ page }) => {
+    const errors = await ready(page, "bar.html");
+    await barButton(page, "Next page").tap();
+    await expect(readout(page)).toHaveText("2/12");
+    await page.waitForTimeout(800);
+    await expect(bar(page).getByRole("tooltip")).toBeHidden();
+    expect(errors).toEqual([]);
+  });
+});
+
 test("goes to the page typed in its readout", async ({ page }) => {
   const errors = await ready(page, "bar.html");
   await readout(page).click();

@@ -110,6 +110,111 @@ test.describe("resizing by mouse", () => {
   });
 });
 
+test.describe("the guide along a column", () => {
+  const guide = (page: Page) => page.locator("gt-table .gt-i-guide");
+  const line = (page: Page, side: "left" | "right") => guide(page).locator(`.gt-i-guide-line[data-gti-side="${side}"]`);
+  const rect = (locator: Locator) =>
+    locator.evaluate((node) => {
+      const { left, right, top, bottom } = node.getBoundingClientRect();
+      return { left, right, top, bottom };
+    });
+  const hover = async (page: Page, target: Locator, at = 0.5) => {
+    const box = (await target.boundingBox()) as { x: number; y: number; width: number; height: number };
+    await page.mouse.move(box.x + box.width * at, box.y + box.height - 4);
+  };
+
+  test("shows on the mouse over a label, from it to the end of the body, thick where it drags", async ({ page }) => {
+    const errors = await ready(page, "resize.html");
+    await expect(guide(page)).toHaveAttribute("aria-hidden", "true");
+    await expect(guide(page)).toBeHidden();
+
+    // (Over the label's row of controls)
+    await hover(page, label(page, "currency"));
+    await expect(guide(page)).toBeVisible();
+    const th = await rect(label(page, "currency"));
+    const box = await rect(guide(page));
+    expect(box.left).toBeCloseTo(th.left, 0);
+    expect(box.right).toBeCloseTo(th.right, 0);
+    expect(box.top).toBeCloseTo(th.top, 0);
+    expect(box.bottom).toBeCloseTo((await rect(page.locator("gt-table tbody"))).bottom, 0);
+    // Both edges drag: its own, and num's, before it
+    await expect(line(page, "left")).toHaveAttribute("data-gti-grip", "");
+    await expect(line(page, "right")).toHaveAttribute("data-gti-grip", "");
+    // (Faint lines, out of the way)
+    await expect(guide(page)).toHaveCSS("pointer-events", "none");
+
+    // Another label's, and none past the column labels
+    await hover(page, label(page, "char"));
+    expect((await rect(guide(page))).left).toBeCloseTo((await rect(label(page, "char"))).left, 0);
+    await page.mouse.move(5, 400);
+    await expect(guide(page)).toBeHidden();
+    // Nor on the spanner
+    await hover(page, page.locator("gt-table th.gt_column_spanner_outer"));
+    await expect(guide(page)).toBeHidden();
+    expect(errors).toEqual([]);
+  });
+
+  test("drags the column before a label by the label's inline start", async ({ page }) => {
+    const errors = await ready(page, "resize.html");
+    const events = await resizes(page);
+    const [stub, num, currency, char] = (await widths(page)) as [number, number, number, number];
+    await hover(page, label(page, "currency"));
+    const start = page.locator("gt-table th[data-gti-resize-start] > .gt-i-resizer-start");
+    await expect(start).toHaveAttribute("aria-hidden", "true");
+    await expect(start).toHaveCSS("cursor", "col-resize");
+    await drag(page, start, 40);
+    near(await widths(page), [stub, num + 40, currency, char]);
+    expect(await events()).toEqual([{ column: "num", index: 1, width: px(num) + 40 }]);
+    // (The guide follows, and no sort on the way)
+    expect((await rect(guide(page))).left).toBeCloseTo((await rect(label(page, "currency"))).left, 0);
+    await expect(page.locator("gt-table th[aria-sort]")).toHaveCount(0);
+    expect(errors).toEqual([]);
+  });
+
+  test("is drawn in the part of the table in view", async ({ page }) => {
+    const errors = await ready(page, "resize.html");
+    await page.setViewportSize({ width: 360, height: 700 });
+    const el = page.locator("gt-table");
+    await expect(el).toHaveAttribute("data-gti-wide", "");
+    const scroller = el.locator(".gt-i-scroller");
+    await scroller.evaluate((div) => (div.scrollLeft = 99999));
+    await settled(page);
+    // A column partly scrolled under the stub, pinned: from the stub's edge, without its start
+    const stub = await rect(el.locator("tbody th.gt_stub").first());
+    const th = await rect(label(page, "num"));
+    expect(th.left).toBeLessThan(stub.right - 5);
+    await page.mouse.move(stub.right + 5, th.bottom - 4);
+    await expect(guide(page)).toBeVisible();
+    expect((await rect(guide(page))).left).toBeCloseTo(stub.right, 0);
+    expect((await rect(guide(page))).right).toBeCloseTo(th.right, 0);
+    // (Lines of no width of their own, drawn by their pseudo-elements)
+    await expect(line(page, "left")).toHaveAttribute("hidden");
+    await expect(line(page, "right")).not.toHaveAttribute("hidden");
+    // And it follows the column as the table scrolls
+    await scroller.evaluate((div) => (div.scrollLeft = 0));
+    await expect.poll(async () => (await rect(guide(page))).left).toBeCloseTo((await rect(label(page, "num"))).left, 0);
+    await expect(line(page, "left")).not.toHaveAttribute("hidden");
+    expect(errors).toEqual([]);
+  });
+
+  test("is drawn the same way right to left", async ({ page }) => {
+    await ready(page, "resize.html");
+    await page.evaluate(() => (document.documentElement.dir = "rtl"));
+    await settled(page);
+    const [, num] = (await widths(page)) as [number, number];
+    await hover(page, label(page, "currency"));
+    const th = await rect(label(page, "currency"));
+    const box = await rect(guide(page));
+    expect(box.left).toBeCloseTo(th.left, 0);
+    expect(box.right).toBeCloseTo(th.right, 0);
+    await expect(line(page, "left")).toHaveAttribute("data-gti-grip", "");
+    await expect(line(page, "right")).toHaveAttribute("data-gti-grip", "");
+    // num, before currency, is on its right
+    await drag(page, page.locator("gt-table th[data-gti-resize-start] > .gt-i-resizer-start"), -30);
+    expect((await widths(page))[1]).toBeCloseTo(px(num) + 30, 0);
+  });
+});
+
 test.describe("resized columns", () => {
   test("keep their widths as the window resizes, the table scrolling in its container", async ({ page }) => {
     const errors = await ready(page, "resize.html");
@@ -214,6 +319,8 @@ test.describe("resizing by touch", () => {
     expect(await wrapper.evaluate((div) => div.scrollLeft)).toBe(0);
     expect(await page.evaluate(() => scrollX)).toBe(0);
     await expect(page.locator("gt-table th[aria-sort]")).toHaveCount(0);
+    // (The guide is the mouse's)
+    await expect(page.locator("gt-table .gt-i-guide")).toBeHidden();
     expect(errors).toEqual([]);
   });
 });
