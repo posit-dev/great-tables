@@ -86,8 +86,8 @@ class GTI(GT):
 
     Examples
     --------
-    Out of the box, a `GTI` table can be sorted by its columns (by clicking their labels), searched,
-    and paged through, ten rows at a time, and its columns can be resized.
+    Out of the box, a `GTI` table can be sorted by its columns (with the arrows under their labels),
+    searched, and paged through, ten rows at a time, and its columns can be resized.
 
     ```{python}
     from great_tables import GTI
@@ -203,12 +203,13 @@ class GTI(GT):
         """
         Let readers sort the table by its columns.
 
-        A column is sorted by clicking (or tapping) its label: once for ascending order, again for
-        descending, and a third time to go back to the table's own order. With Shift held, a column
-        is added to the sort (and is sorted within the columns before it). Rows are sorted by the
-        column's values, not by how they're formatted, and stay in their row groups. The info panel
-        (from the (i) button in the control bar) says how the table is sorted, and can put it back
-        in its own order. Sorting is on by default; some columns can be left unsortable with
+        A column is sorted with the arrows under its label (or by clicking the label itself): once
+        for ascending order, again for descending, and a third time to go back to the table's own
+        order. With Shift held, a column is added to the sort (and is sorted within the columns
+        before it). Rows are sorted by the column's values, not by how they're formatted, and stay
+        in their row groups. The info panel (from the (i) button in the control bar) says how the
+        table is sorted, and can put it back in its own order. Sorting is on by default; some
+        columns can be left unsortable with
         [`i_cols_controls()`](`great_tables.GTI.i_cols_controls`).
 
         Parameters
