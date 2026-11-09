@@ -644,9 +644,13 @@ gt-table[data-gti-nowrap] :is(.gt_row, .gt_col_heading, .gt_column_spanner) {
 /*
  * A body that scrolls, within the height the producer sets (on the element, so that the table
  * doesn't change when it's hydrated). GT's container already scrolls sideways; it scrolls down too,
- * whatever the author set for it.
+ * whatever the author set for it: before hydration, the element's first `<div>` (GT's, which has no
+ * class), and after, the scroller (GT's, with one).
+ *
+ * (Here and throughout, no `:has()`: any rule with it makes Chromium slow to move a body's rows,
+ * superlinearly, matching or not. The runtime sets a class or attribute where it sets the state.)
  */
-gt-table[data-gti-scroll] > div:has(> table),
+gt-table[data-gti-scroll] > div:first-of-type:not([class]),
 gt-table[data-gti-scroll] .gt-i-scroller {
   box-sizing: border-box;
   max-height: var(--gt-i-height);
@@ -708,7 +712,7 @@ gt-table[data-gti-wide] .gt-i-inview {
 }
 
 /* (GT's cells hide what overflows them, by id, which would keep their contents from sticking) */
-gt-table[data-gti-wide] :is(td, th):has(> .gt-i-inview) {
+gt-table[data-gti-wide] .gt-i-inview-cell {
   overflow: visible !important;
 }
 
@@ -1374,7 +1378,7 @@ gt-table .gt-i-query-field:focus-within {
   outline-offset: 1px;
 }
 
-gt-table .gt-i-query-field:has([aria-invalid="true"]) {
+gt-table .gt-i-query-field[data-gti-invalid] {
   border-color: var(--gt-i-error);
 }
 
@@ -1839,7 +1843,7 @@ gt-table .gt-i-filter-option:hover {
 }
 
 /* (The last column shown, which can't be hidden) */
-gt-table .gt-i-filter-option:has(:disabled) {
+gt-table .gt-i-filter-option[data-gti-disabled] {
   background: none;
   cursor: default;
   opacity: 0.45;
@@ -2108,7 +2112,7 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
   }
 
   /* (A long press on a column's label opens its sheet, rather than selecting its text) */
-  gt-table:has(.gt-i-bar [data-gti-bar="sheet"]) thead .gt-i-head {
+  gt-table[data-gti-sheet] thead .gt-i-head {
     -webkit-touch-callout: none;
     user-select: none;
   }
@@ -2129,7 +2133,7 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
     }
 
     gt-table .gt-i-bar :is([data-gti-bar="query"], [data-gti-bar="columns"], [data-gti-bar="keys"], [data-gti-bar="first"], [data-gti-bar="last"]),
-    gt-table .gt-i-bar:has([data-gti-bar="sheet"]):not([data-gti-searching]) .gt-i-bar-search {
+    gt-table[data-gti-sheet] .gt-i-bar:not([data-gti-searching]) .gt-i-bar-search {
       display: none;
     }
   }
