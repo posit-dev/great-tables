@@ -1,8 +1,8 @@
 """Write the pages the benchmarks (bench/run.mjs) load (into bench/.pages/, which is gitignored).
 
-Each page is one GTI table, as `GTI.save()` would write it (the runtime inline), so a page costs
-what a reader's would. The tables vary in the number of rows, in their cells (plain ones, in 5 or
-10 columns, or heavy ones: nanoplots and images), and in whether their rows are split into pages
+Each page is one GTI table, as `write_raw_html()` would write it (the runtime inline), so a page
+costs what a reader's would. The tables vary in the number of rows, in their cells (plain ones, in 5
+or 10 columns, or heavy ones: nanoplots and images), and in whether their rows are split into pages
 (of 10) or all on one. Every table can be searched, and filtered on a facet, a range and a date.
 `bench/.pages/pages.json` lists the pages, with their sizes. With `--quick`, fewer of them.
 """
