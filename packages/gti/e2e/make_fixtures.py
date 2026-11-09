@@ -186,11 +186,16 @@ def pad_html(table_id: str, **options) -> str:
 
 
 def bar_html(
-    table_id: str, columns: list[str] | None = None, selection: str | None = None, **pagination
+    table_id: str,
+    columns: list[str] | None = None,
+    selection: str | None = None,
+    height: str | None = None,
+    **pagination,
 ) -> str:
     # A GTI table (with GTI's control bar): exibble three times over (24 rows, in two groups),
     # 2 rows to a page (so 12 pages), or with only the columns given; or without pages. Rows can
-    # be selected, with `selection`.
+    # be selected, with `selection`; its body scrolls within `height`, if given, and its view is
+    # kept in the URL.
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     if columns is None:
@@ -202,6 +207,8 @@ def bar_html(
         gti = gti.i_pagination(**{"page_size": 2, **pagination})
     else:
         gti = gti.i_pagination(False)
+    if height is not None:
+        gti = gti.i_scroll(height).i_view_state()
     return render_gti_html(gti, runtime="none")
 
 
@@ -801,7 +808,8 @@ def main() -> None:
         ),
         # GTI tables, with the control bar: 12 pages and a search; as narrow as one column; in a
         # container 300px wide; on one page, which the bar sticks to the bottom of the view of;
-        # and without the runtime (added by the test), with text after it.
+        # without the runtime (added by the test), with text after it; and on one page that
+        # scrolls.
         "bar.html": page(bar_html("c") + "\n" + runtime_src, head=styles),
         "bar-narrow.html": page(bar_html("c", columns=["char"]) + "\n" + runtime_src, head=styles),
         "bar-container.html": page(
@@ -812,6 +820,10 @@ def main() -> None:
             head=styles,
         ),
         "bar-late.html": page(bar_html("c") + '\n<p id="after">After the table</p>', head=styles),
+        # On one page, in a body that scrolls within 300px, its view kept in the URL
+        "bar-scroll.html": page(
+            bar_html("c", enabled=False, height="300px") + "\n" + runtime_src, head=styles
+        ),
         # The info panel: of a GTI table whose rows can be selected, with page sizes of 2 and 5
         # (below room for the panel above it); and of one in a container 300px wide
         "info.html": page(

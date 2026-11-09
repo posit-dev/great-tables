@@ -201,6 +201,11 @@ gt-table[data-gti-resizing] * {
   user-select: none;
 }
 
+gt-table[data-gti-resizing="rows"],
+gt-table[data-gti-resizing="rows"] * {
+  cursor: row-resize !important;
+}
+
 /* On touch screens, a target of 24px (any wider would cover much of a narrow label), always shown */
 @media (pointer: coarse) {
   gt-table .gt-i-resizer {
@@ -292,8 +297,103 @@ gt-table[data-gti-resizing] .gt-i-guide-line[data-gti-grip]::after {
   opacity: 0.9;
 }
 
+/*
+ * The handle along the foot of the page's rows, dragged for more or fewer of them, or of a body
+ * that scrolls, for a taller or shorter one (the runtime places it, across the part of the table in
+ * view): a grip, faint while the mouse is over the table, and a line in `--gt-i-guide-color` while
+ * the mouse is over it, with the page's size above
+ */
+gt-table .gt-i-foot {
+  position: absolute;
+  z-index: 6;
+  height: 12px;
+  margin-top: -6px;
+  color: var(--gt-i-guide-color, #00b4ff);
+  cursor: row-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+gt-table .gt-i-foot[hidden] {
+  display: none;
+}
+
+gt-table .gt-i-foot::before,
+gt-table .gt-i-foot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+}
+
+gt-table .gt-i-foot::before {
+  left: 0;
+  right: 0;
+  height: 2px;
+  margin-top: -1px;
+}
+
+gt-table .gt-i-foot::after {
+  left: 50%;
+  width: 28px;
+  height: 4px;
+  margin: -2px 0 0 -14px;
+  border-radius: 2px;
+}
+
+gt-table:hover .gt-i-foot::after {
+  opacity: 0.35;
+}
+
+gt-table .gt-i-foot:is(:hover, :focus-visible, [data-gti-active])::before {
+  opacity: 0.8;
+}
+
+gt-table .gt-i-foot:is(:hover, :focus-visible, [data-gti-active])::after {
+  opacity: 1;
+}
+
+gt-table .gt-i-foot:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 0;
+}
+
+gt-table .gt-i-rows-count {
+  bottom: 100%;
+  left: 50%;
+  margin-bottom: 2px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+gt-table .gt-i-foot:hover > .gt-i-rows-count {
+  opacity: 1;
+  transition-delay: 0.5s;
+}
+
+gt-table .gt-i-foot:is(:focus-visible, [data-gti-active]) > .gt-i-rows-count {
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+/* On touch screens, a target of 24px, its grip always shown */
+@media (pointer: coarse) {
+  gt-table .gt-i-foot {
+    height: 24px;
+    margin-top: -12px;
+  }
+
+  gt-table .gt-i-foot::after {
+    opacity: 0.35;
+  }
+}
+
 @media (forced-colors: active) {
-  gt-table .gt-i-guide {
+  gt-table :is(.gt-i-guide, .gt-i-foot) {
     color: Highlight;
   }
 }

@@ -75,6 +75,14 @@ describe("viewParams", () => {
   it("leaves out every row on one page", () => {
     expect(viewParams({ ...BASE, pageSize: null }, BASE)).toEqual([]);
   });
+
+  it("has a body's height, or the author's as an empty one", () => {
+    const base = { ...BASE, height: null };
+    expect(viewParams({ ...base, height: 420 }, base)).toEqual([["height", "420"]]);
+    expect(viewParams(base, { ...base, height: 420 })).toEqual([["height", ""]]);
+    expect(viewParams(base, base)).toEqual([]);
+    expect(viewParams(BASE, base)).toEqual([]);
+  });
 });
 
 describe("parameters", () => {
@@ -144,6 +152,25 @@ describe("readView", () => {
     expect(view).toEqual(BASE);
     expect(view.sort).not.toBe(BASE.sort);
     expect(readView([["page", "2"]], BASE, LIMITS, () => {})).toEqual({ ...BASE, page: 2 });
+  });
+
+  it("reads a body's height, if it scrolls within one, with a warning otherwise", () => {
+    const base = { ...BASE, height: null };
+    const limits = { ...LIMITS, height: true };
+    const { query, view, warnings } = roundTrip({ ...base, height: 420 }, { base, limits });
+    expect(query).toBe("?towny.height=420");
+    expect(view.height).toBe(420);
+    expect(warnings).toEqual([]);
+    expect(readView([["height", ""]], { ...base, height: 420 }, limits, () => {}).height).toBeNull();
+
+    const left: string[] = [];
+    expect(readView([["height", "0"], ["height", "12.5"]], base, limits, (message) => left.push(message)).height).toBeNull();
+    expect(readView([["height", "420"]], base, LIMITS, (message) => left.push(message)).height).toBeNull();
+    expect(left).toEqual([
+      'the saved view\'s height is left out ("0" isn\'t a height in px)',
+      'the saved view\'s height is left out ("12.5" isn\'t a height in px)',
+      "the saved view's height is left out (the table's body doesn't scroll within a height)",
+    ]);
   });
 
   it("reads the hidden columns, in column order", () => {

@@ -85,8 +85,8 @@ export const SELECT_EVENT = "gt-table-select";
 export const EXPORT_EVENT = "gt-table-export";
 
 /**
- * The event fired when the reader changes the view: the filters, sort, search, page or page size
- * (with the events for each); or resets it, or undoes or redoes a change to it (not when properties
+ * The event fired when the reader changes the view: the filters, sort, search, page, page size or
+ * the height of a body that scrolls (with the events for each, but the height's); or resets it, or undoes or redoes a change to it (not when properties
  * are set, or `resetView()`, `undo()` or `redo()` is called).
  */
 export const VIEW_EVENT = "gt-table-view";
@@ -154,7 +154,10 @@ export interface PageEventDetail {
   pageCount: number;
 }
 
-/** The view: as the `filter`, `sort`, `search`, `page`, `pageSize`, `hiddenColumns` and `columnOrder` properties have it. */
+/**
+ * The view: as the `filter`, `sort`, `search`, `page`, `pageSize`, `hiddenColumns` and `columnOrder`
+ * properties have it, and (for a body that scrolls within a height) `height`, as `bodyMaxHeight` has it.
+ */
 export type ViewEventDetail = View;
 
 /** A row group, as far as showing and hiding its rows goes. */
@@ -843,6 +846,10 @@ export class GtTable extends HTMLElement {
   private guide: HTMLElement | null = null;
   private guideTh: HTMLTableCellElement | null = null;
   private guideBefore: Resizer | null = null;
+  /** The handle along the foot of the rows, dragged for more or fewer, or a taller body (`addFootHandle()`). */
+  private footHandle: HTMLElement | null = null;
+  /** The height (in px) the body scrolls within, as the reader has set it; `null` for the author's. */
+  private heightValue: number | null = null;
   /**
    * The column widths when the reader first resized one, which a reset goes back to; `null`
    * before. From then on, every column has a fixed width.
@@ -1169,6 +1176,29 @@ export class GtTable extends HTMLElement {
     this.forget();
   }
 
+  /**
+   * For a body that scrolls within a height (`i_scroll()`): the height (in px) it's set to, as the
+   * reader can drag it to, or `null` for the author's. Always `null` for a body that doesn't.
+   *
+   * @throws {RangeError} for a height that isn't a positive number or `null`.
+   */
+  get bodyMaxHeight(): number | null {
+    return this.heightValue;
+  }
+
+  set bodyMaxHeight(height: number | null) {
+    if (height !== null && !(typeof height === "number" && Number.isFinite(height) && height > 0)) {
+      throw new RangeError(`\`bodyMaxHeight\` must be a positive number or null, not ${String(height)}`);
+    }
+    if (this.spec?.layout.height == null) {
+      return;
+    }
+    this.heightValue = height;
+    this.applyHeight();
+    this.heightChanged();
+    this.forget();
+  }
+
   /** The number of pages of the rows that match the search; 1 without pagination. */
   get pageCount(): number {
     return pageCount(this.matchCount, this.size);
@@ -1354,7 +1384,7 @@ export class GtTable extends HTMLElement {
   /**
    * Go back to the view the table is first shown with: the filters, sort and hidden columns of the
    * author's view (`i_view()`), and the author's column order, without a search, on the first page
-   * of the table's page size. The view kept in
+   * of the table's page size (and the body as tall as the author's). The view kept in
    * the URL and the browser's storage (with `view_state`) is cleared, and the reader's changes
    * can't be undone (see `undo()`). Does nothing until hydrated.
    */
@@ -1455,6 +1485,7 @@ export class GtTable extends HTMLElement {
       this.addResizers(table, spec);
     }
     this.addGuide(table);
+    this.addFootHandle(spec);
     this.hideable = spec.columns.flatMap((column) =>
       column.role === "data" && column.hideable === true && column.id !== null ? [column.id] : [],
     );
@@ -1494,6 +1525,7 @@ export class GtTable extends HTMLElement {
         pageSize: spec.pagination.enabled ? spec.pagination.page_size : null,
         hidden: this.hiddenColumns,
         order: this.columnOrder,
+        ...(spec.layout.height === null ? {} : { height: null }),
       };
       this.restoreView(spec, this.authorView);
     }
@@ -1564,6 +1596,9 @@ export class GtTable extends HTMLElement {
         ranks: spec.controls.sorting ? spec.ranks : null,
         search: spec.controls.search,
         sizes: !spec.pagination.enabled ? [] : size_select ? [...page_sizes, page_size] : [page_size],
+        // (Any, by the handle under the rows)
+        maxSize: this.footHandle === null ? 0 : spec.nrows,
+        height: spec.layout.height !== null,
         hideable: this.hideable,
         runs: this.runIds(),
       },
@@ -1581,8 +1616,8 @@ export class GtTable extends HTMLElement {
     this.setView(view);
   }
 
-  // Set the view's parts (the filters, sort, search, page, page size, hidden columns and column
-  // order), to be shown
+  // Set the view's parts (the filters, sort, search, page, page size, height, hidden columns and
+  // column order), to be shown
   private setView(view: View): void {
     this.orderColumns(view.order);
     this.hideColumns(view.hidden);
@@ -1597,6 +1632,8 @@ export class GtTable extends HTMLElement {
     this.showSearch();
     this.pageSizeValue = view.pageSize;
     this.pageValue = view.page;
+    this.heightValue = view.height ?? null;
+    this.applyHeight();
   }
 
   // The view shown
@@ -1609,6 +1646,8 @@ export class GtTable extends HTMLElement {
       pageSize: this.size,
       hidden: this.hiddenColumns,
       order: this.columnOrder,
+      // (For a body that scrolls within a height)
+      ...(this.spec?.layout.height == null ? {} : { height: this.heightValue }),
     };
   }
 
@@ -3111,6 +3150,239 @@ export class GtTable extends HTMLElement {
       th.setAttribute("data-gti-resize-start", "");
     }
     this.placeGuide();
+  }
+
+  /**
+   * The handle along the foot of the table's rows, dragged down or up: with pages whose size the
+   * reader can change, along the foot of the page's rows (over the grand summary rows and the
+   * footer), for a row more or fewer on a page for each row's height, from 1 to every row (not
+   * while the table is stacked); for a body that scrolls within a height, along the foot of the
+   * body, for a taller or shorter one, from a row's height to all of it. By the keys too (the
+   * arrows for a row, Page Down and Up for ten, and Enter or a double click for the table's own).
+   */
+  private addFootHandle(spec: Spec): void {
+    const { enabled, size_select, page_size } = spec.pagination;
+    const rows = spec.layout.height === null;
+    if (!this.movable || spec.controls.bar !== true || (rows && (!enabled || !size_select || spec.nrows === 0))) {
+      return;
+    }
+    const doc = this.ownerDocument;
+    // (The ARIA window splitter pattern)
+    const handle = element(doc, "div", `gt-i-foot gt-i-${rows ? "rows" : "height"}`, {
+      tabindex: "0",
+      role: "separator",
+      "aria-orientation": "horizontal",
+      "aria-label": rows ? "Rows per page" : "Table height",
+    });
+    if (rows) {
+      handle.setAttribute("aria-valuemin", "1");
+      handle.setAttribute("aria-valuemax", String(spec.nrows));
+      // (Saying the size, like a tooltip)
+      handle.append(element(doc, "span", "gt-i-tip gt-i-rows-count", { "aria-hidden": "true" }));
+      handle.style.fontFamily = getComputedStyle(this.table as HTMLTableElement).fontFamily;
+    }
+    this.placeBelow(handle);
+    this.footHandle = handle;
+    handle.addEventListener("pointerdown", (event) => this.dragFoot(handle, event));
+    const reset = () => (rows ? this.userPageSize(page_size) : this.userHeight(null));
+    handle.addEventListener("keydown", (event) => {
+      const steps: Record<string, number> = { ArrowDown: 1, ArrowUp: -1, PageDown: 10, PageUp: -10 };
+      const step = steps[event.key];
+      if (event.key === "Enter") {
+        reset();
+      } else if (step === undefined) {
+        return;
+      } else if (rows) {
+        const shown = this.rowsShown();
+        const size = this.rowsWithin(shown + step);
+        if (size !== shown) {
+          this.userPageSize(size, "size");
+        }
+      } else {
+        const height = this.portHeight();
+        const next = this.heightWithin(height + step * this.oneRow());
+        if (Math.abs(next - height) >= 1) {
+          this.userHeight(next, "height");
+        }
+      }
+      event.preventDefault();
+    });
+    handle.addEventListener("dblclick", reset);
+  }
+
+  // The number of rows a full page shows (all of them, on a page bigger than that)
+  private rowsShown(): number {
+    return Math.min(this.size ?? Infinity, (this.spec as Spec).nrows);
+  }
+
+  private rowsWithin(size: number): number {
+    return Math.max(1, Math.min(size, (this.spec as Spec).nrows));
+  }
+
+  // The height of the container the body scrolls in
+  private portHeight(): number {
+    return (this.scroller as HTMLElement).getBoundingClientRect().height;
+  }
+
+  // A height for the body to scroll within (in whole px): from the column labels and the rows stuck
+  // at the bottom, with a row between them, to all of it
+  private heightWithin(height: number): number {
+    const scroller = this.scroller as HTMLElement;
+    const most = scroller.scrollHeight + scroller.offsetHeight - scroller.clientHeight;
+    return Math.round(Math.min(most, Math.max(this.leastHeight(), height)));
+  }
+
+  private leastHeight(): number {
+    const scroller = this.scroller as HTMLElement;
+    const head = this.table?.tHead?.getBoundingClientRect().height ?? 0;
+    return head + this.foot + this.oneRow() + scroller.offsetHeight - scroller.clientHeight;
+  }
+
+  // The height of a data row shown (the first)
+  private oneRow(): number {
+    for (const tr of (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr")) {
+      if (!tr.hidden && typeof this.bodyRows.get(tr) === "number") {
+        return tr.getBoundingClientRect().height || 24;
+      }
+    }
+    return 24;
+  }
+
+  // Set the height the body scrolls within (`null` for the author's), as the reader has
+  private userHeight(height: number | null, part: string | null = null): void {
+    if (height !== this.heightValue) {
+      this.heightValue = height;
+      this.applyHeight();
+      this.heightChanged();
+      this.dispatchView(part);
+    }
+  }
+
+  // Show the reset button for a height that's changed, and keep it
+  private heightChanged(): void {
+    this.updatePager();
+    this.saveView();
+  }
+
+  // Show the body within the height it's set to, or the author's
+  private applyHeight(): void {
+    const height = this.spec?.layout.height ?? null;
+    if (height !== null) {
+      // (A kept height, no less than a row's)
+      const laidOut = this.scroller !== null && this.scroller.getClientRects().length > 0;
+      const value = this.heightValue === null ? height : `${laidOut ? Math.max(this.leastHeight(), this.heightValue) : this.heightValue}px`;
+      this.style.setProperty("--gt-i-height", value);
+      this.placeFoot();
+    }
+  }
+
+  // Drag the foot of the rows: for pages, a row more or fewer for each data row's height (on
+  // average, as the page started) it moves, the page keeping the row it starts with; for a body
+  // that scrolls, its height, by as much as it moves
+  private dragFoot(handle: HTMLElement, event: PointerEvent): void {
+    if (event.button !== 0) {
+      return;
+    }
+    // (No text selection, and no scrolling by touch)
+    event.preventDefault();
+    const scrolls = (this.spec as Spec).layout.height !== null;
+    const before = scrolls ? this.heightValue : this.size;
+    const start = scrolls ? this.portHeight() : this.rowsShown();
+    const first = (this.page - 1) * (this.size ?? 0);
+    const rows = this.view.end - this.view.start;
+    const height = scrolls ? 1 : (rows > 0 ? this.dataRowsHeight() / rows : 0) || this.rowHeight || 24;
+    const y = event.clientY;
+    const move = (event: PointerEvent) => {
+      const dy = event.clientY - y;
+      if (scrolls) {
+        this.heightValue = this.heightWithin(start + dy);
+        this.applyHeight();
+        return;
+      }
+      const size = this.rowsWithin(start + Math.round(dy / height));
+      if (size !== this.size) {
+        this.pageSizeValue = size;
+        this.pageValue = Math.floor(first / size) + 1;
+        this.render();
+      }
+    };
+    const types = ["pointerup", "pointercancel", "lostpointercapture"];
+    const end = () => {
+      handle.removeEventListener("pointermove", move);
+      for (const type of types) {
+        handle.removeEventListener(type, end);
+      }
+      this.removeAttribute("data-gti-resizing");
+      handle.removeAttribute("data-gti-active");
+      if (scrolls ? this.heightValue !== before : this.size !== before) {
+        if (scrolls) {
+          this.heightChanged();
+          this.dispatchView(null);
+        } else {
+          this.sizeChanged(null);
+        }
+      }
+    };
+    handle.setPointerCapture?.(event.pointerId);
+    this.setAttribute("data-gti-resizing", "rows");
+    handle.setAttribute("data-gti-active", "");
+    handle.addEventListener("pointermove", move);
+    for (const type of types) {
+      handle.addEventListener(type, end);
+    }
+  }
+
+  // The height of the data rows shown
+  private dataRowsHeight(): number {
+    let height = 0;
+    for (const tr of (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr")) {
+      if (!tr.hidden && typeof this.bodyRows.get(tr) === "number") {
+        height += tr.getBoundingClientRect().height;
+      }
+    }
+    return height;
+  }
+
+  // Place the handle along the foot of the rows, across the part of the table in view: for pages,
+  // the page's rows (above the grand summary rows at the bottom), saying the page's size; for a
+  // body that scrolls, the container it scrolls in
+  private placeFoot(): void {
+    const handle = this.footHandle;
+    const table = this.table;
+    const tbody = this.tbody;
+    if (handle === null || table === null || tbody === null) {
+      return;
+    }
+    const scroller = this.scroller;
+    const scrolls = (this.spec as Spec).layout.height !== null;
+    handle.hidden = (this.stacked && !scrolls) || table.getClientRects().length === 0;
+    if (handle.hidden) {
+      return;
+    }
+    const grand = this.grandBottom();
+    let { left, right } = table.getBoundingClientRect();
+    let y = grand !== null && !grand.hidden ? grand.getBoundingClientRect().top : tbody.getBoundingClientRect().bottom;
+    if (scroller !== null) {
+      const port = scroller.getBoundingClientRect();
+      left = Math.max(left, port.left + scroller.clientLeft);
+      right = Math.min(right, left + scroller.clientWidth);
+      if (scrolls) {
+        y = port.bottom;
+      }
+    }
+    const outer = this.getBoundingClientRect();
+    setStyle(handle, "top", `${y - outer.top - this.clientTop}px`);
+    setStyle(handle, "left", `${left - outer.left - this.clientLeft}px`);
+    setStyle(handle, "width", `${Math.max(0, right - left)}px`);
+    if (scrolls) {
+      handle.setAttribute("aria-valuenow", String(Math.round(this.portHeight())));
+      return;
+    }
+    const shown = this.rowsShown();
+    handle.setAttribute("aria-valuenow", String(shown));
+    const text = `${plural(shown)} per page`;
+    handle.setAttribute("aria-valuetext", text);
+    (handle.firstElementChild as HTMLElement).textContent = text;
   }
 
   // The resizable column whose label ends where a label starts: the one before it (as the columns
@@ -6614,7 +6886,8 @@ export class GtTable extends HTMLElement {
     while (below.parentElement !== null && below.parentElement !== this) {
       below = below.parentElement;
     }
-    below.after(el);
+    // (After the handle under the rows, which is next in the order of focus)
+    (this.footHandle ?? below).after(el);
   }
 
   // The toolbar and page controls are lined up with the table, and the column widths are measured
@@ -6638,6 +6911,7 @@ export class GtTable extends HTMLElement {
         this.drawBorders();
       }
       this.alignBars();
+      this.placeFoot();
       this.placeFilter();
       this.stick();
       // (In the next frame, like the column widths below)
@@ -6768,14 +7042,18 @@ export class GtTable extends HTMLElement {
     this.dispatchView("page");
   }
 
-  private userPageSize(size: number): void {
-    if (size === this.size) {
-      return;
+  private userPageSize(size: number, part: string | null = null): void {
+    if (size !== this.size) {
+      this.resize(size);
+      this.sizeChanged(part);
     }
-    this.resize(size);
-    this.announce(`${plural(size)} per page, page ${this.page} of ${this.pageCount}`);
+  }
+
+  // (A run of changes by the keys on the handle under the rows, `part` "size", is one to undo)
+  private sizeChanged(part: string | null): void {
+    this.announce(`${plural(this.size as number)} per page, page ${this.page} of ${this.pageCount}`);
     this.dispatchPage();
-    this.dispatchView(null);
+    this.dispatchView(part);
   }
 
   private userColumns(ids: string[], text: string): void {
@@ -6962,6 +7240,7 @@ export class GtTable extends HTMLElement {
     this.updatePager();
     this.updateFilters();
     this.placeGuide();
+    this.placeFoot();
     this.saveView();
   }
 
@@ -7757,6 +8036,7 @@ export class GtTable extends HTMLElement {
       shade.remove();
     }
     this.guide?.remove();
+    this.footHandle?.remove();
     this.hint?.remove();
     this.toolbar?.remove();
     this.pager?.nav.remove();
@@ -7834,6 +8114,8 @@ export class GtTable extends HTMLElement {
     this.fittedWidth = 0;
     this.resizers = [];
     this.guide = null;
+    this.footHandle = null;
+    this.heightValue = null;
     this.guideTh = null;
     this.guideBefore = null;
     this.startWidths = null;
