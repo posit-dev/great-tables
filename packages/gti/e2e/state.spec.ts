@@ -10,7 +10,7 @@ const FIXTURE = pathToFileURL(join(dirname(fileURLToPath(import.meta.url)), ".fi
 const AUTHOR = { filter: null, sort: [{ column: "num", descending: true }], search: "", page: 1, pageSize: 5 };
 
 const el = (page: Page, id: string) => page.locator(`gt-table:has(#${id})`);
-const sortButton = (page: Page, id: string, column: string) => page.locator(`th#${id}-${column} > button.gt-i-sort`);
+const sortButton = (page: Page, id: string, column: string) => page.locator(`th#${id}-${column} button.gt-i-sort`);
 const barButton = (page: Page, id: string, name: string) =>
   el(page, id).locator(".gt-i-bar").getByRole("button", { name, exact: true });
 const view = (page: Page, id: string) =>

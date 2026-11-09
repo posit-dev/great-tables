@@ -188,7 +188,7 @@ test.describe("a table that drops columns", () => {
     const errors = await ready(page, "collapse.html");
     await button(page, "row_5").click();
     // (Sorted by num, descending: row_8, row_7, row_5 in grp_b)
-    const sort = el(page).locator("th#c-num > button.gt-i-sort");
+    const sort = el(page).locator("th#c-num button.gt-i-sort");
     await sort.click();
     await sort.click();
     await expect(el(page).locator("th#c-num")).toHaveAttribute("aria-sort", "descending");

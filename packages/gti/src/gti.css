@@ -4,26 +4,84 @@ gt-table {
   position: relative;
 }
 
-/* Sortable column labels: the label is a button that looks like the label */
+/*
+ * The controls of a column's label (its sort's and its filter's buttons) are on a row of their own
+ * under it, aligned as it is, below a dotted line across the label's cell: so that the labels are
+ * as GT has them, and line up. (The line is placed where the row starts, against the cell's edges;
+ * every label in the bottom row of labels has the row, empty if it has no controls)
+ */
+gt-table th.gt-i-head {
+  position: relative;
+}
+
+gt-table .gt-i-head-controls {
+  /* (As tall as its buttons, so that an empty row is as tall as one with them) */
+  min-height: calc(1em + 4px);
+  margin-top: 5px;
+  padding-top: 3px;
+  font-size: 0.75em;
+  font-weight: normal;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+gt-table .gt-i-head-controls::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  margin-top: -3px;
+  border-top: 1px dotted currentColor;
+  opacity: 0.45;
+}
+
+gt-table th .gt-i-head-controls > * + * {
+  margin-inline-start: 0.3em;
+}
+
+/*
+ * On touch screens, the controls are far enough apart that each one's target (44px, wider than it)
+ * is mostly its own, and clear of the handle that resizes the column, which is over their targets
+ */
+@media (pointer: coarse) {
+  gt-table th .gt-i-head-controls > * + * {
+    margin-inline-start: 1.5em;
+  }
+
+  gt-table th.gt-i-resizable .gt-i-head-controls {
+    padding-inline-end: 19px;
+  }
+}
+
+/* A sortable column's label is clicked to sort it too (the row's button is for the keyboard) */
+gt-table th.gt-i-sortable {
+  cursor: pointer;
+}
+
 gt-table .gt-i-sort {
   appearance: none;
+  display: inline-flex;
   position: relative;
+  z-index: 2;
+  align-items: center;
   margin: 0;
-  padding: 0;
+  padding: 2px;
   border: 0;
-  border-radius: 2px;
+  border-radius: 3px;
   background: none;
   color: inherit;
   font: inherit;
-  letter-spacing: inherit;
-  text-align: inherit;
-  text-transform: inherit;
+  line-height: 1;
+  vertical-align: top;
   cursor: pointer;
+}
+
+gt-table .gt-i-sort:hover {
+  background: rgba(128, 128, 128, 0.15);
 }
 
 gt-table .gt-i-sort:focus-visible {
   outline: 2px solid currentColor;
-  outline-offset: 2px;
+  outline-offset: 1px;
 }
 
 /* On touch screens, a target of at least 44 x 44 px, without changing the layout */
@@ -33,56 +91,47 @@ gt-table .gt-i-sort:focus-visible {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: max(100%, 44px);
-    height: max(100%, 44px);
+    width: 44px;
+    height: 44px;
     transform: translate(-50%, -50%);
   }
 }
 
+/* Both arrows, faint while the column isn't sorted; the way it's sorted, dark */
 gt-table .gt-i-sort-icon {
-  display: inline-block;
-  min-width: 1em;
-  margin-inline-start: 0.2em;
-  font-size: 0.75em;
-  line-height: 1;
-  text-align: center;
-  opacity: 0;
+  display: inline-flex;
+  align-items: center;
 }
 
-gt-table .gt-i-sort-icon::before {
-  content: "\2195";
+gt-table .gt-i-sort-icon svg {
+  width: 0.75em;
+  height: 1em;
+  fill: currentColor;
 }
 
-/* Unsorted columns show a faint hint on hover and focus, and always on touch screens */
-gt-table .gt-i-sort:hover .gt-i-sort-icon,
-gt-table .gt-i-sort:focus-visible .gt-i-sort-icon {
-  opacity: 0.4;
+gt-table .gt-i-sort-icon path {
+  opacity: 0.35;
 }
 
-@media (pointer: coarse) {
-  gt-table .gt-i-sort-icon {
-    opacity: 0.4;
-  }
+gt-table .gt-i-sort:hover .gt-i-sort-icon path {
+  opacity: 0.6;
 }
 
-/* (Specific enough to beat the hover hint) */
-gt-table th[data-gti-sort] .gt-i-sort .gt-i-sort-icon {
+/* (Hovered too) */
+gt-table th[data-gti-sort] .gt-i-sort .gt-i-sort-icon path {
+  opacity: 0.2;
+}
+
+gt-table th[data-gti-sort="ascending"] .gt-i-sort .gt-i-sort-icon .gt-i-sort-up,
+gt-table th[data-gti-sort="descending"] .gt-i-sort .gt-i-sort-icon .gt-i-sort-down {
   opacity: 1;
-}
-
-gt-table th[data-gti-sort="ascending"] .gt-i-sort-icon::before {
-  content: "\25B2";
-}
-
-gt-table th[data-gti-sort="descending"] .gt-i-sort-icon::before {
-  content: "\25BC";
 }
 
 /* The position of a column in a sort by several */
 gt-table .gt-i-sort-icon[data-gti-sort-index]::after {
   content: attr(data-gti-sort-index);
-  font-size: 0.8em;
-  vertical-align: super;
+  margin-inline-start: 0.1em;
+  font-size: 0.85em;
 }
 
 /*
@@ -142,6 +191,7 @@ gt-table[data-gti-resizing] * {
 /* On touch screens, a target of 24px (any wider would cover much of a narrow label), always shown */
 @media (pointer: coarse) {
   gt-table .gt-i-resizer {
+    z-index: 3;
     width: 24px;
   }
 
@@ -151,8 +201,8 @@ gt-table[data-gti-resizing] * {
 }
 
 /*
- * Column filters: a button after the label (over the resize handle), faint until the column is
- * filtered, when its funnel is filled
+ * Column filters: a button in the label's row of controls (over the resize handle), faint until
+ * the column is filtered, when its funnel is filled
  */
 gt-table .gt-i-filter-button {
   appearance: none;
@@ -162,22 +212,21 @@ gt-table .gt-i-filter-button {
   align-items: center;
   justify-content: center;
   margin: 0;
-  margin-inline-start: 0.25em;
-  padding: 0.125em;
+  padding: 2px;
   border: 0;
   border-radius: 3px;
   background: none;
   color: inherit;
   font: inherit;
   line-height: 1;
-  vertical-align: middle;
+  vertical-align: top;
   cursor: pointer;
   opacity: 0.45;
 }
 
 gt-table .gt-i-filter-button .gt-i-icon {
-  width: 0.875em;
-  height: 0.875em;
+  width: 1em;
+  height: 1em;
 }
 
 gt-table .gt-i-filter-button:hover,
@@ -1737,7 +1786,7 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
   }
 
   /* (A long press on a column's label opens its sheet, rather than selecting its text) */
-  gt-table:has(.gt-i-bar [data-gti-bar="sheet"]) thead :is(.gt-i-sort, .gt-i-filter-button) {
+  gt-table:has(.gt-i-bar [data-gti-bar="sheet"]) thead .gt-i-head {
     -webkit-touch-callout: none;
     user-select: none;
   }

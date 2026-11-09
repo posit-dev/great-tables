@@ -372,29 +372,39 @@ describe("<gt-table> with a spec", () => {
 });
 
 describe("sorting", () => {
-  it("makes the labels of sortable columns buttons", async () => {
+  it("adds a sort button under the labels of sortable columns", async () => {
     const el = await mountTable();
 
     expect(el.sortableColumns).toEqual(["row", "x", "y"]);
     // The stub has no label cell, so it's sortable through `sort` only
     expect(el.querySelectorAll("button.gt-i-sort")).toHaveLength(2);
     expect(button(el, "x").type).toBe("button");
-    expect(button(el, "x").textContent).toBe("x");
+    expect(button(el, "x").parentElement?.matches("th > .gt-i-head-controls")).toBe(true);
+    expect(button(el, "x").textContent).toBe("");
+    expect(button(el, "x").getAttribute("aria-label")).toBe("Sort by x");
     expect(button(el, "x").querySelector(".gt-i-sort-icon")?.getAttribute("aria-hidden")).toBe(
       "true",
     );
+    // (Both ways' arrows)
+    expect(Array.from(button(el, "x").querySelectorAll("path"), (path) => path.getAttribute("class"))).toEqual([
+      "gt-i-sort-up",
+      "gt-i-sort-down",
+    ]);
     expect(header(el, "x").hasAttribute("aria-sort")).toBe(false);
+    expect(header(el, "x").classList.contains("gt-i-sortable")).toBe(true);
   });
 
-  it("keeps the label's markup inside the button", async () => {
-    const el = await mountTable(GROUPED, { yLabel: "<em>y</em> (<span>units</span>)" });
+  it("leaves the label's markup as it is", async () => {
+    const label = "<em>y</em> (<span>units</span>)";
+    const el = await mountTable(GROUPED, { yLabel: label });
+    const th = header(el, "y");
 
-    expect(button(el, "y").querySelector("em")?.textContent).toBe("y");
-    expect(button(el, "y").querySelector("span:not(.gt-i-sort-icon)")?.textContent).toBe("units");
-    expect(header(el, "y").children).toHaveLength(1);
+    expect(th.innerHTML.startsWith(label)).toBe(true);
+    expect(Array.from(th.children, (child) => child.className)).toEqual(["", "", "gt-i-head-controls"]);
+    expect(button(el, "y").getAttribute("aria-label")).toBe("Sort by y (units)");
   });
 
-  it("adds a separate button to a label with a link", async () => {
+  it("leaves a link in the label as it is", async () => {
     const el = await mountTable(GROUPED, { yLabel: `y<a href="#note">1</a>` });
     const th = header(el, "y");
 
@@ -409,8 +419,52 @@ describe("sorting", () => {
     });
     click(el, "y");
 
-    expect(button(el, "y").querySelector(".gt_footnote_marks")?.textContent).toBe("1");
+    expect(header(el, "y").querySelector(":scope > .gt_footnote_marks")?.textContent).toBe("1");
+    expect(button(el, "y").getAttribute("aria-label")).toBe("Sort by Long label");
     expect(el.querySelector(".gt-i-live")?.textContent).toBe("Sorted by Long label, ascending");
+  });
+
+  it("sorts on a click on the label, but not on a link in it", async () => {
+    const el = await mountTable(GROUPED, { yLabel: `<em>y</em><a href="#note">1</a>` });
+    const press = (target: Element, shiftKey = false) =>
+      target.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, shiftKey }));
+
+    press(header(el, "y").querySelector("em") as Element);
+    expect(el.sort).toEqual([{ column: "y", descending: false }]);
+    press(header(el, "x"), true);
+    expect(el.sort).toEqual([
+      { column: "y", descending: false },
+      { column: "x", descending: false },
+    ]);
+
+    const link = header(el, "y").querySelector("a") as HTMLAnchorElement;
+    link.addEventListener("click", (event) => event.preventDefault());
+    press(link);
+    press(header(el, "y").querySelector(".gt-i-head-controls") as Element);
+    expect(el.sort).toEqual([
+      { column: "y", descending: false },
+      { column: "x", descending: false },
+    ]);
+  });
+
+  it("doesn't sort on a click that ends a selection of the label's text", async () => {
+    const el = await mountTable();
+    const text = header(el, "x").firstChild as Text;
+    document.getSelection()?.setBaseAndExtent(text, 0, text, 1);
+    header(el, "x").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(el.sort).toEqual([]);
+
+    document.getSelection()?.removeAllRanges();
+    header(el, "x").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(el.sort).toEqual([{ column: "x", descending: false }]);
+  });
+
+  it("gives every label in the bottom row a row of controls, empty if it has none", async () => {
+    const el = await mountTable(GROUPED, { columns: { y: { sortable: false } } });
+
+    expect(header(el, "y").querySelector(":scope > .gt-i-head-controls")?.children).toHaveLength(0);
+    expect(header(el, "y").classList.contains("gt-i-sortable")).toBe(false);
+    expect(header(el, "x").querySelectorAll(".gt-i-head-controls")).toHaveLength(1);
   });
 
   it("cycles a column through ascending, descending and unsorted on clicks", async () => {

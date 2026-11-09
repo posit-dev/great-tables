@@ -2,7 +2,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 import { CHROMIUM_TOUCH, open, ready } from "./helpers";
 
 // exibble three times over (24 rows, grp_b then grp_a, each with a summary row, then a grand
-// summary row), with a title, a spanner, a footnote and a source note, in a body 300px high:
+// summary row), with a title, a spanner, a footnote and a source note, in a body 340px high:
 // on one page, selectable, with a search box; with groups shown as a column; and 200px high, 10
 // rows to a page, with resizable columns and no text wrapping.
 
@@ -38,7 +38,7 @@ test.describe("a body that scrolls", () => {
   test("keeps the column labels, the group heading and the grand summary in view", async ({ page }) => {
     const errors = await ready(page, "scroll.html");
     const view = await port(page);
-    expect(view.bottom - view.top).toBeLessThanOrEqual(300);
+    expect(view.bottom - view.top).toBeLessThanOrEqual(340);
     await scrollTo(page, 400);
     await expect.poll(() => scrollTop(page)).toBe(400);
 

@@ -12,7 +12,7 @@ const BY_CHAR = [{ column: "char", descending: false }];
 const ONE = { and: [{ col: "fctr", op: "in", value: ["one"] }] };
 
 const el = (page: Page) => page.locator("gt-table:has(#u)");
-const sortButton = (page: Page, column: string) => page.locator(`th#u-${column} > button.gt-i-sort`);
+const sortButton = (page: Page, column: string) => page.locator(`th#u-${column} button.gt-i-sort`);
 const barButton = (page: Page, name: string) =>
   el(page).locator(".gt-i-bar").getByRole("button", { name, exact: true });
 const view = (page: Page) =>

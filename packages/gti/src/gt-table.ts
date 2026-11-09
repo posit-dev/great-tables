@@ -708,6 +708,16 @@ function keepInView(cell: HTMLTableCellElement): HTMLElement {
   return div;
 }
 
+// The row of a column label's controls (its sort's and its filter's buttons), under the label
+function controlsRow(th: HTMLTableCellElement): HTMLElement {
+  let row = th.querySelector<HTMLElement>(":scope > .gt-i-head-controls");
+  if (row === null) {
+    row = th.appendChild(element(th.ownerDocument, "div", "gt-i-head-controls"));
+    th.classList.add("gt-i-head");
+  }
+  return row;
+}
+
 export class GtTable extends HTMLElement {
   /** The static `<table>` this element hydrates, or `null` if there isn't one. */
   table: HTMLTableElement | null = null;
@@ -1415,6 +1425,7 @@ export class GtTable extends HTMLElement {
     if (this.movable && (spec.filters?.length ?? 0) > 0) {
       this.addFilters(table, spec);
     }
+    this.alignLabels(table);
     const bar = spec.controls.bar === true;
     if (this.movable && spec.controls.search && !bar) {
       this.addSearchBox(table);
@@ -2835,6 +2846,7 @@ export class GtTable extends HTMLElement {
   }
 
   private addSortHeaders(table: HTMLTableElement, spec: Spec): void {
+    const doc = this.ownerDocument;
     const cells = labelCells(table);
 
     for (const column of spec.columns) {
@@ -2851,32 +2863,39 @@ export class GtTable extends HTMLElement {
         this.unsortedLabels.set(id, label);
         continue;
       }
-      const button = this.ownerDocument.createElement("button");
-      button.type = "button";
-      button.className = "gt-i-sort";
-
-      if (th.querySelector(INTERACTIVE) === null) {
-        // The label itself becomes the button
-        button.append(...Array.from(th.childNodes));
-      } else {
-        // A label with links (say) keeps them, with a separate button
-        button.classList.add("gt-i-sort-only");
-        button.setAttribute("aria-label", `Sort by ${label}`);
+      const button = element(doc, "button", "gt-i-sort", { type: "button", "aria-label": `Sort by ${label}` });
+      // (Both ways' arrows, the one it's sorted by darker)
+      const icon = element(doc, "span", "gt-i-sort-icon", { "aria-hidden": "true" });
+      const arrows = icon.appendChild(doc.createElementNS(SVG_NS, "svg"));
+      arrows.setAttribute("viewBox", "0 0 12 16");
+      for (const [way, d] of [["up", "M6 1.5 10.5 7h-9z"], ["down", "M6 14.5 1.5 9h9z"]]) {
+        const path = arrows.appendChild(doc.createElementNS(SVG_NS, "path"));
+        path.setAttribute("class", `gt-i-sort-${way}`);
+        path.setAttribute("d", d as string);
       }
-      const icon = this.ownerDocument.createElement("span");
-      icon.className = "gt-i-sort-icon";
-      icon.setAttribute("aria-hidden", "true");
       button.append(icon);
-      th.append(button);
+      controlsRow(th).append(button);
+      th.classList.add("gt-i-sortable");
 
+      const sort = (event: MouseEvent) => this.userSort(toggleSort(this.sortKeys, id, this.shifted(event)));
+      button.addEventListener("click", sort);
+      // A click on the label sorts too (by the mouse: the button is the label's for the keyboard),
+      // but not one on a link in it, on the controls, or ending a selection of its text
+      th.addEventListener("click", (event) => {
+        const target = event.target as Element;
+        const selection = doc.getSelection();
+        if (
+          target.closest(`${INTERACTIVE}, .gt-i-head-controls, .gt-i-resizer`) === null &&
+          !(selection !== null && !selection.isCollapsed && th.contains(selection.anchorNode))
+        ) {
+          sort(event);
+        }
+      });
       // Shift-click would otherwise extend the page's text selection
-      button.addEventListener("mousedown", (event) => {
+      th.addEventListener("mousedown", (event) => {
         if (event.shiftKey) {
           event.preventDefault();
         }
-      });
-      button.addEventListener("click", (event) => {
-        this.userSort(toggleSort(this.sortKeys, id, this.shifted(event)));
       });
       this.sortHeaders.set(id, { th, icon, label });
     }
@@ -2888,6 +2907,22 @@ export class GtTable extends HTMLElement {
     if (this.sortHeaders.size > 0) {
       this.addLiveRegion();
     }
+  }
+
+  // Once a column label has controls, every label in the bottom row of labels has their row (empty,
+  // if it has none), so that the labels line up over it
+  private alignLabels(table: HTMLTableElement): void {
+    if (table.querySelector(":scope > thead .gt-i-head-controls") === null) {
+      return;
+    }
+    const rows = Array.from(table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"));
+    rows.forEach((tr, r) => {
+      for (const th of tr.cells) {
+        if (r + Number(th.getAttribute("rowspan") ?? 1) >= rows.length) {
+          controlsRow(th);
+        }
+      }
+    });
   }
 
   // A resize handle for each column with a label of its own (not one spanning several columns),
@@ -4892,7 +4927,7 @@ export class GtTable extends HTMLElement {
       button.title = "Filter";
       button.setAttribute("aria-expanded", "false");
       button.append(icon(doc, "filter"));
-      th.append(button);
+      controlsRow(th).append(button);
       control.button = button;
       button.addEventListener("click", () => {
         if (this.openFilter === control) {

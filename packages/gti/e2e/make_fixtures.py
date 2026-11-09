@@ -122,7 +122,7 @@ def select_html(
 
 
 def scroll_html(
-    table_id: str, groups_as_column: bool = False, height: str = "300px", **options
+    table_id: str, groups_as_column: bool = False, height: str = "340px", **options
 ) -> str:
     # exibble three times over (24 rows, in two groups), with a title, a spanner, group and
     # grand summary rows, a footnote and a source note, in a body that scrolls.

@@ -79,7 +79,7 @@ test("downloads every row as CSV, on every page, named as the author asked", asy
 
 test("downloads the rows sorted as shown, and those the search keeps", async ({ page }) => {
   const errors = await ready(page, "export.html");
-  const sort = el(page).locator("button.gt-i-sort", { hasText: "num" });
+  const sort = el(page).getByRole("button", { name: "Sort by num", exact: true });
   await sort.click();
   await sort.click();
   await toggle(page).click();
