@@ -1,4 +1,3 @@
-import builtins
 import math
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
@@ -1322,19 +1321,6 @@ def test_to_frame_list_keeps_values_polars(vals):
     assert isinstance(df, pl.DataFrame)
     assert df.schema["x"] == pl.Object
     assert df["x"].to_list() == vals
-
-
-@pytest.fixture
-def no_polars_import(monkeypatch: pytest.MonkeyPatch):
-    # polars stays loaded for the data backends; only `import polars` in `to_frame()` fails
-    real_import = builtins.__import__
-
-    def fake_import(name, *args, **kwargs):
-        if name == "polars":
-            raise ImportError(name)
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", fake_import)
 
 
 @pytest.mark.parametrize(

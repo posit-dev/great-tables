@@ -1382,9 +1382,7 @@ def _(df: PdDataFrame, x: Any) -> bool:
 def _(df: PlDataFrame, x: Any) -> bool:
     from math import isnan
 
-    import polars as pl
-
-    return x is None or isinstance(x, pl.Null) or (isinstance(x, float) and isnan(x))
+    return x is None or isinstance(x, PlNull) or (isinstance(x, float) and isnan(x))
 
 
 @is_na.register
