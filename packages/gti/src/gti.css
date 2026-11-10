@@ -560,16 +560,19 @@ gt-table[data-gti-highlight] tr.gt-i-marked.gt-i-selected > :not(.gt_stub_row_gr
 }
 
 /*
- * A table that drops columns to fit: each row's button (in its first cell) that shows the columns
- * dropped from it, under it, as labels and values; no buttons while none are dropped
+ * A table that drops columns to fit, or has rows with details: each row's button (in its first
+ * cell) that shows, under it, the columns dropped from it, as labels and values, and its details; no
+ * buttons on rows without details while no columns are dropped
  */
 /* (In the room the cell's first line leaves before its text, so that it never wraps apart from it) */
-gt-table[data-gti-dropped] .gt-i-expands {
+gt-table[data-gti-dropped] .gt-i-expands,
+gt-table tr.gt-i-has-details > .gt-i-expands {
   position: relative;
   text-indent: 1.75em;
 }
 
-gt-table[data-gti-dropped] .gt-i-expands > * {
+gt-table[data-gti-dropped] .gt-i-expands > *,
+gt-table tr.gt-i-has-details > .gt-i-expands > * {
   text-indent: 0;
 }
 
@@ -588,7 +591,7 @@ gt-table .gt-i-expand {
   opacity: 0.6;
 }
 
-gt-table:not([data-gti-dropped]) .gt-i-expand {
+gt-table:not([data-gti-dropped]) tr:not(.gt-i-has-details) .gt-i-expand {
   display: none;
 }
 
@@ -633,6 +636,20 @@ gt-table .gt-i-details-list dt {
 
 gt-table .gt-i-details-list dd {
   margin: 0;
+}
+
+/* (A row's details, in a shadow root, which inherits from the cell: as wide as the cell, scrolling
+   sideways if they're wider, and wrapping whether or not the table's cells do) */
+gt-table .gt-i-details-content {
+  width: 0;
+  min-width: 100%;
+  overflow-x: auto;
+  white-space: normal;
+  text-overflow: clip;
+}
+
+gt-table .gt-i-details-list + .gt-i-details-content {
+  margin-top: 0.75em;
 }
 
 /* Without text wrapping, cell text stays on one line; GT's cells already hide what overflows */
@@ -1546,6 +1563,13 @@ gt-table .gt-i-info-item {
   align-items: center;
   justify-content: space-between;
   gap: 1em;
+}
+
+/* (An item's buttons, side by side) */
+gt-table .gt-i-info-buttons {
+  display: flex;
+  flex: none;
+  gap: 0.5em;
 }
 
 gt-table .gt-i-info-button,
