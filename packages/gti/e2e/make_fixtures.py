@@ -636,6 +636,22 @@ def explorer_html(table_id: str, mode: str = "scroll", select: bool = False) -> 
     return render_gti_html(gti.i_selection("multiple") if select else gti, runtime="none")
 
 
+def link_html() -> str:
+    # Two tables linked by exibble's group: one of the groups (grp_a, grp_b), whose rows can be
+    # selected, and one of exibble's rows (8, row_1... as the stub, grp_a's first), 5 to a page
+    groups = pd.DataFrame({"group": ["grp_a", "grp_b"], "rows": [4, 4]})
+    linked = [
+        GTI(groups, id="groups").tab_header(title="Groups").i_selection("multiple"),
+        GTI(exibble[["num", "char", "row", "group"]], rowname_col="row", id="rows")
+        .tab_header(title="Rows")
+        .fmt_number(columns="num", decimals=2)
+        .i_pagination(page_size=5, page_sizes=None),
+    ]
+    return "\n".join(
+        render_gti_html(gti.i_link("exibble", on="group"), runtime="none") for gti in linked
+    )
+
+
 def query_only_gti(table_id: str, filter: str | None = None, sort: str | None = None) -> GTI:
     # Exibble three times over (24 rows, in two groups), on one page, showing num and char; and
     # left out for querying, fctr (as a facet, of its text in capitals), date (as text, by the
@@ -1211,6 +1227,8 @@ def main() -> None:
                 ("-collapse", "300px", {"mode": "collapse"}),
             ]
         },
+        # Two tables linked by a column: the rows selected in one filter the other
+        "link.html": page(link_html() + "\n" + runtime_src, head=styles),
         "collapse-nostub.html": page(
             '<div style="width: 240px">'
             + render_gti_html(
