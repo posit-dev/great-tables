@@ -44,15 +44,15 @@
           }
   
   #abc thead,
-  tbody,
-  tfoot,
-  tr,
-  td,
-  th {
+  #abc tbody,
+  #abc tfoot,
+  #abc tr,
+  #abc td,
+  #abc th {
     border-style: none;
   }
   
-  tr {
+  #abc tr {
     background-color: transparent;
   }
   
@@ -506,15 +506,15 @@
           }
   
   #abc thead,
-  tbody,
-  tfoot,
-  tr,
-  td,
-  th {
+  #abc tbody,
+  #abc tfoot,
+  #abc tr,
+  #abc td,
+  #abc th {
     border-style: none;
   }
   
-  tr {
+  #abc tr {
     background-color: transparent;
   }
   
@@ -1076,15 +1076,15 @@
           }
   
   #abc thead,
-  tbody,
-  tfoot,
-  tr,
-  td,
-  th {
+  #abc tbody,
+  #abc tfoot,
+  #abc tr,
+  #abc td,
+  #abc th {
     border-style: none;
   }
   
-  tr {
+  #abc tr {
     background-color: transparent;
   }
   
@@ -1538,15 +1538,15 @@
           }
   
   #abc thead,
-  tbody,
-  tfoot,
-  tr,
-  td,
-  th {
+  #abc tbody,
+  #abc tfoot,
+  #abc tr,
+  #abc td,
+  #abc th {
     border-style: none;
   }
   
-  tr {
+  #abc tr {
     background-color: transparent;
   }
   
