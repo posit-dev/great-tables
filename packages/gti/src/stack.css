@@ -215,8 +215,11 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     min-width: 0;
   }
 
-  /* (Not the spanners, which prefix their columns' labels, nor a stubhead without a label) */
-  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings > :is(th[scope="colgroup"], th:not([id], .gt-i-select)) {
+  /*
+   * (Not the spanners, which prefix their columns' labels, nor a stubhead without a label, nor the
+   * label of the column of row numbers and checkboxes, but for its select-all checkbox)
+   */
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings > :is(th[scope="colgroup"], th:not([id], .gt-i-select-all)) {
     display: none;
   }
 }
