@@ -7,9 +7,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   readers can sort by each, search it, and resize it, where `controls` lets them (producers that
   leave these out let them); the side a data column is pinned to (`pin`: `"start"`, the stub's,
   or `"end"`), when the table scrolls sideways (pinned columns are next to their side); and
-  whether readers can hide a data column (`hideable`), and move it (`reorderable`: among the
-  reorderable columns next to it, under the same spanners and pinned to the same side); producers
-  that leave these out let them do neither. And a data column's priority (`priority`: a positive
+  whether readers can hide a data column (`hideable`), move it (`reorderable`: among the
+  reorderable columns next to it, under the same spanners and pinned to the same side), and group
+  the rows by it (`groupable`: a data column with ranks, in a table without row groups or summary
+  rows); producers that leave these out let them do none of these. And a data column's priority (`priority`: a positive
   integer, or `null`), for a table that drops columns to fit its container: those without one drop
   first (from the last), then those with the highest (from the last, among equals); those with 1
   (and the stub) never do. Producers that leave it out have none. A column's dtype (`dtype`: a short
@@ -68,15 +69,16 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   (bars for its most common values, by the column's `ranks`) has `null`. Each needs the column's
   ranks. Producers that leave `profiles` out have none.
 - `view`: how the table is first shown: filtered by a query (as `<gt-table>`'s `filter` property
-  takes, or `null`), sorted by columns (as its `sort` property takes), and without the hideable
-  columns in `hidden` (in column order; producers that leave it out hide none). The runtime
+  takes, or `null`), sorted by columns (as its `sort` property takes), without the hideable
+  columns in `hidden` (in column order; producers that leave it out hide none), and with its rows
+  grouped by the groupable column `group_by` (or `null`; producers that leave it out group none). The runtime
   applies it without events. Producers that leave `view` out show the table as it is.
 - `export`: how readers can export the rows, from the bar: by copying them (`"clipboard"`) or
   downloading them as CSV (`"csv"`), TSV (`"tsv"`) or JSON (`"json"`), and the name of a
   download, without its extension (`filename`). Producers that leave `export` out (or give no
   `formats`) have no export.
-- `view_state`: where the reader's view (filters, sort, search, page, page size, hidden columns
-  and column order) is kept, so that it's there when the page is opened again: in the page's URL
+- `view_state`: where the reader's view (filters, sort, search, page, page size, hidden columns,
+  column order and grouping) is kept, so that it's there when the page is opened again: in the page's URL
   (`url`), and in the browser's storage (`storage`), by a `key` (the table's ID) that names its
   URL parameters; and whether the reader's changes to it can be undone (`undo`). Producers that
   leave `view_state` out (or keep it in neither) don't keep it, and the changes can't be undone.
@@ -145,6 +147,7 @@ class ColumnSpec(TypedDict):
     pin: Literal["start", "end"] | None
     hideable: bool  # whether readers can hide it (a data column)
     reorderable: bool  # whether readers can move it (a data column)
+    groupable: bool  # whether readers can group the rows by it (a data column with ranks)
     # (A data column's priority, for a table that drops columns to fit: 1 is never dropped, and
     # higher numbers drop sooner; those without one drop first)
     priority: int | None
@@ -256,6 +259,7 @@ class ViewSpec(TypedDict):
     filter: dict[str, list[dict[str, Any]]] | None  # a query (see `_query.py`)
     sort: list[ViewSortSpec]
     hidden: list[str]  # the columns hidden, in column order
+    group_by: str | None  # the column the rows are grouped by
 
 
 CodeBackend = Literal["polars", "pandas", "narwhals"]
@@ -346,6 +350,8 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
             pin=None if side is None else "start" if side == "left" else "end",
             hideable=role == "data" and id in settings.hideable,
             reorderable=role == "data" and id in settings.reorderable,
+            # (Set once the ranks are known)
+            groupable=False,
             priority=priorities.get(id) if role == "data" and id is not None else None,
             dtype=_get_column_dtype_name(tbl_data, id)
             if settings.dtypes and id is not None
@@ -421,6 +427,22 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
             if column_ranks is not None:
                 ranks[var] = column_ranks
 
+    # (Grouping goes by a column's ranks, and regroups the body's rows, which a table's own row
+    # groups and summary rows would have to be kept with)
+    for column in columns:
+        column["groupable"] = (
+            column["role"] == "data"
+            and column["id"] in settings.groupable
+            and column["id"] in ranks
+        )
+    if any(column["groupable"] for column in columns) and (
+        data._stub.group_ids or has_summary_rows
+    ):
+        raise ValueError(
+            "Readers can't group the rows of a table with row groups or summary rows, so "
+            "`i_cols_controls(groupable=True)` can't be set for this one."
+        )
+
     groups_as_column = "group_label" in stub_layout
     nrows = n_rows(tbl_data)
 
@@ -477,6 +499,7 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
             )
 
     hideable = [column["id"] for column in columns if column["hideable"] and column["id"]]
+    groupable = [column["id"] for column in columns if column["groupable"] and column["id"]]
     all_kinds = {**{c["id"]: c["kind"] for c in columns}, **kinds}
     view = check_view(
         settings.view_filter,
@@ -486,6 +509,8 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
         settings.view_hidden,
         hideable,
         all_kinds,
+        settings.view_group_by,
+        groupable,
     )
     code = None
     if "code" in settings.export_formats:
