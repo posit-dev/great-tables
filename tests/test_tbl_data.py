@@ -20,6 +20,7 @@ from great_tables._tbl_data import (
     SeriesLike,
     _get_cell,
     _get_column_dtype,
+    _get_column_dtype_name,
     _get_column_levels,
     _is_numeric_dtype,
     _is_same_value,
@@ -222,6 +223,82 @@ def test_n_rows(frame_constructor: DataFrameConstructor, data: DataLike, expecte
 def test_get_column_dtypes(df: DataFrameLike):
     col1 = df["col1"]
     assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
+
+
+def test_get_column_dtype_name_dtype_matrix(matrix_df: DataFrameLike, snapshot: SnapshotAssertion):
+    # `i_inspect()` shows each column's dtype by its short name, as Polars prints it
+    assert snapshot == {col: _get_column_dtype_name(matrix_df, col) for col in MATRIX_COLUMNS}
+
+
+@pytest.mark.parametrize(
+    "dtype, name",
+    [
+        (pa.int8(), "i8"),
+        (pa.uint16(), "u16"),
+        (pa.float16(), "f16"),
+        (pa.float32(), "f32"),
+        (pa.large_string(), "str"),
+        (pa.dictionary(pa.int32(), pa.string()), "cat"),
+        (pa.time64("us"), "time"),
+        (pa.timestamp("ns", tz="UTC"), "datetime"),
+        (pa.large_list(pa.int64()), "list"),
+        (pa.list_(pa.int64(), 2), "array"),
+        (pa.struct([("a", pa.int64())]), "struct"),
+        (pa.binary(), "binary"),
+        (pa.null(), "null"),
+        (pa.map_(pa.string(), pa.int64()), "map"),
+    ],
+)
+def test_get_column_dtype_name_arrow(dtype: pa.DataType, name: str):
+    data = pa.table({"x": pa.array([None], type=dtype)})
+    assert _get_column_dtype_name(data, "x") == name
+    # (The same for a pandas column backed by the Arrow type)
+    assert _get_column_dtype_name(data.to_pandas(types_mapper=pd.ArrowDtype), "x") == name
+
+
+@pytest.mark.parametrize(
+    "dtype, name",
+    [
+        (pl.Int8, "i8"),
+        (pl.UInt32, "u32"),
+        (pl.Float32, "f32"),
+        (pl.Time, "time"),
+        (pl.Enum(["a"]), "enum"),
+        (pl.Array(pl.Int64, 2), "array"),
+        (pl.Struct({"a": pl.Int64}), "struct"),
+        (pl.Binary, "binary"),
+        (pl.Null, "null"),
+        (pl.Object, "object"),
+    ],
+)
+def test_get_column_dtype_name_polars(dtype: Any, name: str):
+    assert _get_column_dtype_name(pl.DataFrame({"x": pl.Series([None], dtype=dtype)}), "x") == name
+
+
+def test_get_column_dtype_name_pandas():
+    df = pd.DataFrame(
+        {
+            "i": np.array([1], dtype="int16"),
+            "u": np.array([1], dtype="uint8"),
+            "f": np.array([1.5], dtype="float32"),
+            "nullable": pd.array([1], dtype="UInt64"),
+            "text": pd.array(["a"], dtype="string"),
+            "objects": [object()],
+            "dates": [date(2024, 1, 1)],
+            "period": pd.period_range("2024-01", periods=1, freq="M"),
+        }
+    )
+    assert {col: _get_column_dtype_name(df, col) for col in df.columns} == {
+        "i": "i16",
+        "u": "u8",
+        "f": "f32",
+        "nullable": "u64",
+        "text": "str",
+        # (Other objects than strings, even dates, are objects)
+        "objects": "object",
+        "dates": "object",
+        "period": "period",
+    }
 
 
 def test_is_numeric_dtype_dtype_matrix(matrix_df: DataFrameLike, snapshot: SnapshotAssertion):
