@@ -102,6 +102,7 @@ interface TableOptions {
   /** The data rows' details (in templates after the table), by row. */
   details?: Record<number, string>;
   profiles?: ProfileSpec[];
+  link?: object | null;
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -205,6 +206,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     ...(options.viewState === undefined ? {} : { view_state: options.viewState }),
     ...(options.details === undefined ? {} : { details: Object.keys(options.details).map(Number) }),
     ...(options.profiles === undefined ? {} : { profiles: options.profiles }),
+    ...(options.link === undefined ? {} : { link: options.link }),
   };
   return { html, spec };
 }
@@ -8311,5 +8313,137 @@ describe("grouping rows", () => {
     const plain = await mountTable(FLAT, { controls: { bar: true } });
     expect(plain.groupableColumns).toEqual([]);
     expect(toggle(plain)).toBeNull();
+  });
+});
+
+describe("linked tables", () => {
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  // A table linked to the others in group "g" by `y` (unless set otherwise), with a bar
+  const linkedTable = (name: string | null, options: TableOptions = {}, link: object = {}) => {
+    const { html, spec } = gtTable(FLAT, {
+      ...options,
+      controls: { bar: true, ...options.controls },
+      link: { group: "g", on: "y", name, label: "Y", keys: Y, ...link },
+    });
+    return `<gt-table>${html}${specScript(spec)}</gt-table>`;
+  };
+  const mountLinked = async (...tables: string[]) => {
+    await mount(tables.join(""));
+    return Array.from(document.querySelectorAll<GtTable>(TAG_NAME));
+  };
+  const box = (el: GtTable, row: number) =>
+    el.rowElement(row)?.querySelector<HTMLInputElement>(":scope > .gt-i-select > input") as HTMLInputElement;
+  const token = (el: GtTable) => el.querySelector<HTMLElement>(".gt-i-token[data-gti-link]");
+  const linkInfo = (el: GtTable) => el.querySelector<HTMLElement>('.gt-i-info-item[data-gti-info="link"]') as HTMLElement;
+  const showAll = (el: GtTable) => linkInfo(el).querySelector("button") as HTMLButtonElement;
+  const MAKES = { controls: { selection: "multiple" as const } };
+
+  it("filters the other tables to the rows with the values of the rows selected in one", async () => {
+    const [makes, cars] = (await mountLinked(linkedTable("Makes", MAKES), linkedTable("Cars"))) as [GtTable, GtTable];
+    expect(token(cars)).toBeNull();
+    expect(linkInfo(cars).textContent).toBe("Linked to other tables by YShow all");
+    expect(showAll(cars).getAttribute("aria-disabled")).toBe("true");
+    box(makes, 1).click();
+    // ("a": rows 1, 3 and 4; the table selected in isn't filtered)
+    expect(visible(cars)).toEqual([1, 3, 4]);
+    expect(visible(makes)).toEqual([0, 1, 2, 3, 4]);
+    expect(token(cars)?.querySelector(".gt-i-token-open")?.textContent).toBe("Selected in Makes: a");
+    expect(token(cars)?.querySelector(".gt-i-token-remove")?.getAttribute("aria-label")).toBe("Show the rows not selected in Makes");
+    expect(linkInfo(cars).querySelector("span")?.textContent).toBe("Filtered by the selection in Makes");
+    expect(showAll(cars).getAttribute("aria-disabled")).toBe("false");
+    expect(live(cars)).toBe("Cars: Showing 3 of 5 rows");
+    box(makes, 0).click();
+    expect(visible(cars)).toEqual([0, 1, 3, 4]);
+    // (In the data's order)
+    expect(token(cars)?.textContent).toBe("Selected in Makes: b, a");
+    // (Set as a property, too)
+    makes.selection = [2];
+    expect(visible(cars)).toEqual([2]);
+    makes.selection = [];
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(token(cars)).toBeNull();
+    expect(live(cars)).toBe("Cars: Showing all 5 rows");
+  });
+
+  it("lifts the filter from its token or the info panel, until the selection changes", async () => {
+    const [makes, cars] = (await mountLinked(linkedTable("Makes", MAKES), linkedTable("Cars"))) as [GtTable, GtTable];
+    makes.selection = [1];
+    (token(cars)?.querySelector(".gt-i-token-remove") as HTMLButtonElement).click();
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(token(cars)).toBeNull();
+    expect(showAll(cars).getAttribute("aria-disabled")).toBe("true");
+    makes.selection = [1, 2];
+    expect(visible(cars)).toEqual([1, 2, 3, 4]);
+    // (With Delete, on the token)
+    token(cars)?.querySelector("button")?.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", bubbles: true }));
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    makes.selection = [2];
+    showAll(cars).click();
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(linkInfo(cars).querySelector("span")?.textContent).toBe("Linked to other tables by Y");
+  });
+
+  it("is on top of the table's own filters, which Clear all clears with it", async () => {
+    const filters: FilterSpec[] = [{ column: "x", type: "range", values: [5, 10, 20], missing: [3] }];
+    const [makes, cars] = (await mountLinked(linkedTable("Makes", MAKES), linkedTable("Cars", { filters }))) as [GtTable, GtTable];
+    cars.filter = { and: [{ col: "x", op: "gte", value: 10 }] };
+    makes.selection = [1];
+    expect(visible(cars)).toEqual([4]);
+    const clear = cars.querySelector(".gt-i-token-clear") as HTMLButtonElement;
+    clear.click();
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(cars.filter).toBeNull();
+  });
+
+  it("filters each way between tables whose rows can both be selected", async () => {
+    const [a, b] = (await mountLinked(linkedTable("A", MAKES), linkedTable("B", MAKES))) as [GtTable, GtTable];
+    a.selection = [0];
+    b.selection = [2];
+    expect(visible(a)).toEqual([2]);
+    expect(visible(b)).toEqual([0]);
+  });
+
+  it("doesn't link rows with a missing value, or tables in other groups", async () => {
+    const keys = [null, "a", "c", "a", "a"];
+    const [makes, cars, other] = (await mountLinked(
+      linkedTable("Makes", MAKES, { keys }),
+      linkedTable("Cars"),
+      linkedTable("Other", {}, { group: "h" }),
+    )) as [GtTable, GtTable, GtTable];
+    makes.selection = [0];
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    makes.selection = [0, 2];
+    expect(visible(cars)).toEqual([2]);
+    expect(visible(other)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("names a table without a name as another table", async () => {
+    const [makes, cars] = (await mountLinked(linkedTable(null, MAKES), linkedTable("Cars"))) as [GtTable, GtTable];
+    makes.selection = [1];
+    expect(token(cars)?.textContent).toBe("Selected in another table: a");
+  });
+
+  it("drops a table's filter when it's taken out, and filters a table added later", async () => {
+    const [makes, cars] = (await mountLinked(linkedTable("Makes", MAKES), linkedTable("Cars"))) as [GtTable, GtTable];
+    makes.selection = [2];
+    const holder = document.createElement("div");
+    holder.innerHTML = linkedTable("More");
+    document.body.append(holder);
+    await tick();
+    const more = holder.querySelector(TAG_NAME) as GtTable;
+    expect(visible(more)).toEqual([2]);
+    makes.remove();
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(visible(more)).toEqual([0, 1, 2, 3, 4]);
+    // (Back again, it shares its selection again)
+    document.body.prepend(makes);
+    expect(visible(cars)).toEqual([2]);
+  });
+
+  it("is checked in the spec", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const [el] = (await mountLinked(linkedTable("Makes", MAKES, { keys: ["a"] }))) as [GtTable];
+    expect(el.getAttribute("data-gti-state")).toBe("error");
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/`link` must have/));
   });
 });
