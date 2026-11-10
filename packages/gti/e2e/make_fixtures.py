@@ -563,6 +563,28 @@ def details_html(table_id: str, mode: str = "scroll", search: bool = True) -> st
     return render_gti_html(gti, runtime="none")
 
 
+def profile_html(table_id: str, mode: str = "scroll") -> str:
+    # exibble (8 rows, grp_b then grp_a), searchable and filtered by fctr (a facet), with
+    # profiles: num's histogram (with a NaN), char's most common values (with a missing value),
+    # fctr's (5 and the 3 others) and date's histogram (of datetimes), and none for currency.
+    # Optionally stacked in a narrow container
+    data = exibble[["num", "char", "fctr", "date", "currency", "row", "group"]].assign(
+        date=lambda df: pd.to_datetime(df["date"])
+    )
+    gti = (
+        GTI(data, rowname_col="row", groupname_col="group", id=table_id)
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .fmt_date(columns="date", date_style="year.mn.day")
+        .row_group_order(["grp_b", "grp_a"])
+        .opt_table_font(font="monospace", add=False)
+        .i_cols_filter("fctr", type="facet")
+        .i_cols_profile(["num", "char", "fctr", "date"])
+        .i_responsive(mode)  # type: ignore[arg-type]
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def query_only_gti(table_id: str, filter: str | None = None, sort: str | None = None) -> GTI:
     # Exibble three times over (24 rows, in two groups), on one page, showing num and char; and
     # left out for querying, fctr (as a facet, of its text in capitals), date (as text, by the
@@ -1092,6 +1114,20 @@ def main() -> None:
                 ("", "800px", {}),
                 ("-stack", "360px", {"mode": "stack"}),
                 ("-collapse", "300px", {"mode": "collapse"}),
+            ]
+        },
+        # Tables with profiles under their labels: in a wide container, and stacked in a narrow one
+        **{
+            f"profile{suffix}.html": page(
+                f'<div style="width: {width}">'
+                + profile_html("f", **options)
+                + "</div>\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix, width, options in [
+                ("", "800px", {}),
+                ("-stack", "360px", {"mode": "stack"}),
             ]
         },
         "collapse-nostub.html": page(
