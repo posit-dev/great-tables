@@ -58,6 +58,59 @@ gt-table th.gt-i-sortable {
   cursor: pointer;
 }
 
+/*
+ * A column's profile, under its label (and controls): a plot of the values in the rows shown, then
+ * a caption. Every label in the bottom row has room for one (empty, for a column without one), so
+ * that the labels line up; it's as wide as its cell, but doesn't widen it (past a width that has
+ * room for a few words)
+ */
+gt-table th.gt-i-profiled {
+  min-width: 6em;
+}
+
+gt-table .gt-i-profile {
+  width: 0;
+  min-width: 100%;
+  height: 3em;
+  margin-top: 4px;
+  font-size: 0.75em;
+  font-weight: normal;
+  line-height: 1.2;
+  cursor: default;
+}
+
+gt-table .gt-i-profile svg {
+  display: block;
+  width: 100%;
+  height: 1.6em;
+}
+
+gt-table .gt-i-profile rect {
+  fill: currentColor;
+  opacity: 0.45;
+}
+
+/* (The bar of the values "top" doesn't show is fainter; a bar's column shows its tooltip) */
+gt-table .gt-i-profile rect.gt-i-profile-other {
+  opacity: 0.25;
+}
+
+gt-table .gt-i-profile rect.gt-i-profile-hit {
+  fill: transparent;
+}
+
+gt-table .gt-i-profile g:hover rect {
+  opacity: 0.75;
+}
+
+gt-table .gt-i-profile-text {
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
 gt-table .gt-i-sort {
   appearance: none;
   display: inline-flex;
