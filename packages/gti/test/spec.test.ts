@@ -31,6 +31,8 @@ const exports = (value: unknown) => JSON.stringify({ ...valid, export: value });
 
 const viewState = (value: unknown) => JSON.stringify({ ...valid, view_state: value });
 
+const details = (value: unknown) => JSON.stringify({ ...valid, details: value });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -141,6 +143,12 @@ describe("parseSpec()", () => {
     // (Without a key, kept nowhere)
     expect(parse({ ...valid, view_state: { url: false, storage: false, key: null, undo: true } }).view_state?.key).toBeNull();
     expect(parse(valid).view_state).toBeUndefined();
+  });
+
+  it("takes the rows with details, or their absence", () => {
+    expect(parse({ ...valid, details: [1, 0] }).details).toEqual([1, 0]);
+    expect(parse({ ...valid, details: [] }).details).toEqual([]);
+    expect(parse(valid).details).toBeUndefined();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -289,6 +297,9 @@ describe("parseSpec()", () => {
     ["has a view state with a key that isn't text", viewState({ url: true, storage: false, key: 1, undo: false }), /`view_state`/],
     ["has a view state without undo", viewState({ url: true, storage: false, key: "t" }), /`view_state`/],
     ["has a view state with an undo that isn't a boolean", viewState({ url: false, storage: false, key: null, undo: 1 }), /`view_state`/],
+    ["has details that aren't a list", details(1), /`details`/],
+    ["has details for a row it doesn't have", details([0, 2]), /`details`/],
+    ["has details for a row that isn't an index", details(["0"]), /`details`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

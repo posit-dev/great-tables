@@ -94,6 +94,8 @@ interface TableOptions {
   queryRanks?: Record<string, (number | null)[]>;
   /** What readers can do with each column (by its id), if not everything, and where it's pinned. */
   columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable">>;
+  /** The data rows' details (in templates after the table), by row. */
+  details?: Record<number, string>;
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -155,9 +157,12 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
         `<th class="gt_col_heading gt_right" id="t-x">x</th>` +
         `<th class="gt_col_heading gt_left" id="t-y">${options.yLabel ?? "y"}</th></tr>`
     }</thead>`;
+  const templates = Object.entries(options.details ?? {}).map(
+    ([row, content]) => `<template data-gti-details="${row}">${content}</template>`,
+  );
   const html =
     `<div id="t"><table class="gt_table">${thead}` +
-    `<tbody class="gt_table_body">${trs.join("")}</tbody></table></div>`;
+    `<tbody class="gt_table_body">${trs.join("")}</tbody></table></div>${templates.join("")}`;
 
   const spec = {
     version: SPEC_VERSION,
@@ -192,6 +197,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     ...(options.view === undefined ? {} : { view: options.view }),
     ...(options.export === undefined ? {} : { export: { filename: "table", ...options.export } }),
     ...(options.viewState === undefined ? {} : { view_state: options.viewState }),
+    ...(options.details === undefined ? {} : { details: Object.keys(options.details).map(Number) }),
   };
   return { html, spec };
 }
@@ -7752,5 +7758,178 @@ describe("the filter & sort sheet", () => {
     opener(el)?.click();
     el.remove();
     expect(sheet(el).open).toBe(false);
+  });
+});
+
+describe("rows' details", () => {
+  // Details for rows 0 (a table), 3 and 4, not for 1 and 2
+  const DETAILS = {
+    0: '<style>.inner { color: red }</style><table class="inner"><tr><td>zero</td></tr></table>',
+    3: "<p>three</p>",
+    4: "four",
+  };
+  const mountDetails = (options: TableOptions = {}) => mountTable(GROUPED, { details: DETAILS, ...options });
+  const tr = (el: GtTable, row: number) => el.rowElement(row) as HTMLTableRowElement;
+  const expander = (el: GtTable, row: number) => tr(el, row).querySelector<HTMLButtonElement>(".gt-i-expand");
+  const under = (el: GtTable, row: number) => {
+    const next = tr(el, row).nextElementSibling as HTMLTableRowElement | null;
+    return next?.classList.contains("gt-i-details") ? next : null;
+  };
+  const content = (el: GtTable, row: number) => under(el, row)?.querySelector(".gt-i-details-content") ?? null;
+  const tap = (target: Element, pointerType = "touch") => {
+    target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType }));
+    (target as HTMLElement).click();
+  };
+
+  it("gives each row with details a button that opens it, before its first cell's text", async () => {
+    const el = await mountDetails();
+    for (const row of [0, 3, 4]) {
+      const button = expander(el, row) as HTMLButtonElement;
+      expect(button.getAttribute("aria-label")).toBe(`Show more of row_${row + 1}`);
+      expect(button.getAttribute("aria-expanded")).toBe("false");
+      expect(button.parentElement?.matches("th.gt_stub.gt-i-expands")).toBe(true);
+      expect(tr(el, row).classList.contains("gt-i-has-details")).toBe(true);
+    }
+    for (const row of [1, 2]) {
+      expect(expander(el, row)).toBeNull();
+      expect(tr(el, row).classList.contains("gt-i-has-details")).toBe(false);
+    }
+    // (Not the summary rows, nor the columns dropped, of which there are none)
+    expect(el.querySelectorAll(".gt-i-expand")).toHaveLength(3);
+    expect(el.hasAttribute("data-gti-dropped")).toBe(false);
+    expect(el.querySelector("tr.gt-i-details")).toBeNull();
+  });
+
+  it("shows a row's details under it, in a shadow root, and hides them again", async () => {
+    const el = await mountDetails();
+    const button = expander(el, 0) as HTMLButtonElement;
+    button.click();
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(tr(el, 0).classList.contains("gt-i-open")).toBe(true);
+    const host = content(el, 0) as HTMLElement;
+    expect(host.shadowRoot?.querySelector("table.inner td")?.textContent).toBe("zero");
+    expect(host.shadowRoot?.querySelector("style")?.textContent).toContain(".inner");
+    // (Apart from the table's own: nothing of it is in the light DOM, and the template stays)
+    expect(el.querySelector("table.inner")).toBeNull();
+    expect(el.querySelectorAll(":scope > template[data-gti-details]")).toHaveLength(3);
+    // (Across the row, without the columns dropped, of which there are none)
+    const cell = under(el, 0)?.cells[0] as HTMLTableCellElement;
+    expect(cell.colSpan).toBe(3);
+    expect(under(el, 0)?.querySelector("dl")).toBeNull();
+
+    button.click();
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(tr(el, 0).classList.contains("gt-i-open")).toBe(false);
+    expect(el.querySelector("tr.gt-i-details")).toBeNull();
+  });
+
+  it("keeps focus on the button", async () => {
+    const el = await mountDetails();
+    const button = expander(el, 3) as HTMLButtonElement;
+    button.focus();
+    button.click();
+    expect(document.activeElement).toBe(button);
+  });
+
+  it("keeps a row's details under it as the rows are sorted", async () => {
+    const el = await mountDetails();
+    expander(el, 0)?.click();
+    expander(el, 4)?.click();
+    el.sort = [{ column: "x" }];
+    for (const row of [0, 4]) {
+      expect(content(el, row)).not.toBeNull();
+    }
+    expect(el.querySelectorAll("tr.gt-i-details")).toHaveLength(2);
+    el.sort = [{ column: "x", descending: true }];
+    expect(content(el, 0)).not.toBeNull();
+    expect(content(el, 4)).not.toBeNull();
+  });
+
+  it("hides a row's details with the row, and makes them only once it's shown", async () => {
+    const el = await mountDetails({ controls: { search: true }, pagination: { enabled: true } });
+    // Pages of 2 rows: [3, 0], [4, 1], [2]
+    expander(el, 0)?.click();
+    expect(under(el, 0)?.hidden).toBe(false);
+    el.search = "row_4";
+    expect(tr(el, 0).hidden).toBe(true);
+    expect(under(el, 0)?.hidden).toBe(true);
+    el.search = "";
+    expect(under(el, 0)?.hidden).toBe(false);
+    el.page = 2;
+    expect(under(el, 0)?.hidden).toBe(true);
+    el.page = 1;
+    expect(under(el, 0)?.hidden).toBe(false);
+  });
+
+  it("opens on a tap on the row on a touch screen, without selecting it, and not on a click", async () => {
+    const el = await mountDetails({ controls: { selection: "multiple" } });
+    const cell = tr(el, 3).querySelector("td:last-child") as HTMLElement;
+    tap(cell);
+    expect(content(el, 3)).not.toBeNull();
+    expect(el.selection).toEqual([]);
+    tap(cell);
+    expect(under(el, 3)).toBeNull();
+    // (A click selects it, as it does a row without details)
+    tap(cell, "mouse");
+    expect(under(el, 3)).toBeNull();
+    expect(el.selection).toEqual([3]);
+    // (A tap on its checkbox selects it, and one on a row without details too)
+    tap(tr(el, 3).querySelector("input") as HTMLElement);
+    expect(el.selection).toEqual([]);
+    expect(under(el, 3)).toBeNull();
+    tap(tr(el, 1).querySelector("td:last-child") as HTMLElement);
+    expect(el.selection).toEqual([1]);
+  });
+
+  it("opens and closes every row with details from the info panel", async () => {
+    const el = await mountDetails({ controls: { search: true, bar: true } });
+    const item = el.querySelector('[data-gti-info="details"]') as HTMLElement;
+    const [open, close] = Array.from(item.querySelectorAll("button"));
+    expect(item.textContent).toBe("Row detailsExpand allCollapse all");
+    expect(open?.getAttribute("aria-label")).toBe("Show every row's details");
+    expect(open?.getAttribute("aria-disabled")).toBe("false");
+    expect(close?.getAttribute("aria-disabled")).toBe("true");
+
+    open?.click();
+    expect([0, 3, 4].map((row) => content(el, row) !== null)).toEqual([true, true, true]);
+    expect(el.querySelectorAll("tr.gt-i-details")).toHaveLength(3);
+    expect(open?.getAttribute("aria-disabled")).toBe("true");
+    expect(close?.getAttribute("aria-disabled")).toBe("false");
+    // (Disabled, it does nothing)
+    open?.click();
+    expect(el.querySelectorAll("tr.gt-i-details")).toHaveLength(3);
+
+    expander(el, 3)?.click();
+    expect(open?.getAttribute("aria-disabled")).toBe("false");
+    close?.click();
+    expect(el.querySelector("tr.gt-i-details")).toBeNull();
+    expect(close?.getAttribute("aria-disabled")).toBe("true");
+    expect(expander(el, 0)?.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("has no info panel item without details, and a bar for them alone", async () => {
+    const plain = await mountTable(GROUPED, { controls: { search: true, bar: true } });
+    expect(plain.querySelector('[data-gti-info="details"]')).toBeNull();
+    const el = await mountDetails({ controls: { search: false, bar: true } });
+    expect(el.querySelector(".gt-i-bar")).not.toBeNull();
+    expect(el.querySelector('[data-gti-info="details"]')).not.toBeNull();
+  });
+
+  it("leaves out the details of a row without a template, with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { html, spec } = gtTable(GROUPED, { details: { 3: "three" } });
+    const el = await mount(`<gt-table>${html}${specScript({ ...spec, details: [3, 0] })}</gt-table>`);
+    expect(el.getAttribute("data-gti-state")).toBe("ready");
+    expect(expander(el, 3)).not.toBeNull();
+    expect(expander(el, 0)).toBeNull();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("row 0's details are left out"));
+  });
+
+  it("spans the selection column too", async () => {
+    const el = await mountDetails({ controls: { selection: "single" } });
+    expander(el, 0)?.click();
+    const details = under(el, 0) as HTMLTableRowElement;
+    expect(details.cells).toHaveLength(1);
+    expect((details.cells[0] as HTMLTableCellElement).colSpan).toBe(4);
   });
 });
