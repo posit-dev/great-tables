@@ -27,6 +27,7 @@ import {
 } from "./filter";
 import { columnRuns, orderRuns } from "./order";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
+import { Profile, timeOf } from "./profile";
 import {
   formatColumn,
   formatQuery,
@@ -560,7 +561,7 @@ const labelCells = (table: HTMLTableElement) =>
 // A copy of a cell, without its footnote marks (or the button showing a row's dropped columns)
 function withoutMarks(cell: Element): Element {
   const clone = cell.cloneNode(true) as Element;
-  for (const mark of clone.querySelectorAll(".gt_footnote_marks, .gt-i-expand")) {
+  for (const mark of clone.querySelectorAll(".gt_footnote_marks, .gt-i-expand, .gt-i-profile")) {
     mark.remove();
   }
   return clone;
@@ -586,17 +587,12 @@ function dateText(text: string, lang: string | undefined): string {
   if (key === null) {
     return text;
   }
-  const [year, month, day, hour, minute, second, nanos] = key.split(/[-T:.]/).map(Number) as number[];
-  const date = new Date(0);
-  // (Not `Date.UTC()`, which takes years before 100 to be 1900 and after)
-  date.setUTCFullYear(year as number, (month as number) - 1, day);
-  date.setUTCHours(hour as number, minute, second, Math.floor((nanos as number) / 1e6));
   const options: Intl.DateTimeFormatOptions = { dateStyle: "medium", timeZone: "UTC" };
   if (hasTime(text)) {
-    options.timeStyle = second === 0 && nanos === 0 ? "short" : "medium";
+    options.timeStyle = key.endsWith(":00.000000000") ? "short" : "medium";
   }
   try {
-    return new Intl.DateTimeFormat(lang, options).format(date);
+    return new Intl.DateTimeFormat(lang, options).format(timeOf(text));
   } catch {
     return text;
   }
@@ -746,6 +742,62 @@ function controlsRow(th: HTMLTableCellElement): HTMLElement {
   return row;
 }
 
+// The bottom row's column labels (and those spanning rows down to it)
+function bottomLabels(table: HTMLTableElement): HTMLTableCellElement[] {
+  const rows = Array.from(table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"));
+  return rows.flatMap((tr, r) =>
+    Array.from(tr.cells).filter((th) => r + Number(th.getAttribute("rowspan") ?? 1) >= rows.length),
+  );
+}
+
+// The place for a column's profile, under its label (and controls)
+function profileSlot(th: HTMLTableCellElement): HTMLElement {
+  return (
+    th.querySelector<HTMLElement>(":scope > .gt-i-profile") ??
+    th.appendChild(element(th.ownerDocument, "div", "gt-i-profile", { "aria-hidden": "true" }))
+  );
+}
+
+// A profile's share of rows, as a percentage ("<1%" for a few)
+const percent = (part: number, whole: number) => (part / whole < 0.005 ? "<1%" : `${Math.round((part / whole) * 100)}%`);
+
+// How a histogram's bins' edges are written: numbers with enough digits to tell the bins apart
+// ("1.25K"), or dates (with their times, for bins shorter than a day)
+function edgeFormat(profile: Profile, lang: string | undefined): (x: number) => string {
+  const first = profile.bars[0];
+  const last = profile.bars[profile.bars.length - 1];
+  const width = first === undefined ? 0 : first.high - first.low;
+  const most = Math.max(Math.abs(first?.low ?? 0), Math.abs(last?.high ?? 0));
+  const options: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions = profile.times
+    ? { dateStyle: "medium", timeZone: "UTC", ...(width < 864e5 ? { timeStyle: "short" } : {}) }
+    : {
+        // (Short for big numbers: "1.25M", not "1,250,000")
+        notation: most < 1e4 ? "standard" : "compact",
+        maximumSignificantDigits: Math.min(21, Math.max(2, Math.floor(Math.log10(most || 1)) - Math.floor(Math.log10(width || 1)) + 2)),
+      };
+  const make = (locale: string | undefined) =>
+    profile.times ? new Intl.DateTimeFormat(locale, options) : new Intl.NumberFormat(locale, options);
+  let format: Intl.DateTimeFormat | Intl.NumberFormat;
+  try {
+    format = make(lang);
+  } catch {
+    format = make(undefined);
+  }
+  return (x) => format.format(x);
+}
+
+/** A column's profile under its label (see `addProfiles()`). */
+interface ProfileView {
+  profile: Profile;
+  /** Its bars, their tooltips and what they name, and its caption. */
+  rects: SVGRectElement[];
+  titles: SVGTitleElement[];
+  names: string[];
+  caption: HTMLElement;
+  /** A value's text, by its rank, as its cells show it. */
+  valueName: (rank: number) => string;
+}
+
 export class GtTable extends HTMLElement {
   /** The static `<table>` this element hydrates, or `null` if there isn't one. */
   table: HTMLTableElement | null = null;
@@ -773,6 +825,9 @@ export class GtTable extends HTMLElement {
   private matched: Uint8Array | null = null;
   /** The number of data rows that match the search and the filters (all of them, without any). */
   private matchCount = 0;
+  /** The columns' profiles, and the rows (`matched`) they last counted (`undefined` before). */
+  private profileViews: ProfileView[] = [];
+  private profiled: Uint8Array | null | undefined = undefined;
   /** The columns' filters, in column order. */
   private filters: FilterControl[] = [];
   /** The query's groups (its `or` and `not` parts), which no one column's filter has, in order. */
@@ -1504,6 +1559,7 @@ export class GtTable extends HTMLElement {
       this.addFilters(table, spec);
     }
     this.alignLabels(table);
+    this.addProfiles(table, spec);
     const bar = spec.controls.bar === true;
     if (this.movable && spec.controls.search && !bar) {
       this.addSearchBox(table);
@@ -1567,6 +1623,7 @@ export class GtTable extends HTMLElement {
       if (this.bar !== null) {
         this.updateBar(this.bar);
       }
+      this.updateProfiles();
     }
     this.saveView();
     if (this.undoable) {
@@ -3077,7 +3134,7 @@ export class GtTable extends HTMLElement {
         const target = event.target as Element;
         const selection = doc.getSelection();
         if (
-          target.closest(`${INTERACTIVE}, .gt-i-head-controls, .gt-i-resizer, .gt-i-resizer-start`) === null &&
+          target.closest(`${INTERACTIVE}, .gt-i-head-controls, .gt-i-profile, .gt-i-resizer, .gt-i-resizer-start`) === null &&
           !(selection !== null && !selection.isCollapsed && th.contains(selection.anchorNode))
         ) {
           sort(event);
@@ -3104,17 +3161,112 @@ export class GtTable extends HTMLElement {
   // Once a column label has controls, every label in the bottom row of labels has their row (empty,
   // if it has none), so that the labels line up over it
   private alignLabels(table: HTMLTableElement): void {
-    if (table.querySelector(":scope > thead .gt-i-head-controls") === null) {
+    if (table.querySelector(":scope > thead .gt-i-head-controls") !== null) {
+      bottomLabels(table).forEach(controlsRow);
+    }
+  }
+
+  // A profile under each profiled column's label (see `profile.ts`), and an empty one under the
+  // other labels in the bottom row, so that they line up. Profiles are hidden from assistive
+  // technology, as they'd be part of the labels' names
+  private addProfiles(table: HTMLTableElement, spec: Spec): void {
+    const cells = labelCells(table);
+    const doc = this.ownerDocument;
+    const lang = this.closest("[lang]")?.getAttribute("lang") || undefined;
+    for (const profileSpec of spec.profiles ?? []) {
+      const index = spec.columns.findIndex((column) => column.id === profileSpec.column);
+      const header = spec.columns[index]?.header;
+      const th = header == null ? undefined : cells.get(header);
+      const ranks = spec.ranks[profileSpec.column];
+      if (th === undefined || ranks === undefined || th.querySelector(":scope > .gt-i-profile") !== null) {
+        continue;
+      }
+      const profile = new Profile(profileSpec, ranks);
+      const root = profileSlot(th);
+      root.classList.add(`gt-i-profile-${profileSpec.plot}`);
+      th.classList.add("gt-i-profiled");
+      const svg = root.appendChild(doc.createElementNS(SVG_NS, "svg"));
+      svg.setAttribute("viewBox", `0 0 ${Math.max(1, profile.bars.length)} 1`);
+      svg.setAttribute("preserveAspectRatio", "none");
+      const known = new Map<number, string>();
+      const valueName = (rank: number) => {
+        let name = known.get(rank);
+        if (name === undefined) {
+          const tr = this.rowElements[profile.rowOf[rank] ?? -1];
+          const cell = tr === undefined ? undefined : this.dataCells(tr)[index];
+          name = (cell === undefined ? "" : labelText(cell)) || "(empty)";
+          known.set(rank, name);
+        }
+        return name;
+      };
+      const edge = edgeFormat(profile, lang);
+      const view: ProfileView = { profile, rects: [], titles: [], names: [], caption: root, valueName };
+      profile.bars.forEach((bar, i) => {
+        const g = svg.appendChild(doc.createElementNS(SVG_NS, "g"));
+        view.titles.push(g.appendChild(doc.createElementNS(SVG_NS, "title")));
+        // (The column the bar is in, which shows its tooltip, then the bar)
+        for (const hit of [true, false]) {
+          const rect = g.appendChild(doc.createElementNS(SVG_NS, "rect"));
+          rect.setAttribute("x", String(hit ? i : i + 0.1));
+          rect.setAttribute("width", hit ? "1" : "0.8");
+          rect.setAttribute("height", hit ? "1" : "0");
+          if (hit) {
+            rect.classList.add("gt-i-profile-hit");
+          } else {
+            rect.classList.toggle("gt-i-profile-other", bar.rank === -1 && profileSpec.plot === "top");
+            view.rects.push(rect);
+          }
+        }
+        view.names.push(
+          bar.rank >= 0
+            ? valueName(bar.rank)
+            : profileSpec.plot === "top"
+              ? `${profile.others} other values`
+              : bar.low === bar.high
+                ? edge(bar.low)
+                : `${edge(bar.low)} – ${edge(bar.high)}`,
+        );
+      });
+      view.caption = root.appendChild(element(doc, "div", "gt-i-profile-text"));
+      this.profileViews.push(view);
+    }
+    if (this.profileViews.length > 0) {
+      bottomLabels(table).forEach(profileSlot);
+    }
+  }
+
+  // Count the profiles' rows again, if they're others than they last counted
+  private updateProfiles(): void {
+    if (this.profileViews.length === 0 || this.profiled === this.matched) {
       return;
     }
-    const rows = Array.from(table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"));
-    rows.forEach((tr, r) => {
-      for (const th of tr.cells) {
-        if (r + Number(th.getAttribute("rowspan") ?? 1) >= rows.length) {
-          controlsRow(th);
-        }
+    this.profiled = this.matched;
+    for (const { profile, rects, titles, names, caption, valueName } of this.profileViews) {
+      const counts = profile.count(this.matched);
+      const most = Math.max(1, ...counts.bars);
+      counts.bars.forEach((count, i) => {
+        // (A bar of a few rows is still seen)
+        const height = count === 0 ? 0 : Math.max(count / most, 0.06);
+        rects[i]?.setAttribute("y", String(1 - height));
+        rects[i]?.setAttribute("height", String(height));
+        (titles[i] as SVGTitleElement).textContent = `${names[i]}: ${plural(count)}`;
+      });
+      const parts: string[] = [];
+      if (counts.distinct > 0) {
+        parts.push(
+          profile.spec.plot === "top"
+            ? `${counts.distinct} ${counts.distinct === 1 ? "value" : "values"}`
+            : counts.low === counts.high
+              ? valueName(counts.low)
+              : `${valueName(counts.low)} – ${valueName(counts.high)}`,
+        );
       }
-    });
+      if (counts.missing > 0) {
+        parts.push(`${percent(counts.missing, counts.rows)} missing`);
+      }
+      caption.textContent = counts.rows === 0 ? "No rows" : parts.join(" · ");
+      caption.title = caption.textContent;
+    }
   }
 
   // A resize handle for each column with a label of its own (not one spanning several columns),
@@ -7398,6 +7550,7 @@ export class GtTable extends HTMLElement {
     this.highlight(shown);
     this.updatePager();
     this.updateFilters();
+    this.updateProfiles();
     this.placeGuide();
     this.placeFoot();
     this.saveView();
@@ -8296,6 +8449,8 @@ export class GtTable extends HTMLElement {
     this.terms = [];
     this.matched = null;
     this.matchCount = 0;
+    this.profileViews = [];
+    this.profiled = undefined;
     this.filters = [];
     this.filterGroups = [];
     this.groupTokens = new Map();
