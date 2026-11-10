@@ -11,7 +11,8 @@
  * `-` before it, for descending), once per sort key, or once empty for none; `search`, the search;
  * `page` and `size`, numbers; `height`, the height (in px) a body that scrolls is dragged to, or
  * empty for the author's; `hidden`, a hidden column, once per column, or once empty for none (as
- * `sort` is); and `order`, a column readers can move, once per column, in the order shown. In
+ * `sort` is); `order`, a column readers can move, once per column, in the order shown; and
+ * `group`, the column the rows are grouped by, or empty for none. In
  * the URL, each is named after the table's key (`towny.`), so that
  * tables keep views of their own, and the page's other parameters are left as they are; in
  * storage, they're without the key.
@@ -37,11 +38,13 @@ export interface View {
   order: string[];
   /** For a body that scrolls within a height: the height (in px) it's dragged to, or `null` for the author's. */
   height?: number | null;
+  /** For a table with columns readers can group the rows by: the one they're grouped by, or `null`. */
+  groupBy?: string | null;
 }
 
-export type ViewPart = "filter" | "sort" | "search" | "page" | "size" | "height" | "hidden" | "order";
+export type ViewPart = "filter" | "sort" | "search" | "page" | "size" | "height" | "hidden" | "order" | "group";
 
-const PARTS: readonly string[] = ["filter", "sort", "search", "page", "size", "height", "hidden", "order"];
+const PARTS: readonly string[] = ["filter", "sort", "search", "page", "size", "height", "hidden", "order", "group"];
 
 /** A view as parameters: each part, and its text (`sort` once per sort key, `hidden` and `order` per column). */
 export type ViewParams = [ViewPart, string][];
@@ -61,6 +64,8 @@ export interface ViewLimits {
   hideable: string[];
   /** The runs of columns the reader can move (see `order.ts`), each in the author's order. */
   runs: string[][];
+  /** The columns the reader can group the rows by; none, without it. */
+  groupable?: string[];
 }
 
 const sortText = (key: SortKey) => (key.descending ? "-" : "") + key.column;
@@ -101,6 +106,9 @@ export function viewParams(view: View, base: View): ViewParams {
   }
   if (JSON.stringify(view.order) !== JSON.stringify(base.order)) {
     params.push(...repeated("order", view.order));
+  }
+  if ((view.groupBy ?? null) !== (base.groupBy ?? null)) {
+    params.push(["group", view.groupBy ?? ""]);
   }
   return params;
 }
@@ -196,6 +204,15 @@ export function readView(params: ViewParams, base: View, limits: ViewLimits, war
         order.push(text);
       } else if (text !== "") {
         warn(`the saved view's column ${JSON.stringify(text)} is left out of its order (it isn't one the reader can move)`);
+      }
+    } else if (part === "group") {
+      // (Empty for none)
+      if (text === "") {
+        view.groupBy = null;
+      } else if (limits.groupable?.includes(text)) {
+        view.groupBy = text;
+      } else {
+        warn(`the saved view's grouping by ${JSON.stringify(text)} is left out (it isn't a column the reader can group the rows by)`);
       }
     } else if (part === "search") {
       if (limits.search) {

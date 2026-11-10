@@ -60,7 +60,7 @@ describe("parseSpec()", () => {
   });
 
   it("takes what readers can do with a column, or its absence", () => {
-    const column = { ...valid.columns[0], sortable: false, searchable: true, resizable: false };
+    const column = { ...valid.columns[0], sortable: false, searchable: true, resizable: false, groupable: true };
     expect(parse({ ...valid, columns: [column] }).columns).toEqual([column]);
     expect(parse(valid).columns[0]?.sortable).toBeUndefined();
   });
@@ -138,6 +138,9 @@ describe("parseSpec()", () => {
     const view = { filter: { and: [{ col: "x", op: "gte", value: 1 }] }, sort: [{ column: "x", descending: true }] };
     expect(parse({ ...valid, view }).view).toEqual(view);
     expect(parse({ ...valid, view: { filter: null, sort: [] } }).view).toEqual({ filter: null, sort: [] });
+    // (With the column the rows are grouped by, or none)
+    expect(parse({ ...valid, view: { ...view, group_by: "x" } }).view?.group_by).toBe("x");
+    expect(parse({ ...valid, view: { ...view, group_by: null } }).view?.group_by).toBeNull();
     expect(parse(valid).view).toBeUndefined();
   });
 
@@ -279,6 +282,7 @@ describe("parseSpec()", () => {
     ["has a view without sort keys", view({ filter: null }), /`view`/],
     ["has a view with a bad sort key", view({ filter: null, sort: [{ column: "x" }] }), /`view`/],
     ["has a view with a sort key that's a name", view({ filter: null, sort: ["x"] }), /`view`/],
+    ["has a view grouped by a column that isn't a name", view({ filter: null, sort: [], group_by: 1 }), /`view`/],
     ["has an export that isn't an object", exports(["csv"]), /`export`/],
     ["has an export without formats", exports({ filename: "table" }), /`export`/],
     ["has an export with a format it doesn't know", exports({ formats: ["xlsx"], filename: "table" }), /`export`/],
@@ -304,6 +308,11 @@ describe("parseSpec()", () => {
       "has a column that's resizable with a number",
       JSON.stringify({ ...valid, columns: [valid.columns[0], { ...valid.columns[0], resizable: 0 }] }),
       /`columns\[1\]`/,
+    ],
+    [
+      "has a column that's groupable with a string",
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], groupable: "yes" }] }),
+      /`columns\[0\]`.*groupable/,
     ],
     [
       "has a column pinned to a physical side",

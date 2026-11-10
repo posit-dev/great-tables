@@ -432,6 +432,37 @@ def reorder_html(table_id: str) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+GROUP_DATA = pd.DataFrame(
+    {
+        "name": [f"town_{i + 1}" for i in range(12)],
+        "region": ["north", "south", None, "north", "east", "south"] * 2,
+        "size": ["big", "small", "small", "big", "small", "big", "small", "big", "big", "small"]
+        + ["small", "big"],
+        "pop": [120, 45, 80, 300, 15, 60, 210, 95, 33, 150, 70, 5],
+    }
+)
+
+
+def group_html(table_id: str, height: str | None = None) -> str:
+    # Twelve towns (name as the stub, then region, which three lack, size, and pop), 5 rows to a
+    # page, whose region and size readers can group the rows by (and hide, as they can pop), with
+    # a search, its view kept in the URL and changes undone. With `height`, all on one page, its
+    # body scrolling within that, and its rows grouped by region to start with
+    gti = (
+        GTI(GROUP_DATA, rowname_col="name", id=table_id)
+        .fmt_integer(columns="pop")
+        .i_search()
+        .i_cols_controls(columns=["region", "size"], groupable=True)
+        .i_cols_controls(columns=["region", "size", "pop"], hideable=True)
+        .i_view_state(undo=True)
+    )
+    if height is None:
+        gti = gti.i_pagination(page_size=5)
+    else:
+        gti = gti.i_pagination(enabled=False).i_scroll(height).i_view(group_by="region")
+    return render_gti_html(gti, runtime="none")
+
+
 def stack_html(
     table_id: str, mode: str = "stack", columns: list[str] | None = None, dark: bool = False
 ) -> str:
@@ -1005,6 +1036,19 @@ def main() -> None:
         ),
         "reorder-rtl.html": page(
             '<div dir="rtl" style="width: 780px">' + reorder_html("r") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        # Grouping rows: of twelve towns, 5 to a page; and all on one page, its body scrolling
+        # within 200px, grouped by region to start with
+        "group.html": page(
+            '<div style="width: 800px">' + group_html("g") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "group-scroll.html": page(
+            '<div style="width: 800px">'
+            + group_html("g", height="200px")
+            + "</div>\n"
+            + runtime_src,
             head=styles,
         ),
         # Export: from a GTI table 5 rows to a page, whose rows can be selected

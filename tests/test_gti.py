@@ -275,6 +275,7 @@ def test_spec_stub_for_summary_labels_only():
         "pin": None,
         "hideable": False,
         "reorderable": False,
+        "groupable": False,
         "priority": None,
         "dtype": None,
         "missing": None,

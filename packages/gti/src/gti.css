@@ -1990,6 +1990,11 @@ gt-table .gt-i-filter-count {
   opacity: 0.7;
 }
 
+/* (The number of rows of a group by a column, in its heading) */
+gt-table .gt-i-group-count {
+  opacity: 0.7;
+}
+
 /* (A value no row the search and the other filters keep has, which can still be chosen) */
 gt-table .gt-i-filter-option[data-gti-none] :is(.gt-i-filter-value, .gt-i-filter-count) {
   opacity: 0.45;

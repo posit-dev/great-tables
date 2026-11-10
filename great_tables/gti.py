@@ -820,11 +820,12 @@ class GTI(GT):
         resizable: bool | None = None,
         hideable: bool | None = None,
         reorderable: bool | None = None,
+        groupable: bool | None = None,
         display: bool | None = None,
     ) -> Self:
         """
-        Choose which columns readers can sort by, search, resize, hide, and move, and which are only
-        for querying.
+        Choose which columns readers can sort by, search, resize, hide, move, and group the rows by,
+        and which are only for querying.
 
         Where the table lets readers sort it ([`i_sorting()`](`great_tables.GTI.i_sorting`)),
         search it ([`i_search()`](`great_tables.GTI.i_search`)), and resize its columns
@@ -853,6 +854,18 @@ class GTI(GT):
         stub and the row group column can't be moved (naming them for `reorderable=` does
         nothing).
 
+        Nor can readers group the rows by any column, by default. Making some groupable puts a
+        "Group rows" button in the control bar, whose panel lists them (and "None"), to group the
+        rows by one of them: each of its values gets a heading (with its text, as its first row's
+        cell shows it, and the number of rows the search and filters keep), and the rows with it
+        come under it, sorted as the table is. The groups are in the order of their values
+        (ascending, or descending if the table is sorted by the column so), with the rows missing
+        a value last, under "(Missing)". On a page, each group with rows on it has its heading. The
+        grouping is part of the view, as [`i_view()`](`great_tables.GTI.i_view`) can set it. A
+        column the table can't be sorted by (one of images, say) can't be grouped by, nor can the
+        stub (naming them for `groupable=` does nothing), and a table with row groups or summary
+        rows can't have any groupable column.
+
         A column can also be left out of the table but kept for querying, with `display=False`.
         It isn't shown (as with [`cols_hide()`](`great_tables.GT.cols_hide`), and readers can't
         show it), but a filter on it ([`i_cols_filter()`](`great_tables.GTI.i_cols_filter`))
@@ -874,9 +887,10 @@ class GTI(GT):
             The columns: a column name, a list of them, or a selector (e.g., Polars'
             `cs.numeric()`). With `None` (the default), every column but the stub (which can be
             named). The row group column can't be one of them.
-        sortable, searchable, resizable, hideable, reorderable
-            Whether readers can sort by the columns, search them, resize them, hide them, and move
-            them. With `None` (the default), the columns are left as they are.
+        sortable, searchable, resizable, hideable, reorderable, groupable
+            Whether readers can sort by the columns, search them, resize them, hide them, move
+            them, and group the rows by them. With `None` (the default), the columns are left as
+            they are.
         display
             Whether the columns are in the table (`True`), or left out of it and kept only for
             querying (`False`). With `None` (the default), the columns are left as they are.
@@ -927,6 +941,17 @@ class GTI(GT):
         )
         ```
 
+        A table whose readers can group the municipalities by their status, from the "Group rows"
+        button in the control bar:
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_controls(columns="status", groupable=True)
+        )
+        ```
+
         A table of the municipalities' names and populations that can be filtered by their status,
         which it doesn't show (the filter is in the query bar, from the `<>` button in the control
         bar):
@@ -942,15 +967,18 @@ class GTI(GT):
         ```
         """
         # (Each setting keeps the columns readers can't do it with (and `query_only`, those not
-        # shown), but `hideable` and `reorderable` keep those they can, so they're turned around)
+        # shown), but `hideable`, `reorderable` and `groupable` keep those they can, so they're
+        # turned around)
         hide = _optional_flag(hideable, "hideable")
         move = _optional_flag(reorderable, "reorderable")
+        group = _optional_flag(groupable, "groupable")
         flags = {
             "unsortable": _optional_flag(sortable, "sortable"),
             "unsearchable": _optional_flag(searchable, "searchable"),
             "unresizable": _optional_flag(resizable, "resizable"),
             "hideable": None if hide is None else not hide,
             "reorderable": None if move is None else not move,
+            "groupable": None if group is None else not group,
             "query_only": _optional_flag(display, "display"),
         }
         if display is False:
@@ -1215,13 +1243,15 @@ class GTI(GT):
         filter: str | dict[str, Any] | None = None,
         sort: str | list[str] | None = None,
         hidden: SelectExpr = None,
+        group_by: str | None = None,
     ) -> Self:
         """
         Show the table filtered and sorted, as readers first see it.
 
         The table is first shown with the rows that `filter=` keeps, in the order `sort=` gives
-        them, and without the columns `hidden=` hides, which readers can then change (with the
-        column filters, sort buttons, and the bar's "Columns" panel) or clear. Rows stay within
+        them, without the columns `hidden=` hides, and with the rows grouped by the column
+        `group_by=` names, which readers can then change (with the column filters, sort buttons,
+        and the bar's "Columns" and "Group rows" panels) or clear. Rows stay within
         their row groups, as they do when readers sort the table, and a table whose stub has cells
         merged across rows is shown as it is. Without arguments, the table is shown with all its
         rows and columns, in order (the default).
@@ -1290,6 +1320,11 @@ class GTI(GT):
             selector (e.g., Polars' `cs.numeric()`). Readers have to be able to hide them (see
             [`i_cols_controls(hideable=True)`](`great_tables.GTI.i_cols_controls`)). With `None`
             (the default), none are hidden.
+        group_by
+            The column to group the rows by, which readers can change: a column name. Readers have
+            to be able to group the rows by it (see
+            [`i_cols_controls(groupable=True)`](`great_tables.GTI.i_cols_controls`)). With `None`
+            (the default), the rows aren't grouped.
 
         Returns
         -------
@@ -1368,16 +1403,37 @@ class GTI(GT):
             .i_view(hidden=years[:-1])
         )
         ```
+
+        A table first shown with the municipalities grouped by their status, most populous first
+        in each group, which readers can group otherwise (or not at all) from the "Group rows"
+        button in the control bar:
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_controls(columns="status", groupable=True)
+            .i_view(sort="-population_2021", group_by="status")
+        )
+        ```
         """
         # (Imported here, as `_query` is only needed for a view)
         from ._gti._query import check_query, parse_sort
 
+        if group_by is not None:
+            if not isinstance(group_by, str):
+                raise TypeError(
+                    f"`group_by=` takes a column name (or `None`), not {type(group_by).__name__}."
+                )
+            if group_by not in resolve_cols_c(self, group_by, excl_stub=False):
+                raise ValueError(f"`group_by=` names column {group_by!r}, which the table hasn't.")
         return self._set_interactive(
             view_filter=check_query(filter),
             view_sort=parse_sort(sort),
             view_hidden=(
                 () if hidden is None else tuple(resolve_cols_c(self, hidden, excl_stub=False))
             ),
+            view_group_by=group_by,
         )
 
     def i_view_state(self, url: bool = True, storage: bool = False, undo: bool = True) -> Self:
@@ -1385,8 +1441,8 @@ class GTI(GT):
         Keep the reader's view of the table, for when the page is opened again, and let them undo
         their changes to it.
 
-        The view is the table's filters, sort, search, page, page size, and hidden columns, and
-        the height of a body that scrolls (see [`i_scroll()`](`great_tables.GTI.i_scroll`)) as the
+        The view is the table's filters, sort, search, page, page size, hidden columns, and the
+        column its rows are grouped by, and the height of a body that scrolls (see [`i_scroll()`](`great_tables.GTI.i_scroll`)) as the
         reader drags it (not the rows selected, or the columns' widths). As the reader changes it, it can be kept in
         the page's URL (`url=`), so that reloading the page, or sharing its link, opens the table
         as it was; and in the browser's storage (`storage=`), so that the reader finds it as they
