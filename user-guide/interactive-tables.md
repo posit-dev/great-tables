@@ -816,3 +816,65 @@ With `i_cols_profile()`, columns get a small plot under their labels of how thei
 | Rolls-Royce                   | Wraith         | 2016 | 624 | 590    | \$304,350   |
 
 A profile's bars span the whole column, not just the rows that are left, so that they stay put as the reader filters (only their heights change). They aren't shown when the table is stacked as cards in a narrow container.
+
+### An explorer for looking through data
+
+`GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than presenting it: every column can be filtered, has a profile, and can be hidden and moved; the rows are compact and can be downloaded as CSV; and with `i_inspect()`, the rows are numbered (by their place in the data, which stays with them as they're sorted and filtered), each column's dtype is under its label (as Polars names it, whatever the DataFrame library), the number of rows and columns left is above the table, and missing values are tinted.
+
+``` python
+cars = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
+
+GTI(cars, preset="explorer")
+```
+
+| mfr           | model          | year | hp    | mpg_c | msrp      |
+|---------------|----------------|------|-------|-------|-----------|
+| Ford          | GT             | 2017 | 647.0 | 11.0  | 447000.0  |
+| Ferrari       | 458 Speciale   | 2015 | 597.0 | 13.0  | 291744.0  |
+| Ferrari       | 458 Spider     | 2015 | 562.0 | 13.0  | 263553.0  |
+| Ferrari       | 458 Italia     | 2014 | 562.0 | 13.0  | 233509.0  |
+| Ferrari       | 488 GTB        | 2016 | 661.0 | 15.0  | 245400.0  |
+| Ferrari       | California     | 2015 | 553.0 | 16.0  | 198973.0  |
+| Ferrari       | GTC4Lusso      | 2017 | 680.0 | 12.0  | 298000.0  |
+| Ferrari       | FF             | 2015 | 652.0 | 11.0  | 295000.0  |
+| Ferrari       | F12Berlinetta  | 2015 | 731.0 | 11.0  | 319995.0  |
+| Ferrari       | LaFerrari      | 2015 | 949.0 | 12.0  | 1416362.0 |
+| Acura         | NSX            | 2017 | 573.0 | 21.0  | 156000.0  |
+| Nissan        | GT-R           | 2016 | 545.0 | 16.0  | 101770.0  |
+| Lamborghini   | Aventador      | 2015 | 700.0 | 11.0  | 397500.0  |
+| Lamborghini   | Huracan        | 2015 | 610.0 | 16.0  | 237250.0  |
+| Lamborghini   | Gallardo       | 2014 | 550.0 | 12.0  | 191900.0  |
+| Bentley       | Continental GT | 2016 | 500.0 | 15.0  | 198500.0  |
+| Maserati      | Granturismo    | 2016 | 454.0 | 13.0  | 132825.0  |
+| Maserati      | Quattroporte   | 2016 | 404.0 | 16.0  | 99900.0   |
+| Maserati      | Ghibli         | 2016 | 345.0 | 17.0  | 70600.0   |
+| BMW           | 6-Series       | 2016 | 315.0 | 20.0  | 77300.0   |
+| BMW           | i8             | 2016 | 357.0 | 28.0  | 140700.0  |
+| BMW           | M4             | 2016 | 425.0 | 17.0  | 65700.0   |
+| BMW           | M5             | 2016 | 560.0 | 15.0  | 94100.0   |
+| BMW           | M6             | 2016 | 560.0 | 15.0  | 113400.0  |
+| Aston Martin  | DB11           | 2017 | 608.0 | 15.0  | 211195.0  |
+| Aston Martin  | Rapide S       | 2016 | 552.0 | 14.0  | 205300.0  |
+| Aston Martin  | Vanquish       | 2016 | 568.0 | 13.0  | 287250.0  |
+| Aston Martin  | Vantage        | 2016 | 430.0 | 13.0  | 103300.0  |
+| Chevrolet     | Corvette       | 2016 | 650.0 | 15.0  | 88345.0   |
+| Dodge         | Viper          | 2017 | 645.0 | 12.0  | 95895.0   |
+| Audi          | R8             | 2015 | 430.0 | 11.0  | 115900.0  |
+| Audi          | RS 7           | 2016 | 560.0 | 15.0  | 108900.0  |
+| Audi          | S6             | 2016 | 450.0 | 18.0  | 70900.0   |
+| Audi          | S7             | 2016 | 450.0 | 17.0  | 82900.0   |
+| Audi          | S8             | 2016 | 520.0 | 15.0  | 114900.0  |
+| Lotus         | Evora          | 2017 | 400.0 | 16.0  | 91900.0   |
+| Jaguar        | F-Type         | 2016 | 340.0 | 16.0  | 65000.0   |
+| Mercedes-Benz | AMG GT         | 2016 | 503.0 | 16.0  | 129900.0  |
+| Mercedes-Benz | SL-Class       | 2016 | 329.0 | 20.0  | 85050.0   |
+| Tesla         | Model S        | 2017 | 259.0 | None  | 74500.0   |
+| Porsche       | 718 Boxster    | 2017 | 300.0 | 21.0  | 56000.0   |
+| Porsche       | 718 Cayman     | 2017 | 300.0 | 20.0  | 53900.0   |
+| Porsche       | 911            | 2016 | 350.0 | 20.0  | 84300.0   |
+| Porsche       | Panamera       | 2016 | 310.0 | 18.0  | 78100.0   |
+| McLaren       | 570            | 2016 | 570.0 | 16.0  | 184900.0  |
+| Rolls-Royce   | Dawn           | 2016 | 563.0 | 12.0  | 335000.0  |
+| Rolls-Royce   | Wraith         | 2016 | 624.0 | 13.0  | 304350.0  |
+
+A preset is only where the table starts: the `i_` methods change it as they'd change any table. Each sets all of its feature's settings, so `.i_display(wrap=False)` on an explorer makes its rows less compact again unless it's given `compact=True` too, and `.i_inspect(missing=False)` leaves the row numbers, dtypes and dimensions on. `i_inspect()` works on its own as well, on any `GTI` table.
