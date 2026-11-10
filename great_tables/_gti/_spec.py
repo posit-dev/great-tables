@@ -12,7 +12,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   that leave these out let them do neither. And a data column's priority (`priority`: a positive
   integer, or `null`), for a table that drops columns to fit its container: those without one drop
   first (from the last), then those with the highest (from the last, among equals); those with 1
-  (and the stub) never do. Producers that leave it out have none.
+  (and the stub) never do. Producers that leave it out have none. A column's dtype (`dtype`: a short
+  name, as Polars prints it, e.g. `"f64"`), shown under its label, and the data rows whose value is
+  missing (`missing`, in order: `null`, or NaN in a column of floats), whose cells are tinted;
+  producers that leave these out (or give `null`) show neither.
 - `query_columns`: the columns left out of the table but kept for querying, in column order: their
   kind, their label's text, and (for a filter on the text they'd show, a facet, or a bool filter)
   each data row's text. A text filter's is what it's matched against: the text the cell would
@@ -34,7 +37,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   that leave `bar` out get the latter.
 - `pagination`: whether rows are split into pages, how many to a page, and the page controls
 - `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
-  in the table's CSS, as smaller row padding), and whether cell text wraps
+  in the table's CSS, as smaller row padding), and whether cell text wraps; and whether each data
+  row has its number (its place in the data, from 1) before its cells (`row_numbers`), and the
+  number of rows and columns is above the table (`dimensions`). Producers that leave these two out
+  have neither.
 - `layout`: how the table fits its space: the most it can take up before its body scrolls
   vertically (a CSS length; `null` to grow with its content), and what it does when it's wider
   than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table
@@ -94,6 +100,7 @@ from .._gt_data import ColInfoTypeEnum
 from .._tbl_data import (
     ColumnKind,
     _get_cell,
+    _get_column_dtype_name,
     _get_column_kind,
     _get_column_missing,
     _get_column_ranks,
@@ -141,6 +148,8 @@ class ColumnSpec(TypedDict):
     # (A data column's priority, for a table that drops columns to fit: 1 is never dropped, and
     # higher numbers drop sooner; those without one drop first)
     priority: int | None
+    dtype: str | None  # its dtype's short name, shown under its label (`i_inspect()`)
+    missing: list[int] | None  # the data rows whose value is missing, tinted (`i_inspect()`)
 
 
 class QueryColumnSpec(TypedDict):
@@ -211,6 +220,8 @@ class DisplaySpec(TypedDict):
     highlight: bool
     compact: bool
     wrap: bool
+    row_numbers: bool
+    dimensions: bool
 
 
 class LayoutSpec(TypedDict):
@@ -336,6 +347,12 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
             hideable=role == "data" and id in settings.hideable,
             reorderable=role == "data" and id in settings.reorderable,
             priority=priorities.get(id) if role == "data" and id is not None else None,
+            dtype=_get_column_dtype_name(tbl_data, id)
+            if settings.dtypes and id is not None
+            else None,
+            missing=_get_column_missing(tbl_data, id)
+            if settings.missing and id is not None
+            else None,
         )
 
     stub_columns = boxhead._get_stub_columns()
@@ -517,7 +534,11 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
             type=settings.pagination_type,
         ),
         display=DisplaySpec(
-            highlight=settings.highlight, compact=settings.compact, wrap=settings.wrap
+            highlight=settings.highlight,
+            compact=settings.compact,
+            wrap=settings.wrap,
+            row_numbers=settings.row_numbers,
+            dimensions=settings.dimensions,
         ),
         layout=LayoutSpec(
             height=settings.height,

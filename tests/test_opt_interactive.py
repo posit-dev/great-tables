@@ -176,7 +176,13 @@ class TestAsRawHtml:
             "info": True,
             "type": "full",
         }
-        assert spec["display"] == {"highlight": True, "compact": True, "wrap": True}
+        assert spec["display"] == {
+            "highlight": True,
+            "compact": True,
+            "wrap": True,
+            "row_numbers": False,
+            "dimensions": False,
+        }
 
     @pytest.mark.parametrize(
         "height, expected",

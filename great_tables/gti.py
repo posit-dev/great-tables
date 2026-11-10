@@ -14,12 +14,14 @@ from ._gti._settings import (
     EXPORT_FORMATS,
     FILTER_TYPES,
     PIN_SIDES,
+    PRESETS,
     PROFILE_PLOTS,
     RESPONSIVE_MODES,
     SELECTION_MODES,
     ExportFormat,
     FilterType,
     PinSide,
+    Preset,
     ProfilePlot,
     ResponsiveMode,
     SelectionMode,
@@ -81,6 +83,17 @@ class GTI(GT):
     locale
         An optional locale identifier that can be set as the default locale for all functions that
         take a `locale` argument.
+    preset
+        The settings the table starts with: `"report"` (the default) for a table to be read, with
+        the controls above; or `"explorer"` for a look through data, as if made with
+        `i_cols_filter()` and `i_cols_profile()` (every column filtered and profiled, as its kind
+        suggests), `i_cols_controls(hideable=True, reorderable=True)` (every column can be hidden
+        and moved), `i_display(compact=True)`, `i_export("csv")` and `i_inspect()` (row numbers,
+        dtypes under the labels, the number of rows and columns, and missing values tinted). The
+        stub is left out of these, as those methods leave it out. The `i_` methods change a preset
+        as they change any table: each sets all of its feature's settings (so `i_display(wrap=False)`
+        on an explorer makes its rows less compact, unless it's given `compact=True` too), and the
+        `i_cols_` methods set those of the columns they're given.
 
     Returns
     -------
@@ -114,6 +127,16 @@ class GTI(GT):
     )
     ```
 
+    With `preset="explorer"`, the table is set up for looking through data: each column can be
+    filtered (from the button by its label) and has a profile of its values, with its dtype, the
+    rows are numbered and compact, missing values are tinted, and the rows can be downloaded.
+
+    ```{python}
+    from great_tables.data import gtcars
+
+    GTI(gtcars[["mfr", "model", "year", "hp", "msrp", "ctry_origin"]], preset="explorer")
+    ```
+
     A `GT` table can be made into a `GTI` table with [`GTI.from_gt()`](`great_tables.GTI.from_gt`).
     """
 
@@ -125,7 +148,10 @@ class GTI(GT):
         auto_align: bool = True,
         id: str | None = None,
         locale: str | None = None,
+        preset: Preset = "report",
     ):
+        if preset not in PRESETS:
+            raise ValueError(f'`preset=` must be "report" or "explorer", not {preset!r}.')
         super().__init__(
             data,
             rowname_col=rowname_col,
@@ -136,6 +162,16 @@ class GTI(GT):
         )
         # (Kept apart from the table's options, which are `GT`'s; frozen, as the table is)
         object.__setattr__(self, "_interactive", Settings())
+        if preset == "explorer":
+            explorer = (
+                self.i_cols_filter()
+                .i_cols_profile()
+                .i_cols_controls(hideable=True, reorderable=True)
+                .i_display(compact=True)
+                .i_export("csv")
+                .i_inspect()
+            )
+            object.__setattr__(self, "_interactive", explorer._interactive)
 
     _interactive: Settings
 
@@ -570,6 +606,72 @@ class GTI(GT):
             highlight=_flag(highlight, "highlight"),
             compact=_flag(compact, "compact"),
             wrap=_flag(wrap, "wrap"),
+        )
+
+    def i_inspect(
+        self,
+        *,
+        row_numbers: bool = True,
+        dtypes: bool = True,
+        dimensions: bool = True,
+        missing: bool = True,
+    ) -> Self:
+        """
+        Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where
+        its values are missing.
+
+        Row numbers are in a narrow column before the others (with the rows' checkboxes, with
+        [`i_selection()`](`great_tables.GTI.i_selection`)), pinned with the stub as the table
+        scrolls sideways: each row's is its place in the data, from 1, which stays with it as the
+        rows are sorted, filtered and paged. A dtype is under its column's label, as a short name
+        (as Polars prints it, for any DataFrame library): `"i64"`, `"f64"`, `"str"`, `"bool"`,
+        `"cat"`, `"date"`, `"datetime"`, and so on. The dimensions are above the table: its number
+        of rows and columns (those shown, of the stub and the data), and how many of them are
+        left as readers search, filter and hide columns ("12 of 47 rows × 6 columns"). A missing
+        value (`None`, or NaN in a column of floats) has its cell tinted, whatever the cell shows
+        (as [`sub_missing()`](`great_tables.GT.sub_missing`) makes it). None of these are
+        searched or exported, and they're all off by default (but in `GTI(preset="explorer")`).
+
+        Like the other `i_` methods (but for the `i_cols_` ones), a call sets all of these: those
+        not given are shown.
+
+        Parameters
+        ----------
+        row_numbers
+            Whether each row has its number, in a column before the others.
+        dtypes
+            Whether each column's dtype is under its label.
+        dimensions
+            Whether the number of rows and columns is above the table.
+        missing
+            Whether the cells of missing values are tinted.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table with every one of these: sort it, and the rows keep their numbers.
+
+        ```{python}
+        from great_tables import GTI, exibble
+
+        GTI(exibble[["num", "char", "fctr", "date"]]).sub_missing().i_inspect()
+        ```
+
+        The row numbers alone:
+
+        ```{python}
+        GTI(exibble[["num", "char", "fctr"]]).i_inspect(dtypes=False, dimensions=False, missing=False)
+        ```
+        """
+        return self._set_interactive(
+            row_numbers=_flag(row_numbers, "row_numbers"),
+            dtypes=_flag(dtypes, "dtypes"),
+            dimensions=_flag(dimensions, "dimensions"),
+            missing=_flag(missing, "missing"),
         )
 
     def i_cols_filter(self, columns: SelectExpr = None, type: FilterType | None = "auto") -> Self:
@@ -1613,7 +1715,8 @@ class GTI(GT):
         raise TypeError(
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
-            "`i_selection()`, `i_scroll()`, `i_responsive()`, `i_display()`, `i_cols_filter()`, "
+            "`i_selection()`, `i_scroll()`, `i_responsive()`, `i_display()`, `i_inspect()`, "
+            "`i_cols_filter()`, "
             "`i_cols_controls()`, `i_cols_pin()`, `i_cols_priority()`, `i_cols_profile()`, "
             "`i_view()`, `i_view_state()`, `i_export()`, and `i_row_details()`."
         )

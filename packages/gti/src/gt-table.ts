@@ -561,7 +561,7 @@ const labelCells = (table: HTMLTableElement) =>
 // A copy of a cell, without its footnote marks (or the button showing a row's dropped columns)
 function withoutMarks(cell: Element): Element {
   const clone = cell.cloneNode(true) as Element;
-  for (const mark of clone.querySelectorAll(".gt_footnote_marks, .gt-i-expand, .gt-i-profile")) {
+  for (const mark of clone.querySelectorAll(".gt_footnote_marks, .gt-i-expand, .gt-i-profile, .gt-i-dtype")) {
     mark.remove();
   }
   return clone;
@@ -892,6 +892,8 @@ export class GtTable extends HTMLElement {
   private searchBox: HTMLInputElement | null = null;
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
   private toolbar: HTMLElement | null = null;
+  // (The number of rows and columns, in the toolbar)
+  private dimensions: HTMLElement | null = null;
   private layout: ResizeObserver | null = null;
   private empty: HTMLTableRowElement | null = null;
   /** The empty rows that keep a short page as tall as a full one (see `pad()`), shown or not. */
@@ -930,7 +932,7 @@ export class GtTable extends HTMLElement {
   /** The data rows selected. */
   private selected = new Set<number>();
   /** Whether the table has a column of checkboxes for selecting rows (before the others). */
-  private selectColumn = false;
+  private leadColumn = false;
   /** Per data row, its checkbox. */
   private selectBoxes: HTMLInputElement[] = [];
   /** The checkbox selecting every row that matches the search, when several can be selected. */
@@ -1326,10 +1328,10 @@ export class GtTable extends HTMLElement {
     return this.movable ? (this.pageSizeValue ?? null) : null;
   }
 
-  // The grid columns before the spec's: the selection column, and the group column when groups
-  // are a column of the stub
+  // The grid columns before the spec's: the lead column (of row numbers and checkboxes), and the
+  // group column when groups are a column of the stub
   private get lead(): number {
-    return (this.selectColumn ? 1 : 0) + (this.spec?.stub.groups_as_column === true ? 1 : 0);
+    return (this.leadColumn ? 1 : 0) + (this.spec?.stub.groups_as_column === true ? 1 : 0);
   }
 
   constructor() {
@@ -1545,9 +1547,10 @@ export class GtTable extends HTMLElement {
     const mode = spec.controls.selection;
     const kept = this.selection.filter((row) => row < spec.nrows);
     this.selected = new Set(mode === null ? [] : mode === "single" ? kept.slice(0, 1) : kept);
-    if (mode !== null) {
-      this.addSelection(table, mode);
+    if (mode !== null || spec.display.row_numbers === true) {
+      this.addLead(table, spec);
     }
+    this.markMissing(spec);
     // (Before column widths are measured, since the cells' borders change)
     this.setLayout(table, spec);
     this.setDisplay(spec);
@@ -1558,11 +1561,15 @@ export class GtTable extends HTMLElement {
     if (this.movable && (spec.filters?.length ?? 0) > 0) {
       this.addFilters(table, spec);
     }
+    this.addDtypes(table, spec);
     this.alignLabels(table);
     this.addProfiles(table, spec);
     const bar = spec.controls.bar === true;
     if (this.movable && spec.controls.search && !bar) {
       this.addSearchBox(table);
+    }
+    if (spec.display.dimensions === true) {
+      this.addDimensions(table);
     }
     if (spec.controls.resizing) {
       this.addResizers(table, spec);
@@ -1624,6 +1631,7 @@ export class GtTable extends HTMLElement {
         this.updateBar(this.bar);
       }
       this.updateProfiles();
+      this.updateDimensions();
     }
     this.saveView();
     if (this.undoable) {
@@ -2869,24 +2877,30 @@ export class GtTable extends HTMLElement {
   }
 
   /**
-   * A column of checkboxes before the others, for selecting rows: one per data row, and (when
-   * several rows can be selected) one in the column labels for every row that matches the search.
-   * Clicking anywhere else on a data row selects it too.
+   * A column before the others, with each data row's number (its place in the data, from 1), and
+   * checkboxes for selecting rows: one per data row, and (when several rows can be selected) one in
+   * the column labels for every row that matches the search. Clicking anywhere else on a data row
+   * selects it too. (Its cells are `gt-i-select`'s, with or without the checkboxes.)
    */
-  private addSelection(table: HTMLTableElement, mode: SelectionMode): void {
+  private addLead(table: HTMLTableElement, spec: Spec): void {
     const doc = this.ownerDocument;
     const tbody = this.tbody as HTMLTableSectionElement;
+    const mode = spec.controls.selection;
+    const numbers = spec.display.row_numbers === true;
+    // (A column of numbers only isn't a way to select rows)
+    const own = ["gt-i-select", ...(mode === null ? ["gt-i-unselectable"] : [])];
     // The rows across the table (title, group headings, footer) span the new column too
     const widen = (tr: HTMLTableRowElement) => {
       const cell = tr.firstElementChild;
       cell?.setAttribute("colspan", String(Number(cell.getAttribute("colspan") ?? 1) + 1));
     };
-    // A cell in the column, styled as the row's other body cells are
+    // A cell in the column, styled as the row's other body cells are (its numbers lined up at
+    // their end)
     const cell = (tr: HTMLTableRowElement) => {
       const td = doc.createElement("td");
       const model = tr.querySelector(":scope > td");
       const classes = model === null ? ["gt_row"] : Array.from(model.classList).filter((c) => !/^gt_(left|right|center)$/.test(c));
-      td.className = [...classes, "gt_center", "gt-i-select"].join(" ");
+      td.className = [...classes, numbers ? "gt_right" : "gt_center", ...own].join(" ");
       tr.prepend(td);
       return td;
     };
@@ -2895,7 +2909,7 @@ export class GtTable extends HTMLElement {
     const first = headings[0];
     if (first !== undefined) {
       const th = doc.createElement("th");
-      th.className = "gt_col_heading gt_columns_bottom_border gt_center gt-i-select";
+      th.className = ["gt_col_heading gt_columns_bottom_border", numbers ? "gt_right" : "gt_center", ...own].join(" ");
       th.scope = "col";
       if (headings.length > 1) {
         th.rowSpan = headings.length;
@@ -2910,12 +2924,14 @@ export class GtTable extends HTMLElement {
           }
         });
         th.append(box);
+        // (The one label of the column that's a chip in a stacked table)
+        th.classList.add("gt-i-select-all");
         this.selectAll = box;
         this.addLiveRegion();
       } else {
         const label = doc.createElement("span");
         label.className = "gt-i-hidden";
-        label.textContent = "Select";
+        label.textContent = mode === null ? "Row" : "Select";
         th.append(label);
       }
       first.prepend(th);
@@ -2928,10 +2944,16 @@ export class GtTable extends HTMLElement {
     for (const tr of tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr")) {
       const entry = this.bodyRow(tr);
       if (typeof entry === "number") {
-        const box = this.checkbox(`Select ${this.rowLabel(tr) || `row ${entry + 1}`}`);
-        box.addEventListener("click", (event) => this.userSelect(entry, this.shifted(event)));
-        cell(tr).append(box);
-        this.selectBoxes[entry] = box;
+        const td = cell(tr);
+        if (numbers) {
+          td.appendChild(element(doc, "span", "gt-i-rownum")).textContent = String(entry + 1);
+        }
+        if (mode !== null) {
+          const box = this.checkbox(`Select ${this.rowLabel(tr) || `row ${entry + 1}`}`);
+          box.addEventListener("click", (event) => this.userSelect(entry, this.shifted(event)));
+          td.append(box);
+          this.selectBoxes[entry] = box;
+        }
       } else if (entry !== null && ("summary" in entry || "grand_summary" in entry)) {
         cell(tr);
       } else {
@@ -2941,11 +2963,15 @@ export class GtTable extends HTMLElement {
     const colgroup = table.querySelector(":scope > colgroup");
     if (colgroup !== null) {
       const col = doc.createElement("col");
-      col.className = "gt-i-select";
-      col.style.width = "2.5em";
+      col.className = own.join(" ");
+      // (As wide as the most digits, and a box)
+      col.style.width = numbers ? `calc(${String(spec.nrows).length}ch + ${mode === null ? 1 : 2.4}em)` : "2.5em";
       colgroup.prepend(col);
     }
-    this.selectColumn = true;
+    this.leadColumn = true;
+    if (mode === null) {
+      return;
+    }
 
     // Shift-click selects a range of rows, rather than extending the page's text selection
     if (mode === "multiple") {
@@ -3166,6 +3192,30 @@ export class GtTable extends HTMLElement {
     }
   }
 
+  // Each column's dtype under its label (`i_inspect()`), before its controls
+  private addDtypes(table: HTMLTableElement, spec: Spec): void {
+    const cells = labelCells(table);
+    for (const { header, dtype } of spec.columns) {
+      const th = header == null ? undefined : cells.get(header);
+      if (th !== undefined && typeof dtype === "string") {
+        const row = controlsRow(th);
+        row.insertBefore(element(this.ownerDocument, "span", "gt-i-dtype"), row.firstChild).textContent = dtype;
+      }
+    }
+  }
+
+  // Tint the cells of missing values (`i_inspect()`), which keep their tint as they move
+  private markMissing(spec: Spec): void {
+    spec.columns.forEach((column, i) => {
+      for (const row of column.missing ?? []) {
+        const tr = this.rowElements[row];
+        const cells = tr === undefined ? [] : this.dataCells(tr);
+        // (A row whose stub cells are merged into those of the rows above has fewer of them)
+        cells[i - (spec.columns.length - cells.length)]?.classList.add("gt-i-missing");
+      }
+    });
+  }
+
   // A profile under each profiled column's label (see `profile.ts`), and an empty one under the
   // other labels in the bottom row, so that they line up. Profiles are hidden from assistive
   // technology, as they'd be part of the labels' names
@@ -3275,8 +3325,8 @@ export class GtTable extends HTMLElement {
     const rows = Array.from(
       table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"),
     );
-    // (The spec's columns come after the selection column and the row groups', if there are those)
-    const lead = (spec.controls.selection === null ? 0 : 1) + (spec.stub.groups_as_column ? 1 : 0);
+    // (The spec's columns come after the lead column and the row groups', if there are those)
+    const lead = this.lead;
     // Lay the labels out on the columns: labels spanning rows (the stubhead, columns without a
     // spanner) take their columns in the rows below. Per column, the row its last label ends before
     const ends: number[] = [];
@@ -4125,9 +4175,24 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  private addSearchBox(table: HTMLTableElement): void {
+  // The toolbar above the table (of the search box, and the dimensions)
+  private toolbarOf(table: HTMLTableElement): HTMLElement {
+    if (this.toolbar !== null) {
+      return this.toolbar;
+    }
     const toolbar = this.ownerDocument.createElement("div");
     toolbar.className = "gt-i-toolbar";
+    // Outside the table's scrolling container, so that it stays in view
+    this.prepend(toolbar);
+    this.toolbar = toolbar;
+    // In the table's font, lined up with the table (which GT may have centred or narrowed)
+    toolbar.style.fontFamily = getComputedStyle(table).fontFamily;
+    this.observeLayout();
+    return toolbar;
+  }
+
+  private addSearchBox(table: HTMLTableElement): void {
+    const toolbar = this.toolbarOf(table);
     const input = this.searchInput();
     toolbar.append(input);
 
@@ -4139,15 +4204,27 @@ export class GtTable extends HTMLElement {
         this.clearSearch(input);
       }
     });
-
-    // Outside the table's scrolling container, so that it stays in view
-    this.prepend(toolbar);
-    this.toolbar = toolbar;
     this.addLiveRegion();
+  }
 
-    // In the table's font, lined up with the table (which GT may have centred or narrowed)
-    toolbar.style.fontFamily = getComputedStyle(table).fontFamily;
-    this.observeLayout();
+  // The number of rows and columns, at the start of the toolbar above the table (`i_inspect()`)
+  private addDimensions(table: HTMLTableElement): void {
+    const toolbar = this.toolbarOf(table);
+    this.dimensions = toolbar.insertBefore(element(this.ownerDocument, "div", "gt-i-dimensions"), toolbar.firstChild);
+  }
+
+  // Say how many rows and columns there are, and how many are shown, of those the search and
+  // filters keep and those not hidden: "12 of 47 rows × 6 columns"
+  private updateDimensions(): void {
+    const { dimensions, spec } = this;
+    if (dimensions === null || spec === null) {
+      return;
+    }
+    const lang = this.closest("[lang]")?.getAttribute("lang") || undefined;
+    const count = (shown: number, all: number, noun: string) =>
+      `${shown === all ? "" : `${shown.toLocaleString(lang)} of `}${all.toLocaleString(lang)} ${noun}${all === 1 ? "" : "s"}`;
+    const columns = spec.columns.filter((column) => column.id !== null).length;
+    dimensions.textContent = `${count(this.view.total, spec.nrows, "row")} × ${count(columns - this.hiddenIds.length, columns, "column")}`;
   }
 
   // The search field, which searches once typing pauses, or at once on Enter (and, unless it's the
@@ -7501,7 +7578,8 @@ export class GtTable extends HTMLElement {
   }
 
   // A data row's cells, one per column of the spec, in the spec's order: not a group's label cell,
-  // which is on one of its rows only (so it isn't searched), nor the selection column's
+  // which is on one of its rows only (so it isn't searched), nor the lead column's (its number, and
+  // its checkbox)
   private dataCells(tr: HTMLTableRowElement): Element[] {
     const cells = Array.from(tr.children).filter((cell) => !cell.matches(".gt_stub_row_group, .gt-i-select"));
     const places = this.placeOf;
@@ -7551,6 +7629,7 @@ export class GtTable extends HTMLElement {
     this.updatePager();
     this.updateFilters();
     this.updateProfiles();
+    this.updateDimensions();
     this.placeGuide();
     this.placeFoot();
     this.saveView();
@@ -8515,6 +8594,7 @@ export class GtTable extends HTMLElement {
     this.unsearched = new Set();
     this.searchBox = null;
     this.toolbar = null;
+    this.dimensions = null;
     this.layout = null;
     this.empty = null;
     this.removeFillers();
@@ -8527,7 +8607,7 @@ export class GtTable extends HTMLElement {
     this.marked = null;
     this.touched = false;
     this.selected = new Set();
-    this.selectColumn = false;
+    this.leadColumn = false;
     this.selectBoxes = [];
     this.selectAll = null;
     this.selectAnchor = null;

@@ -51,7 +51,13 @@ GTI_DEFAULTS = {
         "info": True,
         "type": "jump",
     },
-    "display": {"highlight": True, "compact": False, "wrap": True},
+    "display": {
+        "highlight": True,
+        "compact": False,
+        "wrap": True,
+        "row_numbers": False,
+        "dimensions": False,
+    },
     "layout": {"height": None, "responsive": "auto", "stack_below": 420},
 }
 
@@ -420,6 +426,145 @@ def test_i_display_compact_halves_row_padding():
 def test_i_display_takes_bools(option: str):
     with pytest.raises(TypeError, match=f"`{option}=` must be `True` or `False`"):
         GTI(DF).i_display(**{option: "yes"})
+
+
+# inspect and presets ----
+
+INSPECT = ("row_numbers", "dtypes", "dimensions", "missing")
+
+
+def inspect_of(gti: GTI) -> dict[str, bool]:
+    return {option: getattr(gti._interactive, option) for option in INSPECT}
+
+
+def test_i_inspect_is_off_by_default():
+    assert inspect_of(GTI(DF)) == dict.fromkeys(INSPECT, False)
+    spec = spec_of(GTI(DF))
+    assert all(column["dtype"] is None and column["missing"] is None for column in spec["columns"])
+
+
+def test_i_inspect():
+    gti = GTI(FILTER_DF, rowname_col="id").i_inspect()
+    assert inspect_of(gti) == dict.fromkeys(INSPECT, True)
+    assert interactive_of(gti) == with_changes(display={"row_numbers": True, "dimensions": True})
+    spec = spec_of(gti)
+    assert [(c["id"], c["dtype"], c["missing"]) for c in spec["columns"]] == [
+        ("id", "str", []),
+        ("num", "f64", [2]),
+        ("flag", "bool", []),
+        ("cat", "cat", [3]),
+        ("few", "str", []),
+        ("many", "str", []),
+        ("mixed", "object", []),
+    ]
+
+
+def test_i_inspect_sets_each_of_its_settings():
+    gti = GTI(FILTER_DF).i_inspect(dtypes=False, missing=False)
+    assert inspect_of(gti) == {**dict.fromkeys(INSPECT, True), "dtypes": False, "missing": False}
+    assert all(c["dtype"] is None and c["missing"] is None for c in spec_of(gti)["columns"])
+
+    gti = GTI(FILTER_DF).i_inspect(row_numbers=False, dimensions=False)
+    assert interactive_of(gti) == GTI_DEFAULTS
+    assert spec_of(gti)["columns"][1]["dtype"] == "f64"
+
+    # (What's not given is shown again)
+    gti = gti.i_inspect(missing=False).i_inspect()
+    assert inspect_of(gti) == dict.fromkeys(INSPECT, True)
+
+
+def test_i_inspect_missing_values_are_those_of_the_data():
+    # (Whatever their cells show)
+    gti = GTI(FILTER_DF).sub_missing().i_inspect()
+    assert spec_of(gti)["columns"][1]["missing"] == [2]
+    df = pl.DataFrame({"x": [1.0, None, float("nan")]})
+    assert spec_of(GTI(df).i_inspect())["columns"][0] == {
+        **spec_of(GTI(df))["columns"][0],
+        "dtype": "f64",
+        "missing": [1, 2],
+    }
+
+
+def test_i_inspect_has_no_dtype_for_a_stub_of_summary_labels():
+    total = {"Total": lambda df: df[["y"]].sum()}
+    spec = spec_of(GTI(DF).grand_summary_rows(fns=total).i_inspect())
+    assert spec["columns"][0]["id"] is None and spec["columns"][0]["dtype"] is None
+
+
+@pytest.mark.parametrize("option", INSPECT)
+def test_i_inspect_takes_bools(option: str):
+    with pytest.raises(TypeError, match=f"`{option}=` must be `True` or `False`"):
+        GTI(DF).i_inspect(**{option: 1})
+
+
+def test_opt_interactive_points_to_i_inspect():
+    with pytest.raises(TypeError, match=r"`i_inspect\(\)`"):
+        GTI(DF).opt_interactive()
+
+
+def test_preset_report_is_the_default():
+    assert GTI(DF, preset="report")._interactive == GTI(DF)._interactive
+
+
+def test_preset_explorer():
+    explorer = GTI(FILTER_DF, rowname_col="id", preset="explorer")
+    made = (
+        GTI(FILTER_DF, rowname_col="id")
+        .i_cols_filter()
+        .i_cols_profile()
+        .i_cols_controls(hideable=True, reorderable=True)
+        .i_display(compact=True)
+        .i_export("csv")
+        .i_inspect()
+    )
+    assert explorer._interactive == made._interactive
+    # (Every column but the stub)
+    columns = ("num", "flag", "cat", "few", "many", "mixed")
+    settings = explorer._interactive
+    assert settings.hideable == settings.reorderable == columns
+    assert [column for column, _ in settings.filters] == list(columns)
+    assert [column for column, _ in settings.profiles] == list(columns)
+    assert settings.compact and settings.export_formats == ("csv",)
+    assert inspect_of(explorer) == dict.fromkeys(INSPECT, True)
+
+
+@pytest.mark.parametrize("frame", ["pandas", "polars", "pyarrow"])
+def test_preset_explorer_takes_any_data(frame: str):
+    data = {
+        "n": [1, 2, None],
+        "s": ["a", None, "c"],
+        "d": [dt.date(2024, 1, 1), None, dt.date(2024, 1, 3)],
+        "l": [[1], [2, 3], None],
+    }
+    df = {"pandas": pd.DataFrame, "polars": pl.DataFrame, "pyarrow": pa.table}[frame](data)
+    spec = spec_of(GTI(df, preset="explorer"))
+    assert [column["missing"] for column in spec["columns"]] == [[2], [1], [1], [2]]
+    assert spec["display"]["row_numbers"] and spec["display"]["dimensions"]
+
+
+def test_preset_explorer_is_changed_by_the_i_methods():
+    explorer = GTI(FILTER_DF, rowname_col="id", preset="explorer")
+    # (Each `i_` method sets all of its feature's settings)
+    assert not explorer.i_display(wrap=False)._interactive.compact
+    assert inspect_of(explorer.i_inspect(row_numbers=False))["row_numbers"] is False
+    assert explorer.i_export(None)._interactive.export_formats == ()
+    # (And each `i_cols_` method those of its columns)
+    settings = (
+        explorer.i_cols_filter("num", type=None).i_cols_profile("cat", plot=None)._interactive
+    )
+    assert "num" not in dict(settings.filters) and "cat" not in dict(settings.profiles)
+    assert "flag" in dict(settings.filters) and "flag" in dict(settings.profiles)
+
+
+def test_preset_explorer_is_kept_by_gt_methods():
+    explorer = GTI(FILTER_DF, preset="explorer")
+    assert explorer.fmt_number("num").tab_header("T")._interactive == explorer._interactive
+
+
+@pytest.mark.parametrize("preset", ["explore", None, "Explorer"])
+def test_preset_must_be_known(preset):
+    with pytest.raises(ValueError, match='`preset=` must be "report" or "explorer"'):
+        GTI(DF, preset=preset)
 
 
 # filters ----

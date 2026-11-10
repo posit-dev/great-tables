@@ -579,6 +579,52 @@ gt-table .gt-i-select input:disabled {
   cursor: default;
 }
 
+/* (A column of row numbers only isn't a way to select rows) */
+gt-table .gt-i-select.gt-i-unselectable {
+  cursor: auto;
+}
+
+/* A row's number (`i_inspect()`), quieter than its cells, then its box (on the same line) */
+gt-table .gt-i-rownum {
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+}
+
+gt-table td.gt-i-select {
+  white-space: nowrap;
+}
+
+gt-table td.gt-i-select > .gt-i-rownum + input {
+  display: inline-block;
+  margin-inline: 0.4em 0;
+}
+
+/* A column's dtype, under its label, before its controls */
+gt-table .gt-i-dtype {
+  display: inline-block;
+  padding: 1px 0.35em;
+  border-radius: 3px;
+  background-color: color-mix(in srgb, currentColor 9%, transparent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95em;
+  opacity: 0.8;
+}
+
+/* The number of rows and columns, at the start of the toolbar above the table */
+gt-table .gt-i-dimensions {
+  align-self: center;
+  margin-inline-end: auto;
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+/* A missing value's cell, tinted over its own background (and under a selected row's tint) */
+gt-table .gt-i-missing {
+  background-image: linear-gradient(color-mix(in srgb, #d93025 13%, transparent), color-mix(in srgb, #d93025 13%, transparent));
+}
+
 /* On touch screens, the whole cell is a finger-sized target already; the box gets a little bigger */
 @media (pointer: coarse) {
   gt-table .gt-i-select input {

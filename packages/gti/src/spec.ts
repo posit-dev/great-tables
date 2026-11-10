@@ -54,6 +54,10 @@ export interface ColumnSpec {
    * those with 1 never do. Without it, it has none.
    */
   priority?: number | null;
+  /** The short name of the column's dtype (as Polars prints it: `"f64"`), shown under its label. Without it, none. */
+  dtype?: string | null;
+  /** The data rows whose value is missing, whose cells are tinted. Without it, none are. */
+  missing?: number[] | null;
 }
 
 /**
@@ -157,6 +161,10 @@ export interface DisplaySpec {
   compact: boolean;
   /** Whether cell text wraps; if not, text cut off by a column's width ends in an ellipsis. */
   wrap: boolean;
+  /** Whether each data row has its number (its place in the data, from 1) before its cells. Without it, not. */
+  row_numbers?: boolean;
+  /** Whether the number of rows and columns (and of those shown) is above the table. Without it, not. */
+  dimensions?: boolean;
 }
 
 export interface LayoutSpec {
@@ -393,11 +401,13 @@ export function parseSpec(text: string): Spec {
       !isObject(column) ||
       !["sortable", "searchable", "resizable", "hideable", "reorderable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
       ![undefined, null, "start", "end"].includes(column.pin as string) ||
-      !(column.priority == null || (Number.isInteger(column.priority) && (column.priority as number) > 0)),
+      !(column.priority == null || (Number.isInteger(column.priority) && (column.priority as number) > 0)) ||
+      !(column.dtype == null || typeof column.dtype === "string") ||
+      !(column.missing == null || (Array.isArray(column.missing) && column.missing.every((row) => isIndex(row, nrows as number)))),
   );
   if (column >= 0) {
     throw new SpecError(
-      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable and reorderable with \`true\` or \`false\`, the side it's pinned to (\`"start"\` or \`"end"\`), if it is, and its priority (a positive integer), if it has one`,
+      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable and reorderable with \`true\` or \`false\`, the side it's pinned to (\`"start"\` or \`"end"\`), if it is, its priority (a positive integer), its dtype (text) and its rows with missing values (data rows' indexes), if it has them`,
     );
   }
   const queries = raw.query_columns;
@@ -461,9 +471,12 @@ export function parseSpec(text: string): Spec {
     !isObject(display) ||
     typeof display.highlight !== "boolean" ||
     typeof display.compact !== "boolean" ||
-    typeof display.wrap !== "boolean"
+    typeof display.wrap !== "boolean" ||
+    !["row_numbers", "dimensions"].every((key) => display[key] === undefined || typeof display[key] === "boolean")
   ) {
-    throw new SpecError("`display` must say whether rows are highlighted and compact, and text wraps");
+    throw new SpecError(
+      "`display` must say whether rows are highlighted and compact, and text wraps (and whether rows are numbered, and the dimensions shown, if given)",
+    );
   }
   const layout = raw.layout;
   if (
