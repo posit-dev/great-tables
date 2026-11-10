@@ -9,7 +9,7 @@ import polars as pl
 import pyarrow as pa
 import pytest
 
-from great_tables import GT, GTI, exibble, html
+from great_tables import GT, GTI, exibble, html, md
 from great_tables._gti._render import (
     STACK_ROOT,
     STACK_WIDTH,
@@ -1288,6 +1288,133 @@ def test_i_export_keeps_room_for_the_bar():
     gti = GTI(DF).i_search(False)
     assert gt_table_tag(gti.i_export()) == "<gt-table data-gti-bar>"
     assert gt_table_tag(gti.i_export(None)) == "<gt-table>"
+
+
+# row details ----
+
+
+def templates_of(gt: GT) -> dict[int, str]:
+    """A table's rows' details, as their templates in its HTML have them."""
+    html = render_gti_html(gt, runtime="none")
+    found = re.findall(r'<template data-gti-details="(\d+)">(.*?)</template>\n', html, re.DOTALL)
+    return {int(row): content for row, content in found}
+
+
+def test_i_row_details_from_a_function():
+    seen = []
+
+    def details(row):
+        seen.append(row)
+        return None if row["id"] == "r1" else f"y is {row['y']}"
+
+    gti = GTI(DF).cols_hide(columns="y").i_row_details(details)
+    # (Called as the table is rendered, once a row)
+    assert seen == []
+    assert templates_of(gti) == {i: f"y is {y}" for i, y in enumerate(DF["y"]) if i != 1}
+    assert len(seen) == 6
+    # (With each row's values, the hidden columns' too, as the data has them)
+    assert seen[0] == {"id": "r0", "y": 10}
+    assert spec_of(gti)["details"] == [0, 2, 3, 4, 5]
+
+
+def test_i_row_details_kinds_of_content():
+    inner = GT(pd.DataFrame({"a": [1]}), id="inner").tab_header(title="Inner")
+    contents = {
+        "r0": inner,
+        "r1": html("<b>bold</b>"),
+        "r2": md("*em*"),
+        "r3": "<b>text</b>",
+        "r4": "",
+        "r5": None,
+    }
+    found = templates_of(GTI(DF).i_row_details(lambda row: contents[row["id"]]))
+    assert sorted(found) == [0, 1, 2, 3]
+    # (A table as it is on its own: its own CSS, by its ID, then its HTML)
+    assert found[0].startswith('<div id="inner"') and "#inner .gt_table" in found[0]
+    assert '<table class="gt_table"' in found[0] and "Inner" in found[0]
+    assert found[1] == "<b>bold</b>"
+    assert "<em>em</em>" in found[2]
+    # (A string is text)
+    assert found[3] == "&lt;b&gt;text&lt;/b&gt;"
+
+
+@pytest.mark.parametrize("frame", ["pandas", "polars"])
+def test_i_row_details_from_a_column(frame: str):
+    data = pd.DataFrame(
+        {"id": ["a", "b", "c", "d"], "y": [1, 2, 3, 4], "more": ["one", None, "", "<i>four</i>"]}
+    )
+    if frame == "polars":
+        data = pl.from_pandas(data)
+    gti = GTI(data).i_row_details("more")
+    # (Missing values and empty strings are no details)
+    assert templates_of(gti) == {0: "one", 3: "&lt;i&gt;four&lt;/i&gt;"}
+    assert spec_of(gti)["details"] == [0, 3]
+    # (The column is left out of the table, and so of what's searched and exported)
+    html_out = render_gti_html(gti, runtime="none")
+    assert "<td" in html_out and 'headers="more"' not in html_out
+    assert [column["id"] for column in spec_of(gti)["columns"]] == ["id", "y"]
+
+
+def test_i_row_details_column_of_tables_and_missing_values():
+    inner = GT(pd.DataFrame({"a": [1]}), id="inner")
+    data = pd.DataFrame({"id": ["a", "b", "c"], "more": [inner, np.nan, html("<b>c</b>")]})
+    assert sorted(templates_of(GTI(data).i_row_details("more"))) == [0, 2]
+
+
+def test_i_row_details_column_cant_be_the_stub_or_groups():
+    data = pd.DataFrame({"id": ["a", "b"], "g": ["x", "y"], "y": [1, 2]})
+    for gti in [
+        GTI(data, rowname_col="id").i_row_details("id"),
+        GTI(data, groupname_col="g").i_row_details("g"),
+    ]:
+        with pytest.raises(ValueError, match="can't hold the rows' details"):
+            render_gti_html(gti, runtime="none")
+    # (Nor the only column a table without a stub shows)
+    with pytest.raises(ValueError, match="needs a column other than"):
+        render_gti_html(GTI(data[["id"]]).i_row_details("id"), runtime="none")
+
+
+def test_i_row_details_checks_what_its_rows_get():
+    with pytest.raises(TypeError, match=r"The `i_row_details\(\)` function gave 'int' for row 0"):
+        render_gti_html(GTI(DF).i_row_details(lambda row: row["y"]), runtime="none")
+    data = DF.assign(more=[1.5, None, None, None, None, None])
+    with pytest.raises(TypeError, match="The `more` column gave 'float' for row 0"):
+        render_gti_html(GTI(data).i_row_details("more"), runtime="none")
+    # (A table in them can't be interactive)
+    for inner in [GTI(DF), GT(DF).opt_interactive()]:
+        with pytest.raises(ValueError, match="Row 0's details are an interactive table"):
+            render_gti_html(GTI(DF).i_row_details(lambda row, inner=inner: inner), runtime="none")
+
+
+def test_i_row_details_turns_off():
+    gti = GTI(DF).i_row_details(lambda row: "x").i_row_details(None)
+    assert templates_of(gti) == {}
+    assert spec_of(gti)["details"] == []
+    assert spec_of(GTI(DF))["details"] == []
+    # (Nor do `opt_interactive()` tables have any)
+    assert spec_of(GT(DF).opt_interactive())["details"] == []
+
+
+def test_i_row_details_checks_its_arguments():
+    with pytest.raises(TypeError, match="`content=` must be a function"):
+        GTI(DF).i_row_details(1)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="names a column the data doesn't have: 'nope'"):
+        GTI(DF).i_row_details("nope")
+
+
+def test_i_row_details_keeps_room_for_the_bar():
+    gti = GTI(DF).i_search(False)
+    assert gt_table_tag(gti.i_row_details(lambda row: "x")) == "<gt-table data-gti-bar>"
+    # (Not without any rows with details)
+    assert gt_table_tag(gti.i_row_details(lambda row: None)) == "<gt-table>"
+
+
+def test_i_row_details_templates_follow_the_table():
+    out = render_gti_html(GTI(DF, id="t").i_row_details(lambda row: "x"), runtime="none")
+    # (In the element, after the table and before the spec)
+    end = out.index("</table>")
+    first = out.index("<template data-gti-details")
+    assert end < first < out.index("data-gti-spec") < out.index("</gt-table>")
 
 
 # the control bar ----
