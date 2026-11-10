@@ -917,18 +917,25 @@ def test_i_view_goes_in_the_spec():
         "filter": query(("few", "in", ["x", None]), ("num", "gte", 1), ("name", "contains", "A")),
         "sort": [{"column": "num", "descending": True}, {"column": "name", "descending": False}],
         "hidden": [],
+        "group_by": None,
     }
 
 
 def test_the_default_view_is_the_table_as_it_is():
-    assert view_of(GTI(DF)) == {"filter": None, "sort": [], "hidden": []}
+    assert view_of(GTI(DF)) == {"filter": None, "sort": [], "hidden": [], "group_by": None}
     assert view_of(filtered().i_view(sort="num").i_view()) == {
         "filter": None,
         "sort": [],
         "hidden": [],
+        "group_by": None,
     }
     # (A `GT` table's too)
-    assert view_of(GT(DF).opt_interactive()) == {"filter": None, "sort": [], "hidden": []}
+    assert view_of(GT(DF).opt_interactive()) == {
+        "filter": None,
+        "sort": [],
+        "hidden": [],
+        "group_by": None,
+    }
 
 
 def test_i_view_checks_the_query_when_called():

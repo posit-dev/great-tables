@@ -808,7 +808,8 @@ def test_i_cols_controls_for_summary_labels_only():
 
 
 @pytest.mark.parametrize(
-    "name", ["sortable", "searchable", "resizable", "hideable", "reorderable", "display"]
+    "name",
+    ["sortable", "searchable", "resizable", "hideable", "reorderable", "groupable", "display"],
 )
 @pytest.mark.parametrize("value", [1, "no", 0.0])
 def test_i_cols_controls_flags_must_be_bools(name: str, value):
@@ -891,6 +892,81 @@ def test_i_cols_controls_reorderable_leaves_out_the_stub_and_row_group_column():
         ["id", "b", "a"], reorderable=True
     )
     assert reorderable_of(gti) == {"id": False, "a": True, "c": False, "d": False, "e": False}
+
+
+def groupable_of(gt: GT) -> dict:
+    return {column["id"]: column["groupable"] for column in spec_of(gt)["columns"]}
+
+
+def test_i_cols_controls_groups_by_none_by_default():
+    gti = GTI(PIN_DF, rowname_col="id")
+    assert gti._interactive.groupable == ()
+    assert set(groupable_of(gti).values()) == {False}
+    assert spec_of(gti)["view"]["group_by"] is None
+
+
+def test_i_cols_controls_groupable():
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_controls(["e", "a", "id"], groupable=True)
+    assert gti._interactive.groupable == ("e", "a", "id")
+    # (Not the stub)
+    assert groupable_of(gti) == {
+        "id": False,
+        "a": True,
+        "b": False,
+        "c": False,
+        "d": False,
+        "e": True,
+    }
+    # (`False` takes them back; the others are left as they are, as is `hideable`)
+    assert gti.i_cols_controls("a", groupable=False)._interactive.groupable == ("e", "id")
+    assert gti.i_cols_controls("a", hideable=True)._interactive.groupable == ("e", "a", "id")
+    every = GTI(PIN_DF, rowname_col="id").i_cols_controls(groupable=True)
+    assert every._interactive.groupable == ("a", "b", "c", "d", "e")
+
+
+def test_i_cols_controls_groupable_leaves_out_columns_without_ranks():
+    data = pd.DataFrame({"id": ["a", "b"], "y": [1, 2], "z": [{"k": 1}, {"k": 2}]})
+    assert groupable_of(GTI(data).i_cols_controls(groupable=True)) == {
+        "id": True,
+        "y": True,
+        "z": False,
+    }
+
+
+@pytest.mark.parametrize("kind", ["row groups", "summary rows"])
+def test_i_cols_controls_groupable_rejects_row_groups_and_summary_rows(kind: str):
+    if kind == "row groups":
+        gti = GTI(PIN_DF, groupname_col="b")
+    else:
+        gti = GTI(PIN_DF).grand_summary_rows(fns={"Total": lambda df: df[["a"]].sum()})
+    with pytest.raises(ValueError, match="can't group the rows of a table with row groups"):
+        spec_of(gti.i_cols_controls("a", groupable=True))
+    # (Without groupable columns, it's fine)
+    assert spec_of(gti.i_cols_controls("a", groupable=False))["view"]["group_by"] is None
+
+
+def test_i_view_groups_rows():
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_controls(["a", "b"], groupable=True)
+    view = gti.i_view(group_by="b")
+    assert view._interactive.view_group_by == "b"
+    assert spec_of(view)["view"] == {"filter": None, "sort": [], "hidden": [], "group_by": "b"}
+    # (What's not given goes back to its default)
+    assert view.i_view(sort="a")._interactive.view_group_by is None
+
+
+def test_i_view_group_by_takes_a_column_of_the_table():
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_controls(groupable=True)
+    with pytest.raises(TypeError, match="`group_by=` takes a column name"):
+        gti.i_view(group_by=["a"])
+    with pytest.raises(ValueError, match="`group_by=` names column 'x', which the table hasn't"):
+        gti.i_view(group_by="x")
+
+
+@pytest.mark.parametrize("column", ["c", "id"])
+def test_i_view_groups_only_by_columns_readers_can_group_by(column: str):
+    gti = GTI(PIN_DF, rowname_col="id").i_cols_controls(["a", "b"], groupable=True)
+    with pytest.raises(ValueError, match=f"The view can't group the rows by column '{column}'"):
+        spec_of(gti.i_view(group_by=column))
 
 
 QUERY_DF = pd.DataFrame(
@@ -1022,7 +1098,12 @@ def test_i_view_hides_columns():
     # (In column order, once each, in the spec)
     view = gti.i_view(hidden=["c", "a", "c"])
     assert view._interactive.view_hidden == ("c", "a", "c")
-    assert spec_of(view)["view"] == {"filter": None, "sort": [], "hidden": ["a", "c"]}
+    assert spec_of(view)["view"] == {
+        "filter": None,
+        "sort": [],
+        "hidden": ["a", "c"],
+        "group_by": None,
+    }
     assert spec_of(gti.i_view(hidden="b"))["view"]["hidden"] == ["b"]
     # (What's not given goes back to its default)
     assert view.i_view(sort="a")._interactive.view_hidden == ()
@@ -1305,10 +1386,16 @@ def test_i_view_sets_the_whole_view():
         "filter": query,
         "sort": [{"column": "num", "descending": True}],
         "hidden": [],
+        "group_by": None,
     }
     # (What's not given goes back to its default)
     assert gti.i_view(sort="id")._interactive.view_filter is None
-    assert spec_of(gti.i_view())["view"] == {"filter": None, "sort": [], "hidden": []}
+    assert spec_of(gti.i_view())["view"] == {
+        "filter": None,
+        "sort": [],
+        "hidden": [],
+        "group_by": None,
+    }
 
 
 def test_i_view_takes_a_query_as_text():
