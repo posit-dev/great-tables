@@ -18579,6 +18579,35 @@ A profile's bars span the whole column, not just the rows that are left, so that
 the reader filters (only their heights change). They aren't shown when the table is stacked as
 cards in a narrow container.
 
+### Grouping rows
+
+With `groupable=True` in `~~GTI.i_cols_controls()`, readers can group the rows by any of the chosen
+columns, from the **Group rows** button in the table's control bar. Each group is under a heading
+with its value and its number of rows (of those a search or filter keeps), the groups in the order
+of their values (or the other way around, when the column is sorted descending) with any missing
+values last. The rows are sorted within their groups, and a group running over pages has its heading
+on each one. Here, the cars start grouped by their country of origin, the most powerful first in
+each; group them by make instead, or by none.
+
+```{python}
+by_country = pl.from_pandas(gtcars).select(["mfr", "model", "ctry_origin", "year", "hp", "msrp"])
+
+(
+    GTI(by_country)
+    .tab_header(title="GT Cars: grouped by country")
+    .cols_label(mfr="Make", model="Model", ctry_origin="Country", year="Year", hp="HP", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_controls(columns=["mfr", "ctry_origin"], groupable=True)
+    .i_view(sort="-hp", group_by="ctry_origin")
+)
+```
+
+The column the rows are grouped by is part of the table's view, which `~~GTI.i_view()` starts the
+table with (`group_by=`) and `~~GTI.i_view_state()` can keep. This grouping is the reader's: a
+table with row groups of its own (from `groupname_col=`) or with summary rows can't have columns
+to group by.
+
 ### An explorer for looking through data
 
 `GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than

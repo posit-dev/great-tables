@@ -817,6 +817,77 @@ With `i_cols_profile()`, columns get a small plot under their labels of how thei
 
 A profile's bars span the whole column, not just the rows that are left, so that they stay put as the reader filters (only their heights change). They aren't shown when the table is stacked as cards in a narrow container.
 
+### Grouping rows
+
+With `groupable=True` in `i_cols_controls()`, readers can group the rows by any of the chosen columns, from the **Group rows** button in the table's control bar. Each group is under a heading with its value and its number of rows (of those a search or filter keeps), the groups in the order of their values (or the other way around, when the column is sorted descending) with any missing values last. The rows are sorted within their groups, and a group running over pages has its heading on each one. Here, the cars start grouped by their country of origin, the most powerful first in each; group them by make instead, or by none.
+
+``` python
+by_country = pl.from_pandas(gtcars).select(["mfr", "model", "ctry_origin", "year", "hp", "msrp"])
+
+(
+    GTI(by_country)
+    .tab_header(title="GT Cars: grouped by country")
+    .cols_label(mfr="Make", model="Model", ctry_origin="Country", year="Year", hp="HP", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_controls(columns=["mfr", "ctry_origin"], groupable=True)
+    .i_view(sort="-hp", group_by="ctry_origin")
+)
+```
+
+| GT Cars: grouped by country |  |  |  |  |  |
+|----|----|----|----|----|----|
+| Make | Model | Country | Year | HP | MSRP |
+| Ford | GT | United States | 2017 | 647 | \$447,000 |
+| Ferrari | 458 Speciale | Italy | 2015 | 597 | \$291,744 |
+| Ferrari | 458 Spider | Italy | 2015 | 562 | \$263,553 |
+| Ferrari | 458 Italia | Italy | 2014 | 562 | \$233,509 |
+| Ferrari | 488 GTB | Italy | 2016 | 661 | \$245,400 |
+| Ferrari | California | Italy | 2015 | 553 | \$198,973 |
+| Ferrari | GTC4Lusso | Italy | 2017 | 680 | \$298,000 |
+| Ferrari | FF | Italy | 2015 | 652 | \$295,000 |
+| Ferrari | F12Berlinetta | Italy | 2015 | 731 | \$319,995 |
+| Ferrari | LaFerrari | Italy | 2015 | 949 | \$1,416,362 |
+| Acura | NSX | Japan | 2017 | 573 | \$156,000 |
+| Nissan | GT-R | Japan | 2016 | 545 | \$101,770 |
+| Lamborghini | Aventador | Italy | 2015 | 700 | \$397,500 |
+| Lamborghini | Huracan | Italy | 2015 | 610 | \$237,250 |
+| Lamborghini | Gallardo | Italy | 2014 | 550 | \$191,900 |
+| Bentley | Continental GT | United Kingdom | 2016 | 500 | \$198,500 |
+| Maserati | Granturismo | Italy | 2016 | 454 | \$132,825 |
+| Maserati | Quattroporte | Italy | 2016 | 404 | \$99,900 |
+| Maserati | Ghibli | Italy | 2016 | 345 | \$70,600 |
+| BMW | 6-Series | Germany | 2016 | 315 | \$77,300 |
+| BMW | i8 | Germany | 2016 | 357 | \$140,700 |
+| BMW | M4 | Germany | 2016 | 425 | \$65,700 |
+| BMW | M5 | Germany | 2016 | 560 | \$94,100 |
+| BMW | M6 | Germany | 2016 | 560 | \$113,400 |
+| Aston Martin | DB11 | United Kingdom | 2017 | 608 | \$211,195 |
+| Aston Martin | Rapide S | United Kingdom | 2016 | 552 | \$205,300 |
+| Aston Martin | Vanquish | United Kingdom | 2016 | 568 | \$287,250 |
+| Aston Martin | Vantage | United Kingdom | 2016 | 430 | \$103,300 |
+| Chevrolet | Corvette | United States | 2016 | 650 | \$88,345 |
+| Dodge | Viper | United States | 2017 | 645 | \$95,895 |
+| Audi | R8 | Germany | 2015 | 430 | \$115,900 |
+| Audi | RS 7 | Germany | 2016 | 560 | \$108,900 |
+| Audi | S6 | Germany | 2016 | 450 | \$70,900 |
+| Audi | S7 | Germany | 2016 | 450 | \$82,900 |
+| Audi | S8 | Germany | 2016 | 520 | \$114,900 |
+| Lotus | Evora | United Kingdom | 2017 | 400 | \$91,900 |
+| Jaguar | F-Type | United Kingdom | 2016 | 340 | \$65,000 |
+| Mercedes-Benz | AMG GT | Germany | 2016 | 503 | \$129,900 |
+| Mercedes-Benz | SL-Class | Germany | 2016 | 329 | \$85,050 |
+| Tesla | Model S | United States | 2017 | 259 | \$74,500 |
+| Porsche | 718 Boxster | Germany | 2017 | 300 | \$56,000 |
+| Porsche | 718 Cayman | Germany | 2017 | 300 | \$53,900 |
+| Porsche | 911 | Germany | 2016 | 350 | \$84,300 |
+| Porsche | Panamera | Germany | 2016 | 310 | \$78,100 |
+| McLaren | 570 | United Kingdom | 2016 | 570 | \$184,900 |
+| Rolls-Royce | Dawn | United Kingdom | 2016 | 563 | \$335,000 |
+| Rolls-Royce | Wraith | United Kingdom | 2016 | 624 | \$304,350 |
+
+The column the rows are grouped by is part of the table's view, which `i_view()` starts the table with (`group_by=`) and `i_view_state()` can keep. This grouping is the reader's: a table with row groups of its own (from `groupname_col=`) or with summary rows can't have columns to group by.
+
 ### An explorer for looking through data
 
 `GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than presenting it: every column can be filtered, has a profile, and can be hidden and moved; the rows are compact and can be downloaded as CSV; and with `i_inspect()`, the rows are numbered (by their place in the data, which stays with them as they're sorted and filtered), each column's dtype is under its label (as Polars names it, whatever the DataFrame library), the number of rows and columns left is above the table, and missing values are tinted.
