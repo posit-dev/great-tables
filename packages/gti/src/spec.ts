@@ -49,6 +49,11 @@ export interface ColumnSpec {
    */
   reorderable?: boolean;
   /**
+   * Whether readers can group the rows by a data column (one with ranks, in a table without row
+   * groups or summary rows). Without it, they can't.
+   */
+  groupable?: boolean;
+  /**
    * A data column's priority, for a table that drops columns to fit its container: those without
    * one drop first (from the last), then those with the highest (from the last, among equals);
    * those with 1 never do. Without it, it has none.
@@ -244,13 +249,15 @@ export interface ViewSortSpec {
 
 /**
  * How the table is shown to start with: its filter (a query, as the `filter` property takes), its
- * sort keys, and the hideable columns hidden (in column order; without them, none). Applied as the
- * table is made ready, without events.
+ * sort keys, the hideable columns hidden (in column order; without them, none), and the groupable
+ * column the rows are grouped by (without it, or with `null`, none). Applied as the table is made
+ * ready, without events.
  */
 export interface ViewSpec {
   filter: { and: unknown[] } | null;
   sort: ViewSortSpec[];
   hidden?: string[];
+  group_by?: string | null;
 }
 
 /**
@@ -293,7 +300,7 @@ export interface ExportSpec {
 }
 
 /**
- * Where the reader's view (filters, sort, search, page, page size and hidden columns) is kept, so
+ * Where the reader's view (filters, sort, search, page, page size, hidden columns and grouping) is kept, so
  * that it's there when the page is opened again: in the page's URL, as parameters named after
  * `key` (the table's ID), and in the browser's storage; and whether the reader's changes to it can
  * be undone.
@@ -399,7 +406,7 @@ export function parseSpec(text: string): Spec {
   const column = (raw.columns as unknown[]).findIndex(
     (column) =>
       !isObject(column) ||
-      !["sortable", "searchable", "resizable", "hideable", "reorderable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
+      !["sortable", "searchable", "resizable", "hideable", "reorderable", "groupable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
       ![undefined, null, "start", "end"].includes(column.pin as string) ||
       !(column.priority == null || (Number.isInteger(column.priority) && (column.priority as number) > 0)) ||
       !(column.dtype == null || typeof column.dtype === "string") ||
@@ -407,7 +414,7 @@ export function parseSpec(text: string): Spec {
   );
   if (column >= 0) {
     throw new SpecError(
-      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable and reorderable with \`true\` or \`false\`, the side it's pinned to (\`"start"\` or \`"end"\`), if it is, its priority (a positive integer), its dtype (text) and its rows with missing values (data rows' indexes), if it has them`,
+      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable, reorderable and groupable with \`true\` or \`false\`, the side it's pinned to (\`"start"\` or \`"end"\`), if it is, its priority (a positive integer), its dtype (text) and its rows with missing values (data rows' indexes), if it has them`,
     );
   }
   const queries = raw.query_columns;
@@ -584,10 +591,11 @@ export function parseSpec(text: string): Spec {
       !(filter === null || (isObject(filter) && Array.isArray(filter.and))) ||
       !Array.isArray(view.sort) ||
       !view.sort.every((key) => isObject(key) && typeof key.column === "string" && typeof key.descending === "boolean") ||
-      !(view.hidden === undefined || (Array.isArray(view.hidden) && view.hidden.every((id) => typeof id === "string")))
+      !(view.hidden === undefined || (Array.isArray(view.hidden) && view.hidden.every((id) => typeof id === "string"))) ||
+      !(view.group_by == null || typeof view.group_by === "string")
     ) {
       throw new SpecError(
-        "`view` must have a `filter` (`{and: [...]}`, or `null`), `sort` keys with a `column` and `descending`, and `hidden` column names, if given",
+        "`view` must have a `filter` (`{and: [...]}`, or `null`), `sort` keys with a `column` and `descending`, `hidden` column names, and a `group_by` column name (or `null`), if given",
       );
     }
   }
