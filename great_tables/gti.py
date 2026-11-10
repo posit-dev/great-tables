@@ -1711,6 +1711,89 @@ class GTI(GT):
             raise ValueError(f"`content=` names a column the data doesn't have: {content!r}.")
         return self._set_interactive(row_details=content)
 
+    def i_link(self, group: str | None, on: str | None = None) -> Self:
+        """
+        Link the table to others on the page, so that the rows selected in one filter the others.
+
+        Tables with the same `group=` are linked by their `on=` column, which each of them has in
+        its data (it can be a hidden one). When a reader selects rows in one of them (which
+        [`i_selection()`](`great_tables.GTI.i_selection`) lets them do), each of the others
+        shows only its rows whose value in that column is one of the selected rows' values;
+        clearing the selection shows them all again. A row with a missing value in the column
+        isn't linked to any. A table whose rows can't be selected is only filtered, and tables
+        whose rows can be filter each other (but not themselves). The tables link in the browser,
+        without a server: in a Quarto document, a notebook (but not across the frames some show
+        each cell's output in, as Colab does), or an HTML page with the tables in it.
+
+        A table filtered by another's selection says so in its control bar, with a token
+        ("Selected in Makes: Ferrari, Lamborghini") that shows the rows again (until the
+        selection changes), and in its info panel. The tables are named after their titles (see
+        [`tab_header()`](`great_tables.GT.tab_header`)), or else their IDs. The filter is on top
+        of the table's own search and filters, and isn't part of its view: it isn't kept with the
+        view (see [`i_view_state()`](`great_tables.GTI.i_view_state`)), undone, or in the code
+        an export copies.
+
+        Parameters
+        ----------
+        group
+            The name of the tables' group: tables with the same one are linked. With `None`, the
+            table isn't linked.
+        on
+            The column of the table's data whose values link its rows to those of the others in
+            the group (each of which has a column of that name).
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here are two tables of cars, one of their makes and one of the cars themselves, linked
+        by the make. Select some makes in the first, and the second shows only their cars.
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import gtcars
+
+        cars = gtcars[["mfr", "model", "year", "hp", "msrp"]]
+        makes = cars.groupby("mfr", as_index=False).agg(models=("model", "count"))
+
+        (
+            GTI(makes, rowname_col="mfr")
+            .tab_header(title="Makes")
+            .i_selection("multiple")
+            .i_link("cars", on="mfr")
+        )
+        ```
+
+        ```{python}
+        (
+            GTI(cars, rowname_col="model")
+            .tab_header(title="Cars")
+            .fmt_integer(columns=["year", "hp"], use_seps=False)
+            .fmt_currency(columns="msrp", decimals=0)
+            .i_link("cars", on="mfr")
+        )
+        ```
+        """
+        if group is None:
+            return self._set_interactive(link_group=None, link_on=None)
+        if not isinstance(group, str):
+            raise TypeError(f"`group=` must be a string, or `None` (not linked), not {group!r}.")
+        if group.strip() == "":
+            raise ValueError("`group=` must name the tables' group, not be empty.")
+        if on is None:
+            raise ValueError(
+                "`on=` must name the column whose values link the table's rows to those of the "
+                f"other tables in the {group!r} group."
+            )
+        if not isinstance(on, str):
+            raise TypeError(f"`on=` must be the name of a column, not {on!r}.")
+        if on not in get_column_names(self._tbl_data):
+            raise ValueError(f"`on=` names a column the data doesn't have: {on!r}.")
+        return self._set_interactive(link_group=group, link_on=on)
+
     # -----
     # A `GTI` table is only ever interactive HTML
 
@@ -1774,7 +1857,7 @@ class GTI(GT):
             "`i_selection()`, `i_scroll()`, `i_responsive()`, `i_display()`, `i_inspect()`, "
             "`i_cols_filter()`, "
             "`i_cols_controls()`, `i_cols_pin()`, `i_cols_priority()`, `i_cols_profile()`, "
-            "`i_view()`, `i_view_state()`, `i_export()`, and `i_row_details()`."
+            "`i_view()`, `i_view_state()`, `i_export()`, `i_row_details()`, and `i_link()`."
         )
 
 
