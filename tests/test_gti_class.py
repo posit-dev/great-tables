@@ -1030,6 +1030,110 @@ def test_i_cols_priority_must_be_a_positive_integer(priority):
         GTI(PIN_DF).i_cols_priority("a", priority=priority)
 
 
+def profiles_of(gt: GT) -> list[dict]:
+    return spec_of(gt)["profiles"]
+
+
+def test_i_cols_profile_off_by_default():
+    assert GTI(FILTER_DF)._interactive.profiles == ()
+    assert profiles_of(GTI(FILTER_DF)) == []
+
+
+def test_i_cols_profile_auto():
+    gti = GTI(FILTER_DF, rowname_col="id").i_cols_profile()
+
+    # (Every column but the stub, in column order: histograms of numbers, with their values in rank
+    # order, and the most common values of the rest; none of a column without ranks)
+    assert gti._interactive.profiles == tuple(
+        (column, "auto") for column in ["num", "flag", "cat", "few", "many", "mixed"]
+    )
+    assert profiles_of(gti) == [
+        {"column": "num", "plot": "histogram", "values": [1.0, 2.0, 3.5]},
+        {"column": "flag", "plot": "top", "values": None},
+        {"column": "cat", "plot": "top", "values": None},
+        {"column": "few", "plot": "top", "values": None},
+        {"column": "many", "plot": "top", "values": None},
+    ]
+
+
+def test_i_cols_profile_histograms_dates():
+    gti = GTI(DATE_DF).i_cols_profile(["d", "t"], plot="histogram")
+    assert profiles_of(gti) == [
+        {"column": "d", "plot": "histogram", "values": ["2023-01-02", "2024-05-01"]},
+        {
+            "column": "t",
+            "plot": "histogram",
+            "values": ["2024-05-01T00:00:00", "2024-05-01T09:30:00"],
+        },
+    ]
+
+
+def test_i_cols_profile_plots():
+    gti = (
+        GTI(FILTER_DF, rowname_col="id")
+        .tab_stubhead("ID")
+        .i_cols_profile(columns="num", plot="top")
+        .i_cols_profile(columns=["few", "id"])
+    )
+    assert gti._interactive.profiles == (("num", "top"), ("few", "auto"), ("id", "auto"))
+    # (The stub, when named and with a label; in column order)
+    assert profiles_of(gti) == [
+        {"column": "id", "plot": "top", "values": None},
+        {"column": "num", "plot": "top", "values": None},
+        {"column": "few", "plot": "top", "values": None},
+    ]
+
+
+def test_i_cols_profile_replaces_and_unsets():
+    gti = GTI(FILTER_DF).i_cols_profile(columns=["num", "few"], plot="top")
+    assert gti.i_cols_profile(columns="num", plot="histogram")._interactive.profiles == (
+        ("few", "top"),
+        ("num", "histogram"),
+    )
+    assert gti.i_cols_profile(columns="few", plot=None)._interactive.profiles == (("num", "top"),)
+    assert gti.i_cols_profile(plot=None)._interactive.profiles == ()
+
+
+def test_i_cols_profile_skips_columns_without_a_label_cell():
+    # (The row group column, a hidden column, one left out for querying, and the stub without a
+    # stubhead)
+    gti = (
+        GTI(FILTER_DF, rowname_col="id", groupname_col="few")
+        .i_cols_profile(["id", "few", "num", "cat", "many"])
+        .cols_hide("cat")
+        .i_cols_controls(columns="many", display=False)
+    )
+    assert [p["column"] for p in profiles_of(gti)] == ["num"]
+    # (But not one readers hide)
+    shown = GTI(FILTER_DF).i_cols_controls(hideable=True).i_cols_profile("cat").i_view(hidden="cat")
+    assert [p["column"] for p in profiles_of(shown)] == ["cat"]
+
+
+@pytest.mark.parametrize("plot", ["Top", "bars", True, ""])
+def test_i_cols_profile_plot_must_be_known(plot):
+    with pytest.raises(ValueError, match='`plot=` must be "auto", "histogram", "top", or `None`'):
+        GTI(FILTER_DF).i_cols_profile(columns="num", plot=plot)
+
+
+@pytest.mark.parametrize("column", ["few", "flag", "cat"])
+def test_i_cols_profile_histogram_needs_numbers_or_dates(column: str):
+    with pytest.raises(ValueError, match=f"Column '{column}' can't have a histogram"):
+        GTI(FILTER_DF).i_cols_profile(columns=column, plot="histogram")
+
+
+def test_i_cols_profile_top_needs_comparable_values():
+    df = pd.DataFrame({"x": [[1], [2]]})
+    with pytest.raises(ValueError, match="Column 'x' can't have its most common values shown"):
+        GTI(df).i_cols_profile(columns="x", plot="top")
+    # (Nor does "auto" give it a profile)
+    assert profiles_of(GTI(df).i_cols_profile()) == []
+
+
+def test_opt_interactive_points_to_i_cols_profile():
+    with pytest.raises(TypeError, match=r"`i_cols_profile\(\)`"):
+        GTI(FILTER_DF).opt_interactive()
+
+
 def test_i_cols_filter_values_are_json():
     df = pd.DataFrame(
         {

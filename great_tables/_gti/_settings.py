@@ -31,6 +31,12 @@ FilterType = Literal["auto", "text", "facet", "range", "date", "bool"]
 
 FILTER_TYPES: tuple[FilterType, ...] = ("auto", "text", "facet", "range", "date", "bool")
 
+# A column's profile, the plot under its label: as its kind suggests ("auto"), a histogram of its
+# numbers or dates, or bars for its most common values
+ProfilePlot = Literal["auto", "histogram", "top"]
+
+PROFILE_PLOTS: tuple[ProfilePlot, ...] = ("auto", "histogram", "top")
+
 # How readers can export the rows: by copying them, or downloading them as CSV, TSV or JSON; or
 # copy the code that filters and sorts the data as the view does
 ExportFormat = Literal["csv", "tsv", "json", "clipboard", "code"]
@@ -96,6 +102,8 @@ class Settings:
     pins: tuple[tuple[str, PinSide], ...] = ()
     # (The columns readers can filter by, and how, in the order they were set)
     filters: tuple[tuple[str, FilterType], ...] = ()
+    # (The columns with a profile under their label, and its plot, in the order they were set)
+    profiles: tuple[tuple[str, ProfilePlot], ...] = ()
     # (How the table is first shown: a query, checked as `i_view()` takes it, and sort keys,
     # each a column and whether it's descending; and the columns hidden)
     view_filter: dict[str, list[dict[str, Any]]] | None = None

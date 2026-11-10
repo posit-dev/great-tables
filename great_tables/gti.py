@@ -14,11 +14,13 @@ from ._gti._settings import (
     EXPORT_FORMATS,
     FILTER_TYPES,
     PIN_SIDES,
+    PROFILE_PLOTS,
     RESPONSIVE_MODES,
     SELECTION_MODES,
     ExportFormat,
     FilterType,
     PinSide,
+    ProfilePlot,
     ResponsiveMode,
     SelectionMode,
     Settings,
@@ -1002,6 +1004,110 @@ class GTI(GT):
                 priorities[column] = priority
         return self._set_interactive(priorities=tuple(priorities.items()))
 
+    def i_cols_profile(self, columns: SelectExpr = None, plot: ProfilePlot | None = "auto") -> Self:
+        """
+        Show how the columns' values are spread, in a small plot under their labels.
+
+        A column's profile is a plot under its label of the values in the rows the table shows:
+        a histogram of its numbers or dates (`"histogram"`: how many rows have a value in each of
+        up to 20 equal ranges, from the column's lowest value to its highest; or one per value,
+        for whole numbers or days a few apart), or bars for its most common values (`"top"`: the
+        5 that most rows have, with a bar for the others). Under the plot are the lowest and
+        highest values the rows show (for a histogram) or the number of values they have (for the
+        others), as the table formats them, and the share of the rows with a missing value.
+        Pointing at a bar shows its values and its number of rows. As the reader searches and
+        filters the table, the profiles show only the rows that are left (their ranges and
+        values stay the same, so that they're easy to compare), but not as the table is sorted,
+        or paged. Profiles are off by default, and aren't shown in a table stacked as cards.
+
+        Each call sets the profiles of the columns it's given, so that some columns can have one
+        plot, and others another; a later call for a column replaces what an earlier one set.
+
+        Parameters
+        ----------
+        columns
+            The columns to profile: a column name, a list of them, or a selector (e.g., Polars'
+            `cs.numeric()`). With `None` (the default), every column but the stub (which can be
+            named). The row group column can't be profiled, and neither can a column left out of
+            the table.
+        plot
+            The plot: `"histogram"` (for columns of numbers, dates, or dates and times), or
+            `"top"` (the most common values), or `"auto"` to choose by the column: a histogram for
+            numbers and dates, and the most common values otherwise. With `None`, the columns
+            have no profile.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of Ontario's municipalities with a profile of their statuses (their most
+        common ones) and of their populations (a histogram), which follow the rows a search or a
+        filter leaves (try searching for "county").
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        (
+            GTI(
+                towny[["name", "status", "density_2021", "population_2021"]],
+                rowname_col="name",
+            )
+            .fmt_integer(columns=["density_2021", "population_2021"])
+            .i_cols_filter(columns="status")
+            .i_cols_profile(columns=["status", "density_2021", "population_2021"])
+        )
+        ```
+
+        A column of dates (here, made from the dataset's text) has a histogram of them, from its
+        first date to its last.
+
+        ```{python}
+        import pandas as pd
+        from great_tables.data import sp500
+
+        sp500_2015 = sp500[sp500["date"] >= "2015-01-01"].assign(
+            date=lambda df: pd.to_datetime(df["date"])
+        )
+
+        (
+            GTI(sp500_2015[["date", "open", "close", "volume"]])
+            .fmt_date(columns="date", date_style="month_day_year")
+            .fmt_currency(columns=["open", "close"])
+            .fmt_number(columns="volume", compact=True)
+            .i_cols_profile()
+        )
+        ```
+        """
+        if plot is not None and plot not in PROFILE_PLOTS:
+            raise ValueError(
+                f'`plot=` must be "auto", "histogram", "top", or `None` (no profile), not {plot!r}.'
+            )
+        selected = resolve_cols_c(self, columns, excl_stub=False)
+        for column in selected:
+            kind = _get_column_kind(self._tbl_data, column)
+            if plot == "histogram" and kind not in ("number", "date", "datetime"):
+                raise ValueError(
+                    f"Column {column!r} can't have a histogram, which is for columns of numbers, "
+                    f"dates, or dates and times (its values are of the {kind!r} kind). Try "
+                    '`plot="top"`.'
+                )
+            if plot == "top" and kind == "other":
+                raise ValueError(
+                    f"Column {column!r} can't have its most common values shown: its values "
+                    "can't be told apart and ordered."
+                )
+
+        profiles = dict(self._interactive.profiles)
+        for column in selected:
+            profiles.pop(column, None)
+            if plot is not None:
+                profiles[column] = plot
+        return self._set_interactive(profiles=tuple(profiles.items()))
+
     def i_view(
         self,
         filter: str | dict[str, Any] | None = None,
@@ -1508,8 +1614,8 @@ class GTI(GT):
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
             "`i_selection()`, `i_scroll()`, `i_responsive()`, `i_display()`, `i_cols_filter()`, "
-            "`i_cols_controls()`, `i_cols_pin()`, `i_cols_priority()`, `i_view()`, "
-            "`i_view_state()`, `i_export()`, and `i_row_details()`."
+            "`i_cols_controls()`, `i_cols_pin()`, `i_cols_priority()`, `i_cols_profile()`, "
+            "`i_view()`, `i_view_state()`, `i_export()`, and `i_row_details()`."
         )
 
 

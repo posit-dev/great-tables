@@ -213,6 +213,21 @@ export interface FilterSpec {
   missing?: number[];
 }
 
+/** A column's profile: a histogram of its numbers or dates, or bars for its most common values. */
+export type ProfilePlot = "histogram" | "top";
+
+const PROFILE_PLOTS: readonly unknown[] = ["histogram", "top"];
+
+export interface ProfileSpec {
+  column: string;
+  plot: ProfilePlot;
+  /**
+   * A histogram's distinct values, in the order of the column's ranks (numbers, or dates and times
+   * as ISO 8601 text); `null` for "top".
+   */
+  values: FilterValue[] | null;
+}
+
 /** A column to sort by, as a spec's view has it. */
 export interface ViewSortSpec {
   column: string;
@@ -305,6 +320,8 @@ export interface Spec {
   layout: LayoutSpec;
   /** The columns readers can filter by, in column order. Without it, none. */
   filters?: FilterSpec[];
+  /** The columns with a profile under their label, in column order. Without it, none. */
+  profiles?: ProfileSpec[];
   /** How the table is shown to start with. Without it, unfiltered and in its rows' order. */
   view?: ViewSpec;
   /** How readers can export the rows (from GTI's control bar). Without it (or any formats), they can't. */
@@ -511,6 +528,37 @@ export function parseSpec(text: string): Spec {
       const { missing } = filter;
       if (missing !== undefined && !(Array.isArray(missing) && missing.every((row) => isIndex(row, nrows as number)))) {
         throw new SpecError(`\`filters[${i}].missing\` must be data rows' indexes, if given`);
+      }
+    });
+  }
+
+  const profiles = raw.profiles;
+  if (profiles !== undefined) {
+    if (!Array.isArray(profiles)) {
+      throw new SpecError("`profiles` must be an array, if given");
+    }
+    const allRanks = raw.ranks as Record<string, unknown>;
+    profiles.forEach((profile: unknown, i) => {
+      const column = isObject(profile) ? profile.column : undefined;
+      const ranks =
+        typeof column === "string" && Object.prototype.hasOwnProperty.call(allRanks, column)
+          ? allRanks[column]
+          : undefined;
+      const values = isObject(profile) ? profile.values : undefined;
+      if (
+        !isObject(profile) ||
+        typeof column !== "string" ||
+        !PROFILE_PLOTS.includes(profile.plot) ||
+        !Array.isArray(ranks) ||
+        (profile.plot === "top"
+          ? values != null
+          : !Array.isArray(values) ||
+            !values.every((value) => value === null || typeof value === "number" || typeof value === "string") ||
+            !ranks.every((rank) => rank === null || isIndex(rank, values.length)))
+      ) {
+        throw new SpecError(
+          `\`profiles[${i}]\` must name a column with ranks and a known \`plot\`, with \`values\` for every rank of a histogram (numbers, or ISO 8601 text)`,
+        );
       }
     });
   }

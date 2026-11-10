@@ -206,6 +206,15 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     display: none;
   }
 
+  /* (Nor the profiles, which a chip has no room for) */
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table .gt-i-profile {
+    display: none;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table th.gt-i-profiled {
+    min-width: 0;
+  }
+
   /* (Not the spanners, which prefix their columns' labels, nor a stubhead without a label) */
   gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings > :is(th[scope="colgroup"], th:not([id], .gt-i-select)) {
     display: none;

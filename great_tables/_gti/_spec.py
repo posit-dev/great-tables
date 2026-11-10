@@ -55,6 +55,12 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   value is missing (`missing`, in order: `null`, or NaN in a column of floats), which an `is_null`
   clause keeps; without it, the runtime has them as the rows without a rank. Producers that leave
   `filters` out have none.
+- `profiles`: the table's columns with a profile under their label, in column order: a plot of
+  the values in the rows the search and filters keep, with the share of them missing. A
+  `"histogram"` (of a column of numbers, dates, or dates and times) has the column's distinct
+  values (`values`), as a facet does, which the runtime bins over the column's range; `"top"`
+  (bars for its most common values, by the column's `ranks`) has `null`. Each needs the column's
+  ranks. Producers that leave `profiles` out have none.
 - `view`: how the table is first shown: filtered by a query (as `<gt-table>`'s `filter` property
   takes, or `null`), sorted by columns (as its `sort` property takes), and without the hideable
   columns in `hidden` (in column order; producers that leave it out hide none). The runtime
@@ -99,7 +105,14 @@ from .._tbl_data import (
 from .._text import _process_text
 from .._utils_render_html import _get_header_ids
 from ._details import render_details
-from ._settings import ExportFormat, FilterType, PaginationType, SelectionMode, settings_of
+from ._settings import (
+    ExportFormat,
+    FilterType,
+    PaginationType,
+    ProfilePlot,
+    SelectionMode,
+    settings_of,
+)
 
 if TYPE_CHECKING:
     from .._gt_data import GTData
@@ -216,6 +229,13 @@ class FilterSpec(TypedDict):
     missing: list[int]
 
 
+class ProfileSpec(TypedDict):
+    column: str
+    plot: Literal["histogram", "top"]
+    # A histogram's distinct values, by rank (None for "top")
+    values: list[Any] | None
+
+
 class ViewSortSpec(TypedDict):
     column: str
     descending: bool
@@ -272,6 +292,7 @@ class Spec(TypedDict):
     display: DisplaySpec
     layout: LayoutSpec
     filters: list[FilterSpec]
+    profiles: list[ProfileSpec]
     view: ViewSpec
     export: ExportSpec
     view_state: ViewStateSpec
@@ -401,6 +422,18 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
         missing = _get_column_missing(tbl_data, var)
         filters.append(FilterSpec(column=var, type=filter_type, values=values, missing=missing))
 
+    plots = dict(settings.profiles)
+    profiles: list[ProfileSpec] = []
+    # (The table's columns with a label, under which a profile goes, and ranks, which it counts)
+    for column in columns:
+        var, kind = column["id"], column["kind"]
+        if var not in plots or column["header"] is None or var not in ranks:
+            continue
+        plot = _profile_plot(plots[var], kind)
+        if plot is not None:
+            values = _filter_values(tbl_data, var, ranks[var]) if plot == "histogram" else None
+            profiles.append(ProfileSpec(column=var, plot=plot, values=values))
+
     # (Imported here, as `_query` imports from this module)
     from ._query import check_view, code_spec, label_text, match_text
 
@@ -492,6 +525,7 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
             stack_below=settings.stack_below,
         ),
         filters=filters,
+        profiles=profiles,
         view=view,
         export=ExportSpec(
             formats=list(settings.export_formats), filename=settings.export_filename, code=code
@@ -559,6 +593,15 @@ def _filter_type(
         if distinct <= FACET_MAX_VALUES and distinct * 2 <= nrows:
             return "facet"
     return "text"
+
+
+def _profile_plot(chosen: ProfilePlot, kind: ColumnKind) -> Literal["histogram", "top"] | None:
+    """A column's profile plot: as chosen, or (for "auto") as its kind suggests; none for a
+    histogram of a column that isn't of numbers or dates (`i_cols_profile()` checks)."""
+    histogram = kind in ("number", "date", "datetime")
+    if chosen == "auto":
+        return "histogram" if histogram else "top"
+    return None if chosen == "histogram" and not histogram else chosen
 
 
 def _has_time_zone(data: Any, column: str) -> bool:
