@@ -311,6 +311,11 @@ export interface Spec {
   export?: ExportSpec;
   /** Where the reader's view is kept, and whether it can be undone. Without it, it isn't, and can't be. */
   view_state?: ViewStateSpec;
+  /**
+   * The data rows with details, which readers can show under them: each row's are the contents of
+   * a `<template data-gti-details="row">` in the element. Without it, none.
+   */
+  details?: number[];
 }
 
 export class SpecError extends Error {
@@ -555,6 +560,11 @@ export function parseSpec(text: string): Spec {
     throw new SpecError(
       "`view_state` must say whether the view is kept in the URL and in storage (with a `key` for either), and whether it can be undone, if given",
     );
+  }
+
+  const details = raw.details;
+  if (details !== undefined && !(Array.isArray(details) && details.every((row) => isIndex(row, nrows as number)))) {
+    throw new SpecError("`details` must be data rows' indexes, if given");
   }
 
   return raw as unknown as Spec;
