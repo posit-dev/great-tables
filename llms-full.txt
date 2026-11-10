@@ -18465,7 +18465,9 @@ each cell based on the underlying value, and the colors follow the data when you
 ```
 
 Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are
-computed from the full dataset, so a cell keeps its color when you filter by `Make`.
+computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A `GTI` table
+can color them again from the rows a filter keeps instead: see [Colors from the rows
+kept](#colors-from-the-rows-kept).)
 
 ### Multiple columns, shared scale
 
@@ -18578,6 +18580,33 @@ the horsepower and prices narrow; point at a bar to see its values and its numbe
 A profile's bars span the whole column, not just the rows that are left, so that they stay put as
 the reader filters (only their heights change). They aren't shown when the table is stacked as
 cards in a narrow container.
+
+### Colors from the rows kept
+
+With `data_color="recompute"` in `~~GTI.i_cols_controls()`, a column's colors from `data_color()`
+are made again from the rows a search or filter keeps, as `data_color()` would make them from those
+rows alone, so that the whole palette is spread over them. Here, choose a make or two in the `Make`
+filter: its most powerful car takes the darkest orange, and its most expensive the darkest blue,
+however they compare to the rest of the cars. Show every row again and the first colors come back.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: colors from the rows kept")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .data_color(columns="hp", palette=["#fff7ec", "#ef6c00"])
+    .data_color(columns="msrp", palette="Blues")
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_controls(columns=["hp", "msrp"], data_color="recompute")
+)
+```
+
+Sorting the rows or turning the page doesn't change the colors. Only colors that depend on the
+rows can be made again: those `data_color()` made down a column from the values it found there (not
+with `domain=`, nor from an ordered categorical's levels), and without `fn=`. A cell that a later
+style colors keeps that style's colors.
 
 ### Grouping rows
 

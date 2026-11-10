@@ -513,7 +513,7 @@ The [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) met
 | Rolls-Royce           | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
 | Rolls-Royce           | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
 
-Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are computed from the full dataset, so a cell keeps its color when you filter by `Make`.
+Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A `GTI` table can color them again from the rows a filter keeps instead: see [Colors from the rows kept](#colors-from-the-rows-kept).)
 
 ### Multiple columns, shared scale
 
@@ -816,6 +816,77 @@ With `i_cols_profile()`, columns get a small plot under their labels of how thei
 | Rolls-Royce                   | Wraith         | 2016 | 624 | 590    | \$304,350   |
 
 A profile's bars span the whole column, not just the rows that are left, so that they stay put as the reader filters (only their heights change). They aren't shown when the table is stacked as cards in a narrow container.
+
+### Colors from the rows kept
+
+With `data_color="recompute"` in `i_cols_controls()`, a column's colors from [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) are made again from the rows a search or filter keeps, as [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) would make them from those rows alone, so that the whole palette is spread over them. Here, choose a make or two in the `Make` filter: its most powerful car takes the darkest orange, and its most expensive the darkest blue, however they compare to the rest of the cars. Show every row again and the first colors come back.
+
+``` python
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: colors from the rows kept")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .data_color(columns="hp", palette=["#fff7ec", "#ef6c00"])
+    .data_color(columns="msrp", palette="Blues")
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_controls(columns=["hp", "msrp"], data_color="recompute")
+)
+```
+
+| GT Cars: colors from the rows kept |                |      |     |        |             |
+|------------------------------------|----------------|------|-----|--------|-------------|
+| Make                               | Model          | Year | HP  | Torque | MSRP        |
+| Ford                               | GT             | 2017 | 647 | 550    | \$447,000   |
+| Ferrari                            | 458 Speciale   | 2015 | 597 | 398    | \$291,744   |
+| Ferrari                            | 458 Spider     | 2015 | 562 | 398    | \$263,553   |
+| Ferrari                            | 458 Italia     | 2014 | 562 | 398    | \$233,509   |
+| Ferrari                            | 488 GTB        | 2016 | 661 | 561    | \$245,400   |
+| Ferrari                            | California     | 2015 | 553 | 557    | \$198,973   |
+| Ferrari                            | GTC4Lusso      | 2017 | 680 | 514    | \$298,000   |
+| Ferrari                            | FF             | 2015 | 652 | 504    | \$295,000   |
+| Ferrari                            | F12Berlinetta  | 2015 | 731 | 509    | \$319,995   |
+| Ferrari                            | LaFerrari      | 2015 | 949 | 664    | \$1,416,362 |
+| Acura                              | NSX            | 2017 | 573 | 476    | \$156,000   |
+| Nissan                             | GT-R           | 2016 | 545 | 436    | \$101,770   |
+| Lamborghini                        | Aventador      | 2015 | 700 | 507    | \$397,500   |
+| Lamborghini                        | Huracan        | 2015 | 610 | 413    | \$237,250   |
+| Lamborghini                        | Gallardo       | 2014 | 550 | 398    | \$191,900   |
+| Bentley                            | Continental GT | 2016 | 500 | 487    | \$198,500   |
+| Maserati                           | Granturismo    | 2016 | 454 | 384    | \$132,825   |
+| Maserati                           | Quattroporte   | 2016 | 404 | 406    | \$99,900    |
+| Maserati                           | Ghibli         | 2016 | 345 | 369    | \$70,600    |
+| BMW                                | 6-Series       | 2016 | 315 | 330    | \$77,300    |
+| BMW                                | i8             | 2016 | 357 | 420    | \$140,700   |
+| BMW                                | M4             | 2016 | 425 | 406    | \$65,700    |
+| BMW                                | M5             | 2016 | 560 | 500    | \$94,100    |
+| BMW                                | M6             | 2016 | 560 | 500    | \$113,400   |
+| Aston Martin                       | DB11           | 2017 | 608 | 516    | \$211,195   |
+| Aston Martin                       | Rapide S       | 2016 | 552 | 465    | \$205,300   |
+| Aston Martin                       | Vanquish       | 2016 | 568 | 465    | \$287,250   |
+| Aston Martin                       | Vantage        | 2016 | 430 | 361    | \$103,300   |
+| Chevrolet                          | Corvette       | 2016 | 650 | 650    | \$88,345    |
+| Dodge                              | Viper          | 2017 | 645 | 600    | \$95,895    |
+| Audi                               | R8             | 2015 | 430 | 317    | \$115,900   |
+| Audi                               | RS 7           | 2016 | 560 | 516    | \$108,900   |
+| Audi                               | S6             | 2016 | 450 | 406    | \$70,900    |
+| Audi                               | S7             | 2016 | 450 | 406    | \$82,900    |
+| Audi                               | S8             | 2016 | 520 | 481    | \$114,900   |
+| Lotus                              | Evora          | 2017 | 400 | 302    | \$91,900    |
+| Jaguar                             | F-Type         | 2016 | 340 | 332    | \$65,000    |
+| Mercedes-Benz                      | AMG GT         | 2016 | 503 | 479    | \$129,900   |
+| Mercedes-Benz                      | SL-Class       | 2016 | 329 | 354    | \$85,050    |
+| Tesla                              | Model S        | 2017 | 259 | 243    | \$74,500    |
+| Porsche                            | 718 Boxster    | 2017 | 300 | 280    | \$56,000    |
+| Porsche                            | 718 Cayman     | 2017 | 300 | 280    | \$53,900    |
+| Porsche                            | 911            | 2016 | 350 | 287    | \$84,300    |
+| Porsche                            | Panamera       | 2016 | 310 | 295    | \$78,100    |
+| McLaren                            | 570            | 2016 | 570 | 443    | \$184,900   |
+| Rolls-Royce                        | Dawn           | 2016 | 563 | 575    | \$335,000   |
+| Rolls-Royce                        | Wraith         | 2016 | 624 | 590    | \$304,350   |
+
+Sorting the rows or turning the page doesn't change the colors. Only colors that depend on the rows can be made again: those [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) made down a column from the values it found there (not with `domain=`, nor from an ordered categorical's levels), and without `fn=`. A cell that a later style colors keeps that style's colors.
 
 ### Grouping rows
 
