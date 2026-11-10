@@ -118,7 +118,7 @@ p {
   border-right-color: $column_labels_vlines_color;
   vertical-align: bottom;
   padding-top: $column_labels_padding;
-  padding-bottom: $heading_padding_bottom;
+  padding-bottom: $column_labels_padding_bottom;
   padding-left: $column_labels_padding_horizontal;
   padding-right: $column_labels_padding_horizontal;
   overflow-x: hidden;
@@ -394,7 +394,7 @@ p {
 }
 
 .gt_footnotes {
-  color: font-color($footnotes_background_color);
+  color: $font_color_footnotes_background_color;
   background-color: $footnotes_background_color;
   border-bottom-style: none;
   border-bottom-width: 2px;
