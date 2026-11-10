@@ -79,6 +79,20 @@ describe("parseSpec()", () => {
     expect(parse(valid).columns[0]?.priority).toBeUndefined();
   });
 
+  it("takes a column's dtype and rows with missing values, or their absence", () => {
+    const column = { ...valid.columns[0], dtype: "f64", missing: [0, 1] };
+    expect(parse({ ...valid, columns: [column] }).columns).toEqual([column]);
+    const none = { ...valid.columns[0], dtype: null, missing: null };
+    expect(parse({ ...valid, columns: [none] }).columns).toEqual([none]);
+    expect(parse(valid).columns[0]?.dtype).toBeUndefined();
+  });
+
+  it("takes row numbers and dimensions, or their absence", () => {
+    const display = { ...valid.display, row_numbers: true, dimensions: false };
+    expect(parse({ ...valid, display }).display).toEqual(display);
+    expect(parse(valid).display.row_numbers).toBeUndefined();
+  });
+
   it("takes the control bar, or its absence", () => {
     expect(parse({ ...valid, controls: { ...valid.controls, bar: true } }).controls.bar).toBe(true);
     expect(parse(valid).controls.bar).toBeUndefined();
@@ -230,6 +244,8 @@ describe("parseSpec()", () => {
     ["has no display", JSON.stringify({ ...valid, display: undefined }), /`display`/],
     ["has a bad display flag", JSON.stringify({ ...valid, display: { ...valid.display, wrap: 0 } }), /`display`/],
     ["has no highlight flag", JSON.stringify({ ...valid, display: { compact: false, wrap: true } }), /`display`/],
+    ["has a row numbers flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, row_numbers: 1 } }), /`display`/],
+    ["has a dimensions flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, dimensions: "yes" } }), /`display`/],
     ["has no layout", JSON.stringify({ ...valid, layout: undefined }), /`layout`/],
     ["has no height", JSON.stringify({ ...valid, layout: { responsive: null } }), /`layout`/],
     ["has a height that isn't a string", JSON.stringify({ ...valid, layout: { height: 400, responsive: null } }), /`layout`/],
@@ -298,6 +314,16 @@ describe("parseSpec()", () => {
       `has a column with priority ${JSON.stringify(priority)}`,
       JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], priority }] }),
       /`columns\[0\]`.*priority/,
+    ]),
+    ...[1, true, ["f64"]].map((dtype): [string, string, RegExp] => [
+      `has a column with dtype ${JSON.stringify(dtype)}`,
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], dtype }] }),
+      /`columns\[0\]`.*dtype/,
+    ]),
+    ...[1, [2], [-1], [0.5], ["0"]].map((missing): [string, string, RegExp] => [
+      `has a column with missing values in rows ${JSON.stringify(missing)}`,
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], missing }] }),
+      /`columns\[0\]`.*missing/,
     ]),
     [
       "has a column pinned with a boolean",

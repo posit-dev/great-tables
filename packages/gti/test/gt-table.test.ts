@@ -95,7 +95,10 @@ interface TableOptions {
   queryColumns?: QueryColumnSpec[];
   queryRanks?: Record<string, (number | null)[]>;
   /** What readers can do with each column (by its id), if not everything, and where it's pinned. */
-  columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable">>;
+  columns?: Record<
+    string,
+    Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable" | "dtype" | "missing">
+  >;
   /** The data rows' details (in templates after the table), by row. */
   details?: Record<number, string>;
   profiles?: ProfileSpec[];
@@ -6540,6 +6543,156 @@ describe("row selection", () => {
     expect(el.state).toBe("ready");
     expect(el.selection).toEqual([]);
     expect(el.querySelectorAll("tr.gt-i-selected")).toHaveLength(0);
+  });
+});
+
+describe("inspecting the data", () => {
+  const numbered = (options: TableOptions = {}, body = GROUPED) =>
+    mountTable(body, { ...options, display: { row_numbers: true, ...options.display } });
+  const number = (el: GtTable, row: number) => el.rowElement(row)?.querySelector(":scope > .gt-i-select > .gt-i-rownum")?.textContent;
+  const dimensions = (el: GtTable) => el.querySelector(".gt-i-toolbar > .gt-i-dimensions")?.textContent;
+  const missing = (el: GtTable) =>
+    Array.from(el.querySelectorAll(".gt-i-missing"), (cell) => [
+      el.bodyRow(cell.closest("tr") as HTMLTableRowElement),
+      Array.from((cell.parentElement as HTMLElement).children)
+        .filter((other) => !other.matches(".gt_stub_row_group, .gt-i-select"))
+        .indexOf(cell),
+    ]);
+
+  it("isn't on unless the spec says so", async () => {
+    const el = await mountTable();
+    expect(el.querySelector(".gt-i-select, .gt-i-rownum, .gt-i-dtype, .gt-i-dimensions, .gt-i-missing")).toBeNull();
+  });
+
+  it("numbers each data row by its place in the data, in a column before the others", async () => {
+    const el = await numbered();
+    for (const row of [0, 1, 2, 3, 4]) {
+      const cell = el.rowElement(row)?.cells[0] as HTMLTableCellElement;
+      expect(cell.matches("td.gt_row.gt_right.gt-i-select.gt-i-unselectable")).toBe(true);
+      expect(number(el, row)).toBe(String(row + 1));
+      // (And no checkbox: the rows can't be selected)
+      expect(cell.querySelector("input")).toBeNull();
+    }
+    const th = el.querySelector("thead th.gt-i-select") as HTMLTableCellElement;
+    // (Not a chip in a stacked table, without a select-all checkbox)
+    expect(th.matches(".gt_right.gt-i-unselectable:not(.gt-i-select-all)")).toBe(true);
+    expect(th.querySelector(".gt-i-hidden")?.textContent).toBe("Row");
+    expect(el.querySelectorAll("td.gt-i-select:empty")).toHaveLength(2);
+    expect(Array.from(el.querySelectorAll(".gt_group_heading"), (cell) => cell.getAttribute("colspan"))).toEqual(["4", "4"]);
+    expect(() => {
+      el.selection = [0];
+    }).toThrow(/can't be selected/);
+  });
+
+  it("keeps each row's number with it as the rows are sorted", async () => {
+    const el = await numbered({}, [0, 1, 2, 3, 4]);
+    el.sort = [{ column: "y", descending: true }];
+    expect(shown(el)).toEqual([2, 0, 1, 3, 4]);
+    expect(Array.from(el.querySelectorAll("tbody .gt-i-rownum"), (span) => span.textContent)).toEqual(["3", "1", "2", "4", "5"]);
+  });
+
+  it("puts the number before the checkbox when rows can be selected", async () => {
+    const el = await numbered({ controls: { selection: "multiple" } });
+    const cell = el.rowElement(2)?.cells[0] as HTMLTableCellElement;
+    expect(cell.matches(".gt-i-select:not(.gt-i-unselectable)")).toBe(true);
+    expect(Array.from(cell.children, (child) => child.tagName)).toEqual(["SPAN", "INPUT"]);
+    expect(number(el, 2)).toBe("3");
+    (cell.querySelector("input") as HTMLInputElement).click();
+    expect(el.selection).toEqual([2]);
+    expect(el.querySelector("thead th.gt-i-select.gt-i-select-all input")?.getAttribute("aria-label")).toBe("Select all rows");
+  });
+
+  it("makes the column as wide as the numbers", async () => {
+    const colgroup = `<colgroup><col style="width:100px"><col style="width:100px"><col style="width:100px"></colgroup>`;
+    const widths: string[] = [];
+    for (const selection of [null, "single"] as const) {
+      const { html, spec } = gtTable(GROUPED, { display: { row_numbers: true }, controls: { selection } });
+      const el = await mount(
+        `<gt-table>${html.replace('<table class="gt_table">', `<table class="gt_table">${colgroup}`)}${specScript(spec)}</gt-table>`,
+      );
+      widths.push((el.querySelector("colgroup > col.gt-i-select") as HTMLElement).style.width);
+    }
+    expect(widths).toEqual(["calc(1ch + 1em)", "calc(1ch + 2.4em)"]);
+  });
+
+  it("doesn't search or export the numbers", async () => {
+    const plain = await mountTable(GROUPED, { controls: { search: true } });
+    const csv = plain.toCSV();
+    plain.search = "1";
+    const found = shown(plain);
+    const el = await numbered({ controls: { search: true } });
+    expect(el.toCSV()).toBe(csv);
+    el.search = "1";
+    expect(shown(el)).toEqual(found);
+  });
+
+  it("shows each column's dtype first under its label, apart from the label's text", async () => {
+    const plain = await mountTable(GROUPED, { columns: { x: { hideable: true }, y: { hideable: true } } });
+    const csv = plain.toCSV();
+    const el = await mountTable(GROUPED, {
+      columns: { x: { dtype: "f64", hideable: true }, y: { dtype: "str", hideable: true }, row: { dtype: "str" } },
+    });
+    for (const [column, dtype] of [["x", "f64"], ["y", "str"]] as const) {
+      const badge = header(el, column).querySelector(".gt-i-dtype");
+      expect(badge?.textContent).toBe(dtype);
+      expect(badge?.parentElement?.firstElementChild).toBe(badge);
+    }
+    // (The stub's label cell has no id, so no dtype)
+    expect(el.querySelectorAll(".gt-i-dtype")).toHaveLength(2);
+    expect(el.toCSV()).toBe(csv);
+  });
+
+  it("says how many rows and columns there are, and how many are shown", async () => {
+    const el = await mountTable(GROUPED, {
+      controls: { search: true },
+      display: { dimensions: true },
+      columns: { y: { hideable: true } },
+      filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }],
+    });
+    const toolbar = el.querySelector(".gt-i-toolbar") as HTMLElement;
+    expect(toolbar.firstElementChild?.matches(".gt-i-dimensions")).toBe(true);
+    expect(toolbar.querySelector("input.gt-i-search")).not.toBeNull();
+    expect(dimensions(el)).toBe("5 rows × 3 columns");
+    el.search = "a";
+    expect(dimensions(el)).toBe("3 of 5 rows × 3 columns");
+    el.search = "";
+    el.filter = { and: [{ col: "y", op: "in", value: ["b"] }] };
+    expect(dimensions(el)).toBe("1 of 5 rows × 3 columns");
+    el.hiddenColumns = ["y"];
+    expect(dimensions(el)).toBe("1 of 5 rows × 2 of 3 columns");
+  });
+
+  it("says so in a toolbar of its own, without a search box there", async () => {
+    for (const controls of [{ search: false }, { search: true, bar: true }]) {
+      const el = await mountTable([0], { controls, display: { dimensions: true } });
+      expect(el.querySelector(".gt-i-toolbar")?.children).toHaveLength(1);
+      expect(dimensions(el)).toBe("5 rows × 3 columns");
+    }
+  });
+
+  it("tints the cells of missing values, which keep their tint as they move", async () => {
+    const el = await mountTable(GROUPED, { columns: { x: { missing: [3] }, row: { missing: [0] } } });
+    expect(missing(el)).toEqual([
+      [3, 1],
+      [0, 0],
+    ]);
+    expect(el.rowElement(3)?.querySelector(".gt-i-missing")?.textContent).toBe("");
+    el.sort = [{ column: "x" }];
+    expect(missing(el).sort()).toEqual([
+      [0, 0],
+      [3, 1],
+    ]);
+  });
+
+  it("tints the right cells beside a group's label and with row numbers", async () => {
+    const el = await mountTable(GROUPED, {
+      groupsAsColumn: true,
+      display: { row_numbers: true },
+      columns: { x: { missing: [3] }, y: { missing: [1] } },
+    });
+    expect(el.rowElement(3)?.querySelector(".gt-i-missing")?.textContent).toBe("");
+    expect(el.rowElement(1)?.querySelector(".gt-i-missing")?.textContent).toBe("a");
+    expect(el.querySelectorAll(".gt-i-missing")).toHaveLength(2);
   });
 });
 
