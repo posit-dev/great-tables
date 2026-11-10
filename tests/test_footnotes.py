@@ -1064,6 +1064,41 @@ def test_source_notes_multiline_with_footnotes():
     assert len(source_note_rows) >= 3
 
 
+@pytest.mark.parametrize("multiline", [True, False])
+def test_footnotes_come_before_source_notes(multiline: bool):
+    # gt puts the footnotes above the source notes in the footer
+    gt_table = (
+        GT(pd.DataFrame({"values": [42, 123]}))
+        .tab_source_note("First source note")
+        .tab_footnote("Value footnote", locations=loc.body(columns="values", rows=[0]))
+        .tab_source_note("Second source note")
+        .tab_options(source_notes_multiline=multiline)
+    )
+
+    footer = re.search(r"<tfoot>(.*?)</tfoot>", gt_table._render_as_html(), re.DOTALL)
+    assert footer
+
+    row_classes = re.findall(r'<tr class="(gt_footnotes|gt_sourcenotes)">', footer.group(1))
+    n_source_note_rows = 2 if multiline else 1
+    assert row_classes == ["gt_footnotes"] + ["gt_sourcenotes"] * n_source_note_rows
+
+
+@pytest.mark.parametrize("multiline", [True, False])
+@pytest.mark.parametrize("location", [loc.source_notes(), loc.footer()])
+def test_source_note_styles_kept_in_both_modes(multiline: bool, location):
+    gt_table = (
+        GT(pd.DataFrame({"values": [42, 123]}))
+        .tab_source_note("First source note")
+        .tab_source_note("Second source note")
+        .tab_style(style.text(color="red"), location)
+        .tab_options(source_notes_multiline=multiline)
+    )
+
+    source_note_cells = re.findall(r'<td class="gt_sourcenote"[^>]*>', gt_table._render_as_html())
+    assert len(source_note_cells) == (2 if multiline else 1)
+    assert all('style="color: red;"' in cell for cell in source_note_cells)
+
+
 def test_footnote_and_source_note_integration():
     df = pd.DataFrame({"numbers": [100, 200], "text": ["Alpha", "Beta"]})
 

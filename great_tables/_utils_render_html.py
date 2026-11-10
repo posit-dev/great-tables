@@ -1615,37 +1615,7 @@ def create_footer_component_h(data: GTData) -> str:
 
     footer_rows = []
 
-    # Add source notes if they exist
-    if source_notes:
-        # Filter list of StyleInfo to only those that apply to the source notes
-        styles_footer = [x for x in data._styles if _is_loc(x.locname, loc.LocFooter)]
-        styles_source_notes = [x for x in data._styles if _is_loc(x.locname, loc.LocSourceNotes)]
-
-        # Obtain the `multiline` and `separator` options from `_options`
-        multiline = data._options.source_notes_multiline.value
-        separator = cast(str, data._options.source_notes_sep.value)
-
-        if multiline:
-            # Each source note gets its own row with gt_sourcenotes class on the tr
-            _styles = _flatten_styles(styles_footer + styles_source_notes, wrap=True)
-            for note in source_notes:
-                note_str = _process_text(note)
-                footer_rows.append(
-                    f'<tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="{n_cols_total}"{_styles}><span class="gt_from_md">{note_str}</span></td></tr>'
-                )
-        else:
-            # All source notes in a single row with gt_sourcenotes class on the tr
-            source_note_list = []
-            for note in source_notes:
-                note_str = _process_text(note)
-                source_note_list.append(note_str)
-
-            source_notes_str_joined = separator.join(source_note_list)
-            footer_rows.append(
-                f'<tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="{n_cols_total}"><span class="gt_from_md">{source_notes_str_joined}</span></td></tr>'
-            )
-
-    # Add footnotes if they exist
+    # Add footnotes if they exist (above the source notes, as in gt)
     if footnotes:
         # Process footnotes and assign marks
         footnotes_with_marks = _process_footnotes_for_display(data, footnotes)
@@ -1673,6 +1643,37 @@ def create_footer_component_h(data: GTData) -> str:
                 footer_rows.append(
                     f'<tr class="gt_footnotes"><td class="gt_footnote" colspan="{n_cols_total}"{_fn_styles}>{footnote_html}</td></tr>'
                 )
+
+    # Add source notes if they exist
+    if source_notes:
+        # Filter list of StyleInfo to only those that apply to the source notes
+        styles_footer = [x for x in data._styles if _is_loc(x.locname, loc.LocFooter)]
+        styles_source_notes = [x for x in data._styles if _is_loc(x.locname, loc.LocSourceNotes)]
+
+        # Obtain the `multiline` and `separator` options from `_options`
+        multiline = data._options.source_notes_multiline.value
+        separator = cast(str, data._options.source_notes_sep.value)
+
+        _styles = _flatten_styles(styles_footer + styles_source_notes, wrap=True)
+
+        if multiline:
+            # Each source note gets its own row with gt_sourcenotes class on the tr
+            for note in source_notes:
+                note_str = _process_text(note)
+                footer_rows.append(
+                    f'<tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="{n_cols_total}"{_styles}><span class="gt_from_md">{note_str}</span></td></tr>'
+                )
+        else:
+            # All source notes in a single row with gt_sourcenotes class on the tr
+            source_note_list = []
+            for note in source_notes:
+                note_str = _process_text(note)
+                source_note_list.append(note_str)
+
+            source_notes_str_joined = separator.join(source_note_list)
+            footer_rows.append(
+                f'<tr class="gt_sourcenotes"><td class="gt_sourcenote" colspan="{n_cols_total}"{_styles}><span class="gt_from_md">{source_notes_str_joined}</span></td></tr>'
+            )
 
     # If no footer content, return empty string
     if not footer_rows:
