@@ -779,10 +779,12 @@ def check_view(
     hidden: Sequence[str] = (),
     hideable: Sequence[str] = (),
     kinds: Mapping[str | None, ColumnKind] | None = None,
+    group_by: str | None = None,
+    groupable: Sequence[str] = (),
 ) -> ViewSpec:
     """
-    Check a view against a table's filters, sortable columns, and the columns readers can hide
-    (in column order), as the runtime does. (A date filter's bounds go by its column's kind: a
+    Check a view against a table's filters, sortable columns, the columns readers can hide (in
+    column order), and those they can group the rows by, as the runtime does. (A date filter's bounds go by its column's kind: a
     column of dates takes dates, without times.)
     """
     by_column = {f["column"]: f for f in filters}
@@ -849,10 +851,18 @@ def check_view(
                 "one with `i_cols_controls(hideable=True)` (the stub and the row group column "
                 "can't be)."
             )
+    if group_by is not None and group_by not in groupable:
+        raise ValueError(
+            f"The view can't group the rows by column {group_by!r}: it isn't one readers can "
+            "group them by. Make it one with `i_cols_controls(groupable=True)` (the stub can't be, "
+            "and neither can a column the table can't be sorted by, or any column of a table with "
+            "row groups or summary rows)."
+        )
     return ViewSpec(
         filter=query,
         sort=[{"column": column, "descending": desc} for column, desc in sort],
         hidden=[column for column in hideable if column in hidden],
+        group_by=group_by,
     )
 
 
