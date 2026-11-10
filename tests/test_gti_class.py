@@ -1753,6 +1753,67 @@ def test_i_row_details_templates_follow_the_table():
     assert end < first < out.index("data-gti-spec") < out.index("</gt-table>")
 
 
+# linked tables ----
+
+
+@pytest.mark.parametrize("frame", ["pandas", "polars"])
+def test_i_link_gives_each_rows_key(frame: str):
+    data = pd.DataFrame(
+        {
+            "id": ["a", "b", "c", "d"],
+            "n": [1.0, np.nan, 3.0, 1.0],
+            "d": pd.to_datetime(["2024-01-02", None, "2024-03-04", "2024-01-02"]),
+        }
+    )
+    if frame == "polars":
+        data = pl.from_pandas(data)
+    gti = GTI(data, id="t").cols_label(n="Number").i_link("g", on="n")
+    link = spec_of(gti)["link"]
+    # (A missing value is `None`; a table without a title goes by its ID)
+    assert link == {
+        "group": "g",
+        "on": "n",
+        "name": "t",
+        "label": "Number",
+        "keys": [1.0, None, 3.0, 1.0],
+    }
+    keys = spec_of(gti.i_link("g", on="d"))["link"]["keys"]
+    assert keys == ["2024-01-02T00:00:00", None, "2024-03-04T00:00:00", "2024-01-02T00:00:00"]
+
+
+def test_i_link_goes_by_the_tables_title_and_can_be_on_a_hidden_column():
+    gti = GTI(DF).tab_header(title=md("**Makes** of cars")).cols_hide("y").i_link("g", on="y")
+    link = spec_of(gti)["link"]
+    assert (link["name"], link["label"], link["keys"]) == ("Makes of cars", "y", DF["y"].tolist())
+    # (Nor title nor ID: no name)
+    assert spec_of(GTI(DF).i_link("g", on="id"))["link"]["name"] is None
+
+
+def test_i_link_turns_off():
+    assert spec_of(GTI(DF))["link"] is None
+    assert spec_of(GTI(DF).i_link("g", on="y").i_link(None))["link"] is None
+    assert spec_of(GT(DF).opt_interactive())["link"] is None
+
+
+def test_i_link_checks_its_arguments():
+    with pytest.raises(TypeError, match="`group=` must be a string"):
+        GTI(DF).i_link(1, on="y")  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="`group=` must name the tables' group"):
+        GTI(DF).i_link(" ", on="y")
+    with pytest.raises(ValueError, match="`on=` must name the column"):
+        GTI(DF).i_link("g")
+    with pytest.raises(TypeError, match="`on=` must be the name of a column"):
+        GTI(DF).i_link("g", on=["y"])  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="names a column the data doesn't have: 'nope'"):
+        GTI(DF).i_link("g", on="nope")
+
+
+def test_i_link_keeps_room_for_the_bar():
+    gti = GTI(DF).i_search(False)
+    assert gt_table_tag(gti) == "<gt-table>"
+    assert gt_table_tag(gti.i_link("g", on="y")) == "<gt-table data-gti-bar>"
+
+
 # the control bar ----
 
 
