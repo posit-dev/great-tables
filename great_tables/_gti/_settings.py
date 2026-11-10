@@ -56,6 +56,13 @@ ResponsiveMode = Literal["scroll", "stack", "collapse", "auto"]
 
 RESPONSIVE_MODES: tuple[ResponsiveMode, ...] = ("scroll", "stack", "collapse", "auto")
 
+# The settings a new `GTI` table starts with: those for a report (`GTI`'s defaults), or those for
+# exploring data (every column filtered and profiled, hideable and movable, compact rows, CSV
+# export, and what `i_inspect()` shows)
+Preset = Literal["report", "explorer"]
+
+PRESETS: tuple[Preset, ...] = ("report", "explorer")
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -84,6 +91,13 @@ class Settings:
     highlight: bool = True
     compact: bool = False
     wrap: bool = True
+    # (What readers see of the data itself, as `i_inspect()` set it: each row's number (its place
+    # in the data), each column's dtype (under its label), the number of rows and columns (above
+    # the table), and the missing values (tinted); none, by default)
+    row_numbers: bool = False
+    dtypes: bool = False
+    dimensions: bool = False
+    missing: bool = False
     # (GTI's control bar below the table; `opt_interactive()` tables keep a search box above the
     # table and page controls below it, as `pagination_type` says)
     bar: bool = True
