@@ -276,6 +276,8 @@ def test_spec_stub_for_summary_labels_only():
         "hideable": False,
         "reorderable": False,
         "priority": None,
+        "dtype": None,
+        "missing": None,
     }
     assert spec["stub"]["columns"] == []
     assert None not in spec["ranks"]
@@ -436,12 +438,24 @@ def test_spec_pagination_unknown_type_is_numbers():
 
 
 def test_spec_display_default():
-    assert spec_of(GT(DF))["display"] == {"highlight": False, "compact": False, "wrap": True}
+    assert spec_of(GT(DF))["display"] == {
+        "highlight": False,
+        "compact": False,
+        "wrap": True,
+        "row_numbers": False,
+        "dimensions": False,
+    }
 
 
 def test_spec_display_from_opt_interactive():
     gt = GT(DF).opt_interactive(use_highlight=True, use_compact_mode=True, use_text_wrapping=False)
-    assert spec_of(gt)["display"] == {"highlight": True, "compact": True, "wrap": False}
+    assert spec_of(gt)["display"] == {
+        "highlight": True,
+        "compact": True,
+        "wrap": False,
+        "row_numbers": False,
+        "dimensions": False,
+    }
 
 
 def row_padding(html: str, selector: str) -> str:
