@@ -9,7 +9,7 @@ import polars as pl
 import pyarrow as pa
 import pytest
 
-from great_tables import GT, GTI, exibble, html, md
+from great_tables import GT, GTI, exibble, html, loc, md, style
 from great_tables._gti._render import (
     STACK_ROOT,
     STACK_WIDTH,
@@ -1812,6 +1812,148 @@ def test_i_link_keeps_room_for_the_bar():
     gti = GTI(DF).i_search(False)
     assert gt_table_tag(gti) == "<gt-table>"
     assert gt_table_tag(gti.i_link("g", on="y")) == "<gt-table data-gti-bar>"
+
+
+# data colors ----
+
+COLOR_DF = pd.DataFrame(
+    {
+        "id": ["a", "b", "c", "d"],
+        "n": [1.0, None, float("inf"), 4.0],
+        "s": ["x", "y", "x", "z"],
+        "m": [-2, 1, 0, 3],
+    }
+)
+DEFAULT_PALETTE = ["#000000", "#DF536B", "#61D04F", "#2297E6", "#28E2E5", "#CD0BBC", "#F5C710"]
+
+
+def colors_of(gt: GT) -> dict:
+    return {color["column"]: color for color in spec_of(gt)["colors"]}
+
+
+def test_data_color_keeps_how_it_colored():
+    gt = GT(COLOR_DF).data_color(columns=["n", "s"], palette=["red", "#00FF0080"], alpha=0.5)
+    gt = gt.data_color(columns="m", rows=[1, 3], midpoint=0, autocolor_text=False)
+    first, second = gt._data_colors
+    # (The palette's colors without their alpha, and the alpha its colors are given)
+    assert (first.columns, first.rows, first.palette, first.alpha) == (
+        ["n", "s"],
+        [0, 1, 2, 3],
+        ["#FF0000", "#00FF00"],
+        "7F",
+    )
+    assert (first.midpoint, first.contrast_algo) == (None, "apca")
+    assert (second.rows, second.alpha, second.midpoint, second.contrast_algo) == (
+        [1, 3],
+        "",
+        0,
+        None,
+    )
+    # (The last style of each call)
+    assert first.last is gt._styles[7] and second.last is gt._styles[-1]
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"domain": [0, 10]},
+        {"fn": lambda x: ["#FF0000"] * len(x)},
+        {"direction": "row"},
+        {"rows": []},
+    ],
+)
+def test_data_color_keeps_only_colors_from_the_rows(kwargs: dict):
+    assert GT(COLOR_DF).data_color(columns="m", **kwargs)._data_colors == []
+
+
+def test_data_color_keep_by_default():
+    gti = GTI(COLOR_DF, rowname_col="id").data_color(columns=["n", "s"])
+    assert gti._interactive.recolor == ()
+    assert spec_of(gti)["colors"] == []
+
+
+def test_data_color_recompute():
+    gti = (
+        GTI(COLOR_DF, rowname_col="id")
+        .data_color(columns=["n", "s"], alpha=0.5)
+        .data_color(columns="m", palette="RdBu", midpoint=0, contrast_algo="wcag")
+        .i_cols_controls(data_color="recompute")
+    )
+    assert gti._interactive.recolor == ("n", "s", "m")
+    colors = colors_of(gti)
+    # (Without missing values; infinite ones by name)
+    assert colors["n"] == {
+        "column": "n",
+        "rows": [0, 2, 3],
+        "values": [1.0, "Infinity", 4.0],
+        "levels": None,
+        "palette": [*DEFAULT_PALETTE, "#9E9E9E"],
+        "alpha": "7F",
+        "midpoint": None,
+        "text": "apca",
+        "fixed": [],
+    }
+    # (Text by its levels, in the order they first come)
+    assert (colors["s"]["values"], colors["s"]["levels"]) == ([0, 1, 0, 2], ["x", "y", "z"])
+    assert (colors["m"]["values"], colors["m"]["midpoint"], colors["m"]["text"]) == (
+        [-2, 1, 0, 3],
+        0,
+        "wcag",
+    )
+    assert colors["m"]["palette"][0] == "#67001F"
+
+
+def test_data_color_recompute_for_the_columns_named():
+    gti = GTI(COLOR_DF).data_color(columns=["n", "s", "m"]).i_cols_controls(data_color="recompute")
+    assert list(colors_of(gti.i_cols_controls(["n", "m"], data_color="keep"))) == ["s"]
+    # (Not for a hidden column, one only for querying, the stub, or one `data_color()` didn't color)
+    assert list(colors_of(gti.cols_hide("n").i_cols_controls("s", display=False))) == ["m"]
+    stubbed = GTI(COLOR_DF, rowname_col="s").data_color(columns=["s", "m"])
+    assert list(colors_of(stubbed.i_cols_controls(data_color="recompute"))) == ["m"]
+    plain = (
+        GTI(COLOR_DF).data_color(columns="m").i_cols_controls(["n", "s"], data_color="recompute")
+    )
+    assert colors_of(plain) == {}
+
+
+def test_data_color_recompute_leaves_cells_later_styles_color():
+    gti = (
+        GTI(COLOR_DF)
+        .tab_style(style.fill("red"), loc.body("m", rows=[0]))
+        .data_color(columns=["n", "m"])
+        .tab_style(style.fill("red"), loc.body("m", rows=[1]))
+        .tab_style(style.text(color="blue"), loc.body("m", rows=[2]))
+        .tab_style(style.text(weight="bold"), loc.body("m", rows=[3]))
+        .tab_style(style.fill("red"), loc.title())
+        .i_cols_controls(data_color="recompute")
+    )
+    # (A style before it is covered by its colors; a later one without a color doesn't count)
+    assert colors_of(gti)["m"]["fixed"] == [1, 2]
+    assert colors_of(gti)["n"]["fixed"] == []
+    # (A later `data_color()` colors them all)
+    again = gti.data_color(columns="m", palette="Blues")
+    assert [color["fixed"] for color in spec_of(again)["colors"]] == [[], [0, 1, 2, 3], []]
+
+
+def test_data_color_recompute_leaves_out_the_levels_of_ordered_categoricals():
+    data = pl.DataFrame({"e": pl.Series(["b", "a"], dtype=pl.Enum(["a", "b"])), "s": ["b", "a"]})
+    gti = GTI(data).data_color().i_cols_controls(data_color="recompute")
+    assert list(colors_of(gti)) == ["s"]
+    data = pd.DataFrame({"c": pd.Categorical(["b", "a"], categories=["a", "b"], ordered=True)})
+    assert colors_of(GTI(data).data_color().i_cols_controls(data_color="recompute")) == {}
+
+
+def test_data_color_recompute_from_polars():
+    data = pl.from_pandas(COLOR_DF)
+    gti = GTI(data).data_color(columns=["n", "s"]).i_cols_controls(data_color="recompute")
+    pandas = GTI(COLOR_DF).data_color(columns=["n", "s"]).i_cols_controls(data_color="recompute")
+    assert colors_of(gti) == colors_of(pandas)
+
+
+@pytest.mark.parametrize("value", ["recolor", True, "Keep"])
+def test_i_cols_controls_data_color_must_be_known(value):
+    with pytest.raises(ValueError, match='`data_color=` must be "keep", "recompute", or `None`'):
+        GTI(DF).i_cols_controls(data_color=value)
 
 
 # the control bar ----
