@@ -6,6 +6,7 @@ from decimal import Decimal
 from math import isinf, isnan
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
+from great_tables._gt_data import DataColorInfo
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
 from great_tables._tab_create_modify import tab_style
 from great_tables._tbl_data import (
@@ -538,6 +539,20 @@ def data_color(
                 autocolor_text=autocolor_text,
                 contrast_algo=contrast_algo,
             )
+
+    # Keep how the columns were colored where their colors depend on the rows colored, so that an
+    # interactive table can color them again from the rows it shows
+    if direction == "column" and domain is None and fn is None and columns_resolved and row_pos:
+        info = DataColorInfo(
+            columns=list(columns_resolved),
+            rows=row_pos,
+            palette=[color[:7] for color in palette],
+            alpha="" if alpha is None else _float_to_hex(float(alpha)),
+            midpoint=midpoint,
+            contrast_algo=contrast_algo if autocolor_text else None,
+            last=gt_obj._styles[-1],
+        )
+        gt_obj = gt_obj._replace(_data_colors=[*gt_obj._data_colors, info])
 
     return gt_obj
 
