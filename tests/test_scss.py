@@ -93,3 +93,20 @@ def test_footnotes_font_color(background: str, color: str):
 
     assert "font-color(" not in css
     assert f"color: {color};" in _css_rule(css, "#abc .gt_footnotes")
+
+
+@pytest.mark.parametrize("compress", [True, False])
+@pytest.mark.parametrize("id, scope", [("abc", "#abc"), (None, ".gt_table")])
+def test_element_rules_scoped_to_table(compress: bool, id: "str | None", scope: str):
+    # Rules for bare elements mustn't reach other tables on the page
+    gt = GT(pd.DataFrame({"x": [1, 2]}))
+    css = compile_scss(gt, id=id, compress=compress)
+    selectors = [
+        s.strip()
+        for rule in re.findall(r"(?:^|\})\s*([^{}@]+?)\s*\{", css, flags=re.MULTILINE)
+        for s in rule.split(",")
+    ]
+    elements = ["thead", "tbody", "tfoot", "tr", "td", "th", "p"]
+
+    assert {f"{scope} {e}" for e in elements} <= set(selectors)
+    assert not [s for s in selectors if s.split(" ")[0] in elements]
