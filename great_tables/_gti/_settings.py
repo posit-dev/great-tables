@@ -106,10 +106,11 @@ class Settings:
     unsortable: tuple[str, ...] = ()
     unsearchable: tuple[str, ...] = ()
     unresizable: tuple[str, ...] = ()
-    # (The columns readers can hide, and those they can move, in the order they were set; none, by
-    # default)
+    # (The columns readers can hide, those they can move, and those they can group the rows by, in
+    # the order they were set; none, by default)
     hideable: tuple[str, ...] = ()
     reorderable: tuple[str, ...] = ()
+    groupable: tuple[str, ...] = ()
     # (The columns left out of the table but shipped for querying, in the order they were set)
     query_only: tuple[str, ...] = ()
     # (The columns pinned to a side, as `i_cols_pin()` set them, in the order they were set)
@@ -119,10 +120,12 @@ class Settings:
     # (The columns with a profile under their label, and its plot, in the order they were set)
     profiles: tuple[tuple[str, ProfilePlot], ...] = ()
     # (How the table is first shown: a query, checked as `i_view()` takes it, and sort keys,
-    # each a column and whether it's descending; and the columns hidden)
+    # each a column and whether it's descending; the columns hidden; and the column the rows are
+    # grouped by)
     view_filter: dict[str, list[dict[str, Any]]] | None = None
     view_sort: tuple[tuple[str, bool], ...] = ()
     view_hidden: tuple[str, ...] = ()
+    view_group_by: str | None = None
     # (How readers can export the rows, from the bar; none, by default. The name of a download,
     # without its extension)
     export_formats: tuple[ExportFormat, ...] = ()
