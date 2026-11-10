@@ -585,6 +585,26 @@ def profile_html(table_id: str, mode: str = "scroll") -> str:
     return render_gti_html(gti, runtime="none")
 
 
+def explorer_html(table_id: str, mode: str = "scroll", select: bool = False) -> str:
+    # exibble's num, char, fctr and date (8 rows, with row_1... as the stub), as an explorer: the
+    # rows numbered, the dtypes under the labels, the dimensions above, and the missing values
+    # (num's in row 6, char's in row 5, date's in row 7) tinted, as `sub_missing()` shows them.
+    # Optionally with rows to select, and stacked or dropping columns in a narrow container
+    gti = (
+        GTI(
+            exibble[["num", "char", "fctr", "date", "row"]],
+            rowname_col="row",
+            id=table_id,
+            preset="explorer",
+        )
+        .sub_missing()
+        .opt_table_font(font="monospace", add=False)
+        .i_responsive(mode)  # type: ignore[arg-type]
+        .i_cols_priority("char")
+    )
+    return render_gti_html(gti.i_selection("multiple") if select else gti, runtime="none")
+
+
 def query_only_gti(table_id: str, filter: str | None = None, sort: str | None = None) -> GTI:
     # Exibble three times over (24 rows, in two groups), on one page, showing num and char; and
     # left out for querying, fctr (as a facet, of its text in capitals), date (as text, by the
@@ -1128,6 +1148,23 @@ def main() -> None:
             for suffix, width, options in [
                 ("", "800px", {}),
                 ("-stack", "360px", {"mode": "stack"}),
+            ]
+        },
+        # Explorers (`preset="explorer"`): in a wide container, with rows to select, and stacked or
+        # dropping columns in narrow ones
+        **{
+            f"explorer{suffix}.html": page(
+                f'<div style="width: {width}">'
+                + explorer_html("e", **options)
+                + "</div>\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix, width, options in [
+                ("", "800px", {}),
+                ("-select", "800px", {"select": True}),
+                ("-stack", "360px", {"mode": "stack"}),
+                ("-collapse", "300px", {"mode": "collapse"}),
             ]
         },
         "collapse-nostub.html": page(
