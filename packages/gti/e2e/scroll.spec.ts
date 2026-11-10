@@ -74,6 +74,10 @@ test.describe("a body that scrolls", () => {
   test("draws the table's borders as GT does", async ({ page }) => {
     for (const name of ["scroll-borders.html", "scroll-borders-column.html"]) {
       await open(page, name);
+      // (A window as tall as the page, so that no screenshot scrolls: to show an element taller than
+      // the window, Firefox centers it, at half a pixel when the heights differ by an odd number)
+      const { width } = page.viewportSize() ?? { width: 1280 };
+      await page.setViewportSize({ width, height: await page.evaluate(() => document.documentElement.scrollHeight) });
       // (A table as GT draws it, and one with a body that scrolls, taller than the table)
       const tables = el(page);
       await expect(tables.nth(0)).toHaveAttribute("data-gti-state", "ready");
