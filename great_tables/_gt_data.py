@@ -126,6 +126,7 @@ class GTData:
     _transforms: list  # list[TextTransformInfo]
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
+    _data_colors: list = field(default_factory=list)  # list[DataColorInfo]
     _has_built: bool = False
 
     def _replace(self, **kwargs: Any) -> Self:
@@ -177,6 +178,7 @@ class GTData:
             _transforms=[],
             _options=options,
             _google_font_imports=GoogleFontImports(),
+            _data_colors=[],
         )
 
 
@@ -1116,6 +1118,30 @@ class TextTransformInfo:
     # `cols_align_decimal()`)
     fn: Callable[[str], str] | Callable[[list[str]], list[str]]
     per_column: bool = False
+
+
+# Data Colors ----
+
+
+@dataclass(frozen=True)
+class DataColorInfo:
+    """A `data_color()` call whose colors depend on the values colored.
+
+    Its colors are made from the values of the rows it colored in each of its columns (a domain
+    inferred from them, with no `fn=`, down each column), so an interactive table can make them
+    again from the rows a reader's search and filters keep. Static tables don't use it.
+    """
+
+    columns: list[str]
+    rows: list[int]
+    # (The palette's colors, as #RRGGBB; the alpha appended to each color made, as hex (or "");
+    # the palette's midpoint, if any; and the contrast algorithm for the text, if it's colored)
+    palette: list[str]
+    alpha: str
+    midpoint: int | float | None
+    contrast_algo: Literal["apca", "wcag"] | None
+    # (The last of the styles it added to `_styles`, after which a style of the same cell wins)
+    last: StyleInfo
 
 
 # Column Merge ----

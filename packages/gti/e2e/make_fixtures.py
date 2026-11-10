@@ -17,6 +17,7 @@ from great_tables import GT, GTI, exibble, loc, md, style
 from great_tables._gti import render_gti_html
 from great_tables._gti._query import query_code, view_rows
 from great_tables._gti._render import render_parts
+from great_tables._styles import CellStyleFill, CellStyleText
 
 HERE = Path(__file__).parent
 OUT = HERE / ".fixtures"
@@ -652,6 +653,55 @@ def link_html() -> str:
     )
 
 
+COLOR_DF = pd.DataFrame(
+    {
+        "fruit": ["apple", "avocado", "banana", "blueberry", "cherry", "date"],
+        "n": [1.0, 2.0, 3.0, 4.0, 5.0, None],
+        "m": [1, 2, 3, 4, 5, 6],
+    }
+)
+# (The searches the test makes, and the rows they keep)
+COLOR_SEARCHES = {"b": [2, 3], "a": [0, 1, 2, 5]}
+
+
+def n_colors(gt: GT, rows: list[int]) -> dict[str, list[str | None]]:
+    # The fill and text color of each of n's cells, by its row in `COLOR_DF` (the table's `rows`)
+    found: dict[str, list[str | None]] = {}
+    for info in gt._styles:
+        if info.colname == "n":
+            cell = found.setdefault(str(rows[info.rownum]), [None, None])
+            for cell_style in info.styles:
+                if isinstance(cell_style, (CellStyleFill, CellStyleText)):
+                    cell[isinstance(cell_style, CellStyleText)] = cell_style.color
+    return found
+
+
+def colors_html() -> str:
+    # Fruits (apple, avocado, banana, blueberry, cherry, date; date's n is missing), whose n and m
+    # are colored blue, and apple's n red; n's colors made again from the rows a search keeps,
+    # m's left as they are. Then, as JSON, n's colors (as `n_colors()` has them) with every row
+    # shown, and with each search, as `data_color()` makes them from the rows kept
+    gti = (
+        GTI(COLOR_DF, rowname_col="fruit", id="c")
+        .data_color(columns=["n", "m"], palette="Blues")
+        .tab_style(style.fill("#FF0000"), loc.body("n", rows=[0]))
+        .i_cols_controls("n", data_color="recompute")
+        .i_pagination(False)
+    )
+    first = n_colors(gti, list(range(len(COLOR_DF))))
+    expected = {"": first}
+    for search, kept in COLOR_SEARCHES.items():
+        alone = GT(COLOR_DF.iloc[kept].reset_index(drop=True)).data_color(
+            columns="n", palette="Blues"
+        )
+        # (The cells the search hides keep their colors, and so does apple's, which still counts)
+        expected[search] = {**first, **n_colors(alone, kept), "0": first["0"]}
+    return (
+        render_gti_html(gti, runtime="none")
+        + f'\n<script type="application/json" id="expected">{json.dumps(expected)}</script>'
+    )
+
+
 def query_only_gti(table_id: str, filter: str | None = None, sort: str | None = None) -> GTI:
     # Exibble three times over (24 rows, in two groups), on one page, showing num and char; and
     # left out for querying, fctr (as a facet, of its text in capitals), date (as text, by the
@@ -1229,6 +1279,8 @@ def main() -> None:
         },
         # Two tables linked by a column: the rows selected in one filter the other
         "link.html": page(link_html() + "\n" + runtime_src, head=styles),
+        # A table whose colors are made again from the rows a search keeps
+        "colors.html": page(colors_html() + "\n" + runtime_src, head=styles),
         "collapse-nostub.html": page(
             '<div style="width: 240px">'
             + render_gti_html(

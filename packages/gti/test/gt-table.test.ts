@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   type BodyRow,
   type CodeSpec,
+  type ColorSpec,
   type ColumnSpec,
   type ControlsSpec,
   type DisplaySpec,
@@ -36,6 +37,7 @@ import {
   type ViewEventDetail,
 } from "../src/index";
 import { TableBorders } from "../src/borders";
+import { ramp, textColor } from "../src/color";
 import { Profile } from "../src/profile";
 
 // Let mutation observers run.
@@ -103,14 +105,17 @@ interface TableOptions {
   details?: Record<number, string>;
   profiles?: ProfileSpec[];
   link?: object | null;
+  colors?: ColorSpec[];
+  /** The inline style of each data row's `x` cell, by row. */
+  xStyles?: Record<number, string>;
 }
 
 /** A table shaped like GT's, and its spec. */
 function gtTable(body: BodyRow[], options: TableOptions = {}) {
   const striping = options.striping ?? { stub: false, body: false };
   const groupsAsColumn = options.groupsAsColumn ?? false;
-  const cell = (tag: string, classes: string, text: string) =>
-    `<${tag} class="${classes}">${text}</${tag}>`;
+  const cell = (tag: string, classes: string, text: string, style?: string) =>
+    `<${tag} class="${classes}"${style === undefined ? "" : ` style="${style}"`}>${text}</${tag}>`;
 
   let j = 0;
   let lead: string | null = null;
@@ -139,7 +144,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
       trs.push(
         `<tr${trClass}>${leading}` +
           cell("th", `gt_row gt_left gt_stub${striped(striping.stub)}`, `row_${entry + 1}`) +
-          cell("td", `gt_row gt_right${striped(striping.body)}`, X[entry] as string) +
+          cell("td", `gt_row gt_right${striped(striping.body)}`, X[entry] as string, options.xStyles?.[entry]) +
           cell("td", `gt_row gt_left${striped(striping.body)}`, Y[entry] as string) +
           "</tr>",
       );
@@ -207,6 +212,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     ...(options.details === undefined ? {} : { details: Object.keys(options.details).map(Number) }),
     ...(options.profiles === undefined ? {} : { profiles: options.profiles }),
     ...(options.link === undefined ? {} : { link: options.link }),
+    ...(options.colors === undefined ? {} : { colors: options.colors }),
   };
   return { html, spec };
 }
@@ -8445,5 +8451,112 @@ describe("linked tables", () => {
     const [el] = (await mountLinked(linkedTable("Makes", MAKES, { keys: ["a"] }))) as [GtTable];
     expect(el.getAttribute("data-gti-state")).toBe("error");
     expect(warn).toHaveBeenCalledWith(expect.stringMatching(/`link` must have/));
+  });
+});
+
+describe("colors made again from the rows kept", () => {
+  const BODY = [0, 1, 2, 3, 4];
+  // (The `x` cells' colors, from every row; row 3's value is missing)
+  const STYLE = "background-color: #ff0000; color: #00ff00";
+  const xStyles = Object.fromEntries(BODY.map((row) => [row, STYLE]));
+  const COLOR: ColorSpec = {
+    column: "x",
+    rows: [0, 1, 2, 4],
+    values: [20, 5, 10, 20],
+    levels: null,
+    palette: ["#000000", "#ffffff"],
+    alpha: "",
+    midpoint: null,
+    text: "apca",
+    fixed: [],
+  };
+  // (A color as the cell's style gives it)
+  const css = (color: string) => {
+    const div = document.createElement("div");
+    div.style.color = color;
+    return div.style.color;
+  };
+  const FIRST = [css("#ff0000"), css("#00ff00")];
+  const BLACK = [css("#000000"), css("#FFFFFF")];
+  const WHITE = [css("#ffffff"), css("#000000")];
+
+  const colorsOf = (el: GtTable) =>
+    BODY.map((row) => {
+      const td = el.rowElement(row)?.querySelector("td") as HTMLElement;
+      return [td.style.backgroundColor, td.style.color];
+    });
+  const mountColored = (color: Partial<ColorSpec> = {}, options: TableOptions = {}) =>
+    mountTable(BODY, { controls: { search: true }, colors: [{ ...COLOR, ...color }], xStyles, ...options });
+
+  it("colors the rows a search keeps from them alone, and gives back the first colors after", async () => {
+    const el = await mountColored();
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+    el.search = "a";
+    // (Rows 1 and 4 are kept, and row 3's value is missing)
+    expect(colorsOf(el)).toEqual([FIRST, BLACK, FIRST, FIRST, WHITE]);
+    // (And the rows another search hides get their first colors back)
+    el.search = "c";
+    expect(colorsOf(el)).toEqual([FIRST, FIRST, BLACK, FIRST, FIRST]);
+    el.search = "";
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+  });
+
+  it("colors the rows a filter keeps", async () => {
+    const el = await mountColored({}, { filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }] });
+    el.filter = { and: [{ col: "y", op: "in", value: ["a", "c"] }] };
+    const grey = ramp(COLOR.palette)(1 / 3);
+    expect(colorsOf(el)).toEqual([FIRST, BLACK, [css(grey), css(textColor(grey, "apca"))], FIRST, WHITE]);
+    el.filter = null;
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+  });
+
+  it("doesn't color the rows again for a sort or a page", async () => {
+    const el = await mountColored({}, { pagination: { enabled: true } });
+    el.sort = [{ column: "x", descending: true }];
+    el.page = 2;
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+    el.search = "a";
+    el.sort = [{ column: "x" }];
+    el.page = 2;
+    expect(colorsOf(el)).toEqual([FIRST, BLACK, FIRST, FIRST, WHITE]);
+  });
+
+  it("leaves the cells another style colors, which still count", async () => {
+    const el = await mountColored({ fixed: [1] });
+    el.search = "a";
+    expect(colorsOf(el)).toEqual([FIRST, FIRST, FIRST, FIRST, WHITE]);
+  });
+
+  it("gives the colors its alpha, and the text the color that contrasts more over white", async () => {
+    const el = await mountColored({ alpha: "80" });
+    el.search = "a";
+    const [one, four] = [colorsOf(el)[1], colorsOf(el)[4]];
+    expect(one).toEqual([css("#00000080"), css(textColor("#00000080", "apca"))]);
+    expect(four).toEqual([css("#ffffff80"), css("#000000")]);
+  });
+
+  it("leaves the text's color without a contrast", async () => {
+    const el = await mountColored({ text: null });
+    el.search = "a";
+    expect(colorsOf(el)[1]).toEqual([css("#000000"), css("#00ff00")]);
+  });
+
+  it("forgets the colors when its table is replaced", async () => {
+    const el = await mountColored();
+    el.search = "a";
+    el.remove();
+    const { html, spec } = gtTable(BODY, { controls: { search: true }, xStyles });
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+    el.search = "a";
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+  });
+
+  it("is checked in the spec", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const el = await mountColored({ column: "row" });
+    expect(el.getAttribute("data-gti-state")).toBe("error");
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/`colors\[0\]` must/));
   });
 });

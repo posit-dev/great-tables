@@ -37,6 +37,12 @@ ProfilePlot = Literal["auto", "histogram", "top"]
 
 PROFILE_PLOTS: tuple[ProfilePlot, ...] = ("auto", "histogram", "top")
 
+# What a column's `data_color()` colors do when the rows are searched or filtered: stay as they are
+# (made from every row), or be made again from the rows kept
+DataColorMode = Literal["keep", "recompute"]
+
+DATA_COLOR_MODES: tuple[DataColorMode, ...] = ("keep", "recompute")
+
 # How readers can export the rows: by copying them, or downloading them as CSV, TSV or JSON; or
 # copy the code that filters and sorts the data as the view does
 ExportFormat = Literal["csv", "tsv", "json", "clipboard", "code"]
@@ -111,6 +117,9 @@ class Settings:
     hideable: tuple[str, ...] = ()
     reorderable: tuple[str, ...] = ()
     groupable: tuple[str, ...] = ()
+    # (The columns whose `data_color()` colors are made again from the rows a search or filter
+    # keeps, in the order they were set; none, by default, so that colors stay as they are)
+    recolor: tuple[str, ...] = ()
     # (The columns left out of the table but shipped for querying, in the order they were set)
     query_only: tuple[str, ...] = ()
     # (The columns pinned to a side, as `i_cols_pin()` set them, in the order they were set)

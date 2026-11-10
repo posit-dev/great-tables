@@ -39,6 +39,20 @@ const LINK = { group: "cars", on: "mfr", name: "Makes", label: "Maker", keys: ["
 
 const link = (fields: object) => JSON.stringify({ ...valid, link: { ...LINK, ...fields } });
 
+const COLOR = {
+  column: "x",
+  rows: [0, 1],
+  values: [1.5, "Infinity"],
+  levels: null,
+  palette: ["#000000", "#FFFFFF"],
+  alpha: "",
+  midpoint: null,
+  text: "apca",
+  fixed: [],
+};
+
+const color = (fields: object) => JSON.stringify({ ...valid, colors: [{ ...COLOR, ...fields }] });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -179,6 +193,13 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, link: { ...LINK, name: null, keys: [1, true] } }).link?.name).toBeNull();
     expect(parse({ ...valid, link: null }).link).toBeNull();
     expect(parse(valid).link).toBeUndefined();
+  });
+
+  it("takes the columns colored from the rows kept, or their absence", () => {
+    const text = { ...COLOR, values: [1, 0], levels: ["a", "b"], alpha: "7F", midpoint: 0, text: null, fixed: [1] };
+    expect(parse({ ...valid, colors: [COLOR, text] }).colors).toEqual([COLOR, text]);
+    expect(parse({ ...valid, colors: [] }).colors).toEqual([]);
+    expect(parse(valid).colors).toBeUndefined();
   });
 
   it("takes the columns' profiles, or their absence", () => {
@@ -374,6 +395,18 @@ describe("parseSpec()", () => {
     ["has a link without a label", link({ label: undefined }), /`link`/],
     ["has a link without a key for every row", link({ keys: ["Ford"] }), /`link`/],
     ["has a link with a key that isn't a value", link({ keys: ["Ford", {}] }), /`link`/],
+    ["has colors that aren't a list", JSON.stringify({ ...valid, colors: COLOR }), /`colors`/],
+    ["has colors of a column it doesn't have", color({ column: "y" }), /`colors\[0\]`/],
+    ["has colors of a row it doesn't have", color({ rows: [0, 2] }), /`colors\[0\]`/],
+    ["has colors without a value for every row", color({ values: [1.5] }), /`colors\[0\]`/],
+    ["has colors of a value that isn't a number", color({ values: [1.5, "NaN"] }), /`colors\[0\]`/],
+    ["has colors of a value that isn't one of its levels", color({ values: [0, 2], levels: ["a", "b"] }), /`colors\[0\]`/],
+    ["has colors with a palette of one color", color({ palette: ["#000000"] }), /`colors\[0\]`/],
+    ["has colors with a palette that isn't hex", color({ palette: ["#000000", "red"] }), /`colors\[0\]`/],
+    ["has colors with an alpha that isn't hex", color({ alpha: "0.5" }), /`colors\[0\]`/],
+    ["has colors with a midpoint that isn't a number", color({ midpoint: "0" }), /`colors\[0\]`/],
+    ["has colors with an unknown contrast", color({ text: "auto" }), /`colors\[0\]`/],
+    ["has colors fixed for a row it doesn't have", color({ fixed: [5] }), /`colors\[0\]`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

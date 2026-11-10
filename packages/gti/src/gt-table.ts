@@ -13,6 +13,7 @@
 
 import { type Placed, placeCells, type Side, TableBorders } from "./borders";
 import { viewCode } from "./code";
+import { places, ramp, textColor } from "./color";
 import { toCSV as csv, recordsJSON, toRecords, toTSV } from "./export";
 import {
   ColumnFilter,
@@ -46,6 +47,7 @@ import {
   type BodyRow,
   CODE_BACKENDS,
   type CodeBackend,
+  type ColorSpec,
   type ColumnSpec,
   type ExportFormat,
   type FilterType,
@@ -827,6 +829,15 @@ interface ProfileView {
   valueName: (rank: number) => string;
 }
 
+/** A column's cells colored from the rows kept (see `addColors()`). */
+interface Coloring {
+  spec: ColorSpec;
+  ramp: (t: number) => string;
+  /** Per row of `spec.rows`, its cell (`null` for a fixed one), and the colors its HTML gives it. */
+  cells: (HTMLElement | null)[];
+  first: [string, string][];
+}
+
 export class GtTable extends HTMLElement {
   /** The static `<table>` this element hydrates, or `null` if there isn't one. */
   table: HTMLTableElement | null = null;
@@ -862,6 +873,9 @@ export class GtTable extends HTMLElement {
   /** The columns' profiles, and the rows (`matched`) they last counted (`undefined` before). */
   private profileViews: ProfileView[] = [];
   private profiled: Uint8Array | null | undefined = undefined;
+  /** The cells colored from the rows kept, and the rows (`matched`) they were last colored for. */
+  private colorings: Coloring[] = [];
+  private colored: Uint8Array | null | undefined = undefined;
   /** The columns' filters, in column order. */
   private filters: FilterControl[] = [];
   /** The query's groups (its `or` and `not` parts), which no one column's filter has, in order. */
@@ -1623,6 +1637,7 @@ export class GtTable extends HTMLElement {
       this.addLead(table, spec);
     }
     this.markMissing(spec);
+    this.addColors(spec);
     // (Before column widths are measured, since the cells' borders change)
     this.setLayout(table, spec);
     this.setDisplay(spec);
@@ -1718,6 +1733,7 @@ export class GtTable extends HTMLElement {
         this.updateBar(this.bar);
       }
       this.updateProfiles();
+      this.updateColors();
       this.updateDimensions();
     }
     this.saveView();
@@ -3522,6 +3538,46 @@ export class GtTable extends HTMLElement {
       }
       caption.textContent = counts.rows === 0 ? "No rows" : parts.join(" · ");
       caption.title = caption.textContent;
+    }
+  }
+
+  // The cells whose `data_color()` colors are made again from the rows kept, with the colors the
+  // table's HTML gives them (which they have again when every row is)
+  private addColors(spec: Spec): void {
+    for (const color of spec.colors ?? []) {
+      const i = spec.columns.findIndex((column) => column.id === color.column);
+      const fixed = new Set(color.fixed);
+      const cells = color.rows.map((row) => {
+        const tr = this.rowElements[row];
+        const tds = tr === undefined || fixed.has(row) ? [] : this.dataCells(tr);
+        // (A row whose stub cells are merged into those of the rows above has fewer of them)
+        return (tds[i - (spec.columns.length - tds.length)] as HTMLElement | undefined) ?? null;
+      });
+      const first = cells.map((cell): [string, string] => [cell?.style.backgroundColor ?? "", cell?.style.color ?? ""]);
+      this.colorings.push({ spec: color, ramp: ramp(color.palette), cells, first });
+    }
+  }
+
+  private updateColors(): void {
+    const matched = this.matched;
+    if (this.colorings.length === 0 || (this.colored ?? null) === matched) {
+      return;
+    }
+    this.colored = matched;
+    for (const { spec, ramp, cells, first } of this.colorings) {
+      const at = matched === null ? [] : places(spec, (row) => matched[row] === 1);
+      cells.forEach((cell, k) => {
+        const t = at[k];
+        // (The rows not kept get their first colors back, as every row does once all are shown)
+        if (cell !== null) {
+          const fill = t == null ? null : ramp(t) + spec.alpha;
+          const [background, color] = first[k] as [string, string];
+          cell.style.backgroundColor = fill ?? background;
+          if (spec.text !== null) {
+            cell.style.color = fill === null ? color : textColor(fill, spec.text);
+          }
+        }
+      });
     }
   }
 
@@ -7922,6 +7978,7 @@ export class GtTable extends HTMLElement {
     this.updatePager();
     this.updateFilters();
     this.updateProfiles();
+    this.updateColors();
     this.updateDimensions();
     this.placeGuide();
     this.placeFoot();
@@ -8871,6 +8928,11 @@ export class GtTable extends HTMLElement {
 
   private reset(): void {
     this.leaveLink();
+    // (The cells get their colors back)
+    this.matched = null;
+    this.updateColors();
+    this.colorings = [];
+    this.colored = undefined;
     this.stopObserving();
     this.cancelSearchTimer();
     this.cancelFilterTimer();
