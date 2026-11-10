@@ -33,6 +33,8 @@ const viewState = (value: unknown) => JSON.stringify({ ...valid, view_state: val
 
 const details = (value: unknown) => JSON.stringify({ ...valid, details: value });
 
+const profiles = (list: unknown) => JSON.stringify({ ...valid, profiles: list });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -149,6 +151,18 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, details: [1, 0] }).details).toEqual([1, 0]);
     expect(parse({ ...valid, details: [] }).details).toEqual([]);
     expect(parse(valid).details).toBeUndefined();
+  });
+
+  it("takes the columns' profiles, or their absence", () => {
+    const list = [
+      { column: "x", plot: "histogram", values: [1.5, 3] },
+      { column: "x", plot: "top", values: null },
+    ];
+    expect(parse({ ...valid, profiles: list }).profiles).toEqual(list);
+    // (A histogram's dates and times are ISO 8601 text, and its values JSON can't hold, null)
+    const dates = [{ column: "x", plot: "histogram", values: ["2015-06-15", null] }];
+    expect(parse({ ...valid, profiles: dates }).profiles).toEqual(dates);
+    expect(parse(valid).profiles).toBeUndefined();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -300,6 +314,13 @@ describe("parseSpec()", () => {
     ["has details that aren't a list", details(1), /`details`/],
     ["has details for a row it doesn't have", details([0, 2]), /`details`/],
     ["has details for a row that isn't an index", details(["0"]), /`details`/],
+    ["has profiles that aren't a list", profiles({}), /`profiles`/],
+    ["has a profile of an unknown plot", profiles([{ column: "x", plot: "pie", values: null }]), /`profiles\[0\]`/],
+    ["has a profile of a column without ranks", profiles([{ column: "y", plot: "top", values: null }]), /`profiles\[0\]`/],
+    ["has a histogram without values", profiles([{ column: "x", plot: "histogram", values: null }]), /`profiles\[0\]`/],
+    ["has a histogram without a value for every rank", profiles([{ column: "x", plot: "histogram", values: [1] }]), /`profiles\[0\]`/],
+    ["has a histogram of booleans", profiles([{ column: "x", plot: "histogram", values: [true, false] }]), /`profiles\[0\]`/],
+    ["has a profile of the most common values with values", profiles([{ column: "x", plot: "top", values: [1, 2] }]), /`profiles\[0\]`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

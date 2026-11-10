@@ -18,6 +18,7 @@ import {
   PAGE_EVENT,
   type PageEventDetail,
   type PaginationSpec,
+  type ProfileSpec,
   type QueryColumnSpec,
   RESIZE_EVENT,
   type ResizeEventDetail,
@@ -35,6 +36,7 @@ import {
   type ViewEventDetail,
 } from "../src/index";
 import { TableBorders } from "../src/borders";
+import { Profile } from "../src/profile";
 
 // Let mutation observers run.
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -96,6 +98,7 @@ interface TableOptions {
   columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable">>;
   /** The data rows' details (in templates after the table), by row. */
   details?: Record<number, string>;
+  profiles?: ProfileSpec[];
 }
 
 /** A table shaped like GT's, and its spec. */
@@ -198,6 +201,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     ...(options.export === undefined ? {} : { export: { filename: "table", ...options.export } }),
     ...(options.viewState === undefined ? {} : { view_state: options.viewState }),
     ...(options.details === undefined ? {} : { details: Object.keys(options.details).map(Number) }),
+    ...(options.profiles === undefined ? {} : { profiles: options.profiles }),
   };
   return { html, spec };
 }
@@ -7931,5 +7935,103 @@ describe("rows' details", () => {
     const details = under(el, 0) as HTMLTableRowElement;
     expect(details.cells).toHaveLength(1);
     expect((details.cells[0] as HTMLTableCellElement).colSpan).toBe(4);
+  });
+});
+
+describe("column profiles", () => {
+  // x's histogram (of 5, 10 and 20: a bin per whole number), and y's most common values
+  const PROFILES: ProfileSpec[] = [
+    { column: "x", plot: "histogram", values: [5, 10, 20] },
+    { column: "y", plot: "top", values: null },
+  ];
+  const mountProfiles = (options: TableOptions = {}) => mountTable(GROUPED, { profiles: PROFILES, ...options });
+  const profile = (th: Element) => th.querySelector<HTMLElement>(":scope > .gt-i-profile");
+  const caption = (el: GtTable, column: string) => profile(header(el, column))?.querySelector(".gt-i-profile-text")?.textContent;
+  const titles = (el: GtTable, column: string) =>
+    Array.from(profile(header(el, column))?.querySelectorAll("title") ?? [], (title) => title.textContent);
+  const heights = (el: GtTable, column: string) =>
+    Array.from(profile(header(el, column))?.querySelectorAll("rect:not(.gt-i-profile-hit)") ?? [], (rect) =>
+      Number(rect.getAttribute("height")),
+    );
+
+  it("draws a profile under each profiled column's label (after its controls), and room for one under the others", async () => {
+    const el = await mountProfiles();
+    for (const column of ["x", "y"]) {
+      const th = header(el, column);
+      expect(th.classList.contains("gt-i-profiled")).toBe(true);
+      expect(th.lastElementChild).toBe(profile(th));
+      expect(profile(th)?.previousElementSibling?.classList.contains("gt-i-head-controls")).toBe(true);
+      expect(profile(th)?.getAttribute("aria-hidden")).toBe("true");
+    }
+    expect(profile(header(el, "x"))?.classList.contains("gt-i-profile-histogram")).toBe(true);
+    expect(profile(header(el, "y"))?.classList.contains("gt-i-profile-top")).toBe(true);
+    // (A bar per whole number from 5 to 20, and one per value of y)
+    expect(heights(el, "x")).toHaveLength(16);
+    expect(heights(el, "y")).toHaveLength(3);
+    const stubhead = el.querySelector("thead th:not([id])") as HTMLTableCellElement;
+    expect(profile(stubhead)?.childElementCount).toBe(0);
+    expect(stubhead.classList.contains("gt-i-profiled")).toBe(false);
+  });
+
+  it("doesn't draw profiles without any", async () => {
+    const el = await mountTable();
+    expect(el.querySelector(".gt-i-profile")).toBeNull();
+  });
+
+  it("names each bar's values and rows, and says the range shown and the share missing", async () => {
+    const el = await mountProfiles();
+    const x = titles(el, "x");
+    expect(x[0]).toBe("5: 1 row");
+    expect(x[1]).toBe("6: 0 rows");
+    expect(x[5]).toBe("10: 1 row");
+    expect(x[15]).toBe("20: 2 rows");
+    expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
+    // (The bars go up to the most rows, a few rows' still seen)
+    expect(heights(el, "x")[15]).toBe(1);
+    expect(heights(el, "x")[0]).toBe(0.5);
+    expect(heights(el, "x")[1]).toBe(0);
+    // (y's values, as its cells show them, most rows' first)
+    expect(titles(el, "y")).toEqual(["a: 3 rows", "b: 1 row", "c: 1 row"]);
+    expect(caption(el, "y")).toBe("3 values");
+  });
+
+  it("counts the rows the search and filters keep, with the same bars", async () => {
+    const el = await mountProfiles();
+    el.search = "a";
+    // (Rows 1, 3 and 4: 5, a missing value and 20)
+    expect(caption(el, "x")).toBe("5 – 20 · 33% missing");
+    expect(titles(el, "x")[15]).toBe("20: 1 row");
+    expect(heights(el, "x")).toHaveLength(16);
+    expect(caption(el, "y")).toBe("1 value");
+    expect(heights(el, "y")).toEqual([1, 0, 0]);
+    el.search = "zzz";
+    expect(caption(el, "x")).toBe("No rows");
+    expect(heights(el, "y")).toEqual([0, 0, 0]);
+    el.search = "";
+    expect(caption(el, "y")).toBe("3 values");
+  });
+
+  it("counts again only when other rows are kept, not when the table is sorted or paged", async () => {
+    const count = vi.spyOn(Profile.prototype, "count");
+    const el = await mountProfiles({ pagination: { enabled: true } });
+    expect(count).toHaveBeenCalledTimes(2);
+    click(el, "x");
+    el.page = 2;
+    expect(count).toHaveBeenCalledTimes(2);
+    el.search = "a";
+    expect(count).toHaveBeenCalledTimes(4);
+  });
+
+  it("isn't part of a label's text, and doesn't sort the column when clicked", async () => {
+    const el = await mountProfiles({ export: { formats: ["csv"] } });
+    expect(el.toCSV().split("\r\n")[0]).toBe(",row,x,y");
+    profile(header(el, "x"))?.querySelector("rect")?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(el.sort).toEqual([]);
+  });
+
+  it("is drawn under a label without controls", async () => {
+    const el = await mountProfiles({ controls: { sorting: false } });
+    expect(el.querySelector(".gt-i-head-controls")).toBeNull();
+    expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
   });
 });
