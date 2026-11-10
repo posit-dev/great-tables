@@ -362,6 +362,50 @@ table with (`group_by=`) and `~~GTI.i_view_state()` can keep. This grouping is t
 table with row groups of its own (from `groupname_col=`) or with summary rows can't have columns
 to group by.
 
+### Linked tables
+
+With `~~GTI.i_link()`, tables on the same page work together: tables with the same group name are
+linked by a column they each have, so that the rows a reader selects in one filter the others to the
+rows with the same values. Here, select a make or two in the first table, and the second shows only
+their cars; clear the selection to show them all again.
+
+```{python}
+makes = (
+    gtcars_pl.group_by("mfr")
+    .agg(pl.len().alias("models"), pl.col("hp").max().alias("top_hp"))
+    .sort("mfr")
+)
+
+(
+    GTI(makes, rowname_col="mfr")
+    .tab_header(title="Makes")
+    .cols_label(mfr="Make", models="Models", top_hp="Top HP")
+    .fmt_integer(columns="top_hp", use_seps=False)
+    .i_selection("multiple")
+    .i_pagination(page_size=5)
+    .i_link("gtcars", on="mfr")
+)
+```
+
+```{python}
+(
+    GTI(gtcars_pl.select(["mfr", "model", "year", "hp", "msrp"]), rowname_col="model")
+    .tab_header(title="Cars")
+    .cols_label(mfr="Make", year="Year", hp="HP", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_link("gtcars", on="mfr")
+)
+```
+
+A filtered table says what it's filtered by with a token in its control bar ("Selected in Makes:
+Ferrari, Lamborghini"), which goes to the selection, and whose ✕ shows every row again (until the
+selection changes); its info panel says so too. The filter is on top of the table's own search and
+filters, but isn't part of its view, so it isn't kept by `~~GTI.i_view_state()`. The tables link in
+the browser, with no server, so this works in a Quarto document or an HTML page, and in a notebook
+whose cells' outputs share a page (in Jupyter, but not in Colab, which shows each cell's output in a
+frame of its own).
+
 ### An explorer for looking through data
 
 `GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than
