@@ -332,3 +332,23 @@ the horsepower and prices narrow; point at a bar to see its values and its numbe
 A profile's bars span the whole column, not just the rows that are left, so that they stay put as
 the reader filters (only their heights change). They aren't shown when the table is stacked as
 cards in a narrow container.
+
+### An explorer for looking through data
+
+`GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than
+presenting it: every column can be filtered, has a profile, and can be hidden and moved; the rows
+are compact and can be downloaded as CSV; and with `~~GTI.i_inspect()`, the rows are numbered (by
+their place in the data, which stays with them as they're sorted and filtered), each column's dtype
+is under its label (as Polars names it, whatever the DataFrame library), the number of rows and
+columns left is above the table, and missing values are tinted.
+
+```{python}
+cars = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
+
+GTI(cars, preset="explorer")
+```
+
+A preset is only where the table starts: the `i_` methods change it as they'd change any table. Each
+sets all of its feature's settings, so `.i_display(wrap=False)` on an explorer makes its rows less
+compact again unless it's given `compact=True` too, and `.i_inspect(missing=False)` leaves the row
+numbers, dtypes and dimensions on. `i_inspect()` works on its own as well, on any `GTI` table.
