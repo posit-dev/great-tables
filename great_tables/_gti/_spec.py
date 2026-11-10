@@ -68,6 +68,11 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   (`url`), and in the browser's storage (`storage`), by a `key` (the table's ID) that names its
   URL parameters; and whether the reader's changes to it can be undone (`undo`). Producers that
   leave `view_state` out (or keep it in neither) don't keep it, and the changes can't be undone.
+- `details`: the data rows with details, in order, which readers can show under them (each row's
+  button shows and hides them): each row's are the contents of a `<template
+  data-gti-details="row">` in the `<gt-table>` element (the HTML of a table, or of text), which the
+  runtime shows apart from the page's styles (in a shadow root). Producers that leave `details`
+  out have none.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -93,6 +98,7 @@ from .._tbl_data import (
 )
 from .._text import _process_text
 from .._utils_render_html import _get_header_ids
+from ._details import render_details
 from ._settings import ExportFormat, FilterType, PaginationType, SelectionMode, settings_of
 
 if TYPE_CHECKING:
@@ -269,10 +275,12 @@ class Spec(TypedDict):
     view: ViewSpec
     export: ExportSpec
     view_state: ViewStateSpec
+    details: list[int]
 
 
-def build_spec(data: GTData) -> Spec:
-    """Make the spec of a built table (`GT._build_data(context="html")`)."""
+def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
+    """Make the spec of a built table (`GT._build_data(context="html")`): with the data rows
+    that have details (as `render_details()` has them, which makes them, if they're not given)."""
 
     boxhead = data._boxhead
     has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
@@ -432,6 +440,8 @@ def build_spec(data: GTData) -> Spec:
     code = None
     if "code" in settings.export_formats:
         code = code_spec(tbl_data, all_kinds, filters, ranks)
+    if details is None:
+        details = sorted(render_details(data))
     key = data._options.table_id.value
     if (settings.view_state_url or settings.view_state_storage) and not key:
         raise ValueError(
@@ -492,6 +502,7 @@ def build_spec(data: GTData) -> Spec:
             key=key,
             undo=settings.view_state_undo,
         ),
+        details=details,
     )
 
 

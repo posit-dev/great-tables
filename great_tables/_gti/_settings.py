@@ -11,6 +11,8 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from .._gt_data import GTData, Options
 
 SelectionMode = Literal["single", "multiple"]
@@ -109,6 +111,9 @@ class Settings:
     view_state_url: bool = False
     view_state_storage: bool = False
     view_state_undo: bool = False
+    # (Each data row's details, which readers can show under it: what a function of the row's
+    # values makes, or what a column (left out of the table) holds; none, by default)
+    row_details: Callable[[dict[str, Any]], Any] | str | None = None
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:
