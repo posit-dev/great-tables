@@ -18555,6 +18555,30 @@ exported (and each `GT` table in them brings its own CSS, so many of them make a
 column can hold them instead, with each row's details: `i_row_details()` takes its name, and the
 column is then left out of the table.
 
+### Column profiles
+
+With `~~GTI.i_cols_profile()`, columns get a small plot under their labels of how their values are
+spread: a histogram of numbers and dates, and bars for the most common values of the others, each
+with the share of rows that have a missing value. The plots follow the rows a search or filter
+keeps, so they show at a glance what's left. Here, choose a few makes in the `Make` filter and watch
+the horsepower and prices narrow; point at a bar to see its values and its number of rows.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: with column profiles")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_profile(columns=["mfr", "year", "hp", "msrp"])
+)
+```
+
+A profile's bars span the whole column, not just the rows that are left, so that they stay put as
+the reader filters (only their heights change). They aren't shown when the table is stacked as
+cards in a narrow container.
+
 
 
 ## Advanced Topics

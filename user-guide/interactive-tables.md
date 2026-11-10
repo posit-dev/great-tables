@@ -747,3 +747,72 @@ def engine(row):
 The **Base Coupe** (coupe) makes 647 hp at 6,250 rpm, and 550 lb-ft of torque. It gets 11 mpg in the city, and 18 on the highway. The **Base Coupe** (coupe) makes 597 hp at 9,000 rpm, and 398 lb-ft of torque. It gets 13 mpg in the city, and 17 on the highway. The **Base** (convertible) makes 562 hp at 9,000 rpm, and 398 lb-ft of torque. It gets 13 mpg in the city, and 17 on the highway. The **Base Coupe** (coupe) makes 562 hp at 9,000 rpm, and 398 lb-ft of torque. It gets 13 mpg in the city, and 17 on the highway. The **Base Coupe** (coupe) makes 661 hp at 8,000 rpm, and 561 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **Base Convertible** (convertible) makes 553 hp at 7,500 rpm, and 557 lb-ft of torque. It gets 16 mpg in the city, and 23 on the highway. The **Base Coupe** (coupe) makes 680 hp at 8,250 rpm, and 514 lb-ft of torque. It gets 12 mpg in the city, and 17 on the highway. The **Base Coupe** (coupe) makes 652 hp at 8,000 rpm, and 504 lb-ft of torque. It gets 11 mpg in the city, and 16 on the highway. The **Base Coupe** (coupe) makes 731 hp at 8,250 rpm, and 509 lb-ft of torque. It gets 11 mpg in the city, and 16 on the highway. The **Base Coupe** (coupe) makes 949 hp at 9,000 rpm, and 664 lb-ft of torque. It gets 12 mpg in the city, and 16 on the highway. The **Base Coupe** (coupe) makes 573 hp at 6,500 rpm, and 476 lb-ft of torque. It gets 21 mpg in the city, and 22 on the highway. The **Premium Coupe** (coupe) makes 545 hp at 6,400 rpm, and 436 lb-ft of torque. It gets 16 mpg in the city, and 22 on the highway. The **LP 700-4 Coupe** (coupe) makes 700 hp at 8,250 rpm, and 507 lb-ft of torque. It gets 11 mpg in the city, and 18 on the highway. The **LP 610-4 Coupe** (coupe) makes 610 hp at 8,250 rpm, and 413 lb-ft of torque. It gets 16 mpg in the city, and 20 on the highway. The **LP 550-2 Coupe** (coupe) makes 550 hp at 8,000 rpm, and 398 lb-ft of torque. It gets 12 mpg in the city, and 20 on the highway. The **V8 Coupe** (coupe) makes 500 hp at 6,000 rpm, and 487 lb-ft of torque. It gets 15 mpg in the city, and 25 on the highway. The **Sport Coupe** (coupe) makes 454 hp at 7,600 rpm, and 384 lb-ft of torque. It gets 13 mpg in the city, and 21 on the highway. The **S Sedan** (sedan) makes 404 hp at 5,500 rpm, and 406 lb-ft of torque. It gets 16 mpg in the city, and 23 on the highway. The **Base Sedan** (sedan) makes 345 hp at 5,250 rpm, and 369 lb-ft of torque. It gets 17 mpg in the city, and 24 on the highway. The **640 I Coupe** (coupe) makes 315 hp at 5,800 rpm, and 330 lb-ft of torque. It gets 20 mpg in the city, and 30 on the highway. The **Mega World Coupe** (coupe) makes 357 hp at 5,800 rpm, and 420 lb-ft of torque. It gets 28 mpg in the city, and 29 on the highway. The **Base Coupe** (coupe) makes 425 hp at 5,500 rpm, and 406 lb-ft of torque. It gets 17 mpg in the city, and 24 on the highway. The **Base Sedan** (sedan) makes 560 hp at 6,000 rpm, and 500 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **Base Coupe** (coupe) makes 560 hp at 6,000 rpm, and 500 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **Base Coupe** (coupe) makes 608 hp at 6,500 rpm, and 516 lb-ft of torque. It gets 15 mpg in the city, and 21 on the highway. The **Base Sedan** (sedan) makes 552 hp at 6,650 rpm, and 465 lb-ft of torque. It gets 14 mpg in the city, and 21 on the highway. The **Base Coupe** (coupe) makes 568 hp at 6,650 rpm, and 465 lb-ft of torque. It gets 13 mpg in the city, and 21 on the highway. The **V8 GT (Manual) Coupe** (coupe) makes 430 hp at 7,300 rpm, and 361 lb-ft of torque. It gets 13 mpg in the city, and 19 on the highway. The **Z06 Coupe** (coupe) makes 650 hp at 6,400 rpm, and 650 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **GT Coupe** (coupe) makes 645 hp at 5,000 rpm, and 600 lb-ft of torque. It gets 12 mpg in the city, and 19 on the highway. The **4.2 (Manual) Coupe** (coupe) makes 430 hp at 7,900 rpm, and 317 lb-ft of torque. It gets 11 mpg in the city, and 20 on the highway. The **Quattro Hatchback** (hatchback) makes 560 hp at 5,700 rpm, and 516 lb-ft of torque. It gets 15 mpg in the city, and 25 on the highway. The **Premium Plus quattro Sedan** (sedan) makes 450 hp at 5,800 rpm, and 406 lb-ft of torque. It gets 18 mpg in the city, and 27 on the highway. The **Prestige quattro Hatchback** (hatchback) makes 450 hp at 5,800 rpm, and 406 lb-ft of torque. It gets 17 mpg in the city, and 27 on the highway. The **Base Sedan** (sedan) makes 520 hp at 5,800 rpm, and 481 lb-ft of torque. It gets 15 mpg in the city, and 25 on the highway. The **2+2 Coupe** (coupe) makes 400 hp at 7,000 rpm, and 302 lb-ft of torque. It gets 16 mpg in the city, and 24 on the highway. The **Base (Manual) Coupe** (coupe) makes 340 hp at 6,500 rpm, and 332 lb-ft of torque. It gets 16 mpg in the city, and 24 on the highway. The **S Coupe** (coupe) makes 503 hp at 6,250 rpm, and 479 lb-ft of torque. It gets 16 mpg in the city, and 22 on the highway. The **SL400 Convertible** (convertible) makes 329 hp at 5,250 rpm, and 354 lb-ft of torque. It gets 20 mpg in the city, and 27 on the highway. The **75D** (sedan) makes 259 hp at 6,100 rpm, and 243 lb-ft of torque. The **Base Convertible** (convertible) makes 300 hp at 6,500 rpm, and 280 lb-ft of torque. It gets 21 mpg in the city, and 28 on the highway. The **Base Coupe** (coupe) makes 300 hp at 6,500 rpm, and 280 lb-ft of torque. It gets 20 mpg in the city, and 29 on the highway. The **Carrera Coupe** (coupe) makes 350 hp at 7,400 rpm, and 287 lb-ft of torque. It gets 20 mpg in the city, and 28 on the highway. The **Base Sedan** (sedan) makes 310 hp at 6,200 rpm, and 295 lb-ft of torque. It gets 18 mpg in the city, and 28 on the highway. The **Base Coupe** (coupe) makes 570 hp at 7,500 rpm, and 443 lb-ft of torque. It gets 16 mpg in the city, and 23 on the highway. The **Base Convertible** (convertible) makes 563 hp at 5,250 rpm, and 575 lb-ft of torque. It gets 12 mpg in the city, and 19 on the highway. The **Base Coupe** (coupe) makes 624 hp at 5,600 rpm, and 590 lb-ft of torque. It gets 13 mpg in the city, and 21 on the highway.
 
 The details are in the table's HTML, made as it's rendered, but aren't searched, filtered or exported (and each [GT](../reference/GT.md#great_tables.GT) table in them brings its own CSS, so many of them make a larger page). A column can hold them instead, with each row's details: `i_row_details()` takes its name, and the column is then left out of the table.
+
+### Column profiles
+
+With `i_cols_profile()`, columns get a small plot under their labels of how their values are spread: a histogram of numbers and dates, and bars for the most common values of the others, each with the share of rows that have a missing value. The plots follow the rows a search or filter keeps, so they show at a glance what's left. Here, choose a few makes in the `Make` filter and watch the horsepower and prices narrow; point at a bar to see its values and its number of rows.
+
+``` python
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: with column profiles")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_profile(columns=["mfr", "year", "hp", "msrp"])
+)
+```
+
+| GT Cars: with column profiles |                |      |     |        |             |
+|-------------------------------|----------------|------|-----|--------|-------------|
+| Make                          | Model          | Year | HP  | Torque | MSRP        |
+| Ford                          | GT             | 2017 | 647 | 550    | \$447,000   |
+| Ferrari                       | 458 Speciale   | 2015 | 597 | 398    | \$291,744   |
+| Ferrari                       | 458 Spider     | 2015 | 562 | 398    | \$263,553   |
+| Ferrari                       | 458 Italia     | 2014 | 562 | 398    | \$233,509   |
+| Ferrari                       | 488 GTB        | 2016 | 661 | 561    | \$245,400   |
+| Ferrari                       | California     | 2015 | 553 | 557    | \$198,973   |
+| Ferrari                       | GTC4Lusso      | 2017 | 680 | 514    | \$298,000   |
+| Ferrari                       | FF             | 2015 | 652 | 504    | \$295,000   |
+| Ferrari                       | F12Berlinetta  | 2015 | 731 | 509    | \$319,995   |
+| Ferrari                       | LaFerrari      | 2015 | 949 | 664    | \$1,416,362 |
+| Acura                         | NSX            | 2017 | 573 | 476    | \$156,000   |
+| Nissan                        | GT-R           | 2016 | 545 | 436    | \$101,770   |
+| Lamborghini                   | Aventador      | 2015 | 700 | 507    | \$397,500   |
+| Lamborghini                   | Huracan        | 2015 | 610 | 413    | \$237,250   |
+| Lamborghini                   | Gallardo       | 2014 | 550 | 398    | \$191,900   |
+| Bentley                       | Continental GT | 2016 | 500 | 487    | \$198,500   |
+| Maserati                      | Granturismo    | 2016 | 454 | 384    | \$132,825   |
+| Maserati                      | Quattroporte   | 2016 | 404 | 406    | \$99,900    |
+| Maserati                      | Ghibli         | 2016 | 345 | 369    | \$70,600    |
+| BMW                           | 6-Series       | 2016 | 315 | 330    | \$77,300    |
+| BMW                           | i8             | 2016 | 357 | 420    | \$140,700   |
+| BMW                           | M4             | 2016 | 425 | 406    | \$65,700    |
+| BMW                           | M5             | 2016 | 560 | 500    | \$94,100    |
+| BMW                           | M6             | 2016 | 560 | 500    | \$113,400   |
+| Aston Martin                  | DB11           | 2017 | 608 | 516    | \$211,195   |
+| Aston Martin                  | Rapide S       | 2016 | 552 | 465    | \$205,300   |
+| Aston Martin                  | Vanquish       | 2016 | 568 | 465    | \$287,250   |
+| Aston Martin                  | Vantage        | 2016 | 430 | 361    | \$103,300   |
+| Chevrolet                     | Corvette       | 2016 | 650 | 650    | \$88,345    |
+| Dodge                         | Viper          | 2017 | 645 | 600    | \$95,895    |
+| Audi                          | R8             | 2015 | 430 | 317    | \$115,900   |
+| Audi                          | RS 7           | 2016 | 560 | 516    | \$108,900   |
+| Audi                          | S6             | 2016 | 450 | 406    | \$70,900    |
+| Audi                          | S7             | 2016 | 450 | 406    | \$82,900    |
+| Audi                          | S8             | 2016 | 520 | 481    | \$114,900   |
+| Lotus                         | Evora          | 2017 | 400 | 302    | \$91,900    |
+| Jaguar                        | F-Type         | 2016 | 340 | 332    | \$65,000    |
+| Mercedes-Benz                 | AMG GT         | 2016 | 503 | 479    | \$129,900   |
+| Mercedes-Benz                 | SL-Class       | 2016 | 329 | 354    | \$85,050    |
+| Tesla                         | Model S        | 2017 | 259 | 243    | \$74,500    |
+| Porsche                       | 718 Boxster    | 2017 | 300 | 280    | \$56,000    |
+| Porsche                       | 718 Cayman     | 2017 | 300 | 280    | \$53,900    |
+| Porsche                       | 911            | 2016 | 350 | 287    | \$84,300    |
+| Porsche                       | Panamera       | 2016 | 310 | 295    | \$78,100    |
+| McLaren                       | 570            | 2016 | 570 | 443    | \$184,900   |
+| Rolls-Royce                   | Dawn           | 2016 | 563 | 575    | \$335,000   |
+| Rolls-Royce                   | Wraith         | 2016 | 624 | 590    | \$304,350   |
+
+A profile's bars span the whole column, not just the rows that are left, so that they stay put as the reader filters (only their heights change). They aren't shown when the table is stacked as cards in a narrow container.
