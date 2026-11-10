@@ -269,3 +269,42 @@ from great_tables import GTI
 A table you've already made with `GT()`, including one with `opt_interactive()`, becomes a `GTI`
 table with `GTI.from_gt()`, keeping what `opt_interactive()` set. Each of the `i_` methods has
 examples in its docstring (e.g., `help(GTI.i_cols_filter)`).
+
+### Row details
+
+With `~~GTI.i_row_details()`, each row can have more to show under it, when the reader asks for it.
+A function makes a row's details from its values (including those of columns the table hides): as
+text, with `md()` or `html()`, or as a `GT` table of their own. Here, each car has a few lines about
+its engine. Click the arrow by a car's name to show them, or use **Expand all** in the table's info
+panel to show every car's.
+
+```{python}
+from great_tables import md
+
+
+def engine(row):
+    economy = (
+        "" if row["mpg_c"] is None else f" It gets {row['mpg_c']:.0f} mpg in the city, "
+        f"and {row['mpg_h']:.0f} on the highway."
+    )
+    return md(
+        f"The **{row['trim']}** ({row['bdy_style']}) makes {row['hp']:.0f} hp at "
+        f"{row['hp_rpm']:,.0f} rpm, and {row['trq']:.0f} lb-ft of torque.{economy}"
+    )
+
+
+(
+    GTI(pl.from_pandas(gtcars), rowname_col="model")
+    .tab_header(title="GT Cars: with row details")
+    .cols_hide(columns=["trim", "bdy_style", "hp_rpm", "trq_rpm", "mpg_c", "mpg_h", "trsmn"])
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_row_details(engine)
+)
+```
+
+The details are in the table's HTML, made as it's rendered, but aren't searched, filtered or
+exported (and each `GT` table in them brings its own CSS, so many of them make a larger page). A
+column can hold them instead, with each row's details: `i_row_details()` takes its name, and the
+column is then left out of the table.
