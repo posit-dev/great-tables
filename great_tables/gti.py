@@ -14,6 +14,7 @@ from ._gti._settings import (
     EXPORT_FORMATS,
     FILTER_TYPES,
     PIN_SIDES,
+    DATA_COLOR_MODES,
     PRESETS,
     PROFILE_PLOTS,
     RESPONSIVE_MODES,
@@ -22,6 +23,7 @@ from ._gti._settings import (
     FilterType,
     PinSide,
     Preset,
+    DataColorMode,
     ProfilePlot,
     ResponsiveMode,
     SelectionMode,
@@ -822,10 +824,11 @@ class GTI(GT):
         reorderable: bool | None = None,
         groupable: bool | None = None,
         display: bool | None = None,
+        data_color: DataColorMode | None = None,
     ) -> Self:
         """
         Choose which columns readers can sort by, search, resize, hide, move, and group the rows by,
-        and which are only for querying.
+        which are only for querying, and whose colors follow the rows kept.
 
         Where the table lets readers sort it ([`i_sorting()`](`great_tables.GTI.i_sorting`)),
         search it ([`i_search()`](`great_tables.GTI.i_search`)), and resize its columns
@@ -877,6 +880,19 @@ class GTI(GT):
         querying. The stub and the row group column can't be left out (naming them for
         `display=False` is an error), and neither can every column of a table without a stub.
 
+        A column's colors from [`data_color()`](`great_tables.GT.data_color`) are made from
+        all of its rows, and stay as they are when the rows are searched or filtered, by default
+        (`data_color="keep"`). With `data_color="recompute"`, they're made again from the rows the
+        search and filters keep (and a linked table's selection, with
+        [`i_link()`](`great_tables.GTI.i_link`)), as `data_color()` would make them from those rows
+        alone, so that its whole palette is spread over them (the table's first colors come back
+        once every row is shown again). Sorting the rows or turning the page doesn't change them.
+        Only colors that depend on the rows can change: those `data_color()` made down a column
+        (not with `direction="row"`), from a domain it found in the values (not with `domain=`,
+        nor from an ordered categorical's levels), and without `fn=`. A missing value keeps its
+        `na_color=`, and a cell a later style colors (with `tab_style()`, or another
+        `data_color()`) keeps that style's colors.
+
         Each call sets what it's given for the columns it's given, so that some columns can be
         left out of one thing, and others another; a later call for a column replaces what an
         earlier one set.
@@ -894,6 +910,10 @@ class GTI(GT):
         display
             Whether the columns are in the table (`True`), or left out of it and kept only for
             querying (`False`). With `None` (the default), the columns are left as they are.
+        data_color
+            Whether the columns' colors from `data_color()` stay as they are when the rows are
+            searched or filtered (`"keep"`), or are made again from the rows kept (`"recompute"`).
+            With `None` (the default), the columns are left as they are.
 
         Returns
         -------
@@ -965,6 +985,19 @@ class GTI(GT):
             .i_view(filter='status in ("single-tier")')
         )
         ```
+
+        A table whose populations are colored from the rows the search keeps: search for "lake",
+        and the darkest blue goes to the most populous of the municipalities named for one
+        (Kawartha Lakes), rather than to Toronto.
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .data_color(columns="population_2021", palette="Blues")
+            .i_cols_controls(columns="population_2021", data_color="recompute")
+        )
+        ```
         """
         # (Each setting keeps the columns readers can't do it with (and `query_only`, those not
         # shown), but `hideable`, `reorderable` and `groupable` keep those they can, so they're
@@ -972,6 +1005,10 @@ class GTI(GT):
         hide = _optional_flag(hideable, "hideable")
         move = _optional_flag(reorderable, "reorderable")
         group = _optional_flag(groupable, "groupable")
+        if data_color is not None and data_color not in DATA_COLOR_MODES:
+            raise ValueError(
+                f'`data_color=` must be "keep", "recompute", or `None`, not {data_color!r}.'
+            )
         flags = {
             "unsortable": _optional_flag(sortable, "sortable"),
             "unsearchable": _optional_flag(searchable, "searchable"),
@@ -980,6 +1017,7 @@ class GTI(GT):
             "reorderable": None if move is None else not move,
             "groupable": None if group is None else not group,
             "query_only": _optional_flag(display, "display"),
+            "recolor": None if data_color is None else data_color == "keep",
         }
         if display is False:
             # (The stub and the row group column are what the rows are known by)
