@@ -221,6 +221,32 @@ describe("readView", () => {
     ]);
   });
 
+  it("reads the column the rows are grouped by, or none, over the author's", () => {
+    const base = { ...BASE, groupBy: null };
+    const limits = { ...LIMITS, groupable: ["status", "a b&c"] };
+    const { query, view, warnings } = roundTrip({ ...base, groupBy: "a b&c" }, { base, limits });
+    expect(query).toBe("?towny.group=a+b%26c");
+    expect(view.groupBy).toBe("a b&c");
+    expect(warnings).toEqual([]);
+    // (Once empty, for none, over the author's; and only when it isn't the author's)
+    const grouped = { ...BASE, groupBy: "status" };
+    expect(roundTrip(base, { base: grouped, limits })).toMatchObject({ query: "?towny.group=", view: { groupBy: null } });
+    expect(roundTrip(grouped, { base: grouped, limits }).query).toBe("");
+    expect(readView([["page", "2"]], grouped, limits, () => {}).groupBy).toBe("status");
+  });
+
+  it("leaves out a grouping by a column the rows can't be grouped by, with a warning", () => {
+    const warnings: string[] = [];
+    const base = { ...BASE, groupBy: null };
+    const read = (limits: ViewLimits) => readView([["group", "name"]], base, limits, (message) => warnings.push(message)).groupBy;
+    expect(read({ ...LIMITS, groupable: ["status"] })).toBeNull();
+    expect(read(LIMITS)).toBeNull();
+    expect(warnings).toEqual([
+      'the saved view\'s grouping by "name" is left out (it isn\'t a column the reader can group the rows by)',
+      'the saved view\'s grouping by "name" is left out (it isn\'t a column the reader can group the rows by)',
+    ]);
+  });
+
   it("reads a column that starts with - as sorted", () => {
     expect(roundTrip({ ...BASE, sort: [{ column: "-x", descending: true }] }).view.sort).toEqual([{ column: "-x", descending: true }]);
     expect(roundTrip({ ...BASE, sort: [{ column: "-x", descending: false }] }).view.sort).toEqual([{ column: "-x", descending: false }]);

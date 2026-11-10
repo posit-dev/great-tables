@@ -97,7 +97,7 @@ interface TableOptions {
   /** What readers can do with each column (by its id), if not everything, and where it's pinned. */
   columns?: Record<
     string,
-    Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable" | "dtype" | "missing">
+    Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable" | "groupable" | "dtype" | "missing">
   >;
   /** The data rows' details (in templates after the table), by row. */
   details?: Record<number, string>;
@@ -8186,5 +8186,130 @@ describe("column profiles", () => {
     const el = await mountProfiles({ controls: { sorting: false } });
     expect(el.querySelector(".gt-i-head-controls")).toBeNull();
     expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
+  });
+});
+
+describe("grouping rows", () => {
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  const BOTH = { x: { groupable: true }, y: { groupable: true } };
+  const toggle = (el: GtTable) => el.querySelector<HTMLButtonElement>('.gt-i-bar [data-gti-bar="group"]');
+  const radios = (el: GtTable) =>
+    Array.from(el.querySelectorAll<HTMLInputElement>('.gt-i-bar [aria-label="Group rows by"] input[type=radio]'));
+  const headings = (el: GtTable) => Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody tr.gt_group_heading_row"));
+  // The rows shown: each group's heading (its text) and each data row
+  const rows = (el: GtTable) =>
+    Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody.gt_table_body > tr:not(.gt-i-empty)"))
+      .filter((tr) => !tr.hidden)
+      .map((tr) => (tr.matches(".gt_group_heading_row") ? `# ${tr.textContent}` : el.bodyRow(tr)));
+
+  // FLAT, with a bar, `x` and `y` groupable (unless set otherwise), and the view events fired
+  async function mountGroup(options: TableOptions = {}) {
+    const el = await mountTable(FLAT, { columns: BOTH, ...options, controls: { bar: true, ...options.controls } });
+    const views: ViewEventDetail[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent<ViewEventDetail>).detail));
+    return { el, views };
+  }
+
+  it("groups the rows by a column, under headings with their counts, the missing last", async () => {
+    const { el } = await mountGroup();
+    expect(el.groupableColumns).toEqual(["x", "y"]);
+    expect(el.groupBy).toBeNull();
+    el.groupBy = "y";
+    expect(rows(el)).toEqual(["# a (3)", 1, 3, 4, "# b (1)", 0, "# c (1)", 2]);
+    const th = headings(el)[0]?.cells[0] as HTMLTableCellElement;
+    expect([th.tagName, th.scope, th.colSpan]).toEqual(["TH", "colgroup", 3]);
+    expect(th.querySelector(".gt-i-group-count")?.textContent).toBe(" (3)");
+    el.groupBy = "x";
+    expect(rows(el)).toEqual(["# 5 (1)", 1, "# 10 (1)", 2, "# 20 (2)", 0, 4, "# (Missing) (1)", 3]);
+    // (The old headings gone)
+    expect(headings(el)).toHaveLength(4);
+    el.groupBy = null;
+    expect(rows(el)).toEqual([0, 1, 2, 3, 4]);
+    expect(headings(el)).toHaveLength(0);
+    expect(() => (el.groupBy = "row")).toThrow(RangeError);
+  });
+
+  it("sorts the rows in their groups, and the groups as their column is sorted", async () => {
+    const { el } = await mountGroup();
+    el.groupBy = "y";
+    el.sort = [{ column: "x", descending: true }];
+    expect(rows(el)).toEqual(["# a (3)", 4, 1, 3, "# b (1)", 0, "# c (1)", 2]);
+    el.sort = [{ column: "y", descending: true }];
+    expect(rows(el)).toEqual(["# c (1)", 2, "# b (1)", 0, "# a (3)", 1, 3, 4]);
+    el.groupBy = "x";
+    el.sort = [{ column: "x", descending: true }];
+    // (The missing still last)
+    expect(rows(el)).toEqual(["# 20 (2)", 0, 4, "# 10 (1)", 2, "# 5 (1)", 1, "# (Missing) (1)", 3]);
+  });
+
+  it("counts the rows that match, without the groups that have none, and a heading on each page", async () => {
+    const { el } = await mountGroup({ controls: { search: true } });
+    el.groupBy = "x";
+    el.search = "a";
+    expect(rows(el)).toEqual(["# 5 (1)", 1, "# 20 (1)", 4, "# (Missing) (1)", 3]);
+    el.search = "";
+    // (Group 20 on pages 1 and 2)
+    el.pageSize = 3;
+    expect(rows(el)).toEqual(["# 5 (1)", 1, "# 10 (1)", 2, "# 20 (2)", 0]);
+    el.page = 2;
+    expect(rows(el)).toEqual(["# 20 (2)", 4, "# (Missing) (1)", 3]);
+  });
+
+  it("spans the headings across the columns shown", async () => {
+    const { el } = await mountGroup({ columns: { x: { hideable: true, groupable: true }, y: { groupable: true } } });
+    el.groupBy = "y";
+    el.hiddenColumns = ["x"];
+    expect(headings(el).map((tr) => tr.cells[0]?.colSpan)).toEqual([2, 2, 2]);
+    el.groupBy = "x";
+    expect(headings(el).map((tr) => tr.cells[0]?.colSpan)).toEqual([2, 2, 2, 2]);
+  });
+
+  it("groups from a panel in the bar, as a change to the view", async () => {
+    const { el, views } = await mountGroup({ viewState: { url: false, storage: false, key: null, undo: true } });
+    const button = toggle(el) as HTMLButtonElement;
+    expect(button.getAttribute("aria-label")).toBe("Group rows");
+    button.click();
+    expect(radios(el).map((radio) => [radio.nextElementSibling?.textContent, radio.checked])).toEqual([
+      ["None", true],
+      ["x", false],
+      ["y", false],
+    ]);
+    radios(el)[2]?.click();
+    expect(el.groupBy).toBe("y");
+    expect(el.querySelector(".gt-i-live")?.textContent).toBe("Rows grouped by y");
+    radios(el)[0]?.click();
+    expect(el.groupBy).toBeNull();
+    expect(el.querySelector(".gt-i-live")?.textContent).toBe("Rows not grouped");
+    expect(views.map((view) => view.groupBy)).toEqual(["y", null]);
+
+    el.querySelector<HTMLButtonElement>('.gt-i-bar [data-gti-bar="undo"]')?.click();
+    expect(el.groupBy).toBe("y");
+    expect(radios(el)[2]?.checked).toBe(true);
+  });
+
+  it("starts grouped as the spec's view has it, which the reset goes back to", async () => {
+    const { el } = await mountGroup({ view: { filter: null, sort: [], group_by: "y" } });
+    expect(el.groupBy).toBe("y");
+    expect(rows(el)[0]).toBe("# a (3)");
+    el.groupBy = null;
+    el.querySelector<HTMLButtonElement>('.gt-i-bar [data-gti-bar="reset"]')?.click();
+    expect(el.groupBy).toBe("y");
+  });
+
+  it("leaves out a grouping the spec's view has by a column it can't group by, with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { el } = await mountGroup({ columns: { y: { groupable: true } }, view: { filter: null, sort: [], group_by: "x" } });
+    expect(el.groupBy).toBeNull();
+    expect(el.groupableColumns).toEqual(["y"]);
+    expect(warn).toHaveBeenCalled();
+  });
+
+  it("has no grouping for a table with row groups or without a column readers can group by", async () => {
+    const grouped = await mountTable(GROUPED, { columns: BOTH, controls: { bar: true } });
+    expect(grouped.groupableColumns).toEqual([]);
+    expect(toggle(grouped)).toBeNull();
+    const plain = await mountTable(FLAT, { controls: { bar: true } });
+    expect(plain.groupableColumns).toEqual([]);
+    expect(toggle(plain)).toBeNull();
   });
 });
