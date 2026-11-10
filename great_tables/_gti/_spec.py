@@ -94,6 +94,18 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   title's text, or its ID; or `null`) and the text of the `on` column's label (`label`) are what
   the others say they're filtered by. Producers that leave `link` out (or give `null`) aren't
   linked.
+- `colors`: the columns whose fill colors (`data_color()`'s) are made again from the rows the
+  search and filters keep, as they were made from every row: each data row colored (`rows`, those
+  with a value, in order) and its value (`values`): a number (or `"Infinity"` or `"-Infinity"`,
+  which take the ends of the palette), or, for text (`levels`: its distinct values, in the order
+  they first come), the index of its value. The fill is the palette's color (`palette`, the colors
+  spread evenly from 0 to 1, mixed in CIELAB) at the value's place in the range of the rows' values
+  kept (with a `midpoint` in the middle, the range made even around it, if there is one), or at
+  the index of its level among those of the rows kept, with `alpha` (hex) after it; and the text
+  is black or white, whichever contrasts with it more (by `text`: `"apca"` or `"wcag"`), unless
+  `text` is `null`. The rows in `fixed` keep their colors (a later style colors their cells), but
+  count for the range. With every row kept, the cells have their colors as the table's HTML gives
+  them. Producers that leave `colors` out have none.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -106,17 +118,23 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Literal, TypedDict, Union
 
 from .._gt_data import ColInfoTypeEnum
+from .._locations import LocBody
+from .._styles import CellStyleFill, CellStyleText
 from .._tbl_data import (
     ColumnKind,
     _get_cell,
     _get_column_dtype_name,
     _get_column_kind,
+    _get_column_levels,
     _get_column_missing,
     _get_column_ranks,
     _get_column_values,
     cast_frame_to_string,
+    get_rows,
+    is_na,
     n_rows,
     replace_null_frame,
+    to_list,
 )
 from .._text import _process_text
 from .._utils_render_html import _get_header_ids
@@ -306,6 +324,19 @@ class LinkSpec(TypedDict):
     keys: list[Any]  # each data row's `on` value as JSON (`None` where it's missing)
 
 
+class ColorSpec(TypedDict):
+    column: str
+    rows: list[int]  # the data rows colored, with a value
+    # (Each row's number (or "Infinity" or "-Infinity"), or for text, the index of its level)
+    values: list[Any]
+    levels: list[str] | None  # text's distinct values, in the order they first come
+    palette: list[str]  # as #RRGGBB
+    alpha: str  # as hex (or "")
+    midpoint: int | float | None
+    text: Literal["apca", "wcag"] | None  # how the text is colored, if it is
+    fixed: list[int]  # the rows whose cells a later style colors
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -328,6 +359,7 @@ class Spec(TypedDict):
     view_state: ViewStateSpec
     details: list[int]
     link: LinkSpec | None
+    colors: list[ColorSpec]
 
 
 def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
@@ -618,7 +650,75 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
         ),
         details=details,
         link=link,
+        colors=_color_specs(
+            data,
+            [c["id"] for c in columns if c["role"] == "data" and c["id"] in settings.recolor],
+        ),
     )
+
+
+def _color_specs(data: GTData, recolored: list[str]) -> list[ColorSpec]:
+    """How the colors of `data_color()` calls are made again from the rows kept, for the columns
+    in `recolored` (shown in the table)."""
+    tbl_data = data._tbl_data
+    styles = data._styles
+    specs: list[ColorSpec] = []
+    for info in data._data_colors:
+        columns = [column for column in info.columns if column in recolored]
+        # (The call's last style, after which a style of the same cell wins; gone if `tab_stub()`
+        # made its column the row group column)
+        place = next((i for i, style in enumerate(styles) if style is info.last), None)
+        if not columns or place is None:
+            continue
+        later = {
+            (style.colname, style.rownum)
+            for style in styles[place + 1 :]
+            if isinstance(style.locname, LocBody)
+            and any(
+                isinstance(cell_style, CellStyleFill)
+                or (isinstance(cell_style, CellStyleText) and cell_style.color is not None)
+                for cell_style in style.styles
+            )
+        }
+        for column in columns:
+            # (As `_map_data_colors()` reads them)
+            column_vals = to_list(get_rows(tbl_data[column], indexes=info.rows))
+            column_vals = [float(x) if isinstance(x, Decimal) else x for x in column_vals]
+            present = [(row, x) for row, x in zip(info.rows, column_vals) if not is_na(tbl_data, x)]
+            if not present:
+                continue
+            levels: list[str] | None = None
+            if all(isinstance(x, (int, float)) for _, x in present):
+                values: list[Any] = [
+                    ("Infinity" if x > 0 else "-Infinity")
+                    if isinstance(x, float) and math.isinf(x)
+                    else _json_value(x)
+                    for _, x in present
+                ]
+            elif all(isinstance(x, str) for _, x in present):
+                # (An ordered categorical's levels are its domain, whatever the rows)
+                if _get_column_levels(tbl_data, column):
+                    continue
+                levels = list(dict.fromkeys(x for _, x in present))
+                index = {level: i for i, level in enumerate(levels)}
+                values = [index[x] for _, x in present]
+            else:
+                continue
+            rows = [row for row, _ in present]
+            specs.append(
+                ColorSpec(
+                    column=column,
+                    rows=rows,
+                    values=values,
+                    levels=levels,
+                    palette=info.palette,
+                    alpha=info.alpha,
+                    midpoint=info.midpoint,
+                    text=info.contrast_algo,
+                    fixed=[row for row in rows if (column, row) in later],
+                )
+            )
+    return specs
 
 
 def _check_pins(columns: list[ColumnSpec]) -> None:
