@@ -724,6 +724,122 @@ def _(data: PyArrowTable, column: str) -> list[int]:
     return [i for i, is_missing in enumerate(missing) if is_missing]
 
 
+# _get_column_dtype_name ----
+
+# The short names of dtypes, as Polars prints them (without their parameters): the same for every
+# backend, so that a column of 64-bit floats is "f64" in each
+_POLARS_DTYPES = {
+    "Int8": "i8",
+    "Int16": "i16",
+    "Int32": "i32",
+    "Int64": "i64",
+    "Int128": "i128",
+    "UInt8": "u8",
+    "UInt16": "u16",
+    "UInt32": "u32",
+    "UInt64": "u64",
+    "UInt128": "u128",
+    "Float16": "f16",
+    "Float32": "f32",
+    "Float64": "f64",
+    "Decimal": "decimal",
+    "Boolean": "bool",
+    "String": "str",
+    "Utf8": "str",
+    "Categorical": "cat",
+    "Enum": "enum",
+    "Date": "date",
+    "Time": "time",
+    "Datetime": "datetime",
+    "Duration": "duration",
+    "List": "list",
+    "Array": "array",
+    "Struct": "struct",
+    "Binary": "binary",
+    "Null": "null",
+    "Object": "object",
+}
+
+
+def _arrow_dtype(dtype: Any) -> str:
+    import pyarrow as pa
+
+    if pa.types.is_integer(dtype):
+        return f"{'i' if pa.types.is_signed_integer(dtype) else 'u'}{dtype.bit_width}"
+    if pa.types.is_floating(dtype):
+        return f"f{dtype.bit_width}"
+    if pa.types.is_fixed_size_list(dtype):
+        return "array"
+    if pa.types.is_large_list(dtype) or pa.types.is_list(dtype):
+        return "list"
+    checks = [
+        (pa.types.is_decimal, "decimal"),
+        (pa.types.is_boolean, "bool"),
+        (pa.types.is_string, "str"),
+        (pa.types.is_large_string, "str"),
+        (_is_arrow_string_view, "str"),
+        (pa.types.is_dictionary, "cat"),
+        (pa.types.is_date, "date"),
+        (pa.types.is_time, "time"),
+        (pa.types.is_timestamp, "datetime"),
+        (pa.types.is_duration, "duration"),
+        (pa.types.is_struct, "struct"),
+        (pa.types.is_binary, "binary"),
+        (pa.types.is_large_binary, "binary"),
+        (pa.types.is_null, "null"),
+    ]
+    for check, name in checks:
+        if check(dtype):
+            return name
+    # (Another, by its name without its parameters, as in "map")
+    return str(dtype).split("<")[0].split("[")[0].split("(")[0]
+
+
+@singledispatch
+def _get_column_dtype_name(data: DataFrameLike, column: str) -> str:
+    """Get the short name of a column's dtype, as Polars prints it (`"f64"`, `"str"`, `"date"`,
+    `"datetime"`...), for any backend: an object column of strings is `"str"`, and a column of
+    another dtype has its name, without its parameters."""
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_dtype_name.register
+def _(data: PdDataFrame, column: str) -> str:
+    import pandas as pd
+
+    dtype = data[column].dtype
+    if isinstance(dtype, pd.ArrowDtype):
+        return _arrow_dtype(dtype.pyarrow_dtype)
+    if isinstance(dtype, pd.CategoricalDtype):
+        return "cat"
+    if isinstance(dtype, pd.StringDtype):
+        return "str"
+    # (NumPy's dtypes and pandas' nullable ones, by their kind and size)
+    kind = getattr(dtype, "kind", None)
+    if kind in ("i", "u", "f"):
+        return f"{kind}{dtype.itemsize * 8}"
+    if kind == "b":
+        return "bool"
+    if kind == "M":
+        return "datetime"
+    if kind == "m":
+        return "duration"
+    if kind == "O" and dtype.name == "object":
+        return "str" if _get_column_kind(data, column) == "string" else "object"
+    return str(dtype).split("[")[0]
+
+
+@_get_column_dtype_name.register
+def _(data: PlDataFrame, column: str) -> str:
+    base = data[column].dtype.base_type()
+    return _POLARS_DTYPES.get(base.__name__, base.__name__.lower())
+
+
+@_get_column_dtype_name.register
+def _(data: PyArrowTable, column: str) -> str:
+    return _arrow_dtype(data.column(column).type)
+
+
 # reorder ----
 
 
