@@ -312,6 +312,20 @@ export interface ViewStateSpec {
   undo: boolean;
 }
 
+/**
+ * The tables on the page this one is linked to (those with the same `group`), and the column whose
+ * values (`keys`, one per data row; `null` where it's missing) link their rows: the rows selected
+ * in one filter the others to those with the same values. The table's `name` (its title, or ID)
+ * and the text of the column's `label` are what the others say they're filtered by.
+ */
+export interface LinkSpec {
+  group: string;
+  on: string;
+  name: string | null;
+  label: string;
+  keys: FilterValue[];
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -348,6 +362,8 @@ export interface Spec {
    * a `<template data-gti-details="row">` in the element. Without it, none.
    */
   details?: number[];
+  /** The tables this one is linked to. Without it (or with `null`), none. */
+  link?: LinkSpec | null;
 }
 
 export class SpecError extends Error {
@@ -634,6 +650,24 @@ export function parseSpec(text: string): Spec {
   const details = raw.details;
   if (details !== undefined && !(Array.isArray(details) && details.every((row) => isIndex(row, nrows as number)))) {
     throw new SpecError("`details` must be data rows' indexes, if given");
+  }
+
+  const link = raw.link;
+  if (
+    link != null &&
+    !(
+      isObject(link) &&
+      typeof link.group === "string" &&
+      link.group !== "" &&
+      typeof link.on === "string" &&
+      (link.name === null || typeof link.name === "string") &&
+      typeof link.label === "string" &&
+      Array.isArray(link.keys) &&
+      link.keys.length === nrows &&
+      link.keys.every(isFilterValue)
+    )
+  ) {
+    throw new SpecError("`link` must have a `group`, an `on` column with its `label`, a `name`, and a key per data row, if given");
   }
 
   return raw as unknown as Spec;

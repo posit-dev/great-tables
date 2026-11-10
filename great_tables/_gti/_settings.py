@@ -139,6 +139,10 @@ class Settings:
     # (Each data row's details, which readers can show under it: what a function of the row's
     # values makes, or what a column (left out of the table) holds; none, by default)
     row_details: Callable[[dict[str, Any]], Any] | str | None = None
+    # (The tables on the page this one is linked to, by their group's name, and the column whose
+    # values link their rows, so that rows selected in one filter the others; none, by default)
+    link_group: str | None = None
+    link_on: str | None = None
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:

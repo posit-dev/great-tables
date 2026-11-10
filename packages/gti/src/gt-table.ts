@@ -49,6 +49,7 @@ import {
   type ColumnSpec,
   type ExportFormat,
   type FilterType,
+  type FilterValue,
   parseSpec,
   type ResponsiveMode,
   type SelectionMode,
@@ -245,6 +246,20 @@ interface FilterToken {
   open: HTMLButtonElement;
   remove: HTMLButtonElement;
 }
+
+/**
+ * A linked table's selection, which filters the table to the rows with its keys (unless the
+ * reader has lifted the filter, until the selection changes), and the filter's token.
+ */
+interface LinkFilter {
+  keys: Set<FilterValue>;
+  lifted: boolean;
+  token: FilterToken | null;
+}
+
+// The tables linked to others on the page, by their group (one registry, as the first definition
+// of the element is the one every `<gt-table>` has)
+const LINKED = new Map<string, Set<GtTable>>();
 
 interface FacetOption {
   key: number;
@@ -460,6 +475,9 @@ interface Info extends Popup {
   /** The buttons opening and closing every row's details (with row details). */
   detailsOpen: HTMLButtonElement | null;
   detailsClose: HTMLButtonElement | null;
+  /** The tables linked to it whose selections filter it, and the button lifting their filters (with a link). */
+  linkText: HTMLElement | null;
+  linkShow: HTMLButtonElement | null;
 }
 
 /** The keyboard shortcuts' panel: the keys the table answers to, of which those for paging are listed while there are pages. */
@@ -850,6 +868,12 @@ export class GtTable extends HTMLElement {
   private filterGroups: FilterGroup[] = [];
   /** The groups' tokens, in the bar. */
   private groupTokens = new Map<FilterGroup, FilterToken>();
+  /**
+   * The keys of the rows selected that the table has shared with those it's linked to (`null`
+   * until it has joined them), and their selections that filter it.
+   */
+  private sharedKeys: Set<FilterValue> | null = null;
+  private linkFilters = new Map<GtTable, LinkFilter>();
   /** The filter whose panel is open, and the page's handlers for a press outside it and for scrolling. */
   private openFilter: FilterControl | null = null;
   /** What opened it (its column's button, or its token), which it's placed by and focus goes back to. */
@@ -1410,6 +1434,10 @@ export class GtTable extends HTMLElement {
       // Moved: keep the hydrated table (and its view), unless its children were replaced
       if (this.contains(this.table)) {
         this.observeLayout();
+        if (this.joinLink()) {
+          this.matchRows();
+          this.render();
+        }
         return;
       }
       this.reset();
@@ -1426,6 +1454,7 @@ export class GtTable extends HTMLElement {
   }
 
   disconnectedCallback(): void {
+    this.leaveLink();
     this.closePanel(false);
     this.closeFilter(false);
     this.stopObserving();
@@ -1644,7 +1673,7 @@ export class GtTable extends HTMLElement {
         this.runs.length > 0 ||
         this.groupable.length > 0 ||
         this.contents.size > 0 ||
-        (this.movable && (spec.controls.search || this.filters.length > 0)))
+        (this.movable && (spec.controls.search || this.filters.length > 0 || spec.link != null)))
     ) {
       this.addBar();
     }
@@ -1677,6 +1706,7 @@ export class GtTable extends HTMLElement {
       };
       this.restoreView(spec, this.authorView);
     }
+    this.joinLink();
     // A search or page set before hydration applies now
     this.matchRows();
     if (this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null) {
@@ -3170,6 +3200,116 @@ export class GtTable extends HTMLElement {
     });
     this.updateSelectAll();
     this.updateInfo();
+    this.shareSelection();
+  }
+
+  // Join the tables linked to this one (see `LinkSpec`), to be filtered by their selections (if
+  // its rows can be) and filter them by its own. Whether it did.
+  private joinLink(): boolean {
+    const link = this.spec?.link;
+    if (link == null || this.sharedKeys !== null) {
+      return false;
+    }
+    const group = LINKED.get(link.group) ?? new Set<GtTable>();
+    LINKED.set(link.group, group);
+    for (const other of group) {
+      const keys = other.sharedKeys as Set<FilterValue>;
+      if (this.movable && keys.size > 0) {
+        this.linkFilters.set(other, { keys, lifted: false, token: null });
+      }
+    }
+    group.add(this);
+    this.sharedKeys = new Set();
+    this.shareSelection();
+    return true;
+  }
+
+  private leaveLink(): void {
+    const link = this.spec?.link;
+    if (link == null || this.sharedKeys === null) {
+      return;
+    }
+    this.sharedKeys = null;
+    this.linkFilters.clear();
+    const group = LINKED.get(link.group) as Set<GtTable>;
+    group.delete(this);
+    if (group.size === 0) {
+      LINKED.delete(link.group);
+    }
+    for (const other of group) {
+      other.linked(this, new Set());
+    }
+  }
+
+  // Give the tables linked to this one the keys of its rows selected (in data order), if they
+  // changed
+  private shareSelection(): void {
+    const link = this.spec?.link;
+    const shared = this.sharedKeys;
+    if (link == null || shared === null) {
+      return;
+    }
+    const keys = new Set<FilterValue>();
+    for (const row of [...this.selected].sort((a, b) => a - b)) {
+      const key = link.keys[row];
+      if (key != null) {
+        keys.add(key);
+      }
+    }
+    if (keys.size === shared.size && [...keys].every((key) => shared.has(key))) {
+      return;
+    }
+    this.sharedKeys = keys;
+    for (const other of LINKED.get(link.group) as Set<GtTable>) {
+      if (other !== this) {
+        other.linked(this, keys);
+      }
+    }
+  }
+
+  // Filter the rows by a linked table's selection (none, without keys)
+  private linked(source: GtTable, keys: Set<FilterValue>): void {
+    const had = this.linkFilters.get(source);
+    if (!this.movable || (keys.size === 0 && had === undefined)) {
+      return;
+    }
+    if (keys.size === 0) {
+      this.linkFilters.delete(source);
+    } else if (had === undefined) {
+      this.linkFilters.set(source, { keys, lifted: false, token: null });
+    } else {
+      // (The same filter, which its token lifts)
+      had.keys = keys;
+      had.lifted = false;
+    }
+    this.linkChanged();
+  }
+
+  // Lift linked tables' filters (until their selections change)
+  private liftLinks(filters: Iterable<LinkFilter>): void {
+    let changed = false;
+    for (const filter of filters) {
+      changed ||= !filter.lifted;
+      filter.lifted = true;
+    }
+    if (changed) {
+      this.linkChanged();
+    }
+  }
+
+  private linkChanged(): void {
+    this.applyFilters();
+    this.announce(`${this.spec?.link?.name ?? "Linked table"}: ${this.shownText()}`);
+  }
+
+  // The linked tables' filters that are on
+  private links(): LinkFilter[] {
+    return [...this.linkFilters.values()].filter((filter) => !filter.lifted);
+  }
+
+  // A linked table's name (its title, or ID), as the tables it filters say it
+  private linkName(): string {
+    return this.spec?.link?.name ?? "another table";
   }
 
   // The select-all checkbox is checked when every row that matches is selected, and mixed when
@@ -4416,8 +4556,10 @@ export class GtTable extends HTMLElement {
       bar.redo.addEventListener("click", () => this.userTravel(false));
     }
     this.bar = bar;
-    if (this.filters.length > 0) {
+    if (this.filters.length > 0 || (this.movable && spec.link != null)) {
       this.addTokens(bar, rtl);
+    }
+    if (this.filters.length > 0) {
       this.addQuery(bar);
     }
     if (this.movable && spec.controls.search) {
@@ -5077,6 +5219,8 @@ export class GtTable extends HTMLElement {
       view: null,
       detailsOpen: null,
       detailsClose: null,
+      linkText: null,
+      linkShow: null,
     };
 
     // An item: what it's about, then the control that changes it (if there's one)
@@ -5145,6 +5289,19 @@ export class GtTable extends HTMLElement {
       const buttons = element(doc, "span", "gt-i-info-buttons");
       buttons.append(info.detailsOpen, info.detailsClose);
       item("details", "div", span("Row details"), buttons);
+    }
+    if (this.movable && spec.link != null) {
+      const show = element(doc, "button", "gt-i-info-button", { type: "button", "aria-label": "Show the rows the linked tables' selections leave out" });
+      show.textContent = "Show all";
+      // (Disabled with ARIA, as the selection's button is)
+      show.addEventListener("click", () => {
+        if (show.getAttribute("aria-disabled") !== "true") {
+          this.liftLinks(this.linkFilters.values());
+        }
+      });
+      info.linkText = span();
+      info.linkShow = show;
+      item("link", "div", info.linkText, show);
     }
     const kept = this.keeper;
     if (kept !== null) {
@@ -5342,6 +5499,12 @@ export class GtTable extends HTMLElement {
       const all = [...this.contents.keys()].every((tr) => this.opened.has(tr));
       info.detailsOpen.setAttribute("aria-disabled", String(all));
       info.detailsClose.setAttribute("aria-disabled", String(this.opened.size === 0));
+    }
+    if (info.linkText !== null && info.linkShow !== null) {
+      const names = [...this.linkFilters].flatMap(([source, filter]) => (filter.lifted ? [] : [source.linkName()]));
+      info.linkText.textContent =
+        names.length === 0 ? `Linked to other tables by ${(this.spec as Spec).link?.label}` : `Filtered by the selection in ${names.join(", ")}`;
+      info.linkShow.setAttribute("aria-disabled", String(names.length === 0));
     }
     if (bar.exporter !== null) {
       this.updateExporter(bar.exporter);
@@ -6399,9 +6562,12 @@ export class GtTable extends HTMLElement {
   }
 
   private updateFilters(): void {
-    if (this.filters.length > 0) {
+    const on = this.filters.length > 0;
+    if (on) {
       this.updateFilterButtons();
-      this.updateTokens();
+    }
+    this.updateTokens();
+    if (on) {
       this.updateFilterPanel();
     }
   }
@@ -6431,8 +6597,7 @@ export class GtTable extends HTMLElement {
       }
       const items = Array.from(list.children);
       const at = items.findIndex((item) => item.contains(event.target as Node));
-      const control = this.filters.find((c) => c.token?.item === items[at]);
-      const group = Array.from(this.groupTokens).find(([, token]) => token.item === items[at])?.[0];
+      const remove = items[at]?.querySelector<HTMLElement>(".gt-i-token-remove");
       const targets: Record<string, number> = {
         ArrowLeft: rtl ? at + 1 : at - 1,
         ArrowRight: rtl ? at - 1 : at + 1,
@@ -6440,13 +6605,9 @@ export class GtTable extends HTMLElement {
         End: items.length - 1,
       };
       const target = items[targets[event.key] ?? -1];
-      if ((event.key === "Backspace" || event.key === "Delete") && (control ?? group) !== undefined) {
+      if ((event.key === "Backspace" || event.key === "Delete") && remove != null) {
         event.preventDefault();
-        if (control !== undefined) {
-          this.removeToken(control);
-        } else {
-          this.removeGroup(group as FilterGroup);
-        }
+        remove.click();
       } else if (target !== undefined) {
         event.preventDefault();
         target.querySelector("button")?.focus();
@@ -6455,7 +6616,8 @@ export class GtTable extends HTMLElement {
   }
 
   // A token for each filter that's on (and one whose panel is open from it), in column order, then
-  // one for each of the query's groups, and a button clearing them all when there's more than one.
+  // one for each of the query's groups, one for each linked table's selection that filters the
+  // rows, and a button clearing them all when there's more than one.
   // Tokens that stay are kept in the row, so that they keep focus.
   private updateTokens(): void {
     const bar = this.bar;
@@ -6483,6 +6645,16 @@ export class GtTable extends HTMLElement {
       items.push(token.item);
     }
     this.groupTokens = tokens;
+    for (const [source, filter] of this.linkFilters) {
+      if (!filter.lifted) {
+        const token = (filter.token ??= this.makeLinkToken(source, filter));
+        const text = this.linkText(source, filter);
+        if (token.open.textContent !== text) {
+          token.open.textContent = token.open.title = text;
+        }
+        items.push(token.item);
+      }
+    }
     if (items.length > 1) {
       items.push(bar?.clearAll ?? this.makeClearAll(bar as Bar));
     }
@@ -6503,21 +6675,20 @@ export class GtTable extends HTMLElement {
     list.hidden = items.length === 0 || bar?.query?.root.hidden === false;
   }
 
-  private makeToken(control: FilterControl): FilterToken {
+  // A token's item: its button, and the one removing it (as Backspace or Delete do)
+  private tokenParts(label: string): FilterToken {
     const doc = this.ownerDocument;
-    const item = doc.createElement("li");
-    item.className = "gt-i-token";
-    const open = doc.createElement("button");
-    open.type = "button";
-    open.className = "gt-i-token-open";
-    open.setAttribute("aria-expanded", "false");
-    const remove = doc.createElement("button");
-    remove.type = "button";
-    remove.className = "gt-i-token-remove";
-    remove.setAttribute("aria-label", `Remove the filter on ${control.label}`);
-    remove.title = "Remove (Delete)";
+    const item = element(doc, "li", "gt-i-token");
+    const open = element(doc, "button", "gt-i-token-open", { type: "button" });
+    const remove = element(doc, "button", "gt-i-token-remove", { type: "button", "aria-label": label, title: "Remove (Delete)" });
     remove.append(icon(doc, "clear"));
     item.append(open, remove);
+    return { item, open, remove };
+  }
+
+  private makeToken(control: FilterControl): FilterToken {
+    const { item, open, remove } = this.tokenParts(`Remove the filter on ${control.label}`);
+    open.setAttribute("aria-expanded", "false");
     open.addEventListener("click", () => {
       if (this.openFilter === control && this.filterAnchor === open) {
         this.closeFilter(false);
@@ -6535,30 +6706,48 @@ export class GtTable extends HTMLElement {
   // A group's token: its query text (or for an `is_null` clause, "Population is missing"), which
   // opens the query box with the text selected
   private makeGroupToken(group: FilterGroup): FilterToken {
-    const doc = this.ownerDocument;
     const text = formatQuery({ and: [group.item] });
     const part = group.item;
     const clause = "not" in part ? part.not : part;
     const label = this.filters.find((control) => control.filter === group.filters[0])?.label;
     const shown = isClause(clause) && clause.op === "is_null" ? `${label} is ${clause === part ? "" : "not "}missing` : text;
-    const item = doc.createElement("li");
-    item.className = "gt-i-token";
-    item.toggleAttribute("data-gti-group", true);
-    const open = doc.createElement("button");
-    open.type = "button";
-    open.className = "gt-i-token-open";
-    open.textContent = shown;
-    open.title = `${text} (edit as text)`;
-    const remove = doc.createElement("button");
-    remove.type = "button";
-    remove.className = "gt-i-token-remove";
-    remove.setAttribute("aria-label", `Remove the filter ${shown}`);
-    remove.title = "Remove (Delete)";
-    remove.append(icon(doc, "clear"));
-    item.append(open, remove);
-    open.addEventListener("click", () => this.openQuery(text));
-    remove.addEventListener("click", () => this.removeGroup(group));
-    return { item, open, remove };
+    const token = this.tokenParts(`Remove the filter ${shown}`);
+    token.item.toggleAttribute("data-gti-group", true);
+    token.open.textContent = shown;
+    token.open.title = `${text} (edit as text)`;
+    token.open.addEventListener("click", () => this.openQuery(text));
+    token.remove.addEventListener("click", () => this.removeGroup(group));
+    return token;
+  }
+
+  // A linked table's selection's token, which goes to the selection (its first row in view), and
+  // whose remove button lifts the filter
+  private makeLinkToken(source: GtTable, filter: LinkFilter): FilterToken {
+    const token = this.tokenParts(`Show the rows not selected in ${source.linkName()}`);
+    token.item.toggleAttribute("data-gti-link", true);
+    token.open.addEventListener("click", () => {
+      const box = [...source.selected].map((row) => source.selectBoxes[row]).find((box) => box?.isConnected);
+      if (box === undefined) {
+        source.scrollIntoView({ block: "nearest" });
+      } else {
+        box.focus();
+      }
+    });
+    token.remove.addEventListener("click", () => this.dropToken(token.item, () => this.liftLinks([filter])));
+    return token;
+  }
+
+  // What a linked table's selection keeps: "Selected in Makes: Ferrari, Lamborghini +2"
+  private linkText(source: GtTable, filter: LinkFilter): string {
+    const lang = this.closest("[lang]")?.getAttribute("lang") || undefined;
+    const names = [...filter.keys].map((key) => {
+      try {
+        return typeof key === "number" ? new Intl.NumberFormat(lang).format(key) : String(key);
+      } catch {
+        return String(key);
+      }
+    });
+    return `Selected in ${source.linkName()}: ${names.length > 3 ? `${names.slice(0, 2).join(", ")} +${names.length - 2}` : names.join(", ")}`;
   }
 
   private makeClearAll(bar: Bar): HTMLElement {
@@ -6574,6 +6763,7 @@ export class GtTable extends HTMLElement {
       this.closeFilter(false);
       this.cancelFilterTimer();
       this.userFilter(() => this.clearFilters());
+      this.liftLinks(this.linkFilters.values());
       bar.info.button.focus();
     });
     bar.clearAll = item;
@@ -7153,14 +7343,7 @@ export class GtTable extends HTMLElement {
     const query = this.query();
     this.applyFilters();
     const count = this.matchCount;
-    const total = this.spec.nrows;
-    this.announce(
-      this.matched === null
-        ? `Showing all ${plural(total)}`
-        : count === 0
-          ? "No matching rows"
-          : `Showing ${count} of ${plural(total)}`,
-    );
+    this.announce(this.shownText());
     this.dispatchEvent(
       new CustomEvent<FilterEventDetail>(FILTER_EVENT, {
         bubbles: true,
@@ -7170,6 +7353,13 @@ export class GtTable extends HTMLElement {
     );
     // (Changes to one filter can be one change to undo; to more, at once, are one of their own)
     this.dispatchView(changed.length === 1 ? `filter ${changed[0]}` : null);
+  }
+
+  // How many rows are shown, once matched
+  private shownText(): string {
+    const count = this.matchCount;
+    const total = (this.spec as Spec).nrows;
+    return this.matched === null ? `Showing all ${plural(total)}` : count === 0 ? "No matching rows" : `Showing ${count} of ${plural(total)}`;
   }
 
   private applyFilters(): void {
@@ -7496,14 +7686,7 @@ export class GtTable extends HTMLElement {
     if (this.spec === null) {
       return;
     }
-    const total = this.spec.nrows;
-    this.announce(
-      this.terms.length === 0
-        ? `Showing all ${plural(total)}`
-        : count === 0
-          ? "No matching rows"
-          : `Showing ${count} of ${plural(total)}`,
-    );
+    this.announce(this.shownText());
     this.dispatchEvent(
       new CustomEvent<SearchEventDetail>(SEARCH_EVENT, {
         bubbles: true,
@@ -7629,7 +7812,7 @@ export class GtTable extends HTMLElement {
     if (
       spec === null ||
       !this.movable ||
-      (this.terms.length === 0 && filters.length === 0 && this.filterGroups.length === 0)
+      (this.terms.length === 0 && filters.length === 0 && this.filterGroups.length === 0 && this.links().length === 0)
     ) {
       return;
     }
@@ -7644,10 +7827,12 @@ export class GtTable extends HTMLElement {
     this.matchCount = count;
   }
 
-  // Call `each` with each data row that matches the search, `filters` and the query's groups
+  // Call `each` with each data row that matches the search, `filters`, the query's groups, and
+  // the linked tables' selections
   private eachKept(filters: readonly ColumnFilter[], each: (row: number) => void): void {
-    const nrows = (this.spec as Spec).nrows;
+    const { nrows, link } = this.spec as Spec;
     const groups = this.filterGroups;
+    const links = this.links();
     const texts =
       this.terms.length > 0 || filters.some((filter) => filter.type === "text") || groups.some((group) => group.texts)
         ? (this.cellTexts ?? this.makeCellTexts(nrows))
@@ -7657,7 +7842,8 @@ export class GtTable extends HTMLElement {
       if (
         (this.terms.length === 0 || rowMatches(this.searched(cells), this.terms)) &&
         filters.every((filter) => filter.keeps(row, cells[filter.index])) &&
-        groups.every((group) => group.keeps(row, cells))
+        groups.every((group) => group.keeps(row, cells)) &&
+        links.every((filter) => filter.keys.has(link?.keys[row] as FilterValue))
       ) {
         each(row);
       }
@@ -8684,6 +8870,7 @@ export class GtTable extends HTMLElement {
   }
 
   private reset(): void {
+    this.leaveLink();
     this.stopObserving();
     this.cancelSearchTimer();
     this.cancelFilterTimer();

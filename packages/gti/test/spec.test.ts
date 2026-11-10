@@ -35,6 +35,10 @@ const details = (value: unknown) => JSON.stringify({ ...valid, details: value })
 
 const profiles = (list: unknown) => JSON.stringify({ ...valid, profiles: list });
 
+const LINK = { group: "cars", on: "mfr", name: "Makes", label: "Maker", keys: ["Ford", null] };
+
+const link = (fields: object) => JSON.stringify({ ...valid, link: { ...LINK, ...fields } });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -168,6 +172,13 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, details: [1, 0] }).details).toEqual([1, 0]);
     expect(parse({ ...valid, details: [] }).details).toEqual([]);
     expect(parse(valid).details).toBeUndefined();
+  });
+
+  it("takes the tables it's linked to, or their absence", () => {
+    expect(parse({ ...valid, link: LINK }).link).toEqual(LINK);
+    expect(parse({ ...valid, link: { ...LINK, name: null, keys: [1, true] } }).link?.name).toBeNull();
+    expect(parse({ ...valid, link: null }).link).toBeNull();
+    expect(parse(valid).link).toBeUndefined();
   });
 
   it("takes the columns' profiles, or their absence", () => {
@@ -356,6 +367,13 @@ describe("parseSpec()", () => {
     ["has a histogram without a value for every rank", profiles([{ column: "x", plot: "histogram", values: [1] }]), /`profiles\[0\]`/],
     ["has a histogram of booleans", profiles([{ column: "x", plot: "histogram", values: [true, false] }]), /`profiles\[0\]`/],
     ["has a profile of the most common values with values", profiles([{ column: "x", plot: "top", values: [1, 2] }]), /`profiles\[0\]`/],
+    ["has a link that isn't an object", JSON.stringify({ ...valid, link: "cars" }), /`link`/],
+    ["has a link without a group", link({ group: "" }), /`link`/],
+    ["has a link without a column", link({ on: null }), /`link`/],
+    ["has a link with a name that isn't text", link({ name: 1 }), /`link`/],
+    ["has a link without a label", link({ label: undefined }), /`link`/],
+    ["has a link without a key for every row", link({ keys: ["Ford"] }), /`link`/],
+    ["has a link with a key that isn't a value", link({ keys: ["Ford", {}] }), /`link`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

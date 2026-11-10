@@ -296,7 +296,8 @@ def _css_string(text: str) -> str:
 
 def _has_bar(spec: Spec) -> bool:
     """Whether the runtime draws a control bar below the table: for a search, filters, pages, an
-    export, or rows' details (whose buttons opening and closing them all are in its info panel).
+    export, rows' details (whose buttons opening and closing them all are in its info panel), or a
+    link to other tables (whose selections filter it, as its tokens and info panel say).
 
     (Or pages there could be: the page sizes readers can choose from, in the bar's info panel,
     include the table's own. With filters, the bar's info panel says how many rows they leave.)
@@ -312,6 +313,7 @@ def _has_bar(spec: Spec) -> bool:
         or bool(spec["export"]["formats"])
         or paged
         or bool(spec["details"])
+        or spec.get("link") is not None
     )
 
 

@@ -87,6 +87,13 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   data-gti-details="row">` in the `<gt-table>` element (the HTML of a table, or of text), which the
   runtime shows apart from the page's styles (in a shadow root). Producers that leave `details`
   out have none.
+- `link`: the tables on the page this one is linked to (`group`: those with the same group name),
+  and the column (`on`) whose values link their rows: each data row's value (`keys`, as JSON
+  values, `null` where it's missing, which links the row to none), so that the rows selected in
+  one table filter each of the others to those with the same values. The table's name (`name`: its
+  title's text, or its ID; or `null`) and the text of the `on` column's label (`label`) are what
+  the others say they're filtered by. Producers that leave `link` out (or give `null`) aren't
+  linked.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -291,6 +298,14 @@ class ViewStateSpec(TypedDict):
     undo: bool
 
 
+class LinkSpec(TypedDict):
+    group: str
+    on: str
+    name: str | None  # the table's title (its text), or its ID: what the tables it filters say
+    label: str  # the text of the `on` column's label (or its name)
+    keys: list[Any]  # each data row's `on` value as JSON (`None` where it's missing)
+
+
 class Spec(TypedDict):
     version: int
     nrows: int
@@ -312,6 +327,7 @@ class Spec(TypedDict):
     export: ExportSpec
     view_state: ViewStateSpec
     details: list[int]
+    link: LinkSpec | None
 
 
 def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
@@ -523,6 +539,24 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
             "`i_view_state()` keeps the reader's view by the table's ID, and this table has none. "
             'Give it one with `GTI(id=)` (e.g., `GTI(df, id="towny")`) or `with_id()`.'
         )
+    link = None
+    if settings.link_group is not None and settings.link_on is not None:
+        on = settings.link_on
+        keys = [_json_value(value) for value in _get_column_values(tbl_data, on)]
+        # (A missing value links a row to none, whatever JSON would make of it: pandas' `NaT`)
+        for row in _get_column_missing(tbl_data, on):
+            keys[row] = None
+        title = data._heading.title
+        name = label_text(str(_process_text(title))) if title else ""
+        info = next((info for info in boxhead if info.var == on), None)
+        label = label_text(str(_process_text(info.column_label))) if info is not None else ""
+        link = LinkSpec(
+            group=settings.link_group,
+            on=on,
+            name=name or key or None,
+            label=label or on,
+            keys=keys,
+        )
 
     return Spec(
         version=SPEC_VERSION,
@@ -583,6 +617,7 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
             undo=settings.view_state_undo,
         ),
         details=details,
+        link=link,
     )
 
 
