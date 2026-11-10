@@ -1,3 +1,5 @@
+import re
+
 import pytest
 import pandas as pd
 
@@ -62,3 +64,32 @@ def test_compile_scss_no_font_names():
     # Should produce CSS without a font-family rule
     assert isinstance(css, str)
     assert len(css) > 0
+
+
+def _css_rule(css: str, selector: str) -> str:
+    return re.search(rf"{re.escape(selector)} \{{(.*?)\}}", css, re.DOTALL).group(1)
+
+
+@pytest.mark.parametrize(
+    "options, padding_bottom",
+    [
+        ({}, "6px"),
+        ({"column_labels_padding": "20px"}, "21px"),
+        ({"heading_padding": "20px"}, "6px"),
+    ],
+)
+def test_column_labels_padding_bottom(options: dict, padding_bottom: str):
+    # As in gt, the column labels' bottom padding is `column_labels_padding` plus 1px
+    gt = GT(pd.DataFrame({"x": [1, 2]})).tab_options(**options)
+    rule = _css_rule(compile_scss(gt, id="abc", compress=False), "#abc .gt_col_heading")
+
+    assert f"padding-bottom: {padding_bottom};" in rule
+
+
+@pytest.mark.parametrize("background, color", [("#FFFFFF", "#333333"), ("#000000", "#FFFFFF")])
+def test_footnotes_font_color(background: str, color: str):
+    gt = GT(pd.DataFrame({"x": [1, 2]})).tab_options(table_background_color=background)
+    css = compile_scss(gt, id="abc", compress=False)
+
+    assert "font-color(" not in css
+    assert f"color: {color};" in _css_rule(css, "#abc .gt_footnotes")
