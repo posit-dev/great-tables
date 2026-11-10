@@ -12,6 +12,7 @@ from .._gt_data import ColInfoTypeEnum, Options
 from .._render_checks import RenderWarning
 from .._text import _process_text
 from .._utils_render_html import _get_header_ids
+from ._details import details_template, leave_out_details_column, render_details
 from ._query import js_trim, label_text
 from ._settings import settings_of
 from ._spec import Spec, build_spec
@@ -85,7 +86,8 @@ def render_gti_html(
     """
     built = _build(gt)
     table_html = built._render_as_html(all_important=all_important)
-    spec = build_spec(built)
+    details = render_details(built)
+    spec = build_spec(built, details=sorted(details))
     spec_json = spec_to_script_json(spec)
 
     # (The runtime sets these too, but the table shouldn't change when it's hydrated; nor should
@@ -106,6 +108,8 @@ def render_gti_html(
         if responsive == "auto" and _shown_columns(spec) > STACK_COLUMNS:
             attrs += " data-gti-stack-off"
         table_html += f"<style>\n{stack_css(built, spec, table_html)}</style>\n"
+    # (Each row's details, inert until the reader opens them, and not shown without the runtime)
+    table_html += "".join(details_template(row, html) for row, html in details.items())
     if height is not None:
         attrs += f' data-gti-scroll style="--gt-i-height: {escape(height)}"'
     html = (
@@ -196,6 +200,7 @@ def _build(gt: GT) -> GTData:
     if settings.compact:
         gt = _compact(gt)
     gt = _leave_out(gt, settings.query_only)
+    gt = leave_out_details_column(gt)
     return gt._build_data(context="html")
 
 
@@ -290,8 +295,8 @@ def _css_string(text: str) -> str:
 
 
 def _has_bar(spec: Spec) -> bool:
-    """Whether the runtime draws a control bar below the table: for a search, filters, pages, or
-    an export.
+    """Whether the runtime draws a control bar below the table: for a search, filters, pages, an
+    export, or rows' details (whose buttons opening and closing them all are in its info panel).
 
     (Or pages there could be: the page sizes readers can choose from, in the bar's info panel,
     include the table's own. With filters, the bar's info panel says how many rows they leave.)
@@ -302,7 +307,11 @@ def _has_bar(spec: Spec) -> bool:
         sizes += pagination["page_sizes"]
     paged = pagination["enabled"] and spec["nrows"] > min(sizes)
     return controls["bar"] and (
-        controls["search"] or bool(spec["filters"]) or bool(spec["export"]["formats"]) or paged
+        controls["search"]
+        or bool(spec["filters"])
+        or bool(spec["export"]["formats"])
+        or paged
+        or bool(spec["details"])
     )
 
 

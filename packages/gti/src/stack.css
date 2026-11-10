@@ -115,6 +115,28 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     overflow-wrap: anywhere;
   }
 
+  /* A row open, and what's under it (in a row of its own), are one card: that row is a block, without a label */
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-open {
+    margin-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-details {
+    margin-top: 0;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-details > td.gt_row {
+    display: block;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-details > td.gt-i-select {
+    display: none;
+  }
+
   gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt_group_heading_row {
     margin-top: 16px;
   }

@@ -451,6 +451,9 @@ interface Info extends Popup {
   columnsText: HTMLElement | null;
   /** Where the view is kept (with `view_state`). */
   view: HTMLElement | null;
+  /** The buttons opening and closing every row's details (with row details). */
+  detailsOpen: HTMLButtonElement | null;
+  detailsClose: HTMLButtonElement | null;
 }
 
 /** The keyboard shortcuts' panel: the keys the table answers to, of which those for paging are listed while there are pages. */
@@ -967,9 +970,22 @@ export class GtTable extends HTMLElement {
   private dropped: string[] = [];
   private dropNeeds: number[] = [];
   private fitRoom = -1;
-  /** With columns dropped, each row's button that shows them, and the rows showing them, under it. */
+  /**
+   * Each row's button that opens it, to show what's under it: the columns dropped from it (with
+   * some dropped) and its details (`spec.details`, if it has them); the rows open, and the rows
+   * under them showing that (made as they're shown).
+   */
   private expanders = new Map<HTMLTableRowElement, HTMLButtonElement>();
+  private opened = new Set<HTMLTableRowElement>();
   private details = new Map<HTMLTableRowElement, HTMLTableRowElement>();
+  /** The data rows' details, by row: each one's `<template>`. */
+  private contents = new Map<HTMLTableRowElement, HTMLTemplateElement>();
+  /** Whether a row's button (or a tap on a row with details) opens it yet. */
+  private expanding = false;
+  /** The kind of pointer last pressed on the body ("touch", say), until its click. */
+  private pointer = "";
+  /** Whether the rows under rows open are left out, as the rows are measured. */
+  private measuring = false;
   /** The runs of columns readers can move (by index in the spec; see `order.ts`). */
   private runs: number[][] = [];
   /**
@@ -1480,6 +1496,7 @@ export class GtTable extends HTMLElement {
     // (Before column widths are measured, since the cells' borders change)
     this.setLayout(table, spec);
     this.setDisplay(spec);
+    this.addDetails(spec);
     if (this.movable && spec.controls.sorting) {
       this.addSortHeaders(table, spec);
     }
@@ -1513,6 +1530,7 @@ export class GtTable extends HTMLElement {
         this.undoable ||
         this.hideable.length > 0 ||
         this.runs.length > 0 ||
+        this.contents.size > 0 ||
         (this.movable && (spec.controls.search || this.filters.length > 0)))
     ) {
       this.addBar();
@@ -1944,17 +1962,84 @@ export class GtTable extends HTMLElement {
       .flatMap((column, i) => (column.role === "data" && column.id !== null && column.priority !== 1 ? [{ id: column.id, i, rank: rank(column.priority) }] : []))
       .sort((a, b) => (a.rank === b.rank ? b.i - a.i : b.rank - a.rank))
       .map((column) => column.id);
-    // A row's button shows its dropped columns (and isn't a click on the row)
-    this.tbody?.addEventListener("click", (event) => {
-      const button = (event.target as Element).closest?.(".gt-i-expand");
-      const tr = button?.closest("tr");
-      if (tr != null) {
-        this.expand(tr, !this.details.has(tr));
-        this.render();
-        // (Which moves the rows, and so the focus from it)
-        (button as HTMLElement).focus({ preventScroll: true });
+    this.addExpanding();
+  }
+
+  // The data rows' details, from their templates (in the element), each row with them with a
+  // button that opens it
+  private addDetails(spec: Spec): void {
+    const rows = spec.details ?? [];
+    if (rows.length === 0) {
+      return;
+    }
+    const templates = new Map(
+      Array.from(this.querySelectorAll<HTMLTemplateElement>(":scope > template[data-gti-details]"), (template) => [
+        template.dataset.gtiDetails,
+        template,
+      ]),
+    );
+    for (const row of rows) {
+      const template = templates.get(String(row));
+      const tr = this.rowElements[row];
+      if (template === undefined || tr === undefined) {
+        console.warn(`<gt-table>: row ${row}'s details are left out (it has no <template data-gti-details="${row}">).`);
+        continue;
       }
+      this.contents.set(tr, template);
+      tr.classList.add("gt-i-has-details");
+    }
+    if (this.contents.size > 0) {
+      this.addExpanding();
+      this.syncExpanders();
+    }
+  }
+
+  // A row's button opens it, or closes it (and isn't a click on the row), as does a tap on a row
+  // with details on a touch screen (not on something of its own)
+  private addExpanding(): void {
+    const tbody = this.tbody;
+    if (tbody === null || this.expanding) {
+      return;
+    }
+    this.expanding = true;
+    tbody.addEventListener("pointerdown", (event) => {
+      this.pointer = event.pointerType;
     });
+    tbody.addEventListener("click", (event) => {
+      const button = (event.target as Element).closest?.(".gt-i-expand");
+      const tapped = this.tapped(event);
+      this.pointer = "";
+      const tr = button == null ? tapped : button.closest("tr");
+      if (tr == null) {
+        return;
+      }
+      this.expand(tr, !this.opened.has(tr));
+      this.render();
+      // (Which moves the rows, and so the focus from it)
+      (button as HTMLElement | null)?.focus({ preventScroll: true });
+      this.updateInfo();
+    });
+  }
+
+  // The row with details tapped on a touch screen (which opens it, rather than selecting it), unless
+  // the tap was on something of its own, or ended selecting text in it
+  private tapped(event: Event): HTMLTableRowElement | null {
+    const target = event.target as Element;
+    const tr = target.closest?.("tr");
+    if (this.pointer !== "touch" || tr == null || !this.contents.has(tr) || onOwnControl(target, tr)) {
+      return null;
+    }
+    const text = this.ownerDocument.getSelection();
+    return text !== null && !text.isCollapsed && (tr.contains(text.anchorNode) || tr.contains(text.focusNode)) ? null : tr;
+  }
+
+  // Open or close every row with details (and, closing them, every row open)
+  private expandAll(open: boolean): void {
+    for (const tr of open ? this.contents.keys() : [...this.opened]) {
+      this.expand(tr, open);
+    }
+    this.render();
+    this.updateInfo();
   }
 
   /**
@@ -1996,29 +2081,28 @@ export class GtTable extends HTMLElement {
     return changed;
   }
 
-  // Each row's button (in its first cell shown) that shows the columns dropped from it, and the rows
-  // showing them, again for the columns dropped (or gone, with none)
-  private syncDropped(): void {
+  // Each row's button (in its first cell shown) that opens it: of each data row and summary row,
+  // with columns dropped, and of each row with details; and the rows open show the columns dropped
+  // now (made again as they're shown), or close, with none, but for those with details
+  private syncExpanders(): void {
     const { tbody, spec } = this;
-    if (tbody === null || spec === null || this.drops.length === 0) {
+    if (tbody === null || spec === null || (this.drops.length === 0 && this.contents.size === 0)) {
       return;
     }
     const some = this.dropped.length > 0;
     this.toggleAttribute("data-gti-dropped", some);
-    if (some && this.expanders.size === 0) {
-      // (Data rows and summary rows)
-      for (const tr of Array.from(tbody.rows)) {
-        const row = this.bodyRows.get(tr);
-        if (row !== undefined && (typeof row === "number" || !("group" in row) || "summary" in row)) {
-          const label = this.rowLabel(tr);
-          const button = element(this.ownerDocument, "button", "gt-i-expand", {
-            type: "button",
-            "aria-expanded": "false",
-            "aria-label": label === "" ? "Show more of the row" : `Show more of ${label}`,
-          });
-          button.append(icon(this.ownerDocument, "expand"));
-          this.expanders.set(tr, button);
-        }
+    for (const tr of Array.from(tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr"))) {
+      const row = this.bodyRows.get(tr);
+      const drops = some && row !== undefined && (typeof row === "number" || !("group" in row) || "summary" in row);
+      if (!this.expanders.has(tr) && (drops || this.contents.has(tr))) {
+        const label = this.rowLabel(tr);
+        const button = element(this.ownerDocument, "button", "gt-i-expand", {
+          type: "button",
+          "aria-expanded": String(this.opened.has(tr)),
+          "aria-label": label === "" ? "Show more of the row" : `Show more of ${label}`,
+        });
+        button.append(icon(this.ownerDocument, "expand"));
+        this.expanders.set(tr, button);
       }
     }
     for (const [tr, button] of this.expanders) {
@@ -2029,57 +2113,88 @@ export class GtTable extends HTMLElement {
         cell.prepend(button);
       }
     }
-    for (const tr of [...this.details.keys()]) {
-      this.expand(tr, false);
-      if (some) {
-        this.expand(tr, true);
+    for (const tr of [...this.opened]) {
+      this.details.get(tr)?.remove();
+      this.details.delete(tr);
+      if (!some && !this.contents.has(tr)) {
+        this.expand(tr, false);
       }
     }
   }
 
-  // Show the columns dropped from a row under it, as their labels and values (or not)
+  // Open a row, to show what's under it, or close it: a row open shows it in a row under it, made
+  // as it's shown (see `placeDetails()`)
   private expand(tr: HTMLTableRowElement, open: boolean): void {
-    const spec = this.spec as Spec;
-    const doc = this.ownerDocument;
     this.details.get(tr)?.remove();
     this.details.delete(tr);
     this.expanders.get(tr)?.setAttribute("aria-expanded", String(open));
-    if (!open) {
-      return;
+    tr.classList.toggle("gt-i-open", open);
+    if (open) {
+      this.opened.add(tr);
+    } else {
+      this.opened.delete(tr);
     }
-    const labels = labelCells(this.table as HTMLTableElement);
-    const cells = this.dataCells(tr);
-    // (A row with stub cells merged into the row above has fewer)
-    const skip = spec.columns.length - cells.length;
-    // (Kept in view, as the cells across the table)
-    const list = element(doc, "dl", "gt-i-details-list gt-i-inview");
-    spec.columns.forEach((_, place) => {
-      const c = this.columnAt[place] ?? place;
-      const id = spec.columns[c]?.id;
-      const cell = cells[c - skip];
-      if (id != null && cell !== undefined && this.dropped.includes(id)) {
-        const value = element(doc, "dd", "");
-        value.append(...Array.from(withoutMarks(cell).childNodes));
-        const term = element(doc, "dt", "");
-        term.textContent = this.columnTitle(id, labels);
-        list.append(term, value);
-      }
-    });
-    const details = element(doc, "tr", "gt-i-details");
-    const td = element(doc, "td", "gt_row gt_left gt-i-inview-cell");
-    td.append(list);
-    details.append(td);
-    this.details.set(tr, details);
   }
 
-  // The rows showing columns dropped go under their rows (spanned by their group's label cell, as
-  // a column), spanning the columns shown
+  // The row under a row open: the columns dropped from it, as their labels and values, then its
+  // details, apart from the page's styles (and the table's), as the producer made them
+  private makeDetails(tr: HTMLTableRowElement): HTMLTableRowElement {
+    const spec = this.spec as Spec;
+    const doc = this.ownerDocument;
+    // (Kept in view, as the cells across the table)
+    const body = element(doc, "div", "gt-i-details-body gt-i-inview");
+    if (this.dropped.length > 0) {
+      const labels = labelCells(this.table as HTMLTableElement);
+      const cells = this.dataCells(tr);
+      // (A row with stub cells merged into the row above has fewer)
+      const skip = spec.columns.length - cells.length;
+      const list = element(doc, "dl", "gt-i-details-list");
+      spec.columns.forEach((_, place) => {
+        const c = this.columnAt[place] ?? place;
+        const id = spec.columns[c]?.id;
+        const cell = cells[c - skip];
+        if (id != null && cell !== undefined && this.dropped.includes(id)) {
+          const value = element(doc, "dd", "");
+          value.append(...Array.from(withoutMarks(cell).childNodes));
+          const term = element(doc, "dt", "");
+          term.textContent = this.columnTitle(id, labels);
+          list.append(term, value);
+        }
+      });
+      body.append(list);
+    }
+    const template = this.contents.get(tr);
+    if (template !== undefined) {
+      const content = element(doc, "div", "gt-i-details-content");
+      content.attachShadow({ mode: "open" }).append(doc.importNode(template.content, true));
+      body.append(content);
+    }
+    const details = element(doc, "tr", "gt-i-details");
+    const td = element(doc, "td", "gt_row gt_left gt-i-inview-cell");
+    td.append(body);
+    details.append(td);
+    if (this.table?.hasAttribute("role")) {
+      addRowRoles(details);
+    }
+    return details;
+  }
+
+  // The rows under the rows open go under them (spanned by their group's label cell, as a column),
+  // spanning the columns shown: made once their row is shown, and hidden while the rows are measured
   private placeDetails(): void {
-    for (const [tr, details] of this.details) {
+    for (const tr of this.opened) {
+      let details = this.details.get(tr);
+      if (details === undefined) {
+        if (tr.hidden || this.measuring) {
+          continue;
+        }
+        details = this.makeDetails(tr);
+        this.details.set(tr, details);
+      }
       if (tr.nextSibling !== details) {
         tr.after(details);
       }
-      setHidden(details, tr.hidden === true);
+      setHidden(details, tr.hidden === true || this.measuring);
       const row = this.bodyRows.get(tr);
       const group = typeof row === "number" ? this.rowGroups[row] : this.groups.find((group) => group.top.includes(tr) || group.bottom.includes(tr));
       const cell = group?.cell;
@@ -2785,11 +2900,12 @@ export class GtTable extends HTMLElement {
     }
     tbody.addEventListener("click", (event) => {
       const row = this.clickedRow(event);
-      // (Not when the click ends selecting text in the row)
+      // (Not when the click ends selecting text in the row, nor for a tap opening it)
       const text = this.ownerDocument.getSelection();
       const tr = row === null ? null : this.rowElements[row];
       if (
         row === null ||
+        this.tapped(event) !== null ||
         (text !== null && !text.isCollapsed && (tr?.contains(text.anchorNode) || tr?.contains(text.focusNode)))
       ) {
         return;
@@ -3653,7 +3769,7 @@ export class GtTable extends HTMLElement {
     this.hiddenIds = hidden;
     // (A table that drops columns fits again, from all of them, with the rows showing them open
     // again if some still are)
-    const open = [...this.details.keys()];
+    const open = [...this.opened];
     this.dropped = [];
     this.dropNeeds = [];
     this.showColumns();
@@ -3701,7 +3817,7 @@ export class GtTable extends HTMLElement {
     if (this.syncStack()) {
       this.drawBorders();
     }
-    this.syncDropped();
+    this.syncExpanders();
     // The columns fitted to their contents are measured again, but not the reader's widths
     if (this.colgroup !== null && this.startWidths === null) {
       this.remeasure();
@@ -4658,6 +4774,8 @@ export class GtTable extends HTMLElement {
       selectionClear: null,
       columnsText: null,
       view: null,
+      detailsOpen: null,
+      detailsClose: null,
     };
 
     // An item: what it's about, then the control that changes it (if there's one)
@@ -4708,6 +4826,24 @@ export class GtTable extends HTMLElement {
     if (this.hideable.length > 0) {
       info.columnsText = span();
       item("columns", "div", info.columnsText);
+    }
+    if (this.contents.size > 0) {
+      // (Disabled with ARIA, as the selection's button is)
+      const button = (text: string, label: string, open: boolean) => {
+        const el = element(doc, "button", "gt-i-info-button", { type: "button", "aria-label": label });
+        el.textContent = text;
+        el.addEventListener("click", () => {
+          if (el.getAttribute("aria-disabled") !== "true") {
+            this.expandAll(open);
+          }
+        });
+        return el;
+      };
+      info.detailsOpen = button("Expand all", "Show every row's details", true);
+      info.detailsClose = button("Collapse all", "Hide every row's details", false);
+      const buttons = element(doc, "span", "gt-i-info-buttons");
+      buttons.append(info.detailsOpen, info.detailsClose);
+      item("details", "div", span("Row details"), buttons);
     }
     const kept = this.keeper;
     if (kept !== null) {
@@ -4900,6 +5036,11 @@ export class GtTable extends HTMLElement {
     if (info.columnsText !== null) {
       const n = this.hiddenIds.length;
       info.columnsText.textContent = n === 0 ? "No columns hidden" : `${n} ${n === 1 ? "column" : "columns"} hidden`;
+    }
+    if (info.detailsOpen !== null && info.detailsClose !== null) {
+      const all = [...this.contents.keys()].every((tr) => this.opened.has(tr));
+      info.detailsOpen.setAttribute("aria-disabled", String(all));
+      info.detailsClose.setAttribute("aria-disabled", String(this.opened.size === 0));
     }
     if (bar.exporter !== null) {
       this.updateExporter(bar.exporter);
@@ -7527,8 +7668,11 @@ export class GtTable extends HTMLElement {
     }
     this.empty?.remove();
     this.removeFillers();
+    // (Without the rows under rows open, which span the columns: they're shown again by `render()`)
+    this.measuring = true;
     this.place(null, null, 1);
-    const trs = Array.from((this.tbody as HTMLTableSectionElement).querySelectorAll(":scope > tr"));
+    this.measuring = false;
+    const trs = Array.from((this.tbody as HTMLTableSectionElement).querySelectorAll(":scope > tr:not(.gt-i-details)"));
     const span = (cell: Element) => Number(cell.getAttribute("colspan") ?? 1);
     const columns = Math.max(0, ...trs.map((tr) => Array.from(tr.children).reduce((n, cell) => n + span(cell), 0)));
     const full = trs.find(
@@ -7678,15 +7822,25 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.empty?.remove();
+    // (Without the rows under rows open, as a page with some is as much taller as they are)
+    this.measuring = true;
     const { shown } = this.place(null, size, 1);
+    this.measuring = false;
     this.borders?.redraw();
     this.padHeight = this.bodyHeight();
     const heights = shown.map((tr) => tr.getBoundingClientRect().height);
     this.rowHeight = heights.length === 0 ? 0 : heights.reduce((a, b) => a + b, 0) / heights.length;
   }
 
+  // The body's height, but for the rows under rows open
   private bodyHeight(): number {
-    return (this.tbody as HTMLTableSectionElement).getBoundingClientRect().height;
+    let height = (this.tbody as HTMLTableSectionElement).getBoundingClientRect().height;
+    for (const details of this.details.values()) {
+      if (!details.hidden && details.isConnected) {
+        height -= details.getBoundingClientRect().height;
+      }
+    }
+    return height;
   }
 
   /**
@@ -8165,8 +8319,16 @@ export class GtTable extends HTMLElement {
     this.dropped = [];
     this.dropNeeds = [];
     this.fitRoom = -1;
+    for (const details of this.details.values()) {
+      details.remove();
+    }
     this.expanders = new Map();
+    this.opened = new Set();
     this.details = new Map();
+    this.contents = new Map();
+    this.expanding = false;
+    this.pointer = "";
+    this.measuring = false;
     this.runs = [];
     this.columnAt = [];
     this.placeOf = [];

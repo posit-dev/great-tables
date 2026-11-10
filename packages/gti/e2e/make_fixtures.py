@@ -517,6 +517,52 @@ def collapse_html(
     return render_gti_html(gti, runtime="none")
 
 
+def details_of(row: dict) -> object:
+    # A table for row_1 and row_5 (with a fill and borders of its own), Markdown for row_2, nothing
+    # for row_3, and text (with markup, shown as text) for the rest
+    label = row["row"]
+    if label == "row_3":
+        return None
+    if label in ("row_1", "row_5"):
+        return (
+            GT(pd.DataFrame({"a": [1, 2], "b": ["x", "y"]}), id=f"inner_{label}")
+            .tab_header(title=f"Inner {label}")
+            .tab_style(style.fill(color="#ffeeaa"), loc.body(columns="a"))
+            .tab_style(
+                style.borders(sides="all", color="#ff0000", weight="3px"), loc.body(columns="b")
+            )
+        )
+    if label == "row_2":
+        return md(f"**Bold** for {label}")
+    return f"<b>Plain</b> {label}"
+
+
+def details_html(table_id: str, mode: str = "scroll", search: bool = True) -> str:
+    # exibble (8 rows, grp_b then grp_a), with a stub, selectable rows and a search, 5 to a page:
+    # each row but row_3 with details (see `details_of()`). Optionally stacked or dropping columns
+    # in a narrow container (where currency, then char, go first)
+    gti = (
+        GTI(
+            exibble[["num", "char", "fctr", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+            id=table_id,
+        )
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .row_group_order(["grp_b", "grp_a"])
+        .opt_table_font(font="monospace", add=False)
+        .i_search(search)
+        .i_selection("multiple")
+        .i_pagination(page_size=5, page_sizes=None)
+        .i_cols_priority("num")
+        .i_cols_priority("fctr", priority=2)
+        .i_responsive(mode)  # type: ignore[arg-type]
+        .i_row_details(details_of)
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def query_only_gti(table_id: str, filter: str | None = None, sort: str | None = None) -> GTI:
     # Exibble three times over (24 rows, in two groups), on one page, showing num and char; and
     # left out for querying, fctr (as a facet, of its text in capitals), date (as text, by the
@@ -1030,6 +1076,22 @@ def main() -> None:
                 ("-column", "", "420px", {"groups_as_column": True, "height": "300px"}),
                 ("-widths", "", "360px", {"widths": True}),
                 ("-narrow", "", "160px", {}),
+            ]
+        },
+        # Tables with rows' details: in a wide container; and stacked, and dropping columns, in
+        # narrow ones
+        **{
+            f"details{suffix}.html": page(
+                f'<div style="width: {width}">'
+                + details_html("d", **options)
+                + "</div>\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix, width, options in [
+                ("", "800px", {}),
+                ("-stack", "360px", {"mode": "stack"}),
+                ("-collapse", "300px", {"mode": "collapse"}),
             ]
         },
         "collapse-nostub.html": page(

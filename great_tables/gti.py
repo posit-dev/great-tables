@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import numbers
 import operator
+from collections.abc import Callable
 from dataclasses import replace
 from typing import Any, NoReturn
 
@@ -26,7 +27,7 @@ from ._gti._settings import (
 from ._gti._spec import _has_time_zone
 from ._locations import resolve_cols_c
 from ._options import _is_height
-from ._tbl_data import SelectExpr, _get_column_kind
+from ._tbl_data import SelectExpr, _get_column_kind, get_column_names
 from .gt import GT
 
 __all__ = ["GTI"]
@@ -1338,6 +1339,114 @@ class GTI(GT):
             raise ValueError("`filename=` must name the file, not be empty.")
         return self._set_interactive(export_formats=tuple(chosen), export_filename=filename)
 
+    def i_row_details(self, content: Callable[[dict[str, Any]], Any] | str | None) -> Self:
+        """
+        Let readers show more about each row, under it.
+
+        Each row with details gets a button (in its first cell) that shows them under the row,
+        across the table, and hides them again; on a touch screen, tapping the row does too (with
+        [`i_selection()`](`great_tables.GTI.i_selection`), its checkbox selects it then). A row's
+        details are a table (a `GT` table, shown as it is on its own) or text (`html()` or `md()`
+        text, or a string, shown as it is). They're made from `content=`: a function, which gets
+        each row's values and returns the row's details, or the name of a column with each row's
+        details in it, which is left out of the table. The info panel (from the (i) button in the
+        control bar) has buttons that show and hide the details of every row.
+
+        The function gets a row's values as the data has them (not as they're formatted), as a
+        dict of the data's column names to the row's values, with those of the columns the table
+        hides (with [`cols_hide()`](`great_tables.GT.cols_hide`)), so they can be what the
+        details are made of. With `None` (or, in a column, a missing value or an empty string), a
+        row has no details, and no button.
+
+        The details are made as the table is rendered, and are in its HTML, but aren't shown until
+        a reader opens them (nor without the table's script running); they aren't searched,
+        filtered, or exported. Open details follow their row as the rows are sorted, filtered and
+        paged. They're shown apart from the page's styles (in a shadow root), so that a table in
+        them looks as it does on its own, in the table's font and text color. Each `GT` table has
+        its own CSS, so a table with many of them in its rows' details is a larger page. In a
+        table that drops columns to fit a narrow container (see
+        [`i_responsive()`](`great_tables.GTI.i_responsive`)), the details are under the columns
+        dropped from the row.
+
+        Parameters
+        ----------
+        content
+            A function that takes a row's values (a dict) and returns its details: a `GT` table
+            (not an interactive one), `html()` or `md()` text, a string, or `None` (no details).
+            Or the name of a column with each row's details in it. With `None`, the rows have no
+            details.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of cars, each with a sentence about its engine under it, made from columns
+        that the table hides.
+
+        ```{python}
+        from great_tables import GTI, md
+        from great_tables.data import gtcars
+
+        cars = gtcars[["mfr", "model", "year", "trim", "hp", "hp_rpm", "trq", "msrp"]].head(10)
+
+
+        def engine(row):
+            return md(
+                f"The **{row['trim']}** makes {row['hp']:.0f} hp at {row['hp_rpm']:,.0f} rpm, "
+                f"and {row['trq']:.0f} lb-ft of torque."
+            )
+
+
+        (
+            GTI(cars, rowname_col="model")
+            .cols_hide(columns=["trim", "hp", "hp_rpm", "trq"])
+            .fmt_currency(columns="msrp", decimals=0)
+            .i_row_details(engine)
+        )
+        ```
+
+        A row's details can be a table of their own. Here, each of Ontario's ten largest
+        municipalities has a table of its population at each census.
+
+        ```{python}
+        import pandas as pd
+        from great_tables import GT
+        from great_tables.data import towny
+
+        years = [1996, 2001, 2006, 2011, 2016, 2021]
+        counts = [f"population_{year}" for year in years]
+        largest = towny.nlargest(10, "population_2021")[["name", "status", *counts]]
+
+
+        def populations(row):
+            census = pd.DataFrame({"census": years, "population": [row[c] for c in counts]})
+            return (
+                GT(census)
+                .cols_label(census="Census", population="Population")
+                .fmt_integer(columns="population")
+            )
+
+
+        (
+            GTI(largest, rowname_col="name")
+            .cols_hide(columns=counts[:-1])
+            .fmt_integer(columns="population_2021")
+            .i_row_details(populations)
+        )
+        ```
+        """
+        if not (content is None or isinstance(content, str) or callable(content)):
+            raise TypeError(
+                "`content=` must be a function that makes a row's details, the name of a column "
+                f"with them, or `None` (no details), not {content!r}."
+            )
+        if isinstance(content, str) and content not in get_column_names(self._tbl_data):
+            raise ValueError(f"`content=` names a column the data doesn't have: {content!r}.")
+        return self._set_interactive(row_details=content)
+
     # -----
     # A `GTI` table is only ever interactive HTML
 
@@ -1400,7 +1509,7 @@ class GTI(GT):
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
             "`i_selection()`, `i_scroll()`, `i_responsive()`, `i_display()`, `i_cols_filter()`, "
             "`i_cols_controls()`, `i_cols_pin()`, `i_cols_priority()`, `i_view()`, "
-            "`i_view_state()`, and `i_export()`."
+            "`i_view_state()`, `i_export()`, and `i_row_details()`."
         )
 
 
