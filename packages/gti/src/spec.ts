@@ -326,6 +326,27 @@ export interface LinkSpec {
   keys: FilterValue[];
 }
 
+/**
+ * A column whose `data_color()` fill is made again from the rows the search and filters keep: its
+ * data rows colored (`rows`, with a value) and their `values` (numbers, `"Infinity"` or
+ * `"-Infinity"`; or for text, indexes of its `levels`, in the order they first come). The fill is
+ * the `palette`'s color (mixed in CIELAB) at the value's place in the range of those of the rows
+ * kept (made even around the `midpoint`, if there is one), or at its level's among theirs, with
+ * `alpha` (hex) after it; and the text is black or white, by `text`'s contrast (unless it's
+ * `null`). The `fixed` rows keep their colors, but count for the range.
+ */
+export interface ColorSpec {
+  column: string;
+  rows: number[];
+  values: (number | string)[];
+  levels: string[] | null;
+  palette: string[];
+  alpha: string;
+  midpoint: number | null;
+  text: "apca" | "wcag" | null;
+  fixed: number[];
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -364,6 +385,8 @@ export interface Spec {
   details?: number[];
   /** The tables this one is linked to. Without it (or with `null`), none. */
   link?: LinkSpec | null;
+  /** The columns whose `data_color()` colors are made again from the rows kept. Without it, none. */
+  colors?: ColorSpec[];
 }
 
 export class SpecError extends Error {
@@ -668,6 +691,44 @@ export function parseSpec(text: string): Spec {
     )
   ) {
     throw new SpecError("`link` must have a `group`, an `on` column with its `label`, a `name`, and a key per data row, if given");
+  }
+
+  const colors = raw.colors;
+  if (colors !== undefined) {
+    if (!Array.isArray(colors)) {
+      throw new SpecError("`colors` must be a list, if given");
+    }
+    colors.forEach((color: unknown, i) => {
+      const levels = isObject(color) ? color.levels : undefined;
+      const rows = isObject(color) ? color.rows : undefined;
+      if (
+        !isObject(color) ||
+        !(raw.columns as Record<string, unknown>[]).some((column) => column.id === color.column && column.role === "data") ||
+        !Array.isArray(rows) ||
+        !rows.every((row) => isIndex(row, nrows as number)) ||
+        !Array.isArray(color.values) ||
+        color.values.length !== rows.length ||
+        !(levels === null || (Array.isArray(levels) && levels.every((level) => typeof level === "string"))) ||
+        !color.values.every((value) =>
+          levels === null
+            ? (typeof value === "number" && Number.isFinite(value)) || value === "Infinity" || value === "-Infinity"
+            : isIndex(value, levels.length),
+        ) ||
+        !Array.isArray(color.palette) ||
+        color.palette.length < 2 ||
+        !color.palette.every((hex) => typeof hex === "string" && /^#[0-9a-f]{6}$/i.test(hex)) ||
+        typeof color.alpha !== "string" ||
+        !/^([0-9a-f]{2})?$/i.test(color.alpha) ||
+        !(color.midpoint === null || (typeof color.midpoint === "number" && Number.isFinite(color.midpoint))) ||
+        !(color.text === null || color.text === "apca" || color.text === "wcag") ||
+        !Array.isArray(color.fixed) ||
+        !color.fixed.every((row) => isIndex(row, nrows as number))
+      ) {
+        throw new SpecError(
+          `\`colors[${i}]\` must name a data column, with its \`rows\` and their \`values\` (numbers, or indexes of its \`levels\`), a \`palette\` of two or more #RRGGBB colors, an \`alpha\`, a \`midpoint\`, a \`text\` contrast, and the rows \`fixed\``,
+        );
+      }
+    });
   }
 
   return raw as unknown as Spec;
