@@ -157,7 +157,8 @@ export interface PageEventDetail {
 
 /**
  * The view: as the `filter`, `sort`, `search`, `page`, `pageSize`, `hiddenColumns` and `columnOrder`
- * properties have it, and (for a body that scrolls within a height) `height`, as `bodyMaxHeight` has it.
+ * properties have it, (for a body that scrolls within a height) `height`, as `bodyMaxHeight` has it,
+ * and (for a table with columns the rows can be grouped by) `groupBy`, as the property has it.
  */
 export type ViewEventDetail = View;
 
@@ -171,6 +172,8 @@ interface Group {
   bottom: HTMLTableRowElement[];
   /** The group's label cell, when row groups are shown as a column of the stub. */
   cell: HTMLTableCellElement | null;
+  /** The number of its rows that match, in its heading (when the rows are grouped by a column). */
+  count?: HTMLElement;
 }
 
 /** The part of a group on the current page. */
@@ -342,6 +345,8 @@ interface Bar {
   exporter: Exporter | null;
   /** The columns panel (with columns readers can hide). */
   columns: Columns | null;
+  /** The panel choosing the column the rows are grouped by (with columns to group them by). */
+  grouper: Grouper | null;
   /** The filters' tokens, in a row above the rest (with filters), and the button clearing them all. */
   tokens: HTMLElement | null;
   clearAll: HTMLElement | null;
@@ -490,6 +495,11 @@ interface Columns extends Popup {
   order: HTMLButtonElement | null;
 }
 
+/** The panel choosing the column the rows are grouped by: a radio button for none, then one per column. */
+interface Grouper extends Popup {
+  boxes: HTMLInputElement[];
+}
+
 /** A column's item in the columns panel: its checkbox, checked while it's shown (if it can be hidden), and its buttons moving it (if it can be moved). */
 interface ColumnItem {
   root: HTMLElement;
@@ -541,6 +551,7 @@ const ICONS = {
   later: "M12 5v14M6 13l6 6 6-6",
   expand: "M6 9l6 6 6-6",
   grip: "M9 6v.01M15 6v.01M9 12v.01M15 12v.01M9 18v.01M15 18v.01",
+  group: "M4 5h16M8 9.5h12M8 14h12M4 18.5h16",
 };
 
 // Whether the keys are a Mac's (⌘ rather than Ctrl)
@@ -815,6 +826,11 @@ export class GtTable extends HTMLElement {
   private rowGroups: (Group | null)[] = [];
   /** Whether rows can be moved and hidden: not with a hierarchical stub (see `sortableColumns`). */
   private movable = false;
+  /** The columns the rows can be grouped by, in column order; the one they're grouped by, if any. */
+  private groupable: string[] = [];
+  private groupColumn: string | null = null;
+  /** How the rows are laid out in groups: by a column (and its direction), or `null` for the author's way. */
+  private laidOut: string | null = null;
   private sortKeys: SortKey[] = [];
   private sortHeaders = new Map<string, SortHeader>();
   /** The labels of the columns readers can't sort by (that code can), for saying how it's sorted. */
@@ -1219,6 +1235,33 @@ export class GtTable extends HTMLElement {
     this.forget();
   }
 
+  /** The columns the rows can be grouped by (`groupable` in the spec), in column order. Empty until hydrated. */
+  get groupableColumns(): string[] {
+    return [...this.groupable];
+  }
+
+  /**
+   * The column the rows are grouped by, or `null`: each of its values has a heading, with the rows
+   * that have it under it (sorted as the table is), in the order of its values (descending if the
+   * table is sorted by it so), with the rows missing a value last. Setting it goes back to the
+   * first page.
+   *
+   * @throws {RangeError} for a column that isn't one of `groupableColumns`.
+   */
+  get groupBy(): string | null {
+    return this.groupColumn;
+  }
+
+  set groupBy(id: string | null) {
+    if (id !== null && !this.groupable.includes(id)) {
+      throw new RangeError(`"${id}" isn't a column the rows can be grouped by`);
+    }
+    this.groupColumn = id;
+    this.pageValue = 1;
+    this.render();
+    this.forget();
+  }
+
   /**
    * The page shown, from 1. A new sort or search goes back to the first page. Can be set before
    * the table is hydrated; a page past the last is the last.
@@ -1583,6 +1626,12 @@ export class GtTable extends HTMLElement {
       this.mapColumns(table);
     }
     this.mapRuns(table);
+    // (Only a body of data rows alone, which can be moved, is grouped by a column)
+    if (this.movable && spec.groups.length === 0 && spec.body.every((entry) => typeof entry === "number")) {
+      this.groupable = spec.columns.flatMap((column) =>
+        column.role === "data" && column.groupable === true && column.id !== null && Object.prototype.hasOwnProperty.call(spec.ranks, column.id) ? [column.id] : [],
+      );
+    }
     if (this.pageSizeValue === undefined) {
       this.pageSizeValue = spec.pagination.enabled ? spec.pagination.page_size : null;
     }
@@ -1593,6 +1642,7 @@ export class GtTable extends HTMLElement {
         this.undoable ||
         this.hideable.length > 0 ||
         this.runs.length > 0 ||
+        this.groupable.length > 0 ||
         this.contents.size > 0 ||
         (this.movable && (spec.controls.search || this.filters.length > 0)))
     ) {
@@ -1608,6 +1658,12 @@ export class GtTable extends HTMLElement {
       this.applySpecView(spec, spec.view);
     }
     if (this.movable) {
+      const groupBy = spec.view?.group_by ?? null;
+      if (groupBy !== null && !this.groupable.includes(groupBy)) {
+        console.warn(`<gt-table>: the view's grouping by "${groupBy}" is left out (it isn't a column the rows can be grouped by).`);
+      } else {
+        this.groupColumn = groupBy;
+      }
       this.authorView = {
         filter: this.filter,
         sort: this.sort,
@@ -1617,12 +1673,13 @@ export class GtTable extends HTMLElement {
         hidden: this.hiddenColumns,
         order: this.columnOrder,
         ...(spec.layout.height === null ? {} : { height: null }),
+        ...(this.groupable.length === 0 ? {} : { groupBy: this.groupColumn }),
       };
       this.restoreView(spec, this.authorView);
     }
     // A search or page set before hydration applies now
     this.matchRows();
-    if (this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered()) {
+    if (this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null) {
       this.render();
     } else {
       // (Not rendered, so every row is shown, as it was)
@@ -1694,6 +1751,7 @@ export class GtTable extends HTMLElement {
         height: spec.layout.height !== null,
         hideable: this.hideable,
         runs: this.runIds(),
+        groupable: this.groupable,
       },
       warn,
     );
@@ -1709,8 +1767,8 @@ export class GtTable extends HTMLElement {
     this.setView(view);
   }
 
-  // Set the view's parts (the filters, sort, search, page, page size, height, hidden columns and
-  // column order), to be shown
+  // Set the view's parts (the filters, sort, search, page, page size, height, hidden columns, column
+  // order and grouping), to be shown
   private setView(view: View): void {
     this.orderColumns(view.order);
     this.hideColumns(view.hidden);
@@ -1727,6 +1785,7 @@ export class GtTable extends HTMLElement {
     this.pageValue = view.page;
     this.heightValue = view.height ?? null;
     this.applyHeight();
+    this.groupColumn = view.groupBy ?? null;
   }
 
   // The view shown
@@ -1741,6 +1800,7 @@ export class GtTable extends HTMLElement {
       order: this.columnOrder,
       // (For a body that scrolls within a height)
       ...(this.spec?.layout.height == null ? {} : { height: this.heightValue }),
+      ...(this.groupable.length === 0 ? {} : { groupBy: this.groupColumn }),
     };
   }
 
@@ -2452,17 +2512,23 @@ export class GtTable extends HTMLElement {
     if (thead !== null && isTransparent(getComputedStyle(thead).backgroundColor)) {
       thead.style.backgroundColor = backdrop;
     }
-    for (const tr of [...this.stuckTop, ...this.stuckBottom]) {
+    this.fillRows([...this.stuckTop, ...this.stuckBottom]);
+
+    this.addShade("top");
+    this.addShade("bottom");
+    this.setAttribute("data-gti-sticky", "");
+  }
+
+  // Sticky rows' cells without a background are filled with what's behind the table
+  private fillRows(trs: HTMLTableRowElement[]): void {
+    const backdrop = backdropColor(this.table as HTMLTableElement);
+    for (const tr of trs) {
       for (const cell of Array.from(tr.cells)) {
         if (isTransparent(getComputedStyle(cell).backgroundColor)) {
           cell.style.backgroundColor = backdrop;
         }
       }
     }
-
-    this.addShade("top");
-    this.addShade("bottom");
-    this.setAttribute("data-gti-sticky", "");
   }
 
   // The table's borders, drawn on its cells (from now on), so that they move with the cells that
@@ -2470,10 +2536,10 @@ export class GtTable extends HTMLElement {
   // the pinned cells the edges between them and the cells that scroll under them
   private separateBorders(): TableBorders {
     if (this.borders === null) {
-      const sticky = new Set([...this.stuckTop, ...this.stuckBottom]);
+      // (The group headings stuck change as the rows are grouped by another column)
       this.borders = new TableBorders(
         this.table as HTMLTableElement,
-        (tr) => tr.parentElement?.tagName === "THEAD" || sticky.has(tr),
+        (tr) => tr.parentElement?.tagName === "THEAD" || this.stuckTop.includes(tr) || this.stuckBottom.includes(tr),
         (cell) => cell.matches(".gt-i-pinned, .gt-i-pin"),
       );
     }
@@ -4007,9 +4073,11 @@ export class GtTable extends HTMLElement {
       }
     }
     this.hideCols();
-    const empty = this.empty?.cells[0];
-    if (empty !== undefined) {
-      empty.colSpan = this.emptySpan();
+    // (And the headings of the groups by a column)
+    for (const cell of [this.empty?.cells[0], ...(this.groupColumn === null ? [] : this.groups.map((group) => group.headings[0]?.cells[0]))]) {
+      if (cell !== undefined) {
+        cell.colSpan = this.emptySpan();
+      }
     }
     // (Rows padding a page are made again, for the columns shown)
     this.removeFillers();
@@ -4330,6 +4398,7 @@ export class GtTable extends HTMLElement {
       reset: null,
       exporter,
       columns: null,
+      grouper: null,
       tokens: null,
       clearAll: null,
       query: null,
@@ -4367,6 +4436,8 @@ export class GtTable extends HTMLElement {
     }
     const columns = this.hideable.length > 0 || this.runs.length > 0 ? this.makeColumns() : null;
     bar.columns = columns;
+    const grouper = this.groupable.length > 0 ? this.makeGrouper() : null;
+    bar.grouper = grouper;
     if (this.filters.length > 0 || columns !== null) {
       // (Shown, with its name, only in a folded bar: see gti.css)
       const sheet = this.barButton("filter", "Filter & sort", "Filter & sort");
@@ -4403,6 +4474,7 @@ export class GtTable extends HTMLElement {
       pages,
       ...(bar.query === null ? [] : [bar.query.toggle]),
       ...(columns === null ? [] : [columns.button, columns.panel]),
+      ...(grouper === null ? [] : [grouper.button, grouper.panel]),
       ...(exporter === null ? [] : [exporter.button, exporter.panel]),
       ...(bar.undo === null || bar.redo === null ? [] : [bar.undo, bar.redo]),
       ...(bar.reset === null ? [] : [bar.reset]),
@@ -5277,6 +5349,12 @@ export class GtTable extends HTMLElement {
     if (bar.columns !== null) {
       this.updateColumns(bar.columns);
     }
+    if (bar.grouper !== null) {
+      const at = this.groupColumn === null ? 0 : this.groupable.indexOf(this.groupColumn) + 1;
+      bar.grouper.boxes.forEach((box, i) => {
+        box.checked = i === at;
+      });
+    }
     this.sheetSync?.();
   }
 
@@ -5378,6 +5456,26 @@ export class GtTable extends HTMLElement {
     }
     popup.panel.append(list, actions);
     return columns;
+  }
+
+  /** Make the panel choosing the column the rows are grouped by (or none), and the bar's button that opens it. */
+  private makeGrouper(): Grouper {
+    const doc = this.ownerDocument;
+    const popup = this.makePanel("group", "Group rows", "Group rows");
+    const labels = labelCells(this.table as HTMLTableElement);
+    const list = element(doc, "div", "gt-i-filter-options", { role: "radiogroup", "aria-label": "Group rows by" });
+    const boxes = [null, ...this.groupable].map((id) => {
+      const item = element(doc, "label", "gt-i-filter-option");
+      const box = element(doc, "input", "", { type: "radio", name: popup.panel.id });
+      const name = element(doc, "span", "gt-i-filter-value");
+      name.textContent = id === null ? "None" : this.columnTitle(id, labels);
+      item.append(box, name);
+      list.append(item);
+      box.addEventListener("change", () => this.userGroup(id, name.textContent as string));
+      return box;
+    });
+    popup.panel.append(list);
+    return { ...popup, boxes };
   }
 
   // Each column's checkbox: checked if it's shown, and disabled if it's the only one shown (without a
@@ -7452,6 +7550,14 @@ export class GtTable extends HTMLElement {
     this.dispatchView(null);
   }
 
+  private userGroup(id: string | null, title: string): void {
+    this.groupColumn = id;
+    this.pageValue = 1;
+    this.render();
+    this.announce(id === null ? "Rows not grouped" : `Rows grouped by ${title}`);
+    this.dispatchView(null);
+  }
+
   // (A reset is a change to undo)
   private userResetView(): void {
     this.showView(this.authorView as View);
@@ -7599,6 +7705,7 @@ export class GtTable extends HTMLElement {
     }
     const size = this.size;
     this.removeFillers();
+    this.layGroups();
     if (!this.widthsFixed && this.needsWidths()) {
       this.fixWidths();
     }
@@ -7636,6 +7743,92 @@ export class GtTable extends HTMLElement {
   }
 
   /**
+   * Lay the rows out in groups by the column they're grouped by: each value's heading (its text as
+   * its first row's cell has it), then the rows with it, in the order of the values (descending if
+   * the table is sorted by the column so), with the rows missing one last; or, by none, as the
+   * author did. `place()` sorts each group's rows, and shows the headings of those on the page.
+   */
+  private layGroups(): void {
+    const spec = this.spec as Spec;
+    const tbody = this.tbody as HTMLTableSectionElement;
+    const column = this.groupColumn;
+    const descending = this.sortKeys.some((key) => key.column === column && key.descending);
+    const laidOut = column === null ? null : `${column} ${descending}`;
+    if (laidOut === this.laidOut) {
+      return;
+    }
+    this.laidOut = laidOut;
+    // (The body is as tall as its headings make it, on a full page, measured again)
+    this.padKey = "";
+    for (const group of this.groups) {
+      group.headings[0]?.remove();
+    }
+    this.acrossCells = this.acrossCells.filter((cell) => cell.isConnected);
+    this.inView = this.inView?.filter((div) => div.isConnected) ?? null;
+    // (In the order they're in in the body)
+    const placed = this.blocks.flatMap((block) => block.placed);
+    const rows = spec.body as number[];
+    this.groups = [];
+    this.rowGroups.fill(null);
+    if (column === null) {
+      this.blocks = rows.length === 0 ? [] : [{ rows: [...rows], anchor: null, group: null, placed }];
+      this.stuckTop = [];
+      return;
+    }
+    const doc = this.ownerDocument;
+    const ranks = spec.ranks[column] as (number | null)[];
+    const index = spec.columns.findIndex((c) => c.id === column);
+    const byRank = new Map<number | null, number[]>();
+    for (const row of rows) {
+      const rank = ranks[row] ?? null;
+      const members = byRank.get(rank);
+      if (members === undefined) {
+        byRank.set(rank, [row]);
+      } else {
+        members.push(row);
+      }
+    }
+    const values = [...byRank.keys()].sort((a, b) => (a === null ? 1 : b === null ? -1 : descending ? b - a : a - b));
+    const fragment = doc.createDocumentFragment();
+    this.blocks = values.map((rank) => {
+      const members = byRank.get(rank) as number[];
+      const tr = element(doc, "tr", "gt_group_heading_row");
+      const th = element(doc, "th", "gt_group_heading", { scope: "colgroup" });
+      th.colSpan = this.emptySpan();
+      const cell = this.dataCells(this.rowElements[members[0] as number] as HTMLTableRowElement)[index];
+      if (rank === null || cell === undefined) {
+        th.textContent = "(Missing)";
+      } else {
+        th.append(...Array.from(cell.childNodes, (node) => node.cloneNode(true)));
+        // (Not the row's button)
+        th.querySelector(".gt-i-expand")?.remove();
+      }
+      const count = element(doc, "span", "gt-i-group-count");
+      th.append(count);
+      tr.append(th);
+      if (this.table?.hasAttribute("role")) {
+        addRowRoles(tr);
+      }
+      this.acrossCells.push(th);
+      this.inView?.push(keepInView(th));
+      const group: Group = { headings: [tr], top: [], bottom: [], cell: null, count };
+      for (const row of members) {
+        this.rowGroups[row] = group;
+      }
+      this.groups.push(group);
+      // (Put in sorted, so that `place()` needn't move them again)
+      const sorted = sortRows(members, this.sortKeys, spec.ranks);
+      fragment.append(tr, ...sorted.map((row) => this.rowElements[row] as HTMLTableRowElement));
+      return { rows: members, anchor: null, group, placed: sorted };
+    });
+    tbody.insertBefore(fragment, this.empty?.parentNode === tbody ? this.empty : null);
+    if (this.scrollsDown) {
+      this.stuckTop = this.groups.map((group) => group.headings[0] as HTMLTableRowElement);
+      this.fillRows(this.stuckTop);
+    }
+  }
+
+  /**
    * Put the data rows in order, and show the ones that match (`matches`) and are on page `page`
    * (of `size` rows), with their groups' headings and summary rows. Returns the rows shown, the
    * page (the last, if `page` is past it), and where the page starts in the `total` rows that match.
@@ -7666,6 +7859,17 @@ export class GtTable extends HTMLElement {
     }
 
     this.order = order;
+    // (A heading of a group by a column has the number of its rows that match)
+    if (this.groupColumn !== null) {
+      const counts = new Map<Group | null, number>();
+      for (const row of order) {
+        const group = this.rowGroups[row] ?? null;
+        counts.set(group, (counts.get(group) ?? 0) + 1);
+      }
+      for (const group of this.groups) {
+        (group.count as HTMLElement).textContent = ` (${counts.get(group) ?? 0})`;
+      }
+    }
     page = Math.min(page, pageCount(order.length, size));
     const start = size === null ? 0 : (page - 1) * size;
     const end = size === null ? order.length : Math.min(order.length, start + size);
@@ -8521,6 +8725,9 @@ export class GtTable extends HTMLElement {
     this.groups = [];
     this.rowGroups = [];
     this.movable = false;
+    this.groupable = [];
+    this.groupColumn = null;
+    this.laidOut = null;
     this.sortKeys = [];
     this.sortHeaders = new Map();
     this.unsortedLabels = new Map();
