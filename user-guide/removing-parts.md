@@ -35,9 +35,9 @@ gt_tbl
 | 458 Spider                  | Ferrari | 562.0       | 398.0 | 263553.0 |
 | 458 Italia                  | Ferrari | 562.0       | 398.0 | 233509.0 |
 | 488 GTB                     | Ferrari | 661.0       | 561.0 | 245400.0 |
+| 1 Horsepower.               |         |             |       |          |
 | Source: the gtcars dataset. |         |             |       |          |
 | Prices in *USD*.            |         |             |       |          |
-| 1 Horsepower.               |         |             |       |          |
 
 ## Removing the Header
 
@@ -55,9 +55,9 @@ gt_tbl.rm_header()
 | 458 Spider                  | Ferrari | 562.0       | 398.0 | 263553.0 |
 | 458 Italia                  | Ferrari | 562.0       | 398.0 | 233509.0 |
 | 488 GTB                     | Ferrari | 661.0       | 561.0 | 245400.0 |
+| 1 Horsepower.               |         |             |       |          |
 | Source: the gtcars dataset. |         |             |       |          |
 | Prices in *USD*.            |         |             |       |          |
-| 1 Horsepower.               |         |             |       |          |
 
 ## Removing the Stubhead Label
 
@@ -77,9 +77,9 @@ gt_tbl.rm_stubhead()
 | 458 Spider                  | Ferrari | 562.0       | 398.0 | 263553.0 |
 | 458 Italia                  | Ferrari | 562.0       | 398.0 | 233509.0 |
 | 488 GTB                     | Ferrari | 661.0       | 561.0 | 245400.0 |
+| 1 Horsepower.               |         |             |       |          |
 | Source: the gtcars dataset. |         |             |       |          |
 | Prices in *USD*.            |         |             |       |          |
-| 1 Horsepower.               |         |             |       |          |
 
 ## Removing Source Notes
 
@@ -117,8 +117,8 @@ gt_tbl.rm_source_notes(source_notes=0)
 | 458 Spider              | Ferrari | 562.0       | 398.0 | 263553.0 |
 | 458 Italia              | Ferrari | 562.0       | 398.0 | 233509.0 |
 | 488 GTB                 | Ferrari | 661.0       | 561.0 | 245400.0 |
-| Prices in *USD*.        |         |             |       |          |
 | 1 Horsepower.           |         |             |       |          |
+| Prices in *USD*.        |         |             |       |          |
 
 ## Removing Footnotes
 
@@ -158,9 +158,9 @@ gt_tbl.rm_spanners(spanners="performance")
 | 458 Spider                  | Ferrari | 562.0   | 398.0 | 263553.0 |
 | 458 Italia                  | Ferrari | 562.0   | 398.0 | 233509.0 |
 | 488 GTB                     | Ferrari | 661.0   | 561.0 | 245400.0 |
+| 1 Horsepower.               |         |         |       |          |
 | Source: the gtcars dataset. |         |         |       |          |
 | Prices in *USD*.            |         |         |       |          |
-| 1 Horsepower.               |         |         |       |          |
 
 Spanners can also be removed by *level* using the `levels=` argument. Levels are numbered starting at `0` for the row of spanners closest to the column labels, increasing as you move upward. This is handy when a table has stacked (nested) spanners and you want to clear an entire tier at once. When both `spanners=` and `levels=` are supplied, only the spanners that match *both* conditions are removed.
 

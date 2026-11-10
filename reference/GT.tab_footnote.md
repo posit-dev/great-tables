@@ -106,7 +106,7 @@ towny_mini = (
 | Vaughanc                                          | 1,186    | 323,103    |
 | Kitchener                                         | 1,878    | 256,885    |
 | Windsor                                           | 1,573    | 229,660    |
-| Data taken from the `towny` dataset.              |          |            |
 | a Census results made public on February 9, 2022. |          |            |
 | b Density is in terms of persons per km².         |          |            |
 | c Part of the Greater Toronto Area.               |          |            |
+| Data taken from the `towny` dataset.              |          |            |

@@ -48,8 +48,8 @@ gtcars_mini = gtcars[["mfr", "model", "msrp"]].head(5)
 | Ferrari          | 458 Spider   | 263553.0 |
 | Ferrari          | 458 Italia   | 233509.0 |
 | Ferrari          | 488 GTB      | 245400.0 |
-| From edmunds.com |              |          |
 | 1 Prices in USD. |              |          |
+| From edmunds.com |              |          |
 
 Styling footnotes separately from source notes lets you visually distinguish the two sections. Here we apply different background fills to each.
 
@@ -83,6 +83,6 @@ Styling footnotes separately from source notes lets you visually distinguish the
 | Ferrari               | 458 Spider   | 263553.0 |
 | Ferrari               | 458 Italia   | 233509.0 |
 | Ferrari               | 488 GTB      | 245400.0 |
-| From edmunds.com      |              |          |
 | All models from 2017. |              |          |
 | 1 Prices in USD.      |              |          |
+| From edmunds.com      |              |          |
