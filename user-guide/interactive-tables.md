@@ -888,6 +888,115 @@ by_country = pl.from_pandas(gtcars).select(["mfr", "model", "ctry_origin", "year
 
 The column the rows are grouped by is part of the table's view, which `i_view()` starts the table with (`group_by=`) and `i_view_state()` can keep. This grouping is the reader's: a table with row groups of its own (from `groupname_col=`) or with summary rows can't have columns to group by.
 
+### Linked tables
+
+With `i_link()`, tables on the same page work together: tables with the same group name are linked by a column they each have, so that the rows a reader selects in one filter the others to the rows with the same values. Here, select a make or two in the first table, and the second shows only their cars; clear the selection to show them all again.
+
+``` python
+makes = (
+    gtcars_pl.group_by("mfr")
+    .agg(pl.len().alias("models"), pl.col("hp").max().alias("top_hp"))
+    .sort("mfr")
+)
+
+(
+    GTI(makes, rowname_col="mfr")
+    .tab_header(title="Makes")
+    .cols_label(mfr="Make", models="Models", top_hp="Top HP")
+    .fmt_integer(columns="top_hp", use_seps=False)
+    .i_selection("multiple")
+    .i_pagination(page_size=5)
+    .i_link("gtcars", on="mfr")
+)
+```
+
+| Makes         |        |        |
+|---------------|--------|--------|
+|               | Models | Top HP |
+| Acura         | 1      | 573    |
+| Aston Martin  | 4      | 608    |
+| Audi          | 5      | 560    |
+| BMW           | 5      | 560    |
+| Bentley       | 1      | 500    |
+| Chevrolet     | 1      | 650    |
+| Dodge         | 1      | 645    |
+| Ferrari       | 9      | 949    |
+| Ford          | 1      | 647    |
+| Jaguar        | 1      | 340    |
+| Lamborghini   | 3      | 700    |
+| Lotus         | 1      | 400    |
+| Maserati      | 3      | 454    |
+| McLaren       | 1      | 570    |
+| Mercedes-Benz | 2      | 503    |
+| Nissan        | 1      | 545    |
+| Porsche       | 4      | 350    |
+| Rolls-Royce   | 2      | 624    |
+| Tesla         | 1      | 259    |
+
+``` python
+(
+    GTI(gtcars_pl.select(["mfr", "model", "year", "hp", "msrp"]), rowname_col="model")
+    .tab_header(title="Cars")
+    .cols_label(mfr="Make", year="Year", hp="HP", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_link("gtcars", on="mfr")
+)
+```
+
+| Cars           |               |      |     |             |
+|----------------|---------------|------|-----|-------------|
+|                | Make          | Year | HP  | MSRP        |
+| GT             | Ford          | 2017 | 647 | \$447,000   |
+| 458 Speciale   | Ferrari       | 2015 | 597 | \$291,744   |
+| 458 Spider     | Ferrari       | 2015 | 562 | \$263,553   |
+| 458 Italia     | Ferrari       | 2014 | 562 | \$233,509   |
+| 488 GTB        | Ferrari       | 2016 | 661 | \$245,400   |
+| California     | Ferrari       | 2015 | 553 | \$198,973   |
+| GTC4Lusso      | Ferrari       | 2017 | 680 | \$298,000   |
+| FF             | Ferrari       | 2015 | 652 | \$295,000   |
+| F12Berlinetta  | Ferrari       | 2015 | 731 | \$319,995   |
+| LaFerrari      | Ferrari       | 2015 | 949 | \$1,416,362 |
+| NSX            | Acura         | 2017 | 573 | \$156,000   |
+| GT-R           | Nissan        | 2016 | 545 | \$101,770   |
+| Aventador      | Lamborghini   | 2015 | 700 | \$397,500   |
+| Huracan        | Lamborghini   | 2015 | 610 | \$237,250   |
+| Gallardo       | Lamborghini   | 2014 | 550 | \$191,900   |
+| Continental GT | Bentley       | 2016 | 500 | \$198,500   |
+| Granturismo    | Maserati      | 2016 | 454 | \$132,825   |
+| Quattroporte   | Maserati      | 2016 | 404 | \$99,900    |
+| Ghibli         | Maserati      | 2016 | 345 | \$70,600    |
+| 6-Series       | BMW           | 2016 | 315 | \$77,300    |
+| i8             | BMW           | 2016 | 357 | \$140,700   |
+| M4             | BMW           | 2016 | 425 | \$65,700    |
+| M5             | BMW           | 2016 | 560 | \$94,100    |
+| M6             | BMW           | 2016 | 560 | \$113,400   |
+| DB11           | Aston Martin  | 2017 | 608 | \$211,195   |
+| Rapide S       | Aston Martin  | 2016 | 552 | \$205,300   |
+| Vanquish       | Aston Martin  | 2016 | 568 | \$287,250   |
+| Vantage        | Aston Martin  | 2016 | 430 | \$103,300   |
+| Corvette       | Chevrolet     | 2016 | 650 | \$88,345    |
+| Viper          | Dodge         | 2017 | 645 | \$95,895    |
+| R8             | Audi          | 2015 | 430 | \$115,900   |
+| RS 7           | Audi          | 2016 | 560 | \$108,900   |
+| S6             | Audi          | 2016 | 450 | \$70,900    |
+| S7             | Audi          | 2016 | 450 | \$82,900    |
+| S8             | Audi          | 2016 | 520 | \$114,900   |
+| Evora          | Lotus         | 2017 | 400 | \$91,900    |
+| F-Type         | Jaguar        | 2016 | 340 | \$65,000    |
+| AMG GT         | Mercedes-Benz | 2016 | 503 | \$129,900   |
+| SL-Class       | Mercedes-Benz | 2016 | 329 | \$85,050    |
+| Model S        | Tesla         | 2017 | 259 | \$74,500    |
+| 718 Boxster    | Porsche       | 2017 | 300 | \$56,000    |
+| 718 Cayman     | Porsche       | 2017 | 300 | \$53,900    |
+| 911            | Porsche       | 2016 | 350 | \$84,300    |
+| Panamera       | Porsche       | 2016 | 310 | \$78,100    |
+| 570            | McLaren       | 2016 | 570 | \$184,900   |
+| Dawn           | Rolls-Royce   | 2016 | 563 | \$335,000   |
+| Wraith         | Rolls-Royce   | 2016 | 624 | \$304,350   |
+
+A filtered table says what it's filtered by with a token in its control bar ("Selected in Makes: Ferrari, Lamborghini"), which goes to the selection, and whose ✕ shows every row again (until the selection changes); its info panel says so too. The filter is on top of the table's own search and filters, but isn't part of its view, so it isn't kept by `i_view_state()`. The tables link in the browser, with no server, so this works in a Quarto document or an HTML page, and in a notebook whose cells' outputs share a page (in Jupyter, but not in Colab, which shows each cell's output in a frame of its own).
+
 ### An explorer for looking through data
 
 `GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than presenting it: every column can be filtered, has a profile, and can be hidden and moved; the rows are compact and can be downloaded as CSV; and with `i_inspect()`, the rows are numbered (by their place in the data, which stays with them as they're sorted and filtered), each column's dtype is under its label (as Polars names it, whatever the DataFrame library), the number of rows and columns left is above the table, and missing values are tinted.
