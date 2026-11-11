@@ -1446,8 +1446,6 @@ def _(df: PlDataFrame) -> PlDataFrame:
 
 @validate_frame.register
 def _(df: PyArrowTable) -> PyArrowTable:
-    warnings.warn("PyArrow Table support is currently experimental.")
-
     if len(set(df.column_names)) != len(df.column_names):
         raise ValueError("Column names must be unique.")
 
