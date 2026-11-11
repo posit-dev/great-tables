@@ -13,9 +13,9 @@ def _load_class(mod_name: str, cls_name: str, strict: bool):
     try:
         mod = importlib.import_module(mod_name)
         return getattr(mod, cls_name)
-    except AttributeError as e:
+    except AttributeError:
         if strict:
-            raise e
+            raise
         return MissingClass
 
 

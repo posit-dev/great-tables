@@ -482,7 +482,7 @@ def _unique_spanner_id(spanners: Spanners, label: str) -> str:
 
 def _validate_sel_cols(columns: SelectExpr, sel_cols: list[str], col_vars: list[str]) -> None:
     if not sel_cols:
-        raise Exception("No columns selected.")
+        raise ValueError("No columns selected.")
 
     # `resolve_cols_c()` silently drops any string entries in `columns` that don't match a
     # column in the data, so `sel_cols` can never catch that case on its own; validate the

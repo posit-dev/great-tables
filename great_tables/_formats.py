@@ -7204,7 +7204,7 @@ T_dict = TypeVar("T_dict", bound=TypedDict)
 def _filter_pd_df_to_row(pd_df: list[T_dict], column: str, filter_expr: str) -> T_dict:
     filtered_pd_df = [entry for entry in pd_df if entry[column] == filter_expr]
     if len(filtered_pd_df) != 1:
-        raise Exception(
+        raise RuntimeError(
             "Internal Error, the filtered table doesn't result in a table of exactly one row."
         )
     return filtered_pd_df[0]

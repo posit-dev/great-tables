@@ -135,7 +135,7 @@ def show(
             webbrowser.open(f"http://127.0.0.1:{server.server_port}/{f_path.name}")
             server.handle_request()
     else:
-        raise Exception(f"Unknown target display: {target}")
+        raise ValueError(f"Unknown target display: {target}")
 
 
 def as_raw_html(

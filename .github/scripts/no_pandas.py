@@ -58,7 +58,7 @@ def report(results: dict[str, list["ImportFrom | Import"]], forgiveable: "list[s
         lines.append(f"{path}: {report_details(crimes)}")
 
     if lines:
-        raise Exception("Pandas imports detected.\n\n" + "\n".join(lines))
+        raise RuntimeError("Pandas imports detected.\n\n" + "\n".join(lines))
 
 
 # %%
