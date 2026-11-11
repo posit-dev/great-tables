@@ -45,6 +45,16 @@ import widget, {
   VIEW_EVENT as WIDGET_VIEW_EVENT,
   type WidgetView,
 } from "../src/widget";
+import type { HostView } from "../src/host";
+import {
+  MESSAGE as SHINY_MESSAGE,
+  VIEW_TYPE as SHINY_VIEW_TYPE,
+  outputOf,
+  type ShinyLike,
+  start as startShiny,
+  tableIn,
+  type Update,
+} from "../src/shiny";
 
 // Let mutation observers run.
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -8752,5 +8762,153 @@ describe("a table shown as a widget", () => {
     await tick();
     expect(el.querySelector<GtTable>(TAG_NAME)?.state).toBe("static");
     expect(fake.saved).toEqual([]);
+  });
+});
+
+describe("tables in a Shiny app", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  const VIEW: HostView = {
+    filter: null,
+    sort: [],
+    search: "",
+    page: 1,
+    page_size: null,
+    hidden: [],
+    group_by: null,
+  };
+  const box = (el: GtTable, row: number) =>
+    el.rowElement(row)?.querySelector<HTMLInputElement>(":scope > .gt-i-select > input") as HTMLInputElement;
+
+  // Shiny's `window.Shiny`: the inputs' last values (by name, without their types), and the
+  // handler of the server's messages
+  function fakeShiny() {
+    const inputs: Record<string, unknown> = {};
+    const names: string[] = [];
+    const handlers: Record<string, (message: Update) => void> = {};
+    const shiny: ShinyLike = {
+      setInputValue: (name, value) => {
+        names.push(name);
+        inputs[name.split(":")[0] as string] = value;
+      },
+      addCustomMessageHandler: (type, handler) => {
+        handlers[type] = handler;
+      },
+    };
+    const send = (message: Update) => handlers[SHINY_MESSAGE]?.(message);
+    return { shiny, inputs, names, send };
+  }
+
+  const output = (id: string, options: TableOptions = {}, tables = 1) => {
+    const { html, spec } = gtTable(FLAT, { controls: { search: true, selection: "multiple" }, filters: [FACET], ...options });
+    const table = `<gt-table>${html}${specScript(spec)}</gt-table>`;
+    return `<div class="shiny-html-output" id="${id}">${table.repeat(tables)}</div>`;
+  };
+  const tableOf = (id: string) => document.querySelector<GtTable>(`#${id} > gt-table`) as GtTable;
+
+  // (Each test's glue stops after it)
+  const stops: (() => void)[] = [];
+  const start = (shiny: ShinyLike) => {
+    const stop = startShiny(shiny);
+    stops.push(stop);
+    return stop;
+  };
+  afterEach(() => {
+    for (const stop of stops.splice(0)) {
+      stop();
+    }
+  });
+
+  it("gives a table's state as the inputs of its output, once it's hydrated", async () => {
+    await mount(output("out"));
+    const { shiny, inputs, names } = fakeShiny();
+    start(shiny);
+    expect(inputs).toEqual({ out_view: VIEW, out_rows: [0, 1, 2, 3, 4], out_selection: [] });
+    expect(names[0]).toBe(`out_view:${SHINY_VIEW_TYPE}`);
+
+    // (And a table hydrated after, as an output's rendered again)
+    const outputs = document.createElement("div");
+    outputs.innerHTML = output("later");
+    document.body.append(outputs);
+    await tick();
+    expect(inputs.later_rows).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("gives the reader's changes, and a linked table's selection's", async () => {
+    const link = { group: "g", on: "y", keys: Y, label: "Y" };
+    await mount(output("one", { link: { ...link, name: "One" } }) + output("two", { link: { ...link, name: "Two" } }));
+    const { shiny, inputs } = fakeShiny();
+    start(shiny);
+    click(tableOf("one"), "x");
+    expect(inputs.one_view).toEqual({ ...VIEW, sort: [{ column: "x", descending: false }] });
+    expect(inputs.one_rows).toEqual([1, 2, 0, 4, 3]);
+    box(tableOf("one"), 2).click();
+    await tick();
+    expect(inputs.one_selection).toEqual([2]);
+    expect(inputs.two_rows).toEqual([2]);
+  });
+
+  it("leaves out a table that isn't the only one in an output, or isn't in one", async () => {
+    const { html, spec } = gtTable(FLAT);
+    await mount(output("two", {}, 2) + `<gt-table>${html}${specScript(spec)}</gt-table>`);
+    expect(document.querySelectorAll<GtTable>("gt-table")[2]?.state).toBe("ready");
+    const { shiny, names } = fakeShiny();
+    start(shiny);
+    expect(names).toEqual([]);
+    expect(outputOf(document.querySelectorAll<GtTable>("gt-table")[2] as GtTable)).toBeNull();
+    expect(tableIn(document.getElementById("two"))).toBeNull();
+  });
+
+  it("sets what the server changes on the table, and gives its state", async () => {
+    await mount(output("out"));
+    const { shiny, inputs, send } = fakeShiny();
+    start(shiny);
+    send({
+      id: "out",
+      view: { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: [{ column: "x", descending: true }] },
+      selection: [1, 3],
+    });
+    const table = tableOf("out");
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(table.selection).toEqual([1, 3]);
+    expect(inputs.out_rows).toEqual([4, 1, 3]);
+    expect(inputs.out_selection).toEqual([1, 3]);
+    send({ id: "out", view: { search: "20" } });
+    expect(table.search).toBe("20");
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(inputs.out_rows).toEqual([4]);
+  });
+
+  it("keeps what the server changes until the table's hydrated", async () => {
+    document.body.innerHTML = `<div class="shiny-html-output" id="out"></div>`;
+    const { shiny, inputs, send } = fakeShiny();
+    start(shiny);
+    send({ id: "out", view: { search: "20", sort: [{ column: "x", descending: false }] } });
+    send({ id: "out", view: { search: "10" }, selection: [1] });
+    expect(inputs).toEqual({});
+    (document.getElementById("out") as HTMLElement).outerHTML = output("out");
+    await tick();
+    const table = tableOf("out");
+    expect([table.search, table.sort, table.selection]).toEqual(["10", [{ column: "x", descending: false }], [1]]);
+    expect(inputs.out_rows).toEqual([2]);
+  });
+
+  it("gives the table's own view when what the server changes can't be set", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    await mount(output("out"));
+    const { shiny, inputs, send } = fakeShiny();
+    start(shiny);
+    send({ id: "out", view: { filter: { and: [{ col: "x", op: "in", value: ["a"] }] } } });
+    expect(error).toHaveBeenCalledWith(expect.stringMatching(/^<gt-table>: /));
+    expect(inputs.out_view).toEqual(VIEW);
+  });
+
+  it("stops following the page", async () => {
+    await mount(output("out"));
+    const { shiny, inputs } = fakeShiny();
+    const stop = start(shiny);
+    stop();
+    click(tableOf("out"), "x");
+    expect(inputs.out_view).toEqual(VIEW);
   });
 });
