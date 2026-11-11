@@ -597,7 +597,7 @@ def _map_data_colors(
     # The methodology for domain calculation and rescaling depends on the values being:
     # (1) numeric (integers or floats), then the method should be 'numeric'
     # (2) strings, then the method should be 'factor'
-    if len(filtered_vals) and all(isinstance(x, (int, float)) for x in filtered_vals):
+    if filtered_vals and all(isinstance(x, (int, float)) for x in filtered_vals):
         if midpoint is not None:
             # Pin the midpoint to the center of the palette (an inferred domain is made
             # symmetric around the midpoint, a supplied one is scaled separately on each side)

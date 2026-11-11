@@ -3422,7 +3422,7 @@ def _chem_token(token: str, markup: _ChemMarkup) -> str:
         rest = italic_m.group(2)
         result = markup.em(letter)
         if rest:
-            if rest.startswith("-") or rest.startswith("="):
+            if rest.startswith(("-", "=")):
                 result += rest[0]
                 rest = rest[1:]
             if rest:

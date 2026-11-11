@@ -215,7 +215,7 @@ def tab_spanner(
         spanner_ids = []
 
     # If no columns or spanners were selected, return the table unchanged (as in R's gt)
-    if not len(selected_column_names) and not len(spanner_ids):
+    if not len(selected_column_names) and not spanner_ids:
         return self
 
     # get column names associated with selected spanners ----
@@ -263,7 +263,7 @@ def tab_spanner(
     spanners = self._spanners.append_entry(new_span)
     new_data = self._replace(_spanners=spanners)
 
-    if gather and not len(spanner_ids) and level == 0 and column_names:
+    if gather and not spanner_ids and level == 0 and column_names:
         return cols_move(new_data, columns=column_names, after=column_names[0])
 
     return new_data

@@ -1051,23 +1051,29 @@ def _nanoplot_svg_style(
     text_shown = "stroke: white; fill: #212427;"
 
     rules = [
-        "text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, "
-        "'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; "
-        "stroke-linejoin: round; cursor: default; }",
+        (
+            "text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, "
+            "'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; "
+            "stroke-linejoin: round; cursor: default; }"
+        ),
     ]
 
     if interactive_data_values:
         # Values, guides, and the reference line are highlighted when hovered over
         rules += [
-            f".vert-line:hover rect {{ fill: {vertical_guide_stroke_color}; fill-opacity: 40%; "
-            "stroke: #FFFFFF60; color: red; }",
+            (
+                f".vert-line:hover rect {{ fill: {vertical_guide_stroke_color}; fill-opacity: 40%; "
+                "stroke: #FFFFFF60; color: red; }"
+            ),
             f".vert-line:hover text {{ {text_shown} }}",
             f".horizontal-line:hover text {{ {text_shown} }}",
             ".ref-line:hover rect { stroke: #FFFFFF60; }",
             ".ref-line:hover line { stroke: #FF0000; }",
             f".ref-line:hover text {{ {text_shown} }}",
-            ".y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; "
-            "color: red; }",
+            (
+                ".y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; "
+                "color: red; }"
+            ),
             ".y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; }",
         ]
     else:
