@@ -5,6 +5,11 @@ interactive with `opt_interactive()`, and a static `GT` table. The hosts are Jup
 for nbconvert and JupyterLab, with a kernel spec of this Python's own), Quarto (a document),
 Shiny (an app), marimo (an app), and VS Code (a page showing the tables' output as its notebooks
 do, in a sandboxed frame). Run by e2e/global-setup.ts.
+
+There's also a notebook with a `GTI` table as a widget (`i_as_widget()`), shown twice, for
+JupyterLab, whose kernel the test asks what the widget has, and tells what to change; and a Shiny
+app (in a module) showing what a `GTI` table's inputs have, with buttons that change it with
+`update_gti()`.
 """
 
 from __future__ import annotations
@@ -27,7 +32,17 @@ TABLES = [
 ]
 
 
-def notebook() -> str:
+# (The widget, and what it's told of each change the reader makes)
+WIDGET = """\
+widget = (
+    GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple").i_as_widget()
+)
+changes = []
+widget.on_change(lambda w: changes.append([w.rows, w.selection]))
+widget"""
+
+
+def notebook(sources: list[str] | None = None) -> str:
     cells = [
         {
             "cell_type": "code",
@@ -37,7 +52,7 @@ def notebook() -> str:
             "outputs": [],
             "source": source,
         }
-        for i, source in enumerate([SETUP, *TABLES])
+        for i, source in enumerate(sources or [SETUP, *TABLES])
     ]
     kernel = {"display_name": "Python 3", "language": "python", "name": "python3"}
     return json.dumps(
@@ -89,6 +104,63 @@ def server(input, output, session):
     @render.ui
     def two():
         return ui.HTML({TABLES[1].replace("small", "rows()", 1)}.as_raw_html())
+
+
+app = App(app_ui, server)
+"""
+
+# (In a module, as its ids are namespaced. "Again" renders the table again and searches it, in the
+# same flush)
+SHINY_STATE_APP = f"""\
+import json
+
+from shiny import App, module, reactive, render, ui
+
+from great_tables.shiny import output_gt, render_gt, update_gti
+
+{SETUP}
+
+
+@module.ui
+def table_ui():
+    return ui.div(
+        ui.input_action_button("update", "Update"),
+        ui.input_action_button("again", "Again"),
+        output_gt("table"),
+        ui.output_code("state"),
+    )
+
+
+@module.server
+def table_server(input, output, session):
+    @render_gt
+    def table():
+        input.again()
+        return GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple")
+
+    @render.code
+    def state():
+        view = input.table_view()
+        return json.dumps(
+            [view["query"], view["search"], view["sort"], input.table_rows(), input.table_selection()]
+        )
+
+    @reactive.effect
+    @reactive.event(input.update)
+    def _():
+        update_gti("table", query='fctr in ("one", "two")', sort="-num", selection=[0])
+
+    @reactive.effect
+    @reactive.event(input.again)
+    def _():
+        update_gti("table", search="an")
+
+
+app_ui = ui.page_fluid(table_ui("m"))
+
+
+def server(input, output, session):
+    table_server("m")
 
 
 app = App(app_ui, server)
@@ -187,9 +259,11 @@ def main() -> None:
     (OUT / "jupyter" / "kernels" / "python3").mkdir(parents=True, exist_ok=True)
     files = {
         "notebook.ipynb": notebook(),
+        "widget.ipynb": notebook([SETUP, WIDGET, "widget"]),
         "jupyter/kernels/python3/kernel.json": kernel_spec(),
         "doc.qmd": quarto_doc(),
         "shiny_app.py": SHINY_APP,
+        "shiny_state_app.py": SHINY_STATE_APP,
         "marimo_app.py": MARIMO_APP,
         "vscode.html": vscode_page(),
     }

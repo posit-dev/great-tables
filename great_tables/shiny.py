@@ -3,22 +3,28 @@ from __future__ import annotations
 __all__ = (
     "output_gt",
     "render_gt",
+    "update_gti",
 )
 
 import warnings
+from typing import TYPE_CHECKING, Any, overload
+from weakref import WeakKeyDictionary
 
+from . import __version__
 from .gt import GT
 
 try:
     # (htmltools is a dependency of shiny, not of great_tables)
-    from htmltools import HTML, Tag, div
+    from htmltools import HTML, HTMLDependency, Tag, TagList, div
     from shiny._namespaces import resolve_id
+    from shiny.input_handler import input_handlers
     from shiny.render.transformer import (
         TransformerMetadata,
         ValueFn,
         output_transformer,
         resolve_value_fn,
     )
+    from shiny.session import require_active_session
 except ImportError:
     raise ImportError(
         "The great_tables.shiny module requires the shiny package to be installed."
@@ -26,10 +32,39 @@ except ImportError:
         "\n\n    pip install shiny"
     )
 
-from typing import TYPE_CHECKING, overload
+from ._gti._render import JS_DIR, render_gti_html_spec
+from ._gti._state import check_query_value, check_search, check_selection, check_sort, view_of
+from ._render import infer_render_env_defaults
 
 if TYPE_CHECKING:
+    from shiny.session import Session
     from shiny.session._utils import RenderedDeps
+
+    from ._gti._spec import Spec
+
+# (As src/shiny.ts has them, in packages/gti)
+MESSAGE = "great_tables.update_gti"
+VIEW_TYPE = "great_tables.gti_view"
+
+# Each session's interactive tables' specs, by output (its id, namespaced), as last rendered, for
+# `update_gti()` to check what it sets against
+_SPECS: WeakKeyDictionary[Any, dict[str, Spec]] = WeakKeyDictionary()
+
+
+@input_handlers.add(VIEW_TYPE, force=True)
+def _view_input(value: Any, name: Any, session: Any) -> dict[str, Any]:
+    return view_of(value)
+
+
+def _gti_dependency() -> HTMLDependency:
+    # (The glue, run once per page, after the runtime: see packages/gti/src/shiny.ts)
+    return HTMLDependency(
+        "great-tables-gti-shiny",
+        __version__,
+        source={"subdir": str(JS_DIR)},
+        script={"src": "gti-shiny.js"},
+        all_files=False,
+    )
 
 
 def output_gt(id: str, placeholder: bool | None = None) -> Tag:
@@ -60,7 +95,15 @@ async def GtTransformer(_meta: TransformerMetadata, _fn: ValueFn[GT | None]) -> 
     if value is None:
         return None
     elif isinstance(value, GT):
-        return _meta.session._process_ui(HTML(value._repr_html_()))
+        from .gti import GTI
+
+        session = _meta.session
+        if isinstance(value, GTI) or value._options.ihtml_active.value:
+            all_important = infer_render_env_defaults()["all_important"]
+            html, spec = render_gti_html_spec(value, all_important=all_important)
+            _SPECS.setdefault(session.root_scope(), {})[session.ns(_meta.name)] = spec
+            return session._process_ui(TagList(_gti_dependency(), HTML(html)))
+        return session._process_ui(HTML(value._repr_html_()))
 
     raise TypeError(f"Expected a great_tables.GT object, got {type(value)}")
 
@@ -76,6 +119,118 @@ def render_gt(_fn: GtTransformer.ValueFn) -> GtTransformer.OutputRenderer: ...
 def render_gt(
     _fn: GtTransformer.ValueFn | None = None,
 ) -> GtTransformer.OutputRenderer | GtTransformer.OutputRendererDecorator:
-    """Render a great_tables table."""
+    """Render a great_tables table.
+
+    An interactive table (a `GTI` table, or a `GT` table with `opt_interactive()`) gives the app
+    its state as inputs, for an output with id `id`:
+
+    - `input.<id>_view()`: the table's view, a dict with its filters as a query in text
+      (`"query"`), its `"search"`, its `"sort"` (columns, with a `-` before those in descending
+      order), its `"page"` and `"page_size"`, its `"hidden"` columns and the column its rows are
+      grouped by (`"group_by"`);
+    - `input.<id>_rows()`: the data rows its search and filters keep (and linked tables'
+      selections), in the order shown, on every page, numbered by position in the data (from 0);
+    - `input.<id>_selection()`: the data rows selected, in data order.
+
+    They're set once the table is shown, then after each change to them, whether the reader
+    makes it or the server does, with [`update_gti()`](`great_tables.shiny.update_gti`). A table
+    rendered again starts again with the view it's given.
+    """
 
     return GtTransformer(_fn)
+
+
+def update_gti(
+    id: str,
+    *,
+    query: str | dict[str, Any] | None = None,
+    search: str | None = None,
+    sort: str | list[str] | None = None,
+    selection: list[int] | None = None,
+    session: Session | None = None,
+) -> None:
+    """
+    Change an interactive table's view or selection, from a Shiny app's server.
+
+    The table (rendered with [`render_gt()`](`great_tables.shiny.render_gt`)) is filtered,
+    searched, sorted, and has its rows selected, as if the reader had done it (so that a change to
+    its filters, search or sort shows its first page). What isn't given (or is `None`) is left as
+    it is. The table's inputs then give the new state (see `render_gt()`).
+
+    Parameters
+    ----------
+    id
+        The table's output id.
+    query
+        The table's filters: a query in text (as the query box has it), or as
+        [`i_view()`](`great_tables.GTI.i_view`)'s `filter=` takes it; `""` for none.
+    search
+        The table's search; `""` for none.
+    sort
+        The columns to sort the table by, most significant first, each with a `-` before it to
+        sort it in descending order (e.g., `["-net", "store"]`), or one column; `[]` to leave it
+        unsorted.
+    selection
+        The data rows to select (numbered by position in the data, from 0), and only those; `[]`
+        for none. The table must let readers select rows (with
+        [`i_selection()`](`great_tables.GTI.i_selection`)).
+    session
+        The Shiny session (by default, the current one).
+
+    Examples
+    --------
+    ```python
+    from shiny import App, reactive, render, ui
+    from great_tables import GTI, exibble
+    from great_tables.shiny import output_gt, render_gt, update_gti
+
+    app_ui = ui.page_fluid(
+        ui.input_action_button("big", "Largest first"),
+        output_gt("table"),
+        ui.output_text("shown"),
+    )
+
+
+    def server(input, output, session):
+        @render_gt
+        def table():
+            return GTI(exibble).i_cols_filter(columns="fctr", type="facet")
+
+        @render.text
+        def shown():
+            return f"{len(input.table_rows())} rows, filtered by {input.table_view()['query']!r}"
+
+        @reactive.effect
+        @reactive.event(input.big)
+        def _():
+            update_gti("table", query='fctr in ("one", "two")', sort="-num")
+
+
+    app = App(app_ui, server)
+    ```
+    """
+    session = require_active_session(session)
+    full_id = session.ns(id)
+    # (Checked against the table as last rendered, if it has been)
+    spec = _SPECS.get(session.root_scope(), {}).get(full_id)
+
+    view: dict[str, Any] = {}
+    if query is not None:
+        view["filter"] = check_query_value(spec, query, "`query=`")
+    if search is not None:
+        view["search"] = check_search(search, "`search=`")
+    if sort is not None:
+        view["sort"] = check_sort(spec, sort, "`sort=`")
+    message: dict[str, object] = {"id": full_id}
+    if view:
+        message["view"] = view
+    if selection is not None:
+        message["selection"] = check_selection(spec, selection, "`selection=`")
+    if len(message) == 1:
+        return
+
+    # (Once the outputs rendered in this flush are sent, so that a table rendered again takes it)
+    async def send() -> None:
+        await session.send_custom_message(MESSAGE, message)
+
+    session.on_flushed(send, once=True)

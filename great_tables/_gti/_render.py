@@ -84,6 +84,25 @@ def render_gti_html(
     page must provide them. With `all_important=True`, the table's CSS (not the runtime's) is
     marked `!important`, as with `as_raw_html()`.
     """
+    html, _ = render_gti_html_spec(gt, runtime=runtime, all_important=all_important)
+    return html
+
+
+def render_gti_html_spec(
+    gt: GT, runtime: Literal["inline", "none"] = "inline", all_important: bool = False
+) -> tuple[str, Spec]:
+    """A table's HTML, as `render_gti_html()` renders it, and its spec."""
+    if runtime not in ("inline", "none"):
+        raise ValueError(f'`runtime=` must be "inline" or "none", not {runtime!r}.')
+    html, spec = render_gti_element(gt, all_important=all_important)
+    if runtime == "inline":
+        js, css = _load_runtime()
+        html += f"<style>\n{css}</style>\n<script>\n{js}</script>\n"
+    return html, spec
+
+
+def render_gti_element(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
+    """A table's `<gt-table>` element (without the runtime), and its spec."""
     built = _build(gt)
     table_html = built._render_as_html(all_important=all_important)
     details = render_details(built)
@@ -118,14 +137,7 @@ def render_gti_html(
         "</gt-table>\n"
     )
     _warn_size(gt, spec, html)
-
-    if runtime == "inline":
-        js, css = _load_runtime()
-        html += f"<style>\n{css}</style>\n<script>\n{js}</script>\n"
-    elif runtime != "none":
-        raise ValueError(f'`runtime=` must be "inline" or "none", not {runtime!r}.')
-
-    return html
+    return html, spec
 
 
 def page_html(fragment: str) -> str:

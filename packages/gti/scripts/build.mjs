@@ -1,5 +1,6 @@
-// Build the GTI runtime into great_tables/js/gti.{js,css}, and the template of a stacked table's
-// own CSS into great_tables/js/gti-stack.css.
+// Build the GTI runtime into great_tables/js/gti.{js,css}, the template of a stacked table's own
+// CSS into great_tables/js/gti-stack.css, and the glue of a table shown as an anywidget into
+// great_tables/js/gti-widget.js, and of tables in a Shiny app into great_tables/js/gti-shiny.js.
 //
 //   node scripts/build.mjs           build and write the bundle
 //   node scripts/build.mjs --check   build in memory and fail if the committed bundle is stale or
@@ -63,6 +64,22 @@ const outputs = {
     outfile: "gti-stack.css",
     banner: { css: banner },
   }),
+  // (Nor this: the module a widget runs after the runtime; see src/widget.ts)
+  "gti-widget.js": await buildOne({
+    entryPoints: ["src/widget.ts"],
+    outfile: "gti-widget.js",
+    format: "esm",
+    target: "es2020",
+    banner: { js: banner },
+  }),
+  // (Nor this: the script a Shiny app has once, after the runtime; see src/shiny.ts)
+  "gti-shiny.js": await buildOne({
+    entryPoints: ["src/shiny.ts"],
+    outfile: "gti-shiny.js",
+    format: "iife",
+    target: "es2020",
+    banner: { js: banner },
+  }),
 };
 
 const check = process.argv.includes("--check");
@@ -72,12 +89,12 @@ let total = 0;
 for (const [name, text] of Object.entries(outputs)) {
   const path = join(outDir, name);
   const gzipped = gzipSync(text, { level: 9 }).length;
-  const runtime = name !== "gti-stack.css";
+  const runtime = name === "gti.js" || name === "gti.css";
   if (runtime) {
     total += gzipped;
   }
   console.log(
-    `${relative(process.cwd(), path)}: ${text.length} B, ${gzipped} B gzipped${runtime ? "" : " (per table, not in the budget)"}`,
+    `${relative(process.cwd(), path)}: ${text.length} B, ${gzipped} B gzipped${runtime ? "" : " (not in the budget)"}`,
   );
 
   if (check) {

@@ -1404,6 +1404,21 @@ export class GtTable extends HTMLElement {
     this.showSelection();
   }
 
+  /**
+   * The data rows (numbered by position in the data) that the search, the filters and linked
+   * tables' selections keep, in the order shown, on every page. Empty until hydrated.
+   */
+  get rows(): number[] {
+    const rows: number[] = [];
+    for (const tr of (this.tbody?.children ?? []) as Iterable<HTMLTableRowElement>) {
+      const row = this.bodyRow(tr);
+      if (typeof row === "number" && (this.matched === null || this.matched[row] === 1)) {
+        rows.push(row);
+      }
+    }
+    return rows;
+  }
+
   // The page size in use: none until hydrated, or when rows can't be moved
   private get size(): number | null {
     return this.movable ? (this.pageSizeValue ?? null) : null;

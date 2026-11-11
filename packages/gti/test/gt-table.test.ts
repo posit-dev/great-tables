@@ -39,6 +39,22 @@ import {
 import { TableBorders } from "../src/borders";
 import { ramp, textColor } from "../src/color";
 import { Profile } from "../src/profile";
+import widget, {
+  type Model,
+  SELECT_EVENT as WIDGET_SELECT_EVENT,
+  VIEW_EVENT as WIDGET_VIEW_EVENT,
+  type WidgetView,
+} from "../src/widget";
+import type { HostView } from "../src/host";
+import {
+  MESSAGE as SHINY_MESSAGE,
+  VIEW_TYPE as SHINY_VIEW_TYPE,
+  outputOf,
+  type ShinyLike,
+  start as startShiny,
+  tableIn,
+  type Update,
+} from "../src/shiny";
 
 // Let mutation observers run.
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -8558,5 +8574,341 @@ describe("colors made again from the rows kept", () => {
     const el = await mountColored({ column: "row" });
     expect(el.getAttribute("data-gti-state")).toBe("error");
     expect(warn).toHaveBeenCalledWith(expect.stringMatching(/`colors\[0\]` must/));
+  });
+});
+
+describe("the rows kept", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+
+  it("are every data row, in the order shown, without a search or filters", async () => {
+    expect((await mountTable()).rows).toEqual([3, 0, 4, 1, 2]);
+  });
+
+  it("are those the search and filters keep, as sorted, on every page", async () => {
+    const el = await mountTable(FLAT, { controls: { search: true }, filters: [FACET], pagination: { enabled: true } });
+    el.sort = [{ column: "x", descending: true }];
+    expect(el.rows).toEqual([0, 4, 2, 1, 3]);
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }] };
+    expect(el.rows).toEqual([4, 1, 3]);
+    el.search = "20";
+    expect(el.rows).toEqual([4]);
+  });
+
+  it("are none until hydrated", () => {
+    expect((document.createElement(TAG_NAME) as GtTable).rows).toEqual([]);
+  });
+});
+
+describe("a table shown as a widget", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  const box = (el: GtTable, row: number) =>
+    el.rowElement(row)?.querySelector<HTMLInputElement>(":scope > .gt-i-select > input") as HTMLInputElement;
+  const VIEW: WidgetView = {
+    filter: null,
+    sort: [],
+    search: "",
+    page: 1,
+    page_size: null,
+    hidden: [],
+    group_by: null,
+  };
+
+  // An anywidget model, as Backbone's (its changes' callbacks called as they're set), and what's
+  // saved and sent
+  function fakeModel(state: Record<string, unknown>) {
+    const callbacks = new Map<string, Set<() => void>>();
+    const saved: Record<string, unknown>[] = [];
+    const sent: unknown[] = [];
+    let changes: Record<string, unknown> = {};
+    const fire = (name: string) => {
+      for (const callback of callbacks.get(`change:${name}`) ?? []) {
+        callback();
+      }
+    };
+    const model: Model = {
+      get: (name) => state[name],
+      set: (name, value) => {
+        state[name] = value;
+        changes[name] = value;
+        fire(name);
+      },
+      save_changes: () => {
+        saved.push(changes);
+        changes = {};
+      },
+      send: (content) => sent.push(content),
+      on: (event, callback) => {
+        callbacks.set(event, (callbacks.get(event) ?? new Set()).add(callback));
+      },
+      off: (event, callback) => {
+        callbacks.get(event)?.delete(callback);
+      },
+    };
+    // (As from Python: set, then their callbacks called)
+    const update = (changed: Record<string, unknown>) => {
+      Object.assign(state, changed);
+      for (const name of Object.keys(changed)) {
+        fire(name);
+      }
+    };
+    return { model, state, saved, sent, update, callbacks };
+  }
+
+  async function show(options: TableOptions = {}, state: Record<string, unknown> = {}) {
+    const { html, spec } = gtTable(FLAT, { controls: { search: true, selection: "multiple" }, filters: [FACET], ...options });
+    const fake = fakeModel({ _html: `<gt-table>${html}${specScript(spec)}</gt-table>`, _view: null, _rows: null, _selection: [], ...state });
+    const el = document.createElement("div");
+    document.body.append(el);
+    const cleanup = widget.render({ model: fake.model, el });
+    await tick();
+    return { ...fake, table: el.querySelector(TAG_NAME) as GtTable, cleanup };
+  }
+
+  it("has the element's events' names", () => {
+    expect([WIDGET_VIEW_EVENT, WIDGET_SELECT_EVENT]).toEqual([VIEW_EVENT, SELECT_EVENT]);
+  });
+
+  it("gives the model the table's state once it's hydrated, without telling Python of a change", async () => {
+    const { table, state, saved, sent } = await show();
+    expect(table.state).toBe("ready");
+    expect(state._view).toEqual(VIEW);
+    expect(state._rows).toEqual([0, 1, 2, 3, 4]);
+    expect(saved).toEqual([{ _view: VIEW, _rows: [0, 1, 2, 3, 4] }]);
+    expect(sent).toEqual([]);
+  });
+
+  it("gives the model what the reader changes, and tells Python", async () => {
+    const { table, state, saved, sent } = await show();
+    click(table, "x");
+    expect(state._view).toEqual({ ...VIEW, sort: [{ column: "x", descending: false }] });
+    expect(state._rows).toEqual([1, 2, 0, 4, 3]);
+    expect(saved[saved.length - 1]).toEqual({ _view: state._view, _rows: state._rows });
+    expect(sent).toEqual([{ type: "change" }]);
+
+    box(table, 2).click();
+    expect(state._selection).toEqual([2]);
+    expect(saved[saved.length - 1]).toEqual({ _selection: [2] });
+    expect(sent).toHaveLength(2);
+  });
+
+  it("sets on the table what Python changes, and gives the model the rows", async () => {
+    const { table, state, saved, sent, update } = await show();
+    update({
+      _view: { ...VIEW, filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: [{ column: "x", descending: true }] },
+      _rows: null,
+    });
+    expect(table.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a"] }] });
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(state._rows).toEqual([4, 1, 3]);
+    update({ _view: { ...(state._view as WidgetView), search: "20" }, _rows: null });
+    expect(table.search).toBe("20");
+    expect(state._rows).toEqual([4]);
+    update({ _selection: [1, 3] });
+    expect(table.selection).toEqual([1, 3]);
+    expect(saved[saved.length - 1]).toEqual({ _rows: [4] });
+    expect(sent).toEqual([]);
+  });
+
+  it("gives the model the table's view back when what Python changes can't be set", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { table, state, update } = await show();
+    update({ _view: { ...VIEW, filter: { and: [{ col: "x", op: "in", value: ["a"] }] } }, _rows: null });
+    expect(error).toHaveBeenCalledWith(expect.stringMatching(/^<gt-table>: /));
+    expect(table.filter).toBeNull();
+    expect(state._view).toEqual(VIEW);
+    expect(state._rows).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("starts with the model's state, as when it's shown again", async () => {
+    const view = { ...VIEW, sort: [{ column: "x", descending: true }], search: "20" };
+    const { table, state, saved } = await show({}, { _view: view, _rows: [0, 4], _selection: [4] });
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(table.search).toBe("20");
+    expect(table.selection).toEqual([4]);
+    expect(state._view).toEqual(view);
+    expect(saved).toEqual([]);
+  });
+
+  it("is told of a linked table's selection, which changes the rows it keeps", async () => {
+    const link = { group: "g", on: "y", keys: Y, name: "Table", label: "Y" };
+    const { table, state, sent } = await show({ link });
+    const { html, spec } = gtTable(FLAT, { controls: { selection: "multiple" }, link: { ...link, name: "Other" } });
+    const other = document.createElement("div");
+    other.innerHTML = `<gt-table>${html}${specScript(spec)}</gt-table>`;
+    document.body.append(other);
+    await tick();
+    box(other.querySelector(TAG_NAME) as GtTable, 2).click();
+    await tick();
+    expect(table.rows).toEqual([2]);
+    expect(state._rows).toEqual([2]);
+    expect(sent).toEqual([{ type: "change" }]);
+  });
+
+  it("stops following the model once it's taken down", async () => {
+    const { table, callbacks, update, cleanup } = await show();
+    cleanup();
+    expect([...callbacks.values()].every((set) => set.size === 0)).toBe(true);
+    update({ _view: { ...VIEW, search: "20" } });
+    expect(table.search).toBe("");
+  });
+
+  it("leaves a table that isn't interactive alone", async () => {
+    const fake = fakeModel({ _html: "<gt-table><table class='gt_table'><tbody></tbody></table></gt-table>", _view: null });
+    const el = document.createElement("div");
+    document.body.append(el);
+    widget.render({ model: fake.model, el });
+    await tick();
+    expect(el.querySelector<GtTable>(TAG_NAME)?.state).toBe("static");
+    expect(fake.saved).toEqual([]);
+  });
+});
+
+describe("tables in a Shiny app", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  const VIEW: HostView = {
+    filter: null,
+    sort: [],
+    search: "",
+    page: 1,
+    page_size: null,
+    hidden: [],
+    group_by: null,
+  };
+  const box = (el: GtTable, row: number) =>
+    el.rowElement(row)?.querySelector<HTMLInputElement>(":scope > .gt-i-select > input") as HTMLInputElement;
+
+  // Shiny's `window.Shiny`: the inputs' last values (by name, without their types), and the
+  // handler of the server's messages
+  function fakeShiny() {
+    const inputs: Record<string, unknown> = {};
+    const names: string[] = [];
+    const handlers: Record<string, (message: Update) => void> = {};
+    const shiny: ShinyLike = {
+      setInputValue: (name, value) => {
+        names.push(name);
+        inputs[name.split(":")[0] as string] = value;
+      },
+      addCustomMessageHandler: (type, handler) => {
+        handlers[type] = handler;
+      },
+    };
+    const send = (message: Update) => handlers[SHINY_MESSAGE]?.(message);
+    return { shiny, inputs, names, send };
+  }
+
+  const output = (id: string, options: TableOptions = {}, tables = 1) => {
+    const { html, spec } = gtTable(FLAT, { controls: { search: true, selection: "multiple" }, filters: [FACET], ...options });
+    const table = `<gt-table>${html}${specScript(spec)}</gt-table>`;
+    return `<div class="shiny-html-output" id="${id}">${table.repeat(tables)}</div>`;
+  };
+  const tableOf = (id: string) => document.querySelector<GtTable>(`#${id} > gt-table`) as GtTable;
+
+  // (Each test's glue stops after it)
+  const stops: (() => void)[] = [];
+  const start = (shiny: ShinyLike) => {
+    const stop = startShiny(shiny);
+    stops.push(stop);
+    return stop;
+  };
+  afterEach(() => {
+    for (const stop of stops.splice(0)) {
+      stop();
+    }
+  });
+
+  it("gives a table's state as the inputs of its output, once it's hydrated", async () => {
+    await mount(output("out"));
+    const { shiny, inputs, names } = fakeShiny();
+    start(shiny);
+    expect(inputs).toEqual({ out_view: VIEW, out_rows: [0, 1, 2, 3, 4], out_selection: [] });
+    expect(names[0]).toBe(`out_view:${SHINY_VIEW_TYPE}`);
+
+    // (And a table hydrated after, as an output's rendered again)
+    const outputs = document.createElement("div");
+    outputs.innerHTML = output("later");
+    document.body.append(outputs);
+    await tick();
+    expect(inputs.later_rows).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("gives the reader's changes, and a linked table's selection's", async () => {
+    const link = { group: "g", on: "y", keys: Y, label: "Y" };
+    await mount(output("one", { link: { ...link, name: "One" } }) + output("two", { link: { ...link, name: "Two" } }));
+    const { shiny, inputs } = fakeShiny();
+    start(shiny);
+    click(tableOf("one"), "x");
+    expect(inputs.one_view).toEqual({ ...VIEW, sort: [{ column: "x", descending: false }] });
+    expect(inputs.one_rows).toEqual([1, 2, 0, 4, 3]);
+    box(tableOf("one"), 2).click();
+    await tick();
+    expect(inputs.one_selection).toEqual([2]);
+    expect(inputs.two_rows).toEqual([2]);
+  });
+
+  it("leaves out a table that isn't the only one in an output, or isn't in one", async () => {
+    const { html, spec } = gtTable(FLAT);
+    await mount(output("two", {}, 2) + `<gt-table>${html}${specScript(spec)}</gt-table>`);
+    expect(document.querySelectorAll<GtTable>("gt-table")[2]?.state).toBe("ready");
+    const { shiny, names } = fakeShiny();
+    start(shiny);
+    expect(names).toEqual([]);
+    expect(outputOf(document.querySelectorAll<GtTable>("gt-table")[2] as GtTable)).toBeNull();
+    expect(tableIn(document.getElementById("two"))).toBeNull();
+  });
+
+  it("sets what the server changes on the table, and gives its state", async () => {
+    await mount(output("out"));
+    const { shiny, inputs, send } = fakeShiny();
+    start(shiny);
+    send({
+      id: "out",
+      view: { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: [{ column: "x", descending: true }] },
+      selection: [1, 3],
+    });
+    const table = tableOf("out");
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(table.selection).toEqual([1, 3]);
+    expect(inputs.out_rows).toEqual([4, 1, 3]);
+    expect(inputs.out_selection).toEqual([1, 3]);
+    send({ id: "out", view: { search: "20" } });
+    expect(table.search).toBe("20");
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(inputs.out_rows).toEqual([4]);
+  });
+
+  it("keeps what the server changes until the table's hydrated", async () => {
+    document.body.innerHTML = `<div class="shiny-html-output" id="out"></div>`;
+    const { shiny, inputs, send } = fakeShiny();
+    start(shiny);
+    send({ id: "out", view: { search: "20", sort: [{ column: "x", descending: false }] } });
+    send({ id: "out", view: { search: "10" }, selection: [1] });
+    expect(inputs).toEqual({});
+    (document.getElementById("out") as HTMLElement).outerHTML = output("out");
+    await tick();
+    const table = tableOf("out");
+    expect([table.search, table.sort, table.selection]).toEqual(["10", [{ column: "x", descending: false }], [1]]);
+    expect(inputs.out_rows).toEqual([2]);
+  });
+
+  it("gives the table's own view when what the server changes can't be set", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    await mount(output("out"));
+    const { shiny, inputs, send } = fakeShiny();
+    start(shiny);
+    send({ id: "out", view: { filter: { and: [{ col: "x", op: "in", value: ["a"] }] } } });
+    expect(error).toHaveBeenCalledWith(expect.stringMatching(/^<gt-table>: /));
+    expect(inputs.out_view).toEqual(VIEW);
+  });
+
+  it("stops following the page", async () => {
+    await mount(output("out"));
+    const { shiny, inputs } = fakeShiny();
+    const stop = start(shiny);
+    stop();
+    click(tableOf("out"), "x");
+    expect(inputs.out_view).toEqual(VIEW);
   });
 });

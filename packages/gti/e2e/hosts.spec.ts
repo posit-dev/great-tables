@@ -166,8 +166,8 @@ test("Jupyter: a notebook converted to HTML", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test("Jupyter: a notebook in JupyterLab, run and run again", async ({ page }) => {
-  test.skip(!has("jupyterlab", "ipykernel"), "JupyterLab and ipykernel aren't installed");
+// JupyterLab, serving the sources, with a notebook open (once its kernel is up)
+async function lab(page: Page, notebook: string, body: () => Promise<void>): Promise<void> {
   const port = await freePort();
   const token = "gti-hosts";
   const base = `http://127.0.0.1:${port}`;
@@ -180,12 +180,7 @@ test("Jupyter: a notebook in JupyterLab, run and run again", async ({ page }) =>
     `--LabApp.workspaces_dir=${join(dir, "workspaces")}`,
   );
   try {
-    // (JupyterLab's debugger throws when the kernel's started)
-    const errors = watch(page, /^No active debugger session$/);
-    await page.goto(`${base}/lab/tree/notebook.ipynb?token=${token}&reset`);
-    const runAll = () =>
-      page.evaluate(() => (window as any).jupyterapp.commands.execute("notebook:run-all-cells"));
-    // (Once the notebook's kernel is up)
+    await page.goto(`${base}/lab/tree/${notebook}?token=${token}&reset`);
     await expect
       .poll(
         () =>
@@ -193,17 +188,85 @@ test("Jupyter: a notebook in JupyterLab, run and run again", async ({ page }) =>
         { timeout: 60_000 },
       )
       .toBe("idle");
-    await runAll();
+    await body();
+  } finally {
+    server.kill();
+  }
+}
+
+const runAll = (page: Page) =>
+  page.evaluate(() => (window as any).jupyterapp.commands.execute("notebook:run-all-cells"));
+
+// What the notebook's kernel prints, running `code`
+const kernelRun = (page: Page, code: string): Promise<string> =>
+  page.evaluate(async (code) => {
+    const kernel = (window as any).jupyterapp.shell.currentWidget.sessionContext.session.kernel;
+    const future = kernel.requestExecute({ code });
+    let out = "";
+    future.onIOPub = (msg: any) => {
+      if (msg.header.msg_type === "stream") {
+        out += msg.content.text;
+      } else if (msg.header.msg_type === "error") {
+        out += `${msg.content.ename}: ${msg.content.evalue}`;
+      }
+    };
+    await future.done;
+    return out;
+  }, code);
+
+// (As JSON)
+const kernelValue = async (page: Page, expr: string): Promise<unknown> =>
+  JSON.parse(await kernelRun(page, `import json; print(json.dumps(${expr}))`));
+
+test("Jupyter: a notebook in JupyterLab, run and run again", async ({ page }) => {
+  test.skip(!has("jupyterlab", "ipykernel"), "JupyterLab and ipykernel aren't installed");
+  // (JupyterLab's debugger throws when the kernel's started)
+  const errors = watch(page, /^No active debugger session$/);
+  await lab(page, "notebook.ipynb", async () => {
+    await runAll(page);
     await hydrated(page);
     await sorts(page);
 
     await markOld(page);
-    await runAll();
+    await runAll(page);
     await shownAgain(page);
-    expect(errors).toEqual([]);
-  } finally {
-    server.kill();
-  }
+  });
+  expect(errors).toEqual([]);
+});
+
+test("Jupyter: a table as a widget, which the kernel reads and changes", async ({ page }) => {
+  test.skip(!has("jupyterlab", "ipykernel", "anywidget"), "JupyterLab, ipykernel and anywidget aren't installed");
+  const errors = watch(page, /^No active debugger session$/);
+  await lab(page, "widget.ipynb", async () => {
+    await runAll(page);
+    // (The widget, shown twice: the first is the one used, and the second follows it)
+    const tables = page.locator(".jp-OutputArea gt-table");
+    await expect(tables).toHaveCount(2);
+    const [table, again] = [tables.first(), tables.last()];
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    const shown = (el: typeof table) => el.evaluate((el: any) => [el.rows, el.selection, el.search, el.sort]);
+    const state = () => kernelValue(page, "[widget.rows, widget.selection, widget.query, widget.search]");
+    await expect.poll(state).toEqual([[0, 1, 2, 3, 4, 5, 6, 7], [], "", ""]);
+
+    // What the reader does, the kernel has (and its callback's told)
+    await table.getByRole("button", { name: "Search the table" }).click();
+    await table.locator("input.gt-i-search").fill("an");
+    await expect.poll(state).toEqual([[1, 3], [], "", "an"]);
+    await table.locator("tbody input[type=checkbox]").nth(3).check();
+    await expect.poll(state).toEqual([[1, 3], [3], "", "an"]);
+    expect(await kernelValue(page, "changes[-1]")).toEqual([[1, 3], [3]]);
+    expect(await kernelValue(page, "widget.view()['char'].tolist()")).toEqual(["banana", "durian"]);
+    await expect.poll(() => shown(again)).toEqual([[1, 3], [3], "an", []]);
+
+    // What the kernel changes, the table shows
+    await kernelRun(page, 'widget.search = ""; widget.query = \'fctr in ("one", "two")\'; widget.sort = "-num"; widget.selection = [0]');
+    for (const el of [table, again]) {
+      await expect.poll(() => shown(el)).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+    }
+    await expect.poll(state).toEqual([[1, 0], [0], 'fctr in ("one", "two")', ""]);
+    expect(await kernelValue(page, "widget.view(selected=True)['char'].tolist()")).toEqual(["apricot"]);
+  });
+  expect(errors).toEqual([]);
 });
 
 test("Quarto: a document with two interactive tables and a static one", async ({ page }) => {
@@ -238,6 +301,45 @@ test("Shiny: tables rendered again as an input changes", async ({ page }) => {
     for (const table of await page.locator("gt-table").all()) {
       await expect(table.locator("tbody.gt_table_body > tr")).toHaveCount(4);
     }
+    expect(errors).toEqual([]);
+  } finally {
+    server.kill();
+  }
+});
+
+test("Shiny: a table's state as inputs, which the server changes", async ({ page }) => {
+  test.skip(!has("shiny"), "Shiny isn't installed");
+  const port = await freePort();
+  const base = `http://127.0.0.1:${port}`;
+  const server = await serve(base, "-m", "shiny", "run", "--port", String(port), "shiny_state_app.py");
+  try {
+    const errors = watch(page);
+    await page.goto(base);
+    const table = page.locator("#m-table > gt-table");
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    const state = async () => JSON.parse((await page.locator("#m-state").textContent()) || "null");
+    const shown = () => table.evaluate((el: any) => [el.rows, el.selection, el.search, el.sort]);
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], []]);
+
+    // What the reader does, the server has
+    await table.getByRole("button", { name: "Search the table" }).click();
+    await table.locator("input.gt-i-search").fill("an");
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], []]);
+    await table.locator("tbody input[type=checkbox]").nth(3).check();
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], [3]]);
+    await table.locator("input.gt-i-search").fill("");
+
+    // What the server changes, the table shows
+    await page.getByRole("button", { name: "Update" }).click();
+    await expect.poll(shown).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+    await expect.poll(state).toEqual(['fctr in ("one", "two")', "", ["-num"], [1, 0], [0]]);
+
+    // (And a table rendered again takes what the server set on it in the same flush)
+    await table.evaluate((el) => el.setAttribute("data-old", ""));
+    await page.getByRole("button", { name: "Again" }).click();
+    const again = page.locator("#m-table > gt-table:not([data-old])");
+    await expect(again).toHaveAttribute("data-gti-state", "ready");
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], []]);
     expect(errors).toEqual([]);
   } finally {
     server.kill();
