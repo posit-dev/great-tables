@@ -10,7 +10,7 @@ the view's filter, sort and search, and the selection, which the browser then ap
 from __future__ import annotations
 
 from collections.abc import Callable
-from functools import lru_cache
+from functools import cache
 from typing import TYPE_CHECKING, Any
 
 import anywidget
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 __all__ = ["GTIWidget"]
 
 
-@lru_cache(maxsize=None)
+@cache
 def _esm() -> str:
     """The widget's module: the runtime, then the glue (which only uses what the runtime defines)."""
     js, _ = _load_runtime()
