@@ -5,9 +5,9 @@ import warnings
 from collections import defaultdict
 from dataclasses import dataclass
 from itertools import chain
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, TypeAlias
 
-from typing_extensions import TypeAlias, TypedDict
+from typing_extensions import TypedDict
 
 from ._boxhead import cols_label
 from ._gt_data import ColInfoTypeEnum, ColMergeInfo, SpannerInfo, Spanners

@@ -721,7 +721,7 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
 
 
 def _create_summary_row_l(
-    summary_row: "SummaryRowInfo",
+    summary_row: SummaryRowInfo,
     column_vars: list,
     n_stub_cols: int,
     group_cell: str | None = None,

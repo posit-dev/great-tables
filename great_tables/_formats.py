@@ -8,7 +8,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
-from functools import lru_cache, partial
+from functools import cache, partial
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -7880,7 +7880,7 @@ def _get_time_format(time_style: str, locale: str | None) -> str:
     return _get_time_formats_dict()[time_style]
 
 
-@lru_cache(maxsize=None)
+@cache
 def _get_babel_locale(locale: str | None) -> babel.Locale:
     """
     Get the Babel `Locale` for a locale from `_resolve_locale()` (where `None` is `en_US`).

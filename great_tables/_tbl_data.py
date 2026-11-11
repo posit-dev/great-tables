@@ -9,7 +9,7 @@ from contextlib import suppress
 from datetime import datetime, time
 from decimal import Decimal
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from ._databackend import AbstractBackend
 
@@ -47,8 +47,8 @@ if TYPE_CHECKING:
     NpInteger = np.integer
     NpBool = np.bool_
 
-    DataFrameLike = Union[PdDataFrame, PlDataFrame, PyArrowTable]
-    SeriesLike = Union[PdSeries, PlSeries, PyArrowArray, PyArrowChunkedArray]
+    DataFrameLike = PdDataFrame | PlDataFrame | PyArrowTable
+    SeriesLike = PdSeries | PlSeries | PyArrowArray | PyArrowChunkedArray
     TblData = DataFrameLike
 
 else:

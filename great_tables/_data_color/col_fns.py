@@ -8,8 +8,9 @@ colors of the same length.
 from __future__ import annotations
 
 from bisect import bisect_left, bisect_right
+from collections.abc import Callable
 from math import isinf, isnan
-from typing import Any, Callable
+from typing import Any
 
 from .base import (
     _html_color,

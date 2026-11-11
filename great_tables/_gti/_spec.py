@@ -115,7 +115,7 @@ from __future__ import annotations
 import datetime as dt
 import math
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Literal, TypedDict, Union
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 from .._gt_data import ColInfoTypeEnum
 from .._locations import LocBody
@@ -219,7 +219,7 @@ class GrandSummaryRow(TypedDict):
     side: Literal["top", "bottom"]
 
 
-BodyRow = Union[int, GroupHeadingRow, SummaryRow, GrandSummaryRow]
+BodyRow = int | GroupHeadingRow | SummaryRow | GrandSummaryRow
 
 
 class StripingSpec(TypedDict):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import TYPE_CHECKING, Literal, Union
+from typing import TYPE_CHECKING, Literal
 
 from ._gt_data import Stub
 from ._locations import RowSelectExpr, resolve_rows_i
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 def tab_stub_indent(
     self: GTSelf,
     rows: RowSelectExpr,
-    indent: Union[int, Literal["increase", "decrease"]] = "increase",
+    indent: int | Literal["increase", "decrease"] = "increase",
 ) -> GTSelf:
     """
     Control indentation of row labels in the stub.

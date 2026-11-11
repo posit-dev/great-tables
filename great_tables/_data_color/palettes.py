@@ -154,8 +154,8 @@ class GradientPalette:
     def __init__(
         self,
         colors: list[str],
-        values: "list[float] | None" = None,
-        cls_coeff_sequence: "type[CoeffSequence]" = CoeffSequenceBisector,
+        values: list[float] | None = None,
+        cls_coeff_sequence: type[CoeffSequence] = CoeffSequenceBisector,
     ):
         if len(colors) < 2:
             raise ValueError(
@@ -175,7 +175,7 @@ class GradientPalette:
 
         # colors can be rgb tuples or hex strings
         if isinstance(colors[0], str):
-            rgb_colors: "list[RGBColor]" = [_hex_to_rgb(color) for color in _html_color(colors)]
+            rgb_colors: list[RGBColor] = [_hex_to_rgb(color) for color in _html_color(colors)]
         else:
             raise NotImplementedError("Currently, rgb tuples can't be passed directly.")
 
@@ -188,16 +188,16 @@ class GradientPalette:
         self._a_coeffs = self._create_coefficients(values, [x[1] for x in lab_colors])
         self._b_coeffs = self._create_coefficients(values, [x[2] for x in lab_colors])
 
-    def __call__(self, data: list[float]) -> "list[str | None]":
+    def __call__(self, data: list[float]) -> list[str | None]:
         """Return data transformed to hex color values."""
 
         rgb = self.vals_to_rgb(data)
         return [rgb_to_hex(x) if x is not None else None for x in rgb]
 
-    def vals_to_rgb(self, data: list[float | None]) -> "list[RGBColor | None]":
+    def vals_to_rgb(self, data: list[float | None]) -> list[RGBColor | None]:
         """Return data transformed to RGB values."""
 
-        out: "list[RGBColor | None]" = []
+        out: list[RGBColor | None] = []
         for ii, x in enumerate(data):
             if x is None:
                 out.append(None)

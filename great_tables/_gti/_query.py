@@ -61,7 +61,7 @@ from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from html.parser import HTMLParser
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal
 
 from ._pattern import (
     PatternError,
@@ -1113,7 +1113,7 @@ class _IsNull:
     nan: bool  # (a column of floats, whose NaN is missing too)
 
 
-_Clause = Union[_In, _Compare, _Extreme, _Contains, _Matches, _IsNull]
+_Clause = _In | _Compare | _Extreme | _Contains | _Matches | _IsNull
 
 
 @dataclass(frozen=True)
@@ -1127,7 +1127,7 @@ class _Not:
     part: _Predicate
 
 
-_Predicate = Union[_In, _Compare, _Extreme, _Contains, _Matches, _IsNull, _Group, _Not]
+_Predicate = _In | _Compare | _Extreme | _Contains | _Matches | _IsNull | _Group | _Not
 
 
 def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_Predicate]:

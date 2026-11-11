@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, Any, Callable, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias, Union
 
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self
 
 from ._helpers import GoogleFont, px
 from ._tbl_data import PlExpr, TblData, _get_cell, eval_transform

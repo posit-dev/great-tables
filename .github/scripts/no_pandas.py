@@ -7,7 +7,7 @@ from pathlib import Path
 # %%
 class NaughtyImportChecker(NodeVisitor):
     def __init__(self):
-        self.import_crimes: list["Import | ImportFrom"] = []
+        self.import_crimes: list[Import | ImportFrom] = []
 
     def visit_Import(self, node: Import):
         for el in node.names:
@@ -30,7 +30,7 @@ class NaughtyImportChecker(NodeVisitor):
 
     @classmethod
     def validate_folder(cls, folder: str) -> dict[Path, list["ImportFrom | Import"]]:
-        all_crimes: dict[Path, list["ImportFrom | Import"]] = {}
+        all_crimes: dict[Path, list[ImportFrom | Import]] = {}
         for dirpath, _, filenames in walk(folder):
             for fname in filenames:
                 if fname.endswith(".py"):

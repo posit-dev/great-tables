@@ -3,10 +3,11 @@ from __future__ import annotations
 import random
 import re
 import string
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Literal
+from typing import Any, Literal, TypeAlias
 
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self
 
 from ._text import BaseText, Html, Md, _latex_escape, _md_html, _md_latex
 
@@ -161,10 +162,10 @@ class _StubSentinel:
     single level of a hierarchical stub, counted from the right.
     """
 
-    _instance: "_StubSentinel | None" = None
+    _instance: _StubSentinel | None = None
     _level: int | None = None
 
-    def __new__(cls, level: int | None = None) -> "_StubSentinel":
+    def __new__(cls, level: int | None = None) -> _StubSentinel:
         if level is not None:
             obj = super().__new__(cls)
             obj._level = level
@@ -175,7 +176,7 @@ class _StubSentinel:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __call__(self, n: int | None = None) -> "_StubSentinel":
+    def __call__(self, n: int | None = None) -> _StubSentinel:
         if self._level is not None:
             raise TypeError(f"`{self!r}` refers to a single stub column and can't be called.")
         if n is None:
@@ -431,7 +432,7 @@ def google_font(name: str) -> GoogleFont:
 class GoogleFontImports:
     imports: frozenset[str] = field(default_factory=frozenset)
 
-    def add(self, import_stmt: str) -> "GoogleFontImports":
+    def add(self, import_stmt: str) -> GoogleFontImports:
         return GoogleFontImports(self.imports | frozenset([import_stmt]))
 
     def to_css(self) -> str:

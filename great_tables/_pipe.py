@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Concatenate
 
-from typing_extensions import Concatenate, ParamSpec
+from typing_extensions import ParamSpec
 
 if TYPE_CHECKING:
     from .gt import GT
@@ -11,9 +12,7 @@ if TYPE_CHECKING:
 P = ParamSpec("P")
 
 
-def pipe(
-    self: "GT", func: Callable[Concatenate["GT", P], "GT"], *args: P.args, **kwargs: P.kwargs
-) -> "GT":
+def pipe(self: GT, func: Callable[Concatenate[GT, P], GT], *args: P.args, **kwargs: P.kwargs) -> GT:
     """
     Provide a structured way to chain a function for a GT object.
 

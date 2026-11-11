@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import numbers
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from ._formats import fmt
 from ._gt_data import FormatFns, FormatterSkipElement
