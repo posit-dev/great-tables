@@ -122,6 +122,8 @@ ignore = [
     "E203",    # whitespace before ':'
     "F841",    # local variable 'name' is assigned to but never used
     "E702",    # multiple statements on one line (semicolon)
+    "PLR0124", # comparison with itself: `x != x` is the NaN check
+    "TRY004",  # TypeError for invalid types: switching from ValueError would break callers
 ]
 
 [tool.coverage.report]

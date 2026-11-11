@@ -144,7 +144,7 @@ def vscode_page() -> str:
     # again, by `show()`. The frame is sandboxed more strictly than VS Code's (it's not of the
     # same origin as anything, so its storage throws), and the first table keeps its view there.
     namespace: dict[str, object] = {}
-    exec(SETUP, namespace)
+    exec(SETUP, namespace)  # noqa: S102 (runs the fixture's own setup code)
     sources = [TABLES[0] + '.with_id("one").i_view_state(storage=True)', *TABLES[1:]]
     os.environ["VSCODE_PID"] = "1"
     try:
