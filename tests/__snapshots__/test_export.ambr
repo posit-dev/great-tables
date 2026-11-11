@@ -9,8 +9,8 @@
             -moz-osx-font-smoothing: grayscale;
           }
   
-  #test_table thead, tbody, tfoot, tr, td, th { border-style: none; }
-   tr { background-color: transparent; }
+  #test_table thead, #test_table tbody, #test_table tfoot, #test_table tr, #test_table td, #test_table th { border-style: none; }
+  #test_table tr { background-color: transparent; }
   #test_table p { margin: 0; padding: 0; }
    #test_table .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
    #test_table .gt_caption { padding-top: 4px; padding-bottom: 4px; }

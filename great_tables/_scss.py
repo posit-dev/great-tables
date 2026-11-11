@@ -25,6 +25,13 @@ DEFAULTS_TABLE_BACKGROUND = (
     "row_striping_background_color",
 )
 
+# A rule (at the start of a line or after another rule) whose selectors are all bare elements
+ELEMENT = re.compile(r"\b(thead|tbody|tfoot|tr|td|th|p)\b")
+ELEMENT_RULE = re.compile(
+    r"(^|\}) *((?:thead|tbody|tfoot|tr|td|th|p)(?:\s*,\s*(?:thead|tbody|tfoot|tr|td|th|p))*\s*)\{",
+    flags=re.MULTILINE,
+)
+
 FONT_COLOR_VARS = (
     "table_background_color",
     "heading_background_color",
@@ -183,10 +190,14 @@ def compile_scss(
 
     if has_id:
         compiled_css = re.sub(r"\.gt_", f"#{id} .gt_", compiled_css, count=0, flags=re.MULTILINE)
-        compiled_css = re.sub(r"thead", f"#{id} thead", compiled_css, count=0, flags=re.MULTILINE)
-        compiled_css = re.sub(
-            r"^( p|p) \{", f"#{id} p {{", compiled_css, count=0, flags=re.MULTILINE
-        )
+
+    # Scope each selector of the rules for bare elements (like `tr` or `td`) to the table, so that
+    # they don't reach other tables on the page
+    scope = f"#{id}" if has_id else ".gt_table"
+    compiled_css = ELEMENT_RULE.sub(
+        lambda m: m.group(1) + ELEMENT.sub(rf"{scope} \1", m.group(2)) + "{",
+        compiled_css,
+    )
 
     if all_important:
         compiled_css = re.sub(r";", " !important;", compiled_css, count=0, flags=re.MULTILINE)

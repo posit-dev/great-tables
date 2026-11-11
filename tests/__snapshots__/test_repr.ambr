@@ -9,8 +9,8 @@
             -moz-osx-font-smoothing: grayscale;
           }
   
-  #test thead, tbody, tfoot, tr, td, th { border-style: none; }
-   tr { background-color: transparent; }
+  #test thead, #test tbody, #test tfoot, #test tr, #test td, #test th { border-style: none; }
+  #test tr { background-color: transparent; }
   #test p { margin: 0; padding: 0; }
    #test .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
    #test .gt_caption { padding-top: 4px; padding-bottom: 4px; }
@@ -99,8 +99,8 @@
             -moz-osx-font-smoothing: grayscale;
           }
   
-  #test thead, tbody, tfoot, tr, td, th { border-style: none; }
-   tr { background-color: transparent; }
+  #test thead, #test tbody, #test tfoot, #test tr, #test td, #test th { border-style: none; }
+  #test tr { background-color: transparent; }
   #test p { margin: 0; padding: 0; }
    #test .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
    #test .gt_caption { padding-top: 4px; padding-bottom: 4px; }
@@ -195,8 +195,8 @@
             -moz-osx-font-smoothing: grayscale;
           }
   
-  #test thead, tbody, tfoot, tr, td, th { border-style: none !important; }
-   tr { background-color: transparent !important; }
+  #test thead, #test tbody, #test tfoot, #test tr, #test td, #test th { border-style: none !important; }
+  #test tr { background-color: transparent !important; }
   #test p { margin: 0 !important; padding: 0 !important; }
    #test .gt_table { display: table !important; border-collapse: collapse !important; line-height: normal !important; margin-left: auto !important; margin-right: auto !important; color: #333333 !important; font-size: 16px !important; font-weight: normal !important; font-style: normal !important; background-color: #FFFFFF !important; width: auto !important; border-top-style: solid !important; border-top-width: 2px !important; border-top-color: #A8A8A8 !important; border-right-style: none !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; border-bottom-style: solid !important; border-bottom-width: 2px !important; border-bottom-color: #A8A8A8 !important; border-left-style: none !important; border-left-width: 2px !important; border-left-color: #D3D3D3 !important; }
    #test .gt_caption { padding-top: 4px !important; padding-bottom: 4px !important; }
@@ -288,8 +288,8 @@
             -moz-osx-font-smoothing: grayscale;
           }
   
-  #test thead, tbody, tfoot, tr, td, th { border-style: none; }
-   tr { background-color: transparent; }
+  #test thead, #test tbody, #test tfoot, #test tr, #test td, #test th { border-style: none; }
+  #test tr { background-color: transparent; }
   #test p { margin: 0; padding: 0; }
    #test .gt_table { display: table; border-collapse: collapse; line-height: normal; margin-left: auto; margin-right: auto; color: #333333; font-size: 16px; font-weight: normal; font-style: normal; background-color: #FFFFFF; width: auto; border-top-style: solid; border-top-width: 2px; border-top-color: #A8A8A8; border-right-style: none; border-right-width: 2px; border-right-color: #D3D3D3; border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: #A8A8A8; border-left-style: none; border-left-width: 2px; border-left-color: #D3D3D3; }
    #test .gt_caption { padding-top: 4px; padding-bottom: 4px; }
@@ -378,8 +378,8 @@
             -moz-osx-font-smoothing: grayscale;
           }
   
-  #test thead, tbody, tfoot, tr, td, th { border-style: none !important; }
-   tr { background-color: transparent !important; }
+  #test thead, #test tbody, #test tfoot, #test tr, #test td, #test th { border-style: none !important; }
+  #test tr { background-color: transparent !important; }
   #test p { margin: 0 !important; padding: 0 !important; }
    #test .gt_table { display: table !important; border-collapse: collapse !important; line-height: normal !important; margin-left: auto !important; margin-right: auto !important; color: #333333 !important; font-size: 16px !important; font-weight: normal !important; font-style: normal !important; background-color: #FFFFFF !important; width: auto !important; border-top-style: solid !important; border-top-width: 2px !important; border-top-color: #A8A8A8 !important; border-right-style: none !important; border-right-width: 2px !important; border-right-color: #D3D3D3 !important; border-bottom-style: solid !important; border-bottom-width: 2px !important; border-bottom-color: #A8A8A8 !important; border-left-style: none !important; border-left-width: 2px !important; border-left-color: #D3D3D3 !important; }
    #test .gt_caption { padding-top: 4px !important; padding-bottom: 4px !important; }
