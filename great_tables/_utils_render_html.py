@@ -147,7 +147,7 @@ def _make_svg_ids_unique(html_str: str, prefix: str) -> str:
             svg = re.sub(rf'(href=)"#{escaped}"', rf'\1"#{new_id}"', svg)
         return svg
 
-    return re.sub(r"<svg\b.*?</svg>", rewrite_svg, html_str, flags=re.S)
+    return re.sub(r"<svg\b.*?</svg>", rewrite_svg, html_str, flags=re.DOTALL)
 
 
 def _sanitize_id(text: str) -> str:

@@ -31,9 +31,9 @@ _CLASSES = {"d": "0-9", "w": "0-9A-Z_a-z", "s": "\\t\\n\\v\\f\\r "}
 _PUNCT = re.compile(r"[!-/:-@\[-`{-~]")
 _REPEAT = re.compile(r"\{([0-9]+)(,([0-9]*))?\}")
 _CASE = "(?i)"
-_ESCAPE = re.compile(r"\\.", re.S)
+_ESCAPE = re.compile(r"\\.", re.DOTALL)
 # (A query's text can't have a line break in a pattern, but the escape for it means the same)
-_TO_ESCAPE = re.compile(r"\\.|[/\n\r]", re.S)
+_TO_ESCAPE = re.compile(r"\\.|[/\n\r]", re.DOTALL)
 _ESCAPES = {"/": "\\/", "\n": "\\n", "\r": "\\r"}
 # (Ignoring case, Python's `re` has i, I, İ and ı as one letter, which JavaScript, Rust's `regex`
 # and RE2 don't: so `view_rows()` matches İ and ı as two noncharacters, which have no case)
