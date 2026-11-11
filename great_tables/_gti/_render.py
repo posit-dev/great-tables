@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 import re
 import warnings
-from html import escape, unescape
 from functools import lru_cache
+from html import escape, unescape
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 

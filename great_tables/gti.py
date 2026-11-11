@@ -11,19 +11,19 @@ from typing_extensions import Self
 
 from ._gt_data import ColInfoTypeEnum
 from ._gti._settings import (
+    DATA_COLOR_MODES,
     EXPORT_FORMATS,
     FILTER_TYPES,
     PIN_SIDES,
-    DATA_COLOR_MODES,
     PRESETS,
     PROFILE_PLOTS,
     RESPONSIVE_MODES,
     SELECTION_MODES,
+    DataColorMode,
     ExportFormat,
     FilterType,
     PinSide,
     Preset,
-    DataColorMode,
     ProfilePlot,
     ResponsiveMode,
     SelectionMode,

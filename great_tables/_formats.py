@@ -37,6 +37,7 @@ from ._locale import (
     _get_locales_data,
 )
 from ._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
+from ._styles import FromColumn
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
@@ -48,7 +49,6 @@ from ._tbl_data import (
     is_series,
     to_list,
 )
-from ._styles import FromColumn
 from ._text import _html_escape, _latex_escape, _md_html, _md_latex, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace, is_valid_http_schema
 from ._utils_nanoplots import _generate_nanoplot

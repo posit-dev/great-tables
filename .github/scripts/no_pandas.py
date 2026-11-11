@@ -1,7 +1,7 @@
 # %%
-from ast import NodeVisitor, Import, ImportFrom, parse
-from pathlib import Path
+from ast import Import, ImportFrom, NodeVisitor, parse
 from os import walk
+from pathlib import Path
 
 
 # %%

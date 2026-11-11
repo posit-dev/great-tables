@@ -12,13 +12,13 @@ from .gt import GT
 try:
     # (htmltools is a dependency of shiny, not of great_tables)
     from htmltools import HTML, Tag, div
+    from shiny._namespaces import resolve_id
     from shiny.render.transformer import (
-        output_transformer,
         TransformerMetadata,
         ValueFn,
+        output_transformer,
         resolve_value_fn,
     )
-    from shiny._namespaces import resolve_id
 except ImportError:
     raise ImportError(
         "The great_tables.shiny module requires the shiny package to be installed."

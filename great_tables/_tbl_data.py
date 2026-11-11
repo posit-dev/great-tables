@@ -4,8 +4,8 @@ import math
 import numbers
 import re
 import warnings
-from contextlib import suppress
 from collections.abc import Callable
+from contextlib import suppress
 from datetime import datetime, time
 from decimal import Decimal
 from functools import singledispatch

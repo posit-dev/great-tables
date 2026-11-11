@@ -17,6 +17,8 @@ from ._locations import (
     #
     # Footer ----
     LocFooter as footer,
+)
+from ._locations import (
     LocFootnotes as footnotes,
 )
 from ._locations import (
