@@ -1262,7 +1262,7 @@ def opt_all_caps(
         "row_groups": LocRowGroups,
     }
 
-    if any([isinstance(x, str) for x in locations]):
+    if any(isinstance(x, str) for x in locations):
         warnings.warn(
             "Using string-based locations in `opt_all_caps()` is deprecated and support will be "
             "removed in a future release. Please use the location classes from `great_tables.loc` "

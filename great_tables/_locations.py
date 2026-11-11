@@ -1198,10 +1198,10 @@ def resolve_rows_i(
 
     elif isinstance(expr, list):
         # TODO: manually doing row selection here for now
-        target_names = set(x for x in expr if isinstance(x, str))
-        target_pos = set(
+        target_names = {x for x in expr if isinstance(x, str)}
+        target_pos = {
             indx if indx >= 0 else len(row_names) + indx for indx in expr if isinstance(indx, int)
-        )
+        }
 
         selected = [
             (name, ii)
@@ -1321,7 +1321,7 @@ def _(loc: LocColumnLabels, data: GTData) -> list[tuple[str, int]]:
 def _(loc: LocRowGroups, data: GTData) -> set[str]:
     # TODO: what are the rules for matching row groups?
     # TODO: resolve_rows_i will match a list expr to row names (not group names)
-    group_pos = set(name for name, _ in resolve_rows_i(data, loc.rows, row_name_attr="group_id"))
+    group_pos = {name for name, _ in resolve_rows_i(data, loc.rows, row_name_attr="group_id")}
     return group_pos
 
 
@@ -1333,7 +1333,7 @@ def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
 
     rows = resolve_rows_i(data=grand_summary_rows_ids, expr=loc.rows)
 
-    cell_pos = set(row[1] for row in rows)
+    cell_pos = {row[1] for row in rows}
     return cell_pos
 
 
@@ -1364,7 +1364,7 @@ def _(loc: LocSummaryStub, data: GTData) -> list[tuple[str, int]]:
 def _(loc: LocStub, data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
     rows = resolve_rows_i(data=data, expr=loc.rows)
-    cell_pos = set(row[1] for row in rows)
+    cell_pos = {row[1] for row in rows}
     return cell_pos
 
 

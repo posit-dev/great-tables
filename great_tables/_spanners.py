@@ -178,7 +178,7 @@ def tab_spanner(
     """
     from great_tables._helpers import UnitStr
 
-    crnt_spanner_ids = set([span.spanner_id for span in self._spanners])
+    crnt_spanner_ids = {span.spanner_id for span in self._spanners}
 
     if id is None:
         # The label may contain HTML or Markdown, so we need to extract
@@ -674,7 +674,7 @@ def cols_move_to_start(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     _validate_sel_cols(columns, sel_cols, col_vars)
 
-    moving_columns = [col for col in sel_cols]
+    moving_columns = list(sel_cols)
     other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*moving_columns, *other_columns]
@@ -742,7 +742,7 @@ def cols_move_to_end(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     _validate_sel_cols(columns, sel_cols, col_vars)
 
-    moving_columns = [col for col in sel_cols]
+    moving_columns = list(sel_cols)
     other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*other_columns, *moving_columns]
@@ -906,9 +906,7 @@ def spanners_print_matrix(
     spanner_reprs = [span.spanner_id if ids else span.built_label() for span in crnt_spans]
 
     # Create a matrix with dimension spanner_height x vars (e.g. presented columns)
-    label_matrix: SpannerMatrix = [
-        {var_name: None for var_name in vars} for _ in range(spanner_height)
-    ]
+    label_matrix: SpannerMatrix = [dict.fromkeys(vars) for _ in range(spanner_height)]
 
     for span_ii, span in enumerate(crnt_spans):
         label_matrix_spanner_level = label_matrix[span.spanner_level]
@@ -1106,7 +1104,7 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
             width = new_cases.pop(key)
             if key._level is None:
                 # No stub column present: the plain `stub` key is dropped silently
-                stub_widths |= {col: width for col in stub_cols}
+                stub_widths |= dict.fromkeys(stub_cols, width)
             elif key._level > len(stub_cols):
                 raise ValueError(
                     f"`{key!r}` refers to stub level {key._level} (counting from the right), but "

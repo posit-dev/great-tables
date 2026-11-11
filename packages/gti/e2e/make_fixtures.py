@@ -556,7 +556,7 @@ def collapse_html(
     )
     if widths:
         gti = gti.cols_width(
-            {"row": "80px", "num": "120px", **{c: "100px" for c in ["currency", "char", "fctr"]}}
+            {"row": "80px", "num": "120px", **dict.fromkeys(["currency", "char", "fctr"], "100px")}
         )
     return render_gti_html(gti, runtime="none")
 

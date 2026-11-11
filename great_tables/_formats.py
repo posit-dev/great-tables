@@ -5207,7 +5207,7 @@ def _format_duration_colon_sep(
         colon_sep_output_units = ["days", "hours", "minutes", "seconds"]
 
     # Build a dict from the decomposed time_parts
-    parts_dict = {unit: value for unit, value in time_parts}
+    parts_dict = dict(time_parts)
 
     # Ensure all colon_sep_output_units are present
     for unit in colon_sep_output_units:

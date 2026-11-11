@@ -2201,7 +2201,7 @@ def _get_table_defs(data: GTData) -> dict[str, Any]:
     # `table_style` and `table_colgroups` set to None; this is the case where column widths are
     # not set for any columns and, as a result, there should not be a `<colgroup>` tag requirement
     if all(width is None for width in column_widths):
-        return dict(table_style=None, table_colgroups=None)
+        return {"table_style": None, "table_colgroups": None}
 
     # Get the table's width (which or may not have been set)
     table_width = data._options.table_width.value
@@ -2236,6 +2236,6 @@ def _get_table_defs(data: GTData) -> dict[str, Any]:
     # Create the `<colgroup>` tag
     table_colgroups = Tag("colgroup", [Tag("col", style=css(width=width)) for width in widths])
 
-    table_defs_dict = dict(table_style=table_style, table_colgroups=table_colgroups)
+    table_defs_dict = {"table_style": table_style, "table_colgroups": table_colgroups}
 
     return table_defs_dict

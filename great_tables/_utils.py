@@ -80,7 +80,7 @@ class OrderedSet(AbstractSet[Any]):
         self._d = self._create(d)
 
     def _create(self, d: Iterable[Any]) -> dict[Any, bool]:
-        return {k: True for k in d}
+        return dict.fromkeys(d, True)
 
     def as_set(self) -> set[Any]:
         return set(self._d)
@@ -107,7 +107,7 @@ class OrderedSet(AbstractSet[Any]):
 
 
 def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:
-    fonts_w_spaces: list[str] = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
+    fonts_w_spaces: list[str] = [f"'{x}'" if " " in x else x for x in fonts]
 
     fonts_str = ", ".join(fonts_w_spaces)
 

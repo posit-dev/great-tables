@@ -136,27 +136,27 @@ def _add_cases(run) -> None:
     }
 
     REF_CONFIGS = {
-        "none": dict(),
-        "line0": dict(y_ref_line=0),
-        "line_num": dict(y_ref_line=4.25),
-        "line_mean": dict(y_ref_line="mean"),
-        "line_median": dict(y_ref_line="median"),
-        "line_min": dict(y_ref_line="min"),
-        "line_max": dict(y_ref_line="max"),
-        "line_q1": dict(y_ref_line="q1"),
-        "line_q3": dict(y_ref_line="q3"),
-        "line_nan": dict(y_ref_line=NAN),
-        "line_bad": dict(y_ref_line="bogus"),
-        "area_num": dict(y_ref_area=[0.1, 5.3]),
-        "area_rev": dict(y_ref_area=[5.3, 0.1]),
-        "area_kw": dict(y_ref_area=["min", "median"]),
-        "area_q": dict(y_ref_area=["q1", "q3"]),
-        "area_mixed": dict(y_ref_area=["max", 0]),
-        "area_na": dict(y_ref_area=[None, 3]),
-        "area_bad": dict(y_ref_area=["bogus", 3]),
-        "both": dict(y_ref_line=0, y_ref_area=[2.3, "max"]),
-        "both_kw": dict(y_ref_line="mean", y_ref_area=["q1", "q3"]),
-        "both_line_na": dict(y_ref_line=None, y_ref_area=[1, 2]),
+        "none": {},
+        "line0": {"y_ref_line": 0},
+        "line_num": {"y_ref_line": 4.25},
+        "line_mean": {"y_ref_line": "mean"},
+        "line_median": {"y_ref_line": "median"},
+        "line_min": {"y_ref_line": "min"},
+        "line_max": {"y_ref_line": "max"},
+        "line_q1": {"y_ref_line": "q1"},
+        "line_q3": {"y_ref_line": "q3"},
+        "line_nan": {"y_ref_line": NAN},
+        "line_bad": {"y_ref_line": "bogus"},
+        "area_num": {"y_ref_area": [0.1, 5.3]},
+        "area_rev": {"y_ref_area": [5.3, 0.1]},
+        "area_kw": {"y_ref_area": ["min", "median"]},
+        "area_q": {"y_ref_area": ["q1", "q3"]},
+        "area_mixed": {"y_ref_area": ["max", 0]},
+        "area_na": {"y_ref_area": [None, 3]},
+        "area_bad": {"y_ref_area": ["bogus", 3]},
+        "both": {"y_ref_line": 0, "y_ref_area": [2.3, "max"]},
+        "both_kw": {"y_ref_line": "mean", "y_ref_area": ["q1", "q3"]},
+        "both_line_na": {"y_ref_line": None, "y_ref_area": [1, 2]},
     }
 
     MISSING = ["marker", "gap", "zero", "remove"]
@@ -265,13 +265,13 @@ def _add_cases(run) -> None:
         [True, False],
     ):
         for y in [*sorted({v for v in all_vals if v is not None and not math.isnan(v)}), 3432]:
-            kw = dict(
-                y_vals=y,
-                all_single_y_vals=list(all_vals),
-                plot_type=plot_type,
-                y_ref_line=ref_line,
-                show_reference_line=show_ref,
-            )
+            kw = {
+                "y_vals": y,
+                "all_single_y_vals": list(all_vals),
+                "plot_type": plot_type,
+                "y_ref_line": ref_line,
+                "show_reference_line": show_ref,
+            }
             run(
                 "A5 single values",
                 f"A5|{ak}|{plot_type}|{fmt_kwargs({'r': ref_line})}|{show_ref}|{y}",
@@ -283,32 +283,36 @@ def _add_cases(run) -> None:
         ["line", "bar"],
         enumerate(
             [
-                dict(show_data_points=False, show_data_line=False, show_data_area=True),
-                dict(show_vertical_guides=True, show_y_axis_guide=True, show_reference_area=True),
-                dict(y_ref_area=[1, 3]),
-                dict(currency="EUR", y_ref_line="mean"),
-                dict(
-                    y_val_fmt_fn=lambda v: f"<{v}>",
-                    y_ref_line_fmt_fn=lambda v: f"[{v}]",
-                    y_ref_line=1,
-                ),
-                dict(interactive_data_values=False, y_ref_line="max"),
-                dict(
-                    data_point_radius=[6],
-                    data_point_fill_color=["#00FF00"],
-                    data_bar_fill_color=["#0000FF"],
-                    data_bar_stroke_color="#111111",
-                    data_bar_stroke_width=7,
-                    data_line_stroke_color="#222222",
-                    data_line_stroke_width=3,
-                    reference_line_color="#333333",
-                    vertical_guide_stroke_width=9,
-                ),
-                dict(
-                    data_bar_negative_fill_color="#AA0000",
-                    data_bar_negative_stroke_color="#BB0000",
-                    data_bar_negative_stroke_width=2,
-                ),
+                {"show_data_points": False, "show_data_line": False, "show_data_area": True},
+                {
+                    "show_vertical_guides": True,
+                    "show_y_axis_guide": True,
+                    "show_reference_area": True,
+                },
+                {"y_ref_area": [1, 3]},
+                {"currency": "EUR", "y_ref_line": "mean"},
+                {
+                    "y_val_fmt_fn": lambda v: f"<{v}>",
+                    "y_ref_line_fmt_fn": lambda v: f"[{v}]",
+                    "y_ref_line": 1,
+                },
+                {"interactive_data_values": False, "y_ref_line": "max"},
+                {
+                    "data_point_radius": [6],
+                    "data_point_fill_color": ["#00FF00"],
+                    "data_bar_fill_color": ["#0000FF"],
+                    "data_bar_stroke_color": "#111111",
+                    "data_bar_stroke_width": 7,
+                    "data_line_stroke_color": "#222222",
+                    "data_line_stroke_width": 3,
+                    "reference_line_color": "#333333",
+                    "vertical_guide_stroke_width": 9,
+                },
+                {
+                    "data_bar_negative_fill_color": "#AA0000",
+                    "data_bar_negative_stroke_color": "#BB0000",
+                    "data_bar_negative_stroke_width": 2,
+                },
             ]
         ),
     ):
@@ -322,55 +326,55 @@ def _add_cases(run) -> None:
 
     # A.6: styling / visibility options on multi-value plots
     OPTION_SETS = [
-        dict(show_data_points=False),
-        dict(show_data_line=False),
-        dict(show_data_area=False),
-        dict(show_reference_line=False),
-        dict(show_reference_area=False),
-        dict(show_vertical_guides=False),
-        dict(show_y_axis_guide=False),
-        dict(
-            show_data_points=False,
-            show_data_line=False,
-            show_data_area=False,
-            show_reference_line=False,
-            show_reference_area=False,
-            show_vertical_guides=False,
-            show_y_axis_guide=False,
-        ),
-        dict(interactive_data_values=False),
-        dict(interactive_data_values=False, vertical_guide_stroke_color="#00AA00"),
-        dict(currency="USD"),
-        dict(currency="JPY"),
-        dict(y_val_fmt_fn=lambda v: f"v{v}"),
-        dict(y_axis_fmt_fn=lambda v: f"a{v}"),
-        dict(y_ref_line_fmt_fn=lambda v: f"r{v}"),
-        dict(y_val_fmt_fn=lambda v: 5),
-        dict(
-            data_point_radius=7,
-            data_point_stroke_color="#123456",
-            data_point_stroke_width=2,
-            data_point_fill_color="#654321",
-        ),
-        dict(data_point_radius=[2, 4, 6, 8, 10]),
-        dict(data_point_fill_color=["#F00", "#0F0", "#00F", "#FF0", "#0FF"]),
-        dict(data_point_radius=[2, 4]),
-        dict(data_line_stroke_color="#ABCDEF", data_line_stroke_width=2),
-        dict(data_area_fill_color="#00FF00"),
-        dict(data_area_fill_color="blue"),
-        dict(
-            data_bar_stroke_color=["#1", "#2", "#3", "#4", "#5"],
-            data_bar_stroke_width=[1, 2, 3, 4, 5],
-            data_bar_fill_color=["#a", "#b", "#c", "#d", "#e"],
-        ),
-        dict(
-            data_bar_negative_stroke_color="#000",
-            data_bar_negative_stroke_width=1,
-            data_bar_negative_fill_color="#FFF",
-        ),
-        dict(reference_line_color="#999999", reference_area_fill_color="#888888"),
-        dict(vertical_guide_stroke_color="#777777", vertical_guide_stroke_width=3),
-        dict(svg_height="3em"),
+        {"show_data_points": False},
+        {"show_data_line": False},
+        {"show_data_area": False},
+        {"show_reference_line": False},
+        {"show_reference_area": False},
+        {"show_vertical_guides": False},
+        {"show_y_axis_guide": False},
+        {
+            "show_data_points": False,
+            "show_data_line": False,
+            "show_data_area": False,
+            "show_reference_line": False,
+            "show_reference_area": False,
+            "show_vertical_guides": False,
+            "show_y_axis_guide": False,
+        },
+        {"interactive_data_values": False},
+        {"interactive_data_values": False, "vertical_guide_stroke_color": "#00AA00"},
+        {"currency": "USD"},
+        {"currency": "JPY"},
+        {"y_val_fmt_fn": lambda v: f"v{v}"},
+        {"y_axis_fmt_fn": lambda v: f"a{v}"},
+        {"y_ref_line_fmt_fn": lambda v: f"r{v}"},
+        {"y_val_fmt_fn": lambda v: 5},
+        {
+            "data_point_radius": 7,
+            "data_point_stroke_color": "#123456",
+            "data_point_stroke_width": 2,
+            "data_point_fill_color": "#654321",
+        },
+        {"data_point_radius": [2, 4, 6, 8, 10]},
+        {"data_point_fill_color": ["#F00", "#0F0", "#00F", "#FF0", "#0FF"]},
+        {"data_point_radius": [2, 4]},
+        {"data_line_stroke_color": "#ABCDEF", "data_line_stroke_width": 2},
+        {"data_area_fill_color": "#00FF00"},
+        {"data_area_fill_color": "blue"},
+        {
+            "data_bar_stroke_color": ["#1", "#2", "#3", "#4", "#5"],
+            "data_bar_stroke_width": [1, 2, 3, 4, 5],
+            "data_bar_fill_color": ["#a", "#b", "#c", "#d", "#e"],
+        },
+        {
+            "data_bar_negative_stroke_color": "#000",
+            "data_bar_negative_stroke_width": 1,
+            "data_bar_negative_fill_color": "#FFF",
+        },
+        {"reference_line_color": "#999999", "reference_area_fill_color": "#888888"},
+        {"vertical_guide_stroke_color": "#777777", "vertical_guide_stroke_width": 3},
+        {"svg_height": "3em"},
     ]
     for (yk, y), plot_type, opts, lt in itertools.product(
         [
@@ -417,33 +421,52 @@ def _add_cases(run) -> None:
     run("A7 misc", "A7|ref_line_none_kw", lambda: _generate_nanoplot([1, 2, 3], y_ref_line=None))
 
     EDGE = {
-        "scalar_nan": dict(y_vals=NAN, all_single_y_vals=[1, 2, NAN]),
-        "scalar_zero_mv": dict(y_vals=2, all_single_y_vals=[1, 2], missing_vals="zero"),
-        "scalar_remove_mv": dict(y_vals=2, all_single_y_vals=[1, 2], missing_vals="remove"),
-        "scalar_no_all": dict(y_vals=2),
-        "scalar_no_all_ref": dict(y_vals=2, y_ref_line="mean"),
-        "np_int_scalar": dict(y_vals=np.int64(3), all_single_y_vals=[1, 3]),
-        "np_float_scalar": dict(y_vals=np.float64(3.5), all_single_y_vals=[1.0, 3.5]),
-        "np_int_list": dict(y_vals=[np.int64(1), np.int64(4), np.int64(2)]),
-        "unknown_type": dict(
-            y_vals=[1, 5, 2], plot_type="unknown", y_ref_line="mean", y_ref_area=[1, 2]
-        ),
-        "unknown_type_scalar": dict(y_vals=3, all_single_y_vals=[3], plot_type="unknown"),
-        "scalar_x_vals": dict(y_vals=3, x_vals=[1], all_single_y_vals=[3, 4]),
-        "scalar_expand_y": dict(y_vals=100, expand_y=[100], all_single_y_vals=[100, 3]),
-        "single_list_bar": dict(y_vals=[7], plot_type="bar"),
-        "single_list_bar_ref": dict(y_vals=[7], plot_type="bar", y_ref_line=7, y_ref_area=[7, 7]),
-        "ref_area_same": dict(y_vals=[1, 2, 3], y_ref_area=[2, 2]),
-        "ref_line_out_of_range": dict(y_vals=[1, 2, 3], y_ref_line=50, plot_type="bar"),
-        "zero_float_bar": dict(y_vals=[0.0, 1.0, -1.0], plot_type="bar", y_ref_line=0.0),
-        "int_float_tie": dict(
-            y_vals=[5, 5.0, 2], plot_type="bar", y_ref_line=5.0, y_ref_area=[0, 5]
-        ),
-        "float_zero_ties": dict(
-            y_vals=[0.0, 3, 2], plot_type="bar", y_ref_area=[0, 1], y_ref_line=0
-        ),
-        "bar_both_pos": dict(y_vals=[3, 5, 4], plot_type="bar", y_ref_line=4, y_ref_area=[3, 5]),
-        "x_vals_tuple": dict(y_vals=(1, 2, 3)),
+        "scalar_nan": {"y_vals": NAN, "all_single_y_vals": [1, 2, NAN]},
+        "scalar_zero_mv": {"y_vals": 2, "all_single_y_vals": [1, 2], "missing_vals": "zero"},
+        "scalar_remove_mv": {"y_vals": 2, "all_single_y_vals": [1, 2], "missing_vals": "remove"},
+        "scalar_no_all": {"y_vals": 2},
+        "scalar_no_all_ref": {"y_vals": 2, "y_ref_line": "mean"},
+        "np_int_scalar": {"y_vals": np.int64(3), "all_single_y_vals": [1, 3]},
+        "np_float_scalar": {"y_vals": np.float64(3.5), "all_single_y_vals": [1.0, 3.5]},
+        "np_int_list": {"y_vals": [np.int64(1), np.int64(4), np.int64(2)]},
+        "unknown_type": {
+            "y_vals": [1, 5, 2],
+            "plot_type": "unknown",
+            "y_ref_line": "mean",
+            "y_ref_area": [1, 2],
+        },
+        "unknown_type_scalar": {"y_vals": 3, "all_single_y_vals": [3], "plot_type": "unknown"},
+        "scalar_x_vals": {"y_vals": 3, "x_vals": [1], "all_single_y_vals": [3, 4]},
+        "scalar_expand_y": {"y_vals": 100, "expand_y": [100], "all_single_y_vals": [100, 3]},
+        "single_list_bar": {"y_vals": [7], "plot_type": "bar"},
+        "single_list_bar_ref": {
+            "y_vals": [7],
+            "plot_type": "bar",
+            "y_ref_line": 7,
+            "y_ref_area": [7, 7],
+        },
+        "ref_area_same": {"y_vals": [1, 2, 3], "y_ref_area": [2, 2]},
+        "ref_line_out_of_range": {"y_vals": [1, 2, 3], "y_ref_line": 50, "plot_type": "bar"},
+        "zero_float_bar": {"y_vals": [0.0, 1.0, -1.0], "plot_type": "bar", "y_ref_line": 0.0},
+        "int_float_tie": {
+            "y_vals": [5, 5.0, 2],
+            "plot_type": "bar",
+            "y_ref_line": 5.0,
+            "y_ref_area": [0, 5],
+        },
+        "float_zero_ties": {
+            "y_vals": [0.0, 3, 2],
+            "plot_type": "bar",
+            "y_ref_area": [0, 1],
+            "y_ref_line": 0,
+        },
+        "bar_both_pos": {
+            "y_vals": [3, 5, 4],
+            "plot_type": "bar",
+            "y_ref_line": 4,
+            "y_ref_area": [3, 5],
+        },
+        "x_vals_tuple": {"y_vals": (1, 2, 3)},
     }
     for k, kw in EDGE.items():
         run("A7 misc", f"A7|edge|{k}", lambda kw=kw: _generate_nanoplot(**kw))
@@ -535,7 +558,7 @@ def _add_cases(run) -> None:
         polars_frames.items(),
         ["line", "bar"],
         [False, True],
-        [dict(), dict(reference_line="median", reference_area=[0, "max"])],
+        [{}, {"reference_line": "median", "reference_area": [0, "max"]}],
     ):
         run(
             "B2 polars",
@@ -549,9 +572,9 @@ def _add_cases(run) -> None:
 
     # expand_x / expand_y at the GT level
     for expand in [
-        dict(expand_x=[0, 10]),
-        dict(expand_y=[-10, 20]),
-        dict(expand_x=[0, 10], expand_y=[0, 1]),
+        {"expand_x": [0, 10]},
+        {"expand_y": [-10, 20]},
+        {"expand_x": [0, 10], "expand_y": [0, 1]},
     ]:
         run(
             "B2 polars",

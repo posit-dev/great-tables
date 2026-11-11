@@ -135,11 +135,12 @@ def _get_compact_fmt_settings(val: float, currency: str | None) -> tuple[float, 
 
         # The currency path rounds to a number of decimals, the number path to `n_sigfig=`
         if currency is not None:
-            rounding = dict(
-                decimals=_get_currency_decimals(currency, decimals, use_subunits), n_sigfig=None
-            )
+            rounding = {
+                "decimals": _get_currency_decimals(currency, decimals, use_subunits),
+                "n_sigfig": None,
+            }
         else:
-            rounding = dict(decimals=0, n_sigfig=n_sigfig)
+            rounding = {"decimals": 0, "n_sigfig": n_sigfig}
 
         if not _rounds_up_to(val / scale, threshold=bound / scale, **rounding):
             return val, _COMPACT_FMT_SETTINGS[i][1], False
