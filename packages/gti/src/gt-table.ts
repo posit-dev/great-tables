@@ -41,7 +41,8 @@ import {
   queryProblem,
   readQuery,
 } from "./query";
-import { CellText, fold, rowMatches, searchTerms } from "./search";
+import { CellText, fold, searchTerms } from "./search";
+import { type DataSource, type FacetCounts, LocalSource, type RowAnswer, type RowQuery, specFilter } from "./source";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
 import {
   type BodyRow,
@@ -601,6 +602,9 @@ function withoutMarks(cell: Element): Element {
 // Whether two views show the same rows, in the same order, on the same page
 const sameView = (a: View, b: View | undefined) => b !== undefined && viewParams(a, b).length === 0;
 
+// (A source's answer that didn't come)
+const lost = (what: string) => (err: unknown) => console.warn(`<gt-table>: ${what} couldn't be had:`, err);
+
 const plural = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
 
 // A date bound (ISO 8601 text) as a date field has it (its date), or a date and time field (a date
@@ -870,6 +874,14 @@ export class GtTable extends HTMLElement {
   private matched: Uint8Array | null = null;
   /** The number of data rows that match the search and the filters (all of them, without any). */
   private matchCount = 0;
+  /** The source set (`source`), and the one the table makes of its own rows, once hydrated. */
+  private sourceValue: DataSource | null = null;
+  private local: LocalSource | null = null;
+  /** The number of times the rows (and a facet's counts) have been asked for: an answer to an earlier ask is dropped. */
+  private asked = 0;
+  private facetAsked = 0;
+  /** While the rows asked for are coming: what's to be done once they have. */
+  private waiting: (() => void)[] | null = null;
   /** The columns' profiles, and the rows (`matched`) they last counted (`undefined` before). */
   private profileViews: ProfileView[] = [];
   private profiled: Uint8Array | null | undefined = undefined;
@@ -1419,6 +1431,27 @@ export class GtTable extends HTMLElement {
     return rows;
   }
 
+  /**
+   * Where the table's rows come from: which of them the search, the filters and linked tables'
+   * selections keep, and a facet's counts. By default (or set to `null`), the table's own, once
+   * hydrated (a `LocalSource`). A source that answers later (with a promise) leaves the rows shown
+   * until it does (see `loading`), and the events of a change wait for it.
+   */
+  get source(): DataSource | null {
+    return this.sourceValue ?? this.local;
+  }
+
+  set source(source: DataSource | null) {
+    this.sourceValue = source;
+    this.matchRows();
+    this.render();
+  }
+
+  /** Whether rows asked for are coming (from a `source` that answers later). */
+  get loading(): boolean {
+    return this.waiting !== null;
+  }
+
   // The page size in use: none until hydrated, or when rows can't be moved
   private get size(): number | null {
     return this.movable ? (this.pageSizeValue ?? null) : null;
@@ -1737,9 +1770,10 @@ export class GtTable extends HTMLElement {
       this.restoreView(spec, this.authorView);
     }
     this.joinLink();
+    this.local = new LocalSource(spec, () => this.cellTexts ?? this.makeCellTexts(spec.nrows));
     // A search or page set before hydration applies now
     this.matchRows();
-    if (this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null) {
+    if ((this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null) && !this.loading) {
       this.render();
     } else {
       // (Not rendered, so every row is shown, as it was)
@@ -3330,7 +3364,7 @@ export class GtTable extends HTMLElement {
 
   private linkChanged(): void {
     this.applyFilters();
-    this.announce(`${this.spec?.link?.name ?? "Linked table"}: ${this.shownText()}`);
+    this.whenRows(() => this.announce(`${this.spec?.link?.name ?? "Linked table"}: ${this.shownText()}`));
   }
 
   // The linked tables' filters that are on
@@ -6178,16 +6212,14 @@ export class GtTable extends HTMLElement {
 
     for (const filterSpec of spec.filters ?? []) {
       const id = filterSpec.column;
-      const index = spec.columns.findIndex((column) => column.id === id);
-      // (Or a column only for querying, which has no cells, nor a label cell)
-      const query = spec.query_columns?.find((column) => column.id === id);
-      const header = spec.columns[index]?.header;
-      if ((header === undefined && query === undefined) || this.filters.some((control) => control.filter.column === id)) {
+      const filter = specFilter(spec, filterSpec);
+      if (filter === null || this.filters.some((control) => control.filter.column === id)) {
         continue;
       }
+      // (Or a column only for querying, which has no cells, nor a label cell)
+      const header = spec.columns[filter.index]?.header;
       const th = header == null ? null : (cells.get(header) ?? null);
-      const label = this.sortHeaders.get(id)?.label ?? ((th !== null && labelText(th)) || query?.label || id);
-      const filter = new ColumnFilter(filterSpec, index, spec.ranks[id] ?? [], query?.texts, spec.columns[index]?.kind ?? query?.kind);
+      const label = this.sortHeaders.get(id)?.label ?? ((th !== null && labelText(th)) || spec.query_columns?.find((column) => column.id === id)?.label || id);
       const control: FilterControl = {
         filter,
         label,
@@ -7342,19 +7374,28 @@ export class GtTable extends HTMLElement {
     }
     const { filter } = control;
     control.clear?.setAttribute("aria-disabled", String(!filter.active));
-    if (control.options.length > 0) {
-      const counts = new Map<number, number>();
+    const source = this.source;
+    if (control.options.length > 0 && source !== null) {
       const others = this.activeFilters().filter((other) => other !== filter);
-      this.eachKept(others, (row) => {
-        const key = filter.key(row);
-        counts.set(key, (counts.get(key) ?? 0) + 1);
-      });
-      let total = 0;
-      counts.forEach((count) => (total += count));
-      for (const option of control.options) {
-        const count = option.key === ANY ? total : (counts.get(option.key) ?? 0);
-        option.count.textContent = String(count);
-        option.item.toggleAttribute("data-gti-none", count === 0);
+      const show = (counts: FacetCounts) => {
+        let total = 0;
+        counts.forEach((count) => (total += count));
+        for (const option of control.options) {
+          const count = option.key === ANY ? total : (counts.get(option.key) ?? 0);
+          option.count.textContent = String(count);
+          option.item.toggleAttribute("data-gti-none", count === 0);
+        }
+      };
+      const counts = source.facet(this.rowQuery(filterQuery(others, this.filterGroups)), filter.column);
+      if ("then" in counts) {
+        // (Those shown stay till then; the panel may have closed, or be counted again)
+        const asked = ++this.facetAsked;
+        counts.then(
+          (counts) => asked === this.facetAsked && this.openFilter === control && show(counts),
+          lost("a filter's counts"),
+        );
+      } else {
+        show(counts);
       }
     }
     this.placeFilter();
@@ -7413,15 +7454,16 @@ export class GtTable extends HTMLElement {
     }
     const query = this.query();
     this.applyFilters();
-    const count = this.matchCount;
-    this.announce(this.shownText());
-    this.dispatchEvent(
-      new CustomEvent<FilterEventDetail>(FILTER_EVENT, {
-        bubbles: true,
-        composed: true,
-        detail: { filter: query, count },
-      }),
-    );
+    this.whenRows(() => {
+      this.announce(this.shownText());
+      this.dispatchEvent(
+        new CustomEvent<FilterEventDetail>(FILTER_EVENT, {
+          bubbles: true,
+          composed: true,
+          detail: { filter: query, count: this.matchCount },
+        }),
+      );
+    });
     // (Changes to one filter can be one change to undo; to more, at once, are one of their own)
     this.dispatchView(changed.length === 1 ? `filter ${changed[0]}` : null);
   }
@@ -7753,18 +7795,20 @@ export class GtTable extends HTMLElement {
     if (value === this.searchValue) {
       return;
     }
-    const count = this.applySearch(value);
+    this.applySearch(value);
     if (this.spec === null) {
       return;
     }
-    this.announce(this.shownText());
-    this.dispatchEvent(
-      new CustomEvent<SearchEventDetail>(SEARCH_EVENT, {
-        bubbles: true,
-        composed: true,
-        detail: { search: this.searchValue, count },
-      }),
-    );
+    this.whenRows(() => {
+      this.announce(this.shownText());
+      this.dispatchEvent(
+        new CustomEvent<SearchEventDetail>(SEARCH_EVENT, {
+          bubbles: true,
+          composed: true,
+          detail: { search: value, count: this.matchCount },
+        }),
+      );
+    });
     this.dispatchView("search");
   }
 
@@ -7815,39 +7859,43 @@ export class GtTable extends HTMLElement {
   // (A reset is a change to undo)
   private userResetView(): void {
     this.showView(this.authorView as View);
-    this.announce(`The view is reset: ${this.rowsText()}`);
+    this.whenRows(() => this.announce(`The view is reset: ${this.rowsText()}`));
     this.dispatchView(null);
   }
 
   // Undo the last change to the view (`back`), or redo it, as the reader asked
   private userTravel(back: boolean): void {
     if (back ? this.undo() : this.redo()) {
-      this.announce(`${back ? "Undone" : "Redone"}: ${this.rowsText()}`);
+      this.whenRows(() => this.announce(`${back ? "Undone" : "Redone"}: ${this.rowsText()}`));
       this.dispatchView();
     }
   }
 
-  // (With `part`, noting the change as one to undo; see `record()`)
+  // (With `part`, noting the change as one to undo; see `record()`. The event waits for the rows.)
   private dispatchView(part?: string | null): void {
     if (part !== undefined) {
       this.record(part);
     }
-    this.dispatchEvent(
-      new CustomEvent<ViewEventDetail>(VIEW_EVENT, {
-        bubbles: true,
-        composed: true,
-        detail: this.currentView(),
-      }),
+    this.whenRows(() =>
+      this.dispatchEvent(
+        new CustomEvent<ViewEventDetail>(VIEW_EVENT, {
+          bubbles: true,
+          composed: true,
+          detail: this.currentView(),
+        }),
+      ),
     );
   }
 
   private dispatchPage(): void {
-    this.dispatchEvent(
-      new CustomEvent<PageEventDetail>(PAGE_EVENT, {
-        bubbles: true,
-        composed: true,
-        detail: { page: this.page, pageSize: this.pageSize, pageCount: this.pageCount },
-      }),
+    this.whenRows(() =>
+      this.dispatchEvent(
+        new CustomEvent<PageEventDetail>(PAGE_EVENT, {
+          bubbles: true,
+          composed: true,
+          detail: { page: this.page, pageSize: this.pageSize, pageCount: this.pageCount },
+        }),
+      ),
     );
   }
 
@@ -7864,61 +7912,79 @@ export class GtTable extends HTMLElement {
     this.render();
   }
 
-  /** Search, returning the number of matching data rows. */
-  private applySearch(value: string): number {
+  private applySearch(value: string): void {
     this.searchValue = value;
     this.pageValue = 1;
     this.matchRows();
     this.render();
-    return this.matchCount;
   }
 
-  // Which data rows match the search and the filters
+  // Which data rows match the search, the filters and linked tables' selections, as the source
+  // says: at once, or when it does (and then shown), if they're still the last asked for (the
+  // rows shown stay till then)
   private matchRows(): void {
     this.terms = searchTerms(this.searchValue);
     const spec = this.spec;
-    this.matched = null;
-    this.matchCount = spec?.nrows ?? 0;
-    const filters = this.activeFilters();
-    if (
-      spec === null ||
-      !this.movable ||
-      (this.terms.length === 0 && filters.length === 0 && this.filterGroups.length === 0 && this.links().length === 0)
-    ) {
-      return;
+    const source = this.source;
+    const query = this.rowQuery();
+    const asked = ++this.asked;
+    // (Without any search, filters or linked selections, every row, without asking)
+    const all = this.terms.length === 0 && query.filter === null && query.links.length === 0;
+    const answer: RowAnswer | Promise<RowAnswer> =
+      spec === null || source === null || !this.movable || all ? { matched: null, count: spec?.nrows ?? 0 } : source.rows(query);
+    if ("then" in answer) {
+      this.waiting ??= [];
+      this.setAttribute("aria-busy", "true");
+      answer.then(
+        (answer) => asked === this.asked && this.rowsCame(answer),
+        (err: unknown) => {
+          lost("the rows")(err);
+          if (asked === this.asked) {
+            this.rowsCame();
+          }
+        },
+      );
+    } else {
+      this.rowsCame(answer);
     }
-
-    const matches = new Uint8Array(spec.nrows);
-    let count = 0;
-    this.eachKept(filters, (row) => {
-      matches[row] = 1;
-      count++;
-    });
-    this.matched = matches;
-    this.matchCount = count;
   }
 
-  // Call `each` with each data row that matches the search, `filters`, the query's groups, and
-  // the linked tables' selections
-  private eachKept(filters: readonly ColumnFilter[], each: (row: number) => void): void {
-    const { nrows, link } = this.spec as Spec;
-    const groups = this.filterGroups;
-    const links = this.links();
-    const texts =
-      this.terms.length > 0 || filters.some((filter) => filter.type === "text") || groups.some((group) => group.texts)
-        ? (this.cellTexts ?? this.makeCellTexts(nrows))
-        : null;
-    for (let row = 0; row < nrows; row++) {
-      const cells = texts?.[row] ?? [];
-      if (
-        (this.terms.length === 0 || rowMatches(this.searched(cells), this.terms)) &&
-        filters.every((filter) => filter.keeps(row, cells[filter.index])) &&
-        groups.every((group) => group.keeps(row, cells)) &&
-        links.every((filter) => filter.keys.has(link?.keys[row] as FilterValue))
-      ) {
-        each(row);
-      }
+  // Take the rows asked for; once they've come after others were coming, show them, and do what
+  // waited for them
+  private rowsCame(answer?: RowAnswer): void {
+    if (answer !== undefined) {
+      this.matched = answer.matched;
+      this.matchCount = answer.count;
     }
+    const waiting = this.waiting;
+    if (waiting === null) {
+      return;
+    }
+    this.waiting = null;
+    this.removeAttribute("aria-busy");
+    this.render();
+    for (const fn of waiting) {
+      fn();
+    }
+  }
+
+  // Do `fn` once the rows asked for have come (at once, if they have)
+  private whenRows(fn: () => void): void {
+    if (this.waiting === null) {
+      fn();
+    } else {
+      this.waiting.push(fn);
+    }
+  }
+
+  // What the source is asked for the rows of the view (with other filters, for a facet's counts)
+  private rowQuery(filter = this.query()): RowQuery {
+    return {
+      search: this.searchValue,
+      hidden: this.hiddenColumns,
+      filter,
+      links: this.links().map((link) => [...link.keys]),
+    };
   }
 
   private makeCellTexts(nrows: number): CellText[][] {
@@ -7957,7 +8023,8 @@ export class GtTable extends HTMLElement {
 
   /** Show the data rows for the current sort, search and page. */
   private render(): void {
-    if (this.spec === null || this.tbody === null) {
+    // (Till the rows asked for come, those shown stay)
+    if (this.spec === null || this.tbody === null || this.waiting !== null) {
       return;
     }
     const size = this.size;
@@ -8999,6 +9066,10 @@ export class GtTable extends HTMLElement {
     this.terms = [];
     this.matched = null;
     this.matchCount = 0;
+    // (Answers to come are dropped, and what waited for them isn't done)
+    this.asked++;
+    this.waiting = null;
+    this.removeAttribute("aria-busy");
     this.profileViews = [];
     this.profiled = undefined;
     this.filters = [];
