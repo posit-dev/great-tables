@@ -9,7 +9,6 @@ the view's filter, sort and search, and the selection, which the browser then ap
 
 from __future__ import annotations
 
-import operator
 from collections.abc import Callable
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
@@ -18,8 +17,16 @@ import anywidget
 import traitlets
 
 from .._tbl_data import DataFrameLike, get_column_names, reorder
-from ._query import check_query, check_view, format_query, parse_sort, view_rows
+from ._query import format_query, view_rows
 from ._render import JS_DIR, _load_runtime, render_gti_element
+from ._state import (
+    author_view,
+    check_query_value,
+    check_search,
+    check_selection,
+    check_sort,
+    sort_names,
+)
 
 if TYPE_CHECKING:
     from ..gti import GTI
@@ -64,19 +71,7 @@ class GTIWidget(anywidget.AnyWidget):
 
     def _current_view(self) -> dict[str, Any]:
         # The browser's view, or before it has one, the author's
-        if self._view is not None:
-            return self._view
-        spec = self._spec
-        pagination = spec["pagination"]
-        return {
-            "filter": spec["view"]["filter"],
-            "sort": spec["view"]["sort"],
-            "search": "",
-            "page": 1,
-            "page_size": pagination["page_size"] if pagination["enabled"] else None,
-            "hidden": spec["view"]["hidden"],
-            "group_by": spec["view"]["group_by"],
-        }
+        return self._view if self._view is not None else author_view(self._spec)
 
     def _set_view(self, **parts: Any) -> None:
         view = {**self._current_view(), **parts, "page": 1}
@@ -98,19 +93,7 @@ class GTIWidget(anywidget.AnyWidget):
 
     @query.setter
     def query(self, value: str | dict[str, Any] | None) -> None:
-        if isinstance(value, str) and value.strip() == "":
-            value = None
-        try:
-            query = check_query(value)
-        except ValueError as err:
-            raise ValueError(str(err).replace("`filter=`", "`query`")) from None
-        spec = self._spec
-        kinds = {
-            **{column["id"]: column["kind"] for column in spec["columns"]},
-            **{column["id"]: column["kind"] for column in spec["query_columns"]},
-        }
-        check_view(query, (), spec["filters"], spec["ranks"], kinds=kinds)
-        self._set_view(filter=query)
+        self._set_view(filter=check_query_value(self._spec, value, "`query`"))
 
     @property
     def search(self) -> str:
@@ -119,9 +102,7 @@ class GTIWidget(anywidget.AnyWidget):
 
     @search.setter
     def search(self, value: str) -> None:
-        if not isinstance(value, str):
-            raise TypeError(f"`search` must be a string, not {value!r}.")
-        self._set_view(search=value)
+        self._set_view(search=check_search(value, "`search`"))
 
     @property
     def sort(self) -> list[str]:
@@ -131,21 +112,11 @@ class GTIWidget(anywidget.AnyWidget):
 
         Setting it (to a list of them, a column name, or `None`) sorts the table's rows.
         """
-        return [
-            f"-{key['column']}" if key["descending"] else key["column"]
-            for key in self._current_view()["sort"]
-        ]
+        return sort_names(self._current_view()["sort"])
 
     @sort.setter
     def sort(self, value: str | list[str] | None) -> None:
-        keys = parse_sort(value)
-        for column, _ in keys:
-            if column not in self._spec["ranks"]:
-                raise ValueError(
-                    f"`sort` can't sort the table by column {column!r}: it isn't one the table "
-                    "can be sorted by."
-                )
-        self._set_view(sort=[{"column": column, "descending": desc} for column, desc in keys])
+        self._set_view(sort=check_sort(self._spec, value, "`sort`"))
 
     # -----
     # Rows
@@ -162,33 +133,7 @@ class GTIWidget(anywidget.AnyWidget):
 
     @selection.setter
     def selection(self, rows: Any) -> None:
-        mode = self._spec["controls"]["selection"]
-        nrows = self._spec["nrows"]
-        try:
-            items = list(rows)
-        except TypeError:
-            raise TypeError(f"`selection` must be a list of data rows, not {rows!r}.") from None
-        checked: set[int] = set()
-        for row in items:
-            try:
-                index = -1 if isinstance(row, bool) else operator.index(row)
-            except TypeError:
-                index = -1
-            if index < 0:
-                raise ValueError(
-                    f"`selection` must hold data rows (whole numbers, from 0), not {row!r}."
-                )
-            if index >= nrows:
-                raise ValueError(f"`selection` has row {index}, but the table has {nrows} rows.")
-            checked.add(index)
-        limit = {None: 0, "single": 1}.get(mode, nrows)
-        if len(checked) > limit:
-            raise ValueError(
-                "The table's rows can't be selected: let readers select them with `i_selection()`."
-                if mode is None
-                else "Only one of the table's rows can be selected (it has `i_selection('single')`)."
-            )
-        self._selection = sorted(checked)
+        self._selection = check_selection(self._spec, rows, "`selection`")
 
     @property
     def rows(self) -> list[int]:
@@ -222,7 +167,7 @@ class GTIWidget(anywidget.AnyWidget):
         # missing one last
         gti = self._gti.i_view(
             filter=view["filter"],
-            sort=[f"-{k['column']}" if k["descending"] else k["column"] for k in view["sort"]],
+            sort=sort_names(view["sort"]),
             hidden=view["hidden"] or None,
             group_by=view["group_by"],
         )

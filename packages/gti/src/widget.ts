@@ -10,26 +10,15 @@
 // Python to call its callbacks.
 //
 // Built on its own (by scripts/build.mjs, into great_tables/js/gti-widget.js), as an ES module
-// that's run after the runtime, so it imports nothing of it but its types.
+// that's run after the runtime, so it imports nothing of it but its types (and src/host.ts).
 
-import type { FilterQuery } from "./filter";
-import type { GtTable, State } from "./gt-table";
-import type { SortKey } from "./sort";
+import type { GtTable } from "./gt-table";
+import { applyState, type HostView, SELECT_EVENT, SETTLED, same, VIEW_EVENT, viewOf } from "./host";
 
-// (As gt-table.ts has them, as test/gt-table.test.ts checks)
-export const VIEW_EVENT = "gt-table-view";
-export const SELECT_EVENT = "gt-table-select";
+export { SELECT_EVENT, VIEW_EVENT, viewOf };
 
-/** The view, as the model has it (for Python, whose keys are snake case). */
-export interface WidgetView {
-  filter: FilterQuery | null;
-  sort: SortKey[];
-  search: string;
-  page: number;
-  page_size: number | null;
-  hidden: string[];
-  group_by: string | null;
-}
+/** The view, as the model has it. */
+export type WidgetView = HostView;
 
 /** What the glue uses of an anywidget model. */
 export interface Model {
@@ -40,24 +29,6 @@ export interface Model {
   on(event: string, callback: () => void): void;
   off(event: string, callback: () => void): void;
 }
-
-/** The table's view, from its properties. */
-export function viewOf(table: GtTable): WidgetView {
-  return {
-    filter: table.filter,
-    sort: table.sort,
-    search: table.search,
-    page: table.page,
-    page_size: table.pageSize,
-    hidden: table.hiddenColumns,
-    group_by: table.groupBy,
-  };
-}
-
-const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
-
-// (Which a table is in once it's done hydrating: interactive, or not, which it then stays)
-const SETTLED: (State | null)[] = ["ready", "static", "error"];
 
 function render({ model, el }: { model: Model; el: HTMLElement }): () => void {
   el.innerHTML = model.get("_html") as string;
@@ -87,28 +58,7 @@ function render({ model, el }: { model: Model; el: HTMLElement }): () => void {
   };
 
   // Set the model's view and selection on the table, where they differ from its own
-  const apply = () => {
-    const view = model.get("_view") as WidgetView | null;
-    const selection = model.get("_selection") as number[] | null;
-    try {
-      if (view != null) {
-        if (!same(view.filter, table.filter)) {
-          table.filter = view.filter;
-        }
-        if (!same(view.sort, table.sort)) {
-          table.sort = view.sort;
-        }
-        if (view.search !== table.search) {
-          table.search = view.search;
-        }
-      }
-      if (selection != null && !same(selection, table.selection)) {
-        table.selection = selection;
-      }
-    } catch (err) {
-      console.error(`<gt-table>: ${(err as Error).message}`);
-    }
-  };
+  const apply = () => applyState(table, model.get("_view") as WidgetView | null, model.get("_selection") as number[] | null);
 
   const fromModel = () => {
     if (ready && !writing) {

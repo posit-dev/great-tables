@@ -1,6 +1,6 @@
 // Build the GTI runtime into great_tables/js/gti.{js,css}, the template of a stacked table's own
 // CSS into great_tables/js/gti-stack.css, and the glue of a table shown as an anywidget into
-// great_tables/js/gti-widget.js.
+// great_tables/js/gti-widget.js, and of tables in a Shiny app into great_tables/js/gti-shiny.js.
 //
 //   node scripts/build.mjs           build and write the bundle
 //   node scripts/build.mjs --check   build in memory and fail if the committed bundle is stale or
@@ -69,6 +69,14 @@ const outputs = {
     entryPoints: ["src/widget.ts"],
     outfile: "gti-widget.js",
     format: "esm",
+    target: "es2020",
+    banner: { js: banner },
+  }),
+  // (Nor this: the script a Shiny app has once, after the runtime; see src/shiny.ts)
+  "gti-shiny.js": await buildOne({
+    entryPoints: ["src/shiny.ts"],
+    outfile: "gti-shiny.js",
+    format: "iife",
     target: "es2020",
     banner: { js: banner },
   }),
