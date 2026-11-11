@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import sys
 from abc import ABCMeta
+from typing import ClassVar
 
 
 class MissingClass:
@@ -26,7 +27,7 @@ class _AbstractBackendMeta(ABCMeta):
 
 
 class AbstractBackend(metaclass=_AbstractBackendMeta):
-    _backends: list[tuple[str, str]]
+    _backends: ClassVar[list[tuple[str, str]]]
     _strict: bool = True
 
     @classmethod

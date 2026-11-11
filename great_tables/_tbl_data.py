@@ -9,7 +9,7 @@ from contextlib import suppress
 from datetime import datetime, time
 from decimal import Decimal
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeAlias
 
 from ._databackend import AbstractBackend
 
@@ -59,44 +59,47 @@ else:
     from typing import Any as Selector
 
     class PdDataFrame(AbstractBackend):
-        _backends = [("pandas", "DataFrame")]
+        _backends: ClassVar = [("pandas", "DataFrame")]
 
     class PlDataFrame(AbstractBackend):
-        _backends = [("polars", "DataFrame")]
+        _backends: ClassVar = [("polars", "DataFrame")]
 
     class PyArrowTable(AbstractBackend):
-        _backends = [("pyarrow", "Table")]
+        _backends: ClassVar = [("pyarrow", "Table")]
 
     class PlSelectExpr(AbstractBackend):
-        _backends = [("polars.selectors", "_selector_proxy_"), ("polars.selectors", "Selector")]
+        _backends: ClassVar = [
+            ("polars.selectors", "_selector_proxy_"),
+            ("polars.selectors", "Selector"),
+        ]
         _strict = False
 
     class PlExpr(AbstractBackend):
-        _backends = [("polars", "Expr")]
+        _backends: ClassVar = [("polars", "Expr")]
 
     class PdSeries(AbstractBackend):
-        _backends = [("pandas", "Series")]
+        _backends: ClassVar = [("pandas", "Series")]
 
     class PlSeries(AbstractBackend):
-        _backends = [("polars", "Series")]
+        _backends: ClassVar = [("polars", "Series")]
 
     class PyArrowArray(AbstractBackend):
-        _backends = [("pyarrow", "Array")]
+        _backends: ClassVar = [("pyarrow", "Array")]
 
     class PyArrowChunkedArray(AbstractBackend):
-        _backends = [("pyarrow", "ChunkedArray")]
+        _backends: ClassVar = [("pyarrow", "ChunkedArray")]
 
     class PdNA(AbstractBackend):
-        _backends = [("pandas", "NA")]
+        _backends: ClassVar = [("pandas", "NA")]
 
     class PlNull(AbstractBackend):
-        _backends = [("polars", "Null")]
+        _backends: ClassVar = [("polars", "Null")]
 
     class NpInteger(AbstractBackend):
-        _backends = [("numpy", "integer")]
+        _backends: ClassVar = [("numpy", "integer")]
 
     class NpBool(AbstractBackend):
-        _backends = [("numpy", "bool_")]
+        _backends: ClassVar = [("numpy", "bool_")]
 
     # TODO: these types are imported throughout gt, so we need to either put
     # those imports under TYPE_CHECKING, or continue to make available dynamically here.

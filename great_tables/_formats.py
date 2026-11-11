@@ -5,7 +5,7 @@ import math
 import numbers
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
 from functools import cache, partial
@@ -7991,10 +7991,10 @@ def _fill_in_cldr_fields(pattern: str, x: datetime | time, locale: str | None) -
             continue
 
         end = 0
-        for field in _CLDR_FIELDS_FILLED_IN.finditer(text):
-            parts.append((text[end : field.start()], False))
-            parts.append((_format_cldr_field(field.group(), x, locale), True))
-            end = field.end()
+        for cldr_field in _CLDR_FIELDS_FILLED_IN.finditer(text):
+            parts.append((text[end : cldr_field.start()], False))
+            parts.append((_format_cldr_field(cldr_field.group(), x, locale), True))
+            end = cldr_field.end()
         parts.append((text[end:], False))
 
     return _join_cldr_pattern(parts)
@@ -8407,7 +8407,7 @@ def fmt_image(
 
 @dataclass
 class FmtImage:
-    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    dispatch_on: DataFrameLike | Agnostic = field(default_factory=Agnostic)
     height: str | int | None = None
     width: str | int | None = None
     sep: str = " "
@@ -8717,7 +8717,7 @@ def fmt_icon(
 
 @dataclass
 class FmtIcon:
-    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    dispatch_on: DataFrameLike | Agnostic = field(default_factory=Agnostic)
     height: str | None = None
     sep: str = " "
     stroke_color: str | None = None
@@ -8910,7 +8910,7 @@ def fmt_flag(
 
 @dataclass
 class FmtFlag:
-    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    dispatch_on: DataFrameLike | Agnostic = field(default_factory=Agnostic)
     height: str | int | float | None = None
     sep: str = " "
     use_title: bool = True
