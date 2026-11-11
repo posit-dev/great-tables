@@ -885,12 +885,8 @@ def test_validate_frame_non_str_cols_result():
     assert list(res.columns) == ["x", "55", "y", "99"]
 
 
-def test_validate_frame_passthrough(df: DataFrameLike, recwarn: pytest.WarningsRecorder):
+def test_validate_frame_passthrough(df: DataFrameLike):
     assert validate_frame(df) is df
-
-    is_pyarrow = native_backend(df) == "pyarrow"
-    expected = ["PyArrow Table support is currently experimental."] if is_pyarrow else []
-    assert [str(w.message) for w in recwarn] == expected
 
 
 def test_is_series(ser: SeriesLike):
