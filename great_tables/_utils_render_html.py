@@ -1697,6 +1697,19 @@ def _get_stub_footnote_colnum(data: GTData, footnote: FootnoteInfo) -> float:
 
 
 def _should_display_footnote(data: GTData, footnote: FootnoteInfo) -> bool:
+    # A title or subtitle note is shown only when that part of the heading exists.
+    # `rm_header()` clears both; a header can also have a title and no subtitle.
+    if isinstance(footnote.locname, loc.LocTitle):
+        return heading_has_title(data._heading.title)
+    if isinstance(footnote.locname, loc.LocSubTitle):
+        return heading_has_subtitle(data._heading.subtitle)
+
+    # A spanner note is shown only when that spanner is still in the table and at
+    # least one of its columns is visible. `rm_spanners()` drops the spanner, and
+    # `cols_hide()` can hide every column it covers; either way the label is gone.
+    if isinstance(footnote.locname, loc.LocSpannerLabels):
+        return _footnote_spanner_is_shown(data, footnote.grpname)
+
     # If footnote targets a specific column, check if it's hidden
     if footnote.colname is not None:
         # Get column info from boxhead to check if it's hidden
@@ -1706,8 +1719,17 @@ def _should_display_footnote(data: GTData, footnote: FootnoteInfo) -> bool:
         # If column not found in boxhead, assume it should be displayed
         return True
 
-    # For footnotes that don't target specific columns (e.g., title, subtitle), always display
+    # Footnotes with no column (for example a markless note) are displayed
     return True
+
+
+def _footnote_spanner_is_shown(data: GTData, spanner_id: str | None) -> bool:
+    spanner = next((span for span in data._spanners if span.spanner_id == spanner_id), None)
+    if spanner is None:
+        return False
+
+    visible_vars = {col.var for col in data._boxhead._d if col.visible}
+    return any(var in visible_vars for var in spanner.vars)
 
 
 def _process_footnotes_for_display(
@@ -1716,7 +1738,8 @@ def _process_footnotes_for_display(
     if not footnotes:
         return []
 
-    # Filter out footnotes for hidden columns
+    # Drop footnotes whose target is not shown (a hidden column, or a missing
+    # title, subtitle, or spanner) so they neither appear in the footer nor take a mark
     visible_footnotes = [f for f in footnotes if _should_display_footnote(data, f)]
 
     # Sort footnotes by visual order (same logic as in _get_footnote_mark_string);
