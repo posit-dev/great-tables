@@ -603,6 +603,20 @@ def cols_label_rotate(
 
     Identical to `"sideways-rl"`, but overflow lines are appended to the right.
 
+    All three `dir` values can be compared side by side by assigning each direction to a different
+    column and renaming the labels to the direction names.
+
+    ```{python}
+    from great_tables import GT, exibble
+
+    (
+        GT(exibble[["num", "char", "fctr"]])
+        .cols_label(num="sideways-lr", char="sideways-rl", fctr="vertical-lr")
+        .cols_label_rotate(columns="num", dir="sideways-lr")
+        .cols_label_rotate(columns="char", dir="sideways-rl")
+        .cols_label_rotate(columns="fctr", dir="vertical-lr")
+    )
+    ```
     """
     # Throw if `align` is not one of the four allowed values
     if align not in (None, "left", "center", "right"):
