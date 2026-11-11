@@ -351,7 +351,7 @@ def _leave_out(gt: GT, columns: tuple[str, ...]) -> GT:
     boxhead = boxhead.set_cols_hidden(list(columns))
     if not boxhead._get_default_columns() and not boxhead._get_stub_columns():
         raise ValueError(
-            "A table without a stub can't have every column left out of it with " "`display=False`."
+            "A table without a stub can't have every column left out of it with `display=False`."
         )
     return gt._replace(_boxhead=boxhead)
 
