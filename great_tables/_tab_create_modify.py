@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Literal
 
 from ._gt_data import TextTransformInfo
@@ -10,6 +9,8 @@ from ._locations import Loc, set_style
 from ._styles import CellStyle
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._locations import RowSelectExpr
     from ._tbl_data import SelectExpr
     from ._types import GTSelf

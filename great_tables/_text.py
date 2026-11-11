@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import html
 import re
-from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from multimark import markdown_to_html, markdown_to_latex
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class BaseText:

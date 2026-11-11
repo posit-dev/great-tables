@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numbers
 import re
-from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Literal
@@ -14,6 +13,8 @@ from ._tbl_data import DataFrameLike, SelectExpr, is_na
 from ._text import Text, _process_text
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._locations import RowSelectExpr
     from ._types import GTSelf
 

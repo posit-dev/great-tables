@@ -682,7 +682,7 @@ def opt_footnote_marks(self: GTSelf, marks: str | list[str] = "numbers") -> GTSe
     # Validate the marks keyword passed in as a string
     if marks is str:
         marks = _utils._match_arg(
-            x=cast(str, marks),
+            x=cast("str", marks),
             lst=["numbers", "letters", "LETTERS", "standard", "extended"],
         )
 

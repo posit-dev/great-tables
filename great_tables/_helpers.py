@@ -3,13 +3,15 @@ from __future__ import annotations
 import random
 import re
 import string
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from typing_extensions import Self
 
 from ._text import BaseText, Html, Md, _latex_escape, _md_html, _md_latex
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 FontStackName: TypeAlias = Literal[
     "system-ui",

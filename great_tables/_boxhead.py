@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
 from functools import partial
 from typing import TYPE_CHECKING, Literal
 
@@ -12,6 +11,8 @@ from ._text import BaseText
 from ._utils import _assert_list_is_subset
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._types import GTSelf
 
 

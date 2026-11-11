@@ -9,11 +9,10 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeAlias, TypeVar, ov
 
 from typing_extensions import Self
 
-from ._cols_merge import ColMergeInfo, ColMerges  # noqa: F401 (re-exported)
+from ._cols_merge import ColMergeInfo  # noqa: F401 (re-exported)
 from ._helpers import GoogleFontImports
 
 # TODO: move this class somewhere else (even gt_data could work)
-from ._styles import CellStyle
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
@@ -33,12 +32,14 @@ from ._tbl_data_align import (
     classify_dtype_for_alignment,
     is_number_like_column,
 )
-from ._text import BaseText
 from ._utils import OrderedSet
 
 if TYPE_CHECKING:
+    from ._cols_merge import ColMerges
     from ._helpers import UnitStr
     from ._locations import Loc
+    from ._styles import CellStyle
+    from ._text import BaseText
 
 T = TypeVar("T")
 

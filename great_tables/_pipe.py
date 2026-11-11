@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Concatenate
 
 from typing_extensions import ParamSpec
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from .gt import GT
 
 

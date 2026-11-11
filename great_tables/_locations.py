@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Callable
 from dataclasses import dataclass, replace
 from functools import singledispatch
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
@@ -30,6 +29,8 @@ from ._tbl_data import (
 from ._text import _process_text
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._gt_data import TblData
     from ._tbl_data import SelectExpr, SeriesLike
     from ._text import Text

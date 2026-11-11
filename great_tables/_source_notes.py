@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ._text import Text
-
 if TYPE_CHECKING:
+    from ._text import Text
     from ._types import GTSelf
 
 

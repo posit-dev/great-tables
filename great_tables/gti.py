@@ -3,9 +3,8 @@ from __future__ import annotations
 import math
 import numbers
 import operator
-from collections.abc import Callable
 from dataclasses import replace
-from typing import Any, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 from typing_extensions import Self
 
@@ -35,6 +34,9 @@ from ._locations import resolve_cols_c
 from ._options import _is_height
 from ._tbl_data import SelectExpr, _get_column_kind, get_column_names
 from .gt import GT
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 __all__ = ["GTI"]
 

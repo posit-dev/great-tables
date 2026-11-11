@@ -23,8 +23,10 @@ same errors (where they are counted in characters, here, rather than UTF-16 code
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 _SYNTAX = "^$\\.*+?()[]{}|"
 _CLASSES = {"d": "0-9", "w": "0-9A-Z_a-z", "s": "\\t\\n\\v\\f\\r "}

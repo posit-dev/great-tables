@@ -1533,7 +1533,7 @@ def create_source_notes_component_h(data: GTData) -> str:
 
     # Obtain the `multiline` and `separator` options from `_options`
     multiline = data._options.source_notes_multiline.value
-    separator = cast(str, data._options.source_notes_sep.value)
+    separator = cast("str", data._options.source_notes_sep.value)
 
     # Get the effective number of columns, which is number of columns
     # that will finally be rendered accounting for the stub layout
@@ -1621,7 +1621,7 @@ def create_footer_component_h(data: GTData) -> str:
                 mark = footnote_data.get("mark", "")
                 text = footnote_data.get("text", "")
 
-                ftr_spec = _parse_footnote_spec(cast(str, data._options.footnotes_spec_ftr.value))
+                ftr_spec = _parse_footnote_spec(cast("str", data._options.footnotes_spec_ftr.value))
                 footnote_mark_html = _create_footnote_mark_html(mark=mark, spec=ftr_spec)
 
                 # Wrap footnote text in `gt_from_md` span if it contains HTML markup
@@ -1643,7 +1643,7 @@ def create_footer_component_h(data: GTData) -> str:
 
         # Obtain the `multiline` and `separator` options from `_options`
         multiline = data._options.source_notes_multiline.value
-        separator = cast(str, data._options.source_notes_sep.value)
+        separator = cast("str", data._options.source_notes_sep.value)
 
         _styles = _flatten_styles(styles_footer + styles_source_notes, wrap=True)
 
@@ -1783,7 +1783,7 @@ def _process_footnotes_for_display(
             markless_items.append({"mark": "", "text": footnote.footnotes[0]})
 
     # Arrange marked vs markless based on the footnotes_order option
-    order_option = cast(str, data._options.footnotes_order.value)
+    order_option = cast("str", data._options.footnotes_order.value)
 
     if order_option == "marks_first":
         return marked_items + markless_items
@@ -1931,7 +1931,7 @@ def _get_footnote_mark_string(data: GTData, footnote_info: FootnoteInfo) -> str:
         mark_type = _get_footnote_marks_option(data)
         return _generate_footnote_mark(1, mark_type)
 
-    order_option = cast(str, data._options.footnotes_order.value)
+    order_option = cast("str", data._options.footnotes_order.value)
 
     # Build unique footnote texts in the appropriate order
     if order_option == "preserve_order":
@@ -2058,7 +2058,7 @@ def _apply_footnotes_to_text(footnotes: list[FootnoteInfo], data: GTData, text: 
 
     # Create a single footnote mark span with comma-separated marks
     if mark_strings:
-        ref_spec = _parse_footnote_spec(cast(str, data._options.footnotes_spec_ref.value))
+        ref_spec = _parse_footnote_spec(cast("str", data._options.footnotes_spec_ref.value))
 
         # Apply enclosure and period to each individual mark, then join
         decorated_marks = [_apply_footnote_spec_to_mark(m, ref_spec) for m in mark_strings]

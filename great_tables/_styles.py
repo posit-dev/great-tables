@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass, fields, replace
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias, Union
 
@@ -10,6 +9,8 @@ from ._helpers import GoogleFont, px
 from ._tbl_data import PlExpr, TblData, _get_cell, eval_transform
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._locations import Loc
 
 

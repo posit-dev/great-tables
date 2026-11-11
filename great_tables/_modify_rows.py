@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Literal
 
 from ._gt_data import (
@@ -20,6 +19,8 @@ from ._tbl_data import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._types import GTSelf
 
 

@@ -12,12 +12,12 @@ from typing_extensions import TypedDict
 from ._boxhead import cols_label
 from ._gt_data import ColInfoTypeEnum, ColMergeInfo, SpannerInfo, Spanners
 from ._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
-from ._tbl_data import SelectExpr
 from ._text import BaseText, Text
 from ._utils import OrderedSet, _assert_list_is_subset
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
+    from ._tbl_data import SelectExpr
     from ._types import GTSelf
 
 

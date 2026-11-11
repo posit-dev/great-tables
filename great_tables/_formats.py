@@ -6108,7 +6108,7 @@ def fmt_tf_context(
     elif not isinstance(x, bool):
         raise ValueError(f"Expected boolean value or NA, but got {type(x)}.")
 
-    x = cast(bool | None, x)
+    x = cast("bool | None", x)
 
     # Validate `tf_style=` value
     if tf_style not in TF_FORMATS:
@@ -7019,7 +7019,7 @@ def _listify(
     elif not isinstance(x, list):
         return [x]
     else:
-        return cast(Any, x)
+        return cast("Any", x)
 
 
 def _scale_value(value: float, scale_by: float) -> float:

@@ -5,13 +5,14 @@ import itertools
 import re
 from collections.abc import Generator, Iterable, Iterator
 from collections.abc import Set as AbstractSet
-from types import ModuleType
 from typing import TYPE_CHECKING, Any
 
 from ._tbl_data import _get_cell, _set_cells, get_column_names, is_na, n_rows
 from ._text import BaseText, _process_text
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from ._gt_data import GTData
     from ._tbl_data import TblData
 

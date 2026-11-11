@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from bisect import bisect_right
-from collections.abc import Callable
 from decimal import Decimal
 from math import isinf, isnan
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
@@ -23,6 +22,8 @@ from great_tables.style import fill, text
 from .constants import ALL_PALETTES, COLOR_NAME_TO_HEX, DEFAULT_PALETTE
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from great_tables._types import GTSelf
 
 
