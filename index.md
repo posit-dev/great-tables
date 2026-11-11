@@ -64,4 +64,4 @@ Install with:
 pip install great_tables
 ```
 
-Then head over to the [User Guide](./user-guide/) to learn how to build your first table, or explore the [Examples](./examples/) gallery for inspiration.
+Then head over to the [User Guide](./user-guide/introduction.md) to learn how to build your first table, or explore the [Examples](./examples/) gallery for inspiration.
