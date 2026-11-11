@@ -344,7 +344,7 @@ def tab_style_body(
             cell_value = _none_if_missing(_get_cell(data, row_idx, col_name))
             try:
                 is_match = match_fn(cell_value)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 is_match = False
             if is_match:
                 matched_cells.append((col_name, row_idx))

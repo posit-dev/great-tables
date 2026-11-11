@@ -74,7 +74,7 @@ def render(out_file: Path) -> None:
             warnings.simplefilter("always")
             try:
                 out = fn()
-            except Exception as e:  # errors are compared as well
+            except Exception as e:  # errors are compared as well  # noqa: BLE001
                 out = f"ERROR {type(e).__name__}: {e}"
 
         if w:

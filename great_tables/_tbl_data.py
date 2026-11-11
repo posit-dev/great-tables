@@ -383,7 +383,7 @@ def _is_numeric_dtype(data: DataFrameLike, column: str) -> bool:
     """Check whether a column in the original data has a numeric dtype."""
     try:
         dtype = _get_column_dtype(data, column)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return False
     return _NUMERIC_DTYPE_PREFIX.match(str(dtype).lower()) is not None
 
