@@ -307,6 +307,45 @@ test("Shiny: tables rendered again as an input changes", async ({ page }) => {
   }
 });
 
+test("Shiny: a table's state as inputs, which the server changes", async ({ page }) => {
+  test.skip(!has("shiny"), "Shiny isn't installed");
+  const port = await freePort();
+  const base = `http://127.0.0.1:${port}`;
+  const server = await serve(base, "-m", "shiny", "run", "--port", String(port), "shiny_state_app.py");
+  try {
+    const errors = watch(page);
+    await page.goto(base);
+    const table = page.locator("#m-table > gt-table");
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    const state = async () => JSON.parse((await page.locator("#m-state").textContent()) || "null");
+    const shown = () => table.evaluate((el: any) => [el.rows, el.selection, el.search, el.sort]);
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], []]);
+
+    // What the reader does, the server has
+    await table.getByRole("button", { name: "Search the table" }).click();
+    await table.locator("input.gt-i-search").fill("an");
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], []]);
+    await table.locator("tbody input[type=checkbox]").nth(3).check();
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], [3]]);
+    await table.locator("input.gt-i-search").fill("");
+
+    // What the server changes, the table shows
+    await page.getByRole("button", { name: "Update" }).click();
+    await expect.poll(shown).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+    await expect.poll(state).toEqual(['fctr in ("one", "two")', "", ["-num"], [1, 0], [0]]);
+
+    // (And a table rendered again takes what the server set on it in the same flush)
+    await table.evaluate((el) => el.setAttribute("data-old", ""));
+    await page.getByRole("button", { name: "Again" }).click();
+    const again = page.locator("#m-table > gt-table:not([data-old])");
+    await expect(again).toHaveAttribute("data-gti-state", "ready");
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], []]);
+    expect(errors).toEqual([]);
+  } finally {
+    server.kill();
+  }
+});
+
 test("marimo: an app exported to HTML", async ({ page }) => {
   test.skip(!has("marimo"), "marimo isn't installed");
   run(PYTHON, "-m", "marimo", "export", "html", "marimo_app.py", "-o", "marimo.html");
