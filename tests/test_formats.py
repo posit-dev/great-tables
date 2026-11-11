@@ -5230,6 +5230,14 @@ def test_fmt_chem_parenthesized_group():
     assert "<sub" in x[0]
 
 
+@pytest.mark.parametrize("bond", ["-", "="])
+def test_fmt_chem_italic_prefix_keeps_bond(bond: str):
+    # An italic prefix such as *n* is followed by a bond, which stays outside the italics
+    [x] = vals.fmt_chem(f"*n*{bond}C4H10")
+
+    assert x.startswith(f"<em>n</em>{bond}C")
+
+
 def test_fmt_chem_charges():
     df = pd.DataFrame({"x": ["H+", "OH-", "CrO4^2-", "Fe^n+", "[AgCl2]-"]})
     gt = GT(df).fmt_chem(columns="x")
