@@ -85,7 +85,7 @@ def _clean_num(x: float) -> int | float:
     return int(x) if x == int(x) else x
 
 
-def css_add(value: str | int | float, amount: int | float):
+def css_add(value: str | float, amount: float):
     if isinstance(value, (int, float)):
         return value + amount
     elif value.endswith("px"):

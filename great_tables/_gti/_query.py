@@ -1516,7 +1516,7 @@ def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
     return {"and": [*map(clause_of, clauses), *map(item_of, groups)]}
 
 
-def _whole(value: int | float) -> int | float:
+def _whole(value: float) -> int | float:
     # (A bound as JavaScript holds it, a double: an integer if it's whole)
     number = float(value)
     return int(number) if number.is_integer() else number

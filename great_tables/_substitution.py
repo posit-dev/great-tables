@@ -218,7 +218,7 @@ def sub_small_vals(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: RowSelectExpr = None,
-    threshold: int | float = 0.01,
+    threshold: float = 0.01,
     small_pattern: str | None = None,
     sign: str = "+",
 ) -> GTSelf:
@@ -321,7 +321,7 @@ def sub_large_vals(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: RowSelectExpr = None,
-    threshold: int | float = 1e12,
+    threshold: float = 1e12,
     large_pattern: str = ">={x}",
     sign: str = "+",
 ) -> GTSelf:
@@ -420,7 +420,7 @@ def sub_values(
     values: list[Any] | Any | None = None,
     pattern: str | None = None,
     fn: Callable[..., bool] | None = None,
-    replacement: str | int | float | None = None,
+    replacement: str | float | None = None,
 ) -> GTSelf:
     """
     Substitute targeted values in the table body.
@@ -624,7 +624,7 @@ class SubLargeVals(Substitution):
         return _process_text(text, context=context)
 
 
-def _format_threshold(threshold: int | float) -> str:
+def _format_threshold(threshold: float) -> str:
     """Write a `sub_small_vals()` / `sub_large_vals()` threshold compactly (e.g., `1e+12`).
 
     As in R's default printing of numbers, exponent notation is used when it's shorter than fixed

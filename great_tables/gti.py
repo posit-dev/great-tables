@@ -440,7 +440,7 @@ class GTI(GT):
             )
         return self._set_interactive(selection=mode)
 
-    def i_scroll(self, height: str | int | float | None) -> Self:
+    def i_scroll(self, height: str | float | None) -> Self:
         """
         Make the table's body scroll, within a height.
 
@@ -485,9 +485,7 @@ class GTI(GT):
         # (A number is of pixels, as with `tab_options()`)
         return self._set_interactive(height=height if isinstance(height, str) else f"{height}px")
 
-    def i_responsive(
-        self, mode: ResponsiveMode = "auto", *, stack_below: int | float = 420
-    ) -> Self:
+    def i_responsive(self, mode: ResponsiveMode = "auto", *, stack_below: float = 420) -> Self:
         """
         Set how the table fits a narrow container.
 

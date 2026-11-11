@@ -196,7 +196,7 @@ def tab_options(
     ihtml_page_size_default: int | None = None,
     ihtml_page_size_values: list[int] | None = None,
     ihtml_pagination_type: str | None = None,
-    ihtml_height: str | int | float | None = None,
+    ihtml_height: str | float | None = None,
     ihtml_selection_mode: str | None = None,
 ) -> GTSelf:
     """
@@ -1858,7 +1858,7 @@ def opt_interactive(
     page_size_default: int = 10,
     page_size_values: list[int] | None = None,
     pagination_type: str = "numbers",
-    height: str | int | float = "auto",
+    height: str | float = "auto",
     selection_mode: str | None = None,
 ) -> GTSelf:
     """

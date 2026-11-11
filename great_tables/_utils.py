@@ -3,7 +3,8 @@ from __future__ import annotations
 import importlib
 import itertools
 import re
-from collections.abc import Generator, Iterable, Iterator, Set
+from collections.abc import Generator, Iterable, Iterator
+from collections.abc import Set as AbstractSet
 from types import ModuleType
 from typing import TYPE_CHECKING, Any
 
@@ -73,7 +74,7 @@ def _assert_list_is_subset(x: list[Any], set_list: list[Any]) -> None:
         raise AssertionError("The columns provided are not present in the table.")
 
 
-class OrderedSet(Set[Any]):
+class OrderedSet(AbstractSet[Any]):
     def __init__(self, d: Iterable[Any] = ()) -> None:
         self._d = self._create(d)
 

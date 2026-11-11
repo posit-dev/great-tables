@@ -165,7 +165,7 @@ class _StubSentinel:
     _instance: _StubSentinel | None = None
     _level: int | None = None
 
-    def __new__(cls, level: int | None = None) -> _StubSentinel:
+    def __new__(cls, level: int | None = None) -> Self:
         if level is not None:
             obj = super().__new__(cls)
             obj._level = level
@@ -224,7 +224,7 @@ GT(df, rowname_col=["group", "row"]).cols_width(cases={stub(1): "70px", stub(2):
 """
 
 
-def px(x: int | float) -> str:
+def px(x: float) -> str:
     """
     Helper for providing a CSS length value in pixels.
 
@@ -249,7 +249,7 @@ def px(x: int | float) -> str:
     return f"{x}px"
 
 
-def pct(x: int | float) -> str:
+def pct(x: float) -> str:
     """
     Helper for providing a CSS length value as a percentage.
 

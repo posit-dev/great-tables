@@ -1943,7 +1943,7 @@ def _boxplot_layers(
 # ---------------------------------------------------------------------------------------------
 
 
-def _nanoplot_summary(y_vals: list[int | float | None] | int | float, plot_type: str) -> str:
+def _nanoplot_summary(y_vals: list[int | float | None] | float, plot_type: str) -> str:
     """Describe a nanoplot's values in words, for its accessible name.
 
     E.g., `"Line plot of 8 values from 12 to 47, ending at 30"`, or `"Bar of 4.1"` for a single

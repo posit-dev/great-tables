@@ -27,7 +27,7 @@ ColorFn = Callable[[list[Any]], "list[str | None]"]
 def col_numeric(
     palette: str | list[str] | None = None,
     domain: list[int] | list[float] | None = None,
-    midpoint: int | float | None = None,
+    midpoint: float | None = None,
     stops: list[int | float | str] | None = None,
     na_color: str | None = None,
     reverse: bool = False,
