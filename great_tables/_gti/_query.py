@@ -245,7 +245,7 @@ def _normal_item(item: Any, where: str) -> dict[str, Any]:
     items: list[dict[str, Any]] = []
     for i, part in enumerate(_group_parts(item, kind)):
         normal = _normal_item(part, f"part {i} of an {kind!r} group")
-        items.extend(normal[kind] if kind in normal else [normal])
+        items.extend(normal.get(kind, [normal]))
     if kind == "and":
         seen: set[tuple[str, str]] = set()
         for part in items:
@@ -645,7 +645,7 @@ class _QueryParser:
         item = self.or_()
         if self.token.kind != "end":
             self.fail('expected "and", "or" or the end of the query')
-        return {"and": item["and"] if "and" in item else [item]}
+        return {"and": item.get("and", [item])}
 
 
 def _joined(kind: str, items: list[dict[str, Any]]) -> dict[str, Any]:
@@ -653,7 +653,7 @@ def _joined(kind: str, items: list[dict[str, Any]]) -> dict[str, Any]:
     # kind spliced in)
     if len(items) == 1:
         return items[0]
-    return {kind: [part for item in items for part in (item[kind] if kind in item else [item])]}
+    return {kind: [part for item in items for part in (item.get(kind, [item]))]}
 
 
 def parse_query(text: str) -> Query | None:

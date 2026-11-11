@@ -485,10 +485,7 @@ def _remove_exponent(n: str | float) -> str:
     # formatting.
     try:
         d = Decimal(n)
-        if d == d.to_integral():
-            x = d.quantize(Decimal(1))
-        else:
-            x = d.normalize()
+        x = d.quantize(Decimal(1)) if d == d.to_integral() else d.normalize()
         return str(int(x))
     except InvalidOperation:
         return str(n)

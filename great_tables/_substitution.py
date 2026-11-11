@@ -308,10 +308,7 @@ def sub_small_vals(
     threshold = abs(threshold)
 
     if small_pattern is None:
-        if sign == "+":
-            small_pattern = "<{x}"
-        else:
-            small_pattern = ">-{x}"
+        small_pattern = "<{x}" if sign == "+" else ">-{x}"
 
     subber = SubSmallVals(threshold=threshold, small_pattern=small_pattern, sign=sign)
     return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)

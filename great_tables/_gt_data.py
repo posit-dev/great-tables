@@ -815,10 +815,7 @@ class Stub:
         if n_stub_cols == 0:
             # If summary rows are present, we will use the `rowname` column
             # for the summary row labels
-            if has_summary_rows:
-                stub_layout = ["rowname"]
-            else:
-                stub_layout = []
+            stub_layout = ["rowname"] if has_summary_rows else []
 
         else:
             stub_layout = [

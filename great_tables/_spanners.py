@@ -183,10 +183,7 @@ def tab_spanner(
     if id is None:
         # The label may contain HTML or Markdown, so we need to extract
         # it from the Text object
-        if isinstance(label, Text):
-            id = label.text
-        else:
-            id = label
+        id = label.text if isinstance(label, Text) else label
 
     if isinstance(columns, (str, int)):
         columns = [columns]
@@ -1452,10 +1449,7 @@ def cols_merge_uncert(
     row_pos = [name_pos[1] for name_pos in row_res]
 
     # Process the separator: convert " +/- " to the ± symbol for display
-    if sep == " +/- ":
-        display_sep = " \u00b1 "
-    else:
-        display_sep = sep
+    display_sep = " ± " if sep == " +/- " else sep
 
     # Hide the uncertainty column(s) if autohide is True
     result = self
@@ -1598,9 +1592,7 @@ def cols_merge_range(
     row_pos = [name_pos[1] for name_pos in row_res]
 
     # Process separator
-    if sep is None:
-        display_sep = "\u2013"
-    elif sep == "--":
+    if sep is None or sep == "--":
         display_sep = "\u2013"
     elif sep == "---":
         display_sep = "\u2014"

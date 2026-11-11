@@ -467,10 +467,7 @@ def data_color(
         raise ValueError(f'`direction=` must be either "column" or "row", not {direction!r}.')
 
     # If no color is provided to `na_color`, use a light gray color as a default
-    if na_color is None:
-        na_color = "#808080"
-    else:
-        na_color = _html_color(colors=[na_color], alpha=alpha)[0]
+    na_color = "#808080" if na_color is None else _html_color(colors=[na_color], alpha=alpha)[0]
 
     # Resolve the palette to a list of hexadecimal color values
     palette = _resolve_palette(palette=palette, reverse=reverse, alpha=alpha)
@@ -1021,10 +1018,7 @@ def _srgb(x: int) -> float:
 
     x_frac = x / 255
 
-    if x_frac <= 0.03928:
-        x_frac = x_frac / 12.92
-    else:
-        x_frac = ((x_frac + 0.055) / 1.055) ** 2.4
+    x_frac = x_frac / 12.92 if x_frac <= 0.03928 else ((x_frac + 0.055) / 1.055) ** 2.4
 
     return x_frac
 

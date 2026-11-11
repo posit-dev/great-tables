@@ -217,11 +217,7 @@ def create_table_start_l(
     # Get all source notes as a list
     source_notes = data._source_notes
 
-    if len(source_notes) > 0:
-        longtable_post_length = "\\setlength{\\LTpost}{0mm}\n"
-
-    else:
-        longtable_post_length = ""
+    longtable_post_length = "\\setlength{\\LTpost}{0mm}\n" if len(source_notes) > 0 else ""
 
     # Get the column alignments for the visible columns as a list of `col_defs`
     col_defs = [align[0] for align in data._boxhead._get_default_alignments()]
@@ -577,51 +573,50 @@ def create_body_component_l(data: GTData, stub_layout: list[str] | None = None) 
 
     for j, (i, group_info) in enumerate(ordered_index):
         # Handle row group labels
-        if has_groups and group_info is not None:
+        if (has_groups and group_info is not None) and (group_info is not prev_group_info):
             # Only create group row if this is first row of the group
-            if group_info is not prev_group_info:
-                # When a groupname_col formatter ran, group_label is already
-                # safe for the output context; when it's the raw group_id, escape it.
-                if group_info.group_label is not None:
-                    group_label = group_info.group_label
-                else:
-                    group_label = _process_text(group_info.group_id, context="latex")
+            # When a groupname_col formatter ran, group_label is already
+            # safe for the output context; when it's the raw group_id, escape it.
+            if group_info.group_label is not None:
+                group_label = group_info.group_label
+            else:
+                group_label = _process_text(group_info.group_id, context="latex")
 
-                # Add a midrule before each group (except for the first group, which already has
-                # one from the column headers)
-                if first_group_added:
+            # Add a midrule before each group (except for the first group, which already has
+            # one from the column headers)
+            if first_group_added:
+                body_rows.append("\\midrule\\addlinespace[2.5pt]")
+            first_group_added = True
+
+            # When group is shown as a column, we don't add a separate row
+            # Instead, it will be added as a cell in each data row
+            if not has_group_stub_column:
+                group_row = f"\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n\\midrule\\addlinespace[2.5pt]"
+                body_rows.append(group_row)
+
+            # Group summary rows with `side="top"` go before the first row of the group
+            if data._summary_rows:
+                top_group_summary = data._summary_rows.get_summary_rows(
+                    group_id=group_info.group_id, side="top"
+                )
+
+                if top_group_summary:
+                    for k, summary_row in enumerate(top_group_summary):
+                        # With the group as a column, the group label starts in the first
+                        # (top summary) row of the group, as in HTML
+                        group_cell = None
+                        if has_group_stub_column:
+                            group_cell = group_label if k == 0 else ""
+                            group_label_shown = group_info
+
+                        summary_str = _create_summary_row_l(
+                            summary_row=summary_row,
+                            column_vars=column_vars,
+                            n_stub_cols=len(stub_layout),
+                            group_cell=group_cell,
+                        )
+                        body_rows.append(summary_str)
                     body_rows.append("\\midrule\\addlinespace[2.5pt]")
-                first_group_added = True
-
-                # When group is shown as a column, we don't add a separate row
-                # Instead, it will be added as a cell in each data row
-                if not has_group_stub_column:
-                    group_row = f"\\multicolumn{{{n_cols}}}{{l}}{{{group_label}}} \\\\[2.5pt] \n\\midrule\\addlinespace[2.5pt]"
-                    body_rows.append(group_row)
-
-                # Group summary rows with `side="top"` go before the first row of the group
-                if data._summary_rows:
-                    top_group_summary = data._summary_rows.get_summary_rows(
-                        group_id=group_info.group_id, side="top"
-                    )
-
-                    if top_group_summary:
-                        for k, summary_row in enumerate(top_group_summary):
-                            # With the group as a column, the group label starts in the first
-                            # (top summary) row of the group, as in HTML
-                            group_cell = None
-                            if has_group_stub_column:
-                                group_cell = group_label if k == 0 else ""
-                                group_label_shown = group_info
-
-                            summary_str = _create_summary_row_l(
-                                summary_row=summary_row,
-                                column_vars=column_vars,
-                                n_stub_cols=len(stub_layout),
-                                group_cell=group_cell,
-                            )
-                            body_rows.append(summary_str)
-                        body_rows.append("\\midrule\\addlinespace[2.5pt]")
 
         # Create data row cells
         body_cells: list[str] = []

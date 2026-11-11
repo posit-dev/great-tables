@@ -139,16 +139,10 @@ def compile_scss(
     # Handle fonts ----
     # Get the unique list of fonts from `gt_options_dict`
     _font_names = data._options.table_font_names.value
-    if _font_names is not None:
-        font_list = OrderedSet(_font_names).as_list()
-    else:
-        font_list = None
+    font_list = OrderedSet(_font_names).as_list() if _font_names is not None else None
 
     # Generate a `font-family` string
-    if font_list is not None:
-        font_family_attr = _as_css_font_family_attr(fonts=font_list)
-    else:
-        font_family_attr = ""
+    font_family_attr = _as_css_font_family_attr(fonts=font_list) if font_list is not None else ""
 
     # Generate styles ----
     gt_table_open_str = f"#{id} table" if has_id else ".gt_table"

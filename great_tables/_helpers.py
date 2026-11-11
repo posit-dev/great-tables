@@ -1487,9 +1487,8 @@ def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any) -> lis
         raise ValueError(f"Nanoplot option must be a {option_type} or a list of {option_type}s")
 
     # If it is a list, check that the values are same as `option_type`
-    if isinstance(nano_opt, list):
-        if not all(isinstance(x, option_type) for x in nano_opt):
-            raise ValueError(f"Nanoplot option must be a list of {option_type}s")
+    if isinstance(nano_opt, list) and not all(isinstance(x, option_type) for x in nano_opt):
+        raise ValueError(f"Nanoplot option must be a list of {option_type}s")
 
     # If it is a single value, convert it to a list
     if not isinstance(nano_opt, list):

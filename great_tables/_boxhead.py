@@ -616,10 +616,7 @@ def cols_label_rotate(
     # If user doesn't set an align value then align to the bottom, which is left in the case of
     # "sideways-lr" and right in all other cases
     if not align:
-        if dir == "sideways-lr":
-            align = "left"
-        else:
-            align = "right"
+        align = "left" if dir == "sideways-lr" else "right"
 
     res = self.tab_style(
         style=CellStyleCss(
