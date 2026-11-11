@@ -13,4 +13,4 @@ from ._styles import (
     CellStyleText as text,
 )
 
-__all__ = ("text", "fill", "borders", "css")
+__all__ = ("borders", "css", "fill", "text")

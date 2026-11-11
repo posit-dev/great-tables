@@ -1834,7 +1834,7 @@ def opt_css(
         return self
     else:
         # Add the new CSS to the existing CSS
-        additional_css = existing_additional_css + [css]
+        additional_css = [*existing_additional_css, css]
 
     # Use tab_options() to set the additional CSS
     res = tab_options(self, table_additional_css=additional_css)

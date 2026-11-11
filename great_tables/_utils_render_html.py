@@ -954,7 +954,7 @@ def create_body_component_h(data: GTData) -> str:
             summary_row_stub_var = ColInfo(
                 "__do_not_use__", ColInfoTypeEnum.summary_placeholder, column_align="left"
             )
-            column_vars = [summary_row_stub_var] + column_vars
+            column_vars = [summary_row_stub_var, *column_vars]
 
     # The ids of the header cells, which each body cell lists in its `headers` attribute
     header_ids = _get_header_ids(data)

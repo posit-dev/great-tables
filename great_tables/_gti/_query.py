@@ -338,7 +338,7 @@ def _facet_value(item: Any, col: str) -> Any:
 def _count(value: Any, col: str, op: str) -> int:
     # (A whole number, as JSON has it: so 10.0 is 10, as the runtime has it)
     numpy_number = getattr(getattr(value, "dtype", None), "kind", None) in ("i", "u", "f")
-    if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) or numpy_number:
+    if (isinstance(value, (int, float, Decimal)) and not isinstance(value, bool)) or numpy_number:
         number = _json_value(value)
         if number is not None and float(number).is_integer() and 1 <= number <= _MAX_COUNT:
             return int(number)
@@ -350,7 +350,7 @@ def _count(value: Any, col: str, op: str) -> int:
 
 def _bound(value: Any, col: str, op: str) -> int | float | str:
     numpy_number = getattr(getattr(value, "dtype", None), "kind", None) in ("i", "u", "f")
-    if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) or numpy_number:
+    if (isinstance(value, (int, float, Decimal)) and not isinstance(value, bool)) or numpy_number:
         bound = _json_value(value)
         if bound is not None:
             return bound

@@ -7,6 +7,7 @@ colors of the same length.
 
 from __future__ import annotations
 
+import itertools
 from bisect import bisect_left, bisect_right
 from collections.abc import Callable
 from math import isinf, isnan
@@ -517,7 +518,7 @@ def _validate_stops(stops: list[int | float | str], n_colors: int) -> None:
             numbers.append(stop)
 
     for kind, seq in (("numbers", numbers), ("percentages", percents)):
-        if any(a > b for a, b in zip(seq, seq[1:])):
+        if any(a > b for a, b in itertools.pairwise(seq)):
             raise ValueError(f"The {kind} in `stops=` must be in non-decreasing order: {stops!r}.")
 
 
@@ -537,7 +538,7 @@ def _resolve_stops(stops: list[int | float | str], vals: list[float]) -> list[fl
         for stop in stops
     ]
 
-    if any(a > b for a, b in zip(resolved, resolved[1:])):
+    if any(a > b for a, b in itertools.pairwise(resolved)):
         raise ValueError(
             f"The values in `stops=` must be in non-decreasing order once percentages are resolved "
             f"(against a range of [{lo!r}, {hi!r}]), but {stops!r} resolved to {resolved!r}."

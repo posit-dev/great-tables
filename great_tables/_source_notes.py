@@ -51,4 +51,4 @@ def tab_source_note(self: GTSelf, source_note: str | Text) -> GTSelf:
     ```
     """
 
-    return self._replace(_source_notes=self._source_notes + [source_note])
+    return self._replace(_source_notes=[*self._source_notes, source_note])

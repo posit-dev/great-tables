@@ -48,7 +48,7 @@ def _running_in_marimo() -> bool:
 
 
 def _infer_render_target(
-    ipy: InteractiveShell | None | type = MISSING,
+    ipy: InteractiveShell | type | None = MISSING,
 ) -> Literal["auto", "notebook", "browser"]:
     # adapted from py-htmltools
     # Note that `ipy` arguments are possible return values of IPython.get_ipython()
@@ -415,7 +415,7 @@ def save(  # pragma: no cover
     expand: int = 5,
     web_driver: WebDrivers | webdriver.Remote = "chrome",
     window_size: tuple[int, int] = (6000, 6000),
-    debug_port: None | int = None,
+    debug_port: int | None = None,
     encoding: str = "utf-8",
     _debug_dump: DebugDumpOptions | None = None,
 ) -> GTSelf:

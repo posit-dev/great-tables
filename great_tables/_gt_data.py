@@ -975,7 +975,7 @@ class Spanners(_Sequence[SpannerInfo]):
         return max(overlapping_levels, default=-1) + 1
 
     def append_entry(self, span: SpannerInfo) -> Self:
-        return self.__class__(self._d + [span])
+        return self.__class__([*self._d, span])
 
     def remove_column(self, column: str) -> Self:
         return self.__class__([span.drop_var(column) for span in self])

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 def tab_footnote(
     self: GTSelf,
     footnote: str | Text,
-    locations: Loc | None | list[Loc | None] = None,
+    locations: Loc | list[Loc | None] | None = None,
     placement: PlacementOptions = "auto",
 ) -> GTSelf:
     """
@@ -136,7 +136,7 @@ def tab_footnote(
         place = FootnotePlacement[placement]
         processed_footnote = _process_text(footnote_str)
         info = FootnoteInfo(locname=None, footnotes=[processed_footnote], placement=place)
-        return self._replace(_footnotes=self._footnotes + [info])  # type: ignore
+        return self._replace(_footnotes=[*self._footnotes, info])  # type: ignore
 
     # Ensure locations is a list
     if not isinstance(locations, list):
@@ -150,7 +150,7 @@ def tab_footnote(
             place = FootnotePlacement[placement]
             processed_footnote = _process_text(footnote_str)
             info = FootnoteInfo(locname=None, footnotes=[processed_footnote], placement=place)
-            result = result._replace(_footnotes=result._footnotes + [info])  # type: ignore
+            result = result._replace(_footnotes=[*result._footnotes, info])  # type: ignore
         else:
             # Use the new consolidated approach - FootnoteEntry will handle Text conversion internally
             footnote_entry = FootnoteEntry(footnote=footnote_str, placement=placement)

@@ -385,7 +385,7 @@ def cols_align_decimal(
         fn=partial(_align_to_char, align_at=dec_mark),
         per_column=True,
     )
-    return res._replace(_transforms=res._transforms + [transform])
+    return res._replace(_transforms=[*res._transforms, transform])
 
 
 FIGURE_SPACE = "\u2007"

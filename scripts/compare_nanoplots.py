@@ -264,7 +264,7 @@ def _add_cases(run) -> None:
         [None, 0, 2.5, 6, "mean", "median", "min", "max", "q1", "q3", NAN],
         [True, False],
     ):
-        for y in sorted({v for v in all_vals if v is not None and not math.isnan(v)}) + [3432]:
+        for y in [*sorted({v for v in all_vals if v is not None and not math.isnan(v)}), 3432]:
             kw = dict(
                 y_vals=y,
                 all_single_y_vals=list(all_vals),

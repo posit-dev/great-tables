@@ -4580,7 +4580,7 @@ def _apply_duration_pattern(patterns: dict[str, str], value: int, formatted_valu
     # Try the specific plural form, then fall back to "other"
     if plural in patterns:
         pattern = patterns[plural]
-    elif plural == "zero" and "other" in patterns or plural == "two" and "other" in patterns:
+    elif (plural == "zero" and "other" in patterns) or (plural == "two" and "other" in patterns):
         pattern = patterns["other"]
     else:
         pattern = patterns.get("other", "{0}")
@@ -9558,7 +9558,7 @@ def _generate_data_vals(
 
         # If the dictionary contains only one key, then assume that the values are for y
         if num_keys == 1:
-            data_vals = list(data_vals.values())[0]
+            data_vals = next(iter(data_vals.values()))
 
             # The data values can be anything, so recursively call this function to process them
             data_vals = _generate_data_vals(data_vals=data_vals)

@@ -1598,7 +1598,7 @@ def _(
         updated_footnotes.append(updated_footnote)
 
     return data._replace(
-        _styles=data._styles + [StyleInfo(locname=loc, styles=styles)],
+        _styles=[*data._styles, StyleInfo(locname=loc, styles=styles)],
         _footnotes=data._footnotes + updated_footnotes,
     )
 
@@ -1653,7 +1653,7 @@ def _(loc: LocSpannerLabels, data: GTData, style: list[CellStyle | FootnoteEntry
             updated_footnotes.append(updated_footnote)
 
     return data._replace(
-        _styles=data._styles + [StyleInfo(locname=new_loc, grpname=new_loc.ids, styles=styles)],
+        _styles=[*data._styles, StyleInfo(locname=new_loc, grpname=new_loc.ids, styles=styles)],
         _footnotes=data._footnotes + updated_footnotes,
     )
 
@@ -1676,7 +1676,7 @@ def _(loc: LocRowGroups, data: GTData, style: list[CellStyle | FootnoteEntry]) -
             updated_footnotes.append(updated_footnote)
 
     return data._replace(
-        _styles=data._styles + [StyleInfo(locname=loc, grpname=row_groups, styles=styles)],
+        _styles=[*data._styles, StyleInfo(locname=loc, grpname=row_groups, styles=styles)],
         _footnotes=data._footnotes + updated_footnotes,
     )
 
