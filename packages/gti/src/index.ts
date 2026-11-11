@@ -34,6 +34,7 @@ export type {
   ViewEventDetail,
 } from "./gt-table";
 export type { SortKey, SortKeyInit } from "./sort";
+export type { DataSource, FacetCounts, RowAnswer, RowQuery } from "./source";
 export type { View } from "./state";
 export type * from "./spec";
 export {
