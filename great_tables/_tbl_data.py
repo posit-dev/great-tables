@@ -924,9 +924,9 @@ def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
     encoded = group_col.dictionary_encode(null_encoding="encode").combine_chunks()
 
     d = {}
-    for idx, group_key in enumerate(encoded.dictionary):
+    for idx, key in enumerate(encoded.dictionary):
         mask = pc.equal(encoded.indices, idx)
-        d[group_key.as_py()] = pc.indices_nonzero(mask).to_pylist()
+        d[key.as_py()] = pc.indices_nonzero(mask).to_pylist()
     return d
 
 
