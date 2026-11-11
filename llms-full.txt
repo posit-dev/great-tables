@@ -18701,6 +18701,92 @@ sets all of its feature's settings, so `.i_display(wrap=False)` on an explorer m
 compact again unless it's given `compact=True` too, and `.i_inspect(missing=False)` leaves the row
 numbers, dtypes and dimensions on. `i_inspect()` works on its own as well, on any `GTI` table.
 
+### Using the table from Python
+
+In a notebook, `~~GTI.i_as_widget()` shows the table as a widget (with
+[anywidget](https://anywidget.dev), installed with `pip install great_tables[widget]`), whose view
+and selection Python can read and set: what the reader searched for, filtered and sorted by, the
+rows that leaves, and the rows they selected. The table still works in the browser; the widget
+tells Python what it shows.
+
+```python
+widget = (
+    GTI(cars)
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_selection("multiple")
+    .i_as_widget()
+)
+widget
+```
+
+Then, in another cell (as the browser gives Python the table's state once the cell is done):
+
+```python
+widget.query            # the filters, as a query in text: 'mfr in ("Ferrari")'
+widget.search           # the search
+widget.sort             # the sort, e.g., ["-hp"]
+widget.rows             # the data rows kept, in the order shown (numbered from 0)
+widget.view()           # those rows, as a DataFrame of the data's library
+widget.view(selected=True)  # the rows selected
+
+widget.query = 'mfr in ("Ferrari", "Lamborghini")'
+widget.sort = "-hp"
+widget.selection = [0, 3]
+```
+
+Setting `query`, `search`, `sort` or `selection` changes the table as shown, and
+`widget.on_change(callback)` calls `callback(widget)` after each change the reader makes. A change
+made from Python is applied by the browser after the cell runs, so ask for the rows it leaves in
+another cell.
+
+### Using the table in a Shiny app
+
+In a [Shiny](https://shiny.posit.co/py/) app, an interactive table (a `GTI` table, or a `GT` table
+with `opt_interactive()`) rendered with `render_gt()`, from `great_tables.shiny`, gives the server
+its state as inputs, named after the output: `input.<id>_view()` (a dict with the `"query"`,
+`"search"`, `"sort"`, `"page"`, `"page_size"`, `"hidden"` columns and `"group_by"` column),
+`input.<id>_rows()` (the data rows kept, in the order shown) and `input.<id>_selection()` (the rows
+selected). `update_gti()` sets its query, search, sort and selection from the server.
+
+```python
+from shiny import App, reactive, render, ui
+from great_tables import GTI
+from great_tables.data import gtcars
+from great_tables.shiny import output_gt, render_gt, update_gti
+
+app_ui = ui.page_fluid(
+    ui.input_action_button("fastest", "Fastest first"),
+    output_gt("cars"),
+    ui.output_text("chosen"),
+)
+
+
+def server(input, output, session):
+    @render_gt
+    def cars():
+        return (
+            GTI(gtcars[["mfr", "model", "year", "hp", "msrp"]])
+            .i_cols_filter(columns="mfr", type="facet")
+            .i_selection("multiple")
+        )
+
+    @render.text
+    def chosen():
+        rows = input.cars_selection()
+        return f"{len(rows)} of {len(input.cars_rows())} cars selected"
+
+    @reactive.effect
+    @reactive.event(input.fastest)
+    def _():
+        update_gti("cars", sort="-hp", selection=[])
+
+
+app = App(app_ui, server)
+```
+
+The table works in the browser as it does anywhere else, so the server isn't asked for each page,
+sort or search; a table rendered again starts with the view it's given.
+
 
 
 ## Advanced Topics
