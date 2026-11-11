@@ -5,6 +5,9 @@ interactive with `opt_interactive()`, and a static `GT` table. The hosts are Jup
 for nbconvert and JupyterLab, with a kernel spec of this Python's own), Quarto (a document),
 Shiny (an app), marimo (an app), and VS Code (a page showing the tables' output as its notebooks
 do, in a sandboxed frame). Run by e2e/global-setup.ts.
+
+There's also a notebook with a `GTI` table as a widget (`i_as_widget()`), shown twice, for
+JupyterLab, whose kernel the test asks what the widget has, and tells what to change.
 """
 
 from __future__ import annotations
@@ -27,7 +30,17 @@ TABLES = [
 ]
 
 
-def notebook() -> str:
+# (The widget, and what it's told of each change the reader makes)
+WIDGET = """\
+widget = (
+    GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple").i_as_widget()
+)
+changes = []
+widget.on_change(lambda w: changes.append([w.rows, w.selection]))
+widget"""
+
+
+def notebook(sources: list[str] | None = None) -> str:
     cells = [
         {
             "cell_type": "code",
@@ -37,7 +50,7 @@ def notebook() -> str:
             "outputs": [],
             "source": source,
         }
-        for i, source in enumerate([SETUP, *TABLES])
+        for i, source in enumerate(sources or [SETUP, *TABLES])
     ]
     kernel = {"display_name": "Python 3", "language": "python", "name": "python3"}
     return json.dumps(
@@ -187,6 +200,7 @@ def main() -> None:
     (OUT / "jupyter" / "kernels" / "python3").mkdir(parents=True, exist_ok=True)
     files = {
         "notebook.ipynb": notebook(),
+        "widget.ipynb": notebook([SETUP, WIDGET, "widget"]),
         "jupyter/kernels/python3/kernel.json": kernel_spec(),
         "doc.qmd": quarto_doc(),
         "shiny_app.py": SHINY_APP,

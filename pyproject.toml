@@ -52,6 +52,7 @@ requires-python = ">=3.10"
 [project.optional-dependencies]
 all = [
     "great_tables[extra]",
+    "great_tables[widget]",
     "great_tables[dev]",
 ]
 
@@ -59,6 +60,10 @@ extra = [
     "css-inline>=0.20.2,<0.21",
     "selenium>=4.18.1",
     "Pillow>=10.2.0",
+]
+
+widget = [
+    "anywidget>=0.9",
 ]
 
 dev = [
@@ -71,6 +76,7 @@ dev = [
 
 dev-no-pandas = [
     "ruff==0.8.0",
+    "anywidget",
     "jupyter",
     "gt-extras>=0.0.7",
     "hypothesis",
