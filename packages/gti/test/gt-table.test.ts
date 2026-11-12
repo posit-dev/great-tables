@@ -5,11 +5,13 @@ import {
   type ColorSpec,
   type ColumnSpec,
   type ControlsSpec,
+  type DataSource,
   type DisplaySpec,
   define,
   EXPORT_EVENT,
   type ExportEventDetail,
   type ExportFormat,
+  type FacetCounts,
   FILTER_EVENT,
   type FilterEventDetail,
   type FilterQuery,
@@ -22,6 +24,8 @@ import {
   type ProfileSpec,
   type QueryColumnSpec,
   RESIZE_EVENT,
+  type RowAnswer,
+  type RowQuery,
   type ResizeEventDetail,
   SEARCH_EVENT,
   type SearchEventDetail,
@@ -8910,5 +8914,252 @@ describe("tables in a Shiny app", () => {
     stop();
     click(tableOf("out"), "x");
     expect(inputs.out_view).toEqual(VIEW);
+  });
+});
+
+describe("a source that answers later", () => {
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+
+  // A source that gives another's answers (or fails) only when told to, keeping what it's asked
+  class SlowSource implements DataSource {
+    asked: { query: RowQuery; answer: () => void; fail: (err: unknown) => void }[] = [];
+    facets: { query: RowQuery; column: string; answer: () => void }[] = [];
+
+    constructor(private readonly inner: DataSource) {}
+
+    rows(query: RowQuery): Promise<RowAnswer> {
+      return new Promise((resolve, reject) => {
+        this.asked.push({ query, answer: () => resolve(this.inner.rows(query) as RowAnswer), fail: reject });
+      });
+    }
+
+    facet(query: RowQuery, column: string): Promise<FacetCounts> {
+      return new Promise((resolve) => {
+        this.facets.push({ query, column, answer: () => resolve(this.inner.facet(query, column) as FacetCounts) });
+      });
+    }
+  }
+
+  // A table with a search box and a facet on `y`, its own source made slow
+  async function mountSlow(options: TableOptions = {}) {
+    const el = await mountTable(FLAT, { controls: { search: true }, filters: [FACET], ...options });
+    const slow = new SlowSource(el.source as DataSource);
+    el.source = slow;
+    const events: string[] = [];
+    el.addEventListener(SEARCH_EVENT, (event) => {
+      const { search, count } = (event as CustomEvent<SearchEventDetail>).detail;
+      events.push(`search ${search}: ${count}`);
+    });
+    el.addEventListener(FILTER_EVENT, (event) => events.push(`filter: ${(event as CustomEvent<FilterEventDetail>).detail.count}`));
+    el.addEventListener(VIEW_EVENT, (event) => events.push(`view ${(event as CustomEvent<ViewEventDetail>).detail.search}`));
+    el.addEventListener(PAGE_EVENT, (event) => events.push(`pages: ${(event as CustomEvent<PageEventDetail>).detail.pageCount}`));
+    return { el, slow, events };
+  }
+
+  const searchFor = (el: GtTable, value: string) => {
+    const input = searchBox(el) as HTMLInputElement;
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+  };
+
+  it("is the table's own once hydrated, unless one is set", async () => {
+    expect((document.createElement(TAG_NAME) as GtTable).source).toBeNull();
+    const el = await mountTable(FLAT);
+    const own = el.source;
+    expect(own).not.toBeNull();
+    const other: DataSource = { rows: () => ({ matched: null, count: 5 }), facet: () => new Map() };
+    el.source = other;
+    expect(el.source).toBe(other);
+    el.source = null;
+    expect(el.source).toBe(own);
+  });
+
+  it("isn't asked for the rows without a search, filters or linked selections", async () => {
+    const { el, slow } = await mountSlow();
+    el.sort = [{ column: "x", descending: true }];
+    el.search = "  ";
+    expect(slow.asked).toEqual([]);
+    expect(el.loading).toBe(false);
+  });
+
+  it("keeps the rows shown until its answer comes, then shows them", async () => {
+    const { el, slow } = await mountSlow();
+    el.search = "20";
+    expect(slow.asked.map((ask) => ask.query)).toEqual([{ search: "20", hidden: [], filter: null, links: [] }]);
+    expect(el.loading).toBe(true);
+    expect(el.getAttribute("aria-busy")).toBe("true");
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+    expect(el.rows).toEqual([0, 1, 2, 3, 4]);
+    // (A sort waits for the rows, too)
+    el.sort = [{ column: "x", descending: false }];
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+
+    slow.asked[0]?.answer();
+    await tick();
+    expect(el.loading).toBe(false);
+    expect(el.hasAttribute("aria-busy")).toBe(false);
+    expect(visible(el)).toEqual([0, 4]);
+    expect(el.rows).toEqual([0, 4]);
+    expect(el.pageCount).toBe(1);
+  });
+
+  it("drops an answer to rows asked for again since", async () => {
+    const { el, slow } = await mountSlow();
+    el.search = "20";
+    el.search = "a";
+    // (The later answer first: the earlier one then changes nothing)
+    slow.asked[1]?.answer();
+    await tick();
+    expect(visible(el)).toEqual([1, 3, 4]);
+    slow.asked[0]?.answer();
+    await tick();
+    expect(visible(el)).toEqual([1, 3, 4]);
+
+    // (The earlier answer first: the table waits for the later one)
+    el.search = "20";
+    el.search = "10";
+    slow.asked[2]?.answer();
+    await tick();
+    expect(el.loading).toBe(true);
+    expect(visible(el)).toEqual([1, 3, 4]);
+    slow.asked[3]?.answer();
+    await tick();
+    expect(el.loading).toBe(false);
+    expect(visible(el)).toEqual([2]);
+  });
+
+  it("gives a change's events and says what's shown once its rows come, with their count", async () => {
+    const { el, slow, events } = await mountSlow({ pagination: { enabled: true } });
+    searchFor(el, "a");
+    expect(events).toEqual([]);
+    slow.asked[0]?.answer();
+    await tick();
+    expect(events).toEqual(["search a: 3", "view a"]);
+    expect(live(el)).toBe("Showing 3 of 5 rows");
+    expect(el.pageCount).toBe(2);
+
+    // (Each change's, once the last rows asked for come)
+    searchFor(el, "20");
+    searchFor(el, "row");
+    slow.asked[2]?.answer();
+    await tick();
+    expect(events.slice(2)).toEqual(["search 20: 5", "view row", "search row: 5", "view row"]);
+  });
+
+  it("gives a filter's events once its rows come", async () => {
+    const { el, slow, events } = await mountSlow({ controls: { bar: true } });
+    (header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement).click();
+    slow.facets[0]?.answer();
+    await tick();
+    el.querySelectorAll<HTMLInputElement>(".gt-i-filter-option input")[2]?.click();
+    expect(events).toEqual([]);
+    expect(slow.asked[0]?.query.filter).toEqual({ and: [{ col: "y", op: "in", value: ["c"] }] });
+    slow.asked[0]?.answer();
+    await tick();
+    expect(events).toEqual(["filter: 1", "view "]);
+    expect(live(el)).toBe("Showing 1 of 5 rows");
+    expect(visible(el)).toEqual([2]);
+  });
+
+  it("notes a change to undo at once, though its event waits", async () => {
+    const { el, slow, events } = await mountSlow({
+      viewState: { url: false, storage: false, key: null, undo: true },
+      controls: { bar: true, search: true },
+    });
+    const barButton = (name: string) => el.querySelector(`.gt-i-bar [data-gti-bar="${name}"]`) as HTMLButtonElement;
+    barButton("search").click();
+    searchFor(el, "a");
+    expect(barButton("undo").getAttribute("aria-disabled")).toBe("false");
+    expect(events).toEqual([]);
+    slow.asked[0]?.answer();
+    await tick();
+    expect(events).toEqual(["search a: 3", "view a"]);
+    expect(visible(el)).toEqual([1, 3, 4]);
+    barButton("undo").click();
+    expect(el.search).toBe("");
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("counts a facet's values when its answer comes, if the panel's still open", async () => {
+    const { el, slow } = await mountSlow({ controls: { bar: true, search: true } });
+    const counts = () => Array.from(el.querySelectorAll(".gt-i-filter-option .gt-i-filter-count"), (count) => count.textContent);
+    const filterButton = header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement;
+    filterButton.click();
+    expect(slow.facets.map((ask) => ask.column)).toEqual(["y"]);
+    slow.facets[0]?.answer();
+    await tick();
+    expect(counts()).toEqual(["3", "1", "1"]);
+
+    // (Within the search, once its rows come)
+    el.search = "20";
+    slow.asked[0]?.answer();
+    await tick();
+    expect(slow.facets[1]?.query).toEqual({ search: "20", hidden: [], filter: null, links: [] });
+    expect(counts()).toEqual(["3", "1", "1"]);
+    slow.facets[1]?.answer();
+    await tick();
+    expect(counts()).toEqual(["1", "1", "0"]);
+
+    // (An answer for a panel since closed changes nothing)
+    el.search = "";
+    filterButton.click();
+    slow.facets[2]?.answer();
+    await tick();
+    expect(counts()).toEqual(["1", "1", "0"]);
+  });
+
+  it("warns of rows that couldn't be had, keeping those shown", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { el, slow, events } = await mountSlow();
+    searchFor(el, "a");
+    const err = new Error("no server");
+    slow.asked[0]?.fail(err);
+    await tick();
+    expect(warn).toHaveBeenCalledWith("<gt-table>: the rows couldn't be had:", err);
+    expect(el.loading).toBe(false);
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+    expect(events).toEqual(["search a: 5", "view a"]);
+  });
+
+  it("asks again when it's set", async () => {
+    const el = await mountTable(FLAT, { controls: { search: true } });
+    el.search = "a";
+    expect(visible(el)).toEqual([1, 3, 4]);
+    el.source = { rows: () => ({ matched: Uint8Array.from([0, 0, 1, 0, 0]), count: 1 }), facet: () => new Map() };
+    expect(visible(el)).toEqual([2]);
+    el.source = null;
+    expect(visible(el)).toEqual([1, 3, 4]);
+  });
+
+  it("is asked for the rows of a search set before hydration, the rows shown staying till then", async () => {
+    const answers: (() => void)[] = [];
+    const el = document.createElement(TAG_NAME) as GtTable;
+    el.search = "20";
+    el.source = {
+      rows: () => new Promise((resolve) => answers.push(() => resolve({ matched: Uint8Array.from([1, 0, 0, 0, 1]), count: 2 }))),
+      facet: () => new Map(),
+    };
+    const { html, spec } = gtTable(FLAT, { controls: { search: true } });
+    el.innerHTML = `${html}${specScript(spec)}`;
+    document.body.append(el);
+    await tick();
+    expect(el.state).toBe("ready");
+    expect(el.loading).toBe(true);
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+    answers[0]?.();
+    await tick();
+    expect(visible(el)).toEqual([0, 4]);
+  });
+
+  it("drops an answer that comes after the table's spec is gone", async () => {
+    const { el, slow } = await mountSlow();
+    el.search = "20";
+    el.remove();
+    await tick();
+    slow.asked[0]?.answer();
+    await tick();
+    expect(el.loading).toBe(false);
   });
 });
