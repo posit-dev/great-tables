@@ -358,7 +358,9 @@ def test_ibis_table_of_another_backend_is_queried_there():
     ibis = pytest.importorskip("ibis")
     con = ibis.sqlite.connect()
     data = pl.DataFrame({"w": ["Crème", "Apple", "BANANA"], "n": [1, 2, 3]})
-    engine = LazyEngine(GTI(con.create_table("w", data.to_arrow())).i_scale("kernel"))
+    # (Made from a memtable: sqlglot 30.31 breaks Ibis's SQLite `create_table()` of PyArrow data)
+    table = con.create_table("w", ibis.memtable(data.to_arrow()))
+    engine = LazyEngine(GTI(table).i_scale("kernel"))
     # (Numbered as they sort, by `w`; its text lowercased, but its accents kept)
     assert engine.rows({**QUERY, "search": "banana"}) == [1]
     assert engine.rows({**QUERY, "search": "creme"}) == []
