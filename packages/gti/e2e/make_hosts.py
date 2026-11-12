@@ -7,7 +7,8 @@ Shiny (an app), marimo (an app), and VS Code (a page showing the tables' output 
 do, in a sandboxed frame). Run by e2e/global-setup.ts.
 
 There's also a notebook with a `GTI` table as a widget (`i_as_widget()`), shown twice, for
-JupyterLab, whose kernel the test asks what the widget has, and tells what to change; and a Shiny
+JupyterLab, whose kernel the test asks what the widget has, and tells what to change; one with a
+widget whose rows are in the kernel (`i_scale(engine="kernel")`), which sends its pages; and a Shiny
 app (in a module) showing what a `GTI` table's inputs have, with buttons that change it with
 `update_gti()`.
 """
@@ -39,6 +40,14 @@ widget = (
 )
 changes = []
 widget.on_change(lambda w: changes.append([w.rows, w.selection]))
+widget"""
+
+# (A widget whose rows are the kernel's)
+KERNEL_WIDGET = """\
+import pandas as pd
+
+big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+widget = GTI(big).i_cols_filter(columns="kind", type="facet").i_scale(engine="kernel").i_as_widget()
 widget"""
 
 
@@ -260,6 +269,7 @@ def main() -> None:
     files = {
         "notebook.ipynb": notebook(),
         "widget.ipynb": notebook([SETUP, WIDGET, "widget"]),
+        "kernel_widget.ipynb": notebook([SETUP, KERNEL_WIDGET]),
         "jupyter/kernels/python3/kernel.json": kernel_spec(),
         "doc.qmd": quarto_doc(),
         "shiny_app.py": SHINY_APP,
