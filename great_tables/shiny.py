@@ -32,9 +32,11 @@ except ImportError:
         "\n\n    pip install shiny"
     )
 
-from ._gti._render import JS_DIR, render_gti_html_spec
+from ._gti._kernel import KernelEngine, render_table
+from ._gti._render import JS_DIR, inline_runtime, render_gti_element
 from ._gti._state import check_query_value, check_search, check_selection, check_sort, view_of
 from ._render import infer_render_env_defaults
+from ._tbl_data import n_rows
 
 if TYPE_CHECKING:
     from shiny.session import Session
@@ -45,15 +47,47 @@ if TYPE_CHECKING:
 # (As src/shiny.ts has them, in packages/gti)
 MESSAGE = "great_tables.update_gti"
 VIEW_TYPE = "great_tables.gti_view"
+ROWS_TYPE = "great_tables.gti_rows"
+# (The request handler of a table whose rows are the server's is the output's, with this after
+# its id)
+ASK_SUFFIX = "_gti"
 
 # Each session's interactive tables' specs, by output (its id, namespaced), as last rendered, for
 # `update_gti()` to check what it sets against
 _SPECS: WeakKeyDictionary[Any, dict[str, Spec]] = WeakKeyDictionary()
 
+# Each session's tables whose rows are kept on the server (`i_scale()`), by output, as last
+# rendered
+_ENGINES: WeakKeyDictionary[Any, dict[str, KernelEngine]] = WeakKeyDictionary()
+
 
 @input_handlers.add(VIEW_TYPE, force=True)
 def _view_input(value: Any, name: Any, session: Any) -> dict[str, Any]:
     return view_of(value)
+
+
+@input_handlers.add(ROWS_TYPE, force=True)
+def _rows_input(value: Any, name: Any, session: Any) -> list[int]:
+    # (A table whose rows are the server's gives its view as its rows, which the server finds;
+    # the input's name is the output's id, namespaced, then "_rows")
+    engine = _ENGINES.get(session.root_scope(), {}).get(str(name).removesuffix("_rows"))
+    if engine is None or not isinstance(value, dict):
+        return []
+    # (A view the table doesn't have, as an old table's might be once it's rendered again, keeps
+    # none, rather than ending the session)
+    try:
+        return engine.find({**_lists(value), "links": []})
+    except (TypeError, ValueError):
+        return []
+
+
+def _lists(value: Any) -> Any:
+    # (Shiny reads the browser's arrays as tuples, where the engine takes lists, as JSON has them)
+    if isinstance(value, dict):
+        return {key: _lists(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_lists(item) for item in value]
+    return value
 
 
 def _gti_dependency() -> HTMLDependency:
@@ -93,6 +127,7 @@ def output_gt(id: str, placeholder: bool | None = None) -> Tag:
 async def GtTransformer(_meta: TransformerMetadata, _fn: ValueFn[GT | None]) -> RenderedDeps | None:
     value = await resolve_value_fn(_fn)
     if value is None:
+        _keep_rows(_meta.session, _meta.name, None)
         return None
     elif isinstance(value, GT):
         from .gti import GTI
@@ -100,12 +135,33 @@ async def GtTransformer(_meta: TransformerMetadata, _fn: ValueFn[GT | None]) -> 
         session = _meta.session
         if isinstance(value, GTI) or value._options.ihtml_active.value:
             all_important = infer_render_env_defaults()["all_important"]
-            html, spec = render_gti_html_spec(value, all_important=all_important)
+            engine = None
+            if isinstance(value, GTI):
+                # (Whose rows, kept on the server, there are this many of)
+                attrs = f' data-gti-server="{n_rows(value._tbl_data)}"'
+                html, spec, engine = render_table(value, all_important=all_important, attrs=attrs)
+            else:
+                html, spec = render_gti_element(value, all_important=all_important)
             _SPECS.setdefault(session.root_scope(), {})[session.ns(_meta.name)] = spec
-            return session._process_ui(TagList(_gti_dependency(), HTML(html)))
+            _keep_rows(session, _meta.name, engine)
+            return session._process_ui(TagList(_gti_dependency(), HTML(inline_runtime(html))))
+        _keep_rows(session, _meta.name, None)
         return session._process_ui(HTML(value._repr_html_()))
 
     raise TypeError(f"Expected a great_tables.GT object, got {type(value)}")
+
+
+def _keep_rows(session: Session, name: str, engine: KernelEngine | None) -> None:
+    # Keep the rows of an output's table on the server, with what answers the browser's asks for
+    # them (see packages/gti/src/shiny.ts's `ShinySource`), or, without them, neither
+    full_id = session.ns(name)
+    if engine is None:
+        if _ENGINES.get(session.root_scope(), {}).pop(full_id, None) is not None:
+            session.set_message_handler(name + ASK_SUFFIX, None)
+        return
+    _ENGINES.setdefault(session.root_scope(), {})[full_id] = engine
+    # (An error is the browser's to log, as it does a source's)
+    session.set_message_handler(name + ASK_SUFFIX, lambda ask: engine.answer(_lists(ask)))
 
 
 @overload
@@ -135,6 +191,11 @@ def render_gt(
     They're set once the table is shown, then after each change to them, whether the reader
     makes it or the server does, with [`update_gti()`](`great_tables.shiny.update_gti`). A table
     rendered again starts again with the view it's given.
+
+    A `GTI` table with more rows than the browser is quick with keeps them on the server instead
+    (see [`i_scale()`](`great_tables.GTI.i_scale`)), which sends the browser a page at a time:
+    then `input.<id>_rows()` is found on the server, from the table's view (without linked
+    tables' selections).
     """
 
     return GtTransformer(_fn)

@@ -18,8 +18,7 @@
 // that's run after the runtime, so it imports nothing of it but its types (and src/host.ts).
 
 import type { GtTable } from "./gt-table";
-import { applyState, type HostView, SELECT_EVENT, SETTLED, same, VIEW_EVENT, viewOf } from "./host";
-import type { DataSource, FacetCounts, PageAnswer, PageQuery, RowAnswer, RowQuery } from "./source";
+import { applyState, type HostView, SELECT_EVENT, SETTLED, ServerSource, same, VIEW_EVENT, viewOf } from "./host";
 
 export { SELECT_EVENT, VIEW_EVENT, viewOf };
 
@@ -48,7 +47,7 @@ interface Answer {
  * The rows of a table in kernel mode, from Python: each answer is asked for with a message, and
  * comes in one.
  */
-export class KernelSource implements DataSource {
+export class KernelSource extends ServerSource {
   // (Python answers every view of the widget, so each view's asks have their own ids)
   private readonly view = Math.random().toString(36).slice(2);
   private asked = 0;
@@ -56,8 +55,10 @@ export class KernelSource implements DataSource {
 
   constructor(
     private readonly model: Model,
-    private readonly nrows: number,
-  ) {}
+    nrows: number,
+  ) {
+    super(nrows);
+  }
 
   /** Take an answer from Python (a "msg:custom" message), if it's one this source asked for. */
   readonly onMessage = (content?: unknown): void => {
@@ -82,26 +83,7 @@ export class KernelSource implements DataSource {
     this.pending.clear();
   }
 
-  rows(query: RowQuery): Promise<RowAnswer> {
-    return this.ask("rows", { query }).then((answer) => {
-      const rows = answer as number[];
-      const matched = new Uint8Array(this.nrows);
-      for (const row of rows) {
-        matched[row] = 1;
-      }
-      return { matched, count: rows.length };
-    });
-  }
-
-  facet(query: RowQuery, column: string): Promise<FacetCounts> {
-    return this.ask("facet", { query, column }).then((answer) => new Map(answer as [number, number][]));
-  }
-
-  page(query: PageQuery): Promise<PageAnswer> {
-    return this.ask("page", { query }).then((answer) => answer as PageAnswer);
-  }
-
-  private ask(kind: string, content: Record<string, unknown>): Promise<unknown> {
+  protected ask(kind: string, content: Record<string, unknown>): Promise<unknown> {
     const id = `${this.view}:${++this.asked}`;
     return new Promise((resolve, reject) => {
       this.pending.set(id, { resolve, reject });

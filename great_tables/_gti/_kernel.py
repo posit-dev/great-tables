@@ -1,4 +1,5 @@
-"""Kernel mode (`i_scale(engine="kernel")`): a widget's table whose rows stay in Python.
+"""Kernel mode (`i_scale(engine="kernel")`): a table whose rows stay in Python (a widget's, in
+the notebook's kernel, or a Shiny app's, on its server).
 
 The browser has a page of the rows at a time, and the table is remote (its spec has `remote`, see
 packages/gti/src/source.ts): it asks Python for each page of its view (and for a facet's counts),
@@ -11,6 +12,9 @@ view, and leaves out what the browser would need every row for.
 A table with row groups, summary rows, or a stub of more than one column (whose cells are merged
 across rows) isn't kept in Python (see `kernel_reasons()`): its body's rows aren't one per data
 row, in the data's order.
+
+`render_table()` renders a table for a host that can keep its rows in Python, which keeps them if
+`i_scale()` says to (and they can be).
 """
 
 from __future__ import annotations
@@ -23,7 +27,13 @@ from typing import TYPE_CHECKING, Any
 
 from .._gt_data import Stub
 from .._locations import LocBody, LocStub
-from .._tbl_data import _get_cell, _get_column_values, cast_frame_to_string, replace_null_frame
+from .._tbl_data import (
+    _get_cell,
+    _get_column_values,
+    cast_frame_to_string,
+    n_rows,
+    replace_null_frame,
+)
 from .._utils_render_html import create_body_component_h
 from ._pattern import pattern_search
 from ._query import (
@@ -39,7 +49,15 @@ from ._query import (
     label_text,
     match_text,
 )
-from ._render import GTIEngineWarning, _build, gti_element
+from ._render import (
+    MAX_BYTES,
+    MAX_ROWS,
+    GTIEngineWarning,
+    _build,
+    _warn_size,
+    gti_element,
+    render_gti_element,
+)
 from ._settings import settings_of
 from ._spec import Spec, build_spec
 from ._state import check_query_value
@@ -48,7 +66,7 @@ if TYPE_CHECKING:
     from .._gt_data import GroupRowInfo, GTData
     from ..gti import GTI
 
-__all__ = ["KernelEngine", "kernel_reasons"]
+__all__ = ["KernelEngine", "kernel_reasons", "render_table"]
 
 # A row of the body's HTML starts at a line of its own (as `create_body_component_h()` makes it),
 # as each of its cells does
@@ -347,6 +365,20 @@ class KernelEngine:
             shown = rows[start : start + size]
         return {"count": count, "start": start, "rows": shown, "html": self.page_html(shown)}
 
+    def answer(self, ask: Any) -> Any:
+        """The answer to what the browser asks (an "ask": its `kind`, `query`, and a facet's
+        `column`), as `page()`, `facet()` or `rows()` gives it."""
+        if not isinstance(ask, dict):
+            raise TypeError(f"An ask must be an object, not {ask!r}.")
+        kind, query = ask.get("kind"), ask.get("query")
+        if kind == "page":
+            return self.page(query)
+        if kind == "facet":
+            return self.facet(query, ask.get("column"))
+        if kind == "rows":
+            return self.rows(query)
+        raise ValueError(f"There's no answer to a {kind!r} ask.")
+
     # -----
     # The rows' HTML
 
@@ -390,8 +422,9 @@ class KernelEngine:
     # -----
     # The table, as the browser starts with it
 
-    def render(self) -> tuple[str, Spec]:
-        """The table's `<gt-table>` element, with the first page of its view, and its spec."""
+    def render(self, all_important: bool = False, attrs: str = "") -> tuple[str, Spec]:
+        """The table's `<gt-table>` element, with the first page of its view (and `attrs`), and
+        its spec."""
         spec = self.spec
         view = spec["view"]
         first = self.page(
@@ -407,7 +440,8 @@ class KernelEngine:
         )
         data = self.page_data(first["rows"])
         remote = self._remote_spec(first)
-        return gti_element(data, data._render_as_html(), remote, {}), remote
+        table_html = data._render_as_html(all_important=all_important)
+        return gti_element(data, table_html, remote, {}, attrs=attrs), remote
 
     def _remote_spec(self, first: dict[str, Any]) -> Spec:
         # The spec, without what the browser would need every row for: each column's ranks (the
@@ -474,6 +508,39 @@ class KernelEngine:
                 label = texts[row]
             labels.append(label or _js_string(values[k] if k < len(values) else None))
         return labels
+
+
+def render_table(
+    gti: GTI, all_important: bool = False, attrs: str = ""
+) -> tuple[str, Spec, KernelEngine | None]:
+    """The table's element, its spec, and if its rows are kept in Python (as `i_scale()` says,
+    and as they can be), what keeps them (and then the element has `attrs`)."""
+    engine = settings_of(gti).engine
+    # (Rendered without the warning that its rows aren't in Python)
+    browser = gti._set_interactive(engine="browser")
+    if engine == "browser":
+        html, spec = render_gti_element(browser, all_important=all_important)
+        return html, spec, None
+    if engine == "auto" and n_rows(gti._tbl_data) <= MAX_ROWS:
+        html, spec = render_gti_element(browser, all_important=all_important, warn=False)
+        if len(html.encode("utf-8")) <= MAX_BYTES:
+            _warn_size(gti, spec, html)
+            return html, spec, None
+    reasons = kernel_reasons(_build(gti))
+    if reasons:
+        if engine == "kernel":
+            warnings.warn(
+                f"The rows of a table with {_listed(reasons)} can't be kept in Python "
+                '(`i_scale(engine="kernel")`) yet, so they\'re in the browser.',
+                GTIEngineWarning,
+                # (For the caller of `i_as_widget()`)
+                stacklevel=4,
+            )
+        html, spec = render_gti_element(browser, all_important=all_important)
+        return html, spec, None
+    kernel = KernelEngine(gti)
+    html, _ = kernel.render(all_important=all_important, attrs=attrs)
+    return html, kernel.spec, kernel
 
 
 def _listed(items: list[str]) -> str:

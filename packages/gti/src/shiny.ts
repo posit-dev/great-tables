@@ -10,15 +10,23 @@
 // changes come as custom messages (`MESSAGE`), for an output; one for a table that isn't
 // hydrated yet (as the output's just been rendered) is kept until it is.
 //
+// A table whose rows are the server's (in kernel mode, `i_scale()`: its element has
+// `data-gti-server`, their count) is remote: its source is a `ShinySource`, which asks the
+// server for each page (and a facet's counts) with a request (`Shiny.shinyapp.makeRequest()`) to
+// the output's handler (its id, then `ASK_SUFFIX`). Its rows input then gives its view (of type
+// `ROWS_TYPE`), whose rows the server finds.
+//
 // Built on its own (by scripts/build.mjs, into great_tables/js/gti-shiny.js), as a script that's
 // run after the runtime (once per page, as a Shiny dependency), so it imports nothing of it but
 // its types (and src/host.ts).
 
 import type { GtTable } from "./gt-table";
-import { applyState, type HostView, SELECT_EVENT, VIEW_EVENT, viewOf } from "./host";
+import { applyState, type HostView, SELECT_EVENT, ServerSource, VIEW_EVENT, viewOf } from "./host";
 
 export const MESSAGE = "great_tables.update_gti";
 export const VIEW_TYPE = "great_tables.gti_view";
+export const ROWS_TYPE = "great_tables.gti_rows";
+export const ASK_SUFFIX = "_gti";
 
 /** What the server sets on a table, in an output. */
 export interface Update {
@@ -31,6 +39,43 @@ export interface Update {
 export interface ShinyLike {
   setInputValue(name: string, value: unknown): void;
   addCustomMessageHandler(type: string, handler: (message: Update) => void): void;
+  shinyapp?: {
+    makeRequest(
+      method: string,
+      args: unknown[],
+      onSuccess: (value: unknown) => void,
+      onError: (err: string) => void,
+      blobs: null,
+    ): void;
+  };
+}
+
+/** The rows of a table in kernel mode, from the server: each answer is asked for with a request. */
+export class ShinySource extends ServerSource {
+  constructor(
+    private readonly shiny: ShinyLike,
+    private readonly method: string,
+    nrows: number,
+  ) {
+    super(nrows);
+  }
+
+  protected ask(kind: string, content: Record<string, unknown>): Promise<unknown> {
+    return new Promise((resolve, reject) => {
+      const app = this.shiny.shinyapp;
+      if (app === undefined) {
+        reject(new Error("Shiny can't be asked for the rows"));
+      } else {
+        app.makeRequest(this.method, [{ kind, ...content }], resolve, (err) => reject(new Error(err)), null);
+      }
+    });
+  }
+}
+
+/** How many rows a table whose rows are the server's has, or `null` if they're the page's. */
+export function serverRows(table: GtTable): number | null {
+  const count = table.getAttribute("data-gti-server");
+  return count === null ? null : Number(count);
 }
 
 const isTable = (node: unknown): node is GtTable =>
@@ -57,14 +102,23 @@ export function outputOf(table: GtTable): string | null {
 /** Follow the page's tables, for Shiny; returns a function that stops. */
 export function start(shiny: ShinyLike, doc: Document = document): () => void {
   const pending = new Map<string, Update>();
+  // (The tables whose source is the server, once it's set)
+  const served = new WeakSet<GtTable>();
 
   const report = (table: GtTable) => {
     const id = outputOf(table);
     if (id === null || table.state !== "ready") {
       return;
     }
-    shiny.setInputValue(`${id}_view:${VIEW_TYPE}`, viewOf(table));
-    shiny.setInputValue(`${id}_rows`, table.rows);
+    const view = viewOf(table);
+    shiny.setInputValue(`${id}_view:${VIEW_TYPE}`, view);
+    if (serverRows(table) === null) {
+      shiny.setInputValue(`${id}_rows`, table.rows);
+    } else {
+      // (The server finds the rows the view keeps, on every page)
+      const { filter, sort, search, hidden } = view;
+      shiny.setInputValue(`${id}_rows:${ROWS_TYPE}`, { filter, sort, search, hidden });
+    }
     shiny.setInputValue(`${id}_selection`, table.selection);
   };
   const reportAll = () => {
@@ -78,9 +132,15 @@ export function start(shiny: ShinyLike, doc: Document = document): () => void {
     report(table);
   };
 
-  // (A table hydrated, with what the server set on it before)
+  // (A table hydrated, with its rows from the server if they're its, and what the server set on
+  // it before)
   const hydrated = (table: GtTable) => {
     const id = outputOf(table);
+    const nrows = serverRows(table);
+    if (id !== null && nrows !== null && !served.has(table)) {
+      served.add(table);
+      table.source = new ShinySource(shiny, `${id}${ASK_SUFFIX}`, nrows);
+    }
     const update = id === null ? undefined : pending.get(id);
     if (id !== null && update !== undefined) {
       pending.delete(id);

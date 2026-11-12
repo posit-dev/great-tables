@@ -1,6 +1,7 @@
 // What the glue of a host whose server reads and sets a table's state (src/widget.ts, for an
-// anywidget, and src/shiny.ts, for Shiny) shares: the table's view, as the server has it, and
-// setting the server's view and selection on the table.
+// anywidget, and src/shiny.ts, for Shiny) shares: the table's view, as the server has it, setting
+// the server's view and selection on the table, and a source whose rows the server has (for a
+// table in kernel mode, as great_tables/_gti/_kernel.py serves it).
 //
 // Built into each glue, which is run after the runtime, so this imports nothing of it but its
 // types.
@@ -8,6 +9,7 @@
 import type { FilterQuery } from "./filter";
 import type { GtTable, State } from "./gt-table";
 import type { SortKey } from "./sort";
+import type { DataSource, FacetCounts, PageAnswer, PageQuery, RowAnswer, RowQuery } from "./source";
 
 // (As gt-table.ts has them, as test/gt-table.test.ts checks)
 export const VIEW_EVENT = "gt-table-view";
@@ -69,5 +71,35 @@ export function applyState(
     }
   } catch (err) {
     console.error(`<gt-table>: ${(err as Error).message}`);
+  }
+}
+
+/**
+ * The rows of a table in kernel mode, from the server: each answer is asked for (with what's
+ * asked, its `kind`, and the query), as the host's glue sends it.
+ */
+export abstract class ServerSource implements DataSource {
+  constructor(private readonly nrows: number) {}
+
+  /** Ask the server (for a "page", a "facet"'s counts, or the "rows" a query keeps). */
+  protected abstract ask(kind: string, content: Record<string, unknown>): Promise<unknown>;
+
+  rows(query: RowQuery): Promise<RowAnswer> {
+    return this.ask("rows", { query }).then((answer) => {
+      const rows = answer as number[];
+      const matched = new Uint8Array(this.nrows);
+      for (const row of rows) {
+        matched[row] = 1;
+      }
+      return { matched, count: rows.length };
+    });
+  }
+
+  facet(query: RowQuery, column: string): Promise<FacetCounts> {
+    return this.ask("facet", { query, column }).then((answer) => new Map(answer as [number, number][]));
+  }
+
+  page(query: PageQuery): Promise<PageAnswer> {
+    return this.ask("page", { query }).then((answer) => answer as PageAnswer);
   }
 }
