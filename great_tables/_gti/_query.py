@@ -1303,8 +1303,11 @@ def view_rows(gt: GT) -> list[int]:
     import narwhals as nw
 
     from .._tbl_data import _get_column_levels
+    from ._lazy import eager
     from ._render import render_parts
 
+    # (A table of a LazyFrame, with all of its rows)
+    gt = eager(gt)
     table_html, spec = render_parts(gt)
     trs = _body_trs(table_html)
     body = spec["body"]
@@ -1438,8 +1441,10 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     regexes. (With pandas, a column that isn't of PyArrow's strings is searched with Python's
     `re`, whose `$` also matches before a line break at the end of the text.)
     """
+    from ._lazy import eager
     from ._render import render_parts
 
+    gt = eager(gt)
     if backend not in ("polars", "pandas", "narwhals"):
         raise ValueError(f'`backend=` must be "polars", "pandas", or "narwhals", not {backend!r}.')
     import narwhals as nw
