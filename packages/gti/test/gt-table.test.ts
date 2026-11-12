@@ -17,6 +17,8 @@ import {
   type FilterQuery,
   type FilterSpec,
   GtTable,
+  type PageAnswer,
+  type PageQuery,
   type LayoutSpec,
   PAGE_EVENT,
   type PageEventDetail,
@@ -44,6 +46,7 @@ import { TableBorders } from "../src/borders";
 import { ramp, textColor } from "../src/color";
 import { Profile } from "../src/profile";
 import widget, {
+  KernelSource,
   type Model,
   SELECT_EVENT as WIDGET_SELECT_EVENT,
   VIEW_EVENT as WIDGET_VIEW_EVENT,
@@ -8767,6 +8770,102 @@ describe("a table shown as a widget", () => {
     expect(el.querySelector<GtTable>(TAG_NAME)?.state).toBe("static");
     expect(fake.saved).toEqual([]);
   });
+
+  describe("in kernel mode", () => {
+    type Ask = { type: "ask"; id: string; kind: string; query: PageQuery; column?: string };
+    const answer = (fake: ReturnType<typeof fakeModel>, content: unknown) => {
+      for (const callback of fake.callbacks.get("msg:custom") ?? []) {
+        (callback as (content: unknown) => void)(content);
+      }
+    };
+    const asks = (sent: unknown[]) => sent.filter((content): content is Ask => (content as Ask).type === "ask");
+
+    // The first page of a remote table, whose source is Python's
+    async function showKernel() {
+      const { html, spec } = gtTable([0, 1], { controls: { search: true }, pagination: { enabled: true } });
+      const remote = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+      const fake = fakeModel({
+        _html: `<gt-table>${html}${specScript(remote)}</gt-table>`,
+        _view: null,
+        _rows: null,
+        _selection: [],
+        _kernel: true,
+        _nrows: 5,
+      });
+      const el = document.createElement("div");
+      document.body.append(el);
+      const cleanup = widget.render({ model: fake.model, el });
+      await tick();
+      return { ...fake, table: el.querySelector(TAG_NAME) as GtTable, cleanup };
+    }
+
+    it("asks Python for a page, and shows its answer", async () => {
+      const fake = await showKernel();
+      const { table, sent, state } = fake;
+      expect(table.source).toBeInstanceOf(KernelSource);
+      expect(state._rows).toBeNull();
+      table.page = 2;
+      const [ask] = asks(sent);
+      expect(ask).toMatchObject({ kind: "page", query: { start: 2, size: 2, sort: [] } });
+      expect(table.loading).toBe(true);
+      const { html } = gtTable([2, 3]);
+      const trs = (html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1];
+      answer(fake, { type: "answer", id: ask?.id, answer: { count: 5, start: 2, rows: [2, 3], html: trs } });
+      await tick();
+      expect(visible(table)).toEqual([2, 3]);
+      expect(table.loading).toBe(false);
+      // (The rows aren't the model's: Python has them)
+      expect(state._rows).toBeNull();
+    });
+
+    it("stops listening for answers once it's taken down", async () => {
+      const fake = await showKernel();
+      fake.table.page = 2;
+      fake.cleanup();
+      expect(fake.callbacks.get("msg:custom")?.size ?? 0).toBe(0);
+    });
+  });
+
+  describe("KernelSource", () => {
+    function fakeKernel() {
+      const sent: { id: string; kind: string }[] = [];
+      const model = { send: (content: unknown) => sent.push(content as { id: string; kind: string }) } as unknown as Model;
+      return { sent, model };
+    }
+    const query = { search: "", hidden: [], filter: null, links: [] };
+
+    it("asks with an id of its own, and takes the answer with it", async () => {
+      const { sent, model } = fakeKernel();
+      const source = new KernelSource(model, 5);
+      const other = new KernelSource(model, 5);
+      const facet = source.facet(query, "y");
+      const rows = other.rows(query);
+      expect(sent.map((ask) => ask.kind)).toEqual(["facet", "rows"]);
+      expect(sent[0]?.id).not.toBe(sent[1]?.id);
+      // (Each source takes only its own answers)
+      for (const each of [source, other]) {
+        each.onMessage({ type: "answer", id: sent[1]?.id, answer: [1, 3] });
+        each.onMessage({ type: "answer", id: sent[0]?.id, answer: [[0, 2], [-1, 1]] });
+      }
+      expect(await facet).toEqual(new Map([[0, 2], [-1, 1]]));
+      const { matched, count } = await rows;
+      expect([Array.from(matched ?? []), count]).toEqual([[0, 1, 0, 1, 0], 2]);
+    });
+
+    it("fails with Python's error, and when it's closed", async () => {
+      const { sent, model } = fakeKernel();
+      const source = new KernelSource(model, 5);
+      const page = source.page({ ...query, sort: [], start: 0, size: 2 });
+      source.onMessage({ type: "answer", id: sent[0]?.id, error: "no such column" });
+      await expect(page).rejects.toThrow("no such column");
+      const later = source.rows(query);
+      source.close();
+      await expect(later).rejects.toThrow("gone");
+      // (Other messages are left alone)
+      source.onMessage({ type: "change" });
+      source.onMessage(null);
+    });
+  });
 });
 
 describe("tables in a Shiny app", () => {
@@ -9161,5 +9260,148 @@ describe("a source that answers later", () => {
     slow.asked[0]?.answer();
     await tick();
     expect(el.loading).toBe(false);
+  });
+});
+
+describe("a remote table", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"], missing: [], labels: ["A", "B", "C"] };
+
+  // The rows' HTML, as the table's own
+  const trsOf = (rows: number[]) => {
+    const { html } = gtTable(rows);
+    return (html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1] as string;
+  };
+
+  // A source with every row, which gives the page a query asks for (searching `y`), as Python does
+  function pageOf(query: PageQuery): PageAnswer {
+    const kept = [0, 1, 2, 3, 4].filter((row) => (Y[row] as string).includes(query.search));
+    const rank = (column: string, row: number) => RANKS[column as keyof typeof RANKS][row] ?? null;
+    kept.sort((a, b) => {
+      for (const { column, descending } of query.sort) {
+        const [ra, rb] = [rank(column, a), rank(column, b)];
+        if (ra !== rb) {
+          return ra === null ? 1 : rb === null ? -1 : (ra - rb) * (descending ? -1 : 1);
+        }
+      }
+      return a - b;
+    });
+    const size = query.size ?? kept.length;
+    const start = query.start >= kept.length ? Math.max(0, Math.floor((kept.length - 1) / size) * size) : query.start;
+    const rows = kept.slice(start, start + size);
+    return { count: kept.length, start, rows, html: trsOf(rows) };
+  }
+
+  // The first page of the author's view, with a source that answers at once (or with `slow`, when told to)
+  async function mountRemote(slow = false) {
+    const { html, spec } = gtTable([0, 1], { controls: { search: true, bar: true }, pagination: { enabled: true }, filters: [FACET] });
+    const remoteSpec = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+    const asked: PageQuery[] = [];
+    const answers: (() => void)[] = [];
+    const facets: string[] = [];
+    const el = document.createElement(TAG_NAME) as GtTable;
+    el.source = {
+      rows: () => ({ matched: null, count: 5 }),
+      facet: (_, column) => {
+        facets.push(column);
+        return new Map([[0, 3], [1, 1], [2, 1]]);
+      },
+      page: (query) => {
+        asked.push(query);
+        if (!slow) {
+          return pageOf(query);
+        }
+        return new Promise((resolve) => answers.push(() => resolve(pageOf(query))));
+      },
+    };
+    el.innerHTML = `${html}${specScript(remoteSpec)}`;
+    document.body.append(el);
+    await tick();
+    return { el, asked, answers, facets };
+  }
+
+  it("shows its first page, without asking for it", async () => {
+    const { el, asked } = await mountRemote();
+    expect(el.state).toBe("ready");
+    expect(asked).toEqual([]);
+    expect(visible(el)).toEqual([0, 1]);
+    expect(el.rows).toEqual([0, 1]);
+    expect(el.pageCount).toBe(3);
+  });
+
+  it("asks for each page, and shows it, keeping the rows it has", async () => {
+    const { el, asked } = await mountRemote();
+    el.page = 2;
+    expect(asked).toEqual([{ search: "", hidden: [], filter: null, links: [], sort: [], start: 2, size: 2 }]);
+    expect(visible(el)).toEqual([2, 3]);
+    expect(el.rows).toEqual([2, 3]);
+    el.page = 1;
+    expect(visible(el)).toEqual([0, 1]);
+    // (Each row once in the body)
+    expect(shown(el).sort()).toEqual([0, 1, 2, 3]);
+  });
+
+  it("asks for the sorted rows, and shows them in order", async () => {
+    const { el, asked } = await mountRemote();
+    click(el, "x");
+    expect(asked[asked.length - 1]?.sort).toEqual([{ column: "x", descending: false }]);
+    expect(visible(el)).toEqual([1, 2]);
+    el.page = 3;
+    expect(visible(el)).toEqual([3]);
+  });
+
+  it("asks for a search's rows, and pages them as the source counts them", async () => {
+    const { el, asked } = await mountRemote();
+    el.page = 3;
+    el.search = "a";
+    expect(asked[asked.length - 1]).toMatchObject({ search: "a", start: 0 });
+    expect(visible(el)).toEqual([1, 3]);
+    expect(el.pageCount).toBe(2);
+  });
+
+  it("takes the page the source gives, as when the one asked for is past the end", async () => {
+    const { el } = await mountRemote();
+    el.page = 3;
+    el.sort = [{ column: "y", descending: false }];
+    expect(el.page).toBe(1);
+    el.search = "c";
+    expect(visible(el)).toEqual([2]);
+    expect(el.page).toBe(1);
+  });
+
+  it("keeps its rows shown till a page comes", async () => {
+    const { el, asked, answers } = await mountRemote(true);
+    el.page = 2;
+    expect(el.loading).toBe(true);
+    expect(visible(el)).toEqual([0, 1]);
+    // (A page asked for again since: the first answer changes nothing)
+    el.page = 3;
+    expect(asked.map((query) => query.start)).toEqual([2, 4]);
+    answers[1]?.();
+    await tick();
+    expect(visible(el)).toEqual([4]);
+    answers[0]?.();
+    await tick();
+    expect(visible(el)).toEqual([4]);
+    expect(el.loading).toBe(false);
+  });
+
+  it("warns of a page that couldn't be had, keeping the rows shown", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { el } = await mountRemote();
+    const err = new Error("no kernel");
+    el.source = { rows: () => ({ matched: null, count: 5 }), facet: () => new Map(), page: () => Promise.reject(err) };
+    el.page = 2;
+    await tick();
+    expect(warn).toHaveBeenCalledWith("<gt-table>: the page couldn't be had:", err);
+    expect(el.loading).toBe(false);
+    expect(visible(el)).toEqual([0, 1]);
+  });
+
+  it("names a facet's values by their labels, counted by the source", async () => {
+    const { el, facets } = await mountRemote();
+    (header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement).click();
+    expect(facets).toEqual(["y"]);
+    const names = Array.from(el.querySelectorAll(".gt-i-filter-option"), (option) => option.textContent);
+    expect(names).toEqual(["A3", "B1", "C1"]);
   });
 });
