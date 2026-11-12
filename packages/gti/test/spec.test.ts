@@ -130,6 +130,33 @@ describe("parseSpec()", () => {
     expect(parse(valid).filters).toBeUndefined();
   });
 
+  it("takes a remote table, whose ranks have no rows", () => {
+    const remote = { ...valid, ranks: { x: [] }, remote: { count: 2, rows: [1, 0] } };
+    expect(parse(remote).remote).toEqual({ count: 2, rows: [1, 0] });
+    expect(parse({ ...remote, remote: { count: 0, rows: [] } }).remote?.count).toBe(0);
+    // (Not without `remote`)
+    expect(() => parse({ ...valid, ranks: { x: [] } })).toThrow(/ranks\.x/);
+  });
+
+  it.each([
+    ["no count", { rows: [0] }],
+    ["a count over the rows", { count: 3, rows: [0] }],
+    ["a row not in the body", { count: 2, rows: [5] }],
+    ["a row twice", { count: 2, rows: [0, 0] }],
+    ["rows that aren't a list", { count: 2, rows: 0 }],
+  ])("rejects a remote table with %s", (_, remote) => {
+    expect(() => parse({ ...valid, remote })).toThrow(/`remote`/);
+  });
+
+  it("takes a filter's labels, one per value, and rejects others", () => {
+    const facet = { column: "x", type: "facet", values: ["a", "b"], labels: ["A", "B"] };
+    expect(parse({ ...valid, filters: [facet] }).filters?.[0]?.labels).toEqual(["A", "B"]);
+    for (const labels of [["A"], ["A", 2], "AB"]) {
+      expect(() => parse({ ...valid, filters: [{ ...facet, labels }] })).toThrow(/labels/);
+    }
+    expect(() => parse({ ...valid, filters: [{ column: "x", type: "text", values: null, labels: [] }] })).toThrow(/labels/);
+  });
+
   it("rejects a date filter with values that aren't dates", () => {
     for (const values of [[1, 2], ["2015-06-15", "June 15"], ["2015-02-30", null]]) {
       expect(() => parse({ ...valid, filters: [{ column: "x", type: "date", values }] })).toThrow(SpecError);
