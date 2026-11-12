@@ -762,6 +762,11 @@ class Stub:
     def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
         return self.group_rows.indices_map(len(self.rows))
 
+    def row_number(self, index: int) -> int:
+        """The number of a data row, by its index, in its stub cell's id (its place in the data,
+        from 1)."""
+        return index + 1
+
     def __iter__(self):
         return iter(self.rows)
 
