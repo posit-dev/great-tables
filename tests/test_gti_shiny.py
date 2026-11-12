@@ -403,11 +403,16 @@ def test_update_gti_checks_against_kernel_table(session):
     assert custom(session)[0][MESSAGE]["selection"] == [4]
 
 
-def test_lazy_table_keeps_its_rows_on_server(session):
+@pytest.mark.parametrize("backend", ["polars", "duckdb"])
+def test_lazy_table_keeps_its_rows_on_server(session, backend):
     import polars as pl
 
     many = pl.LazyFrame({"n": range(4000), "t": [f"t{i}" for i in range(4000)]})
-    rendered = render(session, GTI(many).i_pagination(page_size=2))
+    order = {}
+    if backend == "duckdb":
+        duckdb = pytest.importorskip("duckdb")
+        many, order = duckdb.connect().from_arrow(many.collect().to_arrow()), {"order_by": "n"}
+    rendered = render(session, GTI(many, **order).i_pagination(page_size=2))
     assert '<gt-table data-gti-server="4000"' in rendered["html"]
     assert _SPECS[session]["table"]["nrows"] == 4000
     page = ask(session, "table_gti", {"kind": "page", "query": {**QUERY, "start": 2, "size": 2}})

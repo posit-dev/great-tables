@@ -1,9 +1,11 @@
-"""Tables of Polars LazyFrames (`GTI(lf)`): made again from the rows shown, and in kernel mode,
-their views found with Polars queries (great_tables/_gti/_lazy.py).
+"""Tables of lazy frames (`GTI(lf)`: a Polars LazyFrame, a DuckDB relation or an Ibis table): made
+again from the rows shown, and in kernel mode, their views found with queries of the frame's backend
+(great_tables/_gti/_lazy.py).
 
 A lazy table's views are found from its rows' values (as text, for its search), where an eager
 table's are found from its cells' text, as the runtime reads them: so the two are compared with
-data whose cells show their values as they are.
+data whose cells show their values as they are. A DuckDB relation's or an Ibis table's eager table
+is of its rows as the backend collects them, in their order (by `order_by=`).
 """
 
 from __future__ import annotations
@@ -12,6 +14,7 @@ import datetime as dt
 import re
 import warnings
 
+import narwhals as nw
 import polars as pl
 import pytest
 
@@ -34,12 +37,40 @@ DATA = {
 
 FRAME = pl.DataFrame(DATA, strict=False)
 
+BACKENDS = ["polars", "duckdb", "ibis"]
+
+
+def lazy_frame(backend: str, data: pl.DataFrame):
+    """The data as a lazy frame of the backend."""
+    if backend == "polars":
+        return data.lazy()
+    if backend == "duckdb":
+        duckdb = pytest.importorskip("duckdb")
+        return duckdb.connect().from_arrow(data.to_arrow())
+    ibis = pytest.importorskip("ibis")
+    return ibis.memtable(data.to_arrow())
+
+
+def eager_data(backend: str, data: pl.DataFrame, order_by: str = "char"):
+    """The data as the backend collects it, in the order of `order_by=` (but a LazyFrame's)."""
+    if backend == "polars":
+        return data
+    return nw.from_native(lazy_frame(backend, data)).sort(order_by).collect().to_native()
+
+
+def pair(backend: str, make, data: pl.DataFrame = FRAME, order_by: str = "char"):
+    """The tables `make()` makes of the data, eager and lazy (in the backend's order)."""
+    lazy = lazy_frame(backend, data)
+    order = {} if backend == "polars" else {"order_by": order_by}
+    return make(eager_data(backend, data, order_by), {}), make(lazy, order)
+
+
 QUERY = {"search": "", "hidden": [], "filter": None, "links": [], "sort": []}
 
 
-def make_gti(data) -> GTI:
+def make_gti(data, order=None) -> GTI:
     return (
-        GTI(data, id="t")
+        GTI(data, id="t", **(order or {}))
         .i_cols_filter("fctr", type="facet")
         .i_cols_filter("num")
         .i_cols_filter("int")
@@ -56,9 +87,9 @@ def engines(eager: GTI, lazy: GTI) -> tuple[KernelEngine, LazyEngine]:
         return KernelEngine(eager), LazyEngine(lazy)
 
 
-@pytest.fixture(scope="module")
-def both() -> tuple[KernelEngine, LazyEngine]:
-    return engines(make_gti(FRAME), make_gti(FRAME.lazy()))
+@pytest.fixture(scope="module", params=BACKENDS)
+def both(request) -> tuple[KernelEngine, LazyEngine]:
+    return engines(*pair(request.param, make_gti))
 
 
 def page_query(**parts) -> dict:
@@ -128,19 +159,33 @@ def test_search_matches_values_not_cells_text():
     assert engine.rows({**QUERY, "search": "three", "hidden": ["fctr"]}) == []
 
 
-def test_search_folds_as_the_runtime_does():
-    data = pl.DataFrame({"w": ["ΟΔΟΣ", "οδος", "Crème"]})
-    eager, lazy = engines(GTI(data), GTI(data.lazy()))
-    for search in ["ΟΔΟΣ", "οδοσ", "οδος", "creme", "CRÈME"]:
-        query = {**QUERY, "search": search}
-        assert lazy.rows(query) == eager.rows(query)
-    assert lazy.rows({**QUERY, "search": "ΟΔΟΣ"}) == [0]
+@pytest.mark.parametrize("backend", BACKENDS)
+def test_search_folds_as_the_runtime_does(backend):
+    data = pl.DataFrame({"w": ["Crème", "ΟΔΟΣ", "οδος", "한국어", "Straße"]})
+    eager, lazy = engines(*pair(backend, lambda d, o: GTI(d, **o).i_cols_filter("w"), data, "w"))
+    for search in ["ΟΔΟΣ", "οδοσ", "οδος", "creme", "CRÈME", "한국", "국", "STRASSE", "straße"]:
+        for query in (
+            {**QUERY, "search": search},
+            {**QUERY, "filter": contains(eager, "w", search)},
+        ):
+            assert lazy.rows(query) == eager.rows(query), (search, query)
+    assert lazy.rows({**QUERY, "search": "ΟΔΟΣ"}) == lazy.rows({**QUERY, "search": "οδοσ"})
+    assert len(lazy.rows({**QUERY, "search": "한국"})) == 1
 
 
-def test_search_reads_durations_and_skips_nested_values():
+def contains(engine: KernelEngine, column: str, text: str) -> dict | None:
+    return check_query_value(engine.spec, f'{column} contains "{text}"', "q")
+
+
+@pytest.mark.parametrize("backend", BACKENDS)
+def test_search_reads_durations_and_skips_nested_values(backend):
+    if backend == "ibis":
+        pytest.skip("Ibis can't collect a duration (DuckDB's interval) to PyArrow")
     data = pl.DataFrame({"d": [dt.timedelta(hours=1), None], "l": [[1, 2], [3]]})
-    engine = LazyEngine(GTI(data.lazy()))
-    assert engine.rows({**QUERY, "search": "1h"}) == [0]
+    engine = LazyEngine(GTI(lazy_frame(backend, data)))
+    # (A duration's text is the backend's)
+    hour = {"polars": "1h", "duckdb": "01:00:00", "ibis": "01:00:00"}[backend]
+    assert engine.rows({**QUERY, "search": hour}) == ([0] if backend == "polars" else [1])
     assert engine.rows({**QUERY, "search": "3"}) == []
 
 
@@ -165,26 +210,32 @@ def test_filters_have_their_values(both):
     assert filters["num"]["missing"] == [2]
 
 
-def test_date_filter_has_a_time_and_seconds():
+@pytest.mark.parametrize("backend", BACKENDS)
+def test_date_filter_has_a_time_and_seconds(backend):
+    def values(times):
+        frame = lazy_frame(backend, pl.DataFrame({"t": times}))
+        [f] = LazyEngine(GTI(frame).i_cols_filter("t", type="date")).spec["filters"]
+        return f["values"]
+
     times = [dt.datetime(2020, 1, 2), dt.datetime(2020, 1, 1), dt.datetime(2020, 1, 3, 4, 5, 6)]
-    engine = LazyEngine(GTI(pl.LazyFrame({"t": times})).i_cols_filter("t", type="date"))
-    [f] = engine.spec["filters"]
-    assert f["values"] == ["2020-01-01T00:00:00", "2020-01-03T04:05:06"]
+    assert values(times) == ["2020-01-01T00:00:00", "2020-01-03T04:05:06"]
     times[2] = dt.datetime(2020, 1, 3, 4, 5)
-    engine = LazyEngine(GTI(pl.LazyFrame({"t": times})).i_cols_filter("t", type="date"))
-    assert engine.spec["filters"][0]["values"] == ["2020-01-01T00:00:00", "2020-01-03T04:05:00"]
+    assert values(times) == ["2020-01-01T00:00:00", "2020-01-03T04:05:00"]
+    times[2] = dt.datetime(2020, 1, 3, 4, 5, 0, 5)
+    assert values(times)[-1].startswith("2020-01-03T04:05:00.000005")
 
 
 # Its pages are the eager table's ----
 
 
+@pytest.mark.parametrize("backend", BACKENDS)
 @pytest.mark.parametrize("rowname_col", [None, "char"])
-def test_pages_are_the_eager_tables(rowname_col):
-    def make(data):
+def test_pages_are_the_eager_tables(backend, rowname_col):
+    def make(data, order):
         return (
-            GTI(data, rowname_col=rowname_col, id="t")
+            GTI(data, rowname_col=rowname_col, id="t", **order)
             .fmt_number("num", decimals=1)
-            .tab_style(style.fill("red"), loc.body(columns="int", rows=pl.col("int") > 2))
+            .tab_style(style.fill("red"), loc.body(columns="int", rows=["kiwi", "fig"]))
             .tab_header("Fruit")
             .i_inspect()
             .i_cols_filter("fctr", type="facet")
@@ -192,7 +243,7 @@ def test_pages_are_the_eager_tables(rowname_col):
             .i_view(sort="-num")
         )
 
-    eager, lazy = engines(make(FRAME), make(FRAME.lazy()))
+    eager, lazy = engines(*pair(backend, make))
     for start in (0, 3, 6):
         query = page_query(sort=[{"column": "num", "descending": True}], start=start)
         assert lazy.page(query) == eager.page(query)
@@ -220,9 +271,9 @@ def test_labels_are_the_cells_text():
     assert fctr["labels"] == ["ONE", "THREE", "TWO"]
 
 
-def test_view_rows_and_code_are_the_eager_tables():
-    eager = make_gti(FRAME).i_view(filter="num > 1", sort="-int")
-    lazy = make_gti(FRAME.lazy()).i_view(filter="num > 1", sort="-int")
+@pytest.mark.parametrize("backend", BACKENDS)
+def test_view_rows_and_code_are_the_eager_tables(backend):
+    eager, lazy = (table.i_view(filter="num > 1", sort="-int") for table in pair(backend, make_gti))
     assert view_rows(lazy) == view_rows(eager)
     assert query_code(lazy) == query_code(eager)
 
@@ -278,6 +329,52 @@ def test_footnotes_elsewhere_are_kept():
     assert "A note" in gti.as_raw_html()
 
 
+# Its rows' order ----
+
+
+def test_relations_rows_are_numbered_by_their_columns():
+    duckdb = pytest.importorskip("duckdb")
+    # (A relation sorted with ties, whose rows' order DuckDB doesn't keep from query to query)
+    rel = duckdb.sql("select i % 7 as v, i from range(300000) r(i) order by v")
+    engine = LazyEngine(GTI(rel).i_scale("kernel"))
+    assert engine.data(list(range(3)))["i"].to_pylist() == [0, 7, 14]
+    assert engine.data([299999, 1])["i"].to_pylist() == [299998, 7]
+    # (By `order_by=`'s columns, then the others)
+    engine = LazyEngine(GTI(rel, order_by="i").i_cols_filter("v").i_scale("kernel"))
+    assert engine.data([0, 1, 299999])["i"].to_pylist() == [0, 1, 299999]
+    rows = engine.rows(
+        {**QUERY, "filter": check_query_value(engine.spec, "v >= 3 and v <= 3", "q")}
+    )
+    assert rows[:3] == [3, 10, 17] and len(rows) == 42857
+
+
+def test_lazyframes_rows_are_in_its_order_or_order_by():
+    lf = pl.LazyFrame({"n": [3, 1, 2], "t": ["c", "a", "b"]})
+    assert collected(GTI(lf))._tbl_data["n"].to_list() == [3, 1, 2]
+    assert collected(GTI(lf, order_by="t"))._tbl_data["n"].to_list() == [1, 2, 3]
+
+
+def test_ibis_table_of_another_backend_is_queried_there():
+    ibis = pytest.importorskip("ibis")
+    con = ibis.sqlite.connect()
+    data = pl.DataFrame({"w": ["Crème", "Apple", "BANANA"], "n": [1, 2, 3]})
+    engine = LazyEngine(GTI(con.create_table("w", data.to_arrow())).i_scale("kernel"))
+    # (Numbered as they sort, by `w`; its text lowercased, but its accents kept)
+    assert engine.rows({**QUERY, "search": "banana"}) == [1]
+    assert engine.rows({**QUERY, "search": "creme"}) == []
+    assert engine.page(page_query(start=1, size=2))["rows"] == [1, 2]
+
+
+def test_order_by_is_checked():
+    with pytest.raises(ValueError, match="doesn't have"):
+        GTI(FRAME.lazy(), order_by="nope")
+    with pytest.raises(ValueError, match="isn't one"):
+        GTI(FRAME, order_by="char")
+    duckdb = pytest.importorskip("duckdb")
+    with pytest.raises(ValueError, match="give an `order_by=`"):
+        GTI(duckdb.sql("select [1, 2] as l"))
+
+
 # Where it's shown ----
 
 
@@ -287,9 +384,16 @@ def test_browser_table_is_collected():
     assert lazy.as_raw_html() == eager.as_raw_html()
 
 
+@pytest.mark.parametrize("backend", ["duckdb", "ibis"])
+def test_browser_table_of_a_relation_is_collected_in_order(backend):
+    eager, lazy = pair(backend, lambda d, o: make_gti(d, o).fmt_number("num", decimals=1))
+    assert lazy.as_raw_html() == eager.as_raw_html()
+    assert type(collected(lazy)._tbl_data).__name__ == "Table"
+
+
 def test_large_browser_table_warns_it_was_collected():
     big = pl.LazyFrame({"n": range(4000)})
-    with pytest.warns(GTISizeWarning, match="collected from its LazyFrame"):
+    with pytest.warns(GTISizeWarning, match="collected from its lazy frame"):
         GTI(big).as_raw_html()
 
 
@@ -334,6 +438,19 @@ def test_widget_finds_and_views_rows():
     assert widget.view(selected=True)["char"].to_list() == ["Banana", "Éclair"]
     with pytest.raises(ValueError, match="has 8 rows"):
         widget.selection = [8]
+
+
+def test_widget_of_a_relation_views_its_rows():
+    duckdb = pytest.importorskip("duckdb")
+    rel = duckdb.connect().from_arrow(FRAME.to_arrow())
+    widget = make_gti(rel, {"order_by": "char"}).i_selection("multiple").i_scale("kernel")
+    widget = widget.i_as_widget()
+    widget.query = 'fctr in ("one")'
+    widget.sort = "-int"
+    # (Numbered as they sort by `char`: "Banana", "apricot", "coconut", ...)
+    assert widget.view()["char"].to_pylist() == ["apricot", "kiwi", "coconut"]
+    widget.selection = [0]
+    assert widget.view(selected=True)["char"].to_pylist() == ["Banana"]
 
 
 def test_widget_dropped_features_warning_is_the_callers():
