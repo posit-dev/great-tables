@@ -54,9 +54,11 @@ import widget, {
 } from "../src/widget";
 import type { HostView } from "../src/host";
 import {
+  ROWS_TYPE as SHINY_ROWS_TYPE,
   MESSAGE as SHINY_MESSAGE,
   VIEW_TYPE as SHINY_VIEW_TYPE,
   outputOf,
+  ShinySource,
   type ShinyLike,
   start as startShiny,
   tableIn,
@@ -9013,6 +9015,77 @@ describe("tables in a Shiny app", () => {
     stop();
     click(tableOf("out"), "x");
     expect(inputs.out_view).toEqual(VIEW);
+  });
+
+  describe("in kernel mode", () => {
+    type Request = { method: string; args: unknown[]; onSuccess: (value: unknown) => void; onError: (err: string) => void };
+
+    // Shiny, with the requests made of the server
+    function fakeServer() {
+      const fake = fakeShiny();
+      const requests: Request[] = [];
+      fake.shiny.shinyapp = {
+        makeRequest: (method, args, onSuccess, onError) => requests.push({ method, args, onSuccess, onError }),
+      };
+      return { ...fake, requests };
+    }
+
+    // An output with the first page of a table whose rows are the server's
+    const served = (id: string) => {
+      const { html, spec } = gtTable([0, 1], { controls: { search: true }, pagination: { enabled: true } });
+      const remote = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+      return `<div class="shiny-html-output" id="${id}"><gt-table data-gti-server="5">${html}${specScript(remote)}</gt-table></div>`;
+    };
+    const trsOf = (rows: number[]) => (gtTable(rows).html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1];
+
+    it("asks the output's handler for a page, and shows its answer", async () => {
+      await mount(served("out"));
+      const { shiny, requests } = fakeServer();
+      start(shiny);
+      const table = tableOf("out");
+      expect(table.source).toBeInstanceOf(ShinySource);
+      // (The first page, asked for again with the new source)
+      requests.splice(0).forEach((request) => request.onSuccess({ count: 5, start: 0, rows: [0, 1], html: trsOf([0, 1]) }));
+      await tick();
+      table.page = 2;
+      const [request] = requests;
+      expect(request?.method).toBe("out_gti");
+      expect(request?.args).toEqual([{ kind: "page", query: expect.objectContaining({ start: 2, size: 2, sort: [] }) }]);
+      expect(table.loading).toBe(true);
+      request?.onSuccess({ count: 5, start: 2, rows: [2, 3], html: trsOf([2, 3]) });
+      await tick();
+      expect(visible(table)).toEqual([2, 3]);
+      expect(table.loading).toBe(false);
+    });
+
+    it("gives its view as its rows input, for the server to find them", async () => {
+      await mount(served("out"));
+      const { shiny, inputs, names, requests } = fakeServer();
+      start(shiny);
+      expect(names).toContain(`out_rows:${SHINY_ROWS_TYPE}`);
+      expect(inputs.out_rows).toEqual({ filter: null, sort: [], search: "", hidden: [] });
+      requests.splice(0).forEach((request) => request.onSuccess({ count: 5, start: 0, rows: [0, 1], html: trsOf([0, 1]) }));
+      await tick();
+      click(tableOf("out"), "x");
+      requests.splice(0).forEach((request) => request.onSuccess({ count: 5, start: 0, rows: [1, 2], html: trsOf([1, 2]) }));
+      await tick();
+      expect(inputs.out_rows).toEqual({ filter: null, sort: [{ column: "x", descending: false }], search: "", hidden: [] });
+    });
+
+    it("fails with the server's error, or without Shiny's requests", async () => {
+      const { shiny, requests } = fakeServer();
+      const source = new ShinySource(shiny, "out_gti", 5);
+      const query = { search: "", hidden: [], filter: null, links: [] };
+      const facet = source.facet(query, "y");
+      requests[0]?.onError("no such column");
+      await expect(facet).rejects.toThrow("no such column");
+      const rows = source.rows(query);
+      requests[1]?.onSuccess([1, 3]);
+      const { matched, count } = await rows;
+      expect([Array.from(matched ?? []), count]).toEqual([[0, 1, 0, 1, 0], 2]);
+      const alone = new ShinySource(fakeShiny().shiny, "out_gti", 5);
+      await expect(alone.rows(query)).rejects.toThrow("Shiny");
+    });
   });
 });
 
