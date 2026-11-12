@@ -48,7 +48,7 @@ def _running_in_marimo() -> bool:
 
 
 def _infer_render_target(
-    ipy: InteractiveShell | None | type = MISSING,
+    ipy: InteractiveShell | type | None = MISSING,
 ) -> Literal["auto", "notebook", "browser"]:
     # adapted from py-htmltools
     # Note that `ipy` arguments are possible return values of IPython.get_ipython()
@@ -135,7 +135,7 @@ def show(
             webbrowser.open(f"http://127.0.0.1:{server.server_port}/{f_path.name}")
             server.handle_request()
     else:
-        raise Exception(f"Unknown target display: {target}")
+        raise ValueError(f"Unknown target display: {target}")
 
 
 def as_raw_html(
@@ -271,10 +271,7 @@ def as_raw_html(
             # Obtain the `table_id` value from the Options (might be set, might be None)
             table_id = self._options.table_id.value
 
-            if table_id is None:
-                id = random_id()
-            else:
-                id = table_id
+            id = random_id() if table_id is None else table_id
 
             # Compile the SCSS as CSS
             table_css = compile_scss(self, id=id, compress=False, all_important=all_important)
@@ -415,7 +412,7 @@ def save(  # pragma: no cover
     expand: int = 5,
     web_driver: WebDrivers | webdriver.Remote = "chrome",
     window_size: tuple[int, int] = (6000, 6000),
-    debug_port: None | int = None,
+    debug_port: int | None = None,
     encoding: str = "utf-8",
     _debug_dump: DebugDumpOptions | None = None,
 ) -> GTSelf:

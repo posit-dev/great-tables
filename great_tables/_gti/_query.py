@@ -61,7 +61,7 @@ from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from html.parser import HTMLParser
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal
 
 from ._pattern import (
     PatternError,
@@ -245,7 +245,7 @@ def _normal_item(item: Any, where: str) -> dict[str, Any]:
     items: list[dict[str, Any]] = []
     for i, part in enumerate(_group_parts(item, kind)):
         normal = _normal_item(part, f"part {i} of an {kind!r} group")
-        items.extend(normal[kind] if kind in normal else [normal])
+        items.extend(normal.get(kind, [normal]))
     if kind == "and":
         seen: set[tuple[str, str]] = set()
         for part in items:
@@ -338,7 +338,7 @@ def _facet_value(item: Any, col: str) -> Any:
 def _count(value: Any, col: str, op: str) -> int:
     # (A whole number, as JSON has it: so 10.0 is 10, as the runtime has it)
     numpy_number = getattr(getattr(value, "dtype", None), "kind", None) in ("i", "u", "f")
-    if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) or numpy_number:
+    if (isinstance(value, (int, float, Decimal)) and not isinstance(value, bool)) or numpy_number:
         number = _json_value(value)
         if number is not None and float(number).is_integer() and 1 <= number <= _MAX_COUNT:
             return int(number)
@@ -350,7 +350,7 @@ def _count(value: Any, col: str, op: str) -> int:
 
 def _bound(value: Any, col: str, op: str) -> int | float | str:
     numpy_number = getattr(getattr(value, "dtype", None), "kind", None) in ("i", "u", "f")
-    if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) or numpy_number:
+    if (isinstance(value, (int, float, Decimal)) and not isinstance(value, bool)) or numpy_number:
         bound = _json_value(value)
         if bound is not None:
             return bound
@@ -645,7 +645,7 @@ class _QueryParser:
         item = self.or_()
         if self.token.kind != "end":
             self.fail('expected "and", "or" or the end of the query')
-        return {"and": item["and"] if "and" in item else [item]}
+        return {"and": item.get("and", [item])}
 
 
 def _joined(kind: str, items: list[dict[str, Any]]) -> dict[str, Any]:
@@ -653,7 +653,7 @@ def _joined(kind: str, items: list[dict[str, Any]]) -> dict[str, Any]:
     # kind spliced in)
     if len(items) == 1:
         return items[0]
-    return {kind: [part for item in items for part in (item[kind] if kind in item else [item])]}
+    return {kind: [part for item in items for part in (item.get(kind, [item]))]}
 
 
 def parse_query(text: str) -> Query | None:
@@ -1113,7 +1113,7 @@ class _IsNull:
     nan: bool  # (a column of floats, whose NaN is missing too)
 
 
-_Clause = Union[_In, _Compare, _Extreme, _Contains, _Matches, _IsNull]
+_Clause = _In | _Compare | _Extreme | _Contains | _Matches | _IsNull
 
 
 @dataclass(frozen=True)
@@ -1127,7 +1127,7 @@ class _Not:
     part: _Predicate
 
 
-_Predicate = Union[_In, _Compare, _Extreme, _Contains, _Matches, _IsNull, _Group, _Not]
+_Predicate = _In | _Compare | _Extreme | _Contains | _Matches | _IsNull | _Group | _Not
 
 
 def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_Predicate]:
@@ -1516,7 +1516,7 @@ def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
     return {"and": [*map(clause_of, clauses), *map(item_of, groups)]}
 
 
-def _whole(value: int | float) -> int | float:
+def _whole(value: float) -> int | float:
     # (A bound as JavaScript holds it, a double: an integer if it's whole)
     number = float(value)
     return int(number) if number.is_integer() else number

@@ -196,7 +196,7 @@ def tab_options(
     ihtml_page_size_default: int | None = None,
     ihtml_page_size_values: list[int] | None = None,
     ihtml_pagination_type: str | None = None,
-    ihtml_height: str | int | float | None = None,
+    ihtml_height: str | float | None = None,
     ihtml_selection_mode: str | None = None,
 ) -> GTSelf:
     """
@@ -682,7 +682,7 @@ def opt_footnote_marks(self: GTSelf, marks: str | list[str] = "numbers") -> GTSe
     # Validate the marks keyword passed in as a string
     if marks is str:
         marks = _utils._match_arg(
-            x=cast(str, marks),
+            x=cast("str", marks),
             lst=["numbers", "letters", "LETTERS", "standard", "extended"],
         )
 
@@ -1262,7 +1262,7 @@ def opt_all_caps(
         "row_groups": LocRowGroups,
     }
 
-    if any([isinstance(x, str) for x in locations]):
+    if any(isinstance(x, str) for x in locations):
         warnings.warn(
             "Using string-based locations in `opt_all_caps()` is deprecated and support will be "
             "removed in a future release. Please use the location classes from `great_tables.loc` "
@@ -1834,7 +1834,7 @@ def opt_css(
         return self
     else:
         # Add the new CSS to the existing CSS
-        additional_css = existing_additional_css + [css]
+        additional_css = [*existing_additional_css, css]
 
     # Use tab_options() to set the additional CSS
     res = tab_options(self, table_additional_css=additional_css)
@@ -1858,7 +1858,7 @@ def opt_interactive(
     page_size_default: int = 10,
     page_size_values: list[int] | None = None,
     pagination_type: str = "numbers",
-    height: str | int | float = "auto",
+    height: str | float = "auto",
     selection_mode: str | None = None,
 ) -> GTSelf:
     """

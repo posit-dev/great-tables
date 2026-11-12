@@ -15,6 +15,6 @@ def test_the_runtimes_colors_are_data_colors():
     spec.loader.exec_module(make_colors)
 
     made = json.loads(make_colors.OUT.read_text())
-    assert made == json.loads(
-        json.dumps(make_colors.make())
-    ), "Run `python packages/gti/test/make_colors.py` to write test/colors.json again"
+    assert made == json.loads(json.dumps(make_colors.make())), (
+        "Run `python packages/gti/test/make_colors.py` to write test/colors.json again"
+    )

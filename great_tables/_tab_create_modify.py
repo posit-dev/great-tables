@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Literal
 
 from ._gt_data import TextTransformInfo
@@ -10,6 +9,8 @@ from ._locations import Loc, set_style
 from ._styles import CellStyle
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._locations import RowSelectExpr
     from ._tbl_data import SelectExpr
     from ._types import GTSelf
@@ -343,7 +344,7 @@ def tab_style_body(
             cell_value = _none_if_missing(_get_cell(data, row_idx, col_name))
             try:
                 is_match = match_fn(cell_value)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 is_match = False
             if is_match:
                 matched_cells.append((col_name, row_idx))

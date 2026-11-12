@@ -66,11 +66,11 @@ _FAITHFULNESS = [_faithfulness(a, o) for (a, _), o in zip(_APHORISMS, _PEP20, st
 _COLUMNS = {
     "n": list(range(1, 21)),
     "aphorism": [a for a, _ in _APHORISMS] + [None],
-    "original": _PEP20 + [None],
+    "original": [*_PEP20, None],
     "method": [m for _, m in _APHORISMS] + [None],
     # One column draws the bar, the other prints the value
-    "faithful": _FAITHFULNESS + [None],
-    "faithful_pct": _FAITHFULNESS + [None],
+    "faithful": [*_FAITHFULNESS, None],
+    "faithful_pct": [*_FAITHFULNESS, None],
 }
 
 _FAMILY_COLORS = {

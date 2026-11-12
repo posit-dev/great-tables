@@ -5,19 +5,19 @@ import warnings
 from collections import defaultdict
 from dataclasses import dataclass
 from itertools import chain
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, TypeAlias
 
-from typing_extensions import TypeAlias, TypedDict
+from typing_extensions import TypedDict
 
 from ._boxhead import cols_label
 from ._gt_data import ColInfoTypeEnum, ColMergeInfo, SpannerInfo, Spanners
 from ._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
-from ._tbl_data import SelectExpr
 from ._text import BaseText, Text
 from ._utils import OrderedSet, _assert_list_is_subset
 
 if TYPE_CHECKING:
     from ._gt_data import Boxhead
+    from ._tbl_data import SelectExpr
     from ._types import GTSelf
 
 
@@ -178,15 +178,12 @@ def tab_spanner(
     """
     from great_tables._helpers import UnitStr
 
-    crnt_spanner_ids = set([span.spanner_id for span in self._spanners])
+    crnt_spanner_ids = {span.spanner_id for span in self._spanners}
 
     if id is None:
         # The label may contain HTML or Markdown, so we need to extract
         # it from the Text object
-        if isinstance(label, Text):
-            id = label.text
-        else:
-            id = label
+        id = label.text if isinstance(label, Text) else label
 
     if isinstance(columns, (str, int)):
         columns = [columns]
@@ -218,7 +215,7 @@ def tab_spanner(
         spanner_ids = []
 
     # If no columns or spanners were selected, return the table unchanged (as in R's gt)
-    if not len(selected_column_names) and not len(spanner_ids):
+    if not len(selected_column_names) and not spanner_ids:
         return self
 
     # get column names associated with selected spanners ----
@@ -266,7 +263,7 @@ def tab_spanner(
     spanners = self._spanners.append_entry(new_span)
     new_data = self._replace(_spanners=spanners)
 
-    if gather and not len(spanner_ids) and level == 0 and column_names:
+    if gather and not spanner_ids and level == 0 and column_names:
         return cols_move(new_data, columns=column_names, after=column_names[0])
 
     return new_data
@@ -485,7 +482,7 @@ def _unique_spanner_id(spanners: Spanners, label: str) -> str:
 
 def _validate_sel_cols(columns: SelectExpr, sel_cols: list[str], col_vars: list[str]) -> None:
     if not sel_cols:
-        raise Exception("No columns selected.")
+        raise ValueError("No columns selected.")
 
     # `resolve_cols_c()` silently drops any string entries in `columns` that don't match a
     # column in the data, so `sel_cols` can never catch that case on its own; validate the
@@ -677,7 +674,7 @@ def cols_move_to_start(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     _validate_sel_cols(columns, sel_cols, col_vars)
 
-    moving_columns = [col for col in sel_cols]
+    moving_columns = list(sel_cols)
     other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*moving_columns, *other_columns]
@@ -745,7 +742,7 @@ def cols_move_to_end(self: GTSelf, columns: SelectExpr) -> GTSelf:
 
     _validate_sel_cols(columns, sel_cols, col_vars)
 
-    moving_columns = [col for col in sel_cols]
+    moving_columns = list(sel_cols)
     other_columns = [col for col in col_vars if col not in moving_columns]
 
     final_vars = [*other_columns, *moving_columns]
@@ -909,9 +906,7 @@ def spanners_print_matrix(
     spanner_reprs = [span.spanner_id if ids else span.built_label() for span in crnt_spans]
 
     # Create a matrix with dimension spanner_height x vars (e.g. presented columns)
-    label_matrix: SpannerMatrix = [
-        {var_name: None for var_name in vars} for _ in range(spanner_height)
-    ]
+    label_matrix: SpannerMatrix = [dict.fromkeys(vars) for _ in range(spanner_height)]
 
     for span_ii, span in enumerate(crnt_spans):
         label_matrix_spanner_level = label_matrix[span.spanner_level]
@@ -1109,7 +1104,7 @@ def cols_width(self: GTSelf, cases: dict[str, str] | None = None, **kwargs: str)
             width = new_cases.pop(key)
             if key._level is None:
                 # No stub column present: the plain `stub` key is dropped silently
-                stub_widths |= {col: width for col in stub_cols}
+                stub_widths |= dict.fromkeys(stub_cols, width)
             elif key._level > len(stub_cols):
                 raise ValueError(
                     f"`{key!r}` refers to stub level {key._level} (counting from the right), but "
@@ -1452,10 +1447,7 @@ def cols_merge_uncert(
     row_pos = [name_pos[1] for name_pos in row_res]
 
     # Process the separator: convert " +/- " to the ± symbol for display
-    if sep == " +/- ":
-        display_sep = " \u00b1 "
-    else:
-        display_sep = sep
+    display_sep = " ± " if sep == " +/- " else sep
 
     # Hide the uncertainty column(s) if autohide is True
     result = self
@@ -1598,9 +1590,7 @@ def cols_merge_range(
     row_pos = [name_pos[1] for name_pos in row_res]
 
     # Process separator
-    if sep is None:
-        display_sep = "\u2013"
-    elif sep == "--":
+    if sep is None or sep == "--":
         display_sep = "\u2013"
     elif sep == "---":
         display_sep = "\u2014"

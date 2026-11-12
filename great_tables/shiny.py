@@ -16,14 +16,14 @@ from .gt import GT
 try:
     # (htmltools is a dependency of shiny, not of great_tables)
     from htmltools import HTML, HTMLDependency, Tag, TagList, div
-    from shiny.render.transformer import (
-        output_transformer,
-        TransformerMetadata,
-        ValueFn,
-        resolve_value_fn,
-    )
     from shiny._namespaces import resolve_id
     from shiny.input_handler import input_handlers
+    from shiny.render.transformer import (
+        TransformerMetadata,
+        ValueFn,
+        output_transformer,
+        resolve_value_fn,
+    )
     from shiny.session import require_active_session
 except ImportError:
     raise ImportError(

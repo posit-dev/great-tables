@@ -437,8 +437,20 @@ GROUP_DATA = pd.DataFrame(
     {
         "name": [f"town_{i + 1}" for i in range(12)],
         "region": ["north", "south", None, "north", "east", "south"] * 2,
-        "size": ["big", "small", "small", "big", "small", "big", "small", "big", "big", "small"]
-        + ["small", "big"],
+        "size": [
+            "big",
+            "small",
+            "small",
+            "big",
+            "small",
+            "big",
+            "small",
+            "big",
+            "big",
+            "small",
+            "small",
+            "big",
+        ],
         "pop": [120, 45, 80, 300, 15, 60, 210, 95, 33, 150, 70, 5],
     }
 )
@@ -544,7 +556,7 @@ def collapse_html(
     )
     if widths:
         gti = gti.cols_width(
-            {"row": "80px", "num": "120px", **{c: "100px" for c in ["currency", "char", "fctr"]}}
+            {"row": "80px", "num": "120px", **dict.fromkeys(["currency", "char", "fctr"], "100px")}
         )
     return render_gti_html(gti, runtime="none")
 

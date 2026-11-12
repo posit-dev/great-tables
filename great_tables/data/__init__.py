@@ -10,7 +10,7 @@ from importlib_resources import files
 # only; in particular they don't bring in the `pd` and `pl` backend namespaces, which would replace
 # the conventional `pandas`/`polars` aliases. `islands` and `airquality` are left out as they aren't
 # official datasets (they aren't in R's gt and are planned for removal)
-__all__ = [
+__all__ = [  # noqa: RUF022 (same order as _DatasetNames)
     "countrypops",
     "sza",
     "gtcars",

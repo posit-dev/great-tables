@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 import re
 import warnings
+from functools import cache
 from html import escape, unescape
-from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
@@ -50,7 +50,7 @@ class GTISizeWarning(RenderWarning):
     """A warning that an interactive table may be slow in the browser, for its size."""
 
 
-@lru_cache(maxsize=None)
+@cache
 def _load_runtime() -> tuple[str, str]:
     """The built `<gt-table>` runtime (see packages/gti): its JS and CSS."""
     js = (JS_DIR / "gti.js").read_text(encoding="utf-8")
@@ -58,7 +58,7 @@ def _load_runtime() -> tuple[str, str]:
     return js, css
 
 
-@lru_cache(maxsize=None)
+@cache
 def _load_stack_css() -> str:
     """The template of a stacked table's own CSS (see packages/gti/src/stack.css)."""
     return (JS_DIR / "gti-stack.css").read_text(encoding="utf-8")
@@ -363,7 +363,7 @@ def _leave_out(gt: GT, columns: tuple[str, ...]) -> GT:
     boxhead = boxhead.set_cols_hidden(list(columns))
     if not boxhead._get_default_columns() and not boxhead._get_stub_columns():
         raise ValueError(
-            "A table without a stub can't have every column left out of it with " "`display=False`."
+            "A table without a stub can't have every column left out of it with `display=False`."
         )
     return gt._replace(_boxhead=boxhead)
 

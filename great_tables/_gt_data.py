@@ -9,11 +9,10 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeAlias, TypeVar, ov
 
 from typing_extensions import Self
 
-from ._cols_merge import ColMergeInfo, ColMerges  # noqa: F401 (re-exported)
+from ._cols_merge import ColMergeInfo  # noqa: F401 (re-exported)
 from ._helpers import GoogleFontImports
 
 # TODO: move this class somewhere else (even gt_data could work)
-from ._styles import CellStyle
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
@@ -33,12 +32,14 @@ from ._tbl_data_align import (
     classify_dtype_for_alignment,
     is_number_like_column,
 )
-from ._text import BaseText
 from ._utils import OrderedSet
 
 if TYPE_CHECKING:
+    from ._cols_merge import ColMerges
     from ._helpers import UnitStr
     from ._locations import Loc
+    from ._styles import CellStyle
+    from ._text import BaseText
 
 T = TypeVar("T")
 
@@ -242,7 +243,7 @@ class Body:
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
             if eval_func is None:  # pragma: no cover
-                raise Exception("Internal Error")
+                raise RuntimeError("Internal Error")
             for col, row in fmt.cells.resolve():
                 result = eval_func(_get_cell(data_tbl, row, col))
                 if isinstance(result, FormatterSkipElement):
@@ -815,10 +816,7 @@ class Stub:
         if n_stub_cols == 0:
             # If summary rows are present, we will use the `rowname` column
             # for the summary row labels
-            if has_summary_rows:
-                stub_layout = ["rowname"]
-            else:
-                stub_layout = []
+            stub_layout = ["rowname"] if has_summary_rows else []
 
         else:
             stub_layout = [
@@ -975,7 +973,7 @@ class Spanners(_Sequence[SpannerInfo]):
         return max(overlapping_levels, default=-1) + 1
 
     def append_entry(self, span: SpannerInfo) -> Self:
-        return self.__class__(self._d + [span])
+        return self.__class__([*self._d, span])
 
     def remove_column(self, column: str) -> Self:
         return self.__class__([span.drop_var(column) for span in self])

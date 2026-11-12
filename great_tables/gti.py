@@ -3,7 +3,6 @@ from __future__ import annotations
 import math
 import numbers
 import operator
-from collections.abc import Callable
 from dataclasses import replace
 from typing import TYPE_CHECKING, Any, NoReturn
 
@@ -11,19 +10,19 @@ from typing_extensions import Self
 
 from ._gt_data import ColInfoTypeEnum
 from ._gti._settings import (
+    DATA_COLOR_MODES,
     EXPORT_FORMATS,
     FILTER_TYPES,
     PIN_SIDES,
-    DATA_COLOR_MODES,
     PRESETS,
     PROFILE_PLOTS,
     RESPONSIVE_MODES,
     SELECTION_MODES,
+    DataColorMode,
     ExportFormat,
     FilterType,
     PinSide,
     Preset,
-    DataColorMode,
     ProfilePlot,
     ResponsiveMode,
     SelectionMode,
@@ -37,6 +36,8 @@ from ._tbl_data import SelectExpr, _get_column_kind, get_column_names
 from .gt import GT
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._gti._widget import GTIWidget
 
 __all__ = ["GTI"]
@@ -443,7 +444,7 @@ class GTI(GT):
             )
         return self._set_interactive(selection=mode)
 
-    def i_scroll(self, height: str | int | float | None) -> Self:
+    def i_scroll(self, height: str | float | None) -> Self:
         """
         Make the table's body scroll, within a height.
 
@@ -488,9 +489,7 @@ class GTI(GT):
         # (A number is of pixels, as with `tab_options()`)
         return self._set_interactive(height=height if isinstance(height, str) else f"{height}px")
 
-    def i_responsive(
-        self, mode: ResponsiveMode = "auto", *, stack_below: int | float = 420
-    ) -> Self:
+    def i_responsive(self, mode: ResponsiveMode = "auto", *, stack_below: float = 420) -> Self:
         """
         Set how the table fits a narrow container.
 

@@ -5,10 +5,10 @@ import math
 import numbers
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
-from functools import lru_cache, partial
+from functools import cache, partial
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -37,6 +37,7 @@ from ._locale import (
     _get_locales_data,
 )
 from ._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
+from ._styles import FromColumn
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
@@ -48,7 +49,6 @@ from ._tbl_data import (
     is_series,
     to_list,
 )
-from ._styles import FromColumn
 from ._text import _html_escape, _latex_escape, _md_html, _md_latex, escape_pattern_str_latex
 from ._utils import _str_detect, _str_replace, is_valid_http_schema
 from ._utils_nanoplots import _generate_nanoplot
@@ -1685,10 +1685,7 @@ def fmt_number_si_context(
     is_negative = _has_negative_value(value=x)
 
     # Select the appropriate SI prefix table
-    if prefix_mode == "decimal":
-        si_table = _SI_PREFIXES_DECIMAL
-    else:
-        si_table = _SI_PREFIXES_ENGINEERING
+    si_table = _SI_PREFIXES_DECIMAL if prefix_mode == "decimal" else _SI_PREFIXES_ENGINEERING
 
     # Determine the appropriate SI prefix
     exp, si_symbol = _get_si_prefix(_exact_abs(x), si_table=si_table, prefix_mode=prefix_mode)
@@ -1901,10 +1898,7 @@ def fmt_percent(
     min_sep_threshold = _get_locale_min_sep_threshold(default=min_sep_threshold, locale=locale)
     dec_mark = _get_locale_dec_mark(default=dec_mark, locale=locale)
 
-    if scale_values:
-        scale_by = 100
-    else:
-        scale_by = 1
+    scale_by = 100 if scale_values else 1
 
     pf_format = partial(
         fmt_percent_context,
@@ -2201,16 +2195,10 @@ def fmt_partsper(
     min_sep_threshold = _get_locale_min_sep_threshold(default=1, locale=locale)
 
     # Determine the scale factor
-    if scale_values:
-        scale_by = _PARTSPER_UNITS[to_units]["factor"]
-    else:
-        scale_by = 1
+    scale_by = _PARTSPER_UNITS[to_units]["factor"] if scale_values else 1
 
     # Determine the symbol to use
-    if symbol == "auto":
-        resolved_symbol = _PARTSPER_UNITS[to_units]["symbol"]
-    else:
-        resolved_symbol = symbol
+    resolved_symbol = _PARTSPER_UNITS[to_units]["symbol"] if symbol == "auto" else symbol
 
     # Determine spacing: "auto" means no space for Unicode symbols (‰, ‱), space for text
     if incl_space == "auto":
@@ -2564,10 +2552,7 @@ def fmt_currency_context(
         currency_symbol = _latex_escape(html.unescape(currency_symbol))
 
     # Choose the appropriate formatting function based on the `compact=` option
-    if compact:
-        f_formatter = _format_number_compactly
-    else:
-        f_formatter = _value_to_decimal_notation
+    f_formatter = _format_number_compactly if compact else _value_to_decimal_notation
 
     # Perform formatting to decimal notation
     x_formatted = f_formatter(
@@ -2951,12 +2936,10 @@ def _format_whole_number(
     if not use_seps or not sep_mark or len(s) < min_sep_threshold + 3:
         return s
     result = ""
-    count = 0
-    for digit in reversed(s):
+    for count, digit in enumerate(reversed(s)):
         if count and count % 3 == 0:
             result = sep_mark + result
         result = digit + result
-        count += 1
     return result
 
 
@@ -3439,7 +3422,7 @@ def _chem_token(token: str, markup: _ChemMarkup) -> str:
         rest = italic_m.group(2)
         result = markup.em(letter)
         if rest:
-            if rest.startswith("-") or rest.startswith("="):
+            if rest.startswith(("-", "=")):
                 result += rest[0]
                 rest = rest[1:]
             if rest:
@@ -3891,17 +3874,11 @@ def fmt_url(
 
     # Resolve color settings
     if color == "auto":
-        if as_button:
-            resolved_color = "#FFFFFF"
-        else:
-            resolved_color = _URL_DEFAULT_COLOR
+        resolved_color = "#FFFFFF" if as_button else _URL_DEFAULT_COLOR
     else:
         resolved_color = _normalize_color(color)
 
-    if show_underline == "auto":
-        resolved_underline = not as_button
-    else:
-        resolved_underline = bool(show_underline)
+    resolved_underline = not as_button if show_underline == "auto" else bool(show_underline)
 
     resolved_fill: str | None = None
     if as_button:
@@ -4102,17 +4079,11 @@ def fmt_email(
 
     # Resolve color settings (same logic as fmt_url)
     if color == "auto":
-        if as_button:
-            resolved_color = "#FFFFFF"
-        else:
-            resolved_color = _URL_DEFAULT_COLOR
+        resolved_color = "#FFFFFF" if as_button else _URL_DEFAULT_COLOR
     else:
         resolved_color = _normalize_color(color)
 
-    if show_underline == "auto":
-        resolved_underline = not as_button
-    else:
-        resolved_underline = bool(show_underline)
+    resolved_underline = not as_button if show_underline == "auto" else bool(show_underline)
 
     resolved_fill: str | None = None
     if as_button:
@@ -4580,7 +4551,7 @@ def _apply_duration_pattern(patterns: dict[str, str], value: int, formatted_valu
     # Try the specific plural form, then fall back to "other"
     if plural in patterns:
         pattern = patterns[plural]
-    elif plural == "zero" and "other" in patterns or plural == "two" and "other" in patterns:
+    elif (plural == "zero" and "other" in patterns) or (plural == "two" and "other" in patterns):
         pattern = patterns["other"]
     else:
         pattern = patterns.get("other", "{0}")
@@ -4869,10 +4840,7 @@ def fmt_duration(
     if isinstance(trim_zero_units, str):
         trim_zero_units = [trim_zero_units]
     if isinstance(trim_zero_units, bool):
-        if trim_zero_units:
-            resolved_trim = ["leading", "trailing", "internal"]
-        else:
-            resolved_trim = []
+        resolved_trim = ["leading", "trailing", "internal"] if trim_zero_units else []
     elif isinstance(trim_zero_units, list):
         for kw in trim_zero_units:
             if kw not in ("leading", "trailing", "internal"):
@@ -5239,7 +5207,7 @@ def _format_duration_colon_sep(
         colon_sep_output_units = ["days", "hours", "minutes", "seconds"]
 
     # Build a dict from the decomposed time_parts
-    parts_dict = {unit: value for unit, value in time_parts}
+    parts_dict = dict(time_parts)
 
     # Ensure all colon_sep_output_units are present
     for unit in colon_sep_output_units:
@@ -6140,7 +6108,7 @@ def fmt_tf_context(
     elif not isinstance(x, bool):
         raise ValueError(f"Expected boolean value or NA, but got {type(x)}.")
 
-    x = cast(bool | None, x)
+    x = cast("bool | None", x)
 
     # Validate `tf_style=` value
     if tf_style not in TF_FORMATS:
@@ -7051,7 +7019,7 @@ def _listify(
     elif not isinstance(x, list):
         return [x]
     else:
-        return cast(Any, x)
+        return cast("Any", x)
 
 
 def _scale_value(value: float, scale_by: float) -> float:
@@ -7185,28 +7153,19 @@ def _context_exp_str(exp_style: str, context: str) -> str:
 
 
 def _context_minus_mark(context: str) -> str:
-    if context == "html":
-        mark = "\u2212"
-    else:
-        mark = "-"
+    mark = "−" if context == "html" else "-"
 
     return mark
 
 
 def _context_percent_mark(context: str) -> str:
-    if context == "latex":
-        mark = "\\%"
-    else:
-        mark = "%"
+    mark = "\\%" if context == "latex" else "%"
 
     return mark
 
 
 def _context_dollar_mark(context: str) -> str:
-    if context == "latex":
-        mark = "\\$"
-    else:
-        mark = "$"
+    mark = "\\$" if context == "latex" else "$"
 
     return mark
 
@@ -7245,7 +7204,7 @@ T_dict = TypeVar("T_dict", bound=TypedDict)
 def _filter_pd_df_to_row(pd_df: list[T_dict], column: str, filter_expr: str) -> T_dict:
     filtered_pd_df = [entry for entry in pd_df if entry[column] == filter_expr]
     if len(filtered_pd_df) != 1:
-        raise Exception(
+        raise RuntimeError(
             "Internal Error, the filtered table doesn't result in a table of exactly one row."
         )
     return filtered_pd_df[0]
@@ -7880,7 +7839,7 @@ def _get_time_format(time_style: str, locale: str | None) -> str:
     return _get_time_formats_dict()[time_style]
 
 
-@lru_cache(maxsize=None)
+@cache
 def _get_babel_locale(locale: str | None) -> babel.Locale:
     """
     Get the Babel `Locale` for a locale from `_resolve_locale()` (where `None` is `en_US`).
@@ -8032,10 +7991,10 @@ def _fill_in_cldr_fields(pattern: str, x: datetime | time, locale: str | None) -
             continue
 
         end = 0
-        for field in _CLDR_FIELDS_FILLED_IN.finditer(text):
-            parts.append((text[end : field.start()], False))
-            parts.append((_format_cldr_field(field.group(), x, locale), True))
-            end = field.end()
+        for cldr_field in _CLDR_FIELDS_FILLED_IN.finditer(text):
+            parts.append((text[end : cldr_field.start()], False))
+            parts.append((_format_cldr_field(cldr_field.group(), x, locale), True))
+            end = cldr_field.end()
         parts.append((text[end:], False))
 
     return _join_cldr_pattern(parts)
@@ -8448,7 +8407,7 @@ def fmt_image(
 
 @dataclass
 class FmtImage:
-    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    dispatch_on: DataFrameLike | Agnostic = field(default_factory=Agnostic)
     height: str | int | None = None
     width: str | int | None = None
     sep: str = " "
@@ -8469,18 +8428,12 @@ class FmtImage:
         if is_na(self.dispatch_on, val):
             return val
 
-        if "," in val:
-            files = re.split(r",\s*", val)
-        else:
-            files = [val]
+        files = re.split(r",\s*", val) if "," in val else [val]
 
         # TODO: if we allowing height and width to be set based on column values, then
         # they could end up as bespoke types like np int64, etc..
         # We should ensure we process those before hitting FmtImage
-        if isinstance(self.height, (int, float)):
-            height = px(self.height)
-        else:
-            height = self.height
+        height = px(self.height) if isinstance(self.height, (int, float)) else self.height
 
         # TODO: note that only height can be numeric in the R program. Is this on purpose?
         # In any event, raising explicitly for numeric width below.
@@ -8502,10 +8455,7 @@ class FmtImage:
             else:
                 filename = str((Path(self.path or "") / file).expanduser().absolute())
 
-                if self.encode:
-                    uri = self._get_image_uri(filename)
-                else:
-                    uri = filename
+                uri = self._get_image_uri(filename) if self.encode else filename
 
             # TODO: do we have a way to create tags, that is good at escaping, etc..?
             alt_text = "" if self.alt is None else self.alt.replace("{x}", file_ref)
@@ -8767,7 +8717,7 @@ def fmt_icon(
 
 @dataclass
 class FmtIcon:
-    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    dispatch_on: DataFrameLike | Agnostic = field(default_factory=Agnostic)
     height: str | None = None
     sep: str = " "
     stroke_color: str | None = None
@@ -8784,15 +8734,9 @@ class FmtIcon:
         if is_na(self.dispatch_on, val):
             return val
 
-        if "," in val:
-            icon_list = re.split(r",\s*", val)
-        else:
-            icon_list = [val]
+        icon_list = re.split(r",\s*", val) if "," in val else [val]
 
-        if self.height is None:
-            height = "1em"
-        else:
-            height = self.height
+        height = "1em" if self.height is None else self.height
 
         if self.stroke_width is None:
             stroke_width = "1px"
@@ -8805,10 +8749,7 @@ class FmtIcon:
 
         for icon in icon_list:
             if isinstance(self.fill_color, dict):
-                if icon in self.fill_color:
-                    fill_color = self.fill_color[icon]
-                else:
-                    fill_color = None
+                fill_color = self.fill_color.get(icon, None)
             else:
                 fill_color = self.fill_color
 
@@ -8969,7 +8910,7 @@ def fmt_flag(
 
 @dataclass
 class FmtFlag:
-    dispatch_on: DataFrameLike | Agnostic = Agnostic()
+    dispatch_on: DataFrameLike | Agnostic = field(default_factory=Agnostic)
     height: str | int | float | None = None
     sep: str = " "
     use_title: bool = True
@@ -8980,10 +8921,7 @@ class FmtFlag:
         if is_na(self.dispatch_on, val):
             return val
 
-        if "," in val:
-            flag_list = re.split(r",\s*", val)
-        else:
-            flag_list = [val]
+        flag_list = re.split(r",\s*", val) if "," in val else [val]
 
         if self.height is None:
             height = "1em"
@@ -9463,10 +9401,7 @@ def fmt_nanoplot(
     rows_by_alt: dict[str, list[int]] = {}
     for _, row in resolve_rows_i(self, rows):
         value = alt_values[row]
-        if is_na(data_tbl, value):
-            text = ""
-        else:
-            text = str(alt.fn(value) if alt.fn is not None else value)
+        text = "" if is_na(data_tbl, value) else str(alt.fn(value) if alt.fn is not None else value)
         rows_by_alt.setdefault(text, []).append(row)
 
     res = self
@@ -9558,7 +9493,7 @@ def _generate_data_vals(
 
         # If the dictionary contains only one key, then assume that the values are for y
         if num_keys == 1:
-            data_vals = list(data_vals.values())[0]
+            data_vals = next(iter(data_vals.values()))
 
             # The data values can be anything, so recursively call this function to process them
             data_vals = _generate_data_vals(data_vals=data_vals)
