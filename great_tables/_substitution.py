@@ -4,7 +4,7 @@ import numbers
 import re
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from ._formats import fmt
 from ._gt_data import FormatFns, FormatterSkipElement
@@ -13,6 +13,8 @@ from ._tbl_data import DataFrameLike, SelectExpr, is_na
 from ._text import Text, _process_text
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._locations import RowSelectExpr
     from ._types import GTSelf
 
@@ -217,7 +219,7 @@ def sub_small_vals(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: RowSelectExpr = None,
-    threshold: int | float = 0.01,
+    threshold: float = 0.01,
     small_pattern: str | None = None,
     sign: str = "+",
 ) -> GTSelf:
@@ -307,10 +309,7 @@ def sub_small_vals(
     threshold = abs(threshold)
 
     if small_pattern is None:
-        if sign == "+":
-            small_pattern = "<{x}"
-        else:
-            small_pattern = ">-{x}"
+        small_pattern = "<{x}" if sign == "+" else ">-{x}"
 
     subber = SubSmallVals(threshold=threshold, small_pattern=small_pattern, sign=sign)
     return fmt(self, fns=subber.format_fns(), columns=columns, rows=rows, is_substitution=True)
@@ -320,7 +319,7 @@ def sub_large_vals(
     self: GTSelf,
     columns: SelectExpr = None,
     rows: RowSelectExpr = None,
-    threshold: int | float = 1e12,
+    threshold: float = 1e12,
     large_pattern: str = ">={x}",
     sign: str = "+",
 ) -> GTSelf:
@@ -419,7 +418,7 @@ def sub_values(
     values: list[Any] | Any | None = None,
     pattern: str | None = None,
     fn: Callable[..., bool] | None = None,
-    replacement: str | int | float | None = None,
+    replacement: str | float | None = None,
 ) -> GTSelf:
     """
     Substitute targeted values in the table body.
@@ -623,7 +622,7 @@ class SubLargeVals(Substitution):
         return _process_text(text, context=context)
 
 
-def _format_threshold(threshold: int | float) -> str:
+def _format_threshold(threshold: float) -> str:
     """Write a `sub_small_vals()` / `sub_large_vals()` threshold compactly (e.g., `1e+12`).
 
     As in R's default printing of numbers, exponent notation is used when it's shorter than fixed

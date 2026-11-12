@@ -221,10 +221,7 @@ def _resolve_conditional_sections(text: str) -> str:
         section_content = text[last_open + 2 : first_close]
 
         # Check if the section contains a missing value token
-        if _MISSING_VAL_TOKEN in section_content:
-            replacement = ""
-        else:
-            replacement = section_content
+        replacement = "" if _MISSING_VAL_TOKEN in section_content else section_content
 
         text = text[:last_open] + replacement + text[first_close + 2 :]
 

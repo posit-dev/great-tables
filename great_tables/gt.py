@@ -661,10 +661,7 @@ class GT(
         # Obtain the `table_id` value from the Options (might be set, might be None)
         table_id = self._options.table_id.value
 
-        if table_id is None:
-            id = random_id()
-        else:
-            id = table_id
+        id = random_id() if table_id is None else table_id
 
         # Compile the SCSS as CSS
         from ._scss import compile_scss

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Callable
 from dataclasses import dataclass, replace
 from functools import singledispatch
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
@@ -30,6 +29,8 @@ from ._tbl_data import (
 from ._text import _process_text
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._gt_data import TblData
     from ._tbl_data import SelectExpr, SeriesLike
     from ._text import Text
@@ -1197,10 +1198,10 @@ def resolve_rows_i(
 
     elif isinstance(expr, list):
         # TODO: manually doing row selection here for now
-        target_names = set(x for x in expr if isinstance(x, str))
-        target_pos = set(
+        target_names = {x for x in expr if isinstance(x, str)}
+        target_pos = {
             indx if indx >= 0 else len(row_names) + indx for indx in expr if isinstance(indx, int)
-        )
+        }
 
         selected = [
             (name, ii)
@@ -1320,7 +1321,7 @@ def _(loc: LocColumnLabels, data: GTData) -> list[tuple[str, int]]:
 def _(loc: LocRowGroups, data: GTData) -> set[str]:
     # TODO: what are the rules for matching row groups?
     # TODO: resolve_rows_i will match a list expr to row names (not group names)
-    group_pos = set(name for name, _ in resolve_rows_i(data, loc.rows, row_name_attr="group_id"))
+    group_pos = {name for name, _ in resolve_rows_i(data, loc.rows, row_name_attr="group_id")}
     return group_pos
 
 
@@ -1332,7 +1333,7 @@ def _(loc: LocGrandSummaryStub, data: GTData) -> set[int]:
 
     rows = resolve_rows_i(data=grand_summary_rows_ids, expr=loc.rows)
 
-    cell_pos = set(row[1] for row in rows)
+    cell_pos = {row[1] for row in rows}
     return cell_pos
 
 
@@ -1363,7 +1364,7 @@ def _(loc: LocSummaryStub, data: GTData) -> list[tuple[str, int]]:
 def _(loc: LocStub, data: GTData) -> set[int]:
     # TODO: what are the rules for matching row groups?
     rows = resolve_rows_i(data=data, expr=loc.rows)
-    cell_pos = set(row[1] for row in rows)
+    cell_pos = {row[1] for row in rows}
     return cell_pos
 
 
@@ -1598,7 +1599,7 @@ def _(
         updated_footnotes.append(updated_footnote)
 
     return data._replace(
-        _styles=data._styles + [StyleInfo(locname=loc, styles=styles)],
+        _styles=[*data._styles, StyleInfo(locname=loc, styles=styles)],
         _footnotes=data._footnotes + updated_footnotes,
     )
 
@@ -1653,7 +1654,7 @@ def _(loc: LocSpannerLabels, data: GTData, style: list[CellStyle | FootnoteEntry
             updated_footnotes.append(updated_footnote)
 
     return data._replace(
-        _styles=data._styles + [StyleInfo(locname=new_loc, grpname=new_loc.ids, styles=styles)],
+        _styles=[*data._styles, StyleInfo(locname=new_loc, grpname=new_loc.ids, styles=styles)],
         _footnotes=data._footnotes + updated_footnotes,
     )
 
@@ -1676,7 +1677,7 @@ def _(loc: LocRowGroups, data: GTData, style: list[CellStyle | FootnoteEntry]) -
             updated_footnotes.append(updated_footnote)
 
     return data._replace(
-        _styles=data._styles + [StyleInfo(locname=loc, grpname=row_groups, styles=styles)],
+        _styles=[*data._styles, StyleInfo(locname=loc, grpname=row_groups, styles=styles)],
         _footnotes=data._footnotes + updated_footnotes,
     )
 

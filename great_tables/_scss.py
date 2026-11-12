@@ -4,13 +4,16 @@ import re
 from dataclasses import fields
 from functools import partial
 from string import Template
+from typing import TYPE_CHECKING
 
 from importlib_resources import files
 
 from ._data_color.base import _html_color, _ideal_fgnd_color
-from ._gt_data import GTData
 from ._helpers import pct, px
 from ._utils import OrderedSet, _as_css_font_family_attr
+
+if TYPE_CHECKING:
+    from ._gt_data import GTData
 
 DEFAULTS_TABLE_BACKGROUND = (
     "heading_background_color",
@@ -85,7 +88,7 @@ def _clean_num(x: float) -> int | float:
     return int(x) if x == int(x) else x
 
 
-def css_add(value: str | int | float, amount: int | float):
+def css_add(value: str | float, amount: float):
     if isinstance(value, (int, float)):
         return value + amount
     elif value.endswith("px"):
@@ -139,16 +142,10 @@ def compile_scss(
     # Handle fonts ----
     # Get the unique list of fonts from `gt_options_dict`
     _font_names = data._options.table_font_names.value
-    if _font_names is not None:
-        font_list = OrderedSet(_font_names).as_list()
-    else:
-        font_list = None
+    font_list = OrderedSet(_font_names).as_list() if _font_names is not None else None
 
     # Generate a `font-family` string
-    if font_list is not None:
-        font_family_attr = _as_css_font_family_attr(fonts=font_list)
-    else:
-        font_family_attr = ""
+    font_family_attr = _as_css_font_family_attr(fonts=font_list) if font_list is not None else ""
 
     # Generate styles ----
     gt_table_open_str = f"#{id} table" if has_id else ".gt_table"

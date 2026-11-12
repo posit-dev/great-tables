@@ -75,14 +75,14 @@ dev = [
 ]
 
 dev-no-pandas = [
-    "ruff==0.8.0",
+    "ruff==0.17.4",
     "anywidget",
     "jupyter",
     "gt-extras>=0.0.7",
     "hypothesis",
     "narwhals",
     "polars",
-    "pre-commit==2.15.0",
+    "pre-commit>=3.2.0",
     "pyarrow",
     "pyright>=1.1.244",
     "pytest>=3",
@@ -128,6 +128,8 @@ ignore = [
     "E203",    # whitespace before ':'
     "F841",    # local variable 'name' is assigned to but never used
     "E702",    # multiple statements on one line (semicolon)
+    "PLR0124", # comparison with itself: `x != x` is the NaN check
+    "TRY004",  # TypeError for invalid types: switching from ValueError would break callers
 ]
 
 [tool.coverage.report]

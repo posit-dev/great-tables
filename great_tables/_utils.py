@@ -3,14 +3,16 @@ from __future__ import annotations
 import importlib
 import itertools
 import re
-from collections.abc import Generator, Iterable, Iterator, Set
-from types import ModuleType
+from collections.abc import Generator, Iterable, Iterator
+from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING, Any
 
 from ._tbl_data import _get_cell, _set_cells, get_column_names, is_na, n_rows
 from ._text import BaseText, _process_text
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from ._gt_data import GTData
     from ._tbl_data import TblData
 
@@ -73,12 +75,12 @@ def _assert_list_is_subset(x: list[Any], set_list: list[Any]) -> None:
         raise AssertionError("The columns provided are not present in the table.")
 
 
-class OrderedSet(Set[Any]):
+class OrderedSet(AbstractSet[Any]):
     def __init__(self, d: Iterable[Any] = ()) -> None:
         self._d = self._create(d)
 
     def _create(self, d: Iterable[Any]) -> dict[Any, bool]:
-        return {k: True for k in d}
+        return dict.fromkeys(d, True)
 
     def as_set(self) -> set[Any]:
         return set(self._d)
@@ -105,7 +107,7 @@ class OrderedSet(Set[Any]):
 
 
 def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:
-    fonts_w_spaces: list[str] = list(map(lambda x: f"'{x}'" if " " in x else x, fonts))
+    fonts_w_spaces: list[str] = [f"'{x}'" if " " in x else x for x in fonts]
 
     fonts_str = ", ".join(fonts_w_spaces)
 

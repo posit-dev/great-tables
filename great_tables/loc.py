@@ -17,6 +17,8 @@ from ._locations import (
     #
     # Footer ----
     LocFooter as footer,
+)
+from ._locations import (
     LocFootnotes as footnotes,
 )
 from ._locations import (
@@ -67,22 +69,22 @@ from ._locations import (
 )
 
 __all__ = (
-    "header",
-    "title",
-    "subtitle",
-    "stubhead",
-    "column_header",
-    "spanner_labels",
-    "column_labels",
-    "stub",
-    "row_groups",
-    "row_group",
-    "summary_stub",
-    "grand_summary_stub",
     "body",
-    "summary",
-    "grand_summary",
+    "column_header",
+    "column_labels",
     "footer",
     "footnotes",
+    "grand_summary",
+    "grand_summary_stub",
+    "header",
+    "row_group",
+    "row_groups",
     "source_notes",
+    "spanner_labels",
+    "stub",
+    "stubhead",
+    "subtitle",
+    "summary",
+    "summary_stub",
+    "title",
 )

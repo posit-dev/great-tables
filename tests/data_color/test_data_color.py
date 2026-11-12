@@ -10,7 +10,8 @@ import pytest
 from syrupy.assertion import SnapshotAssertion
 
 from great_tables import GT, style
-from great_tables._gt_data import CellStyle, StyleInfo
+from great_tables._gt_data import StyleInfo
+from great_tables._styles import CellStyle
 from great_tables._tbl_data import DataFrameLike
 from great_tables.data import exibble
 from tests.utils import (

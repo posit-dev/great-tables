@@ -31,8 +31,8 @@ def _render_check_quarto(data: GTData):
     # cols_widths set ----
     col_widths = [col.column_width for col in data._boxhead]
 
-    is_any_set = any([width is not None for width in col_widths])
-    is_all_pct = all([width is None or width.rstrip().endswith("%") for width in col_widths])
+    is_any_set = any(width is not None for width in col_widths)
+    is_all_pct = all(width is None or width.rstrip().endswith("%") for width in col_widths)
     if is_any_set and not is_all_pct:
         warnings.warn(
             "Rendering table with .cols_width() in Quarto may result in unexpected behavior."
