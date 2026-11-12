@@ -106,6 +106,12 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   `text` is `null`. The rows in `fixed` keep their colors (a later style colors their cells), but
   count for the range. With every row kept, the cells have their colors as the table's HTML gives
   them. Producers that leave `colors` out have none.
+- `remote`: for a table whose rows are kept elsewhere (as a widget's, in Python, with
+  `i_scale()`), which the runtime asks for a page at a time (from its `source`): how many rows
+  the view (as `view` has it) keeps (`count`), and those in `body` (its first page). Its `ranks`
+  have every column, but none of the rows, and its columns' and filters' `missing` only some (a
+  column's, those in `body`); a facet or bool filter has its values' `labels`, by rank (the
+  runtime would read them from the rows). Producers that leave `remote` out have every row.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -259,13 +265,18 @@ class LayoutSpec(TypedDict):
     stack_below: int | float
 
 
-class FilterSpec(TypedDict):
+class _FilterSpec(TypedDict):
     column: str
     type: Literal["text", "facet", "range", "date", "bool"]
     # A facet, range, date or bool filter column's distinct values, by rank
     values: list[Any] | None
     # The data rows whose value is missing (for an "is_null" clause)
     missing: list[int]
+
+
+class FilterSpec(_FilterSpec, total=False):
+    # A remote table's facet or bool filter's values' labels, by rank
+    labels: list[str]
 
 
 class ProfileSpec(TypedDict):
@@ -337,7 +348,12 @@ class ColorSpec(TypedDict):
     fixed: list[int]  # the rows whose cells a later style colors
 
 
-class Spec(TypedDict):
+class RemoteSpec(TypedDict):
+    count: int  # the data rows the view keeps
+    rows: list[int]  # those in the table's body (its first page), in order
+
+
+class _Spec(TypedDict):
     version: int
     nrows: int
     columns: list[ColumnSpec]
@@ -360,6 +376,10 @@ class Spec(TypedDict):
     details: list[int]
     link: LinkSpec | None
     colors: list[ColorSpec]
+
+
+class Spec(_Spec, total=False):
+    remote: RemoteSpec
 
 
 def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
