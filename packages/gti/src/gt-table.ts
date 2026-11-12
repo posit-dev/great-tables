@@ -42,7 +42,16 @@ import {
   readQuery,
 } from "./query";
 import { CellText, fold, searchTerms } from "./search";
-import { type DataSource, type FacetCounts, LocalSource, type RowAnswer, type RowQuery, specFilter } from "./source";
+import {
+  type DataSource,
+  type FacetCounts,
+  LocalSource,
+  type PageAnswer,
+  type PageQuery,
+  type RowAnswer,
+  type RowQuery,
+  specFilter,
+} from "./source";
 import { normalizeSort, type SortKey, type SortKeyInit, sortRows, toggleSort } from "./sort";
 import {
   type BodyRow,
@@ -744,6 +753,10 @@ function icon(doc: Document, name: keyof typeof ICONS): SVGSVGElement {
 
 // A row's role, and its cells', as a table's elements have them: a header cell's by its scope (or,
 // without one, by where it is)
+// The classes of the lead column's cells (see `addLead()`): a column of numbers only isn't a way to
+// select rows
+const leadClasses = (spec: Spec) => ["gt-i-select", ...(spec.controls.selection === null ? ["gt-i-unselectable"] : [])];
+
 function addRowRoles(tr: HTMLTableRowElement): void {
   tr.setAttribute("role", "row");
   for (const cell of Array.from(tr.cells)) {
@@ -877,6 +890,14 @@ export class GtTable extends HTMLElement {
   /** The source set (`source`), and the one the table makes of its own rows, once hydrated. */
   private sourceValue: DataSource | null = null;
   private local: LocalSource | null = null;
+  /**
+   * Whether the table is remote (its spec has `remote`): its source has its rows, and gives them a
+   * page at a time (see `DataSource.page()`). Those it's given stay in the body, hidden.
+   */
+  private remote = false;
+  /** A remote table's page (to be) shown, and the query it answers (as JSON), or the last asked. */
+  private paged: PageAnswer | null = null;
+  private pageKey = "";
   /** The number of times the rows (and a facet's counts) have been asked for: an answer to an earlier ask is dropped. */
   private asked = 0;
   private facetAsked = 0;
@@ -1418,9 +1439,13 @@ export class GtTable extends HTMLElement {
 
   /**
    * The data rows (numbered by position in the data) that the search, the filters and linked
-   * tables' selections keep, in the order shown, on every page. Empty until hydrated.
+   * tables' selections keep, in the order shown, on every page (a remote table's, on its page
+   * only, as its source has the others). Empty until hydrated.
    */
   get rows(): number[] {
+    if (this.remote) {
+      return [...this.order];
+    }
     const rows: number[] = [];
     for (const tr of (this.tbody?.children ?? []) as Iterable<HTMLTableRowElement>) {
       const row = this.bodyRow(tr);
@@ -1443,6 +1468,8 @@ export class GtTable extends HTMLElement {
 
   set source(source: DataSource | null) {
     this.sourceValue = source;
+    // (A remote table asks the new source for its page)
+    this.pageKey = "";
     this.matchRows();
     this.render();
   }
@@ -1666,6 +1693,7 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.spec = spec;
+    this.remote = spec.remote !== undefined;
 
     this.movable = !this.hasMergedStubCells();
     const state = spec.view_state;
@@ -1719,7 +1747,7 @@ export class GtTable extends HTMLElement {
     }
     this.mapRuns(table);
     // (Only a body of data rows alone, which can be moved, is grouped by a column)
-    if (this.movable && spec.groups.length === 0 && spec.body.every((entry) => typeof entry === "number")) {
+    if (this.movable && !this.remote && spec.groups.length === 0 && spec.body.every((entry) => typeof entry === "number")) {
       this.groupable = spec.columns.flatMap((column) =>
         column.role === "data" && column.groupable === true && column.id !== null && Object.prototype.hasOwnProperty.call(spec.ranks, column.id) ? [column.id] : [],
       );
@@ -1749,6 +1777,14 @@ export class GtTable extends HTMLElement {
     if (this.movable && spec.view !== undefined) {
       this.applySpecView(spec, spec.view);
     }
+    if (spec.remote !== undefined) {
+      // (The body has the first page of the author's view, which isn't asked for again)
+      this.paged = { ...spec.remote, start: 0, html: "" };
+      const size = spec.pagination.enabled ? spec.pagination.page_size : null;
+      this.pageKey = JSON.stringify({ ...this.pageQuery(), search: "", links: [], start: 0, size });
+      this.matched = this.query() === null ? null : new Uint8Array(0);
+      this.matchCount = spec.remote.count;
+    }
     if (this.movable) {
       const groupBy = spec.view?.group_by ?? null;
       if (groupBy !== null && !this.groupable.includes(groupBy)) {
@@ -1770,10 +1806,10 @@ export class GtTable extends HTMLElement {
       this.restoreView(spec, this.authorView);
     }
     this.joinLink();
-    this.local = new LocalSource(spec, () => this.cellTexts ?? this.makeCellTexts(spec.nrows));
+    this.local = this.remote ? null : new LocalSource(spec, () => this.cellTexts ?? this.makeCellTexts());
     // A search or page set before hydration applies now
     this.matchRows();
-    if ((this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null) && !this.loading) {
+    if ((this.remote || this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null) && !this.loading) {
       this.render();
     } else {
       // (Not rendered, so every row is shown, as it was)
@@ -3048,22 +3084,11 @@ export class GtTable extends HTMLElement {
     const tbody = this.tbody as HTMLTableSectionElement;
     const mode = spec.controls.selection;
     const numbers = spec.display.row_numbers === true;
-    // (A column of numbers only isn't a way to select rows)
-    const own = ["gt-i-select", ...(mode === null ? ["gt-i-unselectable"] : [])];
+    const own = leadClasses(spec);
     // The rows across the table (title, group headings, footer) span the new column too
     const widen = (tr: HTMLTableRowElement) => {
       const cell = tr.firstElementChild;
       cell?.setAttribute("colspan", String(Number(cell.getAttribute("colspan") ?? 1) + 1));
-    };
-    // A cell in the column, styled as the row's other body cells are (its numbers lined up at
-    // their end)
-    const cell = (tr: HTMLTableRowElement) => {
-      const td = doc.createElement("td");
-      const model = tr.querySelector(":scope > td");
-      const classes = model === null ? ["gt_row"] : Array.from(model.classList).filter((c) => !/^gt_(left|right|center)$/.test(c));
-      td.className = [...classes, numbers ? "gt_right" : "gt_center", ...own].join(" ");
-      tr.prepend(td);
-      return td;
     };
 
     const headings = Array.from(table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"));
@@ -3104,19 +3129,8 @@ export class GtTable extends HTMLElement {
     }
     for (const tr of tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr")) {
       const entry = this.bodyRow(tr);
-      if (typeof entry === "number") {
-        const td = cell(tr);
-        if (numbers) {
-          td.appendChild(element(doc, "span", "gt-i-rownum")).textContent = String(entry + 1);
-        }
-        if (mode !== null) {
-          const box = this.checkbox(`Select ${this.rowLabel(tr) || `row ${entry + 1}`}`);
-          box.addEventListener("click", (event) => this.userSelect(entry, this.shifted(event)));
-          td.append(box);
-          this.selectBoxes[entry] = box;
-        }
-      } else if (entry !== null && ("summary" in entry || "grand_summary" in entry)) {
-        cell(tr);
+      if (typeof entry === "number" || (entry !== null && ("summary" in entry || "grand_summary" in entry))) {
+        this.leadCell(tr, typeof entry === "number" ? entry : null);
       } else {
         widen(tr);
       }
@@ -3161,6 +3175,35 @@ export class GtTable extends HTMLElement {
 
   // The data row clicked, unless the click was on something of its own (a link, a checkbox) or on
   // a group's label cell
+  /**
+   * A row's cell in the lead column (see `addLead()`), put before its others: styled as its other
+   * body cells are (its numbers lined up at their end), with a data row's number and checkbox.
+   */
+  private leadCell(tr: HTMLTableRowElement, entry: number | null): HTMLTableCellElement {
+    const spec = this.spec as Spec;
+    const doc = this.ownerDocument;
+    const mode = spec.controls.selection;
+    const numbers = spec.display.row_numbers === true;
+    const td = doc.createElement("td");
+    const model = tr.querySelector(":scope > td");
+    const classes = model === null ? ["gt_row"] : Array.from(model.classList).filter((c) => !/^gt_(left|right|center)$/.test(c));
+    td.className = [...classes, numbers ? "gt_right" : "gt_center", ...leadClasses(spec)].join(" ");
+    tr.prepend(td);
+    if (entry === null) {
+      return td;
+    }
+    if (numbers) {
+      td.appendChild(element(doc, "span", "gt-i-rownum")).textContent = String(entry + 1);
+    }
+    if (mode !== null) {
+      const box = this.checkbox(`Select ${this.rowLabel(tr) || `row ${entry + 1}`}`);
+      box.addEventListener("click", (event) => this.userSelect(entry, this.shifted(event)));
+      td.append(box);
+      this.selectBoxes[entry] = box;
+    }
+    return td;
+  }
+
   private clickedRow(event: Event): number | null {
     const target = event.target as Element;
     const tr = target.closest("tr");
@@ -6476,18 +6519,22 @@ export class GtTable extends HTMLElement {
     }
     const { filter } = control;
     const values = filter.spec.values ?? [];
+    const given = filter.spec.labels;
     const labels = new Map<number, string>();
-    let missing = false;
-    this.rowElements.forEach((tr, row) => {
-      const key = filter.key(row);
-      if (key === MISSING) {
-        missing = true;
-      } else if (!labels.has(key)) {
-        const cell = this.dataCells(tr)[filter.index];
-        labels.set(key, (cell !== undefined && labelText(cell)) || filter.texts?.[row] || String(values[key]));
-      }
-    });
-    const entries = values.map((value, key): [number, string] => [key, labels.get(key) ?? String(value)]);
+    // (A remote table's rows aren't all in it, nor are their ranks; its filters have a missing row, if there's any)
+    let missing = this.remote && (filter.spec.missing?.length ?? 0) > 0;
+    if (!this.remote) {
+      this.rowElements.forEach((tr, row) => {
+        const key = filter.key(row);
+        if (key === MISSING) {
+          missing = true;
+        } else if (given === undefined && !labels.has(key)) {
+          const cell = this.dataCells(tr)[filter.index];
+          labels.set(key, (cell !== undefined && labelText(cell)) || filter.texts?.[row] || String(values[key]));
+        }
+      });
+    }
+    const entries = values.map((value, key): [number, string] => [key, given?.[key] ?? labels.get(key) ?? String(value)]);
     if (missing) {
       entries.push([MISSING, "(Missing)"]);
     }
@@ -7924,6 +7971,10 @@ export class GtTable extends HTMLElement {
   // rows shown stay till then)
   private matchRows(): void {
     this.terms = searchTerms(this.searchValue);
+    if (this.remote) {
+      this.askPage();
+      return;
+    }
     const spec = this.spec;
     const source = this.source;
     const query = this.rowQuery();
@@ -7947,6 +7998,148 @@ export class GtTable extends HTMLElement {
     } else {
       this.rowsCame(answer);
     }
+  }
+
+  // A remote table's page of the view, as the source gives it: at once, or when it does (and then
+  // shown), if it's still the last asked for (the rows shown stay till then). Not asked again for
+  // the page shown (or coming), nor, without a source that gives pages, till there's one
+  private askPage(): void {
+    const spec = this.spec;
+    if (spec === null || !this.remote) {
+      return;
+    }
+    const query = this.pageQuery();
+    const key = JSON.stringify(query);
+    if (key === this.pageKey) {
+      return;
+    }
+    const source = this.source;
+    if (source?.page === undefined) {
+      this.waiting ??= [];
+      this.setAttribute("aria-busy", "true");
+      return;
+    }
+    this.pageKey = key;
+    const asked = ++this.asked;
+    // (Without any search, filters or linked selections, the rows are every row)
+    const all = this.terms.length === 0 && query.filter === null && query.links.length === 0;
+    const take = (answer: PageAnswer) => {
+      this.paged = answer;
+      // (The page the source gave, which isn't asked for again)
+      this.pageKey = JSON.stringify({ ...query, start: answer.start });
+      this.addRows(answer);
+      this.rowsCame({ matched: all ? null : new Uint8Array(0), count: answer.count });
+    };
+    let answer: PageAnswer | Promise<PageAnswer>;
+    try {
+      answer = source.page(query);
+    } catch (err) {
+      lost("the page")(err);
+      this.rowsCame();
+      return;
+    }
+    if ("then" in answer) {
+      this.waiting ??= [];
+      this.setAttribute("aria-busy", "true");
+      answer.then(
+        (answer) => asked === this.asked && take(answer),
+        (err: unknown) => {
+          lost("the page")(err);
+          if (asked === this.asked) {
+            this.rowsCame();
+          }
+        },
+      );
+    } else {
+      take(answer);
+    }
+  }
+
+  // What a remote table asks its source for: the page of the view
+  private pageQuery(): PageQuery {
+    const size = this.size;
+    return { ...this.rowQuery(), sort: this.sort, start: size === null ? 0 : (this.pageValue - 1) * size, size };
+  }
+
+  /**
+   * Put the rows of a remote table's page that it doesn't have yet in the body (hidden, till
+   * they're placed), from their HTML: each as the table's own rows were made on hydration, after
+   * the body's first data row (their cells laid out, pinned and hidden as its are).
+   */
+  private addRows(answer: PageAnswer): void {
+    const tbody = this.tbody;
+    const model = this.rowElements.find((tr) => tr !== undefined);
+    if (tbody === null || model === undefined || answer.html === "" || answer.rows.every((row) => this.rowElements[row] !== undefined)) {
+      return;
+    }
+    const doc = this.ownerDocument;
+    // (Parsed in a body of its own, as rows: with no tags written out here, as a host that reads
+    // the runtime inlined in its page as HTML, as Quarto's pandoc does, takes them for its own)
+    const body = doc.createElement("tbody");
+    body.innerHTML = answer.html;
+    const trs = Array.from(body.children).filter((el): el is HTMLTableRowElement => el.tagName === "TR");
+    if (trs.length !== answer.rows.length) {
+      console.warn(`<gt-table>: the page has ${answer.rows.length} rows but its HTML has ${trs.length}; they're left out.`);
+      return;
+    }
+    const modelLead = model.querySelector<HTMLTableCellElement>(":scope > .gt-i-select");
+    const modelCells = [...(modelLead === null ? [] : [modelLead]), ...this.dataCells(model)];
+    const columnCells = new Map(this.columnCells.filter((p) => p.cell.parentElement === model).map((p) => [p.cell, p]));
+    const runCells = this.runCells.filter(({ cells }) => cells[0]?.parentElement === model);
+    const roles = this.table?.hasAttribute("role") === true;
+    const added: HTMLTableRowElement[] = [];
+    trs.forEach((tr, i) => {
+      const row = answer.rows[i] as number;
+      if (this.rowElements[row] !== undefined) {
+        return;
+      }
+      // (Its own cells are in the spec's order, as the model's were before they were moved)
+      const cells = Array.from(tr.cells);
+      const lead = modelLead === null ? [] : [this.leadCell(tr, row)];
+      const mapped = new Map<Element, HTMLTableCellElement>();
+      [...lead, ...cells].forEach((cell, k) => {
+        const from = modelCells[k];
+        if (from !== undefined) {
+          mapped.set(from, cell);
+          cell.classList.toggle("gt-i-pinned", from.classList.contains("gt-i-pinned"));
+          cell.classList.toggle("gt-i-pin", from.classList.contains("gt-i-pin"));
+          cell.hidden = (from as HTMLElement).hidden;
+        }
+      });
+      tr.append(...Array.from(model.children, (cell) => mapped.get(cell)).filter((cell) => cell !== undefined));
+      tr.classList.toggle("gt-i-row", model.classList.contains("gt-i-row"));
+      const selected = this.selected.has(row);
+      tr.classList.toggle("gt-i-selected", selected);
+      const box = this.selectBoxes[row];
+      if (box !== undefined) {
+        box.checked = selected;
+      }
+      if (roles) {
+        addRowRoles(tr);
+      }
+      for (const [cell, p] of columnCells) {
+        const to = mapped.get(cell);
+        if (to !== undefined) {
+          this.columnCells.push({ ...p, cell: to });
+        }
+      }
+      for (const { run, cells } of runCells) {
+        const to = cells.map((cell) => mapped.get(cell));
+        if (to.every((cell) => cell !== undefined)) {
+          this.runCells.push({ run, cells: to });
+        }
+      }
+      this.rowElements[row] = tr;
+      this.bodyRows.set(tr, row);
+      setHidden(tr, true);
+      added.push(tr);
+    });
+    const fragment = doc.createDocumentFragment();
+    fragment.append(...added);
+    tbody.insertBefore(fragment, this.empty?.parentNode === tbody ? this.empty : null);
+    // (Made again, with theirs)
+    this.cellTexts = null;
+    this.syncExpanders();
   }
 
   // Take the rows asked for; once they've come after others were coming, show them, and do what
@@ -7987,12 +8180,12 @@ export class GtTable extends HTMLElement {
     };
   }
 
-  private makeCellTexts(nrows: number): CellText[][] {
+  // (Those of the rows the table has: every row, but a remote table's)
+  private makeCellTexts(): CellText[][] {
     const texts: CellText[][] = [];
-    for (let row = 0; row < nrows; row++) {
-      const tr = this.rowElements[row];
-      texts.push(tr === undefined ? [] : this.dataCells(tr).map((cell) => new CellText(cell)));
-    }
+    this.rowElements.forEach((tr, row) => {
+      texts[row] = this.dataCells(tr).map((cell) => new CellText(cell));
+    });
     this.cellTexts = texts;
     return texts;
   }
@@ -8023,8 +8216,13 @@ export class GtTable extends HTMLElement {
 
   /** Show the data rows for the current sort, search and page. */
   private render(): void {
+    if (this.spec === null || this.tbody === null) {
+      return;
+    }
+    // (A remote table's page, which may be coming, and supersedes one that is)
+    this.askPage();
     // (Till the rows asked for come, those shown stay)
-    if (this.spec === null || this.tbody === null || this.waiting !== null) {
+    if (this.waiting !== null) {
       return;
     }
     const size = this.size;
@@ -8165,6 +8363,9 @@ export class GtTable extends HTMLElement {
   ): { shown: HTMLTableRowElement[]; page: number; start: number; total: number } {
     const spec = this.spec as Spec;
     const tbody = this.tbody as HTMLTableSectionElement;
+    if (this.paged !== null) {
+      return this.placePage(this.paged, size);
+    }
 
     // Each block is sorted on its own, so rows stay in their group, and group headings and
     // summary rows stay where they are. Its rows are moved only when its order changes (moving
@@ -8242,6 +8443,33 @@ export class GtTable extends HTMLElement {
     this.placeDetails();
     this.reinsertEdges(tbody);
     return { shown, page, start, total: order.length };
+  }
+
+  // Show a remote table's page (its rows, which it has, in order, at the start of the body)
+  private placePage(paged: PageAnswer, size: number | null): { shown: HTMLTableRowElement[]; page: number; start: number; total: number } {
+    const tbody = this.tbody as HTMLTableSectionElement;
+    const shown = paged.rows.flatMap((row) => this.rowElements[row] ?? []);
+    const on = new Set(shown);
+    let tr = tbody.firstElementChild;
+    const inOrder = shown.every((row) => {
+      while (tr !== null && !on.has(tr as HTMLTableRowElement)) {
+        tr = tr.nextElementSibling;
+      }
+      const same = tr === row;
+      tr = tr?.nextElementSibling ?? null;
+      return same;
+    });
+    if (!inOrder) {
+      tbody.prepend(...shown);
+    }
+    this.rowElements.forEach((tr) => {
+      setHidden(tr, !on.has(tr));
+    });
+    this.order = paged.rows.filter((row) => this.rowElements[row] !== undefined);
+    this.placeDetails();
+    this.reinsertEdges(tbody);
+    const page = size === null ? 1 : Math.floor(paged.start / size) + 1;
+    return { shown, page, start: paged.start, total: paged.count };
   }
 
   // Put each data row shown that hidden rows part from the next row shown, if that isn't a data
@@ -8923,13 +9151,18 @@ export class GtTable extends HTMLElement {
     this.ranges = [];
     // The search's terms, in every cell it looks in, and a text filter's, in its column's
     const texts = this.activeFilters().filter((filter) => filter.type === "text");
-    if ((this.terms.length === 0 && texts.length === 0) || this.cellTexts === null) {
+    if (this.terms.length === 0 && texts.length === 0) {
+      return;
+    }
+    // (A remote table's are made here, as its source does the search)
+    const cellTexts = this.cellTexts ?? (this.remote ? this.makeCellTexts() : null);
+    if (cellTexts === null) {
       return;
     }
     // (Ranges are made afresh, since moving rows collapses live ranges in them)
     for (const tr of shown) {
       const row = this.bodyRows.get(tr) as number;
-      const cells = this.cellTexts[row] ?? [];
+      const cells = cellTexts[row] ?? [];
       const found = this.searched(cells).flatMap((cell) => cell.find(this.terms));
       for (const filter of texts) {
         found.push(...(cells[filter.index]?.find([filter.needle]) ?? []));
@@ -9066,6 +9299,9 @@ export class GtTable extends HTMLElement {
     this.terms = [];
     this.matched = null;
     this.matchCount = 0;
+    this.remote = false;
+    this.paged = null;
+    this.pageKey = "";
     // (Answers to come are dropped, and what waited for them isn't done)
     this.asked++;
     this.waiting = null;

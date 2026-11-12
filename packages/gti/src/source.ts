@@ -2,10 +2,12 @@
 // table asks its source which rows its view keeps, with a query in JSON's terms (that a server
 // can run as well), and takes the answer as it's given, or, from a source that answers later,
 // when it comes (showing the rows it had till then, and dropping an answer to a query it's since
-// asked again).
+// asked again). A remote table (whose spec has `remote`: its page has only some of its rows)
+// asks its source for each page instead, with the rows' HTML.
 
 import { ColumnFilter, type FilterQuery, MISSING, setFilterQuery } from "./filter";
 import { type CellText, rowMatches, searchTerms } from "./search";
+import type { SortKey } from "./sort";
 import type { FilterSpec, FilterValue, Spec } from "./spec";
 
 /** What a table asks its source: the rows its view keeps. */
@@ -30,11 +32,38 @@ export interface RowAnswer {
 /** The rows a query keeps of each of a facet's values (its rank, or `MISSING`), by value. */
 export type FacetCounts = Map<number, number>;
 
+/** What a remote table asks its source: a page of the rows its view keeps, sorted. */
+export interface PageQuery extends RowQuery {
+  /** The sort (see `GtTable.sort`). */
+  sort: SortKey[];
+  /** Where the page starts, among the rows kept (from 0). */
+  start: number;
+  /** The rows on a page; `null` for one page of every row. */
+  size: number | null;
+}
+
+/** A page of the rows a query keeps. */
+export interface PageAnswer {
+  /** The number of rows the query keeps (on every page). */
+  count: number;
+  /** Where the page starts: the query's, or the last page's, if the query's is past it. */
+  start: number;
+  /** The page's data rows, in order. */
+  rows: number[];
+  /**
+   * The HTML of the page's rows that the table doesn't have yet (or of all of them): one `<tr>`
+   * of the table body per row, in the order of `rows`, as the table's own are.
+   */
+  html: string;
+}
+
 /** Where a table's rows come from. Each answer is given at once, or as a promise of it. */
 export interface DataSource {
   rows(query: RowQuery): RowAnswer | Promise<RowAnswer>;
   /** The rows a query keeps of each value of a facet's column (or a bool filter's). */
   facet(query: RowQuery, column: string): FacetCounts | Promise<FacetCounts>;
+  /** A page of the rows a query keeps, for a remote table (one whose spec has `remote`). */
+  page?(query: PageQuery): PageAnswer | Promise<PageAnswer>;
 }
 
 /** A filter of the spec's, on its column (or a column only for querying), or `null` without one. */

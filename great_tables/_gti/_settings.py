@@ -69,6 +69,13 @@ Preset = Literal["report", "explorer"]
 
 PRESETS: tuple[Preset, ...] = ("report", "explorer")
 
+# Where a widget's rows are searched, filtered, sorted and paged: in the browser (which then has
+# them all), in Python (the kernel, which sends the browser a page at a time), or in Python if the
+# table is too large for the browser
+Engine = Literal["auto", "browser", "kernel"]
+
+ENGINES: tuple[Engine, ...] = ("auto", "browser", "kernel")
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -152,6 +159,8 @@ class Settings:
     # values link their rows, so that rows selected in one filter the others; none, by default)
     link_group: str | None = None
     link_on: str | None = None
+    # (Where a widget's rows are searched, filtered, sorted and paged, as `i_scale()` set it)
+    engine: Engine = "auto"
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:

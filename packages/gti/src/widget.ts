@@ -9,11 +9,17 @@
 // of a widget shown more than once. After a change the reader makes, a "change" message tells
 // Python to call its callbacks.
 //
+// A table in kernel mode (`i_scale(engine="kernel")`) is remote: its page has only some of its
+// rows, and Python has them all (see great_tables/_gti/_kernel.py). Its source is a
+// `KernelSource`, which asks Python for each page (and a facet's counts) with an "ask" message,
+// answered with an "answer" message; and the rows it keeps aren't in the model (Python has them).
+//
 // Built on its own (by scripts/build.mjs, into great_tables/js/gti-widget.js), as an ES module
 // that's run after the runtime, so it imports nothing of it but its types (and src/host.ts).
 
 import type { GtTable } from "./gt-table";
 import { applyState, type HostView, SELECT_EVENT, SETTLED, same, VIEW_EVENT, viewOf } from "./host";
+import type { DataSource, FacetCounts, PageAnswer, PageQuery, RowAnswer, RowQuery } from "./source";
 
 export { SELECT_EVENT, VIEW_EVENT, viewOf };
 
@@ -26,20 +32,104 @@ export interface Model {
   set(name: string, value: unknown): void;
   save_changes(): void;
   send(content: unknown): void;
-  on(event: string, callback: () => void): void;
-  off(event: string, callback: () => void): void;
+  on(event: string, callback: (content?: unknown) => void): void;
+  off(event: string, callback: (content?: unknown) => void): void;
+}
+
+/** What Python answers an "ask" message with: the answer, or why there's none. */
+interface Answer {
+  type: "answer";
+  id: string;
+  answer?: unknown;
+  error?: string;
+}
+
+/**
+ * The rows of a table in kernel mode, from Python: each answer is asked for with a message, and
+ * comes in one.
+ */
+export class KernelSource implements DataSource {
+  // (Python answers every view of the widget, so each view's asks have their own ids)
+  private readonly view = Math.random().toString(36).slice(2);
+  private asked = 0;
+  private readonly pending = new Map<string, { resolve: (answer: unknown) => void; reject: (err: Error) => void }>();
+
+  constructor(
+    private readonly model: Model,
+    private readonly nrows: number,
+  ) {}
+
+  /** Take an answer from Python (a "msg:custom" message), if it's one this source asked for. */
+  readonly onMessage = (content?: unknown): void => {
+    const message = content as Partial<Answer> | null | undefined;
+    if (message?.type !== "answer" || typeof message.id !== "string") {
+      return;
+    }
+    const pending = this.pending.get(message.id);
+    this.pending.delete(message.id);
+    if (message.error !== undefined) {
+      pending?.reject(new Error(message.error));
+    } else {
+      pending?.resolve(message.answer);
+    }
+  };
+
+  /** Drop the answers to come (as when the table's view is gone). */
+  close(): void {
+    for (const { reject } of this.pending.values()) {
+      reject(new Error("the table is gone"));
+    }
+    this.pending.clear();
+  }
+
+  rows(query: RowQuery): Promise<RowAnswer> {
+    return this.ask("rows", { query }).then((answer) => {
+      const rows = answer as number[];
+      const matched = new Uint8Array(this.nrows);
+      for (const row of rows) {
+        matched[row] = 1;
+      }
+      return { matched, count: rows.length };
+    });
+  }
+
+  facet(query: RowQuery, column: string): Promise<FacetCounts> {
+    return this.ask("facet", { query, column }).then((answer) => new Map(answer as [number, number][]));
+  }
+
+  page(query: PageQuery): Promise<PageAnswer> {
+    return this.ask("page", { query }).then((answer) => answer as PageAnswer);
+  }
+
+  private ask(kind: string, content: Record<string, unknown>): Promise<unknown> {
+    const id = `${this.view}:${++this.asked}`;
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject });
+      this.model.send({ type: "ask", id, kind, ...content });
+    });
+  }
 }
 
 function render({ model, el }: { model: Model; el: HTMLElement }): () => void {
   el.innerHTML = model.get("_html") as string;
   const table = el.querySelector("gt-table") as GtTable;
+  // (The model says whether the table is in kernel mode, and how many rows it has)
+  const kernel = model.get("_kernel") === true;
+  const source = kernel ? new KernelSource(model, Number(model.get("_nrows"))) : null;
+  if (source !== null) {
+    table.source = source;
+    model.on("msg:custom", source.onMessage);
+  }
   let ready = false;
   // (While the glue writes to the model, which tells it of its own changes, as it makes them)
   let writing = false;
 
   // Write the table's state to the model, where it's changed (and with `told`, tell Python)
   const report = (told: boolean) => {
-    const state: Record<string, unknown> = { _view: viewOf(table), _rows: table.rows, _selection: table.selection };
+    const state: Record<string, unknown> = { _view: viewOf(table), _selection: table.selection };
+    if (!kernel) {
+      state._rows = table.rows;
+    }
     const changed = Object.keys(state).filter((key) => !same(state[key], model.get(key)));
     if (changed.length > 0) {
       writing = true;
@@ -111,6 +201,10 @@ function render({ model, el }: { model: Model; el: HTMLElement }): () => void {
     doc.removeEventListener(SELECT_EVENT, fromLink);
     model.off("change:_view", fromModel);
     model.off("change:_selection", fromModel);
+    if (source !== null) {
+      model.off("msg:custom", source.onMessage);
+      source.close();
+    }
   };
 }
 

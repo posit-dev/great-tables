@@ -11,6 +11,7 @@ from typing_extensions import Self
 from ._gt_data import ColInfoTypeEnum
 from ._gti._settings import (
     DATA_COLOR_MODES,
+    ENGINES,
     EXPORT_FORMATS,
     FILTER_TYPES,
     PIN_SIDES,
@@ -19,6 +20,7 @@ from ._gti._settings import (
     RESPONSIVE_MODES,
     SELECTION_MODES,
     DataColorMode,
+    Engine,
     ExportFormat,
     FilterType,
     PinSide,
@@ -1834,6 +1836,59 @@ class GTI(GT):
             raise ValueError(f"`on=` names a column the data doesn't have: {on!r}.")
         return self._set_interactive(link_group=group, link_on=on)
 
+    def i_scale(self, engine: Engine = "auto") -> Self:
+        """
+        Set where the rows of the table, shown as a widget, are searched, filtered and sorted.
+
+        A table shown in the browser has all of its rows there, which does all of this: quick for
+        a table of a few thousand rows, but slow to load (and to sort) with many more. Shown as a
+        widget (with [`i_as_widget()`](`great_tables.GTI.i_as_widget`)), a table can keep its rows
+        in Python instead (in the notebook's kernel), which searches, filters and sorts them (with
+        [Narwhals](https://narwhals-dev.github.io/narwhals/), on the data's own library), and
+        sends the browser the page it shows, one at a time: so the table loads as quickly with a
+        million rows as with a few.
+
+        In the kernel, a table always has pages (as [`i_pagination()`](`great_tables.GTI.i_pagination`)
+        sets them up), and its readers can't group its rows by a column, see its columns'
+        profiles, see rows' details, or export the rows themselves (they can copy the code that
+        filters and sorts the data as the view does, if the table has the `"code"` format); nor
+        do its `data_color()` colors change with the rows kept, or does it filter linked tables
+        (see [`i_link()`](`great_tables.GTI.i_link`)). A table with row groups, summary rows, or a
+        stub of more than one column is shown in the browser, as anywhere else, and so is a table
+        that isn't shown as a widget.
+
+        Parameters
+        ----------
+        engine
+            Where the rows are searched, filtered and sorted: in Python, if the table is shown as a
+            widget and has more rows than the browser is quick with (more than 3,000, or more than
+            10 MB of HTML), and in the browser otherwise (`"auto"`, the default); in the browser
+            (`"browser"`); or in Python, if the table is shown as a widget (`"kernel"`).
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        This table of a million rows is shown a page at a time, from Python.
+
+        ```python
+        import numpy as np
+        import polars as pl
+        from great_tables import GTI
+
+        rng = np.random.default_rng(1)
+        df = pl.DataFrame({"x": rng.normal(size=1_000_000), "n": rng.integers(0, 100, 1_000_000)})
+
+        GTI(df).fmt_number(columns="x").i_cols_filter().i_scale(engine="kernel").i_as_widget()
+        ```
+        """
+        if engine not in ENGINES:
+            raise ValueError(f'`engine=` must be "auto", "browser", or "kernel", not {engine!r}.')
+        return self._set_interactive(engine=engine)
+
     def i_as_widget(self) -> GTIWidget:
         """
         Show the table as a widget, whose view and selection can be read and set from Python.
@@ -1871,6 +1926,10 @@ class GTI(GT):
         code making it has run, so in a notebook, `rows` and `view()` have it in the next cell (in
         the same cell, they raise an error). Before the widget is shown, they're those of the
         table's view (see [`i_view()`](`great_tables.GTI.i_view`)), as Python finds them.
+
+        A table with more rows than the browser is quick with keeps them in Python instead (see
+        [`i_scale()`](`great_tables.GTI.i_scale`)), which sends the browser a page at a time:
+        then the rows are Python's, and `rows` and `view()` have a change at once.
 
         The widget needs the `anywidget` package (`pip install anywidget`, or
         `pip install great_tables[widget]`).
@@ -1988,7 +2047,7 @@ class GTI(GT):
             "`i_cols_filter()`, "
             "`i_cols_controls()`, `i_cols_pin()`, `i_cols_priority()`, `i_cols_profile()`, "
             "`i_view()`, `i_view_state()`, `i_export()`, `i_row_details()`, and `i_link()` "
-            "(and shown as a widget with `i_as_widget()`)."
+            "(and shown as a widget with `i_as_widget()`, set up with `i_scale()`)."
         )
 
 
