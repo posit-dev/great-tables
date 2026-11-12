@@ -269,40 +269,46 @@ test("Jupyter: a table as a widget, which the kernel reads and changes", async (
   expect(errors).toEqual([]);
 });
 
-test("Jupyter: a widget whose rows are the kernel's, a page at a time", async ({ page }) => {
-  test.skip(!has("jupyterlab", "ipykernel", "anywidget"), "JupyterLab, ipykernel and anywidget aren't installed");
-  const errors = watch(page, /^No active debugger session$/);
-  await lab(page, "kernel_widget.ipynb", async () => {
-    await runAll(page);
-    const table = page.locator(".jp-OutputArea gt-table");
-    await expect(table).toHaveAttribute("data-gti-state", "ready");
-    // (The table has only the rows shown, or shown before)
-    const shown = () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
-    const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
-    await expect.poll(shown).toEqual([rows(0), 500, false]);
-    await expect(table.locator("tbody tr:not([hidden])")).toHaveCount(10);
+// (Of a data frame, and of a LazyFrame, whose rows the kernel finds with Polars queries)
+for (const [what, notebook, needs] of [
+  ["", "kernel_widget.ipynb", []],
+  [" of a LazyFrame", "lazy_widget.ipynb", ["polars"]],
+] as const) {
+  test(`Jupyter: a widget${what} whose rows are the kernel's, a page at a time`, async ({ page }) => {
+    test.skip(!has("jupyterlab", "ipykernel", "anywidget", ...needs), `${["JupyterLab", "ipykernel", "anywidget", ...needs].join(", ")} aren't all installed`);
+    const errors = watch(page, /^No active debugger session$/);
+    await lab(page, notebook, async () => {
+      await runAll(page);
+      const table = page.locator(".jp-OutputArea gt-table");
+      await expect(table).toHaveAttribute("data-gti-state", "ready");
+      // (The table has only the rows shown, or shown before)
+      const shown = () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
+      const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
+      await expect.poll(shown).toEqual([rows(0), 500, false]);
+      await expect(table.locator("tbody tr:not([hidden])")).toHaveCount(10);
 
-    // (Each page, sort and search, from the kernel)
-    await table.evaluate((el: any) => {
-      el.page = 3;
+      // (Each page, sort and search, from the kernel)
+      await table.evaluate((el: any) => {
+        el.page = 3;
+      });
+      await expect.poll(shown).toEqual([rows(20), 500, false]);
+      await table.locator("thead button.gt-i-sort").first().click();
+      await table.locator("thead button.gt-i-sort").first().click();
+      await expect.poll(shown).toEqual([rows(4999, -1), 500, false]);
+      await expect(table.locator("tbody tr:not([hidden]) td").first()).toHaveText("4999");
+      await table.getByRole("button", { name: "Search the table" }).click();
+      await table.locator("input.gt-i-search").fill("4998");
+      await expect.poll(shown).toEqual([[4998], 1, false]);
+      expect(await kernelValue(page, "[widget.rows, widget.search]")).toEqual([[4998], "4998"]);
+
+      // (And a view the kernel sets)
+      await kernelRun(page, 'widget.search = ""; widget.query = \'kind in ("odd")\'; widget.sort = "n"');
+      await expect.poll(shown).toEqual([rows(1, 2), 250, false]);
+      expect(await kernelValue(page, "widget.rows[:3]")).toEqual([1, 3, 5]);
     });
-    await expect.poll(shown).toEqual([rows(20), 500, false]);
-    await table.locator("thead button.gt-i-sort").first().click();
-    await table.locator("thead button.gt-i-sort").first().click();
-    await expect.poll(shown).toEqual([rows(4999, -1), 500, false]);
-    await expect(table.locator("tbody tr:not([hidden]) td").first()).toHaveText("4999");
-    await table.getByRole("button", { name: "Search the table" }).click();
-    await table.locator("input.gt-i-search").fill("4998");
-    await expect.poll(shown).toEqual([[4998], 1, false]);
-    expect(await kernelValue(page, "[widget.rows, widget.search]")).toEqual([[4998], "4998"]);
-
-    // (And a view the kernel sets)
-    await kernelRun(page, 'widget.search = ""; widget.query = \'kind in ("odd")\'; widget.sort = "n"');
-    await expect.poll(shown).toEqual([rows(1, 2), 250, false]);
-    expect(await kernelValue(page, "widget.rows[:3]")).toEqual([1, 3, 5]);
+    expect(errors).toEqual([]);
   });
-  expect(errors).toEqual([]);
-});
+}
 
 test("Quarto: a document with two interactive tables and a static one", async ({ page }) => {
   test.skip(!quarto(), "Quarto isn't installed");
@@ -381,47 +387,53 @@ test("Shiny: a table's state as inputs, which the server changes", async ({ page
   }
 });
 
-test("Shiny: a table whose rows are the server's, a page at a time", async ({ page }) => {
-  test.skip(!has("shiny"), "Shiny isn't installed");
-  const port = await freePort();
-  const base = `http://127.0.0.1:${port}`;
-  const server = await serve(base, "-m", "shiny", "run", "--port", String(port), "shiny_kernel_app.py");
-  try {
-    const errors = watch(page);
-    await page.goto(base);
-    const table = page.locator("#m-table > gt-table");
-    await expect(table).toHaveAttribute("data-gti-state", "ready");
-    const state = async () => JSON.parse((await page.locator("#m-state").textContent()) || "null");
-    // (The table has only the rows shown, or shown before)
-    const shown = () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
-    const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
-    await expect.poll(shown).toEqual([rows(0), 500, false]);
-    await expect.poll(state).toEqual([5000, [0, 1, 2], ""]);
+// (Of a data frame, and of a LazyFrame)
+for (const [what, app, needs] of [
+  ["", "shiny_kernel_app.py", []],
+  [" of a LazyFrame", "shiny_lazy_app.py", ["polars"]],
+] as const) {
+  test(`Shiny: a table${what} whose rows are the server's, a page at a time`, async ({ page }) => {
+    test.skip(!has("shiny", ...needs), `${["Shiny", ...needs].join(" and ")} aren't all installed`);
+    const port = await freePort();
+    const base = `http://127.0.0.1:${port}`;
+    const server = await serve(base, "-m", "shiny", "run", "--port", String(port), app);
+    try {
+      const errors = watch(page);
+      await page.goto(base);
+      const table = page.locator("#m-table > gt-table");
+      await expect(table).toHaveAttribute("data-gti-state", "ready");
+      const state = async () => JSON.parse((await page.locator("#m-state").textContent()) || "null");
+      // (The table has only the rows shown, or shown before)
+      const shown = () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
+      const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
+      await expect.poll(shown).toEqual([rows(0), 500, false]);
+      await expect.poll(state).toEqual([5000, [0, 1, 2], ""]);
 
-    // (Each page, sort and search, from the server, which finds the rows)
-    await table.evaluate((el: any) => {
-      el.page = 3;
-    });
-    await expect.poll(shown).toEqual([rows(20), 500, false]);
-    await table.locator("thead button.gt-i-sort").first().click();
-    await table.locator("thead button.gt-i-sort").first().click();
-    await expect.poll(shown).toEqual([rows(4999, -1), 500, false]);
-    await expect(table.locator("tbody tr:not([hidden]) td").first()).toHaveText("4999");
-    await expect.poll(state).toEqual([5000, [4999, 4998, 4997], ""]);
-    await table.getByRole("button", { name: "Search the table" }).click();
-    await table.locator("input.gt-i-search").fill("4998");
-    await expect.poll(shown).toEqual([[4998], 1, false]);
-    await expect.poll(state).toEqual([1, [4998], "4998"]);
+      // (Each page, sort and search, from the server, which finds the rows)
+      await table.evaluate((el: any) => {
+        el.page = 3;
+      });
+      await expect.poll(shown).toEqual([rows(20), 500, false]);
+      await table.locator("thead button.gt-i-sort").first().click();
+      await table.locator("thead button.gt-i-sort").first().click();
+      await expect.poll(shown).toEqual([rows(4999, -1), 500, false]);
+      await expect(table.locator("tbody tr:not([hidden]) td").first()).toHaveText("4999");
+      await expect.poll(state).toEqual([5000, [4999, 4998, 4997], ""]);
+      await table.getByRole("button", { name: "Search the table" }).click();
+      await table.locator("input.gt-i-search").fill("4998");
+      await expect.poll(shown).toEqual([[4998], 1, false]);
+      await expect.poll(state).toEqual([1, [4998], "4998"]);
 
-    // (And a view the server sets)
-    await page.getByRole("button", { name: "Update" }).click();
-    await expect.poll(shown).toEqual([rows(1, 2), 250, false]);
-    await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
-    expect(errors).toEqual([]);
-  } finally {
-    server.kill();
-  }
-});
+      // (And a view the server sets)
+      await page.getByRole("button", { name: "Update" }).click();
+      await expect.poll(shown).toEqual([rows(1, 2), 250, false]);
+      await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+      expect(errors).toEqual([]);
+    } finally {
+      server.kill();
+    }
+  });
+}
 
 test("marimo: an app exported to HTML", async ({ page }) => {
   test.skip(!has("marimo"), "marimo isn't installed");
