@@ -1,14 +1,20 @@
 """A GTI table as an anywidget (`GTI.i_as_widget()`), whose view and selection Python can read and set.
 
-The browser stays the engine: the widget shows the table's `<gt-table>` element (as
-`as_raw_html()` has it), and the glue (packages/gti/src/widget.ts, run after the runtime) keeps
-the model's state as the browser has it: the view (`_view`, `None` until the table's shown), the
-rows the view keeps, in the order shown (`_rows`), and those selected (`_selection`). Python sets
-the view's filter, sort and search, and the selection, which the browser then applies.
+The widget shows the table's `<gt-table>` element (as `as_raw_html()` has it), and the glue
+(packages/gti/src/widget.ts, run after the runtime) keeps the model's state as the browser has it:
+the view (`_view`, `None` until the table's shown), the rows the view keeps, in the order shown
+(`_rows`), and those selected (`_selection`). Python sets the view's filter, sort and search, and
+the selection, which the browser then applies.
+
+The browser is the engine, unless the table's rows are kept in Python (`_kernel`, as
+`i_scale()` has it: see `_kernel.py`): then the browser has a page of them at a time, which it
+asks for with an "ask" message (as it does a facet's counts), answered with an "answer" message;
+and the rows the view keeps are Python's (`_rows` isn't written).
 """
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Callable
 from functools import cache
 from typing import TYPE_CHECKING, Any
@@ -16,9 +22,20 @@ from typing import TYPE_CHECKING, Any
 import anywidget
 import traitlets
 
-from .._tbl_data import DataFrameLike, get_column_names, reorder
+from .._tbl_data import DataFrameLike, get_column_names, n_rows, reorder
+from ._kernel import KernelEngine, _listed, kernel_reasons
 from ._query import format_query, view_rows
-from ._render import JS_DIR, _load_runtime, render_gti_element
+from ._render import (
+    JS_DIR,
+    MAX_BYTES,
+    MAX_ROWS,
+    GTIEngineWarning,
+    _build,
+    _load_runtime,
+    _warn_size,
+    render_gti_element,
+)
+from ._settings import settings_of
 from ._state import (
     author_view,
     check_query_value,
@@ -55,12 +72,23 @@ class GTIWidget(anywidget.AnyWidget):
     _view = traitlets.Dict(allow_none=True, default_value=None).tag(sync=True)
     _rows = traitlets.List(allow_none=True, default_value=None).tag(sync=True)
     _selection = traitlets.List().tag(sync=True)
+    # (Whether the table's rows are kept in Python, and how many there are)
+    _kernel = traitlets.Bool(False).tag(sync=True)
+    _nrows = traitlets.Int(0).tag(sync=True)
 
     def __init__(self, gti: GTI) -> None:
-        html, spec = render_gti_element(gti)
-        super().__init__(_esm=_esm(), _css=_load_runtime()[1], _html=html)
+        html, spec, engine = _widget_table(gti)
+        super().__init__(
+            _esm=_esm(),
+            _css=_load_runtime()[1],
+            _html=html,
+            _kernel=engine is not None,
+            _nrows=spec["nrows"],
+        )
         self._gti = gti
+        # (With the rows in Python, its spec has every row's, as the browser's would)
         self._spec: Spec = spec
+        self._engine = engine
         # (Whether the browser has given the table's state, which is then its own)
         self._shown = False
         self._callbacks: list[Callable[[GTIWidget], Any]] = []
@@ -144,8 +172,12 @@ class GTIWidget(anywidget.AnyWidget):
         They're the browser's. Before the table is shown, they're those its view keeps, as
         Python finds them; once it's shown, a change to the view made from Python is applied by
         the browser after the code making it has run (in a notebook, when the cell is done), and
-        until then there are no rows to give (it's an error to ask for them).
+        until then there are no rows to give (it's an error to ask for them). With the rows kept
+        in Python (see [`i_scale()`](`great_tables.GTI.i_scale`)), they're Python's, at once.
         """
+        if self._engine is not None:
+            view = self._current_view()
+            return list(self._engine.find({**view, "links": []}))
         if self._rows is not None:
             return list(self._rows)
         if self._shown:
@@ -218,6 +250,57 @@ class GTIWidget(anywidget.AnyWidget):
             self._shown = True
 
     def _on_msg(self, _: Any, content: Any, buffers: Any) -> None:
-        if isinstance(content, dict) and content.get("type") == "change":
+        if not isinstance(content, dict):
+            return
+        if content.get("type") == "change":
             for callback in list(self._callbacks):
                 callback(self)
+        elif content.get("type") == "ask" and self._engine is not None:
+            self._answer(self._engine, content)
+
+    def _answer(self, engine: KernelEngine, ask: dict[str, Any]) -> None:
+        # (An error is the browser's to show, as it shows a source's)
+        kind, query = ask.get("kind"), ask.get("query")
+        try:
+            if kind == "page":
+                answer: Any = engine.page(query)
+            elif kind == "facet":
+                answer = engine.facet(query, ask.get("column"))
+            elif kind == "rows":
+                answer = engine.rows(query)
+            else:
+                raise ValueError(f"There's no answer to a {kind!r} ask.")
+        except Exception as err:  # noqa: BLE001
+            self.send({"type": "answer", "id": ask.get("id"), "error": str(err)})
+        else:
+            self.send({"type": "answer", "id": ask.get("id"), "answer": answer})
+
+
+def _widget_table(gti: GTI) -> tuple[str, Spec, KernelEngine | None]:
+    """The table's element, its spec, and if its rows are kept in Python (as `i_scale()` says,
+    and as they can be), what keeps them."""
+    engine = settings_of(gti).engine
+    # (Rendered without the warning that its rows aren't in Python)
+    browser = gti._set_interactive(engine="browser")
+    if engine == "browser":
+        html, spec = render_gti_element(browser)
+        return html, spec, None
+    if engine == "auto" and n_rows(gti._tbl_data) <= MAX_ROWS:
+        html, spec = render_gti_element(browser, warn=False)
+        if len(html.encode("utf-8")) <= MAX_BYTES:
+            _warn_size(gti, spec, html)
+            return html, spec, None
+    reasons = kernel_reasons(_build(gti))
+    if reasons:
+        if engine == "kernel":
+            warnings.warn(
+                f"The rows of a table with {_listed(reasons)} can't be kept in Python "
+                '(`i_scale(engine="kernel")`) yet, so they\'re in the browser.',
+                GTIEngineWarning,
+                stacklevel=4,
+            )
+        html, spec = render_gti_element(browser)
+        return html, spec, None
+    kernel = KernelEngine(gti)
+    html, _ = kernel.render()
+    return html, kernel.spec, kernel
