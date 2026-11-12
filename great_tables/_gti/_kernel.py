@@ -31,7 +31,9 @@ from .._tbl_data import (
     _get_cell,
     _get_column_values,
     cast_frame_to_string,
+    get_column_names,
     n_rows,
+    reorder,
     replace_null_frame,
 )
 from .._utils_render_html import create_body_component_h
@@ -95,8 +97,13 @@ class _PageStub(Stub):
 
 def kernel_reasons(data: GTData) -> list[str]:
     """Why a built table's rows can't be kept in Python (none, if they can)."""
+    from .._gt_data import ColInfoTypeEnum
+
     reasons = []
-    if data._stub.group_ids:
+    # (A table of a LazyFrame is built without rows, so has no groups, but its column of them)
+    if data._stub.group_ids or any(
+        info.type == ColInfoTypeEnum.row_group for info in data._boxhead
+    ):
         reasons.append("row groups")
     if data._summary_rows or data._summary_rows_grand:
         reasons.append("summary rows")
@@ -127,6 +134,19 @@ def _dropped(gti: GTI, spec: Spec) -> list[str]:
     return dropped
 
 
+def _warn_dropped(gti: GTI, spec: Spec) -> None:
+    # (Called by an engine's `__init__()`)
+    dropped = _dropped(gti, spec)
+    if dropped:
+        warnings.warn(
+            "With its rows kept in Python (`i_scale()`), this table can't have "
+            f"{_listed(dropped)}, so it's shown without.",
+            GTIEngineWarning,
+            # (For the caller of `i_as_widget()`)
+            stacklevel=6,
+        )
+
+
 class KernelEngine:
     """A table's rows, in Python: the pages of its views, as the runtime would show them."""
 
@@ -138,15 +158,7 @@ class KernelEngine:
         # (Every row's, as the browser would have it, for Python's own use: checking views, and
         # finding rows)
         self.spec = spec = build_spec(built, details=[])
-        dropped = _dropped(gti, spec)
-        if dropped:
-            warnings.warn(
-                "With its rows kept in Python (`i_scale()`), this table can't have "
-                f"{_listed(dropped)}, so it's shown without.",
-                GTIEngineWarning,
-                # (For the caller of `i_as_widget()`)
-                stacklevel=5,
-            )
+        _warn_dropped(gti, spec)
         self._nrows = spec["nrows"]
         # (Each column's missing values, for tinting them, as the runtime does)
         self._missing = [set(column["missing"] or []) for column in spec["columns"]]
@@ -379,6 +391,11 @@ class KernelEngine:
             return self.rows(query)
         raise ValueError(f"There's no answer to a {kind!r} ask.")
 
+    def data(self, rows: list[int]) -> Any:
+        """The data of the rows, in their order (a frame of the data's library)."""
+        data = self._gti._tbl_data
+        return reorder(data, rows, get_column_names(data))
+
     # -----
     # The rows' HTML
 
@@ -400,17 +417,22 @@ class KernelEngine:
         trs = [body[a:b].rstrip("\n") for a, b in zip(starts, [*starts[1:], end])]
         if len(trs) != len(rows):
             raise ValueError(f"The page's body has {len(trs)} rows, not {len(rows)}.")
-        if any(self._missing):
-            trs = [self._tint(tr, row) for tr, row in zip(trs, rows)]
+        missing = self._missing_on(rows)
+        if any(missing):
+            trs = [self._tint(tr, row, missing) for tr, row in zip(trs, rows)]
         return "\n".join(trs)
 
-    def _tint(self, tr: str, row: int) -> str:
-        columns = [i for i, missing in enumerate(self._missing) if row in missing]
+    def _missing_on(self, rows: list[int]) -> list[set[int]]:
+        # Each column's rows with a missing value (of those of a page, at least)
+        return self._missing
+
+    def _tint(self, tr: str, row: int, missing: list[set[int]]) -> str:
+        columns = [i for i, rows in enumerate(missing) if row in rows]
         if not columns:
             return tr
         cells = list(_CELL_START.finditer(tr))
         # (If the row's cells can't be told apart, they're left as they are)
-        if len(cells) != len(self._missing):
+        if len(cells) != len(missing):
             return tr
         parts, last = [], 0
         for i in columns:
@@ -515,18 +537,26 @@ def render_table(
 ) -> tuple[str, Spec, KernelEngine | None]:
     """The table's element, its spec, and if its rows are kept in Python (as `i_scale()` says,
     and as they can be), what keeps them (and then the element has `attrs`)."""
+    from ._lazy import LazyEngine, few_rows, lazy_of, lazy_reasons, template
+
     engine = settings_of(gti).engine
+    lazy = lazy_of(gti) is not None
     # (Rendered without the warning that its rows aren't in Python)
     browser = gti._set_interactive(engine="browser")
     if engine == "browser":
         html, spec = render_gti_element(browser, all_important=all_important)
         return html, spec, None
-    if engine == "auto" and n_rows(gti._tbl_data) <= MAX_ROWS:
+    # (A table of a LazyFrame with few rows has them collected, then)
+    if engine == "auto" and (few_rows(gti) if lazy else n_rows(gti._tbl_data) <= MAX_ROWS):
         html, spec = render_gti_element(browser, all_important=all_important, warn=False)
         if len(html.encode("utf-8")) <= MAX_BYTES:
             _warn_size(gti, spec, html)
             return html, spec, None
-    reasons = kernel_reasons(_build(gti))
+    if lazy:
+        reasons = kernel_reasons(_build(template(gti)))
+        reasons += [reason for reason in lazy_reasons(gti) if reason not in reasons]
+    else:
+        reasons = kernel_reasons(_build(gti))
     if reasons:
         if engine == "kernel":
             warnings.warn(
@@ -538,7 +568,7 @@ def render_table(
             )
         html, spec = render_gti_element(browser, all_important=all_important)
         return html, spec, None
-    kernel = KernelEngine(gti)
+    kernel = LazyEngine(gti) if lazy else KernelEngine(gti)
     html, _ = kernel.render(all_important=all_important, attrs=attrs)
     return html, kernel.spec, kernel
 

@@ -401,3 +401,21 @@ def test_update_gti_checks_against_kernel_table(session):
             update_gti("table", sort="nope")
         update_gti("table", query='fctr in ("three")', selection=[4])
     assert custom(session)[0][MESSAGE]["selection"] == [4]
+
+
+def test_lazy_table_keeps_its_rows_on_server(session):
+    import polars as pl
+
+    many = pl.LazyFrame({"n": range(4000), "t": [f"t{i}" for i in range(4000)]})
+    rendered = render(session, GTI(many).i_pagination(page_size=2))
+    assert '<gt-table data-gti-server="4000"' in rendered["html"]
+    assert _SPECS[session]["table"]["nrows"] == 4000
+    page = ask(session, "table_gti", {"kind": "page", "query": {**QUERY, "start": 2, "size": 2}})
+    assert page["value"]["rows"] == [2, 3] and "t3" in page["value"]["html"]
+    rows = ask(session, "table_gti", {"kind": "rows", "query": {**QUERY, "search": "t399"}})
+    assert rows["value"] == [399, *range(3990, 4000)]
+    with session_context(session):
+        with pytest.raises(ValueError, match="has 4000 rows"):
+            update_gti("table", selection=[4000])
+        with pytest.raises(ValueError, match="nope"):
+            update_gti("table", sort="nope")

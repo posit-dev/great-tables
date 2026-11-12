@@ -111,7 +111,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   the view (as `view` has it) keeps (`count`), and those in `body` (its first page). Its `ranks`
   have every column, but none of the rows, and its columns' and filters' `missing` only some (a
   column's, those in `body`); a facet or bool filter has its values' `labels`, by rank (the
-  runtime would read them from the rows). Producers that leave `remote` out have every row.
+  runtime would read them from the rows). A range or date filter's `values` may be only some of
+  its values, in order: its first and last, and for a column of dates and times, any with a time
+  other than midnight, or with seconds, that its fields need (as the runtime has them from its
+  values). Producers that leave `remote` out have every row.
 
 Data rows are numbered by their position in the input data, as `ranks` are.
 """
@@ -121,13 +124,14 @@ from __future__ import annotations
 import datetime as dt
 import math
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypedDict
 
 from .._gt_data import ColInfoTypeEnum
 from .._locations import LocBody
 from .._styles import CellStyleFill, CellStyleText
 from .._tbl_data import (
     ColumnKind,
+    PlDataFrame,
     _get_cell,
     _get_column_dtype_name,
     _get_column_kind,
@@ -382,9 +386,35 @@ class Spec(_Spec, total=False):
     remote: RemoteSpec
 
 
-def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
+class FilterRows(Protocol):
+    """What a table's filters need of rows that its data doesn't have (a LazyFrame's, whose
+    table's data has none: see `_lazy.py`)."""
+
+    nrows: int
+
+    def distinct(self, column: str) -> int:
+        """How many distinct values (not missing) a column has."""
+        ...
+
+    def values(self, column: str, type: str) -> list[Any]:
+        """A filter's values (of a `type` other than "text"), as `FilterSpec` has them: a
+        range's or a date filter's may be only some (see `remote`)."""
+        ...
+
+    def missing(self, column: str) -> list[int]:
+        """The first data row whose value in a column is missing (none, if there isn't one)."""
+        ...
+
+
+def build_spec(
+    data: GTData, details: list[int] | None = None, rows: FilterRows | None = None
+) -> Spec:
     """Make the spec of a built table (`GT._build_data(context="html")`): with the data rows
-    that have details (as `render_details()` has them, which makes them, if they're not given)."""
+    that have details (as `render_details()` has them, which makes them, if they're not given).
+
+    (With `rows`, the table's rows aren't in its data, which has none: the spec has their count,
+    and its filters are theirs, but it's otherwise as for a table without rows.)
+    """
 
     boxhead = data._boxhead
     has_summary_rows = bool(data._summary_rows or data._summary_rows_grand)
@@ -512,7 +542,8 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
         )
 
     groups_as_column = "group_label" in stub_layout
-    nrows = n_rows(tbl_data)
+    data_rows = n_rows(tbl_data)
+    nrows = data_rows if rows is None else rows.nrows
 
     chosen = dict(settings.filters)
     filters: list[FilterSpec] = []
@@ -522,11 +553,17 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
             continue
         column_ranks = ranks.get(var)
         zoned = kind == "datetime" and _has_time_zone(tbl_data, var)
-        filter_type = _filter_type(chosen[var], kind, column_ranks, nrows, zoned)
+        distinct = None
+        if rows is not None and kind == "string" and column_ranks is not None:
+            distinct = rows.distinct(var) if chosen[var] == "auto" else None
+        filter_type = _filter_type(chosen[var], kind, column_ranks, nrows, zoned, distinct)
         values = None
         if filter_type != "text":
-            values = _filter_values(tbl_data, var, column_ranks or [])
-        missing = _get_column_missing(tbl_data, var)
+            if rows is None:
+                values = _filter_values(tbl_data, var, column_ranks or [])
+            else:
+                values = rows.values(var, filter_type)
+        missing = _get_column_missing(tbl_data, var) if rows is None else rows.missing(var)
         filters.append(FilterSpec(column=var, type=filter_type, values=values, missing=missing))
 
     plots = dict(settings.profiles)
@@ -552,7 +589,7 @@ def build_spec(data: GTData, details: list[int] | None = None) -> Spec:
         for info in query_infos:
             texts = None
             if types.get(info.var) in ("text", "facet", "bool"):
-                cells = [str(_get_cell(body, row, info.var)) for row in range(nrows)]
+                cells = [str(_get_cell(body, row, info.var)) for row in range(data_rows)]
                 texts = [
                     match_text(cell) if types[info.var] == "text" else label_text(cell)
                     for cell in cells
@@ -770,10 +807,12 @@ def _filter_type(
     ranks: list[int | None] | None,
     nrows: int,
     zoned: bool = False,
+    distinct: int | None = None,
 ) -> Literal["text", "facet", "range", "date", "bool"]:
     """How a column is filtered: as chosen, or (for "auto") as its kind and values suggest.
 
-    (A column of dates and times with a time zone, `zoned`, can't have a date filter yet.)
+    (A column of dates and times with a time zone, `zoned`, can't have a date filter yet. A
+    column of text has `distinct` values, if they aren't counted from its ranks.)
     """
     # (Facets, ranges, date and bool filters go by the column's ranks, which a column the backend
     # can't sort lacks)
@@ -790,7 +829,8 @@ def _filter_type(
     if kind == "category":
         return "facet"
     if kind == "string":
-        distinct = max((rank for rank in ranks if rank is not None), default=-1) + 1
+        if distinct is None:
+            distinct = max((rank for rank in ranks if rank is not None), default=-1) + 1
         if distinct <= FACET_MAX_VALUES and distinct * 2 <= nrows:
             return "facet"
     return "text"
@@ -807,6 +847,9 @@ def _profile_plot(chosen: ProfilePlot, kind: ColumnKind) -> Literal["histogram",
 
 def _has_time_zone(data: Any, column: str) -> bool:
     """Whether a column of dates and times has any with a time zone."""
+    if isinstance(data, PlDataFrame):
+        # (As its dtype has it: so too without rows)
+        return getattr(data.schema[column], "time_zone", None) is not None
     return any(
         getattr(value, "tzinfo", None) is not None for value in _get_column_values(data, column)
     )

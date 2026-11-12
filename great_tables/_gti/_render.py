@@ -126,6 +126,11 @@ def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -
             GTIEngineWarning,
             stacklevel=3,
         )
+    from ._lazy import collected, lazy_of
+
+    lazy = lazy_of(gt) is not None
+    if lazy:
+        gt = collected(gt)  # type: ignore[arg-type]
     built = _build(gt)
     table_html = built._render_as_html(all_important=all_important)
     details = render_details(built)
@@ -134,7 +139,7 @@ def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -
     if warn:
         from ._kernel import kernel_reasons
 
-        _warn_size(gt, spec, html, kernel=not kernel_reasons(built))
+        _warn_size(gt, spec, html, kernel=not kernel_reasons(built), lazy=lazy)
     return html, spec
 
 
@@ -183,12 +188,13 @@ def page_html(fragment: str) -> str:
     )
 
 
-def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False) -> None:
+def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False, lazy: bool = False) -> None:
     """Warn if the table may be slow in the browser: with more data rows than `MAX_ROWS` or more
     bytes of HTML (its `<gt-table>` element's) than `MAX_BYTES`, as it's slow to load, or with
     more rows shown at once than `MAX_SHOWN`, as each is laid out again when the rows are sorted,
     searched or filtered. (With `kernel`, a `GTI` table that could keep its rows in Python, as a
-    widget or in a Shiny app, is told so.)
+    widget or in a Shiny app, is told so; with `lazy`, that its rows were collected, from its
+    LazyFrame.)
     """
     from ..gti import GTI
 
@@ -216,6 +222,8 @@ def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False) -> None:
         f"This interactive table may be slow in the browser, especially on phones: it {reason}."
     )
     if nrows > MAX_ROWS or size > MAX_BYTES:
+        if lazy:
+            message += " Its rows were all collected from its LazyFrame, to be shown here."
         message += (
             " It's quicker to load with fewer rows, or fewer columns (or less in them), e.g., by "
             "filtering the data first."
@@ -244,7 +252,9 @@ def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False) -> None:
 
 def render_parts(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
     """A table's static HTML (its `<div>`) and its spec."""
-    built = _build(gt)
+    from ._lazy import eager
+
+    built = _build(eager(gt))
     return built._render_as_html(all_important=all_important), build_spec(built)
 
 

@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import copy
+import functools
+import inspect
 import math
 import numbers
 import operator
+from contextvars import ContextVar
 from dataclasses import replace
 from typing import TYPE_CHECKING, Any, NoReturn
 
@@ -40,6 +44,7 @@ from .gt import GT
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from ._gti._lazy import Lazy
     from ._gti._widget import GTIWidget
 
 __all__ = ["GTI"]
@@ -67,6 +72,24 @@ class GTI(GT):
     interface, one readers work with, and [`GTI.from_gt()`](`great_tables.GTI.from_gt`) turns a
     `GT` table into one.
 
+    A table of a Polars LazyFrame is made, formatted and styled as any other, but its rows are
+    collected only as they're shown. Shown as a widget (with
+    [`i_as_widget()`](`great_tables.GTI.i_as_widget`)) or in a Shiny app (with
+    [`render_gt()`](`great_tables.shiny.render_gt`)), a table of more rows than the browser is
+    quick with keeps them in Python (see [`i_scale()`](`great_tables.GTI.i_scale`)): each view is
+    found with a Polars query on the LazyFrame, and only the rows of the page shown are collected,
+    formatted and rendered. Anywhere else (or with few rows), all the rows are collected and the
+    table is shown as a table of them would be.
+
+    The table is made again from the rows shown, by the same methods: so what depends on every row
+    can't be used (`data_color()`, a footnote on the body or the stub, or rows chosen by their
+    positions, rather than by a Polars expression or their names in the stub); and a method that
+    looks at the rows it's given looks only at the page's (as an expression of a column's mean
+    does, in `tab_style()`'s rows, or `cols_align_decimal()`, or a nanoplot's scale). A table with summary rows or row groups has all its rows collected. In
+    Python, its search, and its filters' "contains" and "matches" clauses, match the rows' values
+    as text (e.g., `1000.5`), not the text of their cells (`1,000.50`), and a missing value
+    matches nothing.
+
     :::{.callout-warning}
     `GTI()` is experimental: its methods, and what they do, may change.
     :::
@@ -74,7 +97,8 @@ class GTI(GT):
     Parameters
     ----------
     data
-        A DataFrame object.
+        A DataFrame object, or a Polars LazyFrame (whose rows are collected as they're shown: see
+        above).
     rowname_col
         The column name in the input `data=` table to use as row labels to be placed in the table
         stub. A list of column names creates a hierarchical stub.
@@ -146,6 +170,17 @@ class GTI(GT):
     ```
 
     A `GT` table can be made into a `GTI` table with [`GTI.from_gt()`](`great_tables.GTI.from_gt`).
+
+    A table of a Polars LazyFrame keeps its rows there until they're shown.
+
+    ```python
+    import polars as pl
+    from great_tables import GTI
+
+    lf = pl.scan_parquet("trips.parquet")
+
+    GTI(lf).fmt_number(columns="fare", decimals=2).i_cols_filter("payment").i_as_widget()
+    ```
     """
 
     def __init__(
@@ -160,14 +195,24 @@ class GTI(GT):
     ):
         if preset not in PRESETS:
             raise ValueError(f'`preset=` must be "report" or "explorer", not {preset!r}.')
-        super().__init__(
-            data,
-            rowname_col=rowname_col,
-            groupname_col=groupname_col,
-            auto_align=auto_align,
-            id=id,
-            locale=locale,
-        )
+        init = {
+            "rowname_col": rowname_col,
+            "groupname_col": groupname_col,
+            "auto_align": auto_align,
+            "id": id,
+            "locale": locale,
+        }
+        lazy = None
+        if _is_lazy_frame(data):
+            # (Made over a frame of its columns, without rows, and made again from the rows shown:
+            # see `_gti/_lazy.py`)
+            from ._gti._lazy import lazy_table
+
+            data, lazy = lazy_table(data, init)
+        super().__init__(data, **init)
+        if lazy is not None:
+            object.__setattr__(self, "_boxhead", lazy.boxhead)
+        object.__setattr__(self, "_lazy", lazy)
         # (Kept apart from the table's options, which are `GT`'s; frozen, as the table is)
         object.__setattr__(self, "_interactive", Settings())
         if preset == "explorer":
@@ -182,6 +227,7 @@ class GTI(GT):
             object.__setattr__(self, "_interactive", explorer._interactive)
 
     _interactive: Settings
+    _lazy: Lazy | None
 
     @classmethod
     def from_gt(cls, gt: GT) -> GTI:
@@ -1859,6 +1905,9 @@ class GTI(GT):
         stub of more than one column is shown in the browser, as anywhere else, and so is a table
         that isn't shown as a widget or in a Shiny app.
 
+        A table of a Polars LazyFrame keeps its rows in the LazyFrame, and has only the page shown
+        collected (see [`GTI()`](`great_tables.GTI`)).
+
         Parameters
         ----------
         engine
@@ -2052,6 +2101,62 @@ class GTI(GT):
             "`i_view()`, `i_view_state()`, `i_export()`, `i_row_details()`, and `i_link()` "
             "(and shown as a widget with `i_as_widget()`, set up with `i_scale()`)."
         )
+
+
+# A `GTI` table of a LazyFrame keeps the calls of `GT`'s methods that made it (but not of those
+# they call), to make it again from the rows shown
+_RECORDING: ContextVar[bool] = ContextVar("_RECORDING", default=False)
+
+# (Those whose results aren't tables, or that render it, which are of all of its rows)
+_NOT_RECORDED = {"show", "write_raw_html", "render"}
+
+
+def _recorded(name: str, method: Callable[..., Any]) -> Callable[..., Any]:
+    @functools.wraps(method)
+    def call(self: GT, *args: Any, **kwargs: Any) -> Any:
+        lazy = self.__dict__.get("_lazy")
+        if lazy is None:
+            return method(self, *args, **kwargs)
+        from ._gti._lazy import UNRUN, check_call
+
+        check_call(name, method, args, kwargs)
+        if _RECORDING.get():
+            return self if name in UNRUN else method(self, *args, **kwargs)
+        token = _RECORDING.set(True)
+        try:
+            result = self if name in UNRUN else method(self, *args, **kwargs)
+        finally:
+            _RECORDING.reset(token)
+        result = copy.copy(result)
+        object.__setattr__(result, "_lazy", lazy.called(name, args, kwargs))
+        return result
+
+    return call
+
+
+def _collected(method: Callable[..., Any]) -> Callable[..., Any]:
+    @functools.wraps(method)
+    def call(self: GT, *args: Any, **kwargs: Any) -> Any:
+        from ._gti._lazy import eager
+
+        return method(eager(self), *args, **kwargs)
+
+    return call
+
+
+for _name, _method in list(vars(GT).items()):
+    if _name.startswith("_") or not inspect.isfunction(_method) or _name in vars(GTI):
+        continue
+    if _name == "render":
+        setattr(GTI, _name, _collected(_method))
+    elif _name not in _NOT_RECORDED:
+        setattr(GTI, _name, _recorded(_name, _method))
+del _name, _method
+
+
+def _is_lazy_frame(data: Any) -> bool:
+    kind = type(data)
+    return kind.__name__ == "LazyFrame" and kind.__module__.startswith("polars")
 
 
 def _static_only(method: str) -> str:

@@ -1197,6 +1197,13 @@ def resolve_rows_i(
             return []
 
     elif isinstance(expr, list):
+        # (A LazyFrame's table is made again for each page of its rows: see `_gti/_lazy.py`)
+        lazy = isinstance(data, GTData) and data.__dict__.get("_lazy") is not None
+        if lazy and any(isinstance(x, int) for x in expr):
+            raise ValueError(
+                "The rows of a table of a LazyFrame can't be chosen by their positions (as "
+                f"{expr!r}), only by a Polars expression or their names in the stub."
+            )
         # TODO: manually doing row selection here for now
         target_names = {x for x in expr if isinstance(x, str)}
         target_pos = {

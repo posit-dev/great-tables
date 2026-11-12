@@ -1495,7 +1495,8 @@ def _create_row_component_h(
                 level = stub_cell_idx - 1
                 multi = stub_col_rowspans is not None
                 cell_id = header_ids.registry.make(
-                    f"stub-{row_index + 1}" + (f"-{level + 1}" if multi else ""), fallback="stub"
+                    f"stub-{data._stub.row_number(row_index)}" + (f"-{level + 1}" if multi else ""),
+                    fallback="stub",
                 )
                 header_ids.stub[level] = cell_id
             else:
