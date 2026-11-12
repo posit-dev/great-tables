@@ -50,6 +50,11 @@ class GTISizeWarning(RenderWarning):
     """A warning that an interactive table may be slow in the browser, for its size."""
 
 
+class GTIEngineWarning(RenderWarning):
+    """A warning that an interactive table's rows aren't kept in Python (see `i_scale()`), or
+    that some of what it does is left out, as they are."""
+
+
 @cache
 def _load_runtime() -> tuple[str, str]:
     """The built `<gt-table>` runtime (see packages/gti): its JS and CSS."""
@@ -101,12 +106,36 @@ def render_gti_html_spec(
     return html, spec
 
 
-def render_gti_element(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
-    """A table's `<gt-table>` element (without the runtime), and its spec."""
+def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -> tuple[str, Spec]:
+    """A table's `<gt-table>` element (without the runtime), and its spec.
+
+    (With `warn=False`, there's no warning about its size: see `_warn_size()`.)
+    """
+    from ..gti import GTI
+
+    if isinstance(gt, GTI) and settings_of(gt).engine == "kernel":
+        # (A widget, which can keep the rows in Python, renders the table itself: see `_kernel.py`)
+        warnings.warn(
+            "This table's rows can be kept in Python (`i_scale(engine=\"kernel\")`) only when it's "
+            "shown as a widget (with `i_as_widget()`), so here they're in the browser.",
+            GTIEngineWarning,
+            stacklevel=3,
+        )
     built = _build(gt)
     table_html = built._render_as_html(all_important=all_important)
     details = render_details(built)
     spec = build_spec(built, details=sorted(details))
+    html = gti_element(built, table_html, spec, details)
+    if warn:
+        from ._kernel import kernel_reasons
+
+        _warn_size(gt, spec, html, kernel=not kernel_reasons(built))
+    return html, spec
+
+
+def gti_element(data: GTData, table_html: str, spec: Spec, details: dict[int, str]) -> str:
+    """The `<gt-table>` element of a built table, from its static HTML, its spec, and its rows'
+    details (as `render_details()` makes them)."""
     spec_json = spec_to_script_json(spec)
 
     # (The runtime sets these too, but the table shouldn't change when it's hydrated; nor should
@@ -126,18 +155,16 @@ def render_gti_element(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
         # (Until the runtime counts the columns shown, as the reader hides them)
         if responsive == "auto" and _shown_columns(spec) > STACK_COLUMNS:
             attrs += " data-gti-stack-off"
-        table_html += f"<style>\n{stack_css(built, spec, table_html)}</style>\n"
+        table_html += f"<style>\n{stack_css(data, spec, table_html)}</style>\n"
     # (Each row's details, inert until the reader opens them, and not shown without the runtime)
     table_html += "".join(details_template(row, html) for row, html in details.items())
     if height is not None:
         attrs += f' data-gti-scroll style="--gt-i-height: {escape(height)}"'
-    html = (
+    return (
         f"<gt-table{attrs}>\n{table_html}"
         f'<script type="application/json" data-gti-spec>{spec_json}</script>\n'
         "</gt-table>\n"
     )
-    _warn_size(gt, spec, html)
-    return html, spec
 
 
 def page_html(fragment: str) -> str:
@@ -149,11 +176,12 @@ def page_html(fragment: str) -> str:
     )
 
 
-def _warn_size(gt: GT, spec: Spec, html: str) -> None:
+def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False) -> None:
     """Warn if the table may be slow in the browser: with more data rows than `MAX_ROWS` or more
     bytes of HTML (its `<gt-table>` element's) than `MAX_BYTES`, as it's slow to load, or with
     more rows shown at once than `MAX_SHOWN`, as each is laid out again when the rows are sorted,
-    searched or filtered.
+    searched or filtered. (With `kernel`, a `GTI` table that could keep its rows in Python, as a
+    widget, is told so.)
     """
     from ..gti import GTI
 
@@ -185,6 +213,11 @@ def _warn_size(gt: GT, spec: Spec, html: str) -> None:
             " It's quicker to load with fewer rows, or fewer columns (or less in them), e.g., by "
             "filtering the data first."
         )
+        if kernel and isinstance(gt, GTI):
+            message += (
+                " Shown as a widget (with `i_as_widget()`), it can keep its rows in Python, which "
+                'sends the browser a page at a time (see `i_scale(engine="kernel")`).'
+            )
     if shown > MAX_SHOWN:
         if isinstance(gt, GTI):
             how = "`i_pagination()`"
