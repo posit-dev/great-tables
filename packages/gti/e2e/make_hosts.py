@@ -10,7 +10,8 @@ There's also a notebook with a `GTI` table as a widget (`i_as_widget()`), shown 
 JupyterLab, whose kernel the test asks what the widget has, and tells what to change; one with a
 widget whose rows are in the kernel (`i_scale(engine="kernel")`), which sends its pages; and a Shiny
 app (in a module) showing what a `GTI` table's inputs have, with buttons that change it with
-`update_gti()`.
+`update_gti()`; and one (also in a module) with a `GTI` table whose rows are the server's, which
+sends its pages, showing the rows the server finds.
 """
 
 from __future__ import annotations
@@ -175,6 +176,56 @@ def server(input, output, session):
 app = App(app_ui, server)
 """
 
+# (A table whose rows are the server's, in a module, with the rows it finds from the table's view)
+SHINY_KERNEL_APP = f"""\
+import json
+
+import pandas as pd
+from shiny import App, module, reactive, render, ui
+
+from great_tables.shiny import output_gt, render_gt, update_gti
+
+{SETUP}
+
+big = pd.DataFrame({{"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]}})
+
+
+@module.ui
+def table_ui():
+    return ui.div(
+        ui.input_action_button("update", "Update"),
+        output_gt("table"),
+        ui.output_code("state"),
+    )
+
+
+@module.server
+def table_server(input, output, session):
+    @render_gt
+    def table():
+        return GTI(big).i_cols_filter(columns="kind", type="facet").i_scale(engine="kernel")
+
+    @render.code
+    def state():
+        rows = input.table_rows()
+        return json.dumps([len(rows), rows[:3], input.table_view()["search"]])
+
+    @reactive.effect
+    @reactive.event(input.update)
+    def _():
+        update_gti("table", search="", query='kind in ("odd")', sort="n")
+
+
+app_ui = ui.page_fluid(table_ui("m"))
+
+
+def server(input, output, session):
+    table_server("m")
+
+
+app = App(app_ui, server)
+"""
+
 # (The tables as cells' outputs, and the second also as `mo.Html()`)
 MARIMO_APP = f"""\
 import marimo
@@ -274,6 +325,7 @@ def main() -> None:
         "doc.qmd": quarto_doc(),
         "shiny_app.py": SHINY_APP,
         "shiny_state_app.py": SHINY_STATE_APP,
+        "shiny_kernel_app.py": SHINY_KERNEL_APP,
         "marimo_app.py": MARIMO_APP,
         "vscode.html": vscode_page(),
     }

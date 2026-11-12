@@ -381,6 +381,48 @@ test("Shiny: a table's state as inputs, which the server changes", async ({ page
   }
 });
 
+test("Shiny: a table whose rows are the server's, a page at a time", async ({ page }) => {
+  test.skip(!has("shiny"), "Shiny isn't installed");
+  const port = await freePort();
+  const base = `http://127.0.0.1:${port}`;
+  const server = await serve(base, "-m", "shiny", "run", "--port", String(port), "shiny_kernel_app.py");
+  try {
+    const errors = watch(page);
+    await page.goto(base);
+    const table = page.locator("#m-table > gt-table");
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    const state = async () => JSON.parse((await page.locator("#m-state").textContent()) || "null");
+    // (The table has only the rows shown, or shown before)
+    const shown = () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
+    const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
+    await expect.poll(shown).toEqual([rows(0), 500, false]);
+    await expect.poll(state).toEqual([5000, [0, 1, 2], ""]);
+
+    // (Each page, sort and search, from the server, which finds the rows)
+    await table.evaluate((el: any) => {
+      el.page = 3;
+    });
+    await expect.poll(shown).toEqual([rows(20), 500, false]);
+    await table.locator("thead button.gt-i-sort").first().click();
+    await table.locator("thead button.gt-i-sort").first().click();
+    await expect.poll(shown).toEqual([rows(4999, -1), 500, false]);
+    await expect(table.locator("tbody tr:not([hidden]) td").first()).toHaveText("4999");
+    await expect.poll(state).toEqual([5000, [4999, 4998, 4997], ""]);
+    await table.getByRole("button", { name: "Search the table" }).click();
+    await table.locator("input.gt-i-search").fill("4998");
+    await expect.poll(shown).toEqual([[4998], 1, false]);
+    await expect.poll(state).toEqual([1, [4998], "4998"]);
+
+    // (And a view the server sets)
+    await page.getByRole("button", { name: "Update" }).click();
+    await expect.poll(shown).toEqual([rows(1, 2), 250, false]);
+    await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+    expect(errors).toEqual([]);
+  } finally {
+    server.kill();
+  }
+});
+
 test("marimo: an app exported to HTML", async ({ page }) => {
   test.skip(!has("marimo"), "marimo isn't installed");
   run(PYTHON, "-m", "marimo", "export", "html", "marimo_app.py", "-o", "marimo.html");
