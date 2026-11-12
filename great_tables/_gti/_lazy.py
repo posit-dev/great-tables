@@ -1,15 +1,21 @@
-"""Tables of Polars LazyFrames (`GTI(lf)`), whose rows are collected as they're shown.
+"""Tables of lazy frames (`GTI(lf)`: a Polars LazyFrame, a DuckDB relation or an Ibis table), whose
+rows are collected as they're shown.
 
-A `GTI` table of a LazyFrame is made over a frame with its columns but none of its rows (its
-template), and keeps the LazyFrame, with the calls of `GT`'s methods that made the table (`Lazy`:
+A `GTI` table of a lazy frame (called a LazyFrame here, whatever its backend) is made over a frame
+with its columns but none of its rows (its template), and keeps the LazyFrame, with the calls of `GT`'s methods that made the table (`Lazy`:
 see `gti.py`, which records them). The table of some of the rows (a page of them, or all) is made
 again from them, by the same calls (`materialize()`): so only the rows shown are formatted, and
 rendered. A method that needs every row (to color cells by their values, or a footnote on some of
 them) can't be used on such a table, and its rows can't be chosen by their positions (which are a
 page's, once it's made again).
 
+A LazyFrame's rows are numbered as it has them, for Polars; a DuckDB relation's or an Ibis table's
+have no order that's kept from one query to the next, so they're numbered as they sort by
+`order_by=`'s columns, then by every other column that sorts (`Lazy.order`).
+
 In kernel mode (a widget's, or a Shiny app's: see `_kernel.py`), `LazyEngine` finds the rows of
-each view with Polars queries on the LazyFrame: the search and "contains" and "matches" clauses
+each view with queries on the LazyFrame (through Narwhals, but its columns' text: see
+`_with_texts()`): the search and "contains" and "matches" clauses
 match the rows' values, as text (not the cells' text, as the runtime matches them); and sorts them
 by their values, as the runtime would by their ranks. Anywhere else (or for a table that can't
 keep its rows in Python: see `kernel_reasons()`), the LazyFrame is collected, and the table is
@@ -55,6 +61,8 @@ class Lazy:
     init: dict[str, Any]
     # (The table's columns as `GTI()` makes them, aligned by all of the rows)
     boxhead: Boxhead
+    # (The columns its rows are numbered by, or `None` for its own order: see the module's notes)
+    order: tuple[str, ...] | None
     calls: tuple[tuple[str, tuple[Any, ...], dict[str, Any]], ...] = ()
     # (What's found of the frame, kept for the table: its rows, collected, and their count)
     cache: dict[str, Any] = field(default_factory=dict, compare=False, repr=False)
@@ -63,16 +71,60 @@ class Lazy:
         calls = (*self.calls, (name, args, kwargs))
         # (The frame's rows are the same, but not the table of them)
         cache = {"count": self.cache["count"]} if "count" in self.cache else {}
-        return Lazy(self.frame, self.init, self.boxhead, calls, cache)
+        return Lazy(self.frame, self.init, self.boxhead, self.order, calls, cache)
+
+    def numbered(self, row: str) -> Any:
+        """The frame (a Narwhals LazyFrame), with its rows' numbers (as column `row`)."""
+        frame = _narwhals().from_native(self.frame)
+        return frame.with_row_index(row, order_by=None if self.order is None else list(self.order))
+
+    def ordered(self) -> Any:
+        """The frame (a Narwhals LazyFrame), its rows in their order (as they're numbered)."""
+        frame = _narwhals().from_native(self.frame)
+        if self.order is None:
+            return frame
+        row = _free_name("__gti_row", set(frame.collect_schema().names()))
+        return self.numbered(row).sort(row).drop(row)
 
 
-def lazy_table(frame: Any, init: dict[str, Any]) -> tuple[Any, Lazy]:
+def _narwhals() -> Any:
+    try:
+        import narwhals
+    except ImportError:
+        raise ImportError(
+            "A `GTI` table of a lazy frame needs the narwhals package: "
+            "install it with `pip install narwhals`."
+        ) from None
+    return narwhals
+
+
+def _sortable(dtype: Any) -> bool:
+    nw = _narwhals()
+    return not dtype.is_nested() and not isinstance(dtype, (nw.Object, nw.Unknown))
+
+
+def lazy_table(
+    frame: Any, init: dict[str, Any], order_by: str | list[str] | None = None
+) -> tuple[Any, Lazy]:
     """A frame of a LazyFrame's columns, without rows (a DataFrame), for `GTI()` to make a table
-    of, and the LazyFrame, with what `GTI()` was given (`init`)."""
-    import polars as pl
-
-    schema = frame.collect_schema()
-    empty = pl.DataFrame(schema=schema)
+    of, and the LazyFrame, with what `GTI()` was given (`init`), and the order of its rows (by the
+    columns of `order_by=`, then the rest: see the module's notes)."""
+    nw = _narwhals()
+    lf = nw.from_native(frame)
+    schema = lf.collect_schema()
+    keys = [order_by] if isinstance(order_by, str) else list(order_by or [])
+    unknown = [key for key in keys if key not in schema]
+    if unknown:
+        raise ValueError(f"`order_by=` names columns the data doesn't have: {unknown}.")
+    order = None
+    if keys or not lf.implementation.is_polars():
+        order = (*keys, *(n for n, dtype in schema.items() if n not in keys and _sortable(dtype)))
+        if not order:
+            raise ValueError(
+                "The rows of a lazy frame are numbered by their columns' values, which this "
+                "one's columns can't be sorted by: give an `order_by=` column."
+            )
+    empty = lf.head(0).collect().to_native()
     boxhead = Boxhead(
         empty,
         auto_align=init["auto_align"],
@@ -80,18 +132,18 @@ def lazy_table(frame: Any, init: dict[str, Any]) -> tuple[Any, Lazy]:
         groupname_col=init["groupname_col"],
     )
     # (A column of text that looks like numbers, in every row, is aligned as numbers are)
-    texts = [name for name, dtype in schema.items() if dtype == pl.String]
+    texts = [name for name, dtype in schema.items() if dtype == nw.String]
     if init["auto_align"] and texts:
         found = (
-            frame.select(
+            lf.select(
                 (
-                    (pl.col(name).null_count() < pl.len())
-                    & pl.col(name).str.contains(NUMBER_LIKE_PATTERN.pattern).fill_null(True).all()
+                    (nw.col(name).null_count() < nw.len())
+                    & nw.col(name).str.contains(NUMBER_LIKE_PATTERN.pattern).fill_null(True).all()
                 ).alias(name)
                 for name in texts
             )
             .collect()
-            .row(0, named=True)
+            .rows(named=True)[0]
         )
         aligned = ALIGNMENT_MAP["numeric"]
         boxhead = Boxhead(
@@ -100,7 +152,7 @@ def lazy_table(frame: Any, init: dict[str, Any]) -> tuple[Any, Lazy]:
                 for info in boxhead
             ]
         )
-    return empty, Lazy(frame, init, boxhead)
+    return empty, Lazy(frame, init, boxhead, order)
 
 
 # The methods whose results are of the rows they're given (summary rows), which a table of a
@@ -127,7 +179,7 @@ def check_call(name: str, method: Any, args: tuple[Any, ...], kwargs: dict[str, 
     if name == "data_color":
         raise ValueError(
             "`data_color()` colors cells by every row's values, so it can't be used on a table "
-            "of a LazyFrame (yet). Collect the frame first (with `.collect()`)."
+            "of a lazy frame (yet). Collect the frame first."
         )
     if name == "tab_footnote":
         bound = inspect.signature(method).bind(None, *args, **kwargs)
@@ -135,9 +187,9 @@ def check_call(name: str, method: Any, args: tuple[Any, ...], kwargs: dict[str, 
         listed = locations if isinstance(locations, list) else [locations]
         if any(isinstance(location, (LocBody, LocStub)) for location in listed):
             raise ValueError(
-                "A footnote on the body or the stub of a table of a LazyFrame would be on the "
+                "A footnote on the body or the stub of a table of a lazy frame would be on the "
                 "rows shown, not every row, so it can't be placed there (yet). Collect the frame "
-                "first (with `.collect()`), or place it elsewhere (e.g., on a column label)."
+                "first, or place it elsewhere (e.g., on a column label)."
             )
 
 
@@ -164,7 +216,7 @@ def few_rows(gti: GTI) -> bool:
     lazy = lazy_of(gti)
     assert lazy is not None
     if "few" not in lazy.cache:
-        head = lazy.frame.head(MAX_ROWS + 1).collect()
+        head = lazy.ordered().head(MAX_ROWS + 1).collect().to_native()
         lazy.cache["few"] = few = len(head) <= MAX_ROWS
         if few:
             lazy.cache["count"] = len(head)
@@ -174,12 +226,12 @@ def few_rows(gti: GTI) -> bool:
 
 def count(gti: GTI) -> int:
     """How many rows a table of a LazyFrame has."""
-    import polars as pl
-
+    nw = _narwhals()
     lazy = lazy_of(gti)
     assert lazy is not None
     if "count" not in lazy.cache:
-        lazy.cache["count"] = int(lazy.frame.select(pl.len()).collect().item())
+        frame = nw.from_native(lazy.frame)
+        lazy.cache["count"] = int(frame.select(nw.len()).collect().item())
     return lazy.cache["count"]
 
 
@@ -188,7 +240,7 @@ def collected(gti: GTI) -> GTI:
     lazy = lazy_of(gti)
     assert lazy is not None
     if "collected" not in lazy.cache:
-        lazy.cache["collected"] = materialize(gti, lazy.frame.collect())
+        lazy.cache["collected"] = materialize(gti, lazy.ordered().collect().to_native())
     return lazy.cache["collected"]._replace(_interactive=gti._interactive)
 
 
@@ -220,23 +272,108 @@ class _PageRows(Stub):
         return self._numbers[index] + 1
 
 
-def _text(column: str, dtype: Any) -> Any:
-    # A column's values, as text (or none, for those that have none: nested values, objects, and
-    # bytes)
+def _texts(dtype: Any) -> bool:
+    # Whether a column's values have text (not nested values, objects, bytes, or of no type)
+    nw = _narwhals()
+    return not dtype.is_nested() and not isinstance(dtype, (nw.Object, nw.Binary, nw.Unknown))
+
+
+def _polars_text(column: str, dtype: Any) -> Any:
+    # A column's values (of Narwhals' `dtype`), as text, as Polars has them
     import polars as pl
 
-    if dtype.is_nested() or isinstance(dtype, (pl.Object, pl.Binary, pl.Null)):
+    if not _texts(dtype):
         return pl.lit(None, dtype=pl.String)
-    if isinstance(dtype, pl.Duration):
+    if isinstance(dtype, _narwhals().Duration):
         return pl.col(column).dt.to_string()
     return pl.col(column).cast(pl.String)
 
 
-def _folded(text: Any) -> Any:
+def _polars_folded(text: Any) -> Any:
     # Text folded, as `fold()` folds it: decomposed, without combining marks, lowercased (a
     # character at a time, so a capital sigma is a sigma, which Polars makes final at a word's end)
     text = text.str.normalize("NFD").str.replace_all(r"\p{M}", "")
     return text.str.replace_all("Σ", "σ", literal=True).str.to_lowercase()
+
+
+def _quoted(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+def _ibis_folds(table: Any) -> bool:
+    # Whether an Ibis table's backend has DuckDB's `strip_accents()`
+    from ibis.common.exceptions import IbisError
+
+    try:
+        return table._find_backend(use_default=True).name == "duckdb"
+    except IbisError:
+        return False
+
+
+def refolder(frame: Any) -> Any:
+    """How text folded by `fold()` is folded as a LazyFrame's backend folds its columns' text (see
+    `_with_texts()`): DuckDB's `strip_accents()` composes what it leaves, as NFC does."""
+    import unicodedata
+
+    if frame.implementation.is_polars():
+        return lambda text: text
+    if frame.implementation.is_ibis() and not _ibis_folds(frame.to_native()):
+        return lambda text: text
+    return lambda text: unicodedata.normalize("NFC", text)
+
+
+def _with_texts(frame: Any, schema: Any, texts: dict[str, tuple[str, bool]]) -> Any:
+    """A LazyFrame (Narwhals') with columns of other columns' values as text, folded or not
+    (`texts`: each new column's data column, and whether it's folded): made with each backend's
+    own expressions, as Narwhals has none for folding text, nor for a Polars duration's text.
+
+    (An Ibis table of a backend other than DuckDB has its text lowercased, but keeps its accents.)
+    """
+    nw = _narwhals()
+    native = frame.to_native()
+    impl = frame.implementation
+    if impl.is_polars():
+        exprs = {}
+        for name, (column, folded) in texts.items():
+            text = _polars_text(column, schema[column])
+            exprs[name] = _polars_folded(text) if folded else text
+        return nw.from_native(native.with_columns(**exprs))
+    if impl.is_duckdb():
+        import duckdb
+
+        exprs = []
+        for name, (column, folded) in texts.items():
+            if _texts(schema[column]):
+                text = f"CAST({_quoted(column)} AS VARCHAR)"
+                text = f"lower(strip_accents({text}))" if folded else text
+            else:
+                text = "CAST(NULL AS VARCHAR)"
+            exprs.append(duckdb.SQLExpression(text).alias(name))
+        return nw.from_native(native.select(duckdb.StarExpression(), *exprs))
+    if impl.is_ibis():
+        import ibis
+
+        strip = _ibis_folds(native)
+        exprs = {}
+        for name, (column, folded) in texts.items():
+            if not _texts(schema[column]):
+                exprs[name] = ibis.null("string")
+                continue
+            text = native[column].cast("string")
+            if folded:
+                text = (_strip_accents(text) if strip else text).lower()
+            exprs[name] = text
+        return nw.from_native(native.mutate(**exprs))
+    raise TypeError(f"A table can't be of a lazy frame of {impl}.")
+
+
+def _strip_accents(text: Any) -> Any:
+    import ibis
+
+    @ibis.udf.scalar.builtin
+    def strip_accents(text: str) -> str: ...
+
+    return strip_accents(text)
 
 
 class _Rows:
@@ -249,63 +386,57 @@ class _Rows:
         self.nrows = nrows
 
     def distinct(self, column: str) -> int:
-        import polars as pl
-
-        found = self._frame.select(pl.col(column).drop_nulls().n_unique()).collect()
+        nw = _narwhals()
+        col = nw.col(column)
+        found = self._frame.filter(~col.is_null()).select(col.n_unique()).collect()
         return int(found.item())
 
     def values(self, column: str, type: str) -> list[Any]:
-        import datetime as dt
-
-        import polars as pl
-
-        values = pl.col(column).drop_nulls()
+        nw = _narwhals()
+        col = nw.col(column)
         dtype = self._schema[column]
         if type in ("facet", "bool"):
-            # (Sorted as Polars sorts them, as the ranks of a DataFrame's column are)
-            found = self._frame.select(values.unique().sort()).collect()[column].to_list()
-            return [_json_value(value) for value in found]
+            # (Sorted as the backend sorts them, as the ranks of a DataFrame's column are)
+            found = self._frame.select(col).filter(~col.is_null()).unique().sort(column)
+            return [_json_value(value) for value in found.collect().get_column(column).to_list()]
         # (A range's numbers, but NaN and infinities, which it doesn't have; a date filter's
         # first and last, and if there are any, a time other than midnight and one with seconds)
-        if dtype.is_float():
-            values = values.filter(values.is_finite())
+        values = nw.when(col.is_finite()).then(col) if dtype.is_float() else col
         exprs = [values.min().alias("min"), values.max().alias("max")]
-        if isinstance(dtype, pl.Datetime):
+        if isinstance(dtype, nw.Datetime):
+            seconds = (col.dt.second() != 0) | (col.dt.microsecond() != 0)
+            timed = (col.dt.hour() != 0) | (col.dt.minute() != 0) | seconds
             exprs += [
-                values.filter(values.dt.time() != dt.time(0)).first().alias("time"),
-                values.filter((values.dt.second() != 0) | (values.dt.nanosecond() != 0))
-                .first()
-                .alias("seconds"),
+                nw.when(timed).then(col).min().alias("time"),
+                nw.when(seconds).then(col).min().alias("seconds"),
             ]
-        found = self._frame.select(exprs).collect().row(0)
+        found = self._frame.select(exprs).collect().rows()[0]
         return [_json_value(value) for value in sorted({v for v in found if v is not None})]
 
     def missing(self, column: str) -> list[int]:
-        import polars as pl
-
-        col = pl.col(column)
+        nw = _narwhals()
+        col = nw.col(column)
         missing = col.is_null() | col.is_nan() if self._schema[column].is_float() else col.is_null()
-        found = self._frame.filter(missing).select(self._row).head(1).collect()
-        return [int(row) for row in found[self._row].to_list()]
+        found = self._frame.filter(missing).select(nw.col(self._row).min()).collect().item()
+        return [] if found is None else [int(found)]
 
 
 class LazyEngine(KernelEngine):
-    """A table of a LazyFrame's rows, in Python: its views found with Polars queries, and the
-    tables of their pages made again from their rows (see `materialize()`)."""
+    """A table of a LazyFrame's rows, in Python: its views found with queries of its backend (by
+    Narwhals), and the tables of their pages made again from their rows (see `materialize()`)."""
 
     def __init__(self, gti: GTI) -> None:
-        import narwhals as nw
-
+        nw = _narwhals()
         lazy = lazy_of(gti)
         assert lazy is not None
         self._gti = gti
         # (The table without rows, for its columns)
         self._built = _build(template(gti))
-        schema = lazy.frame.collect_schema()
-        self._schema = schema
+        self._schema = schema = nw.from_native(lazy.frame).collect_schema()
         self._row = _free_name("__gti_row", set(schema.names()))
-        self._frame = lazy.frame.with_row_index(self._row)
-        self._nw_schema = nw.from_native(lazy.frame).collect_schema()
+        self._frame = lazy.numbered(self._row)
+        self._numbered = lazy.order is not None
+        self._refold = refolder(self._frame)
         rows = _Rows(self._frame, self._row, count(gti), schema)
         self.spec = spec = build_spec(self._built, details=[], rows=rows)
         _warn_dropped(gti, spec)
@@ -318,44 +449,64 @@ class LazyEngine(KernelEngine):
     # Finding rows
 
     def _filtered(self, filter: Any, search: str, hidden: list[str]) -> Any:
-        # The rows a query's filter and search keep (a LazyFrame), in data order
-        import narwhals as nw
-        import polars as pl
-
+        # The rows a query's filter and search keep (a Narwhals LazyFrame), in data order
+        nw = _narwhals()
         spec, schema = self.spec, self._schema
         taken = {*schema.names(), self._row}
-        added: dict[str, Any] = {}
+        added: dict[str, tuple[str, bool]] = {}
+        folded: dict[str, str] = {}
         texts: dict[str, str] = {}
         matched: dict[tuple[str, str], str] = {}
+
+        def text(col: str, fold: bool) -> str:
+            # (The name of a column of a column's text, folded or not)
+            names = folded if fold else texts
+            if col not in names:
+                names[col] = name = _free_name(f"__gti_{'folded' if fold else 'text'}_{col}", taken)
+                taken.add(name)
+                added[name] = (col, fold)
+            return names[col]
+
+        patterns: dict[str, Any] = {}
         for clause in _leaves([filter] if filter is not None else []):
             col, op = clause["col"], clause["op"]
-            if op == "contains" and col not in texts:
-                texts[col] = name = _free_name(f"__gti_text_{col}", taken)
-                taken.add(name)
-                added[name] = _folded(_text(col, schema[col]))
+            if op == "contains":
+                text(col, True)
             elif op == "matches" and (col, clause["value"]) not in matched:
                 matched[col, clause["value"]] = name = _free_name(f"__gti_matches_{col}", taken)
                 taken.add(name)
-                added[name] = _text(col, schema[col]).str.contains(pattern_code(clause["value"]))
-        frame = self._frame.with_columns(**added) if added else self._frame
-        predicates = filter_exprs(filter, spec, self._nw_schema, texts, matched)
-        if predicates:
-            frame = nw.from_native(frame).filter(*predicates).to_native()
+                patterns[name] = (text(col, False), pattern_code(clause["value"]))
 
         # (Every term is in the value of a column searched, as text)
-        terms = [term for term in _TERM_SPLIT.split(fold(search)) if term != ""]
+        terms = [self._refold(t) for t in _TERM_SPLIT.split(fold(search)) if t != ""]
+        searched = []
         if terms:
             searched = [
-                _folded(_text(column["id"], schema[column["id"]]))
+                text(column["id"], True)
                 for column in spec["columns"]
                 if column["id"] is not None and column["searchable"] and column["id"] not in hidden
             ]
-            for term in terms:
-                found = [
-                    text.str.contains(term, literal=True).fill_null(False) for text in searched
-                ]
-                frame = frame.filter(pl.any_horizontal(found) if found else pl.lit(False))
-        return frame.select(pl.exclude(list(added))) if added else frame
+
+        frame = _with_texts(self._frame, schema, added) if added else self._frame
+        if patterns:
+            frame = frame.with_columns(
+                **{
+                    name: nw.col(col).str.contains(pattern)
+                    for name, (col, pattern) in patterns.items()
+                }
+            )
+        predicates = filter_exprs(filter, spec, schema, folded, matched, refold=self._refold)
+        if predicates:
+            frame = frame.filter(*predicates)
+        for term in terms:
+            found = [
+                nw.col(name).str.contains(term, literal=True).fill_null(False) for name in searched
+            ]
+            frame = frame.filter(
+                nw.any_horizontal(*found, ignore_nulls=False) if found else nw.lit(False)
+            )
+        dropped = [*added, *patterns]
+        return frame.drop(dropped) if dropped else frame
 
     def find(self, query: Any, sort: bool = True) -> list[int]:
         import json
@@ -367,14 +518,18 @@ class LazyEngine(KernelEngine):
 
         frame = self._filtered(filter, search, hidden)
         if sort and keys:
-            # (By the columns' values, as Polars sorts them, missing values last, in either
+            # (By the columns' values, as the backend sorts them, missing values last, in either
             # direction, and ties in data order: as the ranks of a DataFrame's column sort)
             frame = frame.sort(
                 [*(k["column"] for k in keys), self._row],
                 descending=[*(k.get("descending", False) for k in keys), False],
                 nulls_last=True,
             )
-        rows = [int(row) for row in frame.select(self._row).collect()[self._row].to_list()]
+        elif self._numbered:
+            # (Rows numbered by their columns are found in any order)
+            frame = frame.sort(self._row)
+        found = frame.select(self._row).collect().get_column(self._row).to_list()
+        rows = [int(row) for row in found]
 
         if len(self._found) >= 4:
             del self._found[next(iter(self._found))]
@@ -382,8 +537,7 @@ class LazyEngine(KernelEngine):
         return rows
 
     def facet(self, query: Any, column: Any) -> list[list[int]]:
-        import polars as pl
-
+        nw = _narwhals()
         found = next((f for f in self.spec["filters"] if f["column"] == column), None)
         if found is None:
             raise ValueError(f"The table has no filter on column {column!r}.")
@@ -392,26 +546,28 @@ class LazyEngine(KernelEngine):
         grouped = (
             self._filtered(filter, search, hidden)
             .group_by(column)
-            .agg(pl.len().alias(self._row))
+            .agg(nw.len().alias(self._row))
             .collect()
         )
         counts: Counter[int] = Counter()
-        for value, n in grouped.iter_rows():
+        for value, n in grouped.rows():
             key = -1 if value is None else indices.get(_value_key(_json_value(value)), -1)
             counts[key] += n
         return [[key, n] for key, n in counts.items()]
 
     def data(self, rows: list[int]) -> Any:
-        """The data of the rows, in their order (a DataFrame)."""
-        return self._collect(rows).drop(self._row)
+        """The data of the rows, in their order (a DataFrame, of the backend's)."""
+        return self._collect(rows)
 
     def _collect(self, rows: list[int]) -> Any:
-        import polars as pl
-
-        frame = self._frame.filter(pl.col(self._row).is_in(rows)).collect()
+        # The rows' data, in their order (a DataFrame, of the backend's)
+        nw = _narwhals()
+        frame = self._frame.filter(nw.col(self._row).is_in(rows)).collect()
         places = {row: i for i, row in enumerate(rows)}
-        order = sorted(range(len(frame)), key=lambda i: places[frame[self._row][i]])
-        return frame[order] if order != list(range(len(frame))) else frame
+        numbers = frame.get_column(self._row).to_list()
+        order = sorted(range(len(frame)), key=lambda i: places[numbers[i]])
+        frame = frame[order] if order != list(range(len(frame))) else frame
+        return frame.drop(self._row).to_native()
 
     # -----
     # The rows' HTML
@@ -421,7 +577,7 @@ class LazyEngine(KernelEngine):
         # missing value (for tinting them)
         if self._made is not None and self._made[0] == rows:
             return self._made[1], self._made[2]
-        frame = self._collect(rows).drop(self._row)
+        frame = self._collect(rows)
         built = _build(materialize(self._gti, frame))
         built = built._replace(_stub=_PageRows(built._stub, rows))
         missing = [
@@ -454,13 +610,12 @@ class LazyEngine(KernelEngine):
     def _labels(self, column: str, count: int) -> list[str]:
         # Each value's label: the text of the first cell with it (in the table made again from
         # those rows)
-        import polars as pl
-
+        nw = _narwhals()
         values = next(f["values"] for f in self.spec["filters"] if f["column"] == column) or []
         indices = {_value_key(value): i for i, value in enumerate(values)}
-        firsts = self._frame.group_by(column).agg(pl.col(self._row).min()).collect()
+        firsts = self._frame.group_by(column).agg(nw.col(self._row).min()).collect()
         first: dict[int, int] = {}
-        for value, row in firsts.iter_rows():
+        for value, row in firsts.rows():
             if value is not None:
                 k = indices.get(_value_key(_json_value(value)))
                 if k is not None:

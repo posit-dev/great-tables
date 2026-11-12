@@ -1220,21 +1220,25 @@ def _from_json(value: Any, kind: str | None, dtype: Any, col: str) -> Any:
 
 
 def _expr(
-    predicate: _Predicate, texts: Mapping[str, str], matched: Mapping[tuple[str, str], str]
+    predicate: _Predicate,
+    texts: Mapping[str, str],
+    matched: Mapping[tuple[str, str], str],
+    refold: Callable[[str], str] | None = None,
 ) -> nw.Expr:
     import narwhals as nw
 
     if isinstance(predicate, _Not):
         # (A clause leaves out a row with a missing value, which its expression is missing for)
-        return ~_expr(predicate.part, texts, matched).fill_null(False)
+        return ~_expr(predicate.part, texts, matched, refold).fill_null(False)
     if isinstance(predicate, _Group):
-        exprs = [_expr(part, texts, matched) for part in predicate.parts]
+        exprs = [_expr(part, texts, matched, refold) for part in predicate.parts]
         joined = exprs[0]
         for expr in exprs[1:]:
             joined = joined | expr if predicate.kind == "or" else joined & expr
         return joined
     if isinstance(predicate, _Contains):
-        return nw.col(texts[predicate.col]).str.contains(predicate.needle, literal=True)
+        needle = predicate.needle if refold is None else refold(predicate.needle)
+        return nw.col(texts[predicate.col]).str.contains(needle, literal=True)
     if isinstance(predicate, _Matches):
         return nw.col(matched[predicate.col, predicate.pattern])
     col = nw.col(predicate.col)
@@ -1261,13 +1265,16 @@ def filter_exprs(
     schema: Mapping[str, Any],
     texts: Mapping[str, str] | None = None,
     matched: Mapping[tuple[str, str], str] | None = None,
+    refold: Callable[[str], str] | None = None,
 ) -> list[nw.Expr]:
     """A query as Narwhals expressions, on a frame with the table's data (of `schema`).
 
     A "contains" clause matches the folded text of a column's cells, which the frame needs as a
     column of its own: `texts` names them (by the data column). Blank text keeps every row, so has
     no expression. A "matches" clause's matches are a column of bools: `matched` names them (by
-    the data column and the pattern, as the query has it).
+    the data column and the pattern, as the query has it). `refold` folds a "contains" clause's
+    text (folded as `fold()` folds it) as the columns of cell text are folded, if they're folded
+    otherwise.
     """
     predicates = _plan(query, spec, schema)
     clauses = list(_clauses(predicates))
@@ -1281,7 +1288,7 @@ def filter_exprs(
         raise ValueError(
             f'A "matches" clause needs a column of its matches, for {sorted(unmatched)}.'
         )
-    return [_expr(predicate, texts or {}, matched or {}) for predicate in predicates]
+    return [_expr(predicate, texts or {}, matched or {}, refold) for predicate in predicates]
 
 
 def _free_name(base: str, taken: Any) -> str:
