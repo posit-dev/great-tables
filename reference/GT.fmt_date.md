@@ -4,7 +4,7 @@ Format values as dates.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5284-L5439)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5252-L5407)
 
 ``` python
 GT.fmt_date(

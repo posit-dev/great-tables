@@ -4,7 +4,7 @@ Specify a font from the *Google Fonts* service.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L365-L427)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L368-L430)
 
 ``` python
 google_font(name)

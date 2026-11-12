@@ -4,7 +4,7 @@ Interpret input text as HTML-formatted text.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L297-L314)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L300-L317)
 
 ``` python
 html(text)

@@ -4,7 +4,7 @@ Format values as email links.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L3956-L4162)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L3933-L4133)
 
 ``` python
 GT.fmt_email(

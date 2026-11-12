@@ -4,7 +4,7 @@ Create a color-mapping function for categorical values.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/col_fns.py#L354-L443)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/col_fns.py#L356-L445)
 
 ``` python
 col_factor(

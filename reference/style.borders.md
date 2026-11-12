@@ -4,7 +4,7 @@ A style specification for cell borders.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L338-L412)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L340-L414)
 
 ``` python
 style.borders(

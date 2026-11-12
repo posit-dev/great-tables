@@ -4,7 +4,7 @@ Format values as a percentage.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L1752-L1927)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L1749-L1921)
 
 ``` python
 GT.fmt_percent(

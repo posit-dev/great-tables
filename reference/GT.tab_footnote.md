@@ -32,7 +32,7 @@ By default, **Great Tables** will choose which side of the text to place the foo
 `footnote: str | Text`  
 The text to be used in the footnote. We can optionally use [`md()`](../reference/md.md#great_tables.md) or [`html()`](../reference/html.md#great_tables.md) to style the text as Markdown or to retain HTML elements in the footnote text.
 
-`locations: Loc | None | list[Loc | None] = None`  
+`locations: Loc | list[Loc | None] | None = None`  
 The cell or set of cells to be associated with the footnote. Supplying any of the location classes from the `loc` module is a useful way to target the location cells that are associated with the footnote text. These location classes are: [loc.title](../reference/loc.title.md#great_tables.loc.title), [loc.stubhead](../reference/loc.stubhead.md#great_tables.loc.stubhead), [loc.spanner_labels](../reference/loc.spanner_labels.md#great_tables.loc.spanner_labels), [loc.column_labels](../reference/loc.column_labels.md#great_tables.loc.column_labels), [loc.row_groups](../reference/loc.row_groups.md#great_tables.loc.row_groups), [loc.stub](../reference/loc.stub.md#great_tables.loc.stub), [loc.body](../reference/loc.body.md#great_tables.loc.body), etc. Additionally, we can enclose several location calls within a `list()` if we wish to link the footnote text to different types of locations (e.g., body cells, row group labels, the table title, etc.).
 
 `placement: PlacementOptions = "auto"`  

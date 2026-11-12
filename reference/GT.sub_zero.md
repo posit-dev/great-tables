@@ -4,7 +4,7 @@ Substitute zero values in the table body.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L102-L161)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L104-L163)
 
 ``` python
 GT.sub_zero(

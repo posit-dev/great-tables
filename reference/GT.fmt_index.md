@@ -4,7 +4,7 @@ Format values as index characters.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L3496-L3621)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L3479-L3604)
 
 ``` python
 GT.fmt_index(

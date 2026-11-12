@@ -4,7 +4,7 @@ With [define_units()](../reference/define_units.md#great_tables.define_units) yo
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L1326-L1473)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L1329-L1476)
 
 ``` python
 define_units(units_notation)

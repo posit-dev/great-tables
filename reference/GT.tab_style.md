@@ -4,7 +4,7 @@ Add custom style to one or more cells
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L18-L153)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L19-L154)
 
 ``` python
 GT.tab_style(

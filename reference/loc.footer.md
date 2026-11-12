@@ -4,7 +4,7 @@ Target the entire table footer.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L869-L907)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L870-L908)
 
 ``` python
 loc.footer()

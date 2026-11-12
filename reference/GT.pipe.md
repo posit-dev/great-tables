@@ -4,7 +4,7 @@ Provide a structured way to chain a function for a GT object.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_pipe.py#L14-L103)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_pipe.py#L16-L103)
 
 ``` python
 GT.pipe(
@@ -18,7 +18,7 @@ This function accepts a function that receives a GT object along with optional p
 
 ## Parameters
 
-`func: Callable[Concatenate["GT", P], "GT"]`  
+`func: Callable[Concatenate[GT, P], GT]`  
 A function that receives a GT object along with optional positional and keyword arguments, returning a GT object.
 
 `*args: P.args`  

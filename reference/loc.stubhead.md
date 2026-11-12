@@ -4,7 +4,7 @@ Target the stubhead.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L220-L261)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L221-L262)
 
 ``` python
 loc.stubhead()

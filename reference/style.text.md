@@ -4,7 +4,7 @@ A style specification for cell text.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L173-L303)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L175-L305)
 
 ``` python
 style.text(

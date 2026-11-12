@@ -4,7 +4,7 @@ Set a column to be the default locale.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L125-L176)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L127-L178)
 
 ``` python
 GT.with_locale(locale=None)

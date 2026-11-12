@@ -4,7 +4,7 @@ Substitute small values in the table body.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L216-L316)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L218-L315)
 
 ``` python
 GT.sub_small_vals(
@@ -26,7 +26,7 @@ The columns to target. Can either be a single column name or a series of column 
 `rows: RowSelectExpr = None`  
 In conjunction with `columns=`, we can specify which of their rows should be scanned for small values. The default is all rows, resulting in all rows in all targeted columns being considered for this substitution. Alternatively, we can supply a row index, a list of row indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 
-`threshold: int | float = 0.01`  
+`threshold: float = 0.01`  
 The threshold value with which values should be considered small enough for replacement.
 
 `small_pattern: str | None = None`  

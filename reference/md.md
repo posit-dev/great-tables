@@ -4,7 +4,7 @@ Interpret input text as Markdown-formatted text.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L278-L294)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L281-L297)
 
 ``` python
 md(text)

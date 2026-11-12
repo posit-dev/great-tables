@@ -4,7 +4,7 @@ Set the alignment of one or more columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L239-L304)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L241-L306)
 
 ``` python
 GT.cols_align(

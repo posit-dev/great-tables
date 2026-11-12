@@ -4,7 +4,7 @@ Save a GT table to a file (PNG, JPEG, WebP, or PDF).
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L683-L807)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L680-L804)
 
 ``` python
 GT.gtsave(

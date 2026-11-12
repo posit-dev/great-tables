@@ -4,7 +4,7 @@ Rotate the column label for one or more columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L511-L629)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L513-L628)
 
 ``` python
 GT.cols_label_rotate(

@@ -4,7 +4,7 @@ Format values as Roman numerals.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L2624-L2690)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L2609-L2675)
 
 ``` python
 GT.fmt_roman(

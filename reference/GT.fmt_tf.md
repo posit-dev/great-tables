@@ -4,7 +4,7 @@ Format True and False values
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5985-L6121)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5953-L6089)
 
 ``` python
 GT.fmt_tf(

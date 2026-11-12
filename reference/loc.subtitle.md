@@ -4,7 +4,7 @@ Target the table subtitle.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L179-L217)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L180-L218)
 
 ``` python
 loc.subtitle()

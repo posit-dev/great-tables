@@ -4,7 +4,7 @@ Helper for setting the options for a nanoplot.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L1500-L1764)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L1502-L1766)
 
 ``` python
 nanoplot_options(

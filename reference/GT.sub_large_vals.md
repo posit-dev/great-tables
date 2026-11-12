@@ -4,7 +4,7 @@ Substitute large values in the table body.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L319-L412)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L318-L411)
 
 ``` python
 GT.sub_large_vals(
@@ -26,7 +26,7 @@ The columns to target. Can either be a single column name or a series of column 
 `rows: RowSelectExpr = None`  
 In conjunction with `columns=`, we can specify which of their rows should be scanned for large values. The default is all rows, resulting in all rows in all targeted columns being considered for this substitution. Alternatively, we can supply a row index, a list of row indices, or (for Polars DataFrames) a Polars expression such as `pl.col("x") > 0`.
 
-`threshold: int | float = 1000000000000.0`  
+`threshold: float = 1000000000000.0`  
 The threshold value with which values should be considered large enough for replacement.
 
 `large_pattern: str = ">={x}"`  

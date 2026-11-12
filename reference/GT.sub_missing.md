@@ -4,7 +4,7 @@ Substitute missing values in the table body.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L35-L99)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L37-L101)
 
 ``` python
 GT.sub_missing(

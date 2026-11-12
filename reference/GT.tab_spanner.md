@@ -4,7 +4,7 @@ Insert a spanner above a selection of column headings.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L27-L272)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L27-L269)
 
 ``` python
 GT.tab_spanner(

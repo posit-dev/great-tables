@@ -4,7 +4,7 @@ Set the id for this table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L179-L206)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L181-L208)
 
 ``` python
 GT.with_id(id=None)

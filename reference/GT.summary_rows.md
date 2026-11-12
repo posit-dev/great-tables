@@ -4,7 +4,7 @@ Add group-wise summary rows to the table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L209-L463)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L211-L465)
 
 ``` python
 GT.summary_rows(

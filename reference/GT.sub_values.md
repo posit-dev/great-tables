@@ -4,7 +4,7 @@ Substitute targeted values in the table body.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L415-L521)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_substitution.py#L414-L520)
 
 ``` python
 GT.sub_values(
@@ -36,7 +36,7 @@ A regex pattern that can target solely those values in character-based columns. 
 `fn: Callable[…, bool] | None = None`  
 A supplied function that operates on each cell value `x` and should return a boolean indicating whether that value should be replaced. It's called on missing values too (e.g., `None`, `NaN`, `pd.NA`), so it can target them (e.g., `fn=lambda x: x is None`); a value for which `fn` raises a `TypeError` or `ValueError` isn't replaced. If either of `values` or `pattern` is also supplied, `fn` will take precedence.
 
-`replacement: str | int | float | None = None`  
+`replacement: str | float | None = None`  
 The replacement value for any cell values matched by either `values`, `pattern`, or `fn`. Must be a string or numeric value.
 
 ## Returns

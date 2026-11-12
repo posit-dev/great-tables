@@ -4,7 +4,7 @@ Apply styles to body cells based on their data values.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L156-L415)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_create_modify.py#L157-L416)
 
 ``` python
 GT.tab_style_body(

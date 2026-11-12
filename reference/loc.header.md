@@ -4,7 +4,7 @@ Target the table header (title and subtitle).
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L97-L135)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L98-L136)
 
 ``` python
 loc.header()

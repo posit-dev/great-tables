@@ -20,7 +20,7 @@ Indentation of row labels is an effective way to establish visual hierarchy in a
 `rows: RowSelectExpr`  
 The rows to target for the indentation change. We can supply a list of row indices, a single row index integer, or a callable that takes the table data and returns a boolean Series. When targeting rows by name, provide a list of row label strings.
 
-`indent: Union[int, Literal["increase", "decrease"]] = "increase"`  
+`indent: int | Literal["increase", "decrease"] = "increase"`  
 An indentation directive or explicit integer level. The keyword `"increase"` (the default) increments the indentation level by `1`; `"decrease"` decrements it by `1`. The minimum indentation level is `0` (no indentation) and the maximum is `5`. An integer value directly sets the indentation level (clamped to the `0`-`5` range).
 
 ## Returns

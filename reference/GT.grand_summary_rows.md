@@ -4,7 +4,7 @@ Add grand summary rows to the table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L529-L669)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L531-L671)
 
 ``` python
 GT.grand_summary_rows(

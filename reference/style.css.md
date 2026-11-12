@@ -4,7 +4,7 @@ A style specification for custom CSS rules.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L142-L170)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L144-L172)
 
 ``` python
 style.css(rule)

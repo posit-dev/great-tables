@@ -4,7 +4,7 @@ Create a color-mapping function for continuous numeric values.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/col_fns.py#L26-L222)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/col_fns.py#L28-L224)
 
 ``` python
 col_numeric(
@@ -28,7 +28,7 @@ The colors to interpolate between. This can be a list of colors (as hexadecimal 
 `domain: list[int] | list[float] | None = None`  
 The range of values to map onto the palette, given as `[min, max]`. Values outside of this range receive the missing-value color (unless `truncate=True`). If `None`, then the domain is taken from the range of the (non-missing) values supplied to the returned function each time it is called (or, with `midpoint=`, a range made symmetric around the midpoint). This can't be used together with `stops=`.
 
-`midpoint: int | float | None = None`  
+`midpoint: float | None = None`  
 A value that receives the color at the center of the palette. If `domain=` is `None`, then the domain is made symmetric around the midpoint, reaching as far as the value furthest from it. If `domain=` is supplied, then each side of the midpoint is scaled separately to its end of the domain (and the midpoint must lie within the domain). This works in the same way as the `midpoint=` argument of [`data_color()`](../reference/GT.data_color.md#great_tables.GT.data_color) and can't be used together with `stops=`.
 
 `stops: list[int | float | str] | None = None`  

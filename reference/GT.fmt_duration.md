@@ -4,7 +4,7 @@ Format numeric or duration values as styled time duration strings.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L4591-L4946)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L4562-L4914)
 
 ``` python
 GT.fmt_duration(

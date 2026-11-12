@@ -4,7 +4,7 @@ Get a themed font stack that works well across systems.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L441-L657)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_helpers.py#L444-L660)
 
 ``` python
 system_fonts(name="system-ui")

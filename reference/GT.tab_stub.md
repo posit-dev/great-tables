@@ -4,7 +4,7 @@ Add a table stub, to emphasize row and group information.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L48-L122)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L50-L124)
 
 ``` python
 GT.tab_stub(

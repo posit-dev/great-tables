@@ -4,7 +4,7 @@ Create a color-mapping function for numeric values cut into bins.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/col_fns.py#L225-L351)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/col_fns.py#L227-L353)
 
 ``` python
 col_bin(

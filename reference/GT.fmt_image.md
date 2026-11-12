@@ -4,7 +4,7 @@ Format image paths to generate images in cells.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8302-L8446)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8261-L8405)
 
 ``` python
 GT.fmt_image(

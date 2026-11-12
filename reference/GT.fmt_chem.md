@@ -4,7 +4,7 @@ Format chemical formulas.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L3058-L3247)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L3041-L3230)
 
 ``` python
 GT.fmt_chem(

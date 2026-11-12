@@ -4,7 +4,7 @@ Target the table title.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L138-L176)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L139-L177)
 
 ``` python
 loc.title()

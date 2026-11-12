@@ -4,7 +4,7 @@ Perform data cell colorization.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/base.py#L52-L557)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/base.py#L53-L555)
 
 ``` python
 GT.data_color(
@@ -46,7 +46,7 @@ The color palette to use. This should be a list of colors (e.g., `["#FF0000", "#
 `domain: list[str] | list[int] | list[float] | None = None`  
 The domain of values to use for the color scheme. This can be a list of floats, integers, or strings. If `None`, then the domain will be inferred from the data values (see the *How column values are mapped to colors* section for details).
 
-`midpoint: int | float | None = None`  
+`midpoint: float | None = None`  
 A value to center the color scale on, for numeric columns (e.g., `0` for values that represent a change). The midpoint receives the color at the center of the palette, which makes this most useful with a diverging palette like `["red", "white", "green"]` or `"RdBu"`. If `domain=` is `None`, then the domain is made symmetric around the midpoint so that values equally far from it on either side are equally strong in color. If `domain=` is supplied, then each side of the midpoint is scaled separately to its end of the domain (and the midpoint must lie within the domain). See the *Centering colors on a midpoint* section for details.
 
 `na_color: str | None = None`  

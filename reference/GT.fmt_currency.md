@@ -4,7 +4,7 @@ Format values as currencies.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L2323-L2524)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L2311-L2512)
 
 ``` python
 GT.fmt_currency(

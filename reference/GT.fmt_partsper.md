@@ -4,7 +4,7 @@ Format values as parts-per quantities.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L2024-L2238)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L2018-L2226)
 
 ``` python
 GT.fmt_partsper(

@@ -4,7 +4,7 @@ Format values as mixed fractions.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L2740-L2937)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L2725-L2922)
 
 ``` python
 GT.fmt_fraction(

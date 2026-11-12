@@ -4,7 +4,7 @@ Format values as bytes.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L4165-L4338)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L4136-L4309)
 
 ``` python
 GT.fmt_bytes(

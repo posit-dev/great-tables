@@ -4,7 +4,7 @@ Add a source note citation.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_source_notes.py#L11-L54)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_source_notes.py#L10-L53)
 
 ``` python
 GT.tab_source_note(source_note)

@@ -4,7 +4,7 @@ A style specification for the background fill of targeted cells.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L306-L335)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L308-L337)
 
 ``` python
 style.fill(color)

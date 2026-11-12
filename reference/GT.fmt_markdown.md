@@ -4,7 +4,7 @@ Format Markdown text.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L6295-L6360)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L6263-L6328)
 
 ``` python
 GT.fmt_markdown(

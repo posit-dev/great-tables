@@ -4,7 +4,7 @@ Format measurement units.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L6381-L6531)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L6349-L6499)
 
 ``` python
 GT.fmt_units(

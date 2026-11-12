@@ -4,7 +4,7 @@ Specify that a style value should be fetched from a column in the data.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L21-L78)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_styles.py#L23-L80)
 
 ``` python
 from_column(
