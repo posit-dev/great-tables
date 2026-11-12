@@ -51,6 +51,14 @@ big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i 
 widget = GTI(big).i_cols_filter(columns="kind", type="facet").i_scale(engine="kernel").i_as_widget()
 widget"""
 
+# (And one of a LazyFrame, whose rows are too many for the browser, so are the kernel's)
+LAZY_WIDGET = """\
+import polars as pl
+
+big = pl.LazyFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+widget = GTI(big).i_cols_filter(columns="kind", type="facet").i_as_widget()
+widget"""
+
 
 def notebook(sources: list[str] | None = None) -> str:
     cells = [
@@ -188,7 +196,7 @@ from great_tables.shiny import output_gt, render_gt, update_gti
 {SETUP}
 
 big = pd.DataFrame({{"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]}})
-
+<big>
 
 @module.ui
 def table_ui():
@@ -203,7 +211,7 @@ def table_ui():
 def table_server(input, output, session):
     @render_gt
     def table():
-        return GTI(big).i_cols_filter(columns="kind", type="facet").i_scale(engine="kernel")
+        return GTI(big).i_cols_filter(columns="kind", type="facet")<scale>
 
     @render.code
     def state():
@@ -225,6 +233,19 @@ def server(input, output, session):
 
 app = App(app_ui, server)
 """
+
+# (As a LazyFrame, whose rows are too many for the browser, so are the server's)
+LAZY_BIG = """
+import polars as pl
+
+big = pl.from_pandas(big).lazy()
+"""
+
+
+def shiny_kernel_app(lazy: bool = False) -> str:
+    big, scale = (LAZY_BIG, "") if lazy else ("", '.i_scale(engine="kernel")')
+    return SHINY_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
 
 # (The tables as cells' outputs, and the second also as `mo.Html()`)
 MARIMO_APP = f"""\
@@ -321,11 +342,13 @@ def main() -> None:
         "notebook.ipynb": notebook(),
         "widget.ipynb": notebook([SETUP, WIDGET, "widget"]),
         "kernel_widget.ipynb": notebook([SETUP, KERNEL_WIDGET]),
+        "lazy_widget.ipynb": notebook([SETUP, LAZY_WIDGET]),
         "jupyter/kernels/python3/kernel.json": kernel_spec(),
         "doc.qmd": quarto_doc(),
         "shiny_app.py": SHINY_APP,
         "shiny_state_app.py": SHINY_STATE_APP,
-        "shiny_kernel_app.py": SHINY_KERNEL_APP,
+        "shiny_kernel_app.py": shiny_kernel_app(),
+        "shiny_lazy_app.py": shiny_kernel_app(lazy=True),
         "marimo_app.py": MARIMO_APP,
         "vscode.html": vscode_page(),
     }
