@@ -14,7 +14,6 @@ and the rows the view keeps are Python's (`_rows` isn't written).
 
 from __future__ import annotations
 
-import warnings
 from collections.abc import Callable
 from functools import cache
 from typing import TYPE_CHECKING, Any
@@ -22,20 +21,10 @@ from typing import TYPE_CHECKING, Any
 import anywidget
 import traitlets
 
-from .._tbl_data import DataFrameLike, get_column_names, n_rows, reorder
-from ._kernel import KernelEngine, _listed, kernel_reasons
+from .._tbl_data import DataFrameLike, get_column_names, reorder
+from ._kernel import KernelEngine, render_table
 from ._query import format_query, view_rows
-from ._render import (
-    JS_DIR,
-    MAX_BYTES,
-    MAX_ROWS,
-    GTIEngineWarning,
-    _build,
-    _load_runtime,
-    _warn_size,
-    render_gti_element,
-)
-from ._settings import settings_of
+from ._render import JS_DIR, _load_runtime
 from ._state import (
     author_view,
     check_query_value,
@@ -77,7 +66,7 @@ class GTIWidget(anywidget.AnyWidget):
     _nrows = traitlets.Int(0).tag(sync=True)
 
     def __init__(self, gti: GTI) -> None:
-        html, spec, engine = _widget_table(gti)
+        html, spec, engine = render_table(gti)
         super().__init__(
             _esm=_esm(),
             _css=_load_runtime()[1],
@@ -260,47 +249,9 @@ class GTIWidget(anywidget.AnyWidget):
 
     def _answer(self, engine: KernelEngine, ask: dict[str, Any]) -> None:
         # (An error is the browser's to show, as it shows a source's)
-        kind, query = ask.get("kind"), ask.get("query")
         try:
-            if kind == "page":
-                answer: Any = engine.page(query)
-            elif kind == "facet":
-                answer = engine.facet(query, ask.get("column"))
-            elif kind == "rows":
-                answer = engine.rows(query)
-            else:
-                raise ValueError(f"There's no answer to a {kind!r} ask.")
+            answer = engine.answer(ask)
         except Exception as err:  # noqa: BLE001
             self.send({"type": "answer", "id": ask.get("id"), "error": str(err)})
         else:
             self.send({"type": "answer", "id": ask.get("id"), "answer": answer})
-
-
-def _widget_table(gti: GTI) -> tuple[str, Spec, KernelEngine | None]:
-    """The table's element, its spec, and if its rows are kept in Python (as `i_scale()` says,
-    and as they can be), what keeps them."""
-    engine = settings_of(gti).engine
-    # (Rendered without the warning that its rows aren't in Python)
-    browser = gti._set_interactive(engine="browser")
-    if engine == "browser":
-        html, spec = render_gti_element(browser)
-        return html, spec, None
-    if engine == "auto" and n_rows(gti._tbl_data) <= MAX_ROWS:
-        html, spec = render_gti_element(browser, warn=False)
-        if len(html.encode("utf-8")) <= MAX_BYTES:
-            _warn_size(gti, spec, html)
-            return html, spec, None
-    reasons = kernel_reasons(_build(gti))
-    if reasons:
-        if engine == "kernel":
-            warnings.warn(
-                f"The rows of a table with {_listed(reasons)} can't be kept in Python "
-                '(`i_scale(engine="kernel")`) yet, so they\'re in the browser.',
-                GTIEngineWarning,
-                stacklevel=4,
-            )
-        html, spec = render_gti_element(browser)
-        return html, spec, None
-    kernel = KernelEngine(gti)
-    html, _ = kernel.render()
-    return html, kernel.spec, kernel

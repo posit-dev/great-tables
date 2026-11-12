@@ -100,10 +100,13 @@ def render_gti_html_spec(
     if runtime not in ("inline", "none"):
         raise ValueError(f'`runtime=` must be "inline" or "none", not {runtime!r}.')
     html, spec = render_gti_element(gt, all_important=all_important)
-    if runtime == "inline":
-        js, css = _load_runtime()
-        html += f"<style>\n{css}</style>\n<script>\n{js}</script>\n"
-    return html, spec
+    return (inline_runtime(html) if runtime == "inline" else html), spec
+
+
+def inline_runtime(html: str) -> str:
+    """A table's `<gt-table>` element, with the runtime after it."""
+    js, css = _load_runtime()
+    return f"{html}<style>\n{css}</style>\n<script>\n{js}</script>\n"
 
 
 def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -> tuple[str, Spec]:
@@ -114,10 +117,12 @@ def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -
     from ..gti import GTI
 
     if isinstance(gt, GTI) and settings_of(gt).engine == "kernel":
-        # (A widget, which can keep the rows in Python, renders the table itself: see `_kernel.py`)
+        # (A widget or a Shiny app, which can keep the rows in Python, renders the table itself:
+        # see `_kernel.py`)
         warnings.warn(
             "This table's rows can be kept in Python (`i_scale(engine=\"kernel\")`) only when it's "
-            "shown as a widget (with `i_as_widget()`), so here they're in the browser.",
+            "shown as a widget (with `i_as_widget()`) or in a Shiny app (with `render_gt()`), so "
+            "here they're in the browser.",
             GTIEngineWarning,
             stacklevel=3,
         )
@@ -133,15 +138,17 @@ def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -
     return html, spec
 
 
-def gti_element(data: GTData, table_html: str, spec: Spec, details: dict[int, str]) -> str:
+def gti_element(
+    data: GTData, table_html: str, spec: Spec, details: dict[int, str], attrs: str = ""
+) -> str:
     """The `<gt-table>` element of a built table, from its static HTML, its spec, and its rows'
-    details (as `render_details()` makes them)."""
+    details (as `render_details()` makes them), with `attrs` (a host's)."""
     spec_json = spec_to_script_json(spec)
 
     # (The runtime sets these too, but the table shouldn't change when it's hydrated; nor should
     # what's below it, so the control bar's room is kept until it's there)
-    attrs = " data-gti-bar" if _has_bar(spec) else ""
-    if attrs and _has_tokens(spec):
+    attrs += " data-gti-bar" if _has_bar(spec) else ""
+    if _has_bar(spec) and _has_tokens(spec):
         attrs += " data-gti-tokens"
     if not spec["display"]["wrap"]:
         attrs += " data-gti-nowrap"
@@ -181,7 +188,7 @@ def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False) -> None:
     bytes of HTML (its `<gt-table>` element's) than `MAX_BYTES`, as it's slow to load, or with
     more rows shown at once than `MAX_SHOWN`, as each is laid out again when the rows are sorted,
     searched or filtered. (With `kernel`, a `GTI` table that could keep its rows in Python, as a
-    widget, is told so.)
+    widget or in a Shiny app, is told so.)
     """
     from ..gti import GTI
 
@@ -215,8 +222,9 @@ def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False) -> None:
         )
         if kernel and isinstance(gt, GTI):
             message += (
-                " Shown as a widget (with `i_as_widget()`), it can keep its rows in Python, which "
-                'sends the browser a page at a time (see `i_scale(engine="kernel")`).'
+                " Shown as a widget (with `i_as_widget()`) or in a Shiny app (with `render_gt()`), "
+                "it can keep its rows in Python, which sends the browser a page at a time (see "
+                '`i_scale(engine="kernel")`).'
             )
     if shown > MAX_SHOWN:
         if isinstance(gt, GTI):
