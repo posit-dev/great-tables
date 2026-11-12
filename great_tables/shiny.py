@@ -33,10 +33,10 @@ except ImportError:
     )
 
 from ._gti._kernel import KernelEngine, render_table
+from ._gti._lazy import table_rows
 from ._gti._render import JS_DIR, inline_runtime, render_gti_element
 from ._gti._state import check_query_value, check_search, check_selection, check_sort, view_of
 from ._render import infer_render_env_defaults
-from ._tbl_data import n_rows
 
 if TYPE_CHECKING:
     from shiny.session import Session
@@ -138,7 +138,7 @@ async def GtTransformer(_meta: TransformerMetadata, _fn: ValueFn[GT | None]) -> 
             engine = None
             if isinstance(value, GTI):
                 # (Whose rows, kept on the server, there are this many of)
-                attrs = f' data-gti-server="{n_rows(value._tbl_data)}"'
+                attrs = f' data-gti-server="{table_rows(value)}"'
                 html, spec, engine = render_table(value, all_important=all_important, attrs=attrs)
             else:
                 html, spec = render_gti_element(value, all_important=all_important)
