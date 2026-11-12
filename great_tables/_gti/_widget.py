@@ -23,6 +23,7 @@ import traitlets
 
 from .._tbl_data import DataFrameLike, get_column_names, reorder
 from ._kernel import KernelEngine, render_table
+from ._lazy import eager
 from ._query import format_query, view_rows
 from ._render import JS_DIR, _load_runtime
 from ._state import (
@@ -213,8 +214,10 @@ class GTIWidget(anywidget.AnyWidget):
         """
         if not isinstance(selected, bool):
             raise TypeError(f"`selected=` must be `True` or `False`, not {selected!r}.")
-        data = self._gti._tbl_data
         rows = self.selection if selected else self.rows
+        if self._engine is not None:
+            return self._engine.data(rows)
+        data = eager(self._gti)._tbl_data
         return reorder(data, rows, get_column_names(data))
 
     # -----
