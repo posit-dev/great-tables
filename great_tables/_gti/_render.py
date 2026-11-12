@@ -194,7 +194,7 @@ def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False, lazy: bool =
     more rows shown at once than `MAX_SHOWN`, as each is laid out again when the rows are sorted,
     searched or filtered. (With `kernel`, a `GTI` table that could keep its rows in Python, as a
     widget or in a Shiny app, is told so; with `lazy`, that its rows were collected, from its
-    LazyFrame.)
+    lazy frame.)
     """
     from ..gti import GTI
 
@@ -223,7 +223,7 @@ def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False, lazy: bool =
     )
     if nrows > MAX_ROWS or size > MAX_BYTES:
         if lazy:
-            message += " Its rows were all collected from its LazyFrame, to be shown here."
+            message += " Its rows were all collected from its lazy frame, to be shown here."
         message += (
             " It's quicker to load with fewer rows, or fewer columns (or less in them), e.g., by "
             "filtering the data first."
