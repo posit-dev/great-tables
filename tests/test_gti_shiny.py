@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import warnings
 
 import pandas as pd
 import pytest
@@ -16,11 +17,13 @@ pytest.importorskip("shiny")
 
 from shiny import App, ui  # noqa: E402
 from shiny._connection import MockConnection  # noqa: E402
+from shiny._utils import lists_to_tuples  # noqa: E402
 from shiny.input_handler import input_handlers  # noqa: E402
 from shiny.session import session_context  # noqa: E402
 from shiny.session._session import AppSession  # noqa: E402
 
 from great_tables import GT, GTI  # noqa: E402
+from great_tables._render_checks import RenderWarning  # noqa: E402
 from great_tables._gti._state import (  # noqa: E402
     author_view,
     check_query_value,
@@ -29,8 +32,16 @@ from great_tables._gti._state import (  # noqa: E402
     sort_names,
     view_of,
 )
-from great_tables._gti._render import render_gti_html_spec  # noqa: E402
-from great_tables.shiny import MESSAGE, VIEW_TYPE, _SPECS, render_gt, update_gti  # noqa: E402
+from great_tables._gti._render import GTISizeWarning, render_gti_html_spec  # noqa: E402
+from great_tables.shiny import (  # noqa: E402
+    _ENGINES,
+    _SPECS,
+    MESSAGE,
+    ROWS_TYPE,
+    VIEW_TYPE,
+    render_gt,
+    update_gti,
+)
 
 DATA = pd.DataFrame(
     {
@@ -281,3 +292,112 @@ def test_update_gti_without_rendered_table_checks_values(session):
 def test_update_gti_needs_session():
     with pytest.raises(RuntimeError):
         update_gti("table", search="an")
+
+
+# Rows kept on the server ----
+
+QUERY = {"search": "", "hidden": [], "filter": None, "links": [], "sort": []}
+
+
+def from_browser(value):
+    """A value as Shiny reads it from the browser (with its arrays as tuples)."""
+    return json.loads(json.dumps(value), object_hook=lists_to_tuples)
+
+
+def ask(session, method: str, content) -> dict:
+    """What the server answers a request (as `Shiny.shinyapp.makeRequest()` makes it)."""
+    session._conn.sent.clear()
+    message = from_browser({"method": method, "args": [content], "tag": 1})
+    asyncio.run(session._dispatch(message))
+    [message] = session._conn.sent
+    return message["response"]
+
+
+def test_render_gt_keeps_kernel_rows_on_server(session):
+    rendered = render(session, make_gti().i_scale("kernel").i_pagination(page_size=2))
+    assert '<gt-table data-gti-server="5"' in rendered["html"]
+    assert '"remote":{"count":5,"rows":[0,1]}' in rendered["html"]
+    # (The spec kept, for `update_gti()`, has every row's)
+    assert len(_SPECS[session]["table"]["ranks"]["num"]) == 5
+    assert list(_ENGINES[session]) == ["table"]
+
+    page = ask(session, "table_gti", {"kind": "page", "query": {**QUERY, "start": 2, "size": 2}})
+    assert page["tag"] == 1
+    assert page["value"]["rows"] == [2, 3] and page["value"]["count"] == 5
+    facet = ask(session, "table_gti", {"kind": "facet", "query": QUERY, "column": "fctr"})
+    assert sum(count for _, count in facet["value"]) == 5
+    rows = ask(session, "table_gti", {"kind": "rows", "query": {**QUERY, "search": "two"}})
+    assert rows["value"] == [1, 4]
+
+
+def test_kernel_asks_answer_errors(session):
+    render(session, make_gti().i_scale("kernel"))
+    answer = ask(session, "table_gti", {"kind": "facet", "query": QUERY, "column": "char2"})
+    assert "no filter" in answer["error"]
+    assert "no answer" in ask(session, "table_gti", {"kind": "nope", "query": QUERY})["error"]
+    assert "object" in ask(session, "table_gti", "page")["error"]
+
+
+def test_kernel_rows_input_is_found_on_server(session):
+    render(session, make_gti().i_scale("kernel"))
+
+    def handler(value, name, session):
+        return input_handlers[ROWS_TYPE](from_browser(value), name, session)
+
+    view = {"filter": FILTER, "sort": [{"column": "char", "descending": True}], "search": ""}
+    assert handler({**view, "hidden": [], "page": 1}, "table_rows", session) == [4, 2, 1, 0]
+    assert handler({**view, "search": "coc", "hidden": []}, "table_rows", session) == [2]
+    # (Without a table whose rows are the server's, none, nor for a view it doesn't have)
+    assert handler(view, "other_rows", session) == []
+    assert handler({**view, "sort": [{"column": "zzz"}]}, "table_rows", session) == []
+
+
+def test_kernel_in_module_uses_namespaced_id(session):
+    render(session.make_scope("mod"), make_gti().i_scale("kernel"))
+    assert list(_ENGINES[session]) == ["mod-table"]
+    assert ask(session, "mod-table_gti", {"kind": "rows", "query": QUERY})["value"] == [
+        0,
+        1,
+        2,
+        3,
+        4,
+    ]
+    rows = input_handlers[ROWS_TYPE](
+        from_browser({**QUERY, "search": "fig"}), "mod-table_rows", session
+    )
+    assert rows == [4]
+
+
+@pytest.mark.parametrize("again", [make_gti(), GT(DATA), None], ids=["browser", "static", "none"])
+def test_rendered_again_without_kernel_drops_rows(session, again):
+    render(session, make_gti().i_scale("kernel"))
+    render(session, again)
+    assert _ENGINES[session] == {}
+    assert "Unknown method" in ask(session, "table_gti", {"kind": "rows", "query": QUERY})["error"]
+
+
+def test_auto_keeps_many_rows_on_server(session):
+    many = pd.DataFrame({"n": range(4000), "t": ["x"] * 4000})
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RenderWarning)
+        rendered = render(session, GTI(many))
+    assert 'data-gti-server="4000"' in rendered["html"]
+    assert "table" in _ENGINES[session]
+
+
+def test_auto_keeps_few_rows_and_gt_in_browser(session):
+    rendered = render(session, make_gti())
+    assert "data-gti-server" not in rendered["html"] and session not in _ENGINES
+    many = pd.DataFrame({"n": range(4000)})
+    with pytest.warns(GTISizeWarning):
+        rendered = render(session, GT(many).opt_interactive())
+    assert "data-gti-server" not in rendered["html"] and session not in _ENGINES
+
+
+def test_update_gti_checks_against_kernel_table(session):
+    render(session, make_gti("multiple").i_scale("kernel"))
+    with session_context(session):
+        with pytest.raises(ValueError, match="nope"):
+            update_gti("table", sort="nope")
+        update_gti("table", query='fctr in ("three")', selection=[4])
+    assert custom(session)[0][MESSAGE]["selection"] == [4]
