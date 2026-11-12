@@ -221,9 +221,16 @@ export interface FilterSpec {
   values: FilterValue[] | null;
   /**
    * The data rows whose value is missing, in order: `null`, or NaN in a column of floats (as an
-   * `is_null` clause has them). Without it, the rows whose rank is `null`.
+   * `is_null` clause has them). Without it, the rows whose rank is `null`. A remote table's has
+   * its first one only, if there's any (so that a facet has a missing value to choose).
    */
   missing?: number[];
+  /**
+   * The text a row with each of the values shows (with its whitespace collapsed), in the order of
+   * `values`, for a facet or a bool filter's choices. Without it, the text the table's rows with
+   * them show (or the values themselves, without any).
+   */
+  labels?: string[];
 }
 
 /** A column's profile: a histogram of its numbers or dates, or bars for its most common values. */
@@ -347,6 +354,15 @@ export interface ColorSpec {
   fixed: number[];
 }
 
+/**
+ * What a remote table's body has to start with: the rows of the first page of the view (`rows`,
+ * in order), of the `count` rows it keeps. Its other rows come from its source's `page()`.
+ */
+export interface RemoteSpec {
+  count: number;
+  rows: number[];
+}
+
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
 export type BodyRow = number | GroupHeadingRow | SummaryRow | GrandSummaryRow;
 
@@ -361,7 +377,10 @@ export interface Spec {
   stub: StubSpec;
   groups: GroupSpec[];
   body: BodyRow[];
-  /** Per sortable column, each data row's dense sort rank (`null` for a missing value). */
+  /**
+   * Per sortable column, each data row's dense sort rank (`null` for a missing value); a remote
+   * table's are empty (its source sorts the rows).
+   */
   ranks: Record<string, (number | null)[]>;
   striping: StripingSpec;
   controls: ControlsSpec;
@@ -387,6 +406,12 @@ export interface Spec {
   link?: LinkSpec | null;
   /** The columns whose `data_color()` colors are made again from the rows kept. Without it, none. */
   colors?: ColorSpec[];
+  /**
+   * For a table whose body has only some of its data rows (a page of them), what it has to start
+   * with; its source (see `DataSource.page()`) has the others, and does the sorting and querying.
+   * Without it, the body has every row.
+   */
+  remote?: RemoteSpec;
 }
 
 export class SpecError extends Error {
@@ -548,8 +573,23 @@ export function parseSpec(text: string): Spec {
     throw new SpecError(`\`body[${bad}]\` isn't a data row index or a structural row`);
   }
 
+  const remote = raw.remote;
+  if (remote !== undefined) {
+    const rows = isObject(remote) ? remote.rows : undefined;
+    const inBody = new Set(body);
+    if (
+      !isObject(remote) ||
+      !(Number.isInteger(remote.count) && (remote.count as number) >= 0 && (remote.count as number) <= (nrows as number)) ||
+      !Array.isArray(rows) ||
+      !rows.every((row) => typeof row === "number" && inBody.has(row)) ||
+      new Set(rows).size !== rows.length
+    ) {
+      throw new SpecError("`remote` must have the `count` of rows the view keeps, and the `rows` of its first page (data rows of the body's), if given");
+    }
+  }
+
   for (const [column, ranks] of Object.entries(raw.ranks)) {
-    if (!Array.isArray(ranks) || ranks.length !== nrows) {
+    if (!Array.isArray(ranks) || (ranks.length !== nrows && !(remote !== undefined && ranks.length === 0))) {
       throw new SpecError(`\`ranks.${column}\` must have one entry per data row`);
     }
   }
@@ -584,9 +624,12 @@ export function parseSpec(text: string): Spec {
           `\`filters[${i}]\` must name a column and a known \`type\`, with \`values\` for every rank of a facet, range, date or bool filter (a date filter's as ISO 8601 text, a bool filter's booleans)`,
         );
       }
-      const { missing } = filter;
+      const { missing, labels } = filter;
       if (missing !== undefined && !(Array.isArray(missing) && missing.every((row) => isIndex(row, nrows as number)))) {
         throw new SpecError(`\`filters[${i}].missing\` must be data rows' indexes, if given`);
+      }
+      if (labels !== undefined && !(Array.isArray(labels) && labels.length === (values as unknown[] | null)?.length && labels.every((label) => typeof label === "string"))) {
+        throw new SpecError(`\`filters[${i}].labels\` must be text, one per value, if given`);
       }
     });
   }
