@@ -186,6 +186,43 @@ test("column labels stay as GT has them, with their controls lined up under them
   expect(errors).toEqual([]);
 });
 
+test("the line over the labels' controls is one, on a page that sizes boxes, which has no more to scroll", async ({
+  page,
+}) => {
+  const errors = await ready(page, "sort-page-styles.html");
+  // Each label's row (the stubhead's empty one too) as tall as the others, so that their lines,
+  // solid and as wide as their cells, are at one height and join
+  const rows = await page.locator("thead .gt-i-head-controls").evaluateAll((rows) =>
+    rows.map((row) => {
+      const box = row.getBoundingClientRect();
+      const cell = row.parentElement!.getBoundingClientRect();
+      const line = getComputedStyle(row, "::before");
+      return {
+        empty: row.childElementCount === 0,
+        top: box.top,
+        height: box.height,
+        style: line.borderTopStyle,
+        left: cell.left,
+        right: cell.right,
+      };
+    }),
+  );
+  expect(rows.some((row) => row.empty)).toBe(true);
+  expect(new Set(rows.map((row) => row.top)).size).toBe(1);
+  expect(new Set(rows.map((row) => row.height)).size).toBe(1);
+  expect(new Set(rows.map((row) => row.style))).toEqual(new Set(["solid"]));
+  for (let i = 1; i < rows.length; i++) {
+    expect(rows[i]!.left).toBeCloseTo(rows[i - 1]!.right, 0);
+  }
+  // The container around the table has nothing to scroll (not the announcements' box, under it)
+  const container = await page.locator("body > div").evaluate((div) => ({
+    scroll: div.scrollHeight,
+    client: div.clientHeight,
+  }));
+  expect(container.scroll).toBe(container.client);
+  expect(errors).toEqual([]);
+});
+
 test("sorts when the label itself is clicked, but not when its text is selected", async ({ page }) => {
   const errors = await ready(page, "sort.html");
   const th = page.locator("th#s-num");

@@ -850,6 +850,12 @@ def main() -> None:
             sort_html("s", groups_as_column=True, summaries=False) + "\n" + runtime_src,
             head=styles,
         ),
+        # The table to sort on a page with styles of its own (as Bootstrap's, for one, sizes
+        # boxes), in a container that scrolls (as a Quarto page's cell output does).
+        "sort-page-styles.html": page(
+            '<div style="overflow: auto">\n' + sort_html("s") + "\n</div>\n" + runtime_src,
+            head=styles + "<style>*, ::before, ::after { box-sizing: border-box; }</style>\n",
+        ),
         # Tables to search, likewise.
         "search.html": page(search_html("q") + "\n" + runtime_src, head=styles),
         "search-column.html": page(
