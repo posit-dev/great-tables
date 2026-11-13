@@ -570,3 +570,42 @@ The table keeps its view and selection by its `key` as the app runs again, as lo
 the same. A table whose rows are kept in Python (with `~~GTI.i_scale()`) asks the app for each
 page, which runs it again; make it once, with `st.cache_resource`, so that it isn't rendered again
 each time.
+
+### Using the table in a Panel app
+
+In a [Panel](https://panel.holoviz.org) app or notebook, `GTIPane`, from `great_tables.panel`
+(installed with `pip install great_tables[panel]`), shows an interactive table (a `GTI` table, or a
+`GT` table with `opt_interactive()`) as a Panel component, whose state is in its parameters:
+`query`, `search` and `sort` (a list, e.g., `["-hp"]`), the data `rows` kept (in the order shown)
+and the rows in its `selection`. Each change the reader makes sets them, so that they can be used
+with `pn.bind()` or watched like any other parameter; and setting `query`, `search`, `sort` or
+`selection` changes the table.
+
+```python
+import panel as pn
+from great_tables import GTI
+from great_tables.data import gtcars
+from great_tables.panel import GTIPane
+
+pn.extension()
+
+cars = gtcars[["mfr", "model", "year", "hp", "msrp"]]
+table = GTIPane(
+    GTI(cars).i_cols_filter(columns="mfr", type="facet").i_selection("multiple")
+)
+
+
+def chosen(rows, selection):
+    return f"{len(selection)} of {len(rows or [])} cars selected"
+
+
+fastest = pn.widgets.Button(name="Fastest first")
+fastest.on_click(lambda _: table.param.update(sort=["-hp"], selection=[]))
+pn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selection)).servable()
+```
+
+`table.data()` gives the rows kept as a DataFrame of the data's library (and
+`table.data(selected=True)` the rows selected). The table works in the browser, which finds its
+`rows`, so they can be `None` until it has (as before the table's shown with a search). A table
+whose rows are kept in Python (with `~~GTI.i_scale()`) asks the app for each page instead, and its
+`rows` are found in Python.
