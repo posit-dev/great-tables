@@ -65,6 +65,7 @@ import {
   type Update,
 } from "../src/shiny";
 import renderStreamlit, { type Data as StreamlitData, StreamlitSource } from "../src/streamlit";
+import { modelOf, type PanelModel, render as renderPanel } from "../src/panel";
 
 // Let mutation observers run.
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -9667,5 +9668,163 @@ describe("a remote table", () => {
     expect(facets).toEqual(["y"]);
     const names = Array.from(el.querySelectorAll(".gt-i-filter-option"), (option) => option.textContent);
     expect(names).toEqual(["A3", "B1", "C1"]);
+  });
+});
+
+describe("a table in a Panel app", () => {
+  const VIEW: WidgetView = {
+    filter: null,
+    sort: [],
+    search: "",
+    page: 1,
+    page_size: null,
+    hidden: [],
+    group_by: null,
+  };
+
+  // Panel's proxy of a component's model: its parameters, each synced as it's set (and its
+  // "change:" callbacks called), its messages, and its views' lifecycle
+  function fakeProxy(state: Record<string, unknown>) {
+    const callbacks = new Map<string, Set<(content?: unknown) => void>>();
+    const assigned: Record<string, unknown>[] = [];
+    const sent: unknown[] = [];
+    const fire = (event: string, content?: unknown) => {
+      for (const callback of [...(callbacks.get(event) ?? [])]) {
+        callback(content);
+      }
+    };
+    const methods = {
+      send_msg: (content: unknown) => sent.push(content),
+      on: (event: string, callback: (content?: unknown) => void) => {
+        callbacks.set(event, (callbacks.get(event) ?? new Set()).add(callback));
+      },
+      off: (event: string, callback: (content?: unknown) => void) => {
+        callbacks.get(event)?.delete(callback);
+      },
+    };
+    const model = new Proxy(state, {
+      get: (target, name: string) => (name in methods ? methods[name as keyof typeof methods] : target[name]),
+      set: (target, name: string, value) => {
+        target[name] = value;
+        assigned.push({ [name]: value });
+        fire(`change:${name}`);
+        return true;
+      },
+    }) as PanelModel;
+    // (As from Python: set, then their callbacks called)
+    const update = (changed: Record<string, unknown>) => {
+      Object.assign(state, changed);
+      for (const name of Object.keys(changed)) {
+        fire(`change:${name}`);
+      }
+    };
+    return { model, state, assigned, sent, update, fire, callbacks };
+  }
+
+  // (Python's first update: the state before the reader changes it)
+  const FIRST = { _view: null, _rows: null, _selection: [], n: 0 };
+
+  async function show(state: Record<string, unknown> = {}, views = 1) {
+    const facet: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], {
+      controls: { search: true, selection: "multiple" },
+      filters: [facet],
+    });
+    const fake = fakeProxy({ _html: `<gt-table>${html}${specScript(spec)}</gt-table>`, _update: FIRST, _report: {}, ...state });
+    // (Its HTML without a `</`, as Python sends it)
+    fake.state._html = String(fake.state._html).split("</").join("<\0/");
+    const tables: GtTable[] = Array.from({ length: views }, () => {
+      const el = document.createElement("div");
+      document.body.append(el);
+      renderPanel({ model: fake.model, el });
+      return el.querySelector(TAG_NAME) as GtTable;
+    });
+    await tick();
+    return { ...fake, table: tables[0] as GtTable, tables };
+  }
+
+  it("is the widget's model, kept in step with Panel's proxy", () => {
+    const fake = fakeProxy({ _update: { ...FIRST, _view: VIEW }, _report: {}, _html: "<p>a<\0/p><p>b<\0/p>", _kernel: true });
+    const model = modelOf(fake.model);
+    expect([model.get("_view"), model.get("_rows"), model.get("_kernel")]).toEqual([VIEW, null, true]);
+    expect(model.get("_html")).toBe("<p>a</p><p>b</p>");
+    // (The changes saved together, as one report, with a count; and once only)
+    model.set("_rows", [1]);
+    model.set("_selection", [2]);
+    expect(fake.assigned).toEqual([]);
+    model.save_changes();
+    model.save_changes();
+    expect(fake.assigned).toEqual([{ _report: { _rows: [1], _selection: [2], n: 1, from: expect.any(String) } }]);
+    expect(model.get("_rows")).toEqual([1]);
+    // (Python needs no message of a change, but has the others)
+    model.send({ type: "change" });
+    model.send({ type: "ask" });
+    expect(fake.sent).toEqual([{ type: "ask" }]);
+    const callback = vi.fn();
+    model.on("change:_rows", callback);
+    fake.update({ _update: { _selection: [], n: 1 } });
+    expect(callback).not.toHaveBeenCalled();
+    fake.update({ _update: { _rows: [3], n: 2 } });
+    expect([callback.mock.calls.length, model.get("_rows")]).toEqual([1, [3]]);
+    // (And another view's report, but not its own)
+    fake.update({ _report: { _rows: [4], n: 1, from: "other" } });
+    expect([callback.mock.calls.length, model.get("_rows")]).toEqual([2, [4]]);
+    model.off("change:_rows", callback);
+    fake.update({ _update: { _rows: [5], n: 3 } });
+    expect(callback).toHaveBeenCalledTimes(2);
+    model.close();
+    fake.update({ _update: { _rows: [6], n: 4 } });
+    expect(model.get("_rows")).toEqual([5]);
+  });
+
+  it("reports the table's state, and what the reader changes", async () => {
+    const { table, state, sent } = await show();
+    expect(table.state).toBe("ready");
+    expect(state._report).toEqual({ _view: VIEW, _rows: [0, 1, 2, 3, 4], n: 1, from: expect.any(String) });
+    click(table, "x");
+    expect(state._report).toMatchObject({ _view: { ...VIEW, sort: [{ column: "x", descending: false }] }, _rows: [1, 2, 0, 4, 3], n: 2 });
+    (table.rowElement(2)?.querySelector(":scope > .gt-i-select > input") as HTMLInputElement).click();
+    expect(state._report).toEqual({ _selection: [2], n: 3, from: expect.any(String) });
+    expect(sent).toEqual([]);
+  });
+
+  it("sets on the table what Python changes", async () => {
+    const { table, state, update } = await show();
+    update({ _update: { _view: { ...VIEW, sort: [{ column: "x", descending: true }] }, _rows: null, n: 1 } });
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(state._report).toMatchObject({ _rows: [0, 4, 2, 1, 3], n: 2 });
+    update({ _update: { _selection: [1, 3], n: 2 } });
+    expect(table.selection).toEqual([1, 3]);
+  });
+
+  it("keeps a table shown twice in step", async () => {
+    const [one, two] = (await show({}, 2)).tables as [GtTable, GtTable];
+    click(one, "x");
+    expect(two.sort).toEqual([{ column: "x", descending: false }]);
+    click(two, "x");
+    expect(one.sort).toEqual([{ column: "x", descending: true }]);
+  });
+
+  it("asks Python for a page with Panel's messages, and shows its answer", async () => {
+    const { html, spec } = gtTable([0, 1], { controls: { search: true }, pagination: { enabled: true } });
+    const remote = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+    const { table, sent, fire } = await show({ _html: `<gt-table>${html}${specScript(remote)}</gt-table>`, _kernel: true, _nrows: 5 });
+    expect(table.source).toBeInstanceOf(KernelSource);
+    table.page = 2;
+    const ask = sent.find((content) => (content as { type: string }).type === "ask") as { id: string };
+    expect(ask).toMatchObject({ kind: "page", query: { start: 2, size: 2, sort: [] } });
+    const trs = (gtTable([2, 3]).html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1];
+    fire("msg:custom", { type: "answer", id: ask.id, answer: { count: 5, start: 2, rows: [2, 3], html: trs } });
+    await tick();
+    expect(visible(table)).toEqual([2, 3]);
+    expect(table.loading).toBe(false);
+  });
+
+  it("stops following the model once Panel removes the view", async () => {
+    const { table, callbacks, update, fire } = await show();
+    fire("remove");
+    expect([...callbacks.entries()].every(([event, set]) => event === "remove" || set.size === 0)).toBe(true);
+    update({ _update: { _view: { ...VIEW, search: "20" }, n: 1 } });
+    expect(table.search).toBe("");
   });
 });
