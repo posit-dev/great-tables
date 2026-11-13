@@ -776,6 +776,12 @@ gt-table[data-gti-scroll] .gt-i-scroller {
   overflow-y: auto !important;
 }
 
+/* (Scrolling past the end of rows that scroll doesn't go on to scroll the page, which would take
+   the table out of view; while they don't scroll, the page does) */
+gt-table[data-gti-scroll] .gt-i-scroller.gt-i-contained {
+  overscroll-behavior-y: contain;
+}
+
 /*
  * Once hydrated, the column labels (and the table's header) stick to the top, each group heading
  * below them (set by the runtime, as their height changes), and the grand summary rows at the
@@ -783,7 +789,7 @@ gt-table[data-gti-scroll] .gt-i-scroller {
  */
 gt-table[data-gti-sticky] thead {
   position: sticky;
-  /* (Over the container's padding) */
+  /* (Over the container's padding, where it's left: see `frameScroller()`) */
   top: calc(0px - var(--gt-i-pad, 0px));
   z-index: 5;
 }
