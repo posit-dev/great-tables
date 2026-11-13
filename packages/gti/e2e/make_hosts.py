@@ -12,7 +12,9 @@ widget whose rows are in the kernel (`i_scale(engine="kernel")`), which sends it
 app (in a module) showing what a `GTI` table's inputs have, with buttons that change it with
 `update_gti()`; and one (also in a module) with a `GTI` table whose rows are the server's, which
 sends its pages, showing the rows the server finds. And the same two as Streamlit apps (with
-`st_gti()`), the first also showing how many times it's been run.
+`st_gti()`), the first also showing how many times it's been run; and as Panel apps (with
+`GTIPane`), showing its parameters, and two notebooks with one, for JupyterLab (the second's rows
+the kernel's, and shown twice).
 """
 
 from __future__ import annotations
@@ -317,6 +319,93 @@ def streamlit_kernel_app(lazy: bool = False) -> str:
     return STREAMLIT_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
 
 
+# (A Panel app showing a `GTIPane`'s parameters, with a button that sets them)
+PANEL_STATE_APP = f"""\
+import json
+
+import panel as pn
+
+from great_tables.panel import GTIPane
+
+{SETUP}
+
+pn.extension()
+
+table = GTIPane(GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple"))
+
+
+def state(query, search, sort, rows, selection):
+    return pn.pane.Str(json.dumps([query, search, sort, rows, selection]))
+
+
+def update(_):
+    table.param.update(query='fctr in ("one", "two")', sort=["-num"], selection=[0])
+
+
+button = pn.widgets.Button(name="Update")
+button.on_click(update)
+pn.Column(
+    button,
+    table,
+    pn.bind(state, *(table.param[name] for name in ["query", "search", "sort", "rows", "selection"])),
+).servable()
+"""
+
+# (And one with a `GTIPane` whose rows are the app's, which sends its pages, showing the rows it
+# finds)
+PANEL_KERNEL_APP = """\
+import json
+
+import pandas as pd
+import panel as pn
+
+from great_tables import GTI
+from great_tables.panel import GTIPane
+
+pn.extension()
+
+big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+<big>
+table = GTIPane(GTI(big).i_cols_filter(columns="kind", type="facet")<scale>)
+
+
+def state(rows, search):
+    return pn.pane.Str(json.dumps([len(rows), rows[:3], search]))
+
+
+button = pn.widgets.Button(name="Update")
+button.on_click(lambda _: table.param.update(search="", query='kind in ("odd")', sort=["n"]))
+pn.Column(button, table, pn.bind(state, table.param.rows, table.param.search)).servable()
+"""
+
+
+# (A `GTIPane` in a notebook)
+PANEL_NOTEBOOK = [
+    "import panel as pn\n\nfrom great_tables.panel import GTIPane\n\npn.extension()",
+    (
+        'pane = GTIPane(GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple"))'
+        "\npane"
+    ),
+]
+
+# (And one whose rows are the kernel's, shown twice)
+PANEL_KERNEL_NOTEBOOK = [
+    PANEL_NOTEBOOK[0],
+    """\
+import pandas as pd
+
+big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+pane = GTIPane(GTI(big).i_cols_filter(columns="kind", type="facet").i_scale(engine="kernel"))
+pane""",
+    "pane",
+]
+
+
+def panel_kernel_app(lazy: bool = False) -> str:
+    big, scale = (LAZY_BIG, "") if lazy else ("", '.i_scale(engine="kernel")')
+    return PANEL_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
+
 # (The tables as cells' outputs, and the second also as `mo.Html()`)
 MARIMO_APP = f"""\
 import marimo
@@ -422,6 +511,11 @@ def main() -> None:
         "streamlit_state_app.py": STREAMLIT_STATE_APP,
         "streamlit_kernel_app.py": streamlit_kernel_app(),
         "streamlit_lazy_app.py": streamlit_kernel_app(lazy=True),
+        "panel.ipynb": notebook([SETUP, *PANEL_NOTEBOOK]),
+        "panel_kernel.ipynb": notebook([SETUP, *PANEL_KERNEL_NOTEBOOK]),
+        "panel_state_app.py": PANEL_STATE_APP,
+        "panel_kernel_app.py": panel_kernel_app(),
+        "panel_lazy_app.py": panel_kernel_app(lazy=True),
         "marimo_app.py": MARIMO_APP,
         "vscode.html": vscode_page(),
     }
