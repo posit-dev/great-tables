@@ -435,6 +435,111 @@ for (const [what, app, needs] of [
   });
 }
 
+// A Streamlit app, once it answers (headless, on a port of its own)
+async function streamlit(app: string): Promise<{ base: string; server: ChildProcess }> {
+  const port = await freePort();
+  const base = `http://127.0.0.1:${port}`;
+  const server = await serve(
+    `${base}/_stcore/health`,
+    ...["-m", "streamlit", "run", app, "--server.headless", "true", "--server.port", String(port)],
+    ...["--browser.gatherUsageStats", "false"],
+  );
+  return { base, server };
+}
+
+test("Streamlit: a table's state, as st_gti() gives it, which the app changes", async ({ page }) => {
+  test.skip(!has("streamlit"), "Streamlit isn't installed");
+  const { base, server } = await streamlit("streamlit_state_app.py");
+  try {
+    const errors = watch(page);
+    await page.goto(base);
+    const table = page.locator("gt-table");
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    const state = async () => JSON.parse((await page.locator(".st-key-state").textContent()) || "null");
+    const runs = async () => Number(await page.locator(".st-key-runs").textContent());
+    const shown = () => table.evaluate((el: any) => [el.rows, el.selection, el.search, el.sort]);
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], []]);
+
+    // What the reader does, the app has, in one run each (and none for the table being shown)
+    await table.getByRole("button", { name: "Search the table" }).click();
+    await table.locator("input.gt-i-search").fill("an");
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], []]);
+    await table.locator("tbody input[type=checkbox]").nth(3).check();
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], [3]]);
+    await table.locator("input.gt-i-search").fill("");
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], [3]]);
+    expect(await runs()).toBe(4);
+
+    // What the app changes, the table shows (the table, made again on each run, is the same one)
+    await table.evaluate((el) => el.setAttribute("data-old", ""));
+    await page.getByRole("button", { name: "Update" }).click();
+    await expect.poll(shown).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+    await expect.poll(state).toEqual(['fctr in ("one", "two")', "", ["-num"], [1, 0], [0]]);
+    await expect(page.locator("gt-table[data-old]")).toHaveCount(1);
+    expect(await runs()).toBe(5);
+
+    // (And another table is shown with its own view)
+    await page.getByText("Head").click();
+    await expect(page.locator("gt-table[data-old]")).toHaveCount(0);
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3], []]);
+    await expect.poll(shown).toEqual([[0, 1, 2, 3], [], "", []]);
+    expect(errors).toEqual([]);
+  } finally {
+    server.kill();
+  }
+});
+
+// (Of a data frame, and of a LazyFrame)
+for (const [what, app, needs] of [
+  ["", "streamlit_kernel_app.py", []],
+  [" of a LazyFrame", "streamlit_lazy_app.py", ["polars"]],
+] as const) {
+  test(`Streamlit: a table${what} whose rows are the app's, a page at a time`, async ({ page }) => {
+    test.skip(!has("streamlit", ...needs), `${["Streamlit", ...needs].join(" and ")} aren't all installed`);
+    const { base, server } = await streamlit(app);
+    try {
+      const errors = watch(page);
+      await page.goto(base);
+      const table = page.locator("gt-table");
+      await expect(table).toHaveAttribute("data-gti-state", "ready");
+      const state = async () => JSON.parse((await page.locator(".st-key-state").textContent()) || "null");
+      const shown = () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
+      const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
+      await expect.poll(shown).toEqual([rows(0), 500, false]);
+      await expect.poll(state).toEqual([5000, [0, 1, 2], ""]);
+
+      // (Each page, sort and search, from the app, which finds the rows)
+      await table.evaluate((el: any) => {
+        el.page = 3;
+      });
+      await expect.poll(shown).toEqual([rows(20), 500, false]);
+      await table.locator("thead button.gt-i-sort").first().click();
+      await table.locator("thead button.gt-i-sort").first().click();
+      await expect.poll(shown).toEqual([rows(4999, -1), 500, false]);
+      await expect(table.locator("tbody tr:not([hidden]) td").first()).toHaveText("4999");
+      await expect.poll(state).toEqual([5000, [4999, 4998, 4997], ""]);
+      await table.getByRole("button", { name: "Search the table" }).click();
+      await table.locator("input.gt-i-search").fill("4998");
+      await expect.poll(shown).toEqual([[4998], 1, false]);
+      await expect.poll(state).toEqual([1, [4998], "4998"]);
+
+      // (And a view the app sets, which the asks for its pages don't undo)
+      await page.getByRole("button", { name: "Update" }).click();
+      await expect.poll(shown).toEqual([rows(1, 2), 250, false]);
+      await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+      await table.evaluate((el: any) => {
+        el.page = 2;
+      });
+      await expect.poll(shown).toEqual([rows(21, 2), 250, false]);
+      await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+      expect(errors).toEqual([]);
+    } finally {
+      server.kill();
+    }
+  });
+}
+
 test("marimo: an app exported to HTML", async ({ page }) => {
   test.skip(!has("marimo"), "marimo isn't installed");
   run(PYTHON, "-m", "marimo", "export", "html", "marimo_app.py", "-o", "marimo.html");
