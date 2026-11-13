@@ -53,6 +53,7 @@ requires-python = ">=3.10"
 all = [
     "great_tables[extra]",
     "great_tables[widget]",
+    "great_tables[streamlit]",
     "great_tables[dev]",
 ]
 
@@ -66,13 +67,17 @@ widget = [
     "anywidget>=0.9",
 ]
 
+streamlit = [
+    "streamlit>=1.56",
+]
+
 dev = [
     "great_tables[dev-no-pandas]",
     "ibis-framework[duckdb]",
     "pandas",
     "plotnine",
     "numpy>=1.22.4",
-
+    "streamlit",
 ]
 
 dev-no-pandas = [
