@@ -6,16 +6,19 @@ gt-table {
 
 /*
  * The controls of a column's label (its sort's and its filter's buttons) are on a row of their own
- * under it, aligned as it is, below a dotted line across the label's cell: so that the labels are
- * as GT has them, and line up. (The line is placed where the row starts, against the cell's edges;
- * every label in the bottom row of labels has the row, empty if it has no controls)
+ * under it, aligned as it is, below a thin, light line across the label's cell: so that the labels
+ * are as GT has them, and line up. (The line is placed where the row starts, against the cell's
+ * edges, so that the cells' lines join as one; every label in the bottom row of labels has the row,
+ * empty if it has no controls)
  */
 gt-table th.gt-i-head {
   position: relative;
 }
 
 gt-table .gt-i-head-controls {
-  /* (As tall as its buttons, so that an empty row is as tall as one with them) */
+  /* (As tall as its buttons, so that an empty row is as tall as one with them, and its line as high,
+     whatever box sizing the page sets) */
+  box-sizing: content-box;
   min-height: calc(1em + 4px);
   margin-top: 5px;
   /* (As far below the line as GT's padding for the cell is under them) */
@@ -31,8 +34,8 @@ gt-table .gt-i-head-controls::before {
   position: absolute;
   inset-inline: 0;
   margin-top: -5px;
-  border-top: 1px dotted currentColor;
-  opacity: 0.45;
+  border-top: 1px solid currentColor;
+  opacity: 0.2;
 }
 
 gt-table th .gt-i-head-controls > * + * {
@@ -2301,6 +2304,8 @@ gt-table .gt-i-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
+  /* (Within the box it's in, so that a page's container that scrolls has nothing more to scroll) */
+  margin: -1px;
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
