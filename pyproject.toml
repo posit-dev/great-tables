@@ -68,6 +68,7 @@ widget = [
 
 dev = [
     "great_tables[dev-no-pandas]",
+    "ibis-framework[duckdb]",
     "pandas",
     "plotnine",
     "numpy>=1.22.4",
@@ -77,6 +78,7 @@ dev = [
 dev-no-pandas = [
     "ruff==0.17.4",
     "anywidget",
+    "duckdb",
     "jupyter",
     "gt-extras>=0.0.7",
     "hypothesis",

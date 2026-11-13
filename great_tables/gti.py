@@ -6,6 +6,7 @@ import inspect
 import math
 import numbers
 import operator
+import sys
 from contextvars import ContextVar
 from dataclasses import replace
 from typing import TYPE_CHECKING, Any, NoReturn
@@ -72,23 +73,30 @@ class GTI(GT):
     interface, one readers work with, and [`GTI.from_gt()`](`great_tables.GTI.from_gt`) turns a
     `GT` table into one.
 
-    A table of a Polars LazyFrame is made, formatted and styled as any other, but its rows are
-    collected only as they're shown. Shown as a widget (with
-    [`i_as_widget()`](`great_tables.GTI.i_as_widget`)) or in a Shiny app (with
+    A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table) is made,
+    formatted and styled as any other, but its rows are collected only as they're shown. Shown as
+    a widget (with [`i_as_widget()`](`great_tables.GTI.i_as_widget`)) or in a Shiny app (with
     [`render_gt()`](`great_tables.shiny.render_gt`)), a table of more rows than the browser is
     quick with keeps them in Python (see [`i_scale()`](`great_tables.GTI.i_scale`)): each view is
-    found with a Polars query on the LazyFrame, and only the rows of the page shown are collected,
-    formatted and rendered. Anywhere else (or with few rows), all the rows are collected and the
-    table is shown as a table of them would be.
+    found with a query on the frame, and only the rows of the page shown are collected, formatted
+    and rendered. Anywhere else (or with few rows), all the rows are collected and the table is
+    shown as a table of them would be.
 
     The table is made again from the rows shown, by the same methods: so what depends on every row
     can't be used (`data_color()`, a footnote on the body or the stub, or rows chosen by their
-    positions, rather than by a Polars expression or their names in the stub); and a method that
-    looks at the rows it's given looks only at the page's (as an expression of a column's mean
-    does, in `tab_style()`'s rows, or `cols_align_decimal()`, or a nanoplot's scale). A table with summary rows or row groups has all its rows collected. In
-    Python, its search, and its filters' "contains" and "matches" clauses, match the rows' values
-    as text (e.g., `1000.5`), not the text of their cells (`1,000.50`), and a missing value
-    matches nothing.
+    positions, rather than by an expression or their names in the stub); and a method that looks
+    at the rows it's given looks only at the page's (as an expression of a column's mean does, in
+    `tab_style()`'s rows, or `cols_align_decimal()`, or a nanoplot's scale). A table with summary
+    rows or row groups has all its rows collected. In Python, its search, and its filters'
+    "contains" and "matches" clauses, match the rows' values as text (e.g., `1000.5`), not the
+    text of their cells (`1,000.50`), and a missing value matches nothing.
+
+    A DuckDB relation's or an Ibis table's rows have no order that's kept from one query to the
+    next, so they're shown in the order of their values: sorted by the columns of `order_by=`,
+    then by every other column (but those of lists, structs and objects). A Polars LazyFrame's are
+    in its own order, unless it's given an `order_by=`. The collected rows, and their data (as
+    the widget's `view()` gives it), are of the frame's backend: a Polars DataFrame, for a
+    LazyFrame, and a PyArrow table, for DuckDB and Ibis.
 
     :::{.callout-warning}
     `GTI()` is experimental: its methods, and what they do, may change.
@@ -97,8 +105,8 @@ class GTI(GT):
     Parameters
     ----------
     data
-        A DataFrame object, or a Polars LazyFrame (whose rows are collected as they're shown: see
-        above).
+        A DataFrame object, or a lazy frame: a Polars LazyFrame, a DuckDB relation or an Ibis table
+        (whose rows are collected as they're shown: see above).
     rowname_col
         The column name in the input `data=` table to use as row labels to be placed in the table
         stub. A list of column names creates a hierarchical stub.
@@ -126,6 +134,11 @@ class GTI(GT):
         as they change any table: each sets all of its feature's settings (so `i_display(wrap=False)`
         on an explorer makes its rows less compact, unless it's given `compact=True` too), and the
         `i_cols_` methods set those of the columns they're given.
+    order_by
+        For a lazy frame, the columns its rows are in the order of (and numbered by): the rows sort
+        by them first, then by the frame's other columns (see above). A column of unique values
+        (an ID) is best, which leaves them nothing to sort. Not for a DataFrame (which can be
+        sorted first, for the table).
 
     Returns
     -------
@@ -181,6 +194,16 @@ class GTI(GT):
 
     GTI(lf).fmt_number(columns="fare", decimals=2).i_cols_filter("payment").i_as_widget()
     ```
+
+    And so does a table of a DuckDB relation, in DuckDB, its rows in the order of a column of IDs.
+
+    ```python
+    import duckdb
+
+    trips = duckdb.read_parquet("trips.parquet")
+
+    GTI(trips, order_by="trip_id").i_cols_filter("payment").i_as_widget()
+    ```
     """
 
     def __init__(
@@ -192,6 +215,7 @@ class GTI(GT):
         id: str | None = None,
         locale: str | None = None,
         preset: Preset = "report",
+        order_by: str | list[str] | None = None,
     ):
         if preset not in PRESETS:
             raise ValueError(f'`preset=` must be "report" or "explorer", not {preset!r}.')
@@ -208,7 +232,11 @@ class GTI(GT):
             # see `_gti/_lazy.py`)
             from ._gti._lazy import lazy_table
 
-            data, lazy = lazy_table(data, init)
+            data, lazy = lazy_table(data, init, order_by)
+        elif order_by is not None:
+            raise ValueError(
+                "`order_by=` orders a lazy frame's rows, and this data isn't one: sort it first."
+            )
         super().__init__(data, **init)
         if lazy is not None:
             object.__setattr__(self, "_boxhead", lazy.boxhead)
@@ -1905,8 +1933,8 @@ class GTI(GT):
         stub of more than one column is shown in the browser, as anywhere else, and so is a table
         that isn't shown as a widget or in a Shiny app.
 
-        A table of a Polars LazyFrame keeps its rows in the LazyFrame, and has only the page shown
-        collected (see [`GTI()`](`great_tables.GTI`)).
+        A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table) keeps its
+        rows in the frame, and has only the page shown collected (see [`GTI()`](`great_tables.GTI`)).
 
         Parameters
         ----------
@@ -2154,9 +2182,21 @@ for _name, _method in list(vars(GT).items()):
 del _name, _method
 
 
+# The lazy frames a table can be of (see `_gti/_lazy.py`): each one's module and class
+_LAZY_FRAMES = [
+    ("polars", "LazyFrame"),
+    ("duckdb", "DuckDBPyRelation"),
+    ("ibis.expr.types", "Table"),
+]
+
+
 def _is_lazy_frame(data: Any) -> bool:
-    kind = type(data)
-    return kind.__name__ == "LazyFrame" and kind.__module__.startswith("polars")
+    # (Of a module that's imported, which it is if there's data of it)
+    for module, name in _LAZY_FRAMES:
+        kind = getattr(sys.modules.get(module), name, None)
+        if isinstance(kind, type) and isinstance(data, kind):
+            return True
+    return False
 
 
 def _static_only(method: str) -> str:
