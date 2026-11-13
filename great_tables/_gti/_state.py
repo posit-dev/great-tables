@@ -1,5 +1,6 @@
 """A shown table's view and selection, as Python reads and sets them: from a notebook (with
-`GTI.i_as_widget()`, in `_widget.py`) or a Shiny app (with `update_gti()`, in `great_tables.shiny`).
+`GTI.i_as_widget()`, in `_widget.py`), a Shiny app (with `update_gti()`, in `great_tables.shiny`)
+or a Streamlit app (with `st_gti()` and `update_gti()`, in `great_tables.streamlit`).
 
 The browser gives the view as the `<gt-table>` element has it (`filter`, `sort` as keys, ...), and
 Python reads it with the filter as a query in text and the sort as columns (with a `-` before
@@ -15,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 from ._query import check_query, check_view, format_query, parse_sort
 
 if TYPE_CHECKING:
+    from ..gti import GTI
     from ._spec import Spec
 
 __all__ = [
@@ -23,6 +25,7 @@ __all__ = [
     "check_search",
     "check_selection",
     "check_sort",
+    "python_rows",
     "sort_names",
     "view_of",
 ]
@@ -40,6 +43,32 @@ def author_view(spec: Spec) -> dict[str, Any]:
         "hidden": spec["view"]["hidden"],
         "group_by": spec["view"]["group_by"],
     }
+
+
+def python_rows(gti: GTI, spec: Spec, view: dict[str, Any]) -> list[int]:
+    """The rows a view (without a search) keeps, as Python finds them (with `view_rows()`), and
+    grouped as the runtime groups them: by the group column's values (descending if sorted so),
+    the rows missing one last."""
+    from ._query import view_rows
+
+    gti = gti.i_view(
+        filter=view["filter"],
+        sort=sort_names(view["sort"]),
+        hidden=view["hidden"] or None,
+        group_by=view["group_by"],
+    )
+    rows = view_rows(gti)
+    column = view["group_by"]
+    if column is not None:
+        ranks = spec["ranks"][column]
+        descending = any(k["column"] == column and k["descending"] for k in view["sort"])
+
+        def key(row: int) -> tuple[bool, int]:
+            rank = ranks[row]
+            return (rank is None, 0 if rank is None else (-rank if descending else rank))
+
+        rows.sort(key=key)
+    return rows
 
 
 def sort_names(keys: list[dict[str, Any]]) -> list[str]:

@@ -24,7 +24,7 @@ import traitlets
 from .._tbl_data import DataFrameLike, get_column_names, reorder
 from ._kernel import KernelEngine, render_table
 from ._lazy import eager
-from ._query import format_query, view_rows
+from ._query import format_query
 from ._render import JS_DIR, _load_runtime
 from ._state import (
     author_view,
@@ -32,6 +32,7 @@ from ._state import (
     check_search,
     check_selection,
     check_sort,
+    python_rows,
     sort_names,
 )
 
@@ -181,30 +182,7 @@ class GTIWidget(anywidget.AnyWidget):
                 "The table's rows can't be found before it's shown with a search: show the "
                 "table first (or set `search` after)."
             )
-        return self._python_rows(view)
-
-    def _python_rows(self, view: dict[str, Any]) -> list[int]:
-        # The rows the view keeps, as Python finds them (with `view_rows()`), and grouped as the
-        # runtime groups them: by the group column's values (descending if sorted so), the rows
-        # missing one last
-        gti = self._gti.i_view(
-            filter=view["filter"],
-            sort=sort_names(view["sort"]),
-            hidden=view["hidden"] or None,
-            group_by=view["group_by"],
-        )
-        rows = view_rows(gti)
-        column = view["group_by"]
-        if column is not None:
-            ranks = self._spec["ranks"][column]
-            descending = any(k["column"] == column and k["descending"] for k in view["sort"])
-
-            def key(row: int) -> tuple[bool, int]:
-                rank = ranks[row]
-                return (rank is None, 0 if rank is None else (-rank if descending else rank))
-
-            rows.sort(key=key)
-        return rows
+        return python_rows(self._gti, self._spec, view)
 
     def view(self, selected: bool = False) -> DataFrameLike:
         """

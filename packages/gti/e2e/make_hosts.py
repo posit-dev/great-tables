@@ -11,7 +11,8 @@ JupyterLab, whose kernel the test asks what the widget has, and tells what to ch
 widget whose rows are in the kernel (`i_scale(engine="kernel")`), which sends its pages; and a Shiny
 app (in a module) showing what a `GTI` table's inputs have, with buttons that change it with
 `update_gti()`; and one (also in a module) with a `GTI` table whose rows are the server's, which
-sends its pages, showing the rows the server finds.
+sends its pages, showing the rows the server finds. And the same two as Streamlit apps (with
+`st_gti()`), the first also showing how many times it's been run.
 """
 
 from __future__ import annotations
@@ -247,6 +248,75 @@ def shiny_kernel_app(lazy: bool = False) -> str:
     return SHINY_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
 
 
+# (A Streamlit app showing a `GTI` table's state, as `st_gti()` gives it, and how many times it's
+# been run; with a button that changes it with `update_gti()`, and a checkbox that shows another
+# table in its place)
+STREAMLIT_STATE_APP = f"""\
+import json
+
+import streamlit as st
+
+from great_tables.streamlit import st_gti, update_gti
+
+{SETUP}
+
+st.session_state.setdefault("runs", 0)
+st.session_state.runs += 1
+st.button(
+    "Update",
+    on_click=update_gti,
+    args=("table",),
+    kwargs={{"query": 'fctr in ("one", "two")', "sort": "-num", "selection": [0]}},
+)
+head = st.checkbox("Head")
+table = GTI(small.head(4) if head else small).i_cols_filter(columns="fctr", type="facet")
+state = st_gti(table.i_selection("multiple"), key="table")
+with st.container(key="state"):
+    st.text(json.dumps([state.query, state.search, state.sort, state.rows, state.selection]))
+with st.container(key="runs"):
+    st.text(str(st.session_state.runs))
+"""
+
+# (And one with a `GTI` table whose rows are the app's, which sends its pages, showing the rows it
+# finds)
+STREAMLIT_KERNEL_APP = """\
+import json
+
+import pandas as pd
+import streamlit as st
+
+from great_tables import GTI
+from great_tables.streamlit import st_gti, update_gti
+
+
+@st.cache_resource
+def table():
+    big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+    <big>
+    return GTI(big).i_cols_filter(columns="kind", type="facet")<scale>
+
+
+st.button(
+    "Update",
+    on_click=update_gti,
+    args=("table",),
+    kwargs={"search": "", "query": 'kind in ("odd")', "sort": "n"},
+)
+state = st_gti(table(), key="table")
+with st.container(key="state"):
+    st.text(json.dumps([len(state.rows), state.rows[:3], state.search]))
+"""
+
+
+def streamlit_kernel_app(lazy: bool = False) -> str:
+    big, scale = (
+        ("import polars as pl; big = pl.from_pandas(big).lazy()", "")
+        if lazy
+        else ("", '.i_scale(engine="kernel")')
+    )
+    return STREAMLIT_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
+
 # (The tables as cells' outputs, and the second also as `mo.Html()`)
 MARIMO_APP = f"""\
 import marimo
@@ -349,6 +419,9 @@ def main() -> None:
         "shiny_state_app.py": SHINY_STATE_APP,
         "shiny_kernel_app.py": shiny_kernel_app(),
         "shiny_lazy_app.py": shiny_kernel_app(lazy=True),
+        "streamlit_state_app.py": STREAMLIT_STATE_APP,
+        "streamlit_kernel_app.py": streamlit_kernel_app(),
+        "streamlit_lazy_app.py": streamlit_kernel_app(lazy=True),
         "marimo_app.py": MARIMO_APP,
         "vscode.html": vscode_page(),
     }

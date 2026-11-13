@@ -64,6 +64,7 @@ import {
   tableIn,
   type Update,
 } from "../src/shiny";
+import renderStreamlit, { type Data as StreamlitData, StreamlitSource } from "../src/streamlit";
 
 // Let mutation observers run.
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -9085,6 +9086,196 @@ describe("tables in a Shiny app", () => {
       expect([Array.from(matched ?? []), count]).toEqual([[0, 1, 0, 1, 0], 2]);
       const alone = new ShinySource(fakeShiny().shiny, "out_gti", 5);
       await expect(alone.rows(query)).rejects.toThrow("Shiny");
+    });
+  });
+});
+
+describe("a table in a Streamlit app", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const VIEW: HostView = {
+    filter: null,
+    sort: [],
+    search: "",
+    page: 1,
+    page_size: null,
+    hidden: [],
+    group_by: null,
+  };
+  type Value = { token: number; report: string; state: { view: HostView; rows: number[] | null; selection: number[] } | null; asks: { id: string; kind: string }[] };
+
+  const element = (body: BodyRow[] = [0, 1, 2, 3, 4], options: TableOptions = {}) => {
+    const { html, spec } = gtTable(body, { controls: { search: true, selection: "multiple" }, filters: [FACET], ...options });
+    return `<gt-table>${html}${specScript(spec)}</gt-table>`;
+  };
+  const dataOf = (data: Partial<StreamlitData> = {}): StreamlitData => ({
+    html: element(),
+    token: 1,
+    kernel: false,
+    nrows: 5,
+    report: true,
+    view: null,
+    selection: null,
+    known: null,
+    update: null,
+    answers: null,
+    ...data,
+  });
+
+  // A component's element, run as Streamlit runs it: the component's function called with each
+  // run's data, and the state values it sets
+  function fakeApp() {
+    const root = document.createElement("div");
+    document.body.append(root);
+    const values: Value[] = [];
+    let cleanup = () => {};
+    const run = async (data: Partial<StreamlitData> = {}) => {
+      cleanup = renderStreamlit({ data: dataOf(data), parentElement: root, setStateValue: (_, value) => values.push(value as Value) });
+      await tick();
+    };
+    const table = () => root.querySelector(TAG_NAME) as GtTable;
+    return { root, values, run, table, cleanup: () => cleanup() };
+  }
+
+  it("reports the table's state once it's hydrated, and each change the reader makes", async () => {
+    const { values, run, table } = fakeApp();
+    await run();
+    expect(table().state).toBe("ready");
+    expect(values).toHaveLength(1);
+    expect(values[0]).toMatchObject({ token: 1, state: { view: VIEW, rows: [0, 1, 2, 3, 4], selection: [] }, asks: [] });
+    click(table(), "x");
+    await tick();
+    expect(values).toHaveLength(2);
+    expect(values[1]?.state?.rows).toEqual([1, 2, 0, 4, 3]);
+    expect(values[1]?.report).not.toBe(values[0]?.report);
+    // (Two changes made at once are reported together)
+    click(table(), "x");
+    click(table(), "x");
+    await tick();
+    expect(values).toHaveLength(3);
+  });
+
+  it("doesn't report what Python has, nor again what it reported while Python has the same", async () => {
+    const app = fakeApp();
+    await app.run();
+    const [first] = app.values;
+    // (Python's run, with what was reported)
+    await app.run({ known: first?.state });
+    await app.run({ known: first?.state });
+    expect(app.values).toHaveLength(1);
+    // (Nor with Python a run behind)
+    click(app.table(), "x");
+    await tick();
+    await app.run({ known: first?.state });
+    expect(app.values).toHaveLength(2);
+  });
+
+  it("reports nothing of a table whose changes are ignored", async () => {
+    const app = fakeApp();
+    await app.run({ report: false });
+    click(app.table(), "x");
+    await tick();
+    expect(app.values).toEqual([]);
+  });
+
+  it("starts with Python's view and selection", async () => {
+    const app = fakeApp();
+    await app.run({ view: { search: "20", sort: [{ column: "x", descending: true }] }, selection: [4] });
+    const table = app.table();
+    expect([table.search, table.sort, table.selection]).toEqual(["20", [{ column: "x", descending: true }], [4]]);
+    expect(app.values[0]?.state?.rows).toEqual([0, 4]);
+  });
+
+  it("sets Python's change on the table once, by its number", async () => {
+    const app = fakeApp();
+    await app.run();
+    const update = { nonce: 1, view: { search: "20" }, selection: [4] };
+    await app.run({ update });
+    const table = app.table();
+    expect([table.search, table.selection]).toEqual(["20", [4]]);
+    expect(app.values[1]?.state).toMatchObject({ view: { search: "20" }, rows: [0, 4], selection: [4] });
+    // (Given again, with the next run, it isn't set again)
+    table.search = "";
+    await tick();
+    await app.run({ update, known: app.values[2]?.state });
+    expect(table.search).toBe("");
+    await app.run({ update: { nonce: 2, view: { search: "10" } } });
+    expect(table.search).toBe("10");
+  });
+
+  it("shows a new table for a new element, or a new token, and takes it down", async () => {
+    const app = fakeApp();
+    await app.run();
+    const first = app.table();
+    await app.run();
+    expect(app.table()).toBe(first);
+    await app.run({ token: 2 });
+    const second = app.table();
+    expect(second).not.toBe(first);
+    expect(first.isConnected).toBe(false);
+    expect(app.values[app.values.length - 1]?.token).toBe(2);
+    await app.run({ token: 2, html: element([0, 1]) });
+    expect(app.table()).not.toBe(second);
+    expect(app.root.querySelectorAll(TAG_NAME)).toHaveLength(1);
+    app.cleanup();
+    expect(app.root.querySelector(TAG_NAME)).toBeNull();
+  });
+
+  describe("in kernel mode", () => {
+    // The first page of a remote table, whose rows are Python's
+    const remote = () => {
+      const { html, spec } = gtTable([0, 1], { controls: { search: true }, pagination: { enabled: true } });
+      const served = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+      return `<gt-table>${html}${specScript(served)}</gt-table>`;
+    };
+    const trsOf = (rows: number[]) => (gtTable(rows).html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1];
+    const page = (rows: number[]) => ({ answer: { count: 5, start: rows[0], rows, html: trsOf(rows) } });
+
+    it("asks for pages in its state, and shows the answers in the data", async () => {
+      const app = fakeApp();
+      await app.run({ html: remote(), kernel: true });
+      const table = app.table();
+      expect(table.source).toBeInstanceOf(StreamlitSource);
+      // (Its first ask, made as it's shown, is sent)
+      const first = app.values[app.values.length - 1];
+      expect(first?.asks).toHaveLength(1);
+      expect(first?.state?.rows).toBeNull();
+      await app.run({ html: remote(), kernel: true, answers: { [first?.asks[0]?.id as string]: page([0, 1]) } });
+      table.page = 2;
+      await tick();
+      const asks = app.values[app.values.length - 1]?.asks ?? [];
+      expect(asks).toEqual([expect.objectContaining({ kind: "page", query: expect.objectContaining({ start: 2, size: 2 }) })]);
+      expect(table.loading).toBe(true);
+      await app.run({ html: remote(), kernel: true, answers: { [asks[0]?.id as string]: page([2, 3]) } });
+      await tick();
+      expect(visible(table)).toEqual([2, 3]);
+      expect(table.loading).toBe(false);
+    });
+  });
+
+  describe("StreamlitSource", () => {
+    const query = { search: "", hidden: [], filter: null, links: [] };
+
+    it("asks with ids of its own, and takes the answers to them", async () => {
+      const sends: number[] = [];
+      const source = new StreamlitSource(5, () => sends.push(source.asks.length));
+      const other = new StreamlitSource(5, () => {});
+      const facet = source.facet(query, "y");
+      const rows = source.rows(query);
+      const elsewhere = other.rows(query);
+      expect(sends).toEqual([1, 2]);
+      const [one, two] = source.asks;
+      expect([one?.kind, two?.kind]).toEqual(["facet", "rows"]);
+      expect(one?.id).not.toBe(two?.id);
+      expect(other.asks[0]?.id).not.toBe(two?.id);
+      source.answer({ [two?.id as string]: { answer: [1, 3] } });
+      expect(source.asks).toEqual([one]);
+      const { matched, count } = await rows;
+      expect([Array.from(matched ?? []), count]).toEqual([[0, 1, 0, 1, 0], 2]);
+      source.answer({ [one?.id as string]: { error: "no such column" } });
+      await expect(facet).rejects.toThrow("no such column");
+      other.close();
+      await expect(elsewhere).rejects.toThrow("gone");
+      expect(other.asks).toEqual([]);
     });
   });
 });
