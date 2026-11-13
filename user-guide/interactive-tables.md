@@ -1202,3 +1202,25 @@ app = App(app_ui, server)
 ```
 
 The table works in the browser as it does anywhere else, so the server isn't asked for each page, sort or search; a table rendered again starts with the view it's given.
+
+### Using the table in a Streamlit app
+
+In a [Streamlit](https://streamlit.io) app, `st_gti()`, from `great_tables.streamlit` (installed with `pip install great_tables[streamlit]`), shows an interactive table (a `GTI` table, or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`) and gives its state: its `query`, `search` and `sort`, the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the reader makes runs the app again, with the table's new state. `update_gti()`, called in a widget's callback, sets its query, search, sort and selection from the app.
+
+``` python
+import streamlit as st
+from great_tables import GTI
+from great_tables.data import gtcars
+from great_tables.streamlit import st_gti, update_gti
+
+st.button("Fastest first", on_click=update_gti, args=("cars",), kwargs={"sort": "-hp"})
+table = (
+    GTI(gtcars[["mfr", "model", "year", "hp", "msrp"]])
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_selection("multiple")
+)
+state = st_gti(table, key="cars")
+st.write(f"{len(state.selection)} of {len(state.rows or [])} cars selected")
+```
+
+The table keeps its view and selection by its `key` as the app runs again, as long as it's rendered the same. A table whose rows are kept in Python (with `i_scale()`) asks the app for each page, which runs it again; make it once, with `st.cache_resource`, so that it isn't rendered again each time.
