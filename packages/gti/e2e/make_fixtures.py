@@ -928,6 +928,15 @@ def main() -> None:
             + runtime_src,
             head=styles,
         ),
+        # The first, on a page that scrolls (above and below it), whose styles give the table
+        # margins (as a Quarto page's do)
+        "scroll-page.html": page(
+            '<div style="height: 600px"></div>\n'
+            + scroll_html("v", use_pagination=False, use_search=True)
+            + '\n<div style="height: 1500px"></div>\n'
+            + runtime_src,
+            head=styles + "<style>table { margin-block: 8.5px; }</style>\n",
+        ),
         "scroll-column.html": page(
             scroll_html("v", groups_as_column=True, use_pagination=False) + "\n" + runtime_src,
             head=styles,

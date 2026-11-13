@@ -185,6 +185,62 @@ test.describe("a body that scrolls", () => {
   });
 });
 
+test.describe("a body that scrolls, on a page that scrolls", () => {
+  test("keeps the column labels where they are from the start, with nothing showing above them", async ({ page }) => {
+    const errors = await ready(page, "scroll-page.html");
+    await page.evaluate(() => window.scrollTo(0, 500));
+    // (The container's padding and the table's margin are above the labels, as GT has them, to
+    // a whole pixel)
+    const start = (await rect(el(page).locator("thead"))).top;
+    expect(Math.abs(start - (await rect(scroller(page))).top - 18.5)).toBeLessThanOrEqual(0.5);
+    const max = await rect(el(page).locator("tr.gt-i-stuck-bottom > *").first());
+    const x = (max.left + max.right) / 2;
+    for (const top of [1, 5, 30, 400]) {
+      await scrollTo(page, top);
+      await expect.poll(() => scrollTop(page)).toBe(top);
+      expect((await rect(el(page).locator("thead"))).top).toBeCloseTo(start, 0);
+      expect(await rowAt(page, x, start - 2)).toBeNull();
+      // (And the grand summary row, stuck at the bottom, where it is too, with nothing below it)
+      expect((await rect(el(page).locator("tr.gt-i-stuck-bottom > *").first())).bottom).toBeCloseTo(max.bottom, 0);
+      expect(await rowAt(page, x, max.bottom + 2)).toBeNull();
+    }
+    expect(errors).toEqual([]);
+  });
+
+  test("scrolling past the end of the rows doesn't scroll the page", async ({ page }) => {
+    const errors = await ready(page, "scroll-page.html");
+    await page.evaluate(() => window.scrollTo(0, 500));
+    const view = await port(page);
+    await page.mouse.move(view.left + 20, view.bottom - 60);
+    // (Firefox scrolls by a few lines for each, whatever its size)
+    const atEnd = () => scroller(page).evaluate((div) => div.scrollTop + div.clientHeight >= div.scrollHeight - 1);
+    for (let i = 0; i < 40 && !(await atEnd()); i++) {
+      await page.mouse.wheel(0, 400);
+    }
+    // (And past the end)
+    for (let i = 0; i < 4; i++) {
+      await page.mouse.wheel(0, 400);
+    }
+    await expect.poll(atEnd).toBe(true);
+    // (Wheel events done with, and none more to come)
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => window.scrollY)).toBe(500);
+    expect(errors).toEqual([]);
+  });
+
+  test("lets the page scroll while its rows are all in view", async ({ page }) => {
+    const errors = await ready(page, "scroll-page.html");
+    await page.evaluate(() => window.scrollTo(0, 500));
+    await page.getByRole("searchbox").fill("zzz");
+    await expect(el(page).locator("tr.gt-i-empty")).toBeVisible();
+    const empty = await rect(el(page).locator("tr.gt-i-empty"));
+    await page.mouse.move(empty.left + 20, (empty.top + empty.bottom) / 2);
+    await page.mouse.wheel(0, 200);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
+    expect(errors).toEqual([]);
+  });
+});
+
 test.describe("a body that scrolls, by touch", () => {
   // (Not `isMobile`, which lays the page out wider and zooms it out, away from the points touched)
   test.use({ hasTouch: true, viewport: { width: 390, height: 700 } });
