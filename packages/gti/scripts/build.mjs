@@ -1,7 +1,8 @@
 // Build the GTI runtime into great_tables/js/gti.{js,css}, the template of a stacked table's own
 // CSS into great_tables/js/gti-stack.css, and the glue of a table shown as an anywidget into
-// great_tables/js/gti-widget.js, of tables in a Shiny app into great_tables/js/gti-shiny.js, and of
-// a table shown as a Streamlit component into great_tables/js/gti-streamlit.js.
+// great_tables/js/gti-widget.js, of tables in a Shiny app into great_tables/js/gti-shiny.js, of a
+// table shown as a Streamlit component into great_tables/js/gti-streamlit.js, and of one shown as a
+// Panel component into great_tables/js/gti-panel.js.
 //
 //   node scripts/build.mjs           build and write the bundle
 //   node scripts/build.mjs --check   build in memory and fail if the committed bundle is stale or
@@ -85,6 +86,14 @@ const outputs = {
   "gti-streamlit.js": await buildOne({
     entryPoints: ["src/streamlit.ts"],
     outfile: "gti-streamlit.js",
+    format: "esm",
+    target: "es2020",
+    banner: { js: banner },
+  }),
+  // (Nor this: the module a Panel component runs after the runtime; see src/panel.ts)
+  "gti-panel.js": await buildOne({
+    entryPoints: ["src/panel.ts"],
+    outfile: "gti-panel.js",
     format: "esm",
     target: "es2020",
     banner: { js: banner },
