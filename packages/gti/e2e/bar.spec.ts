@@ -377,13 +377,15 @@ test.describe("the handle under a body that scrolls", () => {
     // (Following the body's foot)
     expect(((await box(handle(page))).top + (await box(handle(page))).bottom) / 2).toBeCloseTo((await box(scroller(page))).bottom, 0);
 
-    // No shorter than the column labels, a row, and the rows stuck to the bottom
+    // No shorter than the column labels, a row, and the rows stuck to the bottom (with the space
+    // above and below them in the container, a border of its own by now)
     // (To the top of the page: Firefox misses a mouse let go outside it)
     await drag(page, -((await box(handle(page))).top + 4));
     const least = await el(page).evaluate((node) => {
       const head = (node.querySelector("thead") as HTMLElement).getBoundingClientRect().height;
       const row = (node.querySelector("tbody td.gt_row") as HTMLElement).getBoundingClientRect().height;
-      return head + row + (node as any).foot;
+      const scroller = node.querySelector(".gt-i-scroller") as HTMLElement;
+      return head + row + (node as any).foot + scroller.offsetHeight - scroller.clientHeight;
     });
     expect(await tall(page)).toBeGreaterThanOrEqual(least - 1);
     expect(await tall(page)).toBeLessThan(least + 4);
