@@ -54,6 +54,7 @@ all = [
     "great_tables[extra]",
     "great_tables[widget]",
     "great_tables[streamlit]",
+    "great_tables[panel]",
     "great_tables[dev]",
 ]
 
@@ -71,6 +72,10 @@ streamlit = [
     "streamlit>=1.56",
 ]
 
+panel = [
+    "panel>=1.6.2",
+]
+
 dev = [
     "great_tables[dev-no-pandas]",
     "ibis-framework[duckdb]",
@@ -78,6 +83,7 @@ dev = [
     "plotnine",
     "numpy>=1.22.4",
     "streamlit",
+    "panel>=1.6.2",
 ]
 
 dev-no-pandas = [

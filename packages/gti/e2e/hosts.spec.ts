@@ -214,9 +214,20 @@ const kernelRun = (page: Page, code: string): Promise<string> =>
     return out;
   }, code);
 
-// (As JSON)
-const kernelValue = async (page: Page, expr: string): Promise<unknown> =>
-  JSON.parse(await kernelRun(page, `import json; print(json.dumps(${expr}))`));
+// What `expr` is in the notebook's kernel (as JSON, from the reply, not what it prints, which a
+// notebook's Panel can lose, its messages' handlers taking the prints in two threads at once)
+const kernelValue = (page: Page, expr: string): Promise<unknown> =>
+  page.evaluate(async (expr) => {
+    const kernel = (window as any).jupyterapp.shell.currentWidget.sessionContext.session.kernel;
+    const value = `__import__("base64").b64encode(__import__("json").dumps(${expr}).encode()).decode()`;
+    const reply = await kernel.requestExecute({ code: "", user_expressions: { value } }).done;
+    const result = reply.content.user_expressions.value;
+    if (result.status !== "ok") {
+      throw new Error(`${result.ename}: ${result.evalue}`);
+    }
+    // (Its text, a Python string, in quotes)
+    return JSON.parse(atob(result.data["text/plain"].slice(1, -1)));
+  }, expr);
 
 test("Jupyter: a notebook in JupyterLab, run and run again", async ({ page }) => {
   test.skip(!has("jupyterlab", "ipykernel"), "JupyterLab and ipykernel aren't installed");
@@ -539,6 +550,169 @@ for (const [what, app, needs] of [
     }
   });
 }
+
+// A Panel app, once it answers (on a port of its own), at its URL
+async function panel(app: string): Promise<{ url: string; server: ChildProcess }> {
+  const port = await freePort();
+  const url = `http://127.0.0.1:${port}/${app.replace(/\.py$/, "")}`;
+  const server = await serve(
+    url,
+    ...["-m", "panel", "serve", app, "--port", String(port), "--address", "127.0.0.1"],
+    `--allow-websocket-origin=127.0.0.1:${port}`,
+  );
+  return { url, server };
+}
+
+// (What the app shows of the pane's parameters: Panel's components are each in a shadow root,
+// which the locators see into)
+const panelState = async (page: Page): Promise<unknown> =>
+  JSON.parse((await page.locator("pre").filter({ hasText: /^\[/ }).textContent()) || "null");
+
+test("Panel: a table's parameters, which the app watches and sets", async ({ page }) => {
+  test.skip(!has("panel"), "Panel isn't installed");
+  const { url, server } = await panel("panel_state_app.py");
+  try {
+    const errors = watch(page);
+    await page.goto(url);
+    const table = page.locator("gt-table");
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    const state = () => panelState(page);
+    const shown = () => table.evaluate((el: any) => [el.rows, el.selection, el.search, el.sort]);
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], []]);
+
+    // What the reader does, the app has (with the runtime's CSS, in the component's shadow root)
+    await expect(table.locator("button.gt-i-sort").first()).toHaveCSS("cursor", "pointer");
+    await table.getByRole("button", { name: "Search the table" }).click();
+    await table.locator("input.gt-i-search").fill("an");
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], []]);
+    await table.locator("tbody input[type=checkbox]").nth(3).check();
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], [3]]);
+    await table.locator("input.gt-i-search").fill("");
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], [3]]);
+
+    // What the app sets, the table shows
+    await page.getByRole("button", { name: "Update" }).click();
+    await expect.poll(shown).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+    await expect.poll(state).toEqual(['fctr in ("one", "two")', "", ["-num"], [1, 0], [0]]);
+    expect(errors).toEqual([]);
+  } finally {
+    server.kill();
+  }
+});
+
+// (Of a data frame, and of a LazyFrame)
+for (const [what, app, needs] of [
+  ["", "panel_kernel_app.py", []],
+  [" of a LazyFrame", "panel_lazy_app.py", ["polars"]],
+] as const) {
+  test(`Panel: a table${what} whose rows are the app's, a page at a time`, async ({ page }) => {
+    test.skip(!has("panel", ...needs), `${["Panel", ...needs].join(" and ")} aren't all installed`);
+    const { url, server } = await panel(app);
+    try {
+      const errors = watch(page);
+      await page.goto(url);
+      const table = page.locator("gt-table");
+      await expect(table).toHaveAttribute("data-gti-state", "ready");
+      const state = () => panelState(page);
+      const shown = () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
+      const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
+      await expect.poll(shown).toEqual([rows(0), 500, false]);
+      await expect.poll(state).toEqual([5000, [0, 1, 2], ""]);
+
+      // (Each page, sort and search, from the app, which finds the rows)
+      await table.evaluate((el: any) => {
+        el.page = 3;
+      });
+      await expect.poll(shown).toEqual([rows(20), 500, false]);
+      await table.locator("thead button.gt-i-sort").first().click();
+      await table.locator("thead button.gt-i-sort").first().click();
+      await expect.poll(shown).toEqual([rows(4999, -1), 500, false]);
+      await expect(table.locator("tbody tr:not([hidden]) td").first()).toHaveText("4999");
+      await expect.poll(state).toEqual([5000, [4999, 4998, 4997], ""]);
+      await table.getByRole("button", { name: "Search the table" }).click();
+      await table.locator("input.gt-i-search").fill("4998");
+      await expect.poll(shown).toEqual([[4998], 1, false]);
+      await expect.poll(state).toEqual([1, [4998], "4998"]);
+
+      // (And a view the app sets, which the asks for its pages don't undo)
+      await page.getByRole("button", { name: "Update" }).click();
+      await expect.poll(shown).toEqual([rows(1, 2), 250, false]);
+      await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+      await table.evaluate((el: any) => {
+        el.page = 2;
+      });
+      await expect.poll(shown).toEqual([rows(21, 2), 250, false]);
+      await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+      expect(errors).toEqual([]);
+    } finally {
+      server.kill();
+    }
+  });
+}
+
+test("Panel: a table in a notebook in JupyterLab, which the kernel reads and changes", async ({ page }) => {
+  test.skip(!has("jupyterlab", "ipykernel", "panel"), "JupyterLab, ipykernel and Panel aren't installed");
+  const errors = watch(page, /^No active debugger session$/);
+  await lab(page, "panel.ipynb", async () => {
+    await runAll(page);
+    const table = page.locator(".jp-OutputArea gt-table");
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    const shown = () => table.evaluate((el: any) => [el.rows, el.selection, el.search, el.sort]);
+    const state = () => kernelValue(page, "[pane.query, pane.search, pane.sort, pane.rows, pane.selection]");
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], []]);
+
+    // What the reader does, the kernel has
+    await table.getByRole("button", { name: "Search the table" }).click();
+    await table.locator("input.gt-i-search").fill("an");
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], []]);
+    await table.locator("tbody input[type=checkbox]").nth(3).check();
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], [3]]);
+
+    // What the kernel changes, the table shows
+    await kernelRun(page, 'pane.param.update(search="", query=\'fctr in ("one", "two")\', sort=["-num"], selection=[0])');
+    await expect.poll(shown).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+    await expect.poll(state).toEqual(['fctr in ("one", "two")', "", ["-num"], [1, 0], [0]]);
+  });
+  expect(errors).toEqual([]);
+});
+
+test("Panel: a table in a notebook in JupyterLab, shown twice, whose rows are the kernel's", async ({ page }) => {
+  test.skip(!has("jupyterlab", "ipykernel", "panel"), "JupyterLab, ipykernel and Panel aren't installed");
+  const errors = watch(page, /^No active debugger session$/);
+  await lab(page, "panel_kernel.ipynb", async () => {
+    await runAll(page);
+    const tables = page.locator(".jp-OutputArea gt-table");
+    await expect(tables).toHaveCount(2);
+    const [one, two] = [tables.first(), tables.last()];
+    await expect(one).toHaveAttribute("data-gti-state", "ready");
+    await expect(two).toHaveAttribute("data-gti-state", "ready");
+    const shown = (table: typeof one) => () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
+    const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
+    await expect.poll(shown(one)).toEqual([rows(0), 500, false]);
+
+    // (Each page, sort and search, from the kernel; and the other view follows the view's)
+    await one.evaluate((el: any) => {
+      el.page = 3;
+    });
+    await expect.poll(shown(one)).toEqual([rows(20), 500, false]);
+    await one.locator("thead button.gt-i-sort").first().click();
+    await one.locator("thead button.gt-i-sort").first().click();
+    await expect.poll(shown(one)).toEqual([rows(4999, -1), 500, false]);
+    await expect.poll(shown(two)).toEqual([rows(4999, -1), 500, false]);
+    await one.getByRole("button", { name: "Search the table" }).click();
+    await one.locator("input.gt-i-search").fill("4998");
+    await expect.poll(shown(one)).toEqual([[4998], 1, false]);
+    await expect.poll(shown(two)).toEqual([[4998], 1, false]);
+    await expect.poll(() => kernelValue(page, "[pane.rows, pane.search]")).toEqual([[4998], "4998"]);
+
+    // (And a view the kernel sets, on both)
+    await kernelRun(page, 'pane.param.update(search="", query=\'kind in ("odd")\', sort=["n"])');
+    await expect.poll(shown(one)).toEqual([rows(1, 2), 250, false]);
+    await expect.poll(shown(two)).toEqual([rows(1, 2), 250, false]);
+    expect(await kernelValue(page, "pane.rows[:3]")).toEqual([1, 3, 5]);
+  });
+  expect(errors).toEqual([]);
+});
 
 test("marimo: an app exported to HTML", async ({ page }) => {
   test.skip(!has("marimo"), "marimo isn't installed");
