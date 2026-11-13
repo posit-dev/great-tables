@@ -2636,6 +2636,7 @@ export class GtTable extends HTMLElement {
       tr.classList.add("gt-i-stuck-bottom");
     }
     this.separateBorders();
+    this.frameScroller(table);
 
     // Rows scroll under the sticky ones, which need a background to hide them
     const backdrop = backdropColor(table);
@@ -2648,6 +2649,24 @@ export class GtTable extends HTMLElement {
     this.addShade("top");
     this.addShade("bottom");
     this.setAttribute("data-gti-sticky", "");
+  }
+
+  // The space above the table and below it in its container (the container's padding and the
+  // table's margin) made a transparent border of the container's, where it has none: which looks
+  // the same, but doesn't scroll, so that the column labels stick where they are from the start
+  // (and the rows stuck at the bottom, where they are at the end), with no rows showing above them
+  private frameScroller(table: HTMLTableElement): void {
+    const scroller = this.scroller as HTMLElement;
+    const box = getComputedStyle(scroller);
+    const margins = getComputedStyle(table);
+    for (const [side, Side] of [["top", "Top"], ["bottom", "Bottom"]] as const) {
+      const gap = (parseFloat(box[`padding${Side}`]) || 0) + (parseFloat(margins[`margin${Side}`]) || 0);
+      if (gap > 0 && (parseFloat(box[`border${Side}Width`]) || 0) === 0) {
+        scroller.style.setProperty(`border-${side}`, `${gap}px solid transparent`);
+        scroller.style.setProperty(`padding-${side}`, "0px");
+        table.style.setProperty(`margin-${side}`, "0px");
+      }
+    }
   }
 
   // Sticky rows' cells without a background are filled with what's behind the table
@@ -2714,7 +2733,7 @@ export class GtTable extends HTMLElement {
     }
     if (this.scrollsDown) {
       // Sticky boxes stop short of the container's padding, which rows would show through: they
-      // stick over it instead
+      // stick over it instead (where it's left, in a container with borders of its own)
       const padding = getComputedStyle(scroller);
       const padTop = parseFloat(padding.paddingTop) || 0;
       const padBottom = parseFloat(padding.paddingBottom) || 0;
@@ -2902,7 +2921,9 @@ export class GtTable extends HTMLElement {
     if (scroller === null || table === null) {
       return;
     }
-    const scrolls = scroller.scrollWidth > scroller.clientWidth + 1 || scroller.scrollHeight > scroller.clientHeight + 1;
+    const down = scroller.scrollHeight > scroller.clientHeight + 1;
+    const scrolls = scroller.scrollWidth > scroller.clientWidth + 1 || down;
+    scroller.classList.toggle("gt-i-contained", this.scrollsDown && down);
     if (scrolls && !this.regioned && !scroller.hasAttribute("tabindex")) {
       scroller.tabIndex = 0;
       scroller.setAttribute("role", "region");
