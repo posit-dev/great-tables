@@ -1,5 +1,6 @@
 gt-table {
-  display: block;
+  /* (Its controls' margins, which `closeGap()` sets, are kept in it) */
+  display: flow-root;
   /* (For the shadows and the hint over the table) */
   position: relative;
 }
@@ -760,6 +761,11 @@ gt-table[data-gti-nowrap] :is(.gt_row, .gt_col_heading, .gt_column_spanner) {
   text-overflow: ellipsis;
 }
 
+/* The column labels and the cells in a monospaced font (`i_display(monospace=True)`), as the dtypes are */
+gt-table[data-gti-monospace] :is(.gt_row, .gt_col_heading, .gt_column_spanner, .gt_group_heading, .gt-i-rownum) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 /*
  * A body that scrolls, within the height the producer sets (on the element, so that the table
  * doesn't change when it's hydrated). GT's container already scrolls sideways; it scrolls down too,
@@ -929,6 +935,9 @@ gt-table .gt-i-hint[data-gti-shown] {
 /* The toolbar sits above the table (lined up with it once hydrated) */
 gt-table .gt-i-toolbar {
   display: flex;
+  /* (Over the container's border, where it's over it: see `closeGap()`) */
+  position: relative;
+  z-index: 1;
   justify-content: flex-end;
   box-sizing: border-box;
   max-width: 100%;
@@ -1139,7 +1148,8 @@ gt-table .gt-i-bar::before {
   bottom: 0;
   box-sizing: border-box;
   height: var(--gt-i-line);
-  border: 1px solid rgba(128, 128, 128, 0.3);
+  /* (In the text's colour, so that it shows on a dark page as on a light one) */
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
   border-radius: calc(var(--gt-i-line) / 2);
   pointer-events: none;
 }
