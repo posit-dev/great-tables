@@ -25,7 +25,7 @@ from .._tbl_data import DataFrameLike, get_column_names, reorder
 from ._kernel import KernelEngine, render_table
 from ._lazy import eager
 from ._query import format_query
-from ._render import JS_DIR, _load_runtime
+from ._render import JS_DIR, _load_runtime, render_gti_element
 from ._state import (
     author_view,
     check_query_value,
@@ -37,10 +37,25 @@ from ._state import (
 )
 
 if TYPE_CHECKING:
-    from ..gti import GTI
+    from ..gt import GT
     from ._spec import Spec
 
 __all__ = ["GTIWidget"]
+
+
+# (A table's element, its spec, and what keeps its rows in Python, if they are)
+Rendered = tuple[str, "Spec", "KernelEngine | None"]
+
+
+def render_widget_table(table: GT) -> Rendered:
+    """A table as a widget shows it: a `GTI` table (which may keep its rows in Python), or a `GT`
+    table with `opt_interactive()`."""
+    from ..gti import GTI
+
+    if isinstance(table, GTI):
+        return render_table(table)
+    html, spec = render_gti_element(table)
+    return html, spec, None
 
 
 @cache
@@ -54,7 +69,9 @@ class GTIWidget(anywidget.AnyWidget):
     """
     A GTI table as a widget, whose view and selection can be read and set from Python.
 
-    Made by [`GTI.i_as_widget()`](`great_tables.GTI.i_as_widget`), which has the details.
+    Made by [`GTI.i_as_widget()`](`great_tables.GTI.i_as_widget`), which has the details. (A
+    `GT` table with `opt_interactive()` can be one too, as Solara's `GTITable` shows it: its rows
+    are then only known once it's shown.)
     """
 
     _esm = traitlets.Unicode().tag(sync=True)
@@ -67,9 +84,20 @@ class GTIWidget(anywidget.AnyWidget):
     _kernel = traitlets.Bool(False).tag(sync=True)
     _nrows = traitlets.Int(0).tag(sync=True)
 
-    def __init__(self, gti: GTI) -> None:
-        html, spec, engine = render_table(gti)
+    def __init__(
+        self, gti: GT, rendered: Rendered | None = None, state: dict[str, Any] | None = None
+    ) -> None:
+        # (`rendered` is the table, rendered already, and `state` its first `_view` and
+        # `_selection`, which the browser then has from the start)
+        from ..gti import GTI
+
+        if rendered is None:
+            # (A `GTI` table's `render_table()` called from here, as the engine's warnings are
+            # for the caller of `i_as_widget()`)
+            rendered = render_table(gti) if isinstance(gti, GTI) else render_widget_table(gti)
+        html, spec, engine = rendered
         super().__init__(
+            **(state or {}),
             _esm=_esm(),
             _css=_load_runtime()[1],
             _html=html,
@@ -175,6 +203,12 @@ class GTIWidget(anywidget.AnyWidget):
             raise RuntimeError(
                 "The table hasn't shown the change to its view yet: the browser applies it after "
                 "the code making it has run (in a notebook, ask for the rows in another cell)."
+            )
+        from ..gti import GTI
+
+        if not isinstance(self._gti, GTI):
+            raise RuntimeError(
+                "The table's rows aren't known before it's shown: the browser finds them."
             )
         view = self._current_view()
         if view["search"] != "":
