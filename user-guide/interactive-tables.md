@@ -663,6 +663,20 @@ from great_tables import GTI
 
 A table you've already made with [GT()](../reference/GT.md#great_tables.GT), including one with `opt_interactive()`, becomes a `GTI` table with `GTI.from_gt()`, keeping what `opt_interactive()` set. Each of the `i_` methods has examples in its docstring (e.g., `help(GTI.i_cols_filter)`).
 
+### The parts of a `GTI` table
+
+A `GTI` table is the table GT made, with a few parts added around it. From the top:
+
+- The **status line**, just above the table, says what the data is and how much of it is shown ("Polars DataFrame · 12 of 47 rows × 6 columns"). It's there with `i_inspect()` (and in an explorer). In a table made with `opt_interactive(use_search=True)`, the search box is here too.
+- The **column controls**, under each column label: the column's dtype (with `i_inspect()`), its sort arrows, and its filter button.
+- The **column profiles**, under the labels of the columns `i_cols_profile()` chose: a small plot of how their values are spread.
+- The **row numbers**, at the start of each row (with `i_inspect()`), which stay with the rows as they're sorted and filtered. A DataFrame's rows are numbered from 0, as its index is, and a DuckDB relation's or an Ibis table's from 1, as a database numbers them; `row_start=` in `i_inspect()` sets either one.
+- The **control bar**, just below the table, which brings together what readers can do with the table as a whole: searching it, its **page controls** (the arrows, and the **page counter**, "2/5", which can be clicked to type a page to go to), undo and redo, resetting the view, and the buttons that open its **panels** (the table's info, its columns, grouping its rows, exporting it, and its keyboard shortcuts). Over its controls, the **filter tokens** say what the rows are filtered by, one token for each filter, whose ✕ removes it. In a body that scrolls (with `i_scroll()`), the foot of the body is a **height handle**, dragged for a taller or shorter body.
+
+A table made with `opt_interactive()` has a **pager** below it instead of the control bar: its page buttons, and the number of rows shown.
+
+The status line and the control bar are close to the table, and the space that GT (or the page) leaves around the table is kept past them, so that they read as part of it rather than of the text around it.
+
 ### Row details
 
 With `i_row_details()`, each row can have more to show under it, when the reader asks for it. A function makes a row's details from its values (including those of columns the table hides): as text, with [md()](../reference/md.md#great_tables.md) or [html()](../reference/html.md#great_tables.md), or as a [GT](../reference/GT.md#great_tables.GT) table of their own. Here, each car has a few lines about its engine. Click the arrow by a car's name to show them, or use **Expand all** in the table's info panel to show every car's.
@@ -1070,7 +1084,7 @@ A filtered table says what it's filtered by with a token in its control bar ("Se
 
 ### An explorer for looking through data
 
-`GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than presenting it: every column can be filtered, has a profile, and can be hidden and moved; the rows are compact and can be downloaded as CSV; and with `i_inspect()`, the rows are numbered (by their place in the data, which stays with them as they're sorted and filtered), each column's dtype is under its label (as Polars names it, whatever the DataFrame library), the number of rows and columns left is above the table, and missing values are tinted.
+`GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than presenting it: every column can be filtered, has a profile, and can be hidden and moved; the rows are compact, each one line high (their text doesn't wrap), with the column labels and the values in a monospaced font, and can be downloaded as CSV; and with `i_inspect()`, the rows are numbered (by their place in the data, from 0 for a DataFrame, which stays with them as they're sorted and filtered), each column's dtype is under its label (as Polars names it, whatever the DataFrame library), the status line above the table says what the data is (a Polars DataFrame or LazyFrame, a Pandas DataFrame, a PyArrow Table, a DuckDB relation, or an Ibis table) and how many of its rows and columns are left, and missing values are tinted.
 
 ``` python
 cars = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
@@ -1128,7 +1142,7 @@ GTI(cars, preset="explorer")
 | Rolls-Royce   | Dawn           | 2016 | 563.0 | 12.0  | 335000.0  |
 | Rolls-Royce   | Wraith         | 2016 | 624.0 | 13.0  | 304350.0  |
 
-A preset is only where the table starts: the `i_` methods change it as they'd change any table. Each sets all of its feature's settings, so `.i_display(wrap=False)` on an explorer makes its rows less compact again unless it's given `compact=True` too, and `.i_inspect(missing=False)` leaves the row numbers, dtypes and dimensions on. `i_inspect()` works on its own as well, on any `GTI` table.
+A preset is only where the table starts: the `i_` methods change it as they'd change any table. Each sets all of its feature's settings, so `.i_display(wrap=True)` on an explorer lets its text wrap, but also makes its rows less compact and puts them in the table's own font, unless it's given `compact=True` and `monospace=True` too; and `.i_inspect(missing=False)` leaves the row numbers, dtypes and dimensions on. `i_inspect()` and `i_display()` work on their own as well, on any `GTI` table.
 
 ### Using the table from Python
 
