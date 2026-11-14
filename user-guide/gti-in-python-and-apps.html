@@ -189,7 +189,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <a class="nav-link" href="https://github.com/posit-dev/great-tables"> 
-<span class="menu-text"><span id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2920" data-forks="155"></span></span></a>
+<span class="menu-text"><span id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2920" data-forks="154"></span></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -459,6 +459,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#using-the-table-in-a-shiny-app" id="toc-using-the-table-in-a-shiny-app" class="nav-link" data-scroll-target="#using-the-table-in-a-shiny-app">Using the table in a Shiny app</a></li>
   <li><a href="#using-the-table-in-a-streamlit-app" id="toc-using-the-table-in-a-streamlit-app" class="nav-link" data-scroll-target="#using-the-table-in-a-streamlit-app">Using the table in a Streamlit app</a></li>
   <li><a href="#using-the-table-in-a-panel-app" id="toc-using-the-table-in-a-panel-app" class="nav-link" data-scroll-target="#using-the-table-in-a-panel-app">Using the table in a Panel app</a></li>
+  <li><a href="#using-the-table-in-a-solara-app" id="toc-using-the-table-in-a-solara-app" class="nav-link" data-scroll-target="#using-the-table-in-a-solara-app">Using the table in a Solara app</a></li>
   </ul>
 </nav>
     </div>
@@ -484,7 +485,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a <code>GTI</code> table (see <a href="../user-guide/gti-tables.html">GTI Tables</a>) as a widget, and in Shiny, Streamlit and Panel apps, which take a <code>GTI</code> table or a <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> table with <code>opt_interactive()</code>, get its view and selection, and can set them from the app.</p>
+<p>An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a <code>GTI</code> table (see <a href="../user-guide/gti-tables.html">GTI Tables</a>) as a widget, and in Shiny, Streamlit, Panel and Solara apps, which take a <code>GTI</code> table or a <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> table with <code>opt_interactive()</code>, get its view and selection, and can set them from the app.</p>
 <section id="using-the-table-from-python" class="level1">
 <h1>Using the table from Python</h1>
 <p>In a notebook, <code>i_as_widget()</code> shows the table as a widget (with <a href="https://anywidget.dev">anywidget</a>, installed with <code>pip install great_tables[widget]</code>), whose view and selection Python can read and set: what the reader searched for, filtered and sorted by, the rows that leaves, and the rows they selected. The table still works in the browser; the widget tells Python what it shows.</p>
@@ -594,6 +595,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>fastest.on_click(<span class="kw">lambda</span> _: table.param.update(sort<span class="op">=</span>[<span class="st">"-hp"</span>], selection<span class="op">=</span>[]))</span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>pn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selection)).servable()</span></code></pre></div>
 <p><code>table.data()</code> gives the rows kept as a DataFrame of the data’s library (and <code>table.data(selected=True)</code> the rows selected). The table works in the browser, which finds its <code>rows</code>, so they can be <code>None</code> until it has (as before the table’s shown with a search). A table whose rows are kept in Python (with <code>i_scale()</code>) asks the app for each page instead, and its <code>rows</code> are found in Python.</p>
+</section>
+<section id="using-the-table-in-a-solara-app" class="level1">
+<h1>Using the table in a Solara app</h1>
+<p>In a <a href="https://solara.dev">Solara</a> app or notebook, the <code>GTITable</code> component, from <code>great_tables.solara</code> (installed with <code>pip install great_tables[solara]</code>), shows an interactive table (a <code>GTI</code> table, or a <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> table with <code>opt_interactive()</code>), whose <code>query</code>, <code>search</code>, <code>sort</code> (a list, e.g., <code>["-hp"]</code>) and <code>selection</code> are the app’s values, as with Solara’s own components. Each can be a reactive variable, which each change the reader makes sets and which changes the table when the app sets it, or a value with a callback (<code>on_query=</code>, <code>on_sort=</code>, …). One that isn’t given starts as the table has it. The data rows kept (in the order shown) are given to <code>on_rows=</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> solara</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GTI</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> gtcars</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.solara <span class="im">import</span> GTITable</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>cars <span class="op">=</span> gtcars[[<span class="st">"mfr"</span>, <span class="st">"model"</span>, <span class="st">"year"</span>, <span class="st">"hp"</span>, <span class="st">"msrp"</span>]]</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>table <span class="op">=</span> GTI(cars).i_cols_filter(columns<span class="op">=</span><span class="st">"mfr"</span>, <span class="bu">type</span><span class="op">=</span><span class="st">"facet"</span>).i_selection(<span class="st">"multiple"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>sort <span class="op">=</span> solara.reactive([])</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>selection <span class="op">=</span> solara.reactive([])</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> solara.reactive([])</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="at">@solara.component</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> Page():</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    solara.Button(<span class="st">"Fastest first"</span>, on_click<span class="op">=</span><span class="kw">lambda</span>: (sort.<span class="bu">set</span>([<span class="st">"-hp"</span>]), selection.<span class="bu">set</span>([])))</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    GTITable(table, sort<span class="op">=</span>sort, selection<span class="op">=</span>selection, on_rows<span class="op">=</span>rows.<span class="bu">set</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    solara.Text(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(selection.value)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(rows.value)<span class="sc">}</span><span class="ss"> cars selected"</span>)</span></code></pre></div>
+<p>The component keeps the table’s view as the app renders again, as long as it’s given the same table or one rendered the same. A table whose rows are kept in Python (with <code>i_scale()</code>) asks the app for each page, and its rows are found in Python; make it once (at the module’s top level, as here, or with <code>solara.use_memo()</code>), so that it isn’t rendered again each time.</p>
 
 
 </section>

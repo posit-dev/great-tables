@@ -558,4 +558,4 @@ A preset is only where the table starts: the `i_` methods change it as they'd ch
 
 ## Using the table from Python and in apps
 
-Python can read what readers do with a `GTI` table and change it: in a notebook, with the table as a widget, and in Shiny, Streamlit and Panel apps. See [GTI in Python and Apps](gti-in-python-and-apps.md).
+Python can read what readers do with a `GTI` table and change it: in a notebook, with the table as a widget, and in Shiny, Streamlit, Panel and Solara apps. See [GTI in Python and Apps](gti-in-python-and-apps.md).

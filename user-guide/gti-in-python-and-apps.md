@@ -1,6 +1,6 @@
 # GTI in Python and Apps
 
-An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a `GTI` table (see [GTI Tables](gti-tables.md)) as a widget, and in Shiny, Streamlit and Panel apps, which take a `GTI` table or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`, get its view and selection, and can set them from the app.
+An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a `GTI` table (see [GTI Tables](gti-tables.md)) as a widget, and in Shiny, Streamlit, Panel and Solara apps, which take a `GTI` table or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`, get its view and selection, and can set them from the app.
 
 ## Using the table from Python
 
@@ -131,3 +131,30 @@ pn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selectio
 ```
 
 `table.data()` gives the rows kept as a DataFrame of the data's library (and `table.data(selected=True)` the rows selected). The table works in the browser, which finds its `rows`, so they can be `None` until it has (as before the table's shown with a search). A table whose rows are kept in Python (with `i_scale()`) asks the app for each page instead, and its `rows` are found in Python.
+
+## Using the table in a Solara app
+
+In a [Solara](https://solara.dev) app or notebook, the `GTITable` component, from `great_tables.solara` (installed with `pip install great_tables[solara]`), shows an interactive table (a `GTI` table, or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`), whose `query`, `search`, `sort` (a list, e.g., `["-hp"]`) and `selection` are the app's values, as with Solara's own components. Each can be a reactive variable, which each change the reader makes sets and which changes the table when the app sets it, or a value with a callback (`on_query=`, `on_sort=`, …). One that isn't given starts as the table has it. The data rows kept (in the order shown) are given to `on_rows=`.
+
+``` python
+import solara
+from great_tables import GTI
+from great_tables.data import gtcars
+from great_tables.solara import GTITable
+
+cars = gtcars[["mfr", "model", "year", "hp", "msrp"]]
+table = GTI(cars).i_cols_filter(columns="mfr", type="facet").i_selection("multiple")
+
+sort = solara.reactive([])
+selection = solara.reactive([])
+rows = solara.reactive([])
+
+
+@solara.component
+def Page():
+    solara.Button("Fastest first", on_click=lambda: (sort.set(["-hp"]), selection.set([])))
+    GTITable(table, sort=sort, selection=selection, on_rows=rows.set)
+    solara.Text(f"{len(selection.value)} of {len(rows.value)} cars selected")
+```
+
+The component keeps the table's view as the app renders again, as long as it's given the same table or one rendered the same. A table whose rows are kept in Python (with `i_scale()`) asks the app for each page, and its rows are found in Python; make it once (at the module's top level, as here, or with `solara.use_memo()`), so that it isn't rendered again each time.

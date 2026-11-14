@@ -592,4 +592,4 @@ Pass `domain=` to lock the color range across columns so they share a common sca
 
 ## Going further with `GTI`
 
-When readers need more than `opt_interactive()` gives them, make the table a `GTI` table: its filters, column profiles, grouping, linked tables and the explorer preset are in [GTI Tables](gti-tables.md). Reading and setting an interactive table's view from Python (in a notebook, or in a Shiny, Streamlit or Panel app, which take `opt_interactive()` tables too) is in [GTI in Python and Apps](gti-in-python-and-apps.md).
+When readers need more than `opt_interactive()` gives them, make the table a `GTI` table: its filters, column profiles, grouping, linked tables and the explorer preset are in [GTI Tables](gti-tables.md). Reading and setting an interactive table's view from Python (in a notebook, or in a Shiny, Streamlit, Panel or Solara app, which take `opt_interactive()` tables too) is in [GTI in Python and Apps](gti-in-python-and-apps.md).
