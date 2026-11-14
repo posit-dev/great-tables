@@ -15374,7 +15374,7 @@ methods do not cover. Your function can return plain text or HTML strings for ri
 can express in Python (lookups, conditional logic, external API calls) can become a cell formatter.
 If you find yourself writing the same custom formatter repeatedly, consider wrapping it in a
 reusable function and sharing it across tables. This is exactly the pattern described in the
-[Extending Great Tables](./23-extensions.qmd) page.
+[Extending Great Tables](./25-extensions.qmd) page.
 
 The formatting methods in **Great Tables** cover a wide spectrum of data types and presentation
 needs. From scientific notation to country flags, from boolean indicators to custom functions, you
@@ -18278,9 +18278,10 @@ There are two ways to make an interactive table, and they render it with the sam
   filters they get, which columns they can hide, move, or pin, how they can export the rows, how
   the table is first shown, and whether their view is kept for the next visit. A control bar below
   the table brings these together. `GTI.from_gt()` turns a `GT` table into a `GTI` one.
+  [GTI Tables](22-gti-tables.qmd) is about them.
 
 If you're publishing a table and want readers to be able to sort, search and page through it,
-`opt_interactive()` is all you need. If the table is a focal point the page (a lookup tool, a
+`opt_interactive()` is all you need. If the table is a focal point of the page (a lookup tool, a
 dashboard, a view of the data that readers come back to, etc.), it's probably better to use `GTI`.
 
 ## Enabling interactivity
@@ -18467,7 +18468,7 @@ each cell based on the underlying value, and the colors follow the data when you
 Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are
 computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A `GTI` table
 can color them again from the rows a filter keeps instead: see [Colors from the rows
-kept](#colors-from-the-rows-kept).)
+kept](22-gti-tables.qmd#colors-from-the-rows-kept).)
 
 ### Multiple columns, shared scale
 
@@ -18494,12 +18495,26 @@ Pass `domain=` to lock the color range across columns so they share a common sca
 
 ## Going further with `GTI`
 
-When readers need more than `opt_interactive()` gives them, make the table a `GTI` table. Here, the
-`Make` column gets a list of its values to choose from and `HP` a range, the table is first shown
-with the most powerful cars at the top, and readers can download the rows they've filtered as CSV.
+When readers need more than `opt_interactive()` gives them, make the table a `GTI` table: its
+filters, column profiles, grouping, linked tables and the explorer preset are in
+[GTI Tables](22-gti-tables.qmd). Reading and setting an interactive table's view from Python (in a
+notebook, or in a Shiny, Streamlit or Panel app, which take `opt_interactive()` tables too) is in
+[GTI in Python and Apps](23-gti-in-python-and-apps.qmd).
+
+
+### GTI Tables
+
+When readers need more than `~~GT.opt_interactive()` gives them (see [Interactive
+Tables](21-interactive-tables.qmd)), make the table a `GTI` table. Here, the `Make` column gets a
+list of its values to choose from and `HP` a range, the table is first shown with the most powerful
+cars at the top, and readers can download the rows they've filtered as CSV.
 
 ```{python}
+import polars as pl
 from great_tables import GTI
+from great_tables.data import gtcars
+
+gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", "msrp"])
 
 (
     GTI(gtcars_pl)
@@ -18518,7 +18533,7 @@ A table you've already made with `GT()`, including one with `opt_interactive()`,
 table with `GTI.from_gt()`, keeping what `opt_interactive()` set. Each of the `i_` methods has
 examples in its docstring (e.g., `help(GTI.i_cols_filter)`).
 
-### The parts of a `GTI` table
+## The parts of a `GTI` table
 
 A `GTI` table is the table GT made, with a few parts added around it. From the top:
 
@@ -18549,7 +18564,7 @@ The status line and the control bar are close to the table, and the space that G
 leaves around the table is kept past them, so that they read as part of it rather than of the text
 around it.
 
-### Row details
+## Row details
 
 With `~~GTI.i_row_details()`, each row can have more to show under it, when the reader asks for it.
 A function makes a row's details from its values (including those of columns the table hides): as
@@ -18588,7 +18603,7 @@ exported (and each `GT` table in them brings its own CSS, so many of them make a
 column can hold them instead, with each row's details: `i_row_details()` takes its name, and the
 column is then left out of the table.
 
-### Column profiles
+## Column profiles
 
 With `~~GTI.i_cols_profile()`, columns get a small plot under their labels of how their values are
 spread: a histogram of numbers and dates, and bars for the most common values of the others, each
@@ -18612,7 +18627,7 @@ A profile's bars span the whole column, not just the rows that are left, so that
 the reader filters (only their heights change). They aren't shown when the table is stacked as
 cards in a narrow container.
 
-### Colors from the rows kept
+## Colors from the rows kept
 
 With `data_color="recompute"` in `~~GTI.i_cols_controls()`, a column's colors from `data_color()`
 are made again from the rows a search or filter keeps, as `data_color()` would make them from those
@@ -18639,7 +18654,7 @@ rows can be made again: those `data_color()` made down a column from the values 
 with `domain=`, nor from an ordered categorical's levels), and without `fn=`. A cell that a later
 style colors keeps that style's colors.
 
-### Grouping rows
+## Grouping rows
 
 With `groupable=True` in `~~GTI.i_cols_controls()`, readers can group the rows by any of the chosen
 columns, from the **Group rows** button in the table's control bar. Each group is under a heading
@@ -18668,7 +18683,7 @@ table with (`group_by=`) and `~~GTI.i_view_state()` can keep. This grouping is t
 table with row groups of its own (from `groupname_col=`) or with summary rows can't have columns
 to group by.
 
-### Linked tables
+## Linked tables
 
 With `~~GTI.i_link()`, tables on the same page work together: tables with the same group name are
 linked by a column they each have, so that the rows a reader selects in one filter the others to the
@@ -18712,7 +18727,7 @@ the browser, with no server, so this works in a Quarto document or an HTML page,
 whose cells' outputs share a page (in Jupyter, but not in Colab, which shows each cell's output in a
 frame of its own).
 
-### An explorer for looking through data
+## An explorer for looking through data
 
 `GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than
 presenting it: every column can be filtered, has a profile, and can be hidden and moved; the rows
@@ -18737,7 +18752,21 @@ but also makes its rows less compact and puts them in the table's own font, unle
 dtypes and dimensions on. `i_inspect()` and `~~GTI.i_display()` work on their own as well, on any
 `GTI` table.
 
-### Using the table from Python
+## Using the table from Python and in apps
+
+Python can read what readers do with a `GTI` table and change it: in a notebook, with the table as a
+widget, and in Shiny, Streamlit and Panel apps. See
+[GTI in Python and Apps](23-gti-in-python-and-apps.qmd).
+
+
+### GTI in Python and Apps
+
+An interactive table works in the browser on its own, but Python can also read what readers do with
+it, and change it: in a notebook, with a `GTI` table (see [GTI Tables](22-gti-tables.qmd)) as a
+widget, and in Shiny, Streamlit and Panel apps, which take a `GTI` table or a `GT` table with
+`opt_interactive()`, get its view and selection, and can set them from the app.
+
+## Using the table from Python
 
 In a notebook, `~~GTI.i_as_widget()` shows the table as a widget (with
 [anywidget](https://anywidget.dev), installed with `pip install great_tables[widget]`), whose view
@@ -18746,6 +18775,12 @@ rows that leaves, and the rows they selected. The table still works in the brows
 tells Python what it shows.
 
 ```python
+import polars as pl
+from great_tables import GTI
+from great_tables.data import gtcars
+
+cars = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
+
 widget = (
     GTI(cars)
     .i_cols_filter(columns="mfr", type="facet")
@@ -18775,7 +18810,7 @@ Setting `query`, `search`, `sort` or `selection` changes the table as shown, and
 made from Python is applied by the browser after the cell runs, so ask for the rows it leaves in
 another cell.
 
-### Using the table in a Shiny app
+## Using the table in a Shiny app
 
 In a [Shiny](https://shiny.posit.co/py/) app, an interactive table (a `GTI` table, or a `GT` table
 with `opt_interactive()`) rendered with `render_gt()`, from `great_tables.shiny`, gives the server
@@ -18823,7 +18858,7 @@ app = App(app_ui, server)
 The table works in the browser as it does anywhere else, so the server isn't asked for each page,
 sort or search; a table rendered again starts with the view it's given.
 
-### Using the table in a Streamlit app
+## Using the table in a Streamlit app
 
 In a [Streamlit](https://streamlit.io) app, `st_gti()`, from `great_tables.streamlit` (installed
 with `pip install great_tables[streamlit]`), shows an interactive table (a `GTI` table, or a `GT`
@@ -18853,7 +18888,7 @@ the same. A table whose rows are kept in Python (with `~~GTI.i_scale()`) asks th
 page, which runs it again; make it once, with `st.cache_resource`, so that it isn't rendered again
 each time.
 
-### Using the table in a Panel app
+## Using the table in a Panel app
 
 In a [Panel](https://panel.holoviz.org) app or notebook, `GTIPane`, from `great_tables.panel`
 (installed with `pip install great_tables[panel]`), shows an interactive table (a `GTI` table, or a
