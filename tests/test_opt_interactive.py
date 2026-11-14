@@ -180,8 +180,11 @@ class TestAsRawHtml:
             "highlight": True,
             "compact": True,
             "wrap": True,
+            "monospace": False,
             "row_numbers": False,
+            "row_start": 0,
             "dimensions": False,
+            "data_kind": None,
         }
 
     @pytest.mark.parametrize(
