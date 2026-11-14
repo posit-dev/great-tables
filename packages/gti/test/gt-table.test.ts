@@ -1663,6 +1663,21 @@ describe("the control bar", () => {
     return { el, events };
   }
 
+  it("is close below the table, with the table's space below it instead", async () => {
+    const { html, spec } = gtTable(GROUPED, {
+      controls: { search: false, bar: true },
+      pagination: { enabled: true },
+      display: { dimensions: true },
+    });
+    const styled = html.replace('<div id="t">', '<div id="t" style="padding: 10px">');
+    const el = await mount(`<gt-table>${styled}${specScript(spec)}</gt-table>`);
+    const div = el.querySelector("#t") as HTMLElement;
+    // (GT's padding, around the table, is moved out past the status line and the bar)
+    expect([div.style.paddingTop, div.style.paddingBottom]).toEqual(["0px", "0px"]);
+    expect([el.style.paddingTop, el.style.paddingBottom]).toEqual(["10px", "10px"]);
+    expect(div.style.paddingLeft).toBe("10px");
+  });
+
   it("is one bar below the table, in the table's font, instead of a toolbar and pager", async () => {
     const { el } = await mountBar();
     expect(bar(el).previousElementSibling).toBe(el.querySelector("#t"));
@@ -1856,6 +1871,37 @@ describe("the control bar", () => {
 
     el.search = "a";
     expect(readout(el).textContent).toBe("1/2");
+  });
+
+  it("groups the digits of a large page count, as the page's language does", async () => {
+    const n = 2345;
+    const rows = Array.from({ length: n }, (_, i) => i);
+    const trs = rows.map((i) => `<tr><td class="gt_row gt_right">${i}</td></tr>`).join("");
+    const html =
+      `<div id="t"><table class="gt_table"><thead><tr class="gt_col_headings">` +
+      `<th class="gt_col_heading gt_right" id="t-x">x</th></tr></thead>` +
+      `<tbody class="gt_table_body">${trs}</tbody></table></div>`;
+    const { spec } = gtTable([0]);
+    const big = {
+      ...spec,
+      nrows: n,
+      columns: [{ id: "x", role: "data", kind: "number", align: "right", header: "t-x" }],
+      stub: { columns: [], groups_as_column: false },
+      groups: [],
+      body: rows,
+      ranks: { x: rows },
+      controls: { ...spec.controls, bar: true },
+      pagination: { ...spec.pagination, enabled: true, page_size: 1 },
+    };
+    const el = await mount(`<gt-table lang="en">${html}${specScript(big)}</gt-table>`);
+    expect(readout(el).textContent).toBe("1/2,345");
+    expect(readout(el).getAttribute("aria-label")).toBe("Page 1 of 2,345");
+    expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.style.getPropertyValue("--gt-i-digits")).toBe("5");
+    el.page = 1234;
+    expect(readout(el).textContent).toBe("1,234/2,345");
+    el.setAttribute("lang", "de");
+    el.page = 1235;
+    expect(readout(el).textContent).toBe("1.235/2.345");
   });
 
   it("changes the page with its arrows, with an event and an announcement", async () => {
@@ -5784,6 +5830,16 @@ describe("row display", () => {
     expect(el.hasAttribute("data-gti-nowrap")).toBe(false);
   });
 
+  it("marks the element when the labels and cells are monospaced", async () => {
+    expect((await mountTable(GROUPED, { display: { monospace: true } })).hasAttribute("data-gti-monospace")).toBe(
+      true,
+    );
+    const { html, spec } = gtTable(GROUPED);
+    // (The spec decides, whatever the producer wrote)
+    const el = await mount(`<gt-table data-gti-monospace>${html}${specScript(spec)}</gt-table>`);
+    expect(el.hasAttribute("data-gti-monospace")).toBe(false);
+  });
+
   it("marks the data rows when rows are highlighted", async () => {
     const el = await mountTable(GROUPED, { display: { highlight: true } });
     expect(el.hasAttribute("data-gti-highlight")).toBe(true);
@@ -6626,6 +6682,13 @@ describe("inspecting the data", () => {
     expect(Array.from(el.querySelectorAll("tbody .gt-i-rownum"), (span) => span.textContent)).toEqual(["3", "1", "2", "4", "5"]);
   });
 
+  it("numbers the rows from 0 or 1, as the spec says (from 1 without it)", async () => {
+    const el = await numbered({ display: { row_numbers: true, row_start: 0 } });
+    expect([0, 1, 2, 3, 4].map((row) => number(el, row))).toEqual(["0", "1", "2", "3", "4"]);
+    const one = await numbered({ display: { row_numbers: true, row_start: 1 } });
+    expect(number(one, 0)).toBe("1");
+  });
+
   it("puts the number before the checkbox when rows can be selected", async () => {
     const el = await numbered({ controls: { selection: "multiple" } });
     const cell = el.rowElement(2)?.cells[0] as HTMLTableCellElement;
@@ -6695,6 +6758,15 @@ describe("inspecting the data", () => {
     expect(dimensions(el)).toBe("1 of 5 rows × 3 columns");
     el.hiddenColumns = ["y"];
     expect(dimensions(el)).toBe("1 of 5 rows × 2 of 3 columns");
+  });
+
+  it("starts with what the data is, where the producer knows", async () => {
+    const el = await mountTable(GROUPED, { display: { dimensions: true, data_kind: "Polars DataFrame" } });
+    expect(dimensions(el)).toBe("Polars DataFrame · 5 rows × 3 columns");
+    el.search = "a";
+    expect(dimensions(el)).toBe("Polars DataFrame · 3 of 5 rows × 3 columns");
+    const unknown = await mountTable(GROUPED, { display: { dimensions: true, data_kind: null } });
+    expect(dimensions(unknown)).toBe("5 rows × 3 columns");
   });
 
   it("says so in a toolbar of its own, without a search box there", async () => {

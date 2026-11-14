@@ -649,6 +649,19 @@ def explorer_html(table_id: str, mode: str = "scroll", select: bool = False) -> 
     return render_gti_html(gti.i_selection("multiple") if select else gti, runtime="none")
 
 
+def explorer_page_html(table_id: str, scroll: bool = False) -> str:
+    # exibble's num, char, fctr and date as an explorer in the table's own font (so the cells and
+    # labels are monospaced by the preset), 3 rows to a page or in a body that scrolls
+    gti = GTI(
+        exibble[["num", "char", "fctr", "date", "row"]],
+        rowname_col="row",
+        id=table_id,
+        preset="explorer",
+    )
+    gti = gti.i_scroll(150) if scroll else gti.i_pagination(page_size=3)
+    return render_gti_html(gti, runtime="none")
+
+
 def link_html() -> str:
     # Two tables linked by exibble's group: one of the groups (grp_a, grp_b), whose rows can be
     # selected, and one of exibble's rows (8, row_1... as the stub, grp_a's first), 5 to a page
@@ -1286,6 +1299,18 @@ def main() -> None:
                 ("", "800px", {}),
                 ("-stack", "360px", {"mode": "stack"}),
             ]
+        },
+        # Explorers paged and in a body that scrolls, between paragraphs on a page whose styles
+        # give the table margins (as a Quarto page's do)
+        **{
+            f"explorer-page{suffix}.html": page(
+                '<p id="before">Before.</p>\n'
+                + explorer_page_html("e", scroll=scroll)
+                + '\n<p id="after">After.</p>\n'
+                + runtime_src,
+                head=styles + "<style>table { margin-block: 8.5px; } p { margin: 0; }</style>\n",
+            )
+            for suffix, scroll in [("", False), ("-scroll", True)]
         },
         # Explorers (`preset="explorer"`): in a wide container, with rows to select, and stacked or
         # dropping columns in narrow ones

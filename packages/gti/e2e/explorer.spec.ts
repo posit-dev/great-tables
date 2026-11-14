@@ -52,7 +52,8 @@ const middle = async (locator: Locator) => {
   return { y: box.y + box.height / 2, left: box.x, right: box.x + box.width };
 };
 
-const ALL = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => [String(n), `row_${n}`]);
+// (Numbered from 0, as a DataFrame's index is)
+const ALL = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => [String(n - 1), `row_${n}`]);
 const MISSING = [
   ["row_5", "e-char", true],
   ["row_6", "e-num", true],
@@ -62,7 +63,7 @@ const MISSING = [
 test.describe("an explorer", () => {
   test("numbers the rows, shows the dtypes and dimensions, and tints missing values", async ({ page }) => {
     const errors = await ready(page, "explorer.html");
-    await expect(dimensions(page)).toHaveText("8 rows × 5 columns");
+    await expect(dimensions(page)).toHaveText("Pandas DataFrame · 8 rows × 5 columns");
     // (Above the table, at its start)
     const [banner, table] = await Promise.all([middle(dimensions(page)), middle(el(page).locator("table"))]);
     expect(Math.abs(banner.left - table.left)).toBeLessThan(2);
@@ -88,19 +89,19 @@ test.describe("an explorer", () => {
     await sort.click();
     await expect(th(page, "num")).toHaveAttribute("aria-sort", "descending");
     const sorted = await numbered(page);
-    expect(sorted[0]).toEqual(["8", "row_8"]);
+    expect(sorted[0]).toEqual(["7", "row_8"]);
     expect(sorted.slice().sort()).toEqual(ALL);
     expect(await tinted(page)).toHaveLength(3);
 
     await search(page, "fig");
-    await expect(dimensions(page)).toHaveText("1 of 8 rows × 5 columns");
-    expect(await numbered(page)).toEqual([["6", "row_6"]]);
+    await expect(dimensions(page)).toHaveText("Pandas DataFrame · 1 of 8 rows × 5 columns");
+    expect(await numbered(page)).toEqual([["5", "row_6"]]);
 
     await bar(page).getByRole("button", { name: "Show, hide or reorder columns", exact: true }).click();
     await bar(page).getByRole("group", { name: "Columns", exact: true }).getByRole("checkbox", { name: "fctr", exact: true }).click();
-    await expect(dimensions(page)).toHaveText("1 of 8 rows × 4 of 5 columns");
+    await expect(dimensions(page)).toHaveText("Pandas DataFrame · 1 of 8 rows × 4 of 5 columns");
     await search(page, "");
-    await expect(dimensions(page)).toHaveText("8 rows × 4 of 5 columns");
+    await expect(dimensions(page)).toHaveText("Pandas DataFrame · 8 rows × 4 of 5 columns");
     expect(errors).toEqual([]);
   });
 
@@ -128,7 +129,7 @@ test.describe("an explorer", () => {
   test("is stacked in a narrow container, with the numbers on the cards", async ({ page }) => {
     const errors = await ready(page, "explorer-stack.html");
     await expect(el(page)).toHaveAttribute("data-gti-stacked", "");
-    await expect(dimensions(page)).toHaveText("8 rows × 5 columns");
+    await expect(dimensions(page)).toHaveText("Pandas DataFrame · 8 rows × 5 columns");
     // (The column of numbers has no chip)
     await expect(el(page).locator("thead th.gt-i-select")).toBeHidden();
     await expect(dtype(page, "num")).toBeVisible();
@@ -146,6 +147,56 @@ test.describe("an explorer", () => {
     expect(await numbered(page)).toEqual(ALL);
     await expect(dtype(page, "char")).toBeVisible();
     expect((await tinted(page)).filter(([, , shown]) => shown)).toContainEqual(["row_5", "e-char", true]);
+    expect(errors).toEqual([]);
+  });
+});
+
+// The explorers on a page whose styles give the table margins, between two paragraphs: 3 rows to
+// a page, and in a body 150px high
+test.describe("an explorer between paragraphs", () => {
+  /** The space between the paragraphs, the status line, the table (or the body's foot), and the bar. */
+  const spaces = (page: Page) =>
+    page.evaluate(() => {
+      const box = (selector: string) => (document.querySelector(selector) as HTMLElement).getBoundingClientRect();
+      const scroller = document.querySelector(".gt-i-scroller") as HTMLElement | null;
+      const frame =
+        scroller?.style.borderBottomColor === "transparent" ? parseFloat(scroller.style.borderBottomWidth) : 0;
+      const foot = scroller === null ? box("table").bottom : box(".gt-i-scroller").bottom - frame;
+      return {
+        status: [box(".gt-i-toolbar").top - box("#before").bottom, box("table").top - box(".gt-i-toolbar").bottom],
+        bar: [box(".gt-i-bar").top - foot, box("#after").top - box(".gt-i-bar").bottom],
+        em: parseFloat(getComputedStyle(document.querySelector(".gt-i-bar") as HTMLElement).fontSize),
+      };
+    });
+
+  for (const name of ["explorer-page.html", "explorer-page-scroll.html"]) {
+    test(`has its status line and bar close to the table, with GT's space past them (${name})`, async ({ page }) => {
+      const errors = await ready(page, name);
+      const { status, bar, em } = await spaces(page);
+      // (Half a line from the table, and the container's padding and the table's margin, 18.5px,
+      // past them)
+      expect(Math.abs((status[1] as number) - em / 2)).toBeLessThanOrEqual(1);
+      expect(Math.abs((bar[0] as number) - em / 2)).toBeLessThanOrEqual(1);
+      expect(Math.abs((status[0] as number) - 18.5)).toBeLessThanOrEqual(1);
+      expect(Math.abs((bar[1] as number) - 18.5)).toBeLessThanOrEqual(1);
+      expect(errors).toEqual([]);
+    });
+  }
+
+  test("has its labels and cells monospaced, in rows of one height, and says what the data is", async ({ page }) => {
+    const errors = await ready(page, "explorer-page.html");
+    await expect(el(page)).toHaveAttribute("data-gti-monospace", "");
+    await expect(dimensions(page)).toHaveText("Pandas DataFrame · 8 rows × 5 columns");
+    for (const cell of [th(page, "char"), row(page, "row_1").locator("td.gt_row").first()]) {
+      expect(await cell.evaluate((node) => getComputedStyle(node).fontFamily)).toMatch(/^ui-monospace/);
+    }
+    // (But not the bar)
+    expect(await bar(page).evaluate((node) => getComputedStyle(node).fontFamily)).not.toMatch(/monospace/);
+    const heights = await el(page)
+      .locator("tbody tr:visible")
+      .evaluateAll((trs) => trs.map((tr) => tr.getBoundingClientRect().height));
+    expect(heights).toHaveLength(3);
+    expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(1);
     expect(errors).toEqual([]);
   });
 });

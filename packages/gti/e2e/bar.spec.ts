@@ -341,6 +341,14 @@ test.describe("the handle under a body that scrolls", () => {
   const scroller = (page: Page) => el(page).locator(".gt-i-scroller");
   const tall = async (page: Page) => (await box(scroller(page))).bottom - (await box(scroller(page))).top;
   const query = (page: Page) => new URL(page.url()).search;
+  // (The body's foot: the bottom of the scroller, above the clear border around it that keeps
+  // GT's space there)
+  const foot = (page: Page) =>
+    scroller(page).evaluate(
+      (div) =>
+        div.getBoundingClientRect().bottom -
+        (div.style.borderBottomColor === "transparent" ? parseFloat(div.style.borderBottomWidth) : 0),
+    );
   const drag = async (page: Page, dy: number) => {
     const at = await box(handle(page));
     const x = (at.left + at.right) / 2;
@@ -355,7 +363,7 @@ test.describe("the handle under a body that scrolls", () => {
     const errors = await ready(page, "bar-scroll.html");
     await expect(el(page).locator(".gt-i-rows")).toHaveCount(0);
     const [at, port] = [await box(handle(page)), await box(scroller(page))];
-    expect((at.top + at.bottom) / 2).toBeCloseTo(port.bottom, 0);
+    expect((at.top + at.bottom) / 2).toBeCloseTo(await foot(page), 0);
     expect(at.left).toBeGreaterThanOrEqual(port.left - 1);
     expect(at.right).toBeLessThanOrEqual(port.right + 1);
     expect(await tall(page)).toBeCloseTo(300, 0);
@@ -375,7 +383,7 @@ test.describe("the handle under a body that scrolls", () => {
     await expect.poll(() => query(page)).toBe("?c.height=400");
     await expect(reset).toBeVisible();
     // (Following the body's foot)
-    expect(((await box(handle(page))).top + (await box(handle(page))).bottom) / 2).toBeCloseTo((await box(scroller(page))).bottom, 0);
+    expect(((await box(handle(page))).top + (await box(handle(page))).bottom) / 2).toBeCloseTo(await foot(page), 0);
 
     // No shorter than the column labels, a row, and the rows stuck to the bottom (with the space
     // above and below them in the container, a border of its own by now)

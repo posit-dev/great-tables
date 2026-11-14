@@ -166,10 +166,16 @@ export interface DisplaySpec {
   compact: boolean;
   /** Whether cell text wraps; if not, text cut off by a column's width ends in an ellipsis. */
   wrap: boolean;
-  /** Whether each data row has its number (its place in the data, from 1) before its cells. Without it, not. */
+  /** Whether the column labels and cells are in a monospaced font. Without it, not. */
+  monospace?: boolean;
+  /** Whether each data row has its number (its place in the data, from `row_start`) before its cells. Without it, not. */
   row_numbers?: boolean;
+  /** The first row's number: 0 (as a DataFrame's index has it) or 1 (as a database's). Without it, 1. */
+  row_start?: 0 | 1;
   /** Whether the number of rows and columns (and of those shown) is above the table. Without it, not. */
   dimensions?: boolean;
+  /** What the data is, which the dimensions start with ("Polars DataFrame"); `null` (or without it) to say nothing of it. */
+  data_kind?: string | null;
 }
 
 export interface LayoutSpec {
@@ -543,10 +549,12 @@ export function parseSpec(text: string): Spec {
     typeof display.highlight !== "boolean" ||
     typeof display.compact !== "boolean" ||
     typeof display.wrap !== "boolean" ||
-    !["row_numbers", "dimensions"].every((key) => display[key] === undefined || typeof display[key] === "boolean")
+    !["monospace", "row_numbers", "dimensions"].every((key) => display[key] === undefined || typeof display[key] === "boolean") ||
+    !(display.data_kind === undefined || display.data_kind === null || typeof display.data_kind === "string") ||
+    !(display.row_start === undefined || display.row_start === 0 || display.row_start === 1)
   ) {
     throw new SpecError(
-      "`display` must say whether rows are highlighted and compact, and text wraps (and whether rows are numbered, and the dimensions shown, if given)",
+      "`display` must say whether rows are highlighted and compact, and text wraps (and whether text is monospaced, rows are numbered and from 0 or 1, and the dimensions shown, and what the data is, if given)",
     );
   }
   const layout = raw.layout;

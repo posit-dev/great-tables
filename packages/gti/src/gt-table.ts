@@ -2669,6 +2669,29 @@ export class GtTable extends HTMLElement {
     }
   }
 
+  // The controls above the table or below it (`el`) put by it, with the space between them (its
+  // container's padding and its margin) outside them instead, so that what's around the element is
+  // as far from it as before. Where `frameScroller()` made the space a border, the controls are over
+  // it (which doesn't scroll): moved out of it, it would make the body taller
+  private closeGap(el: HTMLElement, side: "top" | "bottom"): void {
+    const table = this.table as HTMLTableElement;
+    const div = table.parentElement as HTMLElement;
+    const Side = side === "top" ? "Top" : "Bottom";
+    const frame = div.style.getPropertyValue(`border-${side}-color`) === "transparent" ? parseFloat(div.style.getPropertyValue(`border-${side}-width`)) : 0;
+    if (frame > 0) {
+      el.style.setProperty(`margin-${side === "top" ? "bottom" : "top"}`, `calc(0.5em - ${frame}px)`);
+      el.style.setProperty(`margin-${side}`, `${frame}px`);
+      return;
+    }
+    const box = getComputedStyle(div);
+    const gap = (parseFloat(box[`padding${Side}`]) || 0) + (parseFloat(getComputedStyle(table)[`margin${Side}`]) || 0);
+    if (div !== this && gap > 0 && (parseFloat(box[`border${Side}Width`]) || 0) === 0) {
+      div.style.setProperty(`padding-${side}`, "0px");
+      table.style.setProperty(`margin-${side}`, "0px");
+      this.style.setProperty(`padding-${side}`, `${gap}px`);
+    }
+  }
+
   // Sticky rows' cells without a background are filled with what's behind the table
   private fillRows(trs: HTMLTableRowElement[]): void {
     const backdrop = backdropColor(this.table as HTMLTableElement);
@@ -3043,8 +3066,9 @@ export class GtTable extends HTMLElement {
 
   // Row highlighting and text wrapping, which gti.css styles by the element's attributes
   private setDisplay(spec: Spec): void {
-    const { highlight, wrap } = spec.display;
+    const { highlight, wrap, monospace } = spec.display;
     this.toggleAttribute("data-gti-nowrap", !wrap);
+    this.toggleAttribute("data-gti-monospace", monospace === true);
     this.toggleAttribute("data-gti-highlight", highlight);
     this.cutsText = !wrap && this.table?.querySelector(":scope > colgroup") != null;
     if (this.cutsText) {
@@ -3213,11 +3237,13 @@ export class GtTable extends HTMLElement {
     if (entry === null) {
       return td;
     }
+    // (Its place in the data, from 0 or 1, as the spec says)
+    const number = entry + (spec.display.row_start ?? 1);
     if (numbers) {
-      td.appendChild(element(doc, "span", "gt-i-rownum")).textContent = String(entry + 1);
+      td.appendChild(element(doc, "span", "gt-i-rownum")).textContent = String(number);
     }
     if (mode !== null) {
-      const box = this.checkbox(`Select ${this.rowLabel(tr) || `row ${entry + 1}`}`);
+      const box = this.checkbox(`Select ${this.rowLabel(tr) || `row ${numbers ? number : entry + 1}`}`);
       box.addEventListener("click", (event) => this.userSelect(entry, this.shifted(event)));
       td.append(box);
       this.selectBoxes[entry] = box;
@@ -3557,7 +3583,7 @@ export class GtTable extends HTMLElement {
   private addProfiles(table: HTMLTableElement, spec: Spec): void {
     const cells = labelCells(table);
     const doc = this.ownerDocument;
-    const lang = this.closest("[lang]")?.getAttribute("lang") || undefined;
+    const lang = this.language();
     for (const profileSpec of spec.profiles ?? []) {
       const index = spec.columns.findIndex((column) => column.id === profileSpec.column);
       const header = spec.columns[index]?.header;
@@ -4073,7 +4099,8 @@ export class GtTable extends HTMLElement {
       left = Math.max(left, port.left + scroller.clientLeft);
       right = Math.min(right, left + scroller.clientWidth);
       if (scrolls) {
-        y = port.bottom;
+        // (Above the border the space below the rows is made of, which the controls below are over)
+        y = port.bottom - (scroller.style.borderBottomColor === "transparent" ? parseFloat(scroller.style.borderBottomWidth) : 0);
       }
     }
     const outer = this.getBoundingClientRect();
@@ -4562,6 +4589,7 @@ export class GtTable extends HTMLElement {
     // Outside the table's scrolling container, so that it stays in view
     this.prepend(toolbar);
     this.toolbar = toolbar;
+    this.closeGap(toolbar, "top");
     // In the table's font, lined up with the table (which GT may have centred or narrowed)
     toolbar.style.fontFamily = getComputedStyle(table).fontFamily;
     this.observeLayout();
@@ -4590,18 +4618,19 @@ export class GtTable extends HTMLElement {
     this.dimensions = toolbar.insertBefore(element(this.ownerDocument, "div", "gt-i-dimensions"), toolbar.firstChild);
   }
 
-  // Say how many rows and columns there are, and how many are shown, of those the search and
-  // filters keep and those not hidden: "12 of 47 rows × 6 columns"
+  // Say what the data is, how many rows and columns there are, and how many are shown, of those the
+  // search and filters keep and those not hidden: "Polars DataFrame · 12 of 47 rows × 6 columns"
   private updateDimensions(): void {
     const { dimensions, spec } = this;
     if (dimensions === null || spec === null) {
       return;
     }
-    const lang = this.closest("[lang]")?.getAttribute("lang") || undefined;
+    const lang = this.language();
     const count = (shown: number, all: number, noun: string) =>
       `${shown === all ? "" : `${shown.toLocaleString(lang)} of `}${all.toLocaleString(lang)} ${noun}${all === 1 ? "" : "s"}`;
     const columns = spec.columns.filter((column) => column.id !== null).length;
-    dimensions.textContent = `${count(this.view.total, spec.nrows, "row")} × ${count(columns - this.hiddenIds.length, columns, "column")}`;
+    const kind = spec.display.data_kind;
+    dimensions.textContent = `${kind ? `${kind} · ` : ""}${count(this.view.total, spec.nrows, "row")} × ${count(columns - this.hiddenIds.length, columns, "column")}`;
   }
 
   // The search field, which searches once typing pauses, or at once on Enter (and, unless it's the
@@ -4871,6 +4900,7 @@ export class GtTable extends HTMLElement {
     this.addTips(root);
     // Below the table, outside its scrolling container, in the table's font
     this.placeBelow(root);
+    this.closeGap(root, "bottom");
     root.style.fontFamily = getComputedStyle(table).fontFamily;
     this.addLiveRegion();
     this.observeLayout();
@@ -6910,7 +6940,7 @@ export class GtTable extends HTMLElement {
 
   // What a linked table's selection keeps: "Selected in Makes: Ferrari, Lamborghini +2"
   private linkText(source: GtTable, filter: LinkFilter): string {
-    const lang = this.closest("[lang]")?.getAttribute("lang") || undefined;
+    const lang = this.language();
     const names = [...filter.keys].map((key) => {
       try {
         return typeof key === "number" ? new Intl.NumberFormat(lang).format(key) : String(key);
@@ -6956,7 +6986,7 @@ export class GtTable extends HTMLElement {
       const chosen = names.filter(([key]) => filter.chosen.has(key)).map(([, name]) => name);
       return `${label}: ${chosen.length > 3 ? `${chosen.slice(0, 2).join(", ")} +${chosen.length - 2}` : chosen.join(", ")}`;
     }
-    const lang = this.closest("[lang]")?.getAttribute("lang") || undefined;
+    const lang = this.language();
     const { min, max } = filter;
     if (filter.type === "date") {
       // (A bound that's one of the column's dates as the table shows it, or else as the language
@@ -7693,12 +7723,23 @@ export class GtTable extends HTMLElement {
     bar.previous.setAttribute("aria-disabled", String(page === 1));
     bar.next.setAttribute("aria-disabled", String(page === count));
     bar.last.setAttribute("aria-disabled", String(page === count));
-    bar.readout.replaceChildren(String(page), this.slash(), String(count));
-    bar.readout.setAttribute("aria-label", `Page ${page} of ${count}`);
-    bar.jumpCount.replaceChildren(this.slash(), String(count));
-    bar.jumpInput.setAttribute("aria-label", `Go to page (of ${count})`);
+    const [at, of] = [this.num(page), this.num(count)];
+    bar.readout.replaceChildren(at, this.slash(), of);
+    bar.readout.setAttribute("aria-label", `Page ${at} of ${of}`);
+    bar.jumpCount.replaceChildren(this.slash(), of);
+    bar.jumpInput.setAttribute("aria-label", `Go to page (of ${of})`);
     // (Room for the most pages the rows can have, unsearched)
-    bar.pages.style.setProperty("--gt-i-digits", String(String(pageCount(spec.nrows, size)).length));
+    bar.pages.style.setProperty("--gt-i-digits", String(this.num(pageCount(spec.nrows, size)).length));
+  }
+
+  // The language of the table's page (or of what it's in), for its numbers and dates
+  private language(): string | undefined {
+    return this.closest("[lang]")?.getAttribute("lang") || undefined;
+  }
+
+  // A number as the language writes it ("12,345")
+  private num(n: number): string {
+    return n.toLocaleString(this.language());
   }
 
   private slash(): HTMLElement {
@@ -8989,11 +9030,11 @@ export class GtTable extends HTMLElement {
       this.updatePageNumbers(pager.numbers, page, count);
     }
     if (pager.status !== null) {
-      pager.status.textContent = `Page ${page} of ${count}`;
+      pager.status.textContent = `Page ${this.num(page)} of ${this.num(count)}`;
     }
     if (pager.jump !== null && pager.jumpCount !== null) {
       pager.jump.value = String(page);
-      pager.jumpCount.textContent = ` of ${count}`;
+      pager.jumpCount.textContent = ` of ${this.num(count)}`;
     }
   }
 
@@ -9015,8 +9056,8 @@ export class GtTable extends HTMLElement {
           gap.textContent = "…";
           return gap;
         }
-        const button = this.pageButton(String(item), String(item));
-        button.setAttribute("aria-label", `Page ${item}`);
+        const button = this.pageButton(String(item), this.num(item));
+        button.setAttribute("aria-label", `Page ${button.textContent}`);
         if (item === page) {
           button.setAttribute("aria-current", "page");
         }
@@ -9152,6 +9193,7 @@ export class GtTable extends HTMLElement {
 
     // Below the table, outside its scrolling container, in the table's font
     this.placeBelow(nav);
+    this.closeGap(nav, "bottom");
     nav.style.fontFamily = getComputedStyle(table).fontFamily;
     this.pager = pager;
     this.addLiveRegion();
@@ -9433,6 +9475,7 @@ export class GtTable extends HTMLElement {
     this.regioned = false;
     this.removeAttribute("data-gti-highlight");
     this.removeAttribute("data-gti-nowrap");
+    this.removeAttribute("data-gti-monospace");
     this.removeAttribute("data-gti-resizing");
     this.removeAttribute("data-gti-scroll");
     this.removeAttribute("data-gti-sheet");
@@ -9443,6 +9486,7 @@ export class GtTable extends HTMLElement {
     this.style.removeProperty("--gt-i-height");
     this.style.removeProperty("--gt-i-head");
     this.style.removeProperty("--gt-i-pad");
+    this.style.paddingTop = this.style.paddingBottom = "";
     this.removeAttribute("data-gti-state");
   }
 

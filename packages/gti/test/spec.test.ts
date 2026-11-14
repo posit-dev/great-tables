@@ -111,6 +111,23 @@ describe("parseSpec()", () => {
     expect(parse(valid).display.row_numbers).toBeUndefined();
   });
 
+  it("takes a monospace flag and what the data is, or their absence", () => {
+    for (const data_kind of ["Polars DataFrame", null]) {
+      const display = { ...valid.display, monospace: true, data_kind };
+      expect(parse({ ...valid, display }).display).toEqual(display);
+    }
+    expect(parse(valid).display.monospace).toBeUndefined();
+    expect(parse(valid).display.data_kind).toBeUndefined();
+  });
+
+  it("takes where the rows' numbers start, or its absence", () => {
+    for (const row_start of [0, 1]) {
+      const display = { ...valid.display, row_numbers: true, row_start };
+      expect(parse({ ...valid, display }).display).toEqual(display);
+    }
+    expect(parse(valid).display.row_start).toBeUndefined();
+  });
+
   it("takes the control bar, or its absence", () => {
     expect(parse({ ...valid, controls: { ...valid.controls, bar: true } }).controls.bar).toBe(true);
     expect(parse(valid).controls.bar).toBeUndefined();
@@ -308,6 +325,9 @@ describe("parseSpec()", () => {
     ["has no highlight flag", JSON.stringify({ ...valid, display: { compact: false, wrap: true } }), /`display`/],
     ["has a row numbers flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, row_numbers: 1 } }), /`display`/],
     ["has a dimensions flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, dimensions: "yes" } }), /`display`/],
+    ["has a monospace flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, monospace: 1 } }), /`display`/],
+    ["starts the rows' numbers other than at 0 or 1", JSON.stringify({ ...valid, display: { ...valid.display, row_start: 2 } }), /`display`/],
+    ["says what the data is with something other than text", JSON.stringify({ ...valid, display: { ...valid.display, data_kind: 3 } }), /`display`/],
     ["has no layout", JSON.stringify({ ...valid, layout: undefined }), /`layout`/],
     ["has no height", JSON.stringify({ ...valid, layout: { responsive: null } }), /`layout`/],
     ["has a height that isn't a string", JSON.stringify({ ...valid, layout: { height: 400, responsive: null } }), /`layout`/],

@@ -21,6 +21,7 @@ from great_tables._gti._render import (
     render_parts,
 )
 from great_tables._gti._spec import FACET_MAX_VALUES
+from great_tables.gti import _data_kind
 
 DF = pd.DataFrame({"id": [f"r{i}" for i in range(6)], "y": [10, 20, 30, 40, 50, 60]})
 
@@ -55,8 +56,11 @@ GTI_DEFAULTS = {
         "highlight": True,
         "compact": False,
         "wrap": True,
+        "monospace": False,
         "row_numbers": False,
+        "row_start": 0,
         "dimensions": False,
+        "data_kind": "Pandas DataFrame",
     },
     "layout": {"height": None, "responsive": "auto", "stack_below": 420},
 }
@@ -412,6 +416,58 @@ def test_i_display():
     assert gti.as_raw_html().startswith("<gt-table data-gti-bar data-gti-nowrap data-gti-stack>")
 
 
+def test_i_display_monospace():
+    gti = GTI(DF).i_display(monospace=True)
+    assert interactive_of(gti) == with_changes(display={"monospace": True})
+    assert spec_of(gti)["display"]["monospace"] is True
+    html = gti.as_raw_html()
+    assert html.startswith("<gt-table data-gti-bar data-gti-monospace data-gti-stack>")
+    assert GTI(DF).as_raw_html().startswith("<gt-table data-gti-bar data-gti-stack>")
+
+
+@pytest.mark.parametrize(
+    "make, kind",
+    [
+        (lambda: pl.DataFrame({"x": [1]}), "Polars DataFrame"),
+        (lambda: pl.LazyFrame({"x": [1]}), "Polars LazyFrame"),
+        (lambda: pd.DataFrame({"x": [1]}), "Pandas DataFrame"),
+        (lambda: pa.table({"x": [1]}), "PyArrow Table"),
+    ],
+)
+def test_data_kind_names_the_data(make, kind: str):
+    gti = GTI(make())
+    assert gti._interactive.data_kind == kind
+    assert spec_of(gti)["display"]["data_kind"] == kind
+    if kind != "Polars LazyFrame":
+        assert GTI.from_gt(GT(make()))._interactive.data_kind == kind
+
+
+def test_data_kind_of_something_else_is_none():
+    assert _data_kind([1, 2]) is None and _data_kind(None) is None
+
+
+def test_row_start_is_the_datas_own():
+    # (A DataFrame's rows from 0, as its index has them, and a database's from 1)
+    assert spec_of(GTI(DF).i_inspect())["display"]["row_start"] == 0
+    assert spec_of(GTI(pl.LazyFrame({"x": [1, 2]})).i_inspect())["display"]["row_start"] == 0
+    duckdb = pytest.importorskip("duckdb")
+    relation = duckdb.sql("select * from (values (2), (1)) as t(x)")
+    assert spec_of(GTI(relation, order_by="x").i_inspect())["display"]["row_start"] == 1
+
+
+def test_row_start_can_be_set():
+    gti = GTI(DF).i_inspect(row_start=1)
+    assert gti._interactive.row_start == 1 and spec_of(gti)["display"]["row_start"] == 1
+    # (A call sets all of the settings: the data's own again)
+    assert spec_of(gti.i_inspect())["display"]["row_start"] == 0
+
+
+@pytest.mark.parametrize("value", [2, -1, True, 1.0, "1"])
+def test_row_start_must_be_0_or_1(value):
+    with pytest.raises(ValueError, match="`row_start=` must be 0, 1 or `None`"):
+        GTI(DF).i_inspect(row_start=value)
+
+
 def test_i_display_compact_halves_row_padding():
     def row_padding(gt: GT) -> str:
         rule = re.search(r"#t \.gt_row {[^}]*?padding-top: ([^;]+);", gt.as_raw_html())
@@ -422,7 +478,7 @@ def test_i_display_compact_halves_row_padding():
     assert row_padding(GTI(DF, id="t").i_display(compact=True)) == "4px"
 
 
-@pytest.mark.parametrize("option", ["highlight", "compact", "wrap"])
+@pytest.mark.parametrize("option", ["highlight", "compact", "wrap", "monospace"])
 def test_i_display_takes_bools(option: str):
     with pytest.raises(TypeError, match=f"`{option}=` must be `True` or `False`"):
         GTI(DF).i_display(**{option: "yes"})
@@ -513,7 +569,7 @@ def test_preset_explorer():
         .i_cols_filter()
         .i_cols_profile()
         .i_cols_controls(hideable=True, reorderable=True)
-        .i_display(compact=True)
+        .i_display(compact=True, wrap=False, monospace=True)
         .i_export("csv")
         .i_inspect()
     )
@@ -524,7 +580,8 @@ def test_preset_explorer():
     assert settings.hideable == settings.reorderable == columns
     assert [column for column, _ in settings.filters] == list(columns)
     assert [column for column, _ in settings.profiles] == list(columns)
-    assert settings.compact and settings.export_formats == ("csv",)
+    assert settings.compact and settings.monospace and not settings.wrap
+    assert settings.export_formats == ("csv",)
     assert inspect_of(explorer) == dict.fromkeys(INSPECT, True)
 
 
@@ -540,12 +597,15 @@ def test_preset_explorer_takes_any_data(frame: str):
     spec = spec_of(GTI(df, preset="explorer"))
     assert [column["missing"] for column in spec["columns"]] == [[2], [1], [1], [2]]
     assert spec["display"]["row_numbers"] and spec["display"]["dimensions"]
+    kinds = {"pandas": "Pandas DataFrame", "polars": "Polars DataFrame", "pyarrow": "PyArrow Table"}
+    assert spec["display"]["data_kind"] == kinds[frame]
 
 
 def test_preset_explorer_is_changed_by_the_i_methods():
     explorer = GTI(FILTER_DF, rowname_col="id", preset="explorer")
     # (Each `i_` method sets all of its feature's settings)
     assert not explorer.i_display(wrap=False)._interactive.compact
+    assert not explorer.i_display(wrap=False)._interactive.monospace
     assert inspect_of(explorer.i_inspect(row_numbers=False))["row_numbers"] is False
     assert explorer.i_export(None)._interactive.export_formats == ()
     # (And each `i_cols_` method those of its columns)

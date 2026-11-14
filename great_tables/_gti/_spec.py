@@ -38,10 +38,12 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
   that leave `bar` out get the latter.
 - `pagination`: whether rows are split into pages, how many to a page, and the page controls
 - `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
-  in the table's CSS, as smaller row padding), and whether cell text wraps; and whether each data
-  row has its number (its place in the data, from 1) before its cells (`row_numbers`), and the
-  number of rows and columns is above the table (`dimensions`). Producers that leave these two out
-  have neither.
+  in the table's CSS, as smaller row padding), and whether cell text wraps; whether the column
+  labels and cells are in a monospaced font (`monospace`); and whether each data row has its
+  number (its place in the data, counted from `row_start`, 0 or 1) before its cells
+  (`row_numbers`), and the number of rows and columns is above the table (`dimensions`), after
+  what the data is (`data_kind`, such as `"Polars DataFrame"`; `null` to say nothing of it).
+  Producers that leave these out have none of them (and rows numbered from 1).
 - `layout`: how the table fits its space: the most it can take up before its body scrolls
   vertically (a CSS length; `null` to grow with its content), and what it does when it's wider
   than its container (`"scroll"`: scroll sideways with the stub pinned; `null`: as GT's table
@@ -155,6 +157,7 @@ from ._settings import (
     PaginationType,
     ProfilePlot,
     SelectionMode,
+    Settings,
     settings_of,
 )
 
@@ -254,12 +257,27 @@ class PaginationSpec(TypedDict):
     type: PaginationType
 
 
+# (The kinds of data whose rows are numbered from 1, as a database numbers them (`ROW_NUMBER()`):
+# a DataFrame's are numbered from 0, as its index is)
+NUMBERED_FROM_1 = ("DuckDB relation", "Ibis table")
+
+
+def row_start_of(settings: Settings) -> int:
+    """The first row's number: as `i_inspect()` set it, or as the data numbers its rows."""
+    if settings.row_start is not None:
+        return settings.row_start
+    return 1 if settings.data_kind in NUMBERED_FROM_1 else 0
+
+
 class DisplaySpec(TypedDict):
     highlight: bool
     compact: bool
     wrap: bool
+    monospace: bool
     row_numbers: bool
+    row_start: int
     dimensions: bool
+    data_kind: str | None
 
 
 class LayoutSpec(TypedDict):
@@ -685,8 +703,11 @@ def build_spec(
             highlight=settings.highlight,
             compact=settings.compact,
             wrap=settings.wrap,
+            monospace=settings.monospace,
             row_numbers=settings.row_numbers,
+            row_start=row_start_of(settings),
             dimensions=settings.dimensions,
+            data_kind=settings.data_kind,
         ),
         layout=LayoutSpec(
             height=settings.height,

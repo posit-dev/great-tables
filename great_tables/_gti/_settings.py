@@ -104,13 +104,21 @@ class Settings:
     highlight: bool = True
     compact: bool = False
     wrap: bool = True
+    # (The column labels and the cells in a monospaced font, as `i_display()` set it)
+    monospace: bool = False
     # (What readers see of the data itself, as `i_inspect()` set it: each row's number (its place
     # in the data), each column's dtype (under its label), the number of rows and columns (above
     # the table), and the missing values (tinted); none, by default)
     row_numbers: bool = False
+    # (The first row's number, 0 or 1; `None` for the data's own (from 1 for a database's relation
+    # or table, from 0 for a DataFrame's, as its index is))
+    row_start: int | None = None
     dtypes: bool = False
     dimensions: bool = False
     missing: bool = False
+    # (What the data is, which the dimensions start with ("Polars DataFrame"): `GTI()` names it,
+    # where it knows the kind; `None` for one it doesn't)
+    data_kind: str | None = None
     # (GTI's control bar below the table; `opt_interactive()` tables keep a search box above the
     # table and page controls below it, as `pagination_type` says)
     bar: bool = True
