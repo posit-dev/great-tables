@@ -740,7 +740,7 @@ function watchWidgets(page: Page, errors: string[]): void {
 }
 
 test("Solara: a table's values, which the app reads and sets", async ({ page }) => {
-  test.skip(!has("solara"), "Solara isn't installed");
+  test.skip(!has("solara", "anywidget"), "Solara and anywidget aren't installed");
   const { url, server } = await solara("solara_state_app.py");
   try {
     const errors = watch(page);
@@ -787,7 +787,7 @@ for (const [what, app, needs] of [
   [" of a LazyFrame", "solara_lazy_app.py", ["polars"]],
 ] as const) {
   test(`Solara: a table${what} whose rows are the app's, a page at a time`, async ({ page }) => {
-    test.skip(!has("solara", ...needs), `${["Solara", ...needs].join(" and ")} aren't all installed`);
+    test.skip(!has("solara", "anywidget", ...needs), `${["Solara", "anywidget", ...needs].join(", ")} aren't all installed`);
     const { url, server } = await solara(app);
     try {
       const errors = watch(page);
@@ -833,7 +833,7 @@ for (const [what, app, needs] of [
 }
 
 test("Solara: a table in a notebook in JupyterLab, which the kernel reads and changes", async ({ page }) => {
-  test.skip(!has("jupyterlab", "ipykernel", "solara"), "JupyterLab, ipykernel and Solara aren't installed");
+  test.skip(!has("jupyterlab", "ipykernel", "solara", "anywidget"), "JupyterLab, ipykernel, Solara and anywidget aren't installed");
   const errors = watch(page, /^No active debugger session$/);
   watchWidgets(page, errors);
   await lab(page, "solara.ipynb", async () => {
