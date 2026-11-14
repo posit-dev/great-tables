@@ -128,12 +128,14 @@ class GTI(GT):
         the controls above; or `"explorer"` for a look through data, as if made with
         `i_cols_filter()` and `i_cols_profile()` (every column filtered and profiled, as its kind
         suggests), `i_cols_controls(hideable=True, reorderable=True)` (every column can be hidden
-        and moved), `i_display(compact=True)`, `i_export("csv")` and `i_inspect()` (row numbers,
-        dtypes under the labels, the number of rows and columns, and missing values tinted). The
-        stub is left out of these, as those methods leave it out. The `i_` methods change a preset
-        as they change any table: each sets all of its feature's settings (so `i_display(wrap=False)`
-        on an explorer makes its rows less compact, unless it's given `compact=True` too), and the
-        `i_cols_` methods set those of the columns they're given.
+        and moved), `i_display(compact=True, wrap=False, monospace=True)` (compact rows of one
+        line each, in a monospaced font), `i_export("csv")` and `i_inspect()` (row numbers,
+        dtypes under the labels, what the data is and its number of rows and columns, and missing
+        values tinted). The stub is left out of these, as those methods leave it out. The `i_`
+        methods change a preset as they change any table: each sets all of its feature's settings
+        (so `i_display(wrap=True)` on an explorer lets its text wrap, but also makes its rows less
+        compact and puts them in the table's own font, unless it's given `compact=True` and
+        `monospace=True` too), and the `i_cols_` methods set those of the columns they're given.
     order_by
         For a lazy frame, the columns its rows are in the order of (and numbered by): the rows sort
         by them first, then by the frame's other columns (see above). A column of unique values
@@ -174,7 +176,8 @@ class GTI(GT):
 
     With `preset="explorer"`, the table is set up for looking through data: each column can be
     filtered (from the button by its label) and has a profile of its values, with its dtype, the
-    rows are numbered and compact, missing values are tinted, and the rows can be downloaded.
+    rows are numbered, compact and monospaced, missing values are tinted, the status line above
+    the table says what the data is and how much of it there is, and the rows can be downloaded.
 
     ```{python}
     from great_tables.data import gtcars
@@ -219,6 +222,7 @@ class GTI(GT):
     ):
         if preset not in PRESETS:
             raise ValueError(f'`preset=` must be "report" or "explorer", not {preset!r}.')
+        kind = _data_kind(data)
         init = {
             "rowname_col": rowname_col,
             "groupname_col": groupname_col,
@@ -242,13 +246,13 @@ class GTI(GT):
             object.__setattr__(self, "_boxhead", lazy.boxhead)
         object.__setattr__(self, "_lazy", lazy)
         # (Kept apart from the table's options, which are `GT`'s; frozen, as the table is)
-        object.__setattr__(self, "_interactive", Settings())
+        object.__setattr__(self, "_interactive", Settings(data_kind=kind))
         if preset == "explorer":
             explorer = (
                 self.i_cols_filter()
                 .i_cols_profile()
                 .i_cols_controls(hideable=True, reorderable=True)
-                .i_display(compact=True)
+                .i_display(compact=True, wrap=False, monospace=True)
                 .i_export("csv")
                 .i_inspect()
             )
@@ -303,9 +307,10 @@ class GTI(GT):
                 pagination_type=Settings().pagination_type,
                 bar=True,
                 responsive=Settings().responsive,
+                data_kind=_data_kind(gt._tbl_data),
             )
         else:
-            settings = Settings()
+            settings = Settings(data_kind=_data_kind(gt._tbl_data))
 
         new = cls.__new__(cls)
         new.__dict__.update(gt.__dict__)
@@ -651,7 +656,12 @@ class GTI(GT):
         )
 
     def i_display(
-        self, *, highlight: bool = True, compact: bool = False, wrap: bool = True
+        self,
+        *,
+        highlight: bool = True,
+        compact: bool = False,
+        wrap: bool = True,
+        monospace: bool = False,
     ) -> Self:
         """
         Set how the table's rows look.
@@ -665,7 +675,11 @@ class GTI(GT):
             it hasn't been set, as with `tab_options(data_row_padding=)`).
         wrap
             Whether the text in cells wraps. Without wrapping, the text is on one line, cut short
-            (with an ellipsis) if it doesn't fit.
+            (with an ellipsis) if it doesn't fit, so that every row is the same height.
+        monospace
+            Whether the column labels and the cells are in a monospaced font, for a table that's a
+            look at data more than a presentation of it (as in `GTI(preset="explorer")`). The
+            title, the notes and the controls keep the table's font.
 
         Returns
         -------
@@ -681,11 +695,18 @@ class GTI(GT):
 
         GTI(exibble[["num", "char", "fctr"]]).i_display(highlight=False, compact=True)
         ```
+
+        And one for looking through data: compact, on one line to a row, and monospaced.
+
+        ```{python}
+        GTI(exibble[["num", "char", "fctr"]]).i_display(compact=True, wrap=False, monospace=True)
+        ```
         """
         return self._set_interactive(
             highlight=_flag(highlight, "highlight"),
             compact=_flag(compact, "compact"),
             wrap=_flag(wrap, "wrap"),
+            monospace=_flag(monospace, "monospace"),
         )
 
     def i_inspect(
@@ -695,6 +716,7 @@ class GTI(GT):
         dtypes: bool = True,
         dimensions: bool = True,
         missing: bool = True,
+        row_start: int | None = None,
     ) -> Self:
         """
         Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where
@@ -702,12 +724,16 @@ class GTI(GT):
 
         Row numbers are in a narrow column before the others (with the rows' checkboxes, with
         [`i_selection()`](`great_tables.GTI.i_selection`)), pinned with the stub as the table
-        scrolls sideways: each row's is its place in the data, from 1, which stays with it as the
-        rows are sorted, filtered and paged. A dtype is under its column's label, as a short name
+        scrolls sideways: each row's is its place in the data, which stays with it as the rows are
+        sorted, filtered and paged. A DataFrame's rows are numbered from 0, as its index is (and as
+        Polars' `with_row_index()` numbers them), and a DuckDB relation's or an Ibis table's from 1,
+        as a database's `ROW_NUMBER()` does; `row_start=` sets where they start. A dtype is under its column's label, as a short name
         (as Polars prints it, for any DataFrame library): `"i64"`, `"f64"`, `"str"`, `"bool"`,
-        `"cat"`, `"date"`, `"datetime"`, and so on. The dimensions are above the table: its number
-        of rows and columns (those shown, of the stub and the data), and how many of them are
-        left as readers search, filter and hide columns ("12 of 47 rows × 6 columns"). A missing
+        `"cat"`, `"date"`, `"datetime"`, and so on. The dimensions are in the status line above
+        the table: what the data is (a Polars DataFrame or LazyFrame, a Pandas DataFrame, a
+        PyArrow Table, a DuckDB relation or an Ibis table), its number of rows and columns (those
+        shown, of the stub and the data), and how many of them are left as readers search, filter
+        and hide columns ("Polars DataFrame · 12 of 47 rows × 6 columns"). A missing
         value (`None`, or NaN in a column of floats) has its cell tinted, whatever the cell shows
         (as [`sub_missing()`](`great_tables.GT.sub_missing`) makes it). None of these are
         searched or exported, and they're all off by default (but in `GTI(preset="explorer")`).
@@ -722,9 +748,13 @@ class GTI(GT):
         dtypes
             Whether each column's dtype is under its label.
         dimensions
-            Whether the number of rows and columns is above the table.
+            Whether what the data is, and its number of rows and columns, are in the status line
+            above the table.
         missing
             Whether the cells of missing values are tinted.
+        row_start
+            The first row's number: `0` or `1`. By default, it's `0` for a DataFrame (of Polars,
+            Pandas or PyArrow) and `1` for a DuckDB relation or an Ibis table.
 
         Returns
         -------
@@ -741,10 +771,13 @@ class GTI(GT):
         GTI(exibble[["num", "char", "fctr", "date"]]).sub_missing().i_inspect()
         ```
 
-        The row numbers alone:
+        The row numbers alone, counted from 1:
 
         ```{python}
-        GTI(exibble[["num", "char", "fctr"]]).i_inspect(dtypes=False, dimensions=False, missing=False)
+        (
+            GTI(exibble[["num", "char", "fctr"]])
+            .i_inspect(dtypes=False, dimensions=False, missing=False, row_start=1)
+        )
         ```
         """
         return self._set_interactive(
@@ -752,6 +785,7 @@ class GTI(GT):
             dtypes=_flag(dtypes, "dtypes"),
             dimensions=_flag(dimensions, "dimensions"),
             missing=_flag(missing, "missing"),
+            row_start=_row_start(row_start),
         )
 
     def i_cols_filter(self, columns: SelectExpr = None, type: FilterType | None = "auto") -> Self:
@@ -1391,7 +1425,7 @@ class GTI(GT):
             (so `{"col": "population_2021", "op": "top_n", "value": 10}` keeps the ten most
             populous, and any tied with the tenth), but not a missing value, NaN or an infinity.
             A `"matches"` pattern is in the part of regular
-            expressions' syntax that the browser, Polars, pandas and PyArrow read alike:
+            expressions' syntax that the browser, Polars, Pandas and PyArrow read alike:
             characters (`\\` before punctuation for the character itself), `.`, `^` and `$` (the
             start and end of the text), classes as `[a-z]` and `[^0-9]`, `\\d`, `\\w` and `\\s`
             (ASCII's), groups (`(...)` or `(?:...)`) and `|`, and repeats (`*`, `+`, `?`, and
@@ -1653,7 +1687,7 @@ class GTI(GT):
         name). Exporting is off by default.
 
         With `"code"`, readers can also copy code that filters and sorts the table's data (as
-        `df`) as their view of it does, for Polars, pandas, or Narwhals (the library of the
+        `df`) as their view of it does, for Polars, Pandas, or Narwhals (the library of the
         data, at first). The code works on the data's values, so it leaves out the search, and
         a `contains` or `matches` match is of a column's values as text (not of the text the
         table shows; and `contains` ignores case, but not accents); it doesn't keep rows within
@@ -1677,7 +1711,7 @@ class GTI(GT):
         Examples
         --------
         Here's a table of Ontario's municipalities that readers can filter, then download what's
-        left as a CSV or JSON file (`towny.csv` or `towny.json`), or copy, or copy the pandas code
+        left as a CSV or JSON file (`towny.csv` or `towny.json`), or copy, or copy the Pandas code
         that filters the data as they have.
 
         ```{python}
@@ -2042,7 +2076,7 @@ class GTI(GT):
 
         ```python
         widget.query           # 'mfr in ("Ferrari", "Lamborghini")'
-        widget.view()          # those makes' cars, as a pandas DataFrame
+        widget.view()          # those makes' cars, as a Pandas DataFrame
         widget.view(selected=True)
         ```
 
@@ -2188,6 +2222,32 @@ _LAZY_FRAMES = [
     ("duckdb", "DuckDBPyRelation"),
     ("ibis.expr.types", "Table"),
 ]
+
+
+# What each kind of data is called, where the dimensions name it
+_DATA_KINDS = [
+    ("polars", "DataFrame", "Polars DataFrame"),
+    ("polars", "LazyFrame", "Polars LazyFrame"),
+    ("pandas", "DataFrame", "Pandas DataFrame"),
+    ("pyarrow", "Table", "PyArrow Table"),
+    ("duckdb", "DuckDBPyRelation", "DuckDB relation"),
+    ("ibis.expr.types", "Table", "Ibis table"),
+]
+
+
+def _row_start(value: Any) -> int | None:
+    if value is None or (value in (0, 1) and type(value) is int):
+        return value
+    raise ValueError(f"`row_start=` must be 0, 1 or `None`, not {value!r}.")
+
+
+def _data_kind(data: Any) -> str | None:
+    # (Of a module that's imported, which it is if there's data of it)
+    for module, name, called in _DATA_KINDS:
+        kind = getattr(sys.modules.get(module), name, None)
+        if isinstance(kind, type) and isinstance(data, kind):
+            return called
+    return None
 
 
 def _is_lazy_frame(data: Any) -> bool:
