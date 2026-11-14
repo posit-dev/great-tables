@@ -443,8 +443,11 @@ def test_spec_display_default():
         "highlight": False,
         "compact": False,
         "wrap": True,
+        "monospace": False,
         "row_numbers": False,
+        "row_start": 0,
         "dimensions": False,
+        "data_kind": None,
     }
 
 
@@ -454,8 +457,11 @@ def test_spec_display_from_opt_interactive():
         "highlight": True,
         "compact": True,
         "wrap": False,
+        "monospace": False,
         "row_numbers": False,
+        "row_start": 0,
         "dimensions": False,
+        "data_kind": None,
     }
 
 
