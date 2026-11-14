@@ -92,6 +92,13 @@ def both(request) -> tuple[KernelEngine, LazyEngine]:
     return engines(*pair(request.param, make_gti))
 
 
+def unkind(html: str) -> str:
+    """The table's HTML, but for what it says the data is (which a lazy table names as lazy), and
+    where its rows' numbers start (from 1 for a database's)."""
+    html = re.sub(r'"row_start":[01]', '"row_start":0', html)
+    return re.sub(r'"data_kind":(null|"[^"]*")', '"data_kind":null', html)
+
+
 def page_query(**parts) -> dict:
     return {**QUERY, "start": 0, "size": 3, **parts}
 
@@ -247,7 +254,13 @@ def test_pages_are_the_eager_tables(backend, rowname_col):
     for start in (0, 3, 6):
         query = page_query(sort=[{"column": "num", "descending": True}], start=start)
         assert lazy.page(query) == eager.page(query)
-    assert lazy.render() == eager.render()
+    (lazy_html, lazy_spec), (eager_html, eager_spec) = lazy.render(), eager.render()
+    assert unkind(lazy_html) == unkind(eager_html)
+    kindless = {"data_kind": None, "row_start": 0}
+    assert {**lazy_spec, "display": {**lazy_spec["display"], **kindless}} == {
+        **eager_spec,
+        "display": {**eager_spec["display"], **kindless},
+    }
 
 
 def test_page_is_made_from_its_rows_only():
@@ -383,13 +396,15 @@ def test_order_by_is_checked():
 def test_browser_table_is_collected():
     lazy = make_gti(FRAME.lazy()).fmt_number("num", decimals=1)
     eager = make_gti(FRAME).fmt_number("num", decimals=1)
-    assert lazy.as_raw_html() == eager.as_raw_html()
+    assert unkind(lazy.as_raw_html()) == unkind(eager.as_raw_html())
+    # (But it still says it's a LazyFrame)
+    assert '"data_kind":"Polars LazyFrame"' in lazy.as_raw_html()
 
 
 @pytest.mark.parametrize("backend", ["duckdb", "ibis"])
 def test_browser_table_of_a_relation_is_collected_in_order(backend):
     eager, lazy = pair(backend, lambda d, o: make_gti(d, o).fmt_number("num", decimals=1))
-    assert lazy.as_raw_html() == eager.as_raw_html()
+    assert unkind(lazy.as_raw_html()) == unkind(eager.as_raw_html())
     assert type(collected(lazy)._tbl_data).__name__ == "Table"
 
 
@@ -402,7 +417,7 @@ def test_large_browser_table_warns_it_was_collected():
 def test_summary_rows_are_made_from_every_row():
     gti = GTI(FRAME.lazy(), id="t").grand_summary_rows(fns={"Total": pl.col("int").sum()})
     eager = GTI(FRAME, id="t").grand_summary_rows(fns={"Total": pl.col("int").sum()})
-    assert gti.as_raw_html() == eager.as_raw_html()
+    assert unkind(gti.as_raw_html()) == unkind(eager.as_raw_html())
     with pytest.warns(GTIEngineWarning, match="summary rows"):
         _, _, engine = render_table(gti.i_scale("kernel"))
     assert engine is None
