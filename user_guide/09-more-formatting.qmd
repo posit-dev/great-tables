@@ -386,7 +386,7 @@ methods do not cover. Your function can return plain text or HTML strings for ri
 can express in Python (lookups, conditional logic, external API calls) can become a cell formatter.
 If you find yourself writing the same custom formatter repeatedly, consider wrapping it in a
 reusable function and sharing it across tables. This is exactly the pattern described in the
-[Extending Great Tables](./23-extensions.qmd) page.
+[Extending Great Tables](./25-extensions.qmd) page.
 
 The formatting methods in **Great Tables** cover a wide spectrum of data types and presentation
 needs. From scientific notation to country flags, from boolean indicators to custom functions, you
