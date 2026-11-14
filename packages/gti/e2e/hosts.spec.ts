@@ -880,6 +880,121 @@ test("marimo: an app exported to HTML", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+// A marimo notebook, as an app or to edit, once it answers (on a port of its own)
+async function marimo(notebook: string, mode = "run"): Promise<{ url: string; server: ChildProcess }> {
+  const port = await freePort();
+  const url = `http://127.0.0.1:${port}/`;
+  const server = await serve(
+    `${url}health`,
+    ...["-m", "marimo", mode, notebook, "--port", String(port), "--host", "127.0.0.1"],
+    ...["--headless", "--no-token"],
+  );
+  return { url, server };
+}
+
+for (const mode of ["run", "edit"]) {
+  test(`marimo: a table's value, which the notebook reads and sets (marimo ${mode})`, async ({ page }) => {
+    test.skip(!has("marimo", "anywidget"), "marimo and anywidget aren't installed");
+    const { url, server } = await marimo("marimo_state_app.py", mode);
+    try {
+      const errors = watch(page);
+      watchWidgets(page, errors);
+      await page.goto(url);
+      if (mode === "edit") {
+        // (A notebook opened to edit isn't run until it's asked to be, with the button below the
+        // cells, after theirs)
+        await page.getByTestId("run-button").last().click({ timeout: 30_000 });
+      }
+      const table = page.locator("gt-table");
+      await expect(table).toHaveAttribute("data-gti-state", "ready", { timeout: 30_000 });
+      const state = () => solaraState(page);
+      const shown = () => table.evaluate((el: any) => [el.rows, el.selection, el.search, el.sort]);
+      await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], []]);
+
+      // What the reader does, the cell that reads the table has
+      await table.getByRole("button", { name: "Search the table" }).click();
+      await table.locator("input.gt-i-search").fill("an");
+      await expect.poll(state).toEqual(["", "an", [], [1, 3], []]);
+      await table.locator("tbody input[type=checkbox]").nth(3).check();
+      await expect.poll(state).toEqual(["", "an", [], [1, 3], [3]]);
+      await table.locator("input.gt-i-search").fill("");
+      await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], [3]]);
+
+      // What the button sets, the table shows (the same one)
+      await table.evaluate((el) => el.setAttribute("data-old", ""));
+      await page.getByRole("button", { name: "Update", exact: true }).click();
+      await expect.poll(shown).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+      await expect.poll(state).toEqual(['fctr in ("one", "two")', "", ["-num"], [1, 0], [0]]);
+      await expect(page.locator("gt-table[data-old]")).toHaveCount(1);
+      // (And a selection, which leaves the rows as they are, so the browser has nothing to tell)
+      await page.getByRole("button", { name: "Select", exact: true }).click();
+      await expect.poll(shown).toEqual([[1, 0], [0, 1], "", [{ column: "num", descending: true }]]);
+      await expect.poll(state).toEqual(['fctr in ("one", "two")', "", ["-num"], [1, 0], [0, 1]]);
+
+      // (And the table's cell, run again, makes another, which starts as it's made)
+      await page.getByRole("checkbox", { name: "Head" }).check();
+      await expect(page.locator("gt-table[data-old]")).toHaveCount(0);
+      await expect(table).toHaveAttribute("data-gti-state", "ready");
+      await expect.poll(shown).toEqual([[0, 1, 2, 3], [], "", []]);
+      await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3], []]);
+      expect(errors).toEqual([]);
+    } finally {
+      server.kill();
+    }
+  });
+}
+
+// (Of a data frame, and of a LazyFrame)
+for (const [what, app, needs] of [
+  ["", "marimo_kernel_app.py", []],
+  [" of a LazyFrame", "marimo_lazy_app.py", ["polars"]],
+] as const) {
+  test(`marimo: a table${what} whose rows are the notebook's, a page at a time`, async ({ page }) => {
+    test.skip(!has("marimo", "anywidget", ...needs), `${["marimo", "anywidget", ...needs].join(", ")} aren't all installed`);
+    const { url, server } = await marimo(app);
+    try {
+      const errors = watch(page);
+      watchWidgets(page, errors);
+      await page.goto(url);
+      const table = page.locator("gt-table");
+      await expect(table).toHaveAttribute("data-gti-state", "ready", { timeout: 30_000 });
+      const state = () => solaraState(page);
+      const shown = () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
+      const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
+      await expect.poll(shown).toEqual([rows(0), 500, false]);
+      await expect.poll(state).toEqual([5000, [0, 1, 2], ""]);
+
+      // (Each page, sort and search, from the notebook, which finds the rows)
+      await table.evaluate((el: any) => {
+        el.page = 3;
+      });
+      await expect.poll(shown).toEqual([rows(20), 500, false]);
+      await table.locator("thead button.gt-i-sort").first().click();
+      await table.locator("thead button.gt-i-sort").first().click();
+      await expect.poll(shown).toEqual([rows(4999, -1), 500, false]);
+      await expect(table.locator("tbody tr:not([hidden]) td").first()).toHaveText("4999");
+      await expect.poll(state).toEqual([5000, [4999, 4998, 4997], ""]);
+      await table.getByRole("button", { name: "Search the table" }).click();
+      await table.locator("input.gt-i-search").fill("4998");
+      await expect.poll(shown).toEqual([[4998], 1, false]);
+      await expect.poll(state).toEqual([1, [4998], "4998"]);
+
+      // (And a view the button sets, which the asks for its pages don't undo)
+      await page.getByRole("button", { name: "Update", exact: true }).click();
+      await expect.poll(shown).toEqual([rows(1, 2), 250, false]);
+      await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+      await table.evaluate((el: any) => {
+        el.page = 2;
+      });
+      await expect.poll(shown).toEqual([rows(21, 2), 250, false]);
+      await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+      expect(errors).toEqual([]);
+    } finally {
+      server.kill();
+    }
+  });
+}
+
 test("VS Code: outputs shown as its notebooks show them, in a sandboxed frame", async ({ page }) => {
   const errors = watch(page);
   await page.goto(pathToFileURL(join(dir, "vscode.html")).href);

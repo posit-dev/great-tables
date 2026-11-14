@@ -70,8 +70,8 @@ class GTIWidget(anywidget.AnyWidget):
     A GTI table as a widget, whose view and selection can be read and set from Python.
 
     Made by [`GTI.i_as_widget()`](`great_tables.GTI.i_as_widget`), which has the details. (A
-    `GT` table with `opt_interactive()` can be one too, as Solara's `GTITable` shows it: its rows
-    are then only known once it's shown.)
+    `GT` table with `opt_interactive()` can be one too, as Solara's `GTITable` and marimo's
+    `mo_gti()` show it: its rows are then only known once it's shown.)
     """
 
     _esm = traitlets.Unicode().tag(sync=True)
