@@ -14,7 +14,8 @@ app (in a module) showing what a `GTI` table's inputs have, with buttons that ch
 sends its pages, showing the rows the server finds. And the same two as Streamlit apps (with
 `st_gti()`), the first also showing how many times it's been run; and as Panel apps (with
 `GTIPane`), showing its parameters, and two notebooks with one, for JupyterLab (the second's rows
-the kernel's, and shown twice).
+the kernel's, and shown twice); and as Solara apps (with `GTITable`), showing its values, and a
+notebook with one, for JupyterLab.
 """
 
 from __future__ import annotations
@@ -406,6 +407,108 @@ def panel_kernel_app(lazy: bool = False) -> str:
     return PANEL_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
 
 
+# (A Solara app showing a `GTITable`'s values, with a button that sets them: its table is made
+# again on each render, and another one with "Head")
+SOLARA_STATE_APP = f"""\
+import json
+
+import solara
+
+from great_tables.solara import GTITable
+
+{SETUP}
+
+query = solara.reactive("")
+search = solara.reactive("")
+sort = solara.reactive([])
+selection = solara.reactive([])
+rows = solara.reactive(None)
+head = solara.reactive(False)
+
+
+def update():
+    query.set('fctr in ("one", "two")')
+    sort.set(["-num"])
+    selection.set([0])
+
+
+@solara.component
+def Page():
+    solara.Button("Update", on_click=update)
+    solara.Checkbox(label="Head", value=head)
+    table = GTI(small.head(4) if head.value else small).i_cols_filter(columns="fctr", type="facet")
+    GTITable(
+        table.i_selection("multiple"),
+        query=query,
+        search=search,
+        sort=sort,
+        selection=selection,
+        on_rows=rows.set,
+    )
+    state = [query.value, search.value, sort.value, rows.value, selection.value]
+    solara.Text(json.dumps(state), classes=["state"])
+"""
+
+# (And one with a `GTITable` whose rows are the app's, which sends its pages, showing the rows it
+# finds)
+SOLARA_KERNEL_APP = """\
+import json
+
+import pandas as pd
+import solara
+
+from great_tables import GTI
+from great_tables.solara import GTITable
+
+big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+<big>
+table = GTI(big).i_cols_filter(columns="kind", type="facet")<scale>
+query = solara.reactive("")
+search = solara.reactive("")
+sort = solara.reactive([])
+rows = solara.reactive(None)
+
+
+def update():
+    search.set("")
+    query.set('kind in ("odd")')
+    sort.set(["n"])
+
+
+@solara.component
+def Page():
+    solara.Button("Update", on_click=update)
+    GTITable(table, query=query, search=search, sort=sort, on_rows=rows.set)
+    state = [len(rows.value or []), (rows.value or [])[:3], search.value]
+    solara.Text(json.dumps(state), classes=["state"])
+"""
+
+
+# (A `GTITable` in a notebook, with its values in reactive variables)
+SOLARA_NOTEBOOK = [
+    "import solara\n\nfrom great_tables.solara import GTITable",
+    """\
+query = solara.reactive("")
+sort = solara.reactive([])
+selection = solara.reactive([])
+rows = solara.reactive(None)
+
+
+@solara.component
+def Table():
+    table = GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple")
+    GTITable(table, query=query, sort=sort, selection=selection, on_rows=rows.set)
+
+
+Table()""",
+]
+
+
+def solara_kernel_app(lazy: bool = False) -> str:
+    big, scale = (LAZY_BIG, "") if lazy else ("", '.i_scale(engine="kernel")')
+    return SOLARA_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
+
 # (The tables as cells' outputs, and the second also as `mo.Html()`)
 MARIMO_APP = f"""\
 import marimo
@@ -516,6 +619,10 @@ def main() -> None:
         "panel_state_app.py": PANEL_STATE_APP,
         "panel_kernel_app.py": panel_kernel_app(),
         "panel_lazy_app.py": panel_kernel_app(lazy=True),
+        "solara.ipynb": notebook([SETUP, *SOLARA_NOTEBOOK]),
+        "solara_state_app.py": SOLARA_STATE_APP,
+        "solara_kernel_app.py": solara_kernel_app(),
+        "solara_lazy_app.py": solara_kernel_app(lazy=True),
         "marimo_app.py": MARIMO_APP,
         "vscode.html": vscode_page(),
     }

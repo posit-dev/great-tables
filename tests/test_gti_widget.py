@@ -15,9 +15,9 @@ import pytest
 
 pytest.importorskip("anywidget")
 
-from great_tables import GTI  # noqa: E402
+from great_tables import GT, GTI  # noqa: E402
 from great_tables._gti._render import JS_DIR, _load_runtime, render_gti_element  # noqa: E402
-from great_tables._gti._widget import GTIWidget, _esm  # noqa: E402
+from great_tables._gti._widget import GTIWidget, _esm, render_widget_table  # noqa: E402
 
 DATA = {
     "char": ["apricot", "banana", "coconut", "durian", "fig"],
@@ -227,6 +227,28 @@ def test_on_change_calls_back():
     assert calls == [widget]
     with pytest.raises(TypeError, match="callable"):
         widget.on_change(3)  # type: ignore[arg-type]
+
+
+def test_widget_of_an_opt_interactive_table():
+    # (As Solara's `GTITable` makes one: its rows are only known once it's shown)
+    widget = GTIWidget(GT(pd.DataFrame(DATA)).opt_interactive(use_filters=True))
+    assert widget._html.startswith("<gt-table") and widget._kernel is False
+    assert widget.query == "" and widget.sort == []
+    with pytest.raises(RuntimeError, match="aren't known before it's shown"):
+        widget.rows
+    widget.sort = "-num"
+    show(widget, sort=[{"column": "num", "descending": True}], rows=[3, 0, 4, 1, 2])
+    assert widget.rows == [3, 0, 4, 1, 2]
+
+
+def test_widget_made_with_its_first_state():
+    gti = GTI(pd.DataFrame(DATA)).i_cols_filter("fctr", type="facet").i_selection("multiple")
+    rendered = render_widget_table(gti)
+    view = {**VIEW, "filter": {"and": [{"col": "fctr", "op": "in", "value": ["one"]}]}}
+    widget = GTIWidget(gti, rendered, {"_view": view, "_selection": [2]})
+    assert widget._html == rendered[0]
+    assert widget.query == 'fctr in ("one")' and widget.selection == [2]
+    assert widget.rows == [0, 2]
 
 
 def test_needs_anywidget(monkeypatch):
