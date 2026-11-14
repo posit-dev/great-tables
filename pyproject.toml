@@ -55,6 +55,7 @@ all = [
     "great_tables[widget]",
     "great_tables[streamlit]",
     "great_tables[panel]",
+    "great_tables[solara]",
     "great_tables[dev]",
 ]
 
@@ -76,6 +77,12 @@ panel = [
     "panel>=1.6.2",
 ]
 
+solara = [
+    "solara>=1.40",
+    "anywidget>=0.9",
+    "narwhals",
+]
+
 dev = [
     "great_tables[dev-no-pandas]",
     "ibis-framework[duckdb]",
@@ -84,6 +91,7 @@ dev = [
     "numpy>=1.22.4",
     "streamlit",
     "panel>=1.6.2",
+    "solara>=1.40",
 ]
 
 dev-no-pandas = [
