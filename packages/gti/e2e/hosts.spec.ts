@@ -714,6 +714,150 @@ test("Panel: a table in a notebook in JupyterLab, shown twice, whose rows are th
   expect(errors).toEqual([]);
 });
 
+// A Solara app, once it answers (on a port of its own)
+async function solara(app: string): Promise<{ url: string; server: ChildProcess }> {
+  const port = await freePort();
+  const url = `http://127.0.0.1:${port}/`;
+  const server = await serve(
+    url,
+    ...["-m", "solara", "run", app, "--port", String(port), "--host", "127.0.0.1"],
+    ...["--no-open", "--production"],
+  );
+  return { url, server };
+}
+
+// (What the app shows of the table's values; and what anywidget says went wrong, as a widget
+// it can't make is only logged)
+const solaraState = async (page: Page): Promise<unknown> =>
+  JSON.parse((await page.locator(".state").textContent()) || "null");
+
+function watchWidgets(page: Page, errors: string[]): void {
+  page.on("console", (msg) => {
+    if (msg.text().startsWith("[anywidget]")) {
+      errors.push(msg.text());
+    }
+  });
+}
+
+test("Solara: a table's values, which the app reads and sets", async ({ page }) => {
+  test.skip(!has("solara"), "Solara isn't installed");
+  const { url, server } = await solara("solara_state_app.py");
+  try {
+    const errors = watch(page);
+    watchWidgets(page, errors);
+    await page.goto(url);
+    const table = page.locator("gt-table");
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    const state = () => solaraState(page);
+    const shown = () => table.evaluate((el: any) => [el.rows, el.selection, el.search, el.sort]);
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], []]);
+
+    // What the reader does, the app has
+    await expect(table.locator("button.gt-i-sort").first()).toHaveCSS("cursor", "pointer");
+    await table.getByRole("button", { name: "Search the table" }).click();
+    await table.locator("input.gt-i-search").fill("an");
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], []]);
+    await table.locator("tbody input[type=checkbox]").nth(3).check();
+    await expect.poll(state).toEqual(["", "an", [], [1, 3], [3]]);
+    await table.locator("input.gt-i-search").fill("");
+    await expect.poll(state).toEqual(["", "", [], [0, 1, 2, 3, 4, 5, 6, 7], [3]]);
+
+    // What the app sets, the table shows (the table, made again on each render, is the same one)
+    await table.evaluate((el) => el.setAttribute("data-old", ""));
+    await page.getByRole("button", { name: "Update" }).click();
+    await expect.poll(shown).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+    await expect.poll(state).toEqual(['fctr in ("one", "two")', "", ["-num"], [1, 0], [0]]);
+    await expect(page.locator("gt-table[data-old]")).toHaveCount(1);
+
+    // (And another table is shown with the app's values)
+    await page.getByText("Head").click();
+    await expect(page.locator("gt-table[data-old]")).toHaveCount(0);
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    await expect.poll(shown).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+    await expect.poll(state).toEqual(['fctr in ("one", "two")', "", ["-num"], [1, 0], [0]]);
+    expect(errors).toEqual([]);
+  } finally {
+    server.kill();
+  }
+});
+
+// (Of a data frame, and of a LazyFrame)
+for (const [what, app, needs] of [
+  ["", "solara_kernel_app.py", []],
+  [" of a LazyFrame", "solara_lazy_app.py", ["polars"]],
+] as const) {
+  test(`Solara: a table${what} whose rows are the app's, a page at a time`, async ({ page }) => {
+    test.skip(!has("solara", ...needs), `${["Solara", ...needs].join(" and ")} aren't all installed`);
+    const { url, server } = await solara(app);
+    try {
+      const errors = watch(page);
+      watchWidgets(page, errors);
+      await page.goto(url);
+      const table = page.locator("gt-table");
+      await expect(table).toHaveAttribute("data-gti-state", "ready");
+      const state = () => solaraState(page);
+      const shown = () => table.evaluate((el: any) => [el.rows, el.pageCount, el.loading]);
+      const rows = (start: number, step = 1) => Array.from({ length: 10 }, (_, i) => start + i * step);
+      await expect.poll(shown).toEqual([rows(0), 500, false]);
+      await expect.poll(state).toEqual([5000, [0, 1, 2], ""]);
+
+      // (Each page, sort and search, from the app, which finds the rows)
+      await table.evaluate((el: any) => {
+        el.page = 3;
+      });
+      await expect.poll(shown).toEqual([rows(20), 500, false]);
+      await table.locator("thead button.gt-i-sort").first().click();
+      await table.locator("thead button.gt-i-sort").first().click();
+      await expect.poll(shown).toEqual([rows(4999, -1), 500, false]);
+      await expect(table.locator("tbody tr:not([hidden]) td").first()).toHaveText("4999");
+      await expect.poll(state).toEqual([5000, [4999, 4998, 4997], ""]);
+      await table.getByRole("button", { name: "Search the table" }).click();
+      await table.locator("input.gt-i-search").fill("4998");
+      await expect.poll(shown).toEqual([[4998], 1, false]);
+      await expect.poll(state).toEqual([1, [4998], "4998"]);
+
+      // (And a view the app sets, which the asks for its pages don't undo)
+      await page.getByRole("button", { name: "Update" }).click();
+      await expect.poll(shown).toEqual([rows(1, 2), 250, false]);
+      await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+      await table.evaluate((el: any) => {
+        el.page = 2;
+      });
+      await expect.poll(shown).toEqual([rows(21, 2), 250, false]);
+      await expect.poll(state).toEqual([2500, [1, 3, 5], ""]);
+      expect(errors).toEqual([]);
+    } finally {
+      server.kill();
+    }
+  });
+}
+
+test("Solara: a table in a notebook in JupyterLab, which the kernel reads and changes", async ({ page }) => {
+  test.skip(!has("jupyterlab", "ipykernel", "solara"), "JupyterLab, ipykernel and Solara aren't installed");
+  const errors = watch(page, /^No active debugger session$/);
+  watchWidgets(page, errors);
+  await lab(page, "solara.ipynb", async () => {
+    await runAll(page);
+    const table = page.locator(".jp-OutputArea gt-table");
+    await expect(table).toHaveAttribute("data-gti-state", "ready");
+    const shown = () => table.evaluate((el: any) => [el.rows, el.selection, el.search, el.sort]);
+    const state = () => kernelValue(page, "[query.value, sort.value, rows.value, selection.value]");
+    await expect.poll(state).toEqual(["", [], [0, 1, 2, 3, 4, 5, 6, 7], []]);
+
+    // What the reader does, the kernel has
+    await table.locator("tbody input[type=checkbox]").nth(3).check();
+    await expect.poll(state).toEqual(["", [], [0, 1, 2, 3, 4, 5, 6, 7], [3]]);
+    await table.locator("thead button.gt-i-sort").first().click();
+    await expect.poll(state).toEqual(["", ["num"], [0, 1, 2, 3, 4, 6, 7, 5], [3]]);
+
+    // What the kernel changes, the table shows
+    await kernelRun(page, 'query.set(\'fctr in ("one", "two")\'); sort.set(["-num"]); selection.set([0])');
+    await expect.poll(shown).toEqual([[1, 0], [0], "", [{ column: "num", descending: true }]]);
+    await expect.poll(state).toEqual(['fctr in ("one", "two")', ["-num"], [1, 0], [0]]);
+  });
+  expect(errors).toEqual([]);
+});
+
 test("marimo: an app exported to HTML", async ({ page }) => {
   test.skip(!has("marimo"), "marimo isn't installed");
   run(PYTHON, "-m", "marimo", "export", "html", "marimo_app.py", "-o", "marimo.html");
