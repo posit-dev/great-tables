@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 384" width="760" height="384" role="img" xml:space="preserve">
+<title>The parts of a GTI table</title>
+<desc>A schematic GTI table with its parts labelled. The table GT made (column labels and body) is drawn in gray; the parts GTI adds are in teal: the status line above the table, the column controls and column profiles under the labels, the row numbers, the height handle at the foot of the body, the filter tokens, and the control bar below the table with its search, keyboard shortcuts, page controls and counter, filters-as-text button, panels, and undo and redo.</desc>
+<rect width="760" height="384" fill="#ffffff"/>
+<rect x="584" y="12" width="10" height="10" rx="2" fill="#848689"/>
+<rect x="584" y="28" width="10" height="10" rx="2" fill="#0b7a64"/>
+<polyline points="180,34 186,34" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="186" cy="34" r="2" fill="#0b7a64"/>
+<rect x="190" y="50" width="380" height="24" fill="#e4e5e5"/>
+<polyline points="580,62 568,62" fill="none" stroke="#848689" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="568" cy="62" r="2" fill="#848689"/>
+<rect x="220" y="77.0" width="24.3" height="12.0" rx="2" fill="#ddece9"/>
+<polyline points="250.3,81.5 253.3,78.0 256.3,81.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="250.3,84.5 253.3,88.0 256.3,84.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="261.8,78.5 270.8,78.5 267.3,83.0 267.3,87.5 265.3,87.5 265.3,83.0 261.8,78.5" fill="#0b7a64" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="306" y="77.0" width="24.3" height="12.0" rx="2" fill="#ddece9"/>
+<polyline points="336.3,81.5 339.3,78.0 342.3,81.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="336.3,84.5 339.3,88.0 342.3,84.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="347.8,78.5 356.8,78.5 353.3,83.0 353.3,87.5 351.3,87.5 351.3,83.0 347.8,78.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="407.7" y="77.0" width="24.3" height="12.0" rx="2" fill="#ddece9"/>
+<polyline points="438.0,81.5 441.0,78.0 444.0,81.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="438.0,84.5 441.0,88.0 444.0,84.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="449.5,78.5 458.5,78.5 455.0,83.0 455.0,87.5 453.0,87.5 453.0,83.0 449.5,78.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="507.70000000000005" y="77.0" width="24.3" height="12.0" rx="2" fill="#ddece9"/>
+<polyline points="538.0,81.5 541.0,78.0 544.0,81.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polygon points="538.0,84.5 541.0,88.0 544.0,84.5" fill="#0b7a64" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="549.5,78.5 558.5,78.5 555.0,83.0 555.0,87.5 553.0,87.5 553.0,83.0 549.5,78.5" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="180,74 218,83.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="218" cy="83.0" r="2" fill="#0b7a64"/>
+<rect x="220.0" y="96.0" width="7.25" height="26.0" fill="#79b6aa"/>
+<rect x="229.25" y="116.28" width="7.25" height="5.72" fill="#79b6aa"/>
+<rect x="275.5" y="118.88" width="7.25" height="3.12" fill="#79b6aa"/>
+<rect x="284.75" y="118.88" width="7.25" height="3.12" fill="#79b6aa"/>
+<rect x="306.0" y="118.88" width="7.78" height="3.12" fill="#79b6aa"/>
+<rect x="315.77777777777777" y="118.88" width="7.78" height="3.12" fill="#79b6aa"/>
+<rect x="325.55555555555554" y="118.88" width="7.78" height="3.12" fill="#79b6aa"/>
+<rect x="335.3333333333333" y="118.88" width="7.78" height="3.12" fill="#79b6aa"/>
+<rect x="345.1111111111111" y="118.88" width="7.78" height="3.12" fill="#79b6aa"/>
+<rect x="354.8888888888889" y="118.88" width="7.78" height="3.12" fill="#79b6aa"/>
+<rect x="364.6666666666667" y="118.88" width="7.78" height="3.12" fill="#79b6aa"/>
+<rect x="374.44444444444446" y="118.88" width="7.78" height="3.12" fill="#79b6aa"/>
+<rect x="384.22222222222223" y="118.88" width="7.78" height="3.12" fill="#79b6aa"/>
+<rect x="406.0" y="117.32" width="7.67" height="4.68" fill="#79b6aa"/>
+<rect x="415.6666666666667" y="114.2" width="7.67" height="7.8" fill="#79b6aa"/>
+<rect x="425.3333333333333" y="107.7" width="7.67" height="14.3" fill="#79b6aa"/>
+<rect x="435.0" y="96.0" width="7.67" height="26.0" fill="#79b6aa"/>
+<rect x="444.6666666666667" y="110.3" width="7.67" height="11.7" fill="#79b6aa"/>
+<rect x="454.3333333333333" y="116.8" width="7.67" height="5.2" fill="#79b6aa"/>
+<rect x="476.0" y="115.5" width="6.0" height="6.5" fill="#79b6aa"/>
+<rect x="484.0" y="106.4" width="6.0" height="15.6" fill="#79b6aa"/>
+<rect x="492.0" y="96.0" width="6.0" height="26.0" fill="#79b6aa"/>
+<rect x="500.0" y="103.8" width="6.0" height="18.2" fill="#79b6aa"/>
+<rect x="508.0" y="112.9" width="6.0" height="9.1" fill="#79b6aa"/>
+<rect x="516.0" y="118.1" width="6.0" height="3.9" fill="#79b6aa"/>
+<rect x="532.0" y="118.88" width="6.0" height="3.12" fill="#79b6aa"/>
+<rect x="556.0" y="119.4" width="6.0" height="2.6" fill="#79b6aa"/>
+<polyline points="190,130 570,130" fill="none" stroke="#848689" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="180,124 218,112" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="218" cy="112" r="2" fill="#0b7a64"/>
+<polyline points="190,157 570,157" fill="none" stroke="#e4e5e5" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="190,182 570,182" fill="none" stroke="#e4e5e5" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="190,207 570,207" fill="none" stroke="#e4e5e5" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="190,232 570,232" fill="none" stroke="#848689" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="180,176 192,169" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="192" cy="169" r="2" fill="#0b7a64"/>
+<polyline points="580,182 568,182" fill="none" stroke="#848689" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="568" cy="182" r="2" fill="#848689"/>
+<rect x="368.0" y="234" width="24.0" height="4" rx="2" fill="#0b7a64"/>
+<polyline points="580,228 396.0,236" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="396.0" cy="236" r="2" fill="#0b7a64"/>
+<rect x="190" y="246" width="176.56" height="20" rx="10" fill="#ddece9" stroke="#0b7a64" stroke-width="1.0"/>
+<polyline points="351.56,253.0 357.56,259.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="351.56,259.0 357.56,253.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="180,256 188,256" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="188" cy="256" r="2" fill="#0b7a64"/>
+<rect x="190" y="276" width="380" height="28" rx="14" fill="#ffffff" stroke="#0b7a64" stroke-width="1.5"/>
+<circle cx="204.5" cy="288.5" r="4.5" fill="none" stroke="#0b7a64" stroke-width="1.5"/>
+<polyline points="207.8,291.8 211,295.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="223" y="285.0" width="14" height="10.0" rx="1.5" fill="none" stroke="#0b7a64" stroke-width="1.0"/>
+<polyline points="226.5,292.0 233.5,292.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="312,285.0 312,295.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="319.5,285.0 314.5,290.0 319.5,295.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="340.5,285.0 335.5,290.0 340.5,295.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="391.5,285.0 396.5,290.0 391.5,295.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="412.5,285.0 417.5,290.0 412.5,295.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="420,285.0 420,295.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="466" y="285.0" width="12" height="10.0" fill="none" stroke="#0b7a64" stroke-width="1.0"/>
+<polyline points="470,285.0 470,295.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="474,285.0 474,295.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="494,284.0 494,292.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="490.5,288.5 494,292.0 497.5,288.5" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="489,296.0 499,296.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 511 288.0 H 517 A 4 4 0 0 1 517 296.0 H 514" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round"/>
+<polyline points="514,285.0 511,288.0 514,291.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 541 288.0 H 535 A 4 4 0 0 0 535 296.0 H 538" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round"/>
+<polyline points="538,285.0 541,288.0 538,291.0" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="556" cy="290.0" r="6.5" fill="none" stroke="#0b7a64" stroke-width="1.5"/>
+<polyline points="556,289.5 556,293.5" fill="none" stroke="#0b7a64" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="556" cy="287.0" r="0.9" fill="#0b7a64"/>
+<polyline points="580,290 572,290" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="572" cy="290" r="2" fill="#0b7a64"/>
+<polyline points="180,290 196,290" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="196" cy="290" r="2" fill="#0b7a64"/>
+<polyline points="180,330 230,330 230,297.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="230" cy="297.0" r="2" fill="#0b7a64"/>
+<polyline points="504.3,266 472,282.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="472" cy="282.0" r="2" fill="#0b7a64"/>
+<polyline points="507.6,266 494,282.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="494" cy="282.0" r="2" fill="#0b7a64"/>
+<polyline points="516.9,266 556,282.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="556" cy="282.0" r="2" fill="#0b7a64"/>
+<polyline points="308,307 308,310 424,310 424,307" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="508,307 508,310 544,310 544,307" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="366,324 366,301.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="366" cy="301.0" r="2" fill="#0b7a64"/>
+<polyline points="308,354 308,310" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="308" cy="310" r="2" fill="#0b7a64"/>
+<polyline points="448,354 448,301.0" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="448" cy="301.0" r="2" fill="#0b7a64"/>
+<polyline points="526.0,324 526.0,310" fill="none" stroke="#0b7a64" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+<circle cx="526.0" cy="310" r="2" fill="#0b7a64"/>
+<text x="600" y="21" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">The table GT made</text>
+<text x="600" y="37" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">Added by GTI</text>
+<text x="190" y="38" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#0b7a64">Polars DataFrame · 12 of 47 rows × 4 columns</text>
+<text x="176" y="30" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="end">Status line</text>
+<text x="176" y="44" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#0b7a64" text-anchor="end">i_inspect()</text>
+<text x="220" y="66" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">mfr</text>
+<text x="306" y="66" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">model</text>
+<text x="462" y="66" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">year</text>
+<text x="562" y="66" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">hp</text>
+<text x="584" y="66" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#848689">Column labels</text>
+<text x="232.15" y="86.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" fill="#0b7a64" text-anchor="middle">str</text>
+<text x="318.15" y="86.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" fill="#0b7a64" text-anchor="middle">str</text>
+<text x="419.85" y="86.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" fill="#0b7a64" text-anchor="middle">i64</text>
+<text x="519.85" y="86.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" fill="#0b7a64" text-anchor="middle">f64</text>
+<text x="176" y="78" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="end">Column controls</text>
+<text x="176" y="92" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#0b7a64" text-anchor="end">i_sorting()</text>
+<text x="176" y="106" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#0b7a64" text-anchor="end">i_cols_filter()</text>
+<text x="176" y="128" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="end">Column profiles</text>
+<text x="176" y="142" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#0b7a64" text-anchor="end">i_cols_profile()</text>
+<text x="208" y="148.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" fill="#0b7a64" text-anchor="end">9</text>
+<text x="220" y="148.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">Ferrari</text>
+<text x="306" y="148.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">LaFerrari</text>
+<text x="462" y="148.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">2015</text>
+<text x="562" y="148.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">949.0</text>
+<text x="208" y="173.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" fill="#0b7a64" text-anchor="end">8</text>
+<text x="220" y="173.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">Ferrari</text>
+<text x="306" y="173.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">F12Berlinetta</text>
+<text x="462" y="173.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">2015</text>
+<text x="562" y="173.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">731.0</text>
+<text x="208" y="198.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" fill="#0b7a64" text-anchor="end">12</text>
+<text x="220" y="198.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">Lamborghini</text>
+<text x="306" y="198.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">Aventador</text>
+<text x="462" y="198.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">2015</text>
+<text x="562" y="198.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">700.0</text>
+<text x="208" y="223.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" fill="#0b7a64" text-anchor="end">6</text>
+<text x="220" y="223.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">Ferrari</text>
+<text x="306" y="223.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">GTC4Lusso</text>
+<text x="462" y="223.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">2017</text>
+<text x="562" y="223.5" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="end">680.0</text>
+<text x="176" y="180" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="end">Row numbers</text>
+<text x="176" y="194" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#0b7a64" text-anchor="end">i_inspect()</text>
+<text x="584" y="186" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#848689">Table body</text>
+<text x="584" y="232" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328">Height handle</text>
+<text x="584" y="246" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#0b7a64">i_scroll()</text>
+<text x="200" y="260" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328">mfr: Ferrari, Lamborghini</text>
+<text x="176" y="260" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="end">Filter tokens</text>
+<text x="366" y="294.0" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" fill="#1f2328" text-anchor="middle">1 / 2</text>
+<text x="448" y="294.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#0b7a64" text-anchor="middle">{ }</text>
+<text x="584" y="294" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328">Control bar</text>
+<text x="176" y="294" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="end">Search</text>
+<text x="176" y="334" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="end">Keyboard shortcuts</text>
+<text x="510" y="262" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle">Panels</text>
+<text x="366" y="338" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle">Page counter</text>
+<text x="308" y="368" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle">Page controls</text>
+<text x="448" y="368" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle">Filters as text</text>
+<text x="526.0" y="338" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle">Undo / redo</text>
+</svg>
