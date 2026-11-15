@@ -9,7 +9,7 @@ import operator
 import sys
 from contextvars import ContextVar
 from dataclasses import replace
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING, Any, Literal, NoReturn
 
 from typing_extensions import Self
 
@@ -2107,12 +2107,13 @@ class GTI(GT):
         inline_css: bool = False,
         make_page: bool = False,
         all_important: bool = False,
+        runtime: Literal["inline", "none"] = "inline",
     ) -> str:
         """
         Get the HTML of a GTI table.
 
         The HTML is a `<gt-table>` element (the table's own HTML, and what it needs to be
-        interactive), followed by the element's CSS and JavaScript.
+        interactive), followed by the element's CSS and JavaScript (unless `runtime="none"`).
 
         Parameters
         ----------
@@ -2125,6 +2126,11 @@ class GTI(GT):
         all_important
             If `True`, the table's CSS declarations are marked with `!important` to ensure they
             take precedence over other styles that might be present in the document.
+        runtime
+            Whether the table's HTML is followed by the runtime that makes it interactive, its
+            JavaScript and CSS: `"inline"` (the default) or `"none"`, for a page that has the
+            runtime once, however many tables it shows (see
+            [`runtime_tags()`](`great_tables.web.runtime_tags`)).
 
         Returns
         -------
@@ -2139,7 +2145,7 @@ class GTI(GT):
                 "needs a <style> block and a script. Use `GT` for a table in an email."
             )
 
-        fragment = render_gti_html(self, all_important=all_important)
+        fragment = render_gti_html(self, runtime=runtime, all_important=all_important)
         return page_html(fragment) if make_page else fragment
 
     def save(self, *args: Any, **kwargs: Any) -> NoReturn:
