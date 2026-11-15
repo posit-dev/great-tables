@@ -38,6 +38,9 @@
 | `panel` | `>=1.6.2` | 2026-10-23 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/panel/) |
 | `solara` | `>=1.40` | 2026-11-10 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/solara/) |
 | `marimo` | `>=0.19.8` | 2026-10-19 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/marimo/) |
+| `django` | -- | 2026-11-03 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/django/) |
+| `flask` | -- | 2026-02-19 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/flask/) |
+| `python-fasthtml` | -- | 2026-11-12 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/python-fasthtml/) |
 
 ### `dev-no-pandas`
 
@@ -106,5 +109,5 @@
 
 - **Requires:** Python `>=3.10`
 - **Runtime Dependencies:** 6
-- **Optional Dependencies:** 9 groups (28 unique packages)
-- **Total unique dependencies:** 34
+- **Optional Dependencies:** 9 groups (31 unique packages)
+- **Total unique dependencies:** 37

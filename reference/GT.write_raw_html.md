@@ -4,7 +4,7 @@ Write the table to an HTML file.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L633-L677)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L644-L688)
 
 ``` python
 GT.write_raw_html(

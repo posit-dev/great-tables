@@ -461,6 +461,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#using-the-table-in-a-streamlit-app" id="toc-using-the-table-in-a-streamlit-app" class="nav-link" data-scroll-target="#using-the-table-in-a-streamlit-app">Using the table in a Streamlit app</a></li>
   <li><a href="#using-the-table-in-a-panel-app" id="toc-using-the-table-in-a-panel-app" class="nav-link" data-scroll-target="#using-the-table-in-a-panel-app">Using the table in a Panel app</a></li>
   <li><a href="#using-the-table-in-a-solara-app" id="toc-using-the-table-in-a-solara-app" class="nav-link" data-scroll-target="#using-the-table-in-a-solara-app">Using the table in a Solara app</a></li>
+  <li><a href="#using-the-table-in-a-page-an-app-makes" id="toc-using-the-table-in-a-page-an-app-makes" class="nav-link" data-scroll-target="#using-the-table-in-a-page-an-app-makes">Using the table in a page an app makes</a></li>
   </ul>
 </nav>
     </div>
@@ -486,7 +487,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a <code>GTI</code> table (see <a href="../user-guide/gti-tables.html">GTI Tables</a>) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a <code>GTI</code> table or a <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> table with <code>opt_interactive()</code>, get its view and selection, and can set them.</p>
+<p>An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a <code>GTI</code> table (see <a href="../user-guide/gti-tables.html">GTI Tables</a>) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a <code>GTI</code> table or a <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> table with <code>opt_interactive()</code>, get its view and selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows the table as it works in the browser, with its runtime once however many tables there are.</p>
 <section id="using-the-table-from-python" class="level1">
 <h1>Using the table from Python</h1>
 <p>In a notebook, <code>i_as_widget()</code> shows the table as a widget (with <a href="https://anywidget.dev">anywidget</a>, installed with <code>pip install great_tables[widget]</code>), whose view and selection Python can read and set: what the reader searched for, filtered and sorted by, the rows that leaves, and the rows they selected. The table still works in the browser; the widget tells Python what it shows.</p>
@@ -646,6 +647,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    GTITable(table, sort<span class="op">=</span>sort, selection<span class="op">=</span>selection, on_rows<span class="op">=</span>rows.<span class="bu">set</span>)</span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    solara.Text(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(selection.value)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(rows.value)<span class="sc">}</span><span class="ss"> cars selected"</span>)</span></code></pre></div>
 <p>The component keeps the table’s view as the app renders again, as long as it’s given the same table or one rendered the same. A table whose rows are kept in Python (with <code>i_scale()</code>) asks the app for each page, and its rows are found in Python; make it once (at the module’s top level, as here, or with <code>solara.use_memo()</code>), so that it isn’t rendered again each time.</p>
+</section>
+<section id="using-the-table-in-a-page-an-app-makes" class="level1">
+<h1>Using the table in a page an app makes</h1>
+<p>An app that makes its own pages, with templates (as <a href="https://flask.palletsprojects.com">Flask</a> and <a href="https://www.djangoproject.com">Django</a> apps do) or with <a href="https://fastht.ml">FastHTML</a>, shows an interactive table as its HTML, which <a href="../reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a> gives: the table’s <code>&lt;gt-table&gt;</code> element, followed by the runtime that makes it interactive (its JavaScript and CSS). The table works in the browser, as in an HTML file, without asking the app for anything. A table put in a Jinja template (as Flask’s are, <code>{ table }</code>) or in a FastHTML component (<code>Div(table)</code>) is shown as its HTML, as it is.</p>
+<p>A page with several tables needs the runtime only once: <code>runtime_tags()</code>, from <code>great_tables.web</code>, gives it, for the page’s <code>&lt;head&gt;</code>, and each table is then given without it, with <code>as_raw_html(runtime="none")</code>. With <code>url=</code>, the tags link to the runtime’s files, which <code>write_runtime()</code> writes for the app to serve (as Flask serves its <code>static</code> folder), so that a browser keeps them as it does any other file.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> flask <span class="im">import</span> Flask, render_template_string</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> markupsafe <span class="im">import</span> Markup</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GTI</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> gtcars</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.web <span class="im">import</span> runtime_tags, write_runtime</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>cars <span class="op">=</span> gtcars[[<span class="st">"mfr"</span>, <span class="st">"model"</span>, <span class="st">"year"</span>, <span class="st">"hp"</span>, <span class="st">"msrp"</span>]]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>write_runtime(<span class="st">"static/gti"</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> Flask(<span class="va">__name__</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>PAGE <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;!DOCTYPE html&gt;</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;html&gt;</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;head&gt;</span><span class="sc">{{</span><span class="st"> runtime </span><span class="sc">}}</span><span class="st">&lt;/head&gt;</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;body&gt;{</span><span class="sc">% f</span><span class="st">or table in tables %}</span><span class="sc">{{</span><span class="st"> table </span><span class="sc">}}</span><span class="st">{</span><span class="sc">% e</span><span class="st">ndfor %}&lt;/body&gt;</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/html&gt;</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="at">@app.route</span>(<span class="st">"/"</span>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> index():</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    tables <span class="op">=</span> [</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        GTI(cars).i_cols_filter(columns<span class="op">=</span><span class="st">"mfr"</span>, <span class="bu">type</span><span class="op">=</span><span class="st">"facet"</span>),</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>        GTI(cars).i_selection(<span class="st">"multiple"</span>),</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> render_template_string(</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>        PAGE,</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>        runtime<span class="op">=</span>runtime_tags(url<span class="op">=</span><span class="st">"/static/gti/"</span>),</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>        tables<span class="op">=</span>[Markup(table.as_raw_html(runtime<span class="op">=</span><span class="st">"none"</span>)) <span class="cf">for</span> table <span class="kw">in</span> tables],</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div>
+<p>Django makes what’s put in a template a string before it’s shown, so a table is given as its HTML, marked safe (with <code>mark_safe(table.as_raw_html())</code>, or <code>{ table_html|safe }</code> in the template); the runtime’s tags are shown as they are. In FastHTML, the HTML of a table without its runtime is given as <code>NotStr(table.as_raw_html(runtime="none"))</code>, and the tags as one of the app’s headers (<code>fast_app(hdrs=(runtime_tags(),))</code>).</p>
+<p>A page whose Content Security Policy allows no inline scripts can have the runtime from its files (<code>script-src 'self'</code>), or inline with the policy’s nonce (<code>runtime_tags(nonce=...)</code>); the table’s spec, in a <code>&lt;script type="application/json"&gt;</code>, is data, which isn’t run. The table’s own CSS is inline, so the policy’s <code>style-src</code> must allow <code>'unsafe-inline'</code>. A table whose rows are kept in Python (with <code>i_scale()</code>) needs an app that answers its asks for pages, so in a page an app makes, its rows are in the browser.</p>
 
 
 </section>
