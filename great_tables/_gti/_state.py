@@ -1,8 +1,9 @@
 """A shown table's view and selection, as Python reads and sets them: from a notebook (with
 `GTI.i_as_widget()`, in `_widget.py`), a Shiny app (with `update_gti()`, in `great_tables.shiny`)
 a Streamlit app (with `st_gti()` and `update_gti()`, in `great_tables.streamlit`), a Panel app
-(with `GTIPane`, in `great_tables.panel`) or a Solara app (with `GTITable`, in
-`great_tables.solara`, which shows the table as a widget).
+(with `GTIPane`, in `great_tables.panel`), a Solara app (with `GTITable`, in `great_tables.solara`)
+or a marimo notebook (with `mo_gti()`, in `great_tables.marimo`), the last two showing the table
+as a widget.
 
 The browser gives the view as the `<gt-table>` element has it (`filter`, `sort` as keys, ...), and
 Python reads it with the filter as a query in text and the sort as columns (with a `-` before

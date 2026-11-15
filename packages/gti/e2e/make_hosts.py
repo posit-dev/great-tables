@@ -15,7 +15,7 @@ sends its pages, showing the rows the server finds. And the same two as Streamli
 `st_gti()`), the first also showing how many times it's been run; and as Panel apps (with
 `GTIPane`), showing its parameters, and two notebooks with one, for JupyterLab (the second's rows
 the kernel's, and shown twice); and as Solara apps (with `GTITable`), showing its values, and a
-notebook with one, for JupyterLab.
+notebook with one, for JupyterLab; and as marimo notebooks (with `mo_gti()`), showing its value.
 """
 
 from __future__ import annotations
@@ -509,6 +509,132 @@ def solara_kernel_app(lazy: bool = False) -> str:
     return SOLARA_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
 
 
+# (A marimo notebook showing a `mo_gti()` element's value, in a cell that reads it, with buttons
+# that set the table, one only its selection; and a checkbox that makes another table, in the
+# table's cell)
+MARIMO_STATE_APP = f"""\
+import marimo
+
+app = marimo.App()
+
+
+@app.cell
+def _():
+    import html
+    import json
+
+    import marimo as mo
+
+    from great_tables.marimo import mo_gti
+
+    {SETUP.replace(chr(10), chr(10) + "    ")}
+    return GTI, html, json, mo, mo_gti, small
+
+
+@app.cell
+def _(mo):
+    head = mo.ui.checkbox(label="Head")
+    head
+    return (head,)
+
+
+@app.cell
+def _(GTI, head, mo_gti, small):
+    table = mo_gti(
+        GTI(small.head(4) if head.value else small)
+        .i_cols_filter(columns="fctr", type="facet")
+        .i_selection("multiple")
+    )
+    table
+    return (table,)
+
+
+@app.cell
+def _(mo, table):
+    def update(_):
+        table.query = 'fctr in ("one", "two")'
+        table.sort = "-num"
+        table.selection = [0]
+
+    def select(_):
+        table.selection = [0, 1]
+
+    update_button = mo.ui.button(label="Update", on_click=update)
+    select_button = mo.ui.button(label="Select", on_click=select)
+    mo.hstack([update_button, select_button])
+    return select_button, update_button
+
+
+@app.cell
+def _(html, json, mo, table):
+    state = [table.value[part] for part in ["query", "search", "sort", "rows", "selection"]]
+    mo.Html(f'<pre class="state">{{html.escape(json.dumps(state))}}</pre>')
+    return
+
+
+if __name__ == "__main__":
+    app.run()
+"""
+
+# (And one with a table whose rows are the notebook's, which sends its pages, showing the rows it
+# finds)
+MARIMO_KERNEL_APP = """\
+import marimo
+
+app = marimo.App()
+
+
+@app.cell
+def _():
+    import html
+    import json
+
+    import marimo as mo
+    import pandas as pd
+
+    from great_tables import GTI
+    from great_tables.marimo import mo_gti
+
+    big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+    <big>
+    table = mo_gti(GTI(big).i_cols_filter(columns="kind", type="facet")<scale>)
+    table
+    return html, json, mo, table
+
+
+@app.cell
+def _(mo, table):
+    def update(_):
+        table.search = ""
+        table.query = 'kind in ("odd")'
+        table.sort = "n"
+
+    mo.ui.button(label="Update", on_click=update)
+    return
+
+
+@app.cell
+def _(html, json, mo, table):
+    rows = table.value["rows"] or []
+    state = [len(rows), rows[:3], table.value["search"]]
+    mo.Html(f'<pre class="state">{html.escape(json.dumps(state))}</pre>')
+    return
+
+
+if __name__ == "__main__":
+    app.run()
+"""
+
+
+def marimo_kernel_app(lazy: bool = False) -> str:
+    big, scale = (
+        ("import polars as pl\n\n    big = pl.from_pandas(big).lazy()", "")
+        if lazy
+        else ("", '.i_scale(engine="kernel")')
+    )
+    return MARIMO_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
+
 # (The tables as cells' outputs, and the second also as `mo.Html()`)
 MARIMO_APP = f"""\
 import marimo
@@ -624,6 +750,9 @@ def main() -> None:
         "solara_kernel_app.py": solara_kernel_app(),
         "solara_lazy_app.py": solara_kernel_app(lazy=True),
         "marimo_app.py": MARIMO_APP,
+        "marimo_state_app.py": MARIMO_STATE_APP,
+        "marimo_kernel_app.py": marimo_kernel_app(),
+        "marimo_lazy_app.py": marimo_kernel_app(lazy=True),
         "vscode.html": vscode_page(),
     }
     for name, text in files.items():

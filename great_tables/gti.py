@@ -2008,11 +2008,13 @@ class GTI(GT):
         Show the table as a widget, whose view and selection can be read and set from Python.
 
         The widget (an [anywidget](https://anywidget.dev)) shows the table as it's shown anywhere
-        else, in a notebook in Jupyter, VS Code or Colab, or in marimo (as
-        `mo.ui.anywidget(widget)`), and keeps Python up to date with what the reader does with
-        it: the rows its search and filters keep, in the order shown, and those selected. Python
-        can change the table's filters, sort, search and selection, too, and the table shows the
-        change. The table works in the browser, as without a widget: Python is told what it does.
+        else, in a notebook in Jupyter, VS Code or Colab, or in marimo (where
+        [`mo_gti()`](`great_tables.marimo.mo_gti`) shows it as a UI element, so that the cells
+        that read it run again with each change), and keeps Python up to date with what the
+        reader does with it: the rows its search and filters keep, in the order shown, and those
+        selected. Python can change the table's filters, sort, search and selection, too, and the
+        table shows the change. The table works in the browser, as without a widget: Python is
+        told what it does.
 
         The widget has these, to read and set:
 

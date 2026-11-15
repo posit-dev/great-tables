@@ -256,5 +256,5 @@ dtypes and dimensions on. `i_inspect()` and `~~GTI.i_display()` work on their ow
 ## Using the table from Python and in apps
 
 Python can read what readers do with a `GTI` table and change it: in a notebook, with the table as a
-widget, and in Shiny, Streamlit, Panel and Solara apps. See
+widget, in a marimo notebook, and in Shiny, Streamlit, Panel and Solara apps. See
 [GTI in Python and Apps](23-gti-in-python-and-apps.qmd).

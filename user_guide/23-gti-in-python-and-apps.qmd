@@ -7,8 +7,9 @@ guide-section: Interactive Tables
 
 An interactive table works in the browser on its own, but Python can also read what readers do with
 it, and change it: in a notebook, with a `GTI` table (see [GTI Tables](22-gti-tables.qmd)) as a
-widget, and in Shiny, Streamlit, Panel and Solara apps, which take a `GTI` table or a `GT` table
-with `opt_interactive()`, get its view and selection, and can set them from the app.
+widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara
+apps. These take a `GTI` table or a `GT` table with `opt_interactive()`, get its view and
+selection, and can set them.
 
 ## Using the table from Python
 
@@ -53,6 +54,56 @@ Setting `query`, `search`, `sort` or `selection` changes the table as shown, and
 `widget.on_change(callback)` calls `callback(widget)` after each change the reader makes. A change
 made from Python is applied by the browser after the cell runs, so ask for the rows it leaves in
 another cell.
+
+## Using the table in a marimo notebook or app
+
+In a [marimo](https://marimo.io) notebook (or one run as an app), `mo_gti()`, from
+`great_tables.marimo` (installed with `pip install great_tables[marimo]`), shows an interactive
+table (a `GTI` table, or a `GT` table with `opt_interactive()`) as a UI element, like marimo's own.
+Assigned to a variable, the cells that read it run again with each change the reader makes. Its
+`value` is a dict of the table's `"query"`, `"search"` and `"sort"`, the data `"rows"` kept (in
+the order shown) and the rows in its `"selection"`. Setting the element's `query`, `search`, `sort`
+or `selection` (as in a button's `on_click=`) changes the table, and the cells that read it then
+run again.
+
+```python
+import marimo as mo
+from great_tables import GTI
+from great_tables.data import gtcars
+from great_tables.marimo import mo_gti
+
+table = mo_gti(
+    GTI(gtcars[["mfr", "model", "year", "hp", "msrp"]])
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_selection("multiple")
+)
+table
+```
+
+Then, in other cells:
+
+```python
+def fastest(_):
+    table.sort = "-hp"
+    table.selection = []
+
+fastest_button = mo.ui.button(label="Fastest first", on_click=fastest)
+fastest_button
+```
+
+```python
+mo.vstack([
+    mo.md(f"{len(table.value['selection'])} of {len(table.value['rows'] or [])} cars selected"),
+    table.view(selected=True),
+])
+```
+
+`table.view()` gives the rows kept as a DataFrame of the data's library (and
+`table.view(selected=True)` the rows selected). The table works in the browser, which finds its
+rows, so they can be `None` until it has (as before a `GT` table is shown). Running the table's
+cell again makes a new table, which starts as it's made. A table whose rows are kept in Python
+(with `~~GTI.i_scale()`) asks the notebook for each page instead, and its rows are found in
+Python.
 
 ## Using the table in a Shiny app
 
