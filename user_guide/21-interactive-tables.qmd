@@ -253,4 +253,5 @@ When readers need more than `opt_interactive()` gives them, make the table a `GT
 filters, column profiles, grouping, linked tables and the explorer preset are in
 [GTI Tables](22-gti-tables.qmd). Reading and setting an interactive table's view from Python (in a
 notebook, in marimo, or in a Shiny, Streamlit, Panel or Solara app, which take `opt_interactive()`
-tables too) is in [GTI in Python and Apps](23-gti-in-python-and-apps.qmd).
+tables too) is in [GTI in Python and Apps](23-gti-in-python-and-apps.qmd), as is showing tables in
+pages an app makes itself, with Flask, Django or FastHTML.

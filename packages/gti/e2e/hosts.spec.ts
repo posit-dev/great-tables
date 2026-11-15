@@ -1000,6 +1000,64 @@ for (const [what, app, needs] of [
   });
 }
 
+// (What the page's Content Security Policy blocks, from its start)
+async function watchPolicy(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const blocked: string[] = [];
+    (window as any).blocked = blocked;
+    document.addEventListener("securitypolicyviolation", (event) => {
+      blocked.push(`${event.violatedDirective} ${event.blockedURI}`);
+    });
+  });
+}
+
+const blocked = (page: Page): Promise<string[]> => page.evaluate(() => (window as any).blocked);
+
+test("Flask: pages of tables, each with its runtime, or with it once, from its files or a nonce", async ({ page }) => {
+  test.skip(!has("flask"), "Flask isn't installed");
+  const port = await freePort();
+  const base = `http://127.0.0.1:${port}`;
+  const server = await serve(base, "-m", "flask", "--app", "flask_app", "run", "--port", String(port));
+  try {
+    const errors = watch(page);
+    await watchPolicy(page);
+    // (The page, the runtime's scripts on it, and what its policy allows of scripts)
+    for (const [path, scripts, policy] of [
+      ["/", 2, undefined],
+      ["/files", 1, "script-src 'self'"],
+      ["/nonce", 1, "script-src 'nonce-gti-nonce'"],
+    ] as const) {
+      const response = await page.goto(base + path);
+      expect(response?.headers()["content-security-policy"]?.split("; ")[1]).toBe(policy);
+      await hydrated(page);
+      await sorts(page);
+      await expect(page.locator("script:not([type])")).toHaveCount(scripts);
+      expect(await blocked(page)).toEqual([]);
+    }
+    expect(errors).toEqual([]);
+  } finally {
+    server.kill();
+  }
+});
+
+test("FastHTML: a page of tables, one with its runtime, given the runtime once", async ({ page }) => {
+  test.skip(!has("fasthtml", "uvicorn"), "FastHTML isn't installed");
+  const port = await freePort();
+  const base = `http://127.0.0.1:${port}`;
+  const server = await serve(base, "-m", "uvicorn", "fasthtml_app:app", "--host", "127.0.0.1", "--port", String(port));
+  try {
+    const errors = watch(page);
+    await page.goto(base);
+    await hydrated(page);
+    await sorts(page);
+    await expect(page.locator("head script:not([type])")).toHaveCount(1);
+    await expect(page.locator("body script:not([type])")).toHaveCount(1);
+    expect(errors).toEqual([]);
+  } finally {
+    server.kill();
+  }
+});
+
 test("VS Code: outputs shown as its notebooks show them, in a sandboxed frame", async ({ page }) => {
   const errors = watch(page);
   await page.goto(pathToFileURL(join(dir, "vscode.html")).href);
