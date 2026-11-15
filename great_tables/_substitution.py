@@ -77,11 +77,11 @@ def sub_missing(
     separate calls of `sub_missing()`).
 
     ```{python}
-    from great_tables import GT, md, html, exibble
+    from great_tables import GT, data, md, html
     import polars as pl
     import polars.selectors as cs
 
-    exibble_mini = pl.from_pandas(exibble).drop("row", "group", "fctr").slice(4, 8)
+    exibble_mini = data.pl.exibble.drop("row", "group", "fctr").slice(4, 8)
 
     (
         GT(exibble_mini)
