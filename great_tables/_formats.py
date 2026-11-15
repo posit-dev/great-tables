@@ -3666,7 +3666,8 @@ _URL_DEFAULT_BUTTON_FILL = "#4682B4"
 
 
 def _is_light_color(hex_color: str) -> bool:
-    from ._data_color.base import _hex_to_rgb, _relative_luminance
+    from ._data_color.base import _relative_luminance
+    from ._data_color.utils import _hex_to_rgb
 
     rgb = _hex_to_rgb(hex_color=hex_color)
     lum = _relative_luminance(rgb=rgb)
@@ -3674,7 +3675,7 @@ def _is_light_color(hex_color: str) -> bool:
 
 
 def _normalize_color(color: str) -> str:
-    from ._data_color.base import _html_color
+    from ._data_color.utils import _html_color
 
     return _html_color(colors=[color])[0]
 

@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING
 
 from importlib_resources import files
 
-from ._data_color.base import _html_color, _ideal_fgnd_color
+from ._data_color.base import _ideal_fgnd_color
+from ._data_color.utils import _html_color
 from ._helpers import pct, px
 from ._utils import OrderedSet, _as_css_font_family_attr
 
