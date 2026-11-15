@@ -1,13 +1,12 @@
 # GTI Tables
 
-When readers need more than [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) gives them (see [Interactive Tables](21-interactive-tables.md)), make the table a [GTI](../reference/GTI.md#great_tables.GTI) table. Here, the `Make` column gets a list of its values to choose from and `HP` a range, the table is first shown with the most powerful cars at the top, and readers can download the rows they've filtered as CSV.
+When readers need more than [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) gives them (see [Making Tables Interactive](interactive-tables.md)), make the table a [GTI](../reference/GTI.md#great_tables.GTI) table. Here, the `Make` column gets a list of its values to choose from and `HP` a range, the table is first shown with the most powerful cars at the top, and readers can download the rows they've filtered as CSV.
 
 ``` python
 import polars as pl
-from great_tables import GTI
-from great_tables.data import gtcars
+from great_tables import GTI, data
 
-gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", "msrp"])
+gtcars_pl = data.pl.gtcars.select(["mfr", "model", "year", "hp", "trq", "msrp"])
 
 (
     GTI(gtcars_pl)
@@ -73,17 +72,30 @@ gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", 
 | Rolls-Royce             | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
 | Rolls-Royce             | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
 
-A table you've already made with [GT()](../reference/GT.md#great_tables.GT), including one with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive), becomes a [GTI](../reference/GTI.md#great_tables.GTI) table with [GTI.from_gt()](../reference/GTI.from_gt.md#great_tables.GTI.from_gt), keeping what [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) set. Each of the `i_` methods has examples in its docstring (e.g., `help(GTI.i_cols_filter)`).
+A table you've already made with [GT()](../reference/GT.md#great_tables.GT), including one with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive), becomes a [GTI](../reference/GTI.md#great_tables.GTI) table with [GTI.from_gt()](../reference/GTI.from_gt.md#great_tables.GTI.from_gt), keeping what [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) set. Each of the `i_` methods has examples on its reference page (e.g., [i_cols_filter()](../reference/GTI.i_cols_filter.md#great_tables.GTI.i_cols_filter)), and the [API Reference](../reference/index.md#interactive-table-controls) has them all.
 
 ## The parts of a [GTI](../reference/GTI.md#great_tables.GTI) table
 
-A [GTI](../reference/GTI.md#great_tables.GTI) table is the table GT made, with a few parts added around it. From the top:
+A [GTI](../reference/GTI.md#great_tables.GTI) table is the table GT made, with a few parts added around it. Here they are in teal, on a table that's filtered by `mfr`, sorted by `hp` and scrolls within a set height:
 
-- The **status line**, just above the table, says what the data is and how much of it is shown ("Polars DataFrame · 12 of 47 rows × 6 columns"). It's there with [i_inspect()](../reference/GTI.i_inspect.md#great_tables.GTI.i_inspect) (and in an explorer). In a table made with `opt_interactive(use_search=True)`, the search box is here too.
-- The **column controls**, under each column label: the column's dtype (with [i_inspect()](../reference/GTI.i_inspect.md#great_tables.GTI.i_inspect)), its sort arrows, and its filter button.
+![A GTI table with its parts labelled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg)
+
+![](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdib3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSIxNSAzIDIxIDMgMjEgOSI+PC9wb2x5bGluZT48cG9seWxpbmUgcG9pbnRzPSI5IDIxIDMgMjEgMyAxNSI+PC9wb2x5bGluZT48bGluZSB4MT0iMjEiIHkxPSIzIiB4Mj0iMTQiIHkyPSIxMCI+PC9saW5lPjxsaW5lIHgxPSIzIiB5MT0iMjEiIHgyPSIxMCIgeTI9IjE0Ij48L2xpbmU+PC9zdmc+)
+
+From the top:
+
+- The **status line**, just above the table, says what the data is and how much of it is shown ("Polars DataFrame · 12 of 47 rows × 4 columns"). It's there with [i_inspect()](../reference/GTI.i_inspect.md#great_tables.GTI.i_inspect) (and in an explorer). In a table made with `opt_interactive(use_search=True)`, the search box is here too.
+- The **column controls**, under each column label: the column's dtype (with [i_inspect()](../reference/GTI.i_inspect.md#great_tables.GTI.i_inspect)), its sort arrows (with [i_sorting()](../reference/GTI.i_sorting.md#great_tables.GTI.i_sorting), on by default), and its filter button (with [i_cols_filter()](../reference/GTI.i_cols_filter.md#great_tables.GTI.i_cols_filter)).
 - The **column profiles**, under the labels of the columns [i_cols_profile()](../reference/GTI.i_cols_profile.md#great_tables.GTI.i_cols_profile) chose: a small plot of how their values are spread.
 - The **row numbers**, at the start of each row (with [i_inspect()](../reference/GTI.i_inspect.md#great_tables.GTI.i_inspect)), which stay with the rows as they're sorted and filtered. A DataFrame's rows are numbered from 0, as its index is, and a DuckDB relation's or an Ibis table's from 1, as a database numbers them; `row_start=` in [i_inspect()](../reference/GTI.i_inspect.md#great_tables.GTI.i_inspect) sets either one.
-- The **control bar**, just below the table, which brings together what readers can do with the table as a whole: searching it, its **page controls** (the arrows, and the **page counter**, "2/5", which can be clicked to type a page to go to), undo and redo, resetting the view, and the buttons that open its **panels** (the table's info, its columns, grouping its rows, exporting it, and its keyboard shortcuts). Over its controls, the **filter tokens** say what the rows are filtered by, one token for each filter, whose ✕ removes it. In a body that scrolls (with [i_scroll()](../reference/GTI.i_scroll.md#great_tables.GTI.i_scroll)), the foot of the body is a **height handle**, dragged for a taller or shorter body.
+- The **height handle**, at the foot of a body that scrolls (with [i_scroll()](../reference/GTI.i_scroll.md#great_tables.GTI.i_scroll)), dragged for a taller or shorter body.
+- The **filter tokens**, one for each filter the rows are filtered by, which say what it keeps; a token's ✕ removes its filter.
+- The **control bar**, just below the table, which brings together what readers can do with the table as a whole. From its left, it has:
+  - the **search** (with [i_search()](../reference/GTI.i_search.md#great_tables.GTI.i_search), on by default) and the table's **keyboard shortcuts**
+  - the **page controls**, around the **page counter** ("1 / 2"), which can be clicked to type a page to go to
+  - the **filters as text** button (`{ }`, in a table with filters), which opens the filters as a query to edit, in the form [i_view()](../reference/GTI.i_view.md#great_tables.GTI.i_view) takes them (with `filter=`)
+  - the buttons that open the table's **panels**: its columns, grouping its rows and exporting them (when the table has these), and its info
+  - **undo and redo** (with [i_view_state()](../reference/GTI.i_view_state.md#great_tables.GTI.i_view_state)), and a **Reset** button once the view has changed
 
 A table made with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) has a **pager** below it instead of the control bar: its page buttons, and the number of rows shown.
 
@@ -103,74 +115,77 @@ def engine(row):
         f"and {row['mpg_h']:.0f} on the highway."
     )
     return md(
-        f"The **{row['trim']}** ({row['bdy_style']}) makes {row['hp']:.0f} hp at "
-        f"{row['hp_rpm']:,.0f} rpm, and {row['trq']:.0f} lb-ft of torque.{economy}"
+        f"The **{row['trim']}** ({row['bdy_style']}, {row['drivetrain'].upper()}) makes "
+        f"{row['hp']:.0f} hp at {row['hp_rpm']:,.0f} rpm, and {row['trq']:.0f} lb-ft of torque."
+        f"{economy}"
     )
 
 
 (
-    GTI(pl.from_pandas(gtcars), rowname_col="model")
+    GTI(data.pl.gtcars, rowname_col="model")
     .tab_header(title="GT Cars: with row details")
-    .cols_hide(columns=["trim", "bdy_style", "hp_rpm", "trq_rpm", "mpg_c", "mpg_h", "trsmn"])
-    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .cols_hide(
+        columns=["trim", "bdy_style", "hp_rpm", "trq_rpm", "mpg_c", "mpg_h", "drivetrain", "trsmn"]
+    )
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque", ctry_origin="Country", msrp="MSRP")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
     .fmt_currency(columns="msrp", decimals=0)
     .i_row_details(engine)
 )
 ```
 
-| GT Cars: with row details |  |  |  |  |  |  |  |
-|----|----|----|----|----|----|----|----|
-|  | Make | Year | HP | Torque | drivetrain | ctry_origin | MSRP |
-| GT | Ford | 2017 | 647 | 550 | rwd | United States | \$447,000 |
-| 458 Speciale | Ferrari | 2015 | 597 | 398 | rwd | Italy | \$291,744 |
-| 458 Spider | Ferrari | 2015 | 562 | 398 | rwd | Italy | \$263,553 |
-| 458 Italia | Ferrari | 2014 | 562 | 398 | rwd | Italy | \$233,509 |
-| 488 GTB | Ferrari | 2016 | 661 | 561 | rwd | Italy | \$245,400 |
-| California | Ferrari | 2015 | 553 | 557 | rwd | Italy | \$198,973 |
-| GTC4Lusso | Ferrari | 2017 | 680 | 514 | awd | Italy | \$298,000 |
-| FF | Ferrari | 2015 | 652 | 504 | awd | Italy | \$295,000 |
-| F12Berlinetta | Ferrari | 2015 | 731 | 509 | rwd | Italy | \$319,995 |
-| LaFerrari | Ferrari | 2015 | 949 | 664 | rwd | Italy | \$1,416,362 |
-| NSX | Acura | 2017 | 573 | 476 | awd | Japan | \$156,000 |
-| GT-R | Nissan | 2016 | 545 | 436 | awd | Japan | \$101,770 |
-| Aventador | Lamborghini | 2015 | 700 | 507 | awd | Italy | \$397,500 |
-| Huracan | Lamborghini | 2015 | 610 | 413 | rwd | Italy | \$237,250 |
-| Gallardo | Lamborghini | 2014 | 550 | 398 | rwd | Italy | \$191,900 |
-| Continental GT | Bentley | 2016 | 500 | 487 | awd | United Kingdom | \$198,500 |
-| Granturismo | Maserati | 2016 | 454 | 384 | rwd | Italy | \$132,825 |
-| Quattroporte | Maserati | 2016 | 404 | 406 | rwd | Italy | \$99,900 |
-| Ghibli | Maserati | 2016 | 345 | 369 | rwd | Italy | \$70,600 |
-| 6-Series | BMW | 2016 | 315 | 330 | rwd | Germany | \$77,300 |
-| i8 | BMW | 2016 | 357 | 420 | awd | Germany | \$140,700 |
-| M4 | BMW | 2016 | 425 | 406 | rwd | Germany | \$65,700 |
-| M5 | BMW | 2016 | 560 | 500 | rwd | Germany | \$94,100 |
-| M6 | BMW | 2016 | 560 | 500 | rwd | Germany | \$113,400 |
-| DB11 | Aston Martin | 2017 | 608 | 516 | rwd | United Kingdom | \$211,195 |
-| Rapide S | Aston Martin | 2016 | 552 | 465 | rwd | United Kingdom | \$205,300 |
-| Vanquish | Aston Martin | 2016 | 568 | 465 | rwd | United Kingdom | \$287,250 |
-| Vantage | Aston Martin | 2016 | 430 | 361 | rwd | United Kingdom | \$103,300 |
-| Corvette | Chevrolet | 2016 | 650 | 650 | rwd | United States | \$88,345 |
-| Viper | Dodge | 2017 | 645 | 600 | rwd | United States | \$95,895 |
-| R8 | Audi | 2015 | 430 | 317 | awd | Germany | \$115,900 |
-| RS 7 | Audi | 2016 | 560 | 516 | awd | Germany | \$108,900 |
-| S6 | Audi | 2016 | 450 | 406 | awd | Germany | \$70,900 |
-| S7 | Audi | 2016 | 450 | 406 | awd | Germany | \$82,900 |
-| S8 | Audi | 2016 | 520 | 481 | awd | Germany | \$114,900 |
-| Evora | Lotus | 2017 | 400 | 302 | rwd | United Kingdom | \$91,900 |
-| F-Type | Jaguar | 2016 | 340 | 332 | rwd | United Kingdom | \$65,000 |
-| AMG GT | Mercedes-Benz | 2016 | 503 | 479 | rwd | Germany | \$129,900 |
-| SL-Class | Mercedes-Benz | 2016 | 329 | 354 | rwd | Germany | \$85,050 |
-| Model S | Tesla | 2017 | 259 | 243 | awd | United States | \$74,500 |
-| 718 Boxster | Porsche | 2017 | 300 | 280 | rwd | Germany | \$56,000 |
-| 718 Cayman | Porsche | 2017 | 300 | 280 | rwd | Germany | \$53,900 |
-| 911 | Porsche | 2016 | 350 | 287 | rwd | Germany | \$84,300 |
-| Panamera | Porsche | 2016 | 310 | 295 | rwd | Germany | \$78,100 |
-| 570 | McLaren | 2016 | 570 | 443 | rwd | United Kingdom | \$184,900 |
-| Dawn | Rolls-Royce | 2016 | 563 | 575 | rwd | United Kingdom | \$335,000 |
-| Wraith | Rolls-Royce | 2016 | 624 | 590 | rwd | United Kingdom | \$304,350 |
+| GT Cars: with row details |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|
+|  | Make | Year | HP | Torque | Country | MSRP |
+| GT | Ford | 2017 | 647 | 550 | United States | \$447,000 |
+| 458 Speciale | Ferrari | 2015 | 597 | 398 | Italy | \$291,744 |
+| 458 Spider | Ferrari | 2015 | 562 | 398 | Italy | \$263,553 |
+| 458 Italia | Ferrari | 2014 | 562 | 398 | Italy | \$233,509 |
+| 488 GTB | Ferrari | 2016 | 661 | 561 | Italy | \$245,400 |
+| California | Ferrari | 2015 | 553 | 557 | Italy | \$198,973 |
+| GTC4Lusso | Ferrari | 2017 | 680 | 514 | Italy | \$298,000 |
+| FF | Ferrari | 2015 | 652 | 504 | Italy | \$295,000 |
+| F12Berlinetta | Ferrari | 2015 | 731 | 509 | Italy | \$319,995 |
+| LaFerrari | Ferrari | 2015 | 949 | 664 | Italy | \$1,416,362 |
+| NSX | Acura | 2017 | 573 | 476 | Japan | \$156,000 |
+| GT-R | Nissan | 2016 | 545 | 436 | Japan | \$101,770 |
+| Aventador | Lamborghini | 2015 | 700 | 507 | Italy | \$397,500 |
+| Huracan | Lamborghini | 2015 | 610 | 413 | Italy | \$237,250 |
+| Gallardo | Lamborghini | 2014 | 550 | 398 | Italy | \$191,900 |
+| Continental GT | Bentley | 2016 | 500 | 487 | United Kingdom | \$198,500 |
+| Granturismo | Maserati | 2016 | 454 | 384 | Italy | \$132,825 |
+| Quattroporte | Maserati | 2016 | 404 | 406 | Italy | \$99,900 |
+| Ghibli | Maserati | 2016 | 345 | 369 | Italy | \$70,600 |
+| 6-Series | BMW | 2016 | 315 | 330 | Germany | \$77,300 |
+| i8 | BMW | 2016 | 357 | 420 | Germany | \$140,700 |
+| M4 | BMW | 2016 | 425 | 406 | Germany | \$65,700 |
+| M5 | BMW | 2016 | 560 | 500 | Germany | \$94,100 |
+| M6 | BMW | 2016 | 560 | 500 | Germany | \$113,400 |
+| DB11 | Aston Martin | 2017 | 608 | 516 | United Kingdom | \$211,195 |
+| Rapide S | Aston Martin | 2016 | 552 | 465 | United Kingdom | \$205,300 |
+| Vanquish | Aston Martin | 2016 | 568 | 465 | United Kingdom | \$287,250 |
+| Vantage | Aston Martin | 2016 | 430 | 361 | United Kingdom | \$103,300 |
+| Corvette | Chevrolet | 2016 | 650 | 650 | United States | \$88,345 |
+| Viper | Dodge | 2017 | 645 | 600 | United States | \$95,895 |
+| R8 | Audi | 2015 | 430 | 317 | Germany | \$115,900 |
+| RS 7 | Audi | 2016 | 560 | 516 | Germany | \$108,900 |
+| S6 | Audi | 2016 | 450 | 406 | Germany | \$70,900 |
+| S7 | Audi | 2016 | 450 | 406 | Germany | \$82,900 |
+| S8 | Audi | 2016 | 520 | 481 | Germany | \$114,900 |
+| Evora | Lotus | 2017 | 400 | 302 | United Kingdom | \$91,900 |
+| F-Type | Jaguar | 2016 | 340 | 332 | United Kingdom | \$65,000 |
+| AMG GT | Mercedes-Benz | 2016 | 503 | 479 | Germany | \$129,900 |
+| SL-Class | Mercedes-Benz | 2016 | 329 | 354 | Germany | \$85,050 |
+| Model S | Tesla | 2017 | 259 | 243 | United States | \$74,500 |
+| 718 Boxster | Porsche | 2017 | 300 | 280 | Germany | \$56,000 |
+| 718 Cayman | Porsche | 2017 | 300 | 280 | Germany | \$53,900 |
+| 911 | Porsche | 2016 | 350 | 287 | Germany | \$84,300 |
+| Panamera | Porsche | 2016 | 310 | 295 | Germany | \$78,100 |
+| 570 | McLaren | 2016 | 570 | 443 | United Kingdom | \$184,900 |
+| Dawn | Rolls-Royce | 2016 | 563 | 575 | United Kingdom | \$335,000 |
+| Wraith | Rolls-Royce | 2016 | 624 | 590 | United Kingdom | \$304,350 |
 
-The **Base Coupe** (coupe) makes 647 hp at 6,250 rpm, and 550 lb-ft of torque. It gets 11 mpg in the city, and 18 on the highway. The **Base Coupe** (coupe) makes 597 hp at 9,000 rpm, and 398 lb-ft of torque. It gets 13 mpg in the city, and 17 on the highway. The **Base** (convertible) makes 562 hp at 9,000 rpm, and 398 lb-ft of torque. It gets 13 mpg in the city, and 17 on the highway. The **Base Coupe** (coupe) makes 562 hp at 9,000 rpm, and 398 lb-ft of torque. It gets 13 mpg in the city, and 17 on the highway. The **Base Coupe** (coupe) makes 661 hp at 8,000 rpm, and 561 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **Base Convertible** (convertible) makes 553 hp at 7,500 rpm, and 557 lb-ft of torque. It gets 16 mpg in the city, and 23 on the highway. The **Base Coupe** (coupe) makes 680 hp at 8,250 rpm, and 514 lb-ft of torque. It gets 12 mpg in the city, and 17 on the highway. The **Base Coupe** (coupe) makes 652 hp at 8,000 rpm, and 504 lb-ft of torque. It gets 11 mpg in the city, and 16 on the highway. The **Base Coupe** (coupe) makes 731 hp at 8,250 rpm, and 509 lb-ft of torque. It gets 11 mpg in the city, and 16 on the highway. The **Base Coupe** (coupe) makes 949 hp at 9,000 rpm, and 664 lb-ft of torque. It gets 12 mpg in the city, and 16 on the highway. The **Base Coupe** (coupe) makes 573 hp at 6,500 rpm, and 476 lb-ft of torque. It gets 21 mpg in the city, and 22 on the highway. The **Premium Coupe** (coupe) makes 545 hp at 6,400 rpm, and 436 lb-ft of torque. It gets 16 mpg in the city, and 22 on the highway. The **LP 700-4 Coupe** (coupe) makes 700 hp at 8,250 rpm, and 507 lb-ft of torque. It gets 11 mpg in the city, and 18 on the highway. The **LP 610-4 Coupe** (coupe) makes 610 hp at 8,250 rpm, and 413 lb-ft of torque. It gets 16 mpg in the city, and 20 on the highway. The **LP 550-2 Coupe** (coupe) makes 550 hp at 8,000 rpm, and 398 lb-ft of torque. It gets 12 mpg in the city, and 20 on the highway. The **V8 Coupe** (coupe) makes 500 hp at 6,000 rpm, and 487 lb-ft of torque. It gets 15 mpg in the city, and 25 on the highway. The **Sport Coupe** (coupe) makes 454 hp at 7,600 rpm, and 384 lb-ft of torque. It gets 13 mpg in the city, and 21 on the highway. The **S Sedan** (sedan) makes 404 hp at 5,500 rpm, and 406 lb-ft of torque. It gets 16 mpg in the city, and 23 on the highway. The **Base Sedan** (sedan) makes 345 hp at 5,250 rpm, and 369 lb-ft of torque. It gets 17 mpg in the city, and 24 on the highway. The **640 I Coupe** (coupe) makes 315 hp at 5,800 rpm, and 330 lb-ft of torque. It gets 20 mpg in the city, and 30 on the highway. The **Mega World Coupe** (coupe) makes 357 hp at 5,800 rpm, and 420 lb-ft of torque. It gets 28 mpg in the city, and 29 on the highway. The **Base Coupe** (coupe) makes 425 hp at 5,500 rpm, and 406 lb-ft of torque. It gets 17 mpg in the city, and 24 on the highway. The **Base Sedan** (sedan) makes 560 hp at 6,000 rpm, and 500 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **Base Coupe** (coupe) makes 560 hp at 6,000 rpm, and 500 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **Base Coupe** (coupe) makes 608 hp at 6,500 rpm, and 516 lb-ft of torque. It gets 15 mpg in the city, and 21 on the highway. The **Base Sedan** (sedan) makes 552 hp at 6,650 rpm, and 465 lb-ft of torque. It gets 14 mpg in the city, and 21 on the highway. The **Base Coupe** (coupe) makes 568 hp at 6,650 rpm, and 465 lb-ft of torque. It gets 13 mpg in the city, and 21 on the highway. The **V8 GT (Manual) Coupe** (coupe) makes 430 hp at 7,300 rpm, and 361 lb-ft of torque. It gets 13 mpg in the city, and 19 on the highway. The **Z06 Coupe** (coupe) makes 650 hp at 6,400 rpm, and 650 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **GT Coupe** (coupe) makes 645 hp at 5,000 rpm, and 600 lb-ft of torque. It gets 12 mpg in the city, and 19 on the highway. The **4.2 (Manual) Coupe** (coupe) makes 430 hp at 7,900 rpm, and 317 lb-ft of torque. It gets 11 mpg in the city, and 20 on the highway. The **Quattro Hatchback** (hatchback) makes 560 hp at 5,700 rpm, and 516 lb-ft of torque. It gets 15 mpg in the city, and 25 on the highway. The **Premium Plus quattro Sedan** (sedan) makes 450 hp at 5,800 rpm, and 406 lb-ft of torque. It gets 18 mpg in the city, and 27 on the highway. The **Prestige quattro Hatchback** (hatchback) makes 450 hp at 5,800 rpm, and 406 lb-ft of torque. It gets 17 mpg in the city, and 27 on the highway. The **Base Sedan** (sedan) makes 520 hp at 5,800 rpm, and 481 lb-ft of torque. It gets 15 mpg in the city, and 25 on the highway. The **2+2 Coupe** (coupe) makes 400 hp at 7,000 rpm, and 302 lb-ft of torque. It gets 16 mpg in the city, and 24 on the highway. The **Base (Manual) Coupe** (coupe) makes 340 hp at 6,500 rpm, and 332 lb-ft of torque. It gets 16 mpg in the city, and 24 on the highway. The **S Coupe** (coupe) makes 503 hp at 6,250 rpm, and 479 lb-ft of torque. It gets 16 mpg in the city, and 22 on the highway. The **SL400 Convertible** (convertible) makes 329 hp at 5,250 rpm, and 354 lb-ft of torque. It gets 20 mpg in the city, and 27 on the highway. The **75D** (sedan) makes 259 hp at 6,100 rpm, and 243 lb-ft of torque. The **Base Convertible** (convertible) makes 300 hp at 6,500 rpm, and 280 lb-ft of torque. It gets 21 mpg in the city, and 28 on the highway. The **Base Coupe** (coupe) makes 300 hp at 6,500 rpm, and 280 lb-ft of torque. It gets 20 mpg in the city, and 29 on the highway. The **Carrera Coupe** (coupe) makes 350 hp at 7,400 rpm, and 287 lb-ft of torque. It gets 20 mpg in the city, and 28 on the highway. The **Base Sedan** (sedan) makes 310 hp at 6,200 rpm, and 295 lb-ft of torque. It gets 18 mpg in the city, and 28 on the highway. The **Base Coupe** (coupe) makes 570 hp at 7,500 rpm, and 443 lb-ft of torque. It gets 16 mpg in the city, and 23 on the highway. The **Base Convertible** (convertible) makes 563 hp at 5,250 rpm, and 575 lb-ft of torque. It gets 12 mpg in the city, and 19 on the highway. The **Base Coupe** (coupe) makes 624 hp at 5,600 rpm, and 590 lb-ft of torque. It gets 13 mpg in the city, and 21 on the highway.
+The **Base Coupe** (coupe, RWD) makes 647 hp at 6,250 rpm, and 550 lb-ft of torque. It gets 11 mpg in the city, and 18 on the highway. The **Base Coupe** (coupe, RWD) makes 597 hp at 9,000 rpm, and 398 lb-ft of torque. It gets 13 mpg in the city, and 17 on the highway. The **Base** (convertible, RWD) makes 562 hp at 9,000 rpm, and 398 lb-ft of torque. It gets 13 mpg in the city, and 17 on the highway. The **Base Coupe** (coupe, RWD) makes 562 hp at 9,000 rpm, and 398 lb-ft of torque. It gets 13 mpg in the city, and 17 on the highway. The **Base Coupe** (coupe, RWD) makes 661 hp at 8,000 rpm, and 561 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **Base Convertible** (convertible, RWD) makes 553 hp at 7,500 rpm, and 557 lb-ft of torque. It gets 16 mpg in the city, and 23 on the highway. The **Base Coupe** (coupe, AWD) makes 680 hp at 8,250 rpm, and 514 lb-ft of torque. It gets 12 mpg in the city, and 17 on the highway. The **Base Coupe** (coupe, AWD) makes 652 hp at 8,000 rpm, and 504 lb-ft of torque. It gets 11 mpg in the city, and 16 on the highway. The **Base Coupe** (coupe, RWD) makes 731 hp at 8,250 rpm, and 509 lb-ft of torque. It gets 11 mpg in the city, and 16 on the highway. The **Base Coupe** (coupe, RWD) makes 949 hp at 9,000 rpm, and 664 lb-ft of torque. It gets 12 mpg in the city, and 16 on the highway. The **Base Coupe** (coupe, AWD) makes 573 hp at 6,500 rpm, and 476 lb-ft of torque. It gets 21 mpg in the city, and 22 on the highway. The **Premium Coupe** (coupe, AWD) makes 545 hp at 6,400 rpm, and 436 lb-ft of torque. It gets 16 mpg in the city, and 22 on the highway. The **LP 700-4 Coupe** (coupe, AWD) makes 700 hp at 8,250 rpm, and 507 lb-ft of torque. It gets 11 mpg in the city, and 18 on the highway. The **LP 610-4 Coupe** (coupe, RWD) makes 610 hp at 8,250 rpm, and 413 lb-ft of torque. It gets 16 mpg in the city, and 20 on the highway. The **LP 550-2 Coupe** (coupe, RWD) makes 550 hp at 8,000 rpm, and 398 lb-ft of torque. It gets 12 mpg in the city, and 20 on the highway. The **V8 Coupe** (coupe, AWD) makes 500 hp at 6,000 rpm, and 487 lb-ft of torque. It gets 15 mpg in the city, and 25 on the highway. The **Sport Coupe** (coupe, RWD) makes 454 hp at 7,600 rpm, and 384 lb-ft of torque. It gets 13 mpg in the city, and 21 on the highway. The **S Sedan** (sedan, RWD) makes 404 hp at 5,500 rpm, and 406 lb-ft of torque. It gets 16 mpg in the city, and 23 on the highway. The **Base Sedan** (sedan, RWD) makes 345 hp at 5,250 rpm, and 369 lb-ft of torque. It gets 17 mpg in the city, and 24 on the highway. The **640 I Coupe** (coupe, RWD) makes 315 hp at 5,800 rpm, and 330 lb-ft of torque. It gets 20 mpg in the city, and 30 on the highway. The **Mega World Coupe** (coupe, AWD) makes 357 hp at 5,800 rpm, and 420 lb-ft of torque. It gets 28 mpg in the city, and 29 on the highway. The **Base Coupe** (coupe, RWD) makes 425 hp at 5,500 rpm, and 406 lb-ft of torque. It gets 17 mpg in the city, and 24 on the highway. The **Base Sedan** (sedan, RWD) makes 560 hp at 6,000 rpm, and 500 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **Base Coupe** (coupe, RWD) makes 560 hp at 6,000 rpm, and 500 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **Base Coupe** (coupe, RWD) makes 608 hp at 6,500 rpm, and 516 lb-ft of torque. It gets 15 mpg in the city, and 21 on the highway. The **Base Sedan** (sedan, RWD) makes 552 hp at 6,650 rpm, and 465 lb-ft of torque. It gets 14 mpg in the city, and 21 on the highway. The **Base Coupe** (coupe, RWD) makes 568 hp at 6,650 rpm, and 465 lb-ft of torque. It gets 13 mpg in the city, and 21 on the highway. The **V8 GT (Manual) Coupe** (coupe, RWD) makes 430 hp at 7,300 rpm, and 361 lb-ft of torque. It gets 13 mpg in the city, and 19 on the highway. The **Z06 Coupe** (coupe, RWD) makes 650 hp at 6,400 rpm, and 650 lb-ft of torque. It gets 15 mpg in the city, and 22 on the highway. The **GT Coupe** (coupe, RWD) makes 645 hp at 5,000 rpm, and 600 lb-ft of torque. It gets 12 mpg in the city, and 19 on the highway. The **4.2 (Manual) Coupe** (coupe, AWD) makes 430 hp at 7,900 rpm, and 317 lb-ft of torque. It gets 11 mpg in the city, and 20 on the highway. The **Quattro Hatchback** (hatchback, AWD) makes 560 hp at 5,700 rpm, and 516 lb-ft of torque. It gets 15 mpg in the city, and 25 on the highway. The **Premium Plus quattro Sedan** (sedan, AWD) makes 450 hp at 5,800 rpm, and 406 lb-ft of torque. It gets 18 mpg in the city, and 27 on the highway. The **Prestige quattro Hatchback** (hatchback, AWD) makes 450 hp at 5,800 rpm, and 406 lb-ft of torque. It gets 17 mpg in the city, and 27 on the highway. The **Base Sedan** (sedan, AWD) makes 520 hp at 5,800 rpm, and 481 lb-ft of torque. It gets 15 mpg in the city, and 25 on the highway. The **2+2 Coupe** (coupe, RWD) makes 400 hp at 7,000 rpm, and 302 lb-ft of torque. It gets 16 mpg in the city, and 24 on the highway. The **Base (Manual) Coupe** (coupe, RWD) makes 340 hp at 6,500 rpm, and 332 lb-ft of torque. It gets 16 mpg in the city, and 24 on the highway. The **S Coupe** (coupe, RWD) makes 503 hp at 6,250 rpm, and 479 lb-ft of torque. It gets 16 mpg in the city, and 22 on the highway. The **SL400 Convertible** (convertible, RWD) makes 329 hp at 5,250 rpm, and 354 lb-ft of torque. It gets 20 mpg in the city, and 27 on the highway. The **75D** (sedan, AWD) makes 259 hp at 6,100 rpm, and 243 lb-ft of torque. The **Base Convertible** (convertible, RWD) makes 300 hp at 6,500 rpm, and 280 lb-ft of torque. It gets 21 mpg in the city, and 28 on the highway. The **Base Coupe** (coupe, RWD) makes 300 hp at 6,500 rpm, and 280 lb-ft of torque. It gets 20 mpg in the city, and 29 on the highway. The **Carrera Coupe** (coupe, RWD) makes 350 hp at 7,400 rpm, and 287 lb-ft of torque. It gets 20 mpg in the city, and 28 on the highway. The **Base Sedan** (sedan, RWD) makes 310 hp at 6,200 rpm, and 295 lb-ft of torque. It gets 18 mpg in the city, and 28 on the highway. The **Base Coupe** (coupe, RWD) makes 570 hp at 7,500 rpm, and 443 lb-ft of torque. It gets 16 mpg in the city, and 23 on the highway. The **Base Convertible** (convertible, RWD) makes 563 hp at 5,250 rpm, and 575 lb-ft of torque. It gets 12 mpg in the city, and 19 on the highway. The **Base Coupe** (coupe, RWD) makes 624 hp at 5,600 rpm, and 590 lb-ft of torque. It gets 13 mpg in the city, and 21 on the highway.
 
 The details are in the table's HTML, made as it's rendered, but aren't searched, filtered or exported (and each [GT](../reference/GT.md#great_tables.GT) table in them brings its own CSS, so many of them make a larger page). A column can hold them instead, with each row's details: [i_row_details()](../reference/GTI.i_row_details.md#great_tables.GTI.i_row_details) takes its name, and the column is then left out of the table.
 
@@ -319,7 +334,7 @@ Sorting the rows or turning the page doesn't change the colors. Only colors that
 With `groupable=True` in [i_cols_controls()](../reference/GTI.i_cols_controls.md#great_tables.GTI.i_cols_controls), readers can group the rows by any of the chosen columns, from the **Group rows** button in the table's control bar. Each group is under a heading with its value and its number of rows (of those a search or filter keeps), the groups in the order of their values (or the other way around, when the column is sorted descending) with any missing values last. The rows are sorted within their groups, and a group running over pages has its heading on each one. Here, the cars start grouped by their country of origin, the most powerful first in each; group them by make instead, or by none.
 
 ``` python
-by_country = pl.from_pandas(gtcars).select(["mfr", "model", "ctry_origin", "year", "hp", "msrp"])
+by_country = data.pl.gtcars.select(["mfr", "model", "ctry_origin", "year", "hp", "msrp"])
 
 (
     GTI(by_country)
@@ -393,7 +408,7 @@ With [i_link()](../reference/GTI.i_link.md#great_tables.GTI.i_link), tables on t
 makes = (
     gtcars_pl.group_by("mfr")
     .agg(pl.len().alias("models"), pl.col("hp").max().alias("top_hp"))
-    .sort("mfr")
+    .sort(pl.col("mfr").str.to_lowercase())
 )
 
 (
@@ -413,8 +428,8 @@ makes = (
 | Acura         | 1      | 573    |
 | Aston Martin  | 4      | 608    |
 | Audi          | 5      | 560    |
-| BMW           | 5      | 560    |
 | Bentley       | 1      | 500    |
+| BMW           | 5      | 560    |
 | Chevrolet     | 1      | 650    |
 | Dodge         | 1      | 645    |
 | Ferrari       | 9      | 949    |
@@ -496,10 +511,15 @@ A filtered table says what it's filtered by with a token in its control bar ("Se
 
 ## An explorer for looking through data
 
-`GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than presenting it: every column can be filtered, has a profile, and can be hidden and moved; the rows are compact, each one line high (their text doesn't wrap), with the column labels and the values in a monospaced font, and can be downloaded as CSV; and with [i_inspect()](../reference/GTI.i_inspect.md#great_tables.GTI.i_inspect), the rows are numbered (by their place in the data, from 0 for a DataFrame, which stays with them as they're sorted and filtered), each column's dtype is under its label (as Polars names it, whatever the DataFrame library), the status line above the table says what the data is (a Polars DataFrame or LazyFrame, a Pandas DataFrame, a PyArrow Table, a DuckDB relation, or an Ibis table) and how many of its rows and columns are left, and missing values are tinted.
+`GTI(df, preset="explorer")` starts a table set up for looking through a DataFrame rather than presenting it:
+
+- every column can be filtered, has a profile, and can be hidden and moved
+- the rows are compact, each one line high (their text doesn't wrap), with the column labels and the values in a monospaced font
+- the rows can be downloaded as CSV
+- with [i_inspect()](../reference/GTI.i_inspect.md#great_tables.GTI.i_inspect), the rows are numbered (by their place in the data, which stays with them as they're sorted and filtered), each column's dtype is under its label (as Polars names it, whatever the DataFrame library), missing values are tinted, and the status line says what the data is (a Polars DataFrame or LazyFrame, a Pandas DataFrame, a PyArrow Table, a DuckDB relation, or an Ibis table) and how many of its rows and columns are left
 
 ``` python
-cars = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
+cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
 
 GTI(cars, preset="explorer")
 ```

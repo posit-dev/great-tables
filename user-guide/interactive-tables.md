@@ -1,4 +1,4 @@
-# Interactive Tables
+# Making Tables Interactive
 
 **Great Tables** can make a table that readers work with in the browser: sorting it by its columns, searching and filtering its rows, and paging through them. The table is the one you made, with all its formatting, styles and structure; a small script that comes with its HTML adds the controls. Nothing else is needed to view it (no server, internet connection, or other library), and the table can be read before the script runs, or if it never does. It's interactive wherever its HTML is shown: in Jupyter notebooks, Quarto documents, and HTML files written with [write_raw_html()](../reference/GT.write_raw_html.md#great_tables.GT.write_raw_html).
 
@@ -18,11 +18,10 @@ If you're publishing a table and want readers to be able to sort, search and pag
 A single call to [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) switches the table from static to interactive. The formatting methods continue to work exactly as before.
 
 ``` python
-from great_tables import GT
-from great_tables.data import gtcars
 import polars as pl
+from great_tables import GT, data
 
-gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", "msrp"])
+gtcars_pl = data.pl.gtcars.select(["mfr", "model", "year", "hp", "trq", "msrp"])
 
 (
     GT(gtcars_pl)
@@ -91,12 +90,8 @@ Click the arrows under any column label to sort (or the label itself), and again
 You don't need to rebuild your table or learn a separate API. Instead, just append `.opt_interactive()` to the end of your method chain. Every part of the table is kept: the header, the stub and row groups, spanners, footnotes, source notes, and summary rows. When the rows are sorted, they're sorted within their groups.
 
 ``` python
-from great_tables import GT
-from great_tables.data import gtcars
-import polars as pl
-
 gtcars_grouped = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .filter(pl.col("ctry_origin").is_in(["Germany", "Italy"]))
     .select(["ctry_origin", "model", "year", "hp", "trq", "msrp"])
 )
@@ -216,7 +211,7 @@ Pass `use_search=True` to add a search box above the table, and `use_filters=Tru
 | Rolls-Royce                | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
 | Rolls-Royce                | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
 
-Try typing `"Audi"` in the search box, or setting a range in the `HP` filter, to narrow the results.
+Try typing `Audi` in the search box, or setting a range in the `HP` filter, to narrow the results.
 
 ## Pagination options
 
@@ -382,7 +377,7 @@ from great_tables import style, loc
         style=[style.fill(color="#ddeeff"), style.text(weight="bold")],
         locations=loc.column_labels(columns=["hp", "trq"]),
     )
-    .opt_interactive(use_search=True, use_filters=True, page_size_default=10)
+    .opt_interactive(use_search=True, use_filters=True)
 )
 ```
 
@@ -441,7 +436,7 @@ From the output you might notice:
 
 - HP values over 500 are highlighted in amber
 - MSRP values over \$200,000 appear in bold red
-- the `HP` and `Torque` column headers have a blue-tinted background
+- The `HP` and `Torque` column labels have a blue-tinted background
 
 Sort by `HP` or `MSRP` to confirm that the styling moves with the data.
 
@@ -456,9 +451,9 @@ The [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) met
     .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
     .fmt_currency(columns="msrp")
-    .data_color(columns="hp",  palette=["#fff7ec", "#ef6c00"])
+    .data_color(columns="hp", palette=["#fff7ec", "#ef6c00"])
     .data_color(columns="msrp", palette="Blues")
-    .opt_interactive(use_search=True, use_filters=True, page_size_default=10)
+    .opt_interactive(use_search=True, use_filters=True)
 )
 ```
 
@@ -513,7 +508,7 @@ The [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) met
 | Rolls-Royce           | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
 | Rolls-Royce           | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
 
-Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A [GTI](../reference/GTI.md#great_tables.GTI) table can color them again from the rows a filter keeps instead: see [Colors from the rows kept](22-gti-tables.md#colors-from-the-rows-kept).)
+Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A [GTI](../reference/GTI.md#great_tables.GTI) table can color them again from the rows a filter keeps instead: see [Colors from the rows kept](gti-tables.md#colors-from-the-rows-kept).)
 
 ### Multiple columns, shared scale
 
@@ -532,9 +527,9 @@ Pass `domain=` to lock the color range across columns so they share a common sca
     .data_color(
         columns=["hp", "trq"],
         palette=["#edf8fb", "#006d2c"],
-        domain=[200, 700],
+        domain=[200, 1000],
     )
-    .opt_interactive(use_search=True, page_size_default=10)
+    .opt_interactive(use_search=True)
 )
 ```
 

@@ -1,17 +1,15 @@
 # GTI in Python and Apps
 
-An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a [GTI](../reference/GTI.md#great_tables.GTI) table (see [GTI Tables](gti-tables.md)) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a [GTI](../reference/GTI.md#great_tables.GTI) table or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive), get its view and selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows the table as it works in the browser, with its runtime once however many tables there are.
+An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a [GTI](../reference/GTI.md#great_tables.GTI) table (see [GTI Tables](gti-tables.md)) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a [GTI](../reference/GTI.md#great_tables.GTI) table or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive), get its view and selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows the table as it works in the browser, with its runtime included once, however many tables the page has.
 
 ## Using the table from Python
 
 In a notebook, [i_as_widget()](../reference/GTI.i_as_widget.md#great_tables.GTI.i_as_widget) shows the table as a widget (with [anywidget](https://anywidget.dev), installed with `pip install great_tables[widget]`), whose view and selection Python can read and set: what the reader searched for, filtered and sorted by, the rows that leaves, and the rows they selected. The table still works in the browser; the widget tells Python what it shows.
 
 ``` python
-import polars as pl
-from great_tables import GTI
-from great_tables.data import gtcars
+from great_tables import GTI, data
 
-cars = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
+cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
 
 widget = (
     GTI(cars)
@@ -45,12 +43,11 @@ In a [marimo](https://marimo.io) notebook (or one run as an app), `mo_gti()`, fr
 
 ``` python
 import marimo as mo
-from great_tables import GTI
-from great_tables.data import gtcars
+from great_tables import GTI, data
 from great_tables.marimo import mo_gti
 
 table = mo_gti(
-    GTI(gtcars[["mfr", "model", "year", "hp", "msrp"]])
+    GTI(data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"]))
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
 )
@@ -75,7 +72,7 @@ mo.vstack([
 ])
 ```
 
-`table.view()` gives the rows kept as a DataFrame of the data's library (and `table.view(selected=True)` the rows selected). The table works in the browser, which finds its rows, so they can be `None` until it has (as before a [GT](../reference/GT.md#great_tables.GT) table is shown). Running the table's cell again makes a new table, which starts as it's made. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the notebook for each page instead, and its rows are found in Python.
+`table.view()` gives the rows kept as a DataFrame of the data's library (and `table.view(selected=True)` the rows selected). The rows are found by the browser, as the table works there. Before the table is shown, Python finds them, except for a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) or a table that starts with a search: their rows are `None` until the browser has shown the table. They're also `None` after the table's view is set (as by the button), until the browser has applied it. Running the table's cell again makes a new table, which starts as it's made. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the notebook for each page instead, and its rows are always found in Python.
 
 ## Using the table in a Shiny app
 
@@ -83,8 +80,7 @@ In a [Shiny](https://shiny.posit.co/py/) app, an interactive table (a [GTI](../r
 
 ``` python
 from shiny import App, reactive, render, ui
-from great_tables import GTI
-from great_tables.data import gtcars
+from great_tables import GTI, data
 from great_tables.shiny import output_gt, render_gt, update_gti
 
 app_ui = ui.page_fluid(
@@ -98,7 +94,7 @@ def server(input, output, session):
     @render_gt
     def cars():
         return (
-            GTI(gtcars[["mfr", "model", "year", "hp", "msrp"]])
+            GTI(data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"]))
             .i_cols_filter(columns="mfr", type="facet")
             .i_selection("multiple")
         )
@@ -125,13 +121,12 @@ In a [Streamlit](https://streamlit.io) app, [st_gti()](../reference/streamlit.st
 
 ``` python
 import streamlit as st
-from great_tables import GTI
-from great_tables.data import gtcars
+from great_tables import GTI, data
 from great_tables.streamlit import st_gti, update_gti
 
 st.button("Fastest first", on_click=update_gti, args=("cars",), kwargs={"sort": "-hp"})
 table = (
-    GTI(gtcars[["mfr", "model", "year", "hp", "msrp"]])
+    GTI(data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"]))
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
 )
@@ -147,13 +142,12 @@ In a [Panel](https://panel.holoviz.org) app or notebook, [GTIPane](../reference/
 
 ``` python
 import panel as pn
-from great_tables import GTI
-from great_tables.data import gtcars
+from great_tables import GTI, data
 from great_tables.panel import GTIPane
 
 pn.extension()
 
-cars = gtcars[["mfr", "model", "year", "hp", "msrp"]]
+cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"])
 table = GTIPane(
     GTI(cars).i_cols_filter(columns="mfr", type="facet").i_selection("multiple")
 )
@@ -168,7 +162,7 @@ fastest.on_click(lambda _: table.param.update(sort=["-hp"], selection=[]))
 pn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selection)).servable()
 ```
 
-`table.data()` gives the rows kept as a DataFrame of the data's library (and `table.data(selected=True)` the rows selected). The table works in the browser, which finds its `rows`, so they can be `None` until it has (as before the table's shown with a search). A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the app for each page instead, and its `rows` are found in Python.
+`table.data()` gives the rows kept as a DataFrame of the data's library (and `table.data(selected=True)` the rows selected). The `rows` are found by the browser, as the table works there. Before the table is shown, Python finds them, except for a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) or a table that starts with a search: their `rows` are `None` until the browser has shown the table. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the app for each page instead, and its `rows` are always found in Python.
 
 ## Using the table in a Solara app
 
@@ -176,11 +170,10 @@ In a [Solara](https://solara.dev) app or notebook, the [GTITable](../reference/s
 
 ``` python
 import solara
-from great_tables import GTI
-from great_tables.data import gtcars
+from great_tables import GTI, data
 from great_tables.solara import GTITable
 
-cars = gtcars[["mfr", "model", "year", "hp", "msrp"]]
+cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"])
 table = GTI(cars).i_cols_filter(columns="mfr", type="facet").i_selection("multiple")
 
 sort = solara.reactive([])
@@ -206,11 +199,10 @@ A page with several tables needs the runtime only once: [runtime_tags()](../refe
 ``` python
 from flask import Flask, render_template_string
 from markupsafe import Markup
-from great_tables import GTI
-from great_tables.data import gtcars
+from great_tables import GTI, data
 from great_tables.web import runtime_tags, write_runtime
 
-cars = gtcars[["mfr", "model", "year", "hp", "msrp"]]
+cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"])
 write_runtime("static/gti")
 app = Flask(__name__)
 
