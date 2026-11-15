@@ -533,6 +533,11 @@ class GT(
 
         return rendered
 
+    def __html__(self) -> str:
+        # The table's HTML, as it is, in a page made with a Jinja template (as Flask's are) or with
+        # FastHTML, which take what has an `__html__()` as HTML (Django makes it a string first)
+        return self.as_raw_html()
+
     # (Not seen by type checkers, which can still tell when an attribute is misspelled)
     if not TYPE_CHECKING:
 
