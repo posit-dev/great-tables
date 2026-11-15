@@ -902,8 +902,13 @@ for (const mode of ["run", "edit"]) {
       await page.goto(url);
       if (mode === "edit") {
         // (A notebook opened to edit isn't run until it's asked to be, with the button below the
-        // cells, after theirs)
-        await page.getByTestId("run-button").last().click({ timeout: 30_000 });
+        // cells (not a cell's own), once they're there, as it's shown before them; and again,
+        // should it be clicked before the kernel's ready)
+        await expect(page.locator("[id^='cell-'] [data-testid=run-button]")).not.toHaveCount(0, { timeout: 30_000 });
+        await expect(async () => {
+          await page.locator("[data-testid=run-button]:not([id^='cell-'] *)").click();
+          await expect(page.locator("gt-table")).toHaveCount(1, { timeout: 5_000 });
+        }).toPass({ timeout: 45_000 });
       }
       const table = page.locator("gt-table");
       await expect(table).toHaveAttribute("data-gti-state", "ready", { timeout: 30_000 });
