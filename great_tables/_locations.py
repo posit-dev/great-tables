@@ -582,11 +582,10 @@ class LocSummaryStub(Loc):
 
     ```{python}
     import polars as pl
-    from great_tables import GT, style, loc, vals
-    from great_tables.data import gtcars
+    from great_tables import GT, data, style, loc, vals
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select(["mfr", "model", "hp", "trq"])
         .head(12)
     )
@@ -773,11 +772,10 @@ class LocSummary(Loc):
 
     ```{python}
     import polars as pl
-    from great_tables import GT, style, loc, vals
-    from great_tables.data import gtcars
+    from great_tables import GT, data, style, loc, vals
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select(["mfr", "model", "hp", "trq"])
         .head(12)
     )
