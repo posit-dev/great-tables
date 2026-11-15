@@ -16,6 +16,8 @@ sends its pages, showing the rows the server finds. And the same two as Streamli
 `GTIPane`), showing its parameters, and two notebooks with one, for JupyterLab (the second's rows
 the kernel's, and shown twice); and as Solara apps (with `GTITable`), showing its values, and a
 notebook with one, for JupyterLab; and as marimo notebooks (with `mo_gti()`), showing its value.
+And the three tables in pages a Flask app makes with a template (each with its runtime, or with the
+runtime once, from its files or with a nonce, under a Content Security Policy) and a FastHTML app.
 """
 
 from __future__ import annotations
@@ -678,6 +680,87 @@ if __name__ == "__main__":
 """
 
 
+# (Pages of the tables: at "/", each put in the template as it is, with its runtime; at "/files",
+# the runtime once, from its files, in a page whose policy allows no inline script; at "/nonce",
+# the runtime once, inline, allowed by the policy's nonce)
+FLASK_APP = f"""\
+from flask import Flask, make_response, render_template_string
+from markupsafe import Markup
+
+from great_tables.web import runtime_tags, write_runtime
+
+{SETUP}
+
+write_runtime("static/gti")
+app = Flask(__name__)
+
+PAGE = (
+    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/>{{{{ runtime }}}}</head>'
+    "<body>{{% for table in tables %}}{{{{ table }}}}{{% endfor %}}</body></html>"
+)
+
+
+def tables():
+    return [{", ".join(TABLES)}]
+
+
+@app.route("/")
+def index():
+    return render_template_string(PAGE, runtime="", tables=tables())
+
+
+@app.route("/files")
+def files():
+    page = render_template_string(
+        PAGE,
+        runtime=runtime_tags(url="/static/gti/"),
+        tables=[Markup(table.as_raw_html(runtime="none")) for table in tables()],
+    )
+    return policy(page, "script-src 'self'")
+
+
+@app.route("/nonce")
+def nonce():
+    page = render_template_string(
+        PAGE,
+        runtime=runtime_tags(nonce="gti-nonce"),
+        tables=[Markup(table.as_raw_html(runtime="none")) for table in tables()],
+    )
+    return policy(page, "script-src 'nonce-gti-nonce'")
+
+
+def policy(page, scripts):
+    response = make_response(page)
+    response.headers["Content-Security-Policy"] = (
+        f"default-src 'self'; {{scripts}}; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    )
+    return response
+"""
+
+# (The first table as a component's child, as it is, with its runtime; the others' HTML without
+# it, given the runtime once, in the page's head)
+FASTHTML_APP = f"""\
+from fasthtml.common import Div, NotStr, Titled, fast_app
+
+from great_tables.web import runtime_tags
+
+{SETUP}
+
+app, rt = fast_app(default_hdrs=False, hdrs=(runtime_tags(),))
+
+
+@rt("/")
+def get():
+    one, two, three = {", ".join(TABLES)}
+    return Titled(
+        "Tables",
+        Div(one),
+        Div(NotStr(two.as_raw_html(runtime="none"))),
+        Div(NotStr(three.as_raw_html())),
+    )
+"""
+
+
 def vscode_page() -> str:
     # The tables' output in VS Code (whose notebooks have their CSS marked `!important`), shown
     # as its notebooks show HTML output: set as an element's HTML, with each script then made
@@ -753,6 +836,8 @@ def main() -> None:
         "marimo_state_app.py": MARIMO_STATE_APP,
         "marimo_kernel_app.py": marimo_kernel_app(),
         "marimo_lazy_app.py": marimo_kernel_app(lazy=True),
+        "flask_app.py": FLASK_APP,
+        "fasthtml_app.py": FASTHTML_APP,
         "vscode.html": vscode_page(),
     }
     for name, text in files.items():
