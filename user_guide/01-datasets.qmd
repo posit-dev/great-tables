@@ -118,6 +118,6 @@ bundled CSV files, so no network access is needed and the data is always availab
 | `load_dataset("exibble", tbl_type="polars")` | Polars | The dataset name or type is a variable |
 
 Whichever approach you choose, the resulting DataFrame can be passed directly to `GT()` to start
-building a table. In the rest of this User Guide we'll mostly use the simple `from great_tables.data
-import ...` style, but everything you see works just as well with a Polars DataFrame loaded through
-`data.pl` or `load_dataset()`.
+building a table. In the rest of this User Guide we'll mostly use Polars DataFrames loaded through
+`data.pl` (e.g., `data.pl.gtcars`), but everything you see works just as well with the Pandas
+versions of the datasets.
