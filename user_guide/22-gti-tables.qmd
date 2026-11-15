@@ -5,17 +5,16 @@ html-table-processing: none
 guide-section: Interactive Tables
 ---
 
-When readers need more than `~~GT.opt_interactive()` gives them (see [Interactive
-Tables](21-interactive-tables.qmd)), make the table a `GTI` table. Here, the `Make` column gets a
-list of its values to choose from and `HP` a range, the table is first shown with the most powerful
-cars at the top, and readers can download the rows they've filtered as CSV.
+When readers need more than `~~GT.opt_interactive()` gives them (see
+[Making Tables Interactive](21-interactive-tables.qmd)), make the table a `GTI` table. Here, the
+`Make` column gets a list of its values to choose from and `HP` a range, the table is first shown
+with the most powerful cars at the top, and readers can download the rows they've filtered as CSV.
 
 ```{python}
 import polars as pl
-from great_tables import GTI
-from great_tables.data import gtcars
+from great_tables import GTI, data
 
-gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", "msrp"])
+gtcars_pl = data.pl.gtcars.select(["mfr", "model", "year", "hp", "trq", "msrp"])
 
 (
     GTI(gtcars_pl)
@@ -32,31 +31,46 @@ gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", 
 
 A table you've already made with `GT()`, including one with `opt_interactive()`, becomes a `GTI`
 table with `GTI.from_gt()`, keeping what `opt_interactive()` set. Each of the `i_` methods has
-examples in its docstring (e.g., `help(GTI.i_cols_filter)`).
+examples on its reference page (e.g., `~~GTI.i_cols_filter()`), and the [API
+Reference](/reference/index.qmd#interactive-table-controls) has them all.
 
 ## The parts of a `GTI` table
 
-A `GTI` table is the table GT made, with a few parts added around it. From the top:
+A `GTI` table is the table GT made, with a few parts added around it. Here they are in teal, on a
+table that's filtered by `mfr`, sorted by `hp` and scrolls within a set height:
+
+![A GTI table with its parts labelled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg){.lightbox width="100%"}
+
+From the top:
 
 - The **status line**, just above the table, says what the data is and how much of it is shown
-  ("Polars DataFrame · 12 of 47 rows × 6 columns"). It's there with `~~GTI.i_inspect()` (and in an
+  ("Polars DataFrame · 12 of 47 rows × 4 columns"). It's there with `~~GTI.i_inspect()` (and in an
   explorer). In a table made with `opt_interactive(use_search=True)`, the search box is here too.
 - The **column controls**, under each column label: the column's dtype (with `i_inspect()`), its
-  sort arrows, and its filter button.
+  sort arrows (with `~~GTI.i_sorting()`, on by default), and its filter button (with
+  `~~GTI.i_cols_filter()`).
 - The **column profiles**, under the labels of the columns `~~GTI.i_cols_profile()` chose: a small
   plot of how their values are spread.
 - The **row numbers**, at the start of each row (with `i_inspect()`), which stay with the rows as
   they're sorted and filtered. A DataFrame's rows are numbered from 0, as its index is, and a
   DuckDB relation's or an Ibis table's from 1, as a database numbers them; `row_start=` in
   `i_inspect()` sets either one.
+- The **height handle**, at the foot of a body that scrolls (with `~~GTI.i_scroll()`), dragged for
+  a taller or shorter body.
+- The **filter tokens**, one for each filter the rows are filtered by, which say what it keeps; a
+  token's ✕ removes its filter.
 - The **control bar**, just below the table, which brings together what readers can do with the
-  table as a whole: searching it, its **page controls** (the arrows, and the **page counter**,
-  "2/5", which can be clicked to type a page to go to), undo and redo, resetting the view, and the
-  buttons that open its **panels** (the table's info, its columns, grouping its rows, exporting it,
-  and its keyboard shortcuts). Over its controls, the **filter tokens** say what the rows are
-  filtered by, one token for each filter, whose ✕ removes it. In a body that scrolls (with
-  `~~GTI.i_scroll()`), the foot of the body is a **height handle**, dragged for a taller or shorter
-  body.
+  table as a whole. From its left, it has:
+  - the **search** (with `~~GTI.i_search()`, on by default) and the table's **keyboard
+    shortcuts**
+  - the **page controls**, around the **page counter** ("1 / 2"), which can be clicked to type a
+    page to go to
+  - the **filters as text** button (`{ }`, in a table with filters), which opens the filters as a
+    query to edit, in the form `~~GTI.i_view()` takes them (with `filter=`)
+  - the buttons that open the table's **panels**: its columns, grouping its rows and exporting them
+    (when the table has these), and its info
+  - **undo and redo** (with `~~GTI.i_view_state()`), and a **Reset** button once the view has
+    changed
 
 A table made with `opt_interactive()` has a **pager** below it instead of the control bar: its page
 buttons, and the number of rows shown.
@@ -83,16 +97,19 @@ def engine(row):
         f"and {row['mpg_h']:.0f} on the highway."
     )
     return md(
-        f"The **{row['trim']}** ({row['bdy_style']}) makes {row['hp']:.0f} hp at "
-        f"{row['hp_rpm']:,.0f} rpm, and {row['trq']:.0f} lb-ft of torque.{economy}"
+        f"The **{row['trim']}** ({row['bdy_style']}, {row['drivetrain'].upper()}) makes "
+        f"{row['hp']:.0f} hp at {row['hp_rpm']:,.0f} rpm, and {row['trq']:.0f} lb-ft of torque."
+        f"{economy}"
     )
 
 
 (
-    GTI(pl.from_pandas(gtcars), rowname_col="model")
+    GTI(data.pl.gtcars, rowname_col="model")
     .tab_header(title="GT Cars: with row details")
-    .cols_hide(columns=["trim", "bdy_style", "hp_rpm", "trq_rpm", "mpg_c", "mpg_h", "trsmn"])
-    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .cols_hide(
+        columns=["trim", "bdy_style", "hp_rpm", "trq_rpm", "mpg_c", "mpg_h", "drivetrain", "trsmn"]
+    )
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque", ctry_origin="Country", msrp="MSRP")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
     .fmt_currency(columns="msrp", decimals=0)
     .i_row_details(engine)
@@ -166,7 +183,7 @@ on each one. Here, the cars start grouped by their country of origin, the most p
 each; group them by make instead, or by none.
 
 ```{python}
-by_country = pl.from_pandas(gtcars).select(["mfr", "model", "ctry_origin", "year", "hp", "msrp"])
+by_country = data.pl.gtcars.select(["mfr", "model", "ctry_origin", "year", "hp", "msrp"])
 
 (
     GTI(by_country)
@@ -195,7 +212,7 @@ their cars; clear the selection to show them all again.
 makes = (
     gtcars_pl.group_by("mfr")
     .agg(pl.len().alias("models"), pl.col("hp").max().alias("top_hp"))
-    .sort("mfr")
+    .sort(pl.col("mfr").str.to_lowercase())
 )
 
 (
@@ -230,18 +247,21 @@ frame of its own).
 
 ## An explorer for looking through data
 
-`GTI(data, preset="explorer")` starts a table set up for looking through a DataFrame rather than
-presenting it: every column can be filtered, has a profile, and can be hidden and moved; the rows
-are compact, each one line high (their text doesn't wrap), with the column labels and the values in
-a monospaced font, and can be downloaded as CSV; and with `~~GTI.i_inspect()`, the rows are
-numbered (by their place in the data, from 0 for a DataFrame, which stays with them as they're
-sorted and filtered), each column's dtype is under its label (as Polars names it, whatever the
-DataFrame library), the status line above the table says what the data is (a Polars DataFrame or
-LazyFrame, a Pandas DataFrame, a PyArrow Table, a DuckDB relation, or an Ibis table) and how many of
-its rows and columns are left, and missing values are tinted.
+`GTI(df, preset="explorer")` starts a table set up for looking through a DataFrame rather than
+presenting it:
+
+- every column can be filtered, has a profile, and can be hidden and moved
+- the rows are compact, each one line high (their text doesn't wrap), with the column labels and
+  the values in a monospaced font
+- the rows can be downloaded as CSV
+- with `~~GTI.i_inspect()`, the rows are numbered (by their place in the data, which stays with
+  them as they're sorted and filtered), each column's dtype is under its label (as Polars names it,
+  whatever the DataFrame library), missing values are tinted, and the status line says what the
+  data is (a Polars DataFrame or LazyFrame, a Pandas DataFrame, a PyArrow Table, a DuckDB relation,
+  or an Ibis table) and how many of its rows and columns are left
 
 ```{python}
-cars = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
+cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
 
 GTI(cars, preset="explorer")
 ```
