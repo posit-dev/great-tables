@@ -1,10 +1,10 @@
 # GTI in Python and Apps
 
-An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a `GTI` table (see [GTI Tables](gti-tables.md)) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a `GTI` table or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`, get its view and selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows the table as it works in the browser, with its runtime once however many tables there are.
+An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a [GTI](../reference/GTI.md#great_tables.GTI) table (see [GTI Tables](gti-tables.md)) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a [GTI](../reference/GTI.md#great_tables.GTI) table or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive), get its view and selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows the table as it works in the browser, with its runtime once however many tables there are.
 
 ## Using the table from Python
 
-In a notebook, `i_as_widget()` shows the table as a widget (with [anywidget](https://anywidget.dev), installed with `pip install great_tables[widget]`), whose view and selection Python can read and set: what the reader searched for, filtered and sorted by, the rows that leaves, and the rows they selected. The table still works in the browser; the widget tells Python what it shows.
+In a notebook, [i_as_widget()](../reference/GTI.i_as_widget.md#great_tables.GTI.i_as_widget) shows the table as a widget (with [anywidget](https://anywidget.dev), installed with `pip install great_tables[widget]`), whose view and selection Python can read and set: what the reader searched for, filtered and sorted by, the rows that leaves, and the rows they selected. The table still works in the browser; the widget tells Python what it shows.
 
 ``` python
 import polars as pl
@@ -37,11 +37,11 @@ widget.sort = "-hp"
 widget.selection = [0, 3]
 ```
 
-Setting `query`, `search`, `sort` or `selection` changes the table as shown, and `widget.on_change(callback)` calls `callback(widget)` after each change the reader makes. A change made from Python is applied by the browser after the cell runs, so ask for the rows it leaves in another cell.
+Setting [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) or `selection` changes the table as shown, and `widget.on_change(callback)` calls `callback(widget)` after each change the reader makes. A change made from Python is applied by the browser after the cell runs, so ask for the rows it leaves in another cell.
 
 ## Using the table in a marimo notebook or app
 
-In a [marimo](https://marimo.io) notebook (or one run as an app), `mo_gti()`, from `great_tables.marimo` (installed with `pip install great_tables[marimo]`), shows an interactive table (a `GTI` table, or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`) as a UI element, like marimo's own. Assigned to a variable, the cells that read it run again with each change the reader makes. Its `value` is a dict of the table's `"query"`, `"search"` and `"sort"`, the data `"rows"` kept (in the order shown) and the rows in its `"selection"`. Setting the element's `query`, `search`, `sort` or `selection` (as in a button's `on_click=`) changes the table, and the cells that read it then run again.
+In a [marimo](https://marimo.io) notebook (or one run as an app), `mo_gti()`, from `great_tables.marimo` (installed with `pip install great_tables[marimo]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)) as a UI element, like marimo's own. Assigned to a variable, the cells that read it run again with each change the reader makes. Its `value` is a dict of the table's `"query"`, `"search"` and `"sort"`, the data `"rows"` kept (in the order shown) and the rows in its `"selection"`. Setting the element's [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) or `selection` (as in a button's `on_click=`) changes the table, and the cells that read it then run again.
 
 ``` python
 import marimo as mo
@@ -75,11 +75,11 @@ mo.vstack([
 ])
 ```
 
-`table.view()` gives the rows kept as a DataFrame of the data's library (and `table.view(selected=True)` the rows selected). The table works in the browser, which finds its rows, so they can be `None` until it has (as before a [GT](../reference/GT.md#great_tables.GT) table is shown). Running the table's cell again makes a new table, which starts as it's made. A table whose rows are kept in Python (with `i_scale()`) asks the notebook for each page instead, and its rows are found in Python.
+`table.view()` gives the rows kept as a DataFrame of the data's library (and `table.view(selected=True)` the rows selected). The table works in the browser, which finds its rows, so they can be `None` until it has (as before a [GT](../reference/GT.md#great_tables.GT) table is shown). Running the table's cell again makes a new table, which starts as it's made. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the notebook for each page instead, and its rows are found in Python.
 
 ## Using the table in a Shiny app
 
-In a [Shiny](https://shiny.posit.co/py/) app, an interactive table (a `GTI` table, or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`) rendered with `render_gt()`, from `great_tables.shiny`, gives the server its state as inputs, named after the output: `input.<id>_view()` (a dict with the `"query"`, `"search"`, `"sort"`, `"page"`, `"page_size"`, `"hidden"` columns and `"group_by"` column), `input.<id>_rows()` (the data rows kept, in the order shown) and `input.<id>_selection()` (the rows selected). `update_gti()` sets its query, search, sort and selection from the server.
+In a [Shiny](https://shiny.posit.co/py/) app, an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)) rendered with [render_gt()](../reference/shiny.render_gt.md#great_tables.shiny.render_gt), from `great_tables.shiny`, gives the server its state as inputs, named after the output: `input.<id>_view()` (a dict with the `"query"`, `"search"`, `"sort"`, `"page"`, `"page_size"`, `"hidden"` columns and `"group_by"` column), `input.<id>_rows()` (the data rows kept, in the order shown) and `input.<id>_selection()` (the rows selected). `update_gti()` sets its query, search, sort and selection from the server.
 
 ``` python
 from shiny import App, reactive, render, ui
@@ -121,7 +121,7 @@ The table works in the browser as it does anywhere else, so the server isn't ask
 
 ## Using the table in a Streamlit app
 
-In a [Streamlit](https://streamlit.io) app, `st_gti()`, from `great_tables.streamlit` (installed with `pip install great_tables[streamlit]`), shows an interactive table (a `GTI` table, or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`) and gives its state: its `query`, `search` and `sort`, the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the reader makes runs the app again, with the table's new state. `update_gti()`, called in a widget's callback, sets its query, search, sort and selection from the app.
+In a [Streamlit](https://streamlit.io) app, [st_gti()](../reference/streamlit.st_gti.md#great_tables.streamlit.st_gti), from `great_tables.streamlit` (installed with `pip install great_tables[streamlit]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)) and gives its state: its [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search) and [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort), the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the reader makes runs the app again, with the table's new state. `update_gti()`, called in a widget's callback, sets its query, search, sort and selection from the app.
 
 ``` python
 import streamlit as st
@@ -139,11 +139,11 @@ state = st_gti(table, key="cars")
 st.write(f"{len(state.selection)} of {len(state.rows or [])} cars selected")
 ```
 
-The table keeps its view and selection by its `key` as the app runs again, as long as it's rendered the same. A table whose rows are kept in Python (with `i_scale()`) asks the app for each page, which runs it again; make it once, with `st.cache_resource`, so that it isn't rendered again each time.
+The table keeps its view and selection by its `key` as the app runs again, as long as it's rendered the same. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the app for each page, which runs it again; make it once, with `st.cache_resource`, so that it isn't rendered again each time.
 
 ## Using the table in a Panel app
 
-In a [Panel](https://panel.holoviz.org) app or notebook, `GTIPane`, from `great_tables.panel` (installed with `pip install great_tables[panel]`), shows an interactive table (a `GTI` table, or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`) as a Panel component, whose state is in its parameters: `query`, `search` and `sort` (a list, e.g., `["-hp"]`), the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the reader makes sets them, so that they can be used with `pn.bind()` or watched like any other parameter; and setting `query`, `search`, `sort` or `selection` changes the table.
+In a [Panel](https://panel.holoviz.org) app or notebook, [GTIPane](../reference/panel.GTIPane.md#great_tables.panel.GTIPane), from `great_tables.panel` (installed with `pip install great_tables[panel]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)) as a Panel component, whose state is in its parameters: [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search) and [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) (a list, e.g., `["-hp"]`), the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the reader makes sets them, so that they can be used with `pn.bind()` or watched like any other parameter; and setting [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) or `selection` changes the table.
 
 ``` python
 import panel as pn
@@ -168,11 +168,11 @@ fastest.on_click(lambda _: table.param.update(sort=["-hp"], selection=[]))
 pn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selection)).servable()
 ```
 
-`table.data()` gives the rows kept as a DataFrame of the data's library (and `table.data(selected=True)` the rows selected). The table works in the browser, which finds its `rows`, so they can be `None` until it has (as before the table's shown with a search). A table whose rows are kept in Python (with `i_scale()`) asks the app for each page instead, and its `rows` are found in Python.
+`table.data()` gives the rows kept as a DataFrame of the data's library (and `table.data(selected=True)` the rows selected). The table works in the browser, which finds its `rows`, so they can be `None` until it has (as before the table's shown with a search). A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the app for each page instead, and its `rows` are found in Python.
 
 ## Using the table in a Solara app
 
-In a [Solara](https://solara.dev) app or notebook, the `GTITable` component, from `great_tables.solara` (installed with `pip install great_tables[solara]`), shows an interactive table (a `GTI` table, or a [GT](../reference/GT.md#great_tables.GT) table with `opt_interactive()`), whose `query`, `search`, `sort` (a list, e.g., `["-hp"]`) and `selection` are the app's values, as with Solara's own components. Each can be a reactive variable, which each change the reader makes sets and which changes the table when the app sets it, or a value with a callback (`on_query=`, `on_sort=`, …). One that isn't given starts as the table has it. The data rows kept (in the order shown) are given to `on_rows=`.
+In a [Solara](https://solara.dev) app or notebook, the [GTITable](../reference/solara.GTITable.md#great_tables.solara.GTITable) component, from `great_tables.solara` (installed with `pip install great_tables[solara]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)), whose [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) (a list, e.g., `["-hp"]`) and `selection` are the app's values, as with Solara's own components. Each can be a reactive variable, which each change the reader makes sets and which changes the table when the app sets it, or a value with a callback (`on_query=`, `on_sort=`, …). One that isn't given starts as the table has it. The data rows kept (in the order shown) are given to `on_rows=`.
 
 ``` python
 import solara
@@ -195,13 +195,13 @@ def Page():
     solara.Text(f"{len(selection.value)} of {len(rows.value)} cars selected")
 ```
 
-The component keeps the table's view as the app renders again, as long as it's given the same table or one rendered the same. A table whose rows are kept in Python (with `i_scale()`) asks the app for each page, and its rows are found in Python; make it once (at the module's top level, as here, or with `solara.use_memo()`), so that it isn't rendered again each time.
+The component keeps the table's view as the app renders again, as long as it's given the same table or one rendered the same. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the app for each page, and its rows are found in Python; make it once (at the module's top level, as here, or with `solara.use_memo()`), so that it isn't rendered again each time.
 
 ## Using the table in a page an app makes
 
 An app that makes its own pages, with templates (as [Flask](https://flask.palletsprojects.com) and [Django](https://www.djangoproject.com) apps do) or with [FastHTML](https://fastht.ml), shows an interactive table as its HTML, which [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html) gives: the table's `<gt-table>` element, followed by the runtime that makes it interactive (its JavaScript and CSS). The table works in the browser, as in an HTML file, without asking the app for anything. A table put in a Jinja template (as Flask's are, `{ table }`) or in a FastHTML component (`Div(table)`) is shown as its HTML, as it is.
 
-A page with several tables needs the runtime only once: `runtime_tags()`, from `great_tables.web`, gives it, for the page's `<head>`, and each table is then given without it, with `as_raw_html(runtime="none")`. With `url=`, the tags link to the runtime's files, which `write_runtime()` writes for the app to serve (as Flask serves its `static` folder), so that a browser keeps them as it does any other file.
+A page with several tables needs the runtime only once: [runtime_tags()](../reference/web.runtime_tags.md#great_tables.web.runtime_tags), from `great_tables.web`, gives it, for the page's `<head>`, and each table is then given without it, with `as_raw_html(runtime="none")`. With `url=`, the tags link to the runtime's files, which [write_runtime()](../reference/web.write_runtime.md#great_tables.web.write_runtime) writes for the app to serve (as Flask serves its `static` folder), so that a browser keeps them as it does any other file.
 
 ``` python
 from flask import Flask, render_template_string
@@ -238,4 +238,4 @@ def index():
 
 Django makes what's put in a template a string before it's shown, so a table is given as its HTML, marked safe (with `mark_safe(table.as_raw_html())`, or `{ table_html|safe }` in the template); the runtime's tags are shown as they are. In FastHTML, the HTML of a table without its runtime is given as `NotStr(table.as_raw_html(runtime="none"))`, and the tags as one of the app's headers (`fast_app(hdrs=(runtime_tags(),))`).
 
-A page whose Content Security Policy allows no inline scripts can have the runtime from its files (`script-src 'self'`), or inline with the policy's nonce (`runtime_tags(nonce=...)`); the table's spec, in a `<script type="application/json">`, is data, which isn't run. The table's own CSS is inline, so the policy's `style-src` must allow `'unsafe-inline'`. A table whose rows are kept in Python (with `i_scale()`) needs an app that answers its asks for pages, so in a page an app makes, its rows are in the browser.
+A page whose Content Security Policy allows no inline scripts can have the runtime from its files (`script-src 'self'`), or inline with the policy's nonce (`runtime_tags(nonce=...)`); the table's spec, in a `<script type="application/json">`, is data, which isn't run. The table's own CSS is inline, so the policy's `style-src` must allow `'unsafe-inline'`. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) needs an app that answers its asks for pages, so in a page an app makes, its rows are in the browser.

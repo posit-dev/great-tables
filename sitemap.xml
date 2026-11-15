@@ -511,6 +511,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_order.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_spec.html</loc>
     <lastmod>2026-11-15</lastmod>
     <changefreq>monthly</changefreq>
@@ -518,6 +524,12 @@
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_horizontal_padding.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GT.opt_interactive.html</loc>
     <lastmod>2026-11-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -584,6 +596,12 @@
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.rm_stubhead.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GT.row_group_order.html</loc>
     <lastmod>2026-11-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -734,6 +752,144 @@
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.write_raw_html.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.from_gt.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_as_widget.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_cols_controls.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_cols_filter.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_cols_pin.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_cols_priority.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_cols_profile.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_display.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_export.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_inspect.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_link.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_pagination.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_resizing.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_responsive.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_row_details.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_scale.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_scroll.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_search.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_selection.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_sorting.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_view.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GTI.i_view_state.html</loc>
     <lastmod>2026-11-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -985,6 +1141,54 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/panel.GTIPane.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/shiny.output_gt.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/shiny.render_gt.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/shiny.update_gti.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/solara.GTITable.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/streamlit.GTIState.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/streamlit.st_gti.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/streamlit.update_gti.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://posit-dev.github.io/great-tables/reference/style.borders.html</loc>
     <lastmod>2026-11-15</lastmod>
     <changefreq>monthly</changefreq>
@@ -1136,6 +1340,18 @@
   </url>
   <url>
     <loc>https://posit-dev.github.io/great-tables/reference/vals.fmt_url.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/web.runtime_tags.html</loc>
+    <lastmod>2026-11-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/web.write_runtime.html</loc>
     <lastmod>2026-11-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

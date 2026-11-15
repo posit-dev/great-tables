@@ -52,7 +52,7 @@ The [as_latex()](../reference/GT.as_latex.md#great_tables.GT.as_latex) method is
 - the [`fmt_image()`](../reference/GT.fmt_image.md#great_tables.GT.fmt_image), [fmt_flag()](../reference/GT.fmt_flag.md#great_tables.GT.fmt_flag), and [fmt_icon()](../reference/GT.fmt_icon.md#great_tables.GT.fmt_icon) methods, which issue a warning and leave the cell values unformatted
 - styles, whether set with the [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) or [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) methods (a warning is issued and the table is rendered without them)
 - most options in the [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) method, particularly those that are specific to styling text, borders, or adding fill colors to cells (the ones that are used are `table_width=`, `table_font_size=`, `stub_indent_length=`, and `row_group_as_column=`), and so also the `opt_*()` methods that set them, such as [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize)
-- interactive tables (via the `opt_interactive()` method), which are rendered as static tables
+- interactive tables (via the [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) method), which are rendered as static tables
 
 As development continues, we will work to expand the capabilities of the [as_latex()](../reference/GT.as_latex.md#great_tables.GT.as_latex) method to reduce these limitations and more clearly document what is and is not supported.
 

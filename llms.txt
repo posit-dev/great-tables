@@ -22,6 +22,7 @@
 - [GT.tab_stub](https://posit-dev.github.io/great-tables/reference/GT.tab_stub.html)
 - [GT.tab_stubhead](https://posit-dev.github.io/great-tables/reference/GT.tab_stubhead.html)
 - [GT.tab_stub_indent](https://posit-dev.github.io/great-tables/reference/GT.tab_stub_indent.html)
+- [GT.row_group_order](https://posit-dev.github.io/great-tables/reference/GT.row_group_order.html)
 - [GT.tab_footnote](https://posit-dev.github.io/great-tables/reference/GT.tab_footnote.html)
 - [GT.tab_source_note](https://posit-dev.github.io/great-tables/reference/GT.tab_source_note.html)
 - [GT.rm_header](https://posit-dev.github.io/great-tables/reference/GT.rm_header.html)
@@ -157,6 +158,7 @@
 - [GT.opt_stylize](https://posit-dev.github.io/great-tables/reference/GT.opt_stylize.html)
 - [GT.opt_footnote_marks](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_marks.html)
 - [GT.opt_footnote_spec](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_spec.html)
+- [GT.opt_footnote_order](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_order.html)
 - [GT.opt_row_striping](https://posit-dev.github.io/great-tables/reference/GT.opt_row_striping.html)
 - [GT.opt_align_table_header](https://posit-dev.github.io/great-tables/reference/GT.opt_align_table_header.html)
 - [GT.opt_vertical_padding](https://posit-dev.github.io/great-tables/reference/GT.opt_vertical_padding.html)
@@ -165,6 +167,60 @@
 - [GT.opt_table_outline](https://posit-dev.github.io/great-tables/reference/GT.opt_table_outline.html)
 - [GT.opt_table_font](https://posit-dev.github.io/great-tables/reference/GT.opt_table_font.html)
 - [GT.opt_css](https://posit-dev.github.io/great-tables/reference/GT.opt_css.html)
+
+#### Interactive tables
+> An interactive table is one readers can sort, search, filter and page through in the browser. [`opt_interactive()`](`great_tables.GT.opt_interactive`) makes a `GT` table browsable, with the options R gt has for that. A `GTI` table is a `GT` table (all of the methods above can be used to make it) that is an interface readers work with, set up with the `i_*()` methods that only `GTI` tables have. `GTI` is experimental.
+
+
+- [GTI](https://posit-dev.github.io/great-tables/reference/GTI.html): Create an interactive **Great Tables** object
+- [GTI.from_gt](https://posit-dev.github.io/great-tables/reference/GTI.from_gt.html)
+- [GT.opt_interactive](https://posit-dev.github.io/great-tables/reference/GT.opt_interactive.html)
+
+#### Interactive table controls
+> These `GTI` methods set what readers can do with the table and how it's laid out: sorting, searching, resizing, paging and selecting, how its rows look and scroll, how it fits a narrow screen, the view it starts with and keeps, exporting it, and showing what's in the data.
+
+
+- [GTI.i_sorting](https://posit-dev.github.io/great-tables/reference/GTI.i_sorting.html)
+- [GTI.i_search](https://posit-dev.github.io/great-tables/reference/GTI.i_search.html)
+- [GTI.i_resizing](https://posit-dev.github.io/great-tables/reference/GTI.i_resizing.html)
+- [GTI.i_pagination](https://posit-dev.github.io/great-tables/reference/GTI.i_pagination.html)
+- [GTI.i_selection](https://posit-dev.github.io/great-tables/reference/GTI.i_selection.html)
+- [GTI.i_display](https://posit-dev.github.io/great-tables/reference/GTI.i_display.html)
+- [GTI.i_scroll](https://posit-dev.github.io/great-tables/reference/GTI.i_scroll.html)
+- [GTI.i_responsive](https://posit-dev.github.io/great-tables/reference/GTI.i_responsive.html)
+- [GTI.i_view](https://posit-dev.github.io/great-tables/reference/GTI.i_view.html)
+- [GTI.i_view_state](https://posit-dev.github.io/great-tables/reference/GTI.i_view_state.html)
+- [GTI.i_export](https://posit-dev.github.io/great-tables/reference/GTI.i_export.html)
+- [GTI.i_inspect](https://posit-dev.github.io/great-tables/reference/GTI.i_inspect.html)
+
+#### Interactive columns and exploration
+> The `i_cols_*()` methods set up the table's columns for readers: their filters, their controls, which are pinned and which give way on a narrow screen, and small plots of their values under their labels. Rows can have details that readers open, and tables can be linked, so that the rows selected in one filter another.
+
+
+- [GTI.i_cols_filter](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_filter.html)
+- [GTI.i_cols_controls](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_controls.html)
+- [GTI.i_cols_pin](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_pin.html)
+- [GTI.i_cols_priority](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_priority.html)
+- [GTI.i_cols_profile](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_profile.html)
+- [GTI.i_row_details](https://posit-dev.github.io/great-tables/reference/GTI.i_row_details.html)
+- [GTI.i_link](https://posit-dev.github.io/great-tables/reference/GTI.i_link.html)
+
+#### Interactive tables in Python and apps
+> An interactive table's view (its search, filters and sort) and selection can be read and set from Python: in a notebook, with the table as a widget, and in Shiny, Streamlit, Panel and Solara apps. A table with many rows can keep them in Python and send the browser a page at a time. Pages an app makes itself (with Flask, Django or FastHTML) can show the tables, with their runtime once.
+
+
+- [GTI.i_as_widget](https://posit-dev.github.io/great-tables/reference/GTI.i_as_widget.html)
+- [GTI.i_scale](https://posit-dev.github.io/great-tables/reference/GTI.i_scale.html)
+- [shiny.render_gt](https://posit-dev.github.io/great-tables/reference/shiny.render_gt.html)
+- [shiny.output_gt](https://posit-dev.github.io/great-tables/reference/shiny.output_gt.html)
+- [shiny.update_gti](https://posit-dev.github.io/great-tables/reference/shiny.update_gti.html)
+- [streamlit.st_gti](https://posit-dev.github.io/great-tables/reference/streamlit.st_gti.html)
+- [streamlit.update_gti](https://posit-dev.github.io/great-tables/reference/streamlit.update_gti.html)
+- [streamlit.GTIState](https://posit-dev.github.io/great-tables/reference/streamlit.GTIState.html)
+- [panel.GTIPane](https://posit-dev.github.io/great-tables/reference/panel.GTIPane.html)
+- [solara.GTITable](https://posit-dev.github.io/great-tables/reference/solara.GTITable.html)
+- [web.runtime_tags](https://posit-dev.github.io/great-tables/reference/web.runtime_tags.html)
+- [web.write_runtime](https://posit-dev.github.io/great-tables/reference/web.write_runtime.html)
 
 #### Export
 > There may come a day when you need to export a table to some specific format. A great method for that is `gtsave()`, which allows us to save the table as a standalone image file or PDF. You can also get the table code as an HTML fragment with the `*_raw_html()` methods.

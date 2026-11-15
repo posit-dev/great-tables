@@ -29,6 +29,8 @@ Add label text to the stubhead.
 [GT.tab_stub_indent()](GT.tab_stub_indent.md#great_tables.GT.tab_stub_indent)  
 Control indentation of row labels in the stub.
 
+[GT.row_group_order()](GT.row_group_order.md#great_tables.GT.row_group_order)  
+
 [GT.tab_footnote()](GT.tab_footnote.md#great_tables.GT.tab_footnote)  
 Add a table footnote.
 
@@ -357,6 +359,9 @@ Option to modify the set of footnote marks.
 [GT.opt_footnote_spec()](GT.opt_footnote_spec.md#great_tables.GT.opt_footnote_spec)  
 Option to modify the formatting of footnote marks.
 
+[GT.opt_footnote_order()](GT.opt_footnote_order.md#great_tables.GT.opt_footnote_order)  
+Option to modify the ordering of footnotes.
+
 [GT.opt_row_striping()](GT.opt_row_striping.md#great_tables.GT.opt_row_striping)  
 Option to add or remove row striping.
 
@@ -380,6 +385,124 @@ Options to define font choices for the entire table.
 
 [GT.opt_css()](GT.opt_css.md#great_tables.GT.opt_css)  
 Option to add custom CSS for the table.
+
+## Interactive tables
+
+An interactive table is one readers can sort, search, filter and page through in the browser. [`opt_interactive()`](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) makes a [GT](../reference/GT.md#great_tables.GT) table browsable, with the options R gt has for that. A [GTI](../reference/GTI.md#great_tables.GTI) table is a [GT](../reference/GT.md#great_tables.GT) table (all of the methods above can be used to make it) that is an interface readers work with, set up with the `i_*()` methods that only [GTI](../reference/GTI.md#great_tables.GTI) tables have. [GTI](../reference/GTI.md#great_tables.GTI) is experimental.
+
+[GTI](GTI.md#great_tables.GTI)  
+Create an interactive **Great Tables** object.
+
+[GTI.from_gt()](GTI.from_gt.md#great_tables.GTI.from_gt)  
+Make an interactive table from a [GT](../reference/GT.md#great_tables.GT) table.
+
+[GT.opt_interactive()](GT.opt_interactive.md#great_tables.GT.opt_interactive)  
+Option to enable an interactive table.
+
+## Interactive table controls
+
+These [GTI](../reference/GTI.md#great_tables.GTI) methods set what readers can do with the table and how it's laid out: sorting, searching, resizing, paging and selecting, how its rows look and scroll, how it fits a narrow screen, the view it starts with and keeps, exporting it, and showing what's in the data.
+
+[GTI.i_sorting()](GTI.i_sorting.md#great_tables.GTI.i_sorting)  
+Let readers sort the table by its columns.
+
+[GTI.i_search()](GTI.i_search.md#great_tables.GTI.i_search)  
+Let readers search the table.
+
+[GTI.i_resizing()](GTI.i_resizing.md#great_tables.GTI.i_resizing)  
+Let readers resize the table's columns.
+
+[GTI.i_pagination()](GTI.i_pagination.md#great_tables.GTI.i_pagination)  
+Split the table's rows into pages.
+
+[GTI.i_selection()](GTI.i_selection.md#great_tables.GTI.i_selection)  
+Let readers select the table's rows.
+
+[GTI.i_display()](GTI.i_display.md#great_tables.GTI.i_display)  
+Set how the table's rows look.
+
+[GTI.i_scroll()](GTI.i_scroll.md#great_tables.GTI.i_scroll)  
+Make the table's body scroll, within a height.
+
+[GTI.i_responsive()](GTI.i_responsive.md#great_tables.GTI.i_responsive)  
+Set how the table fits a narrow container.
+
+[GTI.i_view()](GTI.i_view.md#great_tables.GTI.i_view)  
+Show the table filtered and sorted, as readers first see it.
+
+[GTI.i_view_state()](GTI.i_view_state.md#great_tables.GTI.i_view_state)  
+Keep the reader's view of the table, for when the page is opened again, and let them undo
+
+[GTI.i_export()](GTI.i_export.md#great_tables.GTI.i_export)  
+Let readers export the table's rows.
+
+[GTI.i_inspect()](GTI.i_inspect.md#great_tables.GTI.i_inspect)  
+Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where
+
+## Interactive columns and exploration
+
+The `i_cols_*()` methods set up the table's columns for readers: their filters, their controls, which are pinned and which give way on a narrow screen, and small plots of their values under their labels. Rows can have details that readers open, and tables can be linked, so that the rows selected in one filter another.
+
+[GTI.i_cols_filter()](GTI.i_cols_filter.md#great_tables.GTI.i_cols_filter)  
+Let readers filter the table by its columns.
+
+[GTI.i_cols_controls()](GTI.i_cols_controls.md#great_tables.GTI.i_cols_controls)  
+Choose which columns readers can sort by, search, resize, hide, move, and group the rows by,
+
+[GTI.i_cols_pin()](GTI.i_cols_pin.md#great_tables.GTI.i_cols_pin)  
+Pin columns to a side of the table, so they stay in view as it scrolls sideways.
+
+[GTI.i_cols_priority()](GTI.i_cols_priority.md#great_tables.GTI.i_cols_priority)  
+Give columns a priority, for when the table drops columns to fit its container.
+
+[GTI.i_cols_profile()](GTI.i_cols_profile.md#great_tables.GTI.i_cols_profile)  
+Show how the columns' values are spread, in a small plot under their labels.
+
+[GTI.i_row_details()](GTI.i_row_details.md#great_tables.GTI.i_row_details)  
+Let readers show more about each row, under it.
+
+[GTI.i_link()](GTI.i_link.md#great_tables.GTI.i_link)  
+Link the table to others on the page, so that the rows selected in one filter the others.
+
+## Interactive tables in Python and apps
+
+An interactive table's view (its search, filters and sort) and selection can be read and set from Python: in a notebook, with the table as a widget, and in Shiny, Streamlit, Panel and Solara apps. A table with many rows can keep them in Python and send the browser a page at a time. Pages an app makes itself (with Flask, Django or FastHTML) can show the tables, with their runtime once.
+
+[GTI.i_as_widget()](GTI.i_as_widget.md#great_tables.GTI.i_as_widget)  
+Show the table as a widget, whose view and selection can be read and set from Python.
+
+[GTI.i_scale()](GTI.i_scale.md#great_tables.GTI.i_scale)  
+Set where the rows of the table, shown as a widget or in a Shiny app, are searched,
+
+[shiny.render_gt()](shiny.render_gt.md#great_tables.shiny.render_gt)  
+Render a great_tables table.
+
+[shiny.output_gt()](shiny.output_gt.md#great_tables.shiny.output_gt)  
+Output UI for a great_tables table.
+
+[shiny.update_gti()](shiny.update_gti.md#great_tables.shiny.update_gti)  
+Change an interactive table's view or selection, from a Shiny app's server.
+
+[streamlit.st_gti()](streamlit.st_gti.md#great_tables.streamlit.st_gti)  
+Show an interactive table in a Streamlit app, and get its state.
+
+[streamlit.update_gti()](streamlit.update_gti.md#great_tables.streamlit.update_gti)  
+Change an interactive table's view or selection, from a Streamlit app.
+
+[streamlit.GTIState](streamlit.GTIState.md#great_tables.streamlit.GTIState)  
+An interactive table's state in a Streamlit app, as [`st_gti()`](../reference/streamlit.st_gti.md#great_tables.streamlit.st_gti)
+
+[panel.GTIPane](panel.GTIPane.md#great_tables.panel.GTIPane)  
+An interactive table in a Panel app or notebook, whose view and selection are parameters.
+
+[solara.GTITable()](solara.GTITable.md#great_tables.solara.GTITable)  
+An interactive table in a Solara app, whose view and selection are the app's to read and set.
+
+[web.runtime_tags()](web.runtime_tags.md#great_tables.web.runtime_tags)  
+The tags that give a page the runtime its interactive tables need.
+
+[web.write_runtime()](web.write_runtime.md#great_tables.web.write_runtime)  
+Write the runtime's files, for an app to serve.
 
 ## Export
 

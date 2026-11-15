@@ -36,7 +36,7 @@ Great Tables `v1.1.0` is quite a hefty release, and it's centered on richer colo
 
 #### Deprecations
 
-- The `placeholder=` parameter of `output_gt()` is deprecated. ([\#909](https://github.com/posit-dev/great-tables/issues/909))
+- The `placeholder=` parameter of [output_gt()](./reference/shiny.output_gt.md#great_tables.shiny.output_gt) is deprecated. ([\#909](https://github.com/posit-dev/great-tables/issues/909))
 - The `islands` and `airquality` datasets are deprecated and now emit a `FutureWarning`. They will be removed in a future release. ([\#939](https://github.com/posit-dev/great-tables/issues/939))
 
 #### Bug Fixes
@@ -116,7 +116,7 @@ Great Tables `v1.0.0` is here. This milestone release introduces these powerful 
 - **`fmt_index()`** -- Convert numeric values to alphabetical index characters (1 → "A", 2 → "B") with `"repeat"` and `"excel"` modes for values beyond the alphabet. ([\#888](https://github.com/posit-dev/great-tables/issues/888))
 - **`fmt_url()` and `fmt_email()`** -- Transform URLs and email addresses into clickable links with options for custom labels, button styling, and configurable colors. ([\#891](https://github.com/posit-dev/great-tables/issues/891))
 - **[tab_style_body()](./reference/GT.tab_style_body.md#great_tables.GT.tab_style_body)** -- Apply styles to body cells based on their data values using exact matches, regex patterns, or predicate functions, with optional expansion to entire rows or columns. ([\#883](https://github.com/posit-dev/great-tables/issues/883))
-- **Footnote specs and ordering** -- New [opt_footnote_spec()](./reference/GT.opt_footnote_spec.md#great_tables.GT.opt_footnote_spec) controls how footnote marks are styled using a compact DSL, and `opt_footnote_order()` controls the arrangement of marked vs. unmarked footnotes in the footer. ([\#884](https://github.com/posit-dev/great-tables/issues/884))
+- **Footnote specs and ordering** -- New [opt_footnote_spec()](./reference/GT.opt_footnote_spec.md#great_tables.GT.opt_footnote_spec) controls how footnote marks are styled using a compact DSL, and [opt_footnote_order()](./reference/GT.opt_footnote_order.md#great_tables.GT.opt_footnote_order) controls the arrangement of marked vs. unmarked footnotes in the footer. ([\#884](https://github.com/posit-dev/great-tables/issues/884))
 - **[load_dataset()](./reference/load_dataset.md#great_tables.load_dataset)** -- Load any of Great Tables' bundled datasets as a Pandas or Polars DataFrame through a single, consistent entry point. ([\#858](https://github.com/posit-dev/great-tables/issues/858))
 
 #### Bug Fixes
@@ -148,11 +148,11 @@ Great Tables `v1.0.0` is here. This milestone release introduces these powerful 
 
 *2026-08-24* · [GitHub](https://github.com/posit-dev/great-tables/releases/tag/v0.24.0)
 
-Great Tables `v0.24.0` introduces interactive tables, letting users sort, search, filter, and paginate directly in the browser. A single call to `opt_interactive()` transforms any GT table into a client-side interactive widget while preserving all existing formatting and styling.
+Great Tables `v0.24.0` introduces interactive tables, letting users sort, search, filter, and paginate directly in the browser. A single call to [opt_interactive()](./reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) transforms any GT table into a client-side interactive widget while preserving all existing formatting and styling.
 
 #### New Features
 
-- **Interactive tables** -- The new `opt_interactive()` method enables column sorting, global search, per-column filters, pagination, row highlighting, etc. Works well with Jupyter, Quarto, and Shiny. ([\#856](https://github.com/posit-dev/great-tables/issues/856))
+- **Interactive tables** -- The new [opt_interactive()](./reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) method enables column sorting, global search, per-column filters, pagination, row highlighting, etc. Works well with Jupyter, Quarto, and Shiny. ([\#856](https://github.com/posit-dev/great-tables/issues/856))
 
 #### Bug Fixes
 
@@ -1018,7 +1018,7 @@ This release adds Shiny integration for Great Tables, enabling interactive table
 
 #### New Features
 
-- **Shiny support** -- A new `great_tables.shiny` module provides `output_gt()` and `render_gt()` for rendering GT tables in Shiny for Python apps. ([\#59](https://github.com/posit-dev/great-tables/issues/59))
+- **Shiny support** -- A new `great_tables.shiny` module provides [output_gt()](./reference/shiny.output_gt.md#great_tables.shiny.output_gt) and [render_gt()](./reference/shiny.render_gt.md#great_tables.shiny.render_gt) for rendering GT tables in Shiny for Python apps. ([\#59](https://github.com/posit-dev/great-tables/issues/59))
 
 #### Enhancements
 
@@ -1036,7 +1036,7 @@ Great Tables v0.1.1 is a maintenance release with bug fixes, improved test cover
 
 #### Enhancements
 
-- Datasets (except [exibble](./reference/data.exibble.md#great_tables.data.exibble)) are no longer exported from the top-level module; a `data` submodule is now the access point for all built-in datasets. ([\#57](https://github.com/posit-dev/great-tables/issues/57))
+- Datasets (except [exibble](./reference/data.exibble.md#great_tables.data.exibble)) are no longer exported from the top-level module; a [data](./reference/panel.GTIPane.md#great_tables.panel.GTIPane.data) submodule is now the access point for all built-in datasets. ([\#57](https://github.com/posit-dev/great-tables/issues/57))
 
 #### Bug Fixes
 

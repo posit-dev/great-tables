@@ -8,14 +8,14 @@ Interactive tables are ideal for exploratory contexts where the reader needs to 
 
 There are two ways to make an interactive table, and they render it with the same engine.
 
-- **`opt_interactive()`** makes a published table browsable. It's one method, added at the end of a [GT](../reference/GT.md#great_tables.GT) table's method chain, with options for sorting, searching, filtering, paging, and a few things about how the table looks. These options are the same as those of R gt's `opt_interactive()`.
-- **`GTI`** makes the table an interface, one that readers work with. A `GTI` table is made just like a [GT](../reference/GT.md#great_tables.GT) table, and its `i_` methods set what readers can do with it, column by column: which filters they get, which columns they can hide, move, or pin, how they can export the rows, how the table is first shown, and whether their view is kept for the next visit. A control bar below the table brings these together. `GTI.from_gt()` turns a [GT](../reference/GT.md#great_tables.GT) table into a `GTI` one. [GTI Tables](gti-tables.md) is about them.
+- **[opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)** makes a published table browsable. It's one method, added at the end of a [GT](../reference/GT.md#great_tables.GT) table's method chain, with options for sorting, searching, filtering, paging, and a few things about how the table looks. These options are the same as those of R gt's [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive).
+- **[GTI](../reference/GTI.md#great_tables.GTI)** makes the table an interface, one that readers work with. A [GTI](../reference/GTI.md#great_tables.GTI) table is made just like a [GT](../reference/GT.md#great_tables.GT) table, and its `i_` methods set what readers can do with it, column by column: which filters they get, which columns they can hide, move, or pin, how they can export the rows, how the table is first shown, and whether their view is kept for the next visit. A control bar below the table brings these together. [GTI.from_gt()](../reference/GTI.from_gt.md#great_tables.GTI.from_gt) turns a [GT](../reference/GT.md#great_tables.GT) table into a [GTI](../reference/GTI.md#great_tables.GTI) one. [GTI Tables](gti-tables.md) is about them.
 
-If you're publishing a table and want readers to be able to sort, search and page through it, `opt_interactive()` is all you need. If the table is a focal point of the page (a lookup tool, a dashboard, a view of the data that readers come back to, etc.), it's probably better to use `GTI`.
+If you're publishing a table and want readers to be able to sort, search and page through it, [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) is all you need. If the table is a focal point of the page (a lookup tool, a dashboard, a view of the data that readers come back to, etc.), it's probably better to use [GTI](../reference/GTI.md#great_tables.GTI).
 
 ## Enabling interactivity
 
-A single call to `opt_interactive()` switches the table from static to interactive. The formatting methods continue to work exactly as before.
+A single call to [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) switches the table from static to interactive. The formatting methods continue to work exactly as before.
 
 ``` python
 from great_tables import GT
@@ -513,7 +513,7 @@ The [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) met
 | Rolls-Royce           | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
 | Rolls-Royce           | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
 
-Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A `GTI` table can color them again from the rows a filter keeps instead: see [Colors from the rows kept](22-gti-tables.md#colors-from-the-rows-kept).)
+Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A [GTI](../reference/GTI.md#great_tables.GTI) table can color them again from the rows a filter keeps instead: see [Colors from the rows kept](22-gti-tables.md#colors-from-the-rows-kept).)
 
 ### Multiple columns, shared scale
 
@@ -590,6 +590,6 @@ Pass `domain=` to lock the color range across columns so they share a common sca
 | Rolls-Royce | Dawn | 2016 | 563 | 575 | \$335,000.00 |
 | Rolls-Royce | Wraith | 2016 | 624 | 590 | \$304,350.00 |
 
-## Going further with `GTI`
+## Going further with [GTI](../reference/GTI.md#great_tables.GTI)
 
-When readers need more than `opt_interactive()` gives them, make the table a `GTI` table: its filters, column profiles, grouping, linked tables and the explorer preset are in [GTI Tables](gti-tables.md). Reading and setting an interactive table's view from Python (in a notebook, in marimo, or in a Shiny, Streamlit, Panel or Solara app, which take `opt_interactive()` tables too) is in [GTI in Python and Apps](gti-in-python-and-apps.md), as is showing tables in pages an app makes itself, with Flask, Django or FastHTML.
+When readers need more than [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) gives them, make the table a [GTI](../reference/GTI.md#great_tables.GTI) table: its filters, column profiles, grouping, linked tables and the explorer preset are in [GTI Tables](gti-tables.md). Reading and setting an interactive table's view from Python (in a notebook, in marimo, or in a Shiny, Streamlit, Panel or Solara app, which take [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) tables too) is in [GTI in Python and Apps](gti-in-python-and-apps.md), as is showing tables in pages an app makes itself, with Flask, Django or FastHTML.

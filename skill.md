@@ -37,6 +37,7 @@ A table can contain a few useful components for conveying additional information
 - `GT.tab_stub`
 - `GT.tab_stubhead`
 - `GT.tab_stub_indent`
+- `GT.row_group_order`
 - `GT.tab_footnote`
 - `GT.tab_source_note`
 - `GT.rm_header`
@@ -179,6 +180,7 @@ With the `opt_*()` functions, we have an easy way to set commonly-used table opt
 - `GT.opt_stylize`
 - `GT.opt_footnote_marks`
 - `GT.opt_footnote_spec`
+- `GT.opt_footnote_order`
 - `GT.opt_row_striping`
 - `GT.opt_align_table_header`
 - `GT.opt_vertical_padding`
@@ -187,6 +189,64 @@ With the `opt_*()` functions, we have an easy way to set commonly-used table opt
 - `GT.opt_table_outline`
 - `GT.opt_table_font`
 - `GT.opt_css`
+
+### Interactive tables
+
+An interactive table is one readers can sort, search, filter and page through in the browser. [`opt_interactive()`](`great_tables.GT.opt_interactive`) makes a `GT` table browsable, with the options R gt has for that. A `GTI` table is a `GT` table (all of the methods above can be used to make it) that is an interface readers work with, set up with the `i_*()` methods that only `GTI` tables have. `GTI` is experimental.
+
+
+- `GTI`: Create an interactive **Great Tables** object
+- `GTI.from_gt`
+- `GT.opt_interactive`
+
+### Interactive table controls
+
+These `GTI` methods set what readers can do with the table and how it's laid out: sorting, searching, resizing, paging and selecting, how its rows look and scroll, how it fits a narrow screen, the view it starts with and keeps, exporting it, and showing what's in the data.
+
+
+- `GTI.i_sorting`
+- `GTI.i_search`
+- `GTI.i_resizing`
+- `GTI.i_pagination`
+- `GTI.i_selection`
+- `GTI.i_display`
+- `GTI.i_scroll`
+- `GTI.i_responsive`
+- `GTI.i_view`
+- `GTI.i_view_state`
+- `GTI.i_export`
+- `GTI.i_inspect`
+
+### Interactive columns and exploration
+
+The `i_cols_*()` methods set up the table's columns for readers: their filters, their controls, which are pinned and which give way on a narrow screen, and small plots of their values under their labels. Rows can have details that readers open, and tables can be linked, so that the rows selected in one filter another.
+
+
+- `GTI.i_cols_filter`
+- `GTI.i_cols_controls`
+- `GTI.i_cols_pin`
+- `GTI.i_cols_priority`
+- `GTI.i_cols_profile`
+- `GTI.i_row_details`
+- `GTI.i_link`
+
+### Interactive tables in Python and apps
+
+An interactive table's view (its search, filters and sort) and selection can be read and set from Python: in a notebook, with the table as a widget, and in Shiny, Streamlit, Panel and Solara apps. A table with many rows can keep them in Python and send the browser a page at a time. Pages an app makes itself (with Flask, Django or FastHTML) can show the tables, with their runtime once.
+
+
+- `GTI.i_as_widget`
+- `GTI.i_scale`
+- `shiny.render_gt`
+- `shiny.output_gt`
+- `shiny.update_gti`
+- `streamlit.st_gti`
+- `streamlit.update_gti`
+- `streamlit.GTIState`
+- `panel.GTIPane`
+- `solara.GTITable`
+- `web.runtime_tags`
+- `web.write_runtime`
 
 ### Export
 

@@ -60,7 +60,7 @@ Preheader
 Optional content rendered above the table element itself (before the **header**). Set via `tab_header(preheader=...)`. Accepts raw HTML strings and is useful for adding non-tabular content like badges or links that sit outside the table's visual boundaries.
 
 Row group  
-A categorical label that divides the **body** into logical sections of rows. Row groups appear as spanning labels across the full width of the table. Created by passing `groupname_col=` to [GT()](../reference/GT.md#great_tables.GT) and ordered with `row_group_order()`. Targetable with [loc.row_groups()](../reference/loc.row_groups.md#great_tables.loc.row_groups).
+A categorical label that divides the **body** into logical sections of rows. Row groups appear as spanning labels across the full width of the table. Created by passing `groupname_col=` to [GT()](../reference/GT.md#great_tables.GT) and ordered with [row_group_order()](../reference/GT.row_group_order.md#great_tables.GT.row_group_order). Targetable with [loc.row_groups()](../reference/loc.row_groups.md#great_tables.loc.row_groups).
 
 Row selector  
 An expression passed to a `rows=` parameter to identify which rows an operation should act on. Accepts an integer index, a list of indices, a list of row names (when a **stub** is present), a Polars expression, or a callable. Row selectors are used in methods like [fmt_number()](../reference/GT.fmt_number.md#great_tables.GT.fmt_number), [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style), [cols_merge()](../reference/GT.cols_merge.md#great_tables.GT.cols_merge), and others.

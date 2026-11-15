@@ -192,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <a class="nav-link" href="https://github.com/posit-dev/great-tables"> 
-<span class="menu-text"><span id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2921" data-forks="154"></span></span></a>
+<span class="menu-text"><span id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2922" data-forks="155"></span></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -302,7 +302,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="preparations" class="level2">
 <h2 class="anchored" data-anchor-id="preparations">Preparations</h2>
 <p>For this demonstration, we’ll use the first five rows of the built-in <a href="https://posit-dev.github.io/great-tables/reference/data.metro.html#great_tables.data.metro">metro</a> dataset, specifically the <code>name</code> and <code>lines</code> columns.</p>
-<p>To ensure a smooth walkthrough, we’ll manipulate the <code>data</code> (a Python dictionary) directly. However, in real-world applications, such operations are more likely performed at the DataFrame level to leverage the benefits of vectorized operations.</p>
+<p>To ensure a smooth walkthrough, we’ll manipulate the <a href="../../reference/panel.GTIPane.html#great_tables.panel.GTIPane.data" class="gdls-link gdls-code">data</a> (a Python dictionary) directly. However, in real-world applications, such operations are more likely performed at the DataFrame level to leverage the benefits of vectorized operations.</p>
 <div id="454a3935" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Show the Code</summary>
@@ -1252,7 +1252,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><a href="../../reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">vals.fmt_image()</a> is a hidden gem in Great Tables. Its usage is similar to <a href="../../reference/GT.fmt_image.html#great_tables.GT.fmt_image" class="gdls-link gdls-code">GT.fmt_image()</a>, but instead of working directly with DataFrame columns, it lets you pass a string or a list of strings as the first argument, returning a list of strings, each representing an image. You can then wrap these strings with <a href="https://posit-dev.github.io/great-tables/reference/html.html#great_tables.html">html()</a>, allowing Great Tables to render the images anywhere in the table.</p>
 <section id="preparations-1" class="level2">
 <h2 class="anchored" data-anchor-id="preparations-1">Preparations</h2>
-<p>We will create a <code>Pandas</code> DataFrame named <code>metro_mini</code> using the <code>data</code> dictionary. This will be used for demonstration in the following examples:</p>
+<p>We will create a <code>Pandas</code> DataFrame named <code>metro_mini</code> using the <a href="../../reference/panel.GTIPane.html#great_tables.panel.GTIPane.data" class="gdls-link gdls-code">data</a> dictionary. This will be used for demonstration in the following examples:</p>
 <div id="37dc9c33" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Show the Code</summary>

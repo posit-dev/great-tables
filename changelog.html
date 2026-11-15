@@ -152,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <a class="nav-link" href="https://github.com/posit-dev/great-tables"> 
-<span class="menu-text"><span id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2921" data-forks="154"></span></span></a>
+<span class="menu-text"><span id="github-widget" data-owner="posit-dev" data-repo="great-tables" data-stars="2922" data-forks="155"></span></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -274,7 +274,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="deprecations" class="level3">
 <h3 class="anchored" data-anchor-id="deprecations">Deprecations</h3>
 <ul>
-<li>The <code>placeholder=</code> parameter of <code>output_gt()</code> is deprecated. (<a href="https://github.com/posit-dev/great-tables/issues/909">#909</a>)</li>
+<li>The <code>placeholder=</code> parameter of <a href="./reference/shiny.output_gt.html#great_tables.shiny.output_gt" class="gdls-link gdls-code">output_gt()</a> is deprecated. (<a href="https://github.com/posit-dev/great-tables/issues/909">#909</a>)</li>
 <li>The <code>islands</code> and <code>airquality</code> datasets are deprecated and now emit a <code>FutureWarning</code>. They will be removed in a future release. (<a href="https://github.com/posit-dev/great-tables/issues/939">#939</a>)</li>
 </ul>
 </section>
@@ -363,7 +363,7 @@ ul.task-list li input[type="checkbox"] {
 <li><strong><code>fmt_index()</code></strong> — Convert numeric values to alphabetical index characters (1 → “A”, 2 → “B”) with <code>"repeat"</code> and <code>"excel"</code> modes for values beyond the alphabet. (<a href="https://github.com/posit-dev/great-tables/issues/888">#888</a>)</li>
 <li><strong><code>fmt_url()</code> and <code>fmt_email()</code></strong> — Transform URLs and email addresses into clickable links with options for custom labels, button styling, and configurable colors. (<a href="https://github.com/posit-dev/great-tables/issues/891">#891</a>)</li>
 <li><strong><a href="./reference/GT.tab_style_body.html#great_tables.GT.tab_style_body" class="gdls-link gdls-code">tab_style_body()</a></strong> — Apply styles to body cells based on their data values using exact matches, regex patterns, or predicate functions, with optional expansion to entire rows or columns. (<a href="https://github.com/posit-dev/great-tables/issues/883">#883</a>)</li>
-<li><strong>Footnote specs and ordering</strong> — New <a href="./reference/GT.opt_footnote_spec.html#great_tables.GT.opt_footnote_spec" class="gdls-link gdls-code">opt_footnote_spec()</a> controls how footnote marks are styled using a compact DSL, and <code>opt_footnote_order()</code> controls the arrangement of marked vs.&nbsp;unmarked footnotes in the footer. (<a href="https://github.com/posit-dev/great-tables/issues/884">#884</a>)</li>
+<li><strong>Footnote specs and ordering</strong> — New <a href="./reference/GT.opt_footnote_spec.html#great_tables.GT.opt_footnote_spec" class="gdls-link gdls-code">opt_footnote_spec()</a> controls how footnote marks are styled using a compact DSL, and <a href="./reference/GT.opt_footnote_order.html#great_tables.GT.opt_footnote_order" class="gdls-link gdls-code">opt_footnote_order()</a> controls the arrangement of marked vs.&nbsp;unmarked footnotes in the footer. (<a href="https://github.com/posit-dev/great-tables/issues/884">#884</a>)</li>
 <li><strong><a href="./reference/load_dataset.html#great_tables.load_dataset" class="gdls-link gdls-code">load_dataset()</a></strong> — Load any of Great Tables’ bundled datasets as a Pandas or Polars DataFrame through a single, consistent entry point. (<a href="https://github.com/posit-dev/great-tables/issues/858">#858</a>)</li>
 </ul>
 </section>
@@ -402,11 +402,11 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.24.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.24.0</h1>
 <p><em>2026-08-24</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.24.0">GitHub</a></p>
-<p>Great Tables <code>v0.24.0</code> introduces interactive tables, letting users sort, search, filter, and paginate directly in the browser. A single call to <code>opt_interactive()</code> transforms any GT table into a client-side interactive widget while preserving all existing formatting and styling.</p>
+<p>Great Tables <code>v0.24.0</code> introduces interactive tables, letting users sort, search, filter, and paginate directly in the browser. A single call to <a href="./reference/GT.opt_interactive.html#great_tables.GT.opt_interactive" class="gdls-link gdls-code">opt_interactive()</a> transforms any GT table into a client-side interactive widget while preserving all existing formatting and styling.</p>
 <section id="new-features-2" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-2">New Features</h3>
 <ul>
-<li><strong>Interactive tables</strong> — The new <code>opt_interactive()</code> method enables column sorting, global search, per-column filters, pagination, row highlighting, etc. Works well with Jupyter, Quarto, and Shiny. (<a href="https://github.com/posit-dev/great-tables/issues/856">#856</a>)</li>
+<li><strong>Interactive tables</strong> — The new <a href="./reference/GT.opt_interactive.html#great_tables.GT.opt_interactive" class="gdls-link gdls-code">opt_interactive()</a> method enables column sorting, global search, per-column filters, pagination, row highlighting, etc. Works well with Jupyter, Quarto, and Shiny. (<a href="https://github.com/posit-dev/great-tables/issues/856">#856</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-2" class="level3">
@@ -1472,7 +1472,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="new-features-27" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-27">New Features</h3>
 <ul>
-<li><strong>Shiny support</strong> — A new <code>great_tables.shiny</code> module provides <code>output_gt()</code> and <code>render_gt()</code> for rendering GT tables in Shiny for Python apps. (<a href="https://github.com/posit-dev/great-tables/issues/59">#59</a>)</li>
+<li><strong>Shiny support</strong> — A new <code>great_tables.shiny</code> module provides <a href="./reference/shiny.output_gt.html#great_tables.shiny.output_gt" class="gdls-link gdls-code">output_gt()</a> and <a href="./reference/shiny.render_gt.html#great_tables.shiny.render_gt" class="gdls-link gdls-code">render_gt()</a> for rendering GT tables in Shiny for Python apps. (<a href="https://github.com/posit-dev/great-tables/issues/59">#59</a>)</li>
 </ul>
 </section>
 <section id="enhancements-10" class="level3">
@@ -1495,7 +1495,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="enhancements-11" class="level3">
 <h3 class="anchored" data-anchor-id="enhancements-11">Enhancements</h3>
 <ul>
-<li>Datasets (except <a href="./reference/data.exibble.html#great_tables.data.exibble" class="gdls-link gdls-code">exibble</a>) are no longer exported from the top-level module; a <code>data</code> submodule is now the access point for all built-in datasets. (<a href="https://github.com/posit-dev/great-tables/issues/57">#57</a>)</li>
+<li>Datasets (except <a href="./reference/data.exibble.html#great_tables.data.exibble" class="gdls-link gdls-code">exibble</a>) are no longer exported from the top-level module; a <a href="./reference/panel.GTIPane.html#great_tables.panel.GTIPane.data" class="gdls-link gdls-code">data</a> submodule is now the access point for all built-in datasets. (<a href="https://github.com/posit-dev/great-tables/issues/57">#57</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-28" class="level3">

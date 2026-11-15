@@ -25,7 +25,7 @@ Rendering images in Great Tables is straightforward with [GT.fmt_image()](../../
 
 For this demonstration, we'll use the first five rows of the built-in [metro](https://posit-dev.github.io/great-tables/reference/data.metro.html#great_tables.data.metro) dataset, specifically the `name` and `lines` columns.
 
-To ensure a smooth walkthrough, we'll manipulate the `data` (a Python dictionary) directly. However, in real-world applications, such operations are more likely performed at the DataFrame level to leverage the benefits of vectorized operations.
+To ensure a smooth walkthrough, we'll manipulate the [data](../../reference/panel.GTIPane.md#great_tables.panel.GTIPane.data) (a Python dictionary) directly. However, in real-world applications, such operations are more likely performed at the DataFrame level to leverage the benefits of vectorized operations.
 
 ``` python
 import pandas as pd
@@ -318,7 +318,7 @@ While [GT.fmt_image()](../../reference/GT.fmt_image.md#great_tables.GT.fmt_image
 
 ### Preparations
 
-We will create a `Pandas` DataFrame named `metro_mini` using the `data` dictionary. This will be used for demonstration in the following examples:
+We will create a `Pandas` DataFrame named `metro_mini` using the [data](../../reference/panel.GTIPane.md#great_tables.panel.GTIPane.data) dictionary. This will be used for demonstration in the following examples:
 
 ``` python
 metro_mini = pd.DataFrame(data)
