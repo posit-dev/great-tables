@@ -47,11 +47,10 @@ def pipe(self: GT, func: Callable[Concatenate[GT, P], GT], *args: P.args, **kwar
 
     ```{python}
     import polars as pl
-    from great_tables import GT, loc, style
-    from great_tables.data import towny
+    from great_tables import GT, data, loc, style
 
 
-    towny_mini = pl.from_pandas(towny).head(10)
+    towny_mini = data.pl.towny.head(10)
 
     (
         GT(
