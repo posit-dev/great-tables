@@ -25,7 +25,7 @@ jobs:
           uv pip install \
             "great-docs[svg] @ git+https://github.com/posit-dev/great-docs.git@main" \
             polars pandas numpy pyarrow plotnine gt-extras pointblank "ibis-framework[duckdb]" \
-            ".[extra]"
+            ".[extra,widget,streamlit,panel,solara]" shiny
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
       - name: Build docs
