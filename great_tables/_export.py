@@ -198,12 +198,12 @@ def as_raw_html(
     Let's use a subset of the `gtcars` dataset to create a new table.
 
     ```{python}
-    from great_tables import GT, md, style, loc
+    from great_tables import GT, data, md, style, loc
     from great_tables.data import gtcars
     import polars as pl
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select(["mfr", "model", "msrp"])
         .head(5)
     )
@@ -366,12 +366,12 @@ def as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) 
     Let's use a subset of the `gtcars` dataset to create a new table.
 
     ```{python}
-    from great_tables import GT
+    from great_tables import GT, data
     from great_tables.data import gtcars
     import polars as pl
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select(["mfr", "model", "msrp"])
         .head(5)
     )
@@ -744,12 +744,12 @@ def gtsave(
     Using a small subset of the `gtcars` dataset, let's create a table and save it to a PNG file.
 
     ```python
-    from great_tables import GT
+    from great_tables import GT, data
     from great_tables.data import gtcars
     import polars as pl
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select(["mfr", "model", "msrp"])
         .head(5)
     )
