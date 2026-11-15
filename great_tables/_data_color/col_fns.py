@@ -14,13 +14,13 @@ from math import isinf, isnan
 from typing import Any
 
 from .base import (
-    _html_color,
     _midpoint_stops,
     _rescale_stops,
     _resolve_palette,
     _validate_midpoint,
 )
 from .palettes import GradientPalette
+from .utils import _html_color
 
 ColorFn = Callable[[list[Any]], "list[str | None]"]
 
