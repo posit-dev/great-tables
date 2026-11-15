@@ -4,7 +4,7 @@ guide-section: "Reference"
 bread-crumbs: false
 ---
 
-Terms used throughout the Great Tables documentation, listed alphabetically. Where a term
+Terms used throughout the **Great Tables** documentation, listed alphabetically. Where a term
 has a direct counterpart in the API, the relevant class, method, or module is noted.
 
 Body
@@ -72,8 +72,8 @@ Grand summary rows
   **footer**). Targetable with `loc.grand_summary()`.
 
 GT object
-: The central object in Great Tables, created by passing a Pandas or Polars DataFrame to
-  `GT()`. All table-building operations are methods on this object and return a modified copy,
+: The central object in **Great Tables**, created by passing a Polars, Pandas, or PyArrow table
+  to `GT()`. All table-building operations are methods on this object and return a modified copy,
   enabling method chaining. Optional constructor arguments include `rowname_col` (to create a
   **stub**), `groupname_col` (to create **row groups**), `locale`, and `id`.
 
@@ -109,8 +109,8 @@ Merged columns
 
 Nanoplot
 : A tiny inline visualization embedded directly in a table **cell** via `fmt_nanoplot()`.
-  Supports `"line"` and `"bar"` plot types, with optional reference lines, reference areas,
-  and automatic y-axis scaling across rows. Appearance is customized through
+  Supports `"line"`, `"bar"`, and `"boxplot"` plot types, with optional reference lines,
+  reference areas, and automatic y-axis scaling across rows. Appearance is customized through
   `nanoplot_options()`.
 
 Preheader
@@ -144,9 +144,9 @@ Spanner label
 Stub
 : A reserved leftmost column of the table that holds row labels, visually set apart from the
   **body** by a vertical dividing line. Created by passing `rowname_col=` to `GT()`. The stub
-  provides a way to name rows and is required for features like **row groups** and row-based
-  selection by name. Targetable with `loc.stub()`. The `stub` sentinel object (importable
-  from `great_tables`) can be used in `cols_width()` to set the stub column's width.
+  provides a way to name rows and is required for row-based selection by name. Targetable with
+  `loc.stub()`. The `stub` sentinel object (importable from `great_tables`) can be used in
+  `cols_width()` to set the stub column's width.
 
 Stubhead
 : The cell at the top-left corner of the table, at the intersection of the **stub** and the
@@ -172,8 +172,8 @@ Summary rows
   `side=` parameter. Targetable with `loc.summary()`.
 
 Table theme
-: A coordinated set of visual options that control the overall appearance of the table. Great
-  Tables provides 36 premade themes via `opt_stylize()`, combining 6 visual styles with 6
+: A coordinated set of visual options that control the overall appearance of the table.
+  **Great Tables** provides 36 premade themes via `opt_stylize()`, combining 6 visual styles with 6
   color palettes. Fine-grained control over every aspect of the table's appearance is available
   through `tab_options()`.
 

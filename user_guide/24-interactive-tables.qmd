@@ -32,7 +32,7 @@ There are two ways to make an interactive table, and they render it with the sam
   filters they get, which columns they can hide, move, or pin, how they can export the rows, how
   the table is first shown, and whether their view is kept for the next visit. A control bar below
   the table brings these together. `GTI.from_gt()` turns a `GT` table into a `GTI` one.
-  [GTI Tables](22-gti-tables.qmd) is about them.
+  [GTI Tables](25-gti-tables.qmd) is about them.
 
 If you're publishing a table and want readers to be able to sort, search and page through it,
 `opt_interactive()` is all you need. If the table is a focal point of the page (a lookup tool, a
@@ -217,7 +217,7 @@ each cell based on the underlying value, and the colors follow the data when you
 Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are
 computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A `GTI` table
 can color them again from the rows a filter keeps instead: see
-[Colors from the rows kept](22-gti-tables.qmd#colors-from-the-rows-kept).)
+[Colors from the rows kept](25-gti-tables.qmd#colors-from-the-rows-kept).)
 
 ### Multiple columns, shared scale
 
@@ -246,7 +246,7 @@ Pass `domain=` to lock the color range across columns so they share a common sca
 
 When readers need more than `opt_interactive()` gives them, make the table a `GTI` table: its
 filters, column profiles, grouping, linked tables and the explorer preset are in
-[GTI Tables](22-gti-tables.qmd). Reading and setting an interactive table's view from Python (in a
+[GTI Tables](25-gti-tables.qmd). Reading and setting an interactive table's view from Python (in a
 notebook, in marimo, or in a Shiny, Streamlit, Panel or Solara app, which take `opt_interactive()`
-tables too) is in [GTI in Python and Apps](23-gti-in-python-and-apps.qmd), as is showing tables in
+tables too) is in [GTI in Python and Apps](26-gti-in-python-and-apps.qmd), as is showing tables in
 pages an app makes itself, with Flask, Django or FastHTML.
