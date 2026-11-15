@@ -143,6 +143,7 @@ def as_raw_html(
     inline_css: bool = False,
     make_page: bool = False,
     all_important: bool = False,
+    runtime: Literal["inline", "none"] = "inline",
 ) -> str:
     """
     Get the HTML content of a GT object.
@@ -178,6 +179,13 @@ def as_raw_html(
     all_important
         If `True`, all CSS declarations are marked with `!important` to ensure they take precedence
         over other styles that might be present in the document.
+    runtime
+        Whether an interactive table's HTML (a table made with
+        [`opt_interactive()`](`great_tables.GT.opt_interactive`)) is followed by the runtime that
+        makes it interactive, its JavaScript and CSS: `"inline"` (the default) or `"none"`, for a
+        page that has the runtime once, however many tables it shows (see
+        [`runtime_tags()`](`great_tables.web.runtime_tags`)). A static table has no runtime, so
+        this doesn't change it.
 
     Returns
     -------
@@ -245,12 +253,15 @@ def as_raw_html(
     ```
     """
 
+    if runtime not in ("inline", "none"):
+        raise ValueError(f'`runtime=` must be "inline" or "none", not {runtime!r}.')
+
     # An interactive table (from `opt_interactive()`) is a `<gt-table>` element, whose CSS can't be
     # inlined: `inline_css=` doesn't apply to it
     if self._options.ihtml_active.value:
         from ._gti import page_html, render_gti_html
 
-        fragment = render_gti_html(self, all_important=all_important)
+        fragment = render_gti_html(self, runtime=runtime, all_important=all_important)
         return page_html(fragment) if make_page else fragment
 
     built_table = self._build_data(context="html")
